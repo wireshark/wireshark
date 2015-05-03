@@ -202,7 +202,6 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
 	packet_buf[2] = 0;
 	packet_buf[3] = tag_str_len;
-	i = 4;
 	for (i = 4, j = 0; j < tag_str_len; i++, j++){
 		packet_buf[i] = proto_name_str[j];
 	}
