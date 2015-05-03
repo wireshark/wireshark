@@ -1866,7 +1866,7 @@ void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint de
             itemAction->setData(QVariant::fromValue((void *)item));
             itemAction->setText(item->label);
             connect(itemAction, SIGNAL(triggered()),
-                    this, SLOT(on_actionExternalMenuItem_triggered()));
+                    this, SLOT(externalMenuItem_triggered()));
         }
 
         /* Iterate Loop */

@@ -2901,7 +2901,7 @@ void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
 }
 #endif
 
-void MainWindow::on_actionExternalMenuItem_triggered()
+void MainWindow::externalMenuItem_triggered()
 {
     QAction * triggerAction = NULL;
     QVariant v;

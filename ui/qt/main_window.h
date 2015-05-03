@@ -457,7 +457,7 @@ private slots:
 
     void on_actionATT_Server_Attributes_triggered();
 
-    void on_actionExternalMenuItem_triggered();
+    void externalMenuItem_triggered();
 
     void changeEvent(QEvent* event);
 };
