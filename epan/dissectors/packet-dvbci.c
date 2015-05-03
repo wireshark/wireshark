@@ -934,6 +934,7 @@ static int hf_dvbci_es_info_len = -1;
 static int hf_dvbci_ca_pmt_cmd_id = -1;
 static int hf_dvbci_descr_len = -1;
 static int hf_dvbci_ca_pid = -1;
+static int hf_dvbci_ca_priv_data = -1;
 static int hf_dvbci_ca_enable_flag = -1;
 static int hf_dvbci_ca_enable = -1;
 static int hf_dvbci_auth_proto_id = -1;
@@ -979,7 +980,10 @@ static int hf_dvbci_cup_answer = -1;
 static int hf_dvbci_cup_progress = -1;
 static int hf_dvbci_cup_reset = -1;
 static int hf_dvbci_cc_sys_id_bitmask = -1;
+static int hf_dvbci_cc_snd_dat_nbr = -1;
+static int hf_dvbci_cc_req_dat_nbr = -1;
 static int hf_dvbci_cc_dat_id = -1;
+static int hf_dvbci_cc_dat_len = -1;
 static int hf_dvbci_brand_cert = -1;
 static int hf_dvbci_dev_cert = -1;
 static int hf_dvbci_uri_ver = -1;
@@ -2063,7 +2067,8 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     dat_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_text(cc_item_tree, tvb, offset, 2, "Length: %d", dat_len);
+    proto_tree_add_item(cc_item_tree, hf_dvbci_cc_dat_len,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     switch (dat_id) {
         case CC_ID_HOST_BRAND_CERT:
@@ -2285,8 +2290,8 @@ dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
             tree, hf_dvbci_cc_sys_id_bitmask, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     snd_dat_nbr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 1,
-            "Number of sent data items: %d", snd_dat_nbr);
+    proto_tree_add_item(
+            tree, hf_dvbci_cc_snd_dat_nbr, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     for(i=0; i<snd_dat_nbr &&
             tvb_reported_length_remaining(tvb, offset)>0; i++) {
@@ -2306,8 +2311,8 @@ dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
 
     if (tag==T_CC_DATA_REQ || tag==T_CC_SAC_DATA_REQ) {
         req_dat_nbr = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, 1,
-                "Number of requested data items: %d", req_dat_nbr);
+        proto_tree_add_item(
+                tree, hf_dvbci_cc_req_dat_nbr, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         for(i=0; i<req_dat_nbr &&
                 tvb_reported_length_remaining(tvb, offset)>0; i++) {
@@ -2522,8 +2527,8 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 2;
 
     if ((len_byte-4) != 0) {
-        proto_tree_add_text(
-                ca_desc_tree, tvb, offset, len_byte-4, "private data");
+        proto_tree_add_item(ca_desc_tree, hf_dvbci_ca_priv_data,
+                tvb, offset, len_byte-4, ENC_NA);
         offset += (len_byte-4);
     }
 
@@ -5494,6 +5499,10 @@ proto_register_dvbci(void)
           { "CA PID", "dvb-ci.ca.ca_pid",
             FT_UINT16, BASE_HEX, NULL, 0x1FFF, NULL, HFILL }
         },
+        { &hf_dvbci_ca_priv_data,
+          { "Private data", "dvb-ci.ca.private_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_ca_enable_flag,
           { "CA enable flag", "dvb-ci.ca.ca_enable_flag",
             FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }
@@ -5677,9 +5686,21 @@ proto_register_dvbci(void)
           { "CC system id bitmask", "dvb-ci.cc.sys_id_bitmask",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_dvbci_cc_snd_dat_nbr,
+          { "Number of sent data items", "dvb-ci.cc.snd_dat_nbr",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cc_req_dat_nbr,
+          { "Number of requested data items", "dvb-ci.cc.req_dat_nbr",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_cc_dat_id,
           { "CC datatype id", "dvb-ci.cc.datatype_id",
             FT_UINT8, BASE_HEX, VALS(dvbci_cc_dat_id), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cc_dat_len,
+          { "Length", "dvb-ci.cc.datatype_length",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_brand_cert,
           { "Brand certificate", "dvb-ci.cc.brand_cert",
