@@ -136,6 +136,7 @@ static int hf_pim_df_elect_rsvd = -1;
 static int hf_pim_cksum = -1;
 static int hf_pim_res_bytes = -1;
 /* PIM Hello options (RFC 4601, section 4.9.2 and RFC 3973, section 4.7.5) */
+static int hf_pim_option = -1;
 static int hf_pim_optiontype = -1;
 static int hf_pim_optionlength = -1;
 static int hf_pim_optionvalue = -1;
@@ -405,7 +406,9 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset += 3;        /* skip reserved stuff */
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, NULL, "PIM options");
+        proto_item *subitem;
+        subitem = proto_tree_add_item(pim_tree, hf_pim_option, tvb, offset, -1, ENC_NA);
+        pimopt_tree = proto_item_add_subtree(subitem, ett_pim_opts);
     } else
         return offset;
 
@@ -839,7 +842,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
                             offset + 2, 2, pim_cksum);
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
-            pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, &tiopt, "PIM options");
+            proto_tree_add_item(pim_tree, hf_pim_option, tvb, offset, -1, ENC_NA);
         }
         goto done;
     }
@@ -912,7 +915,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 4;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, &tiopt, "PIM options");
+        tiopt = proto_tree_add_item(pim_tree, hf_pim_option, tvb, offset, -1, ENC_NA);
+        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim_opts);
     } else
         goto done;
 
@@ -1426,6 +1430,11 @@ proto_register_pim(void)
             { &hf_pim_res_bytes,
               { "Reserved byte(s)", "pim.res_bytes",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_option,
+              { "PIM Options", "pim.option",
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_pim_optiontype,
