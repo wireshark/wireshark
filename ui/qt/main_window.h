@@ -216,6 +216,8 @@ public slots:
     void filterExpressionsChanged();
 
 private slots:
+    // Manually connected slots (no "on_<object>_<signal>").
+
     // in main_window_slots.cpp
     void startCapture();
     void pipeTimeout();
@@ -255,8 +257,19 @@ private slots:
      */
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
 
-    // We should probably move these to main_window_actions.cpp similar to
+    // Automatically connected slots ("on_<object>_<signal>").
+    //
+    // The slots below follow the naming conventaion described in
+    // http://doc.qt.io/qt-4.8/qmetaobject.html#connectSlotsByName and are
+    // automatically connected at initialization time via main_ui_->setupUi,
+    // which in turn calls connectSlotsByName.
+    //
+    // If you're manually connecting a signal to a slot, don't prefix its name
+    // with "on_". Otherwise you'll get runtime warnings.
+
+    // We might want move these to main_window_actions.cpp similar to
     // gtk/main_menubar.c
+
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
     void on_actionFileImportFromHexDump_triggered();
