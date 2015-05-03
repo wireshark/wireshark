@@ -9040,7 +9040,7 @@ nuxsl            5991/tcp # NUXSL [Kai_Kretschmann] [Kai_Kretschmann] 2002-03
 nuxsl            5991/udp # NUXSL [Kai_Kretschmann] [Kai_Kretschmann] 2002-03
 consul-insight   5992/tcp # Consul InSight Security [Arthur_Hillenaar] [Arthur_Hillenaar] 2006-01
 consul-insight   5992/udp # Consul InSight Security [Arthur_Hillenaar] [Arthur_Hillenaar] 2006-01
-cim-rs           5993/tcp # DMTF WEBM CIM REST [WS_Inc] [Jim_Davis_2] 2015-04-24
+cim-rs           5993/tcp # DMTF WBEM CIM REST [WS_Inc] [Jim_Davis_2] 2015-04-24
 cvsup            5999/tcp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
 cvsup            5999/udp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
 x11             6000-6063/tcp # X Window System [Stephen_Gildea] [Stephen_Gildea] Known Unauthorized Use on port 6003
@@ -9897,6 +9897,7 @@ senomix08        8059/tcp # Senomix Timesheets Client [1 year assignment] [Charl
 senomix08        8059/udp # Senomix Timesheets Client [1 year assignment] [Charles_O_Dale] [Charles_O_Dale] 2006-07
 aero             8060/udp # Asymmetric Extended Route Optimization (AERO) [IESG] [IETF_Chair] [RFC6706]
 toad-bi-appsrvr  8066/tcp # Toad BI Application Server [Quest_Software_2] [Greg_Cottman_3] 2013-04-19
+infi-async       8067/tcp # Infinidat async replication [INFINIDAT] [Eldar_Kleiner] 2015-05-01
 gadugadu         8074/tcp # Gadu-Gadu [Marcin_Gozdalik] [Marcin_Gozdalik] 2006-05
 gadugadu         8074/udp # Gadu-Gadu [Marcin_Gozdalik] [Marcin_Gozdalik] 2006-05
 http-alt         8080/tcp # HTTP Alternate (see port 80) [Stephen_Casner] [Stephen_Casner]
@@ -10823,6 +10824,7 @@ netserialext4   16368/tcp # Network Serial Extension Ports Four [Michael_J_Hoy] 
 netserialext4   16368/udp # Network Serial Extension Ports Four [Michael_J_Hoy] [Michael_J_Hoy]
 connected       16384/tcp # Connected Corp [Nicole_C_Ouellette] [Nicole_C_Ouellette] 2004-02
 connected       16384/udp # Connected Corp [Nicole_C_Ouellette] [Nicole_C_Ouellette] 2004-02
+rdgs            16385/tcp # Reliable Datagram Sockets [Oracle_7] [Sowmini_Varadhan] 2015-04-30
 xoms            16619/tcp # X509 Objects Management Service [Francis_GASCHET] [Francis_GASCHET] 2008-09-08
 axon-tunnel     16665/tcp # Reliable multipath data transport for high latencies [Bridgeworks] [Paul_Burgess] 2014-09-26
 vtp             16666/udp # Vidder Tunnel Protocol [Vidder_Inc] [Ted_Schroeder_2] 2011-10-24

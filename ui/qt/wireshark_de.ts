@@ -137,12 +137,12 @@
     <message>
         <location filename="capture_file.cpp" line="129"/>
         <source> [closing]</source>
-        <translation type="unfinished"></translation>
+        <translation>[schließe]</translation>
     </message>
     <message>
         <location filename="capture_file.cpp" line="134"/>
         <source> [closed]</source>
-        <translation type="unfinished"></translation>
+        <translation>[geschlossen]</translation>
     </message>
 </context>
 <context>

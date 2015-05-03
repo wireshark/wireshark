@@ -558,12 +558,12 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="452"/>
         <source>Average bytes/s</source>
-        <translation>平均 bytes/s</translation>
+        <translation>平均 字节/秒</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="473"/>
         <source>Average bits/s</source>
-        <translation>平均 bits/s</translation>
+        <translation>平均 比特/秒</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="524"/>
@@ -720,12 +720,12 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="63"/>
         <source>Snaplen (B)</source>
-        <translation>Snap长度(B)</translation>
+        <translation>Snap长度 (B)</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="68"/>
         <source>Buffer (MB)</source>
-        <translation>缓存(MB)</translation>
+        <translation>缓存 (MB)</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="73"/>
@@ -1132,7 +1132,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="113"/>
         <source>Save filters in a file.</source>
-        <translation>保存过滤器到文件。</translation>
+        <translation>保存筛选器到文件。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="178"/>
@@ -1271,7 +1271,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="conversation_dialog.cpp" line="66"/>
         <source>Follow a TCP or UDP stream.</source>
-        <translation>追踪TCP或UDP流。</translation>
+        <translation>追踪 TCP 或 UDP 流。</translation>
     </message>
     <message>
         <location filename="conversation_dialog.cpp" line="69"/>
@@ -1281,7 +1281,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="conversation_dialog.cpp" line="70"/>
         <source>Graph a TCP conversation.</source>
-        <translation>对TCP对话绘制图形。</translation>
+        <translation>绘制 TCP 对话图形。</translation>
     </message>
     <message>
         <location filename="conversation_dialog.cpp" line="182"/>
@@ -1663,7 +1663,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
         <source>Filter Expression</source>
-        <translation>过滤表达式</translation>
+        <translation>筛选器表达式</translation>
     </message>
 </context>
 <context>
@@ -1900,7 +1900,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="font_color_preferences_frame.ui" line="31"/>
         <source>Main window font:</source>
-        <translation>主窗口字体</translation>
+        <translation>主窗口字体:</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="38"/>
@@ -2352,7 +2352,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="253"/>
         <source>Time (s)</source>
-        <translation>时间(s)</translation>
+        <translation>时间 (秒)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="209"/>
@@ -2372,7 +2372,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="387"/>
         <source>TCP errors</source>
-        <translation>TCP错误</translation>
+        <translation>TCP 错误</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="824"/>
@@ -2422,12 +2422,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="1472"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>可移植文档格式 (*.pdf)</translation>
+        <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1473"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>可移植网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1474"/>
@@ -2437,7 +2437,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="1476"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG JPEG文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1487"/>
@@ -2977,7 +2977,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="419"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示过滤器重新生成统计</translation>
+        <translation>使用显示筛选器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="422"/>
@@ -2987,12 +2987,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="441"/>
         <source>Copy as CSV</source>
-        <translation>复制为CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="444"/>
         <source>Copy the tree as CSV</source>
-        <translation>复制树为CSV</translation>
+        <translation>复制树为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
@@ -3498,7 +3498,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="623"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示过滤器重新生成统计</translation>
+        <translation>使用显示筛选器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="626"/>
@@ -3508,12 +3508,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="645"/>
         <source>Copy as CSV</source>
-        <translation>复制为CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="648"/>
         <source>Copy the tree as CSV</source>
-        <translation>复制树为CSV</translation>
+        <translation>复制树为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
@@ -3750,7 +3750,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.cpp" line="1735"/>
         <source>LBT-RU Statistics failed to attach to tap</source>
-        <translation>LBT-RU统计附加到tap失败</translation>
+        <translation>LBT-RU 统计附加到 tap 失败</translation>
     </message>
 </context>
 <context>
@@ -3803,7 +3803,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_stream_dialog.ui" line="74"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示过滤器重新生成统计</translation>
+        <translation>使用显示筛选器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="77"/>
@@ -3813,12 +3813,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_stream_dialog.ui" line="96"/>
         <source>Copy as CSV</source>
-        <translation>复制为CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="99"/>
         <source>Copy the tree as CSV</source>
-        <translation>复制树为CSV</translation>
+        <translation>复制树为 CSV</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="102"/>
@@ -4095,7 +4095,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="276"/>
         <source>Show only TCP flow information</source>
-        <translation>只显示TCP流的信息</translation>
+        <translation>只显示 TCP 流的信息</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="265"/>
@@ -4119,12 +4119,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="457"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>可移植文档格式 (*.pdf)</translation>
+        <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="458"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>可移植网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="459"/>
@@ -4134,7 +4134,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="461"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG JPEG文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="462"/>
@@ -4552,7 +4552,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="364"/>
         <source>TCP Stream Graphs</source>
-        <translation>TCP流图形</translation>
+        <translation>TCP 流图形</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="374"/>
@@ -5602,7 +5602,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1475"/>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation>TCP时间序列图 (Stevens)</translation>
+        <translation>TCP 时间序列图 (Stevens)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1480"/>
@@ -5612,7 +5612,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1483"/>
         <source>TCP througput</source>
-        <translation>TCP吞吐量</translation>
+        <translation>TCP 吞吐量</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1488"/>
@@ -5622,7 +5622,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1491"/>
         <source>TCP round trip time</source>
-        <translation>TCP往返时间</translation>
+        <translation>TCP 往返时间</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1496"/>
@@ -5632,17 +5632,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1499"/>
         <source>TCP window scaling</source>
-        <translation>TCP窗口尺寸</translation>
+        <translation>TCP 窗口尺寸</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1507"/>
         <source>Follow TCP Stream</source>
-        <translation>追踪TCP流</translation>
+        <translation>追踪 TCP 流</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1515"/>
         <source>Follow UDP Stream</source>
-        <translation>追踪UDP流</translation>
+        <translation>追踪 UDP 流</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1523"/>
@@ -5657,7 +5657,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1531"/>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation>TCP时间序列图 (tcptrace)</translation>
+        <translation>TCP 时间序列图 (tcptrace)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1536"/>
@@ -6113,7 +6113,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1958"/>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>使用自 UNIX / POSIX 时间戳 (1970-01-01)以来的秒数来显示分组时间。</translation>
+        <translation>使用自 UNIX / POSIX 时间戳 (1970-01-01) 以来的秒数来显示分组时间。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1961"/>
@@ -6203,7 +6203,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2050"/>
         <source>Automatic (from capture file)</source>
-        <translation>自动(根据捕获文件)</translation>
+        <translation>自动 (根据捕获文件)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2053"/>
@@ -7358,7 +7358,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="52"/>
         <source>Bits/s</source>
-        <translation>Bits/s</translation>
+        <translation>比特/秒</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="57"/>
@@ -7383,12 +7383,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="92"/>
         <source>Copy as CSV</source>
-        <translation>复制为CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="95"/>
         <source>Copy stream list as CSV.</source>
-        <translation>复制流列表为CSV。</translation>
+        <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="100"/>
@@ -7413,7 +7413,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="291"/>
         <source>as CSV</source>
-        <translation>作为CSV</translation>
+        <translation>作为 CSV</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="294"/>
@@ -7457,82 +7457,82 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <location filename="tcp_stream_dialog.cpp" line="76"/>
         <source>Average Througput (bits/s)</source>
         <oldsource>Avgerage Througput (bits/s)</oldsource>
-        <translation>平均吞吐量（bit/s）</translation>
+        <translation>平均吞吐量 (比特/秒)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="77"/>
         <source>Round Trip Time (ms)</source>
-        <translation>往返时间(ms)</translation>
+        <translation>往返时间 (毫秒)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="78"/>
         <source>Segment Length (B)</source>
-        <translation>段长度(B)</translation>
+        <translation>段长度 (B)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="79"/>
         <source>Sequence Number (B)</source>
-        <translation>序列号(B)</translation>
+        <translation>序列号 (B)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="80"/>
         <source>Time (s)</source>
-        <translation>时间(s)</translation>
+        <translation>时间 (秒)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="81"/>
         <source>Window Size (B)</source>
-        <translation>窗口大小(B)</translation>
+        <translation>窗口大小 (B)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1804"/>
         <source>Packets/s</source>
-        <translation>Packets/s</translation>
+        <translation>包/秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1805"/>
         <source>Bytes/s</source>
-        <translation>Bytes/s</translation>
+        <translation>字节/秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1806"/>
         <source>Bits/s</source>
-        <translation>Bits/s</translation>
+        <translation>比特/秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1807"/>
         <source>SUM(Y Field)</source>
-        <translation>总和(Y 字段)</translation>
+        <translation>总和 (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1808"/>
         <source>COUNT FRAMES(Y Field)</source>
-        <translation>COUNT FRAMES(Y 字段)</translation>
+        <translation>COUNT FRAMES (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1809"/>
         <source>COUNT FIELDS(Y Field)</source>
-        <translation>COUNT FIELDS(Y 字段)</translation>
+        <translation>COUNT FIELDS (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1810"/>
         <source>MAX(Y Field)</source>
-        <translation>最大值(Y 字段)</translation>
+        <translation>最大值 (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1811"/>
         <source>MIN(Y Field)</source>
-        <translation>最小值(Y 字段)</translation>
+        <translation>最小值 (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1812"/>
         <source>AVG(Y Field)</source>
-        <translation>平均值(Y 字段)</translation>
+        <translation>平均值 (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1813"/>
         <source>LOAD(Y Field)</source>
-        <translation>星形</translation>
+        <translation>星形 (Y字段)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1822"/>
@@ -7788,7 +7788,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="remote_settings_dialog.ui" line="45"/>
         <source>Use UDP for data transfer</source>
-        <translation>使用UDP进行数据传输</translation>
+        <translation>使用 UDP 进行数据传输</translation>
     </message>
     <message>
         <location filename="remote_settings_dialog.ui" line="52"/>
@@ -7871,7 +7871,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.ui" line="85"/>
         <source>Max Delta (ms)</source>
-        <translation>最大Delta(ms)</translation>
+        <translation>最大Delta (ms)</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="90"/>
@@ -7991,12 +7991,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.ui" line="196"/>
         <source>Copy as CSV</source>
-        <translation>复制为CSV</translation>
+        <translation>复制为 CSV</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="199"/>
         <source>Copy stream list as CSV.</source>
-        <translation>复制流列表为CSV。</translation>
+        <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="204"/>
@@ -8026,7 +8026,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.cpp" line="258"/>
         <source>as CSV</source>
-        <translation>作为CSV</translation>
+        <translation>作为 CSV</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="261"/>
@@ -8409,7 +8409,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="407"/>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>切换到tcptrace样式的时间/序列图</translation>
+        <translation>切换到 tcptrace 样式的时间/序列图</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="410"/>
@@ -8742,12 +8742,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_graph_arwnd_dialog.cpp" line="121"/>
         <source>time [secs]</source>
-        <translation>时间[秒]</translation>
+        <translation>时间 [秒]</translation>
     </message>
     <message>
         <location filename="sctp_graph_arwnd_dialog.cpp" line="122"/>
         <source>Advertised Receiver Window [Bytes]</source>
-        <translation>通告的接受窗口[字节]</translation>
+        <translation>通告的接受窗口 [字节]</translation>
     </message>
     <message>
         <location filename="sctp_graph_arwnd_dialog.cpp" line="167"/>
@@ -8806,7 +8806,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="122"/>
         <source>time [secs]</source>
-        <translation>时间[秒]</translation>
+        <translation>时间 [秒]</translation>
     </message>
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="123"/>
@@ -8904,7 +8904,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_graph_dialog.cpp" line="345"/>
         <source>time [secs]</source>
-        <translation>时间[秒]</translation>
+        <translation>时间 [秒]</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="346"/>
@@ -8919,12 +8919,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_graph_dialog.cpp" line="437"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>可移植文档格式 (*.pdf)</translation>
+        <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="438"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>可移植网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="439"/>
@@ -8934,7 +8934,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_graph_dialog.cpp" line="441"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG JPEG文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="448"/>
@@ -9119,12 +9119,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sequence_dialog.cpp" line="303"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>可移植文档格式 (*.pdf)</translation>
+        <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="304"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>可移植网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="305"/>
@@ -9134,7 +9134,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sequence_dialog.cpp" line="307"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="308"/>
@@ -9382,7 +9382,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sequence_dialog.ui" line="344"/>
         <source>Show only TCP flow information</source>
-        <translation>只显示TCP流的信息</translation>
+        <translation>只显示 TCP 流的信息</translation>
     </message>
 </context>
 <context>
@@ -9467,7 +9467,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示过滤器重新生成统计</translation>
+        <translation>使用显示筛选器重新生成统计</translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.ui" line="44"/>
@@ -9529,12 +9529,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>纯文本文件(*.txt);;逗号分隔值 (*.csv);;XML 文档 (*.xml);;YAML 文档 (*.yaml)</translation>
+        <translation>纯文本文件 (*.txt);;逗号分隔值 (*.csv);;XML 文档 (*.xml);;YAML 文档 (*.yaml)</translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation>纯文本文件(*.txt)</translation>
+        <translation>纯文本文件 (*.txt)</translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="318"/>
@@ -10021,12 +10021,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="tcp_stream_dialog.cpp" line="496"/>
         <source>Sequence Numbers (Stevens)</source>
-        <translation>序列号(Stevens)</translation>
+        <translation>序列号 (Stevens)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="521"/>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation>序列号(tcptrace)</translation>
+        <translation>序列号 (tcptrace)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="572"/>
@@ -10081,12 +10081,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="tcp_stream_dialog.cpp" line="980"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>可移植文档格式 (*.pdf)</translation>
+        <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="981"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>可移植网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="982"/>
@@ -10096,7 +10096,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="tcp_stream_dialog.cpp" line="984"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="991"/>
@@ -10208,12 +10208,12 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="traffic_table_dialog.cpp" line="75"/>
         <source>as CSV</source>
-        <translation>作为CSV</translation>
+        <translation>作为 CSV</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.cpp" line="76"/>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>复制此页的所有值到剪贴板，使用CSV（逗号分隔值）格式。</translation>
+        <translation>复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.cpp" line="78"/>

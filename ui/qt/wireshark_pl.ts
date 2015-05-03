@@ -4320,7 +4320,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="main_status_bar.cpp" line="368"/>
         <source>Packets: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety: %1</translation>
     </message>
 </context>
 <context>
@@ -5283,12 +5283,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1068"/>
         <source>Copy All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj wszystkie widoczne pozycje</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1073"/>
         <source>Copy All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj wszystkie widoczne pozycje wybranego poddrzewa</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1211"/>
