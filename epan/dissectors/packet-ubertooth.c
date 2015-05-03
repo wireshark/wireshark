@@ -405,6 +405,7 @@ static const value_string command_vals[] = {
     { 55,  "Get Compile Info" },
     { 56,  "BTLE Set Target" },
     { 57,  "BTLE Phy" },
+    { 58,  "Write Register" },
     { 0x00, NULL }
 };
 static value_string_ext(command_vals_ext) = VALUE_STRING_EXT_INIT(command_vals);
@@ -1424,6 +1425,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 42: /* BTLE Sniffing */
         case 48: /* Set CRC Verify */
         case 53: /* Read Register */
+        case 58: /* Write Register */
 
             switch (command) {
             case 1: /* Rx Symbols */
@@ -1516,6 +1518,25 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         val_to_str_ext_const(register_id, &register_vals_ext, "Unknown"));
                 if (try_val_to_str_ext(register_id, &register_vals_ext))
                     proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
+                offset += 2;
+
+                break;
+            case 58: /* Write Register */
+                sub_item = proto_tree_add_item(main_tree, hf_register, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                register_id = tvb_get_letohs(tvb, offset);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str_ext_const(register_id, &register_vals_ext, "Unknown"));
+                if (try_val_to_str_ext(register_id, &register_vals_ext))
+                    proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
+                offset += 2;
+
+                sub_item = proto_tree_add_item(main_tree, hf_register_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+                sub_tree = proto_item_add_subtree(sub_item, ett_register_value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " = %s:  0x%04x",
+                        val_to_str_ext_const(register_id, &register_vals_ext, "Unknown"),
+                        tvb_get_ntohs(tvb, offset));
+
+                dissect_cc2400_register(sub_tree, tvb, offset, register_id);
                 offset += 2;
 
                 break;
@@ -1729,6 +1750,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 52: /* Clear AFH Map */
     case 54: /* BTLE Slave */
     case 56: /* BTLE Set Target */
+    case 58: /* Write Register */
         proto_tree_add_expert(command_tree, pinfo, &ei_unexpected_response, tvb, offset, 0);
         if (tvb_length_remaining(tvb, offset) > 0) {
             proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
