@@ -514,7 +514,7 @@
    </widget>
    <widget class="QMenu" name="menuBluetooth">
     <property name="title">
-     <string>Bluetooth</string>
+     <string>&amp;Bluetooth</string>
     </property>
     <addaction name="actionATT_Server_Attributes"/>
    </widget>
