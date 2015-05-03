@@ -2121,14 +2121,14 @@ int main(int argc, char **argv) {
             *adb_server_tcp_port = (unsigned short) strtoul(optarg, NULL, 10);
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
-            logcat_text = (strcmp(optarg, "TRUE") == 0);
+            logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
             *bt_server_tcp_port = (unsigned short) strtoul(optarg, NULL, 10);
             break;
         case OPT_CONFIG_BT_FORWARD_SOCKET:
-            bt_forward_socket = (strcmp(optarg, "TRUE") == 0);
+            bt_forward_socket = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_BT_LOCAL_IP:
             bt_local_ip = strdup(optarg);
