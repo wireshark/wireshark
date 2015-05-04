@@ -588,7 +588,7 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	guint64_to_str_buf(fv->value.uinteger, buf, 21);
+	guint64_to_str_buf(fv->value.uinteger64, buf, 21);
 }
 
 static gboolean
