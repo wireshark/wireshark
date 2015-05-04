@@ -39,6 +39,7 @@
 #include <epan/decode_as.h>
 
 #include "packet-bluetooth.h"
+#include "packet-bthci_sco.h"
 
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t bthci_evt_handle;
@@ -3258,19 +3259,22 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
 
 
     if (!pinfo->fd->flags.visited && status == 0x00) {
-        wmem_tree_key_t     key[5];
-        guint32             k_interface_id;
-        guint32             k_adapter_id;
-        guint32             k_connection_handle;
-        guint32             k_frame_number;
-        remote_bdaddr_t    *remote_bdaddr;
-        chandle_session_t  *chandle_session;
+        wmem_tree_key_t             key[5];
+        guint32                     k_interface_id;
+        guint32                     k_adapter_id;
+        guint32                     k_connection_handle;
+        guint32                     k_frame_number;
+        remote_bdaddr_t            *remote_bdaddr;
+        chandle_session_t          *chandle_session;
+        bthci_sco_stream_number_t  *sco_stream_number;
+        guint32                     stream_number;
 
         k_interface_id = bluetooth_data->interface_id;
         k_adapter_id = bluetooth_data->adapter_id;
         k_connection_handle = connection_handle;
         k_frame_number = pinfo->fd->num;
 
+        /* chandle to bdaddr */
         key[0].length = 1;
         key[0].key    = &k_interface_id;
         key[1].length = 1;
@@ -3290,10 +3294,32 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
 
         wmem_tree_insert32_array(bluetooth_data->chandle_to_bdaddr, key, remote_bdaddr);
 
+        /* chandle session */
         chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
         chandle_session->connect_in_frame = k_frame_number;
         chandle_session->disconnect_in_frame = max_disconnect_in_frame;
         wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
+
+        /* stream number */
+        key[2].length = 0;
+        key[2].key    = NULL;
+
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bthci_sco_stream_numbers, key);
+        sco_stream_number = (subtree) ? (bthci_sco_stream_number_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+        if (!sco_stream_number) {
+            stream_number = 1;
+        } else {
+            stream_number = sco_stream_number->stream_number + 1;
+        }
+
+        key[2].length = 1;
+        key[2].key    = &frame_number;
+        key[3].length = 0;
+        key[3].key    = NULL;
+
+        sco_stream_number = (bthci_sco_stream_number_t *) wmem_new(wmem_file_scope(), bthci_sco_stream_number_t);
+        sco_stream_number->stream_number = stream_number;
+        wmem_tree_insert32_array(bthci_sco_stream_numbers, key, sco_stream_number);
     }
 
     return offset;

@@ -30,19 +30,24 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-bluetooth.h"
+#include "packet-bthci_sco.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_sco = -1;
 static int hf_bthci_sco_reserved = -1;
 static int hf_bthci_sco_packet_status = -1;
 static int hf_bthci_sco_chandle = -1;
-static int hf_bthci_sco_connect_in = -1;
-static int hf_bthci_sco_disconnect_in = -1;
 static int hf_bthci_sco_length = -1;
 static int hf_bthci_sco_data = -1;
 
+static int hf_bthci_sco_connect_in = -1;
+static int hf_bthci_sco_disconnect_in = -1;
+static int hf_bthci_sco_stream_number = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_bthci_sco = -1;
+
+wmem_tree_t *bthci_sco_stream_numbers = NULL;
 
 static dissector_handle_t bthci_sco_handle;
 
@@ -82,6 +87,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     chandle_session_t        *chandle_session;
     wmem_tree_t              *subtree;
     proto_item               *sub_item;
+    bthci_sco_stream_number_t  *sco_stream_number;
 
     ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
@@ -119,6 +125,12 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[0].key    = &k_interface_id;
     key[1].length = 1;
     key[1].key    = &k_adapter_id;
+    key[2].length = 0;
+    key[2].key    = NULL;
+
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bthci_sco_stream_numbers, key);
+    sco_stream_number = (subtree) ? (bthci_sco_stream_number_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+
     key[2].length = 1;
     key[2].key    = &k_connection_handle;
     key[3].length = 0;
@@ -265,6 +277,10 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
     }
+    if (sco_stream_number) {
+        sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_stream_number, tvb, 0, 0, sco_stream_number->stream_number);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+    }
 
     return tvb_reported_length(tvb);
 }
@@ -299,6 +315,11 @@ proto_register_bthci_sco(void)
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_sco_stream_number,
+            { "Stream Number",               "bthci_sco.stream_number",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_bthci_sco_length,
             { "Data Total Length",           "bthci_sco.length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -319,6 +340,8 @@ proto_register_bthci_sco(void)
     /* Register the protocol name and description */
     proto_bthci_sco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
     bthci_sco_handle = new_register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
+
+    bthci_sco_stream_numbers = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_sco, hf, array_length(hf));
