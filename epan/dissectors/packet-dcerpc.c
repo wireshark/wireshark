@@ -6981,7 +6981,7 @@ proto_reg_handoff_dcerpc(void)
     heur_dissector_add("netbios", dissect_dcerpc_cn_pk, "DCE/RPC over NetBios", "dcerpc_netbios", proto_dcerpc, HEURISTIC_ENABLE);
     heur_dissector_add("udp", dissect_dcerpc_dg, "DCE/RPC over UDP", "dcerpc_udp", proto_dcerpc, HEURISTIC_ENABLE);
     heur_dissector_add("smb_transact", dissect_dcerpc_cn_smbpipe, "DCE/RPC over SMB", "dcerpc_smb_transact", proto_dcerpc, HEURISTIC_ENABLE);
-    heur_dissector_add("smb2_heur_subdissectors", dissect_dcerpc_cn_smb2, "DCE/RPC over SMB2", "dcerpc_smb2", proto_dcerpc, HEURISTIC_ENABLE);
+    heur_dissector_add("smb2_pipe_subdissectors", dissect_dcerpc_cn_smb2, "DCE/RPC over SMB2", "dcerpc_smb2", proto_dcerpc, HEURISTIC_ENABLE);
     heur_dissector_add("http", dissect_dcerpc_cn_bs, "DCE/RPC over HTTP", "dcerpc_http", proto_dcerpc, HEURISTIC_ENABLE);
     dcerpc_smb_init(proto_dcerpc);
 

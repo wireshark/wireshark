@@ -39,6 +39,7 @@
 #include <epan/aftypes.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
+#include <epan/reassemble.h>
 
 #include "packet-smb2.h"
 #include "packet-ntlmssp.h"
@@ -387,6 +388,17 @@ static int hf_smb2_transform_encrypted_data = -1;
 static int hf_smb2_server_component_smb2 = -1;
 static int hf_smb2_server_component_smb2_transform = -1;
 static int hf_smb2_truncated = -1;
+static int hf_smb2_pipe_fragments = -1;
+static int hf_smb2_pipe_fragment = -1;
+static int hf_smb2_pipe_fragment_overlap = -1;
+static int hf_smb2_pipe_fragment_overlap_conflict = -1;
+static int hf_smb2_pipe_fragment_multiple_tails = -1;
+static int hf_smb2_pipe_fragment_too_long_fragment = -1;
+static int hf_smb2_pipe_fragment_error = -1;
+static int hf_smb2_pipe_fragment_count = -1;
+static int hf_smb2_pipe_reassembled_in = -1;
+static int hf_smb2_pipe_reassembled_length = -1;
+static int hf_smb2_pipe_reassembled_data = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -471,6 +483,8 @@ static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
 static gint ett_smb2_ioctl_network_interface_capabilities = -1;
 static gint ett_qfr_entry = -1;
+static gint ett_smb2_pipe_fragment = -1;
+static gint ett_smb2_pipe_fragments = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -481,8 +495,26 @@ static int smb2_eo_tap = -1;
 static dissector_handle_t gssapi_handle  = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
 static dissector_handle_t rsvd_handle = NULL;
+static dissector_handle_t data_handle = NULL;
 
-static heur_dissector_list_t smb2_heur_subdissector_list;
+static heur_dissector_list_t smb2_pipe_subdissector_list;
+
+static const fragment_items smb2_pipe_frag_items = {
+	&ett_smb2_pipe_fragment,
+	&ett_smb2_pipe_fragments,
+	&hf_smb2_pipe_fragments,
+	&hf_smb2_pipe_fragment,
+	&hf_smb2_pipe_fragment_overlap,
+	&hf_smb2_pipe_fragment_overlap_conflict,
+	&hf_smb2_pipe_fragment_multiple_tails,
+	&hf_smb2_pipe_fragment_too_long_fragment,
+	&hf_smb2_pipe_fragment_error,
+	&hf_smb2_pipe_fragment_count,
+	&hf_smb2_pipe_reassembled_in,
+	&hf_smb2_pipe_reassembled_length,
+	&hf_smb2_pipe_reassembled_data,
+	"Fragments"
+};
 
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
@@ -4499,20 +4531,33 @@ dissect_smb2_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
-static void
-smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
+static const smb2_fid_info_t *
+smb2_pipe_get_fid_info(const smb2_info_t *si)
 {
-	guint64 persistent;
 	smb2_fid_info_t *file = NULL;
 
 	if (si == NULL) {
-		return;
+		return NULL;
 	}
 	if (si->file != NULL) {
 		file = si->file;
 	} else if (si->saved != NULL) {
 		file = si->saved->file;
 	}
+	if (file == NULL) {
+		return NULL;
+	}
+
+	return file;
+}
+
+static void
+smb2_pipe_set_file_id(packet_info *pinfo, smb2_info_t *si)
+{
+	guint64 persistent;
+	const smb2_fid_info_t *file = NULL;
+
+	file = smb2_pipe_get_fid_info(si);
 	if (file == NULL) {
 		return;
 	}
@@ -4522,20 +4567,232 @@ smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
 	dcerpc_set_transport_salt(persistent, pinfo);
 }
 
-static int
-dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree, void *data)
+static gboolean smb2_pipe_reassembly = TRUE;
+static reassembly_table smb2_pipe_reassembly_table;
+
+static void
+smb2_pipe_reassembly_init(void)
 {
-	tvbuff_t *dcerpc_tvb;
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_init(&smb2_pipe_reassembly_table,
+	    &addresses_reassembly_table_functions);
+}
+
+static int
+dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree, void *data)
+{
+	/*
+	 * Note: si is NULL for some callers from packet-smb.c
+	 */
+	const smb2_info_t *si = (const smb2_info_t *)data;
+	gboolean result=0;
+	gboolean save_fragmented;
+	gint remaining;
+	guint reported_len;
+	const smb2_fid_info_t *file = NULL;
+	guint32 id;
+	fragment_head *fd_head;
+	tvbuff_t *tvb;
+	tvbuff_t *new_tvb;
+	proto_item *frag_tree_item;
 	heur_dtbl_entry_t *hdtbl_entry;
 
-	dcerpc_tvb = tvb_new_subset(tvb, offset, MIN((int)datalen, tvb_captured_length_remaining(tvb, offset)), datalen);
+	file = smb2_pipe_get_fid_info(si);
+	id = (guint32)(GPOINTER_TO_UINT(file) & G_MAXUINT32);
+
+	remaining = tvb_captured_length_remaining(raw_tvb, offset);
+
+	tvb = tvb_new_subset(raw_tvb, offset,
+			     MIN((int)datalen, remaining),
+			     datalen);
+
+	/*
+	 * Offer desegmentation service to Named Pipe subdissectors (e.g. DCERPC)
+	 * if we have all the data.  Otherwise, reassembly is (probably) impossible.
+	 */
+	pinfo->can_desegment = 0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
+	reported_len = tvb_reported_length(tvb);
+	if (smb2_pipe_reassembly && tvb_captured_length(tvb) >= reported_len) {
+		pinfo->can_desegment = 2;
+	}
+
+	save_fragmented = pinfo->fragmented;
+
+	/*
+	 * if we are not offering desegmentation, just try the heuristics
+	 *and bail out
+	 */
+	if (!pinfo->can_desegment) {
+		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+						 tvb, pinfo, top_tree,
+						 &hdtbl_entry, NULL);
+		goto clean_up_and_exit;
+	}
+
+	/* below this line, we know we are doing reassembly */
+
+	/*
+	 * this is a new packet, see if we are already reassembling this
+	 * pdu and if not, check if the dissector wants us
+	 * to reassemble it
+	 */
+	if (!pinfo->fd->flags.visited) {
+		/*
+		 * This is the first pass.
+		 *
+		 * Check if we are already reassembling this PDU or not;
+		 * we check for an in-progress reassembly for this FID
+		 * in this direction, by searching for its reassembly
+		 * structure.
+		 */
+		fd_head = fragment_get(&smb2_pipe_reassembly_table,
+				       pinfo, id, NULL);
+		if (!fd_head) {
+			/*
+			 * No reassembly, so this is a new pdu. check if the
+			 * dissector wants us to reassemble it or if we
+			 * already got the full pdu in this tvb.
+			 */
+
+			/*
+			 * Try the heuristic dissectors and see if we
+			 * find someone that recognizes this payload.
+			 */
+			result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+							 tvb, pinfo, top_tree,
+							 &hdtbl_entry, NULL);
+
+			/* no this didn't look like something we know */
+			if (!result) {
+				goto clean_up_and_exit;
+			}
+
+			/* did the subdissector want us to reassemble any
+			   more data ?
+			*/
+			if (pinfo->desegment_len) {
+				fragment_add_check(&smb2_pipe_reassembly_table,
+					tvb, 0, pinfo, id, NULL,
+					0, reported_len, TRUE);
+				fragment_set_tot_len(&smb2_pipe_reassembly_table,
+					pinfo, id, NULL,
+					pinfo->desegment_len+reported_len);
+			}
+			goto clean_up_and_exit;
+		}
+
+		/* OK, we're already doing a reassembly for this FID.
+		   skip to last segment in the existing reassembly structure
+		   and add this fragment there
+
+		   XXX we might add code here to use any offset values
+		   we might pick up from the Read/Write calls instead of
+		   assuming we always get them in the correct order
+		*/
+		while (fd_head->next) {
+			fd_head = fd_head->next;
+		}
+		fd_head = fragment_add_check(&smb2_pipe_reassembly_table,
+			tvb, 0, pinfo, id, NULL,
+			fd_head->offset+fd_head->len,
+			reported_len, TRUE);
+
+		/* if we completed reassembly */
+		if (fd_head) {
+			new_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+			add_new_data_source(pinfo, new_tvb,
+				  "Named Pipe over SMB2");
+			pinfo->fragmented=FALSE;
+
+			tvb = new_tvb;
+
+			/* list what segments we have */
+			show_fragment_tree(fd_head, &smb2_pipe_frag_items,
+					   tree, pinfo, tvb, &frag_tree_item);
+
+			/* dissect the full PDU */
+			result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+							 tvb, pinfo, top_tree,
+							 &hdtbl_entry, NULL);
+		}
+		goto clean_up_and_exit;
+	}
+
+	/*
+	 * This is not the first pass; see if it's in the table of
+	 * reassembled packets.
+	 *
+	 * XXX - we know that several of the arguments aren't going to
+	 * be used, so we pass bogus variables.  Can we clean this
+	 * up so that we don't have to distinguish between the first
+	 * pass and subsequent passes?
+	 */
+	fd_head = fragment_add_check(&smb2_pipe_reassembly_table,
+				     tvb, 0, pinfo, id, NULL, 0, 0, TRUE);
+	if (!fd_head) {
+		/* we didn't find it, try any of the heuristic dissectors
+		   and bail out
+		*/
+		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+						 tvb, pinfo, top_tree,
+						 &hdtbl_entry, NULL);
+		goto clean_up_and_exit;
+	}
+	if (!(fd_head->flags&FD_DEFRAGMENTED)) {
+		/* we don't have a fully reassembled frame */
+		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+						 tvb, pinfo, top_tree,
+						 &hdtbl_entry, NULL);
+		goto clean_up_and_exit;
+	}
+
+	/* it is reassembled but it was reassembled in a different frame */
+	if (pinfo->fd->num != fd_head->reassembled_in) {
+		proto_item *item;
+		item = proto_tree_add_uint(top_tree, hf_smb2_pipe_reassembled_in,
+					   tvb, 0, 0, fd_head->reassembled_in);
+		PROTO_ITEM_SET_GENERATED(item);
+		goto clean_up_and_exit;
+	}
+
+	/* display the reassembled pdu */
+	new_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+	add_new_data_source(pinfo, new_tvb,
+		  "Named Pipe over SMB2");
+	pinfo->fragmented = FALSE;
+
+	tvb = new_tvb;
+
+	/* list what segments we have */
+	show_fragment_tree(fd_head, &smb2_pipe_frag_items,
+			   top_tree, pinfo, tvb, &frag_tree_item);
 
 	/* dissect the full PDU */
-	if (dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, top_tree, &hdtbl_entry, data)) {
+	result = dissector_try_heuristic(smb2_pipe_subdissector_list,
+					 tvb, pinfo, top_tree,
+					 &hdtbl_entry, NULL);
 
+clean_up_and_exit:
+	/* clear out the variables */
+	pinfo->can_desegment=0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
 
-		offset += datalen;
+	if (!result) {
+		call_dissector(data_handle, tvb, pinfo, top_tree);
 	}
+
+	pinfo->fragmented = save_fragmented;
+
+	offset += datalen;
 	return offset;
 }
 
@@ -4653,11 +4910,11 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		break;
 	}
 
-	/* data or dcerpc ?*/
+	/* data or namedpipe ?*/
 	if (length) {
 		int oldoffset = offset;
-		smb2_set_dcerpc_file_id(pinfo, si);
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree, si);
+		smb2_pipe_set_file_id(pinfo, si);
+		offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
 		if (offset != oldoffset) {
 			/* managed to dissect pipe data */
 			return offset;
@@ -4755,7 +5012,7 @@ dissect_smb2_FSCTL_OFFLOAD_READ(tvbuff_t *tvb,
 static void
 dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *top_tree, gboolean data_in _U_, void *data)
 {
-	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_captured_length_remaining(tvb, offset), top_tree, data);
+	dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, tvb_captured_length_remaining(tvb, offset), top_tree, data);
 }
 
 static void
@@ -5409,14 +5666,14 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_smb2_ioctl_data_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
-	smb2_set_dcerpc_file_id(pinfo, si);
+	smb2_pipe_set_file_id(pinfo, si);
 	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, TRUE, si);
 }
 
 static void
 dissect_smb2_ioctl_data_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
-	smb2_set_dcerpc_file_id(pinfo, si);
+	smb2_pipe_set_file_id(pinfo, si);
 	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, FALSE, si);
 }
 
@@ -5495,6 +5752,7 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	switch (si->status) {
 	case 0x00000000: break;
+	case 0x80000005: break;
 	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
 	}
 
@@ -5646,11 +5904,11 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* reserved */
 	offset += 4;
 
-	/* data or dcerpc ?*/
+	/* data or namedpipe ?*/
 	if (length) {
 		int oldoffset = offset;
-		smb2_set_dcerpc_file_id(pinfo, si);
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree, si);
+		smb2_pipe_set_file_id(pinfo, si);
+		offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
 		if (offset != oldoffset) {
 			/* managed to dissect pipe data */
 			return offset;
@@ -9239,6 +9497,40 @@ proto_register_smb2(void)
 		{ &hf_smb2_truncated,
 		  { "Truncated...", "smb2.truncated", FT_NONE, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_pipe_fragment_overlap,
+			{ "Fragment overlap", "smb2.pipe.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+		{ &hf_smb2_pipe_fragment_overlap_conflict,
+			{ "Conflicting data in fragment overlap", "smb2.pipe.fragment.overlap.conflict", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+		{ &hf_smb2_pipe_fragment_multiple_tails,
+			{ "Multiple tail fragments found", "smb2.pipe.fragment.multipletails", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+		{ &hf_smb2_pipe_fragment_too_long_fragment,
+			{ "Fragment too long", "smb2.pipe.fragment.toolongfragment", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+		{ &hf_smb2_pipe_fragment_error,
+			{ "Defragmentation error", "smb2.pipe.fragment.error", FT_FRAMENUM,
+			BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+		{ &hf_smb2_pipe_fragment_count,
+			{ "Fragment count", "smb2.pipe.fragment.count", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_pipe_fragment,
+			{ "Fragment SMB2 Named Pipe", "smb2.pipe.fragment", FT_FRAMENUM,
+			BASE_NONE, NULL, 0x0, "SMB2 Named Pipe Fragment", HFILL }},
+		{ &hf_smb2_pipe_fragments,
+			{ "Reassembled SMB2 Named Pipe fragments", "smb2.pipe.fragments", FT_NONE,
+			BASE_NONE, NULL, 0x0, "SMB2 Named Pipe Fragments", HFILL }},
+		{ &hf_smb2_pipe_reassembled_in,
+			{ "This SMB2 Named Pipe payload is reassembled in frame", "smb2.pipe.reassembled_in", FT_FRAMENUM,
+			BASE_NONE, NULL, 0x0, "The Named Pipe PDU is completely reassembled in this frame", HFILL }},
+		{ &hf_smb2_pipe_reassembled_length,
+			{ "Reassembled SMB2 Named Pipe length", "smb2.pipe.reassembled.length", FT_UINT32,
+			BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+		{ &hf_smb2_pipe_reassembled_data,
+			{ "Reassembled SMB2 Named Pipe Data", "smb2.pipe.reassembled.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, "The reassembled payload", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -9325,6 +9617,8 @@ proto_register_smb2(void)
 		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
 		&ett_qfr_entry,
+		&ett_smb2_pipe_fragment,
+		&ett_smb2_pipe_fragments,
 	};
 
 	static ei_register_info ei[] = {
@@ -9347,7 +9641,13 @@ proto_register_smb2(void)
 				       "Whether the export object functionality will take the full path file name as file identifier",
 				       &eosmb2_take_name_as_fid);
 
-	smb2_heur_subdissector_list = register_heur_dissector_list("smb2_heur_subdissectors");
+	prefs_register_bool_preference(smb2_module, "pipe_reassembly",
+		"Reassemble Named Pipes over SMB2",
+		"Whether the dissector should reassemble Named Pipes over SMB2 commands",
+		&smb2_pipe_reassembly);
+	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors");
+	register_init_routine(smb2_pipe_reassembly_init);
+
 	smb2_tap = register_tap("smb2");
 	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
@@ -9360,6 +9660,7 @@ proto_reg_handoff_smb2(void)
 	gssapi_handle  = find_dissector("gssapi");
 	ntlmssp_handle = find_dissector("ntlmssp");
 	rsvd_handle    = find_dissector("rsvd");
+	data_handle    = find_dissector("data");
 	heur_dissector_add("netbios", dissect_smb2_heur, "SMB2 over Netbios", "smb2_netbios", proto_smb2, HEURISTIC_ENABLE);
 	heur_dissector_add("smb_direct", dissect_smb2_heur, "SMB2 over SMB Direct", "smb2_smb_direct", proto_smb2, HEURISTIC_ENABLE);
 }
