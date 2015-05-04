@@ -157,6 +157,9 @@
        <property name="text">
         <string>Remove duplicates</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
     </layout>
