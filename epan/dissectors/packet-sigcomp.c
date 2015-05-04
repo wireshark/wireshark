@@ -24,8 +24,8 @@
  * http://www.ietf.org/rfc/rfc3321.txt?number=3321
  * http://www.ietf.org/rfc/rfc4077.txt?number=4077
  * Useful links :
- * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-03.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-sip-01.txt
+ * https://tools.ietf.org/html/draft-ietf-rohc-sigcomp-impl-guide-10
+ * http://www.ietf.org/archive/id/draft-ietf-rohc-sigcomp-sip-01.txt
  */
 
 #include "config.h"
@@ -110,6 +110,8 @@ static int hf_sigcomp_nack_sha1                     = -1;
 static int hf_sigcomp_nack_state_id                 = -1;
 static int hf_sigcomp_nack_memory_size              = -1;
 static int hf_sigcomp_nack_cycles_per_bit           = -1;
+static int hf_sigcomp_decompress_instruction        = -1;
+static int hf_sigcomp_loading_result                = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sigcomp             = -1;
@@ -118,6 +120,7 @@ static gint ett_sigcomp_udvm_exe    = -1;
 static gint ett_raw_text            = -1;
 
 static expert_field ei_sigcomp_nack_failed_op_code = EI_INIT;
+static expert_field ei_sigcomp_invalid_instruction = EI_INIT;
 
 static dissector_handle_t sip_handle;
 /* set the udp ports */
@@ -175,48 +178,6 @@ static const value_string destination_address_encoding_vals[] = {
 };
 static value_string_ext destination_address_encoding_vals_ext =
     VALUE_STRING_EXT_INIT(destination_address_encoding_vals);
-
-static const value_string udvm_instruction_code_vals[] = {
-    {  0,   "DECOMPRESSION-FAILURE" },
-    {  1,   "AND" },
-    {  2,   "OR" },
-    {  3,   "NOT" },
-    {  4,   "LSHIFT" },
-    {  5,   "RSHIFT" },
-    {  6,   "ADD" },
-    {  7,   "SUBTRACT" },
-    {  8,   "MULTIPLY" },
-    {  9,   "DIVIDE" },
-    { 10,   "REMAINDER" },
-    { 11,   "SORT-ASCENDING" },
-    { 12,   "SORT-DESCENDING" },
-    { 13,   "SHA-1" },
-    { 14,   "LOAD" },
-    { 15,   "MULTILOAD" },
-    { 16,   "PUSH" },
-    { 17,   "POP" },
-    { 18,   "COPY" },
-    { 19,   "COPY-LITERAL" },
-    { 20,   "COPY-OFFSET" },
-    { 21,   "MEMSET" },
-    { 22,   "JUMP" },
-    { 23,   "COMPARE" },
-    { 24,   "CALL" },
-    { 25,   "RETURN" },
-    { 26,   "SWITCH" },
-    { 27,   "CRC" },
-    { 28,   "INPUT-BYTES" },
-    { 29,   "INPUT-BITS" },
-    { 30,   "INPUT-HUFFMAN" },
-    { 31,   "STATE-ACCESS" },
-    { 32,   "STATE-CREATE" },
-    { 33,   "STATE-FREE" },
-    { 34,   "OUTPUT" },
-    { 35,   "END-MESSAGE" },
-    { 0,    NULL }
-};
-static value_string_ext udvm_instruction_code_vals_ext =
-    VALUE_STRING_EXT_INIT(udvm_instruction_code_vals);
 
     /* RFC3320
      * Figure 10: Bytecode for a multitype (%) operand
@@ -1208,11 +1169,47 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length) {
 #define SIGCOMP_INSTR_OUTPUT                    34
 #define SIGCOMP_INSTR_END_MESSAGE               35
 
-
-static gboolean print_level_1;
-static gboolean print_level_2;
-static gboolean print_level_3;
-static gint show_instr_detail_level;
+static const value_string udvm_instruction_code_vals[] = {
+    { SIGCOMP_INSTR_DECOMPRESSION_FAILURE,   "DECOMPRESSION-FAILURE" },
+    { SIGCOMP_INSTR_AND,   "AND" },
+    { SIGCOMP_INSTR_OR,   "OR" },
+    { SIGCOMP_INSTR_NOT,   "NOT" },
+    { SIGCOMP_INSTR_LSHIFT,   "LSHIFT" },
+    { SIGCOMP_INSTR_RSHIFT,   "RSHIFT" },
+    { SIGCOMP_INSTR_ADD,   "ADD" },
+    { SIGCOMP_INSTR_SUBTRACT,   "SUBTRACT" },
+    { SIGCOMP_INSTR_MULTIPLY,   "MULTIPLY" },
+    { SIGCOMP_INSTR_DIVIDE,   "DIVIDE" },
+    { SIGCOMP_INSTR_REMAINDER,   "REMAINDER" },
+    { SIGCOMP_INSTR_SORT_ASCENDING,   "SORT-ASCENDING" },
+    { SIGCOMP_INSTR_SORT_DESCENDING,   "SORT-DESCENDING" },
+    { SIGCOMP_INSTR_SHA_1,   "SHA-1" },
+    { SIGCOMP_INSTR_LOAD,   "LOAD" },
+    { SIGCOMP_INSTR_MULTILOAD,   "MULTILOAD" },
+    { SIGCOMP_INSTR_PUSH,   "PUSH" },
+    { SIGCOMP_INSTR_POP,   "POP" },
+    { SIGCOMP_INSTR_COPY,   "COPY" },
+    { SIGCOMP_INSTR_COPY_LITERAL,   "COPY-LITERAL" },
+    { SIGCOMP_INSTR_COPY_OFFSET,   "COPY-OFFSET" },
+    { SIGCOMP_INSTR_MEMSET,   "MEMSET" },
+    { SIGCOMP_INSTR_JUMP,   "JUMP" },
+    { SIGCOMP_INSTR_COMPARE,   "COMPARE" },
+    { SIGCOMP_INSTR_CALL,   "CALL" },
+    { SIGCOMP_INSTR_RETURN,   "RETURN" },
+    { SIGCOMP_INSTR_SWITCH,   "SWITCH" },
+    { SIGCOMP_INSTR_CRC,   "CRC" },
+    { SIGCOMP_INSTR_INPUT_BYTES,   "INPUT-BYTES" },
+    { SIGCOMP_INSTR_INPUT_BITS,   "INPUT-BITS" },
+    { SIGCOMP_INSTR_INPUT_HUFFMAN,   "INPUT-HUFFMAN" },
+    { SIGCOMP_INSTR_STATE_ACCESS,   "STATE-ACCESS" },
+    { SIGCOMP_INSTR_STATE_CREATE,   "STATE-CREATE" },
+    { SIGCOMP_INSTR_STATE_FREE,   "STATE-FREE" },
+    { SIGCOMP_INSTR_OUTPUT,   "OUTPUT" },
+    { SIGCOMP_INSTR_END_MESSAGE,   "END-MESSAGE" },
+    { 0,    NULL }
+};
+static value_string_ext udvm_instruction_code_vals_ext =
+    VALUE_STRING_EXT_INIT(udvm_instruction_code_vals);
 
 /* Internal result code values of decompression failures */
 static const value_string result_code_vals[] = {
@@ -1612,7 +1609,8 @@ decomp_dispatch_get_bits(
     guint      *input_address,
     guint16     length,
     guint16    *result_code,
-    guint       msg_end)
+    guint       msg_end,
+    gboolean    print_level_1)
 {
     guint16     input_bit_order;
     guint16     bits_still_required   = length;
@@ -1719,6 +1717,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     guint16        H;
     guint16        oldH;
     guint          offset                     = 0;
+    guint          start_offset;
     guint          result_dest;
     guint          code_length                = 0;
     guint8         current_instruction;
@@ -1757,6 +1756,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     guint8        *sha1buff;
     unsigned char  sha1_digest_buf[STATE_BUFFER_SIZE];
     sha1_context   ctx;
+    proto_item    *addr_item = NULL;
 
 
     /* UDVM operand variables */
@@ -1794,14 +1794,11 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     guint16 returned_parameters_location;
     guint16 start_value;
 
-
     /* Set print parameters */
-    print_level_1 = FALSE;
-    print_level_2 = FALSE;
-    print_level_3 = FALSE;
-    show_instr_detail_level = 0;
-
-
+    gboolean print_level_1 = FALSE;
+    gboolean print_level_2 = FALSE;
+    gboolean print_level_3 = FALSE;
+    gint show_instr_detail_level = 0;
 
     switch ( print_flags ) {
     case 0:
@@ -1876,7 +1873,6 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
      */
     maximum_UDVM_cycles = (( 8 * (header_len + msg_end) ) + 1000) * cycles_per_bit;
 
-    proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"maximum_UDVM_cycles(%u) = (( 8 * msg_end(%u) ) + 1000) * cycles_per_bit(%u)",maximum_UDVM_cycles,msg_end,cycles_per_bit);
     proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Message Length: %u,Byte code length: %u, Maximum UDVM cycles: %u",msg_end,code_length,maximum_UDVM_cycles);
 
     /* Load bytecode into UDVM starting at "udvm_mem_dest" */
@@ -1887,7 +1883,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
         buff[i] = tvb_get_guint8(bytecode_tvb, offset);
         if ( print_level_3 )
             proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
-                                "              Addr: %u Instruction code(0x%0x) ", i, buff[i]);
+                                "              Addr: %u Instruction code(0x%02x) ", i, buff[i]);
 
         i++;
         offset++;
@@ -1903,6 +1899,9 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
     out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
 
+    /* Reset offset so proto_tree_add_xxx items below accurately reflect the bytes they represent */
+    offset = 0;
+
 execute_next_instruction:
 
     if ( used_udvm_cycles > maximum_UDVM_cycles ) {
@@ -1911,6 +1910,14 @@ execute_next_instruction:
     }
     used_udvm_cycles++;
     current_instruction = buff[current_address & 0xffff];
+
+    if (show_instr_detail_level == 2 ) {
+        addr_item = proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
+                            "Addr: %u ## %s(%d)", current_address,
+                            val_to_str_ext_const(current_instruction, &udvm_instruction_code_vals_ext, "INVALID INSTRUCTION"),
+                            current_instruction);
+    }
+    offset++;
 
     switch ( current_instruction ) {
     case SIGCOMP_INSTR_DECOMPRESSION_FAILURE:
@@ -1942,27 +1949,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_AND: /* 1 AND ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## AND(1) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## AND (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -1973,8 +1981,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -1983,27 +1991,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_OR: /* 2 OR ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## OR(2) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## OR (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2014,8 +2023,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2024,20 +2033,20 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_NOT: /* 3 NOT ($operand_1) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## NOT(3) ($operand_1)",
-                                current_address);
+            proto_item_append_text(addr_item, " ($operand_1)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## NOT (operand_1=%u)",
                                 current_address, operand_1);
         }
@@ -2048,8 +2057,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2057,27 +2066,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_LSHIFT: /* 4 LSHIFT ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## LSHIFT(4) ($operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " ($operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## LSHIFT (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2088,8 +2098,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2097,27 +2107,28 @@ execute_next_instruction:
         break;
     case SIGCOMP_INSTR_RSHIFT: /* 5 RSHIFT ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## RSHIFT(5) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## RSHIFT (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2128,35 +2139,36 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
         break;
     case SIGCOMP_INSTR_ADD: /* 6 ADD ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## ADD(6) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## ADD (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2167,35 +2179,36 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "               Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
 
     case SIGCOMP_INSTR_SUBTRACT: /* 7 SUBTRACT ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## SUBTRACT(7) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## SUBTRACT (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2206,8 +2219,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "               Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2215,27 +2228,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_MULTIPLY: /* 8 MULTIPLY ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ##MULTIPLY(8) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## MULTIPLY (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2253,8 +2267,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2262,27 +2276,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_DIVIDE: /* 9 DIVIDE ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## DIVIDE(9) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## DIVIDE (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2302,8 +2317,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2311,27 +2326,28 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_REMAINDER: /* 10 REMAINDER ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## REMAINDER(10) (operand_1, operand_2)",
-                                current_address);
+            proto_item_append_text(addr_item, " (operand_1, operand_2)");
         }
+        start_offset = offset;
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
-                                operand_address, operand_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
+                                "Addr: %u      operand_1 %u", operand_address, operand_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_2 %u",
-                                operand_address, operand_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+                                "Addr: %u      operand_2 %u", operand_address, operand_2);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## REMAINDER (operand_1=%u, operand_2=%u)",
                                 current_address, operand_1, operand_2);
         }
@@ -2351,8 +2367,8 @@ execute_next_instruction:
         buff[result_dest] = msb;
         buff[(result_dest+1) & 0xffff] = lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
-                                result, result_dest);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading result %u at %u", result, result_dest);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2361,10 +2377,8 @@ execute_next_instruction:
         /*
          *      used_udvm_cycles =  1 + k * (ceiling(log2(k)) + n)
          */
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## SORT-ASCENDING(11) (start, n, k))",
-                                current_address);
+        if (show_instr_detail_level == 2 ) {
+            proto_item_append_text(addr_item, " (start, n, k))");
         }
         proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
         /*
@@ -2373,10 +2387,8 @@ execute_next_instruction:
         break;
 
     case SIGCOMP_INSTR_SORT_DESCENDING: /* 12 SORT-DESCENDING (%start, %n, %k) */
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## SORT-DESCENDING(12) (start, n, k))",
-                                current_address);
+        if (show_instr_detail_level == 2 ) {
+            proto_item_append_text(addr_item, " (start, n, k))");
         }
         proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
         /*
@@ -2384,34 +2396,36 @@ execute_next_instruction:
          */
         break;
     case SIGCOMP_INSTR_SHA_1: /* 13 SHA-1 (%position, %length, %destination) */
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## SHA-1(13) (position, length, destination)",
-                                current_address);
+        if (show_instr_detail_level == 2 ) {
+            proto_item_append_text(addr_item, " (position, length, destination)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %position */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
-                                operand_address, position);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_position, bytecode_tvb, offset, (next_operand_address-operand_address), position,
+                                "Addr: %u      position %u", operand_address, position);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      $destination %u",
-                                operand_address, ref_destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
+                                "Addr: %u      $destination %u", operand_address, ref_destination);
         }
+        offset += (next_operand_address-operand_address);
         used_udvm_cycles = used_udvm_cycles + length;
 
         n = 0;
@@ -2475,26 +2489,26 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_LOAD: /* 14 LOAD (%address, %value) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## LOAD(14) (%%address, %%value)",
-                                current_address);
+            proto_item_append_text(addr_item, " (%%address, %%value)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %address */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-                                operand_address, addr);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_address, bytecode_tvb, offset, (next_operand_address-operand_address), addr,
+                                "Addr: %u      Address %u", operand_address, addr);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %value */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value);
-        if (show_instr_detail_level == 1)
+        if (show_instr_detail_level == 2)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## LOAD (%%address=%u, %%value=%u)",
-                                current_address, addr, value);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_value, bytecode_tvb, offset, (next_operand_address-operand_address), value,
+                                "Addr: %u      Value %u", operand_address, value);
         }
+        offset += (next_operand_address-operand_address);
         lsb = value & 0xff;
         msb = value >> 8;
 
@@ -2502,10 +2516,11 @@ execute_next_instruction:
         buff[(addr + 1) & 0xffff] = lsb;
 
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, value);
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading bytes at %u Value %u 0x%x",
-                                addr, value, value);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
+                                "Addr: %u ## LOAD (%%address=%u, %%value=%u)",
+                                current_address, addr, value);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                "     Loading bytes at %u Value %u 0x%x", addr, value, value);
         }
         current_address = next_operand_address;
         goto execute_next_instruction;
@@ -2518,28 +2533,29 @@ execute_next_instruction:
          * Hmm what if the value to load only takes one byte ? Chose to always load two bytes.
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## MULTILOAD(15) (%%address, #n, value_0, ..., value_n-1)",
-                                current_address);
+            proto_item_append_text(addr_item, " (%%address, #n, value_0, ..., value_n-1)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %address */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-                                operand_address, addr);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_address, bytecode_tvb, offset, (next_operand_address-operand_address), addr,
+                                "Addr: %u      Address %u", operand_address, addr);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* #n */
         next_operand_address = decode_udvm_literal_operand(buff,operand_address, &n);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      n %u",
-                                operand_address, n);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_literal_num, bytecode_tvb, offset, (next_operand_address-operand_address), n,
+                                "Addr: %u      n %u", operand_address, n);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## MULTILOAD (%%address=%u, #n=%u, value_0, ..., value_%d)",
                                 current_address, addr, n, n-1);
         }
@@ -2562,8 +2578,8 @@ execute_next_instruction:
             length = next_operand_address - operand_address;
 
             if (print_level_1 ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1, "Addr: %u      Value %5u      - Loading bytes at %5u Value %5u 0x%x",
-                                    operand_address, value, addr, value, value);
+                proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, bytecode_tvb, 0, -1,
+                                    "Addr: %u      Value %5u      - Loading bytes at %5u Value %5u 0x%x", operand_address, value, addr, value, value);
             }
             addr = addr + 2;
             operand_address = next_operand_address;
@@ -2575,20 +2591,20 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_PUSH: /* 16 PUSH (%value) */
         if (show_instr_detail_level == 2) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## PUSH(16) (value)",
-                                current_address);
+            proto_item_append_text(addr_item, " (value)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %value */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value);
         if (show_instr_detail_level == 2) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, value);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_value, bytecode_tvb, offset, (next_operand_address-operand_address), value,
+                                "Addr: %u      Value %u", operand_address, value);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## PUSH (value=%u)",
                                 current_address, value);
         }
@@ -2619,20 +2635,20 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_POP: /* 17 POP (%address) */
         if (show_instr_detail_level == 2) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## POP(16) (value)",
-                                current_address);
+            proto_item_append_text(addr_item, " (value)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %value */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &destination);
         if (show_instr_detail_level == 2) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_address, bytecode_tvb, offset, (next_operand_address-operand_address), destination,
+                                "Addr: %u      Value %u", operand_address, destination);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## POP (address=%u)",
                                 current_address, destination);
         }
@@ -2675,36 +2691,38 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_COPY: /* 18 COPY (%position, %length, %destination) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## COPY(18) (position, length, destination)",
-                                current_address);
+            proto_item_append_text(addr_item, " (position, length, destination)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %position */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
-                                operand_address, position);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_position, bytecode_tvb, offset, (next_operand_address-operand_address), position,
+                                "Addr: %u      position %u", operand_address, position);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %destination */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &destination);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Destination %u",
-                                operand_address, destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), destination,
+                                "Addr: %u      Destination %u", operand_address, destination);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## COPY (position=%u, length=%u, destination=%u)",
                                 current_address, position, length, destination);
         }
@@ -2762,37 +2780,39 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_COPY_LITERAL: /* 19 COPY-LITERAL (%position, %length, $destination) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## COPY-LITERAL(19) (position, length, $destination)",
-                                current_address);
+            proto_item_append_text(addr_item, " (position, length, $destination)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %position */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
-                                operand_address, position);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_position, bytecode_tvb, offset, (next_operand_address-operand_address), position,
+                                "Addr: %u      position %u", operand_address, position);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      destination %u",
-                                operand_address, ref_destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
+                                "Addr: %u      destination %u", operand_address, ref_destination);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## COPY-LITERAL (position=%u, length=%u, $destination=%u)",
                                 current_address, position, length, ref_destination);
         }
@@ -2856,38 +2876,40 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_COPY_OFFSET: /* 20 COPY-OFFSET (%offset, %length, $destination) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## COPY-OFFSET(20) (offset, length, $destination)",
-                                current_address);
+            proto_item_append_text(addr_item, " (offset, length, $destination)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %offset */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &multy_offset);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      offset %u",
-                                operand_address, multy_offset);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_offset, bytecode_tvb, offset, (next_operand_address-operand_address), multy_offset,
+                                "Addr: %u      offset %u", operand_address, multy_offset);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      $destination %u",
-                                operand_address, ref_destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
+                                "Addr: %u      $destination %u", operand_address, ref_destination);
         }
+        offset += (next_operand_address-operand_address);
 
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## COPY-OFFSET (offset=%u, length=%u, $destination=%u)",
                                 current_address, multy_offset, length, result_dest);
         }
@@ -2986,44 +3008,47 @@ execute_next_instruction:
         break;
     case SIGCOMP_INSTR_MEMSET: /* 21 MEMSET (%address, %length, %start_value, %offset) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## MEMSET(21) (address, length, start_value, offset)",
-                                current_address);
+            proto_item_append_text(addr_item, " (address, length, start_value, offset)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /* %address */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-                                operand_address, addr);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_address, bytecode_tvb, offset, (next_operand_address-operand_address), addr,
+                                "Addr: %u      Address %u", operand_address, addr);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /*  %length, */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %start_value */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &start_value);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      start_value %u",
-                                operand_address, start_value);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_start_value, bytecode_tvb, offset, (next_operand_address-operand_address), start_value,
+                                "Addr: %u      start_value %u", operand_address, start_value);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %offset */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &multy_offset);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      offset %u",
-                                operand_address, multy_offset);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_offset, bytecode_tvb, offset, (next_operand_address-operand_address), multy_offset,
+                                "Addr: %u      offset %u", operand_address, multy_offset);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## MEMSET (address=%u, length=%u, start_value=%u, offset=%u)",
                                 current_address, addr, length, start_value, multy_offset);
         }
@@ -3064,21 +3089,21 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_JUMP: /* 22 JUMP (@address) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## JUMP(22) (@address)",
-                                current_address);
+            proto_item_append_text(addr_item, " (@address)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* @address */
         /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-        /*next_operand_address = */decode_udvm_address_operand(buff,operand_address, &at_address, current_address);
+        next_operand_address = decode_udvm_address_operand(buff,operand_address, &at_address, current_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## JUMP (@address=%u)",
                                 current_address, at_address);
         }
@@ -3090,26 +3115,27 @@ execute_next_instruction:
         /* COMPARE (%value_1, %value_2, @address_1, @address_2, @address_3)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## COMPARE(23) (value_1, value_2, @address_1, @address_2, @address_3)",
-                                current_address);
+            proto_item_append_text(addr_item, " (value_1, value_2, @address_1, @address_2, @address_3)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /* %value_1 */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value_1);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, value_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_value, bytecode_tvb, offset, (next_operand_address-operand_address), value_1,
+                                "Addr: %u      Value %u", operand_address, value_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %value_2 */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, value_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_value, bytecode_tvb, offset, (next_operand_address-operand_address), value_2,
+                                "Addr: %u      Value %u", operand_address, value_2);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address_1 */
@@ -3117,9 +3143,10 @@ execute_next_instruction:
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address_1);
         at_address_1 = ( current_address + at_address_1) & 0xffff;
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address_1);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address_1,
+                                "Addr: %u      @Address %u", operand_address, at_address_1);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
 
@@ -3128,22 +3155,24 @@ execute_next_instruction:
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address_2);
         at_address_2 = ( current_address + at_address_2) & 0xffff;
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address_2);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address_2,
+                                "Addr: %u      @Address %u", operand_address, at_address_2);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address_3 */
         /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-        /*next_operand_address = */decode_udvm_multitype_operand(buff, operand_address, &at_address_3);
+        next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address_3);
         at_address_3 = ( current_address + at_address_3) & 0xffff;
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address_3);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address_3,
+                                "Addr: %u      @Address %u", operand_address, at_address_3);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## COMPARE (value_1=%u, value_2=%u, @address_1=%u, @address_2=%u, @address_3=%u)",
                                 current_address, value_1, value_2, at_address_1, at_address_2, at_address_3);
         }
@@ -3164,20 +3193,20 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_CALL: /* 24 CALL (@address) (PUSH addr )*/
         if (show_instr_detail_level == 2) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## CALL(24) (@address) (PUSH addr )",
-                                current_address);
+            proto_item_append_text(addr_item, " (@address) (PUSH addr )");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* @address */
         next_operand_address = decode_udvm_address_operand(buff,operand_address, &at_address, current_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## CALL (@address=%u)",
                                 current_address, at_address);
         }
@@ -3207,12 +3236,6 @@ execute_next_instruction:
         break;
 
     case SIGCOMP_INSTR_RETURN: /* 25 POP and return */
-        if (print_level_1 || show_instr_detail_level == 1) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## POP(25) and return",
-                                current_address);
-        }
-
         /* Pop value from the top of the stack */
         stack_location = (buff[70] << 8) | buff[71];
         stack_fill = (buff[stack_location] << 8)
@@ -3250,27 +3273,28 @@ execute_next_instruction:
          * if the address lies beyond the overall UDVM memory size.
          */
         instruction_address = current_address;
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## SWITCH (#n, j, @address_0, @address_1, ... , @address_n-1))",
-                                current_address);
+        if (show_instr_detail_level == 2) {
+            proto_item_append_text(addr_item, " (#n, j, @address_0, @address_1, ... , @address_n-1))");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* #n
          * Number of addresses in the instruction
          */
         next_operand_address = decode_udvm_literal_operand(buff,operand_address, &n);
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      n %u",
-                                operand_address, n);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_literal_num, bytecode_tvb, offset, (next_operand_address-operand_address), n,
+                                "Addr: %u      n %u", operand_address, n);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %j */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &j);
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      j %u",
-                                operand_address, j);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_j, bytecode_tvb, offset, (next_operand_address-operand_address), j,
+                                "Addr: %u      j %u", operand_address, j);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         m = 0;
         while ( m < n ) {
@@ -3278,10 +3302,11 @@ execute_next_instruction:
             /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address_1);
             at_address_1 = ( instruction_address + at_address_1) & 0xffff;
-            if (print_level_1 ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                    operand_address, at_address_1);
+            if (print_level_2 ) {
+                proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address_1,
+                                    "Addr: %u      @Address %u", operand_address, at_address_1);
             }
+            offset += (next_operand_address-operand_address);
             if ( j == m ) {
                 current_address = at_address_1;
             }
@@ -3303,45 +3328,48 @@ execute_next_instruction:
 
         break;
     case SIGCOMP_INSTR_CRC: /* 27 CRC (%value, %position, %length, @address) */
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## CRC (value, position, length, @address)",
-                                current_address);
+        if (show_instr_detail_level == 2) {
+            proto_item_append_text(addr_item, " (value, position, length, @address)");
         }
+        start_offset = offset;
 
         operand_address = current_address + 1;
 
         /* %value */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value);
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
-                                operand_address, value);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_value, bytecode_tvb, offset, (next_operand_address-operand_address), value,
+                                "Addr: %u      Value %u", operand_address, value);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %position */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
-                                operand_address, position);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_position, bytecode_tvb, offset, (next_operand_address-operand_address), position,
+                                "Addr: %u      position %u", operand_address, position);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address);
         at_address = ( current_address + at_address) & 0xffff;
-        if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+        if (print_level_2 ) {
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
         used_udvm_cycles = used_udvm_cycles + length;
 
@@ -3381,7 +3409,8 @@ execute_next_instruction:
         result = result ^ 0xffff;
 
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1, "Calculated CRC %u", result);
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
+                                        "Calculated CRC %u", result);
         }
         if (result != value) {
             current_address = at_address;
@@ -3395,25 +3424,26 @@ execute_next_instruction:
 
     case SIGCOMP_INSTR_INPUT_BYTES: /* 28 INPUT-BYTES (%length, %destination, @address) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## INPUT-BYTES(28) length, destination, @address)",
-                                current_address);
+            proto_item_append_text(addr_item, " length, destination, @address)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      Length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* %destination */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &destination);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Destination %u",
-                                operand_address, destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_destination, bytecode_tvb, offset, (next_operand_address-operand_address), destination,
+                                "Addr: %u      Destination %u", operand_address, destination);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address */
@@ -3421,12 +3451,13 @@ execute_next_instruction:
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &at_address);
         at_address = ( current_address + at_address) & 0xffff;
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## INPUT-BYTES length=%u, destination=%u, @address=%u)",
                                 current_address, length, destination, at_address);
         }
@@ -3520,37 +3551,39 @@ execute_next_instruction:
          */
 
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## INPUT-BITS(29) (length, destination, @address)",
-                                current_address);
+            proto_item_append_text(addr_item, " (length, destination, @address)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /* %length */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      length %u",
-                                operand_address, length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_length, bytecode_tvb, offset, (next_operand_address-operand_address), length,
+                                "Addr: %u      length %u", operand_address, length);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* %destination */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &destination);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Destination %u",
-                                operand_address, destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_destination, bytecode_tvb, offset, (next_operand_address-operand_address), destination,
+                                "Addr: %u      Destination %u", operand_address, destination);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address */
         /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
         next_operand_address = decode_udvm_address_operand(buff,operand_address, &at_address, current_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## INPUT-BITS length=%u, destination=%u, @address=%u)",
                                 current_address, length, destination, at_address);
         }
@@ -3588,7 +3621,7 @@ execute_next_instruction:
         bit_order = ( input_bit_order & 0x0004 ) >> 2;
         value = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order,
                                           buff, &old_input_bit_order, &remaining_bits,
-                                          &input_bits, &input_address, length, &result_code, msg_end);
+                                          &input_bits, &input_address, length, &result_code, msg_end, print_level_1);
         if ( result_code == 11 ) {
             current_address = at_address;
             goto execute_next_instruction;
@@ -3600,7 +3633,7 @@ execute_next_instruction:
         buff[destination] = msb;
         buff[(destination + 1) & 0xffff]=lsb;
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_loading_result, message_tvb, input_address, 1,
                                 "               Loading value: %u (0x%x) at Addr: %u, remaining_bits: %u", value, value, destination, remaining_bits);
         }
 
@@ -3613,39 +3646,41 @@ execute_next_instruction:
          *  %upper_bound_n, %uncompressed_n)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## INPUT-HUFFMAN (destination, @address, #n, bits_1, lower_bound_1,upper_bound_1, uncompressed_1, ... , bits_n, lower_bound_n,upper_bound_n, uncompressed_n)",
-                                current_address);
+            proto_item_append_text(addr_item, " (destination, @address, #n, bits_1, lower_bound_1,upper_bound_1, uncompressed_1, ... , bits_n, lower_bound_n,upper_bound_n, uncompressed_n)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /* %destination */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &destination);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Destination %u",
-                                operand_address, destination);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_destination, bytecode_tvb, offset, (next_operand_address-operand_address), destination,
+                                "Addr: %u      Destination %u", operand_address, destination);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* @address */
         /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
         next_operand_address = decode_udvm_address_operand(buff,operand_address, &at_address, current_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      @Address %u",
-                                operand_address, at_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_at_address, bytecode_tvb, offset, (next_operand_address-operand_address), at_address,
+                                "Addr: %u      @Address %u", operand_address, at_address);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /* #n */
         next_operand_address = decode_udvm_literal_operand(buff,operand_address, &n);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      n %u",
-                                operand_address, n);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_literal_num, bytecode_tvb, offset, (next_operand_address-operand_address), n,
+                                "Addr: %u      n %u", operand_address, n);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## INPUT-HUFFMAN (destination=%u, @address=%u, #n=%u, bits_1, lower_1,upper_1, unc_1, ... , bits_%d, lower_%d,upper_%d, unc_%d)",
                                 current_address, destination, at_address, n, n, n, n, n);
         }
@@ -3702,31 +3737,35 @@ execute_next_instruction:
             /* %bits_n */
             next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &bits_n);
             if (print_in_loop ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      bits_n %u",
-                                    operand_address, bits_n);
+                proto_tree_add_uint_format(udvm_tree, hf_udvm_bits, bytecode_tvb, offset, (next_operand_address-operand_address), bits_n,
+                                    "Addr: %u      bits_n %u", operand_address, bits_n);
             }
+            offset += (next_operand_address-operand_address);
             operand_address = next_operand_address;
 
             /* %lower_bound_n */
             next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &lower_bound_n);
             if (print_in_loop ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      lower_bound_n %u",
-                                    operand_address, lower_bound_n);
+                proto_tree_add_uint_format(udvm_tree, hf_udvm_lower_bound, bytecode_tvb, offset, (next_operand_address-operand_address), lower_bound_n,
+                                    "Addr: %u      lower_bound_n %u", operand_address, lower_bound_n);
             }
+            offset += (next_operand_address-operand_address);
             operand_address = next_operand_address;
             /* %upper_bound_n */
             next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &upper_bound_n);
             if (print_in_loop ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      upper_bound_n %u",
-                                    operand_address, upper_bound_n);
+                proto_tree_add_uint_format(udvm_tree, hf_udvm_upper_bound, bytecode_tvb, offset, (next_operand_address-operand_address), upper_bound_n,
+                                    "Addr: %u      upper_bound_n %u", operand_address, upper_bound_n);
             }
+            offset += (next_operand_address-operand_address);
             operand_address = next_operand_address;
             /* %uncompressed_n */
             next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &uncompressed_n);
             if (print_in_loop ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      uncompressed_n %u",
-                                    operand_address, uncompressed_n);
+                proto_tree_add_uint_format(udvm_tree, hf_udvm_uncompressed, bytecode_tvb, offset, (next_operand_address-operand_address), uncompressed_n,
+                                    "Addr: %u      uncompressed_n %u", operand_address, uncompressed_n);
             }
+            offset += (next_operand_address-operand_address);
             operand_address = next_operand_address;
             /* execute instruction */
             if ( outside_huffman_boundaries ) {
@@ -3736,7 +3775,7 @@ execute_next_instruction:
                  */
                 k = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order,
                                               buff, &old_input_bit_order, &remaining_bits,
-                                              &input_bits, &input_address, bits_n, &result_code, msg_end);
+                                              &input_bits, &input_address, bits_n, &result_code, msg_end, print_level_1);
                 if ( result_code == 11 ) {
                     /*
                      * 4. If data is requested that lies beyond the end of the SigComp
@@ -3810,10 +3849,9 @@ execute_next_instruction:
          * %state_begin, %state_length, %state_address, %state_instruction)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## STATE-ACCESS(31) (partial_identifier_start, partial_identifier_length,state_begin, state_length, state_address, state_instruction)",
-                                current_address);
+            proto_item_append_text(addr_item, " (partial_identifier_start, partial_identifier_length,state_begin, state_length, state_address, state_instruction)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /*
@@ -3821,9 +3859,10 @@ execute_next_instruction:
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_start);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_start %u",
-                                operand_address, p_id_start);
+            proto_tree_add_uint_format(udvm_tree, hf_partial_identifier_start, bytecode_tvb, offset, (next_operand_address-operand_address), p_id_start,
+                                "Addr: %u       partial_identifier_start %u", operand_address, p_id_start);
         }
+        offset += (next_operand_address-operand_address);
 
         /*
          * %partial_identifier_length
@@ -3831,48 +3870,53 @@ execute_next_instruction:
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_length %u",
-                                operand_address, p_id_length);
+            proto_tree_add_uint_format(udvm_tree, hf_partial_identifier_length, bytecode_tvb, offset, (next_operand_address-operand_address), p_id_length,
+                                "Addr: %u       partial_identifier_length %u", operand_address, p_id_length);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_begin
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_begin);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_begin %u",
-                                operand_address, state_begin);
+            proto_tree_add_uint_format(udvm_tree, hf_state_begin, bytecode_tvb, offset, (next_operand_address-operand_address), state_begin,
+                                "Addr: %u       state_begin %u", operand_address, state_begin);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_length
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_length %u",
-                                operand_address, state_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_length, bytecode_tvb, offset, (next_operand_address-operand_address), state_length,
+                                "Addr: %u       state_length %u", operand_address, state_length);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_address
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_address %u",
-                                operand_address, state_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_address, bytecode_tvb, offset, (next_operand_address-operand_address), state_address,
+                                "Addr: %u       state_address %u", operand_address, state_address);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_instruction
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_instruction);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_instruction %u",
-                                operand_address, state_instruction);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_instr, bytecode_tvb, offset, (next_operand_address-operand_address), state_instruction,
+                                "Addr: %u       state_instruction %u", operand_address, state_instruction);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## STATE-ACCESS(31) (partial_identifier_start=%u, partial_identifier_length=%u,state_begin=%u, state_length=%u, state_address=%u, state_instruction=%u)",
                                 current_address, p_id_start, p_id_length, state_begin, state_length, state_address, state_instruction);
         }
@@ -3900,10 +3944,9 @@ execute_next_instruction:
          * %minimum_access_length, %state_retention_priority)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## STATE-CREATE(32) (state_length, state_address, state_instruction,minimum_access_length, state_retention_priority)",
-                                current_address);
+            proto_item_append_text(addr_item, " (state_length, state_address, state_instruction,minimum_access_length, state_retention_priority)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /*
@@ -3911,48 +3954,53 @@ execute_next_instruction:
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_length %u",
-                                operand_address, state_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_length, bytecode_tvb, offset, (next_operand_address-operand_address), state_length,
+                                "Addr: %u       state_length %u", operand_address, state_length);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_address
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_address %u",
-                                operand_address, state_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_address, bytecode_tvb, offset, (next_operand_address-operand_address), state_address,
+                                "Addr: %u       state_address %u", operand_address, state_address);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_instruction
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_instruction);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_instruction %u",
-                                operand_address, state_instruction);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_instr, bytecode_tvb, offset, (next_operand_address-operand_address), state_instruction,
+                                "Addr: %u       state_instruction %u", operand_address, state_instruction);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %minimum_access_length
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &minimum_access_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       minimum_access_length %u",
-                                operand_address, minimum_access_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_min_acc_len, bytecode_tvb, offset, (next_operand_address-operand_address), minimum_access_length,
+                                "Addr: %u       minimum_access_length %u", operand_address, minimum_access_length);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_retention_priority
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_retention_priority);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_retention_priority %u",
-                                operand_address, state_retention_priority);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_ret_pri, bytecode_tvb, offset, (next_operand_address-operand_address), state_retention_priority,
+                                "Addr: %u       state_retention_priority %u", operand_address, state_retention_priority);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## STATE-CREATE(32) (state_length=%u, state_address=%u, state_instruction=%u,minimum_access_length=%u, state_retention_priority=%u)",
                                 current_address, state_length, state_address, state_instruction,minimum_access_length, state_retention_priority);
         }
@@ -4022,19 +4070,19 @@ execute_next_instruction:
          * STATE-FREE (%partial_identifier_start, %partial_identifier_length)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## STATE-FREE (partial_identifier_start, partial_identifier_length)",
-                                current_address);
+            proto_item_append_text(addr_item, " (partial_identifier_start, partial_identifier_length)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /*
          * %partial_identifier_start
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_start);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_start %u",
-                                operand_address, p_id_start);
+            proto_tree_add_uint_format(udvm_tree, hf_partial_identifier_start, bytecode_tvb, offset, (next_operand_address-operand_address), p_id_start,
+                                "Addr: %u       partial_identifier_start %u", operand_address, p_id_start);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
 
         /*
@@ -4042,12 +4090,13 @@ execute_next_instruction:
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_length %u",
-                                operand_address, p_id_length);
+            proto_tree_add_uint_format(udvm_tree, hf_partial_identifier_length, bytecode_tvb, offset, (next_operand_address-operand_address), p_id_length,
+                                "Addr: %u       partial_identifier_length %u", operand_address, p_id_length);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## STATE-FREE (partial_identifier_start=%u, partial_identifier_length=%u)",
                                 current_address, p_id_start, p_id_length);
         }
@@ -4062,31 +4111,32 @@ execute_next_instruction:
         break;
     case SIGCOMP_INSTR_OUTPUT: /* 34 OUTPUT (%output_start, %output_length) */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## OUTPUT(34) (output_start, output_length)",
-                                current_address);
+            proto_item_append_text(addr_item, " (output_start, output_length)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
         /*
          * %output_start
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &output_start);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      output_start %u",
-                                operand_address, output_start);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_output_start, bytecode_tvb, offset, (next_operand_address-operand_address), output_start,
+                                "Addr: %u      output_start %u", operand_address, output_start);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /*
          * %output_length
          */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &output_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      output_length %u",
-                                operand_address, output_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_output_length, bytecode_tvb, offset, (next_operand_address-operand_address), output_length,
+                                "Addr: %u      output_length %u", operand_address, output_length);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## OUTPUT (output_start=%u, output_length=%u)",
                                 current_address, output_start, output_length);
         }
@@ -4144,52 +4194,57 @@ execute_next_instruction:
          * %state_retention_priority)
          */
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "Addr: %u ## END-MESSAGE (requested_feedback_location,state_instruction, minimum_access_length,state_retention_priority)",
-                                current_address);
+            proto_item_append_text(addr_item, " (requested_feedback_location,state_instruction, minimum_access_length,state_retention_priority)");
         }
+        start_offset = offset;
         operand_address = current_address + 1;
 
         /* %requested_feedback_location */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &requested_feedback_location);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      requested_feedback_location %u",
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_req_feedback_loc, bytecode_tvb, offset, (next_operand_address-operand_address), requested_feedback_location,
+                                "Addr: %u      requested_feedback_location %u",
                                 operand_address, requested_feedback_location);
         }
+        offset += (next_operand_address-operand_address);
         operand_address = next_operand_address;
         /* returned_parameters_location */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &returned_parameters_location);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      returned_parameters_location %u",
-                                operand_address, returned_parameters_location);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_ret_param_loc, bytecode_tvb, offset, (next_operand_address-operand_address), returned_parameters_location,
+                                "Addr: %u      returned_parameters_location %u", operand_address, returned_parameters_location);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_length
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      state_length %u",
-                                operand_address, state_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_length, bytecode_tvb, offset, (next_operand_address-operand_address), state_length,
+                                "Addr: %u      state_length %u", operand_address, state_length);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_address
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_address);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      state_address %u",
-                                operand_address, state_address);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_address, bytecode_tvb, offset, (next_operand_address-operand_address), state_address,
+                                "Addr: %u      state_address %u", operand_address, state_address);
         }
+        offset += (next_operand_address-operand_address);
         /*
          * %state_instruction
          */
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_instruction);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      state_instruction %u",
-                                operand_address, state_instruction);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_instr, bytecode_tvb, offset, (next_operand_address-operand_address), state_instruction,
+                                "Addr: %u      state_instruction %u", operand_address, state_instruction);
         }
+        offset += (next_operand_address-operand_address);
 
         /*
          * %minimum_access_length
@@ -4197,22 +4252,24 @@ execute_next_instruction:
         operand_address = next_operand_address;
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &minimum_access_length);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      minimum_access_length %u",
-                                operand_address, minimum_access_length);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_min_acc_len, bytecode_tvb, offset, (next_operand_address-operand_address), minimum_access_length,
+                                "Addr: %u      minimum_access_length %u", operand_address, minimum_access_length);
         }
+        offset += (next_operand_address-operand_address);
 
         /*
          * %state_retention_priority
          */
         operand_address = next_operand_address;
-        /*next_operand_address =*/ decode_udvm_multitype_operand(buff, operand_address, &state_retention_priority);
+        next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &state_retention_priority);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      state_retention_priority %u",
-                                operand_address, state_retention_priority);
+            proto_tree_add_uint_format(udvm_tree, hf_udvm_state_ret_pri, bytecode_tvb, offset, (next_operand_address-operand_address), state_retention_priority,
+                                "Addr: %u      state_retention_priority %u", operand_address, state_retention_priority);
         }
+        offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
         {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+            proto_tree_add_none_format(udvm_tree, hf_sigcomp_decompress_instruction, bytecode_tvb, start_offset, offset-start_offset,
                                 "Addr: %u ## END-MESSAGE (requested_feedback_location=%u, returned_parameters_location=%u, state_length=%u, state_address=%u, state_instruction=%u, minimum_access_length=%u, state_retention_priority=%u)",
                                 current_address, requested_feedback_location, returned_parameters_location, state_length, state_address, state_instruction, minimum_access_length,state_retention_priority);
         }
@@ -4306,8 +4363,8 @@ execute_next_instruction:
         break;
 
     default:
-        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1," ### Addr %u Invalid instruction: %u (0x%x)",
-                            current_address,current_instruction,current_instruction);
+        expert_add_info_format(pinfo, addr_item, &ei_sigcomp_invalid_instruction,
+                            "Addr %u Invalid instruction: %u (0x%x)", current_address,current_instruction,current_instruction);
         break;
     }
     g_free(out_buff);
@@ -4765,8 +4822,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 guint32 compression_ratio =
                     (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
 
-                /* Celebrate success and show compression ratio achieved */
-                proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+                /* Show compression ratio achieved */
                 ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
                                          0, 0, compression_ratio);
                 PROTO_ITEM_SET_GENERATED(ti);
@@ -4899,8 +4955,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                     guint32 compression_ratio =
                         (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
 
-                    /* Celebrate success and show compression ratio achieved */
-                    proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+                    /* Show compression ratio achieved */
                     ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
                                              0, 0, compression_ratio);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -4918,45 +4973,6 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
     }
     return tvb_length(tvb);
 }
-
-
-#define SIGCOMP_INSTR_DECOMPRESSION_FAILURE      0
-#define SIGCOMP_INSTR_AND                        1
-#define SIGCOMP_INSTR_OR                         2
-#define SIGCOMP_INSTR_NOT                        3
-#define SIGCOMP_INSTR_LSHIFT                     4
-#define SIGCOMP_INSTR_RSHIFT                     5
-#define SIGCOMP_INSTR_ADD                        6
-#define SIGCOMP_INSTR_SUBTRACT                   7
-#define SIGCOMP_INSTR_MULTIPLY                   8
-#define SIGCOMP_INSTR_DIVIDE                     9
-#define SIGCOMP_INSTR_REMAINDER                 10
-#define SIGCOMP_INSTR_SORT_ASCENDING            11
-#define SIGCOMP_INSTR_SORT_DESCENDING           12
-#define SIGCOMP_INSTR_SHA_1                     13
-#define SIGCOMP_INSTR_LOAD                      14
-#define SIGCOMP_INSTR_MULTILOAD                 15
-#define SIGCOMP_INSTR_PUSH                      16
-#define SIGCOMP_INSTR_POP                       17
-#define SIGCOMP_INSTR_COPY                      18
-#define SIGCOMP_INSTR_COPY_LITERAL              19
-#define SIGCOMP_INSTR_COPY_OFFSET               20
-#define SIGCOMP_INSTR_MEMSET                    21
-#define SIGCOMP_INSTR_JUMP                      22
-#define SIGCOMP_INSTR_COMPARE                   23
-#define SIGCOMP_INSTR_CALL                      24
-#define SIGCOMP_INSTR_RETURN                    25
-#define SIGCOMP_INSTR_SWITCH                    26
-#define SIGCOMP_INSTR_CRC                       27
-#define SIGCOMP_INSTR_INPUT_BYTES               28
-#define SIGCOMP_INSTR_INPUT_BITS                29
-#define SIGCOMP_INSTR_INPUT_HUFFMAN             30
-#define SIGCOMP_INSTR_STATE_ACCESS              31
-#define SIGCOMP_INSTR_STATE_CREATE              32
-#define SIGCOMP_INSTR_STATE_FREE                33
-#define SIGCOMP_INSTR_OUTPUT                    34
-#define SIGCOMP_INSTR_END_MESSAGE               35
-
 
 static void
 dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint start_address)
@@ -4978,7 +4994,6 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
         instruction = tvb_get_guint8(udvm_tvb, offset);
         instruction_no ++;
         UDVM_address = start_address + offset;
-;
 
         item = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, 1,
                     "######### UDVM instruction %u at UDVM-address %u (0x%x) #########",
@@ -6556,6 +6571,16 @@ proto_register_sigcomp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_sigcomp_decompress_instruction,
+            { "Instruction", "sigcomp.decompress_instruction",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sigcomp_loading_result,
+            { "Loading result", "sigcomp.loading_result",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
 /* Setup protocol subtree array */
@@ -6570,6 +6595,7 @@ proto_register_sigcomp(void)
 
     static ei_register_info ei[] = {
         { &ei_sigcomp_nack_failed_op_code, { "sigcomp.nack.failed_op_code.expert", PI_SEQUENCE, PI_WARN, "SigComp NACK", EXPFILL }},
+        { &ei_sigcomp_invalid_instruction, { "sigcomp.invalid_instruction", PI_PROTOCOL, PI_WARN, "Invalid instruction", EXPFILL }},
     };
 
     module_t *sigcomp_module;
