@@ -845,7 +845,9 @@ static gint ett_dvbci_opp_cap_loop = -1;
 static gint ett_dvbci_dlv_sys_hint = -1;
 
 
+static int hf_dvbci_hdr_ver = -1;
 static int hf_dvbci_event = -1;
+static int hf_dvbci_len = -1;
 static int hf_dvbci_hw_event = -1;
 static int hf_dvbci_cor_addr = -1;
 static int hf_dvbci_cor_val = -1;
@@ -5045,16 +5047,19 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     ti = proto_tree_add_protocol_format(tree, proto_dvbci,
             tvb, 0, packet_len, "DVB Common Interface: %s", event_str);
     dvbci_tree = proto_item_add_subtree(ti, ett_dvbci);
-    hdr_tree = proto_tree_add_subtree(dvbci_tree, tvb, 0, offset, ett_dvbci_hdr, NULL, "Pseudo header");
-    proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
-    proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,
-            "Length field: %d", len_field);
+    hdr_tree = proto_tree_add_subtree(dvbci_tree,
+            tvb, 0, offset, ett_dvbci_hdr, NULL, "Pseudo header");
+    proto_tree_add_item(hdr_tree, hf_dvbci_hdr_ver,
+            tvb, offset_ver, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hdr_tree, hf_dvbci_event,
+            tvb, offset_evt, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hdr_tree, hf_dvbci_len,
+            tvb, offset_len_field, 2, ENC_BIG_ENDIAN);
 
     if (IS_DATA_TRANSFER(event)) {
         dvbci_set_addrs(event, pinfo);
 
-        payload_tvb = tvb_new_subset_remaining( tvb, offset);
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
         if (len_field == 2) {
             dissect_dvbci_buf_neg(payload_tvb, pinfo, dvbci_tree, event);
         }
@@ -5134,9 +5139,17 @@ proto_register_dvbci(void)
     };
 
     static hf_register_info hf[] = {
+        { &hf_dvbci_hdr_ver,
+          { "Version", "dvb-ci.hdr_version",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_event,
           { "Event", "dvb-ci.event",
             FT_UINT8, BASE_HEX, VALS(dvbci_event), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_len,
+          { "Length field", "dvb-ci.length_field",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_hw_event,
           { "Hardware event", "dvb-ci.hw_event",
