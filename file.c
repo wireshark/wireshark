@@ -1302,6 +1302,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     wtapng_iface_descriptions_t *idb_inf, *idb_inf_merge_file;
     wtapng_if_descr_t            int_data, *file_int_data;
     GString                     *comment_gstr;
+    guint                        itf_count, itf_id = 0;
 
     fake_interface_ids = TRUE;
     /* Create SHB info */
@@ -1333,30 +1334,33 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
     for (i = 0; i < in_file_count; i++) {
       idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
-      /* read the interface data from the in file to our combined interfca data */
-      file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, 0);
-      int_data.wtap_encap            = file_int_data->wtap_encap;
-      int_data.time_units_per_second = file_int_data->time_units_per_second;
-      int_data.link_type             = file_int_data->link_type;
-      int_data.snap_len              = file_int_data->snap_len;
-      int_data.if_name               = g_strdup(file_int_data->if_name);
-      int_data.opt_comment           = NULL;
-      int_data.if_description        = NULL;
-      int_data.if_speed              = 0;
-      int_data.if_tsresol            = 6;
-      int_data.if_filter_str         = NULL;
-      int_data.bpf_filter_len        = 0;
-      int_data.if_filter_bpf_bytes   = NULL;
-      int_data.if_os                 = NULL;
-      int_data.if_fcslen             = -1;
-      int_data.num_stat_entries      = 0;          /* Number of ISB:s */
-      int_data.interface_statistics  = NULL;
+      for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
+        /* read the interface data from the in file to our combined interface data */
+        file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
+        int_data.wtap_encap            = file_int_data->wtap_encap;
+        int_data.time_units_per_second = file_int_data->time_units_per_second;
+        int_data.link_type             = file_int_data->link_type;
+        int_data.snap_len              = file_int_data->snap_len;
+        int_data.if_name               = g_strdup(file_int_data->if_name);
+        int_data.opt_comment           = NULL;
+        int_data.if_description        = NULL;
+        int_data.if_speed              = 0;
+        int_data.if_tsresol            = 6;
+        int_data.if_filter_str         = NULL;
+        int_data.bpf_filter_len        = 0;
+        int_data.if_filter_bpf_bytes   = NULL;
+        int_data.if_os                 = NULL;
+        int_data.if_fcslen             = -1;
+        int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+        int_data.interface_statistics  = NULL;
 
-      g_array_append_val(idb_inf->interface_data, int_data);
+        g_array_append_val(idb_inf->interface_data, int_data);
+      }
       g_free(idb_inf_merge_file);
 
       /* Set fake interface Id in per file data */
-      in_files[i].interface_id = i;
+      in_files[i].interface_id = itf_id;
+      itf_id += itf_count;
     }
 
     pdh = wtap_dump_fdopen_ng(out_fd, file_type,
@@ -1479,8 +1483,12 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       struct wtap_pkthdr *phdr;
 
       phdr = wtap_phdr(in_file->wth);
-      phdr->interface_id = in_file->interface_id;
-      phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
+      if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
+        phdr->interface_id += in_file->interface_id;
+      } else {
+        phdr->interface_id = in_file->interface_id;
+        phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
+      }
     }
     if (!wtap_dump(pdh, wtap_phdr(in_file->wth),
                    wtap_buf_ptr(in_file->wth), &write_err, &write_err_info)) {

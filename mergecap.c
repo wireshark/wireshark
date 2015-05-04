@@ -429,6 +429,9 @@ DIAG_ON(cast-qual)
   if(file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ){
     wtapng_section_t *shb_hdr;
     GString *comment_gstr;
+    wtapng_iface_descriptions_t *idb_inf = NULL, *idb_inf_merge_file;
+    wtapng_if_descr_t int_data, *file_int_data;
+    guint itf_count, itf_id = 0;
 
     shb_hdr = g_new(wtapng_section_t,1);
     comment_gstr = g_string_new("File created by merging: \n");
@@ -443,8 +446,48 @@ DIAG_ON(cast-qual)
     shb_hdr->shb_os        = NULL;              /* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
     shb_hdr->shb_user_appl = g_strdup("mergecap"); /* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 
+    if (frame_type == WTAP_ENCAP_PER_PACKET) {
+      /* create fake IDB info */
+      idb_inf = g_new(wtapng_iface_descriptions_t,1);
+      /* TODO make this the number of DIFFERENT encapsulation types
+       * check that snaplength is the same too?
+       */
+      idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+
+      for (i = 0; i < in_file_count; i++) {
+        idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
+        for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
+        /* read the interface data from the in file to our combined interface data */
+          file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
+          int_data.wtap_encap            = file_int_data->wtap_encap;
+          int_data.time_units_per_second = file_int_data->time_units_per_second;
+          int_data.link_type             = file_int_data->link_type;
+          int_data.snap_len              = file_int_data->snap_len;
+          int_data.if_name               = g_strdup(file_int_data->if_name);
+          int_data.opt_comment           = NULL;
+          int_data.if_description        = NULL;
+          int_data.if_speed              = 0;
+          int_data.if_tsresol            = 6;
+          int_data.if_filter_str         = NULL;
+          int_data.bpf_filter_len        = 0;
+          int_data.if_filter_bpf_bytes   = NULL;
+          int_data.if_os                 = NULL;
+          int_data.if_fcslen             = -1;
+          int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+          int_data.interface_statistics  = NULL;
+
+          g_array_append_val(idb_inf->interface_data, int_data);
+        }
+        g_free(idb_inf_merge_file);
+
+        /* Set fake interface Id in per file data */
+        in_files[i].interface_id = itf_id;
+        itf_id += itf_count;
+      }
+    }
+
     pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
-                              FALSE /* compressed */, shb_hdr, NULL /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
+                              FALSE /* compressed */, shb_hdr, idb_inf, &open_err);
     g_string_free(comment_gstr, TRUE);
   } else {
     pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
@@ -487,6 +530,14 @@ DIAG_ON(cast-qual)
       snap_phdr = *phdr;
       snap_phdr.caplen = snaplen;
       phdr = &snap_phdr;
+    }
+    if ((file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) && (frame_type == WTAP_ENCAP_PER_PACKET)) {
+      if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
+        phdr->interface_id += in_file->interface_id;
+      } else {
+        phdr->interface_id = in_file->interface_id;
+        phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
+      }
     }
 
     if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err, &write_err_info)) {
