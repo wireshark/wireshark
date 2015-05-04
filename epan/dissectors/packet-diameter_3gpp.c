@@ -95,6 +95,22 @@ static int hf_diameter_3gpp_feature_list1_s6a_flags_bit30 = -1;
 static int hf_diameter_3gpp_feature_list1_s6a_flags_bit31 = -1;
 static int hf_diameter_3gpp_feature_list2_s6a_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list2_s6a_flags_bit1 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit2 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit3 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit4 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit5 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit6 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit7 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit8 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit9 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit10 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit11 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit12 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit13 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit14 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit15 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit16 = -1;
+static int hf_diameter_3gpp_feature_list2_s6a_flags_bit17 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit1 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit2 = -1;
@@ -542,8 +558,40 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_s6a_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         } else if(feature_list_id == 2) {
-            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
-            bit_offset+=30;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
+            bit_offset+=14;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit17, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit16, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit15, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit14, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit13, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit12, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit11, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit10, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit9, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit8, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit7, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit6, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit5, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit4, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit3, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1555,6 +1603,86 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_feature_list2_s6a_flags_bit1,
             { "SMS in SGSN", "diameter.3gpp.feature_list2_s6a_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit2,
+            { "Dia-LCS-all-PrivExcep", "diameter.3gpp.feature_list2_s6a_flags_bit2",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit3,
+            { "Dia-LCS-Universal", "diameter.3gpp.feature_list2_s6a_flags_bit3",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit4,
+            { "Dia-LCS-CallSessionRelated", "diameter.3gpp.feature_list2_s6a_flags_bit4",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit5,
+            { "Dia-LCS-CallSessionUnrelated", "diameter.3gpp.feature_list2_s6a_flags_bit5",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit6,
+            { "Dia-LCS-PLMNOperator", "diameter.3gpp.feature_list2_s6a_flags_bit6",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit7,
+            { "Dia-LCS-ServiceType", "diameter.3gpp.feature_list2_s6a_flags_bit7",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit8,
+            { "Dia-LCS-all-MOLR-SS", "diameter.3gpp.feature_list2_s6a_flags_bit8",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit9,
+            { "Dia-LCS-BasicSelfLocation", "diameter.3gpp.feature_list2_s6a_flags_bit9",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit10,
+            { "Dia-LCS-AutonomousSelfLocation", "diameter.3gpp.feature_list2_s6a_flags_bit10",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit11,
+            { "Dia-LCS-TransferToThirdParty", "diameter.3gpp.feature_list2_s6a_flags_bit11",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit12,
+            { "Gdd-in-SGSN", "diameter.3gpp.feature_list2_s6a_flags_bit12",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit13,
+            { "Optimized-LCS-Proc-Support", "diameter.3gpp.feature_list2_s6a_flags_bit13",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit14,
+            { "SGSN CAMEL Capability", "diameter.3gpp.feature_list2_s6a_flags_bit14",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit15,
+            { "ProSe Capability", "diameter.3gpp.feature_list2_s6a_flags_bit15",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit16,
+            { "P-CSCF Restoration", "diameter.3gpp.feature_list2_s6a_flags_bit16",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_s6a_flags_bit17,
+            { "Reset-IDs", "diameter.3gpp.feature_list2_s6a_flags_bit17",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
         },
