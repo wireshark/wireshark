@@ -211,6 +211,11 @@ classify_mbtcp_packet(packet_info *pinfo)
 static int
 classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb)
 {
+    guint8 func, len;
+
+    func = tvb_get_guint8(tvb, 1);
+    len = tvb_reported_length(tvb);
+
     /* see if nature of packets can be derived from src/dst ports */
     /* if so, return as found */
     if (( pinfo->srcport == global_mbus_rtu_port ) && ( pinfo->destport != global_mbus_rtu_port ))
@@ -221,28 +226,51 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb)
     /* Special case for serial-captured packets that don't have an Ethernet header */
     /* Dig into these a little deeper to try to guess the message type */
     if (!pinfo->srcport) {
-        /* If length is 8, this is either a query or very short response */
-        if (tvb_length(tvb) == 8) {
-            /* Only possible to get a response message of 8 bytes with Discrete or Coils */
-            if ((tvb_get_guint8(tvb, 1) == READ_COILS) || (tvb_get_guint8(tvb, 1) == READ_DISCRETE_INPUTS)) {
-                /* If this is, in fact, a response then the data byte count will be 3 */
-                /* This will correctly identify all messages except for those that are discrete or coil polls */
-                /* where the base address range happens to have 0x03 in the upper 16-bit address register     */
-                if (tvb_get_guint8(tvb, 2) == 3) {
+        switch (func) {
+            case READ_COILS:
+            case READ_DISCRETE_INPUTS:
+                /* Only possible to get a response message of 8 bytes with Discrete or Coils */
+                if (len == 8) {
+                    /* If this is, in fact, a response then the data byte count will be 3 */
+                    /* This will correctly identify all messages except for those that are discrete or coil polls */
+                    /* where the base address range happens to have 0x03 in the upper 16-bit address register     */
+                    if (tvb_get_guint8(tvb, 2) == 3) {
+                        return RESPONSE_PACKET;
+                    }
+                    else {
+                        return QUERY_PACKET;
+                    }
+                }
+                break;
+
+            case READ_HOLDING_REGS:
+            case READ_INPUT_REGS:
+            case WRITE_SINGLE_COIL:
+            case WRITE_SINGLE_REG:
+                if (len == 8) {
+                    return QUERY_PACKET;
+                }
+                else {
+                    return RESPONSE_PACKET;
+                }
+                break;
+
+            case WRITE_MULT_REGS:
+            case WRITE_MULT_COILS:
+                if (len == 8) {
                     return RESPONSE_PACKET;
                 }
                 else {
                     return QUERY_PACKET;
                 }
-            }
-            else {
-                return QUERY_PACKET;
-            }
-        }
-        else {
-            return RESPONSE_PACKET;
+                break;
+
+            default:
+                return CANNOT_CLASSIFY;
+                break;
         }
     }
+
 
     /* else, cannot classify */
     return CANNOT_CLASSIFY;
