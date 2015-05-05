@@ -650,8 +650,14 @@ static void
 wlan_filter_toggle_dest(GtkWidget *widget, gpointer data)
 {
     wlanstat_t *hs = (wlanstat_t *)data;
+    const char   *filter    = NULL;
 
     hs->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+    if (hs->use_dfilter) {
+        filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    }
+
+    set_tap_dfilter(hs, filter);
 
     cf_retap_packets(&cfile);
     gdk_window_raise(gtk_widget_get_window(wlanstat_dlg_w));
