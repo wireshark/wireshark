@@ -904,17 +904,7 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-ADD_CUSTOM_TARGET(
-	gitversion ALL
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-		${CMAKE_CURRENT_SOURCE_DIR}
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-)
-set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
-
-ADD_CUSTOM_COMMAND(
+add_custom_command(
 	OUTPUT	${CMAKE_BINARY_DIR}/version.h
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
@@ -922,6 +912,12 @@ ADD_CUSTOM_COMMAND(
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
+
+add_custom_target(
+	gitversion ALL
+	DEPENDS ${CMAKE_BINARY_DIR}/version.h
+)
+set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
 
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
@@ -933,6 +929,8 @@ add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
+
+add_dependencies(wsutil gitversion)
 
 if(NOT WIN32)
 	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil color.h)
@@ -1698,6 +1696,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${NL_LIBRARIES}
 	)
 	# wireshark and wireshark-gtk share wireshark_FILES
+	add_dependencies(qtui gitversion)
 
 	# Policy since 2.8.11
 	if (POLICY CMP0020)
@@ -2244,6 +2243,7 @@ if(BUILD_androiddump)
 	)
 
 	add_executable(androiddump WIN32 ${androiddump_FILES})
+	# XXX Shouldn't we add wsutil to androiddump_LIBS instead?
 	add_dependencies(androiddump gitversion)
 	set_extcap_executable_properties(androiddump)
 	target_link_libraries(androiddump ${androiddump_LIBS})
