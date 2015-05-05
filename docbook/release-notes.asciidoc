@@ -15,11 +15,56 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2015-12[]
 +
-A dissector went awry.
-// Fixed in master: g
-// Fixed in master-1.12: g
-// Fixed in master-1.10: g
-(ws-buglink:0000[])
+The LBMR dissector could go into an infinite loop.
+// Fixed in master: gc19860d
+// Fixed in master-1.12: g524d585
+// Fixed in master-1.10: N/A
+(ws-buglink:11036[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-13[]
++
+The WebSocket dissector could recurse excessively.
+// Fixed in master: g4ee6bcb
+// Fixed in master-1.12: gcdb1fc6
+// Fixed in master-1.10: Unknown
+(ws-buglink:10989[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-14[]
++
+The WCP dissector could crash while decompressing data.
+// Fixed in master: ga6fc6aa
+// Fixed in master-1.12: g65db378
+// Fixed in master-1.10: ge5a9cf3
+(ws-buglink:10978[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-15[]
++
+The X11 dissector could leak memory.
+// Fixed in master: gb8ccc2a
+// Fixed in master-1.12: g7b58f02
+// Fixed in master-1.10: g7cb179e
+(ws-buglink:11088[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-16[]
++
+The packet reassembly code could leak memory.
+// Fixed in master: gc35f2cc
+// Fixed in master-1.12: g5bbf0d2
+// Fixed in master-1.10: Unknown
+(ws-buglink:11129[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-17[]
++
+The IEEE 802.11 dissector could go into an infinite loop.
+// Fixed in master: ge243b00
+// Fixed in master-1.12: gc3bee61
+// Fixed in master-1.10: gcd4dd9a
+(ws-buglink:11110[])
 //cve-idlink:2015-XXXX[]
 
 
@@ -27,7 +72,53 @@ The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.6rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Wireshark crashes if "Update list of packets in real time" is disabled and a display filter is applied while capturing. (ws-buglink:6217[])
+
+* EAPOL 4-way handshake information wrong. (ws-buglink:10557[])
+
+* RPC NULL calls incorrectly flagged as malformed. (ws-buglink:10646[])
+
+* Wireshark relative ISN set incorrectly if raw ISN set to 0. (ws-buglink:10713[])
+
+* Buffer overrun in encryption code. (ws-buglink:10849[])
+
+* Crash when use Telephony / Voip calls. (ws-buglink:10885[])
+
+* ICMP Parameter Problem message contains Length of original datagram is treated as the total IPv4 length. (ws-buglink:10991[])
+
+* ICMP Redirect takes 4 bytes for IPv4 payload instead of 8. (ws-buglink:10992[])
+
+* Missing field "tcp.pdu.size" in TCP stack. (ws-buglink:11007[])
+
+* Sierra EM7345 marks MBIM packets as NCM. (ws-buglink:11018[])
+
+* Possible infinite loop DoS in ForCES dissector. (ws-buglink:11037[])
+
+* "Decode As..." crashes when a packet dialog is open. (ws-buglink:11043[])
+
+* Interface Identifier incorrectly represented by Wireshark. (ws-buglink:11053[])
+
+* "Follow UDP Stream" on mpeg packets crashes wireshark v.1.12.4 (works fine on v.1.10.13). (ws-buglink:11055[])
+
+* Annoying popup when trying to capture on bonds. (ws-buglink:11058[])
+
+* Request-response cross-reference in USB URB packets incorrect. (ws-buglink:11072[])
+
+* Right clicking in Expert Infos to create a filter (duplicate IP) results in invalid filters. (ws-buglink:11073[])
+
+* CanOpen dissector fails on frames with RTR and 0 length. (ws-buglink:11083[])
+
+* Typo in secp521r1 curve wrongly identified as sect521r1. (ws-buglink:11106[])
+
+* packet-zbee-zcl.h: IS_ANALOG_SUBTYPE doesn't filter ENUM. (ws-buglink:11120[])
+
+* Typo: "LTE Positioning Protocol" abbreviated as "LPP", not "LLP". (ws-buglink:11141[])
+
+* Missing Makefile.nmake in ansi1/Kerberos directory. (ws-buglink:11155[])
+
+* Can't build tshark without the Qt packages installed unless --without-qt is specified. (ws-buglink:11157[])
 
 
 === New and Updated Features
@@ -41,11 +132,41 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+AllJoyn
+ATM
+ASN.1 PER
+CANopen
+ForCES
+GSM RLC/MAC
+GSMTAP
+ICMP
+IEC-60870-5-104
+IEEE 802.11
+IMF
+IP
+LBMR
+LDAP
+LPP
+MBIM
+MP2T
+PKCS-1
+PPP IPv6CP
+RPC
+SPNEGO
+SRVLOC
+T.38
+TCP
+USB
+WCP
+WebSocket
+X11
+ZigBee ZCL
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
+Savvius OmniPeek, Visual Networks
 --sort-and-group--
 
 == Getting Wireshark
