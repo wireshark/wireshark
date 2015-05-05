@@ -276,6 +276,7 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TGrgx **ud) {
   argE->eflags = ALG_GETEFLAGS (L, 4);
 }
 
+DIAG_OFF(parentheses-equality)
 /* unlike PCRE, partial matching won't return the actual substrings/matches */
 static int Gregex_dfa_exec (lua_State *L)
 {
@@ -319,6 +320,7 @@ static int Gregex_dfa_exec (lua_State *L)
       return generate_error (L, ud, 0);
   }
 }
+DIAG_ON(parentheses-equality)
 
 #ifdef ALG_USERETRY
   static int gmatch_exec (TUserdata *ud, TArgExec *argE, int retry) {
