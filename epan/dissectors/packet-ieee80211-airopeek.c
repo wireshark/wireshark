@@ -1,5 +1,5 @@
 /* packet-ieee80211-airopeek.c
- * Routines for pre-V9 WildPackets AiroPeek header dissection
+ * Routines for pre-V9 Savvius (WildPackets) AiroPeek header dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

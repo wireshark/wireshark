@@ -15,7 +15,7 @@ Wireshark's native capture file format is libpcap format, which is also the form
 -Cinco Networks NetXRay captures
 -Network Associates Windows-based Sniffer captures
 -Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures
--AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures
+-AG Group/WildPackets/Savvius EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures
 -RADCOM's WAN/LAN analyzer captures
 -Network Instruments Observer version 9 captures
 -Lucent/Ascend router debug output

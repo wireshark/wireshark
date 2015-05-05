@@ -1,15 +1,15 @@
 /* peektagged.c
- * Routines for opening files in what WildPackets calls the tagged file
- * format in the description of their "PeekRdr Sample Application" (C++
- * source code to read their capture files, downloading of which requires
- * a maintenance contract, so it's not free as in beer and probably not
- * as in speech, either).
+ * Routines for opening files in what Savvius (formerly WildPackets) calls
+ * the tagged file format in the description of their "PeekRdr Sample
+ * Application" (C++ source code to read their capture files, downloading
+ * of which requires a maintenance contract, so it's not free as in beer
+ * and probably not as in speech, either).
  *
  * As that description says, it's used by AiroPeek and AiroPeek NX 2.0
  * and later, EtherPeek 6.0 and later, EtherPeek NX 3.0 and later,
  * EtherPeek VX 1.0 and later, GigaPeek NX 1.0 and later, Omni3 1.0
  * and later (both OmniPeek and the Remote Engine), and WANPeek NX
- * 1.0 and later.  They also say it'll be used by future WildPackets
+ * 1.0 and later.  They also say it'll be used by future Savvius
  * products.
  *
  * Wiretap Library

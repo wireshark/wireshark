@@ -143,7 +143,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Colasoft Capsa", "cscpkt" },
 	{ "Novell LANalyzer", "tr1" },
 	{ "Tektronix K12xx 32-bit .rf5 format", "rf5" },
-	{ "WildPackets *Peek", "pkt;tpc;apc;wpz" },
+	{ "Savvius *Peek", "pkt;tpc;apc;wpz" },
 	{ "Catapult DCT2000 trace (.out format)", "out" },
 	{ "MPEG files", "mpg;mp3" },
 	{ "TamoSoft CommView", "ncf" },
@@ -340,7 +340,7 @@ static struct open_info open_info_base[] = {
 	{ "Visual Networks traffic capture",        OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
 	{ "InfoVista 5View capture",                OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
 	{ "Network Instruments Observer",           OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
-	{ "WildPackets tagged",                     OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
+	{ "Savvius tagged",                         OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
 	{ "Colasoft Capsa",                         OPEN_INFO_MAGIC,     capsa_open,               NULL,       NULL, NULL },
 	{ "DBS Etherwatch (VMS)",                   OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
 	{ "Tektronix K12xx 32-bit .rf5 format",     OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
@@ -381,7 +381,7 @@ static struct open_info open_info_base[] = {
 	{ "Endace ERF capture",                     OPEN_INFO_HEURISTIC, erf_open,                 "erf",      NULL, NULL },
 	{ "IPFIX File Format",                      OPEN_INFO_HEURISTIC, ipfix_open,               "pfx;ipfix",NULL, NULL },
 	{ "K12 text file",                          OPEN_INFO_HEURISTIC, k12text_open,             "txt",      NULL, NULL },
-	{ "WildPackets classic",                    OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
+	{ "Savvius classic",                        OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
 	{ "pppd log (pppdump format)",              OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
 	{ "IBM iSeries comm. trace",                OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
 	{ "I4B ISDN trace",                         OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
@@ -1423,17 +1423,17 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  visual_dump_can_write_encap, visual_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56 */
-	{ "WildPackets classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz",
+	{ "Savvius classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz",
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7 */
-	{ "WildPackets classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz",
+	{ "Savvius classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz",
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED */
-	{ "WildPackets tagged", "peektagged", "pkt", "tpc;apc;wpz",
+	{ "Savvius tagged", "peektagged", "pkt", "tpc;apc;wpz",
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 

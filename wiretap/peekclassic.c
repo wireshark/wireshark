@@ -1,9 +1,9 @@
 /* peekclassic.c
- * Routines for opening files in what WildPackets calls the classic file
- * format in the description of their "PeekRdr Sample Application" (C++
- * source code to read their capture files, downloading of which requires
- * a maintenance contract, so it's not free as in beer and probably not
- * as in speech, either).
+ * Routines for opening files in what Savvius (formerly WildPackets) calls
+ * the classic file format in the description of their "PeekRdr Sample
+ * Application" (C++ source code to read their capture files, downloading
+ * of which requires a maintenance contract, so it's not free as in beer
+ * and probably not as in speech, either).
  *
  * As that description says, it's used by AiroPeek and AiroPeek NX prior
  * to 2.0, EtherPeek prior to 6.0, and EtherPeek NX prior to 3.0.  It

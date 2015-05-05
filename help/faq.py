@@ -522,7 +522,7 @@ It can also read a variety of capture file formats, including:
 </p>
 <ul>
 
-<li> AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet Grabber captures
+<li> AG Group/WildPackets/Savvius EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet Grabber captures
 <li> AIX's iptrace captures
 <li> Accellent's 5Views LAN agent output
 <li> Cinco Networks NetXRay captures

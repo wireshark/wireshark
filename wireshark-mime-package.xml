@@ -86,7 +86,7 @@
   </mime-type>
 
   <mime-type type="application/x-etherpeek">
-    <comment>Packet Capture (Wildpackets/Etherpeek/Airopeek tagged/v9)</comment>
+    <comment>Packet Capture (Savvius/Etherpeek/Airopeek tagged/v9)</comment>
     <generic-icon name="application-wireshark-doc"/>
     <magic>
       <match type="string" offset="0" value="\177ver"/>

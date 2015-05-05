@@ -94,7 +94,7 @@ Network Associates Windows-based B<Sniffer> captures
 Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
 
 =item *
-AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
+AG Group/WildPackets/Savvius B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
 
 =item *
 B<RADCOM>'s WAN/LAN analyzer captures
