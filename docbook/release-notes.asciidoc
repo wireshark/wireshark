@@ -159,6 +159,7 @@ Video Services over IP (VSIP)
 OCFS2
 Geospatial and Imagery Access Service (GIAS)
 C15 Call History Protocol dissection (C15ch)
+Thrift
 --sort-and-group--
 
 === Updated Protocol Support
@@ -172,6 +173,7 @@ Android Logcat text files
 Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 Colasoft Capsa files
 Netscaler 3.5
+3GPP Nettrace TS 34 423
 --sort-and-group--
 
 === New and Updated Capture Interfaces support

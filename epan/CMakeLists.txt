@@ -1325,6 +1325,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-text-media.c
 	dissectors/packet-tfp.c
 	dissectors/packet-tftp.c
+	dissectors/packet-thrift.c
 	dissectors/packet-time.c
 	dissectors/packet-tipc.c
 	dissectors/packet-tivoconnect.c
