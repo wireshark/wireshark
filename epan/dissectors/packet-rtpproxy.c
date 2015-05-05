@@ -188,8 +188,8 @@ static const value_string paramtypenames[] = {
     {'P', "Protocol type (unofficial extension)"},
     {'t', "Transcode to (unofficial extension)"},
     {'T', "Transcode to (unofficial extension)"},
-    {'v', "Accounting (unofficial extension)"},
-    {'V', "Accounting (unofficial extension)"},
+    {'u', "accoUnting (unofficial extension)"},
+    {'U', "accoUnting (unofficial extension)"},
     {0, NULL}
 };
 
@@ -425,7 +425,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
                 offset += new_offset;
                 break;
-            case 'v':
+            case 'u':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_acc);
                 proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, begin+offset, 1, ENC_BIG_ENDIAN);
                 offset++;
