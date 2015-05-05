@@ -31,8 +31,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lrexlib.h"
 
-#include <wsutil/ws_diag_control.h>
-
 #ifdef LREXLIB_WIRESHARK
 #  define WSLUA_TYPEOF_FIELD "__typeof"
 #  define REX_CREATEGLOBALVAR
@@ -279,7 +277,6 @@ static void push_substrings (lua_State *L, TUserdata *ud, const char *text,
   }
 }
 
-DIAG_OFF(parentheses-equality)
 static int algf_gsub (lua_State *L) {
   TUserdata *ud;
   TArgComp argC;
@@ -462,10 +459,8 @@ static int algf_gsub (lua_State *L) {
   freelist_free (&freelist);
   return 3;
 }
-DIAG_ON(parentheses-equality)
 
 
-DIAG_OFF(parentheses-equality)
 static int finish_generic_find (lua_State *L, TUserdata *ud, TArgExec *argE,
   int method, int res)
 {
@@ -485,7 +480,6 @@ static int finish_generic_find (lua_State *L, TUserdata *ud, TArgExec *argE,
   else
     return generate_error (L, ud, res);
 }
-DIAG_ON(parentheses-equality)
 
 
 static int generic_find_func (lua_State *L, int method) {
@@ -518,7 +512,6 @@ static int algf_match (lua_State *L) {
 }
 
 
-DIAG_OFF(parentheses-equality)
 static int gmatch_iter (lua_State *L) {
   int retry;
   TArgExec argE;
@@ -579,10 +572,8 @@ static int gmatch_iter (lua_State *L) {
       return generate_error (L, ud, res);
   }
 }
-DIAG_ON(parentheses-equality)
 
 
-DIAG_OFF(parentheses-equality)
 static int split_iter (lua_State *L) {
   int incr, newoffset, res;
   TArgExec argE;
@@ -628,7 +619,6 @@ nomatch:
   lua_pushlstring (L, argE.text+argE.startoffset, argE.textlen-argE.startoffset);
   return 1;
 }
-DIAG_ON(parentheses-equality)
 
 
 static int algf_gmatch (lua_State *L)
@@ -704,7 +694,6 @@ static void push_offset_table (lua_State *L, TUserdata *ud, int startoffset) {
 }
 
 
-DIAG_OFF(parentheses-equality)
 static int generic_find_method (lua_State *L, int method) {
   TUserdata *ud;
   TArgExec argE;
@@ -738,7 +727,6 @@ static int generic_find_method (lua_State *L, int method) {
   else
     return generate_error(L, ud, res);
 }
-DIAG_ON(parentheses-equality)
 
 
 static int algm_find (lua_State *L) {
