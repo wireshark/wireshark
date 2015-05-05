@@ -1121,7 +1121,12 @@ static int proto_bgp = -1;
 static int hf_bgp_marker = -1;
 static int hf_bgp_length = -1;
 static int hf_bgp_prefix_length = -1;
+static int hf_bgp_originating_as = -1;
+static int hf_bgp_community_prefix = -1;
+static int hf_bgp_endpoint_address = -1;
+static int hf_bgp_endpoint_address_ipv6 = -1;
 static int hf_bgp_label_stack = -1;
+static int hf_bgp_wildcard_route_target = -1;
 static int hf_bgp_type = -1;
 
 /* BGP open message header filed */
@@ -1406,6 +1411,7 @@ static int hf_bgp_ls_tlv_ipv6_router_id_of_remote_node = -1;       /* 1031 */
 
 static int hf_bgp_ls_tlv_administrative_group_color = -1;          /* 1088 */
 static int hf_bgp_ls_tlv_administrative_group_color_value = -1;
+static int hf_bgp_ls_tlv_administrative_group = -1;
 static int hf_bgp_ls_tlv_max_link_bandwidth = -1;                  /* 1089 */
 static int hf_bgp_ls_tlv_max_reservable_link_bandwidth = -1;       /* 1090 */
 static int hf_bgp_ls_tlv_unreserved_bandwidth = -1;                /* 1091 */
@@ -1730,12 +1736,9 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
                             ett_bgp_prefix, NULL, "%s/%u PathId %u ",
                             address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
-    proto_tree_add_uint(prefix_tree, hf_path_id, tvb, offset, 4,
-                            path_identifier);
-    proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, plen, "%s prefix length: %u",
-                        tag, plen);
-    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length,
-            ip_addr.addr);
+    proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, ip_addr.addr);
     return(4 + 1 + length);
 }
 
@@ -3361,7 +3364,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             tlv_sub_tree = proto_item_add_subtree(tlv_sub_item, ett_bgp_prefix);
             mask = 1;
             for(n = 0; n<32; n++){
-                if( tmp32 & mask ) proto_tree_add_text(tlv_sub_tree, tvb, offset + 4, 4, "group %u", n);
+                if( tmp32 & mask ) proto_tree_add_uint(tlv_sub_tree, hf_bgp_ls_tlv_administrative_group, tvb, offset + 4, 4, n);
                 mask <<= 1;
             }
             break;
@@ -3971,8 +3974,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 plen = tvb_get_guint8(tvb, offset);
 
                 if (plen == 0) {
-                    proto_tree_add_text(tree, tvb, offset, 1,
-                                        "%s Wildcard route target", tag);
+                    proto_tree_add_string(tree, hf_bgp_wildcard_route_target, tvb, offset, 1, tag);
                     total_length = 1;
                     break;
                 }
@@ -4012,12 +4014,9 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                     tag, tvb_get_ntohl(tvb, offset + 1 + 0),
                                     wmem_strbuf_get_str(comm_strbuf),
                                     plen);
-                proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s Prefix length: %u",
-                                                    tag, plen);
-                proto_tree_add_text(prefix_tree, tvb, offset + 1, 4, "%s Originating AS: %u",
-                                                    tag, tvb_get_ntohl(tvb, offset + 1 + 0));
-                proto_tree_add_text(prefix_tree, tvb, offset + 1 + 4, length - 4, "%s Community prefix: %s",
-                                                    tag, wmem_strbuf_get_str(comm_strbuf));
+                proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(prefix_tree, hf_bgp_originating_as, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_string(prefix_tree, hf_bgp_community_prefix, tvb, offset + 1 + 4, length - 4, wmem_strbuf_get_str(comm_strbuf));
                 total_length = 1 + length;
                 break;
             case SAFNUM_ENCAPSULATION:
@@ -4030,10 +4029,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 offset += 1;
 
-                proto_tree_add_text(tree, tvb, offset,
-                                         offset + 4,
-                                         "Endpoint Address: %s",
-                                         tvb_ip_to_str(tvb, offset));
+                proto_tree_add_item(tree, hf_bgp_endpoint_address, tvb, offset, 4, ENC_NA);
 
                 total_length = 5; /* length(1 octet) + address(4 octets) */
                 break;
@@ -4062,8 +4058,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                          "Tunnel Identifier=0x%x IPv4=%s/%u",
                                          tnl_id, address_to_str(wmem_packet_scope(), &addr), plen);
 
-                proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, plen + 16, "%s Prefix length: %u",
-                                    tag, plen + 16);
+                proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_BIG_ENDIAN);
+
                 proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
                                     start_offset + 1, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
@@ -4265,10 +4261,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 offset += 1;
 
-                proto_tree_add_text(tree, tvb, offset,
-                                         offset + 16,
-                                         "Endpoint Address: %s",
-                                         tvb_ip6_to_str(tvb, offset));
+                proto_tree_add_item(tree, hf_bgp_endpoint_address_ipv6, tvb, offset, 16, ENC_NA);
 
                 total_length = 17; /* length(1 octet) + address(16 octets) */
                 break;
@@ -6828,8 +6821,23 @@ proto_register_bgp(void)
       { &hf_bgp_prefix_length,
         { "Prefix Length", "bgp.prefix_length", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_originating_as,
+        { "Originating AS", "bgp.originating_as", FT_UINT32, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_community_prefix,
+        { "Community Prefix", "bgp.community_prefix", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_endpoint_address,
+        { "Endpoint Address", "bgp.endpoint_address", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_endpoint_address_ipv6,
+        { "Endpoint Address", "bgp.endpoint_address_ipv6", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_label_stack,
         { "Label Stack", "bgp.label_stack", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_wildcard_route_target,
+        { "Wildcard route target", "bgp.wildcard_route_target", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_type,
         { "Type", "bgp.type", FT_UINT8, BASE_DEC,
@@ -7806,6 +7814,9 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_administrative_group_color_value,
         { "Group Mask", "bgp.ls.tlv.administrative_group_color_value", FT_UINT32,
+         BASE_DEC, NULL, 0xffff, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_administrative_group,
+        { "Group", "bgp.ls.tlv.administrative_group", FT_UINT32,
          BASE_DEC, NULL, 0xffff, NULL, HFILL}},
       { &hf_bgp_ls_tlv_max_link_bandwidth,
         { "Maximum link bandwidth TLV", "bgp.ls.tlv.maximum_link_bandwidth", FT_NONE,
