@@ -1601,9 +1601,18 @@ if test "x$enable_wireshark" = "xyes"; then
 		"x$with_gtk3" = "xunspecified" -a \
 		"x$with_qt" = "xunspecified"; then
 		#
-		# No GUI toolkit was explicitly specified; pick Qt and GTK+ 3.
+		# No GUI toolkits were explicitly specified; pick Qt
+		# and GTK+ 3.
 		#
 		with_qt=yes
+		with_gtk3=yes
+	elif test "x$with_gtk2" = "xunspecified" -a \
+		  "x$with_gtk3" = "xunspecified" -a \
+		  "x$with_qt" = "xno"; then
+		#
+		# Qt was explicitly disabled, and neither GTK+ 2 nor
+		# GTK+ 3 were explicitly specified; pick GTK+ 3.
+		#
 		with_gtk3=yes
 	fi
 	if test "x$with_qt" != "xno"; then
