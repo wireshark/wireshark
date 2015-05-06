@@ -1832,27 +1832,40 @@
 		        "diameter.vnd_exp_res" dissector table.
 		-->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<!-- 3GPP TS 29.230 version 9.2.0 Release 9, ETSI TS 129 230 V9.2.0 (2010-04) -->
+			<!-- 3GPP TS 29.230 version 13.0.0 -->
 			<type type-name="Enumerated"/>
+			<!-- Success codes -->
 			<enum name="DIAMETER_FIRST_REGISTRATION" code="2001"/>
 			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2002"/>
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
 			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2004"/>
 			<enum name="DIAMETER_SERVER_SELECTION(Deprecated value)" code="2005"/>
+			<!-- 2006-2020 -->
 			<enum name="DIAMETER_PDP_CONTEXT_DELETION_INDICATION" code="2021"/>
+
+			<!-- Transient failures -->
 			<enum name="DIAMETER_USER_DATA_NOT_AVAILABLE" code="4100"/>
 			<enum name="DIAMETER_PRIOR_UPDATE_IN_PROGRESS" code="4101"/>
+			<!-- 4102-4120 -->
 			<enum name="DIAMETER_ERROR_OUT_OF_RESOURCES" code="4121"/>
+			<!-- 4122-4140 -->
 			<enum name="DIAMETER_PCC_BEARER_EVENT" code="4141"/>
+			<!-- 4142-4180 -->
 			<enum name="DIAMETER_AUTHENTICATION_DATA_UNAVAILABLE" code="4181"/>
+			<enum name="DIAMETER_ERROR_CAMEL_SUBSCRIPTION_PRESENT" code="4182"/>
+			<!-- 4183-4200 -->
 			<enum name="DIAMETER_ERROR_ABSENT_USER" code="4201"/>
+			<!-- 4202-4220 -->
 			<enum name="DIAMETER_ERROR_UNREACHABLE_USER" code="4221"/>
 			<enum name="DIAMETER_ERROR_SUSPENDED_USER" code="4222"/>
 			<enum name="DIAMETER_ERROR_DETACHED_USER" code="4223"/>
 			<enum name="DIAMETER_ERROR_POSITIONING_DENIED" code="4224"/>
 			<enum name="DIAMETER_ERROR_POSITIONING_FAILED" code="4225"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_UNREACHABLE LCS_CLIENT" code="4226"/>
-			<!-- 4227-5000 Unassigned -->
+			<!-- 4227-4240 -->
+			<enum name="DIAMETER_ERROR_NO_AVAILABLE_POLICY_COUNTERS LCS_CLIENT" code="4241"/>
+
+			<!-- Permanent failures -->
 			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
 			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
 			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
@@ -1864,19 +1877,23 @@
 			<enum name="DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA" code="5009"/>
 			<enum name="DIAMETER_MISSING_USER_ID" code="5010"/>
 			<enum name="DIAMETER_ERROR_FEATURE_UNSUPPORTED" code="5011"/>
-			<!-- 5012 - 5040 -->
+			<enum name="DIAMETER_ERROR_SERVING_NODE_FEATURE_UNSUPPORTED" code="5012"/>
+			<!-- 5013-5040 -->
 			<enum name="DIAMETER_ERROR_USER_NO_WLAN_SUBSCRIPTION" code="5041"/>
 			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
 			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
 			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
 			<enum name="DIAMETER_ERROR_UNSUITABLE_NETWORK" code="5045"/>
-			<!-- 5046-5060 Unassigned -->
+			<!-- 5046-5060 -->
 			<enum name="INVALID_SERVICE_INFORMATION" code="5061"/>
 			<enum name="FILTER_RESTRICTIONS" code="5062"/>
 			<enum name="REQUESTED_SERVICE_NOT_AUTHORIZED" code="5063"/>
 			<enum name="DUPLICATED_AF_SESSION" code="5064"/>
 			<enum name="IP-CAN_SESSION_NOT_AVAILABLE" code="5065"/>
 			<enum name="UNAUTHORIZED_NON_EMERGENCY_SESSION" code="5066"/>
+			<enum name="UNAUTHORIZED_SPONSORED_DATA_CONNECTIVITY" code="5067"/>
+			<enum name="TEMPORARY_NETWORK_FAILURE" code="5068"/>
+			<!-- 5069-5099 -->
 			<enum name="DIAMETER_ERROR_USER_DATA_NOT_RECOGNIZED" code="5100"/>
 			<enum name="DIAMETER_ERROR_OPERATION_NOT_ALLOWED" code="5101"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_READ" code="5102"/>
@@ -1886,11 +1903,12 @@
 			<enum name="DIAMETER_ERROR_SUBS_DATA_ABSENT" code="5106"/>
 			<enum name="DIAMETER_ERROR_NO_SUBSCRIPTION_TO_DATA" code="5107"/>
 			<enum name="DIAMETER_ERROR_DSAI_NOT_AVAILABLE" code="5108"/>
-			<!-- 5109-5119 Unassigned -->
+			<!-- 5109-5119 -->
 			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
 			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
 			<enum name="DIAMETER_ERROR_SERVICE_AREA" code="5123"/>
+			<!-- 5124-5139 -->
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 			<enum name="DIAMETER_BEARER_EVENT" code="5142"/>
@@ -1899,24 +1917,68 @@
 			<enum name="DIAMETER_QOS_RULE_EVENT" code="5145"/>
 			<enum name="DIAMETER_ERROR_TRAFFIC_MAPPING_INFO_REJECTED" code="5146"/>
 			<enum name="DIAMETER_ERROR_CONFLICTING_REQUEST" code="5147"/>
+			<enum name="DIAMETER_ADC_RULE_EVENT" code="5148"/>
+			<!-- 5149-5400 -->
 			<enum name="DIAMETER_ERROR_IMPI_UNKNOWN" code="5401"/>
 			<enum name="DIAMETER_ERROR_NOT_AUTHORIZED" code="5402"/>
 			<enum name="DIAMETER_ERROR_TRANSACTION_IDENTIFIER_INVALID" code="5403"/>
+			<!-- 5404-5419 -->
 			<enum name="DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION" code="5420"/>
 			<enum name="DIAMETER_ERROR_RAT_NOT_ALLOWED" code="5421"/>
 			<enum name="DIAMETER_ERROR_EQUIPMENT_UNKNOWN" code="5422"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_SERVING_NODE" code="5423"/>
-			<!-- 5424-5449 Unassigned -->
+			<!-- 5424-5449 -->
 			<enum name="DIAMETER_ERROR_USER_NO_NON_3GPP_SUBSCRIPTION" code="5450"/>
 			<enum name="DIAMETER_ERROR_USER_NO_APN_SUBSCRIPTION" code="5451"/>
 			<enum name="DIAMETER_ERROR_RAT_TYPE_NOT_ALLOWED" code="5452"/>
+			<!-- 5453-5469 -->
 			<enum name="DIAMETER_ERROR_SUBSESSION" code="5470"/>
+			<enum name="DIAMETER_ERROR_ONGOING_SESSION_ESTABLISHMENT" code="5471"/>
+			<!-- 5472-5489 -->
 			<enum name="DIAMETER_ERROR_UNAUTHORIZED_REQUESTING_NETWORK" code="5490"/>
+			<!-- 5491-5509 -->
 			<enum name="DIAMETER_ERROR_UNAUTHORIZED_REQUESTING_ENTITY" code="5510"/>
 			<enum name="DIAMETER_ERROR_UNAUTHORIZED_SERVICE" code="5511"/>
+			<!-- 5512-5529 -->
 			<enum name="DIAMETER_ERROR_INVALID_SME_ADDRESS" code="5530"/>
 			<enum name="DIAMETER_ERROR_SC_CONGESTION" code="5531"/>
 			<enum name="DIAMETER_ERROR_SM_PROTOCOL" code="5532"/>
+			<enum name="DIAMETER_ERROR_TRIGGER_REPLACE_FAILURE" code="5533"/>
+			<enum name="DIAMETER_ERROR_TRIGGER_RECALL_FAILURE" code="5534"/>
+			<enum name="DIAMETER_ERROR_ORIGINAL_MESSAGE_NOT_PENDING" code="5535"/>
+			<!-- 5536-5549 -->
+			<enum name="DIAMETER_ERROR_ABSENT_USER" code="5550"/>
+			<enum name="DIAMETER_ERROR_USER_BUSY_FOR_MT_SMS" code="5551"/>
+			<enum name="DIAMETER_ERROR_FACILITY_NOT_SUPPORTED" code="5552"/>
+			<enum name="DIAMETER_ERROR_ILLEGAL_USER" code="5553"/>
+			<enum name="DIAMETER_ERROR_ILLEGAL_EQUIPMENT" code="5554"/>
+			<enum name="DIAMETER_ERROR_SM_DELIVERY_FAILURE" code="5555"/>
+			<enum name="DIAMETER_ERROR_SERVICE_NOT_SUBSCRIBED" code="5556"/>
+			<enum name="DIAMETER_ERROR_SERVICE_BARRED" code="5557"/>
+			<enum name="DIAMETER_ERROR_MWD_LIST_FULL" code="5558"/>
+			<!-- 5559-5569 -->
+			<enum name="DIAMETER_ERROR_UNKNOWN_POLICY_COUNTERS" code="5570"/>
+			<!-- 5571-5589 -->
+			<enum name="DIAMETER_ERROR_ORIGIN_ALUID_UNKNOWN" code="5590"/>
+			<enum name="DIAMETER_ERROR_TARGET_ALUID_UNKNOWN" code="5591"/>
+			<enum name="DIAMETER_ERROR_PFID_UNKNOWN" code="5592"/>
+			<enum name="DIAMETER_ERROR_APP_REGISTER_REJECT" code="5593"/>
+			<enum name="DIAMETER_ERROR_PROSE_MAP_REQUEST_DISALLOWED" code="5594"/>
+			<enum name="DIAMETER_ERROR_MAP_REQUEST_REJECT" code="5595"/>
+			<!-- 5596-5609 -->
+			<enum name="DIAMETER_ERROR_UNKNOWN_PROSE_SUBSCRIPTION" code="5610"/>
+			<enum name="PROSE_NOT_ALLOWED" code="5611"/>
+			<enum name="DIAMETER_ERROR_UE_LOCATION_UNKNOWN" code="5612"/>
+			<!-- 5613-5629 -->
+			<enum name="DIAMETER_ERROR_NO_ASSOCIATED_DISCOVERY_FILTER" code="5630"/>
+			<enum name="DIAMETER_ERROR_ANNOUNCING_UNAUTHORIZED_IN_PLMN" code="5631"/>
+			<enum name="DIAMETER_ERROR_INVALID_APPLICATION_CODE" code="5632"/>
+			<enum name="DIAMETER_ERROR_PROXIMITY_UNAUTHORIZED" code="5633"/>
+			<enum name="DIAMETER_ERROR_PROXIMITY_REJECTED" code="5634"/>
+			<enum name="DIAMETER_ERROR_NO_PROXIMITY_REQUEST" code="5635"/>
+			<enum name="DIAMETER_ERROR_UNAUTHORIZED_SERVICE_IN_THIS_PLMN" code="5636"/>
+			<enum name="DIAMETER_ERROR_PROXIMITY_CANCELLED" code="5637"/>
+			<!-- 5637-5999 -->
 		</avp>
 		<!-- RFC3588 AVP -->
 		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
