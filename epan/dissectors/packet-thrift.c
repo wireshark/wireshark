@@ -93,10 +93,10 @@ static const value_string thrift_bool_vals[] = {
 	{ 0, NULL },
 };
 
-static int dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int type, int offset, int tvb_length);
+static int dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int type, int offset, int length);
 
 static int
-dissect_thrift_utf7(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int tvb_length _U_)
+dissect_thrift_utf7(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int length _U_)
 {
 	guint32 str_len;
 
@@ -111,7 +111,7 @@ dissect_thrift_utf7(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 }
 
 static int
-dissect_thrift_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int tvb_length)
+dissect_thrift_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int length)
 {
 	proto_tree *sub_tree;
 	proto_item *ti;
@@ -126,7 +126,7 @@ dissect_thrift_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 	offset += 4;
 
 	for (i = 0; i < (int)list_len; ++i) {
-		offset = dissect_thrift_type(tvb, pinfo, sub_tree, type, offset, tvb_length);
+		offset = dissect_thrift_type(tvb, pinfo, sub_tree, type, offset, length);
 	}
 	list_len = offset - start_offset;
 	proto_item_set_len(ti, list_len);
@@ -135,7 +135,7 @@ dissect_thrift_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 
 }
 static int
-dissect_thrift_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int tvb_length)
+dissect_thrift_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int length)
 {
 	proto_tree *sub_tree;
 	proto_item *ti;
@@ -143,7 +143,7 @@ dissect_thrift_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, i
 	int start_offset = offset, struct_len;
 
 	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_thrift, &ti, "Struct");
-	while (offset < tvb_length){
+	while (offset < length){
 		/*Read type and field id */
 		type = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(sub_tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -156,14 +156,14 @@ dissect_thrift_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, i
 		}
 		proto_tree_add_item(sub_tree, hf_thrift_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		offset = dissect_thrift_type(tvb, pinfo, sub_tree, type, offset, tvb_length);
+		offset = dissect_thrift_type(tvb, pinfo, sub_tree, type, offset, length);
 	}
 
 	return offset;
 }
 
 static int
-dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int type, int offset, int tvb_length)
+dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int type, int offset, int length)
 {
 	switch (type){
 	case 2:
@@ -198,19 +198,19 @@ dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 		break;
 	case 11:
 		/* T_UTF7 */
-		offset = dissect_thrift_utf7(tvb, pinfo, tree, offset, tvb_length);
+		offset = dissect_thrift_utf7(tvb, pinfo, tree, offset, length);
 		break;
 	case 12:
 		/* T_STRUCT */
-		offset = dissect_thrift_struct(tvb, pinfo, tree, offset, tvb_length);
+		offset = dissect_thrift_struct(tvb, pinfo, tree, offset, length);
 		break;
 	case 15:
 		/* T_LIST */
-		offset = dissect_thrift_list(tvb, pinfo, tree, offset, tvb_length);
+		offset = dissect_thrift_list(tvb, pinfo, tree, offset, length);
 		break;
 	default:
 		/* Bail out */
-		return tvb_length;
+		return length;
 	}
 
 	return offset;
