@@ -50,6 +50,7 @@ static int hf_thrift_i32 = -1;
 static int hf_thrift_utf7str = -1;
 static int hf_thrift_num_list_item = -1;
 static int hf_thrift_bool = -1;
+static int hf_thrift_byte = -1;
 static int hf_thrift_i64 = -1;
 static int hf_thrift_u64 = -1;
 static int hf_thrift_double = -1;
@@ -171,6 +172,11 @@ dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 		proto_tree_add_item(tree, hf_thrift_bool, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		break;
+	case 3:
+		/*T_BYTE , T_I08*/
+		proto_tree_add_item(tree, hf_thrift_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		break;
 	case 4:
 		/*T_DOUBLE*/
 		proto_tree_add_item(tree, hf_thrift_double, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -188,12 +194,12 @@ dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 		break;
 	case 9:
 		/*T_U64 Integer 64*/
-		proto_tree_add_item(tree, hf_thrift_u64, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_thrift_u64, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 		break;
 	case 10:
 		/*T_I64 Integer 64*/
-		proto_tree_add_item(tree, hf_thrift_i64, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_thrift_i64, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 		break;
 	case 11:
@@ -383,6 +389,11 @@ void proto_register_thrift(void) {
 		{ &hf_thrift_bool,
 		{ "Boolean", "thrift.bool",
 		FT_UINT8, BASE_DEC, VALS(thrift_bool_vals), 0x0,
+		NULL, HFILL }
+		},
+		{ &hf_thrift_byte,
+		{ "Byte", "thrift.byte",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
 		{ &hf_thrift_i64,
