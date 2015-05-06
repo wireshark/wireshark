@@ -1204,7 +1204,10 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					/* -------- following Information object address depending on SQ */
 					if (asduh.SQ) /* <=> SQ=1, info obj addr = startaddr++ */
 					{
+						proto_item *ti;
 						asdu_info_obj_addr++;
+						ti = proto_tree_add_uint(trSignal, hf_ioa, tvb, 0, 0, asdu_info_obj_addr);
+						PROTO_ITEM_SET_GENERATED(ti);
 					} else { /* SQ=0, info obj addr given */
 						/* --------  Information object address */
 						/* check length */
