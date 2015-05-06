@@ -459,6 +459,10 @@ static int hf_gtpv2_ul_gtp_u_sequence_number = -1;
 static int hf_gtpv2_authentication_quadruplets = -1;
 static int hf_gtpv2_utran_srvcc_kc = -1;
 static int hf_gtpv2_spare_bytes = -1;
+static int hf_gtpv2_metric = -1;
+static int hf_gtpv2_relative_capacity = -1;
+static int hf_gtpv2_apn_length = -1;
+static int hf_gtpv2_sequence_number = -1;
 static int hf_gtpv2_receive_n_pdu_number = -1;
 static int hf_gtpv2_trace_id = -1;
 static int hf_gtpv2_drx_parameter = -1;
@@ -490,6 +494,7 @@ static gint ett_gtpv2_uli_flags = -1;
 static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
 static gint ett_gtpv2_PDN_conn = -1;
+static gint ett_gtpv2_overload_control_information = -1;
 static gint ett_gtpv2_mm_context_flag = -1;
 static gint ett_gtpv2_pdn_numbers_nsapi = -1;
 static gint ett_gtpv2_tra_info_trigg = -1;
@@ -5071,7 +5076,7 @@ static const value_string gtpv2_timer_unit_vals[] = {
     {1, "value is incremented in multiples of 1 minute"},
     {2, "value is incremented in multiples of 10 minutes"},
     {3, "value is incremented in multiples of 1 hour"},
-    {4, "value is incremented in multiples of 1 hour"},
+    {4, "value is incremented in multiples of 10 hour"},
     {5, "Other values shall be interpreted as multiples of 1 minute(version 10.7.0)"},
     {6, "Other values shall be interpreted as multiples of 1 minute(version 10.7.0)"},
     {7, "value indicates that the timer is infinite"},
@@ -5324,15 +5329,15 @@ dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-	const gchar *time_str;
+    const gchar *time_str;
 
-	/* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
-	 * format as defined in section 6 of IETF RFC 5905
-	 */
+    /* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
+     * format as defined in section 6 of IETF RFC 5905
+     */
 
-	time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
-	proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 8, time_str);
-	proto_item_append_text(item, "%s", time_str);
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 8, time_str);
+    proto_item_append_text(item, "%s", time_str);
 
 }
 /*
@@ -5583,7 +5588,16 @@ dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void
 dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+
+    int         offset = 0;
+    proto_tree *grouped_tree;
+    tvbuff_t   *new_tvb;
+
+    proto_item_append_text(item, "[Grouped IE]");
+    grouped_tree = proto_item_add_subtree(item, ett_gtpv2_overload_control_information);
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
+
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type);
 }
 /*
  * 8.112        Load Control Information
@@ -5599,7 +5613,12 @@ dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static void
 dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+   guint8 oct;
+
+   oct = tvb_get_guint8(tvb, 0);
+   proto_tree_add_item(tree, hf_gtpv2_metric, tvb, 0, 1, ENC_BIG_ENDIAN);
+   if(oct > 0x64)
+       proto_item_append_text(item, "Metric: value beyond 100 is considered as 0");
 }
 /*
  * 8.114        Sequence Number
@@ -5607,7 +5626,7 @@ dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 static void
 dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_sequence_number, tvb, 0, 4, ENC_BIG_ENDIAN);
 }
 /*
  * 8.115        APN and Relative Capacity
@@ -5615,7 +5634,43 @@ dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 static void
 dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int       offset = 0;
+    guint8 oct, apn_length;
+    guint8 *apn    = NULL;
+    int     name_len, tmp;
+
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_relative_capacity, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if((oct > 0x64) || (oct < 0x01))
+        proto_item_append_text(item, "Relative Capacity: value beyond (1,100) is considered as 0");
+    offset += 1;
+    apn_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (apn_length > 0)
+        {
+        name_len = tvb_get_guint8(tvb, offset);
+
+        if (name_len < 0x20)
+            {
+            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, apn_length - 1, ENC_ASCII);
+            for (;;)
+                {
+                if (name_len >= apn_length - 1)
+                    break;
+                tmp = name_len;
+                name_len = name_len + apn[tmp] + 1;
+                apn[tmp] = '.';
+                }
+            }
+        else
+            {
+            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, apn_length, ENC_ASCII);
+            }
+        proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, apn);
+        }
+
 }
 
 typedef struct _gtpv2_ie {
@@ -7084,6 +7139,26 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x07,
            NULL, HFILL}
         },
+        { &hf_gtpv2_metric,
+          {"Metric", "gtpv2.metric",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_relative_capacity,
+          {"Relative Capacity", "gtpv2.relative_capacity",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_apn_length,
+          {"APN Length", "gtpv2.apn_length",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_sequence_number,
+          {"Sequence Number", "gtpv2.sequence_number",
+           FT_UINT32, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_gtpv2_mm_context_ksi_a,
           {"KSI_asme", "gtpv2.mm_context_ksi_a",
            FT_UINT8, BASE_DEC, NULL, 0x07,
@@ -7773,6 +7848,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_uli_field,
         &ett_gtpv2_bearer_ctx,
         &ett_gtpv2_PDN_conn,
+        &ett_gtpv2_overload_control_information,
         &ett_gtpv2_mm_context_flag,
         &ett_gtpv2_pdn_numbers_nsapi,
         &ett_gtpv2_tra_info_trigg,
