@@ -12,3 +12,8 @@ trans.ja_JP = ui/qt/wireshark_ja_JP.ts
 trans.pl = ui/qt/wireshark_pl.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 
+[wireshark.debian]
+file_filter = debian/po/<lang>.po
+source_file = debian/po/templates.pot
+source_lang = en
+type = PO
