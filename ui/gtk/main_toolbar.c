@@ -32,6 +32,7 @@
 
 #include "../cfile.h"
 
+#include <gtk/gtk.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"

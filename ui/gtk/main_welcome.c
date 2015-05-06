@@ -134,9 +134,11 @@ static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_
 #define CAPTURE_HB_BOX_CAPTURE        "CaptureHorizontalBoxCapture"
 #define CAPTURE_HB_BOX_REFRESH        "CaptureHorizontalBoxRefresh"
 
+#ifdef HAVE_LIBPCAP
 static void
 welcome_header_push_msg(const gchar *msg_format, ...)
     G_GNUC_PRINTF(1, 2);
+#endif
 
 static GtkWidget *
 scroll_box_dynamic_new(GtkWidget *child_box, guint max_childs, guint scrollw_y_size) {
@@ -384,6 +386,7 @@ welcome_header_new(void)
     return eb;
 }
 
+#ifdef HAVE_LIBPCAP
 static void
 welcome_header_push_msg(const gchar *msg_format, ...) {
     va_list ap;
@@ -399,6 +402,7 @@ welcome_header_push_msg(const gchar *msg_format, ...) {
 
     gtk_widget_hide(welcome_hb);
 }
+#endif
 
 
 static void
