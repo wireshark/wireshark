@@ -13,13 +13,40 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2015-12[]
+* ws-salink:2015-13[]
 +
-A dissector went awry.
-// Fixed in master: g
-// Fixed in master-1.12: g
-// Fixed in master-1.10: g
-(ws-buglink:0000[])
+The WebSocket dissector could recurse excessively.
+// Fixed in master: g4ee6bcb
+// Fixed in master-1.12: gcdb1fc6
+// Fixed in master-1.10: Unknown
+(ws-buglink:10989[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-14[]
++
+The WCP dissector could crash while decompressing data.
+// Fixed in master: ga6fc6aa
+// Fixed in master-1.12: g65db378
+// Fixed in master-1.10: ge5a9cf3
+(ws-buglink:10978[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-15[]
++
+The X11 dissector could leak memory.
+// Fixed in master: gb8ccc2a
+// Fixed in master-1.12: g7b58f02
+// Fixed in master-1.10: g7cb179e
+(ws-buglink:11088[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-17[]
++
+The IEEE 802.11 dissector could go into an infinite loop.
+// Fixed in master: ge243b00
+// Fixed in master-1.12: gc3bee61
+// Fixed in master-1.10: gcd4dd9a
+(ws-buglink:11110[])
 //cve-idlink:2015-XXXX[]
 
 
@@ -28,7 +55,29 @@ The following bugs have been fixed:
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying
 //  to sleep. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt; for bugnumber in `git log --stat v1.10.13rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt; for bugnumber in `git log --stat v1.10.15rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Wireshark crashes if "Update list of packets in real time" is disabled and a display filter is applied while capturing. (ws-buglink:6217[])
+
+* Wireshark relative ISN set incorrectly if raw ISN set to 0. (ws-buglink:10713[])
+
+* Buffer overrun in encryption code. (ws-buglink:10849[])
+
+* ICMP Parameter Problem message contains Length of original datagram is treated as the total IPv4 length. (ws-buglink:10991[])
+
+* ICMP Redirect takes 4 bytes for IPv4 payload instead of 8. (ws-buglink:10992[])
+
+* Interface Identifier incorrectly represented by Wireshark. (ws-buglink:11053[])
+
+* Annoying popup when trying to capture on bonding devices on Linux. (ws-buglink:11058[])
+
+* CanOpen dissector fails on frames with RTR and 0 length. (ws-buglink:11083[])
+
+* Typo in secp521r1 curve wrongly identified as sect521r1. (ws-buglink:11106[])
+
+* packet-zbee-zcl.h: IS_ANALOG_SUBTYPE doesn't filter ENUM. (ws-buglink:11120[])
+
+* Typo: "LTE Positioning Protocol" abbreviated as "LPP", not "LLP". (ws-buglink:11141[])
 
 === New and Updated Features
 
@@ -41,11 +90,26 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASN.1 PER
+CANopen
+GSM RLC/MAC
+GSMTAP
+ICMP
+IEEE 802.11
+LPP
+PKCS-1
+PPP IPv6CP
+SRVLOC
+TCP
+WCP
+X11
+ZigBee ZCL
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
+Savvius OmniPeek, Visual Networks
 --sort-and-group--
 
 == Getting Wireshark

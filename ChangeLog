@@ -1,0 +1,789 @@
+commit 99ce339
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 6 09:45:25 2015 -0700
+
+    Prep for 1.10.14.
+    
+    Change-Id: Id98909b1fe760dbefdabd9f0f41e445c41e3ce79
+
+commit 44a5cc5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 5 13:52:13 2015 -0700
+
+    Don't change the value of FTREPR_DFILTER.
+    
+    At least not in a stable branch. This should fix the medium-severity
+    warning currently reported in
+    https://www.wireshark.org/download/automated/analysis/compat_reports_1.10/libwireshark/3.1.14_to_3.1.14/compat_report.html
+    
+    Change-Id: I5ffee0786412b5ca7cbb5a88e25da3358f43a838
+    Reviewed-on: https://code.wireshark.org/review/8302
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 1f02f2d65c7aa8da88b654ef422c515f9c2632af)
+    Reviewed-on: https://code.wireshark.org/review/8303
+
+commit c0978c4
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 3 15:09:11 2015 -0700
+
+    Don't dissect otherwise-undissected data twice.
+    
+    Also, set decoded to TRUE after we return from a dissector; that makes
+    it a bit clearer when we're setting it.
+    
+    Change-Id: Iad55883068c155cadf01bcfd6d354ec8ade9691e
+    Reviewed-on: https://code.wireshark.org/review/8286
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 33ad9463df9dbe820c3440c82fe4436a807d307a)
+    Reviewed-on: https://code.wireshark.org/review/8287
+
+commit 1ee3ad7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 3 08:15:03 2015 -0700
+
+    [Automatic update for 2015-05-03]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ie628fd6b7d4e3ee12f168877d869d4c36dbeb266
+    Reviewed-on: https://code.wireshark.org/review/8275
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4612dc4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 26 08:16:27 2015 -0700
+
+    [Automatic update for 2015-04-26]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ia16bed4b7160cbdb812f16e41632a1d04675b236
+    Reviewed-on: https://code.wireshark.org/review/8202
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d4e6411
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Apr 23 14:58:21 2015 +0200
+
+    LPP: fix a typo in the protocol abbreviation
+    
+    Bug: 11141
+    Change-Id: I2bd00a84dd59bbcfc67bf6b8286cb49fd9ff01f9
+    Reviewed-on: https://code.wireshark.org/review/8175
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 2318bd92b30dda84a77863faba35aab0fe513ca4)
+    Conflicts:
+    	asn1/lpp/lpp.cnf
+    	asn1/lpp/packet-lpp-template.c
+    	asn1/lpp/packet-lpp-template.h
+    	epan/dissectors/packet-lpp.c
+    	epan/dissectors/packet-lpp.h
+    Reviewed-on: https://code.wireshark.org/review/8178
+
+commit 4ca260a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 20 00:48:02 2015 -0700
+
+    Make various structure members the right size for time-in-seconds.
+    
+    I.e., make them time_t's.
+    
+    Change-Id: I65cb0ce22c932d3f2916f8b1a847d2e60d9c0b18
+    Reviewed-on: https://code.wireshark.org/review/8160
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 8a9a2ef
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 20 00:20:12 2015 -0700
+
+    Visual Networks captures have only millisecond resolution.
+    
+    Change-Id: Ie94010aeb69e792bbcfc367d10e3f06494a8a66f
+    Reviewed-on: https://code.wireshark.org/review/8157
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6f8b0ad71d838d96aeeb19a0d1e5d933bf8002bf)
+    Reviewed-on: https://code.wireshark.org/review/8158
+
+commit 12d4f99
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 20 00:13:55 2015 -0700
+
+    Simplify the calculation of the time stamp.
+    
+    The time is calculated based on a 32-bit "seconds since the Epoch" value
+    for the start time and a 32-bit delta from that time, in milliseconds.
+    We can just split that delta into seconds and milliseconds, add the
+    seconds to the start time to get the seconds part of the time stamp, and
+    multiply the milliseconds by 1,000,000 to get the nanoseconds part of
+    the time stamp.  The only 64-bit arithmetic needed is adding the seconds
+    to a 64-bit version of the start time (just in case seconds+start time
+    goes past Y2.038K).
+    
+    Change-Id: I6b3319ec73f1fd49dd59435d0a2ccc2365edf986
+    Reviewed-on: https://code.wireshark.org/review/8156
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 51df8ae
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Apr 19 14:06:02 2015 -0700
+
+    Use 64-bit fixed point to calculate time stamps.
+    
+    Change-Id: I64838e65e1e31231abc7c522d9c7a5af00520ccb
+    Reviewed-on: https://code.wireshark.org/review/8154
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit d93370f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 20 18:56:00 2015 -0700
+
+    Calculate *Peek tagged timestamps in fixed-point.
+    
+    Change-Id: Ied30b620f95d48f582adde448e02f9a797c9b30f
+    Reviewed-on: https://code.wireshark.org/review/8152
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 53c4e78
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 19 08:16:13 2015 -0700
+
+    [Automatic update for 2015-04-19]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ia434d19ecb63123e9e3e8a1c7768c310765e4788
+    Reviewed-on: https://code.wireshark.org/review/8122
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8fa3449
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 16 14:31:58 2015 -0700
+
+    Minor Win32 console fix.
+    
+    Fix a no-op in set_has_console. Mark it and set_console_wait GTK+ only.
+    
+    Change-Id: Ifc6540b30edc0296c4a47c004a397cc309e71d2b
+    Reviewed-on: https://code.wireshark.org/review/8099
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 51d4d0af7220c0ac9f1d107e8d04982382fab8d8)
+    Reviewed-on: https://code.wireshark.org/review/8102
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit cd4dd9a
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Wed Apr 8 22:46:30 2015 +0200
+
+    [IEEE 802.11] fix two potential endless loops
+    
+    add_tagged_field() may return 0 if the tag length is not what is
+    expected for this particular tag
+    
+    Bug: 11110
+    
+    Change-Id: Ia2fd6635613fb6d8e1264147d2ddd44162484887
+    Reviewed-on: https://code.wireshark.org/review/7989
+    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
+    (cherry picked from commit e243b0041328980a9bbd43bb8a8166d7422f9096)
+    Reviewed-on: https://code.wireshark.org/review/7992
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 0e237fe
+Author: Anton Thomasson <anton.thomasson@ericsson.com>
+Date:   Wed Apr 15 15:50:34 2015 +0200
+
+    Fix gsmtap signal and snr.
+    
+    -Correct parsrsing to get correct value (corect position in header).
+    -Rename hf_gsmtap_noise_dbm to hf_gsmtap_snr_db to reflect use and name in struct.
+    -Change order of decalaration/use of signal and snr to reflect position in struct.
+    -Change registered types to signed to reflect possible values and definition in struct.
+    
+    Change-Id: I748bd19757c0dd87fe4ad0969dfcc8427b908aa2
+    Reviewed-on: https://code.wireshark.org/review/8077
+    Reviewed-by: Sylvain Munaut <246tnt@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit f026088ca9e97ea003baf46801acfb426ea0b494)
+    Reviewed-on: https://code.wireshark.org/review/8079
+
+commit 405043e
+Author: Julien STAUB <atsju2@yahoo.fr>
+Date:   Tue Apr 14 19:30:18 2015 +0200
+
+    ZigBee: fix IS_ANALOG_SUBTYPE macro
+    
+    Modify IS_ANALOG_SUBTYPE macro according to 07-5123-04 zigbee cluster
+    library specification. It wasn't filtering out the 8-bit enums ans 16
+    bit enum (digital types).
+    
+    Bug: 11120
+    Change-Id: I74f1c0e6671b33fa69e5045cfc283ada3a39d380
+    Reviewed-on: https://code.wireshark.org/review/8072
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit ea85a0f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 12 08:15:10 2015 -0700
+
+    [Automatic update for 2015-04-12]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I866c45480e9647f852b600f00c0b79e38232e60a
+    Reviewed-on: https://code.wireshark.org/review/8031
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8a3d7e2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Apr 11 21:07:24 2015 -0700
+
+    Only add flags to CFLAGS_FOR_BUILD if $CC and $CC_FOR_BUILD are the same.
+    
+    Otherwise, just because a flag is appropriate for $CC, that doesn't
+    necessarily mean it's appropriate for $CFLAGS_FOR_BUILD.
+    
+    (We don't use CFLAGS_FOR_BUILD for many things, so it's probably not
+    worth making a lot of effort to throw all the warning flags into it if
+    we're cross-compiling; we *do* throw them in for native compilation,
+    which is what most developers use and test with, so that should be
+    sufficient to let the warnings catch problems with the build tools we're
+    building.)
+    
+    Change-Id: I317e5b34b046aa16d793b85ea67f105f6d1faca3
+    Reviewed-on: https://code.wireshark.org/review/8028
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit e223b05
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 6 14:06:17 2015 -0700
+
+    Reset the captured-packet count when we start or restart a capture.
+    
+    Bug: 6217
+    Change-Id: I916e9a6fdb0e114d5f8f123153c213af9273bbc3
+    Reviewed-on: https://code.wireshark.org/review/7954
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0ef2fd5d532b06cd6ae1ab2823b04b89f68bc253)
+    Reviewed-on: https://code.wireshark.org/review/7956
+
+commit 7d1f23d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 6 12:14:25 2015 -0700
+
+    Keep a captured-packet count in a capture_session and use that.
+    
+    Have the count in a cfile_t structure always reflect the actual number
+    of packets that have been read from the file, rather than, when doing a
+    non-update-list-of-packets-in-real-time capture, falsely increasing the
+    count in the cfile_t to reflect the number of packets captured but not
+    yet read.
+    
+    Have the status bar base its captured-packet count on the count in the
+    capture_session structure, and base the "sorry, no packets were
+    captured" message on the count in the capture_session structure, as
+    we're no longer using the count in the cfile_t structure to count
+    anything in the process of a non-update-list-of-packets-in-real-time
+    capture.
+    
+    That way, we preserve the invariant that the "frames" member of a
+    cfile_t will be non-null if the "count" member is non-zero, fixing bug
+    6217.
+    
+    It also means we can get rid of cf_set_packet_count(), as we only set
+    the count in the capture-file-reading code.
+    
+    Bug: 6217
+    Change-Id: I72c0e2c07c30782bad777995370b7c19e1460cc2
+    Reviewed-on: https://code.wireshark.org/review/7950
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1871fb2b0d9628707661776cfa1b35f210e5e58e)
+    Reviewed-on: https://code.wireshark.org/review/7953
+
+commit 2a4285f
+Author: Robert P <tehownt@gmail.com>
+Date:   Mon Apr 6 09:45:33 2015 +0200
+
+    PKCS1: fix a typo for OID 1.3.132.0.35
+    
+    Bug: 11106
+    Change-Id: Ied414b8e0bae8f34445f4d36bc6dfcc96b4a7456
+    Reviewed-on: https://code.wireshark.org/review/7941
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 686d3ef1a88a89278ea44988dcc5309e5f8e213d)
+    Reviewed-on: https://code.wireshark.org/review/7947
+
+commit c167286
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 6 01:01:03 2015 -0700
+
+    Show a list of interfaces on the welcome screen when capturing.
+    
+    In a non-update-list-of-packets-in-real-time capture, once the capture
+    starts, put up a message on the welcome screen indicating on what
+    interfaces we're capturing, rather than leaving the "waiting for stuff
+    to arrive from dumpcap" message up.
+    
+    Make some routines not used outside main_welcome.c static while we're at
+    it.
+    
+    Change-Id: I461dd1333d3fa2b64f20310f7b77b45578f9b40d
+    Reviewed-on: https://code.wireshark.org/review/7942
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit bfd3d269e2705129c4d7e75c66b9750ba0fbf0bc)
+    Reviewed-on: https://code.wireshark.org/review/7944
+
+commit d842745
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Apr 5 16:42:35 2015 -0700
+
+    Have a common routine for constructing strings listing interfaces.
+    
+    We have a bunch of duplicated code to make those lists; make a common
+    routine for that.  (dumpcap currently doesn't use it, as the routine in
+    question uses a routine in libui, which dumpcap doesn't use.  We should
+    probably fix that.)
+    
+    Change-Id: I412d01d53329bf4e769ad08cf03b7b11bcabe95f
+    Reviewed-on: https://code.wireshark.org/review/7940
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 42e7d0a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Apr 5 15:13:17 2015 -0700
+
+    Pop the welcome screen message when we close a file.
+    
+    That fixes a bug where the welcome screen gets stuck at "Waiting for
+    capture input data..." if you do a non-update-list-of-packets-in-real-
+    time capture, stop the capture, and close the capture.
+    
+    Change-Id: Ia77900707c6287e091a1acd2a6640462e0e4fb37
+    Reviewed-on: https://code.wireshark.org/review/7931
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 24af6eeeea3828bbf4e41ad70377aabc3f26252e)
+    Reviewed-on: https://code.wireshark.org/review/7933
+
+commit c8b1d16
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Apr 5 14:39:18 2015 -0700
+
+    Don't default to a non-working DLT.
+    
+    If we set the active DLT to the user's preference, make sure it's in the
+    list of supported DLTs and, if not, pick the first supported DLT_ value,
+    if any; this keeps it from, for example, picking a bad DLT_ value if
+    your defaults were set based on monitor mode being on but monitor mode
+    actually being off, or vice versa.
+    
+    Change-Id: I7658a12362041d0f91a366e76e53f1f369459bf9
+    Reviewed-on: https://code.wireshark.org/review/7930
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 3d75844
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Apr 5 13:01:45 2015 -0700
+
+    Give the welcome screen its own set of callbacks.
+    
+    Don't have the status bar code know about the welcome screen; instead,
+    give the welcome screen its own callbacks, so that it can modify the
+    welcome screen as appropriate.
+    
+    Change-Id: I43ce5b77acba6db19de751cf2ee5a727aee9b38c
+    Reviewed-on: https://code.wireshark.org/review/7929
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 8cc48d8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 5 09:26:18 2015 -0700
+
+    [Automatic update for 2015-04-05]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I1d2a74a7eed7b9362f03e2fbaa7780c1711d0c2d
+    Reviewed-on: https://code.wireshark.org/review/7924
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f4644f3
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sat Apr 4 09:10:13 2015 -0400
+
+    Some CANopen frame types can have zero size, so use tvb_reported_length instead of -1.
+    
+    Bug: 11083
+    Change-Id: Id90c7adfa477a01f8e344b2e2ed7b782f3cd49b2
+    Reviewed-on: https://code.wireshark.org/review/7907
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 101d9a6
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Mar 30 15:55:15 2015 -0700
+
+    Add the new #defines to cmakeconfig.h.in.
+    
+    Unlike autoconf, which can generate config.h.in based on the contents of
+    the configure script, CMake requires that cmakeconfig.h.in be updated
+    separately.
+    
+    Change-Id: I34674e145b9e9016f7fd8e88a7291532d092cb3a
+    Reviewed-on: https://code.wireshark.org/review/7862
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 3d19ab7
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Mar 30 11:21:17 2015 -0700
+
+    Work around a Linux bonding driver bug (and the lack of a libpcap workaround).
+    
+    The bonding driver does not properly handle unknown ioctls; it returns
+    ENODEV rather than ENOTSUP, EOPNOTSUPP, ENOTTY, or a "not supported"
+    error of that type.  This causes problems detailed in bug 11058.
+    
+    On Linux, check for bonding devices before checking for monitor-mode
+    support.
+    
+    While we're at it, get rid of a commented-out include of
+    CheckCSourceCompiles (it's presumably already been implicitly included
+    by other functions that use it).
+    
+    Bug: 11058
+    Change-Id: Ifd63d78f595e1890dbb2deec9ce92d60eb80e02d
+    Reviewed-on: https://code.wireshark.org/review/7858
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d1d124d500b7e5f242d34f0b154418ce672db69f)
+    Reviewed-on: https://code.wireshark.org/review/7861
+
+commit 3d5e852
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 29 08:13:08 2015 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2015-03-29]
+    
+    Change-Id: Idf247081d0ab2c6a448de77371cb72e9e6254a80
+    Reviewed-on: https://code.wireshark.org/review/7845
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7cb179e
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sat Mar 28 08:38:25 2015 -0400
+
+    x11: destroy two more hash tables in convo data
+    
+    Fixes a memory leak.
+    
+    Bug: 11088
+    Change-Id: Ie5532507c6e2963af8056d41abf1c7a398e08cfd
+    Reviewed-on: https://code.wireshark.org/review/7835
+    Petri-Dish: Evan Huus <eapache@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit b8ccc2a6add29823a0ff0492fc50372449007e7b)
+    Reviewed-on: https://code.wireshark.org/review/7839
+
+commit e5a9cf3
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sat Mar 21 13:19:25 2015 -0400
+
+    wcp: add validations to decompressed_entry
+    
+    Ensure that a reference to past bytes refers to bytes that actually exist.
+    
+    Bug: 10978
+    Conflicts:
+    	epan/dissectors/packet-wcp.c
+    Change-Id: I346b30c0815032e5081eeb13123839d3eb0cc8da
+    Reviewed-on: https://code.wireshark.org/review/7801
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 6c09fba
+Author: Jeff Morriss <morriss@ulticom.com>
+Date:   Wed Mar 25 10:56:06 2015 -0400
+
+    Fix warning-turned-error in string_repr_len().
+    
+    Broken in the back-port of Ie95700295ed707dc7f8c6461b026c67f8c0695c4
+    
+    Change-Id: Ib341c634c97465acff7a25c916821f881b22d263
+    Reviewed-on: https://code.wireshark.org/review/7820
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 4bf34cc
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Mar 20 19:14:12 2015 +0100
+
+    GSM RLC/MAC: fix an out of bounds access
+    
+    When GRNTI does not exist in Packet Measurement Report R5 additions, too many lines are skipped
+    
+    Fixes an ASAN failure reported by Alexis
+    
+    Change-Id: I400bc4d9732f1d8e3c6fb8b72bf08a70a636d78c
+    Reviewed-on: https://code.wireshark.org/review/7772
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit a4a5adb68b898f770e2addf9168d796979ebe237)
+    Reviewed-on: https://code.wireshark.org/review/7798
+
+commit 63e52c5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 22 08:13:24 2015 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2015-03-22]
+    
+    Change-Id: I0d9e4a199d77364411e1ae0f2a9ca6f0d0085b09
+    Reviewed-on: https://code.wireshark.org/review/7788
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 5f4df36
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 20 23:14:28 2015 -0700
+
+    Rename update_interface_list() and remove local interface code from it.
+    
+    It's only used to update the remote interface list, and never updates
+    anything else (it sets iftype_id to CAPTURE_IFREMOTE and never changes
+    it, so all tests for whether iftype_id is == or >= CAPTURE_IFREMOTE
+    succeed); remove the code that would be executed if, somehow, iftype_id
+    got stomped on, and rename it to update_remote_interface_list().
+    
+    Change-Id: I839757218bc5d9ebcce1b5e229f5ac5069bebb0c
+    Reviewed-on: https://code.wireshark.org/review/7776
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit ad98745
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Mar 17 13:35:55 2015 -0700
+
+    Don't say "Capturing on..." if we're not capturing on.
+    
+    Only print the "Capturing on..." message if we're actually capturing,
+    not if we're printing link-layer types.
+    
+    Change-Id: I30025211ab13701dcc12c01e0d7cd3c46eb04177
+    Reviewed-on: https://code.wireshark.org/review/7727
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6d582466f6655b90c19f5c441af2409954f824f5)
+    Reviewed-on: https://code.wireshark.org/review/7728
+
+commit 158049e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Mar 17 13:11:12 2015 -0700
+
+    Allow multiple -D/-L/-d/-S flags, only allow one -k flag.
+    
+    Multiple instances of a single flag from -D/-L/-d/-S should behave like
+    a single instance of that flag; -D plus -L, for example, is not
+    supported, but -D plus another -D should be.  -k, however, takes an
+    argument, and we only support one.
+    
+    Change-Id: I8baced346fbffd75f8d768497213f67bb9a0555f
+    Reviewed-on: https://code.wireshark.org/review/7723
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7a14f89f12f72bf14b4fc69f9a0c4a4974bae089)
+    Reviewed-on: https://code.wireshark.org/review/7725
+
+commit 53f8c44
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Mar 16 13:57:37 2015 -0700
+
+    Update an error message to reflect all the run-dumpcap-and-quit arguments.
+    
+    Change-Id: I3c270279b4ea044919de5497d373c283ea87c5bf
+    Reviewed-on: https://code.wireshark.org/review/7709
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8197c769ead538ebeb0f3b6cd2790df547903235)
+    Reviewed-on: https://code.wireshark.org/review/7722
+
+commit f95348b
+Author: Matthieu Coudron <mattator@gmail.com>
+Date:   Tue Nov 18 19:33:53 2014 +0100
+
+    TCP: fix wrongly set base_seq when ISN is 0 and tcp_relative_seq is
+    enabled
+    
+    tcp_analysis::base_seq could be set several times when the
+    TCP ISN was set to 0, thus inducing some undesired wraps such as 0-1
+    
+    Bug: 10713
+    Change-Id: I69a0dfe677e93bf51015bf7a39ebf888631b12a4
+    Reviewed-on: https://code.wireshark.org/review/5387
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 4f8a6ec8669fe0b9b2ac642ab99cc853498e4721)
+    Reviewed-on: https://code.wireshark.org/review/7698
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 61f7545
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat Mar 14 20:30:53 2015 +0100
+
+    SRVLOC: always intialize prot before calling sscanf
+    
+    It prevents using an uninitialized variable if sscanf fails
+    
+    Bug: 11060
+    Change-Id: I3866d35ae05e8114263fd13a8ccc5e20c3a0d63a
+    Reviewed-on: https://code.wireshark.org/review/7683
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 1d3d90de632b26fb44e8fc8ac8384e5b423fd113)
+    Reviewed-on: https://code.wireshark.org/review/7695
+
+commit d29a6f2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 15 08:13:05 2015 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2015-03-15]
+    
+    Change-Id: I1613fc3ec517b49348baceda640bd8e4f14779b0
+    Reviewed-on: https://code.wireshark.org/review/7693
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 0a3d3c1
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 10 23:11:59 2015 +0100
+
+    PER: fix dissection of known-multiplier character strings with ub less or equal to 2^b-1
+    
+    See ITU-T X.691 chapter 30.5 for details
+    
+    Change-Id: I6ac31494997349c6bff19b196e72859a31634af4
+    Ping-Bug: 11039
+    Reviewed-on: https://code.wireshark.org/review/7633
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 803d1201486d515637a391620a75c5b69e9c9b30)
+    Conflicts:
+    	epan/dissectors/packet-per.c
+    Reviewed-on: https://code.wireshark.org/review/7664
+
+commit c1f2bf3
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Mar 12 19:49:46 2015 +0100
+
+    PPP IPV6CP: fix display of Interface Identifier
+    
+    Bug: 11053
+    Change-Id: I2278f859dba5322cb6b8519f7924e9b4a82aee79
+    Reviewed-on: https://code.wireshark.org/review/7660
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 06a53106c1a81edca4cbd1141e538e62b6932490)
+    Reviewed-on: https://code.wireshark.org/review/7661
+
+commit 214b64a
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Mar 11 19:31:56 2015 +0100
+
+    Fix buffer overflow in 802.11 decryption
+    
+    The sha1 function outputs a multiple of 20 bytes while the ptk buffer
+    has only a size of 64 bytes. Follow the hint in 802.11i-2004, page 164
+    and use an output buffer of 80 octets.
+    
+    Noticed when running Wireshark with ASAN, on exit it would try to free a
+    "next" pointer which was filled with sha1 garbage. It probably got
+    triggered via 3f8fbb734915aaf74eb006898e8fabb007afbf48 which made
+    AirPDcap responsible for managing its own memory.
+    
+    Bug: 10849
+    Change-Id: I10c1b9c2e224e5571d746c01fc389f86d25994a1
+    Reviewed-on: https://code.wireshark.org/review/7645
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit b5d062ba57efd4b78f83518ac868fcb25d9bc243)
+    Reviewed-on: https://code.wireshark.org/review/7647
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit eb4e768
+Author: Peter Hatina <phatina@fedoraproject.org>
+Date:   Thu Aug 21 15:16:21 2014 +0200
+
+    fix fields format when printing
+    
+    bug:10318
+    Change-Id: Ie95700295ed707dc7f8c6461b026c67f8c0695c4
+    Reviewed-on: https://code.wireshark.org/review/7569
+    Reviewed-by: Peter Hatina <phatina@redhat.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 3269167
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 8 08:13:25 2015 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2015-03-08]
+    
+    Change-Id: I51842c6db01fe1048f9f054b9c7d305fa70d42d4
+    Reviewed-on: https://code.wireshark.org/review/7600
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 15831a7
+Author: Anish Bhatt <anish@chelsio.com>
+Date:   Tue Feb 24 00:55:33 2015 -0800
+
+    [ICMP] Don't use icmp_original_dgram_length for redirect packet
+    
+    icmp_original_dgram_length was being incorrectly used to clamp tvb size for
+    ICMP redirect packet. This is a bogus value, use ip header len + 64 bits
+    instead
+    
+    Bug: 10992
+    Change-Id: Iebd70d72df34185446a239280bb19c0268977490
+    Reviewed-on: https://code.wireshark.org/review/7340
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit b679295db9c468f4b3d97209c5c1f69a352d8a7a)
+    Reviewed-on: https://code.wireshark.org/review/7545
+
+commit e28eb20
+Author: Anish Bhatt <anish@chelsio.com>
+Date:   Tue Feb 24 01:52:38 2015 -0800
+
+    [ICMP] icmp_original_dgram_length is being used incorrectly
+    
+    icmp_original_dgram_length is of no use, we need to always account for
+    icmp_original_dgram_length + ip header, where icmp_original_dgram_length
+    is available
+    
+    Bug: 10991
+    Change-Id: Ibd0ce538eaf1a7851e4f3e928bad29310ebbcc81
+    Reviewed-on: https://code.wireshark.org/review/7345
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit c4cab879c968ecd119b4fd48313394f0d1c61aca)
+    Reviewed-on: https://code.wireshark.org/review/7543
+
+commit 2f4cbbb
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Nov 6 11:19:25 2014 +0100
+
+    Improved deregistering fields.
+    
+    This improvement avoids use of deallocated memory (crash) if using a
+    deregistered field in display filter, color filter, custom column and
+    other cases when the field is used as "interesting field".
+    
+    This functionality is currently used in http, imf and ldap preferences.
+    
+    Change-Id: I1f5b3d0d1eb6d0085a1670768c67085b81bb1aae
+    Reviewed-on: https://code.wireshark.org/review/5220
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 4463e1b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 4 11:37:51 2015 -0800
+
+    1.10.13 → 1.10.14.
+    
+    Change-Id: I416130917b5796cf2f608084fbe17758cd4e9520
+    Reviewed-on: https://code.wireshark.org/review/7530
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
