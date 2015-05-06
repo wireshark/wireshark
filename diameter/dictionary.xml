@@ -1820,8 +1820,19 @@
 				<gavp name="Experimental-Result-Code"/>
 			</grouped>
 		</avp>
-		<!-- 3GPP TS 29.230 version 9.2.0 Release 9, ETSI TS 129 230 V9.2.0 (2010-04) -->
+
+		<!-- Ideally we could specify, in XML, Experimental-Result-Code values for
+		     different Vendor IDs.  So far we don't have a way to do that, so:
+
+		     1) The below values are for 3GPP (why 3GPP? Because that's the most
+		        common Vendor ID for the people who did this).  Note that
+			packet-diameter.c assumes that the codes specified here are from 3GPP.
+
+		     2) Other Vendor-IDs are handled by registering a dissector to the
+		        "diameter.vnd_exp_res" dissector table.
+		-->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<!-- 3GPP TS 29.230 version 9.2.0 Release 9, ETSI TS 129 230 V9.2.0 (2010-04) -->
 			<type type-name="Enumerated"/>
 			<enum name="DIAMETER_FIRST_REGISTRATION" code="2001"/>
 			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2002"/>

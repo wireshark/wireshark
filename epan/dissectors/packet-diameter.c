@@ -682,7 +682,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		return len+pad_len;
 	}
 	/* If we are dissecting a grouped AVP and find a Vendor Id AVP(266), save it */
-	if((diam_sub_dis_inf->dis_gouped)&&(!vendor_flag)&&(code==266)){
+	if ((diam_sub_dis_inf->dis_gouped) && (!vendor_flag) && (code==266)) {
 		diam_sub_dis_inf->vendor_id = tvb_get_ntohl(tvb,offset);
 	}
 
@@ -692,22 +692,26 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	save_tree = c->tree;
 	c->tree = avp_tree;
 
-	/* If we are dissecting a grouped AVP and find Experimental-Result-Code AVP(298)
-	 * it might be Vendor defined e.g we can't use the enum from the .xml file.
-	 * Actually the xml enum is for 3GPP so let the AVP dissector handle that too
+	/* The Experimental-Result-Code AVP (298) comes inside the Experimental-Result
+	 * grouped AVP (297).  The Vendor-ID AVP in the Experimental-Result specifies the
+	 * name space of the Experimental-Result-Code.  Unfortunately we don't have a way
+	 * to specify, in XML, different Experimental-Result-Code enum values for different
+	 * Vendor-IDs so we choose a Vendor-ID whose values get to go in XML (we chose
+	 * 3GPP) and handle other Vendor-IDs through the "diameter.vnd_exp_res" dissector
+	 * table.
 	 */
-	if((diam_sub_dis_inf->dis_gouped)
-		&&(!vendor_flag)
-		&&(code==298)
-		&&(diam_sub_dis_inf->vendor_id != 0)
-		&&(diam_sub_dis_inf->vendor_id != VENDOR_THE3GPP))
+	if ((diam_sub_dis_inf->dis_gouped)
+		&& (!vendor_flag)
+		&& (code==298)
+		&& (diam_sub_dis_inf->vendor_id != 0)
+		&& (diam_sub_dis_inf->vendor_id != VENDOR_THE3GPP))
 	{
 		/* call subdissector */
 		dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id, subtvb, c->pinfo, avp_tree, FALSE, diam_sub_dis_inf);
-		if(diam_sub_dis_inf->avp_str){
+		if (diam_sub_dis_inf->avp_str) {
 			proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
 		}
-	}else if (c->version_rfc) {
+	} else if (c->version_rfc) {
 		avp_str = a->dissector_rfc(c,a,subtvb, diam_sub_dis_inf);
 	} else {
 		avp_str = a->dissector_v16(c,a,subtvb, diam_sub_dis_inf);
