@@ -582,13 +582,25 @@ integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char 
 static int
 uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return 20;	/* enough for 2^64-1, in decimal */
+	return 20;	/* enough for 2^64-1, in decimal or 0xXXXXXXXXXXXXXXXX */
 }
 
 static void
 uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	guint64_to_str_buf(fv->value.uinteger64, buf, 21);
+	if (field_display == BASE_HEX)
+	{
+		/* This format perfectly fits into 19 bytes. */
+		*buf++ = '0';
+		*buf++ = 'x';
+
+		buf = qword_to_hex(buf, fv->value.uinteger64);
+		*buf++ = '\0';
+	}
+	else
+	{
+		guint64_to_str_buf(fv->value.uinteger64, buf, 21);
+	}
 }
 
 static gboolean
