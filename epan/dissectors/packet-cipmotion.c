@@ -30,6 +30,7 @@
 #include "packet-cip.h"
 
 void proto_register_cipmotion(void);
+/* The entry point to the actual disection is: dissect_cipmotion */
 void proto_reg_handoff_cipmotion(void);
 
 /* Protocol handle for CIP Motion */
@@ -90,7 +91,8 @@ static int hf_cip_sts_flt                   = -1;
 static int hf_cip_sts_alrm                  = -1;
 static int hf_cip_sts_sts                   = -1;
 static int hf_cip_sts_iosts                 = -1;
-static int hf_cip_sts_safety                = -1;
+static int hf_cip_sts_axis_safety           = -1;
+static int hf_cip_sts_drive_safety          = -1;
 static int hf_cip_intrp                     = -1;
 static int hf_cip_position_data_type        = -1;
 static int hf_cip_axis_state                = -1;
@@ -201,7 +203,10 @@ static int hf_cip_axis_status               = -1;
 static int hf_cip_axis_status_mfg           = -1;
 static int hf_cip_axis_io_status            = -1;
 static int hf_cip_axis_io_status_mfg        = -1;
-static int hf_cip_safety_status             = -1;
+static int hf_cip_axis_safety_status        = -1;
+static int hf_cip_axis_safety_status_mfg    = -1;
+static int hf_cip_axis_safety_state         = -1;
+static int hf_cip_drive_safety_status       = -1;
 static int hf_cip_cmd_data_set              = -1;
 static int hf_cip_act_data_set              = -1;
 static int hf_cip_sts_data_set              = -1;
@@ -285,7 +290,8 @@ static gint ett_command_control     = -1;
 #define STATUS_DATA_SET_AXIS_ALARM              0x02
 #define STATUS_DATA_SET_AXIS_STATUS             0x04
 #define STATUS_DATA_SET_AXIS_IO_STATUS          0x08
-#define STATUS_DATA_SET_AXIS_SAFETY             0x80
+#define STATUS_DATA_SET_AXIS_SAFETY             0x10
+#define STATUS_DATA_SET_DRIVE_SAFETY            0x80
 
 /* These are the BITMASKS for the Command Control cyclic field */
 #define COMMAND_CONTROL_TARGET_UPDATE       0x03
@@ -700,7 +706,17 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
 
    if ( (status_data_set & STATUS_DATA_SET_AXIS_SAFETY) == STATUS_DATA_SET_AXIS_SAFETY )
    {
-      proto_tree_add_item(tree, hf_cip_safety_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_cip_axis_safety_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
+      bytes_used += 4;
+      proto_tree_add_item(tree, hf_cip_axis_safety_status_mfg, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
+      bytes_used += 4;
+      proto_tree_add_item(tree, hf_cip_axis_safety_state, tvb, offset + bytes_used, 1, ENC_LITTLE_ENDIAN);
+      bytes_used += 4;
+   }
+
+   if ( (status_data_set & STATUS_DATA_SET_DRIVE_SAFETY) == STATUS_DATA_SET_DRIVE_SAFETY )
+   {
+      proto_tree_add_item(tree, hf_cip_drive_safety_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
       bytes_used += 4;
    }
 
@@ -782,7 +798,8 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_alrm,   tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_sts,    tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_iosts,  tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_sts_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(temp_proto_tree, hf_cip_sts_axis_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(temp_proto_tree, hf_cip_sts_drive_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 
    /* Create the tree for the command control header field */
    temp_proto_item = proto_tree_add_item(header_tree, hf_cip_command_control, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
@@ -856,7 +873,8 @@ dissect_devce_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gu
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_alrm,   tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_sts,    tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_iosts,  tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_sts_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(temp_proto_tree, hf_cip_sts_axis_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(temp_proto_tree, hf_cip_sts_drive_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 
    /* Display the status data values from the cyclic data payload within the status data set tree, the
    * cyclic data starts immediately after the axis state field in the device to controller
@@ -2213,8 +2231,23 @@ proto_register_cipmotion(void)
           FT_UINT32, BASE_HEX, NULL, 0,
           "Axis I/O Status, Manufacturer Specific", HFILL}
       },
-      { &hf_cip_safety_status,
+      { &hf_cip_axis_safety_status,
         { "Axis Safety Status", "cipm.safetystatus",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_axis_safety_status_mfg,
+        { "Axis Safety Status Mfg", "cipm.safetystatusmfg",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Axis Safety Status, Manufacturer Specific", HFILL}
+      },
+      { &hf_cip_axis_safety_state,
+        { "Axis Safety State", "cipm.safetystate",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          "Axis Safety Sate", HFILL}
+      },
+      { &hf_cip_drive_safety_status,
+        { "Drive Safety Status", "cipm.drivesafetystatus",
           FT_UINT32, BASE_HEX, NULL, 0,
           NULL, HFILL}
       },
@@ -2238,10 +2271,15 @@ proto_register_cipmotion(void)
           FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_IO_STATUS,
           "Status Data Set: Axis I/O Status", HFILL}
       },
-      { &hf_cip_sts_safety,
+      { &hf_cip_sts_axis_safety,
         { "Axis Safety Status", "cipm.sts.safety",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_SAFETY,
           "Status Data Set: Axis Safety Status", HFILL}
+      },
+       { &hf_cip_sts_drive_safety,
+        { "Drive Safety Status", "cipm.sts.safety",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_DRIVE_SAFETY,
+          "Status Data Set: Drive Safety Status", HFILL}
       },
 
       { &hf_cip_intrp,
@@ -2874,7 +2912,7 @@ proto_register_cipmotion(void)
      "Common Industrial Protocol, Motion",  /* Full name of protocol        */
      "CIP Motion",           /* Short name of protocol       */
      "cipm");                /* Abbreviated name of protocol */
-
+;
    /* Register the header fields with the protocol */
    proto_register_field_array(proto_cipmotion, hf, array_length(hf));
 
