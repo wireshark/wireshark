@@ -2399,7 +2399,6 @@ execute_next_instruction:
         if (show_instr_detail_level == 2 ) {
             proto_item_append_text(addr_item, " (position, length, destination)");
         }
-        start_offset = offset;
         operand_address = current_address + 1;
         /* %position */
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
@@ -3276,7 +3275,6 @@ execute_next_instruction:
         if (show_instr_detail_level == 2) {
             proto_item_append_text(addr_item, " (#n, j, @address_0, @address_1, ... , @address_n-1))");
         }
-        start_offset = offset;
         operand_address = current_address + 1;
         /* #n
          * Number of addresses in the instruction
