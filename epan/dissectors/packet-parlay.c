@@ -2761,6 +2761,7 @@ static int hf_org_csapi_TpSimpleAttributeValue_TpSimpleAttributeValue = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_BooleanValue = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_OctetValue = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_CharValue = -1;
+static int hf_org_csapi_TpSimpleAttributeValue_WCharValue_len = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_WCharValue = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_StringValue = -1;
 static int hf_org_csapi_TpSimpleAttributeValue_WStringValue = -1;
@@ -53164,13 +53165,13 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
         s_octet1 = get_CDR_wchar(tvb, &seq, offset, header);
         if (tree) {
             if (s_octet1 > 0)
-                proto_tree_add_text(tree,tvb,*offset-1-s_octet1,1,"length = %u",s_octet1);
+                proto_tree_add_uint(tree, hf_org_csapi_TpSimpleAttributeValue_WCharValue_len, tvb, *offset-1-s_octet1, 1, s_octet1);
 
             if (s_octet1 < 0)
                 s_octet1 = -s_octet1;
 
             if (s_octet1 > 0)
-                proto_tree_add_text(tree,tvb,*offset-s_octet1,s_octet1,"org_csapi_TpSimpleAttributeValue_WCharValue = %s",seq);
+                proto_tree_add_string(tree, hf_org_csapi_TpSimpleAttributeValue_WCharValue, tvb, *offset-s_octet1, s_octet1, seq);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -53186,8 +53187,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
     if (disc_s_TpSimpleAttributeValue == 5 ) {
 
         u_octet4 = get_CDR_wstring(tvb, &seq, offset, stream_is_big_endian, boundary, header);
-        proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"org_csapi_TpSimpleAttributeValue_WStringValue (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
+        proto_tree_add_string(tree, hf_org_csapi_TpSimpleAttributeValue_WStringValue, tvb, *offset-u_octet4, u_octet4, (u_octet4 > 0) ? seq : "");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -67044,7 +67044,8 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_TpSimpleAttributeValue_BooleanValue, {"TpSimpleAttributeValue_BooleanValue","giop-parlay.org.csapi.TpSimpleAttributeValue.BooleanValue",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         {&hf_org_csapi_TpSimpleAttributeValue_OctetValue, {"TpSimpleAttributeValue_OctetValue","giop-parlay.org.csapi.TpSimpleAttributeValue.OctetValue",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_TpSimpleAttributeValue_CharValue, {"TpSimpleAttributeValue_CharValue","giop-parlay.org.csapi.TpSimpleAttributeValue.CharValue",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_TpSimpleAttributeValue_WCharValue, {"TpSimpleAttributeValue_WCharValue","giop-parlay.org.csapi.TpSimpleAttributeValue.WCharValue",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpSimpleAttributeValue_WCharValue_len, {"TpSimpleAttributeValue_WCharValue Length","giop-parlay.org.csapi.TpSimpleAttributeValue.WCharValue.len",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpSimpleAttributeValue_WCharValue, {"TpSimpleAttributeValue_WCharValue","giop-parlay.org.csapi.TpSimpleAttributeValue.WCharValue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_TpSimpleAttributeValue_StringValue, {"TpSimpleAttributeValue_StringValue","giop-parlay.org.csapi.TpSimpleAttributeValue.StringValue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_TpSimpleAttributeValue_WStringValue, {"TpSimpleAttributeValue_WStringValue","giop-parlay.org.csapi.TpSimpleAttributeValue.WStringValue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_TpSimpleAttributeValue_Int16Value, {"TpSimpleAttributeValue_Int16Value","giop-parlay.org.csapi.TpSimpleAttributeValue.Int16Value",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},

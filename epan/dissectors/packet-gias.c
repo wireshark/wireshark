@@ -5713,8 +5713,8 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
             u_octet4_loop_UCO_CompressedImage_data);
         text_seq_UCO_CompressedImage_data = make_printable_string(binary_seq_UCO_CompressedImage_data,
             u_octet4_loop_UCO_CompressedImage_data);
-        proto_tree_add_text(tree, tvb, *offset - u_octet4_loop_UCO_CompressedImage_data,
-            u_octet4_loop_UCO_CompressedImage_data, "UCO_CompressedImage_data: %s", text_seq_UCO_CompressedImage_data);
+        proto_tree_add_bytes_format_value(tree, hf_UCO_CompressedImage_data, tvb, *offset - u_octet4_loop_UCO_CompressedImage_data,
+            u_octet4_loop_UCO_CompressedImage_data, binary_seq_UCO_CompressedImage_data, "%s", text_seq_UCO_CompressedImage_data);
     }
 
 }
@@ -6518,8 +6518,8 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 u_octet4_loop_UCO_Buffer_octet_buffer);
             text_seq_UCO_Buffer_octet_buffer = make_printable_string(binary_seq_UCO_Buffer_octet_buffer,
                 u_octet4_loop_UCO_Buffer_octet_buffer);
-            proto_tree_add_text(tree, tvb, *offset - u_octet4_loop_UCO_Buffer_octet_buffer,
-                u_octet4_loop_UCO_Buffer_octet_buffer, "UCO_Buffer_octet_buffer: %s", text_seq_UCO_Buffer_octet_buffer);
+            proto_tree_add_bytes_format_value(tree, hf_UCO_Buffer_octet_buffer, tvb, *offset - u_octet4_loop_UCO_Buffer_octet_buffer,
+                u_octet4_loop_UCO_Buffer_octet_buffer, binary_seq_UCO_Buffer_octet_buffer, "%s", text_seq_UCO_Buffer_octet_buffer);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -6868,8 +6868,8 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
                 u_octet4_loop_GIAS_Domain_bd);
             text_seq_GIAS_Domain_bd = make_printable_string(binary_seq_GIAS_Domain_bd,
                 u_octet4_loop_GIAS_Domain_bd);
-            proto_tree_add_text(tree, tvb, *offset - u_octet4_loop_GIAS_Domain_bd,
-                u_octet4_loop_GIAS_Domain_bd, "GIAS_Domain_bd: %s", text_seq_GIAS_Domain_bd);
+            proto_tree_add_bytes_format_value(tree, hf_GIAS_Domain_bd, tvb, *offset - u_octet4_loop_GIAS_Domain_bd,
+                u_octet4_loop_GIAS_Domain_bd, binary_seq_GIAS_Domain_bd, "%s", text_seq_GIAS_Domain_bd);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7986,7 +7986,7 @@ void proto_register_giop_gias(void)
         {&hf_UCO_CompressedImage_height, {"CompressedImage_height","giop-gias.CompressedImage.height",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_CompressedImage_compression_form, {"CompressedImage_compression_form","giop-gias.CompressedImage.compression_form",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_CompressedImage_data_loop, {"Seq length of CompressedImage_data","giop-gias.CompressedImage.data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_CompressedImage_data, {"CompressedImage_data","giop-gias.CompressedImage.data",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_CompressedImage_data, {"CompressedImage_data","giop-gias.CompressedImage.data",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Status_completion_state, {"Status_completion_state","giop-gias.Status.completion_state",FT_UINT32,BASE_DEC,VALS(UCO_State),0x0,NULL,HFILL}},
         {&hf_UCO_Status_warning, {"Status_warning","giop-gias.Status.warning",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         {&hf_UCO_Status_status_message, {"Status_status_message","giop-gias.Status.status_message",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -8086,7 +8086,7 @@ void proto_register_giop_gias(void)
         /* Union filters */
         {&hf_UCO_Buffer_Buffer, {"Buffer","giop-gias.UCO.Buffer",FT_UINT32,BASE_DEC,VALS(UCO_BufferType),0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_octet_buffer_loop, {"Seq length of Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_UCO_Buffer_octet_buffer, {"Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},
+        {&hf_UCO_Buffer_octet_buffer, {"Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_char_buffer_loop, {"Seq length of Buffer_char_buffer","giop-gias.UCO.Buffer.char_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_char_buffer, {"Buffer_char_buffer","giop-gias.UCO.Buffer.char_buffer",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_UCO_Buffer_ushort_buffer_loop, {"Seq length of Buffer_ushort_buffer","giop-gias.UCO.Buffer.ushort_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -8113,7 +8113,7 @@ void proto_register_giop_gias(void)
         {&hf_GIAS_Domain_ol, {"Domain_ol","giop-gias.GIAS.Domain.ol",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_Domain_gs_loop, {"Seq length of Domain_gs","giop-gias.GIAS.Domain.gs.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_Domain_bd_loop, {"Seq length of Domain_bd","giop-gias.GIAS.Domain.bd.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_GIAS_Domain_bd, {"Domain_bd","giop-gias.GIAS.Domain.bd",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},
+        {&hf_GIAS_Domain_bd, {"Domain_bd","giop-gias.GIAS.Domain.bd",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_GIAS_Domain_bv, {"Domain_bv","giop-gias.GIAS.Domain.bv",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         {&hf_GIAS_LifeEvent_LifeEvent, {"LifeEvent","giop-gias.GIAS.LifeEvent",FT_UINT32,BASE_DEC,VALS(GIAS_LifeEventType),0x0,NULL,HFILL}},
         {&hf_GIAS_LifeEvent_ev, {"LifeEvent_ev","giop-gias.GIAS.LifeEvent.ev",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
