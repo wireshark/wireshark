@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<application id="7" name="Diameter Mobile IPv6 IKE   (MIP6I)" uri="http://tools.ietf.org/html/rfc5778"></application>
+<application id="7" name="Diameter Mobile IPv6 IKE   (MIP6I)" uri="http://tools.ietf.org/html/rfc5778"/>
 <application id="8" name="Diameter Mobile IPv6 Auth  (MIP6A)" uri="http://tools.ietf.org/html/rfc5778">
 
 	<!-- Mobile-IPv6 Application -->

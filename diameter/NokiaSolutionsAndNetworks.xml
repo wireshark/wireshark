@@ -11,7 +11,7 @@
 	</avp>
 </application>
 
-<application id="16777246"	name="NSN Unified Charging Trigger Function (UCTF)" uri="none"></application>
+<application id="16777246"	name="NSN Unified Charging Trigger Function (UCTF)" uri="none"/>
 
 <vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks">
     <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">

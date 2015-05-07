@@ -519,6 +519,9 @@ description_attr description=\042
 <IN_APPL>{application_end} {
 	D(("application_end\n")); BEGIN IN_DICT;
 }
+<IN_APPL>{stop_end} {
+	D(("application_stop_end\n")); BEGIN IN_DICT;
+}
 <IN_APPL>{vendor_end} {
 	D(("vendor_end\n")); BEGIN IN_DICT;
 }
