@@ -373,7 +373,7 @@ cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
 static void
 int64_fvalue_new(fvalue_t *fv)
 {
-	fv->value.uinteger64 = 0;
+	fv->value.sinteger64 = 0;
 }
 
 static void
@@ -570,11 +570,11 @@ integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char 
 {
 	guint64 val;
 
-	if (fv->value.sinteger < 0) {
+	if (fv->value.sinteger64 < 0) {
 		*buf++ = '-';
-		val = -fv->value.sinteger;
+		val = -fv->value.sinteger64;
 	} else
-		val = fv->value.sinteger;
+		val = fv->value.sinteger64;
 
 	guint64_to_str_buf(val, buf, 20);
 }
