@@ -373,7 +373,8 @@ class wireshark_gen_C:
         sname = self.namespace(st, "_")
 
         for m in st.members():
-            if ((self.isSeqNativeType(m.memberType())) or (m.memberType().unalias().kind() == idltype.tk_sequence)):
+            if ((self.isSeqNativeType(m.memberType())) or (m.memberType().unalias().kind() == idltype.tk_sequence) or \
+                (m.memberType().unalias().kind() == idltype.tk_alias)):
                 for decl in m.declarators():
                     if (m.memberType().unalias().kind() == idltype.tk_sequence):
                         self.st.out(self.template_hf, name=sname + "_" + decl.identifier() + "_loop")
