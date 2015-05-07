@@ -768,19 +768,19 @@
 	<enum name="remote-error-notify" code="362"/>
 	<enum name="no-response" code="363"/>
 	<enum name="PDG-Auth-failed" code="364"/>
-	<enum name="mme-s1AP-send-failed=365"/>
-	<enum name="mme-egtpc-connection-failed=366"/>
-	<enum name="mme-egtpc-create-session-failed=367"/>
-	<enum name="mme-authentication-failure=368"/>
-	<enum name="mme-ue-detach=369"/>
-	<enum name="mme-mme-detach=370"/>
-	<enum name="mme-hss-detach=371"/>
-	<enum name="mme-pgw-detach=372"/>
-	<enum name="mme-sub-validation-failure=373"/>
-	<enum name="mme-hss-connection-failure=374"/>
-	<enum name="mme-hss-user-unknown=375"/>
-	<enum name="dhcp-lease-mismatch-detected=376"/>
-	<enum name="nemo-link-layer-down=377"/>
+	<enum name="mme-s1AP-send-failed" code="365"/>
+	<enum name="mme-egtpc-connection-failed" code="366"/>
+	<enum name="mme-egtpc-create-session-failed" code="367"/>
+	<enum name="mme-authentication-failure" code="368"/>
+	<enum name="mme-ue-detach" code="369"/>
+	<enum name="mme-mme-detach" code="370"/>
+	<enum name="mme-hss-detach" code="371"/>
+	<enum name="mme-pgw-detach" code="372"/>
+	<enum name="mme-sub-validation-failure" code="373"/>
+	<enum name="mme-hss-connection-failure" code="374"/>
+	<enum name="mme-hss-user-unknown" code="375"/>
+	<enum name="dhcp-lease-mismatch-detected" code="376"/>
+	<enum name="nemo-link-layer-down" code="377"/>
 	<enum name="eapol-max-retry-reached" code="378"/>
 	<enum name="sgsn-offload-phase3" code="379"/>
 	<enum name="mbms-bearer-service-disconnect" code="380"/>
@@ -841,12 +841,12 @@
 	<enum name="ssl-migration" code="435"/>
 	<enum name="sgsn-ard-failure" code="436"/>
 	<enum name="sgsn-camel-release" code="437"/>
-	<enum name="Hotlining-Status-Change=447"/>
+	<enum name="Hotlining-Status-Change" code="447"/>
 	<enum name="ggsn-no-rsp-from-sgsn" code="448"/>
-	<enum name="diameter-protocol-error=449"/>
-	<enum name="diameter-request-timeout=450"/>
-	<enum name="operator-policy=451"/>
-	<enum name="spr-connection-timeout=452"/>
+	<enum name="diameter-protocol-error" code="449"/>
+	<enum name="diameter-request-timeout" code="450"/>
+	<enum name="operator-policy" code="451"/>
+	<enum name="spr-connection-timeout" code="452"/>
 	<enum name="mipha-dup-wimax-session" code="453"/>
 	<enum name="invalid-version-attr" code="454"/>
 	<enum name="sgsn-zone-code-failure" code="455"/>
@@ -902,10 +902,10 @@
 	<enum name="mme-sgw-dbr-cause-isr-deact" code="506"/>
 	<enum name="sgsn-ptmsi-crunch" code="507"/>
 	<enum name="3Gto4G-context-replacement" code="508"/>
-	<enum name="mme-no-eps-bearers-activated=509"/>
-	<enum name="intra-ggsn-handoff=510"/>
-	<enum name="WSG-Auth-failed=511"/>
-	<enum name="Gtp-non-existent-pdp-context=512"/>
+	<enum name="mme-no-eps-bearers-activated" code="509"/>
+	<enum name="intra-ggsn-handoff" code="510"/>
+	<enum name="WSG-Auth-failed" code="511"/>
+	<enum name="Gtp-non-existent-pdp-context" code="512"/>
 	<enum name="sgsn-cancel-loc-inital-attach" code="513"/>
 	<enum name="Local-fallback-timeout" code="514"/>
 	<enum name="sgsn-nrspca-actv-rej-by-sgsn" code="515"/>
