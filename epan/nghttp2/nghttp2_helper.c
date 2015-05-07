@@ -27,28 +27,28 @@
 #include <assert.h>
 #include <string.h>
 
-#include "nghttp2_net.h"
+#include "glib.h"
 
 void nghttp2_put_uint16be(uint8_t *buf, uint16_t n) {
-  uint16_t x = htons(n);
+  uint16_t x = g_htons(n);
   memcpy(buf, &x, sizeof(uint16_t));
 }
 
 void nghttp2_put_uint32be(uint8_t *buf, uint32_t n) {
-  uint32_t x = htonl(n);
+  uint32_t x = g_htonl(n);
   memcpy(buf, &x, sizeof(uint32_t));
 }
 
 uint16_t nghttp2_get_uint16(const uint8_t *data) {
   uint16_t n;
   memcpy(&n, data, sizeof(uint16_t));
-  return ntohs(n);
+  return g_ntohs(n);
 }
 
 uint32_t nghttp2_get_uint32(const uint8_t *data) {
   uint32_t n;
   memcpy(&n, data, sizeof(uint32_t));
-  return ntohl(n);
+  return g_ntohl(n);
 }
 
 void *nghttp2_memdup(const void *src, size_t n, nghttp2_mem *mem) {

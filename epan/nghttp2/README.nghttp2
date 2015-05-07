@@ -11,7 +11,6 @@ cp ../../../nghttp2/lib/nghttp2_hd*.[ch] .
 cp ../../../nghttp2/lib/nghttp2_helper.[ch] .
 cp ../../../nghttp2/lib/nghttp2_int.h .
 cp ../../../nghttp2/lib/nghttp2_mem.[ch] .
-cp ../../../nghttp2/lib/nghttp2_net.h .
 cp ../../../nghttp2/lib/includes/nghttp2/nghttp2.h .
 cp ../../../nghttp2/lib/includes/nghttp2/nghttp2ver.h .
 
@@ -20,6 +19,13 @@ find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<nghttp2.h>
 
 Change path to nghttp2ver.h
 find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/"nghttp2ver.h"/g'  {} \;
+
+Change ntoh[ls], hton[ls] to use g_ntoh[ls], g_hton[ls] from glib
+find . -name "nghttp2*" -type f -exec sed -i 's/ntoh/g_ntoh/g'  {} \;
+find . -name "nghttp2*" -type f -exec sed -i 's/hton/g_hton/g'  {} \;
+
+Use glib.h and no nghttp2_net.h for ntoh/hton
+find . -name "nghttp2*" -type f -exec sed -i 's/"nghttp2_net.h"/"glib.h"/g'  {} \;
 
 Fix c++-compat error and documentation (struct => typedef) error
 
