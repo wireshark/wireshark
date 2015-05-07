@@ -16,13 +16,13 @@
    Lots of changes to support flags like in the draft, and to support commands
 
 -->
-<!ELEMENT dictionary (base, application*)>
-<!ELEMENT base (command*, vendor*, typedefn+, avp+)>
+<!ELEMENT dictionary (base, application*, vendor*)>
+<!ELEMENT base (command*, typedefn+, avp+)>
 <!ATTLIST base
 	uri CDATA #IMPLIED
 >
 
-<!ELEMENT application (command*, vendor*, typedefn*, avp*)>
+<!ELEMENT application (command*, typedefn*, avp*)>
 <!ATTLIST application
 	id CDATA #REQUIRED
 	name CDATA #IMPLIED
@@ -34,7 +34,7 @@
 	code CDATA #REQUIRED
 	vendor-id IDREF #IMPLIED
 >
-<!ELEMENT vendor EMPTY>
+<!ELEMENT vendor (avp+)>
 <!ATTLIST vendor
 	vendor-id ID #REQUIRED
 	code CDATA #REQUIRED
