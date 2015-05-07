@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Cisco ASR 5x00 AAA Interface Administration and Reference, Version 14.0 -->
 
-<vendor vendor-id="Starent"			code="8164"	name="Starent"/>
+<vendor vendor-id="Starent"			code="8164"	name="Starent">
 
 	<avp name="Access-Network-Charging-Physical-Access-Id" code="1472" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<grouped>
