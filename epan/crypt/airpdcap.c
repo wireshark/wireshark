@@ -1724,10 +1724,10 @@ AirPDcapRsnaPwd2Psk(
     const size_t ssidLength,
     UCHAR *output)
 {
-    UCHAR m_output[AIRPDCAP_WPA_PSK_LEN];
+    UCHAR m_output[2*AIRPDCAP_SHA_DIGEST_LEN];
     GByteArray *pp_ba = g_byte_array_new();
 
-    memset(m_output, 0, AIRPDCAP_WPA_PSK_LEN);
+    memset(m_output, 0, 2*AIRPDCAP_SHA_DIGEST_LEN);
 
     if (!uri_str_to_bytes(passphrase, pp_ba)) {
         g_byte_array_free(pp_ba, TRUE);
