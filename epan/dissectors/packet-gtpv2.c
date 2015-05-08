@@ -424,6 +424,8 @@ static int hf_gtpv2_arp_pvi = -1;
 static int hf_gtpv2_arp_pl = -1;
 static int hf_gtpv2_arp_pci = -1;
 static int hf_gtpv2_timer_unit = -1;
+static int hf_gtpv2_throttling_delay_unit = -1;
+static int hf_gtpv2_throttling_delay_value = -1;
 static int hf_gtpv2_timer_value = -1;
 static int hf_gtpv2_lapi = -1;
 
@@ -460,6 +462,7 @@ static int hf_gtpv2_authentication_quadruplets = -1;
 static int hf_gtpv2_utran_srvcc_kc = -1;
 static int hf_gtpv2_spare_bytes = -1;
 static int hf_gtpv2_metric = -1;
+static int hf_gtpv2_throttling_factor = -1;
 static int hf_gtpv2_relative_capacity = -1;
 static int hf_gtpv2_apn_length = -1;
 static int hf_gtpv2_sequence_number = -1;
@@ -5052,7 +5055,23 @@ dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static void
 dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+    guint8 oct;
+
+    proto_tree_add_item(tree, hf_gtpv2_throttling_delay_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_throttling_delay_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_throttling_factor, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (oct > 0x64)
+        proto_item_append_text(item, "Throttling factor: value beyond (0,100) is considered as 0");
+    offset++;
+
+    if (length > 2)
+        proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, offset, length - 2, ENC_NA);
+
+
 }
 
 /* 8.86 Allocation/Retention Priority (ARP) */
@@ -7145,6 +7164,11 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        { &hf_gtpv2_throttling_factor,
+          {"Throttling Factor", "gtpv2.throttling_factor",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
         { &hf_gtpv2_relative_capacity,
           {"Relative Capacity", "gtpv2.relative_capacity",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7718,10 +7742,20 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, VALS(gtpv2_timer_unit_vals), 0xe0,
            NULL, HFILL}
         },
+        { &hf_gtpv2_throttling_delay_unit,
+          {"Throttling Delay unit", "gtpv2.throttling_delay_unit",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_timer_unit_vals), 0xe0,
+           NULL, HFILL }
+        },
         { &hf_gtpv2_timer_value,
           {"Timer value", "gtpv2.timer_value",
            FT_UINT8, BASE_DEC, NULL, 0x1f,
            NULL, HFILL}
+        },
+		{ &hf_gtpv2_throttling_delay_value,
+          {"Throttling Delay value", "gtpv2.throttling_delay_value",
+           FT_UINT8, BASE_DEC, NULL, 0x1f,
+           NULL, HFILL }
         },
         { &hf_gtpv2_lapi,
           {"LAPI (Low Access Priority Indication)", "gtpv2.lapi",
