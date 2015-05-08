@@ -2230,14 +2230,16 @@ dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
         break;
     case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
         {
-            guint   list_len;
+            gint32 list_len;
 
             list_len = tvb_get_ntoh24(tvb, offset);
             offset += 3;
 
-            while (list_len-- > 0)
+            while (list_len > 0) {
+                guint32 prev_offset = offset;
                 offset = dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
-
+                list_len -= offset - prev_offset;
+            }
             break;
         }
     }
