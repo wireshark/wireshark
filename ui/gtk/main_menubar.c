@@ -3860,7 +3860,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       /* Disable mnemonic accelerator key for recent file name */
       recent_path = g_strdup_printf ("/Menubar/FileMenu/OpenRecent/RecentFiles/recent-info-%u", i);
       submenu_recent_file = gtk_ui_manager_get_widget(ui_manager, recent_path);
-      g_object_set(G_OBJECT (submenu_recent_file), "use-underline", 0);
+      g_object_set(G_OBJECT (submenu_recent_file), "use-underline", 0, NULL);
 
       /* Add the file name to the recent files list on the Welcome screen */
       main_welcome_add_recent_capture_file(item_name, G_OBJECT(action));
