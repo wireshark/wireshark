@@ -6445,10 +6445,10 @@
 			</grouped>
 		</avp>
 		<avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 
 	</base>
