@@ -1296,6 +1296,13 @@ else
 		CXXFLAGS="+O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;
+	solaris*)
+		#
+		# Crank up the warning level.
+		#
+		CFLAGS="$CFLAGS -v"
+		CXXFLAGS="$CXXFLAGS +w2"
+		;;
 	*)
 		AC_MSG_RESULT(none needed)
 		;;
