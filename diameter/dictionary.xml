@@ -1760,7 +1760,8 @@
 		</avp>
 		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<grouped>
-
+				<!-- This grouped AVP holds any AVP -->
+				<gavp name="Session-Id"/>
 			</grouped>
 		</avp>
 		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
@@ -4354,7 +4355,11 @@
 		</avp>
 		<avp name="Service-Generic-Information" code="1256" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-			<!-- The AVP is defined in OMA-DDS-Charging_Data -->
+				<!-- From OMA-DDS-Charging_Data -->
+				<gavp name="Application-Server-ID"/>
+				<gavp name="Application-Service-Type"/>
+				<gavp name="Application-Session-ID"/>
+				<gavp name="Delivery-Status"/>
 			</grouped>
 		</avp>
 		<avp name="Service-Specific-Type" code="1257" vendor-bit="must" vendor-id="TGPP">

@@ -95,7 +95,13 @@
 
 	<avp name="SN-Total-Used-Service-Unit" code="504" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 		<grouped>
-			<gavp name=""/>
+			<gavp name="Tariff-Change-Usage"/>
+			<gavp name="CC-Time"/>
+			<gavp name="CC-Total-Octets"/>
+			<gavp name="CC-Input-Octets"/>
+			<gavp name="CC-Output-Octets"/>
+			<gavp name="CC-Service-Specific-Units"/>
+			<gavp name="3GPP-Reporting-Reason"/>
 		</grouped>
 	</avp>
 

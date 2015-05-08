@@ -34,7 +34,7 @@
 	code CDATA #REQUIRED
 	vendor-id IDREF #IMPLIED
 >
-<!ELEMENT vendor (avp+)>
+<!ELEMENT vendor (avp*)>
 <!ATTLIST vendor
 	vendor-id ID #REQUIRED
 	code CDATA #REQUIRED
