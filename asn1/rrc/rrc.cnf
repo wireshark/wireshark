@@ -684,6 +684,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 #.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info_gsm_map
   guint32 nas_sys_info_gsm_map;
 %(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)", val_to_str_const(nas_sys_info_gsm_map,rrc_CN_DomainIdentity_vals,"Unknown"));
   actx->private_data = GUINT_TO_POINTER(nas_sys_info_gsm_map+1);
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
@@ -927,6 +928,12 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 #.FN_BODY UE-SecurityInformation2
   actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_PS+1);
 %(DEFAULT_BODY)s
+
+#.FN_BODY ReleaseCause VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
+                  val_to_str(value, rrc_ReleaseCause_vals, "Unknown"));
 
 #.END
 
