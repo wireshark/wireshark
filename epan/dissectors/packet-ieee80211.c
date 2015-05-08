@@ -18551,17 +18551,17 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         break;
 
       case KEY_INFO_KEY_MIC_MASK:
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-         break;
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+        break;
 
       case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-         break;
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+        break;
 
       case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
-         break;
-       }
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+        break;
+      }
     }
   } else {
     if (keyinfo & KEY_INFO_KEY_ACK_MASK)
