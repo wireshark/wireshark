@@ -36,6 +36,8 @@
 #include "packet-bthci_acl.h"
 
 static int proto_btle = -1;
+static int proto_btle_rf = -1;
+static int proto_ubertooth = -1;
 
 static int hf_access_address = -1;
 static int hf_crc = -1;
@@ -325,14 +327,28 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
           CRC_CORRECT} crc_status = CRC_INDETERMINATE;
     guint32      crc_init = 0x555555; /* default to advertising channel's value */
     guint32      packet_crc;
-    const btle_context_t  *btle_context = (const btle_context_t *) data;
+    const btle_context_t  *btle_context   = NULL;
     bluetooth_data_t      *bluetooth_data = NULL;
     ubertooth_data_t      *ubertooth_data = NULL;
+    gint                   previous_proto;
+    wmem_list_frame_t     *list_data;
 
-    if (btle_context)
-        bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
-    if (bluetooth_data)
-        ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
+    list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+    if (list_data) {
+        previous_proto = GPOINTER_TO_INT(wmem_list_frame_data(list_data));
+
+        if (previous_proto == proto_btle_rf) {
+            btle_context = (const btle_context_t *) data;
+            bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
+        } else if (previous_proto == proto_bluetooth) {
+            bluetooth_data = (bluetooth_data_t *) data;
+        }
+
+        list_data = wmem_list_frame_prev(list_data);
+        if (bluetooth_data && list_data && proto_ubertooth == GPOINTER_TO_INT(wmem_list_frame_data(list_data))) {
+            ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
+        }
+    }
 
     src_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
     dst_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
@@ -1377,6 +1393,9 @@ proto_reg_handoff_btle(void)
     btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
     btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
     btl2cap_handle = find_dissector("btl2cap");
+
+    proto_btle_rf = proto_get_id_by_filter_name("btle_rf");
+    proto_ubertooth = proto_get_id_by_filter_name("ubertooth");
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
 }
