@@ -37,9 +37,9 @@
  * (c) Copyright 2014 Simon Zhong <szhong[AT]juniper.net>
  *
  * Added support of "PCEP Extensions for Segment Routing"
- *  (draft-ietf-pce-segment-routing-01) and
+ *  (draft-ietf-pce-segment-routing-03) and
  * "Conveying path setup type in PCEP messages"
- *  (draft-ietf-pce-lsp-setup-type-00)
+ *  (draft-ietf-pce-lsp-setup-type-02)
  * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
  */
 
@@ -1069,15 +1069,16 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
                 break;
 
-            case 27:    /* PATH-SETUP-TYPE TLV */
-                proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_NA);
-                proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
-                break;
-
-            case 28:    /* SR-PCE-CAPABILITY TLV */
+            case 26:    /* SR-PCE-CAPABILITY TLV */
                 proto_tree_add_item(tlv, hf_pcep_sr_capability_reserved16, tvb, offset + 4 + j, 2, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_sr_capability_flags_reserved, tvb, offset + 4 + j + 2, 1, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_sr_capability_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
+                break;
+
+            case 27:    /* PATH-SETUP-TYPE TLV */
+            case 28:
+                proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
 
             default:
@@ -1311,7 +1312,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
             proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
             proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             if ((st == 1) && (length == 12)) {
                 /* FF 'IPv4 Node ID' is specified as an IPv4 address. In this case, ST
                  * value is 1, and the Length is 8 or 12 depending on either SID or
@@ -1334,7 +1335,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
             proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
             proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             if ((st == 1) && (length == 12)) {
                 proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb,
                                     offset + 8, 4, ENC_BIG_ENDIAN);
@@ -2659,7 +2660,7 @@ dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
         return;
     }
 
-    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_plsp_id, tvb, offset2, 3, ENC_NA);
+    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_plsp_id, tvb, offset2, 3, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_flags, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
     lsp_flags = proto_item_add_subtree(ti, ett_pcep_obj_lsp);
     proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_d,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
@@ -3680,7 +3681,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_subobj_sr_sid,
           { "SID", "pcep.subobj.sr.sid",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,
@@ -4322,7 +4323,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_obj_lsp_plsp_id,
           { "PLSP-ID", "pcep.obj.lsp.plsp-id",
-            FT_UINT16, BASE_DEC, NULL, PCEP_OBJ_LSP_PLSP_ID,
+            FT_UINT32, BASE_DEC, NULL, PCEP_OBJ_LSP_PLSP_ID,
             NULL, HFILL }
         },
         { &hf_pcep_obj_lsp_flags,
