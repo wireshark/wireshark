@@ -1181,9 +1181,9 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	guint captured_length, reported_length;
 	guint16 cksum, computed_cksum;
 	const gchar *type_str, *code_str;
-	guint8 num_addrs = 0;
-	guint8 addr_entry_size = 0;
-	int i;
+	guint32 num_addrs = 0;
+	guint32 addr_entry_size = 0;
+	guint32 i;
 	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
 	proto_item *item;
@@ -1356,8 +1356,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		break;
 
 	case ICMP_RTRADVERT:
-		proto_tree_add_item(icmp_tree, hf_icmp_num_addrs, tvb, 4, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_addr_entry_size, tvb, 5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(icmp_tree, hf_icmp_num_addrs, tvb, 4, 1, ENC_BIG_ENDIAN, &num_addrs);
+		proto_tree_add_item_ret_uint(icmp_tree, hf_icmp_addr_entry_size, tvb, 5, 1, ENC_BIG_ENDIAN, &addr_entry_size);
 		ti = proto_tree_add_item(icmp_tree, hf_icmp_lifetime, tvb, 6, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(ti, " (%s)", time_secs_to_str(wmem_packet_scope(), tvb_get_ntohs(tvb, 6)));
 		break;
