@@ -58,21 +58,21 @@
    they are replaced with a string that makes the filename unique.
    Returns a file descriptor open on the file for reading and writing.  */
 static int
-mkstemp (char *template)
+mkstemp (char *path_template)
 {
   static const char letters[]
     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   size_t len;
   size_t i;
 
-  len = strlen (template);
-  if (len < 6 || strcmp (&template[len - 6], TMP_FILE_SUFFIX))
+  len = strlen (path_template);
+  if (len < 6 || strcmp (&path_template[len - 6], TMP_FILE_SUFFIX))
     {
       __set_errno (EINVAL);
       return -1;
     }
 
-  if (g_snprintf (&template[len - 5], 6, "%.5u",
+  if (g_snprintf (&path_template[len - 5], 6, "%.5u",
                   (unsigned int) getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return -1;
@@ -81,16 +81,16 @@ mkstemp (char *template)
     {
       int fd;
 
-      template[len - 6] = letters[i];
+      path_template[len - 6] = letters[i];
 
-      fd = ws_open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
+      fd = ws_open (path_template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
       if (fd >= 0)
         return fd;
     }
 
   /* We return the null string if we can't find a unique file name.  */
 
-  template[0] = '\0';
+  path_template[0] = '\0';
   return -1;
 }
 
@@ -102,21 +102,21 @@ mkstemp (char *template)
    they are replaced with a string that makes the filename unique.
    Returns 0 on success or -1 on error (from mkdir(2)).  */
 char *
-mkdtemp (char *template)
+mkdtemp (char *path_template)
 {
   static const char letters[]
     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   size_t len;
   size_t i;
 
-  len = strlen (template);
-  if (len < 6 || strcmp (&template[len - 6], TMP_FILE_SUFFIX))
+  len = strlen (path_template);
+  if (len < 6 || strcmp (&path_template[len - 6], TMP_FILE_SUFFIX))
     {
       __set_errno (EINVAL);
       return NULL;
     }
 
-  if (g_snprintf (&template[len - 5], 6, "%.5u",
+  if (g_snprintf (&path_template[len - 5], 6, "%.5u",
                   (unsigned int) getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return NULL;
@@ -125,16 +125,16 @@ mkdtemp (char *template)
     {
       int ret;
 
-      template[len - 6] = letters[i];
+      path_template[len - 6] = letters[i];
 
-      ret = ws_mkdir(template, 0700);
+      ret = ws_mkdir(path_template, 0700);
       if (ret >= 0)
-        return template;
+        return path_template;
     }
 
   /* We return the null string if we can't find a unique file name.  */
 
-  template[0] = '\0';
+  path_template[0] = '\0';
   return NULL;
 }
 
