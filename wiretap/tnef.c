@@ -96,7 +96,7 @@ static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
   return tnef_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-int tnef_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val tnef_open(wtap *wth, int *err, gchar **err_info)
 {
   guint32 magic;
 
