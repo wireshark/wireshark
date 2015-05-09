@@ -562,7 +562,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
             if (crc != strm->adler && !state->dont_check_crc) {
                 state->err = WTAP_ERR_DECOMPRESS;
                 state->err_info = "bad CRC";
-            } else if (len != (strm->total_out & 0xffffffffL)) {
+            } else if (len != (strm->total_out & 0xffffffffUL)) {
                 state->err = WTAP_ERR_DECOMPRESS;
                 state->err_info = "length field wrong";
             }
