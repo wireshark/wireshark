@@ -5538,7 +5538,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             }
             break;
         case 37071: /* bytes_out_of_order */
-            if (tvb_get_ntoh64(tvb, offset) == G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
+            if (tvb_get_ntoh64(tvb, offset) == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 /* need to add custom code to show "Not Measured"  */
                 proto_tree_add_expert_format(pdutree, NULL, &ei_transport_bytes_out_of_order,
                                              tvb, offset, 8,

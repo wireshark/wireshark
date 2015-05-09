@@ -1569,10 +1569,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset += 8;
 
                         col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (guint) (identifier >> 32), (guint) (identifier & 0xFFFFFFFF));
-                        if (identifier == G_GINT64_CONSTANT(0x0000000000000000)) {
+                        if (identifier == G_GUINT64_CONSTANT(0x0000000000000000)) {
                             col_append_str(pinfo->cinfo, COL_INFO, " (SELECTED)");
                             proto_item_append_text(pitem, " (SELECTED)");
-                        } else if (identifier == G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
+                        } else if (identifier == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
                             proto_item_append_text(pitem, " (NOT SELECTED)");
                         }

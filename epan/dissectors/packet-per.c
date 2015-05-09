@@ -1127,7 +1127,7 @@ static guint32
 dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 *value)
 {
 	guint32 i, length;
-	gint64 val;
+	guint64 val;
 	proto_item *it=NULL;
 	header_field_info *hfi;
 
@@ -1144,7 +1144,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 		if(i==0){
 			if(tvb_get_guint8(tvb, offset>>3)&0x80){
 				/* negative number */
-				val=G_GINT64_CONSTANT(0xffffffffffffffff);
+				val=G_GUINT64_CONSTANT(0xffffffffffffffff);
 			} else {
 				/* positive number */
 				val=0;
@@ -1158,7 +1158,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	if (! hfi)
 		THROW(ReportedBoundsError);
 	if (IS_FT_INT(hfi->type)) {
-		it=proto_tree_add_int64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		it=proto_tree_add_int64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, (gint64)val);
 	} else if (IS_FT_UINT(hfi->type)) {
 		it=proto_tree_add_uint64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
@@ -1170,7 +1170,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	actx->created_item = it;
 
 	if(value){
-		*value=val;
+		*value=(gint64)val;
 	}
 
 	return offset;
@@ -1430,8 +1430,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		int i, bit, length, str_length, str_index;
 		guint64 mask,mask2;
 		/* We only handle 64 bit integers */
-		mask  = G_GINT64_CONSTANT(0x8000000000000000);
-		mask2 = G_GINT64_CONSTANT(0x7fffffffffffffff);
+		mask  = G_GUINT64_CONSTANT(0x8000000000000000);
+		mask2 = G_GUINT64_CONSTANT(0x7fffffffffffffff);
 		i = 64;
 		while ((range & mask)== 0){
 			i = i - 1;

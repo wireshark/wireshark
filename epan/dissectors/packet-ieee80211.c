@@ -7752,7 +7752,7 @@ add_ff_psmp_sta_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
                           hf_ieee80211_ff_psmp_sta_info_reserved_large,
                           tvb, offset, 8,
                           (tvb_get_letoh64(tvb, offset) &
-                           G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                           G_GUINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
     break;
   case PSMP_STA_INFO_MULTICAST:
     proto_tree_add_item(psmp_tree,
@@ -7765,7 +7765,7 @@ add_ff_psmp_sta_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
                           hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id,
                           tvb, offset, 6,
                           (tvb_get_letoh64(tvb, offset) &
-                           G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                           G_GUINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
     break;
   case PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED:
     proto_tree_add_item(psmp_tree,
@@ -17206,7 +17206,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 ba_bitmap_item = proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
                 ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item, ett_block_ack_bitmap);
                 for (f = 0; f < 64; f++) {
-                  if (bmap & (G_GINT64_CONSTANT(1) << f))
+                  if (bmap & (G_GUINT64_CONSTANT(1) << f))
                     continue;
                   proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
                                                    tvb, offset + (f/8), 1, ssn + f, "%u", ssn + f);
@@ -17234,7 +17234,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 ba_bitmap_item = proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
                 ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item, ett_block_ack_bitmap);
                 for (f = 0; f < 64; f++) {
-                  if (bmap & (G_GINT64_CONSTANT(1) << f))
+                  if (bmap & (G_GUINT64_CONSTANT(1) << f))
                     continue;
                   proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
                                                    tvb, offset + (f/8), 1, ssn + f, "%u", (ssn + f) & 0x0fff);
