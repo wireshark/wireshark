@@ -263,7 +263,6 @@ static proto_tree *top_tree=NULL;
 static proto_tree *cap_tree=NULL;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
-#define SHA1_BUFFER_SIZE  20
 
 #define HASH_MD5 "1.2.840.113549.2.5"
 #define MD5_BUFFER_SIZE  16
@@ -275,7 +274,7 @@ static proto_tree *cap_tree=NULL;
 #define HASH_SHA256 "2.16.840.1.101.3.4.2.1"
 #define SHA256_BUFFER_SIZE  32
 
-unsigned char digest_buf[MAX(SHA1_BUFFER_SIZE, MD5_BUFFER_SIZE)];
+unsigned char digest_buf[MAX(SHA1_DIGEST_LEN, MD5_BUFFER_SIZE)];
 
 static void
 cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
@@ -296,7 +295,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_finish(&sha1_ctx, digest_buf);
 
-    buffer_size = SHA1_BUFFER_SIZE;
+    buffer_size = SHA1_DIGEST_LEN;
 
   } else if(strcmp(alg, HASH_MD5) == 0) {
 
@@ -1825,7 +1824,7 @@ static void dissect_RC2CBCParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 138 "../../asn1/cms/packet-cms-template.c"
+#line 137 "../../asn1/cms/packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -2333,7 +2332,7 @@ void proto_register_cms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 149 "../../asn1/cms/packet-cms-template.c"
+#line 148 "../../asn1/cms/packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -2397,7 +2396,7 @@ void proto_register_cms(void) {
     &ett_cms_SEQUENCE_OF_Attribute,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 154 "../../asn1/cms/packet-cms-template.c"
+#line 153 "../../asn1/cms/packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -2443,7 +2442,7 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 176 "../../asn1/cms/packet-cms-template.c"
+#line 175 "../../asn1/cms/packet-cms-template.c"
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");

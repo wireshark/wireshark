@@ -787,7 +787,6 @@ static dissector_handle_t l2tp_ip_handle;
 #define L2TP_HMAC_SHA1 1
 #define L2TP_HMAC_MD5_KEY_LEN 16
 #define L2TP_HMAC_MD5_DIGEST_LEN 16
-#define L2TP_HMAC_SHA1_DIGEST_LEN 20
 
 typedef struct l2tpv3_conversation {
     address               lcce1;
@@ -902,7 +901,7 @@ static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
                              packet_info *pinfo,
                              guint8 digest[20])
 {
-    guint8 zero[L2TP_HMAC_SHA1_DIGEST_LEN];
+    guint8 zero[SHA1_DIGEST_LEN];
     sha1_hmac_context ms;
     int remainder;
     int offset = 0;
@@ -926,7 +925,7 @@ static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
 
     sha1_hmac_update(&ms, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
     /* Message digest is calculated with an empty message digest field */
-    memset(zero, 0, L2TP_HMAC_SHA1_DIGEST_LEN);
+    memset(zero, 0, SHA1_DIGEST_LEN);
     sha1_hmac_update(&ms, zero, avp_len - 1);
     remainder = length - (idx + avp_len);
     sha1_hmac_update(&ms, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
@@ -941,7 +940,7 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
                                 int msg_type,
                                 packet_info *pinfo)
 {
-    guint8 digest[L2TP_HMAC_SHA1_DIGEST_LEN];
+    guint8 digest[SHA1_DIGEST_LEN];
 
     if (!tunnel)
         return 1;
@@ -955,7 +954,7 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
             md5_hmac_digest(tunnel, tvb, length, idx, avp_len, msg_type, pinfo, digest);
             break;
         case L2TP_HMAC_SHA1:
-            if ((avp_len - 1) != L2TP_HMAC_SHA1_DIGEST_LEN)
+            if ((avp_len - 1) != SHA1_DIGEST_LEN)
                 return -1;
             sha1_hmac_digest(tunnel, tvb, length, idx, avp_len, msg_type, pinfo, digest);
             break;

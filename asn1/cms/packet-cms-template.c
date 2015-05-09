@@ -68,7 +68,6 @@ static proto_tree *top_tree=NULL;
 static proto_tree *cap_tree=NULL;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
-#define SHA1_BUFFER_SIZE  20
 
 #define HASH_MD5 "1.2.840.113549.2.5"
 #define MD5_BUFFER_SIZE  16
@@ -80,7 +79,7 @@ static proto_tree *cap_tree=NULL;
 #define HASH_SHA256 "2.16.840.1.101.3.4.2.1"
 #define SHA256_BUFFER_SIZE  32
 
-unsigned char digest_buf[MAX(SHA1_BUFFER_SIZE, MD5_BUFFER_SIZE)];
+unsigned char digest_buf[MAX(SHA1_DIGEST_LEN, MD5_BUFFER_SIZE)];
 
 static void
 cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
@@ -101,7 +100,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_finish(&sha1_ctx, digest_buf);
 
-    buffer_size = SHA1_BUFFER_SIZE;
+    buffer_size = SHA1_DIGEST_LEN;
 
   } else if(strcmp(alg, HASH_MD5) == 0) {
 

@@ -838,8 +838,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
-            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, ENC_NA);
-            offset = offset +20;
+            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, SHA1_DIGEST_LEN, ENC_NA);
+            offset = offset +SHA1_DIGEST_LEN;
 
             /* Add NACK info to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK reason=%s, opcode=%s",

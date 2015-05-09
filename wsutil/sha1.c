@@ -262,7 +262,7 @@ static guint8 sha1_padding[64] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void sha1_finish( sha1_context *ctx, guint8 digest[20] )
+void sha1_finish( sha1_context *ctx, guint8 digest[SHA1_DIGEST_LEN] )
 {
     guint32 last, padn;
     guint32 high, low;
@@ -313,20 +313,20 @@ void sha1_hmac_update( sha1_hmac_context *hctx, const guint8 *buf, guint32 bufle
     sha1_update( &hctx->ctx, buf, buflen );
 }
 
-void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[20] )
+void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[SHA1_DIGEST_LEN] )
 {
-    guint8 tmpbuf[20];
+    guint8 tmpbuf[SHA1_DIGEST_LEN];
 
     sha1_finish( &hctx->ctx, tmpbuf );
 
     sha1_starts( &hctx->ctx );
     sha1_update( &hctx->ctx, hctx->k_opad, 64 );
-    sha1_update( &hctx->ctx, tmpbuf, 20 );
+    sha1_update( &hctx->ctx, tmpbuf, SHA1_DIGEST_LEN );
     sha1_finish( &hctx->ctx, digest );
 }
 
 void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
-                guint8 digest[20] )
+                guint8 digest[SHA1_DIGEST_LEN] )
 {
     sha1_hmac_context hctx;
 
@@ -367,7 +367,7 @@ int main( int argc, char *argv[] )
     char output[41];
     sha1_context ctx;
     unsigned char buf[1000];
-    unsigned char sha1sum[20];
+    unsigned char sha1sum[SHA1_DIGEST_LEN];
 
     if( argc < 2 )
     {
@@ -396,7 +396,7 @@ int main( int argc, char *argv[] )
 
             sha1_finish( &ctx, sha1sum );
 
-            for( j = 0; j < 20; j++ )
+            for( j = 0; j < SHA1_DIGEST_LEN; j++ )
             {
                 g_snprintf( output + j * 2, 41-j*2, "%02x", sha1sum[j] );
             }
@@ -429,7 +429,7 @@ int main( int argc, char *argv[] )
 
         sha1_finish( &ctx, sha1sum );
 
-        for( j = 0; j < 20; j++ )
+        for( j = 0; j < SHA1_DIGEST_LEN; j++ )
         {
             printf( "%02x", sha1sum[j] );
         }

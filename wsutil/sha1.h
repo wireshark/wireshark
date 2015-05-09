@@ -30,6 +30,11 @@
 
 #include "ws_symbol_export.h"
 
+/*
+ * Length of a SHA-1 digest, in bytes.  160 bits = 20 bytes.
+ */
+#define SHA1_DIGEST_LEN 20
+
 typedef struct
 {
     guint32 total[2];
@@ -43,7 +48,7 @@ void sha1_starts( sha1_context *ctx );
 WS_DLL_PUBLIC
 void sha1_update( sha1_context *ctx, const guint8 *input, guint32 length );
 WS_DLL_PUBLIC
-void sha1_finish( sha1_context *ctx, guint8 digest[20] );
+void sha1_finish( sha1_context *ctx, guint8 digest[SHA1_DIGEST_LEN] );
 
 typedef struct {
     sha1_context ctx;
@@ -56,9 +61,9 @@ void sha1_hmac_starts( sha1_hmac_context *hctx, const guint8 *key, guint32 keyle
 WS_DLL_PUBLIC
 void sha1_hmac_update( sha1_hmac_context *hctx, const guint8 *buf, guint32 buflen );
 WS_DLL_PUBLIC
-void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[20] );
+void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[SHA1_DIGEST_LEN] );
 WS_DLL_PUBLIC
 void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
-                guint8 digest[20] );
+                guint8 digest[SHA1_DIGEST_LEN] );
 
 #endif /* sha1.h */

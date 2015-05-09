@@ -129,7 +129,7 @@ static void snmp_usm_password_to_key_sha1(const guint8 *password, guint password
 
 
 static snmp_usm_auth_model_t model_md5 = {snmp_usm_password_to_key_md5, snmp_usm_auth_md5, 16};
-static snmp_usm_auth_model_t model_sha1 = {snmp_usm_password_to_key_sha1, snmp_usm_auth_sha1, 20};
+static snmp_usm_auth_model_t model_sha1 = {snmp_usm_password_to_key_sha1, snmp_usm_auth_sha1, SHA1_DIGEST_LEN};
 
 static const value_string auth_types[] = {
 	{0,"MD5"},
@@ -1643,7 +1643,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 20);
+	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), SHA1_DIGEST_LEN);
 
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
 
@@ -3379,9 +3379,9 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	/*****************************************************/
 
 	sha1_starts(&SH);
-	sha1_update(&SH, key, 20);
+	sha1_update(&SH, key, SHA1_DIGEST_LEN);
 	sha1_update(&SH, engineID, engineLength);
-	sha1_update(&SH, key, 20);
+	sha1_update(&SH, key, SHA1_DIGEST_LEN);
 	sha1_finish(&SH, key);
 	return;
  }
