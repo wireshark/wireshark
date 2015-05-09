@@ -64,7 +64,6 @@ static gchar** corosync_totemnet_private_keys_list = NULL;
 static gint ett_corosync_totemnet_security_header              = -1;
 
 
-#define HMAC_HASH_SIZE 20
 #define SALT_SIZE      16
 
 #define TOTEM_CRYPTO_SOBER 0
@@ -97,10 +96,10 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
 
       proto_tree_add_item(tree,
                           hf_corosync_totemnet_security_header_hash_digest,
-                          tvb, 0, HMAC_HASH_SIZE, ENC_NA);
+                          tvb, 0, SHA1_DIGEST_LEN, ENC_NA);
       proto_tree_add_item(tree,
                           hf_corosync_totemnet_security_header_salt,
-                          tvb, HMAC_HASH_SIZE, SALT_SIZE, ENC_NA);
+                          tvb, SHA1_DIGEST_LEN, SALT_SIZE, ENC_NA);
 
       if (check_crypt_type)
         {
@@ -116,7 +115,7 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
           PROTO_ITEM_SET_GENERATED(key_item);
         }
     }
-  return HMAC_HASH_SIZE + SALT_SIZE;
+  return SHA1_DIGEST_LEN + SALT_SIZE;
 }
 
 /* About totemnet.c of corosync cluster engine:
@@ -265,7 +264,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   unsigned char *hmac_key       = &keys[32];
   unsigned char *cipher_key     = &keys[16];
   unsigned char *initial_vector = &keys[0];
-  unsigned char  digest_comparison[HMAC_HASH_SIZE];
+  unsigned char  digest_comparison[SHA1_DIGEST_LEN];
 
   int            io_len;
   guint8        *io_base;
@@ -277,7 +276,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   unsigned char* salt;
 
   io_len = tvb_reported_length(tvb) - (check_crypt_type? 1: 0);
-  if (io_len < HMAC_HASH_SIZE + SALT_SIZE) {
+  if (io_len < SHA1_DIGEST_LEN + SALT_SIZE) {
     return 0;
   }
 
@@ -288,7 +287,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   }
 
   hash_digest = io_base;
-  salt        = io_base + HMAC_HASH_SIZE;
+  salt        = io_base + SHA1_DIGEST_LEN;
 
 
   memset(private_key, 0, sizeof(private_key));
@@ -319,18 +318,18 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
    * Authenticate contents of message
    */
   sha1_hmac(hmac_key, 16,
-            io_base + HMAC_HASH_SIZE, io_len - HMAC_HASH_SIZE,
+            io_base + SHA1_DIGEST_LEN, io_len - SHA1_DIGEST_LEN,
             digest_comparison);
 
-  if (memcmp (digest_comparison, hash_digest, HMAC_HASH_SIZE) != 0)
+  if (memcmp (digest_comparison, hash_digest, SHA1_DIGEST_LEN) != 0)
       return 0;
 
   /*
    * Decrypt the contents of the message with the cipher key
    */
 
-  sober128_read (io_base + HMAC_HASH_SIZE + SALT_SIZE,
-                            io_len - (HMAC_HASH_SIZE + SALT_SIZE),
+  sober128_read (io_base + SHA1_DIGEST_LEN + SALT_SIZE,
+                            io_len - (SHA1_DIGEST_LEN + SALT_SIZE),
                             &stream_prng_state);
 
 
@@ -352,11 +351,11 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
                                               check_crypt_type, key_for_trial);
 
     next_tvb = tvb_new_subset(decrypted_tvb,
-                              HMAC_HASH_SIZE + SALT_SIZE,
-                              io_len - (HMAC_HASH_SIZE + SALT_SIZE),
-                              io_len - (HMAC_HASH_SIZE + SALT_SIZE));
+                              SHA1_DIGEST_LEN + SALT_SIZE,
+                              io_len - (SHA1_DIGEST_LEN + SALT_SIZE),
+                              io_len - (SHA1_DIGEST_LEN + SALT_SIZE));
 
-    return call_dissector(corosync_totemsrp_handle, next_tvb, pinfo, parent_tree) + HMAC_HASH_SIZE + SALT_SIZE;
+    return call_dissector(corosync_totemsrp_handle, next_tvb, pinfo, parent_tree) + SHA1_DIGEST_LEN + SALT_SIZE;
   }
 }
 
