@@ -514,7 +514,7 @@ register_pcapng_option_handler(guint block_type, guint option_code,
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
-                   char *content, guint len, guint to_read,
+                   guint8 *content, guint len, guint to_read,
                    int *err, gchar **err_info)
 {
     int     block_read;
@@ -597,7 +597,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     guint to_read, opt_cont_buf_len;
     pcapng_section_header_block_t shb;
     pcapng_option_header_t oh;
-    char *option_content = NULL; /* Allocate as large as the options block */
+    guint8 *option_content = NULL; /* Allocate as large as the options block */
 
     /* read fixed-length part of the block */
     if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info)) {
@@ -709,7 +709,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
     /* Allocate enough memory to hold all options */
     opt_cont_buf_len = to_read;
-    option_content = (char *)g_try_malloc(opt_cont_buf_len);
+    option_content = (guint8 *)g_try_malloc(opt_cont_buf_len);
     if (opt_cont_buf_len != 0 && option_content == NULL) {
         *err = ENOMEM;  /* we assume we're out of memory */
         return PCAPNG_BLOCK_ERROR;
@@ -737,7 +737,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_COMMENT):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     g_free(wblock->data.section.opt_comment);
-                    wblock->data.section.opt_comment = g_strndup(option_content, oh.option_length);
+                    wblock->data.section.opt_comment = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: opt_comment %s", wblock->data.section.opt_comment);
                 } else {
                     pcapng_debug1("pcapng_read_section_header_block: opt_comment length %u seems strange", oh.option_length);
@@ -746,7 +746,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_HARDWARE):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     g_free(wblock->data.section.shb_hardware);
-                    wblock->data.section.shb_hardware = g_strndup(option_content, oh.option_length);
+                    wblock->data.section.shb_hardware = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_hardware %s", wblock->data.section.shb_hardware);
                 } else {
                     pcapng_debug1("pcapng_read_section_header_block: shb_hardware length %u seems strange", oh.option_length);
@@ -755,7 +755,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_OS):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     g_free(wblock->data.section.shb_os);
-                    wblock->data.section.shb_os = g_strndup(option_content, oh.option_length);
+                    wblock->data.section.shb_os = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_os %s", wblock->data.section.shb_os);
                 } else {
                     pcapng_debug2("pcapng_read_section_header_block: shb_os length %u seems strange, opt buffsize %u", oh.option_length,to_read);
@@ -764,7 +764,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_USERAPPL):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     g_free(wblock->data.section.shb_user_appl);
-                    wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
+                    wblock->data.section.shb_user_appl = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_user_appl %s", wblock->data.section.shb_user_appl);
                 } else {
                     pcapng_debug1("pcapng_read_section_header_block: shb_user_appl length %u seems strange", oh.option_length);
@@ -793,7 +793,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     guint to_read, opt_cont_buf_len;
     pcapng_interface_description_block_t idb;
     pcapng_option_header_t oh;
-    char *option_content = NULL; /* Allocate as large as the options block */
+    guint8 *option_content = NULL; /* Allocate as large as the options block */
 
     /*
      * Is this block long enough to be an IDB?
@@ -880,7 +880,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
     /* Allocate enough memory to hold all options */
     opt_cont_buf_len = to_read;
-    option_content = (char *)g_try_malloc(opt_cont_buf_len);
+    option_content = (guint8 *)g_try_malloc(opt_cont_buf_len);
     if (opt_cont_buf_len != 0 && option_content == NULL) {
         *err = ENOMEM;  /* we assume we're out of memory */
         return FALSE;
@@ -906,7 +906,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 break;
             case(1): /* opt_comment */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wblock->data.if_descr.opt_comment = g_strndup(option_content, oh.option_length);
+                    wblock->data.if_descr.opt_comment = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_if_descr_block: opt_comment %s", wblock->data.if_descr.opt_comment);
                 } else {
                     pcapng_debug1("pcapng_read_if_descr_block: opt_comment length %u seems strange", oh.option_length);
@@ -914,7 +914,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 break;
             case(2): /* if_name */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wblock->data.if_descr.if_name = g_strndup(option_content, oh.option_length);
+                    wblock->data.if_descr.if_name = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_if_descr_block: if_name %s", wblock->data.if_descr.if_name);
                 } else {
                     pcapng_debug1("pcapng_read_if_descr_block: if_name length %u seems strange", oh.option_length);
@@ -922,7 +922,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 break;
             case(3): /* if_description */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wblock->data.if_descr.if_description = g_strndup(option_content, oh.option_length);
+                    wblock->data.if_descr.if_description = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_if_descr_block: if_description %s", wblock->data.if_descr.if_description);
                 } else {
                     pcapng_debug1("pcapng_read_if_descr_block: if_description length %u seems strange", oh.option_length);
@@ -936,8 +936,9 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  */
             case(8): /* if_speed */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint64--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_descr.if_speed, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
@@ -1001,12 +1002,12 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                      * or BPF bytecode.
                      */
                     if (option_content[0] == 0) {
-                        wblock->data.if_descr.if_filter_str = g_strndup(option_content+1, oh.option_length-1);
+                        wblock->data.if_descr.if_filter_str = g_strndup((char *)option_content+1, oh.option_length-1);
                         pcapng_debug2("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", wblock->data.if_descr.if_filter_str, oh.option_length);
                     } else if (option_content[0] == 1) {
                         wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
                         wblock->data.if_descr.if_filter_bpf_bytes = (gchar *)g_malloc(oh.option_length-1);
-                        memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
+                        memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, (char *)option_content+1, oh.option_length-1);
                     }
                 } else {
                     pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
@@ -1019,7 +1020,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  * because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ...
                  */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wblock->data.if_descr.if_os = g_strndup(option_content, oh.option_length);
+                    wblock->data.if_descr.if_os = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_if_descr_block: if_os %s", wblock->data.if_descr.if_os);
                 } else {
                     pcapng_debug1("pcapng_read_if_descr_block: if_os length %u seems strange", oh.option_length);
@@ -1356,7 +1357,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
             case(OPT_COMMENT):
                 if (oh->option_length > 0 && oh->option_length < opt_cont_buf_len) {
                     wblock->packet_header->presence_flags |= WTAP_HAS_COMMENTS;
-                    wblock->packet_header->opt_comment = g_strndup(option_content, oh->option_length);
+                    wblock->packet_header->opt_comment = g_strndup((char *)option_content, oh->option_length);
                     pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh->option_length, wblock->packet_header->opt_comment);
                 } else {
                     pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh->option_length);
@@ -1370,8 +1371,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                     /* XXX - free anything? */
                     return FALSE;
                 }
-                /*  Don't cast a char[] into a guint32--the
-                 *  char[] may not be aligned correctly.
+                /*  Don't cast a guint8 * into a guint32 *--the
+                 *  guint8 * may not point to something that's
+                 *  aligned correctly.
                  */
                 wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
                 memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
@@ -1397,8 +1399,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                     /* XXX - free anything? */
                     return FALSE;
                 }
-                /*  Don't cast a char[] into a guint64--the
-                 *  char[] may not be aligned correctly.
+                /*  Don't cast a guint8 * into a guint64 *--the
+                 *  guint8 * may not point to something that's
+                 *  aligned correctly.
                  */
                 wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
                 memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
@@ -1877,7 +1880,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
     guint to_read, opt_cont_buf_len;
     pcapng_interface_statistics_block_t isb;
     pcapng_option_header_t oh;
-    char *option_content = NULL; /* Allocate as large as the options block */
+    guint8 *option_content = NULL; /* Allocate as large as the options block */
 
     /*
      * Is this block long enough to be an ISB?
@@ -1938,7 +1941,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
     /* Allocate enough memory to hold all options */
     opt_cont_buf_len = to_read;
-    option_content = (char *)g_try_malloc(opt_cont_buf_len);
+    option_content = (guint8 *)g_try_malloc(opt_cont_buf_len);
     if (opt_cont_buf_len != 0 && option_content == NULL) {
         *err = ENOMEM;  /* we assume we're out of memory */
         return FALSE;
@@ -1964,7 +1967,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(1): /* opt_comment */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wblock->data.if_stats.opt_comment = g_strndup(option_content, oh.option_length);
+                    wblock->data.if_stats.opt_comment = g_strndup((char *)option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.if_stats.opt_comment);
                 } else {
                     pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
@@ -1974,8 +1977,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 if (oh.option_length == 8) {
                     guint32 high, low;
 
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint32 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&high, option_content, sizeof(guint32));
                     memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
@@ -1995,8 +1999,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 if (oh.option_length == 8) {
                     guint32 high, low;
 
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint32 *--the
+                     *  guint8 * may not point to something that's
+		     *  aligned correctly.
                      */
                     memcpy(&high, option_content, sizeof(guint32));
                     memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
@@ -2014,8 +2019,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(4): /* isb_ifrecv */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_stats.isb_ifrecv, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
@@ -2027,8 +2033,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(5): /* isb_ifdrop */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_stats.isb_ifdrop, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
@@ -2040,8 +2047,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(6): /* isb_filteraccept 6 */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_stats.isb_filteraccept, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
@@ -2053,8 +2061,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(7): /* isb_osdrop 7 */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_stats.isb_osdrop, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
@@ -2066,8 +2075,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 break;
             case(8): /* isb_usrdeliv 8  */
                 if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
                      */
                     memcpy(&wblock->data.if_stats.isb_usrdeliv, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
