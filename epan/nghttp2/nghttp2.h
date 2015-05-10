@@ -2951,13 +2951,13 @@ nghttp2_priority_spec_check_default(const nghttp2_priority_spec *pri_spec);
  * If |data_prd| is not ``NULL``, it provides data which will be sent
  * in subsequent DATA frames.  In this case, a method that allows
  * request message bodies
- * (http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9) must
- * be specified with ``:method`` key in |nva| (e.g. ``POST``).  This
- * function does not take ownership of the |data_prd|.  The function
- * copies the members of the |data_prd|.  If |data_prd| is ``NULL``,
- * HEADERS have END_STREAM set.  The |stream_user_data| is data
- * associated to the stream opened by this request and can be an
- * arbitrary pointer, which can be retrieved later by
+ * (https://tools.ietf.org/html/rfc7231#section-4) must be specified
+ * with ``:method`` key in |nva| (e.g. ``POST``).  This function does
+ * not take ownership of the |data_prd|.  The function copies the
+ * members of the |data_prd|.  If |data_prd| is ``NULL``, HEADERS have
+ * END_STREAM set.  The |stream_user_data| is data associated to the
+ * stream opened by this request and can be an arbitrary pointer,
+ * which can be retrieved later by
  * `nghttp2_session_get_stream_user_data()`.
  *
  * This function returns assigned stream ID if it succeeds, or one of
@@ -3564,7 +3564,10 @@ NGHTTP2_EXTERN int nghttp2_nv_compare_name(const nghttp2_nv *lhs,
  *     {
  *         int rv;
  *         rv = nghttp2_select_next_protocol(out, outlen, in, inlen);
- *         if(rv == 1) {
+ *         if (rv == -1) {
+ *             return SSL_TLSEXT_ERR_NOACK;
+ *         }
+ *         if (rv == 1) {
  *             ((MyType*)arg)->http2_selected = 1;
  *         }
  *         return SSL_TLSEXT_ERR_OK;
