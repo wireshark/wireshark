@@ -1446,8 +1446,8 @@ netinfo-local    1033/tcp # local netinfo port [Marc_Majka] [Marc_Majka] 2002-08
 netinfo-local    1033/udp # local netinfo port [Marc_Majka] [Marc_Majka] 2002-08
 activesync       1034/tcp # ActiveSync Notifications [Sandra_Vargas] [Sandra_Vargas] 2003-03
 activesync       1034/udp # ActiveSync Notifications [Sandra_Vargas] [Sandra_Vargas] 2003-03
-mxxrlogin        1035/tcp # MX-XR RPC [Arnold_E_Mauer] [Arnold_E_Mauer] 2003-04
-mxxrlogin        1035/udp # MX-XR RPC [Arnold_E_Mauer] [Arnold_E_Mauer] 2003-04
+mxxrlogin        1035/tcp # MX-XR RPC [Valassis] [John_Eckert] 2003-04 2015-05-05
+mxxrlogin        1035/udp # MX-XR RPC [Valassis] [John_Eckert] 2003-04 2015-05-05
 nsstp            1036/tcp # Nebula Secure Segment Transfer Protocol [Steve_Ravida] [Steve_Ravida]
 nsstp            1036/udp # Nebula Secure Segment Transfer Protocol [Steve_Ravida] [Steve_Ravida]
 ams              1037/tcp # AMS [Ronald_R_Ohmer] [Ronald_R_Ohmer] 2004-02
@@ -7156,8 +7156,8 @@ idac             3881/tcp # Data Acquisition and Control [Chatziandreoglou_Chr] 
 idac             3881/udp # Data Acquisition and Control [Chatziandreoglou_Chr] [Chatziandreoglou_Chr] 2003-10
 msdts1           3882/tcp # DTS Service Port [Sergei_Ivanov] [Sergei_Ivanov] 2003-10
 msdts1           3882/udp # DTS Service Port [Sergei_Ivanov] [Sergei_Ivanov] 2003-10
-vrpn             3883/tcp # VR Peripheral Network [Russell_M_Taylor_II] [Russell_M_Taylor_II] 2003-10
-vrpn             3883/udp # VR Peripheral Network [Russell_M_Taylor_II] [Russell_M_Taylor_II] 2003-10
+vrpn             3883/tcp # VR Peripheral Network [Sensics] [Yuval_Boger] 2003-10 2015-05-04
+vrpn             3883/udp # VR Peripheral Network [Sensics] [Yuval_Boger] 2003-10 2015-05-04
 softrack-meter   3884/tcp # SofTrack Metering [John_T_McCann] [John_T_McCann] 2003-10
 softrack-meter   3884/udp # SofTrack Metering [John_T_McCann] [John_T_McCann] 2003-10
 topflow-ssl      3885/tcp # TopFlow SSL [Ken_Nelson] [Ken_Nelson]
@@ -9229,6 +9229,7 @@ faxcomservice    6417/tcp # Faxcom Message Service [Albert_Leung] [Albert_Leung]
 faxcomservice    6417/udp # Faxcom Message Service [Albert_Leung] [Albert_Leung] 2006-04
 syserverremote   6418/tcp # SYserver remote commands [David_Ashkenazi] [David_Ashkenazi] 2010-03-23
 svdrp            6419/tcp # Simple VDR Protocol [Klaus_Schmidinger] [Klaus_Schmidinger] 2010-03-31
+svdrp-disc       6419/udp # Simple VDR Protocol Discovery [Klaus_Schmidinger] [Klaus_Schmidinger] 2015-05-08
 nim-vdrshell     6420/tcp # NIM_VDRShell [Rik_Ditter] [Rik_Ditter] 2006-02
 nim-vdrshell     6420/udp # NIM_VDRShell [Rik_Ditter] [Rik_Ditter] 2006-02
 nim-wan          6421/tcp # NIM_WAN [Rik_Ditter] [Rik_Ditter] 2006-02
