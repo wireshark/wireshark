@@ -1676,6 +1676,8 @@ AirPDcapRsnaPrfX(
     memcpy(ptk, output, x/8);
 }
 
+#define MAX_SSID_LENGTH 32 /* maximum SSID length */
+
 static INT
 AirPDcapRsnaPwd2PskStep(
     const guint8 *ppBytes,
@@ -1686,14 +1688,17 @@ AirPDcapRsnaPwd2PskStep(
     const INT count,
     UCHAR *output)
 {
-    UCHAR digest[64], digest1[64];
+    UCHAR digest[MAX_SSID_LENGTH+4];  /* SSID plus 4 bytes of count */
+    UCHAR digest1[SHA1_DIGEST_LEN];
     INT i, j;
 
-    if (ssidLength+4 > 36)
+    if (ssidLength > MAX_SSID_LENGTH) {
+        /* This "should not happen" */
         return AIRPDCAP_RET_UNSUCCESS;
+    }
 
-    memset(digest, 0, 64);
-    memset(digest1, 0, 64);
+    memset(digest, 0, sizeof digest);
+    memset(digest1, 0, sizeof digest1);
 
     /* U1 = PRF(P, S || INT(i)) */
     memcpy(digest, ssid, ssidLength);
