@@ -6932,35 +6932,35 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 
 	*ptr = '\0';
 	/* Properly format value */
-		switch (display) {
-			case BASE_DEC:
-				return isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
+	switch (display & FIELD_DISPLAY_E_MASK) {
+		case BASE_DEC:
+			return isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 
-			case BASE_DEC_HEX:
-				*(--ptr) = ')';
-				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
-				*(--ptr) = '(';
-				*(--ptr) = ' ';
-				ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
-				return ptr;
+		case BASE_DEC_HEX:
+			*(--ptr) = ')';
+			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
+			return ptr;
 
-			case BASE_OCT:
-				return oct_to_str_back(ptr, value);
+		case BASE_OCT:
+			return oct_to_str_back(ptr, value);
 
-			case BASE_HEX:
-				return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+		case BASE_HEX:
+			return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
 
-			case BASE_HEX_DEC:
-				*(--ptr) = ')';
-				ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
-				*(--ptr) = '(';
-				*(--ptr) = ' ';
-				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
-				return ptr;
+		case BASE_HEX_DEC:
+			*(--ptr) = ')';
+			ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+			return ptr;
 
-			default:
-				g_assert_not_reached();
-		}
+		default:
+			g_assert_not_reached();
+	}
 	return ptr;
 }
 
