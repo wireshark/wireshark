@@ -38,26 +38,29 @@
 This function is used to unwrap an encrypted AES key.  One example of its use is
 in the WPA-2 protocol to get the group key.
 */
-UCHAR
-AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len, UCHAR *output)
+UCHAR *
+AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 {
+	UCHAR *output;
 	UCHAR a[8], b[16];
 	UCHAR *r;
-	UCHAR *c;
 	gint16 i, j, n;
 	rijndael_ctx  ctx;
 
-	if (! kek || cipher_len < 16 || ! cipher_text || ! output) {
-		return 1; /* We don't do anything with the return value */
+	if (kek == NULL || cipher_len < 16 || cipher_text == NULL) {
+		return NULL; /* "should not happen" */
 	}
+
+	/* Allocate buffer for the unwrapped key */
+
+	output = (guint8 *) g_malloc(cipher_len);
 
 	/* Initialize variables */
 
 	n = (cipher_len/8)-1;  /* the algorithm works on 64-bits at a time */
 	memcpy(a, cipher_text, 8);
 	r = output;
-	c = cipher_text;
-	memcpy(r, c+8, cipher_len - 8);
+	memcpy(r, cipher_text+8, cipher_len - 8);
 
 	/* Compute intermediate values */
 
@@ -84,7 +87,7 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len, UC
 	/* DEBUG_DUMP("a", a, 8); */
 	/* DEBUG_DUMP("output", output, cipher_len - 8); */
 
-	return 0;
+	return output;
 }
 
 /*																										*/

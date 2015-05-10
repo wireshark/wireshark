@@ -396,10 +396,8 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         else
             sa->wpa.key_ver = (key_bytes_len >= (TKIP_GROUP_KEYBYTES_LEN))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
 
-        /* This storage is needed for the AES_unwrap function */
-        decrypted_data = (guint8 *) g_malloc(key_bytes_len);
-
-        AES_unwrap(decryption_key, 16, szEncryptedKey,  key_bytes_len, decrypted_data);
+        /* Unwrap the key; the result is key_bytes_len in length */
+        decrypted_data = AES_unwrap(decryption_key, 16, szEncryptedKey,  key_bytes_len);
 
         /* With WPA2 what we get after Broadcast Key decryption is an actual RSN structure.
            The key itself is stored as a GTK KDE
