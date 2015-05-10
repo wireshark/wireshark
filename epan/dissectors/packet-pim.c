@@ -131,6 +131,7 @@ static int proto_pim = -1;
 static int hf_pim_version = -1;
 static int hf_pim_type = -1;
 static int hf_pim_code = -1;
+static int hf_pim_igmp_type = -1;
 static int hf_pim_df_elect_subtype = -1;
 static int hf_pim_df_elect_rsvd = -1;
 static int hf_pim_cksum = -1;
@@ -164,6 +165,8 @@ static int hf_pim_metric = -1;
 static int hf_pim_prune_indicator = -1;
 static int hf_pim_prune_now = -1;
 static int hf_pim_assert_override = -1;
+static int hf_pim_ip_version = -1;
+static int hf_pim_dummy_header = -1;
 static int hf_pim_source_ip4 = -1;
 static int hf_pim_source_ip6 = -1;
 static int hf_pim_group_ip4 = -1;
@@ -200,6 +203,7 @@ static int hf_pim_rp_count = -1;
 static int hf_pim_frp_count = -1;
 static int hf_pim_priority = -1;
 static int hf_pim_prefix_count = -1;
+static int hf_pim_addr_len = -1;
 static int hf_pim_mask_len = -1;
 static int hf_pim_ttl = -1;
 static int hf_pim_interval = -1;
@@ -300,6 +304,12 @@ static const value_string pimv1_modevals[] = {
     { 0, NULL }
 };
 
+static const value_string pim_ip_version_vals[] = {
+    { 0, "Dummy Header" },
+    { 4, "IPv4" },
+    { 6, "IPv6" },
+    { 0, NULL }
+};
 /* This function is only called from the IGMP dissector */
 static int
 dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
@@ -320,7 +330,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     pim_tree = proto_item_add_subtree(ti, ett_pim);
 
     /* Put IGMP type, 0x14, into the tree */
-    proto_tree_add_text(pim_tree, tvb, offset, 1, "Type: PIM (0x14)");
+    proto_tree_add_string(pim_tree, hf_pim_igmp_type, tvb, offset, 0, "PIM (0x14)");
+
     offset += 1;
 
     pim_type = tvb_get_guint8(tvb, offset);
@@ -449,17 +460,18 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                      * Has the same address family as the encapsulating PIM packet,
                      * e.g. an IPv6 data packet is encapsulated in IPv6 PIM packet.
                      */
+            ti = proto_tree_add_item(pimopt_tree, hf_pim_dummy_header, tvb, offset, -1, ENC_NA);
             if (pinfo->src.type == AT_IPv4) {
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1, "IPv4 dummy header");
+                proto_item_append_text(ti, " IPv4");
                 proto_tree_add_item(pimopt_tree, hf_pim_source_ip4, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(pimopt_tree, hf_pim_group_ip4, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
             } else if (pinfo->src.type == AT_IPv6) {
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1, "IPv6 dummy header");
+                proto_item_append_text(ti, " IPv6");
                 proto_tree_add_item(pimopt_tree, hf_pim_source_ip6, tvb, offset + 8, 16, ENC_NA);
                 proto_tree_add_item(pimopt_tree, hf_pim_group_ip6, tvb, offset + 8 + 16, 16, ENC_NA);
             } else
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1,
-                                    "Dummy header for an unknown protocol");
+                proto_item_append_text(ti, " for an unknown protocol");
+
             break;
         case 4: /* IPv4 */
             if (use_main_tree) {
@@ -476,8 +488,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
             break;
         default:
-            proto_tree_add_text(pimopt_tree, tvb, offset, -1,
-                                "Unknown IP version %d", (v_hl & 0xf0) >> 4);
             break;
         }
         break;
@@ -500,8 +510,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         const char *s;
         int ngroup, i, njoin, nprune, j;
         guint16 holdtime;
-        guint8 mask_len;
-        guint8 adr_len;
         proto_tree *grouptree = NULL;
         proto_item *tigroup;
         proto_tree *subtree = NULL;
@@ -521,14 +529,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         offset += 1;    /* skip reserved stuff */
 
-        mask_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1,
-                            "Mask length: %u", mask_len);
+        proto_tree_add_item(pimopt_tree, hf_pim_mask_len, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        adr_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1,
-                            "Address length: %u", adr_len);
+        proto_tree_add_item(pimopt_tree, hf_pim_addr_len, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         ngroup = tvb_get_guint8(tvb, offset);
@@ -1050,22 +1054,24 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * It's an IP packet - determine whether it's IPv4 or IPv6.
          */
         v_hl = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(pimopt_tree, hf_pim_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+
         switch((v_hl & 0xf0) >> 4) {
         case 0:     /* Null-Register dummy header.
                      * Has the same address family as the encapsulating PIM packet,
                      * e.g. an IPv6 data packet is encapsulated in IPv6 PIM packet.
                      */
+            ti = proto_tree_add_item(pimopt_tree, hf_pim_dummy_header, tvb, offset, -1, ENC_NA);
             if (pinfo->src.type == AT_IPv4) {
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1, "IPv4 dummy header");
+                proto_item_append_text(ti, "IPv4");
                 proto_tree_add_item(pimopt_tree, hf_pim_source_ip4, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(pimopt_tree, hf_pim_group_ip4, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
             } else if (pinfo->src.type == AT_IPv6) {
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1, "IPv6 dummy header");
+                proto_item_append_text(ti, "IPv6");
                 proto_tree_add_item(pimopt_tree, hf_pim_source_ip6, tvb, offset + 8, 16, ENC_NA);
                 proto_tree_add_item(pimopt_tree, hf_pim_group_ip6, tvb, offset + 8 + 16, 16, ENC_NA);
             } else
-                proto_tree_add_text(pimopt_tree, tvb, offset, -1,
-                                    "Dummy header for an unknown protocol");
+                proto_item_append_text(ti, "for an unknown protocol");
             break;
         case 4: /* IPv4 */
             if (use_main_tree) {
@@ -1082,8 +1088,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             }
             break;
         default:
-            proto_tree_add_text(pimopt_tree, tvb, offset, -1,
-                                "Unknown IP version %d", (v_hl & 0xf0) >> 4);
             break;
         }
         break;
@@ -1417,6 +1421,11 @@ proto_register_pim(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0f,
                 NULL, HFILL}
             },
+            { &hf_pim_igmp_type,
+              { "Type", "pim.igmp_type",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_pim_code,
               { "Code", "pim.code",
                 FT_UINT8, BASE_DEC, VALS(pim_type1_vals), 0x0,
@@ -1569,6 +1578,16 @@ proto_register_pim(void)
             { &hf_pim_assert_override ,
               { "Assert override", "pim.assert_override",
                 FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_pim_ip_version ,
+              { "IP Version", "pim.ip_version",
+                FT_UINT8, BASE_DEC, VALS(pim_ip_version_vals), 0xF0,
+                NULL, HFILL }
+            },
+            { &hf_pim_dummy_header ,
+              { "Dummy Header", "pim.dummy_header",
+                FT_NONE, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
             { &hf_pim_source_ip4 ,
@@ -1753,6 +1772,11 @@ proto_register_pim(void)
             },
             { &hf_pim_mask_len,
               { "Masklen", "pim.mask_len",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_addr_len,
+              { "Address Len", "pim.addr_len",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
