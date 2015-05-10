@@ -345,6 +345,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gcp_cmd_type_t cmd_type = GCP_CMD_NONE;
     gcp_wildcard_t wild_term = GCP_WILDCARD_NONE;
     proto_item *hidden_item;
+    gboolean        short_form;
 
     top_tree=tree;
     /* Initialize variables */
@@ -384,10 +385,9 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
 
+    short_form = (tvb_get_guint8(tvb, tvb_offset ) == '!');
 
-
-
-    if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
+    if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && !short_form){
         gint8 ber_class;
         gboolean pc;
         gint32 tag;
@@ -963,7 +963,7 @@ nextcontext:
                 if ( tempchar != 'E' ){
 
 					/* Short form used */
-                    if ( tvb_get_guint8(tvb, 0 ) == '!'){
+                    if (short_form){
 
                         switch ( tempchar ){
 
