@@ -38,7 +38,7 @@
 /******************************************************************************/
 /*	Type definitions																				*/
 /*																										*/
-UCHAR AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len, UCHAR *output);
+UCHAR *AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len);
 
 /*																										*/
 /******************************************************************************/
