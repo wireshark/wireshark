@@ -17288,7 +17288,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           can_decrypt   = TRUE;
 
           /* Add Key information to packet */
-          bytes_to_hexstr(out_buff, (*&(used_key.KeyData.Wpa.Ptk)+32), AIRPDCAP_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
+          bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, AIRPDCAP_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
           out_buff[2*AIRPDCAP_TK_LEN] = '\0';
 
           if (key == 0) { /* encrypted with pairwise key */

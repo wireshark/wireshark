@@ -504,7 +504,8 @@ static INT AirPDcapScanForKeys(
 
     const EAPOL_RSN_KEY *pEAPKey;
 #ifdef _DEBUG
-    CHAR msgbuf[255];
+#define MSGBUF_LEN 255
+    CHAR msgbuf[MSGBUF_LEN];
 #endif
     AIRPDCAP_DEBUG_TRACE_START("AirPDcapScanForKeys");
 
@@ -588,6 +589,9 @@ static INT AirPDcapScanForKeys(
         /* get STA address */
         if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
             memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+            g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+#endif
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
         } else {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
@@ -628,7 +632,8 @@ INT AirPDcapPacketProcess(
     int offset = 0;
 
 #ifdef _DEBUG
-    CHAR msgbuf[255];
+#define MSGBUF_LEN 255
+    CHAR msgbuf[MSGBUF_LEN];
 #endif
 
     AIRPDCAP_DEBUG_TRACE_START("AirPDcapPacketProcess");
@@ -665,6 +670,9 @@ INT AirPDcapPacketProcess(
     /* get BSSID */
     if ( (addr=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.bssid, addr, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+        g_snprintf(msgbuf, MSGBUF_LEN, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
+#endif
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
     } else {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
@@ -674,6 +682,9 @@ INT AirPDcapPacketProcess(
     /* get STA address */
     if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+        g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+#endif
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
     } else {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
@@ -730,6 +741,11 @@ INT AirPDcapPacketProcess(
 
                     /* force STA address to broadcast MAC so we load the SA for the groupkey */
                     memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
+
+#ifdef _DEBUG
+                    g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+                    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+#endif
 
                     /* search for a cached Security Association for current BSSID and broadcast MAC */
                     sa = AirPDcapGetSaPtr(ctx, &id);
@@ -1023,7 +1039,7 @@ AirPDcapRsnaMng(
 
     if (key!=NULL) {
         memcpy(key, sa->key, sizeof(AIRPDCAP_KEY_ITEM));
-        memcpy(&(key->KeyData.Wpa.Ptk), sa->wpa.ptk, AIRPDCAP_WPA_PTK_LEN); /* copy the PTK to the key structure for future use by wireshark */
+        memcpy(key->KeyData.Wpa.Ptk, sa->wpa.ptk, AIRPDCAP_WPA_PTK_LEN); /* copy the PTK to the key structure for future use by wireshark */
         if (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)
             key->KeyType=AIRPDCAP_KEY_TYPE_TKIP;
         else if (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_AES_CCMP)
