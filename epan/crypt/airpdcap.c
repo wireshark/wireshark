@@ -414,6 +414,9 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
             rsn_id = decrypted_data[key_index];
 
             if (rsn_id != 0xdd){
+                if (key_index+1 >= key_bytes_len){
+                    return;
+                }
                 key_index += decrypted_data[key_index+1]+2;
             }else{
                 key_found = TRUE;
@@ -421,6 +424,8 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         }
 
         if (key_found){
+            if (key_index+8 >= key_bytes_len)
+                return;
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
             memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
         }
