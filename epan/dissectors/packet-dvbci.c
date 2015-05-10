@@ -3069,6 +3069,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         packet_info *pinfo, proto_tree *tree)
 {
     gint            offset_start;
+    proto_item     *pi;
     guint8          close_mmi_cmd_id;
     guint8          disp_ctl_cmd, disp_rep_id;
     const gchar    *disp_ctl_cmd_str = NULL, *disp_rep_id_str = NULL;
@@ -3157,13 +3158,12 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             ans_txt_len = tvb_get_guint8(tvb,offset);
+            pi = proto_tree_add_item(tree, hf_dvbci_ans_txt_len,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             if (ans_txt_len == NB_UNKNOWN) {
-                proto_tree_add_text(tree, tvb, offset, 1,
-                        "Length of expected answer is unknown");
+                proto_item_append_text(pi,
+                        " (Length of expected answer is unknown)");
             }
-            else
-                proto_tree_add_item(tree, hf_dvbci_ans_txt_len,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             dissect_si_string(tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
@@ -3184,20 +3184,20 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         case T_LIST_LAST:
         case T_LIST_MORE:
             choice_or_item_nb = tvb_get_guint8(tvb,offset);
-            if (choice_or_item_nb == NB_UNKNOWN)
-            {
-                proto_tree_add_text(tree, tvb, offset, 1,
-                        "Number of items is unknown");
-            }
-            else
-            {
-                if (IS_MENU_APDU(tag)) {
-                    proto_tree_add_item(
-                            tree, hf_dvbci_choice_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (IS_MENU_APDU(tag)) {
+                pi = proto_tree_add_item(
+                        tree, hf_dvbci_choice_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                if (choice_or_item_nb == NB_UNKNOWN) {
+                    proto_item_append_text(pi,
+                            " (Number of choices is unknown)");
                 }
-                else {
-                    proto_tree_add_item(
-                            tree, hf_dvbci_item_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+            else {
+                pi = proto_tree_add_item(
+                        tree, hf_dvbci_item_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                if (choice_or_item_nb == NB_UNKNOWN) {
+                    proto_item_append_text(pi,
+                            "(Number of items is unknown)");
                 }
             }
             offset++;
@@ -3222,15 +3222,14 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             break;
         case T_MENU_ANSW:
             choice_ref = tvb_get_guint8(tvb,offset);
+            pi = proto_tree_add_item(
+                    tree, hf_dvbci_choice_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (choice_ref == 0x0) {
-                proto_tree_add_text(tree, tvb, offset, 1,
-                        "Selection was cancelled.");
+                proto_item_append_text(pi, " (Selection was cancelled)");
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                         "cancelled");
             }
             else {
-                proto_tree_add_item(
-                        tree, hf_dvbci_choice_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                         "Item %d", choice_ref);
             }
