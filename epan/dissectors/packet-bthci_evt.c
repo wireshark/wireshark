@@ -665,6 +665,12 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x03, "LE Connection Update Complete" },
     { 0x04, "LE Read Remote Used Features Complete" },
     { 0x05, "LE Long Term Key Request" },
+    { 0x06, "LE Remote Connection Parameter Request" },
+    { 0x07, "LE Data Length Change" },
+    { 0x08, "LE Read Local P-256 Public Key Complete" },
+    { 0x09, "LE Generate DHKey Complete" },
+    { 0x0A, "LE Enhanced Connection Complete" },
+    { 0x0B, "LE Direct Advertising Report" },
     { 0, NULL }
 };
 
@@ -1856,6 +1862,13 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_encrypted_diversifier,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
+        case 0x06: /* LE Remote Connection Parameter Request */
+        case 0x07: /* LE Data Length Change */
+        case 0x08: /* LE Read Local P-256 Public Key Complete */
+        case 0x09: /* LE Generate DHKey Complete */
+        case 0x0A: /* LE Enhanced Connection Complete */
+        case 0x0B: /* LE Direct Advertising Report */
+/* TODO */
         default:
             break;
     }

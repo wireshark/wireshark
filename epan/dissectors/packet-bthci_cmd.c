@@ -282,11 +282,19 @@ static int hf_bthci_cmd_length_so_far = -1;
 static int hf_bthci_cmd_amp_assoc_length = -1;
 static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
-static int hf_bthci_cmd_le_evt_mask_00 = -1;
-static int hf_bthci_cmd_le_evt_mask_01 = -1;
-static int hf_bthci_cmd_le_evt_mask_02 = -1;
-static int hf_bthci_cmd_le_evt_mask_03 = -1;
-static int hf_bthci_cmd_le_evt_mask_04 = -1;
+static int hf_bthci_cmd_le_event_mask = -1;
+static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_direct_advertising_report  = -1;
+static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_data_length_change = -1;
+static int hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request = -1;
+static int hf_bthci_cmd_le_event_mask_le_long_term_key_request = -1;
+static int hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_connection_update_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_advertising_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_connection_complete = -1;
 static int hf_bthci_cmd_le_advts_interval_min = -1;
 static int hf_bthci_cmd_le_advts_interval_max = -1;
 static int hf_bthci_cmd_le_advts_type = -1;
@@ -325,6 +333,22 @@ static int hf_bthci_cmd_test_data_length = -1;
 static int hf_bthci_cmd_test_packet_payload = -1;
 static int hf_bthci_cmd_parameter = -1;
 
+static const int *hfx_bthci_cmd_le_event_mask[] = {
+    &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_direct_advertising_report ,
+    &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
+    &hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete,
+    &hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete,
+    &hf_bthci_cmd_le_event_mask_le_data_length_change,
+    &hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request,
+    &hf_bthci_cmd_le_event_mask_le_long_term_key_request,
+    &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
+    &hf_bthci_cmd_le_event_mask_le_connection_update_complete,
+    &hf_bthci_cmd_le_event_mask_le_advertising_report,
+    &hf_bthci_cmd_le_event_mask_le_connection_complete,
+    NULL
+};
+
 static expert_field ei_command_undecoded                              = EI_INIT;
 static expert_field ei_command_unknown_command                        = EI_INIT;
 static expert_field ei_command_parameter_unexpected                   = EI_INIT;
@@ -338,6 +362,7 @@ static gint ett_opcode = -1;
 static gint ett_cod_mask = -1;
 static gint ett_flow_spec_subtree = -1;
 static gint ett_le_channel_map = -1;
+static gint ett_le_event_mask = -1;
 
 static gint proto_btcommon = -1;
 static gint hf_btcommon_eir_ad_entry = -1;
@@ -2838,12 +2863,8 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
     switch(cmd_ocf) {
 
         case 0x0001: /* LE Set Event Mask */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_evt_mask_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_evt_mask_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_evt_mask_02, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_evt_mask_03, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_le_evt_mask_04, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset+=8;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_event_mask, ett_le_event_mask, hfx_bthci_cmd_le_event_mask, ENC_LITTLE_ENDIAN);
+            offset += 8;
             break;
 
         case 0x0005: /* LE Set Random Address */
@@ -4437,30 +4458,70 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x0,
             "Support for both LE and BR/EDR to same device", HFILL }
         },
-        { &hf_bthci_cmd_le_evt_mask_00,
-          { "LE Connection Complete", "bthci_cmd.le_evt_mask_00",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
-            "LE Connection Complete Bit", HFILL }
+        { &hf_bthci_cmd_le_event_mask,
+          { "LE Connection Complete",                      "bthci_cmd.le_event_mask",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_evt_mask_01,
-          { "LE Advertising Report", "bthci_cmd.le_evt_mask_01",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
-            "LE Advertising Report Bit", HFILL }
+        { &hf_bthci_cmd_le_event_mask_le_connection_complete,
+          { "LE Connection Complete",                      "bthci_cmd.le_event_mask.le_connection_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x01),
+            NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_evt_mask_02,
-          { "LE Connection Update Complete", "bthci_cmd.le_evt_mask_02",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
-            "LE Connection Update Complete Bit", HFILL }
+        { &hf_bthci_cmd_le_event_mask_le_advertising_report,
+          { "LE Advertising Report",                       "bthci_cmd.le_event_mask.le_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x02),
+            NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_evt_mask_03,
-          { "LE Read Remote Used Features Complete", "bthci_cmd.le_evt_mask_03",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
-            "LE Read Remote Used Features Complete Bit", HFILL }
+        { &hf_bthci_cmd_le_event_mask_le_connection_update_complete,
+          { "LE Connection Update Complete",               "bthci_cmd.le_event_mask.le_connection_update_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x04),
+            NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_evt_mask_04,
-          { "LE Long Term Key Request", "bthci_cmd.le_evt_mask_04",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
-            "LE Long Term Key Request Bit", HFILL }
+        { &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
+          { "LE Read Remote Used Features Complete",       "bthci_cmd.le_event_mask.le_read_remote_used_features_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x08),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_long_term_key_request,
+          { "LE Long Term Key Request",                    "bthci_cmd.le_event_mask.le_long_term_key_request",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x10),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request,
+          { "LE Remote Connection Parameter Request",      "bthci_cmd.le_event_mask.le_remote_connection_parameter_request",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x20),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_data_length_change,
+          { "LE Data Length Change",                       "bthci_cmd.le_event_mask.le_data_length_change",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x40),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete,
+          { "LE Read Local P-256 Public Key Complete",     "bthci_cmd.le_event_mask.le_read_local_p256_public_key_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x80),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete,
+          { "LE Generate DHKey Complete",                  "bthci_cmd.le_event_mask.le_generate_dhkey_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x100),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
+          { "LE Enhanced Connection Complete",             "bthci_cmd.le_event_mask.le_enhanced_connection_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x200),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_direct_advertising_report,
+          { "LE Direct Advertising Report",                "bthci_cmd.le_event_mask.le_direct_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_reserved,
+          { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFF800),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
           { "Advertising Interval Min", "bthci_cmd.le_advts_interval_min",
@@ -4661,7 +4722,8 @@ proto_register_bthci_cmd(void)
         &ett_cod,
         &ett_cod_mask,
         &ett_flow_spec_subtree,
-        &ett_le_channel_map
+        &ett_le_channel_map,
+        &ett_le_event_mask
     };
 
     /* Decode As handling */
