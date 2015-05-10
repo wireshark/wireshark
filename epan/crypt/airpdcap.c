@@ -314,7 +314,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     guint8 key_version;
     guint8  *szEncryptedKey;
     guint16 key_bytes_len = 0; /* Length of the total key data field */
-    guint16 key_len = 0;       /* Actual group key length */
+    guint16 key_len;           /* Actual group key length */
     static AIRPDCAP_KEY_ITEM dummy_key; /* needed in case AirPDcapRsnaMng() wants the key structure */
     AIRPDCAP_SEC_ASSOCIATION *tmp_sa;
 
