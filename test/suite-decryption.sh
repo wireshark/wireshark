@@ -77,7 +77,7 @@ decryption_step_80211_wpa_psk() {
 # WPA EAP (EAPOL Rekey)
 # Included in git sources test/captures/wpa-eap-tls.pcap.gz
 decryption_step_80211_wpa_eap() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	./run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
 		-r "$CAPTURE_DIR/wpa-eap-tls.pcap.gz" \
 		-Y "wlan.analysis.tk==7d9987daf5876249b6c773bf454a0da7" \

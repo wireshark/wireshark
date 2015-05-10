@@ -1,0 +1,20 @@
+#! /bin/sh
+#
+# Run the command we're passed in a subshell, so that said subshell will
+# catch any signals from it and report it.
+#
+# This is done for commands that aren't the last command in the
+# pipeline, as, given that the exit status of a pipeline is the exit
+# status of the last command in the pipeline, there's no guarantee that
+# the shell will bother to pick up the exit status of earlier commands
+# in the pipeline.
+#
+# XXX - it might be useful to try to catch core dumps and, if we find
+# one, fire up some tool to try to get a stack trace.  That's rather
+# platform-dependent - not all platforms create a core dump file named
+# "core" in the current directory (OS X, for example, defaults to
+# "/cores/core.{PID}"), and the name of the debugger and commands to
+# pass to it are platform-dependent (and you might not even have one
+# installed).
+#
+"$@"
