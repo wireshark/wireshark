@@ -307,10 +307,10 @@ typedef struct {
 /* Minimum possible group key msg size (group key msg using CCMP as cipher)*/
 #define GROUP_KEY_PAYLOAD_LEN_MIN RSN_KEY_WITHOUT_KEYBYTES_LEN+CCMP_GROUP_KEY_LEN
 
+/* XXX - what if this doesn't get the key? */
 static void
 AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa, gboolean group_hshake)
 {
-    guint8  new_key[32];
     guint8 key_version;
     guint8  *szEncryptedKey;
     guint16 key_bytes_len = 0; /* Length of the total key data field */
@@ -347,11 +347,6 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
     DEBUG_DUMP("decryption_key:", decryption_key, 16);
 
-    /* Build the full decryption key based on the IV and part of the pairwise key */
-    memcpy(new_key, pEAPKey->key_iv, 16);
-    memcpy(new_key+16, decryption_key, 16);
-    DEBUG_DUMP("FullDecrKey:", new_key, 32);
-
     /* We are rekeying, save old sa */
     tmp_sa=(AIRPDCAP_SEC_ASSOCIATION *)g_malloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
     memcpy(tmp_sa, sa, sizeof(AIRPDCAP_SEC_ASSOCIATION));
@@ -365,6 +360,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     /* for to determine the true key length, and thus the group cipher.                                */
 
     if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
+        guint8 new_key[32];
         guint8 dummy[256];
         /* TKIP key */
         /* Per 802.11i, Draft 3.0 spec, section 8.5.2, p. 97, line 4-8, */
@@ -375,6 +371,11 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         /* The WPA group key just contains the GTK bytes so deducing the type is straightforward   */
         /* Note - WPA M3 doesn't contain a group key so we'll only be here for the group handshake */
         sa->wpa.key_ver = (key_bytes_len >=TKIP_GROUP_KEY_LEN)?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
+
+        /* Build the full decryption key based on the IV and part of the pairwise key */
+        memcpy(new_key, pEAPKey->key_iv, 16);
+        memcpy(new_key+16, decryption_key, 16);
+        DEBUG_DUMP("FullDecrKey:", new_key, 32);
 
         crypt_rc4_init(&rc4_state, new_key, sizeof(new_key));
 
