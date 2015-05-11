@@ -406,6 +406,19 @@ void DisplayFilterEdit::checkFilter(const QString& text)
 // ui/gtk/filter_autocomplete.c:build_autocompletion_list
 void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 {
+    // Push a hint about the current field.
+    if (syntaxState() == Valid) {
+        emit popFilterSyntaxStatus();
+
+        header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
+        if (hfinfo) {
+            QString cursor_field_msg = QString("%1: %2")
+                    .arg(hfinfo->name)
+                    .arg(ftype_pretty_name(hfinfo->type));
+            emit pushFilterSyntaxStatus(cursor_field_msg);
+        }
+    }
+
     // Grab any matching display filters from our parent combo.
     QStringList recent_list;
     QComboBox *df_combo = qobject_cast<QComboBox *>(parent());
