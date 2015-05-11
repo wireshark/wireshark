@@ -1238,19 +1238,22 @@ get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntoh24(tvb, offset + 1);
 }
 
-static gboolean
+#define NOT_DIAMETER	0
+#define IS_DIAMETER	1
+#define NOT_ENOUGH_DATA 2
+static gint
 check_diameter(tvbuff_t *tvb)
 {
 	guint32 diam_len;
 	guint8 flags;
 
 	/* Ensure we don't throw an exception trying to do these heuristics */
-	if (tvb_length(tvb) < 5)
-		return FALSE;
+	if (tvb_captured_length(tvb) < 5)
+		return NOT_ENOUGH_DATA;
 
 	/* Check if the Diameter version is 1 */
 	if (tvb_get_guint8(tvb, 0) != 1)
-		return FALSE;
+		return NOT_DIAMETER;
 
 	/* Check if the message size is reasonable.
 	 * Diameter messages can technically be of any size; this limit
@@ -1258,7 +1261,7 @@ check_diameter(tvbuff_t *tvb)
 	 */
 	diam_len = tvb_get_ntoh24(tvb, 1);
 	if (diam_len > 65534)
-		return FALSE;
+		return NOT_DIAMETER;
 
 	/* Diameter minimum message length:
 	 *
@@ -1275,19 +1278,19 @@ check_diameter(tvbuff_t *tvb)
 	 * --> 36 bytes
 	 */
 	if (diam_len < 36)
-		return FALSE;
+		return NOT_DIAMETER;
 
 	flags = tvb_get_guint8(tvb, 4);
 
 	/* Check if any of the Reserved flag bits are set */
 	if (flags & 0x0f)
-		return FALSE;
+		return NOT_DIAMETER;
 
 	/* Check if both the R- and E-bits are set */
 	if ((flags & DIAM_FLAGS_R) && (flags & DIAM_FLAGS_E))
-		return FALSE;
+		return NOT_DIAMETER;
 
-	return TRUE;
+	return IS_DIAMETER;
 }
 
 /*****************************************************************/
@@ -1297,7 +1300,7 @@ check_diameter(tvbuff_t *tvb)
 static int
 dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	if (!check_diameter(tvb))
+	if (check_diameter(tvb) != IS_DIAMETER)
 		return 0;
 	return dissect_diameter_common(tvb, pinfo, tree, data);
 }
@@ -1305,11 +1308,22 @@ dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	/* Check if we have the start of a PDU or if this is segment */
-	if (!check_diameter(tvb)) {
+	gint is_diam = check_diameter(tvb);
+
+	if (is_diam == NOT_DIAMETER) {
+		/* We've probably been given a frame that's not the start of
+		 * a PDU.
+		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 		call_dissector(data_handle, tvb, pinfo, tree);
+	} else if (is_diam == NOT_ENOUGH_DATA) {
+		/* Since we're doing our heuristic checks before
+		 * tcp_dissect_pdus() (since we we can't do heuristics once
+		 * we're in there) we sometimes have to ask for more data...
+		 */
+                pinfo->desegment_offset = 0;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 	} else {
 		tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
 				 get_diameter_pdu_len, dissect_diameter_common, data);
