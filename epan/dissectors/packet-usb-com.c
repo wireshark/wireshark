@@ -463,6 +463,10 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *setup_tre
     gint offset = 0;
     gboolean is_request;
 
+    if (tvb_reported_length(tvb) == 0) {
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCOM");
 
     tree = proto_tree_get_parent_tree(setup_tree);

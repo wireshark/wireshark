@@ -3660,6 +3660,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if ((usb_trans_info->setup.request == 0x00) && (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
             /* Skip Send Encapsulated Command header */
             offset += 7;
+            tree = proto_tree_get_parent_tree(tree);
         }
     }
 
@@ -4943,7 +4944,7 @@ dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     usb_conv_info_t *usb_conv_info;
     usb_trans_info_t *usb_trans_info;
 
-    if (!data) {
+    if (!data || (tvb_reported_length(tvb) == 0)) {
         return 0;
     }
 
