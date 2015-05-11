@@ -2871,6 +2871,7 @@ menu_color_conversation_filter(capture_file *cf)
     GtkActionGroup *action_group, *color_action_group;
     GList *list_entry = color_conv_filter_list;
     color_conversation_filter_t* color_filter;
+    int conv_counter = 0;
 
     static packet_list_menu_color_conv_color_cb_t callbacks[MAX_NUM_COLOR_CONVERSATION_COLORS] = {
         packet_list_menu_color_conv_color1_cb,
@@ -2921,29 +2922,31 @@ menu_color_conversation_filter(capture_file *cf)
                      "popup-conv-color-filters-merge-id", GUINT_TO_POINTER (color_merge_id));
 
     while (list_entry != NULL) {
-        gchar *color_num_path_name;
+        gchar *action_name, *color_num_path_name;
         GtkAction *action, *color_action;
         GtkWidget *color_conv_filter_menuitem, *color_conv_filter_submenu, *color_conv_widget;
 
         color_filter = (color_conversation_filter_t*)list_entry->data;
 
         /* Create conversation filter menu item for each registered protocol */
+        action_name = g_strdup_printf ("color_conversation-%u", conv_counter);
+        conv_counter++;
         action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
-                 "name", color_filter->display_name,
+                 "name", action_name,
                  "label", color_filter->display_name,
                  "sensitive", menu_color_dissector_filter_spe_cb(NULL, cf->edt, color_filter),
                  NULL);
-        g_signal_connect (action, "activate",
-                        G_CALLBACK (menu_color_conversation_filter_cb), color_filter);
+        g_signal_connect (action, "activate", G_CALLBACK (menu_color_conversation_filter_cb), color_filter);
         gtk_action_group_add_action (action_group, action);
         g_object_unref (action);
 
         gtk_ui_manager_add_ui (ui_manager_packet_list_menu, merge_id,
                     "/PacketListMenuPopup/ConversationFilter/Conversations",
-                    color_filter->display_name,
-                    color_filter->display_name,
+                    action_name,
+                    action_name,
                     GTK_UI_MANAGER_MENUITEM,
                     FALSE);
+        g_free(action_name);
 
         /* Create color filter menu item for each registered protocol */
         color_action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
@@ -4812,12 +4815,14 @@ set_menus_for_selected_packet(capture_file *cf)
         list_entry = g_list_next(list_entry);
     }
 
+    i = 0;
     while (color_list_entry != NULL) {
         color_conversation_filter_t* color_filter;
         gchar *path;
 
         color_filter = (color_conversation_filter_t *)color_list_entry->data;
-        path = g_strdup_printf("/PacketListMenuPopup/ConversationFilter/Conversations/%s", color_filter->display_name);
+        path = g_strdup_printf("/PacketListMenuPopup/ConversationFilter/Conversations/color_conversation-%d", i);
+        i++;
 
         set_menu_sensitivity(ui_manager_packet_list_menu, path,
             menu_color_dissector_filter_spe_cb(NULL, cf->edt, color_filter));
