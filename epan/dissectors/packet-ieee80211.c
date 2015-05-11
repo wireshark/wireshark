@@ -257,16 +257,6 @@ typedef struct mimo_control
 
 typedef struct vht_mimo_control
 {
-  guint8 nc;
-  guint8 nr;
-  guint8 chan_width;
-  guint8 grouping;
-  gboolean codebook_info;
-  gboolean feedback_type;
-  guint8 remaining_feedback_segment;
-  gboolean first_feedback_segment;
-  guint8 reserved;
-  guint8 token;
 } vht_mimo_control_t;
 
 /* ************************************************************************* */
@@ -9170,29 +9160,6 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   return offset - start;
 }
 
-static guint
-add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, vht_mimo_control_t *cntrl)
-{
-  guint32 vht_mimo;
-
-  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_vht_mimo_cntrl,
-                        ett_ff_vhtmimo_cntrl, hf_ieee80211_ff_vht_mimo_cntrl_fields, ENC_LITTLE_ENDIAN);
-
-  /* Fill vht_mimo_control_t for beamforming use */
-  vht_mimo = tvb_get_letoh24(tvb, offset);
-  cntrl->nc = (vht_mimo & 0x7) + 1;
-  cntrl->nr = ((vht_mimo & 0x38) >> 3) + 1;
-  cntrl->chan_width = (vht_mimo & 0xC0) >> 6;
-  cntrl->grouping = ((vht_mimo & 0x300) >> 8);
-  cntrl->codebook_info = (vht_mimo & 0x400) >> 10;
-  cntrl->feedback_type = (vht_mimo & 0x800) >> 11;
-  cntrl->remaining_feedback_segment = (vht_mimo & 0x7000) >> 12;
-  cntrl->first_feedback_segment = (vht_mimo & 0x8000) >> 15;
-  cntrl->reserved = (vht_mimo & 0x30000) >> 16;
-  cntrl->token = (vht_mimo & 0xfc0000) >> 18;
-  return 3;
-}
-
 /* There is no easy way to skip all these subcarrier indices that must not
  * be displayed when showing compressed beamforming feedback matrices
  * Table 8-53g IEEE Std 802.11ac-2013 amendment.
@@ -9303,39 +9270,59 @@ static inline int vht_compressed_skip_scidx(guint8 nchan_width, guint8 ng, int s
 }
 
 static guint
-add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, vht_mimo_control_t *vht_cntrl)
+add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
+  guint32 vht_mimo;
+  guint8 nc;
+  guint8 nr;
+  guint8 chan_width;
+  guint8 grouping;
+  gboolean codebook_info;
+  gboolean feedback_type;
   proto_item *vht_beam_item;
   proto_tree *vht_beam_tree, *subtree;
   int i, matrix_size, len, pos, ns, scidx = 0;
-  guint8 phi, psi, carry, ng, nchan_width;
+  guint8 phi, psi, carry;
   /* Table 8-53d Order of angles in the Compressed Beamforming Feedback
    * Matrix subfield, IEEE Std 802.11ac-2013 amendment */
-  const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
-                                {  2,  2,  0,  0,  0,  0,  0,  0 },
-                                {  4,  6,  6,  0,  0,  0,  0,  0 },
-                                {  6, 10, 12, 12,  0,  0,  0,  0 },
-                                {  8, 14, 18, 20, 20,  0,  0,  0 },
-                                { 10, 18, 24, 28, 30, 30,  0,  0 },
-                                { 12, 22, 30, 36, 40, 42, 42,  0 },
-                                { 14, 26, 36, 44, 50, 54, 56, 56 }
-                              };
+  static const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
+                                       {  2,  2,  0,  0,  0,  0,  0,  0 },
+                                       {  4,  6,  6,  0,  0,  0,  0,  0 },
+                                       {  6, 10, 12, 12,  0,  0,  0,  0 },
+                                       {  8, 14, 18, 20, 20,  0,  0,  0 },
+                                       { 10, 18, 24, 28, 30, 30,  0,  0 },
+                                       { 12, 22, 30, 36, 40, 42, 42,  0 },
+                                       { 14, 26, 36, 44, 50, 54, 56, 56 }
+                                     };
   /* Table 8-53g Subcarriers for which a Compressed Beamforming Feedback Matrix
    * subfield is sent back. IEEE Std 802.11ac-2013 amendment */
-  const int ns_arr[4][3] = { {  52,  30,  16 },
-                             { 108,  58,  30 },
-                             { 234, 122,  62 },
-                             { 468, 244, 124 }
-                           };
+  static const int ns_arr[4][3] = { {  52,  30,  16 },
+                                    { 108,  58,  30 },
+                                    { 234, 122,  62 },
+                                    { 468, 244, 124 }
+                                  };
+
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_vht_mimo_cntrl,
+                        ett_ff_vhtmimo_cntrl, hf_ieee80211_ff_vht_mimo_cntrl_fields, ENC_LITTLE_ENDIAN);
+  offset += 3;
+
+  /* Extract values for beamforming use */
+  vht_mimo = tvb_get_letoh24(tvb, offset);
+  nc = (vht_mimo & 0x7) + 1;
+  nr = ((vht_mimo & 0x38) >> 3) + 1;
+  chan_width = (vht_mimo & 0xC0) >> 6;
+  grouping = ((vht_mimo & 0x300) >> 8);
+  codebook_info = (vht_mimo & 0x400) >> 10;
+  feedback_type = (vht_mimo & 0x800) >> 11;
 
   vht_beam_item = proto_tree_add_item(tree, hf_ieee80211_vht_compressed_beamforming_report, tvb,
                                   offset, -1, ENC_NA);
   vht_beam_tree = proto_item_add_subtree(vht_beam_item, ett_ff_vhtmimo_beamforming_report);
 
-  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, vht_cntrl->nc,
+  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, nc,
                         ett_ff_vhtmimo_beamforming_report_snr, NULL, "Average Signal to Noise Ratio");
 
-  for (i = 1; i <= vht_cntrl->nc; i++)
+  for (i = 1; i <= nc; i++)
   {
     guint8 snr;
 
@@ -9347,24 +9334,22 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
 
   subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, -1,
                         ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrics");
-  if (vht_cntrl->feedback_type) {
-    if (vht_cntrl->codebook_info) {
+  if (feedback_type) {
+    if (codebook_info) {
       psi = 7; phi = 9;
     } else {
       psi = 5; phi = 7;
     }
   } else {
-    if (vht_cntrl->codebook_info) {
+    if (codebook_info) {
       psi = 4; phi = 6;
     } else {
       psi = 2; phi = 4;
     }
   }
 
-  ng = vht_cntrl->grouping;
-  nchan_width = vht_cntrl->chan_width;
-  ns = ns_arr[nchan_width][ng];
-  switch(nchan_width) {
+  ns = ns_arr[chan_width][grouping];
+  switch(chan_width) {
     case 0:
       scidx = -28;
       break;
@@ -9381,7 +9366,7 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
       break;
   }
 
-  matrix_size = na_arr[vht_cntrl->nr - 1][vht_cntrl->nc -1] * (psi + phi)/2;
+  matrix_size = na_arr[nr - 1][nc -1] * (psi + phi)/2;
   pos = 0;
   for (i = 0; i < ns; i++) {
     if (pos % 8)
@@ -9389,7 +9374,7 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     else
       carry = 0;
     len = roundup2((pos + matrix_size), 8)/8 - roundup2(pos, 8)/8;
-    scidx = vht_compressed_skip_scidx(nchan_width, ng, scidx);
+    scidx = vht_compressed_skip_scidx(chan_width, grouping, scidx);
 
     /* TODO : For certain values from na_arr, there is always going be a carry over or overflow from the previous or
        into the next octet. The largest of possible unaligned values can be 41 bytes long, and masking and shifting
@@ -9410,7 +9395,6 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint start = offset;
   guint8 vht_action;
   proto_item *ti;
-  vht_mimo_control_t vht_mimo_cntrl;
 
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
 
@@ -9419,8 +9403,7 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 
   switch(vht_action){
     case VHT_ACT_VHT_COMPRESSED_BEAMFORMING:{
-      offset += add_ff_vht_mimo_cntrl(tree, tvb, pinfo, offset, &vht_mimo_cntrl);
-      offset = add_ff_vht_compressed_beamforming_report(tree, tvb, pinfo, offset, &vht_mimo_cntrl);
+      offset = add_ff_vht_compressed_beamforming_report(tree, tvb, pinfo, offset);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
     break;
