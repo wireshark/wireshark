@@ -22,6 +22,19 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.99.4 and 1.99.5:
+
+* Qt port:
+
+** Capture restarts are now supported.
+** Menu items for plugins are now supported.
+** Extcap interfaces are now supported.
+** The Expert Information dialog has been added.
+** Display filter completion is now supported.
+** Several interface bugs have been fixed.
+** Translations have been updated.
+
+The following features are new (or have been significantly updated)
 since version 1.99.3:
 
 * Qt port:
