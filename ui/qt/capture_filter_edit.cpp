@@ -83,7 +83,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 {
     setAccessibleName(tr("Capture filter entry"));
 
-    empty_filter_message_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+    placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    setPlaceholderText(placeholder_text_);
+#endif
 
     //   DFCombo
     //     Bookmark (star)
@@ -205,6 +208,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     syntax_thread->start();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
 void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
 
@@ -225,11 +229,12 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         cr.setLeft(cr.left() + 2);
         cr.setRight(cr.right() - 2);
 
-        p.drawText(cr, Qt::AlignLeft|Qt::AlignVCenter, empty_filter_message_);
+        p.drawText(cr, Qt::AlignLeft|Qt::AlignVCenter, placeholder_text_);
     }
     // else check filter syntax and set the background accordingly
     // XXX - Should we add little warning/error icons as well?
 }
+#endif // QT < 4.7
 
 void CaptureFilterEdit::resizeEvent(QResizeEvent *)
 {

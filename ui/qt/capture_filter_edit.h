@@ -34,7 +34,9 @@ public:
     explicit CaptureFilterEdit(QWidget *parent = 0, bool plain = false);
 
 protected:
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
     void paintEvent(QPaintEvent *evt);
+#endif
     void resizeEvent(QResizeEvent *);
 //    void focusInEvent(QFocusEvent *evt);
 //    void focusOutEvent(QFocusEvent *evt);
@@ -52,7 +54,7 @@ private slots:
 private:
     bool plain_;
     bool field_name_only_;
-    QString empty_filter_message_;
+    QString placeholder_text_;
     QToolButton *bookmark_button_;
     QToolButton *clear_button_;
     QToolButton *apply_button_;
