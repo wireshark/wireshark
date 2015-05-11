@@ -39,7 +39,7 @@ then
 		do
 			shift
 		done
-	fi	
+	fi
 	if [ -x "$1" ]
 	then
 		executable="$1"
