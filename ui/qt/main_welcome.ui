@@ -66,9 +66,6 @@
          </item>
          <item>
           <widget class="QLabel" name="flavorBanner">
-           <property name="text">
-            <string>s</string>
-           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>

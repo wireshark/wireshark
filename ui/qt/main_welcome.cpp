@@ -216,7 +216,7 @@ void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int column)
         emit startCapture();
     }
 }
-#include <QDebug>
+
 void MainWelcome::interfaceClicked(QTreeWidgetItem *item, int column)
 {
 #if HAVE_EXTCAP
