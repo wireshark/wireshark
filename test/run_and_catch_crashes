@@ -9,12 +9,59 @@
 # the shell will bother to pick up the exit status of earlier commands
 # in the pipeline.
 #
-# XXX - it might be useful to try to catch core dumps and, if we find
-# one, fire up some tool to try to get a stack trace.  That's rather
-# platform-dependent - not all platforms create a core dump file named
-# "core" in the current directory (OS X, for example, defaults to
-# "/cores/core.{PID}"), and the name of the debugger and commands to
-# pass to it are platform-dependent (and you might not even have one
-# installed).
+# XXX - on OS X, core dumps are in /cores/core.{PID}; would they appear
+# elsewhere on any other UN*X?
 #
+rm -f core
 "$@"
+if [ -r core ]
+then
+	#
+	# Core dumped - try to get a stack trace.
+	#
+	# First, find the executable.
+	#
+	if [ -x "$1" ]
+	then
+		executable="$1"
+	else
+		executable=`which "$1"`
+	fi
+
+	if [ ! -z "$executable" ]
+	then
+		#
+		# Found the executable.
+		#
+		# Now, look for a debugger.
+		# XXX - lldb?
+		#
+		dbx=`which dbx`
+		if [ ! -z "$dbx" ]
+		then
+			#
+			# Found dbx.  Run it to get a stack trace;
+			# cause the stack trace to go to the standard
+			# error.
+			#
+			dbx "$executable" core 1>&2 <<EOF
+where
+quit
+EOF
+		else
+			gdb=`which gdb`
+			if [ ! -z "$gdb" ]
+			then
+				#
+				# Found gdb.  Run it to get a stack trace;
+				# cause the stack trace to go to the standard
+				# error.
+				#
+				gdb "$executable" core 1>&2 <<EOF
+backtrace
+quit
+EOF
+			fi
+		fi
+	fi
+fi
