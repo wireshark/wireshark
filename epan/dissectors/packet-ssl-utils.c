@@ -43,6 +43,7 @@
 #include <epan/dissectors/packet-x509af.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include <wsutil/pint.h>
 
 /*
  * Lookup tables
@@ -3924,16 +3925,16 @@ ssl_private_key_hash  (gconstpointer v)
 {
     const SslService *key;
     guint        l, hash, len ;
-    const guint* cur;
+    const guint8 *cur;
 
     key  = (const SslService *)v;
     hash = key->port;
     len  = key->addr.len;
     hash |= len << 16;
-    cur  = (const guint*) key->addr.data;
+    cur  = (const guint8 *) key->addr.data;
 
-    for (l=4; (l<len); l+=4, cur++)
-        hash = hash ^ (*cur);
+    for (l=4; (l<len); l+=4, cur+=4)
+        hash = hash ^ pntoh32(cur);
 
     return hash;
 }
