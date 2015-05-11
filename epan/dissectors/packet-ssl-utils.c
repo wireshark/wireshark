@@ -3368,7 +3368,7 @@ ssl_private_key_hash  (gconstpointer v)
     cur  = (const guint8 *) key->addr.data;
 
     for (l=4; (l<len); l+=4, cur+=4)
-        hash = hash ^ pntoh3l(cur);
+        hash = hash ^ pntohl(cur);
 
     return hash;
 }
