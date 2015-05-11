@@ -204,6 +204,11 @@ static int hf_pim_frp_count = -1;
 static int hf_pim_priority = -1;
 static int hf_pim_prefix_count = -1;
 static int hf_pim_addr_len = -1;
+static int hf_pim_src_flags_a = -1;
+static int hf_pim_src_flags_s = -1;
+static int hf_pim_src_flags_w = -1;
+static int hf_pim_src_flags_r = -1;
+static int hf_pim_src_flags_rsv = -1;
 static int hf_pim_mask_len = -1;
 static int hf_pim_ttl = -1;
 static int hf_pim_interval = -1;
@@ -268,20 +273,26 @@ static gboolean use_main_tree  = TRUE;
  * Protocol Specification", also describes a protocol that runs atop IP,
  * with a protocol number of 103, and with a PIM version number field of 2.
  */
-static const char *
-dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
-    guint16 flags_masklen;
+static const gint *pim_src_flags_fields[] = {
+    &hf_pim_src_flags_a,
+    &hf_pim_src_flags_s,
+    &hf_pim_src_flags_w,
+    &hf_pim_src_flags_r,
+    &hf_pim_src_flags_rsv,
+    NULL
+};
 
-    flags_masklen = tvb_get_ntohs(tvb, offset);
-    if (flags_masklen & 0x0180) {
-        return wmem_strdup_printf(wmem_packet_scope(), "(%s%s%s) ",
-                                  flags_masklen & 0x0100 ? "S" : "",
-                                  flags_masklen & 0x0080 ? "W" : "",
-                                  flags_masklen & 0x0040 ? "R" : "");
-    } else {
-        return wmem_strdup_printf(wmem_packet_scope(), "%s/%u",
-                                  tvb_ip_to_str(tvb, offset + 2), flags_masklen & 0x3f);
-    }
+static void
+dissect_pimv1_addr(tvbuff_t *tvb, int offset, proto_tree *pim_tree, int hf_ip) {
+
+    proto_tree_add_bitmask_list(pim_tree, tvb, offset, 1, pim_src_flags_fields, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(pim_tree, hf_pim_mask_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(pim_tree, hf_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+
 }
 
 static const value_string pim_type1_vals[] = {
@@ -507,7 +518,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     case 7:     /* graft-ack */
     {
         int off;
-        const char *s;
         int ngroup, i, njoin, nprune, j;
         guint16 holdtime;
         proto_tree *grouptree = NULL;
@@ -560,9 +570,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
-                s = dissect_pimv1_addr(tvb, off);
-                proto_tree_add_text(subtree, tvb, off, 6,
-                                    "IP address: %s", s);
+                dissect_pimv1_addr(tvb, off, subtree, hf_pim_join_ip4);
                 off += 6;
             }
 
@@ -570,9 +578,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                         offset + 2, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
-                s = dissect_pimv1_addr(tvb, off);
-                proto_tree_add_text(subtree, tvb, off, 6,
-                                    "IP address: %s", s);
+                dissect_pimv1_addr(tvb, off, subtree, hf_pim_prune_ip4);
                 off += 6;
             }
             offset = off;
@@ -1768,6 +1774,31 @@ proto_register_pim(void)
             { &hf_pim_prefix_count,
               { "Prefix-count", "pim.prefix_count",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_src_flags_a,
+              { "Annotated", "pim.src_flags.a",
+                FT_UINT8, BASE_DEC, NULL, 0x08,
+                NULL, HFILL }
+            },
+            { &hf_pim_src_flags_s,
+              { "Sparse", "pim.src_flags.s",
+                FT_UINT8, BASE_DEC, NULL, 0x04,
+                NULL, HFILL }
+            },
+            { &hf_pim_src_flags_w,
+              { "WC", "pim.src_flags.w",
+                FT_UINT8, BASE_DEC, NULL, 0x02,
+                NULL, HFILL }
+            },
+            { &hf_pim_src_flags_r,
+              { "RP", "pim.src_flags.r",
+                FT_UINT8, BASE_DEC, NULL, 0x01,
+                NULL, HFILL }
+            },
+            { &hf_pim_src_flags_rsv,
+              { "Reserved", "pim.src_flags.rsv",
+                FT_UINT8, BASE_DEC, NULL, 0xF0,
                 NULL, HFILL }
             },
             { &hf_pim_mask_len,
