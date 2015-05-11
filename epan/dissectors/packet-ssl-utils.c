@@ -36,6 +36,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
+#include <epan/pint.h>
 #include <epan/ipv6-utils.h>
 #include <wsutil/file_util.h>
 
@@ -3359,15 +3360,15 @@ ssl_private_key_hash  (gconstpointer v)
 {
     const SslService *key;
     guint        l, hash, len ;
-    const guint* cur;
+    const guint8 *cur;
 
     key  = (const SslService *)v;
     hash = key->port;
     len  = key->addr.len;
-    cur  = (const guint*) key->addr.data;
+    cur  = (const guint8 *) key->addr.data;
 
-    for (l=4; (l<len); l+=4, cur++)
-        hash = hash ^ (*cur);
+    for (l=4; (l<len); l+=4, cur+=4)
+        hash = hash ^ pntoh3l(cur);
 
     return hash;
 }
