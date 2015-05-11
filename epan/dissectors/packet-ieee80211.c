@@ -255,10 +255,6 @@ typedef struct mimo_control
   guint8 remaining_matrix_segment;
 } mimo_control_t;
 
-typedef struct vht_mimo_control
-{
-} vht_mimo_control_t;
-
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
@@ -9217,7 +9213,7 @@ static inline int vht_compressed_skip_scidx(guint8 nchan_width, guint8 ng, int s
         }
       break;
     /* 160 MHz / 80+80 Mhz
-     * Skip values here assume 160 MHz, as vht_mimo_control_t does not let us differentiate
+     * Skip values here assume 160 MHz, as vht_mimo_control does not let us differentiate
      * between 160 MHz & 80-80MHz */
     case 3:
       switch (ng) {
