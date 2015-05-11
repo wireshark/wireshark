@@ -594,12 +594,17 @@ void PacketList::setColumnVisibility()
 
 int PacketList::sizeHintForColumn(int column) const
 {
-    int size_hint;
+    int size_hint = 0;
 
     // This is a bit hacky but Qt does a fine job of column sizing and
-    // reimplementing QTreeView::sizeHintForColumn seems worse.
+    // reimplementing QTreeView::sizeHintForColumn seems like a worse idea.
+    if (itemDelegateForColumn(column)) {
+        // In my (gcc) testing this results in correct behavior on Windows but adds extra space
+        // on OS X and Linux. We might want to add Q_OS_... #ifdefs accordingly.
+        size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
+    }
     packet_list_model_->setSizeHintEnabled(false);
-    size_hint = QTreeView::sizeHintForColumn(column);
+    size_hint += QTreeView::sizeHintForColumn(column);
     packet_list_model_->setSizeHintEnabled(true);
     return size_hint;
 }
@@ -673,6 +678,7 @@ void PacketList::applyRecentColumnWidths()
 {
     // Either we've just started up or a profile has changed. Read
     // the recent settings, apply them, and save the header state.
+    QFontMetrics fm = QFontMetrics(wsApp->monospaceFont());
     for (int i = 0; i < prefs.num_cols; i++) {
         int col_width = recent_get_column_width(i);
 
@@ -683,9 +689,9 @@ void PacketList::applyRecentColumnWidths()
             fmt = get_column_format(i);
             long_str = get_column_width_string(fmt, i);
             if (long_str) {
-                col_width = fontMetrics().width(long_str);
+                col_width = fm.width(long_str);
             } else {
-                col_width = fontMetrics().width(MIN_COL_WIDTH_STR);
+                col_width = fm.width(MIN_COL_WIDTH_STR);
             }
         }
         col_width += QTreeView::sizeHintForColumn(i); // Decoration padding
@@ -929,7 +935,9 @@ void PacketList::setCaptureFile(capture_file *cf)
 
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
-    setFont(mono_font);
+    // Don't call setFont here. It changes the header font on Windows and
+    // Linux.
+
     // qtreeview.cpp does something similar in Qt 5 so this *should* be
     // safe...
     int row_height = itemDelegate()->sizeHint(viewOptions(), QModelIndex()).height();
