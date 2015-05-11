@@ -60,7 +60,7 @@ DIFF_OUT=./diff-output.txt
 # WPA PSK
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
 decryption_step_80211_wpa_psk() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
 		-Tfields -e http.request.uri \
 		-r "$CAPTURE_DIR/wpa-Induction.pcap.gz" \
@@ -93,7 +93,7 @@ decryption_step_80211_wpa_eap() {
 # DTLS
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
 decryption_step_dtls() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e data.data \
 		-r "$CAPTURE_DIR/snakeoil-dtls.pcap" -Y data \
 		| grep "69:74:20:77:6f:72:6b:20:21:0a" > /dev/null 2>&1
@@ -108,7 +108,7 @@ decryption_step_dtls() {
 # SSL, using the server's private key
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
 		-r "$CAPTURE_DIR/rsasnakeoil2.pcap" -Y http \
 		| grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
@@ -121,7 +121,7 @@ decryption_step_ssl() {
 
 # SSL, using the master secret
 decryption_step_ssl_master_secret() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
 		-o "ssl.keylog_file: $TEST_KEYS_DIR/dhe1_keylog.dat" \
 		-o "ssl.desegment_ssl_application_data: FALSE" \
 		-o "http.ssl.port: 443" \
@@ -138,7 +138,7 @@ decryption_step_ssl_master_secret() {
 # ZigBee
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7022
 decryption_step_zigbee() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-r "$CAPTURE_DIR/sample_control4_2012-03-24.pcap" \
 		-Tfields -e data.data \
 		-Y zbee_aps \
@@ -154,7 +154,7 @@ decryption_step_zigbee() {
 # ANSI C12.22
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9196
 decryption_step_c1222() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "c1222.decrypt: TRUE" \
 		-o "c1222.baseoid:2.16.124.113620.1.22.0" \
 		-r "$CAPTURE_DIR/c1222_std_example8.pcap" \
@@ -172,7 +172,7 @@ decryption_step_c1222() {
 # simplified version of the sample capture in
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6700
 decryption_step_dvb_ci() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		 -o "dvb-ci.sek: 00000000000000000000000000000000" \
 		 -o "dvb-ci.siv: 00000000000000000000000000000000" \
 		-Tfields -e dvb-ci.cc.sac.padding \
@@ -189,7 +189,7 @@ decryption_step_dvb_ci() {
 # IKEv1 (ISAKMP) with certificates
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7951
 decryption_step_ikev1_certs() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e x509sat.printableString \
 		-r "$CAPTURE_DIR/ikev1-certs.pcap" \
 		| grep "OpenSwan" > /dev/null 2>&1

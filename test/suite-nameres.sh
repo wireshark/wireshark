@@ -36,7 +36,7 @@ CUSTOM_PROFILE_NAME="Custom-$$"
 # nameres.hosts_file_handling: False
 # Profile: Default
 name_resolution_net_t_ext_f_hosts_f_global() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: FALSE" \
@@ -54,7 +54,7 @@ name_resolution_net_t_ext_f_hosts_f_global() {
 # nameres.hosts_file_handling: False
 # Profile: Default
 name_resolution_net_t_ext_f_hosts_f_personal() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: FALSE" \
@@ -72,7 +72,7 @@ name_resolution_net_t_ext_f_hosts_f_personal() {
 # nameres.hosts_file_handling: False
 # Profile: Custom
 name_resolution_net_t_ext_f_hosts_f_custom() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: FALSE" \
@@ -91,7 +91,7 @@ name_resolution_net_t_ext_f_hosts_f_custom() {
 # nameres.hosts_file_handling: True
 # Profile: Default
 name_resolution_net_t_ext_f_hosts_t_global() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: TRUE" \
@@ -109,7 +109,7 @@ name_resolution_net_t_ext_f_hosts_t_global() {
 # nameres.hosts_file_handling: True
 # Profile: Default
 name_resolution_net_t_ext_f_hosts_t_personal() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: TRUE" \
@@ -127,7 +127,7 @@ name_resolution_net_t_ext_f_hosts_t_personal() {
 # nameres.hosts_file_handling: True
 # Profile: Custom
 name_resolution_net_t_ext_f_hosts_t_custom() {
-	env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
+	$TESTS_DIR/run_and_catch_crashes env $TS_NR_ENV $TSHARK $TS_NR_ARGS \
 		-o "nameres.network_name: TRUE" \
 		-o "nameres.use_external_name_resolver: FALSE" \
 		-o "nameres.hosts_file_handling: TRUE" \
