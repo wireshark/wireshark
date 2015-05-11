@@ -447,8 +447,9 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
         if (!proto_is_protocol_enabled(protocol)) continue;
 
         // Don't complete the current word.
-        const char *pfname = proto_get_protocol_filter_name(proto_id);
-        if (field_word.compare(pfname)) field_list << pfname;
+        const QString pfname = proto_get_protocol_filter_name(proto_id);
+        if (!field_word.startsWith(pfname)) continue;
+        field_list << pfname;
         if (show_fields) {
             void *field_cookie;
             for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
