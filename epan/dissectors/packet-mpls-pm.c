@@ -95,7 +95,15 @@ static int hf_mpls_pm_timestamp1_r_ntp = -1;
 static int hf_mpls_pm_timestamp1_q_ptp = -1;
 static int hf_mpls_pm_timestamp1_r_ptp = -1;
 static int hf_mpls_pm_timestamp1_unk = -1;
-static int hf_mpls_pm_timestamp2_null = -1;
+static int hf_mpls_pm_timestamp2_q_null = -1;
+static int hf_mpls_pm_timestamp2_r_null = -1;
+static int hf_mpls_pm_timestamp2_q_seq = -1;
+static int hf_mpls_pm_timestamp2_r_seq = -1;
+static int hf_mpls_pm_timestamp2_q_ntp = -1;
+static int hf_mpls_pm_timestamp2_r_ntp = -1;
+static int hf_mpls_pm_timestamp2_q_ptp = -1;
+static int hf_mpls_pm_timestamp2_r_ptp = -1;
+static int hf_mpls_pm_timestamp2_unk = -1;
 static int hf_mpls_pm_timestamp3_null = -1;
 static int hf_mpls_pm_timestamp3_r_null = -1;
 static int hf_mpls_pm_timestamp3_r_seq = -1;
@@ -263,7 +271,9 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
     if (query) {
         /*
          * FF: when a query is sent from A, Timestamp 1 is set to T1 and the
-         * other timestamp fields are set to 0.
+         * other timestamp fields are set to 0.  Moreover, it might be useful
+         * to decode Timestamp 2 (set to T2) as well because data can be captured
+         * somewhere at the responder box after the timestamp has been taken.
          */
         switch (i) {
         case 1:
@@ -301,9 +311,34 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
             }
             break;
         case 2:
-            proto_tree_add_item(pm_tree,
-                                hf_mpls_pm_timestamp2_null, tvb,
-                                offset, 8, ENC_BIG_ENDIAN);
+            switch (qtf) {
+            case MPLS_PM_TSF_NULL:
+                proto_tree_add_item(pm_tree,
+                                    hf_mpls_pm_timestamp2_q_null, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_SEQ:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_q_seq, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_NTP:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_q_ntp, tvb,
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_PTP:
+                {
+                    nstime_t ts;
+                    ts.secs = tvb_get_ntohl(tvb, offset);
+                    ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+                    proto_tree_add_time(pm_tree, hf_mpls_pm_timestamp2_q_ptp,
+                                        tvb, offset, 8, &ts);
+                }
+                break;
+            default:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_unk, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            }
             break;
         case 3:
             proto_tree_add_item(pm_tree,
@@ -323,7 +358,9 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
         /*
          * FF: when B transmits the response, Timestamp 1 is set to T3,
          * Timestamp 3 is set to T1 and Timestamp 4 is set to T2.  Timestamp 2
-         * is set to 0.
+         * is set to 0.  Moreover, it might be useful to decode Timestamp 2
+         * (set to T4) as well because data can be captured somewhere at the
+         * querier box after the timestamp has been taken.
          */
         switch (i) {
         case 1:
@@ -361,9 +398,34 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
             }
             break;
         case 2:
-            proto_tree_add_item(pm_tree,
-                                hf_mpls_pm_timestamp2_null, tvb,
-                                offset, 8, ENC_BIG_ENDIAN);
+            switch (rtf) {
+            case MPLS_PM_TSF_NULL:
+                proto_tree_add_item(pm_tree,
+                                    hf_mpls_pm_timestamp2_r_null, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_SEQ:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_r_seq, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_NTP:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_r_ntp, tvb,
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                break;
+            case MPLS_PM_TSF_PTP:
+                {
+                    nstime_t ts;
+                    ts.secs = tvb_get_ntohl(tvb, offset);
+                    ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+                    proto_tree_add_time(pm_tree, hf_mpls_pm_timestamp2_r_ptp,
+                                        tvb, offset, 8, &ts);
+                }
+                break;
+            default:
+                proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp2_unk, tvb,
+                                    offset, 8, ENC_BIG_ENDIAN);
+                break;
+            }
             break;
         case 3:
             switch (rtf) {
@@ -1207,10 +1269,90 @@ proto_register_mpls_pm(void)
             }
         },
         {
-            &hf_mpls_pm_timestamp2_null,
+            &hf_mpls_pm_timestamp2_q_null,
             {
-                "Timestamp 2",
+                "Timestamp 2 (T2)",
                 "mpls_pm.timestamp2.null",
+                FT_UINT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_r_null,
+            {
+                "Timestamp 2 (T4)",
+                "mpls_pm.timestamp2.null",
+                FT_UINT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_q_seq,
+            {
+                "Timestamp 2 (T2)",
+                "mpls_pm.timestamp2.seq",
+                FT_UINT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_r_seq,
+            {
+                "Timestamp 2 (T4)",
+                "mpls_pm.timestamp2.seq",
+                FT_UINT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_q_ntp,
+            {
+                "Timestamp 2 (T2)",
+                "mpls_pm.timestamp2.ntp",
+                FT_RELATIVE_TIME, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_r_ntp,
+            {
+                "Timestamp 2 (T4)",
+                "mpls_pm.timestamp2.ntp",
+                FT_RELATIVE_TIME, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_q_ptp,
+            {
+                "Timestamp 2 (T2)",
+                "mpls_pm.timestamp2.ptp",
+                FT_RELATIVE_TIME, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_r_ptp,
+            {
+                "Timestamp 2 (T4)",
+                "mpls_pm.timestamp2.ptp",
+                FT_RELATIVE_TIME, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_mpls_pm_timestamp2_unk,
+            {
+                "Timestamp 2 (Unknown Type)",
+                "mpls_pm.timestamp2.unk",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1335,7 +1477,7 @@ proto_register_mpls_pm(void)
                 NULL, 0x0,
                 NULL, HFILL
             }
-        },
+        }
     };
 
     static gint *ett[] = {
