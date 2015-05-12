@@ -20,7 +20,8 @@ The LBMR dissector could go into an infinite loop.
 // Fixed in master-1.12: g524d585
 // Fixed in master-1.10: N/A
 (ws-buglink:11036[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3808[]
+cve-idlink:2015-3809[]
 
 * ws-salink:2015-13[]
 +
@@ -29,7 +30,7 @@ The WebSocket dissector could recurse excessively.
 // Fixed in master-1.12: gcdb1fc6
 // Fixed in master-1.10: Unknown
 (ws-buglink:10989[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3810[]
 
 * ws-salink:2015-14[]
 +
@@ -38,7 +39,7 @@ The WCP dissector could crash while decompressing data.
 // Fixed in master-1.12: g65db378
 // Fixed in master-1.10: ge5a9cf3
 (ws-buglink:10978[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3811[]
 
 * ws-salink:2015-15[]
 +
@@ -47,7 +48,7 @@ The X11 dissector could leak memory.
 // Fixed in master-1.12: g7b58f02
 // Fixed in master-1.10: g7cb179e
 (ws-buglink:11088[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3812[]
 
 * ws-salink:2015-16[]
 +
@@ -56,7 +57,7 @@ The packet reassembly code could leak memory.
 // Fixed in master-1.12: g5bbf0d2
 // Fixed in master-1.10: Unknown
 (ws-buglink:11129[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3813[]
 
 * ws-salink:2015-17[]
 +
@@ -65,7 +66,16 @@ The IEEE 802.11 dissector could go into an infinite loop.
 // Fixed in master-1.12: gc3bee61
 // Fixed in master-1.10: gcd4dd9a
 (ws-buglink:11110[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3814[]
+
+* ws-salink:2015-18[]
++
+The Android Logcat file parser could crash. Discovered by Hanno Böck.
+// Fixed in master: gb3b1f7c, ge2038e0, g8044097, ef1b11f
+// Fixed in master-1.12: g489680c, g87fed6b, g560b90b, g3d8f9d4, g09eda88, g299e206
+// Fixed in master-1.10: N/A
+(ws-buglink:11188[])
+cve-idlink:2015-3815[]
 
 
 The following bugs have been fixed:
@@ -136,6 +146,7 @@ AllJoyn
 ATM
 ASN.1 PER
 CANopen
+Diameter
 ForCES
 GSM RLC/MAC
 GSMTAP
@@ -144,16 +155,19 @@ IEC-60870-5-104
 IEEE 802.11
 IMF
 IP
+LBMC
 LBMR
 LDAP
 LPP
 MBIM
+MEGACO
 MP2T
 PKCS-1
 PPP IPv6CP
 RPC
 SPNEGO
 SRVLOC
+SSL
 T.38
 TCP
 USB
@@ -166,7 +180,7 @@ ZigBee ZCL
 === New and Updated Capture File Support
 
 --sort-and-group--
-Savvius OmniPeek, Visual Networks
+Android Logcat, Savvius OmniPeek, Visual Networks
 --sort-and-group--
 
 == Getting Wireshark
