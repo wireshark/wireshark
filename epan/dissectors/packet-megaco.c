@@ -1755,7 +1755,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
         ti = proto_tree_add_uint(megaco_eventsdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_events_end_offset   = tvb_RBRKT;
@@ -2309,7 +2309,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 
         ti = proto_tree_add_uint(megaco_observedeventsdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_observedevents_end_offset   = tvb_RBRKT;
@@ -2470,7 +2470,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
 
         ti = proto_tree_add_uint(megaco_packagesdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_packages_end_offset   = tvb_RBRKT;
@@ -2981,7 +2981,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
         case MEGACO_DS_DSCP:
             tvb_get_nstringz0(tvb,tvb_current_offset,3,code_str);
             item = proto_tree_add_uint(megaco_LocalControl_tree, hf_megaco_ds_dscp, tvb,
-                tvb_help_offset, 1, strtoul(code_str,NULL,16));
+                tvb_help_offset, 1, (guint32) strtoul(code_str,NULL,16));
             proto_item_set_len(item, tvb_offset-tvb_help_offset);
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
