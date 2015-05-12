@@ -946,18 +946,23 @@ void PacketList::setMonospaceFont(const QFont &mono_font)
 }
 
 void PacketList::goNextPacket(void) {
+    if (!selectionModel()->hasSelection()) return;
     setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
 }
 
 void PacketList::goPreviousPacket(void) {
+    if (!selectionModel()->hasSelection()) return;
     setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
 }
 
 void PacketList::goFirstPacket(void) {
-    setCurrentIndex(moveCursor(MoveHome, Qt::NoModifier));
+    if (packet_list_model_->rowCount() < 1) return;
+    setCurrentIndex(packet_list_model_->index(0, 0));
 }
 
 void PacketList::goLastPacket(void) {
+    if (packet_list_model_->rowCount() < 1) return;
+    setCurrentIndex(packet_list_model_->index(0, 0));
     setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
 }
 
