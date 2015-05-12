@@ -2807,8 +2807,8 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             */
                             if (p_mq_parm->mq_opcode == MQ_TST_MQCONN_REPLY)
                             {
-                                guint32 *pApp = (guint32 *)tvb_get_ptr(tvb, offset + 48 + 28, 4);
-                                if (*pApp <= 65536)
+                                iApp = tvb_get_letohl(tvb, offset + 48 + 28);
+                                if (iApp <= 65536)
                                     iCod = ENC_LITTLE_ENDIAN;
                                 else
                                     iCod = ENC_BIG_ENDIAN;
