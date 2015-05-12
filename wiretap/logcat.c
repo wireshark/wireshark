@@ -57,7 +57,7 @@ struct logger_entry {
     gint32  tid;    /* generating process's tid */
     gint32  sec;    /* seconds since Epoch */
     gint32  nsec;   /* nanoseconds */
-    char    msg[0]; /* the entry's payload */
+/*    char    msg[0]; *//* the entry's payload */
 };
 
 struct logger_entry_v2 {
@@ -71,8 +71,8 @@ struct logger_entry_v2 {
                         /* v1: not present */
         guint32 euid;   /* v2: effective UID of logger */
         guint32 lid;    /* v3: log id of the payload */
-    };
-    char    msg[0]; /* the entry's payload */
+    } id;
+/*    char    msg[0]; *//* the entry's payload */
 };
 
 /* Returns '?' for invalid priorities */
@@ -142,7 +142,9 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     struct logger_entry_v2  *log_entry_v2;
     guint8                  *buffer;
     guint16                  tmp;
-    guint8                  *msg_payload, *msg_part, *msg_end;
+    guint8                  *msg_payload;
+    guint8                  *msg_part;
+    guint8                  *msg_end;
     guint16                  msg_len;
 
     /* 16-bit payload length */
@@ -182,11 +184,11 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
      * version is in use. First assume the smallest msg. */
     for (version = 1; version <= 2; ++version) {
         if (version == 1) {
-            msg_payload = log_entry->msg;
+            msg_payload = (guint8 *) (log_entry + 1);
             entry_len = sizeof(*log_entry) + payload_length;
         } else if (version == 2) {
             /* v2 is 4 bytes longer */
-            msg_payload = log_entry_v2->msg;
+            msg_payload = (guint8 *) (log_entry_v2 + 1);
             entry_len = sizeof(*log_entry_v2) + payload_length;
             if (hdr_size != sizeof(*log_entry_v2))
                 continue;
@@ -414,6 +416,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     gint32                          tid;
     gint32                          seconds;
     gint32                          milliseconds;
+    const guint8                   *msg_payload = NULL;
     const gchar                    *msg_begin;
     gint                            msg_pre_skip;
     gchar                          *log;
@@ -436,15 +439,19 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
 
     /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
     if (pseudo_header->logcat.version == 1) {
-        priority = get_priority(log_entry->msg[0]);
-        tag = log_entry->msg + 1;
+        msg_payload = (const guint8 *) (log_entry + 1);
+
+        priority = get_priority(msg_payload[0]);
+        tag = msg_payload + 1;
         msg_pre_skip = 1 + (gint) strlen(tag) + 1;
-        msg_begin = log_entry->msg + msg_pre_skip;
+        msg_begin = msg_payload + msg_pre_skip;
     } else if (pseudo_header->logcat.version == 2) {
-        priority = get_priority(log_entry_v2->msg[0]);
-        tag = log_entry_v2->msg + 1;
+        msg_payload = (const guint8 *) (log_entry_v2 + 1);
+
+        priority = get_priority(msg_payload[0]);
+        tag = msg_payload + 1;
         msg_pre_skip = 1 + (gint) strlen(tag) + 1;
-        msg_begin = log_entry_v2->msg + msg_pre_skip;
+        msg_begin = msg_payload + msg_pre_skip;
     } else {
         *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         return FALSE;
