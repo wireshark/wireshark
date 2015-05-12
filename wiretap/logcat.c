@@ -167,9 +167,10 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
                 return -2;
             }
             *err = WTAP_ERR_SHORT_READ;
-            return 0;
         }
-        return -1;
+        if (*err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
     }
     payload_length = pletoh16(&tmp);
 
@@ -184,7 +185,9 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
     bytes_read = file_read(&tmp, 2, fh);
     if (bytes_read != 2) {
         *err = file_error(fh, err_info);
-        if (*err != 0)
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -215,7 +218,9 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
         if (bytes_read != entry_len - read_sofar) {
             *err = file_error(fh, err_info);
             g_free(buffer);
-            if (*err != 0)
+            if (*err == 0)
+                *err = WTAP_ERR_SHORT_READ;
+            if (*err != WTAP_ERR_SHORT_READ)
                 return -1;
             return 0;
         }
