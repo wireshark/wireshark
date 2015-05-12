@@ -459,6 +459,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          * It's an IP packet - determine whether it's IPv4 or IPv6.
          */
         v_hl = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(pimopt_tree, hf_pim_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+
         switch((v_hl & 0xf0) >> 4) {
         case 0:     /* Null-Register dummy header.
                      * Has the same address family as the encapsulating PIM packet,
