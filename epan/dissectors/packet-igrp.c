@@ -174,14 +174,14 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
   } else {
     /*
      * System or exterior route; the three bytes in the vector are
-     * the three high-order bytes, and the low-order byte is 0.   
+     * the three high-order bytes, and the low-order byte is 0.
      */
     addr.addr_bytes[0]=tvb_get_guint8(tvb,0);
     addr.addr_bytes[1]=tvb_get_guint8(tvb,1);
     addr.addr_bytes[2]=tvb_get_guint8(tvb,2);
     addr.addr_bytes[3]=0;
-  }                                                
-  
+  }
+
   SET_ADDRESS(&ip_addr, AT_IPv4, 4, &addr);
   igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
                                                    ett_igrp_net, NULL, "Entry for network %s", address_to_str(wmem_packet_scope(), &ip_addr));
