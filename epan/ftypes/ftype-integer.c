@@ -230,7 +230,7 @@ integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 }
 
 static void
-integer_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	guint32 val;
 
