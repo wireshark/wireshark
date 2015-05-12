@@ -2242,7 +2242,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     guint32 ip_address;
     src_addr.type = AT_IPv4;
     src_addr.len = 4;
-    src_addr.data = (guint8 *)&ip_address;
+    src_addr.data = &ip_address;
     ip_address = tvb_get_ipv4(tvb, offset);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
@@ -2254,7 +2254,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     struct e_in6_addr IPv6;
     src_addr.type = AT_IPv6;
     src_addr.len = 16;
-    src_addr.data = (guint16 *)&IPv6;
+    src_addr.data = &IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
