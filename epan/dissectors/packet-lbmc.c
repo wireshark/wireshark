@@ -10075,8 +10075,6 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item * field_item = NULL;
     proto_tree * field_tree = NULL;
     guint32 magic;
-    guint32 * magic_ptr = NULL;
-    char magic_char[4];
     guint16 num_fields;
     guint16 idx;
     guint encoding;
@@ -10084,9 +10082,7 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
     int data_length;
     proto_item * magic_item = NULL;
 
-    tvb_memcpy(tvb, (void *)magic_char, offset + O_LBM_MSG_PROPERTIES_DATA_T_MAGIC, 4);
-    magic_ptr = (guint32 *)magic_char;
-    magic = *magic_ptr;
+    magic = tvb_get_letohl(tvb, offset + O_LBM_MSG_PROPERTIES_DATA_T_MAGIC);
     encoding = ENC_LITTLE_ENDIAN;
     if (magic == LBM_MSG_PROPERTIES_MAGIC)
     {
