@@ -1,10 +1,84 @@
-commit 99ce339
+commit 4889c92
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 12 10:16:11 2015 -0700
+
+    Build 1.10.14.
+    
+    Change-Id: Ie49aa687f217c085b1143b0929104732fd413250
+
+commit ae21717
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 11 16:55:55 2015 -0700
+
+    Fix typo.
+    
+    Change-Id: I4331892aa9af044954e06e7504dfc65fd6afcfde
+    Reviewed-on: https://code.wireshark.org/review/8419
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit a1e1017
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 11 15:10:54 2015 -0700
+
+    Do not assume the data field of an address structure is an aligned pointer.
+    
+    There is *no* guarantee that it's aligned on a 4-byte boundary, and
+    there is *no* guarantee that you can safely dereference an unaligned
+    pointer.  See bug 11172 for a crash on Solaris/SPARC caused by those
+    assumptions both being false.
+    
+    Change-Id: I69da64824c4fb45d084411d62e99b4673f8aa703
+    Reviewed-on: https://code.wireshark.org/review/8416
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 0c968f5
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun May 10 12:53:10 2015 -0400
+
+    MEGACO - remember "short form" format and don't recheck it.
+    
+    Bug: 10909
+    Change-Id: I21eb0f520029fd8f84e6bef63dddeddd9df2f799
+    Reviewed-on: https://code.wireshark.org/review/8384
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 2af9f28
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 10 08:15:13 2015 -0700
+
+    [Automatic update for 2015-05-10]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I02f3ee56b86253ad0b107c2fe0279956bf3592b5
+    Reviewed-on: https://code.wireshark.org/review/8378
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 404c816
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue May 5 07:54:25 2015 -0400
+
+    Set tap filter when WLAN "Limit to display filter" option is checked.
+    
+    Bug: 11160
+    Change-Id: Ic2f1475a3b51eb8919435f1064fc0faf3c4da3eb
+    Reviewed-on: https://code.wireshark.org/review/8296
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 050de6aa2ff73e3c4ac8041703ffd8437912ab1f)
+    Reviewed-on: https://code.wireshark.org/review/8316
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 486735d
 Author: Gerald Combs <gerald@wireshark.org>
 Date:   Wed May 6 09:45:25 2015 -0700
 
     Prep for 1.10.14.
     
     Change-Id: Id98909b1fe760dbefdabd9f0f41e445c41e3ce79
+    Reviewed-on: https://code.wireshark.org/review/8314
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
 
 commit 44a5cc5
 Author: Gerald Combs <gerald@wireshark.org>

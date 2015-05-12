@@ -13,15 +13,6 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2015-13[]
-+
-The WebSocket dissector could recurse excessively.
-// Fixed in master: g4ee6bcb
-// Fixed in master-1.12: gcdb1fc6
-// Fixed in master-1.10: Unknown
-(ws-buglink:10989[])
-//cve-idlink:2015-XXXX[]
-
 * ws-salink:2015-14[]
 +
 The WCP dissector could crash while decompressing data.
@@ -29,7 +20,7 @@ The WCP dissector could crash while decompressing data.
 // Fixed in master-1.12: g65db378
 // Fixed in master-1.10: ge5a9cf3
 (ws-buglink:10978[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3811[]
 
 * ws-salink:2015-15[]
 +
@@ -38,7 +29,7 @@ The X11 dissector could leak memory.
 // Fixed in master-1.12: g7b58f02
 // Fixed in master-1.10: g7cb179e
 (ws-buglink:11088[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3812[]
 
 * ws-salink:2015-17[]
 +
@@ -47,7 +38,7 @@ The IEEE 802.11 dissector could go into an infinite loop.
 // Fixed in master-1.12: gc3bee61
 // Fixed in master-1.10: gcd4dd9a
 (ws-buglink:11110[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-3814[]
 
 
 The following bugs have been fixed:
@@ -97,9 +88,11 @@ GSMTAP
 ICMP
 IEEE 802.11
 LPP
+MEGACO
 PKCS-1
 PPP IPv6CP
 SRVLOC
+SSL
 TCP
 WCP
 X11
