@@ -3342,7 +3342,7 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
   }
   else if (slength > 0) {
     get_CDR_octet_seq(tvb, seq, offset, slength);
-    if (*seq[slength-1] == '\0') {
+    if ((*seq)[slength-1] == '\0') {
       slength--;
     }
   } else {
