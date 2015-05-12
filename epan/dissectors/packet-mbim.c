@@ -3657,7 +3657,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     if (data) {
         usb_trans_info_t *usb_trans_info = ((usb_conv_info_t *)data)->usb_trans_info;
-        if ((usb_trans_info->setup.request == 0x00) && (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
+        if (usb_trans_info && (usb_trans_info->setup.request == 0x00) && (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
             /* Skip Send Encapsulated Command header */
             offset += 7;
             tree = proto_tree_get_parent_tree(tree);
@@ -4953,6 +4953,9 @@ dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     switch (usb_conv_info->transfer_type) {
         case URB_CONTROL:
+            if (!usb_trans_info) {
+                return dissect_mbim_control(tvb, pinfo, tree, usb_conv_info);
+            }
             if (((usb_trans_info->setup.request == 0x00) &&
                  (USB_HEADER_IS_LINUX(usb_trans_info->header_type) || (pinfo->srcport != NO_ENDPOINT))) ||
                 ((usb_trans_info->setup.request == 0x01) && (pinfo->srcport != NO_ENDPOINT))) {

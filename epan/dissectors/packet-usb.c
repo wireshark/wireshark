@@ -2899,8 +2899,8 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
 
     parent = proto_tree_get_parent_tree(tree);
 
-    if (usb_conv_info && usb_conv_info->usb_trans_info) {
-        if (is_usb_standard_setup_request(usb_conv_info->usb_trans_info)) {
+    if (usb_conv_info) {
+        if (usb_conv_info->usb_trans_info && is_usb_standard_setup_request(usb_conv_info->usb_trans_info)) {
             offset = dissect_usb_standard_setup_response(pinfo, parent, tvb, offset, usb_conv_info);
         }
         else {
