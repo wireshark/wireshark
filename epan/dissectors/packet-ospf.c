@@ -661,7 +661,6 @@ static int hf_ospf_mpls_protection_capability = -1;
 static int hf_ospf_oif_encoding = -1;
 static int hf_ospf_ls_id_te_lsa_reserved = -1;
 static int hf_ospf_db_interface_mtu = -1;
-static int hf_ospf_mpls_router_address = -1;
 static int hf_ospf_v3_lls_full_state_for = -1;
 static int hf_ospf_v3_lsa_interface_id = -1;
 static int hf_ospf_v3_lsa_router_priority = -1;
@@ -1817,8 +1816,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
         switch (tlv_type) {
 
         case MPLS_TLV_ROUTER:
-            ti = proto_tree_add_item(mpls_tree, hf_ospf_mpls_router_address, tvb, offset, tlv_length+4, ENC_BIG_ENDIAN);
-            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_router);
+            tlv_tree = proto_tree_add_subtree_format(mpls_tree, tvb, offset, tlv_length+4,
+                                     ett_ospf_lsa_mpls_router, NULL, "Router Address: %s",
+                                     tvb_ip_to_str(tvb, offset+4));
             proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "1 - Router Address");
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_ospf_ls_mpls_routerid,
@@ -3663,7 +3663,6 @@ proto_register_ospf(void)
       { &hf_ospf_db_dd_sequence, { "DD Sequence", "ospf.db.dd_sequence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_link_state_id, { "Link State ID", "ospf.link_state_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_ls_number_of_lsas, { "Number of LSAs", "ospf.ls.number_of_lsas", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ospf_mpls_router_address, { "Router Address", "ospf.mpls.router_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_switching_type, { "Switching Type", "ospf.mpls.switching_type", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_encoding, { "Encoding", "ospf.mpls.encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_interface_mtu, { "Interface MTU", "ospf.mpls.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
