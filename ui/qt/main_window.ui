@@ -2323,7 +2323,7 @@
   </action>
   <action name="actionAnalyzeExpertInfo">
    <property name="text">
-    <string>Expert Info</string>
+    <string>Expert Information</string>
    </property>
    <property name="toolTip">
     <string>Show expert notifications</string>

@@ -194,7 +194,7 @@ void MainStatusBar::expertUpdate() {
     // <img> won't load @2x versions in Qt versions earlier than 5.4.
     // We might have to switch to a QPushButton.
     QString img_text = "<a href><img src=\":/expert/expert_";
-    QString tt_text = tr(" is the highest expert info level");
+    QString tt_text = tr(" is the highest expert information level");
 
     switch(expert_get_highest_severity()) {
     case(PI_ERROR):
@@ -218,7 +218,7 @@ void MainStatusBar::expertUpdate() {
 //        break;
     default:
         img_text.append("none");
-        tt_text = tr("No expert info");
+        tt_text = tr("No expert information");
         break;
     }
 

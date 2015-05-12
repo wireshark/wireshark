@@ -666,7 +666,7 @@ void MainWindow::captureFileClosing() {
     setMenusForSelectedPacket();
     setForCaptureInProgress(false);
 
-    // Reset expert info indicator
+    // Reset expert information indicator
     main_ui_->statusBar->hideExpert();
     main_ui_->searchFrame->animatedHide();
 //    gtk_widget_show(expert_info_none);
@@ -680,7 +680,7 @@ void MainWindow::captureFileClosed() {
     file_set_dialog_.fileClosed();
     setMenusForFileSet(false);
 
-    // Reset expert info indicator
+    // Reset expert information indicator
     main_ui_->statusBar->hideExpert();
 
     main_ui_->statusBar->popFileStatus();
