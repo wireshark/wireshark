@@ -105,7 +105,6 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     completion_model_ = new QStringListModel(this);
     QCompleter *completer_ = new QCompleter(completion_model_, this);
     setCompleter(completer_);
-    connect(completer_, SIGNAL(activated(QString)), this, SLOT(insertFieldCompletion(QString)));
 
     if (plain_) {
         placeholder_text_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
@@ -427,7 +426,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
             QString df_text = df_combo->itemText(i);
             // Don't complete the current filter.
             if (df_text.startsWith(text()) && df_text.compare(text())) {
-                recent_list <<df_text;
+                recent_list << df_text;
             }
         }
     }
@@ -441,16 +440,18 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 
     void *proto_cookie;
     QStringList field_list;
-    bool show_fields = field_word.contains('.');
+    int field_dots = field_word.count('.'); // Some protocol names (_ws.expert) contain periods.
     for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie)) {
         protocol_t *protocol = find_protocol_by_id(proto_id);
         if (!proto_is_protocol_enabled(protocol)) continue;
 
         // Don't complete the current word.
         const QString pfname = proto_get_protocol_filter_name(proto_id);
-        if (!field_word.startsWith(pfname)) continue;
-        field_list << pfname;
-        if (show_fields) {
+        if (field_word.compare(pfname)) field_list << pfname;
+
+        // Add fields only if we're past the protocol name and only for the
+        // current protocol.
+        if (field_dots > pfname.count('.') && field_word.startsWith(pfname)) {
             void *field_cookie;
             for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
                 if (hfinfo->same_name_prev_id != -1) continue; // ignore duplicate names
