@@ -367,13 +367,12 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
       guint32     received;
       int         last_received      = -1;
-      int         indx               = 0;
+      unsigned int         indx      = 0;
       proto_tree *received_tree;
       proto_item *ti_parsed_received = NULL;
 
       received = tvb_get_ntohl(tvb, offset);
-      while ((received<<indx) != 0) {
-        if (indx>=32) break;
+      while ((indx<32) && (received<<indx) != 0) {
         if (received &(1U<<(31-indx))) {
           if (indx==0) {
             received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
@@ -384,7 +383,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
           else {
             if (received &(1U<<(31-indx+1))) {
               indx++;
-              /* range: skip */
+              /* the previous one is also acked: in the middle of a range: skip */
               continue;
             }
             else {
@@ -404,9 +403,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
           }
         }
         else if (indx>0) {
-          if ((received &(1U<<(31-indx+1))) && (received &(1U<<(31-indx+2)))) {
+          if ((indx>1) && (received &(1U<<(31-indx+1))) && (received &(1U<<(31-indx+2)))) {
             /* end of a series */
-            if ((received &(1U<<(31-indx+3)))) {
+            if ((indx>2) && (received &(1U<<(31-indx+3)))) {
               proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
             }
             else {
@@ -422,9 +421,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         indx++;
       }
       if (last_received>=0) {
-        if ((received &(1U<<(31-indx+1))) && (received &(1U<<(31-indx+2)))) {
+        if ((indx>1) && (received &(1U<<(31-indx+1)))  && (received &(1U<<(31-indx+2)))) {
           /* end of a series */
-          if ((received &(1U<<(31-indx+3)))) {
+          if ((indx>2) && (received &(1U<<(31-indx+3)))) {
             proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
           }
           else {
