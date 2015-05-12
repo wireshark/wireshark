@@ -40,8 +40,7 @@ static void
 proto_tree_draw_node(proto_node *node, gpointer data)
 {
     field_info   *fi = PNODE_FINFO(node);
-    gchar         label_str[ITEM_LABEL_LENGTH];
-    gchar        *label_ptr;
+    QString       label;
     gboolean      is_branch;
 
     /* dissection with an invisible proto tree? */
@@ -53,11 +52,12 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     // Fill in our label
     /* was a free format label produced? */
     if (fi->rep) {
-        label_ptr = fi->rep->representation;
+        label = fi->rep->representation;
     }
     else { /* no, make a generic label */
-        label_ptr = label_str;
+        gchar label_str[ITEM_LABEL_LENGTH];
         proto_item_fill_label(fi, label_str);
+        label = label_str;
     }
 
     if (node->first_child != NULL) {
@@ -70,12 +70,12 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 
     if (PROTO_ITEM_IS_GENERATED(node)) {
         if (PROTO_ITEM_IS_HIDDEN(node)) {
-            label_ptr = g_strdup_printf("<[%s]>", label_ptr);
+            label = QString("<[%1]>").arg(label);
         } else {
-            label_ptr = g_strdup_printf("[%s]", label_ptr);
+            label = QString("[%1]").arg(label);
         }
     } else if (PROTO_ITEM_IS_HIDDEN(node)) {
-        label_ptr = g_strdup_printf("<%s>", label_ptr);
+        label = QString("<%1>").arg(label);
     }
 
     QTreeWidgetItem *parentItem = (QTreeWidgetItem *)data;
@@ -131,12 +131,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         item->setData(0, Qt::ForegroundRole, ColorUtils::expert_color_foreground);
     }
 
-    item->setText(0, label_ptr);
+    item->setText(0, label);
     item->setData(0, Qt::UserRole, qVariantFromValue(fi));
-
-    if (PROTO_ITEM_IS_GENERATED(node) || PROTO_ITEM_IS_HIDDEN(node)) {
-        g_free(label_ptr);
-    }
 
     if (is_branch) {
         if (tree_expanded(fi->tree_type)) {
@@ -157,7 +153,10 @@ ProtoTree::ProtoTree(QWidget *parent) :
     QAction *action;
 
     setAccessibleName(tr("Packet details"));
-    setUniformRowHeights(true);
+    // Leave the uniformRowHeights property as-is (false) since items might
+    // have multiple lines (e.g. packet comments). If this slows things down
+    // too much we should add a custom delegate which handles SizeHintRole
+    // similar to PacketListModel::data.
     setHeaderHidden(true);
 
     if (window()->findChild<QAction *>("actionViewExpandSubtrees")) {
