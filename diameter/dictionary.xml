@@ -3869,12 +3869,58 @@
 		1089 TDF-Destination-Host DiameterIdentity
 		1090 TDF-Destination-Realm DiameterIdentity
 		1091 TDF-IP-address Address
-		1092 ADC-Rule-Install Grouped
-		1093 ADC-Rule-Remove Grouped
-		1094 ADC-Rule-Definition Grouped
-		1095 ADC-Rule-Base-Name UTF8String
-		1096 ADC-Rule-Name OctetString
-		1097 ADC-Rule-Report Grouped
+		-->
+		<!-- TS 29.212 V13.1.0 (2015-03) -->
+		<avp name="ADC-Rule-Install" code="1092" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ADC-Rule-Definition"/>
+				<gavp name="ADC-Rule-Name"/>
+				<gavp name="ADC-Rule-Base-Name"/>
+				<gavp name="Monitoring-Flags"/>
+				<gavp name="Rule-Activation-Time"/>
+				<gavp name="Rule-Deactivation-Time"/>
+			</grouped>
+		</avp>
+		<avp name="ADC-Rule-Remove" code="1093" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ADC-Rule-Name"/>
+				<gavp name="ADC-Rule-Base-Name"/>
+			</grouped>
+		</avp>
+		<avp name="ADC-Rule-Definition" code="1094" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ADC-Rule-Name"/>
+				<gavp name="TDF-Application-Identifier"/>
+				<gavp name="Service-Identifier"/>
+				<gavp name="Rating-Group"/>
+				<gavp name="Reporting-Level"/>
+				<gavp name="Online"/>
+				<gavp name="Offline"/>
+				<gavp name="Metering-Method"/>
+				<gavp name="Precedence"/>
+				<gavp name="Flow-Status"/>
+				<gavp name="QoS-Information"/>
+				<gavp name="Monitoring-Key"/>
+				<gavp name="Redirect-Information"/>
+				<gavp name="Mute-Notification"/>
+			</grouped>
+		</avp>
+		<avp name="ADC-Rule-Base-Name" code="1095" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ADC-Rule-Name" code="1096" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ADC-Rule-Report" code="1097" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ADC-Rule-Name"/>
+				<gavp name="ADC-Rule-Base-Name"/>
+				<gavp name="PCC-Rule-Status"/>
+				<gavp name="Rule-Failure-Code"/>
+				<gavp name="Final-Unit-Indication"/>
+			</grouped>
+		</avp>
+		<!--
 		1098 Application-Detection-Information Grouped
 		1099 PS-to-CS-Session-Continuity Enumerated
 		-->
