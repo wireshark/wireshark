@@ -156,22 +156,36 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
 {
-  guint8 *ptr_addr,addr[5];
+  union {
+    guint8 addr_bytes[4];
+    guint32 addr_word;
+  } addr;
   address ip_addr;
 
-  addr[0]=network;
-  addr[1]=tvb_get_guint8(tvb,0);
-  addr[2]=tvb_get_guint8(tvb,1);
-  addr[3]=tvb_get_guint8(tvb,2);
-  addr[4]=0;
-
-  ptr_addr=addr;
-  if (network==0) ptr_addr=&addr[1];
-
-  SET_ADDRESS(&ip_addr, AT_IPv4, 4, ptr_addr);
+  if (network != 0) {
+    /*
+     * Interior route; network is the high-order byte, and the three
+     * bytes in the vector are the lower 3 bytes.
+     */
+    addr.addr_bytes[0]=network;
+    addr.addr_bytes[1]=tvb_get_guint8(tvb,0);
+    addr.addr_bytes[2]=tvb_get_guint8(tvb,1);
+    addr.addr_bytes[3]=tvb_get_guint8(tvb,2);
+  } else {
+    /*
+     * System or exterior route; the three bytes in the vector are
+     * the three high-order bytes, and the low-order byte is 0.   
+     */
+    addr.addr_bytes[0]=tvb_get_guint8(tvb,0);
+    addr.addr_bytes[1]=tvb_get_guint8(tvb,1);
+    addr.addr_bytes[2]=tvb_get_guint8(tvb,2);
+    addr.addr_bytes[3]=0;
+  }                                                
+  
+  SET_ADDRESS(&ip_addr, AT_IPv4, 4, &addr);
   igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
                                                    ett_igrp_net, NULL, "Entry for network %s", address_to_str(wmem_packet_scope(), &ip_addr));
-  proto_tree_add_ipv4(igrp_vektor_tree, hf_igrp_network, tvb, 0, 3, *((guint32*)ptr_addr));
+  proto_tree_add_ipv4(igrp_vektor_tree, hf_igrp_network, tvb, 0, 3, addr.addr_word);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_delay, tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_bandwidth, tvb, 6, 3, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format_value(igrp_vektor_tree, hf_igrp_mtu, tvb, 9, 2, tvb_get_ntohs(tvb,9), "%d  bytes", tvb_get_ntohs(tvb,9));
