@@ -380,6 +380,9 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
     cmd->terms.last = &(cmd->terms);
     cmd->str = NULL;
     cmd->msg = m;
+    if ((type != GCP_CMD_NONE) && (!persistent)){
+        cmd->str = val_to_str_const(type, gcp_cmd_type, "Unknown");
+    }
     cmd->trx = t;
     cmd->ctx = c;
     cmd->error = 0;
