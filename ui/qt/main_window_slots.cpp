@@ -2111,6 +2111,7 @@ void MainWindow::on_actionViewResizeColumns_triggered()
 {
     for (int col = 0; col < packet_list_->packetListModel()->columnCount(); col++) {
         packet_list_->resizeColumnToContents(col);
+        recent_set_column_width(col, packet_list_->columnWidth(col));
     }
 }
 

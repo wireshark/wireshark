@@ -326,8 +326,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_file_, SIGNAL(captureFileReadFinished()),
             wsApp, SLOT(updateTaps()));
 
-    connect(wsApp, SIGNAL(columnsChanged()),
+    connect(wsApp, SIGNAL(recentFilesRead()),
             packet_list_, SLOT(applyRecentColumnWidths()));
+    connect(wsApp, SIGNAL(columnsChanged()),
+            packet_list_, SLOT(redrawVisiblePackets()));
     connect(wsApp, SIGNAL(recentFilesRead()),
             this, SLOT(applyRecentPaneGeometry()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),

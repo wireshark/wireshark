@@ -417,8 +417,9 @@ PacketList::PacketList(QWidget *parent) :
 
     header()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
-                SLOT(showHeaderMenu(QPoint)));
-    connect(header(), SIGNAL(sectionResized(int,int,int)), this, SLOT(sectionResized(int,int,int)));
+            this, SLOT(showHeaderMenu(QPoint)));
+    connect(header(), SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(sectionResized(int,int,int)));
 
     connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
 }
@@ -645,7 +646,8 @@ void PacketList::initHeaderContextMenu()
     }
 }
 
-// Redraw the packet list and detail
+// Redraw the packet list and detail. Called from many places, including
+// columnsChanged.
 void PacketList::redrawVisiblePackets() {
     if (!cap_file_) return;
 
@@ -658,6 +660,7 @@ void PacketList::redrawVisiblePackets() {
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+    setColumnVisibility();
 
     packet_list_model_->resetColumns();
     if (row >= 0) {
@@ -674,6 +677,7 @@ void PacketList::redrawVisiblePackets() {
 // - Persist across file closing and opening.
 // - Save to recent when we save our profile (including shutting down).
 
+// Called via recentFilesRead.
 void PacketList::applyRecentColumnWidths()
 {
     // Either we've just started up or a profile has changed. Read
@@ -701,7 +705,6 @@ void PacketList::applyRecentColumnWidths()
         setColumnWidth(i, col_width) ;
     }
     column_state_ = header()->saveState();
-    redrawVisiblePackets();
 }
 
 void PacketList::recolorPackets()
@@ -777,12 +780,8 @@ void PacketList::writeRecent(FILE *rf) {
         } else {
             fprintf (rf, " %s,", col_format_to_string(col_fmt));
         }
-        width = columnWidth(col);
+        width = recent_get_column_width (col);
         xalign = recent_get_column_xalign (col);
-        if (width == 0) {
-            /* We have not initialized the packet list yet, use old values */
-            width = recent_get_column_width (col);
-        }
         fprintf (rf, " %d", width);
         if (xalign != COLUMN_XALIGN_DEFAULT) {
             fprintf (rf, ":%c", xalign);
@@ -1194,14 +1193,12 @@ void PacketList::columnVisibilityTriggered()
     setColumnVisibility();
 }
 
-void PacketList::sectionResized(int, int, int)
+void PacketList::sectionResized(int col, int, int new_width)
 {
-    // For some reason the width of column 1 gets set to 32 when we open a file after
-    // closing a previous one. I (Gerald) am not sure if this is a bug in Qt or if it's
-    // our doing. Either way this catches that and fixes it.
     if (isVisible()) {
-        column_state_ = header()->saveState();
-        redrawVisiblePackets();
+        // Column 1 gets an invalid value (32 on OS X) when we're not yet
+        // visible.
+        recent_set_column_width(col, new_width);
     }
 }
 

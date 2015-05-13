@@ -106,6 +106,7 @@ private:
     void setColumnVisibility();
     int sizeHintForColumn(int column) const;
     void initHeaderContextMenu();
+
 signals:
     void packetDissectionChanged();
     void packetSelectionChanged();
@@ -135,7 +136,7 @@ private slots:
     void showHeaderMenu(QPoint pos);
     void headerMenuTriggered();
     void columnVisibilityTriggered();
-    void sectionResized(int, int, int);
+    void sectionResized(int col, int, int new_width);
     void vScrollBarActionTriggered(int);
 };
 
