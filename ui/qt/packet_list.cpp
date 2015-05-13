@@ -734,8 +734,8 @@ void PacketList::freeze()
 
 void PacketList::thaw()
 {
-    setModel(packet_list_model_);
     setUpdatesEnabled(true);
+    setModel(packet_list_model_);
 
     // Resetting the model resets our column widths so we restore them here.
     // We don't reapply the recent settings because the user could have
