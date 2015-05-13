@@ -48,8 +48,9 @@
 // - Add @2x icons or find a nice set of license-compatible glyph icons and use them instead.
 // - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
 // - Move bookmark and apply buttons to the toolbar a la Firefox, Chrome & Safari?
-// - Use native buttons on OS X
-
+// - Use native buttons on OS X?
+// - Add a separator or otherwise distinguish between recent items and fields
+//   in the completion dropdown.
 
 #if defined(Q_OS_MAC) && 0
 // http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html
@@ -93,6 +94,9 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 #endif
 
 const int max_completion_items_ = 20;
+
+// proto.c:fld_abbrev_chars
+static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
@@ -418,15 +422,24 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
         }
     }
 
-    // Grab any matching display filters from our parent combo.
+    // Grab matching display filters from our parent combo. Skip ones that
+    // look like single fields and assume they will be added below.
     QStringList recent_list;
     QComboBox *df_combo = qobject_cast<QComboBox *>(parent());
     if (df_combo) {
         for (int i = 0; i < df_combo->count() ; i++) {
-            QString df_text = df_combo->itemText(i);
+            QString recent_filter = df_combo->itemText(i);
+
+            bool is_complex = false;
+            for (int i = 0; i < recent_filter.length(); i++) {
+                if (!fld_abbrev_chars_.contains(recent_filter.at(i))) {
+                    is_complex = true;
+                    break;
+                }
+            }
             // Don't complete the current filter.
-            if (df_text.startsWith(text()) && df_text.compare(text())) {
-                recent_list << df_text;
+            if (is_complex && recent_filter.startsWith(text()) && recent_filter.compare(text())) {
+                recent_list << recent_filter;
             }
         }
     }
@@ -454,9 +467,11 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
         if (field_dots > pfname.count('.') && field_word.startsWith(pfname)) {
             void *field_cookie;
             for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
-                if (hfinfo->same_name_prev_id != -1) continue; // ignore duplicate names
+                if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
 
-                if (field_word.compare(hfinfo->abbrev)) field_list << hfinfo->abbrev;
+                QString abbrev = hfinfo->abbrev;
+
+                if (field_word.compare(abbrev)) field_list << abbrev;
             }
         }
     }
@@ -535,9 +550,6 @@ void DisplayFilterEdit::insertFieldCompletion(const QString &completion_text)
     setText(new_text);
     setCursorPosition(field_coords.x() + completion_text.length());
 }
-
-// proto.c:fld_abbrev_chars
-static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
 QPoint DisplayFilterEdit::getFieldUnderCursor()
 {
