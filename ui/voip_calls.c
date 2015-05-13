@@ -2782,9 +2782,9 @@ remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
                            type == GCP_CMD_NOTIFY_REQ || type == GCP_CMD_SVCCHG_REQ || type == GCP_CMD_TOPOLOGY_REQ || \
                            type == GCP_CMD_CTX_ATTR_AUDIT_REQ )
 
+
 static gboolean
-h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
-    voip_calls_tapinfo_t *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
+h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     const gcp_cmd_t      *cmd       = (const gcp_cmd_t *)prot_info;
     GList                *list;
     voip_calls_info_t    *callsinfo = NULL;
@@ -2881,6 +2881,20 @@ h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     return TRUE;
 }
 
+static gboolean
+h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
+
+    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info);
+}
+
+static gboolean
+megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
+
+    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info);
+}
+
 void
 h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
@@ -2890,7 +2904,7 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             NULL,
             0,
             NULL,
-            h248_calls_packet,
+            megaco_calls_packet,
             NULL);
 
     if (error_string != NULL) {
