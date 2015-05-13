@@ -183,15 +183,51 @@ typedef struct _bluetooth_uuid_custom {
     const gchar  *name;
 } bluetooth_uuid_custom_t;
 
+enum bluetooth_device_type {
+    BLUETOOTH_DEVICE_BD_ADDR,
+    BLUETOOTH_DEVICE_NAME,
+    BLUETOOTH_DEVICE_LOCAL_ADAPTER,
+    BLUETOOTH_DEVICE_LOCAL_VERSION,
+    BLUETOOTH_DEVICE_REMOTE_VERSION
+};
+
+typedef struct _bluetooth_device_tap_t {
+    guint32                     interface_id;
+    guint32                     adapter_id;
+
+    gboolean                    is_local;
+    gboolean                    has_bd_addr;
+    guint8                      bd_addr[6];
+    enum bluetooth_device_type  type;
+    union {
+        char  *name;
+        struct {
+            guint8   hci_version;
+            guint16  hci_revision;
+            guint8   lmp_version;
+            guint16  lmp_subversion;
+            guint16  manufacturer;
+        } local_version;
+        struct {
+            guint8   lmp_version;
+            guint16  lmp_subversion;
+            guint16  manufacturer;
+        } remote_version;
+    } data;
+} bluetooth_device_tap_t;
+
+extern int bluetooth_device_tap;
+
 WS_DLL_PUBLIC const value_string   bluetooth_uuid_vals[];
 WS_DLL_PUBLIC const bluetooth_uuid_custom_t  bluetooth_uuid_custom[];
 
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
-extern value_string_ext  bluetooth_company_id_vals_ext;
+WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;
 extern guint32           max_disconnect_in_frame;
 
-extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
-        gint offset, guint8 *bdaddr);
+extern gint dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
+        tvbuff_t *tvb, gint offset, gboolean is_local_bd_addr,
+        guint32 interface_id, guint32 adapter_id, guint8 *bdaddr);
 
 extern bluetooth_uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
 extern gchar  *print_uuid(bluetooth_uuid_t *uuid);

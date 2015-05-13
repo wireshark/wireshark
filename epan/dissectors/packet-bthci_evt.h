@@ -24,6 +24,17 @@
 
 extern value_string_ext  bthci_evt_evt_code_vals_ext;
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+WS_DLL_PUBLIC const value_string bthci_evt_lmp_version[];
+WS_DLL_PUBLIC const value_string bthci_evt_hci_version[];
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif
 
 /*

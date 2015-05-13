@@ -60,6 +60,7 @@ static wmem_tree_t *localhost_bdaddr        = NULL;
 static wmem_tree_t *hci_vendors             = NULL;
 
 static int bluetooth_tap = -1;
+int bluetooth_device_tap = -1;
 
 const value_string bluetooth_uuid_vals[] = {
     /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
@@ -1025,7 +1026,9 @@ void proto_reg_handoff_bluetooth(void);
 
 
 gint
-dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 *bdaddr)
+dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
+        tvbuff_t *tvb, gint offset, gboolean is_local_bd_addr,
+        guint32 interface_id, guint32 adapter_id, guint8 *bdaddr)
 {
     guint8 bd_addr[6];
 
@@ -1038,6 +1041,19 @@ dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, g
 
     proto_tree_add_ether(tree, hf_bd_addr, tvb, offset, 6, bd_addr);
     offset += 6;
+
+    if (have_tap_listener(bluetooth_device_tap)) {
+        bluetooth_device_tap_t  *tap_device;
+
+        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device->interface_id = interface_id;
+        tap_device->adapter_id   = adapter_id;
+        memcpy(tap_device->bd_addr, bd_addr, 6);
+        tap_device->has_bd_addr = TRUE;
+        tap_device->is_local = is_local_bd_addr;
+        tap_device->type = BLUETOOTH_DEVICE_BD_ADDR;
+        tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+    }
 
     if (bdaddr)
         memcpy(bdaddr, bd_addr, 6);
@@ -1403,6 +1419,7 @@ proto_register_bluetooth(void)
     hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", FT_UINT16, BASE_HEX);
 
     bluetooth_tap = register_tap("bluetooth");
+    bluetooth_device_tap = register_tap("bluetooth.device");
 
     register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_hostlist_packet);
 }

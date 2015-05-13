@@ -75,6 +75,7 @@
 
 #include "about_dialog.h"
 #include "bluetooth_att_server_attributes_dialog.h"
+#include "bluetooth_devices_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include "coloring_rules_dialog.h"
@@ -2803,6 +2804,16 @@ void MainWindow::on_actionATT_Server_Attributes_triggered()
     connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString&, bool)),
             this, SLOT(filterPackets(QString&, bool)));
     bluetooth_att_sever_attributes_dialog->show();
+}
+
+void MainWindow::on_actionDevices_triggered()
+{
+    BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_);
+    connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString&, bool)),
+            this, SLOT(filterPackets(QString&, bool)));
+    bluetooth_devices_dialog->show();
 }
 
 // Help Menu

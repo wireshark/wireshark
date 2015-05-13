@@ -1778,6 +1778,28 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32     value;
     guint8      tag;
     gchar      *str = NULL;
+    guint32     interface_id;
+    guint32     adapter_id;
+    guint32     chandle;
+    guint32     channel;
+
+    if (is_obex_over_l2cap) {
+        btl2cap_data_t      *l2cap_data;
+
+        l2cap_data   = (btl2cap_data_t *) data;
+        interface_id = l2cap_data->interface_id;
+        adapter_id   = l2cap_data->adapter_id;
+        chandle      = l2cap_data->chandle;
+        channel      = l2cap_data->cid;
+    } else {
+        btrfcomm_data_t      *rfcomm_data;
+
+        rfcomm_data  = (btrfcomm_data_t *) data;
+        interface_id = rfcomm_data->interface_id;
+        adapter_id   = rfcomm_data->adapter_id;
+        chandle      = rfcomm_data->chandle;
+        channel      = rfcomm_data->dlci >> 1;
+    }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_item *hdrs;
@@ -2017,34 +2039,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
                             if (!pinfo->fd->flags.visited) {
                                 obex_profile_data_t  *obex_profile_data;
-                                guint32               interface_id;
-                                guint32               adapter_id;
-                                guint32               chandle;
-                                guint32               channel;
+
                                 wmem_tree_key_t       key[6];
                                 guint32               k_interface_id;
                                 guint32               k_adapter_id;
                                 guint32               k_frame_number;
                                 guint32               k_chandle;
                                 guint32               k_channel;
-
-                                if (is_obex_over_l2cap) {
-                                    btl2cap_data_t      *l2cap_data;
-
-                                    l2cap_data   = (btl2cap_data_t *) data;
-                                    interface_id = l2cap_data->interface_id;
-                                    adapter_id   = l2cap_data->adapter_id;
-                                    chandle      = l2cap_data->chandle;
-                                    channel      = l2cap_data->cid;
-                                } else {
-                                    btrfcomm_data_t      *rfcomm_data;
-
-                                    rfcomm_data  = (btrfcomm_data_t *) data;
-                                    interface_id = rfcomm_data->interface_id;
-                                    adapter_id   = rfcomm_data->adapter_id;
-                                    chandle      = rfcomm_data->chandle;
-                                    channel      = rfcomm_data->dlci >> 1;
-                                }
 
                                 k_interface_id = interface_id;
                                 k_adapter_id   = adapter_id;
@@ -2129,7 +2130,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         switch (tag) {
                         case 0x00: /* Device Address */
                             if (sub_parameter_length == 6) {
-                                offset = dissect_bd_addr(hf_sender_bd_addr, parameter_tree, tvb, offset, NULL);
+                                offset = dissect_bd_addr(hf_sender_bd_addr, pinfo, parameter_tree, tvb, offset, FALSE, interface_id, adapter_id, NULL);
                             } else {
                                 proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
 

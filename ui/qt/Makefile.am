@@ -124,6 +124,8 @@ about_dialog.cpp about_dialog.h: ui_about_dialog.h
 
 bluetooth_att_server_attributes_dialog.cpp bluetooth_att_server_attributes_dialog.h: ui_bluetooth_att_server_attributes_dialog.h
 
+bluetooth_devices_dialog.cpp bluetooth_devices_dialog.h: ui_bluetooth_devices_dialog.h
+
 capture_file_properties_dialog.cpp capture_file_properties_dialog.h: ui_capture_file_properties_dialog.h
 
 capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces_dialog.h

@@ -401,7 +401,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         switch(ocf) {
         case 0x0001: /* Write BDADDR */
-            offset = dissect_bd_addr(hf_bd_addr, main_tree, tvb, offset, bd_addr);
+            offset = dissect_bd_addr(hf_bd_addr, pinfo, main_tree, tvb, offset, TRUE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
 /* TODO: This is command, but in respose (event Command Complete) there is a status for that,
          so write bdaddr can fail, but we store bdaddr as valid for now... */
@@ -582,12 +582,12 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 proto_tree_add_item(main_tree, hf_le_multi_advertising_address_type, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                offset = dissect_bd_addr(hf_bd_addr, main_tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_bd_addr, pinfo, main_tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
                 proto_tree_add_item(main_tree, hf_le_multi_advertising_address_type, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                offset = dissect_bd_addr(hf_bd_addr, main_tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_bd_addr, pinfo, main_tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
                 proto_tree_add_bitmask(main_tree, tvb, offset, hf_le_multi_advertising_channel_map, ett_channel_map,  hfx_le_multi_advertising_channel_map, ENC_NA);
                 offset += 1;
@@ -613,7 +613,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                 break;
             case 0x04: /* Set Random Address */
-                offset = dissect_bd_addr(hf_bd_addr, main_tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_bd_addr, pinfo, main_tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
                 proto_tree_add_item(main_tree, hf_le_multi_advertising_instance_id, tvb, offset, 1, ENC_NA);
                 offset += 1;

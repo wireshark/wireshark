@@ -180,12 +180,25 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
     proto_item *ti;
     proto_tree *st;
     guint8 opcode;
+    btl2cap_data_t *l2cap_data;
+    guint32  interface_id;
+    guint32  adapter_id;
+
+    l2cap_data = (btl2cap_data_t *) data;
+
+    if (l2cap_data) {
+        interface_id = l2cap_data->interface_id;
+        adapter_id = l2cap_data->adapter_id;
+    } else {
+        interface_id = HCI_INTERFACE_DEFAULT;
+        adapter_id = HCI_ADAPTER_DEFAULT;
+    }
 
     ti = proto_tree_add_item(tree, proto_btsmp, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsmp);
@@ -271,7 +284,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         proto_tree_add_item(st, hf_address_type, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        offset = dissect_bd_addr(hf_bd_addr, st, tvb, offset, NULL);
+        offset = dissect_bd_addr(hf_bd_addr, pinfo, st, tvb, offset, FALSE, interface_id, adapter_id, NULL);
         break;
 
     case 0x0a: /* Signing Information */

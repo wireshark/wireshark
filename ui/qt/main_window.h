@@ -485,6 +485,7 @@ private slots:
     void on_actionTelephonySipFlows_triggered();
 
     void on_actionATT_Server_Attributes_triggered();
+    void on_actionDevices_triggered();
 
     void externalMenuItem_triggered();
 

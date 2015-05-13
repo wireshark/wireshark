@@ -70,10 +70,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ber_decode_as@Base 1.9.1
  ber_decode_as_foreach@Base 1.9.1
  ber_set_filename@Base 1.9.1
+ bluetooth_company_id_vals_ext@Base 1.99.6
+ bluetooth_uuid_custom@Base 1.99.2
  bluetooth_uuid_vals@Base 1.99.2
  bluetooth_uuid_vals_ext@Base 1.99.2
- bluetooth_uuid_custom@Base 1.99.2
  bssgp_cause_vals_ext@Base 1.9.1
+ bthci_evt_hci_version@Base 1.99.6
+ bthci_evt_lmp_version@Base 1.99.6
  build_column_format_array@Base 1.9.1
  build_follow_conv_filter@Base 1.12.0~rc1
  build_follow_index_filter@Base 1.12.0~rc1

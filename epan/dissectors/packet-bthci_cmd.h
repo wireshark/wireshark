@@ -59,6 +59,10 @@ typedef struct _bthci_cmd_data_t {
     nstime_t pending_abs_ts;
     guint32  response_in_frame;
     nstime_t response_abs_ts;
+
+    union {
+        gchar  *name;
+    } data;
 } bthci_cmd_data_t;
 
 extern wmem_tree_t *bthci_cmds;

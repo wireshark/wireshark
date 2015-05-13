@@ -37,10 +37,12 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
+#include <epan/tap.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_sco.h"
 #include "packet-bthci_cmd.h"
+#include "packet-bthci_evt.h"
 
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t bthci_evt_handle;
@@ -79,7 +81,7 @@ static int hf_bthci_evt_remote_name = -1;
 static int hf_bthci_evt_encryption_enable = -1;
 static int hf_bthci_evt_key_flag = -1;
 static int hf_bthci_evt_vers_nr = -1;
-static int hf_bthci_evt_hci_vers_nr = -1;
+static int hf_bthci_bthci_evt_hci_version = -1;
 static int hf_bthci_evt_hci_revision = -1;
 static int hf_bthci_evt_comp_id = -1;
 static int hf_bthci_evt_sub_vers_nr = -1;
@@ -510,7 +512,7 @@ static const value_string evt_key_flag[] = {
 };
 
 /* Taken from https://www.bluetooth.org/Technical/AssignedNumbers/link_manager.htm */
-static const value_string evt_lmp_vers_nr[] = {
+const value_string bthci_evt_lmp_version[] = {
     {0x00, "1.0b"},
     {0x01, "1.1"},
     {0x02, "1.2"},
@@ -526,7 +528,7 @@ static const value_string evt_lmp_vers_nr[] = {
 /* Taken from https://www.bluetooth.org/Technical/AssignedNumbers/hci.htm
  * (requires a login/password)
  */
-static const value_string evt_hci_vers_nr[] = {
+const value_string bthci_evt_hci_version[] = {
     {0x00, "1.0b"},
     {0x01, "1.1"},
     {0x02, "1.2"},
@@ -833,7 +835,7 @@ dissect_bthci_evt_connect_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
     if (!pinfo->fd->flags.visited && bluetooth_data != NULL && status == 0x00) {
         wmem_tree_key_t    key[5];
         guint32            k_interface_id;
@@ -890,9 +892,9 @@ dissect_bthci_evt_connect_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static int
-dissect_bthci_evt_connect_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_connect_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
     offset += 3;
@@ -1076,25 +1078,25 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 static int
-dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_link_key, tvb, offset, 16, ENC_NA);
     offset += 16;
@@ -1106,7 +1108,7 @@ dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
     guint8 evt_num_keys;
 
@@ -1115,7 +1117,7 @@ dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo
     offset += 1;
 
     while (evt_num_keys--) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_link_key, tvb, offset, 16, ENC_NA);
         offset += 16;
@@ -1148,7 +1150,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
     if (!pinfo->fd->flags.visited && bluetooth_data != NULL) {
@@ -1188,13 +1190,33 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
 
         wmem_tree_insert32_array(bluetooth_data->bdaddr_to_name, key, device_name);
     }
+
+    if (have_tap_listener(bluetooth_device_tap)) {
+        bluetooth_device_tap_t  *tap_device;
+
+        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        if (bluetooth_data) {
+            tap_device->interface_id  = bluetooth_data->interface_id;
+            tap_device->adapter_id    = bluetooth_data->adapter_id;
+        } else {
+            tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+            tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+        }
+        memcpy(tap_device->bd_addr, bd_addr, 6);
+        tap_device->has_bd_addr = TRUE;
+        tap_device->is_local = FALSE;
+        tap_device->type = BLUETOOTH_DEVICE_NAME;
+        tap_device->data.name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_UTF_8);
+        tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+    }
+
     offset += 248;
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, bluetooth_data_t *bluetooth_data, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status,            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1210,6 +1232,61 @@ dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int of
 
     proto_tree_add_item(tree, hf_bthci_evt_sub_vers_nr,       tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
+
+    if (have_tap_listener(bluetooth_device_tap)) {
+        wmem_tree_t              *subtree;
+        wmem_tree_key_t           key[4];
+        guint32                   interface_id;
+        guint32                   adapter_id;
+        guint32                   connection_handle;
+        remote_bdaddr_t          *remote_bdaddr;
+        bluetooth_device_tap_t   *tap_device;
+        guint8                    lmp_version;
+        guint16                   lmp_subversion;
+        guint16                   manufacturer;
+
+        lmp_version    = tvb_get_guint8(tvb, offset - 5);
+        manufacturer   = tvb_get_letohs(tvb, offset - 4);
+        lmp_subversion = tvb_get_letohs(tvb, offset - 2);
+
+        interface_id      = bluetooth_data->interface_id;
+        adapter_id        = bluetooth_data->adapter_id;
+        connection_handle = tvb_get_guint16(tvb, offset - 7, ENC_LITTLE_ENDIAN) & 0x0fff;
+
+        key[0].length = 1;
+        key[0].key    = &interface_id;
+        key[1].length = 1;
+        key[1].key    = &adapter_id;
+        key[2].length = 1;
+        key[2].key    = &connection_handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
+
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_to_bdaddr, key);
+        remote_bdaddr = (subtree) ? (remote_bdaddr_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+
+        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device->type = BLUETOOTH_DEVICE_REMOTE_VERSION;
+        if (bluetooth_data) {
+            tap_device->interface_id  = bluetooth_data->interface_id;
+            tap_device->adapter_id    = bluetooth_data->adapter_id;
+        } else {
+            tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+            tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+        }
+
+        if (remote_bdaddr) {
+            tap_device->has_bd_addr = TRUE;
+            memcpy(tap_device->bd_addr, remote_bdaddr->bd_addr, 6);
+        } else {
+            tap_device->has_bd_addr = FALSE;
+        }
+        tap_device->is_local = FALSE;
+        tap_device->data.remote_version.lmp_version     = lmp_version;
+        tap_device->data.remote_version.lmp_subversion  = lmp_subversion;
+        tap_device->data.remote_version.manufacturer    = manufacturer;
+        tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+    }
 
     return offset;
 }
@@ -1302,7 +1379,7 @@ dissect_bthci_evt_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
     guint8  bd_addr[6];
@@ -1313,7 +1390,7 @@ dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     status = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_role,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
     role = tvb_get_guint8(tvb, offset);
@@ -1600,9 +1677,9 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_page_scan_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1611,9 +1688,9 @@ dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1623,7 +1700,7 @@ dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_bthci_evt_inquire_result_with_rssi(tvbuff_t *tvb, int offset,
-        packet_info *pinfo, proto_tree *tree, guint8 *bd_addr)
+        packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data, guint8 *bd_addr)
 {
     guint8 num, evt_num_responses;
 
@@ -1632,7 +1709,7 @@ dissect_bthci_evt_inquire_result_with_rssi(tvbuff_t *tvb, int offset,
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, (num == 0) ? bd_addr : NULL);
+        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, (num == 0) ? bd_addr : NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
@@ -1655,17 +1732,17 @@ dissect_bthci_evt_inquire_result_with_rssi(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_io_capability,     tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1680,9 +1757,9 @@ dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info 
 }
 
 static int
-dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_numeric_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1691,36 +1768,36 @@ dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_passkey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1729,9 +1806,9 @@ dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_notification_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1740,9 +1817,9 @@ dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
     offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, 0);
 
     return offset;
@@ -1781,7 +1858,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,          tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
@@ -1852,7 +1929,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset += 1;
                 proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
-                offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+                offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
                 length = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_bthci_evt_data_length,               tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
@@ -2071,7 +2148,7 @@ dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         packet_info *pinfo,  proto_tree *main_tree, proto_tree *tree,
-        wmem_list_t *opcode_list, bluetooth_data_t *bluetooth_data)
+        wmem_list_t *opcode_list, bluetooth_data_t *bluetooth_data, guint32 *out_opcode)
 {
     proto_item  *ti_opcode;
     proto_tree  *opcode_tree;
@@ -2096,6 +2173,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
     opcode = tvb_get_letohs(tvb, offset);
     ogf = opcode >> 10;
+    if (out_opcode)
+        *out_opcode = opcode;
 
     interface_id = bluetooth_data->interface_id;
     adapter_id   = bluetooth_data->adapter_id;
@@ -2230,6 +2309,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         /* This is a list of Commands that all return status and BD_ADDR */
         case 0x1009: /* Read BD_ADDR */
             local_addr = TRUE;
+
             /* FALLTHROUGH */
         case 0x0408: /* Create Connection Cancel */
         case 0x040b: /* Link Key Request Reply */
@@ -2249,7 +2329,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, local_addr, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
             if (!pinfo->fd->flags.visited && bluetooth_data != NULL && local_addr) {
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;
 
@@ -2271,6 +2351,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 localhost_bdaddr_entry->adapter_id = adapter_id;
                 memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
                 wmem_tree_insert32_array(bluetooth_data->localhost_bdaddr, key, localhost_bdaddr_entry);
+            }
+
+            if (local_addr && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                memcpy(tap_device->bd_addr, bd_addr, 6);
+                tap_device->has_bd_addr = TRUE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_LOCAL_ADAPTER;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
             }
 
             break;
@@ -2441,10 +2539,11 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
         case 0x0c14: /* Read Local Name */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            status = tvb_get_guint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
-            if (!pinfo->fd->flags.visited && bluetooth_data != NULL) {
+            if (status == STATUS_SUCCESS && !pinfo->fd->flags.visited && bluetooth_data != NULL) {
                 gchar                   *name;
                 localhost_name_entry_t  *localhost_name_entry;
 
@@ -2465,6 +2564,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
 
                 wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
+            }
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_NAME;
+                tap_device->data.name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_UTF_8);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
             }
             offset += 248;
 
@@ -2737,7 +2854,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             status = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_evt_hci_vers_nr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_bthci_evt_hci_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
             hci_revision_item = proto_tree_add_item(tree, hf_bthci_evt_hci_revision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2766,10 +2883,31 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 key[2].key    = NULL;
 
                 hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
-
-                hci_revision = tvb_get_letohs(tvb, offset - 7);
-                manufacturer = tvb_get_letohs(tvb, offset - 4);
+                hci_revision   = tvb_get_letohs(tvb, offset - 7);
+                manufacturer   = tvb_get_letohs(tvb, offset - 4);
                 lmp_subversion = tvb_get_letohs(tvb, offset - 2);
+
+                if (have_tap_listener(bluetooth_device_tap)) {
+                    bluetooth_device_tap_t  *tap_device;
+                    guint8                   hci_version;
+                    guint8                   lmp_version;
+
+                    hci_version = tvb_get_guint8(tvb, offset - 8);
+                    lmp_version = tvb_get_guint8(tvb, offset - 5);
+
+                    tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                    tap_device->type = BLUETOOTH_DEVICE_LOCAL_VERSION;
+                    tap_device->interface_id  = interface_id;
+                    tap_device->adapter_id    = adapter_id;
+                    tap_device->has_bd_addr = FALSE;
+                    tap_device->is_local = TRUE;
+                    tap_device->data.local_version.hci_version     = hci_version;
+                    tap_device->data.local_version.hci_revision    = hci_revision;
+                    tap_device->data.local_version.lmp_version     = lmp_version;
+                    tap_device->data.local_version.lmp_subversion  = lmp_subversion;
+                    tap_device->data.local_version.manufacturer    = manufacturer;
+                    tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+                }
 
                 if (hci_vendor_data) {
                     proto_tree  *sub_tree;
@@ -3283,7 +3421,7 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
     connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
     offset += 2;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_sync_link_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -3494,7 +3632,7 @@ dissect_bthci_evt_link_supervision_timeout_changed(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dissect_bthci_evt_inquire_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_inquire_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
     guint8 num, evt_num_responses;
 
@@ -3503,7 +3641,7 @@ dissect_bthci_evt_inquire_result(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
@@ -3540,6 +3678,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     wmem_list_frame_t   *opcode_list_frame;
     bthci_cmd_data_t    *lastest_bthci_cmd_data = NULL;
     opcode_list_data_t  *opcode_list_data;
+    guint32              opcode = G_MAXUINT32;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -3604,7 +3743,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x02: /* Inquiry result event  */
-            offset = dissect_bthci_evt_inquire_result(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_inquire_result(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x03: /* Connection Complete */
@@ -3616,7 +3755,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x04: /* Connection Request */
-            offset = dissect_bthci_evt_connect_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_connect_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x05: /* Disconnection Complete */
@@ -3654,7 +3793,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x0c: /* Read Remote Version Information Complete */
-            offset = dissect_bthci_evt_read_remote_version_information_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_read_remote_version_information_complete(tvb, offset, pinfo, bluetooth_data, bthci_evt_tree);
             add_opcode(opcode_list, 0x41D, COMMAND_STATUS_NORMAL); /* Read Remote Version Information */
             break;
 
@@ -3663,7 +3802,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x0e: /* Command Complete */
-            offset = dissect_bthci_evt_command_complete(tvb, offset, pinfo, tree, bthci_evt_tree, opcode_list, bluetooth_data);
+            offset = dissect_bthci_evt_command_complete(tvb, offset, pinfo, tree, bthci_evt_tree, opcode_list, bluetooth_data, &opcode);
             add_opcode(opcode_list, 0x0429, COMMAND_STATUS_NORMAL); /* Accept Synchronous Connection Request */
             break;
 
@@ -3695,19 +3834,19 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x15: /* Return Link Keys */
-            offset = dissect_bthci_evt_return_link_keys(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_return_link_keys(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x16: /* PIN Code Request */
-            offset = dissect_bthci_evt_pin_code_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_pin_code_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x17: /* Link Key Request */
-            offset = dissect_bthci_evt_link_key_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_link_key_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x18: /* Link Key Notification */
-            offset = dissect_bthci_evt_link_key_notification(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_link_key_notification(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x19: /* Loopback Command */
@@ -3736,11 +3875,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x1f: /* Page Scan Mode Change */
-            offset = dissect_bthci_evt_page_scan_mode_change(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_page_scan_mode_change(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x20: /* Page Scan Repetition Mode Change */
-            offset = dissect_bthci_evt_page_scan_repetition_mode_change(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_page_scan_repetition_mode_change(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x21: /* Flow Specification Complete */
@@ -3748,7 +3887,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x22: /* Inquiry Result with RSSI */
-            offset = dissect_bthci_evt_inquire_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, NULL);
+            offset = dissect_bthci_evt_inquire_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data, NULL);
             break;
 
         case 0x23: /* Read Remote Extended Features Complete */
@@ -3775,7 +3914,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         case 0x2f: /* Extended Inquiry Result */
             previous_offset = offset;
-            offset = dissect_bthci_evt_inquire_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bd_addr);
+            offset = dissect_bthci_evt_inquire_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data, bd_addr);
 
             call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, bthci_evt_tree);
             save_remote_device_name(tvb, offset, pinfo, 240, (offset - previous_offset <= 1) ? NULL : bd_addr, bluetooth_data);
@@ -3789,27 +3928,27 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x31: /* IO Capability Request */
-            offset = dissect_bthci_evt_io_capability_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_io_capability_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x32: /* IO Capability Response */
-            offset = dissect_bthci_evt_io_capability_response(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_io_capability_response(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x33: /* User Confirmation Request */
-            offset = dissect_bthci_evt_user_confirmation_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_user_confirmation_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x34: /* User Passkey Request */
-            offset = dissect_bthci_evt_user_passkey_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_user_passkey_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x35: /* Remote OOB Data Request */
-            offset = dissect_bthci_evt_remote_oob_data_request(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_remote_oob_data_request(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x36: /* Simple Pairing Complete */
-            offset = dissect_bthci_evt_simple_pairing_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_simple_pairing_complete(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x38: /* Link Supervision Timeout Changed */
@@ -3821,15 +3960,15 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x3b: /* Enhanced Flush Complete */
-            offset = dissect_bthci_evt_user_passkey_notification(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_user_passkey_notification(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x3c: /* Enhanced Flush Complete */
-            offset = dissect_bthci_evt_keypress_notification(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_keypress_notification(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x3d: /* Remote Host Supported Features Notification */
-            offset = dissect_bthci_evt_remote_host_sup_feat_notification(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_remote_host_sup_feat_notification(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
             break;
 
         case 0x3e: /* LE Meta */
@@ -3934,7 +4073,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             offset += tvb_reported_length_remaining(tvb, offset);
             break;
         }
-
     }
 
     opcode_list_frame = wmem_list_head(opcode_list);
@@ -3943,7 +4081,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         wmem_tree_key_t      key[4];
         guint32              interface_id;
         guint32              adapter_id;
-        guint32              opcode;
         guint32              frame_number;
         bthci_cmd_data_t     *bthci_cmd_data;
         wmem_tree_t          *subtree;
@@ -4015,6 +4152,59 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         nstime_t     delta;
 
         frame_number = pinfo->fd->num;
+
+        if (opcode != G_MAXUINT32 && opcode >> 10 != HCI_OGF_VENDOR_SPECIFIC) {
+            guint8  status;
+
+            switch(opcode) {
+                case 0x0c13: /* Change Local Name */
+                status = tvb_get_guint8(tvb, 5);
+
+                if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                    bluetooth_device_tap_t  *tap_device;
+
+                    tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                    if (bluetooth_data) {
+                        tap_device->interface_id  = bluetooth_data->interface_id;
+                        tap_device->adapter_id    = bluetooth_data->adapter_id;
+                    } else {
+                        tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                        tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                    }
+                    tap_device->has_bd_addr = FALSE;
+                    tap_device->is_local = TRUE;
+                    tap_device->type = BLUETOOTH_DEVICE_NAME;
+                    tap_device->data.name = lastest_bthci_cmd_data->data.name;
+                    tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+                }
+                if (status == STATUS_SUCCESS && !pinfo->fd->flags.visited && bluetooth_data) {
+                    localhost_name_entry_t  *localhost_name_entry;
+                    wmem_tree_key_t      key[4];
+                    guint32              interface_id;
+                    guint32              adapter_id;
+
+                    interface_id = bluetooth_data->interface_id;
+                    adapter_id   = bluetooth_data->adapter_id;
+
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &frame_number;
+                    key[3].length = 0;
+                    key[3].key    = NULL;
+
+                    localhost_name_entry = (localhost_name_entry_t *) wmem_new(wmem_file_scope(), localhost_name_entry_t);
+                    localhost_name_entry->interface_id = interface_id;
+                    localhost_name_entry->adapter_id = adapter_id;
+                    localhost_name_entry->name = lastest_bthci_cmd_data->data.name;
+
+                    wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
+                }
+                break;
+            }
+        }
 
         if (!pinfo->fd->flags.visited && opcode_list_data->command_status == COMMAND_STATUS_PENDING &&
                 lastest_bthci_cmd_data->pending_in_frame == max_disconnect_in_frame) {
@@ -4231,12 +4421,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_vers_nr,
           { "LMP Version",        "bthci_evt.lmp_vers_nr",
-            FT_UINT8, BASE_HEX, VALS(evt_lmp_vers_nr), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_evt_lmp_version), 0x0,
             "Version of the Current LMP", HFILL }
         },
-        { &hf_bthci_evt_hci_vers_nr,
+        { &hf_bthci_bthci_evt_hci_version,
           { "HCI Version",        "bthci_evt.hci_vers_nr",
-            FT_UINT8, BASE_HEX, VALS(evt_hci_vers_nr), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_evt_hci_version), 0x0,
             "Version of the Current HCI", HFILL }
         },
         { &hf_bthci_evt_hci_revision,

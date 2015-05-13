@@ -528,6 +528,7 @@
      <string>&amp;Bluetooth</string>
     </property>
     <addaction name="actionATT_Server_Attributes"/>
+    <addaction name="actionDevices"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -2283,6 +2284,11 @@
   <action name="actionATT_Server_Attributes">
    <property name="text">
     <string>ATT Server Attributes</string>
+   </property>
+  </action>
+  <action name="actionDevices">
+   <property name="text">
+    <string>Devices</string>
    </property>
   </action>
   <action name="actionDevices">
