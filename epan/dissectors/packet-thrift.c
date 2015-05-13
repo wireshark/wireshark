@@ -310,10 +310,13 @@ dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *d
 
 	offset += 4;
 	str_length = tvb_get_ntohl(tvb, offset);
-	if (length < str_length + 8){
+	if ((str_length < 1) ||(length < str_length + 8)){
 		return FALSE;
 	}
 	offset += 4;
+	if (length < offset + str_length){
+		return FALSE;
+	}
 	while (offset < (str_length + 8)){
 		c = tvb_get_guint8(tvb, offset);
 		if (!g_ascii_isprint(c)){
