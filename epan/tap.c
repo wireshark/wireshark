@@ -322,15 +322,19 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	for(i=0;i<tap_packet_index;i++){
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
-			if(tp->tap_id==tl->tap_id){
-				gboolean passed=TRUE;
-				if(tl->code){
-					passed=dfilter_apply_edt(tl->code, edt);
+			/* Don't tap the packet if its an "error" unless the listener tells us to */
+			if ((!tp->pinfo->flags.in_error_pkt) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
+			{
+				if(tp->tap_id==tl->tap_id){
+					gboolean passed=TRUE;
+					if(tl->code){
+						passed=dfilter_apply_edt(tl->code, edt);
+					}
+					if(passed && tl->packet){
+						tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
+					}
 				}
-				if(passed && tl->packet){
-					tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
-				}
-			}
+            }
 		}
 	}
 }
