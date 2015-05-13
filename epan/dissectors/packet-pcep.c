@@ -1301,7 +1301,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
         return;
     }
 
-    sid = tvb_get_ntohl(tvb, offset + 4);
+    sid = tvb_get_ntohl(tvb, offset + 4) >> 12;
     proto_item_append_text(ti, ": %u", sid);
     st = ((tvb_get_guint8(tvb, offset + 2)) >> 4);
 
