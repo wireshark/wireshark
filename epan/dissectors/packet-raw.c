@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
 #include <wiretap/wtap.h>
 #include "packet-raw.h"
 #include "packet-ip.h"
@@ -36,8 +35,6 @@ void proto_reg_handoff_raw(void);
 
 static int proto_raw = -1;
 static gint ett_raw = -1;
-
-static expert_field ei_raw_no_link = EI_INIT;
 
 static const char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 
@@ -100,7 +97,6 @@ capture_raw(const guchar *pd, int len, packet_counts *ld)
 static void
 dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item    *ti;
   tvbuff_t      *next_tvb;
 
   /* load the top pane info. This should be overwritten by
@@ -112,8 +108,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
-  ti = proto_tree_add_item(tree, proto_raw, tvb, 0, 0, ENC_NA);
-  expert_add_info(pinfo, ti, &ei_raw_no_link);
+  proto_tree_add_item(tree, proto_raw, tvb, 0, tvb_captured_length(tvb), ENC_NA);
 
   if (pinfo->fd->lnk_t == WTAP_ENCAP_RAW_IP4) {
     call_dissector(ip_handle, tvb, pinfo, tree);
@@ -182,16 +177,8 @@ proto_register_raw(void)
     &ett_raw,
   };
 
-  static ei_register_info ei[] = {
-    { &ei_raw_no_link, { "raw.no_link", PI_PROTOCOL, PI_NOTE, "No link information available", EXPFILL }},
-  };
-
-  expert_module_t* expert_raw;
-
   proto_raw = proto_register_protocol("Raw packet data", "Raw", "raw");
   proto_register_subtree_array(ett, array_length(ett));
-  expert_raw = expert_register_protocol(proto_raw);
-  expert_register_field_array(expert_raw, ei, array_length(ei));
 }
 
 void
