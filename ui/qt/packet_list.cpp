@@ -604,7 +604,7 @@ int PacketList::sizeHintForColumn(int column) const
         size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
     }
     packet_list_model_->setSizeHintEnabled(false);
-    size_hint += QTreeView::sizeHintForColumn(column);
+    size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
     packet_list_model_->setSizeHintEnabled(true);
     return size_hint;
 }
@@ -693,8 +693,11 @@ void PacketList::applyRecentColumnWidths()
             } else {
                 col_width = fm.width(MIN_COL_WIDTH_STR);
             }
+            // Custom delegate padding
+            if (itemDelegateForColumn(i)) {
+                col_width += itemDelegateForColumn(i)->sizeHint(viewOptions(), QModelIndex()).width();
+            }
         }
-        col_width += QTreeView::sizeHintForColumn(i); // Decoration padding
         setColumnWidth(i, col_width) ;
     }
     column_state_ = header()->saveState();
