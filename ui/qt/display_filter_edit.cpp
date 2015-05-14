@@ -464,6 +464,11 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 
         // Add fields only if we're past the protocol name and only for the
         // current protocol.
+        // XXX This incorrectly skips over some fields since field and
+        // protocol names don't always match (see is_from_other_protocol_whitelist
+        // in tools/checkfiltername.pl). Unfortunately if we remove the
+        // startsWith check then completion becomes unbearably slow on
+        // Windows.
         if (field_dots > pfname.count('.') && field_word.startsWith(pfname)) {
             void *field_cookie;
             for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
