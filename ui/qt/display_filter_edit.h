@@ -45,6 +45,7 @@ protected:
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *evt);
+    void focusOutEvent(QFocusEvent *evt);
 
 public slots:
     void applyDisplayFilter();

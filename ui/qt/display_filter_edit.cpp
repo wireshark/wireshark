@@ -359,6 +359,13 @@ void DisplayFilterEdit::focusInEvent(QFocusEvent *evt)
     SyntaxLineEdit::focusInEvent(evt);
 }
 
+void DisplayFilterEdit::focusOutEvent(QFocusEvent *evt)
+{
+    if (syntaxState() == Valid)
+        emit popFilterSyntaxStatus();
+    SyntaxLineEdit::focusOutEvent(evt);
+}
+
 void DisplayFilterEdit::checkFilter(const QString& text)
 {
     clear_button_->setVisible(!text.isEmpty());
