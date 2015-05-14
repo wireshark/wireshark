@@ -3136,6 +3136,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("pwach.channel_type", 0x21, ip_handle); /* IPv4, RFC4385 clause 6. */
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_for_decode_as("udp.port", ip_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, proto_ip);
 }
@@ -3152,4 +3153,3 @@ proto_reg_handoff_ip(void)
  * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
