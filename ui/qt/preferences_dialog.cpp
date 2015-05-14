@@ -814,6 +814,14 @@ void PreferencesDialog::on_buttonBox_accepted()
   //airpcap_load_decryption_keys(airpcap_if_list);
 #endif
 
+    // gtk/prefs_dlg.c:prefs_main_apply_all
+    /*
+     * Apply the protocol preferences first - "gui_prefs_apply()" could
+     * cause redissection, and we have to make sure the protocol
+     * preference changes have been fully applied.
+     */
+    prefs_apply_all();
+
     /* Fill in capture options with values from the preferences */
     prefs_to_capture_opts();
 
