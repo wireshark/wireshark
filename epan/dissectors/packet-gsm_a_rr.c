@@ -758,9 +758,12 @@ static int hf_gsm_a_rr_nr_of_fdd_cells = -1;
 static int hf_gsm_a_rr_ba_index_start_rtd_present = -1;
 static int hf_gsm_a_rr_sync_case_tstd = -1;
 static int hf_gsm_a_rr_hopping_channel_maio = -1;
+static int hf_gsm_a_rr_hopping_channel_ma_num_ind = -1;
+static int hf_gsm_a_rr_hopping_channel_change_mark_1 = -1;
 static int hf_gsm_a_rr_hopping_channel = -1;
 static int hf_gsm_a_rr_rxlev_carrier = -1;
 static int hf_gsm_a_rr_mobile_network_code = -1;
+static int hf_gsm_a_rr_packet_channel_type = -1;
 static int hf_gsm_a_rr_timeslot = -1;
 static int hf_gsm_a_rr_lsa_id = -1;
 static int hf_gsm_a_rr_ciphering_key_seq_num = -1;
@@ -4454,14 +4457,11 @@ static guint16
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32      curr_offset = offset;
-    guint8       oct8;
-    guint16      arfcn, hsn, maio;
-    proto_item  *ti;
+    guint8       oct8, second_oct8;
 
     /* Octet 2 */
     /* Channel Type */
-    ti = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+3, 5, ENC_NA);
-    proto_item_append_text(ti, "(ignored by receiver)");
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_packet_channel_type, tvb, (curr_offset<<3), 5, ENC_NA);
     /* TN */
     proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -4470,27 +4470,44 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
     /* Octet 3 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(subtree, hf_gsm_a_rr_hopping_channel, tvb, curr_offset, 1, ENC_NA);
     if ((oct8 & 0x10) == 0x10)
     {
         /* Hopping sequence */
-        maio = ((oct8 & 0x0f)<<2) | ((tvb_get_guint8(tvb,curr_offset+1) & 0xc0) >> 6);
-        hsn = (tvb_get_guint8(tvb,curr_offset+1) & 0x3f);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hopping_channel_maio, tvb, (curr_offset<<3)+4, 6, ENC_NA);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hsn, tvb, (curr_offset<<3)+10, 6, ENC_NA);
 
-        proto_tree_add_uint(subtree, hf_gsm_a_rr_hopping_channel_maio, tvb, curr_offset, 2, maio);
-        proto_tree_add_uint(subtree, hf_gsm_a_rr_hsn, tvb, curr_offset, 2, hsn);
+        curr_offset = curr_offset + 2;
     }
     else
     {
-        /* single ARFCN */
-        arfcn = ((oct8 & 0x03) << 8) | tvb_get_guint8(tvb,curr_offset+1);
+        if ((oct8 & 0x08) == 0x08)
+        {
+            second_oct8 = tvb_get_guint8(tvb, curr_offset+1);
 
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+2, 2, ENC_NA);
-        proto_tree_add_uint(subtree, hf_gsm_a_rr_single_channel_arfcn, tvb, curr_offset, 2, arfcn);
+            /* indirect encoding of hopping RF channel configuration */
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+5, 1, ENC_NA);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hopping_channel_maio, tvb, (curr_offset<<3)+6, 6, ENC_NA);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hopping_channel_ma_num_ind, tvb, (curr_offset<<3)+12, 1, ENC_NA);
+
+            if( (second_oct8 & 0x04) == 0x04 )
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hopping_channel_change_mark_1, tvb, (curr_offset<<3)+14, 2, ENC_NA);
+            }
+            else
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+14, 2, ENC_NA);
+            }
+            curr_offset = curr_offset + 2;
+        }
+        else
+        {
+            /* non-hopping RF channel configuraion */
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+5, 1, ENC_NA);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_single_channel_arfcn, tvb, (curr_offset<<3)+6, 10, ENC_NA);
+            curr_offset = curr_offset + 2;
+        }
     }
 
-    curr_offset = curr_offset + 2;
     return(curr_offset - offset);
 
 }
@@ -12846,10 +12863,13 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_cell_parameter, { "Cell Parameter", "gsm_a.rr.cell_parameter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_sync_case_tstd, { "Sync Case TSTD", "gsm_a.rr.sync_case_tstd", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_diversity_tdd, { "Diversity TDD", "gsm_a.rr.diversity_tdd", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_packet_channel_type, { "Channel Type", "gsm_a.rr.packet_channel_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_timeslot, { "Timeslot", "gsm_a.rr.timeslot", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
             { &hf_gsm_a_rr_training_sequence, { "Training Sequence", "gsm_a.rr.training_sequence", FT_UINT8, BASE_DEC, NULL, 0xE0, NULL, HFILL }},
             { &hf_gsm_a_rr_hopping_channel, { "Hopping Channel", "gsm_a.rr.hopping_channel", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL }},
             { &hf_gsm_a_rr_hopping_channel_maio, { "Hopping channel MAIO", "gsm_a.rr.hopping_channel_maio", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_hopping_channel_ma_num_ind, { "Hopping channel MA_NUMBER_IND", "gsm_a.rr.hopping_channel_ma_num_ind", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_hopping_channel_change_mark_1, { "CHANGE_MARK_1", "gsm_a.rr.hopping_channel_change_mark_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_extension_length, { "Extension Length", "gsm_a.rr.extension_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_bitmap_length, { "Bitmap length", "gsm_a.rr.bitmap_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_bitmap, { "Bitmap", "gsm_a.rr.bitmap", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
