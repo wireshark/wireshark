@@ -937,8 +937,8 @@ void PacketList::setCaptureFile(capture_file *cf)
 
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
-    // Don't call setFont here. It changes the header font on Windows and
-    // Linux.
+    setFont(mono_font);
+    header()->setFont(wsApp->font());
 
     // qtreeview.cpp does something similar in Qt 5 so this *should* be
     // safe...
