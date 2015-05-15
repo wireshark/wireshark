@@ -3085,7 +3085,7 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
     if (timestamp_offset && timestamp_size) {
         proto_tree_add_item(tree, hf_mbim_sms_cdma_record_timestamp, tvb, base_offset + timestamp_offset,
-                            timestamp_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+                            timestamp_size, ENC_NA|ENC_ASCII);
     }
     if (encoded_message_offset && size_in_bytes) {
         ti = proto_tree_add_item(tree, hf_mbim_sms_cdma_record_encoded_message, tvb, base_offset + encoded_message_offset,
