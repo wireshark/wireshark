@@ -2278,7 +2278,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
 #ifdef WANT_PACKET_EDITOR
-   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },//AL
+   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
 #endif
   { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
