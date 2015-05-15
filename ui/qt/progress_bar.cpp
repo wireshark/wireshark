@@ -184,6 +184,11 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
     return &progress_dialog_;
 }
 
+void ProgressBar::setStopFlag(bool stop_flag)
+{
+    if (stop_flag_) *stop_flag_ = stop_flag;
+}
+
 #ifdef QWINTASKBARPROGRESS_H
 void ProgressBar::hide()
 {

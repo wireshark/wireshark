@@ -41,6 +41,8 @@ capture_file cfile;
 // - Add getters and (if needed) setters:
 //   - Full filename
 //   - Capture state (stopped, prepared, running).
+// - Call common_create_progress_dlg. This would let us manage the stop
+//   flag here as well as emit progress signals.
 
 QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 
@@ -81,6 +83,11 @@ void CaptureFile::retapPackets()
     if (cap_file_) {
         cf_retap_packets(cap_file_);
     }
+}
+
+void CaptureFile::stopTapping()
+{
+    emit setCaptureStopFlag(true);
 }
 
 capture_file *CaptureFile::globalCapFile()

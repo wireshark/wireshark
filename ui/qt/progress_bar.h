@@ -51,6 +51,7 @@ public:
 #ifdef QWINTASKBARPROGRESS_H
     void hide();
 #endif
+    void setStopFlag(bool stop_flag);
 
 private:
     progdlg_t progress_dialog_;

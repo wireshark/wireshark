@@ -314,11 +314,13 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
 
 IOGraphDialog::~IOGraphDialog()
 {
+    cap_file_.stopTapping();
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         IOGraph *iog = qvariant_cast<IOGraph *>(ui->graphTreeWidget->topLevelItem(i)->data(name_col_, Qt::UserRole));
         delete iog;
     }
     delete ui;
+    ui = NULL;
 }
 
 void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
@@ -953,7 +955,8 @@ void IOGraphDialog::updateStatistics()
     if (need_retap_ && !file_closed_) {
         need_retap_ = false;
         cap_file_.retapPackets();
-        ui->ioPlot->setFocus();
+        // The user might have closed the window while tapping, which means
+        // we might no longer exist.
     } else {
         if (need_recalc_ && !file_closed_) {
             need_recalc_ = false;

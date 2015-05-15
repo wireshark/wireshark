@@ -65,6 +65,11 @@ public:
      */
     void retapPackets();
 
+    /** Cancel any tapping that might be in progress.
+     */
+    void stopTapping();
+
+
     // XXX This shouldn't be needed.
     static capture_file *globalCapFile();
 
@@ -86,6 +91,8 @@ signals:
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
+
+    void setCaptureStopFlag(bool);
 
 public slots:
 

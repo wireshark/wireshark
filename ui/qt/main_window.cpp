@@ -321,6 +321,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_file_, SIGNAL(captureFileClosed()),
             this, SLOT(captureFileClosed()));
 
+    connect(&capture_file_, SIGNAL(setCaptureStopFlag(bool)),
+            this, SLOT(setCaptureStopFlag(bool)));
+
     connect(&capture_file_, SIGNAL(captureFileReadStarted()),
             wsApp, SLOT(captureFileReadStarted()));
     connect(&capture_file_, SIGNAL(captureFileReadFinished()),
