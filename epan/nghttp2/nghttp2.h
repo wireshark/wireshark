@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <sys/types.h>
 
 #include "nghttp2ver.h"
@@ -57,13 +57,13 @@ extern "C" {
  * The protocol version identification string of this library
  * supports.  This identifier is used if HTTP/2 is used over TLS.
  */
-#define NGHTTP2_PROTO_VERSION_ID "h2-14"
+#define NGHTTP2_PROTO_VERSION_ID "h2"
 /**
  * @macro
  *
  * The length of :macro:`NGHTTP2_PROTO_VERSION_ID`.
  */
-#define NGHTTP2_PROTO_VERSION_ID_LEN 5
+#define NGHTTP2_PROTO_VERSION_ID_LEN 2
 
 /**
  * @macro
@@ -74,7 +74,7 @@ extern "C" {
  * extension <https://tools.ietf.org/html/rfc7301>`_.  This is useful
  * to process incoming ALPN tokens in wire format.
  */
-#define NGHTTP2_PROTO_ALPN "\x5h2-14"
+#define NGHTTP2_PROTO_ALPN "\x2h2"
 
 /**
  * @macro
@@ -90,14 +90,14 @@ extern "C" {
  * supports.  This identifier is used if HTTP/2 is used over cleartext
  * TCP.
  */
-#define NGHTTP2_CLEARTEXT_PROTO_VERSION_ID "h2c-14"
+#define NGHTTP2_CLEARTEXT_PROTO_VERSION_ID "h2c"
 
 /**
  * @macro
  *
  * The length of :macro:`NGHTTP2_CLEARTEXT_PROTO_VERSION_ID`.
  */
-#define NGHTTP2_CLEARTEXT_PROTO_VERSION_ID_LEN 6
+#define NGHTTP2_CLEARTEXT_PROTO_VERSION_ID_LEN 3
 
 struct nghttp2_session;
 /**
@@ -196,32 +196,17 @@ typedef struct {
 /**
  * @macro
  *
- * The client connection preface.
+ * The client magic string, which is the first 24 bytes byte string of
+ * client connection preface.
  */
-#define NGHTTP2_CLIENT_CONNECTION_PREFACE "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
+#define NGHTTP2_CLIENT_MAGIC "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
 
 /**
  * @macro
  *
- * The length of :macro:`NGHTTP2_CLIENT_CONNECTION_PREFACE`.
+ * The length of :macro:`NGHTTP2_CLIENT_MAGIC`.
  */
-#define NGHTTP2_CLIENT_CONNECTION_PREFACE_LEN 24
-
-/**
- * @macro
- *
- * The client connection header.  This macro is obsoleted by
- * NGHTTP2_CLIENT_CONNECTION_PREFACE.
- */
-#define NGHTTP2_CLIENT_CONNECTION_HEADER NGHTTP2_CLIENT_CONNECTION_PREFACE
-
-/**
- * @macro
- *
- * The length of :macro:`NGHTTP2_CLIENT_CONNECTION_HEADER`.
- */
-#define NGHTTP2_CLIENT_CONNECTION_HEADER_LEN                                   \
-  NGHTTP2_CLIENT_CONNECTION_PREFACE_LEN
+#define NGHTTP2_CLIENT_MAGIC_LEN 24
 
 /**
  * @enum
@@ -371,6 +356,18 @@ typedef enum {
    */
   NGHTTP2_ERR_HTTP_HEADER = -531,
   /**
+   * Violation in HTTP messaging rule.
+   */
+  NGHTTP2_ERR_HTTP_MESSAGING = -532,
+  /**
+   * Stream was refused.
+   */
+  NGHTTP2_ERR_REFUSED_STREAM = -533,
+  /**
+   * Unexpected internal error, but recovered.
+   */
+  NGHTTP2_ERR_INTERNAL = -534,
+  /**
    * The errors < :enum:`NGHTTP2_ERR_FATAL` mean that the library is
    * under unexpected condition and processing was terminated (e.g.,
    * out of memory).  If application receives this error code, it must
@@ -388,10 +385,10 @@ typedef enum {
    */
   NGHTTP2_ERR_CALLBACK_FAILURE = -902,
   /**
-   * Invalid connection preface was received and further processing is
-   * not possible.
+   * Invalid client magic (see :macro:`NGHTTP2_CLIENT_MAGIC`) was
+   * received and further processing is not possible.
    */
-  NGHTTP2_ERR_BAD_PREFACE = -903
+  NGHTTP2_ERR_BAD_CLIENT_MAGIC = -903
 } nghttp2_error;
 
 /**
@@ -497,21 +494,6 @@ typedef enum {
    */
   NGHTTP2_CONTINUATION = 0x09
 } nghttp2_frame_type;
-
-/**
- * @enum
- *
- * The extension frame types.
- *
- * TODO: The assigned frame types were carried from draft-12, and now
- * actually TBD.
- */
-typedef enum {
-  /**
-   * The ALTSVC extension frame.
-   */
-  NGHTTP2_EXT_ALTSVC = 0x0a
-} nghttp2_ext_frame_type;
 
 /**
  * @enum
@@ -1081,51 +1063,11 @@ typedef struct {
    * The pointer to extension payload.  The exact pointer type is
    * determined by hd.type.
    *
-   * If hd.type == :enum:`NGHTTP2_EXT_ALTSVC`, it is a pointer to
-   * :type:`nghttp2_ext_altsvc`.
+   * Currently, no extension is supported.  This is a place holder for
+   * the future extensions.
    */
   void *payload;
 } nghttp2_extension;
-
-/**
- * @struct
- *
- * The ALTSVC extension frame payload.  It has following members:
- */
-typedef struct {
-  /**
-   * Protocol ID
-   */
-  uint8_t *protocol_id;
-  /**
-   * Host
-   */
-  uint8_t *host;
-  /**
-   * Origin
-   */
-  uint8_t *origin;
-  /**
-   * The length of |protocol_id|
-   */
-  size_t protocol_id_len;
-  /**
-   * The length of |host|
-   */
-  size_t host_len;
-  /**
-   * The length of |origin|
-   */
-  size_t origin_len;
-  /**
-   * Max-Age
-   */
-  uint32_t max_age;
-  /**
-   * Port
-   */
-  uint16_t port;
-} nghttp2_ext_altsvc;
 
 /**
  * @union
@@ -1318,11 +1260,11 @@ typedef int (*nghttp2_on_frame_recv_callback)(nghttp2_session *session,
  *
  * Callback function invoked by `nghttp2_session_recv()` and
  * `nghttp2_session_mem_recv()` when an invalid non-DATA frame is
- * received.  The |error_code| indicates the error.  It is usually one
- * of the :enum:`nghttp2_error_code` but that is not guaranteed.  When
- * this callback function is invoked, the library automatically
- * submits either RST_STREAM or GOAWAY frame.  The |user_data| pointer
- * is the third argument passed in to the call to
+ * received.  The error is indicated by the |lib_error_code|, which is
+ * one of the values defined in :type:`nghttp2_error`.  When this
+ * callback function is invoked, the library automatically submits
+ * either RST_STREAM or GOAWAY frame.  The |user_data| pointer is the
+ * third argument passed in to the call to
  * `nghttp2_session_client_new()` or `nghttp2_session_server_new()`.
  *
  * If frame is HEADERS or PUSH_PROMISE, the ``nva`` and ``nvlen``
@@ -1338,7 +1280,7 @@ typedef int (*nghttp2_on_frame_recv_callback)(nghttp2_session *session,
  * `nghttp2_session_callbacks_set_on_invalid_frame_recv_callback()`.
  */
 typedef int (*nghttp2_on_invalid_frame_recv_callback)(
-    nghttp2_session *session, const nghttp2_frame *frame, uint32_t error_code,
+    nghttp2_session *session, const nghttp2_frame *frame, int lib_error_code,
     void *user_data);
 
 /**
@@ -2038,31 +1980,33 @@ nghttp2_option_set_peer_max_concurrent_streams(nghttp2_option *option,
 /**
  * @function
  *
- * By default, nghttp2 library only handles HTTP/2 frames and does not
- * recognize first 24 bytes of client connection preface.  This design
- * choice is done due to the fact that server may want to detect the
- * application protocol based on first few bytes on clear text
- * communication.  But for simple servers which only speak HTTP/2, it
- * is easier for developers if nghttp2 library takes care of client
- * connection preface.
+ * By default, nghttp2 library, if configured as server, requires
+ * first 24 bytes of client magic byte string (MAGIC).  In most cases,
+ * this will simplify the implementation of server.  But sometimes
+ * server may want to detect the application protocol based on first
+ * few bytes on clear text communication.
  *
- * If this option is used with nonzero |val|, nghttp2 library checks
- * first 24 bytes client connection preface.  If it is not a valid
- * one, `nghttp2_session_recv()` and `nghttp2_session_mem_recv()` will
- * return error :enum:`NGHTTP2_ERR_BAD_PREFACE`, which is fatal error.
+ * If this option is used with nonzero |val|, nghttp2 library does not
+ * handle MAGIC.  It still checks following SETTINGS frame.  This
+ * means that applications should deal with MAGIC by themselves.
+ *
+ * If this option is not used or used with zero value, if MAGIC does
+ * not match :macro:`NGHTTP2_CLIENT_MAGIC`, `nghttp2_session_recv()`
+ * and `nghttp2_session_mem_recv()` will return error
+ * :enum:`NGHTTP2_ERR_BAD_CLIENT_MAGIC`, which is fatal error.
  */
 NGHTTP2_EXTERN void
-nghttp2_option_set_recv_client_preface(nghttp2_option *option, int val);
+nghttp2_option_set_no_recv_client_magic(nghttp2_option *option, int val);
 
 /**
  * @function
  *
  * By default, nghttp2 library enforces subset of HTTP Messaging rules
  * described in `HTTP/2 specification, section 8
- * <https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-8>`_.
- * See :ref:`http-messaging` section for details.  For those
- * applications who use nghttp2 library as non-HTTP use, give nonzero
- * to |val| to disable this enforcement.
+ * <https://tools.ietf.org/html/rfc7540#section-8>`_.  See
+ * :ref:`http-messaging` section for details.  For those applications
+ * who use nghttp2 library as non-HTTP use, give nonzero to |val| to
+ * disable this enforcement.
  */
 NGHTTP2_EXTERN void nghttp2_option_set_no_http_messaging(nghttp2_option *option,
                                                          int val);
@@ -2369,10 +2313,11 @@ NGHTTP2_EXTERN ssize_t nghttp2_session_mem_send(nghttp2_session *session,
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`
  *     The callback function failed.
- * :enum:`NGHTTP2_ERR_BAD_PREFACE`
- *     Invalid client preface was detected.  This error only returns
+ * :enum:`NGHTTP2_ERR_BAD_CLIENT_MAGIC`
+ *     Invalid client magic was detected.  This error only returns
  *     when |session| was configured as server and
- *     `nghttp2_option_set_recv_client_preface()` is used.
+ *     `nghttp2_option_set_no_recv_client_magic()` is not used with
+ *     nonzero value.
  */
 NGHTTP2_EXTERN int nghttp2_session_recv(nghttp2_session *session);
 
@@ -2404,10 +2349,11 @@ NGHTTP2_EXTERN int nghttp2_session_recv(nghttp2_session *session);
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`
  *     The callback function failed.
- * :enum:`NGHTTP2_ERR_BAD_PREFACE`
- *     Invalid client preface was detected.  This error only returns
+ * :enum:`NGHTTP2_ERR_BAD_CLIENT_MAGIC`
+ *     Invalid client magic was detected.  This error only returns
  *     when |session| was configured as server and
- *     `nghttp2_option_set_recv_client_preface()` is used.
+ *     `nghttp2_option_set_no_recv_client_magic()` is not used with
+ *     nonzero value.
  */
 NGHTTP2_EXTERN ssize_t nghttp2_session_mem_recv(nghttp2_session *session,
                                                 const uint8_t *in,
@@ -3493,20 +3439,6 @@ NGHTTP2_EXTERN int nghttp2_submit_window_update(nghttp2_session *session,
 /**
  * @function
  *
- * This function previously submits ALTSVC frame with given
- * parameters, but is deprecated and will be removed in a future
- * release.  This function does nothing and just return 0.
- */
-NGHTTP2_EXTERN int
-nghttp2_submit_altsvc(nghttp2_session *session, uint8_t flags,
-                      int32_t stream_id, uint32_t max_age, uint16_t port,
-                      const uint8_t *protocol_id, size_t protocol_id_len,
-                      const uint8_t *host, size_t host_len,
-                      const uint8_t *origin, size_t origin_len);
-
-/**
- * @function
- *
  * Compares ``lhs->name`` of length ``lhs->namelen`` bytes and
  * ``rhs->name`` of length ``rhs->namelen`` bytes.  Returns negative
  * integer if ``lhs->name`` is found to be less than ``rhs->name``; or
@@ -3522,14 +3454,14 @@ NGHTTP2_EXTERN int nghttp2_nv_compare_name(const nghttp2_nv *lhs,
  * A helper function for dealing with NPN in client side or ALPN in
  * server side.  The |in| contains peer's protocol list in preferable
  * order.  The format of |in| is length-prefixed and not
- * null-terminated.  For example, ``HTTP-draft-04/2.0`` and
+ * null-terminated.  For example, ``h2`` and
  * ``http/1.1`` stored in |in| like this::
  *
- *     in[0] = 17
- *     in[1..17] = "HTTP-draft-04/2.0"
- *     in[18] = 8
- *     in[19..26] = "http/1.1"
- *     inlen = 27
+ *     in[0] = 2
+ *     in[1..2] = "h2"
+ *     in[3] = 8
+ *     in[4..11] = "http/1.1"
+ *     inlen = 12
  *
  * The selection algorithm is as follows:
  *
@@ -3543,12 +3475,10 @@ NGHTTP2_EXTERN int nghttp2_nv_compare_name(const nghttp2_nv *lhs,
  *    non-overlap case).  In this case, |out| and |outlen| are left
  *    untouched.
  *
- * Selecting ``HTTP-draft-04/2.0`` means that ``HTTP-draft-04/2.0`` is
- * written into |*out| and its length (which is 17) is assigned to
- * |*outlen|.
+ * Selecting ``h2`` means that ``h2`` is written into |*out| and its
+ * length (which is 2) is assigned to |*outlen|.
  *
- * For ALPN, refer to
- * https://tools.ietf.org/html/draft-ietf-tls-applayerprotoneg-05
+ * For ALPN, refer to https://tools.ietf.org/html/rfc7301
  *
  * See http://technotes.googlecode.com/git/nextprotoneg.html for more
  * details about NPN.
@@ -3598,7 +3528,7 @@ NGHTTP2_EXTERN nghttp2_info *nghttp2_version(int least_version);
  * Returns nonzero if the :type:`nghttp2_error` library error code
  * |lib_error| is fatal.
  */
-NGHTTP2_EXTERN int nghttp2_is_fatal(int lib_error);
+NGHTTP2_EXTERN int nghttp2_is_fatal(int lib_error_code);
 
 /**
  * @function

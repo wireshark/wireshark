@@ -1752,8 +1752,8 @@ static int hd_inflate_remove_bufs_with_name(nghttp2_hd_inflater *inflater,
 #ifndef NDEBUG
   rv =
 #endif
-  nghttp2_bufs_remove_copy(&inflater->nvbufs,
-                           buf + ent_name->nv.namelen + 1);
+      nghttp2_bufs_remove_copy(&inflater->nvbufs,
+                               buf + ent_name->nv.namelen + 1);
   assert(ent_name->nv.namelen + 1 + rv == buflen);
 
   nghttp2_bufs_reset(&inflater->nvbufs);

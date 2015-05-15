@@ -320,7 +320,7 @@ int nghttp2_bufs_add(nghttp2_bufs *bufs, const void *data, size_t len) {
     }
 
     buf->last = nghttp2_cpymem(buf->last, p, nwrite);
-    p += len;
+    p += nwrite;
     len -= nwrite;
   }
 

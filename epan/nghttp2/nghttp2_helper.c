@@ -297,12 +297,18 @@ const char *nghttp2_strerror(int error_code) {
     return "The current session is closing";
   case NGHTTP2_ERR_HTTP_HEADER:
     return "Invalid HTTP header field was received";
+  case NGHTTP2_ERR_HTTP_MESSAGING:
+    return "Violation in HTTP messaging rule";
+  case NGHTTP2_ERR_REFUSED_STREAM:
+    return "Stream was refused";
+  case NGHTTP2_ERR_INTERNAL:
+    return "Internal error";
   case NGHTTP2_ERR_NOMEM:
     return "Out of memory";
   case NGHTTP2_ERR_CALLBACK_FAILURE:
     return "The user callback function failed";
-  case NGHTTP2_ERR_BAD_PREFACE:
-    return "Received bad connection preface";
+  case NGHTTP2_ERR_BAD_CLIENT_MAGIC:
+    return "Received bad clinet magic byte string";
   default:
     return "Unknown error code";
   }
