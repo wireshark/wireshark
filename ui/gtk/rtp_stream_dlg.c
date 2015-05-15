@@ -1149,11 +1149,13 @@ void rtpstream_dlg_show(GList *list_lcl)
 /* entry point when called via the GTK menu */
 void rtpstream_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
+    const char   *filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+
     /* Register the tap listener */
-    register_tap_listener_rtp_stream(&the_tapinfo_struct);
+    register_tap_listener_rtp_stream(&the_tapinfo_struct, filter);
 
     /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&the_tapinfo_struct, &cfile);
+    rtpstream_scan(&the_tapinfo_struct, &cfile, filter);
 
     /* Show the dialog box with the list of streams */
     rtpstream_dlg_show(the_tapinfo_struct.strinfo_list);

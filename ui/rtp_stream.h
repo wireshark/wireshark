@@ -137,7 +137,7 @@ struct _rtpstream_tapinfo {
 * So whenever rtp_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the rtp_streams and rtp_analysis functions that need it.
 */
-void register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo);
+void register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstring);
 
 /**
 * Removes the rtp_streams tap listener (if not already done)
@@ -154,7 +154,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
 * Scans all packets for RTP streams and updates the RTP streams list.
 * (redissects all packets)
 */
-void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file);
+void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const char *fstring);
 
 /**
 * Saves an RTP stream as raw data stream with timestamp information for later RTP playback.

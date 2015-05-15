@@ -64,7 +64,7 @@ static void rtpstream_draw(void *ti_ptr)
 
 /****************************************************************************/
 /* scan for RTP streams */
-void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file)
+void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const char *fstring)
 {
     gboolean was_registered;
 
@@ -74,7 +74,7 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file)
 
     was_registered = tapinfo->is_registered;
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo);
+        register_tap_listener_rtp_stream(tapinfo, fstring);
 
     tapinfo->mode = TAP_ANALYSE;
     cf_retap_packets(cap_file);
@@ -111,7 +111,7 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     }
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo);
+        register_tap_listener_rtp_stream(tapinfo, NULL);
 
     tapinfo->mode = TAP_SAVE;
     tapinfo->filter_stream_fwd = stream;
@@ -163,7 +163,7 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_st
     was_registered = tapinfo->is_registered;
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo);
+        register_tap_listener_rtp_stream(tapinfo, NULL);
 
     tapinfo->mode = TAP_MARK;
     tapinfo->filter_stream_fwd = stream_fwd;
@@ -193,7 +193,7 @@ remove_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 
 /****************************************************************************/
 void
-register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
+register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstring)
 {
     GString *error_string;
 
@@ -203,7 +203,7 @@ register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 
     if (!tapinfo->is_registered) {
         error_string = register_tap_listener("rtp", tapinfo,
-            NULL, 0, rtpstream_reset_cb, rtpstream_packet,
+            fstring, 0, rtpstream_reset_cb, rtpstream_packet,
             rtpstream_draw);
 
         if (error_string != NULL) {
