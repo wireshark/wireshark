@@ -615,6 +615,8 @@ static expert_field ei_mbim_too_many_items = EI_INIT;
 static expert_field ei_mbim_alignment_error = EI_INIT;
 static expert_field ei_mbim_invalid_block_len = EI_INIT;
 static expert_field ei_mbim_out_of_bounds_index = EI_INIT;
+static expert_field ei_mbim_oversized_string = EI_INIT;
+static expert_field ei_mbim_oversized_pdu = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_mbim = -1;
@@ -1863,6 +1865,7 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     gint base_offset;
     guint32 custom_class_offset, custom_class_size, device_id_offset, device_id_size,
             fw_info_offset, fw_info_size, hw_info_offset, hw_info_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1903,30 +1906,46 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item_ret_uint(tree, hf_mbim_device_caps_info_hw_info_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &hw_info_size);
     /*offset += 4;*/
     if (custom_class_offset && custom_class_size) {
-        proto_tree_add_item(tree, hf_mbim_device_caps_info_custom_data_class, tvb, base_offset + custom_class_offset,
-                            custom_class_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_device_caps_info_custom_data_class, tvb, base_offset + custom_class_offset,
+                                custom_class_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (custom_class_size > 22) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (device_id_offset && device_id_size) {
-        proto_tree_add_item(tree, hf_mbim_device_caps_info_device_id, tvb, base_offset + device_id_offset,
-                            device_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_device_caps_info_device_id, tvb, base_offset + device_id_offset,
+                                 device_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if ((mbim_conv->cellular_class == MBIM_CELLULAR_CLASS_GSM) && (device_id_size > 30)) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        } else if (device_id_size > 36) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (fw_info_offset && fw_info_size) {
-        proto_tree_add_item(tree, hf_mbim_device_caps_info_fw_info, tvb, base_offset + fw_info_offset,
-                            fw_info_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_device_caps_info_fw_info, tvb, base_offset + fw_info_offset,
+                                 fw_info_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (fw_info_size > 60) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (hw_info_offset && hw_info_size) {
-        proto_tree_add_item(tree, hf_mbim_device_caps_info_hw_info, tvb, base_offset + hw_info_offset,
-                            hw_info_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_device_caps_info_hw_info, tvb, base_offset + hw_info_offset,
+                                 hw_info_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (hw_info_size > 60) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
 static void
-mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+                                     struct mbim_conv_info *mbim_conv)
 {
     proto_tree *subtree;
     gint base_offset, tel_nb_ref_list_offset = 0;
     guint32 i, subscriber_id_offset, subscriber_id_size, sim_icc_id_offset, sim_icc_id_size, elem_count,
             tel_nb_offset, tel_nb_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_subscr_ready_status_ready_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1954,19 +1973,30 @@ mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         }
     }
     if (subscriber_id_offset && subscriber_id_size) {
-        proto_tree_add_item(tree, hf_mbim_subscr_ready_status_susbcr_id, tvb, base_offset + subscriber_id_offset,
-                            subscriber_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_subscr_ready_status_susbcr_id, tvb, base_offset + subscriber_id_offset,
+                                 subscriber_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if ((mbim_conv->cellular_class == MBIM_CELLULAR_CLASS_CDMA) && (subscriber_id_size > 20)) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        } else if (subscriber_id_size > 30) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (sim_icc_id_offset && sim_icc_id_size) {
-        proto_tree_add_item(tree, hf_mbim_subscr_ready_status_sim_icc_id, tvb, base_offset + sim_icc_id_offset,
-                            sim_icc_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_subscr_ready_status_sim_icc_id, tvb, base_offset + sim_icc_id_offset,
+                                 sim_icc_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (sim_icc_id_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     for (i = 0; i < elem_count; i++) {
         tel_nb_offset = tvb_get_letohl(tvb, tel_nb_ref_list_offset + 8*i);
         tel_nb_size = tvb_get_letohl(tvb, tel_nb_ref_list_offset + 8*i + 4);
         if (tel_nb_offset && tel_nb_size) {
-            proto_tree_add_item(tree, hf_mbim_subscr_ready_status_tel_nb, tvb, base_offset + tel_nb_offset,
-                                tel_nb_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+            it = proto_tree_add_item(tree, hf_mbim_subscr_ready_status_tel_nb, tvb, base_offset + tel_nb_offset,
+                                     tel_nb_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+            if (tel_nb_size > 44) {
+                expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+            }
         }
     }
 }
@@ -1976,6 +2006,7 @@ mbim_dissect_set_pin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
 {
     gint base_offset;
     guint32 pin_offset, pin_size, new_pin_offset, new_pin_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_pin_pin_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1991,12 +2022,18 @@ mbim_dissect_set_pin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
     proto_tree_add_item_ret_uint(tree, hf_mbim_set_pin_new_pin_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_pin_size);
     /*offset += 4;*/
     if (pin_offset && pin_size) {
-        proto_tree_add_item(tree, hf_mbim_set_pin_pin, tvb, base_offset + pin_offset,
-                            pin_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_pin_pin, tvb, base_offset + pin_offset,
+                                 pin_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (pin_size > 32) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (new_pin_offset && new_pin_size) {
-        proto_tree_add_item(tree, hf_mbim_set_pin_new_pin, tvb, base_offset + new_pin_offset,
-                            new_pin_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_pin_new_pin, tvb, base_offset + new_pin_offset,
+                                 new_pin_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (new_pin_size > 32) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2040,6 +2077,7 @@ mbim_dissect_provider(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 {
     gint base_offset;
     guint32 provider_id_offset, provider_id_size, provider_name_offset, provider_name_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item_ret_uint(tree, hf_mbim_provider_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
@@ -2060,12 +2098,18 @@ mbim_dissect_provider(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     proto_tree_add_item (tree, hf_mbim_provider_error_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
-        proto_tree_add_item(tree, hf_mbim_provider_provider_id, tvb, base_offset + provider_id_offset,
-                            provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_provider_provider_id, tvb, base_offset + provider_id_offset,
+                                 provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_id_size > 12) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (provider_name_offset && provider_name_size) {
-        proto_tree_add_item(tree, hf_mbim_provider_provider_name, tvb, base_offset + provider_name_offset,
-                            provider_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_provider_provider_name, tvb, base_offset + provider_name_offset,
+                                 provider_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_name_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2106,6 +2150,7 @@ mbim_dissect_set_register_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     gint base_offset;
     guint32 provider_id_offset, provider_id_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item_ret_uint(tree, hf_mbim_set_register_state_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
@@ -2118,8 +2163,11 @@ mbim_dissect_set_register_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                            mbim_data_class_fields, ENC_LITTLE_ENDIAN);
     /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
-        proto_tree_add_item(tree, hf_mbim_set_register_state_provider_id, tvb, base_offset + provider_id_offset,
-                            provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_register_state_provider_id, tvb, base_offset + provider_id_offset,
+                                 provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_id_size > 12) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2129,6 +2177,7 @@ mbim_dissect_registration_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     gint base_offset;
     guint32 provider_id_offset, provider_id_size, provider_name_offset, provider_name_size,
             roaming_text_offset, roaming_text_size, nw_error;
+    proto_item *it;
 
     base_offset = offset;
     nw_error = tvb_get_letohl(tvb, offset);
@@ -2163,16 +2212,25 @@ mbim_dissect_registration_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                            mbim_registration_state_info_registration_flags_fields, ENC_LITTLE_ENDIAN);
     /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
-        proto_tree_add_item(tree, hf_mbim_registration_state_info_provider_id, tvb, base_offset + provider_id_offset,
-                            provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_registration_state_info_provider_id, tvb, base_offset + provider_id_offset,
+                                 provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_id_size > 12) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (provider_name_offset && provider_name_size) {
-        proto_tree_add_item(tree, hf_mbim_registration_state_info_provider_name, tvb, base_offset + provider_name_offset,
-                            provider_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_registration_state_info_provider_name, tvb, base_offset + provider_name_offset,
+                                 provider_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_name_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (roaming_text_offset && roaming_text_size) {
-        proto_tree_add_item(tree, hf_mbim_registration_state_info_roaming_text, tvb, base_offset + roaming_text_offset,
-                            roaming_text_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_registration_state_info_roaming_text, tvb, base_offset + roaming_text_offset,
+                                 roaming_text_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (roaming_text_size > 126) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2272,6 +2330,7 @@ mbim_dissect_set_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
     gint base_offset;
     guint32 access_string_offset, access_string_size, user_name_offset, user_name_size,
             password_offset, password_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_connect_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2298,16 +2357,25 @@ mbim_dissect_set_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
     offset += 4;
     mbim_dissect_context_type_uuid(tvb, pinfo, tree, &offset);
     if (access_string_offset && access_string_size) {
-        proto_tree_add_item(tree, hf_mbim_set_connect_access_string, tvb, base_offset + access_string_offset,
-                            access_string_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_connect_access_string, tvb, base_offset + access_string_offset,
+                                 access_string_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (access_string_size > 200) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (user_name_offset && user_name_size) {
-        proto_tree_add_item(tree, hf_mbim_set_connect_user_name, tvb, base_offset + user_name_offset,
-                            user_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_connect_user_name, tvb, base_offset + user_name_offset,
+                                 user_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (user_name_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (password_offset && password_size) {
-        proto_tree_add_item(tree, hf_mbim_set_connect_password, tvb, base_offset + password_offset,
-                            password_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_connect_password, tvb, base_offset + password_offset,
+                                 password_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (password_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2339,6 +2407,7 @@ mbim_dissect_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint o
     gint base_offset;
     guint32 access_string_offset, access_string_size, user_name_offset, user_name_size,
             password_offset, password_size, provider_id_offset = 0, provider_id_size = 0;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_context_context_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2367,20 +2436,32 @@ mbim_dissect_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint o
         offset += 4;
     }
     if (access_string_offset && access_string_size) {
-        proto_tree_add_item(tree, hf_mbim_context_access_string, tvb, base_offset + access_string_offset,
-                            access_string_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_context_access_string, tvb, base_offset + access_string_offset,
+                                 access_string_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (access_string_size > 200) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (user_name_offset && user_name_size) {
-        proto_tree_add_item(tree, hf_mbim_context_user_name, tvb, base_offset + user_name_offset,
-                            user_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_context_user_name, tvb, base_offset + user_name_offset,
+                                 user_name_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (user_name_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (password_offset && password_size) {
-        proto_tree_add_item(tree, hf_mbim_context_password, tvb, base_offset + password_offset,
-                            password_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_context_password, tvb, base_offset + password_offset,
+                                 password_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (password_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (provider_id_offset && provider_id_size) {
-        proto_tree_add_item(tree, hf_mbim_context_provider_id, tvb, base_offset + provider_id_offset,
-                            provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_context_provider_id, tvb, base_offset + provider_id_offset,
+                                 provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (provider_id_size > 12) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2828,6 +2909,7 @@ mbim_dissect_set_sms_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     gint base_offset;
     guint32 sc_address_offset, sc_address_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_sms_configuration_format, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2837,8 +2919,11 @@ mbim_dissect_set_sms_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item_ret_uint(tree, hf_mbim_set_sms_configuration_sc_address_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sc_address_size);
     /*offset += 4;*/
     if (sc_address_offset && sc_address_size) {
-        proto_tree_add_item(tree, hf_mbim_set_sms_configuration_sc_address, tvb, base_offset + sc_address_offset,
-                            sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_set_sms_configuration_sc_address, tvb, base_offset + sc_address_offset,
+                                 sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (sc_address_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2847,6 +2932,7 @@ mbim_dissect_sms_configuration_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
     gint base_offset;
     guint32 sc_address_offset, sc_address_size;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_configuration_info_sms_storage_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2862,8 +2948,11 @@ mbim_dissect_sms_configuration_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree_add_item_ret_uint(tree, hf_mbim_sms_configuration_info_sc_address_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sc_address_size);
     /*offset += 4;*/
     if (sc_address_offset && sc_address_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_configuration_info_sc_address, tvb, base_offset + sc_address_offset,
-                            sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_sms_configuration_info_sc_address, tvb, base_offset + sc_address_offset,
+                                 sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (sc_address_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
 }
 
@@ -2892,6 +2981,9 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              (mbim_sms_pdu_format == SMS_PDU_3GPP)) && gsm_sms_handle) {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
+            if (pdu_data_size > 183) {
+                expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+            }
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             sc_tree = proto_tree_add_subtree(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
@@ -2912,6 +3004,9 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
+            if (pdu_data_size > 255) {
+                expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+            }
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA)) ||
                  (mbim_sms_pdu_format == SMS_PDU_3GPP2)) && cdma_sms_handle) {
@@ -2962,6 +3057,7 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             encoded_message_offset, size_in_bytes, size_in_chars;
     proto_item *ti;
     proto_tree *subtree;
+    proto_item *it;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_cdma_record_message_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2988,16 +3084,25 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item_ret_uint(tree, hf_mbim_sms_cdma_record_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN, &size_in_chars);
     /*offset += 4;*/
     if (address_offset && address_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_cdma_record_address, tvb, base_offset + address_offset,
-                            address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_sms_cdma_record_address, tvb, base_offset + address_offset,
+                                 address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (address_size > 40) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (timestamp_offset && timestamp_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_cdma_record_timestamp, tvb, base_offset + timestamp_offset,
-                            timestamp_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        it = proto_tree_add_item(tree, hf_mbim_sms_cdma_record_timestamp, tvb, base_offset + timestamp_offset,
+                                 timestamp_size, ENC_NA|ENC_ASCII);
+        if (timestamp_size > 21) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
     }
     if (encoded_message_offset && size_in_bytes) {
         ti = proto_tree_add_item(tree, hf_mbim_sms_cdma_record_encoded_message, tvb, base_offset + encoded_message_offset,
                                  size_in_bytes, ENC_NA);
+        if (size_in_bytes > 160) {
+            expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+        }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_cdma_record_encoded_message_text,
                                   (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
@@ -3078,6 +3183,9 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
              (mbim_sms_pdu_format == SMS_PDU_3GPP)) && gsm_sms_handle) {
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
+            if (pdu_data_size > 183) {
+                expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+            }
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             sc_tree = proto_tree_add_subtree(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
@@ -3097,6 +3205,9 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
+            if (pdu_data_size > 255) {
+                expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+            }
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA)) ||
                  (mbim_sms_pdu_format == SMS_PDU_3GPP2)) && cdma_sms_handle) {
@@ -3133,12 +3244,18 @@ mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item_ret_uint(tree, hf_mbim_sms_send_cdma_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN, &size_in_chars);
     /*offset += 4;*/
     if (address_offset && address_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_send_cdma_address, tvb, base_offset + address_offset,
-                            address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        ti = proto_tree_add_item(tree, hf_mbim_sms_send_cdma_address, tvb, base_offset + address_offset,
+                                 address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+        if (address_size > 40) {
+            expert_add_info(pinfo, ti, &ei_mbim_oversized_string);
+        }
     }
     if (encoded_message_offset && size_in_bytes) {
         ti = proto_tree_add_item(tree, hf_mbim_sms_send_cdma_encoded_message, tvb, base_offset + encoded_message_offset,
                                  size_in_bytes, ENC_NA);
+        if (size_in_bytes > 160) {
+            expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+        }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_send_cdma_encoded_message_text,
                                   (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
@@ -3186,6 +3303,9 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     if (ussd_payload_offset && ussd_payload_length) {
         ti = proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
+        if (ussd_payload_length > 160) {
+            expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+        }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         ussd_tvb = tvb_new_subset_length(tvb, base_offset + ussd_payload_offset, ussd_payload_length);
         switch (encoding) {
@@ -3236,6 +3356,9 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     if (ussd_payload_offset && ussd_payload_length) {
         ti = proto_tree_add_item(tree, hf_mbim_ussd_info_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
+        if (ussd_payload_length > 160) {
+            expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
+        }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         ussd_tvb = tvb_new_subset_length(tvb, base_offset + ussd_payload_offset, ussd_payload_length);
         switch (encoding) {
@@ -4307,7 +4430,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 }
                                 break;
                             case MBIM_CID_SUBSCRIBER_READY_STATUS:
-                                mbim_dissect_subscriber_ready_status(frag_tvb, pinfo, subtree, offset);
+                                mbim_dissect_subscriber_ready_status(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                 break;
                             case MBIM_CID_RADIO_STATE:
                                 proto_tree_add_item(subtree, hf_mbim_radio_state_hw_radio_state, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -7847,7 +7970,13 @@ proto_register_mbim(void)
                 "NTH Block Length does not match packet length", EXPFILL }},
         { &ei_mbim_out_of_bounds_index,
             { "mbim.out_of_bounds_index", PI_MALFORMED, PI_ERROR,
-                "Index is out of bounds", EXPFILL }}
+                "Index is out of bounds", EXPFILL }},
+        { &ei_mbim_oversized_string,
+            { "mbim.oversized_string", PI_PROTOCOL, PI_WARN,
+                "String exceeds maximum size allowed", EXPFILL }},
+        { &ei_mbim_oversized_pdu,
+            { "mbim.oversized_pdu", PI_PROTOCOL, PI_WARN,
+                "PDU exceeds maximum size allowed", EXPFILL }}
     };
 
     proto_mbim = proto_register_protocol("Mobile Broadband Interface Model",
