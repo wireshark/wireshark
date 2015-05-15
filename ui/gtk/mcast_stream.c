@@ -55,6 +55,10 @@
 #include "ui/gtk/mcast_stream_dlg.h"
 #include "ui/gtk/main.h"
 
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
