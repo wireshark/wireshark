@@ -104,7 +104,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
 #if !defined(Q_OS_WIN)
     setDirectory(wsApp->lastOpenDir());
     // Add extra widgets
-    // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
     QHBoxLayout *h_box = new QHBoxLayout();
