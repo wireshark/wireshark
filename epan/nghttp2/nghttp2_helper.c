@@ -27,7 +27,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "glib.h"
+#include <glib.h>
 
 void nghttp2_put_uint16be(uint8_t *buf, uint16_t n) {
   uint16_t x = g_htons(n);
