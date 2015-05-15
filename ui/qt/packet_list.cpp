@@ -452,12 +452,23 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (!cap_file_) return;
 
-    int row = selected.first().top();
-    cf_select_packet(cap_file_, row);
+    if (selected.isEmpty()) {
+        cf_unselect_packet(cap_file_);
+    } else {
+        int row = selected.first().top();
+        cf_select_packet(cap_file_, row);
+    }
+
     related_packet_delegate_.clear();
+    if (proto_tree_) proto_tree_->clear();
+    if (byte_view_tab_) byte_view_tab_->clear();
+
     emit packetSelectionChanged();
 
-    if (!cap_file_->edt) return;
+    if (!cap_file_->edt) {
+        viewport()->update();
+        return;
+    }
 
     if (proto_tree_ && cap_file_->edt->tree) {
         packet_info *pi = &cap_file_->edt->pi;
@@ -475,8 +486,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         GSList *src_le;
         struct data_source *source;
         char* source_name;
-
-        byte_view_tab_->clear();
 
         for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (struct data_source *)src_le->data;
