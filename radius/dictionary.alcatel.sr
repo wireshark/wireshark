@@ -59,4 +59,21 @@ ATTRIBUTE	Alc-Acct-I-Outprof-Pkts-64		24	integer
 ATTRIBUTE	Alc-Acct-O-Inprof-Pkts-64		25	integer
 ATTRIBUTE	Alc-Acct-O-Outprof-Pkts-64		26	integer
 
+# Used when authenticating migrant hosts
+ATTRIBUTE   Alc-Wlan-Portal-Redirect                  172 string
+
+# If a migrant host is redirected, specifies the URL
+ATTRIBUTE   Alc-Wlan-Portal-Url                       173 string
+
+# Defines the lease-time in seconds for RADIUS proxy and create-host-CoA
+# scenarios only.
+ATTRIBUTE   Alc-Lease-Time                            174 integer
+
+# The URL to which traffic matching the host IPv4 filter entry with http-redirect
+# action is redirected to
+ATTRIBUTE   Alc-Portal-Url                            177 string
+
+# names longer than the allowed maximum are treated as host setup failures
+ATTRIBUTE   Alc-SLAAC-IPv6-Pool                       181 string
+
 END-VENDOR	Alcatel-Lucent-Service-Router

@@ -49,10 +49,12 @@ ATTRIBUTE	Aruba-User-Group			36	string
 ATTRIBUTE	Aruba-Network-SSO-Token			37	string
 ATTRIBUTE	Aruba-AirGroup-Version			38	integer
 
-VALUE 		Aruba-AirGroup-Device-Type	Personal-Device	1
-VALUE		Aruba-AirGroup-Device-Type	Shared-Device	2
+ATTRIBUTE	Aruba-Port-Bounce-Host			40	integer
 
-VALUE		Aruba-AirGroup-Version		AirGroup-v1	1
-VALUE		Aruba-AirGroup-Version		AirGroup-v2	2
+VALUE	Aruba-AirGroup-Device-Type	Personal-Device		1
+VALUE	Aruba-AirGroup-Device-Type	Shared-Device		2
+
+VALUE	Aruba-AirGroup-Version		AirGroup-v1		1
+VALUE	Aruba-AirGroup-Version		AirGroup-v2		2
 
 END-VENDOR	Aruba

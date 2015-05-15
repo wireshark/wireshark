@@ -445,14 +445,30 @@ ATTRIBUTE	Acct-Alt-Session-ID			197	string
 ATTRIBUTE	Idle-Timeout-Threshold			198	integer
 ATTRIBUTE	Double-Authentication			199	integer
 ATTRIBUTE	SBC-Adjacency				200	string
-#binary in radiator
-ATTRIBUTE	DHCP-Field				201	string
-#binary in radiator
-ATTRIBUTE	DHCP-Option				202	string
+ATTRIBUTE	DHCP-Field				201	octets
+ATTRIBUTE	DHCP-Option				202	octets
 ATTRIBUTE	Security-Service			203	string
 ATTRIBUTE	Reauth-Service-Name			204	string
 ATTRIBUTE	Flow-IP-Profile				205	string
 ATTRIBUTE	Radius-Throttle-Watermark		206	integer
+ATTRIBUTE	RB-IPV6-DNS				207	string
+ATTRIBUTE	RB-IPv6-Option				208	string
+ATTRIBUTE	Cluster-Partition-ID			209	string
+ATTRIBUTE	Circuit-Group-Member			210	string
+ATTRIBUTE	Delegated-Max-Prefix			212	integer
+ATTRIBUTE	IPv4-Address-Release-Control		213	string
+ATTRIBUTE	Acct-Input-IPv4-Octet			214	integer
+ATTRIBUTE	Acct-Output-IPv4-Octets			215	integer
+ATTRIBUTE	Acct-Input-IPv4-Packets			216	integer
+ATTRIBUTE	Acct-Output-IPv4-Packets		217	integer
+ATTRIBUTE	Acct-Input-IPv4-Gigawords		218	integer
+ATTRIBUTE	Acct-Output-IPv4-Gigawords		219	integer
+ATTRIBUTE	Acct-Input-IPv6-Octets			220	integer
+ATTRIBUTE	Acct-Output-IPv6-Octets			221	integer
+ATTRIBUTE	Acct-Input-IPv6-Packets			222	integer
+ATTRIBUTE	Acct-Output-IPv6-Packets		223	integer
+ATTRIBUTE	Acct-Input-IPv6-Gigawords		224	integer
+ATTRIBUTE	Acct-Output-IPv6-Gigawords		225	integer
 
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-RAW	1
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-ROUTE1483 2
@@ -534,6 +550,7 @@ VALUE	Mcast-Receive			RECEIVE			2
 
 VALUE	Tunnel-DNIS			DNIS			1
 VALUE	Tunnel-DNIS			DNIS-Only		2
+VALUE	Tunnel-DNIS			DNIS-Generate		4
 
 VALUE	Platform-Type			SMS			1
 VALUE	Platform-Type			SmartEdge-800		2
