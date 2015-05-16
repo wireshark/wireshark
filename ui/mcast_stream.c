@@ -245,7 +245,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     /* calculate average bandwidth for this stream */
     strinfo->total_bytes = strinfo->total_bytes + pinfo->fd->pkt_len;
     if (deltatime > 0)
-        strinfo->average_bw = (((float)(strinfo->total_bytes*8) / deltatime) / 1000000);
+        strinfo->average_bw = (((double)(strinfo->total_bytes*8) / deltatime) / 1000000);
 
     /* increment the packets counter for this stream and calculate average pps */
     ++(strinfo->npackets);
@@ -262,7 +262,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     /* calculate average bandwidth for all streams */
     tapinfo->allstreams->total_bytes = tapinfo->allstreams->total_bytes + pinfo->fd->pkt_len;
     if (deltatime > 0)
-        tapinfo->allstreams->average_bw = (((float)(tapinfo->allstreams->total_bytes *8) / deltatime) / 1000000);
+        tapinfo->allstreams->average_bw = (((double)(tapinfo->allstreams->total_bytes *8) / deltatime) / 1000000);
 
     /* sliding window and buffercalc for this group*/
     slidingwindow(strinfo, pinfo);
@@ -427,7 +427,7 @@ slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
     strinfo->element.burstsize = diff;
     if(strinfo->element.burstsize > strinfo->element.topburstsize) {
         strinfo->element.topburstsize = strinfo->element.burstsize;
-        strinfo->element.maxbw = (float)(strinfo->element.topburstsize) * 1000 / mcast_stream_burstint * pinfo->fd->pkt_len * 8 / 1000000;
+        strinfo->element.maxbw = (double)(strinfo->element.topburstsize) * 1000 / mcast_stream_burstint * pinfo->fd->pkt_len * 8 / 1000000;
     }
 
     strinfo->element.last++;

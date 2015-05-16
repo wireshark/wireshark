@@ -52,7 +52,7 @@ typedef struct buffer{
     gint32 buffstatus;         /* buffer status */
     gint32 numbuffalarms;      /* number of alarms triggered by buffer underruns */
     gint32 topbuffusage;       /* top buffer usage in refresh interval */
-    float  maxbw;              /* maximum bandwidth usage */
+    double maxbw;              /* maximum bandwidth usage */
 } t_buffer;
 
 
@@ -65,7 +65,7 @@ typedef struct _mcast_stream_info {
     guint32 npackets;
     guint32 apackets;
     guint32 total_bytes;
-    float   average_bw;
+    double  average_bw;
 
     guint32 first_frame_num; /* frame number of first frame */
     /* start of recording (GMT) of this stream */
