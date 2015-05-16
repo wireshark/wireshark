@@ -2434,7 +2434,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
 
     remaining_length = tvb_reported_length(tvb);
-    /* Check if we have enough data or if we need another segment, as a safty measure set a lenght limit*/
+    /* Check if we have enough data or if we need another segment, as a safty measure set a length limit*/
     if (remaining_length < 1500){
         linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, TRUE);
         if (linelen == -1){
@@ -2456,7 +2456,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      *
      */
     while (remaining_length > 0) {
-        /* Check if we have enough data or if we need another segment, as a safty measure set a lenght limit*/
+        /* Check if we have enough data or if we need another segment, as a safty measure set a length limit*/
         if (remaining_length < 1500){
             linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, TRUE);
             if (linelen == -1){
