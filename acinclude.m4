@@ -380,7 +380,7 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	  # The user didn't specify a directory in which libpcap resides.
 	  # First, look for a pcap-config script.
 	  #
-	  AC_PATH_PROG(PCAP_CONFIG, pcap-config)
+	  AC_PATH_TOOL(PCAP_CONFIG, pcap-config)
 
 	  if test -n "$PCAP_CONFIG" ; then
 	    #
@@ -1217,7 +1217,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	    AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
 	  fi
 	else
-	  AC_PATH_PROG(KRB5_CONFIG, krb5-config)
+	  AC_PATH_TOOL(KRB5_CONFIG, krb5-config)
 	  if test -x "$KRB5_CONFIG"
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
@@ -2033,7 +2033,7 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 [
 	no_qt=""
 
-	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+	AC_PATH_TOOL(PKG_CONFIG, pkg-config, no)
 
 	if test x$PKG_CONFIG != xno ; then
 		if pkg-config --atleast-pkgconfig-version 0.7 ; then
