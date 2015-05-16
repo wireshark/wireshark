@@ -251,7 +251,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2015-04-06
+DOWNLOAD_TAG=2015-05-30
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -384,7 +384,7 @@ PCAP_REMOTE=1
 #
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
-ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8
+ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS
@@ -512,7 +512,7 @@ GEOIP_PKG=1.5.1-2
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2015-04-06
+DOWNLOAD_TAG=2015-05-30
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -636,7 +636,7 @@ PCAP_REMOTE=1
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
-ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8
+ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS

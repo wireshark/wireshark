@@ -1054,7 +1054,7 @@ process_libs:
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. zlib128.zip \
+		. zlib-1.2.8-ws.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !ENDIF
 !IFDEF LUA_DIR
@@ -1173,6 +1173,7 @@ clean_setup:
 	rm -r -f zlib125
 	rm -r -f zlib-1.2.5
 	rm -r -f zlib-1.2.8
+	rm -r -f zlib-1.2.8-ws
 	rm -r -f zlib123-dll
 	rm -r -f AirPcap_Devpack_1_0_0_594
 	rm -r -f AirPcap_Devpack_4_0_0_1480

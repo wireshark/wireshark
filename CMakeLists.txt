@@ -697,15 +697,13 @@ endif()
 if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
-		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.8")
+		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.8-ws")
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_LIBRARY zlib)
-		# Annoyingly zlib also builds some other stuff we aren't interested in
 		set_target_properties(zlib PROPERTIES FOLDER "Libs/zlib")
+		# Annoyingly zlib also builds some other stuff we aren't interested in
 		set_target_properties(zlibstatic PROPERTIES FOLDER "Libs/zlib")
-		set_target_properties(example PROPERTIES FOLDER "Libs/zlib")
-		set_target_properties(minigzip PROPERTIES FOLDER "Libs/zlib")
 	endif()
 	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
