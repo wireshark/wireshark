@@ -1126,6 +1126,13 @@ static int hf_bgp_community_prefix = -1;
 static int hf_bgp_endpoint_address = -1;
 static int hf_bgp_endpoint_address_ipv6 = -1;
 static int hf_bgp_label_stack = -1;
+static int hf_bgp_vplsad_length = -1;
+static int hf_bgp_vplsad_rd = -1;
+static int hf_bgp_bgpad_pe_addr = -1;
+static int hf_bgp_vplsbgp_ce_id = -1;
+static int hf_bgp_vplsbgp_labelblock_offset = -1;
+static int hf_bgp_vplsbgp_labelblock_size = -1;
+static int hf_bgp_vplsbgp_labelblock_base = -1;
 static int hf_bgp_wildcard_route_target = -1;
 static int hf_bgp_type = -1;
 
@@ -3896,7 +3903,6 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     guint               plen;               /* length of the prefix address, in bits */
     guint               labnum;             /* number of labels             */
     guint16             tnl_id;             /* Tunnel Identifier */
-    int                 ce_id,labblk_off,labblk_size;
     union {
        guint8 addr_bytes[4];
        guint32 addr;
@@ -4409,8 +4415,9 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNUNIMULC:
             case SAFNUM_VPLS:
                 plen =  tvb_get_ntohs(tvb,offset);
-                rd_type=tvb_get_ntohs(tvb,offset+2);
+                proto_tree_add_item(tree, hf_bgp_vplsad_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
+                proto_tree_add_string(tree, hf_bgp_vplsad_rd, tvb, offset+2, 8, decode_bgp_rd(tvb, offset+2));
                 /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability
                    Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
                    for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
@@ -4423,92 +4430,17 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 */
                 if(plen == 12) /* BGP-AD */
                 {
-                    switch (rd_type) {
-
-                        case FORMAT_AS2_LOC:
-                            proto_tree_add_text(tree, tvb, start_offset,
-                                                (offset + plen + 2) - start_offset,
-                                                "RD: %u:%u, PE_addr: %s",
-                                                tvb_get_ntohs(tvb, offset + 4),
-                                                tvb_get_ntohl(tvb, offset + 6),
-                                                tvb_ip_to_str(tvb, offset + 10));
-                            break;
-
-                        case FORMAT_IP_LOC:
-                            proto_tree_add_text(tree, tvb, offset,
-                                                (offset + plen + 2) - start_offset,
-                                                "RD: %s:%u, PE_addr: %s",
-                                                tvb_ip_to_str(tvb, offset + 10),
-                                                tvb_get_ntohs(tvb, offset + 8),
-                                                tvb_ip_to_str(tvb, offset + 10));
-                            break;
-                        case FORMAT_AS4_LOC:
-                            proto_tree_add_text(tree, tvb, start_offset,
-                                                (offset + plen + 2) - start_offset,
-                                                "RD: %u.%u:%u, PE_addr: %s",
-                                                tvb_get_ntohs(tvb, offset + 4),
-                                                tvb_get_ntohs(tvb, offset + 6),
-                                                tvb_get_ntohs(tvb, offset + 8),
-                                                tvb_ip_to_str(tvb, offset + 10));
-                            break;
-                        default:
-                            proto_tree_add_text(tree, tvb, start_offset,
-                                                (offset - start_offset) + 2,
-                                                "Unknown labeled VPN address format %u", rd_type);
-                            return -1;
-                    } /* switch (rd_type) */
+                    proto_tree_add_item(tree, hf_bgp_bgpad_pe_addr, tvb, offset+10, 4, ENC_NA);
                 }else{ /* VPLS-BGP */
-                    ce_id=tvb_get_ntohs(tvb,offset+10);
-                    labblk_off=tvb_get_ntohs(tvb,offset+12);
-                    labblk_size=tvb_get_ntohs(tvb,offset+14);
+
+                    proto_tree_add_item(tree, hf_bgp_vplsbgp_ce_id, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+
+                    proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_offset, tvb, offset+12, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_size, tvb, offset+14, 2, ENC_BIG_ENDIAN);
                     stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                     decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
-                    switch (rd_type) {
+                    proto_tree_add_string(tree, hf_bgp_vplsbgp_labelblock_base, tvb, offset+16, plen-14, wmem_strbuf_get_str(stack_strbuf));
 
-                        case FORMAT_AS2_LOC:
-                            proto_tree_add_text(tree, tvb, start_offset,
-                                                (offset + plen + 1) - start_offset,
-                                                "RD: %u:%s, CE-ID: %u, Label-Block Offset: %u, "
-                                                "Label-Block Size: %u Label Base %s",
-                                                tvb_get_ntohs(tvb, offset + 4),
-                                                tvb_ip_to_str(tvb, offset + 6),
-                                                ce_id,
-                                                labblk_off,
-                                                labblk_size,
-                                                wmem_strbuf_get_str(stack_strbuf));
-                            break;
-
-                        case FORMAT_IP_LOC:
-                            proto_tree_add_text(tree, tvb, offset,
-                                                (offset + plen + 1) - start_offset,
-                                                "RD: %s:%u, CE-ID: %u, Label-Block Offset: %u, "
-                                                "Label-Block Size: %u, Label Base %s",
-                                                tvb_ip_to_str(tvb, offset + 4),
-                                                tvb_get_ntohs(tvb, offset + 8),
-                                                ce_id,
-                                                labblk_off,
-                                                labblk_size,
-                                                wmem_strbuf_get_str(stack_strbuf));
-                            break;
-                        case FORMAT_AS4_LOC:
-                            proto_tree_add_text(tree, tvb, offset,
-                                                (offset + plen + 1) - start_offset,
-                                                "RD: %u.%u:%u, CE-ID: %u, Label-Block Offset: %u, "
-                                                "Label-Block Size: %u, Label Base %s",
-                                                tvb_get_ntohs(tvb, offset + 4),
-                                                tvb_get_ntohs(tvb, offset + 6),
-                                                tvb_get_ntohs(tvb, offset + 8),
-                                                ce_id,
-                                                labblk_off,
-                                                labblk_size,
-                                                wmem_strbuf_get_str(stack_strbuf));
-                            break;
-                        default:
-                            proto_tree_add_text(tree, tvb, start_offset,
-                                                (offset - start_offset) + 2,
-                                                "Unknown labeled VPN address format %u", rd_type);
-                            return -1;
-                    } /* switch (rd_type) */
                 }
                 /* FIXME there are subTLVs left to decode ... for now lets omit them */
                 total_length = plen+2;
@@ -6835,6 +6767,27 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_label_stack,
         { "Label Stack", "bgp.label_stack", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsad_length,
+        { "Length", "bgp.vplsad.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsad_rd,
+        { "RD", "bgp.vplsad.rd", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_bgpad_pe_addr,
+        { "PE Addr", "bgp.ad.pe_addr", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsbgp_ce_id,
+        { "CE-ID", "bgp.vplsbgp.ce_id", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsbgp_labelblock_offset,
+        { "Label Block Offset", "bgp.vplsbgp.labelblock.offset", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsbgp_labelblock_size,
+        { "Label Block Size", "bgp.vplsbgp.labelblock.size", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_vplsbgp_labelblock_base,
+        { "Label Block Base", "bgp.vplsbgp.labelblock.base", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_wildcard_route_target,
         { "Wildcard route target", "bgp.wildcard_route_target", FT_STRING, BASE_NONE,
