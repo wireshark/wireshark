@@ -51,12 +51,38 @@ static tap_dissector_t *tap_dissector_list=NULL;
  * in order to be as fast as possible as we need to build and tear down the
  * queued list at least once for each packet we see and thus we must be able
  * to build and tear it down as fast as possible.
+ *
+ * XXX - some fields in packet_info get overwritten in the dissection
+ * process, such as the addresses and the "this is an error packet" flag.
+ * A packet may be queued at multiple protocol layers, but the packet_info
+ * structure will, when the tap listeners are run, contain the values as
+ * set by the topmost protocol layers.
+ *
+ * This means that the tap listener code can't rely on pinfo->flags.in_error_pkt
+ * to determine whether the packet should be handed to the listener, as, for
+ * a protocol with error report packets that include a copy of the
+ * packet in error (ICMP, ICMPv6, CLNP), that flag changes during the
+ * processing of the packet depending on whether we're currently dissecting
+ * the packet in error or not.
+ *
+ *
+ * It also means that a tap listener can't depend on the source and destination
+ * addresses being the correct ones for the packet being processed if, for
+ * example, you have some tunneling that causes multiple layers of the same
+ * protocol.
+ *
+ * For now, we handle the error packet flag by setting a bit in the flags
+ * field of the tap_packet_t structure.  We may ultimately want stacks of
+ * addresses for this and other reasons.
  */
 typedef struct _tap_packet_t {
 	int tap_id;
+	guint32 flags;
 	packet_info *pinfo;
 	const void *tap_specific_data;
 } tap_packet_t;
+
+#define TAP_PACKET_IS_ERROR_PACKET	0x00000001	/* packet being queued is an error packet */
 
 #define TAP_PACKET_QUEUE_LEN 5000
 static tap_packet_t tap_packet_array[TAP_PACKET_QUEUE_LEN];
@@ -245,6 +271,9 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 
 	tpt=&tap_packet_array[tap_packet_index];
 	tpt->tap_id=tap_id;
+	tpt->flags = 0;
+	if (pinfo->flags.in_error_pkt)
+		tpt->flags |= TAP_PACKET_IS_ERROR_PACKET;
 	tpt->pinfo=pinfo;
 	tpt->tap_specific_data=tap_specific_data;
 	tap_packet_index++;
@@ -322,8 +351,8 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	for(i=0;i<tap_packet_index;i++){
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
-			/* Don't tap the packet if its an "error" unless the listener tells us to */
-			if ((!tp->pinfo->flags.in_error_pkt) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
+			/* Don't tap the packet if it's an "error" unless the listener tells us to */
+			if ((!tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
 			{
 				if(tp->tap_id==tl->tap_id){
 					gboolean passed=TRUE;
