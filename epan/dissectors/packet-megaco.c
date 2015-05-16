@@ -1326,7 +1326,7 @@ nextcontext:
 
         tvb_next_offset = tvb_transaction_end_offset;
     }
-    while( tvb_transaction_end_offset < tvb_len - 2);
+    while( tvb_transaction_end_offset > 0 && tvb_transaction_end_offset < tvb_len - 2);
 
     if(global_megaco_raw_text){
         tvb_raw_text_add(tvb, megaco_tree);
