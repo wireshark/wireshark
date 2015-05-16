@@ -40,7 +40,7 @@ extern "C" {
 
 /* typedefs for sliding window and buffer size */
 typedef struct buffer{
-    struct timeval *buff;   /* packet times */
+    nstime_t *buff;            /* packet times */
     gint32 first;              /* pointer to the first element */
     gint32 last;               /* pointer to the last element */
     gint32 burstsize;          /* current burst */
@@ -69,12 +69,9 @@ typedef struct _mcast_stream_info {
 
     guint32 first_frame_num; /* frame number of first frame */
     /* start of recording (GMT) of this stream */
-    guint32 start_sec;         /* seconds */
-    guint32 start_usec;        /* microseconds */
-    guint32 start_rel_sec;     /* start stream rel seconds */
-    guint32 start_rel_usec;    /* start stream rel microseconds */
-    guint32 stop_rel_sec;      /* stop stream rel seconds */
-    guint32 stop_rel_usec;     /* stop stream rel microseconds */
+    nstime_t start_abs;        /* absolute stream start time */
+    nstime_t start_rel;        /* stream start time relative to first packet in capture */
+    nstime_t stop_rel;         /* stream stop time relative to first packet in capture */
     guint16 vlan_id;
 
     /*for the sliding window */
