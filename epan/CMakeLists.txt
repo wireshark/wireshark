@@ -840,6 +840,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ip.c
 	dissectors/packet-ipars.c
 	dissectors/packet-ipdc.c
+	dissectors/packet-ipdr.c
 	dissectors/packet-ipfc.c
 	dissectors/packet-ipmi.c
 	dissectors/packet-ipmi-app.c
