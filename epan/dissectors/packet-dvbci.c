@@ -899,6 +899,7 @@ static int hf_dvbci_l_reass_len = -1;
 static int hf_dvbci_c_tpdu_tag = -1;
 static int hf_dvbci_r_tpdu_tag = -1;
 static int hf_dvbci_t_c_id = -1;
+static int hf_dvbci_sb_tag = -1;
 static int hf_dvbci_sb_value = -1;
 static int hf_dvbci_t_frags = -1;
 static int hf_dvbci_t_frag = -1;
@@ -4419,8 +4420,9 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
         proto_tree_add_expert(tree, pinfo, &ei_dvbci_tpdu_status_tag, tvb, offset_new, 1);
         return -1;
     }
+    proto_tree_add_item(tree, hf_dvbci_sb_tag, tvb,
+            offset_new, 1, ENC_BIG_ENDIAN);
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "T_SB");
-    proto_tree_add_text(tree, tvb, offset_new, 1, "Response TPDU status");
     offset_new++;
 
     len_start_offset = offset_new;
@@ -4434,17 +4436,15 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     }
 
     t_c_id = tvb_get_guint8(tvb, offset_new);
-    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for data
      * transmission commands */
     if (t_c_id!=lpdu_tcid) {
         if (r_tpdu_tag==NO_TAG ||
                 r_tpdu_tag==T_DATA_MORE || r_tpdu_tag==T_DATA_LAST) {
-
-            pi = proto_tree_add_text(tree, tvb, offset_new, 1,
-                    "Transport Connection ID mismatch");
-            expert_add_info_format(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", t_c_id, lpdu_tcid);
-
+            expert_add_info_format(pinfo, pi, &ei_dvbci_t_c_id,
+                    "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer",
+                    t_c_id, lpdu_tcid);
             return -1;
         }
     }
@@ -4458,8 +4458,6 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", sb_str);
     }
     else {
-        proto_tree_add_text(tree, tvb, offset_new, 1,
-                "Invalid SB_value");
         expert_add_info(pinfo, pi, &ei_dvbci_sb_value);
     }
     offset_new++;
@@ -5354,6 +5352,10 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_t_c_id,
            { "Transport Connection ID", "dvb-ci.t_c_id",
+             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_sb_tag,
+           { "SB tag", "dvb-ci.sb_tag",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_sb_value,
