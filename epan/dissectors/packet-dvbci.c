@@ -4503,6 +4503,16 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         r_tpdu_tag = tvb_get_guint8(tvb, 0);
+        if (r_tpdu_tag == T_SB) {
+            /* we have an r_tpdu without header and body,
+               it contains only the status part */
+            if (hdr_tag)
+                *hdr_tag = NO_TAG;
+            if (body_len)
+                *body_len = 0;
+            return 0;
+        }
+
         tag = &r_tpdu_tag;
         r_tpdu_str = try_val_to_str(r_tpdu_tag, dvbci_r_tpdu);
         pi = proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -4510,21 +4520,10 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", r_tpdu_str);
         }
         else {
-            if (r_tpdu_tag == T_SB) {
-                /* we have an r_tpdu without header and body,
-                   it contains only the status part */
-                if (hdr_tag)
-                    *hdr_tag = NO_TAG;
-                if (body_len)
-                    *body_len = 0;
-                return 0;
-            }
-            else {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                        "Invalid Response-TPDU tag");
-                expert_add_info(pinfo, pi, &ei_dvbci_r_tpdu_tag);
-                return -1;
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "Invalid Response-TPDU tag");
+            expert_add_info(pinfo, pi, &ei_dvbci_r_tpdu_tag);
+            return -1;
         }
     }
 
