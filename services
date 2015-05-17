@@ -7812,8 +7812,6 @@ trim-event       4322/tcp # TRIM Event Service
 trim-event       4322/udp # TRIM Event Service
 trim-ice         4323/tcp # TRIM ICE Service [Siva_Poobalasingam_2] [Siva_Poobalasingam_2] 2007-02
 trim-ice         4323/udp # TRIM ICE Service [Siva_Poobalasingam_2] [Siva_Poobalasingam_2] 2007-02
-balour           4324/tcp # Balour Game Server [Konstantin_Schauweck] [Konstantin_Schauweck] 2007-02
-balour           4324/udp # Balour Game Server [Konstantin_Schauweck] [Konstantin_Schauweck] 2007-02
 geognosisman     4325/tcp # Cadcorp GeognoSIS Manager Service
 geognosisman     4325/udp # Cadcorp GeognoSIS Manager Service
 geognosis        4326/tcp # Cadcorp GeognoSIS Service [Martin_Daly] [Martin_Daly] 2006-11

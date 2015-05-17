@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-05-09)
+(last updated 2015-05-17)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -18242,9 +18242,9 @@ Decimal
     A. Lueckerath
       al&shebang.org
 4561
-  Panasonic Electric Works Laboratory of Americ, Inc./SLC Lab
+  OpenDOF Project, Inc. (formerly "Panasonic Electric Works Laboratory of Americ, Inc./SLC Lab")
     Bryant Eastham
-      protocols&slc.mew.com
+      protocol&opendof.org
 4562
   Centermark Engineering LC
     Tim Bowman
@@ -23102,9 +23102,9 @@ Decimal
     Allan Brearley
       allan.brearley&cogita.co.uk
 5785
-  Intershop Communications
-    Christian Mallwitz
-      C.Mallwitz&intershop.de
+  Intershop Communications AG
+    Jan Hamel
+      notifications&intershop.de
 5786
   Mc Coy Marine Consultants
     Captain R.D. Mc Coy
@@ -109529,8 +109529,8 @@ Technischen Universität Dresden
       Mick Mason&kent.gov.uk
 27488
   A.T.U Handels GmbH
-    Manfred Gerlach
-      manfred.gerlach&atu.de
+    Bernhard Panzer
+      sysadminwin&de.atu.eu
 27489
   Evangelisch-Lutherische Landeskirche in Braunschweig
     Markus Reinmuth
@@ -125715,9 +125715,9 @@ Decentralization / Helenic Public Administra
     Jim Walker
       ops&scansafe.com
 31534
-  SyGroup GmbH
-    Tonnerre Lombard
-      tonnerre.lombard&sygroup.ch
+  Adfinis SyGroup AG (formerly "SyGroup GmbH")
+    Daniel Aubry
+      info&adfinis-sygroup.ch
 31535
   Parkeon
     Thierry Machicoane
@@ -153156,9 +153156,9 @@ Decentralization / Helenic Public Administra
     Simon J Xuereb
       sjxuereb&gmail.com
 38394
-  Teleyecla, S.L.
+  Interfibra Telecomunicaciones, S.L. (formerly 'Teleyecla, S.L.')
     Francisco José Bernal Fernández
-      dpto.sistemas&teleyecla.com
+      fj.bernal&interfibra.es
 38395
   Phillips Foods, Inc.
     Bradley H. Grant
@@ -170357,8 +170357,8 @@ Decentralization / Helenic Public Administra
       sales&acrored.com
 42694
   LoopPay, Inc.
-    William Pago
-      william.pago&looppay.com
+    Susan Doeit
+      susan.doeit&looppay.com
 42695
   Beijing QTS Networks Technologies Co., Ltd
     TerryChen
@@ -177360,7 +177360,7 @@ Decentralization / Helenic Public Administra
     Jordi Clement
       jordi.clement&iwelcome.com
 44445
-  Corrado Mulas Enterprise CA
+  Corrado Mulas Enterprise Root CA
     Corrado Mulas
       corradomulas&virgilio.it
 44446
@@ -182757,7 +182757,7 @@ Decentralization / Helenic Public Administra
       antipov&pk-kupchino.spb.ru
 45794
   Safe Creative
-    Jorge Guilló Pitarque
+    Jorge Guillo Pitarque
       development&safecreative.org
 45795
   Primo1D SA
@@ -182787,6 +182787,150 @@ Decentralization / Helenic Public Administra
   TARASOFT SRL
     PAOLO TARANTOLA
       info&tarasoft.eu
+45802
+  Ubee Interactive Corp.
+    Luke Liu
+      luke.liu&ubeeinteractive.com
+45803
+  netcruz inc.
+    Yong Soo Park 
+      yspark&netcruz.co.kr
+45804
+  ERICA
+    Michel Marchandise
+      webmaster&erica.fr
+45805
+  OCMW Temse
+    Leander Quintelier
+      ict&ocmwtemse.be
+45806
+  genealogie.com
+    Xiao Hui LOO
+      loo.xiaohui&genealogie.com
+45807
+  Starbucks Coffee Company
+    Greg Onstot
+      gonstot&starbucks.com
+45808
+  Global Tecnologia LTDA.
+    Zundir Buzzi
+      zundir&globaltecseg.com.br
+45809
+  Beijing Mipay Technology Co., Ltd.
+    junqi lin
+      linjunqi&xiaomi.com
+45810
+  Binary Rock
+    Dan McCormack
+      site-iana&binrock.net
+45811
+  Istvan Puzsar e.v.
+    Istvan Puzsar
+      snmp&puzsar.hu
+45812
+  ILoca Services, Inc.
+    Gus Caparell
+      gus&semitrailers.net
+45813
+  PI '97 Bt.
+    Ferik Mihály
+      femisi&upcmail.hu
+45814
+  Waukesha-Pearce Industries, Inc.
+    C Cheung
+      admin&wpi.com
+45815
+  Sourcewise
+    Network Engineer
+      networkengineer&sourcewise.co
+45816
+  Bruce R. Smith Limited
+    Erik Dupuis
+      edupuis&brsmith.com
+45817
+  Inacomp Consultores SA
+    Alexander Osorio
+      alexander.osorio&inacomp.com.ve
+45818
+  Passaic County Technical Institute
+    Roberto D. Rubino
+      rob&pcti.tec.nj.us
+45819
+  Sven Anders
+    Sven Anders
+      pen-oid&sven.anders.im
+45820
+   PROFIPRINT spol. s r.o.
+    David Makovský
+      makovsky&profiprint.cz
+45821
+  21st century Oncology, LLC-Gabriel Domenech MD
+    JUAN M RODAS
+      Juan.Rodas&21co.com
+45822
+  Les Ambassadeurs Club
+    Carl van Eijk
+      carlvaneijk&lesaclub.com
+45823
+  Orient Technologies LTD
+    Colin Leister
+      c.leister&orientdb.com
+45824
+  System One Noc & Development Solutions
+    David Batanero
+      dbatanero&systemonenoc.com
+45825
+  One-Click Softworks
+    David Mason
+      mason&pr-team.org
+45826
+  Singlewire Software, LLC
+    Jerry Steinhauer
+      iana&singlewire.com
+45827
+  Beijing JN TASS Technology Co.,Ltd.
+    yanfeng wang
+      wangyanfeng&tass.com.cn
+45828
+  Kanhan Technologies Limited
+    Chu Chi Hang
+      chihang.chu&kanhan.com
+45829
+  preis24.de GmbH
+    Nicolas Neumann
+      nicolas.neumann&preis24.de
+45830
+  Imtech Traffic & Infra UK Ltd
+    Steve Gray
+      steve.gray&imtech.uk.com
+45831
+  Argo Technologie SA
+    Denis Nuja
+      denis&argotech.io
+45832
+  I-ROSE d.o.o.
+    Janez A. Korun
+      office&i-rose.si
+45833
+  Hoffmann Foerdertechnik GmbH
+    Dmitry Sintschilin
+      dmitry.sintschilin&liftket.de
+45834
+  Tieto Finland Oy
+    Hannu Tirkkonen
+      hannu.tirkkonen&tieto.com
+45835
+  Tangara Tagentis Inc.
+    Steeve Stooke
+      steeve.stooke&tangaratagentis.com
+45836
+  Varonis System inc.
+    Hanni Barry
+      hbarry&varonis.com
+45837
+  Orage.io
+    Nicolas BAUDEZ
+      okhin&okhin.fr
 
 
 End of Document
