@@ -1076,8 +1076,11 @@ static int hf_dvbci_eit_evt_trigger = -1;
 static int hf_dvbci_opp_lang_code = -1;
 static int hf_dvbci_prof_name = -1;
 static int hf_dvbci_unattended = -1;
-static int hf_dvbci_opp_srv_type = -1;
+static int hf_dvbci_opp_svc_type_loop_len = -1;
+static int hf_dvbci_opp_svc_type = -1;
+static int hf_dvbci_dlv_cap_loop_len = -1;
 static int hf_dvbci_dlv_cap_byte = -1;
+static int hf_dvbci_app_cap_loop_len = -1;
 static int hf_dvbci_app_cap_bytes = -1;
 static int hf_dvbci_desc_num = -1;
 static int hf_dvbci_sig_strength = -1;
@@ -4030,20 +4033,18 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           proto_tree_add_item(tree, hf_dvbci_unattended,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
 
-          /* no filters for the loop lengths, one is 7bit, others are 8bit */
           cap_loop_len = tvb_get_guint8(tvb, offset) & 0x7F;
-          proto_tree_add_text(tree, tvb, offset, 1,
-                  "Service type loop length: %d", cap_loop_len);
+          proto_tree_add_item(tree, hf_dvbci_opp_svc_type_loop_len,
+                  tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           /* no need for error checking, we continue anyway */
           dissect_opp_cap_loop(cap_loop_len, "Service type loop",
-                  hf_dvbci_opp_srv_type, 1, tvb, offset, pinfo, tree);
+                  hf_dvbci_opp_svc_type, 1, tvb, offset, pinfo, tree);
           offset += cap_loop_len;
 
           cap_loop_len = tvb_get_guint8(tvb, offset);
-          proto_tree_add_text(tree, tvb, offset, 1,
-                  "Delivery system capabilities loop length: %d",
-                  cap_loop_len);
+          proto_tree_add_item(tree, hf_dvbci_dlv_cap_loop_len,
+                  tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           /* XXX - handle multi-byte delivery capabilities */
           dissect_opp_cap_loop(cap_loop_len,
@@ -4053,8 +4054,8 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           offset += cap_loop_len;
 
           cap_loop_len = tvb_get_guint8(tvb, offset);
-          proto_tree_add_text(tree, tvb, offset, 1,
-                  "Application capabilities loop length: %d", cap_loop_len);
+          proto_tree_add_item(tree, hf_dvbci_app_cap_loop_len,
+                  tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           dissect_opp_cap_loop(cap_loop_len,
                   "Application capabilities loop",
@@ -4073,11 +4074,9 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           sig_qual = tvb_get_guint8(tvb, offset);
-          proto_tree_add_item(tree, hf_dvbci_sig_qual,
+          pi = proto_tree_add_item(tree, hf_dvbci_sig_qual,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           if (sig_strength>100 || sig_qual>100) {
-              pi = proto_tree_add_text(tree, tvb, offset, 1,
-                      "Invalid value for signal strength / signal quality");
               expert_add_info(pinfo, pi, &ei_dvbci_sig_qual);
           }
           offset++;
@@ -6076,16 +6075,27 @@ proto_register_dvbci(void)
           { "Unattended flag", "dvb-ci.opp.unattended_flag",
             FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }
         },
-        { &hf_dvbci_opp_srv_type,
+        { &hf_dvbci_opp_svc_type_loop_len,
+          { "Service type loop length", "dvb-ci.opp.svc_type_loop_len",
+            FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }
+        },
+        { &hf_dvbci_opp_svc_type,
           { "Service type", "dvb-ci.opp.service_type", FT_UINT8,
               BASE_HEX|BASE_EXT_STRING, &mpeg_descr_service_type_vals_ext,
               0, NULL, HFILL }
+        },
+        { &hf_dvbci_dlv_cap_loop_len,
+          { "Delivery capability loop length", "dvb-ci.opp.dlv_cap_loop_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_dlv_cap_byte,
           { "Delivery capability byte", "dvb-ci.opp.dlv_cap_byte",
             FT_UINT8, BASE_HEX, VALS(dvbci_opp_dlv_cap), 0, NULL, HFILL }
         },
-
+        { &hf_dvbci_app_cap_loop_len,
+          { "Application capability loop length", "dvb-ci.opp.app_cap_loop_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         /* the CI+ spec is not particularly clear about this but an
          * application id in the capability loop must always be 2 bytes */
         { &hf_dvbci_app_cap_bytes,
