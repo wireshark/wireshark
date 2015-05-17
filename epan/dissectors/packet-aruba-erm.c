@@ -74,8 +74,8 @@ static const value_string aruba_erm_type_vals[] = {
     { TYPE_PCAP,            "pcap (type 0)" },
     { TYPE_PEEK,            "peek (type 1)" },
     { TYPE_AIRMAGNET,       "Airmagnet (type 2)" },
-    { TYPE_PCAPPLUSRADIO,   "pcap + radio (type 3)" },
-    { TYPE_PPI,             "ppi (type 4)" },
+    { TYPE_PCAPPLUSRADIO,   "pcap + radio header (type 3)" },
+    { TYPE_PPI,             "PPI (type 4)" },
     { 0, NULL }
 };
 void proto_register_aruba_erm(void);
@@ -239,10 +239,10 @@ proto_register_aruba_erm(void)
 
     static const enum_val_t aruba_erm_types[] = {
         { "pcap_type_0", "pcap (type 0)", TYPE_PCAP},
-        { "peek_type_1", "peek (type1)", TYPE_PEEK},
-        { "airmagnet_type_2", "airmagnet (type 2)", TYPE_AIRMAGNET},
-        { "pcapplusradio_type_3", "pcap+radio header (type 3)", TYPE_PCAPPLUSRADIO},
-        { "ppi_type_4", "ppi (type 4)", TYPE_PPI},
+        { "peek_type_1", "peek (type 1)", TYPE_PEEK},
+        { "airmagnet_type_2", "Airmagnet (type 2)", TYPE_AIRMAGNET},
+        { "pcapplusradio_type_3", "pcap + radio header (type 3)", TYPE_PCAPPLUSRADIO},
+        { "ppi_type_4", "PPI (type 4)", TYPE_PPI},
         { NULL, NULL, -1}
     };
 
