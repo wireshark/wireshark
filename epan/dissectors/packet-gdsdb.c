@@ -2,6 +2,9 @@
  * Routines for Firebird/Interbase dissection
  * Copyright 2007, Moshe van der Sterre <moshevds@gmail.com>
  *
+ * Firebird home: http://www.firebirdsql.org
+ * Source: http://sourceforge.net/projects/firebird/
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -53,14 +56,15 @@ static int hf_gdsdb_connect_pref_weight = -1;
 /* gdsdb_accept */
 static int hf_gdsdb_accept_version = -1;
 static int hf_gdsdb_accept_architecture = -1;
+static int hf_gdsdb_accept_proto_min_type = -1;
 /* gdsdb_request */
 static int hf_gdsdb_request_type = -1;
 static int hf_gdsdb_request_object = -1;
 static int hf_gdsdb_request_partner = -1;
 /* gdsdb_attach */
-static int hf_gdsdb_attach_database = -1;
-static int hf_gdsdb_attach_filename = -1;
-static int hf_gdsdb_attach_dpb = -1;
+static int hf_gdsdb_attach_database_object_id = -1;
+static int hf_gdsdb_attach_database_path = -1;
+static int hf_gdsdb_attach_database_param_buf = -1;
 /* gdsdb_compile */
 static int hf_gdsdb_compile_database = -1;
 static int hf_gdsdb_compile_blr = -1;
@@ -81,8 +85,14 @@ static int hf_gdsdb_send_messages = -1;
 /* gdsdb_response */
 static int hf_gdsdb_response_object = -1;
 static int hf_gdsdb_response_blobid = -1;
+static int hf_gdsdb_response_datasize = -1;
 static int hf_gdsdb_response_data = -1;
-static int hf_gdsdb_response_status = -1;
+/* gdsdb_status_vector */
+static int hf_gdsdb_status_vector_arg = -1;
+static int hf_gdsdb_status_vector_error_code = -1;
+static int hf_gdsdb_status_vector_number = -1;
+static int hf_gdsdb_status_vector_string = -1;
+static int hf_gdsdb_status_vector_sql_state = -1;
 /* gdsdb_transact */
 static int hf_gdsdb_transact_database = -1;
 static int hf_gdsdb_transact_transaction = -1;
@@ -104,17 +114,20 @@ static int hf_gdsdb_segment_segment = -1;
 /* gdsdb_seek_blob */
 static int hf_gdsdb_seekblob_blob = -1;
 static int hf_gdsdb_seekblob_mode = -1;
-/* gdsdb_reconnect */
-static int hf_gdsdb_reconnect_database = -1;
 #endif
+/* gdsdb_reconnect */
+static int hf_gdsdb_reconnect_handle = -1;
+static int hf_gdsdb_reconnect_database_size = -1;
+static int hf_gdsdb_reconnect_database = -1;
 /* gdsdb_info & gdsdb_service_start */
 static int hf_gdsdb_info_object = -1;
 static int hf_gdsdb_info_incarnation = -1;
 static int hf_gdsdb_info_items = -1;
+static int hf_gdsdb_info_recv_items = -1;
 static int hf_gdsdb_info_buffer_length = -1;
-#if 0
 /* gdsdb_release */
 static int hf_gdsdb_release_object = -1;
+#if 0
 /* gdsdb_prepare2 */
 static int hf_gdsdb_prepare2_transaction = -1;
 /* gdsdb_event & gdsdb_cancel_events */
@@ -134,11 +147,13 @@ static int hf_gdsdb_slice_sdl = -1;
 static int hf_gdsdb_slice_parameters = -1;
 /* gdsdb_slice_response */
 static int hf_gdsdb_sliceresponse_length = -1;
+#endif
 /* gdsdb_execute */
 static int hf_gdsdb_execute_statement = -1;
 static int hf_gdsdb_execute_transaction = -1;
 static int hf_gdsdb_execute_message_number = -1;
 static int hf_gdsdb_execute_messages = -1;
+#if 0
 /* gdsdb_execute2 */
 static int hf_gdsdb_execute_outblr = -1;
 static int hf_gdsdb_execute_outmsgnr = -1;
@@ -154,7 +169,6 @@ static int hf_gdsdb_prepare_transaction = -1;
 static int hf_gdsdb_prepare_statement = -1;
 static int hf_gdsdb_prepare_dialect = -1;
 static int hf_gdsdb_prepare_querystr = -1;
-static int hf_gdsdb_prepare_items = -1;
 static int hf_gdsdb_prepare_bufferlength = -1;
 #if 0
 /* gdsdb_fetch */
@@ -164,9 +178,11 @@ static int hf_gdsdb_fetch_messages = -1;
 /* gdsdb_fetch_response */
 static int hf_gdsdb_fetchresponse_status = -1;
 static int hf_gdsdb_fetchresponse_messages = -1;
+#endif
 /* gdsdb_free_statement */
 static int hf_gdsdb_free_statement = -1;
 static int hf_gdsdb_free_option = -1;
+#if 0
 /* gdsdb_insert */
 static int hf_gdsdb_insert_statement = -1;
 static int hf_gdsdb_insert_message_number = -1;
@@ -267,6 +283,11 @@ enum
 	op_service_info           = 84,
 	op_service_start          = 85,
 	op_rollback_retaining     = 86,
+	op_update_account_info    = 87,
+	op_authenticate_user      = 88,
+	op_partial                = 89,
+	op_trusted_auth           = 90,
+	op_cancel                 = 91,
 	op_max
 };
 
@@ -358,6 +379,11 @@ static const value_string gdsdb_opcode[] = {
 	{ op_service_info,           "Service info" },
 	{ op_service_start,          "Service start" },
 	{ op_rollback_retaining,     "Rollback retaining" },
+	{ op_update_account_info,    "update_account_info" },
+	{ op_authenticate_user,      "authenticate_user" },
+	{ op_partial,                "partial" },
+	{ op_trusted_auth,           "trusted_auth" },
+	{ op_cancel,                 "cancel" },
 	{ 0, NULL }
 };
 
@@ -404,448 +430,568 @@ static const value_string gdsdb_architectures[] = {
 	{ 0, NULL }
 };
 
-static int
-gdsdb_dummy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+enum
 {
-	/* Don't tell them we match */
-	return 0;
+	arg_end = 0,
+	arg_gds = 1,
+	arg_string = 2,
+	arg_cstring = 3,
+	arg_number = 4,
+	arg_interpreted = 5,
+	arg_vms = 6,
+	arg_unix = 7,
+	arg_domain = 8,
+	arg_dos = 9,
+	arg_mpexl = 10,
+	arg_mpexl_ipc = 11,
+	arg_next_mach = 15,
+	arg_netware = 16,
+	arg_win32 = 17,
+	arg_warning = 18,
+	arg_sql_state = 19
+};
+
+static const value_string gdsdb_arg_types[] = {
+	{  arg_end,  "end of argument list" },
+	{  arg_gds,  "generic DSRI" },
+	{  arg_string,  "string argument" },
+	{  arg_cstring,  "count & string argument" },
+	{  arg_number,  "numeric argument" },
+	{  arg_interpreted,  "interpreted status code" },
+	{  arg_vms,  "VAX/VMS status code" },
+	{  arg_unix,  "UNIX error code" },
+	{  arg_domain,  "Apollo/Domain error code" },
+	{  arg_dos,  "MSDOS/OS2 error code" },
+	{  arg_mpexl, "HP MPE/XL error code" },
+	{  arg_mpexl_ipc, "HP MPE/XL IPC error code" },
+	{  arg_next_mach, "NeXT/Mach error code" },
+	{  arg_netware, "NetWare error code" },
+	{  arg_win32, "Win32 error code" },
+	{  arg_warning, "warning argument" },
+	{  arg_sql_state, "SQLSTATE" },
+	{ 0, NULL }
+};
+
+static int dword_align(int length)
+{
+	return (length + (4-(length&3)));
+}
+
+static int add_uint_string(proto_tree *tree, int hf_string, tvbuff_t *tvb, int offset)
+{
+	proto_item* ti;
+	int length;
+
+	ti = proto_tree_add_item(tree, hf_string, tvb,
+						offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
+	length = dword_align(tvb_get_ntohl(tvb, offset))+4;
+	proto_item_set_len(ti, length);
+	return offset + length;
+}
+
+static int add_byte_array(proto_tree *tree, int hf_len, int hf_byte, tvbuff_t *tvb, int offset)
+{
+	proto_item* ti;
+	guint32 length;
+
+	proto_tree_add_item_ret_uint(tree, hf_len, tvb,
+						offset, 4, ENC_BIG_ENDIAN, &length);
+	offset += 4;
+	if (length > 0)
+	{
+		ti = proto_tree_add_item(tree, hf_byte, tvb,
+						offset, length, ENC_NA);
+		length = dword_align(length);
+		proto_item_set_len(ti, length);
+	}
+	return offset + length;
 }
 
 static int
-gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+gdsdb_dummy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_)
 {
-	int offset;
-	int length;
-	int count;
-	int i;
+	/* Ignore data */
+	return tvb_reported_length(tvb);
+}
+
+static int
+gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int count, file_size, total_length = 16;
+	int i, length = tvb_reported_length_remaining(tvb, offset);
 	proto_item *ti;
 	proto_tree *pref_tree;
 
-	if (tvb_length(tvb) < 16) {
-		return 0;
-	}
-	col_append_str(pinfo->cinfo, COL_INFO, ": ");
-	col_append_str(pinfo->cinfo, COL_INFO,
-			tvb_format_text(tvb, 20,
-				tvb_get_ntohl(tvb, 16)));
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_connect_operation, tvb,
+	/* Calculate if we need more data */
+	if (length < total_length)
+		return -1;
+
+	file_size = tvb_get_ntohl(tvb, offset+12);
+	total_length += 4+dword_align(file_size);
+	if (length < total_length+4)
+		return -1;
+
+	count = tvb_get_ntohl(tvb, offset+total_length-4);
+	total_length += (4+(count*20));
+	if (length < total_length)
+		return -1;
+
+	proto_tree_add_item(tree, hf_gdsdb_connect_operation, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_connect_version, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_connect_version, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_connect_client, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_connect_client, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_connect_filename, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 6;
-		proto_tree_add_item(tree, hf_gdsdb_connect_count, tvb,
+	offset += 4;
+	offset = add_uint_string(tree, hf_gdsdb_connect_filename, tvb, offset);
+
+	proto_tree_add_item(tree, hf_gdsdb_connect_count, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	offset = add_uint_string(tree, hf_gdsdb_connect_userid, tvb, offset);
+
+	for(i=0;i<count;i++){
+		ti = proto_tree_add_item(tree, hf_gdsdb_connect_pref, tvb, offset, 20, ENC_NA);
+		pref_tree = proto_item_add_subtree(ti, ett_gdsdb_connect_pref);
+
+		proto_tree_add_item(pref_tree, hf_gdsdb_connect_pref_version,
+						tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_connect_userid, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 5;
-		for(i=0;i<count;i++){
-			ti = proto_tree_add_item(tree, hf_gdsdb_connect_pref,
-						tvb, offset, 20, ENC_NA);
-			pref_tree = proto_item_add_subtree(ti,
-						 ett_gdsdb_connect_pref);
-			proto_tree_add_item(pref_tree,
-					hf_gdsdb_connect_pref_version,
+		proto_tree_add_item(pref_tree, hf_gdsdb_connect_pref_architecture,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(pref_tree,
-					hf_gdsdb_connect_pref_architecture,
+		offset += 4;
+		proto_tree_add_item(pref_tree, hf_gdsdb_connect_pref_mintype,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(pref_tree,
-					hf_gdsdb_connect_pref_mintype,
+		offset += 4;
+		proto_tree_add_item(pref_tree, hf_gdsdb_connect_pref_maxtype,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(pref_tree,
-					hf_gdsdb_connect_pref_maxtype,
+		offset += 4;
+		proto_tree_add_item(pref_tree, hf_gdsdb_connect_pref_weight,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(pref_tree,
-					hf_gdsdb_connect_pref_weight,
-						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-		}
+		offset += 4;
 	}
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 16) {
-		return 0;
-	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_accept_version, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_accept_architecture, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		/*offset += 4;*/
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
+	proto_tree_add_item(tree, hf_gdsdb_accept_version, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_accept_architecture, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_accept_proto_min_type, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
 }
 
 static int
-gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 20) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 16) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_request_type, tvb,
-						offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_request_object, tvb,
-						offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_request_partner, tvb,
-						offset, 8, ENC_BIG_ENDIAN);
- 	}
 
-	return tvb_length(tvb);
+	proto_tree_add_item(tree, hf_gdsdb_request_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gdsdb_request_object, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gdsdb_request_partner, tvb, offset, 8, ENC_BIG_ENDIAN);
+	offset += 8;
+
+	return offset;
 }
 
 static int
-gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-	int length;
+	int total_length = 12;
+	int size, length = tvb_reported_length_remaining(tvb, offset);
 
-	if (tvb_length(tvb) < 20) {
-		return 0;
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
 
-	col_append_str(pinfo->cinfo, COL_INFO, ": ");
-	col_append_str(pinfo->cinfo, COL_INFO,
-			tvb_format_text(tvb, 12,
-				tvb_get_ntohl(tvb, 8)));
+	size = tvb_get_ntohl(tvb, offset+4);
+	total_length += dword_align(size);
+	if (length < total_length)
+		return -1;
 
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_attach_database, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_attach_filename, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 6;
-		proto_tree_add_uint_format_value(tree,
-				hf_gdsdb_attach_dpb, tvb, offset, 4 + length,
-					length, "%i data bytes", length);
-	}
+	size = tvb_get_ntohl(tvb, offset+total_length-4);
+	total_length += dword_align(size);
+	if (length < total_length)
+		return -1;
 
-	return tvb_length(tvb);
+	proto_tree_add_item(tree, hf_gdsdb_attach_database_object_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	offset = add_uint_string(tree, hf_gdsdb_attach_database_path, tvb, offset);
+	offset = add_uint_string(tree, hf_gdsdb_attach_database_param_buf, tvb, offset);
+
+	return offset;
 }
 
 static int
-gdsdb_compile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_compile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
+	int total_length = 8;
+	int size, length = tvb_reported_length_remaining(tvb, offset);
 
-	if (tvb_length(tvb) < 20) {
-		return 0;
-	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_compile_database, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_compile_blr, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
+	size = tvb_get_ntohl(tvb, offset+4);
+	total_length += dword_align(size);
+	if (length < total_length)
+		return -1;
+
+	proto_tree_add_item(tree, hf_gdsdb_compile_database, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	offset = add_uint_string(tree, hf_gdsdb_compile_blr, tvb, offset);
+
+	return offset;
 }
 
 static int
-gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 20) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 20) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_receive_request, tvb,
+
+	proto_tree_add_item(tree, hf_gdsdb_receive_request, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_receive_incarnation, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_receive_incarnation, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_receive_transaction, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_receive_transaction, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_receive_msgnr, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_receive_msgnr, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_receive_messages, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_receive_messages, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		while(tvb_bytes_exist(tvb, offset, 12)) {
-			proto_tree_add_item(tree, hf_gdsdb_receive_direction,
+	offset += 4;
+	while (tvb_reported_length_remaining(tvb, offset) >= 12) {
+		proto_tree_add_item(tree, hf_gdsdb_receive_direction,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(tree, hf_gdsdb_receive_offset,
+		offset += 4;
+		proto_tree_add_item(tree, hf_gdsdb_receive_offset,
 						 tvb, offset, 8, ENC_BIG_ENDIAN);
-			offset += 8;
+		offset += 8;
+	}
+
+	return offset;
+}
+
+static int
+gdsdb_send(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 20) {
+		return -1;
+	}
+
+	proto_tree_add_item(tree, hf_gdsdb_send_request, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_send_incarnation, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_send_transaction, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_send_msgnr, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_send_messages, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+gdsdb_status_vector(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	guint32 arg;
+	while (tvb_reported_length_remaining(tvb, offset) >= 4)
+	{
+		proto_tree_add_item_ret_uint(tree, hf_gdsdb_status_vector_arg, tvb,
+							offset, 4, ENC_BIG_ENDIAN, &arg);
+		offset += 4;
+		if (arg == 0)
+			break;
+
+		switch(arg)
+		{
+		case arg_gds:
+		default:
+			proto_tree_add_item(tree, hf_gdsdb_status_vector_error_code, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+		case arg_number:
+			proto_tree_add_item(tree, hf_gdsdb_status_vector_number, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+		case arg_string:
+		case arg_interpreted:
+			offset = add_uint_string(tree, hf_gdsdb_status_vector_string, tvb, offset);
+			break;
+		case arg_sql_state:
+			offset = add_uint_string(tree, hf_gdsdb_status_vector_sql_state, tvb, offset);
+			break;
 		}
 	}
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_send(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
+	int total_length = 16;
+	int length = tvb_reported_length_remaining(tvb, offset);
+	guint32 size_length;
 
-	if (tvb_length(tvb) < 20) {
-		return 0;
-	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_send_request, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_send_incarnation, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_send_transaction, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_send_msgnr, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_send_messages, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
-}
-
-static int
-gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
-{
-	int offset;
-	int length;
-
-	if (tvb_length(tvb) < 32) {
-		return 0;
+	total_length += dword_align(tvb_get_ntohl(tvb, offset+12));
+	if (length < total_length) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_response_object, tvb,
+
+	proto_tree_add_item(tree, hf_gdsdb_response_object, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_response_blobid, tvb,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_response_blobid, tvb,
 							offset, 8, ENC_BIG_ENDIAN);
-		offset += 8;
-		proto_tree_add_item(tree, hf_gdsdb_response_data, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 4;
-		proto_tree_add_item(tree, hf_gdsdb_response_status, tvb,
-				offset, tvb_length(tvb) - offset, ENC_NA);
-	}
+	offset += 8;
+	proto_tree_add_item_ret_uint(tree, hf_gdsdb_response_datasize, tvb,
+							offset, 4, ENC_BIG_ENDIAN, &size_length);
+	offset += 4;
+	if (size_length > 0)
+		proto_tree_add_item(tree, hf_gdsdb_response_data, tvb, offset, size_length, ENC_NA);
+	offset += size_length;
 
-	return tvb_length(tvb);
-
+	return gdsdb_status_vector(tree, tvb, offset);
 }
 
 static int
-gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 20) {
-		return 0;
-	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_transact_database, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_transact_transaction, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
+	proto_tree_add_item(tree, hf_gdsdb_transact_database, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_transact_transaction, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
 }
 
 static int
-gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 8) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 4) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_transactresponse_messages,
+
+	proto_tree_add_item(tree, hf_gdsdb_transactresponse_messages,
 						tvb, offset, 4, ENC_BIG_ENDIAN);
-	}
+	offset += 4;
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_open_blob2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_open_blob2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-	int length;
+	int total_length = 12;
+	int length = tvb_reported_length_remaining(tvb, offset);
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
-		return 0;
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_openblob2_bpb, tvb, offset,
-								4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 6;
-		proto_tree_add_item(tree, hf_gdsdb_openblob_transaction, tvb,
+
+	total_length += dword_align(tvb_get_ntohl(tvb, offset));
+	if (length < total_length) {
+		return -1;
+	}
+
+	offset = add_uint_string(tree, hf_gdsdb_openblob2_bpb, tvb, offset);
+
+	proto_tree_add_item(tree, hf_gdsdb_openblob_transaction, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_openblob_id, tvb, offset,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_openblob_id, tvb, offset,
 								8, ENC_BIG_ENDIAN);
-	}
+	offset += 8;
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_open_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_open_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-
-	if (tvb_length(tvb) < 16) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8) {
+		return -1;
 	}
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_openblob_transaction, tvb,
+
+	proto_tree_add_item(tree, hf_gdsdb_openblob_transaction, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_openblob_id, tvb, offset,
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_openblob_id, tvb, offset,
 								8, ENC_BIG_ENDIAN);
-	}
+	offset += 8;
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12)
+		return -1;
 
-	if (tvb_length(tvb) < 16) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_segment_blob */
 /* hf_gdsdb_segment_length */
-/* hf_gdsdb_segment_segment */
+/* add_uint_string(hf_gdsdb_segment_segment )*/
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_seek_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_seek_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12)
+		return -1;
 
-	if (tvb_length(tvb) < 16) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_seekblob_blob */
 /* hf_gdsdb_seekblob_mode */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_reconnect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_reconnect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	int total_length = 8;
+	int length = tvb_reported_length_remaining(tvb, offset);
 
-	if (tvb_length(tvb) < 12) {
-		return 0;
-	}
-	if (tree) {
-/* hf_gdsdb_reconnect_database */
-	}
-
-	return tvb_length(tvb);
-}
-
-static int
-gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
-{
-	int   offset;
-	int   length;
-	guint opcode;
-
-	if (tvb_length(tvb) < 20) {
-		return 0;
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
 
-	opcode = tvb_get_ntohl(tvb, 0);
+	total_length += dword_align(tvb_get_ntohl(tvb, offset+4));
+	if (length < total_length) {
+		return -1;
+	}
 
-	if (tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_info_object, tvb, offset,
+	proto_tree_add_item(tree, hf_gdsdb_reconnect_handle, tvb, offset,
 								4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_info_incarnation, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		if(opcode == op_service_info) {
-			proto_tree_add_item(tree, hf_gdsdb_info_items, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-			length = tvb_get_ntohl(tvb, offset);
-			offset += length + 6;
-		}
-		proto_tree_add_item(tree, hf_gdsdb_info_buffer_length, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-	}
+	offset += 4;
+	offset = add_byte_array(tree, hf_gdsdb_reconnect_database_size, hf_gdsdb_reconnect_database, tvb, offset);
 
-	return tvb_length(tvb);
+	return offset;
 }
 
 static int
-gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	guint opcode;
+	int total_length = 16;
+	int length = tvb_reported_length_remaining(tvb, offset);
 
-	if (tvb_length(tvb) < 16) {
-		return 0;
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
+
+	opcode = tvb_get_ntohl(tvb, offset-4);
+
+	total_length += dword_align(tvb_get_ntohl(tvb, offset+8));
+	if (length < total_length) {
+		return -1;
+	}
+
+	if(opcode == op_service_info) {
+		total_length += dword_align(tvb_get_ntohl(tvb, offset+total_length-8));
+		if (length < total_length) {
+			return -1;
+		}
+	}
+
+	proto_tree_add_item(tree, hf_gdsdb_info_object, tvb, offset,
+								4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_info_incarnation, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	offset = add_uint_string(tree, hf_gdsdb_info_items, tvb, offset);
+	if(opcode == op_service_info) {
+		offset = add_uint_string(tree, hf_gdsdb_info_recv_items, tvb, offset);
+	}
+
+	proto_tree_add_item(tree, hf_gdsdb_info_buffer_length, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 16)
+		return -1;
+
 	if (tree) {
 /* hf_gdsdb_info_object */
 /* hf_gdsdb_info_incarnation */
@@ -853,150 +999,152 @@ gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_info_buffer_length */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_release(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_release(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 4)
+		return -1;
 
-	if (tvb_length(tvb) < 8) {
-		return 0;
-	}
-	if (tree) {
-/* hf_gdsdb_release_object */
-	}
+	proto_tree_add_item(tree, hf_gdsdb_release_object, tvb, offset,
+								4, ENC_BIG_ENDIAN);
+	/* offset += 4; */
 
-	return tvb_length(tvb);
+	/* Unsure dissection is complete, so don't allow other commands to
+		follow by returning offset*/
+	return tvb_reported_length(tvb);
 }
 
 #if 0
 static int
-gdsdb_prepare2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_prepare2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8)
+		return -1;
 
-	if (tvb_length(tvb) < 12) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_prepare2_transaction */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 #endif
 
 static int
-gdsdb_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	 /* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 20)
+		return -1;
 
-	if (tvb_length(tvb) < 24) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_event_database */
-/* hf_gdsdb_event_items */
+/* add_uint_string(hf_gdsdb_event_items) */
 /* hf_gdsdb_event_ast */
 /* hf_gdsdb_event_arg */
 /* hf_gdsdb_event_rid */
 	}
-	return tvb_length(tvb);
+
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_cancel_events(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_cancel_events(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8)
+		return -1;
 
-	if (tvb_length(tvb) < 12) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_event_database */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_ddl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_ddl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12)
+		return -1;
 
-	if (tvb_length(tvb) < 16) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_ddl_database */
 /* hf_gdsdb_ddl_transaction */
-/* hf_gdsdb_ddl_blr */
+/* add_uint_string(hf_gdsdb_ddl_blr) */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_slice(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_slice(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 20)
+		return -1;
 
-	if (tvb_length(tvb) < 24) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_slice_transaction */
 /* hf_gdsdb_slice_id */
-/* hf_gdsdb_slice_sdl */
+/* add_uint_string(hf_gdsdb_slice_sdl) */
 /* hf_gdsdb_slice_parameters */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_slice_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_slice_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 4)
+		return -1;
 
-	if (tvb_length(tvb) < 8) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_sliceresponse_length */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_execute(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_execute(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 16)
+		return -1;
 
-	if (tvb_length(tvb) < 12) {
-		return 0;
-	}
-	if (tree) {
-/* hf_gdsdb_execute_statement */
-/* hf_gdsdb_execute_transaction */
-/* hf_gdsdb_execute_message_number */
-/* hf_gdsdb_execute_messages */
-	}
+	proto_tree_add_item(tree, hf_gdsdb_execute_statement, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_execute_transaction, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_execute_message_number, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_execute_messages, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	/* offset += 4; */
 
-	return tvb_length(tvb);
+	/* Unsure dissection is complete, so don't allow other commands to
+		follow by returning offset*/
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 40)
+		return -1;
 
-	if (tvb_length(tvb) < 44) {
-		return 0;
-	}
 	if (tree) {
 /* hf_gdsdb_prepare2_blr */
 /* hf_gdsdb_prepare2_number */
@@ -1005,147 +1153,144 @@ gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_prepare2_outmsgnr */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	int offset;
-	int length;
+	int total_length = 20;
+	int length = tvb_reported_length_remaining(tvb, offset);
 
-	if (tvb_length(tvb) < 32) {
-		return 0;
-	}
-	col_append_str(pinfo->cinfo, COL_INFO, ": ");
-	col_append_str(pinfo->cinfo, COL_INFO,
-			tvb_format_text(tvb, 20,
-				tvb_get_ntohl(tvb, 16)));
-
-	if(tree) {
-		offset = 4;
-		proto_tree_add_item(tree, hf_gdsdb_prepare_transaction, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_prepare_statement, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_prepare_dialect, tvb,
-							offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_gdsdb_prepare_querystr, tvb,
-							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
-		length = tvb_get_ntohl(tvb, offset);
-		offset += length + 6;
-		proto_tree_add_uint_format_value(tree,
-			hf_gdsdb_prepare_items, tvb, offset, 4 + length,
-					length, "%i data bytes", length);
-		offset += tvb_get_ntohl(tvb, offset) + 6;
-		proto_tree_add_item(tree, hf_gdsdb_prepare_bufferlength, tvb,
-							offset, 2, ENC_BIG_ENDIAN);
+	/* Calculate if we need more data */
+	if (length < total_length) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
+	total_length += dword_align(tvb_get_ntohl(tvb, offset+12));
+	if (length < total_length) {
+		return -1;
+	}
+
+	proto_tree_add_item(tree, hf_gdsdb_prepare_transaction, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_prepare_statement, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_prepare_dialect, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	offset = add_uint_string(tree, hf_gdsdb_prepare_querystr, tvb, offset);
+
+	proto_tree_add_item(tree, hf_gdsdb_prepare_bufferlength, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
 }
 
 static int
-gdsdb_fetch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_fetch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 16) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12) {
+		return -1;
 	}
+
 	if (tree) {
 /* hf_gdsdb_fetch_statement */
 /* hf_gdsdb_fetch_message_number */
 /* hf_gdsdb_fetch_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 12) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8) {
+		return -1;
 	}
+
 	if (tree) {
 /* hf_gdsdb_fetchresponse_status */
 /* hf_gdsdb_fetchresponse_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_free_statement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_free_statement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 12) {
-		return 0;
-	}
-	if (tree) {
-/* hf_gdsdb_free_statement */
-/* hf_gdsdb_free_option */
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 8) {
+		return -1;
 	}
 
-	return tvb_length(tvb);
+	proto_tree_add_item(tree, hf_gdsdb_free_statement, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_free_option, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
 }
 
 static int
-gdsdb_insert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_insert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 16) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12) {
+		return -1;
 	}
+
 	if (tree) {
 /* hf_gdsdb_insert_statement */
 /* hf_gdsdb_insert_message_number */
 /* hf_gdsdb_insert_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_cursor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_cursor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 16) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 12) {
+		return -1;
 	}
+
 	if (tree) {
 /* hf_gdsdb_cursor_statement */
 /* hf_gdsdb_cursor_type */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
-gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	/* int offset; */
-
-	if (tvb_length(tvb) < 8) {
-		return 0;
+	/* Calculate if we need more data */
+	if (tvb_reported_length_remaining(tvb, offset) < 4) {
+		return -1;
 	}
+
 	if (tree) {
 /* hf_gdsdb_sqlresponse_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
-static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) = {
+static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
 	gdsdb_dummy,             /* op_void */
 	gdsdb_connect,           /* op_connect */
 	gdsdb_dummy,             /* op_exit */
@@ -1232,7 +1377,12 @@ static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	gdsdb_release,           /* op_service_detach */
 	gdsdb_info,              /* op_service_info */
 	gdsdb_service_start,     /* op_service_start */
-	gdsdb_release            /* op_rollback_retaining */
+	gdsdb_release,           /* op_rollback_retaining */
+	gdsdb_dummy,             /* op_update_account_info */
+	gdsdb_dummy,             /* op_authenticate_user */
+	gdsdb_dummy,             /* op_partial */
+	gdsdb_dummy,             /* op_trusted_auth */
+	gdsdb_dummy              /* op_cancel */
 };
 
 static int
@@ -1241,35 +1391,44 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	proto_item  *ti;
 	proto_tree  *gdsdb_tree;
 	guint        opcode;
-	packet_info  nopi;
+	int          offset = 0;
 
-	gdsdb_tree = NULL; /* So the opcode functions can check on if(tree) */
-	nopi.cinfo = NULL;
-
-	if (tvb_length(tvb) < 4)
+	if (tvb_reported_length(tvb) < 4)
 		return 0;
 
-	opcode = tvb_get_ntohl(tvb, 0);
+	/* Ensure at least the first opcode is valid */
+	opcode = tvb_get_ntohl(tvb, offset);
 	if(opcode >= op_max)
-		return 0;
-	if(!gdsdb_handle_opcode[opcode](tvb, &nopi, NULL))
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDS DB");
+	col_clear(pinfo->cinfo, COL_INFO);
 
-	col_add_str(pinfo->cinfo, COL_INFO,
+	while (tvb_reported_length_remaining(tvb, offset) >= 4)
+	{
+		opcode = tvb_get_ntohl(tvb, offset);
+		if(opcode >= op_max)
+			return 0;
+
+		col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
 				val_to_str(opcode, gdsdb_opcode, "Unknown opcode %u"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, 0, -1,
-								   ENC_NA);
+		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, offset, -1, ENC_NA);
 		gdsdb_tree = proto_item_add_subtree(ti, ett_gdsdb);
 		proto_tree_add_item(gdsdb_tree, hf_gdsdb_opcode, tvb,
-							0, 4, ENC_BIG_ENDIAN);
+								offset, 4, ENC_BIG_ENDIAN);
+
+		/* opcode < op_max */
+		offset = gdsdb_handle_opcode[opcode](tvb, pinfo, gdsdb_tree, offset+4);
+		if (offset < 0)
+		{
+			/* But at this moment we don't know how much we will need */
+			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+			return -1; /* need more data */
+		}
 	}
 
-	/* opcode < op_max */
-	return gdsdb_handle_opcode[opcode](tvb, pinfo, gdsdb_tree);
+	return offset;
 }
 
 void
@@ -1320,7 +1479,7 @@ proto_register_gdsdb(void)
 		},
 		{ &hf_gdsdb_connect_pref_version,
 			{ "Version", "gdsdb.connect.pref.version",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
+			FT_INT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_connect_pref_architecture,
@@ -1354,6 +1513,11 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, VALS(gdsdb_architectures), 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_gdsdb_accept_proto_min_type,
+			{ "Protocol Minimum Type", "gdsdb.accept.proto_min_type",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
 		/* gdsdb_request */
 		{ &hf_gdsdb_request_type,
 			{ "Type", "gdsdb.connect.type",
@@ -1371,19 +1535,19 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		/* gdsdb_attach */
-		{ &hf_gdsdb_attach_database,
-			{ "Database", "gdsdb.attach.database",
+		{ &hf_gdsdb_attach_database_object_id,
+			{ "Database ObjectID", "gdsdb.attach.database_object_id",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_gdsdb_attach_filename,
-			{ "Filename", "gdsdb.attach.filename",
+		{ &hf_gdsdb_attach_database_path,
+			{ "Database Path", "gdsdb.attach.database_path",
 			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_gdsdb_attach_dpb,
-			{ "Database parameter block", "gdsdb.attach.dpblength",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ &hf_gdsdb_attach_database_param_buf,
+			{ "Database Parameter Buffers", "gdsdb.attach.database_param_buf",
+			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		/* gdsdb_compile */
@@ -1470,14 +1634,40 @@ proto_register_gdsdb(void)
 			FT_UINT64, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_gdsdb_response_datasize,
+			{ "Data size", "gdsdb.response.datasize",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_gdsdb_response_data,
 			{ "Data", "gdsdb.response.data",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		/* gdsdb_status_vector */
+		{ &hf_gdsdb_status_vector_arg,
+			{ "Argument", "gdsdb.status_vector.arg",
+			FT_UINT32, BASE_DEC, VALS(gdsdb_arg_types), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_gdsdb_status_vector_error_code,
+			{ "Error code", "gdsdb.status_vector.error_code",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_gdsdb_status_vector_number,
+			{ "Number", "gdsdb.status_vector.number",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_gdsdb_status_vector_string,
+			{ "String", "gdsdb.status_vector.string",
 			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_gdsdb_response_status,
-			{ "Status vector", "gdsdb.response.status",
-			FT_NONE, BASE_NONE, NULL, 0x0,
+		{ &hf_gdsdb_status_vector_sql_state,
+			{ "SQL State", "gdsdb.status_vector.sql_state",
+			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		/* gdsdb_transact */
@@ -1549,13 +1739,23 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_reconnect */
-		{ &hf_gdsdb_reconnect_database,
-			{ "Database", "gdsdb.reconnect.database",
+		{ &hf_gdsdb_reconnect_handle,
+			{ "Handle", "gdsdb.reconnect.handle",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-#endif
+		{ &hf_gdsdb_reconnect_database_size,
+			{ "Database size", "gdsdb.reconnect.database_size",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_gdsdb_reconnect_database,
+			{ "Database", "gdsdb.reconnect.database",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 		/* gdsdb_info & gdsdb_service_start */
 		{ &hf_gdsdb_info_object,
 			{ "Object", "gdsdb.info.object",
@@ -1572,18 +1772,23 @@ proto_register_gdsdb(void)
 			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_gdsdb_info_recv_items,
+			{ "Items", "gdsdb.info.recv_items",
+			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_gdsdb_info_buffer_length,
 			{ "Buffer length", "gdsdb.info.bufferlength",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-#if 0
 		/* gdsdb_release */
 		{ &hf_gdsdb_release_object,
 			{ "Object", "gdsdb.release.object",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_prepare2 */
 		{ &hf_gdsdb_prepare2_transaction,
 			{ "Transaction", "gdsdb.prepare2.transaction",
@@ -1659,6 +1864,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_execute */
 		{ &hf_gdsdb_execute_statement,
 			{ "Statement", "gdsdb.execute.statement",
@@ -1680,6 +1886,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_execute2 */
 		{ &hf_gdsdb_execute_outblr,
 			{ "Output BLR", "gdsdb.execute.outblr",
@@ -1739,11 +1946,6 @@ proto_register_gdsdb(void)
 			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_gdsdb_prepare_items,
-			{ "Prepare, Information items", "gdsdb.prepare.items",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }
-		},
 		{ &hf_gdsdb_prepare_bufferlength,
 			{ "Prepare, Bufferlength", "gdsdb.prepare.bufferlen",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1777,6 +1979,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_free_statement */
 		{ &hf_gdsdb_free_statement,
 			{ "Statement", "gdsdb.fetchresponse.statement",
@@ -1788,6 +1991,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_insert */
 		{ &hf_gdsdb_insert_statement,
 			{ "Statement", "gdsdb.insert.statement",
