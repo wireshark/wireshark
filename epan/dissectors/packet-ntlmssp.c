@@ -981,11 +981,10 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
   *end = blob_offset + blob_length;
 
   if (result != NULL) {
-    result->length = blob_length;
     if (blob_length < MAX_BLOB_SIZE)
     {
-      result->contents = (guint8 *)wmem_alloc(wmem_file_scope(), blob_length);
-      tvb_memcpy(tvb, result->contents, blob_offset, blob_length);
+      result->length = blob_length;
+      result->contents = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, blob_offset, blob_length);
       if (blob_hf == hf_ntlmssp_auth_lmresponse &&
           !(tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN)))
       {
@@ -1644,8 +1643,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
                                 &conv_ntlmssp_info->ntlm_response);
-  if (conv_ntlmssp_info != NULL && conv_ntlmssp_info->ntlm_response.length > 24) {
-    memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->ntlm_response.contents+32, 8);
+  if (conv_ntlmssp_info != NULL && conv_ntlmssp_info->ntlm_response.length >= 32) {
+    memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->ntlm_response.contents+24, 8);
   }
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
