@@ -26,8 +26,11 @@
  */
 
 /*
- * Format:
- *  Use the Header of Record (Packet) Header
+ * Formats:
+ *
+ * Pcap (type 0):
+ *
+ * Payload contains a pcap record header:
  *
  * typedef struct pcaprec_hdr_s {
  *       guint32 ts_sec;          timestamp seconds
@@ -36,23 +39,34 @@
  *       guint32 orig_len;        actual length of packet
  * } pcaprec_hdr_t;
  *
- * Following with 802.11 header
- */
-
-/*
- * Format:
- *  The ERM Radio-Format has the above header, plus more, like this:
+ * followed by the packet data, starting with an 802.11 header.
  *
- *  struct radio_pcap_hdr {
- *   struct timeval ts;
- *   __u32  capture_length;
- *   __u32  frame_length;
+ * Peek (type 1):
+ *
+ * Payload contains a "peek remote" packet, as supported by
+ * EtherPeek/AiroPeek/OmniPeek.
+ *
+ * Airmagnet (type 2):
+ *
+ * Unknown payload format.
+ *
+ * Pcap + radio header (type 3):
+ *
+ * Payload contains a pcap record header, as per the above, followed
+ * by a header with radio information:
+ *
+ *  struct radio_hdr {
  *   __u16  rate_per_half_mhz;
  *   __u8   channel;
  *   __u8   signal_percent;
  *  } __attribute__ ((packed));
  *
- * Following with 802.11 header
+ * followed by the packet data, starting with an 802.11 header.
+ *
+ * PPI (type 4):
+ *
+ * Payload contains a PPI header followed by the packet data, starting
+ * with an 802.11 header.
  */
 
 #include "config.h"
@@ -62,7 +76,7 @@
 #include <epan/prefs.h>
 
 #define PROTO_SHORT_NAME "ARUBA_ERM"
-#define PROTO_LONG_NAME  "ARUBA encapsulated remote mirroring"
+#define PROTO_LONG_NAME  "Aruba Networks encapsulated remote mirroring"
 
 #define TYPE_PCAP 0
 #define TYPE_PEEK 1
@@ -257,7 +271,7 @@ proto_register_aruba_erm(void)
     aruba_erm_module = prefs_register_protocol(proto_aruba_erm, proto_reg_handoff_aruba_erm);
 
     prefs_register_range_preference(aruba_erm_module, "udp.ports", "ARUBA_ERM UDP Port numbers",
-                                    "Set the UDP port numbers (typically the range 5555 to 5560) used for ARUBA"
+                                    "Set the UDP port numbers (typically the range 5555 to 5560) used for Aruba Networks"
                                     " encapsulated remote mirroring frames;\n"
                                     "0 (default) means that the ARUBA_ERM dissector is not active\n",
                                     &global_aruba_erm_port_range, MAX_UDP_PORT);
