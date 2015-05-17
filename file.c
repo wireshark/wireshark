@@ -3122,7 +3122,7 @@ match_subtree_text(proto_node *node, gpointer data)
   for (i = 0; i < label_len; i++) {
     c_char = label_ptr[i];
     if (cf->case_type)
-      c_char = toupper(c_char);
+      c_char = g_ascii_toupper(c_char);
     if (c_char == string[c_match]) {
       c_match++;
       if (c_match == string_len) {
@@ -3187,7 +3187,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
       for (i = 0; i < info_column_len; i++) {
         c_char = info_column[i];
         if (cf->case_type)
-          c_char = toupper(c_char);
+          c_char = g_ascii_toupper(c_char);
         if (c_char == string[c_match]) {
           c_match++;
           if (c_match == string_len) {
@@ -3277,7 +3277,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
   while (i < buf_len) {
     c_char = pd[i];
     if (cf->case_type)
-      c_char = toupper(c_char);
+      c_char = g_ascii_toupper(c_char);
     if (c_char != '\0') {
       if (c_char == ascii_text[c_match]) {
         c_match += 1;
@@ -3325,7 +3325,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
   while (i < buf_len) {
     c_char = pd[i];
     if (cf->case_type)
-      c_char = toupper(c_char);
+      c_char = g_ascii_toupper(c_char);
     if (c_char == ascii_text[c_match]) {
       c_match += 1;
       if (c_match == textlen) {
@@ -3372,7 +3372,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
   while (i < buf_len) {
     c_char = pd[i];
     if (cf->case_type)
-      c_char = toupper(c_char);
+      c_char = g_ascii_toupper(c_char);
     if (c_char == ascii_text[c_match]) {
       c_match += 1;
       if (c_match == textlen) {

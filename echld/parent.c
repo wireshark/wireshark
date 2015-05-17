@@ -91,7 +91,7 @@ static void parent_dbg(int level, const char* fmt, ...) {
 }
 
 #define PARENT_DBG(attrs) parent_dbg attrs
-#define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) do {  long st = echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL); PARENT_DBG((1,"SEND type='%s' chld_id=%d reqh_id=%d err_msg='%s'",TY(TYPE),CHILDNUM,R_ID, ( st >= 8 ? "ok" : ((st<0)?strerror(errno):"?") )  )); } while(0)
+#define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) do {  long st = echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL); PARENT_DBG((1,"SEND type='%s' chld_id=%d reqh_id=%d err_msg='%s'",TY(TYPE),CHILDNUM,R_ID, ( st >= 8 ? "ok" : ((st<0)?g_strerror(errno):"?") )  )); } while(0)
 
 #else
 #define PARENT_DBG(attrs)
@@ -128,18 +128,22 @@ static void parent_fatal(int exit_code, const char* fmt, ...) {
 }
 
 static void echld_cleanup(void) {
-	// int i;
+#if 0
+	int i;
+#endif
 
 	PARENT_DBG((4,"echld_cleanup starting"));
 
-	// for (i=0;i<ECHLD_MAX_CHILDREN;i++) {
-	// 	if ( parent.children[i].handlers ) g_array_free(parent.children[i].handlers,TRUE);
-	// 	if ( parent.children[i].reqs ) g_array_free(parent.children[i].reqs,TRUE);
-	// };
+#if 0
+	for (i=0;i<ECHLD_MAX_CHILDREN;i++) {
+		if ( parent.children[i].handlers ) g_array_free(parent.children[i].handlers,TRUE);
+		if ( parent.children[i].reqs ) g_array_free(parent.children[i].reqs,TRUE);
+	};
 
-	// g_free(parent.children);
+	g_free(parent.children);
 
-	// g_byte_array_free(parent.snd,TRUE);
+	g_byte_array_free(parent.snd,TRUE);
+#endif
 
 	PARENT_DBG((3,"echld_cleanup done"));
 
@@ -240,7 +244,7 @@ void echld_initialize(echld_init_t* init) {
 		pid = fork();
 
 		if ( pid < 0 ) {
-			PARENT_FATAL((CANNOT_FORK,"Failed to fork() reason='%s'",strerror(errno)));
+			PARENT_FATAL((CANNOT_FORK,"Failed to fork() reason='%s'",g_strerror(errno)));
 		} else if ( pid == 0) {
 #ifdef PARENT_THREADS
 			reader_realloc_buf =  child_realloc_buff;
@@ -285,8 +289,10 @@ void echld_initialize(echld_init_t* init) {
 			parent.children[0].state = IDLE;
 
 			signal(SIGCHLD,parent_reaper);
-			//close(to_disp[0]);
-			//close(from_disp[1]);
+#if 0
+			close(to_disp[0]);
+			close(from_disp[1]);
+#endif
 			if (init->dispatcher_hello_cb) echld_msgh(0, ECHLD_HELLO, hello_cb, init);
 
 			PARENT_DBG((3,"Ready"));

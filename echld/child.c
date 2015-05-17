@@ -25,7 +25,6 @@
 
 
 #include "echld-int.h"
-// echld_
 
 typedef struct _child {
 	child_state_t state;
@@ -48,13 +47,15 @@ typedef struct _child {
 	child_encoder_t* enc;
 	child_decoder_t* dec;
 
-	// epan stuff
+	/* epan stuff */
 	char* cf_name;
 	char* cfilter;
 	char* dfilter;
 
 
-//	capture_file cfile;
+#if 0
+	capture_file cfile;
+#endif
 	dfilter_t* df;
 
 } echld_child_t;
@@ -117,13 +118,13 @@ static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 static long dbg_resp(GByteArray* em, echld_msg_type_t t) {
 	long st = echld_write_frame(child.fds.pipe_to_parent, em, child.chld_id, t, child.reqh_id, NULL);
 	child_debug(1, "SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",
-		child.fds.pipe_to_parent, child.chld_id, TY(t), child.reqh_id, (st>0?"ok":strerror(errno)) );
+		child.fds.pipe_to_parent, child.chld_id, TY(t), child.reqh_id, (st>0?"ok":g_strerror(errno)) );
 	return st;
 }
 
 #define CHILD_DBG(attrs) ( child_debug attrs )
 #define CHILD_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
-#define CHILD_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); CHILD_DBG((0,"Log Started"));  } while(0)
+#define CHILD_DBG_START(fname) do { debug_fp = ws_fopen(fname,"a"); DCOM(); CHILD_DBG((0,"Log Started"));  } while(0)
 #define CHILD_RESP(BA,T) dbg_resp(BA,T)
 #define CHILD_STATE(ST) do { DISP_DBG((0,"State %s => %s")) } while(0)
 #else
@@ -202,7 +203,7 @@ static char* param_get_cwd(char** err ) {
 	char* pwd = getcwd(NULL, 128);
 
 	if (!pwd) {
-		*err = g_strdup(strerror(errno));
+		*err = g_strdup(g_strerror(errno));
 	}
 	return pwd;
 }
@@ -210,7 +211,7 @@ static char* param_get_cwd(char** err ) {
 static echld_bool_t param_set_cwd(char* val , char** err ) {
 	/* XXX SANITIZE */
 	if (chdir(val) != 0) {
-		*err = g_strdup_printf("cannot chdir reas='%s'",strerror(errno));
+		*err = g_strdup_printf("cannot chdir reas='%s'",g_strerror(errno));
 		return FALSE;
 	}
 
@@ -422,7 +423,9 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	CHILD_DBG((2,"RCVD type='%s' len='%d'",TY(type),len));
 
-	// gettimeofday(&(child.now), NULL);
+#if 0
+	gettimeofday(&(child.now), NULL);
+#endif
 
 	if (child.chld_id != chld_id) {
 		child_err(ECHLD_ERR_WRONG_MSG,reqh_id,
@@ -613,7 +616,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 	return 0;
 
 	misencoded:
-	// dump the misencoded message (b,blen)
+	/* dump the misencoded message (b,blen) */
 	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"misencoded msg msg_type='%s'",TY(type));
 	return 0;
 
@@ -624,9 +627,10 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 }
 
 static int child_dumpcap_read(void) {
-	// this folk manages the reading of dumpcap's pipe
-	// it has to read interface descriptions when doing so
-	// and managing capture during capture
+	/* this folk manages the reading of dumpcap's pipe
+	 * it has to read interface descriptions when doing so
+	 * and managing capture during capture
+	 */
 	CHILD_DBG((2,"child_dumpcap_read"));
 	return FALSE;
 }

@@ -360,7 +360,7 @@ static int invoke_cmd(FILE* in_fp) {
 }
 
 static char* run_cmd(char** pars, char** err _U_) {
-	FILE* fp = fopen(pars[1],"r");
+	FILE* fp = ws_stdio_fopen(pars[1],"r");
 	while(invoke_cmd(fp)) { ; }
 	fclose(fp);
 	return NULL;

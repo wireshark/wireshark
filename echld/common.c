@@ -177,9 +177,9 @@ static reader_realloc_t reader_realloc_buff = child_realloc_buff;
 
 #ifdef PARENT_THREADS
 static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
-	// parent thread: obtain malloc mutex
+	/* parent thread: obtain malloc mutex */
 	child_realloc_buff(b,needed);
-	// parent thread: release malloc mutex
+	/* parent thread: release malloc mutex */
 }
 #endif
 
@@ -209,7 +209,7 @@ void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
 
 
 void free_reader(echld_reader_t* r) {
-	free(r->data);
+	g_free(r->data);
 }
 
 static long reader_readv(echld_reader_t* r, size_t len) {
@@ -226,7 +226,7 @@ static long reader_readv(echld_reader_t* r, size_t len) {
 
 	nread = readv(r->fd, &iov, 1);
 
-	DBG((2,"READV nread=%d msg='%s'",nread, (nread<0) ? strerror(errno) : "-" ));
+	DBG((2,"READV nread=%d msg='%s'",nread, (nread<0) ? g_strerror(errno) : "-" ));
 
 	if (nread >= 0) {
 		r->wp += nread;
@@ -242,7 +242,7 @@ static long reader_readv(echld_reader_t* r, size_t len) {
 long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 	DBG((4,"READ = echld_read_frame fd=%d",r->fd));
 
-    // it will use shared memory instead of inband communication
+    /* it will use shared memory instead of inband communication */
 	do {
 		hdr_t* h = (hdr_t*)r->rp;
 		long nread;
@@ -833,38 +833,38 @@ char* echld_decode(echld_msg_type_t t, enc_msg_t* m ) {
 
 extern void dummy_switch(echld_msg_type_t type) {
 	switch(type) {
-		case ECHLD_ERROR: break; //
+		case ECHLD_ERROR: break;
 		case ECHLD_TIMED_OUT: break;
 		case ECHLD_NEW_CHILD: break;
 		case ECHLD_HELLO: break;
-		case ECHLD_CHILD_DEAD: break; //S msg
+		case ECHLD_CHILD_DEAD: break; /* S msg */
 		case ECHLD_CLOSE_CHILD: break;
-		case ECHLD_CLOSING: break; //
+		case ECHLD_CLOSING: break;
 		case ECHLD_SET_PARAM: break;
 		case ECHLD_GET_PARAM: break;
-		case ECHLD_PARAM: break; //SS param,val
+		case ECHLD_PARAM: break; /* SS param,val */
 		case ECHLD_PING: break;
-		case ECHLD_PONG: break; //
+		case ECHLD_PONG: break;
 		case ECHLD_OPEN_FILE: break;
-		case ECHLD_FILE_OPENED: break; //
+		case ECHLD_FILE_OPENED: break;
 		case ECHLD_OPEN_INTERFACE: break;
-		case ECHLD_INTERFACE_OPENED: break; //
+		case ECHLD_INTERFACE_OPENED: break;
 		case ECHLD_START_CAPTURE: break;
-		case ECHLD_CAPTURE_STARTED: break; //
-		case ECHLD_NOTIFY: break; //S notification (pre-encoded)
+		case ECHLD_CAPTURE_STARTED: break;
+		case ECHLD_NOTIFY: break; /* S notification (pre-encoded) */
 		case ECHLD_GET_SUM: break;
-		case ECHLD_PACKET_SUM: break; //S (pre-encoded)
+		case ECHLD_PACKET_SUM: break; /* S (pre-encoded) */
 		case ECHLD_GET_TREE: break;
-		case ECHLD_TREE: break; //IS framenum,tree (pre-encoded)
+		case ECHLD_TREE: break; /* IS framenum,tree (pre-encoded) */
 		case ECHLD_GET_BUFFER: break;
-		case ECHLD_BUFFER: break; //SSIS name,range,totlen,data
-		case ECHLD_EOF: break; //
+		case ECHLD_BUFFER: break; /* SSIS name,range,totlen,data */
+		case ECHLD_EOF: break;
 		case ECHLD_STOP_CAPTURE: break;
-		case ECHLD_CAPTURE_STOPPED: break; //
+		case ECHLD_CAPTURE_STOPPED: break;
 		case ECHLD_ADD_NOTE: break;
-		case ECHLD_NOTE_ADDED: break; //IS
+		case ECHLD_NOTE_ADDED: break; /* IS */
 		case ECHLD_APPLY_FILTER: break;
-		case ECHLD_PACKET_LIST: break; //SS name,range
+		case ECHLD_PACKET_LIST: break; /* SS name,range */
 		case ECHLD_SAVE_FILE: break;
 		case ECHLD_FILE_SAVED: break;
 		case EC_ACTUAL_ERROR: break;
@@ -873,39 +873,39 @@ extern void dummy_switch(echld_msg_type_t type) {
 	switch(type) {
 		case ECHLD_NEW_CHILD: break;
 		case ECHLD_CLOSE_CHILD: break;
-		case ECHLD_SET_PARAM: break; // set_param(p,v)
-		case ECHLD_GET_PARAM: break; // get_param(p)
+		case ECHLD_SET_PARAM: break; /* set_param(p,v) */
+		case ECHLD_GET_PARAM: break; /* get_param(p) */
 		case ECHLD_PING: break;
-		case ECHLD_OPEN_FILE: break; // open_file(f,mode)
-		case ECHLD_OPEN_INTERFACE: break; // open_interface(if,param)
+		case ECHLD_OPEN_FILE: break; /* open_file(f,mode) */
+		case ECHLD_OPEN_INTERFACE: break; /* open_interface(if,param) */
 		case ECHLD_START_CAPTURE: break;
-		case ECHLD_GET_SUM: break; // get_sum(rng)
-		case ECHLD_GET_TREE: break; // get_tree(rng)
-		case ECHLD_GET_BUFFER: break; // get_buffer(rng)
+		case ECHLD_GET_SUM: break; /* get_sum(rng) */
+		case ECHLD_GET_TREE: break; /* get_tree(rng) */
+		case ECHLD_GET_BUFFER: break; /* get_buffer(rng) */
 		case ECHLD_STOP_CAPTURE: break;
-		case ECHLD_ADD_NOTE: break; // add_note(framenum,note)
-		case ECHLD_APPLY_FILTER: break; // apply_filter(df)
-		case ECHLD_SAVE_FILE: break; // save_file(f,mode)
+		case ECHLD_ADD_NOTE: break; /* add_note(framenum,note) */
+		case ECHLD_APPLY_FILTER: break; /* apply_filter(df) */
+		case ECHLD_SAVE_FILE: break; /* save_file(f,mode) */
 
 
-		case ECHLD_ERROR: break; // error(err,reason)
+		case ECHLD_ERROR: break; /* error(err,reason) */
 		case ECHLD_TIMED_OUT: break;
 		case ECHLD_HELLO: break;
-		case ECHLD_CHILD_DEAD: break; // child_dead(msg)
+		case ECHLD_CHILD_DEAD: break; /* child_dead(msg) */
 		case ECHLD_CLOSING: break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
 		case ECHLD_FILE_OPENED: break;
 		case ECHLD_INTERFACE_OPENED: break;
 		case ECHLD_CAPTURE_STARTED: break;
-		case ECHLD_NOTIFY: break; // notify(pre-encoded)
-		case ECHLD_PACKET_SUM: break; // packet_sum(pre-encoded)
-		case ECHLD_TREE: break; //tree(framenum, tree(pre-encoded) )
-		case ECHLD_BUFFER: break; // buffer (name,range,totlen,data)
+		case ECHLD_NOTIFY: break; /* notify(pre-encoded) */
+		case ECHLD_PACKET_SUM: break; /* packet_sum(pre-encoded) */
+		case ECHLD_TREE: break; /* tree(framenum, tree(pre-encoded) ) */
+		case ECHLD_BUFFER: break; /* buffer (name,range,totlen,data) */
 		case ECHLD_EOF: break;
 		case ECHLD_CAPTURE_STOPPED: break;
 		case ECHLD_NOTE_ADDED: break;
-		case ECHLD_PACKET_LIST: break; // packet_list(name,filter,range);
+		case ECHLD_PACKET_LIST: break; /* packet_list(name,filter,range); */
 		case ECHLD_FILE_SAVED: break;
 
 		case EC_ACTUAL_ERROR: break;

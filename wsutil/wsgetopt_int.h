@@ -1,4 +1,4 @@
-/* $Id$
+/*
    Copied from glibc-2.15
 
    Internal declarations for getopt.
