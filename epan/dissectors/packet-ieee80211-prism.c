@@ -127,7 +127,7 @@ static gint ett_prism_did = -1;
  * somebody reports a capture where *different* DID values, corresponding
  * to
  *
- *    http://home.martin.cc/linux/prism
+ *    http://www.martin.cc/linux/prism
  *
  * are used (and that's not a byte-order issue, as those values are *not*
  * just byte-swapped versions of the other values).
