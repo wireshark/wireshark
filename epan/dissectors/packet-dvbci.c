@@ -1018,12 +1018,16 @@ static int hf_dvbci_pin_evt_time = -1;
 static int hf_dvbci_pin_evt_cent = -1;
 static int hf_dvbci_cc_priv_data = -1;
 static int hf_dvbci_pincode = -1;
+static int hf_dvbci_app_dom_id_len = -1;
+static int hf_dvbci_init_obj_len = -1;
 static int hf_dvbci_app_dom_id = -1;
 static int hf_dvbci_init_obj = -1;
 static int hf_dvbci_ack_code = -1;
 static int hf_dvbci_req_type = -1;
 static int hf_dvbci_file_hash = -1;
+static int hf_dvbci_file_name_len = -1;
 static int hf_dvbci_file_name = -1;
+static int hf_dvbci_file_data_len = -1;
 static int hf_dvbci_ami_priv_data = -1;
 static int hf_dvbci_req_ok = -1;
 static int hf_dvbci_file_ok = -1;
@@ -3614,8 +3618,8 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
     offset++;
     if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
         file_name_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, 1,
-                "File name length %d", file_name_len);
+        proto_tree_add_item(tree, hf_dvbci_file_name_len,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         file_name_str = tvb_get_string_enc(wmem_packet_scope(),
                 tvb, offset, file_name_len, ENC_ASCII);
@@ -3628,8 +3632,8 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 "%s", file_name_str);
         offset += file_name_len;
         file_data_len = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, 4,
-                "File data length %d", file_data_len);
+        proto_tree_add_item(tree, hf_dvbci_file_data_len,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         if (file_data_len > 0) {
             if (file_name_len>4) {
@@ -3692,12 +3696,12 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         case T_REQUEST_START:
             /* no filter for length items */
             app_dom_id_len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1,
-                    "Application Domain Identifier length %d", app_dom_id_len);
+            proto_tree_add_item(tree, hf_dvbci_app_dom_id_len,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             init_obj_len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1,
-                    "Initial Object length %d", init_obj_len);
+            proto_tree_add_item(tree, hf_dvbci_init_obj_len,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_dvbci_app_dom_id,
                     tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA);
@@ -5840,6 +5844,14 @@ proto_register_dvbci(void)
           { "PIN code", "dvb-ci.cc.pincode",
             FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
         },
+        { &hf_dvbci_app_dom_id_len,
+          { "Application Domain Identifier length", "dvb-ci.ami.app_dom_id_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_init_obj_len,
+          { "Initial Object length", "dvb-ci.ami.init_obj_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_app_dom_id,
           { "Application Domain Identifier", "dvb-ci.ami.app_dom_id",
             FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
@@ -5860,9 +5872,17 @@ proto_register_dvbci(void)
           { "File hash", "dvb-ci.ami.file_hash",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
+        { &hf_dvbci_file_name_len,
+          { "File name length", "dvb-ci.ami.file_name_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_file_name,
           { "File name", "dvb-ci.ami.file_name",
             FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_file_data_len,
+          { "File data length", "dvb-ci.ami.file_data_len",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_ami_priv_data,
           { "Private data", "dvb-ci.ami.private_data",
