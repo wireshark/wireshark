@@ -15,6 +15,9 @@
  * discovery and setup, or whether they use different protocols
  * for streaming packets.
  *
+ * Apparently Aruba supports several protocols, including Peek remote.
+ * See the packet-aruba-erm dissector.
+ *
  * Tested with frames captured from a Cisco WCS.
  *
  * Copyright 2007 Joerg Mayer (see AUTHORS file)

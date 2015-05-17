@@ -26,6 +26,16 @@
  */
 
 /*
+ * See
+ *
+ *    http://community.arubanetworks.com/t5/Unified-Wired-Wireless-Access/Bug-in-ArubaOS-Packet-Capture/td-p/237984
+ *
+ *    http://kjspgd.net/?p=30
+ *
+ * for more information.
+ */
+
+/*
  * Formats:
  *
  * Pcap (type 0):
@@ -43,7 +53,7 @@
  *
  * Peek (type 1):
  *
- * Payload contains a "peek remote" packet, as supported by
+ * Payload contains a "Peek remote" packet, as supported by
  * EtherPeek/AiroPeek/OmniPeek.
  *
  * Airmagnet (type 2):
@@ -67,6 +77,14 @@
  *
  * Payload contains a PPI header followed by the packet data, starting
  * with an 802.11 header.
+ *
+ * Peek 11n/11ac (type 5):
+ *
+ * This is probably the "new" "Peek remote" format.  The "Peek remote"
+ * dissector should probably be able to distinguish this from type 1,
+ * as the "new" format has a magic number in it.  Given that there's
+ * a heuristic "Peek remote new" dissector, those packets might
+ * automatically be recognized without setting any preference whatsoever.
  */
 
 #include "config.h"
