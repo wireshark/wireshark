@@ -775,7 +775,7 @@ save_remote_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         switch(tvb_get_guint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_ASCII);
+            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_UTF_8);
 
             frame_number = pinfo->fd->num;
             bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -1150,7 +1150,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
 
     offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
 
-    proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
     if (!pinfo->fd->flags.visited && bluetooth_data != NULL) {
         wmem_tree_key_t key[6];
         guint32         interface_id;
@@ -1161,7 +1161,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
         gchar           *name;
         device_name_t   *device_name;
 
-        name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_ASCII);
+        name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
         interface_id = bluetooth_data->interface_id;
         adapter_id   = bluetooth_data->adapter_id;
         frame_number = pinfo->fd->num;
@@ -2443,12 +2443,12 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
             if (!pinfo->fd->flags.visited && bluetooth_data != NULL) {
                 gchar                   *name;
                 localhost_name_entry_t  *localhost_name_entry;
 
-                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_ASCII);
+                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_UTF_8);
 
                 key[0].length = 1;
                 key[0].key    = &interface_id;

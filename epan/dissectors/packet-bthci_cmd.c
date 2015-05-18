@@ -2295,7 +2295,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0013: /* Change Local Name */
-            proto_tree_add_item(tree, hf_bthci_cmd_device_name, tvb, offset, 248, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_device_name, tvb, offset, 248, ENC_UTF_8 | ENC_NA);
             if (!pinfo->fd->flags.visited) {
                 wmem_tree_key_t         key[4];
                 guint32                 k_interface_id;
@@ -2308,7 +2308,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                 k_adapter_id = bluetooth_data->adapter_id;
                 k_frame_number = pinfo->fd->num;
 
-                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_ASCII);
+                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_UTF_8);
 
                 key[0].length = 1;
                 key[0].key    = &k_interface_id;
