@@ -1995,6 +1995,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     }
                     if (value_length > 0 && obex_last_opcode_data &&
                             (obex_last_opcode_data->code == BTOBEX_CODE_VALS_GET || obex_last_opcode_data->code == BTOBEX_CODE_VALS_PUT) &&
+                            obex_last_opcode_data->data.get_put.type &&
                             dissector_try_string(media_type_dissector_table, obex_last_opcode_data->data.get_put.type, next_tvb, pinfo, tree, data) > 0) {
                         offset += value_length;
                     } else {
@@ -2544,7 +2545,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[5].length = 0;
                 key[5].key = NULL;
 
-                obex_last_opcode_data = wmem_new(wmem_file_scope(), obex_last_opcode_data_t);
+                obex_last_opcode_data = wmem_new0(wmem_file_scope(), obex_last_opcode_data_t);
                 obex_last_opcode_data->interface_id = interface_id;
                 obex_last_opcode_data->adapter_id = adapter_id;
                 obex_last_opcode_data->chandle = chandle;
@@ -2690,6 +2691,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         dissect_headers(main_tree, next_tvb, offset, pinfo, profile, is_obex_over_l2cap, obex_last_opcode_data, data);
         if (!pinfo->fd->flags.visited &&
                     obex_last_opcode_data &&
+                    obex_last_opcode_data->data.set_data.name &&
                     obex_last_opcode_data->code == BTOBEX_CODE_VALS_SET_PATH &&
                     code == BTOBEX_CODE_VALS_SUCCESS) {
             save_path(pinfo, path, obex_last_opcode_data->data.set_data.name, obex_last_opcode_data->data.set_data.go_up, is_obex_over_l2cap, data);
