@@ -173,6 +173,7 @@ OCFS2
 Geospatial and Imagery Access Service (GIAS)
 C15 Call History Protocol dissection (C15ch)
 Thrift
+IP Detail Record (IPDR)
 --sort-and-group--
 
 === Updated Protocol Support
