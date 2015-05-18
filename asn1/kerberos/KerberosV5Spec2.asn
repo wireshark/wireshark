@@ -49,6 +49,8 @@ Microseconds    ::= INTEGER (0..999999)
                     -- microseconds
 
 KerberosString  ::= GeneralString (IA5String)
+CNameString  ::= GeneralString (IA5String)
+SNameString  ::= GeneralString (IA5String)
 
 Realm           ::= KerberosString
 
@@ -56,6 +58,16 @@ PrincipalName   ::= SEQUENCE {
 --        name-type       [0] Int32, Use the translationj from krb5.asn (Heimdahl)
         name-type       [0] NAME-TYPE,
         name-string     [1] SEQUENCE OF KerberosString
+}
+
+CName   ::= SEQUENCE {
+        name-type       [0] NAME-TYPE,
+        cname-string    [1] SEQUENCE OF CNameString
+}
+
+SName   ::= SEQUENCE {
+        name-type       [0] NAME-TYPE,
+        sname-string    [1] SEQUENCE OF SNameString
 }
 
 KerberosTime    ::= GeneralizedTime -- with no fractional seconds
@@ -147,7 +159,7 @@ EncryptedKrbCredData   ::= SEQUENCE {
 Ticket          ::= [APPLICATION 1] SEQUENCE {
         tkt-vno         [0] INTEGER (5),
         realm           [1] Realm,
-        sname           [2] PrincipalName,
+        sname           [2] SName,
         enc-part        [3] EncryptedTicketData 
 }
 
@@ -156,7 +168,7 @@ EncTicketPart   ::= [APPLICATION 3] SEQUENCE {
         flags                   [0] TicketFlags,
         key                     [1] EncryptionKey,
         crealm                  [2] Realm,
-        cname                   [3] PrincipalName,
+        cname                   [3] CName,
         transited               [4] TransitedEncoding,
         authtime                [5] KerberosTime,
         starttime               [6] KerberosTime OPTIONAL,
@@ -206,12 +218,12 @@ KDC-REQ         ::= SEQUENCE {
 
 KDC-REQ-BODY    ::= SEQUENCE {
         kdc-options             [0] KDCOptions,
-        cname                   [1] PrincipalName OPTIONAL
+        cname                   [1] CName OPTIONAL
                                     -- Used only in AS-REQ --,
         realm                   [2] Realm
                                     -- Server's realm
                                     -- Also client's in AS-REQ --,
-        sname                   [3] PrincipalName OPTIONAL,
+        sname                   [3] SName OPTIONAL,
         from                    [4] KerberosTime OPTIONAL,
 
 -- this field is not optional in the kerberos spec, however, in the packetcable spec it is optional
@@ -269,7 +281,7 @@ KDC-REP         ::= SEQUENCE {
         padata          [2] SEQUENCE OF PA-DATA OPTIONAL
                                 -- NOTE: not empty --,
         crealm          [3] Realm,
-        cname           [4] PrincipalName,
+        cname           [4] CName,
         ticket          [5] Ticket,
         enc-part        [6] EncryptedKDCREPData
                                 -- EncASRepPart or EncTGSRepPart,
@@ -291,7 +303,7 @@ EncKDCRepPart   ::= SEQUENCE {
         endtime         [7] KerberosTime,
         renew-till      [8] KerberosTime OPTIONAL,
         srealm          [9] Realm,
-        sname           [10] PrincipalName,
+        sname           [10] SName,
         caddr           [11] HostAddresses OPTIONAL,
 	    encrypted-pa-data[12]	METHOD-DATA OPTIONAL -- from k5.asn
 }
@@ -320,7 +332,7 @@ AP-REQ          ::= [APPLICATION 14] SEQUENCE {
 Authenticator   ::= [APPLICATION 2] SEQUENCE  {
         authenticator-vno       [0] INTEGER (5),
         crealm                  [1] Realm,
-        cname                   [2] PrincipalName,
+        cname                   [2] CName,
         cksum                   [3] Checksum OPTIONAL,
         cusec                   [4] Microseconds,
         ctime                   [5] KerberosTime,
@@ -406,7 +418,7 @@ KrbCredInfo     ::= SEQUENCE {
         endtime         [6] KerberosTime OPTIONAL,
         renew-till      [7] KerberosTime OPTIONAL,
         srealm          [8] Realm OPTIONAL,
-        sname           [9] PrincipalName OPTIONAL,
+        sname           [9] SName OPTIONAL,
         caddr           [10] HostAddresses OPTIONAL
 }
 
@@ -421,9 +433,9 @@ KRB-ERROR       ::= [APPLICATION 30] SEQUENCE {
 --        error-code      [6] Int32,
         error-code      [6] ERROR-CODE, -- Use k5.asn
         crealm          [7] Realm OPTIONAL,
-        cname           [8] PrincipalName OPTIONAL,
+        cname           [8] CName OPTIONAL,
         realm           [9] Realm -- service realm --,
-        sname           [10] PrincipalName -- service name --,
+        sname           [10] SName -- service name --,
         e-text          [11] KerberosString OPTIONAL,
         e-data          [12] OCTET STRING OPTIONAL,
         e-checksum      [13] Checksum OPTIONAL -- used by PacketCable
@@ -471,7 +483,7 @@ AD-IF-RELEVANT          ::= AuthorizationData
 AD-KDCIssued            ::= SEQUENCE {
         ad-checksum     [0] Checksum,
         i-realm         [1] Realm OPTIONAL,
-        i-sname         [2] PrincipalName OPTIONAL,
+        i-sname         [2] SName OPTIONAL,
         elements        [3] AuthorizationData
 }
 
