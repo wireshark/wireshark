@@ -980,35 +980,69 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
 
   *end = blob_offset + blob_length;
 
-  if (result != NULL) {
-    if (blob_length < MAX_BLOB_SIZE)
-    {
-      result->length = blob_length;
-      result->contents = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, blob_offset, blob_length);
-      if (blob_hf == hf_ntlmssp_auth_lmresponse &&
-          !(tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN)))
-      {
-        proto_tree_add_item (ntlmssp_tree,
-                             hf_ntlmssp_ntlm_client_challenge,
-                             tvb, blob_offset, 8, ENC_NA);
-      }
-    } else {
-      result->length = 0;
-      result->contents = NULL;
-      expert_add_info_format(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
-                             "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
-    }
+  if (blob_length < MAX_BLOB_SIZE) {
+    result->length = blob_length;
+    result->contents = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, blob_offset, blob_length);
+  } else {
+    expert_add_info_format(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
+                           "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
+    result->length = 0;
+    result->contents = NULL;
   }
 
-  /* If we are dissecting the NTLM response and it is a NTLMv2
-     response call the appropriate dissector. */
-
-  if (blob_hf == hf_ntlmssp_auth_ntresponse && blob_length > 24)
-  {
-    proto_tree_add_item (ntlmssp_tree,
-                         hf_ntlmssp_ntlm_client_challenge,
-                         tvb, blob_offset+32, 8, ENC_NA);
-    dissect_ntlmv2_response(tvb, pinfo, tree, blob_offset, blob_length);
+  /*
+   * XXX - for LmChallengeResponse (hf_ntlmssp_auth_lmresponse), should
+   * we have a field for both Response (2.2.2.3 "LM_RESPONSE" and
+   * 2.2.2.4 "LMv2_RESPONSE" in [MS-NLMP]) in addition to ClientChallenge
+   * (only in 2.2.2.4 "LMv2_RESPONSE")?
+   *
+   * XXX - should we also dissect the fields of an NtChallengeResponse
+   * (hf_ntlmssp_auth_ntresponse)?
+   *
+   * XXX - should we warn if the blob is too *small*?
+   */
+  if (blob_hf == hf_ntlmssp_auth_lmresponse) {
+    /*
+     * LMChallengeResponse.  It's either 2.2.2.3 "LM_RESPONSE" or
+     * 2.2.2.4 "LMv2_RESPONSE", in [MS-NLMP].
+     *
+     * XXX - should we have a field for Response as well as
+     * ClientChallenge?
+     */
+    if (tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN) == 0) {
+      /*
+       * LMv2_RESPONSE.
+       *
+       * XXX - according to 2.2.2.4 "LMv2_RESPONSE", the ClientChallenge
+       * is at an offset of 16 from the beginning of the blob; it's not
+       * at the beginning of the blob.
+       */
+      proto_tree_add_item (ntlmssp_tree,
+                           hf_ntlmssp_ntlm_client_challenge,
+                           tvb, blob_offset, 8, ENC_NA);
+    }
+  } else if (blob_hf == hf_ntlmssp_auth_ntresponse) {
+    /*
+     * NTChallengeResponse.  It's either 2.2.2.6 "NTLM v1 Response:
+     * NTLM_RESPONSE" or 2.2.2.8 "NTLM v2 Response: NTLMv2_RESPONSE"
+     * in [MS-NLMP].
+     */
+    if (blob_length > 24) {
+      /*
+       * > 24 bytes, so it's "NTLM v2 Response: NTLMv2_RESPONSE".
+       * An NTLMv2_RESPONSE has 16 bytes of Response followed
+       * by an NTLMv2_CLIENT_CHALLENGE; an NTLMv2_CLIENT_CHALLENGE
+       * is at least 32 bytes, so an NTLMv2_RESPONSE is at least
+       * 48 bytes long.
+       *
+       * XXX - the following item is the same as
+       * hf_ntlmssp_ntlmv2_response_chal; do we really need two of them?
+       */
+      proto_tree_add_item (ntlmssp_tree,
+                           hf_ntlmssp_ntlm_client_challenge,
+                           tvb, blob_offset+32, 8, ENC_NA);
+      dissect_ntlmv2_response(tvb, pinfo, tree, blob_offset, blob_length);
+    }
   }
 
   return offset;
@@ -1264,6 +1298,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   proto_tree *ntlmv2_tree = NULL;
   const int   orig_offset = offset;
 
+  /* XXX - make sure we don't go past len? */
   if (tree) {
     ntlmv2_item = proto_tree_add_item(
       tree, hf_ntlmssp_ntlmv2_response, tvb,
@@ -1643,9 +1678,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
                                 &conv_ntlmssp_info->ntlm_response);
-  if (conv_ntlmssp_info != NULL && conv_ntlmssp_info->ntlm_response.length >= 32) {
-    memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->ntlm_response.contents+24, 8);
-  }
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
   if (conv_ntlmssp_info != NULL)
@@ -1653,6 +1685,22 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if (conv_ntlmssp_info->ntlm_response.length > 24)
     {
       conv_ntlmssp_info->is_auth_ntlm_v2 = 1;
+      /*
+       * XXX - at least according to 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE"
+       * in [MS-NLMP], the client challenge is at an offset of 16 bytes,
+       * not 24 bytes, from the beginning of the blob.
+       *
+       * If so, that not only means that the "+24" should be "+16", it also
+       * means that the length check should be ">= 24", and would thus be
+       * redundant.
+       *
+       * If not, then we should handle a bad blob in which the client
+       * challenge is missing, and not try to use whatever random junk
+       * is in conv_ntlmssp_info->client_challenge.
+       */
+      if (conv_ntlmssp_info->ntlm_response.length >= 32) {
+        memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->ntlm_response.contents+24, 8);
+      }
     }
     else
     {
