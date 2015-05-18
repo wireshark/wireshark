@@ -96,7 +96,7 @@ enum
     IPDR_ERROR = 0x23,
     IPDR_REQUEST = 0x30,
     IPDR_RESPONSE = 0x31,
-    IPDR_KEEP_ALIVE = 0x40,
+    IPDR_KEEP_ALIVE = 0x40
 };
 
 static const value_string ipdr_message_type_vals[] = {
