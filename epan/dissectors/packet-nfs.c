@@ -461,6 +461,12 @@ static int hf_nfs4_stateid_other = -1;
 static int hf_nfs4_stateid_hash = -1;
 static int hf_nfs4_lock_reclaim = -1;
 static int hf_nfs4_acl = -1;
+static int hf_nfs4_dacl = -1;
+static int hf_nfs4_sacl = -1;
+static int hf_nfs4_aclflags = -1;
+static int hf_nfs4_aclflag_auto_inherit = -1;
+static int hf_nfs4_aclflag_protected = -1;
+static int hf_nfs4_aclflag_defaulted = -1;
 static int hf_nfs4_num_aces = -1;
 static int hf_nfs4_callback_ident = -1;
 static int hf_nfs4_r_netid = -1;
@@ -697,6 +703,7 @@ static gint ett_nfs4_secinfo_flavor_info = -1;
 static gint ett_nfs4_stateid = -1;
 static gint ett_nfs4_fattr_fh_expire_type = -1;
 static gint ett_nfs4_fattr_aclsupport = -1;
+static gint ett_nfs4_aclflag = -1;
 static gint ett_nfs4_ace = -1;
 static gint ett_nfs4_clientaddr = -1;
 static gint ett_nfs4_aceflag = -1;
@@ -6415,19 +6422,56 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *
 	return offset;
 }
 
+#define ACL4_AUTO_INHERIT	0x00000001
+#define ACL4_PROTECTED		0x00000002
+#define ACL4_DEFAULTED		0x00000004
+
+static const int *aclflags_fields[] = {
+	&hf_nfs4_aclflag_auto_inherit,
+	&hf_nfs4_aclflag_protected,
+	&hf_nfs4_aclflag_defaulted,
+	NULL
+};
+
+static int
+dissect_nfs4_aclflags(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_aclflags,
+		ett_nfs4_aclflag, aclflags_fields, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
 
 static int
 dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *attr_item,
-		       proto_tree *tree, guint32 obj_type)
+		       proto_tree *tree, guint32 obj_type, guint32 attr_num)
 {
 	guint32 num_aces;
 	guint32 ace_number;
 
 	if (tree) {
 		proto_item *acl_item;
-		acl_item = proto_tree_add_none_format(tree, hf_nfs4_acl, tvb, 0, 0, "ACL");
+
+		switch (attr_num) {
+		case FATTR4_DACL:
+			acl_item = proto_tree_add_item(tree, hf_nfs4_dacl, tvb, offset, 0, ENC_BIG_ENDIAN);
+			break;
+
+		case FATTR4_SACL:
+			acl_item = proto_tree_add_item(tree, hf_nfs4_sacl, tvb, offset, 0, ENC_BIG_ENDIAN);
+			break;
+
+		default:
+			acl_item = proto_tree_add_item(tree, hf_nfs4_acl, tvb, offset, 0, ENC_BIG_ENDIAN);
+			break;
+		}
+
 		PROTO_ITEM_SET_HIDDEN(acl_item);
 	}
+
+	if (attr_num != FATTR4_ACL)
+		offset = dissect_nfs4_aclflags(tvb, offset, tree);
 
 	num_aces = tvb_get_ntohl(tvb, offset);
 	if (tree && num_aces > 0) {
@@ -6763,8 +6807,10 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						break;
 
 					case FATTR4_ACL:
+					case FATTR4_DACL:
+					case FATTR4_SACL:
 						offset = dissect_nfs4_fattr_acl(tvb, offset, pinfo, attr_item, attr_tree,
-							obj_type);
+							obj_type, attr_num);
 						break;
 
 					case FATTR4_ACLSUPPORT:
@@ -11366,6 +11412,28 @@ proto_register_nfs(void)
 		{ &hf_nfs4_acl, {
 			"ACL", "nfs.acl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
 
+		{ &hf_nfs4_dacl, {
+			"DACL", "nfs.dacl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
+
+		{ &hf_nfs4_sacl, {
+			"SACL", "nfs.sacl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
+
+		{ &hf_nfs4_aclflags, {
+			"ACL flags", "nfs.acl.flags", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_aclflag_auto_inherit, {
+			"AUTO_INHERIT", "nfs.acl.flags.auto_inherit", FT_BOOLEAN, 32,
+			NULL, ACL4_AUTO_INHERIT, NULL, HFILL }},
+
+		{ &hf_nfs4_aclflag_protected, {
+			"PROTECTED", "nfs.acl.flags.protected", FT_BOOLEAN, 32,
+			NULL, ACL4_PROTECTED, NULL, HFILL }},
+
+		{ &hf_nfs4_aclflag_defaulted, {
+			"DEFAULTED", "nfs.acl.flags.defaulted", FT_BOOLEAN, 32,
+			NULL, ACL4_DEFAULTED, NULL, HFILL }},
+
 		{ &hf_nfs4_num_aces, {
 			"ACE count", "nfs.num_aces", FT_UINT32, BASE_DEC,
 			NULL, 0, "Number of ACEs", HFILL }},
@@ -12293,6 +12361,7 @@ proto_register_nfs(void)
 		&ett_nfs4_stateid,
 		&ett_nfs4_fattr_fh_expire_type,
 		&ett_nfs4_fattr_aclsupport,
+		&ett_nfs4_aclflag,
 		&ett_nfs4_ace,
 		&ett_nfs4_clientaddr,
 		&ett_nfs4_aceflag,
