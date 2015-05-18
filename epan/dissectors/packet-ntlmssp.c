@@ -354,9 +354,9 @@ LEBE_Convert(int value)
 #endif
 
 /*
-  Perform a DES encryption with a 16 bit key and 8bit data item.
-  It's in fact 3 susbsequent call to crypt_des_ecb with a 7 bit key.
-  Missing bits for the key are replaced by 0;
+  Perform a DES encryption with a 16-byte key and 8-byte data item.
+  It's in fact 3 susbsequent call to crypt_des_ecb with a 7-byte key.
+  Missing bytes for the key are replaced by 0;
   Returns output in response, which is expected to be 24 bytes.
 */
 static int
