@@ -210,29 +210,23 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         proto_tree_add_item(ipdr_tree, hf_ipdr_config_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(ipdr_tree, hf_ipdr_flags, tvb, offset, 1, ENC_NA);
-        offset++;
         break;
     case IPDR_GET_SESSIONS:
         proto_tree_add_item(ipdr_tree, hf_ipdr_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case IPDR_GET_SESSIONS_RESPONSE:
         proto_tree_add_item(ipdr_tree, hf_ipdr_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case IPDR_GET_TEMPLATES:
         proto_tree_add_item(ipdr_tree, hf_ipdr_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case IPDR_GET_TEMPLATES_RESPONSE:
         proto_tree_add_item(ipdr_tree, hf_ipdr_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(ipdr_tree, hf_ipdr_config_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case IPDR_MODIFY_TEMPLATE:
         proto_tree_add_item(ipdr_tree, hf_ipdr_config_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case IPDR_MODIFY_TEMPLATE_RESPONSE:
         proto_tree_add_item(ipdr_tree, hf_ipdr_config_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -255,7 +249,6 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         proto_tree_add_item(ipdr_tree, hf_ipdr_config_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(ipdr_tree, hf_ipdr_sequence_num, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
         break;
     case IPDR_ERROR:
         proto_tree_add_item(ipdr_tree, hf_ipdr_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
