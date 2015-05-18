@@ -5862,6 +5862,166 @@ static const value_string names_nfs4_status[] = {
 };
 static value_string_ext names_nfs4_status_ext = VALUE_STRING_EXT_INIT(names_nfs4_status);
 
+static const value_string fattr4_names[] = {
+#define FATTR4_SUPPORTED_ATTRS     0
+	{	FATTR4_SUPPORTED_ATTRS,    "Supported_Attrs"	},
+#define FATTR4_TYPE                1
+	{	FATTR4_TYPE,               "Type"},
+#define FATTR4_FH_EXPIRE_TYPE      2
+	{	FATTR4_FH_EXPIRE_TYPE,     "FH_Expire_Type"	},
+#define FATTR4_CHANGE              3
+	{	FATTR4_CHANGE,             "Change"},
+#define FATTR4_SIZE                4
+	{	FATTR4_SIZE,	           "Size"	},
+#define FATTR4_LINK_SUPPORT        5
+	{	FATTR4_LINK_SUPPORT,       "Link_Support"	},
+#define FATTR4_SYMLINK_SUPPORT     6
+	{	FATTR4_SYMLINK_SUPPORT,    "Symlink_Support"	},
+#define FATTR4_NAMED_ATTR          7
+	{	FATTR4_NAMED_ATTR,         "Named_Attr"	},
+#define FATTR4_FSID                8
+	{	FATTR4_FSID,               "FSID"	},
+#define FATTR4_UNIQUE_HANDLES      9
+	{	FATTR4_UNIQUE_HANDLES,     "Unique_Handles"	},
+#define FATTR4_LEASE_TIME          10
+	{	FATTR4_LEASE_TIME,         "Lease_Time"	},
+#define FATTR4_RDATTR_ERROR        11
+	{	FATTR4_RDATTR_ERROR,       "RDAttr_Error"	},
+#define FATTR4_ACL                 12
+	{	FATTR4_ACL,                "ACL"	},
+#define FATTR4_ACLSUPPORT          13
+	{	FATTR4_ACLSUPPORT,         "ACLSupport"	},
+#define FATTR4_ARCHIVE             14
+	{	FATTR4_ARCHIVE,            "Archive"	},
+#define FATTR4_CANSETTIME          15
+	{	FATTR4_CANSETTIME,         "CanSetTime"	},
+#define FATTR4_CASE_INSENSITIVE    16
+	{	FATTR4_CASE_INSENSITIVE,   "Case_Insensitive"	},
+#define FATTR4_CASE_PRESERVING     17
+	{	FATTR4_CASE_PRESERVING,    "Case_Preserving"	},
+#define FATTR4_CHOWN_RESTRICTED    18
+	{	FATTR4_CHOWN_RESTRICTED,   "Chown_Restricted"	},
+#define FATTR4_FILEHANDLE          19
+	{	FATTR4_FILEHANDLE,         "Filehandle"	},
+#define FATTR4_FILEID              20
+	{	FATTR4_FILEID,             "FileId"	},
+#define FATTR4_FILES_AVAIL         21
+	{	FATTR4_FILES_AVAIL,        "Files_Avail"	},
+#define FATTR4_FILES_FREE          22
+	{	FATTR4_FILES_FREE,         "Files_Free"	},
+#define FATTR4_FILES_TOTAL         23
+	{	FATTR4_FILES_TOTAL,        "Files_Total"	},
+#define FATTR4_FS_LOCATIONS        24
+	{	FATTR4_FS_LOCATIONS,       "FS_Locations"	},
+#define FATTR4_HIDDEN              25
+	{	FATTR4_HIDDEN,             "Hidden"	},
+#define FATTR4_HOMOGENEOUS         26
+	{	FATTR4_HOMOGENEOUS,        "Homogeneous"	},
+#define FATTR4_MAXFILESIZE         27
+	{	FATTR4_MAXFILESIZE,        "MaxFileSize"	},
+#define FATTR4_MAXLINK             28
+	{	FATTR4_MAXLINK,            "MaxLink"	},
+#define FATTR4_MAXNAME             29
+	{	FATTR4_MAXNAME,            "MaxName"	},
+#define FATTR4_MAXREAD             30
+	{	FATTR4_MAXREAD,            "MaxRead"	},
+#define FATTR4_MAXWRITE            31
+	{	FATTR4_MAXWRITE,           "MaxWrite"	},
+#define FATTR4_MIMETYPE            32
+	{	FATTR4_MIMETYPE,           "MimeType"	},
+#define FATTR4_MODE                33
+	{	FATTR4_MODE,               "Mode"	},
+#define FATTR4_NO_TRUNC            34
+	{	FATTR4_NO_TRUNC,           "No_Trunc"	},
+#define FATTR4_NUMLINKS            35
+	{	FATTR4_NUMLINKS,           "NumLinks"	},
+#define FATTR4_OWNER               36
+	{	FATTR4_OWNER,              "Owner"	},
+#define FATTR4_OWNER_GROUP         37
+	{	FATTR4_OWNER_GROUP,        "Owner_Group"	},
+#define FATTR4_QUOTA_AVAIL_HARD    38
+	{	FATTR4_QUOTA_AVAIL_HARD,   "Quota_Avail_Hard"	},
+#define FATTR4_QUOTA_AVAIL_SOFT    39
+	{	FATTR4_QUOTA_AVAIL_SOFT,   "Quota_Avail_Soft"	},
+#define FATTR4_QUOTA_USED          40
+	{	FATTR4_QUOTA_USED,         "Quota_Used"	},
+#define FATTR4_RAWDEV              41
+	{	FATTR4_RAWDEV,             "RawDev"	},
+#define FATTR4_SPACE_AVAIL         42
+	{	FATTR4_SPACE_AVAIL,        "Space_Avail"	},
+#define FATTR4_SPACE_FREE          43
+	{	FATTR4_SPACE_FREE,         "Space_Free"	},
+#define FATTR4_SPACE_TOTAL         44
+	{	FATTR4_SPACE_TOTAL,        "Space_Total"	},
+#define FATTR4_SPACE_USED          45
+	{	FATTR4_SPACE_USED,         "Space_Used"	},
+#define FATTR4_SYSTEM              46
+	{	FATTR4_SYSTEM,             "System"	},
+#define FATTR4_TIME_ACCESS         47
+	{	FATTR4_TIME_ACCESS,        "Time_Access"	},
+#define FATTR4_TIME_ACCESS_SET     48
+	{	FATTR4_TIME_ACCESS_SET,    "Time_Access_Set"	},
+#define FATTR4_TIME_BACKUP         49
+	{	FATTR4_TIME_BACKUP,        "Time_Backup"	},
+#define FATTR4_TIME_CREATE         50
+	{	FATTR4_TIME_CREATE,        "Time_Create"	},
+#define FATTR4_TIME_DELTA          51
+	{	FATTR4_TIME_DELTA,         "Time_Delta"	},
+#define FATTR4_TIME_METADATA       52
+	{	FATTR4_TIME_METADATA,      "Time_Metadata"	},
+#define FATTR4_TIME_MODIFY         53
+	{	FATTR4_TIME_MODIFY,        "Time_Modify"	},
+#define FATTR4_TIME_MODIFY_SET     54
+	{	FATTR4_TIME_MODIFY_SET,    "Time_Modify_Set"	},
+#define FATTR4_MOUNTED_ON_FILEID   55
+	{	FATTR4_MOUNTED_ON_FILEID,  "Mounted_on_FileId"	},
+#define FATTR4_DIR_NOTIF_DELAY     56
+	{	FATTR4_DIR_NOTIF_DELAY,    "Dir_Notif_Delay"	},
+#define FATTR4_DIRENT_NOTIF_DELAY  57
+#define FATTR4_DACL                58
+	{	FATTR4_DACL,               "DACL"                },
+#define FATTR4_SACL                59
+	{	FATTR4_SACL,               "SACL"                },
+#define FATTR4_CHANGE_POLICY       60
+	{	FATTR4_CHANGE_POLICY,      "Change_Policy"		},
+#define FATTR4_FS_STATUS           61
+	{	FATTR4_FS_STATUS,          "FS_Status"			},
+#define FATTR4_FS_LAYOUT_TYPE      62
+	{	FATTR4_FS_LAYOUT_TYPE,     "FS_Layout_Type"		},
+#define FATTR4_LAYOUT_HINT         63
+	{	FATTR4_LAYOUT_HINT,        "Layout_hint"		},
+#define FATTR4_LAYOUT_TYPE         64
+	{	FATTR4_LAYOUT_TYPE,        "Layout_type"		},
+#define FATTR4_LAYOUT_BLKSIZE      65
+	{	FATTR4_LAYOUT_BLKSIZE,     "Layout_blksize"		},
+#define FATTR4_LAYOUT_ALIGNMENT    66
+	{	FATTR4_LAYOUT_ALIGNMENT,   "Layout_alignment"	},
+#define FATTR4_FS_LOCATIONS_INFO   67
+	{	FATTR4_FS_LOCATIONS_INFO,  "FS_Locations_info"	},
+#define FATTR4_MDSTHRESHOLD        68
+	{	FATTR4_MDSTHRESHOLD,       "MDS_Threshold"		},
+#define FATTR4_RETENTION_GET       69
+	{	FATTR4_RETENTION_GET,      "Retention_Get"		},
+#define FATTR4_RETENTION_SET       70
+	{	FATTR4_RETENTION_SET,      "Retention_Set"		},
+#define FATTR4_RETENTEVT_GET       71
+	{	FATTR4_RETENTEVT_GET,      "RetentEvt_Get"		},
+#define FATTR4_RETENTEVT_SET       72
+	{	FATTR4_RETENTEVT_SET,      "RetentEvt_Set"		},
+#define FATTR4_RETENTION_HOLD      73
+	{	FATTR4_RETENTION_HOLD,     "Retention_Hold"		},
+#define FATTR4_MODE_SET_MASKED     74
+	{	FATTR4_MODE_SET_MASKED,    "Mode_Set_Masked"	},
+#define FATTR4_SUPPATTR_EXCLCREAT  75
+	{	FATTR4_SUPPATTR_EXCLCREAT, "Suppattr_ExclCreat"	},
+#define FATTR4_FS_CHARSET_CAP      76
+	{	FATTR4_FS_CHARSET_CAP,     "FS_Charset_Cap"		},
+#define FATTR4_SECURITY_LABEL      80
+	{	FATTR4_SECURITY_LABEL,     "Security_Label"		},
+	{	0,	NULL	}
+};
+static value_string_ext fattr4_names_ext = VALUE_STRING_EXT_INIT(fattr4_names);
+
 static int
 dissect_nfs4_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *status)
 {
@@ -6424,166 +6584,6 @@ dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	return offset;
 }
-
-static const value_string fattr4_names[] = {
-#define FATTR4_SUPPORTED_ATTRS     0
-	{	FATTR4_SUPPORTED_ATTRS,    "Supported_Attrs"	},
-#define FATTR4_TYPE                1
-	{	FATTR4_TYPE,               "Type"},
-#define FATTR4_FH_EXPIRE_TYPE      2
-	{	FATTR4_FH_EXPIRE_TYPE,     "FH_Expire_Type"	},
-#define FATTR4_CHANGE              3
-	{	FATTR4_CHANGE,             "Change"},
-#define FATTR4_SIZE                4
-	{	FATTR4_SIZE,	           "Size"	},
-#define FATTR4_LINK_SUPPORT        5
-	{	FATTR4_LINK_SUPPORT,       "Link_Support"	},
-#define FATTR4_SYMLINK_SUPPORT     6
-	{	FATTR4_SYMLINK_SUPPORT,    "Symlink_Support"	},
-#define FATTR4_NAMED_ATTR          7
-	{	FATTR4_NAMED_ATTR,         "Named_Attr"	},
-#define FATTR4_FSID                8
-	{	FATTR4_FSID,               "FSID"	},
-#define FATTR4_UNIQUE_HANDLES      9
-	{	FATTR4_UNIQUE_HANDLES,     "Unique_Handles"	},
-#define FATTR4_LEASE_TIME          10
-	{	FATTR4_LEASE_TIME,         "Lease_Time"	},
-#define FATTR4_RDATTR_ERROR        11
-	{	FATTR4_RDATTR_ERROR,       "RDAttr_Error"	},
-#define FATTR4_ACL                 12
-	{	FATTR4_ACL,                "ACL"	},
-#define FATTR4_ACLSUPPORT          13
-	{	FATTR4_ACLSUPPORT,         "ACLSupport"	},
-#define FATTR4_ARCHIVE             14
-	{	FATTR4_ARCHIVE,            "Archive"	},
-#define FATTR4_CANSETTIME          15
-	{	FATTR4_CANSETTIME,         "CanSetTime"	},
-#define FATTR4_CASE_INSENSITIVE    16
-	{	FATTR4_CASE_INSENSITIVE,   "Case_Insensitive"	},
-#define FATTR4_CASE_PRESERVING     17
-	{	FATTR4_CASE_PRESERVING,    "Case_Preserving"	},
-#define FATTR4_CHOWN_RESTRICTED    18
-	{	FATTR4_CHOWN_RESTRICTED,   "Chown_Restricted"	},
-#define FATTR4_FILEHANDLE          19
-	{	FATTR4_FILEHANDLE,         "Filehandle"	},
-#define FATTR4_FILEID              20
-	{	FATTR4_FILEID,             "FileId"	},
-#define FATTR4_FILES_AVAIL         21
-	{	FATTR4_FILES_AVAIL,        "Files_Avail"	},
-#define FATTR4_FILES_FREE          22
-	{	FATTR4_FILES_FREE,         "Files_Free"	},
-#define FATTR4_FILES_TOTAL         23
-	{	FATTR4_FILES_TOTAL,        "Files_Total"	},
-#define FATTR4_FS_LOCATIONS        24
-	{	FATTR4_FS_LOCATIONS,       "FS_Locations"	},
-#define FATTR4_HIDDEN              25
-	{	FATTR4_HIDDEN,             "Hidden"	},
-#define FATTR4_HOMOGENEOUS         26
-	{	FATTR4_HOMOGENEOUS,        "Homogeneous"	},
-#define FATTR4_MAXFILESIZE         27
-	{	FATTR4_MAXFILESIZE,        "MaxFileSize"	},
-#define FATTR4_MAXLINK             28
-	{	FATTR4_MAXLINK,            "MaxLink"	},
-#define FATTR4_MAXNAME             29
-	{	FATTR4_MAXNAME,            "MaxName"	},
-#define FATTR4_MAXREAD             30
-	{	FATTR4_MAXREAD,            "MaxRead"	},
-#define FATTR4_MAXWRITE            31
-	{	FATTR4_MAXWRITE,           "MaxWrite"	},
-#define FATTR4_MIMETYPE            32
-	{	FATTR4_MIMETYPE,           "MimeType"	},
-#define FATTR4_MODE                33
-	{	FATTR4_MODE,               "Mode"	},
-#define FATTR4_NO_TRUNC            34
-	{	FATTR4_NO_TRUNC,           "No_Trunc"	},
-#define FATTR4_NUMLINKS            35
-	{	FATTR4_NUMLINKS,           "NumLinks"	},
-#define FATTR4_OWNER               36
-	{	FATTR4_OWNER,              "Owner"	},
-#define FATTR4_OWNER_GROUP         37
-	{	FATTR4_OWNER_GROUP,        "Owner_Group"	},
-#define FATTR4_QUOTA_AVAIL_HARD    38
-	{	FATTR4_QUOTA_AVAIL_HARD,   "Quota_Avail_Hard"	},
-#define FATTR4_QUOTA_AVAIL_SOFT    39
-	{	FATTR4_QUOTA_AVAIL_SOFT,   "Quota_Avail_Soft"	},
-#define FATTR4_QUOTA_USED          40
-	{	FATTR4_QUOTA_USED,         "Quota_Used"	},
-#define FATTR4_RAWDEV              41
-	{	FATTR4_RAWDEV,             "RawDev"	},
-#define FATTR4_SPACE_AVAIL         42
-	{	FATTR4_SPACE_AVAIL,        "Space_Avail"	},
-#define FATTR4_SPACE_FREE          43
-	{	FATTR4_SPACE_FREE,         "Space_Free"	},
-#define FATTR4_SPACE_TOTAL         44
-	{	FATTR4_SPACE_TOTAL,        "Space_Total"	},
-#define FATTR4_SPACE_USED          45
-	{	FATTR4_SPACE_USED,         "Space_Used"	},
-#define FATTR4_SYSTEM              46
-	{	FATTR4_SYSTEM,             "System"	},
-#define FATTR4_TIME_ACCESS         47
-	{	FATTR4_TIME_ACCESS,        "Time_Access"	},
-#define FATTR4_TIME_ACCESS_SET     48
-	{	FATTR4_TIME_ACCESS_SET,    "Time_Access_Set"	},
-#define FATTR4_TIME_BACKUP         49
-	{	FATTR4_TIME_BACKUP,        "Time_Backup"	},
-#define FATTR4_TIME_CREATE         50
-	{	FATTR4_TIME_CREATE,        "Time_Create"	},
-#define FATTR4_TIME_DELTA          51
-	{	FATTR4_TIME_DELTA,         "Time_Delta"	},
-#define FATTR4_TIME_METADATA       52
-	{	FATTR4_TIME_METADATA,      "Time_Metadata"	},
-#define FATTR4_TIME_MODIFY         53
-	{	FATTR4_TIME_MODIFY,        "Time_Modify"	},
-#define FATTR4_TIME_MODIFY_SET     54
-	{	FATTR4_TIME_MODIFY_SET,    "Time_Modify_Set"	},
-#define FATTR4_MOUNTED_ON_FILEID   55
-	{	FATTR4_MOUNTED_ON_FILEID,  "Mounted_on_FileId"	},
-#define FATTR4_DIR_NOTIF_DELAY     56
-	{	FATTR4_DIR_NOTIF_DELAY,    "Dir_Notif_Delay"	},
-#define FATTR4_DIRENT_NOTIF_DELAY  57
-#define FATTR4_DACL                58
-	{	FATTR4_DACL,               "DACL"                },
-#define FATTR4_SACL                59
-	{	FATTR4_SACL,               "SACL"                },
-#define FATTR4_CHANGE_POLICY       60
-	{	FATTR4_CHANGE_POLICY,      "Change_Policy"		},
-#define FATTR4_FS_STATUS           61
-	{	FATTR4_FS_STATUS,          "FS_Status"			},
-#define FATTR4_FS_LAYOUT_TYPE      62
-	{	FATTR4_FS_LAYOUT_TYPE,     "FS_Layout_Type"		},
-#define FATTR4_LAYOUT_HINT         63
-	{	FATTR4_LAYOUT_HINT,        "Layout_hint"		},
-#define FATTR4_LAYOUT_TYPE         64
-	{	FATTR4_LAYOUT_TYPE,        "Layout_type"		},
-#define FATTR4_LAYOUT_BLKSIZE      65
-	{	FATTR4_LAYOUT_BLKSIZE,     "Layout_blksize"		},
-#define FATTR4_LAYOUT_ALIGNMENT    66
-	{	FATTR4_LAYOUT_ALIGNMENT,   "Layout_alignment"	},
-#define FATTR4_FS_LOCATIONS_INFO   67
-	{	FATTR4_FS_LOCATIONS_INFO,  "FS_Locations_info"	},
-#define FATTR4_MDSTHRESHOLD        68
-	{	FATTR4_MDSTHRESHOLD,       "MDS_Threshold"		},
-#define FATTR4_RETENTION_GET       69
-	{	FATTR4_RETENTION_GET,      "Retention_Get"		},
-#define FATTR4_RETENTION_SET       70
-	{	FATTR4_RETENTION_SET,      "Retention_Set"		},
-#define FATTR4_RETENTEVT_GET       71
-	{	FATTR4_RETENTEVT_GET,      "RetentEvt_Get"		},
-#define FATTR4_RETENTEVT_SET       72
-	{	FATTR4_RETENTEVT_SET,      "RetentEvt_Set"		},
-#define FATTR4_RETENTION_HOLD      73
-	{	FATTR4_RETENTION_HOLD,     "Retention_Hold"		},
-#define FATTR4_MODE_SET_MASKED     74
-	{	FATTR4_MODE_SET_MASKED,    "Mode_Set_Masked"	},
-#define FATTR4_SUPPATTR_EXCLCREAT  75
-	{	FATTR4_SUPPATTR_EXCLCREAT, "Suppattr_ExclCreat"	},
-#define FATTR4_FS_CHARSET_CAP      76
-	{	FATTR4_FS_CHARSET_CAP,     "FS_Charset_Cap"		},
-#define FATTR4_SECURITY_LABEL      80
-	{	FATTR4_SECURITY_LABEL,     "Security_Label"		},
-	{	0,	NULL	}
-};
-static value_string_ext fattr4_names_ext = VALUE_STRING_EXT_INIT(fattr4_names);
 
 #define FATTR4_BITMAP_ONLY 0
 #define FATTR4_DISSECT_VALUES 1
