@@ -41,6 +41,11 @@
  * "Conveying path setup type in PCEP messages"
  *  (draft-ietf-pce-lsp-setup-type-02)
  * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
+ * Added support of "Extensions to the Path Computation Element Communication Protocol (PCEP)
+ * for Point-to-Multipoint Traffic Engineering Label Switched Paths" (RFC 6006)
+ * (c) Copyright 2015 Francesco Paolucci <fr.paolucci[AT].sssup.it>,
+ * Oscar Gonzalez de Dios <oscar.gonzalezdedios@telefonica.com>,
+ * ICT EU PACE Project, www.ict-pace.net
  */
 
 #include "config.h"
@@ -77,6 +82,8 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_PCE_ID                 25
 #define PCEP_OBJ_PROC_TIME              26
 #define PCEP_OBJ_OVERLOAD               27
+#define PCEP_SERO_OBJ                   29
+#define PCEP_SRRO_OBJ                   30
 #define PCEP_OBJ_LSP                    32
 #define PCEP_OBJ_SRP                    33
 
@@ -199,6 +206,15 @@ void proto_reg_handoff_pcep(void);
 #define IPv4                            1
 #define IPv6                            2
 
+/*RFC 6006*/
+#define IPv4_P2MP                       3
+#define IPv6_P2MP                       4
+/*RFC 6006 - End Points Leaf Types */
+#define EP_P2MP_NEW_LEAF_TYPE           1
+#define EP_P2MP_OLD_REMOVE_LEAF_TYPE    2
+#define EP_P2MP_OLD_MODIFY_LEAF_TYPE    3
+#define EP_P2MP_OLD_UNCHANGED_LEAF_TYPE 4
+
 /*Mask for the flags os SVEC Object*/
 #define  PCEP_SVEC_L                    0x000001
 #define  PCEP_SVEC_N                    0x000002
@@ -256,6 +272,7 @@ void proto_reg_handoff_pcep(void);
 
 static int proto_pcep = -1;
 
+static gint hf_pcep_endpoint_p2mp_leaf= -1;
 static gint hf_pcep_hdr_msg_flags_reserved= -1;
 static gint hf_pcep_hdr_obj_flags_reserved= -1;
 static gint hf_pcep_hdr_obj_flags_p= -1;
@@ -317,6 +334,8 @@ static gint hf_PCEPF_OBJ_BANDWIDTH = -1;
 static gint hf_PCEPF_OBJ_METRIC = -1;
 static gint hf_PCEPF_OBJ_EXPLICIT_ROUTE = -1;
 static gint hf_PCEPF_OBJ_RECORD_ROUTE = -1;
+static gint hf_PCEPF_OBJ_SERO = -1;
+static gint hf_PCEPF_OBJ_SRRO = -1;
 static gint hf_PCEPF_OBJ_LSPA = -1;
 static gint hf_PCEPF_OBJ_IRO = -1;
 static gint hf_PCEPF_OBJ_SVEC = -1;
@@ -560,6 +579,8 @@ static gint ett_pcep_obj_overload = -1;
 static gint ett_pcep_obj_lsp = -1;
 static gint ett_pcep_obj_srp = -1;
 static gint ett_pcep_obj_unknown = -1;
+static gint ett_pcep_obj_sero = -1;
+static gint ett_pcep_obj_srro = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_pcep_pcep_object_body_non_defined = EI_INIT;
@@ -603,31 +624,33 @@ static const value_string message_type_vals[] = {
 };
 
 static const value_string pcep_class_vals[] = {
-    {PCEP_OPEN_OBJ,                   "OPEN OBJECT"                        },
-    {PCEP_RP_OBJ,                     "RP OBJECT"                          },
-    {PCEP_NO_PATH_OBJ,                "NO-PATH OBJECT"                     },
-    {PCEP_END_POINT_OBJ,              "END-POINT OBJECT"                   },
-    {PCEP_BANDWIDTH_OBJ,              "BANDWIDTH OBJECT"                   },
-    {PCEP_METRIC_OBJ,                 "METRIC OBJECT"                      },
-    {PCEP_EXPLICIT_ROUTE_OBJ,         "EXPLICIT ROUTE OBJECT (ERO)"        },
-    {PCEP_RECORD_ROUTE_OBJ,           "RECORD ROUTE OBJECT (RRO)"          },
-    {PCEP_LSPA_OBJ,                   "LSPA OBJECT"                        },
-    {PCEP_IRO_OBJ,                    "IRO OBJECT"                         },
-    {PCEP_SVEC_OBJ,                   "SVEC OBJECT"                        },
-    {PCEP_NOTIFICATION_OBJ,           "NOTIFICATION OBJECT"                },
-    {PCEP_PCEP_ERROR_OBJ,             "PCEP ERROR OBJECT"                  },
-    {PCEP_LOAD_BALANCING_OBJ,         "LOAD BALANCING OBJECT"              },
-    {PCEP_CLOSE_OBJ,                  "CLOSE OBJECT"                       },
-    {PCEP_PATH_KEY_OBJ,               "PATH-KEY OBJECT"                    },
-    {PCEP_XRO_OBJ,                    "EXCLUDE ROUTE OBJECT (XRO)"         },
-    {PCEP_OBJ_MONITORING,             "MONITORING OBJECT"                  },
-    {PCEP_OBJ_PCC_ID_REQ,             "PCC-ID-REQ OBJECT"                  },
-    {PCEP_OF_OBJ,                     "OBJECTIVE FUNCTION OBJECT (OF)"     },
-    {PCEP_OBJ_PCE_ID,                 "PCE-ID OBJECT"                      },
-    {PCEP_OBJ_PROC_TIME,              "PROC-TIME OBJECT"                   },
-    {PCEP_OBJ_OVERLOAD,               "OVERLOAD OBJECT"                    },
-    {PCEP_OBJ_LSP,                    "LSP OBJECT"                         },
-    {PCEP_OBJ_SRP,                    "SRP OBJECT"                         },
+    {PCEP_OPEN_OBJ,                   "OPEN OBJECT"                            },
+    {PCEP_RP_OBJ,                     "RP OBJECT"                              },
+    {PCEP_NO_PATH_OBJ,                "NO-PATH OBJECT"                         },
+    {PCEP_END_POINT_OBJ,              "END-POINT OBJECT"                       },
+    {PCEP_BANDWIDTH_OBJ,              "BANDWIDTH OBJECT"                       },
+    {PCEP_METRIC_OBJ,                 "METRIC OBJECT"                          },
+    {PCEP_EXPLICIT_ROUTE_OBJ,         "EXPLICIT ROUTE OBJECT (ERO)"            },
+    {PCEP_SERO_OBJ,                   "SECONDARY EXPLICIT ROUTE OBJECT (SERO)" },
+    {PCEP_SRRO_OBJ,                   "SECONDARY RECORD ROUTE OBJECT (SRRO)"   },
+    {PCEP_RECORD_ROUTE_OBJ,           "RECORD ROUTE OBJECT (RRO)"              },
+    {PCEP_LSPA_OBJ,                   "LSPA OBJECT"                            },
+    {PCEP_IRO_OBJ,                    "IRO OBJECT"                             },
+    {PCEP_SVEC_OBJ,                   "SVEC OBJECT"                            },
+    {PCEP_NOTIFICATION_OBJ,           "NOTIFICATION OBJECT"                    },
+    {PCEP_PCEP_ERROR_OBJ,             "PCEP ERROR OBJECT"                      },
+    {PCEP_LOAD_BALANCING_OBJ,         "LOAD BALANCING OBJECT"                  },
+    {PCEP_CLOSE_OBJ,                  "CLOSE OBJECT"                           },
+    {PCEP_PATH_KEY_OBJ,               "PATH-KEY OBJECT"                        },
+    {PCEP_XRO_OBJ,                    "EXCLUDE ROUTE OBJECT (XRO)"             },
+    {PCEP_OBJ_MONITORING,             "MONITORING OBJECT"                      },
+    {PCEP_OBJ_PCC_ID_REQ,             "PCC-ID-REQ OBJECT"                      },
+    {PCEP_OF_OBJ,                     "OBJECTIVE FUNCTION OBJECT (OF)"         },
+    {PCEP_OBJ_PCE_ID,                 "PCE-ID OBJECT"                          },
+    {PCEP_OBJ_PROC_TIME,              "PROC-TIME OBJECT"                       },
+    {PCEP_OBJ_OVERLOAD,               "OVERLOAD OBJECT"                        },
+    {PCEP_OBJ_LSP,                    "LSP OBJECT"                             },
+    {PCEP_OBJ_SRP,                    "SRP OBJECT"                             },
     {0, NULL }
 };
 static value_string_ext pcep_class_vals_ext = VALUE_STRING_EXT_INIT(pcep_class_vals);
@@ -988,6 +1011,15 @@ static const value_string pcep_sr_st_vals[] = {
     {0, NULL }
 };
 
+/* types of leaves in a P2MP request */
+static const value_string pcep_p2mp_leaf_type_vals[] = {
+    {EP_P2MP_NEW_LEAF_TYPE, "New leaves to add"                                        },
+    {EP_P2MP_OLD_REMOVE_LEAF_TYPE , "Old leaves to remove"                             },
+    {EP_P2MP_OLD_MODIFY_LEAF_TYPE, "Old leaves whose path can be modified/reoptimized" },
+    {EP_P2MP_OLD_UNCHANGED_LEAF_TYPE, "Old leaves whose path must be left unchanged"   },
+    {0, NULL }
+};
+
 #define OBJ_HDR_LEN  4       /* length of object header */
 
 static void
@@ -1119,6 +1151,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
     switch (obj_class) {
 
         case PCEP_EXPLICIT_ROUTE_OBJ:
+        case PCEP_SERO_OBJ:
             proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_l,             tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv4, hf_PCEPF_SUBOBJ_7F,                tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_length,        tvb, offset+1, 1, ENC_NA);
@@ -1128,6 +1161,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
             break;
 
         case PCEP_RECORD_ROUTE_OBJ:
+        case PCEP_SRRO_OBJ:
             proto_tree_add_item(pcep_subobj_ipv4, hf_PCEPF_SUBOBJ,                   tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_length,        tvb, offset+1, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_ipv4,          tvb, offset+2, 4, ENC_BIG_ENDIAN);
@@ -1186,6 +1220,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 
     switch (obj_class) {
         case PCEP_EXPLICIT_ROUTE_OBJ:
+        case PCEP_SERO_OBJ:
             proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_l,             tvb, offset,    1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv6, hf_PCEPF_SUBOBJ_7F,                tvb, offset,    1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_length,        tvb, offset+1,  1, ENC_NA);
@@ -1195,6 +1230,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
             break;
 
         case PCEP_RECORD_ROUTE_OBJ:
+        case PCEP_SRRO_OBJ:
             proto_tree_add_item(pcep_subobj_ipv6, hf_PCEPF_SUBOBJ,                   tvb, offset,    1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_length,        tvb, offset+1,  1, ENC_NA);
             proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_ipv6,          tvb, offset+2, 16, ENC_NA);
@@ -1249,6 +1285,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
     switch (obj_class) {
 
         case PCEP_EXPLICIT_ROUTE_OBJ:
+        case PCEP_SERO_OBJ:
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_l,          tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_PCEPF_SUBOBJ_7F,                      tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_length,     tvb, offset+1, 1, ENC_NA);
@@ -1259,6 +1296,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
             break;
 
         case PCEP_RECORD_ROUTE_OBJ:
+        case PCEP_SRRO_OBJ:
             proto_tree_add_item(pcep_subobj_label_control, hf_PCEPF_SUBOBJ,                         tvb, offset,   1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_length,     tvb, offset+1, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_u,          tvb, offset+2, 1, ENC_NA);
@@ -1375,6 +1413,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
     switch (obj_class) {
 
         case PCEP_EXPLICIT_ROUTE_OBJ:
+        case PCEP_SERO_OBJ:
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_l, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_PCEPF_SUBOBJ_7F, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_length, tvb, offset+1, 1, ENC_NA);
@@ -1382,6 +1421,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
             break;
 
         case PCEP_RECORD_ROUTE_OBJ:
+        case PCEP_SRRO_OBJ:
             {
             static const int * flags[] = {
                 &pcep_subobj_flags_lpa,
@@ -1735,6 +1775,8 @@ static void
 dissect_pcep_end_point_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
                            tvbuff_t *tvb, int offset2, int obj_length, int type)
 {
+    int dest_leafs;
+    int i=0;
     switch (type)
     {
         case IPv4:
@@ -1761,6 +1803,22 @@ dissect_pcep_end_point_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
             proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_source_ipv6_address,      tvb, offset2,    16, ENC_NA);
             proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_destination_ipv6_address, tvb, offset2+16, 16, ENC_NA);
+            break;
+
+        case IPv4_P2MP:
+            proto_tree_add_item(pcep_object_tree, hf_pcep_endpoint_p2mp_leaf, tvb, offset2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_source_ipv4_address, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
+            dest_leafs = (obj_length - OBJ_HDR_LEN - 8)/4;
+            for (i=0; i<dest_leafs; i++)
+                proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_destination_ipv4_address, tvb, offset2+8+4*i, 4, ENC_BIG_ENDIAN);
+            break;
+
+       case IPv6_P2MP:
+            proto_tree_add_item(pcep_object_tree, hf_pcep_endpoint_p2mp_leaf, tvb, offset2, 4, ENC_NA);
+            proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_source_ipv6_address, tvb, offset2+4, 16, ENC_NA);
+            dest_leafs = (obj_length - OBJ_HDR_LEN - 20)/16;
+            for (i=0; i<dest_leafs; i++)
+                proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_destination_ipv6_address, tvb, (offset2+20+i*16), 16, ENC_NA);
             break;
 
         default:
@@ -2850,6 +2908,16 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_srp);
                 break;
 
+            case PCEP_SERO_OBJ:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_SERO, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_sero);
+                break;
+
+            case PCEP_SRRO_OBJ:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_SRRO, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_srro);
+                break;
+
             default:
                 pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_UNKNOWN_TYPE, tvb, offset, -1, ENC_NA);
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
@@ -2981,6 +3049,14 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 dissect_pcep_obj_srp(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
                 break;
 
+            case PCEP_SERO_OBJ:
+                dissect_pcep_explicit_route_obj(pcep_object_tree, pinfo, tvb, offset+4, obj_length, obj_class);
+                break;
+
+            case PCEP_SRRO_OBJ:
+                dissect_pcep_record_route_obj(pcep_object_tree, pinfo, tvb, offset+4, obj_length, obj_class);
+                break;
+
             default:
                 proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_pcep_object_body_non_defined,
                                              tvb, offset+4, obj_length-OBJ_HDR_LEN,
@@ -3108,6 +3184,11 @@ proto_register_pcep(void)
         },
 
         /* Object types */
+        { &hf_pcep_endpoint_p2mp_leaf,
+          { "P2MP Leaf type", "pcep.obj.endpoint.p2mp.leaf",
+            FT_UINT32, BASE_DEC, VALS(pcep_p2mp_leaf_type_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_PCEPF_OBJ_OPEN,
           { "OPEN object", "pcep.obj.open",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3225,6 +3306,16 @@ proto_register_pcep(void)
         },
         { &hf_PCEPF_OBJ_EXPLICIT_ROUTE,
           { "EXPLICIT ROUTE object (ERO)", "pcep.obj.ero",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_PCEPF_OBJ_SERO,
+          { "SECONDARY EXPLICIT ROUTE object (SERO)", "pcep.obj.sero",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_PCEPF_OBJ_SRRO,
+          { "SECONDARY RECORD ROUTE object (SRRO)", "pcep.obj.srro",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4464,6 +4555,8 @@ proto_register_pcep(void)
         &ett_pcep_obj_metric,
         &ett_pcep_obj_explicit_route,
         &ett_pcep_obj_record_route,
+        &ett_pcep_obj_sero,
+        &ett_pcep_obj_srro,
         &ett_pcep_obj_lspa,
         &ett_pcep_obj_iro,
         &ett_pcep_obj_svec,
