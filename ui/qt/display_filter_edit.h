@@ -67,6 +67,7 @@ private:
     QCompleter *completer_;
     QStringListModel *completion_model_;
 
+    bool isComplexFilter(const QString &dfilter);
     void buildCompletionList(const QString& field_word);
     // x = Start position, y = length
     QPoint getFieldUnderCursor();

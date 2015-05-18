@@ -25,6 +25,8 @@
 
 #include <epan/dfilter/dfilter.h>
 
+#include <ui/filters.h>
+
 #include "ui/utf8_entities.h"
 
 #include "display_filter_edit.h"
@@ -402,6 +404,22 @@ void DisplayFilterEdit::checkFilter(const QString& text)
     }
 }
 
+bool DisplayFilterEdit::isComplexFilter(const QString &dfilter)
+{
+    bool is_complex = false;
+    for (int i = 0; i < dfilter.length(); i++) {
+        if (!fld_abbrev_chars_.contains(dfilter.at(i))) {
+            is_complex = true;
+            break;
+        }
+    }
+    // Don't complete the current filter.
+    if (is_complex && dfilter.startsWith(text()) && dfilter.compare(text())) {
+        return true;
+    }
+    return false;
+}
+
 // GTK+ behavior:
 // - Operates on words (proto.c:fld_abbrev_chars).
 // - Popup appears when you enter or remove text.
@@ -411,7 +429,7 @@ void DisplayFilterEdit::checkFilter(const QString& text)
 // - Popup appears when you enter or remove text.
 // - Popup appears when you move the cursor.
 // - Popup does not appear when text is selected.
-// - Recent filters in popup when editing first word.
+// - Recent and saved display filters in popup when editing first word.
 
 // ui/gtk/filter_autocomplete.c:build_autocompletion_list
 void DisplayFilterEdit::buildCompletionList(const QString &field_word)
@@ -429,34 +447,36 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
         }
     }
 
-    // Grab matching display filters from our parent combo. Skip ones that
-    // look like single fields and assume they will be added below.
-    QStringList recent_list;
+    if (field_word.length() < 1) {
+        completion_model_->setStringList(QStringList());
+        return;
+    }
+
+    // Grab matching display filters from our parent combo and from the
+    // saved display filters file. Skip ones that look like single fields
+    // and assume they will be added below.
+    QStringList complex_list;
     QComboBox *df_combo = qobject_cast<QComboBox *>(parent());
     if (df_combo) {
         for (int i = 0; i < df_combo->count() ; i++) {
             QString recent_filter = df_combo->itemText(i);
 
-            bool is_complex = false;
-            for (int i = 0; i < recent_filter.length(); i++) {
-                if (!fld_abbrev_chars_.contains(recent_filter.at(i))) {
-                    is_complex = true;
-                    break;
-                }
-            }
-            // Don't complete the current filter.
-            if (is_complex && recent_filter.startsWith(text()) && recent_filter.compare(text())) {
-                recent_list << recent_filter;
+            if (isComplexFilter(recent_filter)) {
+                complex_list << recent_filter;
             }
         }
     }
-    completion_model_->setStringList(recent_list);
-    completer()->setCompletionPrefix(text());
+    for (const GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
+        const filter_def *df_def = (filter_def *) df_item->data;
+        if (!df_def || !df_def->strval) continue;
+        QString saved_filter = df_def->strval;
 
-    // XXX If the popup is too "eager" we can move this to the top.
-    if (field_word.length() < 1) {
-        return;
+        if (isComplexFilter(saved_filter) && !complex_list.contains(saved_filter)) {
+            complex_list << saved_filter;
+        }
     }
+    completion_model_->setStringList(complex_list);
+    completer()->setCompletionPrefix(field_word);
 
     void *proto_cookie;
     QStringList field_list;
@@ -487,7 +507,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
     }
     field_list.sort();
 
-    completion_model_->setStringList(recent_list + field_list);
+    completion_model_->setStringList(complex_list + field_list);
     completer()->setCompletionPrefix(field_word);
 }
 
