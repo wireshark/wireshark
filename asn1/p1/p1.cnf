@@ -763,6 +763,8 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY OrganizationalUnitName
 	tvbuff_t	*string = NULL;
 
+	%(DEFAULT_BODY)s
+
 	do_address("/OU=", string, actx);
 
 #.FN_PARS TeletexOrganizationalUnitName
