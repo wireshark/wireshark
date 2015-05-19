@@ -5326,6 +5326,9 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
+    if (length == 0){
+        return 3 + length;
+    }
     /* Quote from specification:
      * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
      * non-transparent copy of the corresponding IEs (see subclause 7.7.2) and be encoded as specified in Figure 51 below.
