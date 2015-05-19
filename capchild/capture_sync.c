@@ -647,7 +647,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     }
 
     /* call dumpcap */
-    if(!CreateProcess(utf8_to_16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf_8to16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         report_failure("Couldn't run %s in child process: %s",
                        args->str, win32strerror(GetLastError()));
@@ -861,7 +861,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     }
 
     /* call dumpcap */
-    if(!CreateProcess(utf8_to_16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf_8to16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         *msg = g_strdup_printf("Couldn't run %s in child process: %s",
                                args->str, win32strerror(GetLastError()));
