@@ -1118,6 +1118,8 @@ static expert_field ei_dvbci_apdu_not_supported = EI_INIT;
 static expert_field ei_dvbci_not_text_more_or_text_last = EI_INIT;
 static expert_field ei_dvbci_apu_cam_to_host = EI_INIT;
 static expert_field ei_dvbci_ca_pmt_cmd_id = EI_INIT;
+static expert_field ei_dvbci_no_ca_desc_prog = EI_INIT;
+static expert_field ei_dvbci_no_ca_desc_es = EI_INIT;
 static expert_field ei_dvbci_ml = EI_INIT;
 static expert_field ei_dvbci_cup_progress = EI_INIT;
 static expert_field ei_dvbci_sb_value = EI_INIT;
@@ -2597,9 +2599,8 @@ dissect_es(tvbuff_t *tvb, gint offset,
         }
     }
     else {
-        proto_tree_add_text(
-                es_tree, tvb, 0, 0,
-                "No CA descriptors for this elementary stream");
+        proto_tree_add_expert(
+                es_tree, pinfo, &ei_dvbci_no_ca_desc_es, tvb, 0, 0);
     }
 
     proto_item_set_len(ti, offset-offset_start);
@@ -2834,8 +2835,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
             }
         }
         else {
-            proto_tree_add_text(
-                    tree, tvb, 0, 0, "No CA descriptors at program level");
+            proto_tree_add_expert(
+                    tree, pinfo, &ei_dvbci_no_ca_desc_prog, tvb, 0, 0);
         }
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -6180,6 +6181,8 @@ proto_register_dvbci(void)
             { "dvb-ci.invalid_char_tbl", PI_MALFORMED, PI_ERROR,
                 "Invalid character table", EXPFILL }},
         { &ei_dvbci_ca_pmt_cmd_id, { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR, "The ca_pmt shall only contain ca descriptors (tag 0x9)", EXPFILL }},
+        { &ei_dvbci_no_ca_desc_prog, { "dvb-ci.ca.no_ca_desc_prog", PI_PROTOCOL, PI_CHAT, "No CA descriptors at program level", EXPFILL }},
+        { &ei_dvbci_no_ca_desc_es, { "dvb-ci.ca.no_ca_desc_es", PI_PROTOCOL, PI_CHAT, "No CA descriptors for this elementary stream", EXPFILL }},
         { &ei_dvbci_bad_length, { "dvb-ci.bad_length", PI_MALFORMED, PI_ERROR, "Invalid APDU length field, %s must be a multiple of 4 bytes", EXPFILL }},
         { &ei_dvbci_network_id, { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE, "Network ID is usually ignored by hosts", EXPFILL }},
         { &ei_dvbci_not_text_more_or_text_last, { "dvb-ci.not_text_more_or_text_last", PI_MALFORMED, PI_ERROR, "Items must be text_more() or text_last() objects", EXPFILL }},
