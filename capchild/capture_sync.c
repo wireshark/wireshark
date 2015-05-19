@@ -329,7 +329,11 @@ init_pipe_args(int *argc) {
     *argv = NULL;
 
     /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
-    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
+#ifdef _WIN32
+    exename = g_strdup_printf("%s\\dumpcap.exe", progfile_dir);
+#else
+    exename = g_strdup_printf("%s/dumpcap", progfile_dir);
+#endif
 
     /* Make that the first argument in the argument list (argv[0]). */
     argv = sync_pipe_add_arg(argv, argc, exename);
@@ -643,7 +647,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     }
 
     /* call dumpcap */
-    if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf8_to_16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         report_failure("Couldn't run %s in child process: %s",
                        args->str, win32strerror(GetLastError()));
@@ -857,7 +861,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     }
 
     /* call dumpcap */
-    if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf8_to_16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         *msg = g_strdup_printf("Couldn't run %s in child process: %s",
                                args->str, win32strerror(GetLastError()));
