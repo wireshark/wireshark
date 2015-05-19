@@ -460,9 +460,6 @@ static int hf_nfs4_client_id = -1;
 static int hf_nfs4_stateid_other = -1;
 static int hf_nfs4_stateid_hash = -1;
 static int hf_nfs4_lock_reclaim = -1;
-static int hf_nfs4_acl = -1;
-static int hf_nfs4_dacl = -1;
-static int hf_nfs4_sacl = -1;
 static int hf_nfs4_aclflags = -1;
 static int hf_nfs4_aclflag_auto_inherit = -1;
 static int hf_nfs4_aclflag_protected = -1;
@@ -6450,26 +6447,6 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 	guint32 num_aces;
 	guint32 ace_number;
 
-	if (tree) {
-		proto_item *acl_item;
-
-		switch (attr_num) {
-		case FATTR4_DACL:
-			acl_item = proto_tree_add_item(tree, hf_nfs4_dacl, tvb, offset, 0, ENC_BIG_ENDIAN);
-			break;
-
-		case FATTR4_SACL:
-			acl_item = proto_tree_add_item(tree, hf_nfs4_sacl, tvb, offset, 0, ENC_BIG_ENDIAN);
-			break;
-
-		default:
-			acl_item = proto_tree_add_item(tree, hf_nfs4_acl, tvb, offset, 0, ENC_BIG_ENDIAN);
-			break;
-		}
-
-		PROTO_ITEM_SET_HIDDEN(acl_item);
-	}
-
 	if (attr_num != FATTR4_ACL)
 		offset = dissect_nfs4_aclflags(tvb, offset, tree);
 
@@ -11416,15 +11393,6 @@ proto_register_nfs(void)
 		{ &hf_nfs4_stateid_hash, {
 			"StateID Hash", "nfs.stateid4.hash", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-
-		{ &hf_nfs4_acl, {
-			"ACL", "nfs.acl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
-
-		{ &hf_nfs4_dacl, {
-			"DACL", "nfs.dacl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
-
-		{ &hf_nfs4_sacl, {
-			"SACL", "nfs.sacl", FT_NONE, BASE_NONE, NULL, 0, "Access Control List", HFILL }},
 
 		{ &hf_nfs4_aclflags, {
 			"ACL flags", "nfs.acl.flags", FT_UINT32, BASE_DEC,
