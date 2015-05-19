@@ -72,12 +72,10 @@ private:
     Ui::BluetoothAttServerAttributesDialog *ui;
 
     tapinfo_t    tapinfo_;
-    QPushButton *copy_all_button_;
     QMenu        context_menu_;
 
     static void     tapReset(void *tapinfo_ptr);
     static gboolean tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
-    void            copyAll();
 
 private slots:
     void captureFileClosing();
@@ -85,6 +83,8 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionCopy_Cell_triggered();
     void on_actionCopy_Rows_triggered();
+    void on_actionCopy_All_triggered();
+    void on_actionSave_as_image_triggered();
     void tableContextMenu(const QPoint &pos);
     void interfaceCurrentIndexChanged(int index);
     void deviceCurrentIndexChanged(int index);

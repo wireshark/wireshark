@@ -34,6 +34,7 @@
 #include <QContextMenuEvent>
 #include <QPushButton>
 #include <QTreeWidget>
+#include <QFileDialog>
 
 static const int column_number_handle = 0;
 static const int column_number_uuid = 1;
@@ -134,8 +135,8 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
 
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
-
-    copy_all_button_ = ui->buttonBox->addButton(tr("Copy All"), QDialogButtonBox::ApplyRole);
+    context_menu_.addActions(QList<QAction *>() << ui->actionCopy_All);
+    context_menu_.addActions(QList<QAction *>() << ui->actionSave_as_image);
 
     tapinfo_.tap_packet = tapPacket;
     tapinfo_.tap_reset  = tapReset;
@@ -330,7 +331,7 @@ void BluetoothAttServerAttributesDialog::on_tableTreeWidget_itemActivated(QTreeW
 }
 
 
-void BluetoothAttServerAttributesDialog::copyAll()
+void BluetoothAttServerAttributesDialog::on_actionCopy_All_triggered()
 {
     QClipboard             *clipboard = QApplication::clipboard();
     QString                 copy;
@@ -353,11 +354,23 @@ void BluetoothAttServerAttributesDialog::copyAll()
     clipboard->setText(copy);
 }
 
-
-void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *button)
+void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
 {
-    if (button == copy_all_button_)
-        copyAll();
+    QPixmap image;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Table Image"),
+                           "att_server_attributes_table.png",
+                           tr("PNG Image (*.png)"));
+
+    if (fileName.isEmpty()) return;
+
+    image = QPixmap::grabWidget(ui->tableTreeWidget);
+    image.save(fileName, "PNG");
+}
+
+void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *button _U_)
+{
+/*    if (button == foo_button_) */
 }
 
 /*
