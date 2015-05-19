@@ -930,6 +930,8 @@ static int hf_dvbci_data_rate = -1;
 static int hf_dvbci_ca_sys_id = -1;
 static int hf_dvbci_ca_pmt_list_mgmt = -1;
 static int hf_dvbci_prog_num = -1;
+static int hf_dvbci_ca_ver = -1;
+static int hf_dvbci_curr_next = -1;
 static int hf_dvbci_prog_info_len = -1;
 static int hf_dvbci_stream_type = -1;
 static int hf_dvbci_es_pid = -1;
@@ -1042,6 +1044,7 @@ static int hf_dvbci_comms_cmd_id = -1;
 static int hf_dvbci_conn_desc_type = -1;
 static int hf_dvbci_lsc_media_tag = -1;
 static int hf_dvbci_lsc_media_len = -1;
+static int hf_dvbci_lsc_media_data = -1;
 static int hf_dvbci_lsc_ip_ver = -1;
 static int hf_dvbci_lsc_ipv4_addr = -1;
 static int hf_dvbci_lsc_ipv6_addr = -1;
@@ -1957,8 +1960,8 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
                 tvb, offset, hostname_len, ENC_ASCII|ENC_NA);
         offset += hostname_len;
     } else {
-        proto_tree_add_text(conn_desc_tree, tvb,
-                offset, len_field-1, "media specific data");
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_data,
+                tvb, offset, len_field-1, ENC_NA);
         offset += len_field-1;
     }
 
@@ -2771,7 +2774,6 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 {
     const gchar *tag_str;
     guint16      prog_num;
-    guint8       byte;
     guint        prog_info_len;
     gint         es_info_len, all_len;
     gint         ca_desc_len;
@@ -2806,10 +2808,10 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         proto_tree_add_item(
                 tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        byte = tvb_get_guint8(tvb,offset);
-        proto_tree_add_text(tree, tvb, offset, 1,
-                "Version number: 0x%x, Current-next indicator: 0x%x",
-                (byte&0x3E) >> 1, byte&0x01);
+        proto_tree_add_item(
+                tree, hf_dvbci_ca_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(
+                tree, hf_dvbci_curr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         prog_info_len = tvb_get_ntohs(tvb, offset) & 0x0FFF;
         /* the definition of hf_dvbci_prog_info_len also applies the mask */
@@ -2855,10 +2857,10 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         proto_tree_add_item(
                 tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        byte = tvb_get_guint8(tvb,offset);
-        proto_tree_add_text(tree, tvb, offset, 1,
-                "Version number: 0x%x, Current-next indicator: 0x%x",
-                (byte&0x3E) >> 1, byte&0x01);
+        proto_tree_add_item(
+                tree, hf_dvbci_ca_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(
+                tree, hf_dvbci_curr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         desc_ok |= dissect_ca_enable(tvb, offset, pinfo, tree);
         offset++;
@@ -5486,6 +5488,14 @@ proto_register_dvbci(void)
           { "Program number", "dvb-ci.ca.program_number",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_dvbci_ca_ver,
+          { "Version number", "dvb-ci.ca.version_number",
+            FT_UINT8, BASE_HEX, NULL, 0x3E, NULL, HFILL }
+        },
+        { &hf_dvbci_curr_next,
+          { "Current-next indicator", "dvb-ci.ca.current_next_indicator",
+            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }
+        },
         { &hf_dvbci_prog_info_len,
           { "Program info length", "dvb-ci.ca.program_info_length",
             FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL }
@@ -5939,6 +5949,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_lsc_media_len,
           { "Length", "dvb-ci.lsc.media_len",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_media_data,
+          { "Media-specific data", "dvb-ci.lsc.media_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_dvbci_lsc_ip_ver,
           { "IP version", "dvb-ci.lsc.ip_version",
