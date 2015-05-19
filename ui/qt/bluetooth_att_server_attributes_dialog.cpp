@@ -159,6 +159,10 @@ void BluetoothAttServerAttributesDialog::captureFileClosing()
 {
     remove_tap_listener(&tapinfo_);
 
+    ui->interfaceComboBox->setEnabled(FALSE);
+    ui->deviceComboBox->setEnabled(FALSE);
+    ui->removeDuplicatesCheckBox->setEnabled(FALSE);
+
     WiresharkDialog::captureFileClosing();
 }
 
@@ -317,6 +321,9 @@ void BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged(int)
 
 void BluetoothAttServerAttributesDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
+    if (!cap_file_.isValid())
+        return;
+
     guint32 frame_number = item->data(0, Qt::UserRole).value<guint32>();
 
     emit goToPacket(frame_number);
