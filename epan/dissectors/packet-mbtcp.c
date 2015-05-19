@@ -241,6 +241,9 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb)
                         return QUERY_PACKET;
                     }
                 }
+                else {
+                    return RESPONSE_PACKET;
+                }
                 break;
 
             case READ_HOLDING_REGS:
