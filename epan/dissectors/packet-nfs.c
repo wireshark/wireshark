@@ -6742,11 +6742,16 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 					/* Display label: reqd_attr: or reco_attr: */
 					attr_item = proto_tree_add_uint(bitmap_tree,
-						((attr_num <= 11 || attr_num == 19 || attr_num == 75) ? hf_nfs4_reqd_attr: hf_nfs4_reco_attr),
-						tvb, attr_mask_offset, 4, attr_num);
+						(attr_num <= FATTR4_RDATTR_ERROR ||
+						 attr_num == FATTR4_FILEHANDLE ||
+						 attr_num == FATTR4_SUPPATTR_EXCLCREAT) ?
+						hf_nfs4_reqd_attr: hf_nfs4_reco_attr,
+						tvb, offset, 0, attr_num);
 				}
 				if (type == FATTR4_DISSECT_VALUES)
 				{
+					int attr_offset = offset;
+
 					/* Decode the value of this attribute */
 					if (attr_item)
 						attr_tree = proto_item_add_subtree(attr_item, ett_nfs4_bitmap);
@@ -6994,6 +6999,9 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 					default:
 						break;
 					}
+
+					if (attr_item)
+						proto_item_set_len(attr_item, offset - attr_offset);
 				}
 			}
 			sl <<= 1;
