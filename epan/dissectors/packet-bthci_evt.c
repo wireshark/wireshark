@@ -589,13 +589,6 @@ static const value_string evt_scan_types[] = {
     {0, NULL }
 };
 
-static const value_string evt_inq_modes[] = {
-    {0x00, "Standard Results" },
-    {0x01, "Results With RSSI" },
-    {0x02, "Results With RSSI or Extended Results" },
-    {0, NULL }
-};
-
 static const value_string evt_power_level_types[] = {
     {0x00, "Read Current Transmission Power Level" },
     {0x01, "Read Maximum Transmission Power Level" },
@@ -2583,13 +2576,32 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
         case 0x0c17: /* Read Page Timeout */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
 
             timeout = tvb_get_letohs(tvb, offset);
             item = proto_tree_add_item(tree, hf_bthci_evt_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
             offset += 2;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_PAGE_TIMEOUT;
+                tap_device->data.page_timeout = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
 
             break;
 
@@ -2797,6 +2809,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_scan_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_SCAN;
+                tap_device->data.scan = tvb_get_guint8(tvb, offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
+
             break;
 
         case 0x0c1f: /* Read Authentication Enable */
@@ -2808,8 +2838,25 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_authentication_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            break;
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
 
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_AUTHENTICATION;
+                tap_device->data.class_of_device = tvb_get_guint8(tvb, offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
+
+            break;
         case 0x0c21: /* Read Encryption Mode */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             status = tvb_get_guint8(tvb, offset);
@@ -2818,6 +2865,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
             proto_tree_add_item(tree, hf_bthci_evt_encryption_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_ENCRYPTION;
+                tap_device->data.class_of_device = tvb_get_guint8(tvb, offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
 
             break;
 
@@ -2829,6 +2894,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
             call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
             offset += 3;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_CLASS_OF_DEVICE;
+                tap_device->data.class_of_device = tvb_get_guint24(tvb, offset - 3, ENC_LITTLE_ENDIAN);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
 
             break;
 
@@ -2845,6 +2928,24 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_linear_pcm_bit_pos, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_evt_air_coding_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_VOICE_SETTING;
+                tap_device->data.voice_setting = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
 
             break;
 
@@ -2954,8 +3055,27 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
+
             proto_tree_add_item(tree, hf_bthci_evt_inq_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_INQUIRY_MODE;
+                tap_device->data.inquiry_mode = tvb_get_guint8(tvb, offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
             break;
 
         case 0x0c48: /* Read AFH Channel Assessment Mode */
@@ -2996,6 +3116,25 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
             proto_tree_add_item(tree, hf_bthci_evt_simple_pairing_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_SIMPLE_PAIRING_MODE;
+                tap_device->data.simple_pairing_mode = tvb_get_guint8(tvb, offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
+
             break;
 
         case 0x0c57: /* Read Local OOB Data */
@@ -3265,6 +3404,27 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_host_total_num_sco_data_packets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_MTUS;
+                tap_device->data.mtus.acl_mtu     = tvb_get_guint16(tvb, offset - 7, ENC_LITTLE_ENDIAN);
+                tap_device->data.mtus.sco_mtu     = tvb_get_guint8(tvb,  offset - 5);
+                tap_device->data.mtus.acl_packets = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
+                tap_device->data.mtus.sco_packets = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
+
             break;
 
         case 0x100a: /* Read Data Block Size */
@@ -3446,12 +3606,34 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
+
             item = proto_tree_add_item(tree, hf_bthci_evt_le_acl_data_pkt_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             if ( (tvb_get_letohs(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+2) == 0) )
                 proto_item_append_text(item, " (buffers shared between BR/EDR and LE) ");
             offset += 2;
+
             proto_tree_add_item(tree, hf_bthci_evt_total_num_le_acl_data_pkts, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
+                bluetooth_device_tap_t  *tap_device;
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_LE_MTU;
+                tap_device->data.le_mtus.acl_mtu     = tvb_get_guint16(tvb, offset - 3, ENC_LITTLE_ENDIAN);
+                tap_device->data.le_mtus.acl_packets = tvb_get_guint8(tvb,  offset - 1);
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+            }
+
             break;
 
         case 0x2003: /* LE Read Local Supported Features */
@@ -4135,7 +4317,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         case 0x0e: /* Command Complete */
             offset = dissect_bthci_evt_command_complete(tvb, offset, pinfo, tree, bthci_evt_tree, opcode_list, bluetooth_data, &opcode);
-            add_opcode(opcode_list, 0x0429, COMMAND_STATUS_NORMAL); /* Accept Synchronous Connection Request */
             break;
 
         case 0x0f: /* Command Status */
@@ -4506,26 +4687,47 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         frame_number = pinfo->num;
 
-        if (opcode != G_MAXUINT32 && opcode >> 10 != HCI_OGF_VENDOR_SPECIFIC) {
+        if (evt_code == 0x0e /* Command Complete */ && opcode != G_MAXUINT32 && opcode >> 10 != HCI_OGF_VENDOR_SPECIFIC) {
+            bluetooth_device_tap_t  *tap_device;
             guint8  status;
 
-            switch(opcode) {
-            case 0x0c13: /* Change Local Name */
-                status = tvb_get_guint8(tvb, 5);
+            status = tvb_get_guint8(tvb, 5);
 
-                if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
-                    bluetooth_device_tap_t  *tap_device;
+            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) switch(opcode) {
+            case 0x0c03: /* Reset */
 
-                    tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
                     tap_device->interface_id  = bluetooth_data->interface_id;
                     tap_device->adapter_id    = bluetooth_data->adapter_id;
-                    tap_device->has_bd_addr = FALSE;
-                    tap_device->is_local = TRUE;
-                    tap_device->type = BLUETOOTH_DEVICE_NAME;
-                    tap_device->data.name = lastest_bthci_cmd_data->data.name;
-                    tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
                 }
-                if (status == STATUS_SUCCESS && !pinfo->fd->flags.visited) {
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_RESET;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c13: /* Change Local Name */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_NAME;
+                tap_device->data.name = lastest_bthci_cmd_data->data.name;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                if (!pinfo->fd->flags.visited) {
                     localhost_name_entry_t  *localhost_name_entry;
                     wmem_tree_key_t      key[4];
                     guint32              interface_id;
@@ -4550,6 +4752,162 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                     wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
                 }
+                break;
+            case 0x0c18: /* Write Page Timeout */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_PAGE_TIMEOUT;
+                tap_device->data.page_timeout = lastest_bthci_cmd_data->data.page_timeout;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c1a: /* Write Scan Enable */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_SCAN;
+                tap_device->data.scan = lastest_bthci_cmd_data->data.scan;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c20: /* Write Authentication Enable */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_AUTHENTICATION;
+                tap_device->data.authentication = lastest_bthci_cmd_data->data.authentication;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c22: /* Write Encryption Mode */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_ENCRYPTION;
+                tap_device->data.encryption = lastest_bthci_cmd_data->data.encryption;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c24: /* Write Class Of Device */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_CLASS_OF_DEVICE;
+                tap_device->data.class_of_device = lastest_bthci_cmd_data->data.class_of_device;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c26: /* Write Voice Setting */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_VOICE_SETTING;
+                tap_device->data.voice_setting = lastest_bthci_cmd_data->data.voice_setting;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c33: /* Host Buffer Size */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_MTUS;
+                tap_device->data.mtus.acl_mtu     = lastest_bthci_cmd_data->data.mtus.acl_mtu;
+                tap_device->data.mtus.sco_mtu     = lastest_bthci_cmd_data->data.mtus.sco_mtu;
+                tap_device->data.mtus.acl_packets = lastest_bthci_cmd_data->data.mtus.acl_packets;
+                tap_device->data.mtus.sco_packets = lastest_bthci_cmd_data->data.mtus.sco_packets;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c45: /* Write Inquiry Mode */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_INQUIRY_MODE;
+                tap_device->data.inquiry_mode = lastest_bthci_cmd_data->data.inquiry_mode;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
+                break;
+            case 0x0c56: /* Write Simple Pairing */
+
+                tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+                if (bluetooth_data) {
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+                tap_device->has_bd_addr = FALSE;
+                tap_device->is_local = TRUE;
+                tap_device->type = BLUETOOTH_DEVICE_SIMPLE_PAIRING_MODE;
+                tap_device->data.simple_pairing_mode = lastest_bthci_cmd_data->data.simple_pairing_mode;
+                tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+
                 break;
             }
         }
@@ -5519,7 +5877,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_inq_mode,
           {"Inquiry Mode", "bthci_evt.inq_scan_type",
-           FT_UINT8, BASE_DEC, VALS(evt_inq_modes), 0x0,
+           FT_UINT8, BASE_DEC, VALS(bthci_cmd_inq_modes), 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_power_level_type,

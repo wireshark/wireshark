@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BluetoothDeviceDialog</class>
+ <widget class="QDialog" name="BluetoothDeviceDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>544</width>
+    <height>679</height>
+   </rect>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::CustomContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Bluetooth Device</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAsNeeded</enum>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>false</bool>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="showGrid">
+      <bool>true</bool>
+     </property>
+     <property name="gridStyle">
+      <enum>Qt::SolidLine</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>100</number>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <row>
+      <property name="text">
+       <string>BD_ADDR</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>OUI</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Class of Device</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>LMP Version</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>LMP Subverion</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Manufacturer</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>HCI Version</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>HCI Revision</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Scan</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Authentication</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Encryption</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>ACL MTU</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>ACL Total Packets</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>SCO MTU</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>SCO Total Packets</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>LE ACL MTU</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>LE ACL Total Packets</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Inquiry Mode</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Page Timeout</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Simple Pairing Mode</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Voice Setting</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Changes</string>
+      </property>
+     </column>
+     <item row="0" column="1">
+      <property name="text">
+       <string/>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>%1 changes</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionCopy_Cell">
+   <property name="text">
+    <string>Copy Cell</string>
+   </property>
+  </action>
+  <action name="actionCopy_Rows">
+   <property name="text">
+    <string>Copy Rows</string>
+   </property>
+  </action>
+  <action name="actionCopy_All">
+   <property name="text">
+    <string>Copy All</string>
+   </property>
+  </action>
+  <action name="actionSave_as_image">
+   <property name="text">
+    <string>Save as image</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>BluetoothDeviceDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>374</x>
+     <y>407</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>BluetoothDeviceDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>374</x>
+     <y>407</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

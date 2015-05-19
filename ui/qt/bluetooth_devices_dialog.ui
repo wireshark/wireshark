@@ -141,6 +141,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>%1 items; Right click for more option; Double click for device details</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

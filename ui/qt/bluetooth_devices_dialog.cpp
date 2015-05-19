@@ -22,6 +22,8 @@
 #include "bluetooth_devices_dialog.h"
 #include <ui_bluetooth_devices_dialog.h>
 
+#include "bluetooth_device_dialog.h"
+
 #include "epan/epan.h"
 #include "epan/addr_resolv.h"
 #include "epan/to_str.h"
@@ -75,14 +77,17 @@ bluetooth_device_tap_reset(void *tapinfo_ptr)
         tapinfo->tap_reset(tapinfo);
 }
 
-BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf) :
+BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf, PacketList *packet_list) :
     WiresharkDialog(parent, cf),
     ui(new Ui::BluetoothDevicesDialog)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
+    packet_list_ = packet_list;
+
     connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
+    connect(ui->tableTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(tableItemDoubleClicked(QTreeWidgetItem *, int)));
     connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
     connect(ui->showInformationStepsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(showInformationStepsChanged(int)));
 
@@ -103,6 +108,7 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf)
                         bluetooth_device_tap_packet,
                         NULL
                         );
+    ui->hintLabel->setText(ui->hintLabel->text().arg(0));
 
     cap_file_.retapPackets();
 }
@@ -152,6 +158,17 @@ void BluetoothDevicesDialog::tableContextMenu(const QPoint &pos)
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
 }
 
+void BluetoothDevicesDialog::tableItemDoubleClicked(QTreeWidgetItem *item, int column _U_)
+{
+    item_data_t            *item_data;
+    BluetoothDeviceDialog  *bluetooth_device_dialog;
+
+    item_data = item->data(0, Qt::UserRole).value<item_data_t *>();
+    bluetooth_device_dialog = new BluetoothDeviceDialog(*this, cap_file_, item->text(column_number_bd_addr), item->text(column_number_name), item_data->interface_id, item_data->adapter_id, !item->text(column_number_is_local_adapter).isEmpty());
+    connect(bluetooth_device_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    bluetooth_device_dialog->show();
+}
 
 void BluetoothDevicesDialog::on_actionCopy_Cell_triggered()
 {
@@ -193,7 +210,6 @@ void BluetoothDevicesDialog::tapReset(void *tapinfo_ptr)
 {
     bluetooth_devices_tapinfo_t *tapinfo = (bluetooth_devices_tapinfo_t *) tapinfo_ptr;
     BluetoothDevicesDialog  *bluetooth_devices_dialog = static_cast<BluetoothDevicesDialog *>(tapinfo->ui);
-
 
     bluetooth_devices_dialog->ui->tableTreeWidget->clear();
 }
@@ -286,8 +302,9 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
         item->setText(column_number_bd_addr_oui, bd_addr_oui);
     }
 
-    if (tap_device->type == BLUETOOTH_DEVICE_NAME)
+    if (tap_device->type == BLUETOOTH_DEVICE_NAME) {
         item->setText(column_number_name,  tap_device->data.name);
+    }
 
     if (tap_device->type == BLUETOOTH_DEVICE_LOCAL_ADAPTER)
         item->setText(column_number_is_local_adapter,  tr("true"));
@@ -308,6 +325,8 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
     for (int i = 0; i < dialog->ui->tableTreeWidget->columnCount(); i++) {
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
+
+    dialog->ui->hintLabel->setText(QString(tr("%1 items; Right click for more option; Double click for device details")).arg(dialog->ui->tableTreeWidget->topLevelItemCount()));
 
     return TRUE;
 }
@@ -375,9 +394,10 @@ void BluetoothDevicesDialog::on_actionSave_as_image_triggered()
 {
     QPixmap image;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Table Image"),
-                           "bluetooth_devices_table.png",
-                           tr("PNG Image (*.png)"));
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save Table Image"),
+            "bluetooth_devices_table.png",
+            tr("PNG Image (*.png)"));
 
     if (fileName.isEmpty()) return;
 

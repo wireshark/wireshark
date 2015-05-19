@@ -3246,7 +3246,7 @@ void MainWindow::on_actionBluetoothATT_Server_Attributes_triggered()
 
 void MainWindow::on_actionBluetoothDevices_triggered()
 {
-    BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_);
+    BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_, packet_list_);
     connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
     connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString, bool)),

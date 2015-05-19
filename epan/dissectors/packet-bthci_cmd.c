@@ -1327,7 +1327,7 @@ const value_string bthci_cmd_scan_enable_values[] = {
     {0, NULL }
 };
 
-static const value_string cmd_authentication_enable_values[] = {
+const value_string bthci_cmd_authentication_enable_values[] = {
     {0x00, "Authentication disabled" },
     {0x01, "Authentication enabled for all connection" },
     {0, NULL }
@@ -1393,7 +1393,7 @@ static const value_string cmd_loopback_modes[] = {
     {0, NULL }
 };
 
-static const value_string cmd_encrypt_mode_vals[] = {
+const value_string bthci_cmd_encrypt_mode_vals[] = {
     { 0x00, "Encryption Disabled" },
     { 0x01, "Encryption only for Point-To-Point Packets" },
     { 0x02, "Encryption for Point-To-Point and Broadcast Packets" },
@@ -1448,7 +1448,7 @@ static const value_string cmd_scan_types[] = {
     {   0, NULL }
 };
 
-static const value_string cmd_inq_modes[] = {
+const value_string bthci_cmd_inq_modes[] = {
     {0x00, "Standard Results" },
     {0x01, "Results With RSSI" },
     {0x02, "Results With RSSI or Extended Results" },
@@ -2419,28 +2419,43 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             } else {
                 proto_item_append_text(item, " Illegal Page Timeout");
             }
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.page_timeout = timeout;
+            }
             offset+=2;
             break;
 
         case 0x001a: /* Write Scan Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_scan_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.scan = tvb_get_guint8(tvb, offset);
+            }
             offset++;
             break;
 
         case 0x0020: /* Write Authentication Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_authentication_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.authentication = tvb_get_guint8(tvb, offset);
+            }
             offset++;
             break;
 
         case 0x0022: /* Write Encryption Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_encrypt_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.encryption = tvb_get_guint8(tvb, offset);
+            }
             offset++;
             break;
 
         case 0x0024: /* Write Class of Device */
             call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.class_of_device = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+            }
             offset += 3;
             break;
 
@@ -2457,6 +2472,9 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.voice_setting = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            }
             offset+=2;
             break;
 
@@ -2523,6 +2541,13 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_item(tree, hf_bthci_cmd_host_total_num_sco_data_packets,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
+
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.mtus.acl_mtu     = tvb_get_guint16(tvb, offset - 7, ENC_LITTLE_ENDIAN);
+                bthci_cmd_data->data.mtus.sco_mtu     = tvb_get_guint8(tvb,  offset - 5);
+                bthci_cmd_data->data.mtus.acl_packets = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
+                bthci_cmd_data->data.mtus.sco_packets = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+            }
             break;
 
         case 0x0035: /* Host Number Of Completed Packets */
@@ -2608,6 +2633,9 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0045: /* Write Inquiry Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.inquiry_mode = tvb_get_guint8(tvb, offset);
+            }
             offset++;
             break;
 
@@ -2647,6 +2675,9 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0056: /* Write Simple Pairing Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+                bthci_cmd_data->data.simple_pairing_mode = tvb_get_guint8(tvb, offset);
+            }
             offset++;
             break;
 
@@ -3525,7 +3556,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_encrypt_mode,
           { "Encryption Mode",           "bthci_cmd.encrypt_mode",
-            FT_UINT8, BASE_HEX, VALS(cmd_encrypt_mode_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_encrypt_mode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_bd_addr,
@@ -3895,7 +3926,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_authentication_enable,
           { "Authentication Enable", "bthci_cmd.auth_enable",
-            FT_UINT8, BASE_HEX, VALS(cmd_authentication_enable_values), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_authentication_enable_values), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_input_unused,
@@ -4296,7 +4327,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_inq_mode,
           {"Inquiry Mode", "bthci_cmd.inq_scan_type",
-           FT_UINT8, BASE_DEC, VALS(cmd_inq_modes), 0x0,
+           FT_UINT8, BASE_DEC, VALS(bthci_cmd_inq_modes), 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_cmd_fec_required,

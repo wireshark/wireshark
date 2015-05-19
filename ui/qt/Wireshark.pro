@@ -212,6 +212,7 @@ FORMS += \
     about_dialog.ui \
     address_editor_frame.ui \
     bluetooth_att_server_attributes_dialog.ui \
+    bluetooth_device_dialog.ui \
     bluetooth_devices_dialog.ui \
     bluetooth_hci_summary_dialog.ui \
     capture_file_properties_dialog.ui \
@@ -295,6 +296,7 @@ HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     address_editor_frame.h \
     bluetooth_att_server_attributes_dialog.h \
+    bluetooth_device_dialog.h \
     bluetooth_devices_dialog.h \
     bluetooth_hci_summary_dialog.h \
     capture_file_properties_dialog.h \
@@ -680,6 +682,7 @@ SOURCES += \
     accordion_frame.cpp \
     address_editor_frame.cpp \
     bluetooth_att_server_attributes_dialog.cpp \
+    bluetooth_device_dialog.cpp \
     bluetooth_devices_dialog.cpp \
     bluetooth_hci_summary_dialog.cpp \
     byte_view_tab.cpp \

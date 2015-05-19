@@ -163,6 +163,8 @@ bluetooth_att_server_attributes_dialog.$(OBJEXT): ui_bluetooth_att_server_attrib
 
 bluetooth_devices_dialog.$(OBJEXT): ui_bluetooth_devices_dialog.h
 
+bluetooth_device_dialog.$(OBJEXT): ui_bluetooth_device_dialog.h
+
 bluetooth_hci_summary_dialog.$(OBJEXT): ui_bluetooth_hci_summary_dialog.h
 
 capture_file_properties_dialog.$(OBJEXT): ui_capture_file_properties_dialog.h

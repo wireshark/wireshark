@@ -49,6 +49,7 @@ are still available).
 * The Firewall ACL Rules dialog has returned.
 * The Flow (Sequence) Analysis dialog has been improved.
 * We no longer provide packages for 32-bit versions of OS X.
+* The Bluetooth Device details dialog has been added.
 
 //=== Removed Dissectors
 
