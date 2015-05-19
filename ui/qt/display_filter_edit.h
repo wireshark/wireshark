@@ -24,9 +24,7 @@
 
 #include "syntax_line_edit.h"
 
-class QCompleter;
 class QEvent;
-class QStringListModel;
 class QToolButton;
 
 class DisplayFilterEdit : public SyntaxLineEdit
@@ -35,17 +33,14 @@ class DisplayFilterEdit : public SyntaxLineEdit
 public:
     explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = true);
 
-    void setCompleter(QCompleter *c);
-    QCompleter *completer() const { return completer_; }
-
 protected:
 #if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
     void paintEvent(QPaintEvent *evt);
 #endif
     void resizeEvent(QResizeEvent *);
-    void keyPressEvent(QKeyEvent *event);
-    void focusInEvent(QFocusEvent *evt);
-    void focusOutEvent(QFocusEvent *evt);
+    void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
+    void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
+    void focusOutEvent(QFocusEvent *event);
 
 public slots:
     void applyDisplayFilter();
@@ -56,7 +51,6 @@ private slots:
     void bookmarkClicked();
     void clearFilter();
     void changeEvent(QEvent* event);
-    void insertFieldCompletion(const QString & completion_text);
 
 private:
     bool plain_;
@@ -64,13 +58,8 @@ private:
     QToolButton *bookmark_button_;
     QToolButton *clear_button_;
     QToolButton *apply_button_;
-    QCompleter *completer_;
-    QStringListModel *completion_model_;
 
-    bool isComplexFilter(const QString &dfilter);
     void buildCompletionList(const QString& field_word);
-    // x = Start position, y = length
-    QPoint getFieldUnderCursor();
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

@@ -30,8 +30,6 @@
 #include "capture_filter_combo.h"
 #include "wireshark_application.h"
 
-#include <QCompleter>
-
 CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
     QComboBox(parent),
     cf_edit_(NULL)
@@ -39,6 +37,10 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
     cf_edit_ = new CaptureFilterEdit(this, true);
 
     setEditable(true);
+    // Enabling autocompletion here gives us two simultaneous completions:
+    // Inline (highlighted text) for entire filters, handled here and popup
+    // completion for fields handled by CaptureFilterEdit.
+    setAutoCompletion(false);
     setLineEdit(cf_edit_);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setInsertPolicy(QComboBox::NoInsert);
@@ -72,7 +74,6 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
             "  left: 1px;"
             "}"
             );
-    completer()->setCompletionMode(QCompleter::PopupCompletion);
 
     connect(this, SIGNAL(interfacesChanged()), cf_edit_, SLOT(checkFilter()));
     connect(cf_edit_, SIGNAL(pushFilterSyntaxStatus(const QString&)),

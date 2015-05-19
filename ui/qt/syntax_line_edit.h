@@ -24,6 +24,13 @@
 
 #include <QLineEdit>
 
+class QCompleter;
+class QStringListModel;
+
+// Autocompletion is partially implemented. Subclasses must:
+// - Provide buildCompletionList
+// - Call setCompletionTokenChars
+
 class SyntaxLineEdit : public QLineEdit
 {
     Q_OBJECT
@@ -39,6 +46,9 @@ public:
     QString styleSheet() const;
     QString deprecatedToken();
 
+    void setCompleter(QCompleter *c);
+    QCompleter *completer() const { return completer_; }
+
 public slots:
     void setStyleSheet(const QString &style_sheet);
 
@@ -47,12 +57,28 @@ public slots:
     void checkFieldName(QString field);
     void checkInteger(QString number);
 
+protected:
+    QCompleter *completer_;
+    QStringListModel *completion_model_;
+    void setCompletionTokenChars(const QString &token_chars) { token_chars_ = token_chars; }
+    bool isComplexFilter(const QString &filter);
+    virtual void buildCompletionList(const QString&) { }
+    // x = Start position, y = length
+    QPoint getTokenUnderCursor();
+
+    void completionKeyPressEvent(QKeyEvent *event);
+    void completionFocusInEvent(QFocusEvent *event);
+
 private:
     SyntaxState syntax_state_;
     QString style_sheet_;
     QString state_style_sheet_;
     QString deprecated_token_;
     QString syntax_error_message_;
+    QString token_chars_;
+
+private slots:
+    void insertFieldCompletion(const QString &completion_text);
 
 signals:
 

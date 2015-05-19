@@ -31,10 +31,41 @@
 
 #include "color_utils.h"
 
+#include <QAbstractItemView>
+#include <QCompleter>
+#include <QKeyEvent>
+#include <QScrollBar>
+#include <QStringListModel>
+
+const int max_completion_items_ = 20;
+
 SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
-    QLineEdit(parent)
+    QLineEdit(parent),
+    completer_(NULL),
+    completion_model_(NULL)
 {
     setSyntaxState();
+}
+
+// Override setCompleter so that we don't clobber the filter text on activate.
+void SyntaxLineEdit::setCompleter(QCompleter *c)
+{
+    if (completer_)
+        QObject::disconnect(completer_, 0, this, 0);
+
+    completer_ = c;
+
+    if (!completer_)
+        return;
+
+    completer_->setWidget(this);
+    completer_->setCompletionMode(QCompleter::PopupCompletion);
+    completer_->setCaseSensitivity(Qt::CaseInsensitive);
+    // Completion items are not guaranteed to be sorted (recent filters +
+    // fields), so no setModelSorting.
+    completer_->setMaxVisibleItems(max_completion_items_);
+    QObject::connect(completer_, SIGNAL(activated(QString)),
+                     this, SLOT(insertFieldCompletion(QString)));
 }
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
@@ -143,4 +174,110 @@ void SyntaxLineEdit::checkInteger(QString number)
     } else {
         setSyntaxState(SyntaxLineEdit::Invalid);
     }
+}
+
+bool SyntaxLineEdit::isComplexFilter(const QString &filter)
+{
+    bool is_complex = false;
+    for (int i = 0; i < filter.length(); i++) {
+        if (!token_chars_.contains(filter.at(i))) {
+            is_complex = true;
+            break;
+        }
+    }
+    // Don't complete the current filter.
+    if (is_complex && filter.startsWith(text()) && filter.compare(text())) {
+        return true;
+    }
+    return false;
+}
+
+void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
+{
+    // Forward to the completer if needed...
+    if (completer_ && completer_->popup()->isVisible()) {
+        switch (event->key()) {
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+        case Qt::Key_Escape:
+        case Qt::Key_Tab:
+        case Qt::Key_Backtab:
+            event->ignore();
+            return;
+        default:
+            break;
+        }
+    }
+
+    // ...otherwise process the key ourselves.
+    SyntaxLineEdit::keyPressEvent(event);
+
+    if (!completer_ || !completion_model_) return;
+
+    // Do nothing on bare shift.
+    if ((event->modifiers() & Qt::ShiftModifier) && event->text().isEmpty()) return;
+
+    if (event->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier)) {
+        completer_->popup()->hide();
+        return;
+    }
+
+    QPoint token_coords(getTokenUnderCursor());
+
+    QString token_word = text().mid(token_coords.x(), token_coords.y());
+    buildCompletionList(token_word);
+
+    if (completion_model_->stringList().length() < 1) {
+        completer_->popup()->hide();
+        return;
+    }
+
+    QRect cr = cursorRect();
+    cr.setWidth(completer_->popup()->sizeHintForColumn(0)
+                + completer_->popup()->verticalScrollBar()->sizeHint().width());
+    completer_->complete(cr);
+}
+
+void SyntaxLineEdit::completionFocusInEvent(QFocusEvent *event)
+{
+    if (completer_)
+        completer_->setWidget(this);
+    SyntaxLineEdit::focusInEvent(event);
+}
+
+void SyntaxLineEdit::insertFieldCompletion(const QString &completion_text)
+{
+    if (!completer_) return;
+
+    QPoint field_coords(getTokenUnderCursor());
+
+    // Insert only if we have a matching field or if the entry is empty
+    if (field_coords.y() < 1 && !text().isEmpty()) {
+        completer_->popup()->hide();
+        return;
+    }
+
+    QString new_text = text().replace(field_coords.x(), field_coords.y(), completion_text);
+    setText(new_text);
+    setCursorPosition(field_coords.x() + completion_text.length());
+}
+
+QPoint SyntaxLineEdit::getTokenUnderCursor()
+{
+    if (selectionStart() >= 0) return (QPoint(0,0));
+
+    int pos = cursorPosition();
+    int start = pos;
+    int len = 0;
+
+    while (start > 0 && token_chars_.contains(text().at(start -1))) {
+        start--;
+        len++;
+    }
+    while (pos < text().length() && token_chars_.contains(text().at(pos))) {
+        pos++;
+        len++;
+    }
+
+    return QPoint(start, len);
 }

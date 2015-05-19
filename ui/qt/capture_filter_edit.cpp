@@ -26,16 +26,26 @@
 #include <epan/proto.h>
 
 #include "capture_opts.h"
-#include "ui/capture_globals.h"
+
+#include <ui/capture_globals.h>
+#include <ui/filters.h>
+#include <ui/utf8_entities.h>
 
 #include "capture_filter_edit.h"
 #include "wireshark_application.h"
 
+#include <QComboBox>
+#include <QCompleter>
 #include <QPainter>
+#include <QStringListModel>
 #include <QStyleOptionFrame>
 
-#include "ui/utf8_entities.h"
 #include "qt_ui_utils.h"
+
+// To do:
+// - This duplicates some DisplayFilterEdit code.
+// - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
+
 
 #if defined(Q_OS_MAC) && 0
 // http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html
@@ -72,8 +82,26 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 
 #endif
 
+static const QString libpcap_primitive_chars_ = "-0123456789abcdefghijklmnopqrstuvwxyz";
 
-// XXX - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
+// grep '^[a-z].*return [A-Z].*;$' scanner.l | awk '{gsub(/\|/, "\n") ; print "    << \"" $1 "\""}' | sort
+static const QStringList libpcap_primitives_ = QStringList()
+        << "aarp" << "action" << "address1" << "address2" << "address3" << "address4"
+        << "ah" << "and" << "arp" << "atalk" << "bcc" << "broadcast" << "byte" << "carp"
+        << "clnp" << "connectmsg" << "csnp" << "decnet" << "direction" << "dpc"
+        << "dst" << "es-is" << "esis" << "esp" << "fddi" << "fisu" << "gateway"
+        << "greater" << "hdpc" << "hfisu" << "hlssu" << "hmsu" << "hopc" << "host"
+        << "hsio" << "hsls" << "icmp" << "icmp6" << "igmp" << "igrp" << "iih" << "ilmic"
+        << "inbound" << "ip" << "ip6" << "ipx" << "is-is" << "isis" << "iso" << "l1"
+        << "l2" << "lane" << "lat" << "len" << "less" << "link" << "llc" << "lsp"
+        << "lssu" << "lsu" << "mask" << "metac" << "metaconnect" << "mopdl" << "moprc"
+        << "mpls" << "msu" << "multicast" << "net" << "netbeui" << "oam" << "oamf4"
+        << "oamf4ec" << "oamf4sc" << "on" << "opc" << "or" << "outbound" << "pim"
+        << "port" << "portrange" << "pppoed" << "pppoes" << "proto" << "psnp" << "ra"
+        << "radio" << "rarp" << "reason" << "rnr" << "rset" << "sc" << "sca" << "sctp"
+        << "sio" << "sls" << "snp" << "src" << "srnr" << "stp" << "subtype" << "ta"
+        << "tcp" << "type" << "udp" << "vci" << "vlan" << "vpi" << "vrrp"
+        ;
 
 CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
@@ -82,6 +110,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     apply_button_(NULL)
 {
     setAccessibleName(tr("Capture filter entry"));
+
+    completion_model_ = new QStringListModel(this);
+    setCompleter(new QCompleter(completion_model_, this));
+    setCompletionTokenChars(libpcap_primitive_chars_);
 
     placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
@@ -341,6 +373,41 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString
 void CaptureFilterEdit::bookmarkClicked()
 {
     emit addBookmark(text());
+}
+
+void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
+{
+    if (primitive_word.length() < 1) {
+        completion_model_->setStringList(QStringList());
+        return;
+    }
+
+    // Grab matching capture filters from our parent combo and from the
+    // saved capture filters file. Skip ones that look like single fields
+    // and assume they will be added below.
+    QStringList complex_list;
+    QComboBox *cf_combo = qobject_cast<QComboBox *>(parent());
+    if (cf_combo) {
+        for (int i = 0; i < cf_combo->count() ; i++) {
+            QString recent_filter = cf_combo->itemText(i);
+
+            if (isComplexFilter(recent_filter)) {
+                complex_list << recent_filter;
+            }
+        }
+    }
+    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+        const filter_def *cf_def = (filter_def *) cf_item->data;
+        if (!cf_def || !cf_def->strval) continue;
+        QString saved_filter = cf_def->strval;
+
+        if (isComplexFilter(saved_filter) && !complex_list.contains(saved_filter)) {
+            complex_list << saved_filter;
+        }
+    }
+
+    completion_model_->setStringList(complex_list + libpcap_primitives_);
+    completer()->setCompletionPrefix(primitive_word);
 }
 
 void CaptureFilterEdit::applyCaptureFilter()

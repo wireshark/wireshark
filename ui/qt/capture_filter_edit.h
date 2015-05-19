@@ -38,8 +38,8 @@ protected:
     void paintEvent(QPaintEvent *evt);
 #endif
     void resizeEvent(QResizeEvent *);
-//    void focusInEvent(QFocusEvent *evt);
-//    void focusOutEvent(QFocusEvent *evt);
+    void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
+    void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
 
 public slots:
     void checkFilter();
@@ -59,6 +59,8 @@ private:
     QToolButton *clear_button_;
     QToolButton *apply_button_;
     CaptureFilterSyntaxWorker *syntax_worker_;
+
+    void buildCompletionList(const QString& primitive_word);
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

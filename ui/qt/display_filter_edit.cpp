@@ -36,9 +36,7 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QEvent>
-#include <QKeyEvent>
 #include <QPainter>
-#include <QScrollBar>
 #include <QStringListModel>
 #include <QStyleOptionFrame>
 #include <QToolButton>
@@ -95,22 +93,19 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 #define DEFAULT_MODIFIER "Ctrl-"
 #endif
 
-const int max_completion_items_ = 20;
-
 // proto.c:fld_abbrev_chars
 static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
     plain_(plain),
-    apply_button_(NULL),
-    completer_(NULL)
+    apply_button_(NULL)
 {
     setAccessibleName(tr("Display filter entry"));
 
     completion_model_ = new QStringListModel(this);
-    QCompleter *completer_ = new QCompleter(completion_model_, this);
-    setCompleter(completer_);
+    setCompleter(new QCompleter(completion_model_, this));
+    setCompletionTokenChars(fld_abbrev_chars_);
 
     if (plain_) {
         placeholder_text_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
@@ -238,27 +233,6 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                   );
 }
 
-// Override setCompleter so that we don't clobber the filter text on activate.
-void DisplayFilterEdit::setCompleter(QCompleter *c)
-{
-    if (completer_)
-        QObject::disconnect(completer_, 0, this, 0);
-
-    completer_ = c;
-
-    if (!completer_)
-        return;
-
-    completer_->setWidget(this);
-    completer_->setCompletionMode(QCompleter::PopupCompletion);
-    completer_->setCaseSensitivity(Qt::CaseInsensitive);
-    // Completion items are not guaranteed to be sorted (recent filters +
-    // fields), so no setModelSorting.
-    completer_->setMaxVisibleItems(max_completion_items_);
-    QObject::connect(completer_, SIGNAL(activated(QString)),
-                     this, SLOT(insertFieldCompletion(QString)));
-}
-
 #if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
@@ -308,64 +282,11 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
     bookmark_button_->setMaximumHeight(contentsRect().height());
 }
 
-void DisplayFilterEdit::keyPressEvent(QKeyEvent *event)
-{
-    // Forward to the completer if needed...
-    if (completer_ && completer_->popup()->isVisible()) {
-        switch (event->key()) {
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
-        case Qt::Key_Escape:
-        case Qt::Key_Tab:
-        case Qt::Key_Backtab:
-            event->ignore();
-            return;
-        default:
-            break;
-        }
-    }
-
-    // ...otherwise process the key ourselves.
-    QLineEdit::keyPressEvent(event);
-
-    if (!completer_) return;
-
-    // Do nothing on bare shift.
-    if ((event->modifiers() & Qt::ShiftModifier) && event->text().isEmpty()) return;
-
-    if (event->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier)) {
-        completer_->popup()->hide();
-        return;
-    }
-
-    QPoint field_coords(getFieldUnderCursor());
-
-    QString field_word = text().mid(field_coords.x(), field_coords.y());
-    buildCompletionList(field_word);
-
-    if (completion_model_->stringList().length() < 1) {
-        completer_->popup()->hide();
-        return;
-    }
-
-    QRect cr = cursorRect();
-    cr.setWidth(completer_->popup()->sizeHintForColumn(0)
-                + completer_->popup()->verticalScrollBar()->sizeHint().width());
-    completer_->complete(cr);
-}
-
-void DisplayFilterEdit::focusInEvent(QFocusEvent *evt)
-{
-    if (completer_)
-        completer_->setWidget(this);
-    SyntaxLineEdit::focusInEvent(evt);
-}
-
-void DisplayFilterEdit::focusOutEvent(QFocusEvent *evt)
+void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
 {
     if (syntaxState() == Valid)
         emit popFilterSyntaxStatus();
-    SyntaxLineEdit::focusOutEvent(evt);
+    SyntaxLineEdit::focusOutEvent(event);
 }
 
 void DisplayFilterEdit::checkFilter(const QString& text)
@@ -402,22 +323,6 @@ void DisplayFilterEdit::checkFilter(const QString& text)
     if (apply_button_) {
         apply_button_->setEnabled(SyntaxState() != Invalid);
     }
-}
-
-bool DisplayFilterEdit::isComplexFilter(const QString &dfilter)
-{
-    bool is_complex = false;
-    for (int i = 0; i < dfilter.length(); i++) {
-        if (!fld_abbrev_chars_.contains(dfilter.at(i))) {
-            is_complex = true;
-            break;
-        }
-    }
-    // Don't complete the current filter.
-    if (is_complex && dfilter.startsWith(text()) && dfilter.compare(text())) {
-        return true;
-    }
-    return false;
 }
 
 // GTK+ behavior:
@@ -561,44 +466,6 @@ void DisplayFilterEdit::changeEvent(QEvent* event)
         }
     }
     SyntaxLineEdit::changeEvent(event);
-}
-
-void DisplayFilterEdit::insertFieldCompletion(const QString &completion_text)
-{
-    QCompleter *completer_ = completer();
-    if (!completer_) return;
-
-    QPoint field_coords(getFieldUnderCursor());
-
-    // Insert only if we have a matching field or if the entry is empty
-    if (field_coords.y() < 1 && !text().isEmpty()) {
-        completer_->popup()->hide();
-        return;
-    }
-
-    QString new_text = text().replace(field_coords.x(), field_coords.y(), completion_text);
-    setText(new_text);
-    setCursorPosition(field_coords.x() + completion_text.length());
-}
-
-QPoint DisplayFilterEdit::getFieldUnderCursor()
-{
-    if (selectionStart() >= 0) return (QPoint(0,0));
-
-    int pos = cursorPosition();
-    int start = pos;
-    int len = 0;
-
-    while (start > 0 && fld_abbrev_chars_.contains(text().at(start -1))) {
-        start--;
-        len++;
-    }
-    while (pos < text().length() && fld_abbrev_chars_.contains(text().at(pos))) {
-        pos++;
-        len++;
-    }
-
-    return QPoint(start, len);
 }
 
 /*
