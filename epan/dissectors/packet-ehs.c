@@ -1,5 +1,5 @@
 /* packet-ehs.c
- * Routines for "Enhanced HSC System" (EHS) dissection
+ * Routines for "Enhanced HOSC System" (EHS) dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  * Enhanced 2008, Matt Dunkle Matthew.L.Dunkle@nasa.gov
  *
