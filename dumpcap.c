@@ -787,6 +787,25 @@ open_capture_device(capture_options *capture_opts
                                 *open_err_str);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
               "pcap_open_live() returned %p.", (void *)pcap_h);
+
+/* Windows doesn't have pcap_create() yet */
+#ifdef _WIN32
+        /* try to set the capture buffer size -- but not for remote devices */
+        if (interface_opts->buffer_size > 1 &&
+            pcap_setbuff(pcap_h, interface_opts->buffer_size * 1024 * 1024) != 0) {
+            gchar      *sync_secondary_msg_str;
+
+            sync_secondary_msg_str = g_strdup_printf(
+                "The capture buffer size of %d MiB seems to be too high for your machine,\n"
+                "the default of %d MiB will be used.\n"
+                "\n"
+                "Nonetheless, the capture is started.\n",
+                interface_opts->buffer_size, DEFAULT_CAPTURE_BUFFER_SIZE);
+            report_capture_error("Couldn't set the capture buffer size.",
+                                 sync_secondary_msg_str);
+            g_free(sync_secondary_msg_str);
+        }
+#endif
 #endif
     }
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
@@ -2635,7 +2654,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     guint             i;
 #ifdef _WIN32
     int         err;
-    gchar      *sync_secondary_msg_str;
     WORD        wVersionRequested;
     WSADATA     wsaData;
 #endif
@@ -2753,22 +2771,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
             /* Find out if we're getting nanosecond-precision time stamps */
             pcap_opts->ts_nsec = have_high_resolution_timestamp(pcap_opts->pcap_h);
-#endif
-
-#ifdef _WIN32
-            /* try to set the capture buffer size */
-            if (interface_opts.buffer_size > 1 &&
-                pcap_setbuff(pcap_opts->pcap_h, interface_opts.buffer_size * 1024 * 1024) != 0) {
-                sync_secondary_msg_str = g_strdup_printf(
-                    "The capture buffer size of %d MiB seems to be too high for your machine,\n"
-                    "the default of %d MiB will be used.\n"
-                    "\n"
-                    "Nonetheless, the capture is started.\n",
-                    interface_opts.buffer_size, DEFAULT_CAPTURE_BUFFER_SIZE);
-                report_capture_error("Couldn't set the capture buffer size.",
-                                     sync_secondary_msg_str);
-                g_free(sync_secondary_msg_str);
-            }
 #endif
 
 #if defined(HAVE_PCAP_SETSAMPLING)
