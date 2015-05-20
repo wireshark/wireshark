@@ -32,6 +32,14 @@ static dissector_handle_t ethertype_handle;
 static int proto_vntag = -1;
 
 static int hf_vntag_etype = -1;
+static int hf_vntag_dir = -1;
+static int hf_vntag_ptr = -1;
+static int hf_vntag_vif_list_id = -1;
+static int hf_vntag_dst = -1;
+static int hf_vntag_looped = -1;
+static int hf_vntag_r = -1;
+static int hf_vntag_version = -1;
+static int hf_vntag_src = -1;
 /* static int hf_vntag_len = -1; */
 static int hf_vntag_trailer = -1;
 
@@ -44,27 +52,28 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vntag_tree = NULL;
 	ethertype_data_t ethertype_data;
 
+	/* from scapy (http://hg.secdev.org/scapy-com/rev/37acec891993) GPLv2: */
+	/* another: http://www.definethecloud.net/access-layer-network-virtualization-vn-tag-and-vepa */
+	static const int * fields[] = {
+		&hf_vntag_dir,
+		&hf_vntag_ptr,
+		&hf_vntag_vif_list_id,
+		&hf_vntag_dst,
+		&hf_vntag_looped,
+		&hf_vntag_r,
+		&hf_vntag_version,
+		&hf_vntag_src,
+		NULL
+	};
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VNTAG");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		proto_item *ti = proto_tree_add_item(tree, proto_vntag, tvb, 0, 4, ENC_NA);
-
 		vntag_tree = proto_item_add_subtree(ti, ett_vntag);
 
-		/* XXX, 4 bytes of data */
-
-		/* from scapy (http://hg.secdev.org/scapy-com/rev/37acec891993) GPLv2:
-
-		   BitField("dir",     0, 1),
-		   BitField("ptr",     0, 1),
-		   BitField("dst",     0, 14),
-		   BitField("looped",  0, 1),
-		   BitField("r",       0, 1),
-		   BitField("version", 0, 2),
-		   BitField("src",     0, 12) ]
-		*/
-		/* another: http://www.definethecloud.net/access-layer-network-virtualization-vn-tag-and-vepa */
+		proto_tree_add_bitmask_list(vntag_tree, tvb, 0, 4, fields, ENC_BIG_ENDIAN);
 	}
 
 	encap_proto = tvb_get_ntohs(tvb, 4);
@@ -84,7 +93,7 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		is_802_2 = TRUE;
 
 		/* Don't throw an exception for this check (even a BoundsError) */
-		if (tvb_length_remaining(tvb, 4) >= 2) {
+		if (tvb_captured_length_remaining(tvb, 4) >= 2) {
 			if (tvb_get_ntohs(tvb, 4) == 0xffff)
 				is_802_2 = FALSE;
 		}
@@ -112,6 +121,31 @@ proto_register_vntag(void)
 		{ &hf_vntag_etype,
 			{ "Type", "vntag.etype", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0, NULL, HFILL }
 		},
+		{ &hf_vntag_dir,
+			{ "Direction", "vntag.dir", FT_UINT32, BASE_DEC, NULL, 0x80000000, NULL, HFILL }
+		},
+		{ &hf_vntag_ptr,
+			{ "Pointer", "vntag.ptr", FT_UINT32, BASE_DEC, NULL, 0x40000000, NULL, HFILL }
+		},
+		{ &hf_vntag_vif_list_id,
+			{ "Downlink Ports", "vntag.vif_list_id", FT_UINT32, BASE_DEC, NULL, 0x30000000, NULL, HFILL }
+		},
+		{ &hf_vntag_dst,
+			{ "Destination", "vntag.dst", FT_UINT32, BASE_DEC, NULL, 0x0FFF0000, NULL, HFILL }
+		},
+		{ &hf_vntag_looped,
+			{ "Looped", "vntag.looped", FT_UINT32, BASE_DEC, NULL, 0x00008000, NULL, HFILL }
+		},
+		{ &hf_vntag_r,
+			{ "Reserved", "vntag.r", FT_UINT32, BASE_DEC, NULL, 0x00004000, NULL, HFILL }
+		},
+		{ &hf_vntag_version,
+			{ "Version", "vntag.version", FT_UINT32, BASE_DEC, NULL, 0x00003000, NULL, HFILL }
+		},
+		{ &hf_vntag_src,
+			{ "Source", "vntag.src", FT_UINT32, BASE_DEC, NULL, 0x00000FFF, NULL, HFILL }
+		},
+
 #if 0
 		{ &hf_vntag_len,
 			{ "Length", "vntag.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
@@ -139,7 +173,7 @@ proto_reg_handoff_vntag(void)
 	/* XXX, add 0x8926 define to epan/etypes.h && etype_vals */
 
 	vntag_handle = create_dissector_handle(dissect_vntag, proto_vntag);
-	dissector_add_uint("ethertype", 0x8926, vntag_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_VNTAG, vntag_handle);
 
 	ethertype_handle = find_dissector("ethertype");
 }

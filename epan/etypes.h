@@ -530,6 +530,10 @@ extern "C" {
 #define ETHERTYPE_TTE_PCF		0x891D  /* TTEthernet Protocol Control Frame */
 #endif
 
+#ifndef ETHERTYPE_VNTAG
+#define ETHERTYPE_VNTAG			0x8926  /* VN-Tag */
+#endif
+
 #ifndef ETHERTYPE_HSR
 #define ETHERTYPE_HSR			0x892F  /* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
