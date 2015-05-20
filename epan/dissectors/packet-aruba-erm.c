@@ -256,7 +256,7 @@ proto_register_aruba_erm(void)
           { "Channel", "aruba_erm.channel", FT_UINT8, BASE_DEC, NULL,
             0x00, "802.11 channel number that this frame was sent/received on", HFILL }},
         { &hf_aruba_erm_signal_strength,
-          { "Signal Strength  [percent]", "aruba_erm.signal_strength", FT_UINT8, BASE_DEC, NULL,
+          { "Signal Strength [percent]", "aruba_erm.signal_strength", FT_UINT8, BASE_DEC, NULL,
             0x00, "Signal strength (Percentage)", HFILL }},
     };
 
