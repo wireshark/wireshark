@@ -577,7 +577,7 @@ static const range_string tp_pid_device_type_rvals[] = {
     { 0x12, 0x12,  "Internet Electronic Mail" },
     { 0x13, 0x17,  "Reserved" },
     { 0x18, 0x1E,  "values specific to each SC" },
-    { 0x1F, 0x1F,  "Reserved" },
+    { 0x1F, 0x1F,  "GSM/UMTS mobile station" },
     { 0, 0, NULL }
 };
 
@@ -590,6 +590,7 @@ static const value_string pid_message_type_vals[] = {
    {0x05,    "Replace Short Message Type 5"},
    {0x06,    "Replace Short Message Type 6"},
    {0x07,    "Replace Short Message Type 7"},
+   {0x08,    "Device Triggering Short Message"},
    {0x1e,    "Enhanced Message Service (Obsolete)"},
    {0x1f,    "Return Call Message"},
    {0x3c,    "ANSI-136 R-DATA"},
@@ -1289,9 +1290,10 @@ dis_iei_apa_8bit(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 of
 
 /* 9.2.3.24.4 */
 static const range_string gsm_sms_16bit_port_values[] = {
-  { 0,     16000,  "As allocated by IANA (http://www.IANA.com/)" },
-  { 16001, 16999,  "Available for allocation by applications" },
-  { 17000, 0xFFFF, "Reserved" },
+  { 0,     15999, "UDP/TCP port numbers assigned by IANA without the need to refer to 3GPP" },
+  { 16000, 16999, "Available for allocation by SMS applications without the need to refer to 3GPP or IANA" },
+  { 17000, 49151, "UDP/TCP port numbers assigned by IANA" },
+  { 49152, 65535, "Reserved for future allocation by 3GPP" },
   { 0,   0,     NULL }
 };
 
