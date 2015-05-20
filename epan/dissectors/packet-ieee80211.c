@@ -11796,13 +11796,13 @@ dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
     /* TODO: Still figuring out how to parse these ones,
      * need a sample capture with at least HEX Dump
      */
-    proto_item_append_text(ti, " :RIC Descriptors: Block ACK Params");
+    proto_item_append_text(ti, " : Block ACK Params");
     proto_tree_add_item(tree, hf_ieee80211_tag_ric_desc_var_params, tvb,
                         offset, tag_len-1, ENC_NA);
     offset += tag_len -1;
   }else {
     /* 0,2-255 are reserved*/
-    proto_item_append_text(ti, " :RIC Descriptors: 0(Reserved)");
+    proto_item_append_text(ti, " :Reserved (type != 1)");
   }
   return offset;
 }
