@@ -3381,62 +3381,24 @@ void register_menu_bar_menu_items(
 #define XMENU_HEADER            "<ui><menubar name='Menubar'>\n"
 #define XMENU_FOOTER            "</menubar></ui>\n"
 
-/**
- * Creates an XML string, containing a UI definition that can be merged
- * with Wireshark's menu bar using gtk_ui_manager_add_ui_from_string().
- * Free the returned string with g_free() when no longer needed.
- *
- * The last item in the path is treated as the menu item; all preceding path
- * elements are the names of parent menus. Path elements are stripped of
- * leading/trailing spaces.
- *
- * |'s separate an existing menu's name from its action.
- * If the action has a / in it, it must have been "escaped" into a # before
- * entering this function; this function will translate it back to a /.
- * There must be an easier way!
- *
- * Examples:
- *      make_menu_xml("/Foo/Bar|/BarAction/I_tem");
- *   -->
- *              "<ui><menubar name='Menubar'>
- *              <menu action='Foo'>
- *              <menu name='Bar' action='/BarAction'>
- *              <menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
- *              </menu>
- *              </menu>
- *              <menubar></ui>"
- *
- *  make_menu_xml("/Foo/Bar|BarAction/-/Baz|BarAction#BazAction/Item");
- *    -->
- *      "<ui><menubar name='Menubar'>
- *      <menu action='Foo'>
- *      <menu name='Bar' action='/BarAction'>
- *      <separator/>
- *      <menu name='Baz' action='BarAction/BazAction'>
- *      <menuitem action='Item'/>
- *      </menu>
- *      </menu>
- *      </menu>
- *      <menubar></ui>"
- *
- * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
- * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
- */
-static const gchar*
-make_menu_xml(const char *path)
+static void
+add_menu_item(const gchar *path, const gchar *name, const menu_item_t *menu_item_data)
 {
-    GString     *xml;
-    char        **p;
-    char        **tokens, **name_action_tokens;
-    const char  *tok = path;
-    gchar       *markup;
-    guint       num_menus;
-    size_t      len;
-    int i;
-
-    if (path == NULL) return NULL;
-
-    xml = g_string_new(XMENU_HEADER);
+    gchar           *xpath;
+    const gchar     *xml;
+    GString         *xml_g_string;
+    char           **p;
+    char           **tokens, **name_action_tokens;
+    char            *tok;
+    gchar           *markup;
+    guint            num_menus;
+    size_t           len;
+    int              i;
+    guint            merge_id;
+    GtkActionGroup  *action_group = NULL;
+    GtkAction       *action;
+    char            *lbl;
+    GError          *err;
 
     /* no need to specify menu bar...skip it */
     len = strlen("/Menubar");
@@ -3444,19 +3406,66 @@ make_menu_xml(const char *path)
         path += len;
     }
 
+    xpath = g_strdup_printf("%s/%s", path, name);
+
+    /*
+     * Create an XML string, containing a UI definition that can be merged
+     * with Wireshark's menu bar using gtk_ui_manager_add_ui_from_string().
+     * Free the returned string with g_free() when no longer needed.
+     *
+     * The last item in the path is treated as the menu item; all preceding path
+     * elements are the names of parent menus. Path elements are stripped of
+     * leading/trailing spaces.
+     *
+     * |'s separate an existing menu's name from its action.
+     * If the action has a / in it, it must have been "escaped" into a # before
+     * entering this function; this function will translate it back to a /.
+     * There must be an easier way!
+     *
+     * Examples:
+     *      "/Foo/Bar|/BarAction/I_tem"
+     *   -->
+     *              "<ui><menubar name='Menubar'>
+     *              <menu action='Foo'>
+     *              <menu name='Bar' action='/BarAction'>
+     *              <menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
+     *              </menu>
+     *              </menu>
+     *              <menubar></ui>"
+     *
+     *  "/Foo/Bar|BarAction/-/Baz|BarAction#BazAction/Item"
+     *    -->
+     *      "<ui><menubar name='Menubar'>
+     *      <menu action='Foo'>
+     *      <menu name='Bar' action='/BarAction'>
+     *      <separator/>
+     *      <menu name='Baz' action='BarAction/BazAction'>
+     *      <menuitem action='Item'/>
+     *      </menu>
+     *      </menu>
+     *      </menu>
+     *      <menubar></ui>"
+     *
+     * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
+     * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
+     */
+    tokens = g_strsplit(xpath, "/", XMENU_MAX_DEPTH);
+
     /* open nested menu tag for each path token */
     num_menus = 0;
-    tokens = g_strsplit(path, "/", XMENU_MAX_DEPTH);
+    tok = xpath;
+    xml_g_string = g_string_new(XMENU_HEADER);
     for (p = tokens; (p != NULL) && (*p != NULL); p++) {
-
         tok = g_strstrip(*p);
-        if (tok[0] == '\0') continue;
+        if (tok[0] == '\0')
+            continue;
 
         /* reserve last token for menu-item processing */
-        if (*(p+1) == NULL) break;
+        if (*(p+1) == NULL)
+            break;
 
         if (g_strcmp0(tok, "-") == 0) {
-            xml = g_string_append(xml, "<separator/>\n");
+            xml_g_string = g_string_append(xml_g_string, "<separator/>\n");
         } else {
             /* Split the name of the menu from its action (if any) */
             name_action_tokens = g_strsplit(tok, "|", 2);
@@ -3476,7 +3485,7 @@ make_menu_xml(const char *path)
                 markup = g_markup_printf_escaped("<menu name='%s' action='/%s'>\n", name_action_tokens[0], name_action_tokens[1]);
             else
                 markup = g_markup_printf_escaped("<menu action='%s'>\n", tok);
-            xml = g_string_append(xml, markup);
+            xml_g_string = g_string_append(xml_g_string, markup);
             g_free(markup);
             g_strfreev(name_action_tokens);
             num_menus++;
@@ -3489,140 +3498,117 @@ make_menu_xml(const char *path)
      */
     if ( (tok != NULL) /* && (tok[0] != '\0') */ ) {
         if (g_strcmp0(tok, "-") == 0) {
-            xml = g_string_append(xml, "<separator/>\n");
+            xml_g_string = g_string_append(xml_g_string, "<separator/>\n");
         } else {
             /* append self-closing menu-item tag */
             markup = g_markup_printf_escaped("<menuitem action='%s'/>\n", tok);
-            xml = g_string_append(xml, markup);
+            xml_g_string = g_string_append(xml_g_string, markup);
             g_free(markup);
         }
     }
 
-    /* we just processed the last token, so free the list */
-    g_strfreev(tokens);
-
     /* close all menu tags, and then append the footer */
     for (; num_menus > 0; num_menus--) {
-        xml = g_string_append(xml, "</menu>");
+        xml_g_string = g_string_append(xml_g_string, "</menu>");
     }
-    xml = g_string_append(xml, XMENU_FOOTER);
+    xml_g_string = g_string_append(xml_g_string, XMENU_FOOTER);
 
-    /* free the GString object, return the allocated char buf which must be g_freed */
-    return g_string_free(xml, FALSE);
-}
+    /* free the GString object, get the allocated char buf which must be g_freed */
+    xml = g_string_free(xml_g_string, FALSE);
 
-/**
- * Creates an action group for the menu items in xpath, and returns it. The caller should
- * use g_object_unref() on the returned pointer if transferring scope.
- */
-static GtkActionGroup*
-make_menu_actions(char *path, const menu_item_t *menu_item_data)
-{
-    GtkActionGroup  *action_group;
-    GtkAction       *action;
-    char           **p;
-    char           **tokens;
-    char            *tok = path, *lbl;
+    if (menu_item_data != NULL) {
+        /* create action group for menu elements */
+        action_group = gtk_action_group_new (xpath);
 
-    action_group = gtk_action_group_new (path);
+        tok = xpath;
+        for (p = tokens; (p != NULL) && (*p != NULL); p++) {
+            tok = g_strstrip(*p);
 
-    tokens = g_strsplit(path, "/", XMENU_MAX_DEPTH);
-    for (p = tokens; (p != NULL) && (*p != NULL); p++) {
+            if (tok[0] == '\0')
+                continue;
 
-        tok = g_strstrip(*p);
+            /* reserve last token for item name */
+            if (*(p+1) == NULL)
+                break;
 
-        if (tok[0] == '\0') continue;
+            if (g_strcmp0(tok, "-") != 0) {
+                /* parse label from token */
+                lbl = strchr(tok, '|');
+                if (lbl != NULL) {
+                    *lbl++ = '\0';
+                }
+                if ((lbl == NULL) || (*lbl == '\0')) {
+                    lbl = tok;
+                }
 
-        /* reserve last token for item name */
-        if ( *(p+1) == NULL ) break;
-
-        if (g_strcmp0(tok, "-") != 0) {
-
-            /* parse label from token */
-            lbl = strchr(tok, '|');
-            if (lbl != NULL) {
-                *lbl++ = '\0';
+                action = (GtkAction *)g_object_new (
+                        GTK_TYPE_ACTION,
+                        "name", tok,
+                        "label", lbl,
+                        NULL
+                );
+                gtk_action_group_add_action (action_group, action);
+                g_object_unref (action);
             }
-            if ((lbl == NULL) || (*lbl == '\0')) {
-                lbl = tok;
-            }
+        }
 
+        /* handle menu item (blank names ok) */
+        if ( (tok != NULL) /* && (tok[0] != '\0') */ ) {
             action = (GtkAction *)g_object_new (
                     GTK_TYPE_ACTION,
                     "name", tok,
-                    "label", lbl,
+                    "label", menu_item_data->label,
+                    "stock-id", menu_item_data->stock_id,
+                    "tooltip", menu_item_data->tooltip,
+                    "sensitive", menu_item_data->enabled,
                     NULL
             );
+            if (menu_item_data->callback != NULL) {
+                g_signal_connect (
+                        action,
+                        "activate",
+                        G_CALLBACK (menu_item_data->callback),
+                        menu_item_data->callback_data
+                );
+            }
             gtk_action_group_add_action (action_group, action);
             g_object_unref (action);
         }
+
+        gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
     }
 
-    /* handle menu item (blank names ok) */
-    if ( (tok != NULL) /* && (tok[0] != '\0') */ && (menu_item_data != NULL) ) {
-        action = (GtkAction *)g_object_new (
-                GTK_TYPE_ACTION,
-                "name", tok,
-                "label", menu_item_data->label,
-                "stock-id", menu_item_data->stock_id,
-                "tooltip", menu_item_data->tooltip,
-                "sensitive", menu_item_data->enabled,
-                NULL
-        );
-        if (menu_item_data->callback != NULL) {
-            g_signal_connect (
-                    action,
-                    "activate",
-                    G_CALLBACK (menu_item_data->callback),
-                    menu_item_data->callback_data
-            );
-        }
-        gtk_action_group_add_action (action_group, action);
-        g_object_unref (action);
-    }
-
-    /* we just processed the last token, so free the list */
+    /* we're finished processing the tokens so free the list */
     g_strfreev(tokens);
 
-    return action_group;
+    /* Attempt to add menu elements to menu bar */
+    err = NULL;
+    merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
+    if (err != NULL) {
+        fprintf (stderr, "Warning: building menu for [%s] failed: %s\n",
+                xpath, err->message);
+        g_error_free (err);
+
+        /* undo the mess */
+        gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
+        if (menu_item_data != NULL)
+            gtk_ui_manager_remove_action_group (ui_manager_main_menubar, action_group);
+    }
+    g_free ((gchar*)xml);
+    if (menu_item_data != NULL)
+        g_object_unref (action_group);
+
+    g_free(xpath);
 }
 
 static void
 merge_menu_items(GList *lcl_merge_menu_items_list)
 {
-    guint           merge_id;
-    GtkActionGroup *action_group;
     menu_item_t    *menu_item_data;
-    GError         *err;
-    const gchar    *xml;
-    gchar          *xpath;
 
     while (lcl_merge_menu_items_list != NULL) {
         menu_item_data = (menu_item_t *)lcl_merge_menu_items_list->data;
-        xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
-        xml = make_menu_xml(xpath);
-        if (xml != NULL) {
-            /* create action group for menu elements */
-            action_group = make_menu_actions(xpath, menu_item_data);
-            gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
-
-            /* add menu elements to menu bar */
-            err = NULL;
-            merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
-            if (err != NULL) {
-                fprintf (stderr, "Warning: building menus failed: %s\n",
-                        err->message);
-                g_error_free (err);
-
-                /* undo the mess */
-                gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
-                gtk_ui_manager_remove_action_group (ui_manager_main_menubar, action_group);
-            }
-            g_free ((gchar*)xml);
-            g_object_unref (action_group);
-        }
-
-        g_free(xpath);
+        add_menu_item(menu_item_data->gui_path, menu_item_data->name, menu_item_data);
         lcl_merge_menu_items_list = g_list_next(lcl_merge_menu_items_list);
     }
 }
@@ -3630,7 +3616,7 @@ merge_menu_items(GList *lcl_merge_menu_items_list)
 const char *
 stat_group_name(register_stat_group_t group)
 {
-    /* See make_menu_xml() for an explanation of the string format */
+    /* See add_menu_item() for an explanation of the string format */
     static const value_string group_name_vals[] = {
         {REGISTER_ANALYZE_GROUP_UNSORTED,            "/Menubar/AnalyzeMenu|Analyze"},                                                              /* unsorted analyze stuff */
         {REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, "/Menubar/AnalyzeMenu|Analyze/ConversationFilterMenu|Analyze#ConversationFilter"},            /* conversation filters */
@@ -5470,7 +5456,6 @@ void set_menus_for_profiles(gboolean default_profile)
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
 }
 
-#ifndef __APPLE__
 static void
 ws_menubar_external_cb(GtkAction *action _U_, gpointer data _U_)
 {
@@ -5499,11 +5484,8 @@ ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGrou
 {
     ext_menubar_t * item = NULL;
     GList * children = NULL;
-    gchar * xpath, * submenu_xpath, *ac_xpath;
-    const gchar *xml;
+    gchar * xpath, * submenu_xpath;
     gchar ** paths = NULL;
-    GError *err = NULL;
-    guint merge_id = 0;
 
     /* There must exists an xpath parent */
     g_assert(xpath_parent != NULL && strlen(xpath_parent) > 0);
@@ -5548,24 +5530,8 @@ ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGrou
 #endif
 
             /* Creating menu from entry */
-            ac_xpath = g_strdup_printf("%s/%s", g_strdup(paths[1]), item->name);
-            xml = make_menu_xml(ac_xpath);
-
-            /* Adding the menu to the UI if possible (code has been derived from merge_menu_items) */
-            err = NULL;
-            merge_id = gtk_ui_manager_add_ui_from_string(ui_manager_main_menubar, xml, -1, &err);
-            if ( err != NULL )
-            {
-                fprintf (stderr, "Warning: building menu for [%s] failed: %s\n", item->name, err->message);
-                g_error_free (err);
-
-                /* undo the mess */
-                gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
-                g_free ((gchar*)xml);
-            }
-
+            add_menu_item(g_strdup(paths[1]), item->name, NULL);
             g_strfreev(paths);
-            g_free(ac_xpath);
         }
 
         /* Iterate Loop */
@@ -5628,12 +5594,10 @@ ws_menubar_create_action_group(ext_menu_t * menu, const char * xpath_parent, Gtk
     /* Cleanup */
     g_free(xpath);
 }
-#endif
 
 static void
 ws_menubar_external_menus(void)
 {
-#ifndef __APPLE__
     GList * user_menu = NULL;
     ext_menu_t * menu = NULL;
     GtkActionGroup  *action_group = NULL;
@@ -5680,7 +5644,6 @@ ws_menubar_external_menus(void)
         user_menu = g_list_next (user_menu);
         cnt++;
     }
-#endif
 }
 
 /*
