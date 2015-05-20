@@ -631,8 +631,6 @@ static const value_string pcep_class_vals[] = {
     {PCEP_BANDWIDTH_OBJ,              "BANDWIDTH OBJECT"                       },
     {PCEP_METRIC_OBJ,                 "METRIC OBJECT"                          },
     {PCEP_EXPLICIT_ROUTE_OBJ,         "EXPLICIT ROUTE OBJECT (ERO)"            },
-    {PCEP_SERO_OBJ,                   "SECONDARY EXPLICIT ROUTE OBJECT (SERO)" },
-    {PCEP_SRRO_OBJ,                   "SECONDARY RECORD ROUTE OBJECT (SRRO)"   },
     {PCEP_RECORD_ROUTE_OBJ,           "RECORD ROUTE OBJECT (RRO)"              },
     {PCEP_LSPA_OBJ,                   "LSPA OBJECT"                            },
     {PCEP_IRO_OBJ,                    "IRO OBJECT"                             },
@@ -649,6 +647,8 @@ static const value_string pcep_class_vals[] = {
     {PCEP_OBJ_PCE_ID,                 "PCE-ID OBJECT"                          },
     {PCEP_OBJ_PROC_TIME,              "PROC-TIME OBJECT"                       },
     {PCEP_OBJ_OVERLOAD,               "OVERLOAD OBJECT"                        },
+    {PCEP_SERO_OBJ,                   "SECONDARY EXPLICIT ROUTE OBJECT (SERO)" },
+    {PCEP_SRRO_OBJ,                   "SECONDARY RECORD ROUTE OBJECT (SRRO)"   },
     {PCEP_OBJ_LSP,                    "LSP OBJECT"                             },
     {PCEP_OBJ_SRP,                    "SRP OBJECT"                             },
     {0, NULL }
