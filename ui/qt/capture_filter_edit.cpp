@@ -87,7 +87,7 @@ static const QString libpcap_primitive_chars_ = "-0123456789abcdefghijklmnopqrst
 // grep '^[a-z].*return [A-Z].*;$' scanner.l | awk '{gsub(/\|/, "\n") ; print "    << \"" $1 "\""}' | sort
 static const QStringList libpcap_primitives_ = QStringList()
         << "aarp" << "action" << "address1" << "address2" << "address3" << "address4"
-        << "ah" << "and" << "arp" << "atalk" << "bcc" << "broadcast" << "byte" << "carp"
+        << "ah" << "arp" << "atalk" << "bcc" << "broadcast" << "byte" << "carp"
         << "clnp" << "connectmsg" << "csnp" << "decnet" << "direction" << "dpc"
         << "dst" << "es-is" << "esis" << "esp" << "fddi" << "fisu" << "gateway"
         << "greater" << "hdpc" << "hfisu" << "hlssu" << "hmsu" << "hopc" << "host"
@@ -96,7 +96,7 @@ static const QStringList libpcap_primitives_ = QStringList()
         << "l2" << "lane" << "lat" << "len" << "less" << "link" << "llc" << "lsp"
         << "lssu" << "lsu" << "mask" << "metac" << "metaconnect" << "mopdl" << "moprc"
         << "mpls" << "msu" << "multicast" << "net" << "netbeui" << "oam" << "oamf4"
-        << "oamf4ec" << "oamf4sc" << "on" << "opc" << "or" << "outbound" << "pim"
+        << "oamf4ec" << "oamf4sc" << "on" << "opc" << "outbound" << "pim"
         << "port" << "portrange" << "pppoed" << "pppoes" << "proto" << "psnp" << "ra"
         << "radio" << "rarp" << "reason" << "rnr" << "rset" << "sc" << "sca" << "sctp"
         << "sio" << "sls" << "snp" << "src" << "srnr" << "stp" << "subtype" << "ta"
