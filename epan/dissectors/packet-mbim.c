@@ -3188,6 +3188,7 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                      sc_address_size, NULL, 0);
             }
             if (pdu_data_size > (guint32)(sc_address_size + 1)) {
+                pdu_data_size -= sc_address_size + 1;
                 sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
                                          pdu_data_size, pdu_data_size);
                 pinfo->p2p_dir = P2P_DIR_RECV;
