@@ -55,6 +55,7 @@
 #include <Security/AuthorizationTags.h>
 
 // Unix stuff
+#include <sys/param.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
