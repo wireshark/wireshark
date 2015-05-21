@@ -864,11 +864,16 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_HIGHER_BR_16MB_FLG    0xCD    /* 3G   205 TLV Higher bitrates than 16 Mbps flag         7.7.105 */
 #define GTP_EXT_MAX_MBR_APN_AMBR      0xCE    /* 3G   206 TLV Max MBR/APN-AMBR                          7.7.106 */
 #define GTP_EXT_ADD_MM_CTX_SRVCC      0xCF    /* 3G   207 TLV Additional MM context for SRVCC           7.7.107 */
-#define GTP_EXT_ADD_FLGS_SRVCC        0xD0    /* 3G   208 TLV Additional flags for SRVCC                7.7.108  */
-#define GTP_EXT_STN_SR                0xD1    /* 3G   209 TLV STN-SR                                    7.7.109  */
-#define GTP_EXT_C_MSISDN              0xD2    /* 3G   210 TLV C-MSISDN                                  7.7.110  */
-#define GTP_EXT_EXT_RANAP_CAUSE       0xD3    /* 3G   211 TLV Extended RANAP Cause                      7.7.111  */
-                                              /*  212-238 TLV Spare. For future use.     */
+#define GTP_EXT_ADD_FLGS_SRVCC        0xD0    /* 3G   208 TLV Additional flags for SRVCC                7.7.108 */
+#define GTP_EXT_STN_SR                0xD1    /* 3G   209 TLV STN-SR                                    7.7.109 */
+#define GTP_EXT_C_MSISDN              0xD2    /* 3G   210 TLV C-MSISDN                                  7.7.110 */
+#define GTP_EXT_EXT_RANAP_CAUSE       0xD3    /* 3G   211 TLV Extended RANAP Cause                      7.7.111 */
+#define GTP_EXT_ENODEB_ID             0xD4    /* 3G   212 TLV eNodeB ID                                 7.7.112 */
+#define GTP_EXT_SEL_MODE_W_NSAPI      0xD5    /* 3G   213 TLV Selection Mode with NSAPI                 7.7.113 */
+#define GTP_EXT_ULI_TIMESTAMP         0xD6    /* 3G   214 TLV ULI Timestamp                             7.7.114 */
+#define GTP_EXT_LHN_ID_W_SAPI         0xD7    /* 3G   215 TLV Local Home Network ID (LHN-ID) with NSAPI 7.7.115 */
+#define GTP_EXT_CN_OP_SEL_ENTITY      0xD8    /* 3G   216 TLV CN Operator Selection Entity              7.7.116 */
+/*  217-238 TLV Spare. For future use.     */
 
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
@@ -1015,7 +1020,12 @@ static const value_string gtp_val[] = {
 /* 209 */  {GTP_EXT_STN_SR,                 "STN-SR"},                                     /* 7.7.109  */
 /* 210 */  {GTP_EXT_C_MSISDN,               "C-MSISDN"},                                   /* 7.7.110  */
 /* 211 */  {GTP_EXT_EXT_RANAP_CAUSE,        "Extended RANAP Cause"},                       /* 7.7.111  */
-/* 212-238 TLV Spare. For future use. */
+/* 212 */  {GTP_EXT_ENODEB_ID,              "eNodeB ID" },                                 /* 7.7.112  */
+/* 213 */  {GTP_EXT_SEL_MODE_W_NSAPI,       "Selection Mode with NSAPI" },                 /* 7.7.113 */
+/* 214 */  {GTP_EXT_ULI_TIMESTAMP,          "ULI Timestamp" },                             /* 7.7.114 */
+/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,          "Local Home Network ID (LHN-ID) with NSAPI" }, /* 7.7.115*/
+/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,       "Operator Selection Entity" },                 /* 7.7.116*/
+/* 217-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,  "Sequence numbers of released packets IE"},  /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,  "Sequence numbers of canceled packets IE"},  /* charging */
@@ -1869,6 +1879,11 @@ static int decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * p
 static int decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
@@ -2009,9 +2024,13 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD1 */  {GTP_EXT_STN_SR, decode_gtp_stn_sr},                                /* 7.7.109 */
 /* 0xD2 */  {GTP_EXT_C_MSISDN, decode_gtp_c_msisdn},                            /* 7.7.110 */
 /* 0xD3 */  {GTP_EXT_EXT_RANAP_CAUSE, decode_gtp_ext_ranap_cause},              /* 7.7.111 */
-
-/* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack},                           /* charging */
-/* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                           /* charging */
+/* 0xD4 */  {GTP_EXT_ENODEB_ID, decode_gtp_ext_enodeb_id },                     /* 7.7.112 */
+/* 0xD5 */  {GTP_EXT_SEL_MODE_W_NSAPI, decode_gtp_ext_sel_mode_w_nsapi },       /* 7.7.113 */
+/* 0xD6 */  {GTP_EXT_ULI_TIMESTAMP, decode_gtp_ext_uli_timestamp },             /* 7.7.114 */
+/* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
+/* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
+/* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
+/* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
 /* 0xfb */  {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
 
 /* 0xfc */  {GTP_EXT_DATA_REQ, decode_gtp_data_req},                           /* charging */
@@ -7620,9 +7639,119 @@ decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     return 3 + length;
 }
 
-/* GPRS:        12.15
- * UMTS:        33.015
+/*
+ * 7.7.112 eNodeB ID
  */
+static int
+decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ENODEB_ID], NULL,
+        val_to_str_ext_const(GTP_EXT_ENODEB_ID, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    return 3 + length;
+}
+
+/*
+ * 7.7.113 Selection Mode with NSAPI
+ */
+static int
+decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_SEL_MODE_W_NSAPI], NULL,
+        val_to_str_ext_const(GTP_EXT_SEL_MODE_W_NSAPI, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    return 3 + length;
+}
+/*
+ * 7.7.114 ULI Timestamp
+ */
+static int
+decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ULI_TIMESTAMP], NULL,
+        val_to_str_ext_const(GTP_EXT_ULI_TIMESTAMP, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    return 3 + length;
+}
+
+/*
+ * 7.7.115 Local Home Network ID (LHN-ID) with NSAPI
+ */
+static int
+decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_LHN_ID_W_SAPI], NULL,
+        val_to_str_ext_const(GTP_EXT_LHN_ID_W_SAPI, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    return 3 + length;
+}
+/*
+ * 7.7.116 CN Operator Selection Entity
+ */
+static int
+decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_CN_OP_SEL_ENTITY], NULL,
+        val_to_str_ext_const(GTP_EXT_CN_OP_SEL_ENTITY, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    return 3 + length;
+}
+
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
