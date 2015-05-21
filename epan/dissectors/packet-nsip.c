@@ -507,6 +507,7 @@ decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) 
   static const int * reset_flags[] = {
     &hf_nsip_reset_flag_bit,
     &hf_nsip_reset_flag_spare,
+    NULL
   };
 
   flag = tvb_get_guint8(bi->tvb, bi->offset);
@@ -565,6 +566,7 @@ decode_iei_end_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
   static const int * end_flags[] = {
     &hf_nsip_end_flag_bit,
     &hf_nsip_end_flag_spare,
+    NULL
   };
 
   proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, ie_start_offset, hf_nsip_end_flag,
