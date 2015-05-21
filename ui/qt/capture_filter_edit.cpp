@@ -85,6 +85,7 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 static const QString libpcap_primitive_chars_ = "-0123456789abcdefghijklmnopqrstuvwxyz";
 
 // grep '^[a-z].*return [A-Z].*;$' scanner.l | awk '{gsub(/\|/, "\n") ; print "    << \"" $1 "\""}' | sort
+// Remove "and" and "or".
 static const QStringList libpcap_primitives_ = QStringList()
         << "aarp" << "action" << "address1" << "address2" << "address3" << "address4"
         << "ah" << "arp" << "atalk" << "bcc" << "broadcast" << "byte" << "carp"
@@ -406,7 +407,12 @@ void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
         }
     }
 
-    completion_model_->setStringList(complex_list + libpcap_primitives_);
+    // libpcap has a small number of primitives so we just add the whole list
+    // sans the current word.
+    QStringList primitive_list = libpcap_primitives_;
+    primitive_list.removeAll(primitive_word);
+
+    completion_model_->setStringList(complex_list + primitive_list);
     completer()->setCompletionPrefix(primitive_word);
 }
 
