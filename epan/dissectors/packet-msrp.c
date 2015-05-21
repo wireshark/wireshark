@@ -38,7 +38,7 @@
 void proto_register_msrp(void);
 void proto_reg_handoff_msrp(void);
 
-#define TCP_PORT_MSRP 0
+#define TCP_PORT_MSRP 2855
 
 #define MSRP_HDR "MSRP"
 #define MSRP_HDR_LEN (strlen (MSRP_HDR))
@@ -919,6 +919,7 @@ proto_reg_handoff_msrp(void)
     msrp_handle = find_dissector("msrp");
     dissector_add_for_decode_as("tcp.port", msrp_handle);   /* for "decode-as" */
     heur_dissector_add("tcp", dissect_msrp_heur, proto_msrp);
+    dissector_add_uint("tcp.port", TCP_PORT_MSRP, msrp_handle);
     media_type_dissector_table = find_dissector_table("media_type");
 }
 
