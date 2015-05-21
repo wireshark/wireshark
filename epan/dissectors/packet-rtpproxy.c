@@ -599,8 +599,9 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     switch (tmp)
     {
         case 's':
-            /* A specific case - long statistics answer */
+            /* A specific case - long info answer */
             /* %COOKIE% sessions created %NUM0% active sessions: %NUM1% */
+            /* FIXME https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#information */
             rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
             if ('e' == tvb_get_guint8(tvb, offset+1)){
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", rawstr);
