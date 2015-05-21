@@ -560,7 +560,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
      * out to be useless */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy");
 
-    /* Clear out stuff in the info column - we''l set it later */
+    /* Clear out stuff in the info column - we'll set it later */
     col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_rtpproxy, tvb, 0, -1, ENC_NA);
