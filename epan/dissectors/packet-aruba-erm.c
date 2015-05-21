@@ -101,7 +101,8 @@ static gint ett_aruba_erm = -1;
 static expert_field ei_aruba_erm_airmagnet = EI_INIT;
 
 static dissector_handle_t aruba_erm_handle;
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t wlan_withoutfcs;
+static dissector_handle_t wlan_withfcs;
 static dissector_handle_t peek_handle;
 static dissector_handle_t ppi_handle;
 static dissector_handle_t data_handle;
@@ -125,7 +126,7 @@ dissect_aruba_erm_pcap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_
     return offset;
 }
 static int
-dissect_aruba_erm_pcap_radio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_erm_tree, gint offset)
+dissect_aruba_erm_pcap_radio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_erm_tree, gint offset, guint32 *signal_strength)
 {
     proto_item *ti_data_rate;
     guint16 data_rate;
@@ -143,7 +144,8 @@ dissect_aruba_erm_pcap_radio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_BIG_ENDIAN);
+    *signal_strength = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     return offset;
@@ -157,6 +159,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *eth_tvb;
 
     int offset = 0 ;
+    guint32 signal_strength;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -172,7 +175,8 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
             proto_item_set_len(ti, offset);
             eth_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ieee80211_handle, eth_tvb, pinfo, tree);
+            /* No way to determine if TX or RX packet... (TX = no FCS, RX = FCS...)*/
+            call_dissector(wlan_withfcs, eth_tvb, pinfo, tree);
             break;
         case TYPE_PEEK:
             call_dissector(peek_handle, tvb, pinfo, tree);
@@ -184,10 +188,14 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case TYPE_PCAPPLUSRADIO:
             offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
-            offset = dissect_aruba_erm_pcap_radio(tvb, pinfo, aruba_erm_tree, offset);
+            offset = dissect_aruba_erm_pcap_radio(tvb, pinfo, aruba_erm_tree, offset, &signal_strength);
             proto_item_set_len(ti, offset);
             eth_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ieee80211_handle, eth_tvb, pinfo, tree);
+            if(signal_strength == 100){ /* When signal = 100 %, it is TX packet and there is no FCS */
+                call_dissector(wlan_withoutfcs, eth_tvb, pinfo, tree);
+            } else {
+                call_dissector(wlan_withfcs, eth_tvb, pinfo, tree);
+            }
             break;
         case TYPE_PPI:
             call_dissector(ppi_handle, tvb, pinfo, tree);
@@ -282,7 +290,8 @@ proto_reg_handoff_aruba_erm(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        ieee80211_handle = find_dissector("wlan_withoutfcs");
+        wlan_withoutfcs = find_dissector("wlan_withoutfcs");
+        wlan_withfcs = find_dissector("wlan_withfcs");
         ppi_handle = find_dissector("ppi");
         peek_handle = find_dissector("peekremote");
         data_handle = find_dissector("data");
