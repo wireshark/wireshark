@@ -618,6 +618,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'd':
             tmp2 = tvb_get_guint8(tvb, offset+1);
             if(('1' <= tmp2) && (tmp2 <= '9') && (tvb_get_guint8(tvb, offset+2) == ':')){
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy-ng");
                 col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII | ENC_NA);
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_ng_bencode);
