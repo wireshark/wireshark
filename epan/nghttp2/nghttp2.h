@@ -38,7 +38,14 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+/* MSVC < 2013 does not have inttypes.h because it is not C99
+   compliant.  See compiler macros and version number in
+   https://sourceforge.net/p/predef/wiki/Compilers/ */
+#include <stdint.h>
+#else /* !defined(_MSC_VER) || (_MSC_VER >= 1800) */
 #include <inttypes.h>
+#endif /* !defined(_MSC_VER) || (_MSC_VER >= 1800) */
 #include <sys/types.h>
 
 #include "nghttp2ver.h"
