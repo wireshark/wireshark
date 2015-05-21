@@ -555,6 +555,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if(offset == -1)
         return 0;
 
+    /* We believe it's likely a RTPproxy / RTPproxy-ng protocol */
+    /* Note: we no longer distinct between packets with or w/o LF - it turned
+     * out to be useless */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy");
+
     /* Clear out stuff in the info column - we''l set it later */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -570,17 +575,12 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Calculate size to prevent recalculation in the future */
     realsize = tvb_reported_length(tvb);
 
-
     /* Check for LF (required for TCP connection, optional for UDP) */
     if (tvb_get_guint8(tvb, realsize - 1) == '\n'){
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy");
         /* Don't count trailing LF */
         realsize -= 1;
         has_lf = TRUE;
     }
-    else
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)"); /* FIXME replace with expert info field */
-
 
     /* Try to create conversation */
     conversation = find_or_create_conversation(pinfo);
@@ -881,6 +881,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         default:
             break;
     }
+    /* TODO add an expert warning about packets w/o LF sent over TCP */
     if (has_lf)
         proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, realsize, 1, ENC_NA);
 
