@@ -45,7 +45,7 @@
 // Apple stuff
 
 // Note: including Carbon prevents building the launcher app in x86_64
-//       used for StandardAlert in RequestUserAttention(), 
+//       used for StandardAlert in RequestUserAttention(),
 //       RedFatalAlert()
 #include <Carbon/Carbon.h>
 #include <CoreFoundation/CoreFoundation.h>
