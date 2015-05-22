@@ -61,6 +61,10 @@ static int hf_diameter_3gpp_feature_list_flags = -1;
 static int hf_diameter_3gpp_feature_list_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list_flags_bit1 = -1;
 static int hf_diameter_3gpp_feature_list_flags_bit2 = -1;
+static int hf_diameter_3gpp_feature_list1_sh_flags_bit0 = -1;
+static int hf_diameter_3gpp_feature_list1_sh_flags_bit1 = -1;
+static int hf_diameter_3gpp_feature_list1_sh_flags_bit2 = -1;
+static int hf_diameter_3gpp_feature_list1_sh_flags_bit3 = -1;
 static int hf_diameter_3gpp_feature_list1_s6a_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_s6a_flags_bit1 = -1;
 static int hf_diameter_3gpp_feature_list1_s6a_flags_bit2 = -1;
@@ -491,6 +495,19 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         bit_offset++;
 
         /*offset = bit_offset>>3;*/
+	}
+	else if (application_id == DIAM_APPID_3GPP_SH) {
+		proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 28, ENC_BIG_ENDIAN);
+		bit_offset += 28;
+		proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_sh_flags_bit3, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset++;
+		proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_sh_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset++;
+		proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_sh_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset++;
+		proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_sh_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset++;
+
     } else if(application_id == DIAM_APPID_3GPP_S6A_S6D) {
         if(feature_list_id == 1) {
             /* 3GPP TS 29.272 Table 7.3.10/1: Features of Feature-List-ID 1 used in S6a/S6d */
@@ -1435,6 +1452,26 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
         },
+		{ &hf_diameter_3gpp_feature_list1_sh_flags_bit0,
+		{ "Notif-Eff", "diameter.3gpp.feature_list1_sh_flags_bit0",
+		FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list1_sh_flags_bit1,
+		{ "Update-Eff", "diameter.3gpp.feature_list1_sh_flags_bit1",
+		FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list1_sh_flags_bit2,
+		{ "Update-Eff-Enhance", "diameter.3gpp.feature_list1_sh_flags_bit2",
+		FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list1_sh_flags_bit3,
+		{ "Additional-MSISDN", "diameter.3gpp.feature_list1_sh_flags_bit3",
+		FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+		},
         { &hf_diameter_3gpp_feature_list1_s6a_flags_bit0,
             { "Operator Determined Barring of all Packet Oriented Services", "diameter.3gpp.feature_list1_s6a_flags_bit0",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
