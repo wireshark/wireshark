@@ -1024,6 +1024,17 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
+/* AVP Code: 1407 Visited-PLMN-Id */
+static int
+dissect_diameter_3gpp_visited_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    diam_sub_dis->avp_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, E212_NONE, TRUE);
+
+    return length;
+}
 /*
  * 3GPP TS 29.272
  * 7.3.25 DSR-Flags
@@ -1332,6 +1343,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1406 ULA-Flags */
     dissector_add_uint("diameter.3gpp", 1406, new_create_dissector_handle(dissect_diameter_3gpp_ula_flags, proto_diameter_3gpp));
+
+    /*AVP Code: 1407 Visited-PLMN-Id */
+    dissector_add_uint("diameter.3gpp", 1407, new_create_dissector_handle(dissect_diameter_3gpp_visited_plmn_id, proto_diameter_3gpp));
 
     /* AVP Code: 1421 DSR-Flags */
     dissector_add_uint("diameter.3gpp", 1421, new_create_dissector_handle(dissect_diameter_3gpp_dsr_flags, proto_diameter_3gpp));
