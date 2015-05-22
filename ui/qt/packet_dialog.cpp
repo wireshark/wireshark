@@ -38,6 +38,7 @@
 #include <QTreeWidgetItemIterator>
 
 // To do:
+// - Don't hide the byte view when we reload.
 // - Find a way to preserve the byte view after the file closes.
 // - Copy over experimental packet editing code.
 // - Fix ElidedText width.
@@ -131,7 +132,10 @@ void PacketDialog::captureFileClosing()
         ++iter;
     }
 
-    setHintText();
+    QString closed_title = tr("[%1 closed] " UTF8_MIDDLE_DOT " %2")
+            .arg(cap_file_.fileName())
+            .arg(col_info_);
+    setHintText(closed_title);
     WiresharkDialog::captureFileClosing();
 }
 

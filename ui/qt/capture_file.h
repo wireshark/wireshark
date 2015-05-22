@@ -59,7 +59,13 @@ public:
      * @return One of: the basename of the capture file without an extension,
      *  the basename followed by "[closing]", "[closed]", or "[no capture file]".
      */
-    const QString fileTitle() { return file_title_ + file_state_; }
+    const QString fileTitle() { return file_name_ + file_state_; }
+
+    /** Return the plain filename.
+     *
+     * @return The basename of the capture file without an extension.
+     */
+    const QString fileName() { return file_name_; }
 
     /** Retap the capture file
      */
@@ -108,7 +114,7 @@ private:
     static QString no_capture_file_;
 
     capture_file *cap_file_;
-    QString file_title_;
+    QString file_name_;
     QString file_state_;
 };
 

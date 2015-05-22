@@ -49,7 +49,7 @@ QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
     cap_file_(cap_file),
-    file_title_(no_capture_file_),
+    file_name_(no_capture_file_),
     file_state_(QString())
 {
 #ifdef HAVE_LIBPCAP
@@ -127,7 +127,7 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
         cap_file_ = (capture_file *) data;
         QFileInfo cfi(QString::fromUtf8(cap_file_->filename));
-        file_title_ = cfi.baseName();
+        file_name_ = cfi.baseName();
         emit captureFileOpened();
         break;
     }
@@ -141,7 +141,7 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         file_state_ = tr(" [closed]");
         emit captureFileClosed();
         cap_file_ = NULL;
-        file_title_ = no_capture_file_;
+        file_name_ = no_capture_file_;
         file_state_ = QString();
         break;
     case(cf_cb_file_read_started):
