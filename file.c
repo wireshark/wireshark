@@ -4352,7 +4352,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   gchar               *err_info;
   gchar               *name_ptr;
   gint64               data_offset;
-  gint64               file_pos;
   progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
   gint64               size;
@@ -4442,13 +4441,13 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     fdata->file_off = data_offset;
     if (size >= 0) {
       count++;
-      file_pos = wtap_read_so_far(cf->wth);
+      cf->f_datalen = wtap_read_so_far(cf->wth);
 
       /* Create the progress bar if necessary.
        * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
-        progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+        progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
                                               TRUE, &stop_flag, &start_time, progbar_val);
       }
@@ -4458,9 +4457,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
          to repaint what's pending, and doing so may involve an "ioctl()"
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
-      if (file_pos >= progbar_nextstep) {
+      if (cf->f_datalen >= progbar_nextstep) {
         if (progbar != NULL) {
-          progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+          progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
           /* update the packet bar content on the first run or frequently on very large files */
 #ifdef HAVE_LIBPCAP
           if (progbar_quantum > 500000 || displayed_once == 0) {

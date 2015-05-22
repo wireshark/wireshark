@@ -181,6 +181,7 @@ private:
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
     void recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level);
+    void captureFileReadStarted(const QString &action);
 
 signals:
     void showProgress(struct progdlg **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
@@ -209,10 +210,13 @@ public slots:
     void captureCaptureFailed(capture_session *);
 
     void captureFileOpened();
-    void captureFileReadStarted();
+    void captureFileReadStarted() { captureFileReadStarted(tr("Loading")); }
     void captureFileReadFinished();
+    void captureFileReloadStarted() { captureFileReadStarted(tr("Reloading")); }
+    void captureFileRescanStarted() { captureFileReadStarted(tr("Rescanning")); }
     void captureFileClosing();
     void captureFileClosed();
+    void captureFileSaveStarted(const QString &file_path);
 
     void filterExpressionsChanged();
 

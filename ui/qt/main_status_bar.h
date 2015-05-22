@@ -34,6 +34,8 @@
 
 #include "capchild/capture_session.h"
 
+class CaptureFile;
+
 class MainStatusBar : public QStatusBar
 {
     Q_OBJECT
@@ -42,6 +44,7 @@ public:
     void showExpert();
     void hideExpert();
     void expertUpdate();
+    void setFileName(CaptureFile &cf);
 
 private:
     QLabel expert_status_;
@@ -64,7 +67,7 @@ public slots:
     void setCaptureFile(capture_file *cf);
     void pushTemporaryStatus(const QString &message);
     void popTemporaryStatus();
-    void pushFileStatus(const QString &message, const QString &messagetip);
+    void pushFileStatus(const QString &message, const QString &messagetip = QString());
     void popFileStatus();
     void pushFieldStatus(const QString &message);
     void popFieldStatus();

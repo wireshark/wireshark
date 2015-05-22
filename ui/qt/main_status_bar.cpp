@@ -30,8 +30,10 @@
 
 #include "ui/main_statusbar.h"
 #include "ui/profile.h"
+#include "ui/qt/qt_ui_utils.h"
 #include "ui/utf8_entities.h"
 
+#include "capture_file.h"
 #include "main_status_bar.h"
 #include "profile_dialog.h"
 
@@ -226,6 +228,16 @@ void MainStatusBar::expertUpdate() {
     expert_status_.setText(img_text);
     expert_status_.setToolTip(tt_text);
     expert_status_.show();
+}
+
+// ui/gtk/main_statusbar.c
+void MainStatusBar::setFileName(CaptureFile &cf)
+{
+    popFileStatus();
+    QString msgtip = QString("%1 (%2)")
+            .arg(cf.capFile()->filename)
+            .arg(file_size_to_qstring(cf.capFile()->f_datalen));
+    pushFileStatus(cf.fileName(), msgtip);
 }
 
 void MainStatusBar::setCaptureFile(capture_file *cf)

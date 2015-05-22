@@ -112,6 +112,7 @@
 #include "wireshark_application.h"
 
 #include <QClipboard>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QMetaObject>
 #include <QToolBar>
@@ -626,14 +627,14 @@ void MainWindow::captureFileOpened() {
     emit setCaptureFile(capture_file_.capFile());
 }
 
-void MainWindow::captureFileReadStarted() {
+void MainWindow::captureFileReadStarted(const QString &action) {
 //    tap_param_dlg_update();
 
     /* Set up main window for a capture file. */
 //    main_set_for_capture_file(TRUE);
 
     main_ui_->statusBar->popFileStatus();
-    QString msg = QString(tr("Loading: %1")).arg(get_basename(capture_file_.capFile()->filename));
+    QString msg = QString(tr("%1: %2")).arg(action).arg(capture_file_.fileName());
     QString msgtip = QString();
     main_ui_->statusBar->pushFileStatus(msg, msgtip);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
@@ -659,12 +660,7 @@ void MainWindow::captureFileReadFinished() {
     /* Enable menu items that make sense if you have some captured packets. */
     setForCapturedPackets(true);
 
-    main_ui_->statusBar->popFileStatus();
-    QString msg = QString().sprintf("%s", get_basename(capture_file_.capFile()->filename));
-    QString msgtip = QString("%1 (%2)")
-            .arg(capture_file_.capFile()->filename)
-            .arg(file_size_to_qstring(capture_file_.capFile()->f_datalen));
-    main_ui_->statusBar->pushFileStatus(msg, msgtip);
+    main_ui_->statusBar->setFileName(capture_file_);
 
     emit setDissectedCaptureFile(capture_file_.capFile());
 }
@@ -696,6 +692,13 @@ void MainWindow::captureFileClosed() {
 
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
+}
+
+void MainWindow::captureFileSaveStarted(const QString &file_path)
+{
+    QFileInfo file_info(file_path);
+    main_ui_->statusBar->popFileStatus();
+    main_ui_->statusBar->pushFileStatus(tr("Saving %1...").arg(file_info.baseName()));
 }
 
 void MainWindow::filterExpressionsChanged()
@@ -878,13 +881,7 @@ void MainWindow::stopCapture() {
 #endif // HAVE_LIBPCAP
 
     /* Pop the "<live capture in progress>" message off the status bar. */
-    main_ui_->statusBar->popFileStatus();
-    QString msg = QString().sprintf("%s", get_basename(capture_file_.capFile()->filename));
-    QString msgtip = QString("%1 (%2)")
-            .arg(capture_file_.capFile()->filename)
-            .arg(file_size_to_qstring(capture_file_.capFile()->f_datalen));
-    main_ui_->statusBar->pushFileStatus(msg, msgtip);
-
+    main_ui_->statusBar->setFileName(capture_file_);
 
     /* disable autoscroll timer if any. */
     packet_list_->setAutoScroll(false);
@@ -3012,7 +3009,6 @@ void MainWindow::externalMenuItem_triggered()
 }
 
 #ifdef HAVE_EXTCAP
-#include <QDebug>
 void MainWindow::extcap_options_finished(int result)
 {
     if ( result == QDialog::Accepted )

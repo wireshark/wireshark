@@ -316,10 +316,27 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileReadStarted()));
     connect(&capture_file_, SIGNAL(captureFileReadFinished()),
             this, SLOT(captureFileReadFinished()));
+    connect(&capture_file_, SIGNAL(captureFileReloadStarted()),
+            this, SLOT(captureFileReloadStarted()));
+    connect(&capture_file_, SIGNAL(captureFileReloadFinished()),
+            this, SLOT(captureFileReadFinished()));
+    connect(&capture_file_, SIGNAL(captureFileRescanStarted()),
+            this, SLOT(captureFileRescanStarted()));
+    connect(&capture_file_, SIGNAL(captureFileRescanFinished()),
+            this, SLOT(captureFileReadFinished()));
     connect(&capture_file_, SIGNAL(captureFileClosing()),
             this, SLOT(captureFileClosing()));
     connect(&capture_file_, SIGNAL(captureFileClosed()),
             this, SLOT(captureFileClosed()));
+
+    connect(&capture_file_, SIGNAL(captureFileSaveStarted(QString)),
+            this, SLOT(captureFileSaveStarted(QString)));
+    connect(&capture_file_, SIGNAL(captureFileSaveFinished()),
+            main_ui_->statusBar, SLOT(popFileStatus()));
+    connect(&capture_file_, SIGNAL(captureFileSaveFailed()),
+            main_ui_->statusBar, SLOT(popFileStatus()));
+    connect(&capture_file_, SIGNAL(captureFileSaveStopped()),
+            main_ui_->statusBar, SLOT(popFileStatus()));
 
     connect(&capture_file_, SIGNAL(setCaptureStopFlag(bool)),
             this, SLOT(setCaptureStopFlag(bool)));
