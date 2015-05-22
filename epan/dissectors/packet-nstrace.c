@@ -101,6 +101,11 @@ typedef struct nspr_rec_ssl_s
   guint8 appseq[4];
 } nspr_rec_ssl_t;
 
+typedef struct nspr_rec_mptcp_s
+{
+  nspr_tracerechdr_t rechdr;
+  guint8 subflowid;
+}nspr_rec_mptcp_t;
 
 /* Netscaler Record types */
 #define NSREC_NULL     0x00
@@ -120,6 +125,7 @@ typedef struct nspr_rec_ssl_s
 #define NSREC_SSL       0x87
 #define NSREC_APPFW     0x88
 #define NSREC_POL       0x89
+#define NSREC_MPTCP     0x8A
 #define UNKNOWN_LAST    0xFF
 
 /* Packet error codes */
@@ -151,7 +157,7 @@ typedef struct nspr_rec_ssl_s
 #define APP_RDP     0x11
 #define APP_TFTP    0x12
 #define APP_PPTP    0x13
-#define APP_MPTCP   0x14
+#define APP_MPTCPIN 0x14
 #define APP_HTTP2   0x15
 #define APP_IPSEC   0x16
 #define APP_TEST    0x17
@@ -163,6 +169,7 @@ typedef struct nspr_rec_ssl_s
 #define APP_IP6     0x1D
 #define APP_ARP     0x1E
 #define APP_SSLENC  0x1F
+#define APP_MPTCPOUT 0x20
 
 void proto_register_ns(void);
 void proto_reg_handoff_ns(void);
@@ -219,6 +226,9 @@ static int hf_ns_inforec_info    = -1;
 static int hf_ns_sslrec         = -1;
 static int hf_ns_sslrec_seq     = -1;
 
+static int hf_ns_mptcprec         = -1;
+static int hf_ns_mptcprec_subflowid  = -1;
+
 static int hf_ns_vmnamerec           = -1;
 static int hf_ns_vmnamerec_srcvmname = -1;
 static int hf_ns_vmnamerec_dstvmname = -1;
@@ -240,6 +250,7 @@ static gint ett_ns_activity_flags = -1;
 static gint ett_ns_tcpdebug = -1;
 static gint ett_ns_inforec  = -1;
 static gint ett_ns_sslrec  = -1;
+static gint ett_ns_mptcprec  = -1;
 static gint ett_ns_vmnamerec  = -1;
 static gint ett_ns_clusterrec  = -1;
 static gint ett_ns_clu_clflags  = -1;
@@ -269,7 +280,7 @@ static const value_string ns_app_vals[] = {
   { APP_SMPP,  "SMPP"   },
   { APP_TFTP,  "TFTP"   },
   { APP_PPTP,  "PPTP"   },
-  { APP_MPTCP, "MPTCP"  },
+  { APP_MPTCPIN,"MPTCP-IN"  },
   { APP_HTTP2, "HTTP2"  },
   { APP_IPSEC, "IPSEC"  },
   { APP_TEST,  "TEST"   },
@@ -281,6 +292,7 @@ static const value_string ns_app_vals[] = {
   { APP_IP6,   "IP6"    },
   { APP_ARP,   "ARP"    },
   { APP_SSLENC,"SSL-ENC"},
+  { APP_MPTCPOUT,"MPTCP-OUT"  },
   { APP_NULL,   NULL    },
 };
 
@@ -398,6 +410,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 #define CLUSTERRECOFFSET(field)   (guint)(offsetof(nspr_rec_cluster_t, field))
 #define VMNAMERECOFFSET(field)    (guint)(offsetof(nspr_rec_vmname_t, field))
 #define SSLRECOFFSET(field)       (guint)(offsetof(nspr_rec_ssl_t, field))
+#define MPTCPRECOFFSET(field)     (guint)(offsetof(nspr_rec_mptcp_t, field))
 static void
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -632,6 +645,21 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 				proto_tree_add_item(sslTree, hf_ns_sslrec_seq, tvb, offset+SSLRECOFFSET(seq), 4, ENC_LITTLE_ENDIAN);
 
 				ssl_internal=1;
+
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+			case NSREC_MPTCP:
+			{
+				proto_item *mptcpItem=NULL;
+				proto_tree *mptcpTree=NULL;
+				int reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+
+				mptcpItem = proto_tree_add_item(ns_tree, hf_ns_mptcprec, tvb, offset, reclen, ENC_NA);
+				mptcpTree = proto_item_add_subtree(mptcpItem, ett_ns_mptcprec);
+				proto_tree_add_item(mptcpTree, hf_ns_mptcprec_subflowid, tvb, offset+MPTCPRECOFFSET(subflowid), 1, ENC_LITTLE_ENDIAN);
 
 				offset += reclen;
 				cur_record = nextrec;
@@ -945,6 +973,18 @@ proto_register_ns(void)
 		    NULL, HFILL}
 		},
 
+		{ &hf_ns_mptcprec,
+		  { "mptcp record", "nstrace.mptcp",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_mptcprec_subflowid,
+		  { "MPTCP subflow id", "nstrace.sslrec.subflow",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
 		{ &hf_ns_vmnamerec,
 		  { "vmname record", "nstrace.vmnames",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
@@ -952,13 +992,13 @@ proto_register_ns(void)
 		},
 
 		{ &hf_ns_vmnamerec_srcvmname,
-		  { "info", "nstrace.vmnames.srcvmname",
+		  { "SrcVmName", "nstrace.vmnames.srcvmname",
 		    FT_STRING, STR_ASCII, NULL, 0x0,
 		    NULL, HFILL}
 		},
 
 		{ &hf_ns_vmnamerec_dstvmname,
-		  { "info", "nstrace.vmnames.dstvmnames",
+		  { "DstVmName", "nstrace.vmnames.dstvmnames",
 		    FT_STRING, STR_ASCII, NULL, 0x0,
 		    NULL, HFILL}
 		},
@@ -1047,6 +1087,7 @@ proto_register_ns(void)
 		&ett_ns_clusterrec,
 		&ett_ns_clu_clflags,
 		&ett_ns_sslrec,
+		&ett_ns_mptcprec,
 		&ett_ns_capflags,
 	};
 
