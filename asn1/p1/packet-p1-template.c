@@ -86,6 +86,7 @@ static dissector_table_t p1_tokendata_dissector_table;
 
 #include "packet-p1-table.c"   /* operation and error codes */
 
+#define P1_ADDRESS_CTX "p1-address-ctx"
 typedef struct p1_address_ctx {
 	gboolean do_address;
 	const char *content_type_id;
@@ -105,9 +106,25 @@ static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
 	ctx->do_address = do_address;
 }
 
+static p1_address_ctx_t *get_do_address_ctx(asn1_ctx_t* actx)
+{
+	p1_address_ctx_t* ctx = NULL;
+
+	if (actx->pinfo->private_table) {
+		/* First check if called from an extension attribute */
+		ctx = g_hash_table_lookup(actx->pinfo->private_table, (gpointer)P1_ADDRESS_CTX);
+	}
+
+	if (!ctx) {
+		ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	}
+
+	return ctx;
+}
+
 static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 {
-	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	p1_address_ctx_t* ctx = get_do_address_ctx(actx);
 
 	if (ctx && ctx->do_address) {
 		if (addr) {
@@ -123,7 +140,7 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 {
 	wmem_strbuf_t *ddatype = (wmem_strbuf_t *)actx->value_ptr;
-	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	p1_address_ctx_t* ctx = get_do_address_ctx(actx);
 
 	do_address(addr, tvb_string, actx);
 
@@ -134,7 +151,7 @@ static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* a
 static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
 {
 	wmem_strbuf_t *ddatype = (wmem_strbuf_t *)actx->value_ptr;
-	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	p1_address_ctx_t* ctx = get_do_address_ctx(actx);
 
 	do_address(addr, tvb_string, actx);
 
