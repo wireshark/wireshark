@@ -2221,6 +2221,10 @@ int main(int argc, char **argv) {
             break;
         case OPT_CONFIG_ADB_SERVER_TCP_PORT:
             adb_server_tcp_port = &local_adb_server_tcp_port;
+            if (!optarg){
+                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                return -1;
+            }
             *adb_server_tcp_port = (unsigned short) strtoul(optarg, NULL, 10);
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
@@ -2228,6 +2232,10 @@ int main(int argc, char **argv) {
             break;
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
+            if (!optarg){
+                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                return -1;
+            }
             *bt_server_tcp_port = (unsigned short) strtoul(optarg, NULL, 10);
             break;
         case OPT_CONFIG_BT_FORWARD_SOCKET:
@@ -2238,6 +2246,10 @@ int main(int argc, char **argv) {
             break;
         case OPT_CONFIG_BT_LOCAL_TCP_PORT:
             bt_local_tcp_port = &local_bt_local_tcp_port;
+            if (!optarg){
+                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                return -1;
+            }
             *bt_local_tcp_port = (unsigned short) strtoul(optarg, NULL, 10);
             break;
         default:
