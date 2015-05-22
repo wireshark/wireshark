@@ -279,8 +279,8 @@ static gint ett_rtpproxy_ng_bencode = -1;
 static guint rtpproxy_tcp_port = 22222;
 static guint rtpproxy_udp_port = 22222;
 static gboolean rtpproxy_establish_conversation = TRUE;
-/* See - http://www.opensips.org/html/docs/modules/devel/rtpproxy.html#id250016 */
-/* See - http://www.kamailio.org/docs/modules/devel/modules/rtpproxy.html#idm448 */
+/* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
+/* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
 static guint rtpproxy_timeout = 1000;
 static nstime_t rtpproxy_timeout_ns = {1, 0};
 
@@ -462,7 +462,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
             pi = proto_tree_add_uint(rtpproxy_tree, is_request ? hf_rtpproxy_response_in : hf_rtpproxy_request_in, tvb, 0, 0, is_request ? rtpproxy_info->resp_frame : rtpproxy_info->req_frame);
             PROTO_ITEM_SET_GENERATED(pi);
 
-            /* If reply then calculate response time */
+            /* If not a request (so it's a reply) then calculate response time */
             if (!is_request){
                 nstime_delta(&ns, &pinfo->fd->abs_ts, &rtpproxy_info->req_time);
                 pi = proto_tree_add_time(rtpproxy_tree, hf_rtpproxy_response_time, tvb, 0, 0, &ns);
@@ -575,6 +575,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Calculate size to prevent recalculation in the future */
     realsize = tvb_reported_length(tvb);
 
+    /* Don't count trailing zeroes (inserted by some SIP-servers sometimes) */
+    while (tvb_get_guint8(tvb, realsize - 1) == 0){
+        realsize -= 1;
+    }
+
     /* Check for LF (required for TCP connection, optional for UDP) */
     if (tvb_get_guint8(tvb, realsize - 1) == '\n'){
         /* Don't count trailing LF */
@@ -636,9 +641,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
             rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
 
-            /* A specific case - version request */
-            if ((tmp == 'v') && (offset + (gint)strlen("VF YYYMMDD") + 1 == realsize)){
-                /* Skip whitespace */
+            /* A specific case - version request:
+             * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#get-list-of-veatures
+             *
+             * In this case a command size must be bigger or equal to a "VF YYYYMMDD" string size.
+             * It's bigger if there is more than one space inserted between "VF" and "YYYYMMDD" tokens.
+             */
+            if ((tmp == 'v') && (offset + (gint)strlen("VF YYYYMMDD") <= realsize)){
+                /* Skip whitespace between "VF" and "YYYYMMDD" tokens */
                 new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
                 tmpstr = tvb_get_string_enc(wmem_packet_scope(), tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII);
@@ -803,16 +813,25 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 break;
             }
 
-            if ((tmp == '0')&& ((tvb_reported_length(tvb) == (guint)(offset+1))||(tvb_reported_length(tvb) == (guint)(offset+2)))){
+            /* Check for a single '0' or '1' character followed by the end-of-line.
+             * These both are positive replies - either a 'positive reply' or a 'version ack'.
+             *
+             * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#positive-reply
+             * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#version-reply
+             */
+            if (((tmp == '0') || (tmp == '1')) && (realsize == offset + (gint)strlen("X"))){
                 proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ok, tvb, offset, 1, ENC_ASCII | ENC_NA);
                 break;
             }
-            if ((tmp == '1') && ((tvb_reported_length(tvb) == (guint)(offset+1))||(tvb_reported_length(tvb) == (guint)(offset+2)))){
-                proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ok, tvb, offset, 1, ENC_ASCII | ENC_NA);
-                break;
-            }
-            if (tvb_reported_length(tvb) == (guint)(offset+9)){
-                proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_supported, tvb, offset, 8, ENC_ASCII | ENC_NA);
+
+            /* Check for the VERSION_NUMBER string reply:
+             * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#version-reply
+             *
+             * If a total size equals to a current offset + size of "YYYYMMDD" string
+             * then it's a version reply.
+             */
+            if (realsize == offset + (gint)strlen("YYYYMMDD")){
+                proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_supported, tvb, offset, strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
                 break;
             }
 
@@ -829,7 +848,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Try rtpengine bogus extension first. It appends 4 or
              * 6 depending on type of the IP. See
-             * https://github.com/sipwise/rtpengine/blob/master/daemon/call_interfaces.c#L66
+             * https://github.com/sipwise/rtpengine/blob/eea3256/daemon/call_interfaces.c#L74
              * for further details */
             tmp = tvb_find_guint8(tvb, offset, -1, ' ');
             if(tmp == (guint)(-1)){
