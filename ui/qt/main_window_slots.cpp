@@ -1517,7 +1517,7 @@ void MainWindow::on_actionFileSave_triggered()
 
 void MainWindow::on_actionFileSaveAs_triggered()
 {
-    saveAsCaptureFile(capture_file_.capFile(), FALSE, TRUE);
+    saveAsCaptureFile(capture_file_.capFile());
 }
 
 void MainWindow::on_actionFileSetListFiles_triggered()

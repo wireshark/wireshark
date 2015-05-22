@@ -152,8 +152,8 @@ private:
 
     void mergeCaptureFile();
     void importCaptureFile();
-    void saveCaptureFile(capture_file *cf, bool stay_closed);
-    void saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed);
+    void saveCaptureFile(capture_file *cf, bool dont_reopen);
+    void saveAsCaptureFile(capture_file *cf, bool must_support_comments = false, bool dont_reopen = false);
     void exportSelectedPackets();
     void exportDissections(export_type_e export_type);
 

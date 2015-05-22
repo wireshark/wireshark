@@ -832,7 +832,7 @@ void MainWindow::importCaptureFile() {
     openCaptureFile(import_dlg.capfileName());
 }
 
-void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
+void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     QString file_name;
     gboolean discard_comments;
 
@@ -844,7 +844,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
            probably pcap-ng, which supports comments and, if it's
            not pcap-ng, let the user decide what they want to do
            if they've added comments. */
-        saveAsCaptureFile(cf, FALSE, stay_closed);
+        saveAsCaptureFile(cf, FALSE, dont_reopen);
     } else {
         if (cf->unsaved_changes) {
             cf_write_status_t status;
@@ -879,7 +879,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
                    support comments, and the user said not to delete the
                    comments.  Do a "Save As" so the user can select
                    one of those formats and choose a file name. */
-                saveAsCaptureFile(cf, TRUE, stay_closed);
+                saveAsCaptureFile(cf, TRUE, dont_reopen);
                 return;
 
             case CANCELLED:
@@ -899,7 +899,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
                so make a copy and free it later. */
             file_name = cf->filename;
             status = cf_save_records(cf, file_name.toUtf8().constData(), cf->cd_t, cf->iscompressed,
-                                     discard_comments, stay_closed);
+                                     discard_comments, dont_reopen);
             switch (status) {
 
             case CF_WRITE_OK:
@@ -929,7 +929,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
     }
 }
 
-void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed) {
+void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
     gboolean compressed;
@@ -1014,7 +1014,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 
         /* Attempt to save the file */
         status = cf_save_records(cf, file_name.toUtf8().constData(), file_type, compressed,
-                                 discard_comments, stay_closed);
+                                 discard_comments, dont_reopen);
         switch (status) {
 
         case CF_WRITE_OK:
