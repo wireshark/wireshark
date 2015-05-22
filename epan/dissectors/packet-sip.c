@@ -499,40 +499,42 @@ static const sip_header_t sip_headers[] = {
 #define POS_SERVICE_ROUTE               96
     { "Session-Expires",                "x"  },  /*  97 RFC4028  */
 #define POS_SESSION_EXPIRES             97
-    { "SIP-ETag",                       NULL },  /*  98 RFC3903  */
-#define POS_SIP_ETAG                    98
-    { "SIP-If-Match",                   NULL },  /*  99 RFC3903  */
-#define POS_SIP_IF_MATCH                99
-    { "Subject",                        "s"  },  /* 100 RFC3261  */
-#define POS_SUBJECT                     100
-    { "Subscription-State",             NULL },  /* 101 RFC3265  */
-#define POS_SUBSCRIPTION_STATE          101
-    { "Supported",                      "k"  },  /* 102 RFC3261  */
-#define POS_SUPPORTED                   102
-    { "Suppress-If-Match",              NULL },  /* 103 RFC5839  */
-#define POS_SUPPRESS_IF_MATCH           103
-    { "Target-Dialog",                  NULL },  /* 104 RFC4538  */
-#define POS_TARGET_DIALOG               104
-    { "Timestamp",                      NULL },  /* 105 RFC3261  */
-#define POS_TIMESTAMP                   105
-    { "To",                             "t"  },  /* 106 RFC3261  */
-#define POS_TO                          106
-    { "Trigger-Consent",                NULL },  /* 107 RFC5360  */
-#define POS_TRIGGER_CONSENT             107
-    { "Unsupported",                    NULL },  /* 108 RFC3261  */
-#define POS_UNSUPPORTED                 108
-    { "User-Agent",                     NULL },  /* 109 RFC3261  */
-#define POS_USER_AGENT                  109
-    { "Via",                            "v"  },  /* 110 RFC3261  */
-#define POS_VIA                         110
-    { "Warning",                        NULL },  /* 111 RFC3261  */
-#define POS_WARNING                     111
-    { "WWW-Authenticate",               NULL },  /* 112 RFC3261  */
-#define POS_WWW_AUTHENTICATE            112
-    { "Diversion",                      NULL },  /* 113 RFC5806  */
-#define POS_DIVERSION                   113
-    { "User-to-User",                   NULL },  /* 106 draft-johnston-sipping-cc-uui-09  */
-#define POS_USER_TO_USER                114
+    { "Session-ID",                     NULL },  /*  98 RFC7329  */
+#define POS_SESSION_ID                  98
+    { "SIP-ETag",                       NULL },  /*  99 RFC3903  */
+#define POS_SIP_ETAG                    99
+    { "SIP-If-Match",                   NULL },  /* 100 RFC3903  */
+#define POS_SIP_IF_MATCH                100
+    { "Subject",                        "s"  },  /* 101 RFC3261  */
+#define POS_SUBJECT                     101
+    { "Subscription-State",             NULL },  /* 102 RFC3265  */
+#define POS_SUBSCRIPTION_STATE          102
+    { "Supported",                      "k"  },  /* 103 RFC3261  */
+#define POS_SUPPORTED                   103
+    { "Suppress-If-Match",              NULL },  /* 104 RFC5839  */
+#define POS_SUPPRESS_IF_MATCH           104
+    { "Target-Dialog",                  NULL },  /* 105 RFC4538  */
+#define POS_TARGET_DIALOG               105
+    { "Timestamp",                      NULL },  /* 106 RFC3261  */
+#define POS_TIMESTAMP                   106
+    { "To",                             "t"  },  /* 107 RFC3261  */
+#define POS_TO                          107
+    { "Trigger-Consent",                NULL },  /* 108 RFC5360  */
+#define POS_TRIGGER_CONSENT             108
+    { "Unsupported",                    NULL },  /* 109 RFC3261  */
+#define POS_UNSUPPORTED                 109
+    { "User-Agent",                     NULL },  /* 110 RFC3261  */
+#define POS_USER_AGENT                  110
+    { "Via",                            "v"  },  /* 111 RFC3261  */
+#define POS_VIA                         111
+    { "Warning",                        NULL },  /* 112 RFC3261  */
+#define POS_WARNING                     112
+    { "WWW-Authenticate",               NULL },  /* 113 RFC3261  */
+#define POS_WWW_AUTHENTICATE            113
+    { "Diversion",                      NULL },  /* 114 RFC5806  */
+#define POS_DIVERSION                   114
+    { "User-to-User",                   NULL },  /* 115 draft-johnston-sipping-cc-uui-09  */
+#define POS_USER_TO_USER                115
 };
 
 
@@ -637,23 +639,24 @@ static gint hf_header_array[] = {
     -1, /* 95"Server",                          RFC3261 */
     -1, /* 96"Service-Route",                   RFC3608 */
     -1, /* 97"Session-Expires",                 RFC4028 */
-    -1, /* 98"SIP-ETag",                        RFC3903 */
-    -1, /* 99"SIP-If-Match",                    RFC3903 */
-    -1, /* 100"Subject",                        RFC3261 */
-    -1, /* 101"Subscription-State",             RFC3265 */
-    -1, /* 102"Supported",                      RFC3261 */
-    -1, /* 103"Suppress-If-Match",              RFC4538 */
-    -1, /* 104"Target-Dialog",                  RFC4538 */
-    -1, /* 105"Timestamp",                      RFC3261 */
-    -1, /* 106"To",                             RFC3261 */
-    -1, /* 107"Trigger-Consent"                 RFC5380 */
-    -1, /* 108"Unsupported",                    RFC3261 */
-    -1, /* 109"User-Agent",                     RFC3261 */
-    -1, /* 110"Via",                            RFC3261 */
-    -1, /* 111"Warning",                        RFC3261 */
-    -1, /* 112"WWW-Authenticate",               RFC3261 */
-    -1, /* 113"Diversion",                      RFC5806 */
-    -1, /* 114"User-to-User",  draft-johnston-sipping-cc-uui-09 */
+    -1, /* 98"Session-Id",                      RFC7329 */
+    -1, /* 99"SIP-ETag",                        RFC3903 */
+    -1, /* 100"SIP-If-Match",                    RFC3903 */
+    -1, /* 101"Subject",                        RFC3261 */
+    -1, /* 102"Subscription-State",             RFC3265 */
+    -1, /* 103"Supported",                      RFC3261 */
+    -1, /* 104"Suppress-If-Match",              RFC4538 */
+    -1, /* 105"Target-Dialog",                  RFC4538 */
+    -1, /* 106"Timestamp",                      RFC3261 */
+    -1, /* 107"To",                             RFC3261 */
+    -1, /* 108"Trigger-Consent"                 RFC5380 */
+    -1, /* 109"Unsupported",                    RFC3261 */
+    -1, /* 110"User-Agent",                     RFC3261 */
+    -1, /* 111"Via",                            RFC3261 */
+    -1, /* 112"Warning",                        RFC3261 */
+    -1, /* 113"WWW-Authenticate",               RFC3261 */
+    -1, /* 114"Diversion",                      RFC5806 */
+    -1, /* 115"User-to-User",  draft-johnston-sipping-cc-uui-09 */
 
 };
 
@@ -5465,6 +5468,11 @@ void proto_register_sip(void)
           { "Session-Expires",         "sip.Session-Expires",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4028: Session-Expires Header", HFILL }
+        },
+        { &hf_header_array[POS_SESSION_ID],
+          { "Session-Id", "sip.Session-Id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_header_array[POS_SIP_ETAG],
           { "ETag",        "sip.ETag",
