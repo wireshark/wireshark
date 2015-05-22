@@ -1267,7 +1267,14 @@ static const range_string notifmsg_v2_type[] = {
   { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* RFC6311 */
   { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* RFC6311 */
   { 16424,16424,        "SECURE_PASSWORD_METHODS" },            /* RFC6467 */
-  { 16425,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16425,16425,        "PSK_PERSIST" },                        /* RFC6631 */
+  { 16426,16426,        "PSK_CONFIRM" },                        /* RFC6631 */
+  { 16427,16427,        "ERX_SUPPORTED" },                      /* RFC6867 */
+  { 16428,16428,        "IFOM_CAPABILITY" },                    /* [Frederic_Firmin][3GPP TS 24.303 v10.6.0 annex B.2] */
+  { 16429,16429,        "SENDER_REQUEST_ID" },                  /* [draft-yeung-g-ikev2] */
+  { 16430,16430,        "IKEV2_FRAGMENTATION_SUPPORTED" },      /* RFC7383 */
+  { 16431,16431,        "SIGNATURE_HASH_ALGORITHMS" },          /* RFC7427 */
+  { 16432,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,        NULL },
 };
@@ -3949,6 +3956,10 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
   }else if (isakmp_version == 2)
   {
      proto_tree_add_item(tree, hf_isakmp_notify_msgtype_v2, tvb, offset, 2, ENC_BIG_ENDIAN);
+     proto_item_append_text(tree, " - %s",
+                            rval_to_str_const(tvb_get_ntohs(tvb, offset),
+                                              notifmsg_v2_type,
+                                              "Unknown"));
   }
   offset += 2;
   length -= 2;
