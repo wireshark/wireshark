@@ -1,8 +1,44 @@
 /* packet-pcli.c
  * Routines for Packet Cable Lawful Intercept packet disassembly
- * Packet Cable Lawful Intercept is detailed at
- * http://www.cablelabs.com/specifications/archives/PKT-SP-ESP-I01-991229.pdf
- * Chapter 4 ( Call Content Connection Interface )
+ *
+ * Packet Cable Lawful Intercept is described by various PacketCable/CableLabs
+ * specs.
+ *
+ * One spec is PacketCable(TM) Electronic Surveillance Specification
+ * PKT-SP-ESP-I01-991229, the front page of which speaks of it as
+ * being "Interim".  It does not appear to be available from the
+ * CableLabs Web site, but is available through the Wayback Machine
+ * at
+ *
+ *     http://web.archive.org/web/20030428211154/http://www.packetcable.com/downloads/specs/pkt-sp-esp-I01-991229.pdf
+ *
+ * See Section 4 "Call Content Connection Interface".  In that spec, the
+ * packets have a 4-octet Call Content Connection (CCC) Identifier, followed
+ * by the Intercepted Information.  The Intercepted Information is an IP
+ * datagram, starting with an IP header.
+ *
+ * However, later specifications, such as PacketCable(TM) 1.5 Specifications,
+ * Electronic Surveillance, PKT-SP-ESP1.5-I02-070412, at
+ *
+ *    http://www.cablelabs.com/wp-content/uploads/specdocs/PKT-SP-ESP1.5-I02-070412.pdf
+ *
+ * the front page of which speaks of it as being "ISSUED", in Section 5 "Call
+ * Content Connection Interface", gives a header with a 4-octet CCC
+ * Identifier followed by an 8-byte NTP-format timestamp.
+ *
+ * The PacketCable(TM) 2.0, PacketCable Electronic Surveillance Delivery
+ * Function to Collection Function Interface Specification,
+ * PKT-SP-ES-DCI-C01-140314, at
+ *
+ *     http://www.cablelabs.com/wp-content/uploads/specdocs/PKT-SP-ES-DCI-C01-140314.pdf
+ *
+ * which speaks of it as being "CLOSED" ("A static document, reviewed,
+ * tested, validated, and closed to further engineering change requests to
+ * the specification through CableLabs."), shows in section 7 "CALL CONTENT
+ * CONNECTION (CCC) INTERFACE", a header with the 4-octet CCC Identifier,
+ * the 8-byte NTP-format timestamp, and an 8-octet Case ID.
+ *
+ * So we may need a preference for the version.
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
