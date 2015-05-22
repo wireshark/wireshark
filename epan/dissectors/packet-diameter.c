@@ -2244,6 +2244,9 @@ proto_reg_handoff_diameter(void)
 		/* AVP Code: 97 Framed-IPv6-Address */
 		dissector_add_uint("diameter.base", 97, new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
 
+		/* AVP Code: 265 Suported-Vendor-Id */
+		dissector_add_uint("diameter.base", 265, new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+
 		/* AVP Code: 266 Vendor-Id */
 		dissector_add_uint("diameter.base", 266, new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 
