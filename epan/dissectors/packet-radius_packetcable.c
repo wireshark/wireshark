@@ -389,7 +389,7 @@ static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, t
 
 static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 
-	if (tvb_length(tvb) == 0)
+	if (tvb_reported_length(tvb) == 0)
 		return "None";
 
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_cdc_address,
@@ -418,18 +418,18 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 	/* XXX - this logic seems buggy because the offsets don't line up */
 	guint8 bitmask = tvb_get_guint8(tvb, 2);
 	guint intval = 1;
-	proto_item* ti = proto_tree_add_item(tree, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
-							 tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree* obj_tree = proto_item_add_subtree(ti, ett_packetcable_term_dsply);
+	static const int * flags[] = {
+		&hf_packetcable_terminal_display_info_sbm_general_display,
+		&hf_packetcable_terminal_display_info_sbm_calling_number,
+		&hf_packetcable_terminal_display_info_sbm_calling_name,
+		&hf_packetcable_terminal_display_info_sbm_message_waiting,
+		NULL
+	};
 
-	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_general_display,
-						tvb, 0, 1, bitmask);
-	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_number,
-						tvb, 0, 1, bitmask);
-	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_name,
-						tvb, 0, 1, bitmask);
-	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_message_waiting,
-						tvb, 0, 1, bitmask);
+	proto_item* ti = proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
+										ett_packetcable_term_dsply, flags, ENC_NA, BMT_NO_APPEND|BMT_NO_FALSE);
+
+	proto_tree* obj_tree = proto_item_add_subtree(ti, ett_packetcable_term_dsply);
 
 	if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_general_display,

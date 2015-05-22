@@ -150,18 +150,18 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             offset++;
 
             /* TR 4 octect, 8 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, ENC_NA );
 
             offset++;
 
         } else { /* MODE B or MODE C */
             /* QUANT 2 octect, 5 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, ENC_NA);
 
             offset++;
 
             /* GOBN 3 octect, 5 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ENC_NA);
             /* MBA 3 octect, 3 bits + 4 octect 6 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
 
@@ -197,7 +197,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             offset++;
 
             /* VMV2 8th octect, 7 bits*/
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, ENC_NA);
 
             offset++;
 
@@ -409,7 +409,7 @@ proto_register_rfc2190(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x1F,
                 "Quantization value for the first MB coded at the starting of the packet.", HFILL
             }
         },
@@ -421,7 +421,7 @@ proto_register_rfc2190(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0xF8,
                 "GOB number in effect at the start of the packet.", HFILL
             }
         },
@@ -481,7 +481,7 @@ proto_register_rfc2190(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x7F,
                 "Vertical motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
             }
         },

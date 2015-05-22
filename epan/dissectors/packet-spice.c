@@ -638,8 +638,6 @@ static int hf_main_client_agent_tokens = -1;
 static int hf_tranparent_src_color = -1;
 static int hf_tranparent_true_color = -1;
 static int hf_spice_sasl_auth_result = -1;
-static int hf_playback_cap_celt = -1;
-static int hf_playback_cap_volume = -1;
 static int hf_record_cap_volume = -1;
 static int hf_record_cap_celt = -1;
 static int hf_display_cap_sized_stream = -1;
@@ -2842,6 +2840,13 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 /* TODO: save common and per-channel capabilities in spice_info ? */
     guint   i;
     guint32 val;
+    static const int * caps[] = {
+        &hf_common_cap_auth_select,
+        &hf_common_cap_auth_spice,
+        &hf_common_cap_auth_sasl,
+        &hf_common_cap_mini_header,
+        NULL
+    };
 
     for(i = 0; i < caps_len; i++) {
         val = tvb_get_letohl(tvb, offset);
@@ -2852,11 +2857,8 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
                 } else {
                     spice_info->server_auth = val;
                 }
-                proto_tree_add_boolean(tree, hf_common_cap_auth_select, tvb, offset, 4, val);
-                proto_tree_add_boolean(tree, hf_common_cap_auth_spice,  tvb, offset, 4, val);
-                proto_tree_add_boolean(tree, hf_common_cap_auth_sasl,   tvb, offset, 4, val);
 
-                proto_tree_add_boolean(tree, hf_common_cap_mini_header, tvb, offset, 4, val);
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, caps, ENC_LITTLE_ENDIAN);
                 if (val & SPICE_COMMON_CAP_MINI_HEADER_MASK) {
                     if (is_client) {
                         spice_info->client_mini_header = TRUE;
@@ -2879,16 +2881,21 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 {
 /* TODO: save common and per-channel capabilities in spice_info ? */
     guint   i;
-    guint32 val;
 
     for(i = 0; i < caps_len; i++) {
-        val = tvb_get_letohl(tvb, offset);
         switch (spice_info->channel_type) {
             case SPICE_CHANNEL_PLAYBACK:
                 switch (i) {
                     case 0:
-                        proto_tree_add_boolean(tree, hf_playback_cap_celt,   tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_playback_cap_volume, tvb, offset, 4, val);
+                        {
+                        const int * playback[] = {
+                            &hf_common_cap_auth_select,
+                            &hf_common_cap_auth_spice,
+                            NULL
+                        };
+
+                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, playback, ENC_LITTLE_ENDIAN);
+                        }
                         break;
                     default:
                         break;
@@ -2897,10 +2904,17 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
             case SPICE_CHANNEL_MAIN:
                 switch (i) {
                     case 0:
-                        proto_tree_add_boolean(tree, hf_main_cap_semi_migrate, tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_main_cap_vm_name_uuid, tvb, offset, 4, val); /*Note: only relevant for client. TODO: dissect only for client */
-                        proto_tree_add_boolean(tree, hf_main_cap_agent_connected_tokens, tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_main_cap_seamless_migrate,       tvb, offset, 4 ,val);
+                        {
+                        const int * main_cap[] = {
+                            &hf_main_cap_semi_migrate,
+                            &hf_main_cap_vm_name_uuid, /*Note: only relevant for client. TODO: dissect only for client */
+                            &hf_main_cap_agent_connected_tokens,
+                            &hf_main_cap_seamless_migrate,
+                            NULL
+                        };
+
+                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, main_cap, ENC_LITTLE_ENDIAN);
+                        }
                         break;
                     default:
                         break;
@@ -2909,10 +2923,17 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
             case SPICE_CHANNEL_DISPLAY:
                 switch (i) {
                     case 0:
-                        proto_tree_add_boolean(tree, hf_display_cap_sized_stream,    tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_display_cap_monitors_config, tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_display_cap_composite,       tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_display_cap_a8_surface,      tvb, offset, 4, val);
+                        {
+                        const int * display_cap[] = {
+                            &hf_display_cap_sized_stream,
+                            &hf_display_cap_monitors_config,
+                            &hf_display_cap_composite,
+                            &hf_display_cap_a8_surface,
+                            NULL
+                        };
+
+                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, display_cap, ENC_LITTLE_ENDIAN);
+                        }
                         break;
                     default:
                         break;
@@ -2927,8 +2948,15 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
             case SPICE_CHANNEL_RECORD:
                 switch (i) {
                     case 0:
-                        proto_tree_add_boolean(tree, hf_record_cap_celt, tvb, offset, 4, val);
-                        proto_tree_add_boolean(tree, hf_record_cap_volume, tvb, offset, 4, val);
+                        {
+                        const int * record_cap[] = {
+                            &hf_record_cap_celt,
+                            &hf_record_cap_volume,
+                            NULL
+                        };
+
+                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, record_cap, ENC_LITTLE_ENDIAN);
+                        }
                         break;
                     default:
                         break;
@@ -3506,16 +3534,6 @@ proto_register_spice(void)
         { &hf_common_cap_mini_header,
           { "Mini Header", "spice.common_cap_mini_header",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_COMMON_CAP_MINI_HEADER_MASK,
-            NULL, HFILL }
-        },
-        { &hf_playback_cap_celt,
-          { "CELT 0.5.1 playback channel support", "spice.playback_cap_celt",
-            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK,
-            NULL, HFILL }
-        },
-        { &hf_playback_cap_volume,
-          { "Volume playback channel support", "spice.playback_cap_volume",
-            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_VOLUME_MASK,
             NULL, HFILL }
         },
         { &hf_record_cap_volume,

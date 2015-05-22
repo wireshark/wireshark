@@ -1964,7 +1964,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         next_tvb        = tvb_new_subset_length(tvb, offset-8, app_length+4);
         /* look for registered sub-dissectors */
         if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, NULL)) {
-            /* found subdissector - return tvb_length */
+            /* found subdissector - return tvb_reported_length */
             offset     += 4;
             packet_len -= 4;
             if ( padding ) {
@@ -2160,7 +2160,13 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type,
                                          proto_tree *tree, guint8 *thinning)
 {
-    guint8 flags = tvb_get_guint8(tvb, offset);
+    static const int * flags[] = {
+        &hf_rtcp_xr_stats_loss_flag,
+        &hf_rtcp_xr_stats_dup_flag,
+        &hf_rtcp_xr_stats_jitter_flag,
+        &hf_rtcp_xr_stats_ttl,
+        NULL
+    };
 
     switch (block_type) {
         case RTCP_XR_LOSS_RLE:
@@ -2171,10 +2177,7 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
             break;
 
         case RTCP_XR_STATS_SUMRY:
-            proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
-            proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
-            proto_tree_add_boolean(tree, hf_rtcp_xr_stats_jitter_flag, tvb, offset, 1, flags);
-            proto_tree_add_item(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
             break;
 
         default:
@@ -3350,7 +3353,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             gboolean e_bit;
             srtcp_info = p_conv_data->srtcp_info;
             /* get the offset to the start of the SRTCP fields at the end of the packet */
-            srtcp_offset = tvb_length_remaining(tvb, offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
+            srtcp_offset = tvb_reported_length_remaining(tvb, offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
             /* It has been setup as SRTCP, but skip to the SRTCP E field at the end
                to see if this particular packet is encrypted or not. The E bit is the MSB. */
             srtcp_index = tvb_get_ntohl(tvb,srtcp_offset);

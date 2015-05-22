@@ -1015,18 +1015,15 @@ dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 static guint
 dissect_zbee_nwk_leave(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    guint8  leave_options;
+    static const int * leave_options[] = {
+        &hf_zbee_nwk_cmd_leave_rejoin,
+        &hf_zbee_nwk_cmd_leave_request,
+        &hf_zbee_nwk_cmd_leave_children,
+        NULL
+    };
 
     /* Get and display the leave options. */
-    leave_options = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        proto_tree_add_boolean(tree, hf_zbee_nwk_cmd_leave_rejoin, tvb, offset, 1,
-                                 leave_options & ZBEE_NWK_CMD_LEAVE_OPTION_REJOIN);
-        proto_tree_add_boolean(tree, hf_zbee_nwk_cmd_leave_request, tvb, offset, 1,
-                                 leave_options & ZBEE_NWK_CMD_LEAVE_OPTION_REQUEST);
-        proto_tree_add_boolean(tree, hf_zbee_nwk_cmd_leave_children, tvb, offset, 1,
-                                leave_options & ZBEE_NWK_CMD_LEAVE_OPTION_CHILDREN);
-    }
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, leave_options, ENC_NA);
     offset += 1;
 
     /* Done */
@@ -1176,17 +1173,17 @@ dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
     guint8  options;
     int     i, link_count;
     proto_tree *subtree;
+    static const int * link_options[] = {
+        &hf_zbee_nwk_cmd_link_last,
+        &hf_zbee_nwk_cmd_link_first,
+        &hf_zbee_nwk_cmd_link_count,
+        NULL
+    };
 
     /* Get and Display the link status options. */
     options = tvb_get_guint8(tvb, offset);
     link_count = options & ZBEE_NWK_CMD_LINK_OPTION_COUNT_MASK;
-    if (tree) {
-        proto_tree_add_boolean(tree, hf_zbee_nwk_cmd_link_last, tvb, offset, 1,
-                options & ZBEE_NWK_CMD_LINK_OPTION_LAST_FRAME);
-        proto_tree_add_boolean(tree, hf_zbee_nwk_cmd_link_first, tvb, offset, 1,
-                options & ZBEE_NWK_CMD_LINK_OPTION_FIRST_FRAME);
-        proto_tree_add_uint(tree, hf_zbee_nwk_cmd_link_count, tvb, offset, 1, link_count);
-    }
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, link_options, ENC_NA);
     offset += 1;
 
     /* Get and Display the link status list. */

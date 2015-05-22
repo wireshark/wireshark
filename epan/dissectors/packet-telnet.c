@@ -979,15 +979,16 @@ static const value_string auth_krb5_types[] = {
 static void
 dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 mod;
+  static const int * auth_mods[] = {
+    &hf_telnet_auth_mod_enc,
+    &hf_telnet_auth_mod_cred_fwd,
+    &hf_telnet_auth_mod_how,
+    &hf_telnet_auth_mod_who,
+    NULL
+  };
 
   proto_tree_add_item(tree, hf_telnet_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-  mod=tvb_get_guint8(tvb, offset+1);
-  proto_tree_add_uint(tree, hf_telnet_auth_mod_enc, tvb, offset+1, 1, mod);
-  proto_tree_add_boolean(tree, hf_telnet_auth_mod_cred_fwd, tvb, offset+1, 1, mod);
-  proto_tree_add_boolean(tree, hf_telnet_auth_mod_how, tvb, offset+1, 1, mod);
-  proto_tree_add_boolean(tree, hf_telnet_auth_mod_who, tvb, offset+1, 1, mod);
+  proto_tree_add_bitmask_list(tree, tvb, offset+1, 1, auth_mods, ENC_BIG_ENDIAN);
 }
 
 /* no kerberos blobs are ever >10kb ? (arbitrary limit) */
@@ -1556,7 +1557,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
   /* Search for an unescaped IAC. */
   cur_offset = offset;
-  len = tvb_length_remaining(tvb, offset);
+  len = tvb_reported_length_remaining(tvb, offset);
   do {
     iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
     iac_found = TRUE;
@@ -1783,7 +1784,7 @@ static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
          (tvb_get_guint8(tvb, iac_offset + 1) == TN_IAC))
   {
     iac_offset+=2;
-    len = tvb_length_remaining(tvb, iac_offset);
+    len = tvb_reported_length_remaining(tvb, iac_offset);
   }
   return iac_offset;
 }
@@ -1812,7 +1813,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Scan through the buffer looking for an IAC byte.
    */
-  while ((len = tvb_length_remaining(tvb, offset)) > 0) {
+  while ((len = tvb_reported_length_remaining(tvb, offset)) > 0) {
     iac_offset = find_unescaped_iac(tvb, offset, len);
     if (iac_offset != -1) {
       /*

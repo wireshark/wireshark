@@ -330,6 +330,12 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	guint8 rtp_evt;
 	guint8 octet;
+	static const int * events[] = {
+		&hf_rtp_events_end,
+		&hf_rtp_events_reserved,
+		&hf_rtp_events_volume,
+		NULL
+	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP EVENT");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -359,9 +365,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
 	offset++;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset, 1, octet);
-	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset, 1, octet);
-	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset, 1, octet);
+	proto_tree_add_bitmask_list(rtp_events_tree, tvb, offset, 1, events, ENC_NA);
 	offset++;
 
 	/* The duration field indicates the duration of the event or segment

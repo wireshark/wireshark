@@ -359,16 +359,16 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     guint   offset = 0;
     guint64 ext_addr;
-    guint8  flags;
+    static const int * flags[] = {
+        &hf_zbee_zdp_leave_children,
+        &hf_zbee_zdp_leave_rejoin,
+        NULL
+    };
 
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, 8, NULL);
     if (version >= ZBEE_VERSION_2007) {
         /* Flags present on ZigBee 2006 & later. */
-        flags    = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_children, tvb, offset, 1, flags & ZBEE_ZDP_MGMT_LEAVE_CHILDREN);
-            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_rejoin, tvb, offset, 1, flags & ZBEE_ZDP_MGMT_LEAVE_REJOIN);
-        }
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_NA);
         offset += 1;
     }
 

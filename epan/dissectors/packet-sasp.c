@@ -357,7 +357,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             "Invalid SASP Header Type [0x%04x]", hdr_type);
         /* XXX: The folowing should actually happen automatically ? */
         col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
     offset += 2;
 
@@ -462,7 +462,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 "Unknown SASP Message Type: 0x%4x", msg_type);
             break;
     }
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
@@ -471,7 +471,7 @@ dissect_sasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, sasp_desegment, SASP_MIN_PACKET_LEN, get_sasp_pdu_len,
                         dissect_sasp_pdu, data);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
@@ -925,7 +925,6 @@ static guint32 dissect_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load, gui
 {
     proto_tree *memstatedatacomp_tree;
     proto_tree *memdatacomp_tree;
-    guint8      memstate_flag;
 
     offset = dissect_memdatacomp(tvb, pay_load, offset, &memdatacomp_tree);
 
@@ -947,9 +946,8 @@ static guint32 dissect_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load, gui
     offset += 1;
 
     /* Quiesce flag*/
-    memstate_flag = tvb_get_guint8(tvb, offset);
-    proto_tree_add_boolean(memstatedatacomp_tree, hf_sasp_memstatedatacomp_quiesce_flag,
-        tvb, offset, 1, memstate_flag);
+    proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_quiesce_flag,
+        tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;

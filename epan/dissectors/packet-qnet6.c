@@ -1468,7 +1468,7 @@ static gboolean qnet6_lwl4_check_crc = TRUE;
 /*
  * when dissect_qnet6_lr is called in dissect_qnet6, it has already
  * checked whether left length > sizeof(struct qnet6_lr_pkt) so here we
- * have to check whether off, len > left length proto_tree_add_text and
+ * have to check whether off, len > left length proto_tree_add_subtree and
  * proto_tree_add_string's difference are text doesn't need the hf_... so
  * it can't be searched.
  */
@@ -4022,6 +4022,12 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
   gint        offset = 0;
   gint        len, plen, cklen;
   guint32     crc, crcp;
+  static const int * flags[] = {
+    &hf_qnet6_l4_flags_first,
+    &hf_qnet6_l4_flags_last,
+    &hf_qnet6_l4_flags_crc,
+    NULL
+  };
 
   memset(crcbuf, 0, sizeof(crcbuf));
   /*
@@ -4060,18 +4066,9 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
   /*
    * flags
    */
+  proto_tree_add_bitmask_with_flags(qnet6_tree, tvb, offset,
+		hf_qnet6_l4_flags, ett_qnet6_flags, flags, ENC_NA, BMT_NO_APPEND|BMT_NO_FALSE);
   qflags = tvb_get_guint8(tvb, offset);
-  ti = proto_tree_add_uint(qnet6_tree, hf_qnet6_l4_flags, tvb, offset, 1, qflags);
-  stree = proto_item_add_subtree(ti, ett_qnet6_flags);
-  proto_tree_add_boolean(stree, hf_qnet6_l4_flags_first, tvb, offset, 1, qflags);
-  if (qflags & (QNET_L4_FLAGS_FIRST))
-    proto_item_append_text(ti, " (First Fragment)");
-  proto_tree_add_boolean(stree, hf_qnet6_l4_flags_last, tvb, offset, 1, qflags);
-  if (qflags & QNET_L4_FLAGS_LAST)
-    proto_item_append_text(ti, " (Last Fragment)");
-  proto_tree_add_boolean(stree, hf_qnet6_l4_flags_crc, tvb, offset, 1, qflags);
-  if (qflags & QNET_L4_FLAGS_CRC)
-    proto_item_append_text(ti, " (CRC)");
   offset++;
   /*
    * layer
@@ -4310,17 +4307,17 @@ proto_register_qnet6(void)
       NULL, HFILL}
     },
     {&hf_qnet6_l4_flags_first,
-     {"First", "qnet6.l4.flags.first",
+     {"First Fragment", "qnet6.l4.flags.first",
       FT_BOOLEAN, 8, TFS(&tfs_yes_no), QNET_L4_FLAGS_FIRST,
       "QNET6 L4 Packet first fragment", HFILL}
     },
     {&hf_qnet6_l4_flags_last,
-     {"Last", "qnet6.l4.flags.last",
+     {"Last Fragment", "qnet6.l4.flags.last",
       FT_BOOLEAN, 8, TFS(&tfs_yes_no), QNET_L4_FLAGS_LAST,
       "QNET6 L4 Packet last fragment", HFILL}
     },
     {&hf_qnet6_l4_flags_crc,
-     {"Crc", "qnet6.l4.flags.crc",
+     {"CRC", "qnet6.l4.flags.crc",
       FT_BOOLEAN, 8, TFS(&tfs_used_notused), QNET_L4_FLAGS_CRC,
       "QNET6 L4 Packet crc used", HFILL}
     },

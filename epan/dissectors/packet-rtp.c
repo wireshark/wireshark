@@ -1937,6 +1937,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     static struct _rtp_info rtp_info_arr[4];
     static int rtp_info_current = 0;
     struct _rtp_info *rtp_info;
+    static const int * octet1_fields[] = {
+        &hf_rtp_version,
+        &hf_rtp_padding,
+        &hf_rtp_extension,
+        &hf_rtp_csrc_count,
+        NULL
+    };
 
     rtp_info_current++;
     if (rtp_info_current == 4) {
@@ -2141,14 +2148,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             show_setup_info(tvb, pinfo, rtp_tree);
         }
 
-        proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
-            offset, 1, octet1 );
-        proto_tree_add_boolean( rtp_tree, hf_rtp_padding, tvb,
-            offset, 1, octet1 );
-        proto_tree_add_boolean( rtp_tree, hf_rtp_extension, tvb,
-            offset, 1, octet1 );
-        proto_tree_add_uint( rtp_tree, hf_rtp_csrc_count, tvb,
-            offset, 1, octet1 );
+        proto_tree_add_bitmask_list(rtp_tree, tvb, offset, 1, octet1_fields, ENC_NA);
         offset++;
 
         proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,

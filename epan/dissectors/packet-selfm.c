@@ -1088,7 +1088,7 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_item(relaydef_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1194,7 +1194,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_item(fmconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1422,7 +1422,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1506,7 +1506,7 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(foconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1546,7 +1546,7 @@ dissect_alt_fastop_config_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(foconfig_tree, hf_selfm_alt_foconfig_funccode, tvb, offset+7, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(foconfig_tree, hf_selfm_alt_foconfig_funccode, tvb, offset+8, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1595,7 +1595,7 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
    /* Add checksum */
     proto_tree_add_item(fastop_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1631,7 +1631,7 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     /* Operate Code Validation */
     proto_tree_add_item(fastop_tree, hf_selfm_alt_fastop_valid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1884,18 +1884,23 @@ static int
 dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fastmsg_def_fc_item, *fastmsg_seq_item, *fastmsg_elementlist_item;
+    proto_item    *fastmsg_def_fc_item, *fastmsg_elementlist_item;
     proto_item    *fastmsg_tag_item;
     proto_item    *pi_baseaddr, *fastmsg_crc16_item;
-    proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_seq_tree=NULL, *fastmsg_elementlist_tree=NULL;
+    proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_elementlist_tree=NULL;
     proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
     guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
-    guint8        seq_cnt, seq_fir, seq_fin, elmt_idx, fc_enable;
+    guint8        seq_cnt, elmt_idx, fc_enable;
     guint8        *fid_str_ptr, *rid_str_ptr, *region_name_ptr, *tag_name_ptr;
     guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
-
+    static const int * seq_fields[] = {
+        &hf_selfm_fastmsg_seq_fir,
+        &hf_selfm_fastmsg_seq_fin,
+        &hf_selfm_fastmsg_seq_cnt,
+        NULL
+    };
 
     len = tvb_get_guint8(tvb, offset);
 
@@ -1924,18 +1929,9 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     /* Get Sequence Byte, add to Tree */
     seq = tvb_get_guint8(tvb, offset);
     seq_cnt = seq & FAST_MSG_SEQ_CNT;
-    seq_fir = seq & FAST_MSG_SEQ_FIR;
-    seq_fin = seq & FAST_MSG_SEQ_FIN;
 
-    fastmsg_seq_item = proto_tree_add_uint_format_value(fastmsg_tree, hf_selfm_fastmsg_seq, tvb, offset, 1, seq, "0x%02x (", seq);
-    if (seq_fir) proto_item_append_text(fastmsg_seq_item, "FIR, ");
-    if (seq_fin) proto_item_append_text(fastmsg_seq_item, "FIN, ");
-    proto_item_append_text(fastmsg_seq_item, "Count %u)", seq_cnt);
-
-    fastmsg_seq_tree = proto_item_add_subtree(fastmsg_seq_item, ett_selfm_fastmsg_seq);
-    proto_tree_add_boolean(fastmsg_seq_tree, hf_selfm_fastmsg_seq_fir, tvb, offset, 1, seq);
-    proto_tree_add_boolean(fastmsg_seq_tree, hf_selfm_fastmsg_seq_fin, tvb, offset, 1, seq);
-    proto_tree_add_item(fastmsg_seq_tree, hf_selfm_fastmsg_seq_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(fastmsg_tree, tvb, offset, hf_selfm_fastmsg_seq, ett_selfm_fastmsg_seq,
+        seq_fields, ENC_NA, BMT_NO_APPEND);
     offset += 1;
 
     /* Add Response Number to tree */
@@ -2339,7 +2335,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -2364,7 +2360,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Protocol");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_length(selfm_tvb);
+    len = tvb_reported_length(selfm_tvb);
 
     msg_type = tvb_get_ntohs(selfm_tvb, offset);
 
@@ -2556,7 +2552,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         } /* remaining length > 0 */
     } /* tree */
 
-    return tvb_length(selfm_tvb);
+    return tvb_reported_length(selfm_tvb);
 }
 
 /******************************************************************************************************/
@@ -2571,11 +2567,11 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data 
 
     /* XXX: this logic doesn't take into account the offset */
     /* Get length byte from message */
-    if (tvb_length(tvb) > 2) {
+    if (tvb_reported_length(tvb) > 2) {
         message_len = tvb_get_guint8(tvb, 2);
     }
     /* for 2-byte poll messages, set the length to 2 */
-    else if (tvb_length(tvb) == 2) {
+    else if (tvb_reported_length(tvb) == 2) {
         message_len = 2;
     }
 
@@ -2590,7 +2586,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
 
     tvbuff_t      *selfm_tvb;
-    gint length = tvb_length(tvb);
+    gint length = tvb_reported_length(tvb);
 
     /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
@@ -2620,7 +2616,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_reported_length(tvb);
 
     /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {

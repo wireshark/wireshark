@@ -193,16 +193,24 @@ static const true_false_string m_bit = {
 static void
 dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8         addr_field, comp_field, npdu_field1, nsapi, dcomp=0, pcomp=0;
+  guint8         addr_field, comp_field, npdu_field1, dcomp=0, pcomp=0;
   guint16        offset=0, npdu=0, segment=0, npdu_field2;
   tvbuff_t      *next_tvb, *npdu_tvb;
   gint           len;
   gboolean       first, more_frags, unack;
+  static const int * addr_fields[] = {
+    &hf_sndcp_x,
+    &hf_sndcp_f,
+    &hf_sndcp_t,
+    &hf_sndcp_m,
+    &hf_sndcp_nsapib,
+    NULL
+  };
 
   /* Set up structures needed to add the protocol subtree and manage it
    */
-  proto_item *ti, *address_field_item;
-  proto_tree *sndcp_tree, *address_field_tree, *compression_field_tree, *npdu_field_tree;
+  proto_item *ti;
+  proto_tree *sndcp_tree, *compression_field_tree, *npdu_field_tree;
 
   /* Make entries in Protocol column and clear Info column on summary display
    */
@@ -217,24 +225,14 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* get address field from next byte
    */
   addr_field = tvb_get_guint8(tvb,offset);
-  nsapi      = addr_field & 0xF;
   first      = addr_field & MASK_F;
   more_frags = addr_field & MASK_M;
   unack      = addr_field & MASK_T;
 
   /* add subtree for the address field
    */
-  if (tree) {
-    address_field_item = proto_tree_add_uint_format(sndcp_tree,hf_sndcp_nsapi,
-                                                    tvb, offset,1, nsapi,
-                                                    "Address field  NSAPI: %d", nsapi );
-    address_field_tree = proto_item_add_subtree(address_field_item, ett_sndcp_address_field);
-    proto_tree_add_boolean(address_field_tree, hf_sndcp_x, tvb,offset,1, addr_field );
-    proto_tree_add_boolean(address_field_tree, hf_sndcp_f, tvb,offset,1, addr_field );
-    proto_tree_add_boolean(address_field_tree, hf_sndcp_t, tvb,offset,1, addr_field );
-    proto_tree_add_boolean(address_field_tree, hf_sndcp_m, tvb,offset,1, addr_field );
-    proto_tree_add_uint(address_field_tree, hf_sndcp_nsapib, tvb, offset, 1, addr_field );
-  }
+  proto_tree_add_bitmask_with_flags(sndcp_tree, tvb, offset, hf_sndcp_nsapi,
+                         ett_sndcp_address_field, addr_fields, ENC_NA, BMT_NO_APPEND);
   offset++;
 
   /* get compression pointers from next byte if this is the first segment
@@ -316,7 +314,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32         reassembled_in  = 0;
     gboolean        save_fragmented = pinfo->fragmented;
 
-    len = tvb_length_remaining(tvb, offset);
+    len = tvb_captured_length_remaining(tvb, offset);
     if(len<=0){
         return;
     }
@@ -380,7 +378,7 @@ proto_register_sndcp(void)
    */
   static hf_register_info hf[] = {
     { &hf_sndcp_nsapi,
-      { "NSAPI",
+      { "Address field NSAPI",
         "sndcp.nsapi",
         FT_UINT8, BASE_DEC, VALS(nsapi_abrv), 0x0,
         "Network Layer Service Access Point Identifier", HFILL

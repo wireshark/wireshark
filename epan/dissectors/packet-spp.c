@@ -105,43 +105,35 @@ spp_datastream(guint8 type)
 static void
 dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *spp_tree = NULL;
+	proto_tree *spp_tree;
 	proto_item *ti;
 	tvbuff_t   *next_tvb;
 	guint8	    conn_ctrl;
-	proto_tree *cc_tree;
 	guint8	    datastream_type;
 	const char *datastream_type_string;
 	guint16     spp_seq;
 	const char *spp_msg_string;
 	guint16	    low_socket, high_socket;
+	static const int * ctrl[] = {
+		&hf_spp_connection_control_sys,
+		&hf_spp_connection_control_send_ack,
+		&hf_spp_connection_control_attn,
+		&hf_spp_connection_control_eom,
+		NULL
+	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 	col_set_str(pinfo->cinfo, COL_INFO, "SPP");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, ENC_NA);
-		spp_tree = proto_item_add_subtree(ti, ett_spp);
-	}
+	ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, ENC_NA);
+	spp_tree = proto_item_add_subtree(ti, ett_spp);
 
 	conn_ctrl = tvb_get_guint8(tvb, 0);
 	spp_msg_string = spp_conn_ctrl(conn_ctrl);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spp_msg_string);
-	if (tree) {
-		ti = proto_tree_add_uint_format_value(spp_tree, hf_spp_connection_control, tvb,
-						0, 1, conn_ctrl,
-						"%s (0x%02X)",
-						spp_msg_string, conn_ctrl);
-		cc_tree = proto_item_add_subtree(ti, ett_spp_connctrl);
-		proto_tree_add_boolean(cc_tree, hf_spp_connection_control_sys, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spp_connection_control_send_ack, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spp_connection_control_attn, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spp_connection_control_eom, tvb,
-				       0, 1, conn_ctrl);
-	}
+
+	proto_tree_add_bitmask_with_flags(spp_tree, tvb, 0, hf_spp_connection_control, ett_spp_connctrl,
+								ctrl, ENC_NA, BMT_NO_FALSE);
 
 	datastream_type = tvb_get_guint8(tvb, 1);
 	datastream_type_string = spp_datastream(datastream_type);
