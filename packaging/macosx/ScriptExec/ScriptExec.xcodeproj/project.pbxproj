@@ -33,7 +33,7 @@
 		B8DCE042056DAC3500C390B0 /* MenuBar.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MenuBar.nib; sourceTree = "<group>"; };
 		B8DCE048056DAC5000C390B0 /* script */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; path = script; sourceTree = "<group>"; };
 		B8DCE04E056DACAE00C390B0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
-		EB3FA35F1B10087D009BA8CB /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = ../../../../../../../../System/Library/Frameworks/ServiceManagement.framework; sourceTree = "<group>"; };
+		EB3FA35F1B10087D009BA8CB /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = /System/Library/Frameworks/ServiceManagement.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
