@@ -47,13 +47,16 @@
 // Note: including Carbon prevents building the launcher app in x86_64
 //       used for StandardAlert in RequestUserAttention(),
 //       RedFatalAlert()
-#include <AvailabilityMacros.h>
 #include <Carbon/Carbon.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef MAC_OS_X_VERSION_10_6
 // Not available when building for 10.5
+// Yes, this is how you have to test for "building for something before
+// 10.6" - you can't compare anything against MAC_OS_X_VERSION_10_6
+// when building with the 10.5 SDK, because MAC_OS_X_VERSION_10_6 isn't
+// defined in the 10.5 SDK
 #include <ServiceManagement/ServiceManagement.h>
 #endif
 
