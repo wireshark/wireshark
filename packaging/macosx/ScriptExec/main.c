@@ -52,6 +52,8 @@
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 
+#include <ServiceManagement/ServiceManagement.h>
+
 // Unix stuff
 #include <sys/param.h>
 #include <string.h>
@@ -73,6 +75,7 @@
 // names of files bundled with app
 #define	kScriptFileName "script"
 #define kOpenDocFileName "openDoc"
+#define kXQuartzFixerFileName CFSTR("XQuartzFixer")
 
 // custom carbon event class
 #define kEventClassRedFatalAlert 911
@@ -96,6 +99,7 @@ static OSErr ExecuteScript(char *script, pid_t *pid);
 static void  GetParameters(void);
 static unsigned char* GetScript(void);
 static unsigned char* GetOpenDoc(void);
+static CFStringRef GetXQuartzFixer(void);
 
 OSErr LoadMenuBar(char *appName);
 
@@ -201,12 +205,14 @@ int main(int argc, char* argv[])
             // No.  Is /usr/X11 a directory?
             if (lstat("/usr/X11", &statb_usr_x11) != -1 &&
                 S_ISDIR(statb_opt_x11.st_mode)) {
-	        // It's a directory; assume it contains the stub libraries.
-	        x11_type = XQUARTZ_STUB;
-	    } else {
+                // It's a directory; assume it contains the stub libraries.
+                x11_type = XQUARTZ_STUB;
+fprintf(stderr, "XQuartz stub\n");
+            } else {
                 // It's not a directory; assume we need X11 installed.
                 x11_type = NO_X11;
-	    }
+fprintf(stderr, "No X11\n");
+            }
         } else {
             // Yes.  Is /usr/X11 a symbolic link to /opt/X11?
             if (lstat("/usr/X11", &statb_usr_x11) != -1 &&
@@ -216,20 +222,24 @@ int main(int argc, char* argv[])
                 if (link_length == -1) {
                     // Couldn't read it; broken X11
                     x11_type = BROKEN_XQUARTZ;
+fprintf(stderr, "Broken XQuartz\n");
                 } else {
                     // Read it; nul-terminate the string
                     symlink_target[link_length] = '\0';
                     if (strcmp(symlink_target, "/opt/X11") == 0) {
                         // Yes, it points to /opt/X11, so that's good
                         x11_type = XQUARTZ;
+fprintf(stderr, "XQuartz\n");
                     } else {
                         // No, it doesn't - broken
                         x11_type = BROKEN_XQUARTZ;
+fprintf(stderr, "Broken XQuartz\n");
                     }
                 }
             } else {
                 // Non-existent or not a symlink
                 x11_type = BROKEN_XQUARTZ;
+fprintf(stderr, "Broken XQuartz\n");
             }
         }
     } else {
@@ -237,9 +247,11 @@ int main(int argc, char* argv[])
         if (lstat("/usr/X11", &statb_usr_x11) == -1) {
             // No /usr/X11; tell the user to install X11
             x11_type = NO_X11;
+fprintf(stderr, "No X11\n");
         } else {
             // Assume it's OK
             x11_type = BUNDLED_X11;
+fprintf(stderr, "Bundled X11\n");
         }
     }
 
@@ -275,6 +287,70 @@ int main(int argc, char* argv[])
                                                "\pError loading MenuBar.nib.");
 
     GetParameters(); //load data from files containing exec settings
+
+    /*
+     * If we have a broken XQuartz installation, offer the user
+     * the choice to repair it, by re-planting the /usr/X11 symlink.
+     */
+    if (x11_type == BROKEN_XQUARTZ) {
+        SInt16 itemHit;
+        AlertStdAlertParamRec params;
+
+        params.movable = true;
+        params.helpButton = false;
+        params.filterProc = NULL;
+        params.defaultText = "\pYes, please repair it";
+        params.cancelText = "\pNo, don't repair it";
+        params.otherText = NULL;
+        params.defaultButton = kAlertStdAlertOKButton;
+        params.cancelButton = kAlertStdAlertCancelButton;
+        params.position = kWindowDefaultPosition;
+
+        StandardAlert(kAlertNoteAlert, "\pYour XQuartz installation appears to be damaged.  Would you like it to be repaired?",
+            "\pWireshark will not be able to work if it is not repaired.",
+            &params, &itemHit);
+
+        if (itemHit == kAlertStdAlertOKButton) {
+            CFStringRef job_label = CFSTR("org.wireshark.fixXQuartz");
+            AuthorizationItem authItem = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
+            AuthorizationRights authRights = { 1, &authItem };
+            AuthorizationFlags flags = kAuthorizationFlagInteractionAllowed | kAuthorizationFlagPreAuthorize | kAuthorizationFlagExtendRights;
+            AuthorizationRef auth;
+            const void *keys[3] = {
+                CFSTR("Label"),
+                CFSTR("RunAtLoad"),
+                CFSTR("Program")
+            };
+            const void *values[3];
+            CFDictionaryRef dict;
+            CFErrorRef error;
+
+            if (AuthorizationCreate(&authRights,
+                kAuthorizationEmptyEnvironment, flags, &auth) == errAuthorizationSuccess) {
+                (void) SMJobRemove(kSMDomainSystemLaunchd, job_label, auth, false, NULL);
+
+                values[0] = job_label;
+                values[1] = kCFBooleanTrue;
+                values[2] = GetXQuartzFixer();
+                dict = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3,
+                    &kCFTypeDictionaryKeyCallBacks,
+                    &kCFTypeDictionaryValueCallBacks);
+
+                if (SMJobSubmit(kSMDomainSystemLaunchd, dict, auth, &error)) {
+                    // Job ran, so XQuartz should be fixed
+                    x11_type = XQUARTZ;
+                } else {
+                    // Fail
+                }
+                if (error) {
+                    CFRelease( error );
+                }
+
+                (void) SMJobRemove(kSMDomainSystemLaunchd, job_label, auth, false, NULL);
+                AuthorizationFree(auth, 0);
+            }
+        }
+    }
 
     // compile "icon clicked" script so it's ready to execute
     // Don't tell it to activate if it's not installed;
@@ -509,6 +585,29 @@ static unsigned char* GetOpenDoc (void)
     if (! (path = malloc(kMaxPathLength))) return NULL;
     if (FSMakePath(fileRef, path, kMaxPathLength)) return NULL;
     if (! DoesFileExist(path)) return NULL;
+
+    return path;
+}
+
+///////////////////////////////////////
+// Gets the path to XQuartzFixer in Resources folder
+///////////////////////////////////////
+static CFStringRef GetXQuartzFixer (void)
+{
+    CFBundleRef appBundle;
+    CFURLRef XQuartzFixerFileURL;
+    CFStringRef path;
+
+    //get CF URL for XQuartzFixer
+    if (! (appBundle = CFBundleGetMainBundle())) return NULL;
+    if (! (XQuartzFixerFileURL = CFBundleCopyResourceURL(appBundle, kXQuartzFixerFileName, NULL,
+                                                    NULL))) return NULL;
+
+    //Get file system path from Core Foundation URL
+    path = CFURLCopyFileSystemPath( XQuartzFixerFileURL, kCFURLPOSIXPathStyle );
+
+    //dispose of the CF variables
+    CFRelease(XQuartzFixerFileURL);
 
     return path;
 }
