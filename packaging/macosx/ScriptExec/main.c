@@ -51,8 +51,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
-
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+// Not available when building for 10.5
 #include <ServiceManagement/ServiceManagement.h>
+#endif
 
 // Unix stuff
 #include <sys/param.h>
@@ -75,7 +77,9 @@
 // names of files bundled with app
 #define	kScriptFileName "script"
 #define kOpenDocFileName "openDoc"
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 #define kXQuartzFixerFileName CFSTR("XQuartzFixer")
+#endif
 
 // custom carbon event class
 #define kEventClassRedFatalAlert 911
@@ -99,7 +103,9 @@ static OSErr ExecuteScript(char *script, pid_t *pid);
 static void  GetParameters(void);
 static unsigned char* GetScript(void);
 static unsigned char* GetOpenDoc(void);
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 static CFStringRef GetXQuartzFixer(void);
+#endif
 
 OSErr LoadMenuBar(char *appName);
 
@@ -120,8 +126,10 @@ static OSStatus FCCacheFailedHandler(EventHandlerCallRef theHandlerCall,
 static OSErr AppReopenAppAEHandler(const AppleEvent *theAppleEvent,
                                    AppleEvent *reply, long refCon);
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 static int ShowFixXQuartzDialog(void);
 static void ShowMustFixXQuartzDialog(void);
+#endif
 static void ShowMustInstallX11Dialog(void);
 
 static OSStatus CompileAppleScript(const void* text, long textLength,
@@ -294,6 +302,23 @@ int main(int argc, char* argv[])
     switch (x11_type) {
 
     case FIXABLE_XQUARTZ:
+        //
+        // Alas, even though my 10.5 installation has the ServiceManagement
+        // framework, it's not part of the 10.5 SDK; maybe it was for
+        // Apple use only in 10.5.
+        //
+        // This means that the 32-bit built-for-10.5-and-later version
+        // of Wireshark won't repair XQuartz, but if you had a machine
+        // that originally ran Leopard, and you've patiently upgraded
+        // it from release to releaase, one at a time, up to a release
+        // whose installer damages the XQuartz installation that a
+        // previous upgrade required - *if* there's a machine on that
+        // can run all those releases! - you probably should have upgraded
+        // to a 64-bit version of Wireshark somewhere along the line.
+        // There are probably so few of those people for it to be worth
+        // trying to fix things for them.
+        //
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
         /*
          * We have an XQuartz installation with no /usr/X11; offer the user
          * the choice to repair it, by re-planting the /usr/X11 symlink.
@@ -342,6 +367,7 @@ int main(int argc, char* argv[])
             ShowMustFixXQuartzDialog();
             return 0;
         }
+#endif
         break;
 
     case MISSING_X11:
@@ -417,6 +443,7 @@ static void ShowFirstStartWarningDialog(void)
             &params, &itemHit);
 }
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 static int ShowFixXQuartzDialog(void)
 {
         SInt16 itemHit;
@@ -458,6 +485,7 @@ static void ShowMustFixXQuartzDialog(void)
             "\pIf you want to run Wireshark, you will have to fix the XQuartz installation.",
             &params, &itemHit);
 }
+#endif
 
 static void ShowMustInstallX11Dialog(void)
 {
@@ -655,6 +683,7 @@ static unsigned char* GetOpenDoc (void)
     return path;
 }
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 ///////////////////////////////////////
 // Gets the path to XQuartzFixer in Resources folder
 ///////////////////////////////////////
@@ -677,6 +706,7 @@ static CFStringRef GetXQuartzFixer (void)
 
     return path;
 }
+#endif
 
 #pragma mark -
 
