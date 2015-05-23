@@ -34,6 +34,7 @@
  */
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include "packet-ptpip.h"
 
 /* Define */
@@ -60,7 +61,9 @@ static int hf_ptpIP_dataPhaseInfo = -1;
 /* PTP Fields */
 /* picking hf_ptp for now. Might need to change later for namespace issues with Precision Time Protocol. */
 static int hf_ptp_opCode = -1;
+static int hf_ptp_vendor_opCode = -1;
 static int hf_ptp_respCode = -1;
+static int hf_ptp_vendor_respCode = -1;
 static int hf_ptp_eventCode = -1;
 static int hf_ptp_transactionID = -1;
 static int hf_ptp_totalDataLength = -1;
@@ -84,10 +87,31 @@ void dissect_ptpIP_guid                 (tvbuff_t *tvb, packet_info *pinfo, prot
 void proto_register_ptpip( void );
 void proto_reg_handoff_ptpIP( void );
 
-/* XXX: There are a number of duplicate values in the following which
-        will never be found (obviously) via a linear search. (see enum
-        in packet-ptpip.h). */
-/* ToDo: FIXME & then create/use extended value_string */
+typedef enum {
+    PTP_VENDOR_UNKNOWN = 0,
+    PTP_VENDOR_EASTMAN_KODAK = 1,
+    PTP_VENDOR_CANON = 2,
+    PTP_VENDOR_NIKON = 3,
+    PTP_VENDOR_CASIO = 4,
+    PTP_VENDOR_MTP = 5,
+    PTP_VENDOR_OLYMPUS = 6
+} ptp_vendors;
+
+static const enum_val_t pref_hsp_role[] = {
+    { "Unknown",        "Unknown vendor",   PTP_VENDOR_UNKNOWN },
+    { "Eastman Kodak",  "Eastman Kodak",    PTP_VENDOR_EASTMAN_KODAK},
+    { "Canon",          "Canon",            PTP_VENDOR_CANON },
+    { "Nikon",          "Nikon",            PTP_VENDOR_NIKON },
+    { "Casio",          "Casio EX-F1",      PTP_VENDOR_CASIO },
+    { "Microsoft / MTP","Microsoft / MTP",  PTP_VENDOR_MTP },
+    { "Olympus",        "Olympus E series", PTP_VENDOR_OLYMPUS },
+    { NULL, NULL, 0 }
+};
+
+/* Vendor preference for deciphering opcodes */
+static int pref_vendor = 0;
+
+
 static const value_string ptp_opcode_names[] = {
     { PTP_OC_GetDeviceInfo,                             "GetDeviceInfo" },
     { PTP_OC_OpenSession,                               "OpenSession" },
@@ -125,11 +149,21 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_GetFilesystemManifest,                     "GetFilesystemManifest" },
     { PTP_OC_GetStreamInfo,                             "GetStreamInfo" },
     { PTP_OC_GetStream,                                 "GetStream" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_names);
+
+static const value_string ptp_opcode_ek_names[] = {
     { PTP_OC_EK_GetSerial,                              "EK_GetSerial" },
     { PTP_OC_EK_SetSerial,                              "EK_SetSerial" },
     { PTP_OC_EK_SendFileObjectInfo,                     "EK_SendFileObjectInfo" },
     { PTP_OC_EK_SendFileObject,                         "EK_SendFileObject" },
     { PTP_OC_EK_SetText,                                "EK_SetText" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_ek_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_ek_names);
+
+static const value_string ptp_opcode_canon_names[] = {
     { PTP_OC_CANON_GetPartialObjectInfo,                "CANON_GetPartialObjectInfo" },
     { PTP_OC_CANON_SetObjectArchive,                    "CANON_SetObjectArchive" },
     { PTP_OC_CANON_KeepDeviceOn,                        "CANON_KeepDeviceOn" },
@@ -232,6 +266,11 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_CANON_EOS_AfCancel,                        "CANON_EOS_AfCancel" },
     { PTP_OC_CANON_EOS_FAPIMessageTX,                   "CANON_EOS_FAPIMessageTX" },
     { PTP_OC_CANON_EOS_FAPIMessageRX,                   "CANON_EOS_FAPIMessageRX" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_canon_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_canon_names);
+
+static const value_string ptp_opcode_nikon_names[] = {
     { PTP_OC_NIKON_GetProfileAllData,                   "NIKON_GetProfileAllData" },
     { PTP_OC_NIKON_SendProfileData,                     "NIKON_SendProfileData" },
     { PTP_OC_NIKON_SendProfileData,                     "NIKON_SendProfileData" },
@@ -263,6 +302,11 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_NIKON_ChangeAfArea,                        "NIKON_ChangeAfArea" },
     { PTP_OC_NIKON_AfDriveCancel,                       "NIKON_AfDriveCancel" },
     { PTP_OC_NIKON_GetDevicePTPIPInfo,                  "NIKON_GetDevicePTPIPInfo" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_nikon_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_nikon_names);
+
+static const value_string ptp_opcode_casio_names[] = {
     { PTP_OC_CASIO_STILL_START,                         "CASIO_STILL_START" },
     { PTP_OC_CASIO_STILL_STOP,                          "CASIO_STILL_STOP" },
     { PTP_OC_CASIO_FOCUS,                               "CASIO_FOCUS" },
@@ -287,6 +331,11 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_CASIO_MOVIE_RESET,                         "CASIO_MOVIE_RESET" },
     { PTP_OC_CASIO_GET_OBJECT,                          "CASIO_GET_OBJECT" },
     { PTP_OC_CASIO_GET_THUMBNAIL,                       "CASIO_GET_THUMBNAIL" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_casio_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_casio_names);
+
+static const value_string ptp_opcode_mtp_names[] = {
     { PTP_OC_MTP_GetObjectPropsSupported,               "MTP_GetObjectPropsSupported" },
     { PTP_OC_MTP_GetObjectPropDesc,                     "MTP_GetObjectPropDesc" },
     { PTP_OC_MTP_GetObjectPropValue,                    "MTP_GetObjectPropValue" },
@@ -330,6 +379,11 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_MTP_WMPPD_PlaylistObjectPref,              "MTP_WMPPD_PlaylistObjectPref" },
     { PTP_OC_MTP_ZUNE_GETUNDEFINED001,                  "MTP_ZUNE_GETUNDEFINED001" },
     { PTP_OC_MTP_WPDWCN_ProcessWFCObject,               "MTP_WPDWCN_ProcessWFCObject" },
+    { 0,                                                 NULL }
+};
+static value_string_ext ptp_opcode_mtp_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_mtp_names);
+
+static const value_string ptp_opcode_olympus_names[] = {
     { PTP_OC_OLYMPUS_Capture,                           "OLYMPUS_Capture" },
     { PTP_OC_OLYMPUS_SelfCleaning,                      "OLYMPUS_SelfCleaning" },
     { PTP_OC_OLYMPUS_SetRGBGain,                        "OLYMPUS_SetRGBGain" },
@@ -344,18 +398,10 @@ static const value_string ptp_opcode_names[] = {
     { PTP_OC_OLYMPUS_GetDateTime,                       "OLYMPUS_GetDateTim" },
     { PTP_OC_OLYMPUS_SetCameraID,                       "OLYMPUS_SetCameraID" },
     { PTP_OC_OLYMPUS_GetCameraID,                       "OLYMPUS_GetCameraID" },
-    { PTP_OC_EXTENSION_MASK,                            "EXTENSION_MASK" },
-    { PTP_OC_EXTENSION,                                 "EXTENSION" },
-    { PTP_OC_Undefined,                                 "Undefined" },
     { 0,                                                 NULL }
-
 };
-/* static value_string_ext ptp_opcode_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_names); */
+static value_string_ext ptp_opcode_olympus_names_ext = VALUE_STRING_EXT_INIT(ptp_opcode_olympus_names);
 
-/* XXX: There are a number of duplicate values in the following which
-        will never be found (obviously) via a linear search. (see enum
-        in packet-ptpip.h). */
-/* ToDo: FIXME & then create/use extended value_string */
 static const value_string ptp_respcode_names[] = {
     { PTP_RC_OK,                                     "OK" },
     { PTP_RC_GeneralError,                           "GeneralError" },
@@ -391,9 +437,18 @@ static const value_string ptp_respcode_names[] = {
     { PTP_RC_InvalidEnumHandle,                      "InvalidEnumHandle" },
     { PTP_RC_NoStreamEnabled,                        "NoStreamEnabled" },
     { PTP_RC_InvalidDataSet,                         "InvalidDataSet" },
+    { 0,                                                 NULL }
+};
+/* static value_string_ext ptp_respcode_names_ext = VALUE_STRING_EXT_INIT(ptp_respcode_names); */
+
+static const value_string ptp_respcode_ek_names[] = {
     { PTP_RC_EK_FilenameRequired,                    "EK_FilenameRequired" },
     { PTP_RC_EK_FilenameConflicts,                   "EK_FilenameConflicts" },
     { PTP_RC_EK_FilenameInvalid,                     "EK_FilenameInvalid" },
+    { 0,                                                 NULL }
+};
+
+static const value_string ptp_respcode_nikon_names[] = {
     { PTP_RC_NIKON_HardwareError,                    "NIKON_HardwareError" },
     { PTP_RC_NIKON_OutOfFocus,                       "NIKON_OutOfFocus" },
     { PTP_RC_NIKON_ChangeCameraModeFailed,           "NIKON_ChangeCameraModeFailed" },
@@ -408,12 +463,20 @@ static const value_string ptp_respcode_names[] = {
     { PTP_RC_NIKON_MfDriveStepEnd,                   "NIKON_MfDriveStepEnd" },
     { PTP_RC_NIKON_MfDriveStepInsufficiency,         "NIKON_MfDriveStepInsufficiency" },
     { PTP_RC_NIKON_AdvancedTransferCancel,           "NIKON_AdvancedTransferCancel" },
+    { 0,                                                 NULL }
+};
+
+static const value_string ptp_respcode_canon_names[] = {
     { PTP_RC_CANON_UNKNOWN_COMMAND,                  "CANON_UNKNOWN_COMMAND" },
     { PTP_RC_CANON_OPERATION_REFUSED,                "CANON_OPERATION_REFUSED" },
     { PTP_RC_CANON_LENS_COVER,                       "CANON_LENS_COVER" },
     { PTP_RC_CANON_BATTERY_LOW,                      "CANON_BATTERY_LOW" },
     { PTP_RC_CANON_NOT_READY,                        "CANON_NOT_READY" },
     { PTP_RC_CANON_A009,                             "CANON_A009" },
+    { 0,                                                 NULL }
+};
+
+static const value_string ptp_respcode_mtp_names[] = {
     { PTP_RC_MTP_Undefined,                          "MTP_Undefined" },
     { PTP_RC_MTP_Invalid_ObjectPropCode,             "MTP_Invalid_ObjectPropCode" },
     { PTP_RC_MTP_Invalid_ObjectProp_Format,          "MTP_Invalid_ObjectProp_Format" },
@@ -429,10 +492,8 @@ static const value_string ptp_respcode_names[] = {
     { PTP_RC_MTP_No_More_Data,                       "MTP_No_More_Data" },
     { PTP_RC_MTP_Invalid_WFC_Syntax,                 "MTP_Invalid_WFC_Syntax" },
     { PTP_RC_MTP_WFC_Version_Not_Supported,          "MTP_WFC_Version_Not_Supported" },
-    { PTP_RC_Undefined,                              "Undefined" },
     { 0,                                                 NULL }
 };
-/* static value_string_ext ptp_respcode_names_ext = VALUE_STRING_EXT_INIT(ptp_respcode_names); */
 
 /* String Names of packet types [3] & [4] */
 /* PTP/IP definitions */
@@ -675,7 +736,49 @@ void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     *offset += 4;
 
     opcode = tvb_get_letohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_ptp_opCode, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    if (opcode & PTP_OC_EXTENSION_MASK)
+    {
+        if (pref_vendor == PTP_VENDOR_UNKNOWN)
+        {
+            proto_tree_add_item(tree, hf_ptp_vendor_opCode, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        }
+        else
+        {
+            value_string_ext* vendor_values = NULL;
+
+            switch(pref_vendor)
+            {
+            case PTP_VENDOR_EASTMAN_KODAK:
+                vendor_values = &ptp_opcode_ek_names_ext;
+                break;
+            case PTP_VENDOR_CANON:
+                vendor_values = &ptp_opcode_canon_names_ext;
+                break;
+            case PTP_VENDOR_NIKON:
+                vendor_values = &ptp_opcode_nikon_names_ext;
+                break;
+            case PTP_VENDOR_CASIO:
+                vendor_values = &ptp_opcode_casio_names_ext;
+                break;
+            case PTP_VENDOR_MTP:
+                vendor_values = &ptp_opcode_mtp_names_ext;
+                break;
+            case PTP_VENDOR_OLYMPUS:
+                vendor_values = &ptp_opcode_olympus_names_ext;
+                break;
+            default:
+                DISSECTOR_ASSERT(FALSE);
+                break;
+            }
+
+            proto_tree_add_uint_format_value(tree, hf_ptp_vendor_opCode, tvb, *offset, 2, opcode, "%s (0x%04x)",
+                        val_to_str_ext_const(opcode, vendor_values, "Unknown"), opcode);
+        }
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_ptp_opCode, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    }
     *offset += 2;
 
     transactionID_offset = *offset; /* we'll dissect the transactionID later because
@@ -726,12 +829,46 @@ void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  */
 void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
+    guint16 resp;
+
     col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Operation Response Packet ");
 
-    proto_tree_add_item(tree, hf_ptp_respCode, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    resp = tvb_get_letohs(tvb, *offset);
+    if (resp & PTP_OC_EXTENSION_MASK)
+    {
+        const value_string* vendor_values = NULL;
+        switch(pref_vendor)
+        {
+        case PTP_VENDOR_EASTMAN_KODAK:
+            vendor_values = ptp_respcode_ek_names;
+            break;
+        case PTP_VENDOR_CANON:
+            vendor_values = ptp_respcode_canon_names;
+            break;
+        case PTP_VENDOR_NIKON:
+            vendor_values = ptp_respcode_nikon_names;
+            break;
+        case PTP_VENDOR_MTP:
+            vendor_values = ptp_respcode_mtp_names;
+            break;
+        case PTP_VENDOR_UNKNOWN:
+        case PTP_VENDOR_CASIO:
+        case PTP_VENDOR_OLYMPUS:
+        default:
+            vendor_values = ptp_respcode_names;
+            break;
+        }
+
+        proto_tree_add_uint_format_value(tree, hf_ptp_vendor_opCode, tvb, *offset, 2, resp, "%s (0x%04x)",
+                        val_to_str_const(resp, vendor_values, "Unknown"), resp);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_ptp_respCode, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    }
     *offset += 2;
 
     dissect_ptp_transactionID(tvb, pinfo, tree, offset);
@@ -936,11 +1073,17 @@ void proto_register_ptpip( void )
         /* PTP layer */
              /* leaving names with "ptpip" to try and prevent namespace issues. probably changing later. */
         { &hf_ptp_opCode, {
+            "Operation Code", "ptpip.opcode", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+            &ptp_opcode_names_ext, 0, NULL, HFILL }},
+        { &hf_ptp_vendor_opCode, {
             "Operation Code", "ptpip.opcode", FT_UINT16, BASE_HEX,
-            VALS(ptp_opcode_names), 0, NULL, HFILL }},
+            NULL, 0, NULL, HFILL }},
         { &hf_ptp_respCode, {
             "Response Code", "ptpip.respcode", FT_UINT16, BASE_HEX,
             VALS(ptp_respcode_names), 0, NULL, HFILL }},
+        { &hf_ptp_vendor_respCode, {
+            "Response Code", "ptpip.respcode", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL }},
         { &hf_ptp_eventCode, {
             "Event Code", "ptpip.eventcode", FT_UINT16, BASE_HEX,
             NULL, 0, NULL, HFILL }},
@@ -960,10 +1103,20 @@ void proto_register_ptpip( void )
         &ett_ptpIP_hdr
     };
 
+    module_t *ptpIP_module;
+
     proto_ptpIP = proto_register_protocol("Picture Transfer Protocol Over IP", "PTP/IP", "ptpip");
 
     proto_register_field_array(proto_ptpIP, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ptpIP_module = prefs_register_protocol(proto_ptpIP, NULL);
+
+    prefs_register_enum_preference(ptpIP_module, "vendor",
+            "Camera vendor",
+            "Properly translates vendor specific opcodes",
+            &pref_vendor, pref_hsp_role, FALSE);
+
 }
 
 void proto_reg_handoff_ptpIP( void ) {
