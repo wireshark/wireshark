@@ -120,6 +120,10 @@ static OSStatus FCCacheFailedHandler(EventHandlerCallRef theHandlerCall,
 static OSErr AppReopenAppAEHandler(const AppleEvent *theAppleEvent,
                                    AppleEvent *reply, long refCon);
 
+static int ShowFixXQuartzDialog(void);
+static void ShowMustFixXQuartzDialog(void);
+static void ShowMustInstallX11Dialog(void);
+
 static OSStatus CompileAppleScript(const void* text, long textLength,
                                   AEDesc *resultData);
 static OSStatus SimpleCompileAppleScript(const char* theScript);
@@ -156,11 +160,14 @@ extern char **environ;
 static int expect_xquartz;
 
 static enum {
-    BUNDLED_X11,    // bundled X11, in /usr/X11
-    XQUARTZ,        // unbundled XQuartz, in /opt/X11, with /usr/X11 linking to it
-    XQUARTZ_STUB,   // stub libraries in /usr/X11 that will tell user to install XQuartz
-    BROKEN_XQUARTZ, // unbundled XQuartz, in /opt/X11, with no /usr/X11
-    NO_X11          // no X11
+    BUNDLED_X11,       // bundled X11, in /usr/X11
+    MISSING_X11,       // no /usr/X11, but it's offered with the OS install
+    XQUARTZ,           // unbundled XQuartz, in /opt/X11, with /usr/X11 linking to it
+    XQUARTZ_STUB,      // stub libraries in /usr/X11 that will tell user to install XQuartz
+    MISSING_XQUARTZ,   // no /opt/X11 or /usr/X11, and it's not bundled
+    FIXABLE_XQUARTZ,   // unbundled XQuartz, in /opt/X11, with no /usr/X11
+    UNFIXABLE_XQUARTZ, // /opt/X11 and /usr/X11, but the latter isn't a symlink to /opt/X11
+    NO_X11             // no X11
 } x11_type;
 
 #pragma mark -
@@ -207,51 +214,47 @@ int main(int argc, char* argv[])
                 S_ISDIR(statb_opt_x11.st_mode)) {
                 // It's a directory; assume it contains the stub libraries.
                 x11_type = XQUARTZ_STUB;
-fprintf(stderr, "XQuartz stub\n");
             } else {
-                // It's not a directory; assume we need X11 installed.
-                x11_type = NO_X11;
-fprintf(stderr, "No X11\n");
+                // It's not a directory; assume we need XQuartz installed.
+                x11_type = MISSING_XQUARTZ;
             }
         } else {
             // Yes.  Is /usr/X11 a symbolic link to /opt/X11?
-            if (lstat("/usr/X11", &statb_usr_x11) != -1 &&
-                S_ISLNK(statb_opt_x11.st_mode)) {
-                // OK, it's a symlink; does it point to /opt/X11?
-                link_length = readlink("/usr/X11", symlink_target, MAXPATHLEN);
-                if (link_length == -1) {
-                    // Couldn't read it; broken X11
-                    x11_type = BROKEN_XQUARTZ;
-fprintf(stderr, "Broken XQuartz\n");
-                } else {
-                    // Read it; nul-terminate the string
-                    symlink_target[link_length] = '\0';
-                    if (strcmp(symlink_target, "/opt/X11") == 0) {
-                        // Yes, it points to /opt/X11, so that's good
-                        x11_type = XQUARTZ;
-fprintf(stderr, "XQuartz\n");
+            if (lstat("/usr/X11", &statb_usr_x11) != -1) {
+                if (S_ISLNK(statb_opt_x11.st_mode)) {
+                    // OK, it's a symlink; does it point to /opt/X11?
+                    link_length = readlink("/usr/X11", symlink_target, MAXPATHLEN);
+                    if (link_length == -1) {
+                        // Couldn't read it; no obvious fix
+                        x11_type = UNFIXABLE_XQUARTZ;
                     } else {
-                        // No, it doesn't - broken
-                        x11_type = BROKEN_XQUARTZ;
-fprintf(stderr, "Broken XQuartz\n");
+                        // Read it; nul-terminate the string
+                        symlink_target[link_length] = '\0';
+                        if (strcmp(symlink_target, "/opt/X11") == 0) {
+                            // Yes, it points to /opt/X11, so that's good
+                            x11_type = XQUARTZ;
+                        } else {
+                            // No, it doesn't - broken
+                            x11_type = UNFIXABLE_XQUARTZ;
+                        }
                     }
+                } else {
+                    // Not a symlink; no otvbious fix
+                    x11_type = UNFIXABLE_XQUARTZ;
                 }
             } else {
-                // Non-existent or not a symlink
-                x11_type = BROKEN_XQUARTZ;
-fprintf(stderr, "Broken XQuartz\n");
+                // Non-existent
+                x11_type = FIXABLE_XQUARTZ;
             }
         }
     } else {
         // Look for /usr/X11
         if (lstat("/usr/X11", &statb_usr_x11) == -1) {
             // No /usr/X11; tell the user to install X11
-            x11_type = NO_X11;
-fprintf(stderr, "No X11\n");
+            x11_type = MISSING_X11;
         } else {
             // Assume it's OK
             x11_type = BUNDLED_X11;
-fprintf(stderr, "Bundled X11\n");
         }
     }
 
@@ -288,29 +291,14 @@ fprintf(stderr, "Bundled X11\n");
 
     GetParameters(); //load data from files containing exec settings
 
-    /*
-     * If we have a broken XQuartz installation, offer the user
-     * the choice to repair it, by re-planting the /usr/X11 symlink.
-     */
-    if (x11_type == BROKEN_XQUARTZ) {
-        SInt16 itemHit;
-        AlertStdAlertParamRec params;
+    switch (x11_type) {
 
-        params.movable = true;
-        params.helpButton = false;
-        params.filterProc = NULL;
-        params.defaultText = "\pYes, please repair it";
-        params.cancelText = "\pNo, don't repair it";
-        params.otherText = NULL;
-        params.defaultButton = kAlertStdAlertOKButton;
-        params.cancelButton = kAlertStdAlertCancelButton;
-        params.position = kWindowDefaultPosition;
-
-        StandardAlert(kAlertNoteAlert, "\pYour XQuartz installation appears to be damaged.  Would you like it to be repaired?",
-            "\pWireshark will not be able to work if it is not repaired.",
-            &params, &itemHit);
-
-        if (itemHit == kAlertStdAlertOKButton) {
+    case FIXABLE_XQUARTZ:
+        /*
+         * We have an XQuartz installation with no /usr/X11; offer the user
+         * the choice to repair it, by re-planting the /usr/X11 symlink.
+         */
+        if (ShowFixXQuartzDialog()) {
             CFStringRef job_label = CFSTR("org.wireshark.fixXQuartz");
             AuthorizationItem authItem = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
             AuthorizationRights authRights = { 1, &authItem };
@@ -349,7 +337,23 @@ fprintf(stderr, "Bundled X11\n");
                 (void) SMJobRemove(kSMDomainSystemLaunchd, job_label, auth, false, NULL);
                 AuthorizationFree(auth, 0);
             }
+        } else {
+            // You won't be able to run Wireshark
+            ShowMustFixXQuartzDialog();
+            return 0;
         }
+        break;
+
+    case MISSING_X11:
+        // You need to install X11 to run Wireshark
+        ShowMustInstallX11Dialog();
+        return 0;
+        break;
+
+    default:
+        // Either it should work, or should prompt you to install XQuartz,
+        // or the fix isn't obvious
+        break;
     }
 
     // compile "icon clicked" script so it's ready to execute
@@ -410,6 +414,68 @@ static void ShowFirstStartWarningDialog(void)
 
     StandardAlert(kAlertNoteAlert, "\pWireshark on Mac OS X",
             "\pWhile Wireshark is open, its windows can be displayed or hidden by displaying or hiding the X11 application.\n\nThe first time this version of Wireshark is run it may take several minutes before the main window is displayed while font caches are built.",
+            &params, &itemHit);
+}
+
+static int ShowFixXQuartzDialog(void)
+{
+        SInt16 itemHit;
+        AlertStdAlertParamRec params;
+
+        params.movable = true;
+        params.helpButton = false;
+        params.filterProc = NULL;
+        params.defaultText = "\pYes, please repair it";
+        params.cancelText = "\pNo, don't repair it";
+        params.otherText = NULL;
+        params.defaultButton = kAlertStdAlertOKButton;
+        params.cancelButton = kAlertStdAlertCancelButton;
+        params.position = kWindowDefaultPosition;
+
+        StandardAlert(kAlertNoteAlert, "\pYour XQuartz installation appears to be damaged.  Would you like it to be repaired?",
+            "\pWireshark will not be able to work if it is not repaired.",
+            &params, &itemHit);
+
+	return (itemHit == kAlertStdAlertOKButton);
+}
+
+static void ShowMustFixXQuartzDialog(void)
+{
+    SInt16 itemHit;
+
+    AlertStdAlertParamRec params;
+    params.movable = true;
+    params.helpButton = false;
+    params.filterProc = NULL;
+    params.defaultText = (void *) kAlertDefaultOKText;
+    params.cancelText = NULL;
+    params.otherText = NULL;
+    params.defaultButton = kAlertStdAlertOKButton;
+    params.cancelButton = kAlertStdAlertCancelButton;
+    params.position = kWindowDefaultPosition;
+
+    StandardAlert(kAlertNoteAlert, "\pWireshark won't run with a damaged XQuartz installation.",
+            "\pIf you want to run Wireshark, you will have to fix the XQuartz installation.",
+            &params, &itemHit);
+}
+
+static void ShowMustInstallX11Dialog(void)
+{
+    SInt16 itemHit;
+
+    AlertStdAlertParamRec params;
+    params.movable = true;
+    params.helpButton = false;
+    params.filterProc = NULL;
+    params.defaultText = (void *) kAlertDefaultOKText;
+    params.cancelText = NULL;
+    params.otherText = NULL;
+    params.defaultButton = kAlertStdAlertOKButton;
+    params.cancelButton = kAlertStdAlertCancelButton;
+    params.position = kWindowDefaultPosition;
+
+    StandardAlert(kAlertNoteAlert, "\pYou must install X11 from your Mac OS X install disk.",
+            "\pWireshark will not run without X11.",
             &params, &itemHit);
 }
 
