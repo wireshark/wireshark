@@ -51,12 +51,18 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
+
 #ifdef MAC_OS_X_VERSION_10_6
-// Not available when building for 10.5
+// The ServiceManagement framework isn't available when building for 10.5
+//
 // Yes, this is how you have to test for "building for something before
 // 10.6" - you can't compare anything against MAC_OS_X_VERSION_10_6
 // when building with the 10.5 SDK, because MAC_OS_X_VERSION_10_6 isn't
 // defined in the 10.5 SDK
+#define TRY_TO_FIX_BROKEN_QUARTZ
+#endif
+
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 #include <ServiceManagement/ServiceManagement.h>
 #endif
 
@@ -81,7 +87,7 @@
 // names of files bundled with app
 #define	kScriptFileName "script"
 #define kOpenDocFileName "openDoc"
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 #define kXQuartzFixerFileName CFSTR("XQuartzFixer")
 #endif
 
@@ -107,7 +113,7 @@ static OSErr ExecuteScript(char *script, pid_t *pid);
 static void  GetParameters(void);
 static unsigned char* GetScript(void);
 static unsigned char* GetOpenDoc(void);
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 static CFStringRef GetXQuartzFixer(void);
 #endif
 
@@ -130,7 +136,7 @@ static OSStatus FCCacheFailedHandler(EventHandlerCallRef theHandlerCall,
 static OSErr AppReopenAppAEHandler(const AppleEvent *theAppleEvent,
                                    AppleEvent *reply, long refCon);
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 static int ShowFixXQuartzDialog(void);
 static void ShowMustFixXQuartzDialog(void);
 #endif
@@ -322,7 +328,7 @@ int main(int argc, char* argv[])
         // There are probably so few of those people for it to be worth
         // trying to fix things for them.
         //
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
         /*
          * We have an XQuartz installation with no /usr/X11; offer the user
          * the choice to repair it, by re-planting the /usr/X11 symlink.
@@ -447,7 +453,7 @@ static void ShowFirstStartWarningDialog(void)
             &params, &itemHit);
 }
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 static int ShowFixXQuartzDialog(void)
 {
         SInt16 itemHit;
@@ -687,7 +693,7 @@ static unsigned char* GetOpenDoc (void)
     return path;
 }
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef TRY_TO_FIX_BROKEN_QUARTZ
 ///////////////////////////////////////
 // Gets the path to XQuartzFixer in Resources folder
 ///////////////////////////////////////
