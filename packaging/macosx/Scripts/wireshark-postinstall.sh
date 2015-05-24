@@ -35,4 +35,3 @@ chown root:wheel "$XQUARTZFIXER"
 rm -rf /Library/StartupItems/XQuartzFixer
 
 launchctl load "$XQUARTZFIXER"
-
