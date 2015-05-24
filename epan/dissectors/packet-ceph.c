@@ -1558,7 +1558,6 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 		d->convd->client.port = pinfo->destport;
 		conversation_add_proto_data(d->conv, proto_ceph, d->convd);
 	}
-	DISSECTOR_ASSERT(d->convd);
 
 	/*** Set up src and dst pointers correctly. ***/
 	if (ADDRESSES_EQUAL(&d->convd->client.addr, &pinfo->src) &&
