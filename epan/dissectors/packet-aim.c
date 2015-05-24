@@ -33,6 +33,7 @@
 #include "packet-tcp.h"
 #include "packet-aim.h"
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 void proto_register_aim(void);
 void proto_reg_handoff_aim(void);
@@ -380,6 +381,8 @@ static int hf_aim_channel = -1;
 static int hf_aim_seqno = -1;
 static int hf_aim_data = -1;
 static int hf_aim_data_len = -1;
+static int hf_aim_tlv_length = -1;
+static int hf_aim_tlv_value_id = -1;
 /* static int hf_aim_signon_challenge_len = -1; */
 /* static int hf_aim_signon_challenge = -1; */
 static int hf_aim_fnac_family = -1;
@@ -438,6 +441,7 @@ static int hf_aim_dcinfo_last_info_update = -1;
 static int hf_aim_dcinfo_last_ext_info_update = -1;
 static int hf_aim_dcinfo_last_ext_status_update = -1;
 static int hf_aim_dcinfo_unknown = -1;
+static int hf_aim_string08 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
@@ -446,11 +450,14 @@ static gint ett_aim_buddyname= -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_fnac_flags = -1;
 static gint ett_aim_tlv      = -1;
+static gint ett_aim_tlv_value = -1;
 static gint ett_aim_userclass = -1;
 static gint ett_aim_messageblock = -1;
 static gint ett_aim_nickinfo_caps = -1;
 static gint ett_aim_nickinfo_short_caps = -1;
 static gint ett_aim_string08_array = -1;
+
+static expert_field ei_aim_messageblock_len = EI_INIT;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
@@ -1151,10 +1158,8 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 
 	while (tvb_reported_length_remaining(tvb, offset) > 1)
 	{
-		guint8 string_len = tvb_get_guint8(tvb, offset++);
-		guint8 *buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_len, ENC_UTF_8|ENC_NA);
-		proto_tree_add_text(entry, tvb, offset, string_len, "%s",
-				    format_text(buf, string_len));
+		guint8 string_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(entry, hf_aim_string08, tvb, offset, 1, ENC_UTF_8|ENC_NA);
 		offset += string_len;
 	}
 
@@ -1199,12 +1204,13 @@ dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb
 }
 
 int
-dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	proto_tree *entry;
 	guint8 *buf;
 	guint16 featurelen;
-	guint16 blocklen;
+	guint32 blocklen;
+	proto_item* len_item;
 	int offset=0;
 
 	/* Setup a new subtree */
@@ -1234,15 +1240,13 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 		offset += 2;
 
 		/* Block length (includes charset and charsubset) */
-		blocklen = tvb_get_ntohs(tvb, offset);
+		len_item = proto_tree_add_item_ret_uint(entry, hf_aim_messageblock_len, tvb, offset,
+				    2, ENC_BIG_ENDIAN, &blocklen);
 		if (blocklen <= 4)
 		{
-			proto_tree_add_text(entry, tvb, offset, 2,
-					    "Invalid block length: %d", blocklen);
+			expert_add_info(pinfo, len_item, &ei_aim_messageblock_len);
 			break;
 		}
-		proto_tree_add_item(entry, hf_aim_messageblock_len, tvb, offset,
-				    2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Character set */
@@ -1307,34 +1311,30 @@ dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	offset += 2;
 	offset += length;
 
-	if (tree) {
-		offset = orig_offset;
+	offset = orig_offset;
 
-		if (tmp[i].desc != NULL)
-			desc = tmp[i].desc;
-		else
-			desc = "Unknown";
+	if (tmp[i].desc != NULL)
+		desc = tmp[i].desc;
+	else
+		desc = "Unknown";
 
-		tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4,
+	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4,
 												ett_aim_tlv, NULL, "TLV: %s", desc);
 
-		proto_tree_add_text(tlv_tree, tvb, offset, 2,
-				    "Value ID: %s (0x%04x)", desc, valueid);
-		offset += 2;
+	proto_tree_add_uint_format_value(tlv_tree, hf_aim_tlv_value_id, tvb, offset, 2,
+				    valueid, "%s (0x%04x)", desc, valueid);
+	offset += 2;
 
-		proto_tree_add_text(tlv_tree, tvb, offset, 2,
-				    "Length: %d", length);
-		offset += 2;
+	proto_tree_add_uint(tlv_tree, hf_aim_tlv_length, tvb, offset, 2, length);
+	offset += 2;
 
-		ti1 = proto_tree_add_text(tlv_tree, tvb, offset, length,
-					  "Value");
+	proto_tree_add_subtree(tlv_tree, tvb, offset, length, ett_aim_tlv_value, &ti1, "Value");
 
-		if (tmp[i].dissector) {
-			tmp[i].dissector(ti1, valueid, tvb_new_subset_length(tvb, offset, length), pinfo);
-		}
-
-		offset += length;
+	if (tmp[i].dissector) {
+		tmp[i].dissector(ti1, valueid, tvb_new_subset_length(tvb, offset, length), pinfo);
 	}
+
+	offset += length;
 
 	/* Return the new length */
 	return offset;
@@ -1493,6 +1493,12 @@ proto_register_aim(void)
 		},
 		{ &hf_aim_data_len,
 		  { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_aim_tlv_length,
+		  { "Length", "aim.tlv.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_aim_tlv_value_id,
+		  { "Value ID", "aim.tlv.value_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_data,
 		  { "Data", "aim.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -1668,7 +1674,10 @@ proto_register_aim(void)
 		},
 		{ &hf_aim_ssi_result_code,
 		  { "Last SSI operation result code", "aim.ssi.code", FT_UINT16, BASE_HEX, VALS(aim_ssi_result_codes), 0x0, NULL, HFILL },
-		}
+		},
+		{ &hf_aim_string08,
+		  { "Address/Port List", "aim.string08", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -1678,6 +1687,7 @@ proto_register_aim(void)
 		&ett_aim_fnac,
 		&ett_aim_fnac_flags,
 		&ett_aim_tlv,
+		&ett_aim_tlv_value,
 		&ett_aim_buddyname,
 		&ett_aim_userclass,
 		&ett_aim_messageblock,
@@ -1685,7 +1695,13 @@ proto_register_aim(void)
 		&ett_aim_nickinfo_short_caps,
 		&ett_aim_string08_array
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_aim_messageblock_len, { "aim.messageblock.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid block length", EXPFILL }},
+	};
+
 	module_t *aim_module;
+	expert_module_t *expert_aim;
 
 	/* Register the protocol name and description */
 	proto_aim = proto_register_protocol("AOL Instant Messenger", "AIM", "aim");
@@ -1693,6 +1709,8 @@ proto_register_aim(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_aim, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_aim = expert_register_protocol(proto_aim);
+	expert_register_field_array(expert_aim, ei, array_length(ei));
 
 	aim_module = prefs_register_protocol(proto_aim, NULL);
 

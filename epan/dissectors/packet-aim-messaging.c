@@ -285,7 +285,14 @@ static int hf_aim_rendezvous_extended_data_message_flags_multi = -1;
 static int hf_aim_rendezvous_extended_data_message_status_code = -1;
 static int hf_aim_rendezvous_extended_data_message_priority_code = -1;
 static int hf_aim_rendezvous_extended_data_message_text_length = -1;
-/* static int hf_aim_rendezvous_extended_data_message_text = -1; */
+static int hf_aim_rendezvous_extended_data_message_text = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_aim_messaging_plugin = -1;
+static int hf_aim_icbm_client_err_length = -1;
+static int hf_aim_messaging_unknown = -1;
+static int hf_aim_icbm_client_err_downcounter = -1;
+static int hf_aim_messaging_unknown_data = -1;
+static int hf_aim_messaging_plugin_specific_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_messaging = -1;
@@ -455,6 +462,7 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_guid_t* out_p
 {
 	const aim_client_plugin *plugin = NULL;
 	e_guid_t uuid;
+	proto_item* ti;
 
 	uuid.data1 = tvb_get_ntohl(tvb, offset);
 	uuid.data2 = tvb_get_ntohs(tvb, offset+4);
@@ -465,13 +473,8 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_guid_t* out_p
 
 	plugin = aim_find_plugin(uuid);
 
-	proto_tree_add_text(entry, tvb, offset, 16,
-		"Plugin: %s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
-		plugin ? plugin->name:"Unknown", uuid.data1, uuid.data2,
-		uuid.data3, uuid.data4[0], uuid.data4[1], uuid.data4[2],
-		uuid.data4[3], uuid.data4[4],	uuid.data4[5], uuid.data4[6],
-		uuid.data4[7]
-	);
+	ti = proto_tree_add_item(entry, hf_aim_messaging_plugin, tvb, offset, 16, ENC_NA);
+	proto_item_append_text(ti, " (%s)", plugin ? plugin->name:"Unknown");
 
 	return offset+16;
 }
@@ -480,8 +483,7 @@ static int
 dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 {
 	int offset = 0;
-	guint16 text_length;
-	guint8* text;
+	guint32 text_length;
 	static const int * flags[] = {
 		&hf_aim_rendezvous_extended_data_message_flags_normal,
 		&hf_aim_rendezvous_extended_data_message_flags_auto,
@@ -496,9 +498,8 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	text_length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
-	text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, text_length, ENC_ASCII|ENC_NA);
-	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); /* offset+=text_length; */
+	proto_tree_add_item_ret_uint(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN, &text_length); offset+=2;
+	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text, tvb, offset, text_length, ENC_ASCII|ENC_NA); /* offset+=text_length; */
 
 	offset = tvb_reported_length(tvb);
 
@@ -530,37 +531,36 @@ dissect_aim_tlv_value_extended_data(proto_tree *entry, guint16 valueid _U_, tvbu
 	e_guid_t plugin_uuid;
 
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_length, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset+=2;
 	start_offset = offset;
-	/* TODO: parse and present protocol version */
-	/* protocol_version = tvb_get_ntohs(tvb, offset); */
+
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
-	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
+	proto_tree_add_item(entry, hf_aim_messaging_unknown, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
-	proto_tree_add_text(entry, tvb, offset, 1, "Unknown");	offset += 1;
-	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); /* offset += 2;*/
+	proto_tree_add_item(entry, hf_aim_messaging_unknown, tvb, offset, 1, ENC_NA);	offset += 1;
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_downcounter, tvb, offset, 2, ENC_LITTLE_ENDIAN); /* offset += 2;*/
 
 	offset = start_offset + length;
 
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_length, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset+=2;
 	start_offset = offset;
-	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
-	proto_tree_add_text(entry, tvb, offset, length-2, "Unknown");
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_downcounter, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+	proto_tree_add_item(entry, hf_aim_messaging_unknown_data, tvb, offset, length-2, ENC_NA);
 	offset = start_offset + length;
 
 	if (is_uuid_null(plugin_uuid))
 	{
-	        /* a message follows */
-	        tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
+		/* a message follows */
+		tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
 		/* offset += */ dissect_aim_rendezvous_extended_message(subtvb, entry);
 	}
 	else
 	{
-	        /* plugin-specific data follows */
-	        proto_tree_add_text(entry, tvb, offset, -1, "Plugin-specific data");
+		/* plugin-specific data follows */
+		proto_tree_add_item(entry, hf_aim_messaging_plugin_specific_data, tvb, offset, -1, ENC_NA);
 	}
 	offset = tvb_reported_length(tvb);
 
@@ -783,13 +783,18 @@ proto_register_aim_messaging(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-#if 0
 		{ &hf_aim_rendezvous_extended_data_message_text,
 		  { "Text", "aim_messaging.icbm.extended_data.message.text",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
-		}
-#endif
+		},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_aim_messaging_plugin, { "Plugin", "aim_messaging.plugin", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_icbm_client_err_length, { "Length", "aim_messaging.clienterr.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_messaging_unknown, { "Unknown", "aim_messaging.unknown", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_icbm_client_err_downcounter, { "Downcounter?", "aim_messaging.clienterr.downcounter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_messaging_unknown_data, { "Unknown", "aim_messaging.unknown_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_messaging_plugin_specific_data, { "Plugin-specific data", "aim_messaging.plugin_specific_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */
