@@ -16,7 +16,6 @@
 		B8DCE045056DAC3500C390B0 /* MenuBar.nib in Resources */ = {isa = PBXBuildFile; fileRef = B8DCE042056DAC3500C390B0 /* MenuBar.nib */; };
 		B8DCE049056DAC5000C390B0 /* script in Resources */ = {isa = PBXBuildFile; fileRef = B8DCE048056DAC5000C390B0 /* script */; };
 		B8DCE04F056DACAE00C390B0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8DCE04E056DACAE00C390B0 /* Security.framework */; };
-		EB3FA3601B10087D009BA8CB /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3FA35F1B10087D009BA8CB /* ServiceManagement.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +43,6 @@
 				8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */,
 				8D0C4E930486CD37000505A6 /* libstdc++.a in Frameworks */,
 				B8DCE04F056DACAE00C390B0 /* Security.framework in Frameworks */,
-				EB3FA3601B10087D009BA8CB /* ServiceManagement.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +221,10 @@
 				LIBRARY_STYLE = Static;
 				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					ServiceManagement,
+				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ScriptExec;
 				SECTORDER_FLAGS = "";
@@ -257,7 +258,10 @@
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Static;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					ServiceManagement,
+				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ScriptExec;
 				SECTORDER_FLAGS = "";
@@ -288,7 +292,10 @@
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Static;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					ServiceManagement,
+				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ScriptExec;
 				SECTORDER_FLAGS = "";
