@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 
@@ -133,6 +134,8 @@ static int hf_osi_options_rtd_reassembly = -1;
 static int hf_osi_options_qos_maintenance = -1;
 static int hf_osi_options_security_type = -1;
 static int hf_osi_options_route_recording = -1;
+static int hf_osi_options_last_hop = -1;
+static int hf_osi_options_route = -1;
 static int hf_osi_options_rtd_lifetime = -1;
 static int hf_osi_options_rtd_source_routing = -1;
 static int hf_osi_options_padding = -1;
@@ -149,6 +152,10 @@ static gint ott_osi_options       = -1;
 static gint ott_osi_qos           = -1;
 static gint ott_osi_route         = -1;
 static gint ott_osi_redirect      = -1;
+
+static expert_field ei_osi_options_none = EI_INIT;
+static expert_field ei_osi_options_rfd_error_class = EI_INIT;
+
 static const guchar atn_security_registration_val[] = {
   0x06, 0x04, 0x2b, 0x1b, 0x00, 0x00
 }; /* =iso(1).org(3).ICAO(27).ATN(0).TrafficType(0)*/
@@ -298,8 +305,8 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
   guchar      last_hop = 0;
   guchar      cnt_hops = 0;
   guchar      crr      = 0;
+  gchar*      str;
 
-  proto_item *ti;
   proto_tree *osi_route_tree = NULL;
 
   if ( parm_type == OSI_OPT_SOURCE_ROUTING ) {
@@ -315,16 +322,13 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
   else if ( parm_type == OSI_OPT_RECORD_OF_ROUTE ) {
     crr = tvb_get_guint8(tvb, offset);
     last_hop = tvb_get_guint8(tvb, offset + 1);
-    ti = proto_tree_add_uint_format_value(tree, hf_osi_options_route_recording, tvb, offset, parm_len, crr, "%s ",
-                             (crr == 0) ? "Partial Route Recording" :
-                                          "Complete Route Recording");
-    osi_route_tree = proto_item_add_subtree(ti, ott_osi_route);
+    osi_route_tree = proto_tree_add_subtree(tree, tvb, offset, parm_len, ott_osi_route, NULL,
+                             (crr == 0) ? "Partial Route Recording" : "Complete Route Recording");
 
     /* Complete Route Recording or Partial Route Recording */
-    if ( crr == 0 )
-      proto_tree_add_text(osi_route_tree, tvb, offset, 1, "Partial Route Recording");
-    if ( crr == 1 )
-      proto_tree_add_text(osi_route_tree, tvb, offset, 1, "Complete Route Recording");
+    proto_tree_add_uint_format_value(tree, hf_osi_options_route_recording, tvb, offset, 1, crr, "%s ",
+                             (crr == 0) ? "Partial Route Recording" :
+                                          "Complete Route Recording");
 
     /* "last_hop" is either :
      *  0x03 : special value for no NET recorded yet.
@@ -334,10 +338,10 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
     *  Other value : Total length of recorded NETs so far.
     */
     if ( last_hop == 0x03 )
-      proto_tree_add_text(osi_route_tree, tvb, offset + 1, 1,
+      proto_tree_add_uint_format(osi_route_tree, hf_osi_options_last_hop, tvb, offset + 1, 1, last_hop,
                           "No Network Entity Titles Recorded Yet");
     if ( last_hop == 0xFF )
-      proto_tree_add_text(osi_route_tree, tvb, offset + 1, 1,
+      proto_tree_add_uint_format(osi_route_tree, hf_osi_options_last_hop, tvb, offset + 1, 1, last_hop,
                           "Recording Terminated : No more space !");
 
     if ( last_hop == 255 || last_hop == 0x03 )
@@ -349,9 +353,9 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
 
   while ( this_hop < offset + last_hop -2 ) { /* -2 for crr and last_hop */
     netl = tvb_get_guint8(tvb, this_hop);
-    proto_tree_add_text(osi_route_tree, tvb, this_hop, netl + 1,
-                        "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl,
-                        print_nsap_net(tvb, this_hop + 1, netl));
+    str = print_nsap_net(tvb, this_hop + 1, netl);
+    proto_tree_add_string_format(osi_route_tree, hf_osi_options_route, tvb, this_hop, netl + 1, str,
+                        "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl, str);
     this_hop += 1 + netl;
   }
 }
@@ -359,9 +363,11 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
 
 static void
 dissect_option_rfd(const guchar error, const guchar field, int offset,
-                   guchar len, tvbuff_t *tvb, proto_tree *tree )
+                   guchar len _U_, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo )
 {
-  proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_BIG_ENDIAN);
+  proto_item *ti;
+
+  ti = proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_BIG_ENDIAN);
 
   switch ((error & OSI_OPT_RFD_MASK) >> 4)
   {
@@ -384,8 +390,7 @@ dissect_option_rfd(const guchar error, const guchar field, int offset,
     proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   default:
-    proto_tree_add_text(tree, tvb, offset, len,
-                        "Reason for discard: UNKNOWN Error Class");
+    expert_add_info(pinfo, ti, &ei_osi_options_rfd_error_class);
   }
 
   proto_tree_add_item(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -496,7 +501,7 @@ dissect_option_atn_security_label(const guchar sub_type, guchar length,
  *   void, but we will add to the proto_tree if it is not NULL.
  */
 void
-dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
 {
   proto_item *ti;
   proto_tree *osi_option_tree = NULL;
@@ -504,15 +509,12 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
   guchar      parm_type       = 0;
   guint8      octet;
 
-  if (tree) {
-    if ( 0 == opt_len ) {
-       proto_tree_add_text(tree, tvb, offset, 0,
-                           "### No Options for this PDU ###");
-       return;
-    }
-
     osi_option_tree = proto_tree_add_subtree(tree, tvb, offset, opt_len,
                              ott_osi_options, &ti, "### Option Section ###");
+    if ( 0 == opt_len ) {
+       expert_add_info(pinfo, ti, &ei_osi_options_none);
+       return;
+    }
 
     while ( 0 < opt_len ) {
       parm_type = tvb_get_guint8(tvb, offset++);
@@ -573,13 +575,12 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
         case OSI_OPT_REASON_OF_DISCARD:
           dissect_option_rfd(tvb_get_guint8(tvb, offset),
                              tvb_get_guint8(tvb, offset + 1), offset, parm_len,
-                             tvb, osi_option_tree);
+                             tvb, osi_option_tree, pinfo);
           break;
       }
       opt_len -= parm_len + 2;
       offset  += parm_len;
     }
-  }
 } /* dissect-osi-options */
 
 
@@ -615,6 +616,8 @@ proto_register_osi_options(void) {
       { &hf_osi_options_residual_error_prob_vs_cost, { "Residual error probability versus cost", "osi.options.qos.reserror_cost", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_RESERR_COST, NULL, HFILL }},
       { &hf_osi_options_source_routing, { "Source Routing", "osi.options.source_routing", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_osi_options_route_recording, { "Route Recording", "osi.options.route_recording", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_last_hop, { "Last Hop", "osi.options.last_hop", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_route, { "Route", "osi.options.route", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_osi_options_rfd_error_class, { "Error Class", "osi.options.rfd.error_class", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_error_class), OSI_OPT_RFD_MASK, NULL, HFILL }},
       { &hf_osi_options_rtd_general, { "Reason for discard {General}", "osi.options.rtd_general", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_general), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
       { &hf_osi_options_rtd_address, { "Reason for discard {Address}", "osi.options.rtd_address", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_address), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
@@ -638,8 +641,17 @@ proto_register_osi_options(void) {
     &ott_osi_redirect
   };
 
+  static ei_register_info ei[] = {
+      { &ei_osi_options_none, { "osi.options.none", PI_PROTOCOL, PI_NOTE, "No Options for this PDU", EXPFILL }},
+      { &ei_osi_options_rfd_error_class, { "osi.options.rfd.error_class.unknown", PI_PROTOCOL, PI_WARN, "UNKNOWN Error Class", EXPFILL }},
+  };
+
+  expert_module_t *expert_osi_options;
+
   proto_register_field_array(proto_osi, hf, array_length(hf));
   proto_register_subtree_array(ott, array_length(ott));
+  expert_osi_options = expert_register_protocol(proto_osi);
+  expert_register_field_array(expert_osi_options, ei, array_length(ei));
 }
 
 /*

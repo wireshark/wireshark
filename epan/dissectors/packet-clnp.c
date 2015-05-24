@@ -466,7 +466,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         opt_len -= SEGMENTATION_PART_LEN;
     }
 
-    dissect_osi_options(opt_len, tvb, offset, clnp_tree);
+    dissect_osi_options(opt_len, tvb, offset, clnp_tree, pinfo);
 
     offset += opt_len;
 

@@ -60,6 +60,7 @@ static int hf_esis_dal = -1;
 static int hf_esis_number_of_source_addresses = -1;
 static int hf_esis_netl = -1;
 static int hf_esis_sal = -1;
+static int hf_esis_sa = -1;
 static int hf_esis_bsnpal = -1;
 static int hf_esis_net = -1;
 static int hf_esis_da = -1;
@@ -67,6 +68,10 @@ static int hf_esis_bsnpa = -1;
 
 static gint ett_esis              = -1;
 static gint ett_esis_area_addr    = -1;
+static gint ett_esis_network      = -1;
+static gint ett_esis_dest_addr    = -1;
+static gint ett_esis_subnetwork   = -1;
+
 
 static expert_field ei_esis_version = EI_INIT;
 static expert_field ei_esis_length = EI_INIT;
@@ -128,15 +133,14 @@ static const value_string esis_vals[] = {
 
 
 static void
-esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
-  proto_tree *esis_area_tree;
-  int         offset  = 0;
-  int         no_sa   = 0;
-  int         sal     = 0;
+esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
+    proto_tree *esis_area_tree;
+    int         offset  = 0;
+    int         no_sa   = 0;
+    int         sal     = 0;
 
-  proto_item  *ti;
+    proto_item  *ti;
 
-  if (tree) {
     offset += ESIS_HDR_FIXED_LENGTH;
 
     no_sa  = tvb_get_guint8(tvb, offset);
@@ -150,81 +154,77 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
       sal = (int) tvb_get_guint8(tvb, offset);
       proto_tree_add_uint_format_value(esis_area_tree, hf_esis_sal, tvb, offset, 1, sal, "%2u Octets", sal);
       offset++;
-      proto_tree_add_text(esis_area_tree, tvb, offset, sal,
-                          " SA: %s",
-                          print_nsap_net(tvb, offset, sal ) );
+      proto_tree_add_string(esis_area_tree, hf_esis_sa, tvb, offset, sal, print_nsap_net(tvb, offset, sal ) );
       offset += sal;
       len    -= ( sal + 1 );
     }
-    dissect_osi_options( len, tvb, offset, tree );
-  }
+    dissect_osi_options( len, tvb, offset, tree, pinfo );
+
 } /* esis_dissect_esh_pdu */
 
 static void
-esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
 
-  int   offset  = 0;
-  int   netl    = 0;
+    int   offset  = 0;
+    int   netl    = 0;
+    proto_tree* network_tree;
 
-  if (tree) {
     offset += ESIS_HDR_FIXED_LENGTH;
 
     netl = (int) tvb_get_guint8(tvb, offset);
-    proto_tree_add_text( tree, tvb, offset, netl + 1,
+    network_tree = proto_tree_add_subtree( tree, tvb, offset, netl + 1, ett_esis_network, NULL,
                          "### Network Entity Title Section ###");
-    proto_tree_add_uint_format_value(tree, hf_esis_netl, tvb, offset++, 1, netl, "%2u Octets", netl);
-    proto_tree_add_string( tree, hf_esis_net, tvb, offset, netl, print_nsap_net( tvb, offset, netl ) );
+    proto_tree_add_uint_format_value(network_tree, hf_esis_netl, tvb, offset++, 1, netl, "%2u Octets", netl);
+    proto_tree_add_string(network_tree, hf_esis_net, tvb, offset, netl, print_nsap_net( tvb, offset, netl ) );
     offset += netl;
     len    -= ( netl + 1 );
 
-    dissect_osi_options( len, tvb, offset, tree );
-  }
+    dissect_osi_options( len, tvb, offset, network_tree, pinfo );
 }
 
 static void
-esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo) {
 
-  int   offset  = 0;
-  int   tmpl    = 0;
+    int   offset  = 0;
+    int   tmpl    = 0;
+    proto_tree *dest_tree, *subnet_tree, *network_tree;
 
-  if (tree) {
     offset += ESIS_HDR_FIXED_LENGTH;
 
     tmpl = (int) tvb_get_guint8(tvb, offset);
-    proto_tree_add_text( tree, tvb, offset, tmpl + 1,
+    dest_tree = proto_tree_add_subtree( tree, tvb, offset, tmpl + 1, ett_esis_dest_addr, NULL,
                          "### Destination Address Section ###" );
-    proto_tree_add_uint_format_value(tree, hf_esis_dal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
-    proto_tree_add_string( tree, hf_esis_da, tvb, offset, tmpl,
+    proto_tree_add_uint_format_value(dest_tree, hf_esis_dal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
+    proto_tree_add_string( dest_tree, hf_esis_da, tvb, offset, tmpl,
                          print_nsap_net( tvb, offset, tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_text( tree, tvb, offset, tmpl + 1,
+    subnet_tree = proto_tree_add_subtree( tree, tvb, offset, tmpl + 1, ett_esis_subnetwork, NULL,
                          "###  Subnetwork Address Section ###");
-    proto_tree_add_uint_format_value(tree, hf_esis_bsnpal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
-    proto_tree_add_item( tree, hf_esis_bsnpa, tvb, offset, tmpl, ENC_NA);
+    proto_tree_add_uint_format_value(subnet_tree, hf_esis_bsnpal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
+    proto_tree_add_item(subnet_tree, hf_esis_bsnpa, tvb, offset, tmpl, ENC_NA);
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) tvb_get_guint8(tvb, offset);
 
     if ( 0 == tmpl ) {
-      proto_tree_add_text( tree, tvb, offset, 1,
+      network_tree = proto_tree_add_subtree( tree, tvb, offset, 1, ett_esis_network, NULL,
                            "### No Network Entity Title Section ###" );
       offset++;
       len--;
     }
     else {
-      proto_tree_add_text( tree, tvb, offset, 1,
+      network_tree = proto_tree_add_subtree( tree, tvb, offset, 1, ett_esis_network, NULL,
                            "### Network Entity Title Section ###" );
-      proto_tree_add_uint_format_value(tree, hf_esis_netl, tvb, offset++, 1, tmpl, "%2u Octets", tmpl );
-      proto_tree_add_string( tree, hf_esis_net, tvb, offset, tmpl,
+      proto_tree_add_uint_format_value(network_tree, hf_esis_netl, tvb, offset++, 1, tmpl, "%2u Octets", tmpl );
+      proto_tree_add_string( network_tree, hf_esis_net, tvb, offset, tmpl,
                            print_nsap_net( tvb, offset, tmpl ) );
       offset += tmpl;
       len    -= ( tmpl + 1 );
     }
-    dissect_osi_options( len, tvb, offset, tree );
-  }
+    dissect_osi_options( len, tvb, offset, network_tree, pinfo );
 }
 
 
@@ -325,13 +325,13 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   switch (type) {
   case ESIS_ESH_PDU:
-    esis_dissect_esh_pdu( variable_len, tvb, esis_tree);
+    esis_dissect_esh_pdu( variable_len, tvb, esis_tree, pinfo);
     break;
   case ESIS_ISH_PDU:
-    esis_dissect_ish_pdu( variable_len, tvb, esis_tree);
+    esis_dissect_ish_pdu( variable_len, tvb, esis_tree, pinfo);
     break;
   case ESIS_RD_PDU:
-    esis_dissect_redirect_pdu( variable_len, tvb, esis_tree);
+    esis_dissect_redirect_pdu( variable_len, tvb, esis_tree, pinfo);
     break;
   default:
     expert_add_info(pinfo, type_item, &ei_esis_type);
@@ -383,6 +383,7 @@ proto_register_esis(void) {
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_esis_number_of_source_addresses, { "Number of Source Addresses (SA, Format: NSAP)", "esis.number_of_source_addresses", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_sal, { "SAL", "esis.sal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_esis_sa, { "SA", "esis.sa", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_netl, { "NETL", "esis.netl", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_dal, { "DAL", "esis.dal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_bsnpal, { "BSNPAL", "esis.bsnpal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -394,6 +395,9 @@ proto_register_esis(void) {
   static gint *ett[] = {
     &ett_esis,
     &ett_esis_area_addr,
+    &ett_esis_network,
+    &ett_esis_dest_addr,
+    &ett_esis_subnetwork
   };
 
   static ei_register_info ei[] = {
