@@ -41,6 +41,7 @@ plist="./Info.plist"
 util_dir="./Utilities"
 cli_dir="$util_dir/Command Line"
 chmodbpf_dir="$util_dir/ChmodBPF"
+xquartzfixer_dir="$util_dir/XQuartzFixer"
 exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
 
 
@@ -282,6 +283,11 @@ fi
 mkdir -p "$chmodbpf_dir"
 cp -v ChmodBPF/* "$chmodbpf_dir"
 chmod -R g-w "$chmodbpf_dir"
+
+# XQuartzFixer
+mkdir -p "$xquartzfixer_dir"
+cp -v XQuartzFixer/* "$xquartzfixer_dir"
+chmod -R g-w "$xquartzfixer_dir"
 
 # The rest of the Wireshark installation (we handled bin above)
 rsync -av \

@@ -1,0 +1,26 @@
+#! /bin/bash
+
+#
+# See whether we have /opt/X11 but not /usr/X11 and, if so, create
+# /usr/X11 as a symbolic link to /opt/X11.
+#
+# With XQuartz installed, the X11 directory is under /opt, with /usr/X11
+# being a symbolic link to /opt/X11, for compatibility with X programs
+# expecting X11 to be there.  (With Mountain Lion and later, without
+# XQuartz installed, /usr/X11 is a directory tree containing enough of
+# X11 to allow X11 programs to start but to pop up a "do you want to
+# install XQuartz?" dialog, so that's where X programs *should* look
+# for X11.)
+#
+# Unfortunately, if you have XQuartz installed on a pre-Yosemite
+# release, and you upgrade to Yosemite, the Yosemite installer removes
+# the /usr/X11 symlink, breaking X11 programs, so we should put it back.
+#
+if [ -d /opt/X11 -a ! -e /usr/X11 ]
+then
+	#
+	# We have a /opt/X11 directory and don't have /usr/X11.
+	# Make the symlink.
+	#
+	ln -s /opt/X11 /usr/X11
+fi
