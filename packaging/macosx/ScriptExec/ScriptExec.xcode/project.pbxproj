@@ -138,7 +138,6 @@
 				4A9504C8FFE6A3BC11CA0CBA,
 				0249A66BFF388E3F11CA2CEA,
 				B8DCE04E056DACAE00C390B0,
-				EB3FA35F1B10087D009BA8CB,
 			);
 			isa = PBXGroup;
 			name = "External Frameworks and Libraries";
@@ -357,7 +356,6 @@
 				8D0C4E920486CD37000505A6,
 				8D0C4E930486CD37000505A6,
 				B8DCE04F056DACAE00C390B0,
-				EB3FA3601B10087D009BA8CB,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -444,20 +442,6 @@
 		};
 		B8DCE04F056DACAE00C390B0 = {
 			fileRef = B8DCE04E056DACAE00C390B0;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		EB3FA35F1B10087D009BA8CB = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = ServiceManagement.framework;
-			path = /System/Library/Frameworks/ServiceManagement.framework;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		EB3FA3601B10087D009BA8CB {
-			fileRef = EB3FA35F1B10087D009BA8CB;
 			isa = PBXBuildFile;
 			settings = {
 			};
