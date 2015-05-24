@@ -60,7 +60,6 @@ EXTRA_DIST = \
 	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/sync_osx_look.sh	\
 	Resources/Wireshark.icns	\
 	Resources/Wiresharkdoc.icns	\
-	Resources/XQuartzFixer.c	\
 	ScriptExec/English.lproj/InfoPlist.strings	\
 	ScriptExec/English.lproj/main.nib/classes.nib	\
 	ScriptExec/English.lproj/main.nib/info.nib	\

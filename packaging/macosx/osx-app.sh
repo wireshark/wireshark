@@ -308,7 +308,6 @@ res_list="
 "
 
 if [ "$ui_toolkit" = "gtk" ] ; then
-	cc -o "$resdir"/Resources/XQuartzFixer -Os -Wall -W "$resdir"/Resources/XQuartzFixer.c
 	res_list="
 		$res_list
 		bin
@@ -318,7 +317,6 @@ if [ "$ui_toolkit" = "gtk" ] ; then
 		MenuBar.nib
 		ProgressWindow.nib
 		themes
-		XQuartzFixer
 	"
 fi
 
