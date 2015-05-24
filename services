@@ -5130,8 +5130,8 @@ iwlistener       2866/tcp # iwlistener [Fred_Surr] [Fred_Surr]
 iwlistener       2866/udp # iwlistener [Fred_Surr] [Fred_Surr]
 esps-portal      2867/tcp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
 esps-portal      2867/udp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
-npep-messaging   2868/tcp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
-npep-messaging   2868/udp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
+npep-messaging   2868/tcp # Norman Proprietaqry Events Protocol [AVG_Technologies_Norway_AS] [Kristian_A_Bognaes_2] 2015-05-20
+npep-messaging   2868/udp # Norman Proprietaqry Events Protocol [AVG_Technologies_Norway_AS] [Kristian_A_Bognaes_2] 2015-05-20
 icslap           2869/tcp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 icslap           2869/udp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 daishi           2870/tcp # daishi [Patrick_Chipman] [Patrick_Chipman]
@@ -11187,6 +11187,8 @@ pago-services2  30002/udp # Pago Services 2 [Balduin_Mueller_Plat] [Balduin_Muel
 amicon-fpsu-ra  30003/tcp # Amicon FPSU-IP Remote Administration [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
 amicon-fpsu-ra  30003/udp # Amicon FPSU-IP Remote Administration [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
 amicon-fpsu-s   30004/udp # Amicon FPSU-IP VPN [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
+rwp             30100/tcp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
+rwp             30100/sctp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
 kingdomsonline  30260/tcp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 kingdomsonline  30260/udp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 samsung-disc    30832/udp # Samsung Convergence Discovery Protocol [Samsung_2] [Young_Ki_Kim] 2013-05-29
