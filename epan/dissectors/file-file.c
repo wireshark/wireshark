@@ -186,7 +186,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if (pinfo->fd->flags.ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-		proto_tree_add_text (tree, tvb, 0, -1, "This record is marked as ignored");
+		proto_tree_add_boolean_format(tree, hf_file_ignored, tvb, 0, -1, TRUE, "This record is marked as ignored");
 		return tvb_captured_length(tvb);
 	}
 

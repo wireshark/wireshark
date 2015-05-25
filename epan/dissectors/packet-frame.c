@@ -275,7 +275,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		gboolean old_visible;
 
 		/* Put in frame header information. */
-		cap_len = tvb_length(tvb);
+		cap_len = tvb_captured_length(tvb);
 		frame_len = tvb_reported_length(tvb);
 
 		cap_plurality = plurality(cap_len, "", "s");
@@ -470,7 +470,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	if (pinfo->fd->flags.ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-		proto_tree_add_text (tree, tvb, 0, 0, "This frame is marked as ignored");
+		proto_tree_add_boolean_format(tree, hf_frame_ignored, tvb, 0, 0, TRUE, "This frame is marked as ignored");
 		return tvb_captured_length(tvb);
 	}
 
