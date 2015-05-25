@@ -99,6 +99,7 @@ static int hf_fmp_volume_mgmt_type = -1;
 static int hf_fmp_notify_protocol = -1;
 static int hf_fmp_client_error_number = -1;
 /* Generated from convert_proto_tree_add_text.pl */
+static int hf_fmp_cap = -1;
 static int hf_fmp_cap_revoke_handle_list = -1;
 static int hf_fmp_length_of_volume_list = -1;
 static int hf_fmp_cap_unc_names = -1;
@@ -112,6 +113,11 @@ static int hf_fmp_cifsport = -1;
 static int hf_fmp_blockindex = -1;
 static int hf_fmp_number_of_disk = -1;
 static int hf_fmp_cap_cifsv2 = -1;
+static int hf_fmp_mtime = -1;
+static int hf_fmp_atime = -1;
+static int hf_fmp_ctime = -1;
+static int hf_fmp_heartbeat_interval = -1;
+static int hf_fmp_volindex = -1;
 
 static gint ett_fmp = -1;
 static gint ett_fmp_timeval = -1;
@@ -422,7 +428,7 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
             g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
         }
 
-        proto_tree_add_text(tree, tvb, offset, 4, "Cmd: %s", msg);
+        proto_tree_add_uint_format_value(tree, hf_fmp_cmd, tvb, offset, 4, cmd, "%s", msg);
     }
     offset += 4;
     return offset;
@@ -495,12 +501,7 @@ static int
 dissect_fmp_heartBeatIntv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
-    if (tree) {
-        proto_tree_add_text(tree, tvb, offset, 8,
-                            "Heart Beat Interval: %d.%d seconds",
-                            tvb_get_ntohl(tvb, offset),
-                            tvb_get_ntohl(tvb, offset+4));
-    }
+    proto_tree_add_item(tree, hf_fmp_heartbeat_interval, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
     return offset;
 }
@@ -725,7 +726,6 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     int     vmType;
     guint32 phyVolList_len;
-    guint32 volIndex;
 
     vmType = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_fmp_volume_mgmt_type, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -743,11 +743,8 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * structures.
          */
         while (phyVolList_len) {
-            offset =
-                dissect_fmp_devSerial(tvb, offset, pinfo, tree);
-            volIndex = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 4, "0x%x",
-                                volIndex);
+            offset = dissect_fmp_devSerial(tvb, offset, pinfo, tree);
+            proto_tree_add_item(tree, hf_fmp_volindex, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             phyVolList_len--;
         }
@@ -799,16 +796,15 @@ dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    proto_tree *capTree;
-    proto_item *ti;
+    static const int *capabilities[] = {
+        &hf_fmp_cap_revoke_handle_list,
+        &hf_fmp_cap_unc_names,
+        &hf_fmp_cap_cifsv2,
+        NULL
+    };
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Capabilities");
-
-    capTree = proto_item_add_subtree(ti, ett_capabilities);
-
-    proto_tree_add_item(capTree, hf_fmp_cap_revoke_handle_list, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capTree, hf_fmp_cap_unc_names, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capTree, hf_fmp_cap_cifsv2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_fmp_cap, ett_capabilities,
+                        capabilities, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return (offset+4);
 }
 
@@ -845,14 +841,11 @@ dissect_fmp_attrs(tvbuff_t *tvb, int offset, proto_tree *tree)
     offset = dissect_rpc_uint64(tvb, attrsTree, hf_fmp_nfsv3Attr_rdev,   offset);
     offset = dissect_rpc_uint64(tvb, attrsTree, hf_fmp_nfsv3Attr_fsid,   offset);
     offset = dissect_rpc_uint64(tvb, attrsTree, hf_fmp_nfsv3Attr_fileid, offset);
-    proto_tree_add_text(tree, tvb, offset, 8,"atime: %d.%d seconds",
-                        tvb_get_ntohl(tvb, offset),tvb_get_ntohl(tvb, offset+4));
+    proto_tree_add_item(tree, hf_fmp_atime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset +=8;
-    proto_tree_add_text(tree, tvb, offset, 8,"mtime: %d.%d seconds",
-                        tvb_get_ntohl(tvb, offset),tvb_get_ntohl(tvb, offset+4));
+    proto_tree_add_item(tree, hf_fmp_mtime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset +=8;
-    proto_tree_add_text(tree, tvb, offset, 8,"ctime: %d.%d seconds",
-                        tvb_get_ntohl(tvb, offset),tvb_get_ntohl(tvb, offset+4));
+    proto_tree_add_item(tree, hf_fmp_ctime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset +=8;
     return offset;
 }
@@ -1397,8 +1390,7 @@ dissect_FMP_FlushGetAttr_request(tvbuff_t *tvb, int offset,
     offset = dissect_rpc_uint32(tvb, tree, hf_fmp_cmd, offset);
     offset = dissect_rpc_uint64(tvb,tree, hf_fmp_eof, offset);
 
-    proto_tree_add_text(tree, tvb, offset, 8,"mtime: %d.%d seconds",
-                        tvb_get_ntohl(tvb, offset),tvb_get_ntohl(tvb, offset+4));
+    proto_tree_add_item(tree, hf_fmp_mtime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
     offset = dissect_fmp_extentList(tvb, offset, pinfo, tree);
 
@@ -2238,9 +2230,15 @@ proto_register_fmp(void)
       { &hf_fmp_sigoffset, { "sigOffset", "fmp.sigoffset", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_fmp_length_of_volume_list, { "Length of volume List", "fmp.length_of_volume_list", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fmp_blockindex, { "blockIndex", "fmp.blockindex", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_fmp_cap_revoke_handle_list, { "CAP_REVOKE_HANDLE_LIST", "fmp.cap_revoke_handle_list", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_REVOKE_HANDLE_LIST, NULL, HFILL }},
-      { &hf_fmp_cap_unc_names, { "CAP_UNC_NAMES", "fmp.cap_unc_names", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_UNC_NAMES, NULL, HFILL }},
-      { &hf_fmp_cap_cifsv2, { "CAP_CIFSV2", "fmp.cap_cifsv2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_CIFSV2, NULL, HFILL }},
+      { &hf_fmp_cap, { "Capabilities", "fmp.cap", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_cap_revoke_handle_list, { "CAP_REVOKE_HANDLE_LIST", "fmp.cap.revoke_handle_list", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_REVOKE_HANDLE_LIST, NULL, HFILL }},
+      { &hf_fmp_cap_unc_names, { "CAP_UNC_NAMES", "fmp.cap.unc_names", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_UNC_NAMES, NULL, HFILL }},
+      { &hf_fmp_cap_cifsv2, { "CAP_CIFSV2", "fmp.cap.cifsv2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_CIFSV2, NULL, HFILL }},
+      { &hf_fmp_mtime, { "mtime", "fmp.mtime", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_atime, { "atime", "fmp.atime", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_ctime, { "ctime", "fmp.ctime", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_heartbeat_interval, { "Heartbeat interval", "fmp.heartbeat_interval", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_volindex, { "volIndex", "fmp.volindex", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {

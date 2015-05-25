@@ -340,6 +340,7 @@ sub is_proto_dup_whitelist {
 	if (($_[0] eq "amqp") && (index($_[1], "amqp") >= 0)) {return 1;}
 	if (($_[0] eq "bat") && (index($_[1], "batman") >= 0)) {return 1;}
 	if (($_[0] eq "browser") && (index($_[1], "browser_") >= 0)) {return 1;}
+	if (($_[0] eq "dlsw") && (index($_[1], "dlsw_version") >= 0)) {return 1;}
 	if (($_[0] eq "dns") && (index($_[1], "dnskey") >= 0)) {return 1;}
 	if (($_[0] eq "exported_pdu") && (index($_[1], "exported_pdu") >= 0)) {return 1;}
 	if (($_[0] eq "fc") && (index($_[1], "fctl") >= 0)) {return 1;}

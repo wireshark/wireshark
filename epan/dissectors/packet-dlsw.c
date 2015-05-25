@@ -77,8 +77,9 @@ static int hf_dlsw_message_length = -1;
 static int hf_dlsw_remote_dlc_pid = -1;
 static int hf_dlsw_vendor_oui = -1;
 static int hf_dlsw_flow_ctrl_byte = -1;
-static int hf_dlsw_version_string = -1;
 static int hf_dlsw_version = -1;
+static int hf_dlsw_version_string = -1;
+static int hf_dlsw_dlsw_version = -1;
 static int hf_dlsw_remote_dlc = -1;
 static int hf_dlsw_origin_dlc = -1;
 static int hf_dlsw_origin_transport_id = -1;
@@ -91,6 +92,18 @@ static int hf_dlsw_reserved = -1;
 static int hf_dlsw_data = -1;
 static int hf_dlsw_vector_data = -1;
 static int hf_dlsw_unknown_data = -1;
+static int hf_dlsw_mac_address_exclusivity = -1;
+static int hf_dlsw_netbios_name_exclusivity = -1;
+static int hf_dlsw_gds_id = -1;
+static int hf_dlsw_sap_list_support = -1;
+static int hf_dlsw_sap_list_support_x0 = -1;
+static int hf_dlsw_sap_list_support_x2 = -1;
+static int hf_dlsw_sap_list_support_x4 = -1;
+static int hf_dlsw_sap_list_support_x6 = -1;
+static int hf_dlsw_sap_list_support_x8 = -1;
+static int hf_dlsw_sap_list_support_xA = -1;
+static int hf_dlsw_sap_list_support_xC = -1;
+static int hf_dlsw_sap_list_support_xE = -1;
 
 static gint ett_dlsw = -1;
 static gint ett_dlsw_header = -1;
@@ -98,6 +111,7 @@ static gint ett_dlsw_fc = -1;
 static gint ett_dlsw_sspflags = -1;
 static gint ett_dlsw_data = -1;
 static gint ett_dlsw_vector = -1;
+static gint ett_dlsw_sap_list_support = -1;
 
 static expert_field ei_dlsw_dlc_header_length = EI_INIT;
 static expert_field ei_dlsw_not_used_for_capex = EI_INIT;
@@ -412,14 +426,20 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static void
+dlsw_fmt_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+}
+
+static void
 dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
 {
-  int mlen,vlen,vtype,offset=4,gdsid,sap,i=0;
+  int vlen,vtype,i=0;
+  guint8 tmp8;
+  guint32 gdsid, mlen,offset=4;
   proto_tree *dlsw_vector_tree;
-  mlen=tvb_get_ntohs(tvb,0);
-  gdsid=tvb_get_ntohs(tvb,2);
-  proto_tree_add_item(tree, hf_dlsw_capabilities_length, tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_text (tree,tvb,2,2,"%s",val_to_str_const( gdsid, dlsw_gds_vals, "Invalid GDS ID"));
+  proto_tree_add_item_ret_uint(tree, hf_dlsw_capabilities_length, tvb, 0, 2, ENC_BIG_ENDIAN, &mlen);
+  proto_tree_add_item_ret_uint(tree, hf_dlsw_gds_id, tvb, 2, 2, ENC_BIG_ENDIAN, &gdsid);
   proto_item_append_text(ti2," - %s",val_to_str_const( gdsid, dlsw_gds_vals, "Invalid GDS ID"));
   switch (gdsid) {
     case DLSW_GDSID_ACK:
@@ -442,8 +462,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_oui, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);
             break;
           case 0x82:
-            proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,
-                                 "DLSw Version = %d.%d",tvb_get_guint8(tvb,offset+2),tvb_get_guint8(tvb,offset+3));
+            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_dlsw_version, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             break;
           case 0x83:
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_initial_pacing_window, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);
@@ -452,17 +471,26 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_version_string, tvb, offset+2, vlen-2, ENC_NA|ENC_ASCII);
             break;
           case 0x85:
-            proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,
-                                 "MAC Address Exclusivity = %s",tvb_get_guint8(tvb,offset+2)==1?"On":"Off");
+            tmp8 = tvb_get_guint8(tvb,offset+2);
+            proto_tree_add_uint_format_value(dlsw_vector_tree, hf_dlsw_mac_address_exclusivity, tvb,offset+2, 1,
+                                 tmp8, "%s",tmp8==1?"On":"Off");
             break;
           case 0x86:
             while (i<vlen-2)
             {
-              sap=tvb_get_guint8(tvb,offset+2+i);
-              proto_tree_add_text (dlsw_vector_tree,tvb,offset+2+i,1,
-                                   "SAP List Support = 0x%x0=%s 0x%x2=%s 0x%x4=%s 0x%x6=%s 0x%x8=%s 0x%xa=%s 0x%xc=%s 0x%xe=%s",
-                                   i,sap&0x80?"on ":"off",i,sap&0x40?"on ":"off",i,sap&0x20?"on ":"off",i,sap&0x10?"on ":"off",
-                                   i,sap&0x08?"on ":"off",i,sap&0x04?"on ":"off",i,sap&0x02?"on ":"off",i,sap&0x01?"on ":"off");
+              static const int * flags[] = {
+                 &hf_dlsw_sap_list_support_x0,
+                 &hf_dlsw_sap_list_support_x2,
+                 &hf_dlsw_sap_list_support_x4,
+                 &hf_dlsw_sap_list_support_x6,
+                 &hf_dlsw_sap_list_support_x8,
+                 &hf_dlsw_sap_list_support_xA,
+                 &hf_dlsw_sap_list_support_xC,
+                 &hf_dlsw_sap_list_support_xE,
+                 NULL
+              };
+
+              proto_tree_add_bitmask_with_flags(dlsw_vector_tree, tvb, offset+2+i, hf_dlsw_sap_list_support, ett_dlsw_sap_list_support, flags, ENC_NA, BMT_NO_FALSE);
               i++;
             }
             break;
@@ -470,8 +498,9 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_tcp_connections, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);
             break;
           case 0x88:
-            proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,
-                                 "NetBIOS Name Exclusivity = %s",tvb_get_guint8(tvb,offset+2)==1?"On":"Off");
+            tmp8 = tvb_get_guint8(tvb,offset+2);
+            proto_tree_add_uint_format_value(dlsw_vector_tree, hf_dlsw_netbios_name_exclusivity, tvb,offset+2,1,
+                                 tmp8, "%s", tmp8==1?"On":"Off");
             break;
           case 0x89:
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_mac_address_list, tvb, offset+2, 6, ENC_NA);
@@ -602,6 +631,7 @@ proto_register_dlsw(void)
     { &hf_dlsw_vector_type, { "Vector Type", "dlsw.vector_type", FT_UINT8, BASE_HEX, VALS(dlsw_vector_vals), 0x0, NULL, HFILL }},
     { &hf_dlsw_oui, { "OUI", "dlsw.oui", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_dlsw_initial_pacing_window, { "Initial Pacing Window", "dlsw.initial_pacing_window", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dlsw_dlsw_version, { "DLSw Version", "dlsw.dlsw_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(dlsw_fmt_version), 0x0, NULL, HFILL }},
     { &hf_dlsw_version_string, { "Version String", "dlsw.version_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_dlsw_tcp_connections, { "TCP connections", "dlsw.tcp_connections", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dlsw_mac_address_list, { "MAC Address List", "dlsw.mac_address_list", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -612,6 +642,18 @@ proto_register_dlsw(void)
     { &hf_dlsw_data, { "Data", "dlsw.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_dlsw_vector_data, { "Data", "dlsw.vector_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_dlsw_unknown_data, { "Data", "dlsw.unknown_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_dlsw_mac_address_exclusivity, { "MAC Address Exclusivity", "dlsw.mac_address_exclusivity", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dlsw_netbios_name_exclusivity, { "NetBIOS Name Exclusivity", "dlsw.netbios_name_exclusivity", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dlsw_gds_id, { "GDS ID", "dlsw.gds_id", FT_UINT16, BASE_DEC, VALS(dlsw_gds_vals), 0x0, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support, { "SAP List Support", "dlsw.sap_list_support", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_x0, { "x0", "dlsw.sap_list_support.x0", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_x2, { "x0", "dlsw.sap_list_support.x2", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x40, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_x4, { "x0", "dlsw.sap_list_support.x4", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x20, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_x6, { "x0", "dlsw.sap_list_support.x6", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x10, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_x8, { "x0", "dlsw.sap_list_support.x8", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x08, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_xA, { "x0", "dlsw.sap_list_support.xA", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x04, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_xC, { "x0", "dlsw.sap_list_support.xC", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x02, NULL, HFILL }},
+    { &hf_dlsw_sap_list_support_xE, { "x0", "dlsw.sap_list_support.xE", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01, NULL, HFILL }},
   };
 
   static gint *ett[] = {
@@ -621,6 +663,7 @@ proto_register_dlsw(void)
     &ett_dlsw_sspflags,
     &ett_dlsw_data,
     &ett_dlsw_vector,
+    &ett_dlsw_sap_list_support,
   };
 
   static ei_register_info ei[] = {

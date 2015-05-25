@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/stats_tree.h>
 
 #include "packet-tcp.h"
@@ -165,7 +166,6 @@ static int hf_ucp_parm_REQ_OT    = -1;
 static int hf_ucp_parm_SSTAT     = -1;
 static int hf_ucp_parm_LMN       = -1;
 static int hf_ucp_parm_NMESS     = -1;
-static int hf_ucp_parm_NMESS_str = -1;
 static int hf_ucp_parm_NAdC      = -1;
 static int hf_ucp_parm_NT        = -1;
 static int hf_ucp_parm_NPID      = -1;
@@ -213,6 +213,11 @@ static int hf_ucp_parm_RES2      = -1;
 static int hf_ucp_parm_MVP       = -1;
 static int hf_ucp_parm_EC        = -1;
 static int hf_ucp_parm_SM        = -1;
+static int hf_ucp_not_subscribed = -1;
+static int hf_ucp_ga_roaming     = -1;
+static int hf_ucp_call_barring   = -1;
+static int hf_ucp_deferred_delivery = -1;
+static int hf_ucp_diversion      = -1;
 
 static int hf_ucp_parm_XSer      = -1;
 static int hf_xser_service       = -1;
@@ -223,6 +228,9 @@ static int hf_xser_data          = -1;
 static gint ett_ucp              = -1;
 static gint ett_sub              = -1;
 static gint ett_XSer             = -1;
+
+static expert_field ei_ucp_stx_missing = EI_INIT;
+
 
 /* Tap */
 static int ucp_tap               = -1;
@@ -1507,11 +1515,9 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
     intval = UcpHandleByte(hf_ucp_parm_ACK);
     if (intval == 'A') {
         if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
-            proto_tree_add_text(tree, tvb, offset - 1, 1,
-                                "GA roaming definitions");
+            proto_tree_add_item(tree, hf_ucp_ga_roaming, tvb, offset - 1, 1, ENC_NA);
             if (intval == 'N') {
-                proto_tree_add_text(tree, tvb, offset -1, 1,
-                                "Not subscribed/not allowed");
+                proto_tree_add_item(tree, hf_ucp_not_subscribed, tvb, offset -1, 1, ENC_NA);
                 offset++;
             } else {
                 --offset;
@@ -1521,11 +1527,9 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
             }
         }
         if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
-            proto_tree_add_text(tree, tvb, offset - 1, 1,
-                                "Call barring definitions");
+            proto_tree_add_item(tree, hf_ucp_call_barring, tvb, offset - 1, 1, ENC_NA);
             if (intval == 'N') {
-                proto_tree_add_text(tree, tvb, offset -1, 1,
-                                "Not subscribed/not allowed");
+                proto_tree_add_item(tree, hf_ucp_not_subscribed, tvb, offset -1, 1, ENC_NA);
                 offset++;
             } else {
                 --offset;
@@ -1535,11 +1539,9 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
             }
         }
         if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
-            proto_tree_add_text(tree, tvb, offset - 1, 1,
-                                "Deferred delivery definitions");
+            proto_tree_add_item(tree, hf_ucp_deferred_delivery, tvb, offset - 1, 1, ENC_NA);
             if (intval == 'N') {
-                proto_tree_add_text(tree, tvb, offset -1, 1,
-                                "Not subscribed/not allowed");
+                proto_tree_add_item(tree, hf_ucp_not_subscribed, tvb, offset -1, 1, ENC_NA);
                 offset++;
             } else {
                 --offset;
@@ -1549,11 +1551,9 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
             }
         }
         if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
-            proto_tree_add_text(tree, tvb, offset - 1, 1,
-                                "Diversion definitions");
+            proto_tree_add_item(tree, hf_ucp_diversion, tvb, offset - 1, 1, ENC_NA);
             if (intval == 'N') {
-                proto_tree_add_text(tree, tvb, offset -1, 1,
-                                "Not subscribed/not allowed");
+                proto_tree_add_item(tree, hf_ucp_not_subscribed, tvb, offset -1, 1, ENC_NA);
                 offset++;
             } else {
                 --offset;
@@ -1565,8 +1565,7 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
         UcpHandleInt(hf_ucp_parm_LMN);
         if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
             if (intval == 'N') {
-                proto_tree_add_string(tree, hf_ucp_parm_NMESS_str, tvb,
-                                offset -1, 1, "Not subscribed/not allowed");
+                proto_tree_add_item(tree, hf_ucp_not_subscribed, tvb, offset -1, 1, ENC_NA);
                 offset++;
             } else {
                 --offset;
@@ -1778,7 +1777,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tvb_get_guint8(tvb, 0) != UCP_STX){
-        proto_tree_add_text(tree, tvb, 0, -1,"UCP_STX missing, this is not a new packet");
+        proto_tree_add_expert(tree, pinfo, &ei_ucp_stx_missing, tvb, 0, -1);
         return tvb_length(tvb);
     }
 
@@ -2397,13 +2396,6 @@ proto_register_ucp(void)
             HFILL
           }
         },
-        { &hf_ucp_parm_NMESS_str,
-          { "NMESS_str", "ucp.parm.NMESS_str",
-            FT_STRING, BASE_NONE, NULL, 0x00,
-            "Number of stored messages.",
-            HFILL
-          }
-        },
         { &hf_ucp_parm_NPID,
           { "NPID", "ucp.parm.NPID",
             FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
@@ -2726,6 +2718,41 @@ proto_register_ucp(void)
             HFILL
           }
         },
+        { &hf_ucp_ga_roaming,
+          { "GA roaming definitions", "ucp.parm.ga_roaming",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
+        },
+        { &hf_ucp_call_barring,
+          { "Call barring definitions", "ucp.parm.call_barring",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
+        },
+        { &hf_ucp_deferred_delivery,
+          { "Deferred delivery definitions", "ucp.parm.deferred_delivery",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
+        },
+        { &hf_ucp_diversion,
+          { "Diversion definitions", "ucp.parm.diversion",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
+        },
+        { &hf_ucp_not_subscribed,
+          { "Not subscribed/not allowed", "ucp.parm.not_subscribed",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
+        },
         { &hf_xser_service,
           { "Type of service", "ucp.xser.service",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &vals_xser_service_ext, 0x00,
@@ -2754,7 +2781,13 @@ proto_register_ucp(void)
         &ett_sub,
         &ett_XSer
     };
+
+    static ei_register_info ei[] = {
+        { &ei_ucp_stx_missing, { "ucp.stx_missing", PI_MALFORMED, PI_ERROR, "UCP_STX missing, this is not a new packet", EXPFILL }},
+    };
+
     module_t *ucp_module;
+    expert_module_t* expert_ucp;
 
     /* Register the protocol name and description */
     proto_ucp = proto_register_protocol("Universal Computer Protocol",
@@ -2763,6 +2796,8 @@ proto_register_ucp(void)
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_ucp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ucp = expert_register_protocol(proto_ucp);
+    expert_register_field_array(expert_ucp, ei, array_length(ei));
 
     /* Register for tapping */
     ucp_tap = register_tap("ucp");

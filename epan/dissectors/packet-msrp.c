@@ -60,6 +60,7 @@ static int hf_msrp_request_line     = -1;
 static int hf_msrp_transactionID    = -1;
 static int hf_msrp_method           = -1;
 static int hf_msrp_status_code      = -1;
+static int hf_msrp_hdr              = -1;
 static int hf_msrp_msg_hdr          = -1;
 static int hf_msrp_end_line         = -1;
 static int hf_msrp_cnt_flg          = -1;
@@ -472,6 +473,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     tvbuff_t *next_tvb;
     gint parameter_offset;
     gint semi_colon_offset;
+    gchar* hdr_str;
 
     if ( !check_msrp_header(tvb)){
         return 0;
@@ -531,9 +533,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
                 tvb_format_text(tvb, token_2_start, token_2_len));
     }else{
-        proto_tree_add_text(tree, tvb, token_3_start, token_3_len,
-                "Col %s L=%u", tvb_format_text(tvb, token_3_start, token_3_len),token_3_len);
-
         col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s ",
                 tvb_format_text(tvb, token_3_start, token_3_len));
 
@@ -601,17 +600,17 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 /*
                  * Malformed header - no colon after the name.
                  */
-                proto_tree_add_text(msrp_hdr_tree, tvb, offset,
-                                    next_offset - offset, "%s",
-                                    tvb_format_text(tvb, offset, linelen));
+                hdr_str = tvb_format_text(tvb, offset, linelen);
+                proto_tree_add_string_format(msrp_hdr_tree, hf_msrp_hdr, tvb, offset,
+                                    next_offset - offset, hdr_str, "%s", hdr_str);
             } else {
                 header_len = colon_offset - offset;
                 hf_index = msrp_is_known_msrp_header(tvb, offset, header_len);
 
                 if (hf_index == -1) {
-                    proto_tree_add_text(msrp_hdr_tree, tvb,
-                                    offset, next_offset - offset, "%s",
-                                    tvb_format_text(tvb, offset, linelen));
+                    hdr_str = tvb_format_text(tvb, offset, linelen);
+                    proto_tree_add_string_format(msrp_hdr_tree, hf_msrp_hdr, tvb,
+                                    offset, next_offset - offset, hdr_str, "%s", hdr_str);
                 } else {
                     /*
                      * Skip whitespace after the colon.
@@ -766,6 +765,11 @@ proto_register_msrp(void)
         { &hf_msrp_status_code,
             { "Status code",        "msrp.status.code",
             FT_UINT16, BASE_DEC,NULL,0x0,
+            NULL, HFILL }
+        },
+        { &hf_msrp_hdr,
+            { "Header",         "msrp.hdr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_msrp_msg_hdr,

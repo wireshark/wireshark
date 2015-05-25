@@ -274,6 +274,8 @@ static gint ett_sbus_data = -1;
 static expert_field ei_sbus_retry = EI_INIT;
 static expert_field ei_sbus_telegram_not_acked = EI_INIT;
 static expert_field ei_sbus_crc_bad = EI_INIT;
+static expert_field ei_sbus_telegram_not_implemented = EI_INIT;
+static expert_field ei_sbus_no_request_telegram = EI_INIT;
 
 /* True/False strings*/
 static const true_false_string tfs_sbus_flags= {
@@ -1045,32 +1047,29 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /* Request: Write Real time clock*/
                             case SBUS_WR_RTC:
-                                   sbus_helper = tvb_get_guint8(tvb, (offset +5));  /*hours*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +6)); /*minutes*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +7)); /*seconds*/
-                                   proto_tree_add_text(sbus_tree, tvb, (offset +5), 3,
-                                                       "Time (HH:MM:SS): %02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
-                                   sbus_helper = tvb_get_guint8(tvb, (offset +2));  /*year*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +3)); /*month*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +4)); /*day*/
-                                   proto_tree_add_text(sbus_tree, tvb, (offset +2), 3,
-                                                       "Date (YY/MM/DD): %02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
-                                   proto_tree_add_text(sbus_tree, tvb, offset, 2,
-                                                       "Calendar week: %x, Week day: %x", sbus_helper, sbus_helper1);
                                    /*Add subtree for Data*/
                                    sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
                                                             8, ett_sbus_data, NULL, "Clock data");
 
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_week_day, tvb, offset, 2, tvb_get_ntohs(tvb, offset),
+                                                       "%x, Week day: %x", sbus_helper, sbus_helper1);
                                    offset += 2;
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_date, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*month*/
+                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*day*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_date, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
+                                                       "%02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_time, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*hours*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*minutes*/
+                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*seconds*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_time, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
+                                                       "%02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
                                    break;
 
@@ -1470,8 +1469,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             default:
                                    if (sbus_eth_len > 13) { /*13 bytes is the minimal length of a request telegram...*/
                                           sbus_helper = sbus_eth_len - (offset + 2);
-                                          proto_tree_add_text(sbus_tree, tvb, offset, sbus_helper,
-                                                              "This telegram isn't implemented in the dissector.");
+                                          proto_tree_add_expert(sbus_tree, pinfo, &ei_sbus_telegram_not_implemented, tvb, offset, sbus_helper);
                                           offset = offset + sbus_helper;
                                    }
                                    break;
@@ -1544,32 +1542,29 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /* Response: Real time clock value*/
                             case SBUS_RD_RTC:
-                                   sbus_helper = tvb_get_guint8(tvb, (offset +5));  /*hours*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +6)); /*minutes*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +7)); /*seconds*/
-                                   proto_tree_add_text(sbus_tree, tvb, (offset +5), 3,
-                                                       "Time (HH:MM:SS): %02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
-                                   sbus_helper = tvb_get_guint8(tvb, (offset +2));  /*year*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +3)); /*month*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +4)); /*day*/
-                                   proto_tree_add_text(sbus_tree, tvb, (offset +2), 3,
-                                                       "Date (YY/MM/DD): %02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
-                                   proto_tree_add_text(sbus_tree, tvb, offset, 2,
-                                                       "Calendar week: %x, Week day: %x", sbus_helper, sbus_helper1);
                                    /*Add subtree for Data*/
                                    sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
                                                             8, ett_sbus_data, NULL, "Clock data");
 
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_week_day, tvb, offset, 2, tvb_get_ntohs(tvb, offset),
+                                                       "%x, Week day: %x", sbus_helper, sbus_helper1);
                                    offset += 2;
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_date, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*month*/
+                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*day*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_date, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
+                                                       "%02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
-                                   proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_time, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*hours*/
+                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*minutes*/
+                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*seconds*/
+                                   proto_tree_add_uint_format_value(sbusdata_tree,
+                                                       hf_sbus_time, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
+                                                       "%02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
                                    break;
 
@@ -1829,8 +1824,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             /*Inform that response was not dissected and add remaining length*/
                             default:
                                    sbus_helper = sbus_eth_len - (offset + 2);
-                                   proto_tree_add_text(sbus_tree, tvb, offset, sbus_helper,
-                                                       "This telegram isn't implemented in the dissector.");
+                                   proto_tree_add_expert(sbus_tree, pinfo, &ei_sbus_telegram_not_implemented, tvb, offset, sbus_helper);
                                    offset = offset + sbus_helper;
                                    break;
                      }
@@ -1838,8 +1832,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      /*calculate the offset in case the request telegram was not found or was broadcasted*/
                      sbus_eth_len = tvb_get_ntohl(tvb,0);
                      sbus_helper = sbus_eth_len - 11;
-                     proto_tree_add_text(sbus_tree, tvb, offset, sbus_helper,
-                            "Not dissected, could not find request telegram");
+                     proto_tree_add_expert(sbus_tree, pinfo, &ei_sbus_no_request_telegram, tvb, offset, sbus_helper);
                      offset = sbus_eth_len - 2;
               }
 
@@ -2145,7 +2138,7 @@ proto_register_sbus(void)
               },
 
               { &hf_sbus_week_day,
-                     { "RTC calendar week and week day",           "sbus.rtc.week_day",
+                     { "Calendar week",           "sbus.rtc.week_day",
                      FT_UINT16, BASE_HEX, NULL, 0,
                      "Calendar week and week day number of the real time clock", HFILL }
               },
@@ -2313,6 +2306,8 @@ proto_register_sbus(void)
               { &ei_sbus_retry, { "sbus.retry", PI_SEQUENCE, PI_NOTE, "Repeated telegram (due to timeout?)", EXPFILL }},
               { &ei_sbus_telegram_not_acked, { "sbus.telegram_not_acked", PI_RESPONSE_CODE, PI_CHAT, "Telegram not acknowledged by PCD", EXPFILL }},
               { &ei_sbus_crc_bad, { "sbus.crc_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+              { &ei_sbus_telegram_not_implemented, { "sbus.telegram_not_implemented", PI_UNDECODED, PI_WARN, "This telegram isn't implemented in the dissector", EXPFILL }},
+              { &ei_sbus_no_request_telegram, { "sbus.no_request_telegram", PI_UNDECODED, PI_WARN, "Not dissected, could not find request telegram", EXPFILL }},
        };
 
        expert_module_t* expert_sbus;

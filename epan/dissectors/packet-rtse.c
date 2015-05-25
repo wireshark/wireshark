@@ -112,6 +112,7 @@ static gint ett_rtse_CallingSSuserReference = -1;
 
 static expert_field ei_rtse_dissector_oid_not_implemented = EI_INIT;
 static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
+static expert_field ei_rtse_abstract_syntax = EI_INIT;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
@@ -225,7 +226,8 @@ call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
         oid = (const char *)find_oid_by_pres_ctx_id(actx->pinfo, actx->external.indirect_reference);
 
         if(!oid)
-            proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "Unable to determine abstract syntax for indirect reference: %d.", actx->external.indirect_reference);
+            proto_tree_add_expert_format(tree, actx->pinfo, &ei_rtse_abstract_syntax, tvb, offset, tvb_captured_length_remaining(tvb, offset),
+                    "Unable to determine abstract syntax for indirect reference: %d.", actx->external.indirect_reference);
     } else if (actx->external.direct_ref_present) {
         oid = actx->external.direct_reference;
     }
@@ -733,7 +735,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 190 "../../asn1/rtse/packet-rtse-template.c"
+#line 192 "../../asn1/rtse/packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -1000,7 +1002,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 356 "../../asn1/rtse/packet-rtse-template.c"
+#line 358 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1022,12 +1024,13 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 365 "../../asn1/rtse/packet-rtse-template.c"
+#line 367 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_rtse_dissector_oid_not_implemented, { "rtse.dissector_oid_not_implemented", PI_UNDECODED, PI_WARN, "RTSE: Dissector for OID not implemented", EXPFILL }},
      { &ei_rtse_unknown_rtse_pdu, { "rtse.unknown_rtse_pdu", PI_UNDECODED, PI_WARN, "Unknown RTSE PDU", EXPFILL }},
+     { &ei_rtse_abstract_syntax, { "rtse.bad_abstract_syntax", PI_PROTOCOL, PI_WARN, "Unable to determine abstract syntax for indirect reference", EXPFILL }},
   };
 
   expert_module_t* expert_rtse;

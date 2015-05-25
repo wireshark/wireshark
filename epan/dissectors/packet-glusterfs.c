@@ -196,6 +196,13 @@ static gint hf_glusterfs_fsync_flag_unknown = -1;
 /* for entrylk */
 static gint hf_glusterfs_entrylk_namelen = -1;
 
+static gint hf_gluster_dict_size = -1;
+static gint hf_gluster_num_dict_items = -1;
+static gint hf_gluster_rpc_roundup_bytes = -1;
+static gint hf_gluster_trusted_afr_key = -1;
+static gint hf_gluster_dict_value = -1;
+
+
 /* Initialize the subtree pointers */
 static gint ett_glusterfs = -1;
 static gint ett_glusterfs_flags = -1;
@@ -478,10 +485,11 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 {
 	gchar *key, *value;
 	const gchar *name;
-	gint items, i, len, roundup, value_len, key_len;
+	gint roundup, value_len, key_len;
+	guint32 i, items, len;
 	int start_offset, start_offset2;
 
-	proto_item *subtree_item;
+	proto_item *subtree_item, *ti;
 	proto_tree *subtree;
 
 	proto_item *dict_item = NULL;
@@ -498,7 +506,9 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 
 	len = tvb_get_ntohl(tvb, offset);
 	roundup = rpc_roundup(len) - len;
-	proto_tree_add_text(subtree, tvb, offset, 4, "[Size: %d (%d bytes inc. RPC-roundup)]", len, rpc_roundup(len));
+	ti = proto_tree_add_item_ret_uint(subtree, hf_gluster_dict_size, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+	proto_item_append_text(ti, " (%d bytes inc. RPC-roundup)", rpc_roundup(len));
+	PROTO_ITEM_SET_GENERATED(ti);
 	offset += 4;
 
 	if (len == 0)
@@ -511,7 +521,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 	if (len == 0)
 		return offset;
 
-	proto_tree_add_text(subtree, tvb, offset, 4, "Items: %d", items);
+	proto_tree_add_uint(subtree, hf_gluster_num_dict_items, tvb, offset, 4, items);
 	offset += 4;
 
 	for (i = 0; i < items; i++) {
@@ -544,14 +554,14 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 								"%s: %s", key, gfid_s);
 			/* this is a changelog in binary format */
 			} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {
-				dict_item = proto_tree_add_text(subtree, tvb, offset, -1,
-								"%s: 0x%.8x%.8x%.8x", key,
+				dict_item = proto_tree_add_bytes_format(subtree, hf_gluster_trusted_afr_key, tvb, offset, 12,
+								NULL, "%s: 0x%.8x%.8x%.8x", key,
 								tvb_get_letohl(tvb, offset + 0),
 								tvb_get_letohl(tvb, offset + 4),
 								tvb_get_letohl(tvb, offset + 8));
 			} else {
 				value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_len, ENC_ASCII);
-				dict_item = proto_tree_add_text(subtree, tvb, offset, -1, "%s: %s",
+				dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, value_len, value, "%s: %s",
 								key, value);
 			}
 		}
@@ -561,8 +571,8 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 	}
 
 	if (roundup) {
-		if (tree)
-			proto_tree_add_text(subtree, tvb, offset, -1, "[RPC-roundup bytes: %d]", roundup);
+		ti = proto_tree_add_item(subtree, hf_gluster_rpc_roundup_bytes, tvb, offset, -1, ENC_NA);
+		PROTO_ITEM_SET_GENERATED(ti);
 		offset += roundup;
 	}
 
@@ -2648,6 +2658,26 @@ proto_register_glusterfs(void)
 		/* For entry an fentry lk */
 		{ &hf_glusterfs_entrylk_namelen,
 			{ "File Descriptor", "glusterfs.entrylk.namelen", FT_UINT64, BASE_DEC,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_dict_size,
+			{ "Size", "glusterfs.dict_size", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_num_dict_items,
+			{ "Items", "glusterfs.num_dict_items", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_rpc_roundup_bytes,
+			{ "RPC-roundup bytes", "glusterfs.rpc_roundup_bytes", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_trusted_afr_key,
+			{ "Key", "glusterfs.trusted_afr_key", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_dict_value,
+			{ "Value", "glusterfs.dict_value", FT_STRING, BASE_NONE,
 				NULL, 0, NULL, HFILL }
 		},
 	};

@@ -213,7 +213,10 @@ static int hf_mihf_id_mac = -1;
 static int hf_mihf_id_ipv4 = -1;
 static int hf_mihf_id_ipv6 = -1;
 static int hf_status = -1;
-static int hf_boolean = -1;
+static int hf_ip_methods_supported = -1;
+static int hf_ip_dhcp_services = -1;
+static int hf_fn_agent = -1;
+static int hf_access_router = -1;
 static int hf_link_type = -1;
 static int hf_link_type_ext = -1;
 static int hf_ipv4_addr = -1;
@@ -280,6 +283,11 @@ static int hf_rdf_sch = -1;
 static int hf_rdf_sch_url = -1;
 static int hf_ir_bin_data = -1;
 static int hf_iq_bin_data_x = -1;
+static int hf_vendor_specific_tlv = -1;
+static int hf_reserved_tlv = -1;
+static int hf_experimental_tlv = -1;
+static int hf_unknown_tlv = -1;
+static int hf_fragmented_tlv = -1;
 
 /*header fields for event list */
 static int hf_event_list = -1;
@@ -442,6 +450,17 @@ static gint ett_subtype_ieee80211_bitmap = -1;
 static gint ett_subtype_umts_bitmap = -1;
 static gint ett_subtype_cdma2000_bitmap = -1;
 static gint ett_subtype_ieee80216_bitmap = -1;
+static gint ett_min_pk_tx_delay = -1;
+static gint ett_avg_pk_tx_delay = -1;
+static gint ett_max_pk_tx_delay = -1;
+static gint ett_pk_delay_jitter = -1;
+static gint ett_pk_loss_rate = -1;
+static gint ett_list_prefer_link = -1;
+static gint ett_ip_dhcp_server = -1;
+static gint ett_fn_agent = -1;
+static gint ett_access_router = -1;
+static gint ett_link_states_req = -1;
+static gint ett_link_desc_req = -1;
 
 /*field definitions of evt, cmd, mob mgmt, ip cfg, iq type */
 static const int *event_fields[] = {
@@ -1037,18 +1056,20 @@ static gint16 dissect_iq_rdf_data(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_
 
 static gint16 dissect_qos_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
+        proto_tree *subtree;
+
         proto_tree_add_item(tlv_tree, hf_num_cos, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_text(tlv_tree, tvb, offset, 1, "MIN_PK_TX_DELAY- ");
-        offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_qos_val);
-        proto_tree_add_text(tlv_tree, tvb, offset, 1, "AVG_PK_TX_DELAY- ");
-        offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_qos_val);
-        proto_tree_add_text(tlv_tree, tvb, offset, 1, "MAX_PK_TX_DELAY- ");
-        offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_qos_val);
-        proto_tree_add_text(tlv_tree, tvb, offset, 1, "PK_DELAY_JITTER - ");
-        offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_qos_val);
-        proto_tree_add_text(tlv_tree, tvb, offset, 1, "PK_LOSS_RATE- ");
-        offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_qos_val);
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_min_pk_tx_delay, NULL, "MIN_PK_TX_DELAY");
+        offset = dissect_mih_list(tvb, offset, subtree, dissect_qos_val);
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_avg_pk_tx_delay, NULL, "AVG_PK_TX_DELAY");
+        offset = dissect_mih_list(tvb, offset, subtree, dissect_qos_val);
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_max_pk_tx_delay, NULL, "MAX_PK_TX_DELAY");
+        offset = dissect_mih_list(tvb, offset, subtree, dissect_qos_val);
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_pk_delay_jitter, NULL, "PK_DELAY_JITTER");
+        offset = dissect_mih_list(tvb, offset, subtree, dissect_qos_val);
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_pk_loss_rate, NULL, "PK_LOSS_RATE");
+        offset = dissect_mih_list(tvb, offset, subtree, dissect_qos_val);
         return (offset);
 }
 
@@ -1198,53 +1219,53 @@ static gint16 dissect_link_poa(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
 
 static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
-        proto_tree *temp = NULL;
-        temp = proto_tree_add_text(tlv_tree, tvb, offset, 1, "List of preffered links:");
-        offset = dissect_link_poa(tvb, offset, temp);
+        proto_tree *subtree;
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_list_prefer_link, NULL, "List of preffered links");
+        offset = dissect_link_poa(tvb, offset, subtree);
         offset = dissect_qos_list(tvb, offset, tlv_tree);
         offset++;
         switch(tvb_get_guint8(tvb, offset-1))
         {
-                case 1: proto_tree_add_text(tlv_tree, tvb, offset, 1, "IP methods supported: ");
-                        proto_tree_add_item(tlv_tree, hf_boolean, tvb, offset, 1, ENC_BIG_ENDIAN);
+                case 1:
+                        proto_tree_add_item(tlv_tree, hf_ip_methods_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         break;
-                case 2: temp = proto_tree_add_text(tlv_tree, tvb, offset, 2, "ip configuration methods- ");
-                        proto_tree_add_bitmask(temp, tvb, offset, hf_cfg_mthds, ett_cfg_mtd_bitmap, cfg_fields, ENC_BIG_ENDIAN);
+                case 2:
+                        proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_cfg_mthds, ett_cfg_mtd_bitmap, cfg_fields, ENC_BIG_ENDIAN);
                         offset += 2;
                         break;
         }
         offset++;
         switch(tvb_get_guint8(tvb, offset-1))
         {
-                case 1: proto_tree_add_text(tlv_tree, tvb, offset, 1, "IP DHCP services: ");
-                        proto_tree_add_item(tlv_tree, hf_boolean, tvb, offset, 1, ENC_BIG_ENDIAN);
+                case 1:
+                        proto_tree_add_item(tlv_tree, hf_ip_dhcp_services, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         break;
-                case 2: proto_tree_add_text(tlv_tree, tvb, offset, 1, "IP DHCP server: ");
-                        offset = dissect_ip_addr(tvb, offset, tlv_tree);
+                case 2: subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_ip_dhcp_server, NULL, "IP DHCP server");
+                        offset = dissect_ip_addr(tvb, offset, subtree);
                         break;
         }
         offset++;
         switch(tvb_get_guint8(tvb, offset-1))
         {
-                case 1: proto_tree_add_text(tlv_tree, tvb, offset, 1, "FN Agent ");
-                        proto_tree_add_item(tlv_tree, hf_boolean, tvb, offset, 1, ENC_BIG_ENDIAN);
+                case 1:
+                        proto_tree_add_item(tlv_tree, hf_fn_agent, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         break;
-                case 2: proto_tree_add_text(tlv_tree, tvb, offset, 1, "FN Agent: ");
-                        offset = dissect_ip_addr(tvb, offset, tlv_tree);
+                case 2: subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_fn_agent, NULL, "FN Agent");
+                        offset = dissect_ip_addr(tvb, offset, subtree);
                         break;
         }
         offset++;
         switch(tvb_get_guint8(tvb, offset-1))
         {
-                case 1: proto_tree_add_text(tlv_tree, tvb, offset, 1, "Access Router ");
-                        proto_tree_add_item(tlv_tree, hf_boolean, tvb, offset, 1, ENC_BIG_ENDIAN);
+                case 1:
+                        proto_tree_add_item(tlv_tree, hf_access_router, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         break;
-                case 2: proto_tree_add_text(tlv_tree, tvb, offset, 1, "Access Router: ");
-                        offset = dissect_ip_addr(tvb, offset, tlv_tree);
+                case 2: subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_access_router, NULL, "Access Router");
+                        offset = dissect_ip_addr(tvb, offset, subtree);
                         break;
         }
         return (offset+1);
@@ -1407,20 +1428,20 @@ static gint16 dissect_link_param_type(tvbuff_t *tvb, gint16 offset, proto_tree *
 
 static void dissect_link_status_req(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
-        proto_tree *tree_temp;
+        proto_tree *subtree;
 
         /*LINK_STATES_REQ*/
         guint16 temp = tvb_get_ntohs(tvb, offset);
         if(!temp)
         {
-                tree_temp = proto_tree_add_text(tlv_tree, tvb, offset, 3, "LINK_STATES_REQ: ");
-                proto_tree_add_item(tree_temp, hf_op_mode, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 3, ett_link_states_req, NULL, "LINK_STATES_REQ: ");
+                proto_tree_add_item(subtree, hf_op_mode, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 offset+=3;
         }
         else
         {
-                tree_temp = proto_tree_add_text(tlv_tree, tvb, offset, 4, "LINK_STATES_REQ: ");
-                proto_tree_add_item(tree_temp, hf_channel_id, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 4, ett_link_states_req, NULL, "LINK_STATES_REQ: ");
+                proto_tree_add_item(subtree, hf_channel_id, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 offset+=4;
         }
 
@@ -1429,13 +1450,12 @@ static void dissect_link_status_req(tvbuff_t *tvb, gint16 offset, proto_tree *tl
 
         /*LINK_DESC_REQ*/
         temp = tvb_get_ntohs(tvb, offset);
-        tree_temp = proto_tree_add_text(tlv_tree, tvb, offset, 3, "LINK_DESC_REQ: ");
+        subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 3, ett_link_desc_req, NULL, "LINK_DESC_REQ");
         offset+=2;
         if(!temp)
-                proto_tree_add_item(tree_temp, hf_num_cos, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_num_cos, tvb, offset, 1, ENC_BIG_ENDIAN);
         else
-                proto_tree_add_item(tree_temp, hf_num_queue, tvb, offset, 1, ENC_BIG_ENDIAN);
-        return ;
+                proto_tree_add_item(subtree, hf_num_queue, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static gint16 dissect_link_cfg_status(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -1462,6 +1482,7 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
         }
         else
         {
+                proto_tree *subtree;
                 offset ++;
                 /*QOS_PARAM_VALUE*/
                 switch(tvb_get_guint8(tvb, offset))
@@ -1471,24 +1492,24 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                                 offset += 2;
                                 break;
                         case 1:
-                                proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "MIN_PK_TX_DELAY- ");
-                                offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
+                                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset+1, 1, ett_min_pk_tx_delay, NULL, "MIN_PK_TX_DELAY");
+                                offset = dissect_mih_list(tvb, offset+1, subtree, dissect_qos_val);
                                 break;
                         case 2:
-                                proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "AVG_PK_TX_DELAY- ");
-                                offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
+                                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset+1, 1, ett_avg_pk_tx_delay, NULL, "AVG_PK_TX_DELAY");
+                                offset = dissect_mih_list(tvb, offset+1, subtree, dissect_qos_val);
                                 break;
                         case 3:
-                                proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "MAX_PK_TX_DELAY- ");
-                                offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
+                                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset+1, 1, ett_max_pk_tx_delay, NULL, "MAX_PK_TX_DELAY");
+                                offset = dissect_mih_list(tvb, offset+1, subtree, dissect_qos_val);
                                 break;
                         case 4:
-                                proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "PK_DELAY_JITTER - ");
-                                offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
+                                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset+1, 1, ett_pk_delay_jitter, NULL, "PK_DELAY_JITTER");
+                                offset = dissect_mih_list(tvb, offset+1, subtree, dissect_qos_val);
                                 break;
                         case 5:
-                                proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "PK_LOSS_RATE- ");
-                                offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
+                                subtree = proto_tree_add_subtree(tlv_tree, tvb, offset+1, 1, ett_pk_loss_rate, NULL, "PK_LOSS_RATE");
+                                offset = dissect_mih_list(tvb, offset+1, subtree, dissect_qos_val);
                                 break;
                 }
         }
@@ -1944,7 +1965,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case VEND_SPECIFIC_TLV :
                         /*Vendor specific tlv*/
-                        proto_tree_add_text(tlv_tree, tvb, offset, length, "Vendor Specific TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+                        proto_tree_add_item(tlv_tree, hf_vendor_specific_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
                         break;
 
                 default :/*did not match type*/
@@ -1952,15 +1973,15 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                         /*RESERVED TLVs*/
                         if(type > 63 && type < 100)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Reserved TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+                                proto_tree_add_item(tlv_tree, hf_reserved_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
 
                                                 /*EXPERIMENTAL TLVs*/
                         else if(type > 100 && type < 255)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Experimental TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+                                proto_tree_add_item(tlv_tree, hf_experimental_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
 
                         /*UNKNOWN TLVs*/
                         else
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "UNKNOWN TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+                                proto_tree_add_item(tlv_tree, hf_unknown_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
         }
         return;
 }
@@ -2175,12 +2196,12 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 else
                 {
-                        proto_tree_add_text(mih_tree, tvb, offset, -1, "FRAGMENTED TLV");
+                        proto_tree_add_item(mih_tree, hf_fragmented_tlv, tvb, offset, -1, ENC_NA);
                         payload_length = 0;
                 }
         }
         if(fragment!=0)
-                proto_tree_add_text(mih_tree, tvb, offset, -1, "FRAGMENTED TLV");
+                proto_tree_add_item(mih_tree, hf_fragmented_tlv, tvb, offset, -1, ENC_NA);
 }
 
 /*dissector initialistaion*/
@@ -2465,10 +2486,46 @@ void proto_register_mih(void)
                         }
                 },
                 {
-                        &hf_boolean,
+                        &hf_ip_methods_supported,
                         {
-                                "flag",
-                                "mih.bool",
+                                "IP methods supported",
+                                "mih.ip_methods_supported",
+                                FT_UINT8,
+                                BASE_DEC,
+                                VALS(boolean_types),
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                        &hf_ip_dhcp_services,
+                        {
+                                "IP DHCP services",
+                                "mih.ip_dhcp_services",
+                                FT_UINT8,
+                                BASE_DEC,
+                                VALS(boolean_types),
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                        &hf_fn_agent,
+                        {
+                                "FN Agent",
+                                "mih.fn_agent",
+                                FT_UINT8,
+                                BASE_DEC,
+                                VALS(boolean_types),
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                        &hf_access_router,
+                        {
+                                "Access Router",
+                                "mih.access_router",
                                 FT_UINT8,
                                 BASE_DEC,
                                 VALS(boolean_types),
@@ -3652,6 +3709,66 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
+                {
+                       &hf_vendor_specific_tlv,
+                        {
+                                "Vendor Specific TLV",
+                                "mih.vendor_specific_tlv",
+                                FT_STRING,
+                                BASE_NONE,
+                                NULL,
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                       &hf_reserved_tlv,
+                        {
+                                "Reserved TLV",
+                                "mih.reserved_tlv",
+                                FT_STRING,
+                                BASE_NONE,
+                                NULL,
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                       &hf_experimental_tlv,
+                        {
+                                "Experimental TLV",
+                                "mih.experimental_tlv",
+                                FT_STRING,
+                                BASE_NONE,
+                                NULL,
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                       &hf_unknown_tlv,
+                        {
+                                "UNKNOWN TLV",
+                                "mih.unknown_tlv",
+                                FT_STRING,
+                                BASE_NONE,
+                                NULL,
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
+                {
+                       &hf_fragmented_tlv,
+                        {
+                                "FRAGMENTED TLV",
+                                "mih.fragmented_tlv",
+                                FT_BYTES,
+                                BASE_NONE,
+                                NULL,
+                                0x0,
+                                NULL, HFILL
+                        }
+                },
 
                 /*event related hf fields*/
                 {
@@ -4729,7 +4846,18 @@ void proto_register_mih(void)
                 &ett_subtype_ieee80211_bitmap,
                 &ett_subtype_umts_bitmap,
                 &ett_subtype_cdma2000_bitmap,
-                &ett_subtype_ieee80216_bitmap
+                &ett_subtype_ieee80216_bitmap,
+                &ett_min_pk_tx_delay,
+                &ett_avg_pk_tx_delay,
+                &ett_max_pk_tx_delay,
+                &ett_pk_delay_jitter,
+                &ett_pk_loss_rate,
+                &ett_list_prefer_link,
+                &ett_ip_dhcp_server,
+                &ett_fn_agent,
+                &ett_access_router,
+                &ett_link_states_req,
+                &ett_link_desc_req,
         };
 
         proto_mih = proto_register_protocol("Media-Independent Handover", "MIH", "mih");
