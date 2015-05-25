@@ -1107,38 +1107,38 @@ static const int *dvbci_opp_dlv_sys_hint_fields[] = {
 };
 
 
-static expert_field ei_dvbci_spdu_tag = EI_INIT;
-static expert_field ei_dvbci_sac_payload_enc = EI_INIT;
+static expert_field ei_dvbci_cor_addr = EI_INIT;
 static expert_field ei_dvbci_buf_size = EI_INIT;
-static expert_field ei_dvbci_cicam_nit_table_id = EI_INIT;
-static expert_field ei_dvbci_c_tpdu_tag = EI_INIT;
-static expert_field ei_dvbci_res_class = EI_INIT;
-static expert_field ei_dvbci_bad_length = EI_INIT;
-static expert_field ei_dvbci_time_offs_unknown = EI_INIT;
-static expert_field ei_dvbci_apdu_not_supported = EI_INIT;
-static expert_field ei_dvbci_not_text_more_or_text_last = EI_INIT;
-static expert_field ei_dvbci_apu_cam_to_host = EI_INIT;
-static expert_field ei_dvbci_ca_pmt_cmd_id = EI_INIT;
-static expert_field ei_dvbci_cc_pin_nvr_chg = EI_INIT;
-static expert_field ei_dvbci_no_ca_desc_prog = EI_INIT;
-static expert_field ei_dvbci_no_ca_desc_es = EI_INIT;
 static expert_field ei_dvbci_ml = EI_INIT;
-static expert_field ei_dvbci_cup_progress = EI_INIT;
+static expert_field ei_dvbci_c_tpdu_tag = EI_INIT;
+static expert_field ei_dvbci_r_tpdu_status_mandatory = EI_INIT;
+static expert_field ei_dvbci_r_tpdu_tag = EI_INIT;
 static expert_field ei_dvbci_sb_value = EI_INIT;
-static expert_field ei_dvbci_spdu_cam_to_host = EI_INIT;
-static expert_field ei_dvbci_spdu_host_to_cam = EI_INIT;
-static expert_field ei_dvbci_network_id = EI_INIT;
-static expert_field ei_dvbci_invalid_char_tbl = EI_INIT;
 static expert_field ei_dvbci_t_c_id = EI_INIT;
 static expert_field ei_dvbci_tpdu_status_tag = EI_INIT;
-static expert_field ei_dvbci_r_tpdu_tag = EI_INIT;
-static expert_field ei_dvbci_cor_addr = EI_INIT;
-static expert_field ei_dvbci_pin_evt_cent = EI_INIT;
-static expert_field ei_dvbci_res_ver = EI_INIT;
+static expert_field ei_dvbci_spdu_tag = EI_INIT;
+static expert_field ei_dvbci_spdu_cam_to_host = EI_INIT;
+static expert_field ei_dvbci_spdu_host_to_cam = EI_INIT;
 static expert_field ei_dvbci_apdu_tag = EI_INIT;
-static expert_field ei_dvbci_r_tpdu_status_mandatory = EI_INIT;
+static expert_field ei_dvbci_apu_cam_to_host = EI_INIT;
 static expert_field ei_dvbci_apu_host_to_cam = EI_INIT;
+static expert_field ei_dvbci_apdu_not_supported = EI_INIT;
+static expert_field ei_dvbci_res_ver = EI_INIT;
+static expert_field ei_dvbci_res_class = EI_INIT;
+static expert_field ei_dvbci_bad_length = EI_INIT;
+static expert_field ei_dvbci_invalid_char_tbl = EI_INIT;
+static expert_field ei_dvbci_no_ca_desc_es = EI_INIT;
+static expert_field ei_dvbci_no_ca_desc_prog = EI_INIT;
+static expert_field ei_dvbci_ca_pmt_cmd_id = EI_INIT;
+static expert_field ei_dvbci_time_offs_unknown = EI_INIT;
+static expert_field ei_dvbci_not_text_more_or_text_last = EI_INIT;
+static expert_field ei_dvbci_network_id = EI_INIT;
+static expert_field ei_dvbci_cc_pin_nvr_chg = EI_INIT;
+static expert_field ei_dvbci_pin_evt_cent = EI_INIT;
+static expert_field ei_dvbci_sac_payload_enc = EI_INIT;
 static expert_field ei_dvbci_sig_qual = EI_INIT;
+static expert_field ei_dvbci_cicam_nit_table_id = EI_INIT;
+static expert_field ei_dvbci_cup_progress = EI_INIT;
 
 static dissector_table_t sas_msg_dissector_table;
 
@@ -6176,40 +6176,115 @@ proto_register_dvbci(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_dvbci_cor_addr,
+            { "dvb-ci.cor_address.invalid", PI_PROTOCOL, PI_WARN,
+                "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)",
+                EXPFILL }},
+        { &ei_dvbci_buf_size,
+            { "dvb-ci.buf_size.invalid", PI_PROTOCOL, PI_WARN,
+                "Illegal buffer size command", EXPFILL }},
+        { &ei_dvbci_ml,
+            { "dvb-ci.more_last.invalid", PI_PROTOCOL, PI_WARN,
+                "Invalid More/Last indicator, second byte of an LPDU must be 0x80 or 0x00", EXPFILL }},
+        { &ei_dvbci_c_tpdu_tag,
+            { "dvb-ci.c_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR,
+                "Invalid Command-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
+        { &ei_dvbci_r_tpdu_status_mandatory,
+            { "dvb-ci.r_tpdu_status.mandatory", PI_MALFORMED, PI_ERROR,
+                "Response TPDU's status part is missing, RTPDU status is mandatory", EXPFILL }},
+        { &ei_dvbci_r_tpdu_tag,
+            { "dvb-ci.r_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR,
+                "Invalid Response-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
+        { &ei_dvbci_sb_value,
+            { "dvb-ci.sb_value.invalid", PI_PROTOCOL, PI_WARN,
+                "Invalid SB_value, must be 0x00 or 0x80", EXPFILL }},
+        { &ei_dvbci_t_c_id,
+            { "dvb-ci.t_c_id.invalid", PI_PROTOCOL, PI_WARN,
+                "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", EXPFILL }},
+        { &ei_dvbci_tpdu_status_tag,
+            { "dvb-ci.tpdu.status_tag.invalid", PI_MALFORMED, PI_ERROR,
+                "Invalid status tag, this must always be T_SB (0x80)", EXPFILL }},
+        { &ei_dvbci_spdu_tag,
+            { "dvb-ci.spdu.invalid_tag", PI_MALFORMED, PI_ERROR,
+                "Invalid SPDU tag, See table 14 in the DVB-CI specification",
+                EXPFILL }},
+        { &ei_dvbci_spdu_cam_to_host,
+            { "dvb-ci.spdu.cam_to_host", PI_PROTOCOL, PI_WARN,
+                "Invalid SPDU direction, this SPDU must be sent from CAM to host",
+                EXPFILL }},
+        { &ei_dvbci_spdu_host_to_cam,
+            { "dvb-ci.spdu.host_to_cam", PI_PROTOCOL, PI_WARN,
+                "Invalid SPDU direction, this SPDU must be sent from host to CAM",
+                EXPFILL }},
+        { &ei_dvbci_apdu_tag,
+            { "dvb-ci.apdu.invalid_tag", PI_MALFORMED, PI_ERROR,
+                "Invalid or unsupported APDU tag", EXPFILL }},
+        { &ei_dvbci_apu_cam_to_host,
+            { "dvb-ci.apu.cam_to_host", PI_PROTOCOL, PI_WARN,
+                "Invalid APDU direction, this APDU must be sent from CAM to host",
+                EXPFILL }},
+        { &ei_dvbci_apu_host_to_cam,
+            { "dvb-ci.apu.host_to_cam", PI_PROTOCOL, PI_WARN,
+                "Invalid APDU direction, this APDU must be sent from host to CAM",
+                EXPFILL }},
+        { &ei_dvbci_apdu_not_supported,
+            { "dvb-ci.apdu.not_supported", PI_PROTOCOL, PI_WARN,
+                "Dissection of this APDU is not supported", EXPFILL }},
+        { &ei_dvbci_res_ver,
+            { "dvb-ci.apdu.res_ver_old", PI_PROTOCOL, PI_WARN,
+                "Invalid resource version for this apdu", EXPFILL }},
+        { &ei_dvbci_res_class,
+            { "dvb-ci.apdu.res_class_invalid", PI_PROTOCOL, PI_WARN,
+                "Invalid resource class for this apdu", EXPFILL }},
+        { &ei_dvbci_bad_length,
+            { "dvb-ci.apdu.bad_length", PI_MALFORMED, PI_ERROR,
+                "Invalid APDU length field, %s must be a multiple of 4 bytes",
+                EXPFILL }},
+        /* this is used for both MMI and operator profile */
         { &ei_dvbci_invalid_char_tbl,
-            { "dvb-ci.invalid_char_tbl", PI_MALFORMED, PI_ERROR,
+            { "dvb-ci.apdu.invalid_char_tbl", PI_MALFORMED, PI_ERROR,
                 "Invalid character table", EXPFILL }},
-        { &ei_dvbci_cc_pin_nvr_chg, { "dvb-ci.cc.pin_never_changed", PI_PROTOCOL, PI_CHAT, "CICAM PIN has never been changed", EXPFILL }},
-        { &ei_dvbci_ca_pmt_cmd_id, { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR, "The ca_pmt shall only contain ca descriptors (tag 0x9)", EXPFILL }},
-        { &ei_dvbci_no_ca_desc_prog, { "dvb-ci.ca.no_ca_desc_prog", PI_PROTOCOL, PI_CHAT, "No CA descriptors at program level", EXPFILL }},
-        { &ei_dvbci_no_ca_desc_es, { "dvb-ci.ca.no_ca_desc_es", PI_PROTOCOL, PI_CHAT, "No CA descriptors for this elementary stream", EXPFILL }},
-        { &ei_dvbci_bad_length, { "dvb-ci.bad_length", PI_MALFORMED, PI_ERROR, "Invalid APDU length field, %s must be a multiple of 4 bytes", EXPFILL }},
-        { &ei_dvbci_time_offs_unknown, { "dvb-ci.dt.local_offset_unknown", PI_PROTOCOL, PI_CHAT, "Offset between UTC and local time is unknown", EXPFILL }},
-        { &ei_dvbci_network_id, { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE, "Network ID is usually ignored by hosts", EXPFILL }},
-        { &ei_dvbci_not_text_more_or_text_last, { "dvb-ci.not_text_more_or_text_last", PI_MALFORMED, PI_ERROR, "Items must be text_more() or text_last() objects", EXPFILL }},
-        { &ei_dvbci_cup_progress, { "dvb-ci.cup.progress.invalid", PI_PROTOCOL, PI_WARN, "progress is in percent, value must be between 0 and 100", EXPFILL }},
-        { &ei_dvbci_sac_payload_enc, { "dvb-ci.cc.sac.payload_enc.clear", PI_PROTOCOL, PI_NOTE, "The original PDU was encrypted, this exported PDU is in the clear", EXPFILL }},
-        { &ei_dvbci_pin_evt_cent, { "dvb-ci.cc.pin_event_time_centi.invalid", PI_PROTOCOL, PI_WARN, "Invalid value for event time centiseconds, Value must be between 0 and 100", EXPFILL }},
-        { &ei_dvbci_cicam_nit_table_id, { "dvb-ci.cicam_nit.table_id.invalid", PI_PROTOCOL, PI_WARN, "CICAM NIT must have table id 0x40 (NIT actual)", EXPFILL }},
-        { &ei_dvbci_sig_qual, { "dvb-ci.opp.sig_qual.invalid", PI_PROTOCOL, PI_WARN, "Invalid value for signal strength / signal quality, values are in percent (0 to 100)", EXPFILL }},
-        { &ei_dvbci_apdu_tag, { "dvb-ci.apdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid or unsupported APDU tag", EXPFILL }},
-        { &ei_dvbci_apdu_not_supported, { "dvb-ci.apdu_not_supported", PI_PROTOCOL, PI_WARN, "Dissection of this APDU is not supported", EXPFILL }},
-        { &ei_dvbci_apu_host_to_cam, { "dvb-ci.apu.host_to_cam", PI_PROTOCOL, PI_WARN, "Invalid APDU direction, this APDU must be sent from host to CAM", EXPFILL }},
-        { &ei_dvbci_apu_cam_to_host, { "dvb-ci.apu.cam_to_host", PI_PROTOCOL, PI_WARN, "Invalid APDU direction, this APDU must be sent from CAM to host", EXPFILL }},
-        { &ei_dvbci_res_class, { "dvb-ci.res.class.invalid", PI_PROTOCOL, PI_WARN, "Invalid resource class for this apdu", EXPFILL }},
-        { &ei_dvbci_res_ver, { "dvb-ci.res.version.old", PI_PROTOCOL, PI_WARN, "Invalid resource version for this apdu", EXPFILL }},
-        { &ei_dvbci_spdu_tag, { "dvb-ci.spdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid SPDU tag, See table 14 in the DVB-CI specification", EXPFILL }},
-        { &ei_dvbci_spdu_host_to_cam, { "dvb-ci.spdu.host_to_cam", PI_PROTOCOL, PI_WARN, "Invalid SPDU direction, this SPDU must be sent from host to CAM", EXPFILL }},
-        { &ei_dvbci_spdu_cam_to_host, { "dvb-ci.spdu.cam_to_host", PI_PROTOCOL, PI_WARN, "Invalid SPDU direction, this SPDU must be sent from CAM to host", EXPFILL }},
-        { &ei_dvbci_tpdu_status_tag, { "dvb-ci.tpdu.status_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid status tag, this must always be T_SB (0x80)", EXPFILL }},
-        { &ei_dvbci_t_c_id, { "dvb-ci.t_c_id.invalid", PI_PROTOCOL, PI_WARN, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", EXPFILL }},
-        { &ei_dvbci_sb_value, { "dvb-ci.sb_value.invalid", PI_PROTOCOL, PI_WARN, "Invalid SB_value, must be 0x00 or 0x80", EXPFILL }},
-        { &ei_dvbci_c_tpdu_tag, { "dvb-ci.c_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid Command-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
-        { &ei_dvbci_r_tpdu_tag, { "dvb-ci.r_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid Response-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
-        { &ei_dvbci_r_tpdu_status_mandatory, { "dvb-ci.r_tpdu_status.mandatory", PI_MALFORMED, PI_ERROR, "Response TPDU's status part is missing, RTPDU status is mandatory", EXPFILL }},
-        { &ei_dvbci_ml, { "dvb-ci.more_last.invalid", PI_PROTOCOL, PI_WARN, "Invalid More/Last indicator, second byte of an LPDU must be 0x80 or 0x00", EXPFILL }},
-        { &ei_dvbci_buf_size, { "dvb-ci.buf_size.invalid", PI_PROTOCOL, PI_WARN, "Illegal buffer size command", EXPFILL }},
-        { &ei_dvbci_cor_addr, { "dvb-ci.cor_address.invalid", PI_PROTOCOL, PI_WARN, "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)", EXPFILL }},
+        { &ei_dvbci_no_ca_desc_es,
+            { "dvb-ci.ca.no_ca_desc_es", PI_PROTOCOL, PI_CHAT,
+                "No CA descriptors for this elementary stream", EXPFILL }},
+        { &ei_dvbci_no_ca_desc_prog,
+            { "dvb-ci.ca.no_ca_desc_prog", PI_PROTOCOL, PI_CHAT,
+                "No CA descriptors at program level", EXPFILL }},
+        { &ei_dvbci_ca_pmt_cmd_id,
+            { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR,
+                "The ca_pmt shall only contain ca descriptors (tag 0x9)",
+                EXPFILL }},
+        { &ei_dvbci_time_offs_unknown,
+            { "dvb-ci.dt.local_offset_unknown", PI_PROTOCOL, PI_CHAT,
+                "Offset between UTC and local time is unknown", EXPFILL }},
+        { &ei_dvbci_not_text_more_or_text_last,
+            { "dvb-ci.mmi.not_text_more_or_text_last", PI_MALFORMED, PI_ERROR,
+                "Items must be text_more() or text_last() objects", EXPFILL }},
+        { &ei_dvbci_network_id,
+            { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE,
+                "Network ID is usually ignored by hosts", EXPFILL }},
+        { &ei_dvbci_cc_pin_nvr_chg,
+            { "dvb-ci.cc.pin_never_changed", PI_PROTOCOL, PI_CHAT,
+                "CICAM PIN has never been changed", EXPFILL }},
+        { &ei_dvbci_pin_evt_cent,
+            { "dvb-ci.cc.pin_event_time_centi.invalid", PI_PROTOCOL, PI_WARN,
+                "Invalid value for event time centiseconds, Value must be between 0 and 100",
+                EXPFILL }},
+        { &ei_dvbci_sac_payload_enc,
+            { "dvb-ci.cc.sac.payload_enc.clear", PI_PROTOCOL, PI_NOTE,
+                "The original PDU was encrypted, this exported PDU is in the clear",
+                EXPFILL }},
+        { &ei_dvbci_sig_qual,
+            { "dvb-ci.opp.sig_qual.invalid", PI_PROTOCOL, PI_WARN,
+                "Invalid value for signal strength / signal quality, values are in percent (0 to 100)",
+                EXPFILL }},
+        { &ei_dvbci_cicam_nit_table_id,
+            { "dvb-ci.opp.cicam_nit_table_id_invalid", PI_PROTOCOL, PI_WARN,
+                "CICAM NIT must have table id 0x40 (NIT actual)", EXPFILL }},
+        { &ei_dvbci_cup_progress,
+            { "dvb-ci.cup.progress_invalid", PI_PROTOCOL, PI_WARN,
+                "progress is in percent, value must be between 0 and 100",
+                EXPFILL }},
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
