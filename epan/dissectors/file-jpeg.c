@@ -508,7 +508,6 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
     char *str;
     gint str_size;
     guint16 x, y;
-    guint8 code;
 
     if (!tree)
         return 0;
@@ -563,17 +562,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
     else if (strcmp(str, "JFXX") == 0) {
         proto_tree_add_item(subtree, hf_extension_code,
                 tvb, 9, 1, ENC_BIG_ENDIAN);
-        code = tvb_get_guint8(tvb, 9);
-        switch (code) {
-            case 0x10: /* Thumbnail coded using JPEG */
-                break;
-            case 0x11: /* thumbnail stored using 1 byte per pixel */
-                break;
-            case 0x13: /* thumbnail stored using 3 bytes per pixel */
-                break;
-            default: /* Error */
-                break;
-        }
+        /* XXX - dissect the extension based on its extension code */
         offset = 10;
     }
     else { /* Unknown */
