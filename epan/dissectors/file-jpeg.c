@@ -432,11 +432,12 @@ static void
 process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
+    guint8 count;
     guint32 offset;
 
-    if (! tree)
+    if (!tree)
         return;
 
     ti = proto_tree_add_item(tree, hf_sos_header,
@@ -449,15 +450,13 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_sos_ns, tvb, 4, 1, ENC_BIG_ENDIAN);
-    {
-        guint8 count = tvb_get_guint8(tvb, 4);
-        offset = 5;
-        while (count > 0) {
-            proto_tree_add_item(subtree, hf_sos_cs_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_sos_td_j, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_sos_ta_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
-            count--;
-        }
+    count = tvb_get_guint8(tvb, 4);
+    offset = 5;
+    while (count > 0) {
+        proto_tree_add_item(subtree, hf_sos_cs_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_sos_td_j, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_sos_ta_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        count--;
     }
 
     proto_tree_add_item(subtree, hf_sos_ss, tvb, offset++, 1, ENC_BIG_ENDIAN);
