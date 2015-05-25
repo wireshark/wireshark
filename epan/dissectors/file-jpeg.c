@@ -583,8 +583,8 @@ static int
 process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
         guint16 marker, const char *marker_name, gboolean show_first_identifier_not_jfif)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
     char *str;
     gint str_size;
     int offset = 0;
@@ -750,8 +750,8 @@ static void
 process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
     char *str;
     gint str_size;
 
@@ -781,8 +781,8 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 static gint
 dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_tree *subtree = NULL;
-    proto_item *ti = NULL;
+    proto_tree *subtree;
+    proto_item *ti;
     gint tvb_len = tvb_reported_length(tvb);
     gint32 start_entropy = 0;
     gint32 start_fill, start_marker;
