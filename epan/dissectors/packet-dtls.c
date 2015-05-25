@@ -1348,7 +1348,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_SERVER_HELLO:
-            ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, ssl_hand_tree,
+            ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
                                       0, length, session, ssl);
             break;
 

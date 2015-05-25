@@ -661,6 +661,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_npn_str;
         gint hs_ext_npn_str_len;
         gint hs_ext_reneg_info_len;
+        gint hs_ext_reneg_info;
         gint hs_ext_server_name;
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
@@ -760,6 +761,7 @@ typedef struct ssl_common_dissect {
         expert_field hs_ext_cert_status_undecoded;
         expert_field hs_sig_hash_alg_len_bad;
         expert_field hs_cipher_suites_len_bad;
+        expert_field hs_sig_hash_algs_bad;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -789,7 +791,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           dtls_hfs_t *dtls_hfs);
 
 extern void
-ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
                           proto_tree *tree, guint32 offset, guint32 length,
                           SslSession *session, SslDecryptSession *ssl);
 
@@ -842,14 +844,14 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1,                                                         \
+        -1, -1, -1                                                      \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT,                                      \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT,                             \
     },                                                                  \
 }
 /* }}} */
@@ -934,6 +936,11 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_reneg_info_len,                                 \
       { "Renegotiation info extension length", prefix ".handshake.extensions_reneg_info_len",  \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_reneg_info,                                     \
+      { "Renegotiation info", prefix ".handshake.extensions_reneg_info",\
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_server_name_list_len,                           \
@@ -1386,6 +1393,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.hs_cipher_suites_len_bad, \
         { prefix ".handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, \
         "Cipher suite length must be a multiple of 2", EXPFILL } \
+    }, \
+    { & name .ei.hs_sig_hash_algs_bad, \
+        { prefix ".handshake.sig_hash_algs.mult2", PI_MALFORMED, PI_ERROR, \
+        "Hash Algorithm length must be a multiple of 2", EXPFILL } \
     }
 /* }}} */
 

@@ -2003,7 +2003,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_HELLO:
-                ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, ssl_hand_tree,
+                ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
                                           offset, length, session, ssl);
                 break;
 

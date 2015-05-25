@@ -5003,7 +5003,7 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, co
    TLS1.2 certificate request */
 static gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint16 len)
+                          packet_info* pinfo, guint32 offset, guint16 len)
 {
     guint32     offset_start;
     proto_tree *subtree, *alg_tree;
@@ -5020,7 +5020,7 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     subtree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_algs);
 
     if (len % 2) {
-        proto_tree_add_text(tree, tvb, offset, 2,
+        expert_add_info_format(pinfo, ti, &hf->ei.hs_sig_hash_algs_bad,
                             "Invalid Signature Hash Algorithm length: %d", len);
         return offset-offset_start;
     }
@@ -5043,7 +5043,7 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 
 static gint
 ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                        proto_tree *tree, guint32 offset, guint32 ext_len)
+                                        proto_tree *tree, packet_info* pinfo, guint32 offset, guint32 ext_len)
 {
     guint16  sh_alg_length;
     gint     ret;
@@ -5057,7 +5057,7 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         return offset;
     }
 
-    ret = ssl_dissect_hash_alg_list(hf, tvb, tree, offset, sh_alg_length);
+    ret = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, sh_alg_length);
     if (ret >= 0)
         offset += ret;
 
@@ -5185,7 +5185,7 @@ ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1;
 
     if (reneg_info_length > 0) {
-        proto_tree_add_text(reneg_info_tree, tvb, offset, reneg_info_length, "Renegotiation Info");
+        proto_tree_add_item(reneg_info_tree, hf->hf.hs_ext_reneg_info, tvb, offset, reneg_info_length, ENC_NA);
         offset += reneg_info_length;
     }
 
@@ -5396,7 +5396,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client,
+                          packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
                           SslSession *session, SslDecryptSession *ssl);
 
 void
@@ -5511,7 +5511,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         }
     }
     if (length > offset - start_offset) {
-        ssl_dissect_hnd_hello_ext(hf, tvb, tree, offset,
+        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), TRUE,
                                   session, ssl);
     }
@@ -5519,7 +5519,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, guint32 length,
+                          packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
                           SslSession *session, SslDecryptSession *ssl)
 {
     /* struct {
@@ -5572,7 +5572,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* remaining data are extensions */
     if (length > offset - start_offset) {
-        ssl_dissect_hnd_hello_ext(hf, tvb, tree, offset,
+        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), FALSE,
                                   session, ssl);
     }
@@ -5786,7 +5786,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                     tvb, offset, 2, sh_alg_length);
             offset += 2;
 
-            ret = ssl_dissect_hash_alg_list(hf, tvb, tree, offset, sh_alg_length);
+            ret = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, sh_alg_length);
             if (ret >= 0)
                 offset += ret;
             break;
@@ -6078,7 +6078,7 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client,
+                          packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
                           SslSession *session, SslDecryptSession *ssl)
 {
     guint16     extension_length;
@@ -6133,7 +6133,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
             break;
         case SSL_HND_HELLO_EXT_SIG_HASH_ALGS:
-            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, offset, ext_len);
+            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
             offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, is_client, session);
