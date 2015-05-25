@@ -364,10 +364,10 @@ static void
 process_marker_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
 
-    if (! tree)
+    if (!tree)
         return;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
@@ -390,10 +390,12 @@ static void
 process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
+    guint8 count;
+    guint32 offset;
 
-    if (! tree)
+    if (!tree)
         return;
 
     ti = proto_tree_add_item(tree, hf_sof_header,
@@ -412,16 +414,14 @@ process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_sof_samples_per_line, tvb, 7, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_sof_nf, tvb, 9, 1, ENC_BIG_ENDIAN);
-    {
-        guint8 count = tvb_get_guint8(tvb, 9);
-        guint32 offset = 10;
-        while (count > 0) {
-            proto_tree_add_item(subtree, hf_sof_c_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_sof_h_i, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_sof_v_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_sof_tq_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
-            count--;
-        }
+    count = tvb_get_guint8(tvb, 9);
+    offset = 10;
+    while (count > 0) {
+        proto_tree_add_item(subtree, hf_sof_c_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_sof_h_i, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_sof_v_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_sof_tq_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        count--;
     }
 }
 
@@ -474,10 +474,10 @@ static void
 process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
 
-    if (! tree)
+    if (!tree)
         return;
 
     ti = proto_tree_add_item(tree, hf_comment_header,
@@ -501,15 +501,17 @@ static int
 process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
     proto_tree *subtree_details = NULL;
     guint32 offset;
     char *str;
     gint str_size;
+    guint16 x, y;
+    guint8 code;
 
     if (!tree)
-        return 0 ;
+        return 0;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
             tvb, 0, -1, ENC_NA);
@@ -548,35 +550,33 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
                 tvb, 16, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_ythumbnail,
                 tvb, 17, 1, ENC_BIG_ENDIAN);
-        {
-            guint16 x = tvb_get_guint8(tvb, 16);
-            guint16 y = tvb_get_guint8(tvb, 17);
-            if (x || y) {
-                proto_tree_add_item(subtree, hf_rgb,
-                        tvb, 18, 3 * (x * y), ENC_NA);
-                offset = 18 + (3 * (x * y));
-            } else {
-                offset = 18;
-            }
+        x = tvb_get_guint8(tvb, 16);
+        y = tvb_get_guint8(tvb, 17);
+        if (x || y) {
+            proto_tree_add_item(subtree, hf_rgb,
+                    tvb, 18, 3 * (x * y), ENC_NA);
+            offset = 18 + (3 * (x * y));
+        } else {
+            offset = 18;
         }
-    } else if (strcmp(str, "JFXX") == 0) {
+    }
+    else if (strcmp(str, "JFXX") == 0) {
         proto_tree_add_item(subtree, hf_extension_code,
                 tvb, 9, 1, ENC_BIG_ENDIAN);
-        {
-            guint8 code = tvb_get_guint8(tvb, 9);
-            switch (code) {
-                case 0x10: /* Thumbnail coded using JPEG */
-                    break;
-                case 0x11: /* thumbnail stored using 1 byte per pixel */
-                    break;
-                case 0x13: /* thumbnail stored using 3 bytes per pixel */
-                    break;
-                default: /* Error */
-                    break;
-            }
+        code = tvb_get_guint8(tvb, 9);
+        switch (code) {
+            case 0x10: /* Thumbnail coded using JPEG */
+                break;
+            case 0x11: /* thumbnail stored using 1 byte per pixel */
+                break;
+            case 0x13: /* thumbnail stored using 3 bytes per pixel */
+                break;
+            default: /* Error */
+                break;
         }
         offset = 10;
-    } else { /* Unknown */
+    }
+    else { /* Unknown */
         proto_item_append_text(ti, " (unknown identifier)");
         offset = 4 + str_size;
 
