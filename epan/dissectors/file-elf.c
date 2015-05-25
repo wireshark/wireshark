@@ -41,6 +41,13 @@ static dissector_handle_t elf_handle;
 static int proto_elf = -1;
 
 static int hf_elf_magic_bytes = -1;
+static int hf_elf_file_size = -1;
+static int hf_elf_header_segment_size = -1;
+static int hf_elf_blackholes_size = -1;
+static int hf_elf_blackhole_size = -1;
+static int hf_elf_overlapping_size = -1;
+static int hf_elf_segment = -1;
+static int hf_elf_entry_bytes = -1;
 static int hf_elf_file_class = -1;
 static int hf_elf_data_encoding = -1;
 static int hf_elf_file_version = -1;
@@ -1120,7 +1127,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     static const guint8 magic[] = { 0x7F, 'E', 'L', 'F'};
     gint             offset = 0;
     proto_tree      *main_tree;
-    proto_item      *main_item;
+    proto_item      *main_item, *ti;
     proto_tree      *header_tree;
     proto_item      *header_item;
     proto_tree      *program_header_tree;
@@ -1167,7 +1174,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint64          strtab_offset = 0;
     guint64          dynstr_offset = 0;
 
-    if (tvb_length(tvb) < 52)
+    if (tvb_captured_length(tvb) < 52)
         return 0;
 
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
@@ -1403,7 +1410,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             name = wmem_strdup_printf(wmem_packet_scope(), "ProgramHeaderEntry #%u", phnum - i_16 - 1);
 
-            proto_tree_add_text(ph_entry_tree, tvb, value_guard(p_offset), value_guard(segment_size), "Segment");
+            proto_tree_add_bytes_format(ph_entry_tree, hf_elf_segment, tvb, value_guard(p_offset), value_guard(segment_size), NULL, "Segment");
 
             file_size += segment_size;
 
@@ -1655,8 +1662,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 if (sh_entsize > 0) {
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
-                        proto_tree_add_text(segment_tree, tvb, next_offset,
-                               value_guard(sh_entsize), "Entry #%d ", i);
+                        proto_tree_add_bytes_format(segment_tree, hf_elf_entry_bytes, tvb, next_offset,
+                               value_guard(sh_entsize), NULL, "Entry #%d ", i);
                         next_offset += value_guard(sh_entsize);
                     }
                 }
@@ -1692,40 +1699,42 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             /* blackhole */
             len = (guint) (segment_info[i].offset - segment_info[i - 1].offset - segment_info[i - 1].size);
 
-            proto_tree_add_text(blackhole_tree, tvb, value_guard(segment_info[i].offset - len), len, "Blackhole between: %s and %s, size: %u",
-                    segment_info[i - 1].name, segment_info[i].name, len);
+            ti = proto_tree_add_uint_format(blackhole_tree, hf_elf_blackhole_size, tvb, value_guard(segment_info[i].offset - len), 1, len,
+                    "Blackhole between: %s and %s, size: %u", segment_info[i - 1].name, segment_info[i].name, len);
+            proto_item_set_len(ti, len);
+
         } else if (segment_info[i - 1].offset + segment_info[i - 1].size > segment_info[i].offset) {
             /* overlapping */
             len = (guint) (segment_info[i - 1].offset + segment_info[i - 1].size - segment_info[i].offset);
 
-            proto_tree_add_text(overlapping_tree, tvb, value_guard(segment_info[i - 1].offset + segment_info[i - 1].size - len), len, "Overlapping between: %s and %s, size: %u",
-                    segment_info[i - 1].name, segment_info[i].name, len);
+            ti = proto_tree_add_uint_format(overlapping_tree, hf_elf_overlapping_size, tvb, value_guard(segment_info[i - 1].offset + segment_info[i - 1].size - len), 1, len,
+                    "Overlapping between: %s and %s, size: %u", segment_info[i - 1].name, segment_info[i].name, len);
+            proto_item_set_len(ti, len);
 
             file_size -= len;
         }
     }
 
-    if (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size < tvb_length(tvb)) {
-            len = tvb_length(tvb) - (guint) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
+    if (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size < tvb_captured_length(tvb)) {
+            len = tvb_captured_length(tvb) - (guint) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
 
-            proto_tree_add_text(blackhole_tree, tvb,
+            ti = proto_tree_add_uint_format(blackhole_tree, hf_elf_blackhole_size, tvb,
                     value_guard(segment_info[area_counter - 1].offset +
-                    segment_info[area_counter - 1].size),
+                    segment_info[area_counter - 1].size), 1,
                     len, "Blackhole between: %s and <EOF>, size: %u",
                     segment_info[area_counter - 1].name, len);
+            proto_item_set_len(ti, len);
     }
 
-    proto_tree_add_text(generated_tree, tvb, 0, 0, "File size: %i", tvb_length(tvb));
-    proto_tree_add_text(generated_tree, tvb, 0, 0, "Header size + all segment size: %i", (int) file_size);
-    proto_tree_add_text(generated_tree, tvb, 0, 0, "Total blackholes size: %i", tvb_length(tvb) - (int) file_size);
+    proto_tree_add_uint(generated_tree, hf_elf_file_size, tvb, 0, 0, tvb_captured_length(tvb));
+    proto_tree_add_uint(generated_tree, hf_elf_header_segment_size, tvb, 0, 0, (guint)file_size);
+    proto_tree_add_uint(generated_tree, hf_elf_blackholes_size, tvb, 0, 0, tvb_captured_length(tvb) - (guint)file_size);
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, "(ELF)");
 
     /* We jumping around offsets, so treat as bytes as read */
-    offset = tvb_length(tvb);
-
-    return offset;
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -1744,6 +1753,41 @@ proto_register_elf(void)
         /* Header */
         { &hf_elf_magic_bytes,
             { "Magic Bytes",                               "elf.magic_bytes",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_elf_file_size,
+            { "File size",                                 "elf.file_size",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_elf_header_segment_size,
+            { "Header size + all segment size",            "elf.header_segment_size",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_elf_blackholes_size,
+            { "Total blackholes size",                     "elf.blackholes_size",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_elf_blackhole_size,
+            { "Blackhole size",                            "elf.blackhole_size",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            "Blackhole size between sections or program headers", HFILL }
+        },
+        { &hf_elf_overlapping_size,
+            { "Overlapping size",                          "elf.overlapping_size",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            "Overlapping size between sections or program headers", HFILL }
+        },
+        { &hf_elf_segment,
+            { "Segment",                                   "elf.segment",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_elf_entry_bytes,
+            { "Entry",                                   "elf.entry_bytes",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
