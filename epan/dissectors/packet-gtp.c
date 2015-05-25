@@ -296,6 +296,9 @@ static int hf_gtp_ext_ggsn_back_off_timer = -1;
 static int hf_gtp_higher_br_16mb_flg = -1;
 static int hf_gtp_max_mbr_apn_ambr_ul = -1;
 static int hf_gtp_max_mbr_apn_ambr_dl = -1;
+static int hf_gtp_ext_enb_type = -1;
+static int hf_gtp_macro_enodeb_id = -1;
+static int hf_gtp_home_enodeb_id = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_ggsn_2_address_ipv4 = -1;
@@ -1165,7 +1168,12 @@ static const value_string gtpv1_val[] = {
 /* 209 */  {209,                           "STN-SR"},                                         /* 7.7.109  */
 /* 210 */  {210,                           "C-MSISDN"},                                       /* 7.7.110  */
 /* 211 */  {211,                           "Extended RANAP Cause"},                           /* 7.7.111  */
-/* 212-238 TLV Spare. For future use. */
+/* 212 */  {GTP_EXT_ENODEB_ID,             "eNodeB ID" },                                     /* 7.7.112  */
+/* 213 */  {GTP_EXT_SEL_MODE_W_NSAPI,      "Selection Mode with NSAPI" },                     /* 7.7.113 */
+/* 214 */  {GTP_EXT_ULI_TIMESTAMP,         "ULI Timestamp" },                                 /* 7.7.114 */
+/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,         "Local Home Network ID (LHN-ID) with NSAPI" },     /* 7.7.115*/
+/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,      "Operator Selection Entity" },                      /* 7.7.116*/
+/* 217-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,              "Sequence numbers of released packets IE"},        /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,              "Sequence numbers of canceled packets IE"},        /* charging */
@@ -7642,11 +7650,19 @@ decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 /*
  * 7.7.112 eNodeB ID
  */
+
+static const value_string gtp_enb_type_vals[] = {
+    { 0, "Macro eNodeB ID" },
+    { 1, "Home eNodeB ID" },
+    { 0, NULL }
+};
+
 static int
 decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16     length;
     proto_tree *ext_tree;
+    guint32 enb_type;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ENODEB_ID], NULL,
@@ -7657,7 +7673,30 @@ decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* eNodeB Type */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ext_enb_type, tvb, offset, 1, ENC_BIG_ENDIAN, &enb_type);
+    offset++;
+
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+    offset += 3;
+
+    switch (enb_type){
+    case 0:
+        /* Macro eNodeB ID */
+        proto_tree_add_item(ext_tree, hf_gtp_macro_enodeb_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+        proto_tree_add_item(ext_tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 1:
+        /* Home eNodeB ID */
+        proto_tree_add_item(ext_tree, hf_gtp_home_enodeb_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(ext_tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    default:
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 4);
+        break;
+    }
 
     return 3 + length;
 }
@@ -9579,8 +9618,20 @@ proto_register_gtp(void)
       { &hf_gtp_qos_umts_length, { "Length", "gtp.qos_umts_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_num_ext_hdr_types, { "Number of Extension Header Types in list (i.e., length)", "gtp.num_ext_hdr_types", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ext_hdr_type, { "Extension Header Type", "gtp.ext_hdr_type", FT_UINT8, BASE_DEC, VALS(next_extension_header_fieldvals), 0x0, NULL, HFILL }},
-      { &hf_gtp_tpdu_data, { "T-PDU Data", "gtp.tpdu_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    };
+      { &hf_gtp_tpdu_data, { "T-PDU Data", "gtp.tpdu_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtp_ext_enb_type, { "enb_type", "gtp.enb_type", FT_UINT8, BASE_DEC, VALS(gtp_enb_type_vals), 0x0, NULL, HFILL } },
+      { &hf_gtp_macro_enodeb_id,
+      { "Macro eNodeB ID", "gtp.macro_enodeb_id",
+      FT_UINT24, BASE_HEX, NULL, 0x0fffff,
+      NULL, HFILL }
+      },
+      { &hf_gtp_home_enodeb_id,
+      { "Home eNodeB ID", "gtp.home_enodeb_id",
+      FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
+      NULL, HFILL }
+      },
+
+};
 
     static ei_register_info ei[] = {
         { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
