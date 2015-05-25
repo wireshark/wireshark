@@ -54,6 +54,7 @@ static int hf_file_marked = -1;
 static int hf_file_ignored = -1;
 static int hf_file_protocols = -1;
 static int hf_file_num_p_prot_data = -1;
+static int hf_file_proto_name_and_key = -1;
 static int hf_file_color_filter_name = -1;
 static int hf_file_color_filter_text = -1;
 
@@ -108,7 +109,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		gboolean old_visible;
 
 		/* Put in frame header information. */
-		cap_len = tvb_length(tvb);
+		cap_len = tvb_captured_length(tvb);
 		frame_len = tvb_reported_length(tvb);
 
 		cap_plurality = plurality(cap_len, "", "s");
@@ -157,7 +158,8 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			ppd_item = proto_tree_add_uint(fh_tree, hf_file_num_p_prot_data, tvb, 0, 0, num_entries);
 			PROTO_ITEM_SET_GENERATED(ppd_item);
 			for(i=0; i<num_entries; i++){
-				proto_tree_add_text (fh_tree, tvb, 0, 0, "%s",p_get_proto_name_and_key(wmem_file_scope(), pinfo, i));
+				gchar* str = p_get_proto_name_and_key(wmem_file_scope(), pinfo, i);
+				proto_tree_add_string_format(fh_tree, hf_file_proto_name_and_key, tvb, 0, 0, str, "%s", str);
 			}
 		}
 
@@ -363,6 +365,11 @@ proto_register_file(void)
 		{ &hf_file_num_p_prot_data,
 		  { "Number of per-record-data", "file.p_record_data",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_file_proto_name_and_key,
+		  { "Protocol Name and Key", "file.proto_name_and_key",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_file_ftap_encap,
