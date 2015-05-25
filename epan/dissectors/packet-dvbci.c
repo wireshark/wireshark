@@ -1114,10 +1114,12 @@ static expert_field ei_dvbci_cicam_nit_table_id = EI_INIT;
 static expert_field ei_dvbci_c_tpdu_tag = EI_INIT;
 static expert_field ei_dvbci_res_class = EI_INIT;
 static expert_field ei_dvbci_bad_length = EI_INIT;
+static expert_field ei_dvbci_time_offs_unknown = EI_INIT;
 static expert_field ei_dvbci_apdu_not_supported = EI_INIT;
 static expert_field ei_dvbci_not_text_more_or_text_last = EI_INIT;
 static expert_field ei_dvbci_apu_cam_to_host = EI_INIT;
 static expert_field ei_dvbci_ca_pmt_cmd_id = EI_INIT;
+static expert_field ei_dvbci_cc_pin_nvr_chg = EI_INIT;
 static expert_field ei_dvbci_no_ca_desc_prog = EI_INIT;
 static expert_field ei_dvbci_no_ca_desc_es = EI_INIT;
 static expert_field ei_dvbci_ml = EI_INIT;
@@ -3066,8 +3068,8 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
                     local_offset);
         }
         else {
-            proto_tree_add_text(tree, tvb, 0, 0,
-                    "Offset between UTC and local time is unknown");
+            proto_tree_add_expert(tree, pinfo, &ei_dvbci_time_offs_unknown,
+                    tvb, 0, 0);
         }
     }
 }
@@ -3519,8 +3521,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             /* we can't packet_mpeg_sect_mjd_to_utc_time()
                and check with nstime_is_zero() */
             if (tvb_get_ntoh40(tvb, offset) == 0) {
-                proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
-                        "CICAM PIN has never been changed");
+                proto_tree_add_expert(tree, pinfo, &ei_dvbci_cc_pin_nvr_chg,
+                        tvb, offset, UTC_TIME_LEN);
             }
             else {
                 if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &utc_time) < 0) {
@@ -6177,10 +6179,12 @@ proto_register_dvbci(void)
         { &ei_dvbci_invalid_char_tbl,
             { "dvb-ci.invalid_char_tbl", PI_MALFORMED, PI_ERROR,
                 "Invalid character table", EXPFILL }},
+        { &ei_dvbci_cc_pin_nvr_chg, { "dvb-ci.cc.pin_never_changed", PI_PROTOCOL, PI_CHAT, "CICAM PIN has never been changed", EXPFILL }},
         { &ei_dvbci_ca_pmt_cmd_id, { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR, "The ca_pmt shall only contain ca descriptors (tag 0x9)", EXPFILL }},
         { &ei_dvbci_no_ca_desc_prog, { "dvb-ci.ca.no_ca_desc_prog", PI_PROTOCOL, PI_CHAT, "No CA descriptors at program level", EXPFILL }},
         { &ei_dvbci_no_ca_desc_es, { "dvb-ci.ca.no_ca_desc_es", PI_PROTOCOL, PI_CHAT, "No CA descriptors for this elementary stream", EXPFILL }},
         { &ei_dvbci_bad_length, { "dvb-ci.bad_length", PI_MALFORMED, PI_ERROR, "Invalid APDU length field, %s must be a multiple of 4 bytes", EXPFILL }},
+        { &ei_dvbci_time_offs_unknown, { "dvb-ci.dt.local_offset_unknown", PI_PROTOCOL, PI_CHAT, "Offset between UTC and local time is unknown", EXPFILL }},
         { &ei_dvbci_network_id, { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE, "Network ID is usually ignored by hosts", EXPFILL }},
         { &ei_dvbci_not_text_more_or_text_last, { "dvb-ci.not_text_more_or_text_last", PI_MALFORMED, PI_ERROR, "Items must be text_more() or text_last() objects", EXPFILL }},
         { &ei_dvbci_cup_progress, { "dvb-ci.cup.progress.invalid", PI_PROTOCOL, PI_WARN, "progress is in percent, value must be between 0 and 100", EXPFILL }},
