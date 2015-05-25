@@ -286,7 +286,6 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree *proto_tr;
     guint8      tb, tc, td, k=0;
     gint        tck_len;
-    proto_item *err_it;
 
     init_char = tvb_get_guint8(tvb, offset);
     if (init_char!=0x3B && init_char!=0x3F)
@@ -389,9 +388,8 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         offset++;
     }
     else if (tck_len>1) {
-        err_it = proto_tree_add_text(proto_tr, tvb, offset, tck_len,
-                "Invalid TCK byte");
-        expert_add_info(pinfo, err_it, &ie_iso7816_atr_tck_not1);
+        proto_tree_add_expert(proto_tr, pinfo, &ie_iso7816_atr_tck_not1,
+                tvb, offset, tck_len);
     }
 
     proto_item_set_len(proto_it, offset);
