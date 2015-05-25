@@ -3031,8 +3031,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
                 tvb, offset, 1, &resp_intv);
         if (resp_intv.secs==0) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "individual query");
-            if (pi)
-                proto_item_append_text(pi, " (individual query)");
+            proto_item_append_text(pi, " (individual query)");
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
@@ -3874,8 +3873,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                 case COMMS_REP_ID_SEND_ACK:
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                         "sent #%d", ret_val);
-                    if (pi)
-                        proto_item_append_text(pi, " (sent #%d)", ret_val);
+                    proto_item_append_text(pi, " (sent #%d)", ret_val);
                     break;
                 case COMMS_REP_ID_SET_PARAMS_ACK:
                     ret_val_str = val_to_str_const(ret_val,
@@ -3893,8 +3891,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             if (ret_val_str) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                             "%s", ret_val_str);
-                if (pi)
-                    proto_item_append_text(pi, " (%s)", ret_val_str);
+                proto_item_append_text(pi, " (%s)", ret_val_str);
             }
             break;
         case T_COMMS_SEND_LAST:
