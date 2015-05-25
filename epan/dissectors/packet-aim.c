@@ -1159,7 +1159,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 	while (tvb_reported_length_remaining(tvb, offset) > 1)
 	{
 		guint8 string_len = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(entry, hf_aim_string08, tvb, offset, 1, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(entry, hf_aim_string08, tvb, offset, string_len, ENC_UTF_8 | ENC_NA);
 		offset += string_len;
 	}
 
