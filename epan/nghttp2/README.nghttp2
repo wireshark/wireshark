@@ -34,4 +34,4 @@ in nghttp2/nghttp2_helper.h remove check for CONFIG.H
 in nghttp2/nghttp2.h
 
 Add on the top
-#include "config.h"
+#include <config.h>
