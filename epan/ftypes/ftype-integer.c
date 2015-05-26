@@ -228,7 +228,7 @@ integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 }
 
 static void
-integer_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	guint32 val;
 
@@ -246,7 +246,7 @@ uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 }
 
 static void
-uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	if (rtype == FTREPR_DISPLAY_HEX) {
 		/* This format perfectly fits into 11 bytes. */
