@@ -1284,14 +1284,9 @@ dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	const char *desc;
 	proto_item *ti1;
 	proto_tree *tlv_tree;
-	int orig_offset;
-
-	/* Record the starting offset so we can reuse it at the second pass */
-	orig_offset = offset;
 
 	/* Get the value ID */
 	valueid = tvb_get_ntohs(tvb, offset);
-	offset += 2;
 
 	/* Figure out which entry applies from the tlv list */
 	tmp = tlv;
@@ -1307,11 +1302,7 @@ dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	   we didn't find the record, and are pointing at the last item in the
 	   list */
 
-	length = tvb_get_ntohs(tvb, offset);
-	offset += 2;
-	offset += length;
-
-	offset = orig_offset;
+	length = tvb_get_ntohs(tvb, offset+2);
 
 	if (tmp[i].desc != NULL)
 		desc = tmp[i].desc;
