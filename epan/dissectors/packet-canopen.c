@@ -272,7 +272,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* add CANopen frame type */
 
-        type_ti = proto_tree_add_text(canopen_tree, tvb, tvb_reported_length(tvb),
+        type_ti = proto_tree_add_text(canopen_tree, tvb, 0, tvb_reported_length(tvb),
                                       "Type: %s", function_code_str);
         canopen_type_tree = proto_item_add_subtree(type_ti, ett_canopen);
 
