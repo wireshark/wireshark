@@ -260,7 +260,7 @@ extern value_string_ext scsi_asc_val_ext;
     {									\
 	volatile gboolean try_short_packet;				\
 	tvbuff_t *try_tvb;						\
-	guint     try_offset;                                           \
+	volatile guint try_offset;                                      \
 	guint32   try_end_data_offset=0;				\
 									\
 	try_short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
