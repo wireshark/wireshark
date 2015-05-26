@@ -26,7 +26,7 @@
  *  detailed documentation, etc.)
  */
 
-#include "config.h"
+#include <config.h>
 
 #if 0
 /* "System" includes used only as needed */
