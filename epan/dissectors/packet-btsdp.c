@@ -3594,8 +3594,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     const gchar         *attribute_name;
     wmem_strbuf_t       *attribute_value = NULL;
     guint16              id;
-    gint                 service_did_vendor_id = 0;
-    gint                 service_did_vendor_id_source = 0;
+    gint                 service_did_vendor_id = -1;
+    gint                 service_did_vendor_id_source = -1;
     gint                 hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
     const guint8        *profile_speficic = "";
@@ -3612,8 +3612,10 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             hfx_attribute_id = hf_service_attribute_id_did;
             profile_speficic = "(DID) ";
 
-            service_did_vendor_id_source = findDidVendorIdSource(tvb, service_offset, number_of_attributes);
-            service_did_vendor_id = findDidVendorId(tvb, service_offset, number_of_attributes);
+            if (number_of_attributes > 1) {
+                service_did_vendor_id_source = findDidVendorIdSource(tvb, service_offset, number_of_attributes);
+                service_did_vendor_id = findDidVendorId(tvb, service_offset, number_of_attributes);
+            }
             break;
         case BTSDP_HID_SERVICE_UUID:
             name_vals = vs_hid_attribute_id;
