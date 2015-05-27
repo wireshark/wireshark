@@ -407,6 +407,20 @@ multiple of 8.
 The F<manuf> file is looked for in the same directory as the global
 preferences file.
 
+=item Name Resolution (services)
+
+The F<services> file is used to translate port numbers into names.
+
+The file has the standard F<services> file syntax; each line contains one
+(service) name and one transport identifier separated by white space.  The
+transport identifier includes one port number and one transport protocol name
+(typically tcp, udp, or sctp) separated by a /.
+
+An example is:
+
+mydns       5045/udp     # My own Domain Name Server
+mydns       5045/tcp     # My own Domain Name Server
+
 =item Name Resolution (ipxnets)
 
 The F<ipxnets> files are used to correlate 4-byte IPX network numbers to
