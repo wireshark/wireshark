@@ -337,6 +337,26 @@ Capture filter name resolution is handled by libpcap on UNIX-compatible
 systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
 will not be consulted for capture filter name resolution.
 
+=item Name Resolution (subnets)
+
+If the an IPv4 address cannot be translated via name resolution (no exact
+match is found) then a partial match is attempted via the F<subnets> file.
+
+Each line of this file consists of an IPv4 address, a subnet mask length
+separated only by a / and a name separated by whitespace. While the address
+must be a full IPv4 address, any values beyond the mask length are subsequently
+ignored.
+
+An example is:
+
+# Comments must be prepended by the # sign!
+192.168.0.0/24 ws_test_network
+
+A partially matched name will be printed as "subnet-name.remaining-address".
+For example, "192.168.0.1" under the subnet above would be printed as
+"ws_test_network.1"; if the mask length above had been 16 rather than 24, the
+printed address would be ``ws_test_network.0.1".
+
 =item Name Resolution (ethers)
 
 The F<ethers> files are consulted to correlate 6-byte hardware addresses to
