@@ -40,8 +40,10 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
-
-#include <QDebug>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+// Qt::escape
+#include <QTextDocument>
+#endif
 
 Q_DECLARE_METATYPE(pref_t *)
 
@@ -66,7 +68,16 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     QVBoxLayout *vb = static_cast<QVBoxLayout *>(layout_ptr);
 
     if (!pref || !vb) return 0;
-    QString tooltip = QString("<span>%1</span>").arg(pref->description);
+
+    // Convert the pref description from plain text to rich text.
+    QString description;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    description = Qt::escape(pref->description);
+#else
+    description = QString(pref->description).toHtmlEscaped();
+#endif
+    description.replace('\n', "<br>");
+    QString tooltip = QString("<span>%1</span>").arg(description);
 
     switch (pref->type) {
     case PREF_UINT:
@@ -484,7 +495,8 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
     if (!pref) return;
 
     QString filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(pref->title),
-                                            pref->stashed_val.string);
+                                                    pref->stashed_val.string, QString(), NULL,
+                                                    QFileDialog::DontConfirmOverwrite);
 
     if (!filename.isEmpty()) {
         g_free((void *)pref->stashed_val.string);

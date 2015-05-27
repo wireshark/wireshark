@@ -6587,11 +6587,11 @@ void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options)
 {
         prefs_register_string_preference(module, "psk", "Pre-Shared-Key",
-             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
+             "Pre-Shared-Key as HEX string. Should be 0 to 16 bytes.",
              &(options->psk));
 
         prefs_register_filename_preference(module, "keylog_file", "(Pre)-Master-Secret log filename",
-             "The filename of a file which contains a list of \n"
+             "The name of a file which contains a list of \n"
              "(pre-)master secrets in one of the following formats:\n"
              "\n"
              "RSA <EPMS> <PMS>\n"
