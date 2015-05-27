@@ -407,6 +407,12 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         proto_tree_add_expert(tree, pinfo, &ei_ansi_637_unknown_encoding, tvb, offset, required_octs);
         return;
 
+    case 0x00: /* Octet, unspecified */
+
+        proto_tree_add_string(tree, hf_index, tvb_out, 0, required_octs,
+            tvb_bytes_to_str(wmem_packet_scope(), tvb_out, 0, required_octs));
+        break;
+
     case 0x02: /* 7-bit ASCII */
 
         offset = 0;
@@ -424,7 +430,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         IA5_7BIT_decode(ansi_637_bigbuf, ustr, num_fields);
 
         proto_tree_add_string(tree, hf_index, tvb_out, 0,
-            offset, ansi_637_bigbuf);
+            required_octs, ansi_637_bigbuf);
         break;
 
     case 0x04: /* UNICODE */
