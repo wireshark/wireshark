@@ -1154,7 +1154,7 @@ create_data_link_info(int dlt)
     return data_link_info;
 }
 
-#ifdef HAVE_BONDING
+#if defined(HAVE_BONDING) && defined(HAVE_PCAP_CREATE)
 static gboolean
 is_linux_bonding_device(const char *ifname)
 {
@@ -1185,7 +1185,7 @@ is_linux_bonding_device(const char *ifname)
     close(fd);
     return FALSE;
 }
-#else
+#elif defined(HAVE_PCAP_CREATE)
 static gboolean
 is_linux_bonding_device(const char *ifname _U_)
 {
