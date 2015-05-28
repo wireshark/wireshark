@@ -134,6 +134,9 @@ static gboolean wlan_subdissector = TRUE;
 /* Check for the presence of the 802.11 FCS */
 static gboolean wlan_check_fcs = FALSE;
 
+/* Check the FCS checksum */
+static gboolean wlan_check_checksum = TRUE;
+
 /* Ignore vendor-specific HT elements */
 static gboolean wlan_ignore_draft_ht = FALSE;
 
@@ -17526,19 +17529,21 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
           proto_tree_set_appendix(hdr_tree, tvb, hdr_len + len, 4);
 
-          fcs_tree = proto_item_add_subtree(fcs_item, ett_fcs);
+          if(wlan_check_checksum) {
+            fcs_tree = proto_item_add_subtree(fcs_item, ett_fcs);
 
-          fcs_item = proto_tree_add_boolean(fcs_tree,
-              hf_ieee80211_fcs_good, tvb,
-              hdr_len + len, 4,
-              fcs_good);
-          PROTO_ITEM_SET_GENERATED(fcs_item);
+            fcs_item = proto_tree_add_boolean(fcs_tree,
+                hf_ieee80211_fcs_good, tvb,
+                hdr_len + len, 4,
+                fcs_good);
+            PROTO_ITEM_SET_GENERATED(fcs_item);
 
-          fcs_item = proto_tree_add_boolean(fcs_tree,
-              hf_ieee80211_fcs_bad, tvb,
-              hdr_len + len, 4,
-              fcs_bad);
-          PROTO_ITEM_SET_GENERATED(fcs_item);
+            fcs_item = proto_tree_add_boolean(fcs_tree,
+                hf_ieee80211_fcs_bad, tvb,
+                hdr_len + len, 4,
+                fcs_bad);
+            PROTO_ITEM_SET_GENERATED(fcs_item);
+          }
         }
       }
     }
@@ -26952,6 +26957,11 @@ proto_register_ieee80211 (void)
     "Assume packets have FCS",
     "Some 802.11 cards include the FCS at the end of a packet, others do not.",
     &wlan_check_fcs);
+
+  prefs_register_bool_preference(wlan_module, "check_checksum",
+    "Validate the FCS checksum if possible",
+    "Whether to validate the FCS checksum or not.",
+    &wlan_check_checksum);
 
   /* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"    */
   prefs_register_enum_preference(wlan_module, "ignore_wep",
