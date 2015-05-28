@@ -2150,6 +2150,7 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 				strncmp(data, "BMOVE", indx) == 0 ||
 				strncmp(data, "MKCOL", indx) == 0 ||
 				strncmp(data, "TRACE", indx) == 0 ||
+				strncmp(data, "PATCH", indx) == 0 ||  /* RFC 5789 */
 				strncmp(data, "LABEL", indx) == 0 ||  /* RFC 3253 8.2 */
 				strncmp(data, "MERGE", indx) == 0) {  /* RFC 3253 11.2 */
 				*type = HTTP_REQUEST;
