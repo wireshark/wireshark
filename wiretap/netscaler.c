@@ -1285,7 +1285,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             nstrace_buflen = NSPR_PAGESIZE_TRACE;\
             nstrace->xxx_offset += nstrace_buflen;\
             bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wth->fh);\
-            if (bytes_read != NSPR_PAGESIZE_TRACE) {\
+            if ( !file_eof(wth->fh) && bytes_read != NSPR_PAGESIZE_TRACE) {\
                 return FALSE;\
             } else {\
                 nstrace_buf_offset = 0;\
@@ -1314,12 +1314,18 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
     guint8 nstrace_tmpbuff[65536];
     guint32 nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
     nspr_hd_v20_t *hdp;
-    int bytes_read;
+    int bytes_read = 0;
     *err = 0;
     *err_info = NULL;
 
     do
     {
+        if (!nstrace_buf[nstrace_buf_offset] && nstrace_buf_offset <= NSPR_PAGESIZE_TRACE){
+            nstrace_buf_offset = NSPR_PAGESIZE_TRACE;
+        }
+        if(file_eof(wth->fh) && bytes_read>0 ){
+            memset(&nstrace_buf[bytes_read], 0, NSPR_PAGESIZE_TRACE-bytes_read);
+        }
         while ((nstrace_buf_offset < NSPR_PAGESIZE_TRACE) &&
             nstrace_buf[nstrace_buf_offset])
         {
@@ -1372,7 +1378,7 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
-    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (file_eof(wth->fh) || bytes_read == nstrace_buflen));
 
     return FALSE;
 }
@@ -1668,6 +1674,8 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
             return FALSE;
     }
 
+    (phdr)->caplen = (phdr)->len = record_length;
+
 #define GENERATE_CASE_V30(phdr,ver,HEADERVER) \
     case NSPR_PDPKTRACEFULLTX_V##ver:\
     case NSPR_PDPKTRACEFULLTXB_V##ver:\
@@ -1700,6 +1708,7 @@ typedef struct {
     guint16 page_offset;
     guint16 page_len;
     guint32 absrec_time;
+    gboolean newfile;
 } nstrace_dump_t;
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -1754,8 +1763,14 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_)
     nstrace = (nstrace_dump_t *)g_malloc(sizeof(nstrace_dump_t));
     wdh->priv = (void *)nstrace;
     nstrace->page_offset = 0;
-    nstrace->page_len = NSPR_PAGESIZE;
+    if ((wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0) ||
+      (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5))
+      nstrace->page_len = NSPR_PAGESIZE_TRACE;
+    else
+      nstrace->page_len = NSPR_PAGESIZE;
+
     nstrace->absrec_time = 0;
+    nstrace->newfile = TRUE;
 
     return TRUE;
 }
@@ -1923,8 +1938,9 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
-    if (nstrace->page_offset == 0)
+    if (nstrace->newfile == TRUE)
     {
+        nstrace->newfile = FALSE;
         /* Add the signature record and abs time record */
         if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
