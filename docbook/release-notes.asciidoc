@@ -30,8 +30,8 @@ since version 1.99.4 and 1.99.5:
 ** Menu items for plugins are now supported.
 ** Extcap interfaces are now supported.
 ** The Expert Information dialog has been added.
-** Display filter completion is now supported.
-** Several interface bugs have been fixed.
+** Display and capture filter completion is now supported.
+** Many bugs have been fixed.
 ** Translations have been updated.
 
 The following features are new (or have been significantly updated)

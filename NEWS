@@ -1,4 +1,4 @@
-                         Wireshark 1.99.5 Release Notes
+                         Wireshark 1.99.6 Release Notes
 
    This is an experimental release intended to test new features for
    Wireshark 2.0.
@@ -13,6 +13,17 @@ What is Wireshark?
 What's New
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 1.99.4 and 1.99.5:
+     * Qt port:
+          + Capture restarts are now supported.
+          + Menu items for plugins are now supported.
+          + Extcap interfaces are now supported.
+          + The Expert Information dialog has been added.
+          + Display and capture filter completion is now supported.
+          + Many bugs have been fixed.
+          + Translations have been updated.
 
    The following features are new (or have been significantly updated)
    since version 1.99.3:
@@ -101,20 +112,22 @@ What's New
   New Protocol Support
 
    (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
-   ADB, Android Logcat text, BGP Monitoring Prototol (BMP), ceph,
+   ADB, Android Logcat text, Apache Tribes Heartbeat, BGP Monitoring
+   Prototol (BMP), C15 Call History Protocol dissection (C15ch), ceph,
    corosync/totemnet corosync cluster engine ( lowest
    levelencryption/decryption protocol), corosync/totemsrp corosync
    cluster engine ( totem single ring protocol), Couchbase, CP "Cooper"
    2179, DJI UAV Drone Control Protocol, Dynamic Source Routing (RFC
    4728), Elasticsearch, ETSI Card Application Toolkit - Transport
-   Protocol, Generic Network Virtualization Encapsulation (Geneve), GVSP
-   GigE Vision (TM) Streaming Protocol, HCrt, HiQnet, IPMI Trace, iSER,
-   KNXnetIP, MACsec Key Agreement - EAPoL-MKA, MCPE (Minecraft Pocket
-   Edition), OptoMMP, QNEX6 (QNET), RakNet games library, Remote Shared
-   Virtual Disk - RSVD, Riemann, S7 Communication, Secure Socket Tunnel
-   Protocol (SSTP), Shared Memory Communications - RDMA, Stateless
-   Transport Tunneling, Video Services over IP (VSIP), and ZVT
-   Kassenschnittstelle
+   Protocol, Generic Network Virtualization Encapsulation (Geneve),
+   Geospatial and Imagery Access Service (GIAS), GVSP GigE Vision (TM)
+   Streaming Protocol, HCrt, HiQnet, IP Detail Record (IPDR), IPMI Trace,
+   iSER, KNXnetIP, MACsec Key Agreement - EAPoL-MKA, MCPE (Minecraft
+   Pocket Edition), OCFS2, OptoMMP, QNEX6 (QNET), RakNet games library,
+   Remote Shared Virtual Disk - RSVD, Riemann, S7 Communication, Secure
+   Socket Tunnel Protocol (SSTP), Shared Memory Communications - RDMA,
+   Stateless Transport Tunneling, Thrift, Video Services over IP (VSIP),
+   and ZVT Kassenschnittstelle
 
   Updated Protocol Support
 
@@ -122,8 +135,14 @@ What's New
 
   New and Updated Capture File Support
 
-   Android Logcat text files, Colasoft Capsa files, and Wireshark now
-   supports nanosecond timestamp resolution in PCAP-NG files.
+   3GPP Nettrace TS 34 423, Android Logcat text files, Colasoft Capsa
+   files, Netscaler 3.5, and Wireshark now supports nanosecond timestamp
+   resolution in PCAP-NG files.
+
+  New and Updated Capture Interfaces support
+
+   and Androiddump - provide interfaces to capture (Logcat and Bluetooth)
+   from connected Android devices
 
   Major API Changes
 
@@ -133,6 +152,7 @@ What's New
        now fully mature.
      * The (long-since-broken) Python bindings support has been removed.
        If you want to write dissectors in something other than C, use Lua.
+     * Plugins can now create GUI menu items.
      __________________________________________________________________
 
 Getting Wireshark
@@ -202,7 +222,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-03-19 16:38:42 UTC
+   Last updated 2015-05-28 18:47:50 UTC
 
 References
 
