@@ -396,6 +396,8 @@ static int hf_giop_type_double = -1;
 static int hf_giop_type_enum = -1;
 static int hf_giop_type_float = -1;
 static int hf_giop_type_long = -1;
+static int hf_giop_type_longlong = -1;
+static int hf_giop_type_ulonglong = -1;
 static int hf_giop_type_octet = -1;
 static int hf_giop_type_short = -1;
 static int hf_giop_type_string = -1;
@@ -2183,6 +2185,9 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_t
   gint32  s_octet4;  /* signed int32 */
   guint32 u_octet4;  /* unsigned int32 */
 
+  gint64  s_octet8;  /* signed int64 */
+  guint64 u_octet8;  /* unsigned int64 */
+
   gdouble my_double; /* double */
   gfloat  my_float;  /* float */
 
@@ -2269,8 +2274,12 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_t
   case tk_except:
     break;
   case tk_longlong:
+    s_octet8 = get_CDR_long_long(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_int64(tree, hf_giop_type_longlong, tvb, *offset-8, 8, s_octet8);
     break;
   case tk_ulonglong:
+    u_octet8 = get_CDR_ulong_long(tvb, offset, stream_is_big_endian, boundary);
+    proto_tree_add_uint64(tree, hf_giop_type_ulonglong, tvb, *offset-8, 8, u_octet8);
     break;
   case tk_longdouble:
     break;
@@ -5304,6 +5313,16 @@ proto_register_giop (void)
     { &hf_giop_type_long,
       { "TypeCode long data", "giop.tclongdata",
         FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+
+    { &hf_giop_type_longlong,
+      { "TypeCode longlong data", "giop.tclonglongdata",
+        FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+
+    { &hf_giop_type_ulonglong,
+      { "TypeCode ulonglong data", "giop.tculonglongdata",
+        FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_octet,
