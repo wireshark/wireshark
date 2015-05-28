@@ -277,7 +277,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
     case PT_TXTMOD_FILENAME:
     {
         QString cur_path = fieldString(row, column);
-        const QByteArray& new_path = QFileDialog::getSaveFileName(this,
+        const QByteArray& new_path = QFileDialog::getOpenFileName(this,
                 field->title, cur_path, QString(), NULL, fd_opt).toUtf8();
         field->cb.set(rec, new_path.constData(), (unsigned) new_path.size(), field->cbdata.set, field->fld_data);
         updateItem(*item);

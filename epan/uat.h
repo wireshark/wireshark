@@ -402,9 +402,16 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_FILENAME_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
 
+/* XXX UAT_FLD_FILENAME is currently unused. */
 #define UAT_FLD_FILENAME(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_FILENAME,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
+/*
+ * Both the Qt and GTK+ UIs assume that we're opening a preexisting
+ * file. We might want to split the ..._FILENAME defines into
+ * ..._FILE_OPEN and ..._FILE_SAVE if we ever need to specify a
+ * file that we're creating.
+ */
 #define UAT_FLD_FILENAME_OTHER(basename,field_name,title,chk,desc) \
 	{#field_name, title, PT_TXTMOD_FILENAME,{chk,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
