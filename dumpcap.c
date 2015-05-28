@@ -791,15 +791,13 @@ open_capture_device(capture_options *capture_opts
 /* Windows doesn't have pcap_create() yet */
 #ifdef _WIN32
         /* try to set the capture buffer size -- but not for remote devices */
-        if (interface_opts->buffer_size > 1 &&
+        if (pcap_h && interface_opts->buffer_size > 1 &&
             pcap_setbuff(pcap_h, interface_opts->buffer_size * 1024 * 1024) != 0) {
             gchar      *sync_secondary_msg_str;
 
             sync_secondary_msg_str = g_strdup_printf(
-                "The capture buffer size of %d MiB seems to be too high for your machine,\n"
-                "the default of %d MiB will be used.\n"
-                "\n"
-                "Nonetheless, the capture is started.\n",
+                "Unable to set a capture buffer size of %d MiB.\n"
+                "Capturing using the default size of %d MiB instead.",
                 interface_opts->buffer_size, DEFAULT_CAPTURE_BUFFER_SIZE);
             report_capture_error("Couldn't set the capture buffer size.",
                                  sync_secondary_msg_str);
