@@ -958,6 +958,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint32   crc;
   guint32   calc_crc;
   gint      type;
+  gboolean  decoded;
   /*
    * ATM dissector is used as "sub-dissector" for ATM pseudowires.
    * In such cases, pinfo->private_data is used to pass info from/to
@@ -1101,10 +1102,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
+  decoded = FALSE;
   switch (pinfo->pseudo_header->atm.aal) {
 
   case AAL_SIGNALLING:
     call_dissector(sscop_handle, next_tvb, pinfo, tree);
+    decoded = TRUE;
     break;
 
   case AAL_5:
@@ -1112,84 +1115,86 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case TRAF_SSCOP:
       call_dissector(sscop_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     case TRAF_FR:
       call_dissector(fr_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     case TRAF_LLCMX:
       call_dissector(llc_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     case TRAF_LANE:
       call_dissector(lane_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     case TRAF_ILMI:
       call_dissector(ilmi_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     case TRAF_GPRS_NS:
       call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     default:
+      if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
       {
-        gboolean decoded = FALSE;
+          guint8 octet[8];
+          tvb_memcpy(next_tvb, octet, 0, sizeof(octet));
 
-        if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
-        {
-            guint8 octet[8];
-            tvb_memcpy(next_tvb, octet, 0, sizeof(octet));
-
-            if (octet[0] == 0xaa
-             && octet[1] == 0xaa
-             && octet[2] == 0x03) /* LLC SNAP as per RFC2684 */
-            {
-                call_dissector(llc_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-            else if ((pntohs(octet) & 0xff) == PPP_IP)
-            {
-                call_dissector(ppp_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-            else if (pntohs(octet) == 0x00)
-            {
-                /* assume vc muxed bridged ethernet */
-                proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");
-                next_tvb = tvb_new_subset_remaining(tvb, 2);
-                call_dissector(eth_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-            else if (octet[2] == 0x03    && /* NLPID */
-                    ((octet[3] == 0xcc   || /* IPv4  */
-                      octet[3] == 0x8e)  || /* IPv6  */
-                     (octet[3] == 0x00   && /* Eth   */
-                      octet[4] == 0x80)))   /* Eth   */
-            {
-                /* assume network interworking with FR 2 byte header */
-                call_dissector(fr_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-            else if (octet[4] == 0x03    && /* NLPID */
-                    ((octet[5] == 0xcc   || /* IPv4  */
-                      octet[5] == 0x8e)  || /* IPv6  */
-                     (octet[5] == 0x00   && /* Eth   */
-                      octet[6] == 0x80)))   /* Eth   */
-            {
-                /* assume network interworking with FR 4 byte header */
-                call_dissector(fr_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-            else if (((octet[0] & 0xf0)== 0x40) ||
-                     ((octet[0] & 0xf0) == 0x60))
-            {
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-                decoded = TRUE;
-            }
-        }
+          if (octet[0] == 0xaa
+           && octet[1] == 0xaa
+           && octet[2] == 0x03) /* LLC SNAP as per RFC2684 */
+          {
+              call_dissector(llc_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
+          else if ((pntohs(octet) & 0xff) == PPP_IP)
+          {
+              call_dissector(ppp_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
+          else if (pntohs(octet) == 0x00)
+          {
+              /* assume vc muxed bridged ethernet */
+              proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");
+              next_tvb = tvb_new_subset_remaining(tvb, 2);
+              call_dissector(eth_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
+          else if (octet[2] == 0x03    && /* NLPID */
+                  ((octet[3] == 0xcc   || /* IPv4  */
+                    octet[3] == 0x8e)  || /* IPv6  */
+                   (octet[3] == 0x00   && /* Eth   */
+                    octet[4] == 0x80)))   /* Eth   */
+          {
+              /* assume network interworking with FR 2 byte header */
+              call_dissector(fr_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
+          else if (octet[4] == 0x03    && /* NLPID */
+                  ((octet[5] == 0xcc   || /* IPv4  */
+                    octet[5] == 0x8e)  || /* IPv6  */
+                   (octet[5] == 0x00   && /* Eth   */
+                    octet[6] == 0x80)))   /* Eth   */
+          {
+              /* assume network interworking with FR 4 byte header */
+              call_dissector(fr_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
+          else if (((octet[0] & 0xf0)== 0x40) ||
+                   ((octet[0] & 0xf0) == 0x60))
+          {
+              call_dissector(ip_handle, next_tvb, pinfo, tree);
+              decoded = TRUE;
+          }
       }
       break;
     }
@@ -1221,19 +1226,23 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (type) {
     case TRAF_UMTS_FP:
       call_dissector(fp_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
       break;
 
     default:
       /* Dump it as raw data. */
-      call_dissector(data_handle, next_tvb, pinfo, tree);
       break;
     }
     break;
 
   default:
     /* Dump it as raw data. */
-    call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
+  }
+
+  if (tree && !decoded) {
+      /* Dump it as raw data. */
+      call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }
 
