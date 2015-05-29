@@ -715,7 +715,8 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
     return tvb_captured_length(tvb);
 }
 
-static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                              int offset, void *data _U_)
 {
     guint32 len;
 
@@ -929,7 +930,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 314 "../../asn1/idmp/packet-idmp-template.c"
+#line 315 "../../asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -952,7 +953,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 322 "../../asn1/idmp/packet-idmp-template.c"
+#line 323 "../../asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 
