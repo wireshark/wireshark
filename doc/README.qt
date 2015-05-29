@@ -10,14 +10,14 @@ and let us add features more easily.
 
 1. Getting up and running
 
-The Qt interface for Wireshark has been compiled and tested on Mac OS X 10.8
-(XCode LLVM/clang), Windows 7 x86 (Visual C++ 2010), and Ubuntu 12.04 (gcc).
-Compilation via Qt Creator and via the command line compilation using QMake and
-make or nmake should work.
+The Qt interface for Wireshark should compile out of the box on Windows, OS
+X, and Linux using Qt 4.6 or later (including Qt 5) and Visual C++, gcc/g++,
+and clang/clang++. The Qt UI is continuously built and tested at
+https://buildbot.wireshark.org/trunk/waterfall .
 
-There are several ways of building qtshark:
+There are several ways of building the Qt UI:
 
-1) Qt Creator + CMake:
+1) Qt Creator + CMake (recommended if adding features):
 
    Open the top-level CMakeLists.txt within Qt Creator. It should ask you to
    choose a build location. Do so. It should then ask you to run CMake. Fill in
@@ -44,13 +44,10 @@ There are several ways of building qtshark:
 
    Qt (--with-qt) is enabled by default.
 
-4) Qt Creator + QtShark.pro:
+4) Qt Creator + Wireshark.pro:
 
-   NOTE: The bulk of Wireshark isn't a qmake project and the ui/qt directory is
-   loosely coupled with the rest of the codebase. When the CMake environment
-   matures to a sufficient state QtShark.pro will probably be removed.
-
-Work is in progress on this.)
+   Wireshark.pro (formerly QtShark.pro) was used to bootstrap the UI porting
+   effort. It is still used by Nmake but will likely be removed at some point.
 
 1.1 Prerequisites
 
@@ -58,40 +55,17 @@ Before compiling you need the Qt SDK and Qt Creator.
 
 1.1.1 OS X
 
-Download the latest Qt Library + Qt Creator (currently 5.3) from
-http://qt-project.org/downloads/ and install it. For a more native
-look and feel you should also install Qt Mac Extras:
-
-    git clone http://qt.gitorious.org/qt/qtmacextras.git
-    cd qtmacextras
-    /path/to/qt5/qmake qtmacextras.pro
-    make
-    make -n install
-    # Make sure install output looks sensible
-    make install
-
-This may or may not work for you; see
-
-    https://bugreports.qt-project.org/browse/QTBUG-32594
+Download the latest Qt Library + Qt Creator from
+http://www.qt.io/download-open-source/. Qt 5.2 and later include
+Qt Mac Extras (http://doc.qt.io/qt-5/qtmacextras-index.html), which
+provides a better look and feel.
 
 1.1.2 Windows
 
-The default Qt SDK libraries are built using MinGW, which isn't supported for
-Wireshark. Instead of downloading the Qt SDK all-in-one package, download the Qt
-Libraries package from http://qt-project.org/downloads/ that matches your
-compiler (VS 2010 or VS 2012) and Qt Creator for Windows.
-
-Settings in config.nmake are passed to the Qt environment via
-ui/qt/config.pri. This file should be created automatically when you
-compile Wireshark in the top-level source directory. You can create it by
-hand by running "nmake -f Makefile.nmake ui\qt\config.pri".
-
-Qt Creator can be used to compile and run Wireshark.  Alternatively qmake
-and nmake at the cmd line can be used.
-
-The Windows Qt version of Wireshark will be compiled and linked with
-essentially the same options as that used when building the Gtk version of
-Wireshark.
+Download the Qt online installer from http://www.qt.io/download-open-source/
+and run it. Install a version of Qt that matches your compiler, e.g.
+"msvc2013 64-bit OpenGL". Install Qt Creator as well. Wireshark doesn't
+require anything beyond that.
 
 1.1.2.1 Qt Creator
 
@@ -100,7 +74,7 @@ select "Build Settings" and do the following:
 
 - In "Edit build configuration" make sure the "Release" build is selected.
   (The "Debug" build won't work unless Wireshark is recompiled to link with a "debug"
-   the "debug" C runtime library (using /MDd). See ui\qt\QtShark.pro for details).
+   the "debug" C runtime library (using /MDd). See ui\qt\Wireshark.pro for details).
 
 - Make sure "Qt version" matches your version of Visual Studio.
 - Make sure "Tool chain" matches your Visual C++ version.
@@ -122,20 +96,20 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
 
 - [Create and] Switch to a working dir to be used for .obj files, etc for Wireshark-qt compilation
 
-- Use qmake to create Windows Makefile (based upon info in ui\qt\QtShark.pro and config.pri)
+- Use qmake to create Windows Makefile (based upon info in ui\qt\Wireshark.pro and config.pri)
     qmake -o Makefile.nmake ..\..\ui\qt\QtShark.pro
                                   ;; (Only needs to be run once;
                                   ;; nmake -f Makefile.nmake  will redo qmake if any
-                                  ;; dependendencies (e.g., QtShark.pro) change.
+                                  ;; dependendencies (e.g., Wireshark.pro) change.
 
 - Compile & Build
-    nmake -f Makefile.nmake       ;; qtshark.exe + all DLL's will be in <working-dir>\wireshark-qt-debug
+    nmake -f Makefile.nmake       ;; wireshark.exe + all DLL's will be in <working-dir>\wireshark-qt-debug
 - Run:
     <working-dir>\wireshark-qt-debug
 
 - Debug (with Visual Studio debugger)
     Start Visual Studio;
-    File ! Open ! Project/Solution  ! .../<working-dir>/wireshark-qt-debug/qtshark.exe
+    File ! Open ! Project/Solution  ! .../<working-dir>/wireshark-qt-debug/wireshark.exe
     (Using  Solution Explorer ! Properties ! Environment to
      add PATH=C:\Qt\4.8.0\bin;%PATH% will pobably be required).
     ... Debug in the usual manner
@@ -147,7 +121,7 @@ Install the Qt libraries and Qt Creator via your package manager or from
 http://qt-project.org/downloads/. On Debian and Ubuntu the "qt-sdk" (and qttools5-dev when use Qt5) meta-package
 should provide everything you need. Build the top-level directory using CMake
 (see section "Using cmake" above). As an alternative do an in-tree build without
-QT and then inside ui/qt/ do "qtcreate QtShark.pro".
+QT and then inside ui/qt/ do "qtcreate Wireshark.pro".
 
 1.2 Other tools
 
