@@ -3956,7 +3956,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   guint16 fragment_number, total_fragments;
 #ifdef HAVE_LIBGCRYPT
   gboolean message_next_payload_set = FALSE;
-  guint8  message_next_payload;
+  guint8  message_next_payload = 0;
   gint iv_len, icd_len;
   gint iv_offset;
   gint icd_offset;
@@ -4018,7 +4018,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
             message_next_payload_set = TRUE;
 
             /* Store in table for this frame for future passes */
-            g_hash_table_insert(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(message_next_payload));
+            g_hash_table_insert(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER((guint)message_next_payload));
           }
         }
       }
