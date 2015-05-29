@@ -1273,6 +1273,11 @@ static int hf_bgp_update_encaps_tunnel_tlv_len = -1;
 static int hf_bgp_update_encaps_tunnel_tlv_type = -1;
 static int hf_bgp_update_encaps_tunnel_subtlv_len = -1;
 static int hf_bgp_update_encaps_tunnel_subtlv_type = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_session_id = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_cookie = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_gre_key = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_color_value = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_lb_block_length = -1;
 
 /* RFC 6514 PMSI Tunnel Attribute */
 static int hf_bgp_pmsi_tunnel_flags = -1;
@@ -6073,8 +6078,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                         encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
                         encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
 
-                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL,
-                                                                 "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
+                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
 
                         proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_BIG_ENDIAN);
@@ -6082,21 +6086,21 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                         switch (encaps_tunnel_subtype) {
                             case TUNNEL_SUBTLV_ENCAPSULATION:
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
-                                    proto_tree_add_text(subtree6, tvb, q + 2, 4, "Session ID: %u", tvb_get_letohl(tvb, q + 2));
-                                    proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, q + 6, encaps_tunnel_sublen - 4));
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_session_id, tvb, q + 2, 4, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_cookie, tvb, q + 6, encaps_tunnel_sublen - 4, ENC_NA);
                                 } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "GRE key: %x", tvb_get_letohl(tvb, q + 2));
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 4, ENC_BIG_ENDIAN);
                                 }
                                 break;
                             case TUNNEL_SUBTLV_PROTO_TYPE:
-                                proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Protocol type: %s (0x%x)", val_to_str_const(tvb_get_ntohs(tvb, q + 2), etype_vals, "Unknown"), tvb_get_ntohs(tvb, q + 2));
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_gre_key, tvb, q + 2, 2, ENC_BIG_ENDIAN);
                                 break;
                             case TUNNEL_SUBTLV_COLOR:
-                                proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Color value: %u", tvb_get_letohl(tvb, q + 6));
-                                break;
+                                proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_color_value, tvb, q + 6, 4, ENC_BIG_ENDIAN);
+                               break;
                             case TUNNEL_SUBTLV_LOAD_BALANCE:
                                 if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Load-balancing block length: %u", tvb_get_ntohs(tvb, q + 2));
+                                    proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_lb_block_length, tvb, q + 2, 4, ENC_BIG_ENDIAN);
                                 }
                                 break;
                             default:
@@ -7222,6 +7226,21 @@ proto_register_bgp(void)
       { &hf_bgp_update_encaps_tunnel_subtlv_type,
         { "Type code", "bgp.update.encaps_tunnel_subtlv_type", FT_UINT8, BASE_DEC,
           VALS(subtlv_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_session_id,
+        { "Session ID", "bgp.update.encaps_tunnel_tlv_subtlv_session_id", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_cookie,
+        { "Cookie", "bgp.update.encaps_tunnel_tlv_subtlv_cookie", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_gre_key,
+        { "GRE Key", "bgp.update.encaps_tunnel_tlv_subtlv_gre_key", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_color_value,
+        { "Color Value", "bgp.update.encaps_tunnel_tlv_subtlv_color_value", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_encaps_tunnel_subtlv_lb_block_length,
+        { "Load-balancing block length", "bgp.update.encaps_tunnel_tlv_subtlv_lb_block_length", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
       /* BGP update path attribut SSA SAFI (deprecated IETF draft) */
       { &hf_bgp_ssa_t,
