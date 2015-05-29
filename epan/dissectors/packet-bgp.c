@@ -1121,6 +1121,7 @@ static int proto_bgp = -1;
 static int hf_bgp_marker = -1;
 static int hf_bgp_length = -1;
 static int hf_bgp_prefix_length = -1;
+static int hf_bgp_rd = -1;
 static int hf_bgp_originating_as = -1;
 static int hf_bgp_community_prefix = -1;
 static int hf_bgp_endpoint_address = -1;
@@ -3920,7 +3921,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     union {
        guint8 addr_bytes[4];
        guint32 addr;
-    } ip4addr, ip4addr2;                    /* IPv4 address                 */
+    } ip4addr;                              /* IPv4 address                 */
     address addr;
     struct e_in6_addr   ip6addr;            /* IPv6 address                 */
     guint16             rd_type;            /* Route Distinguisher type     */
@@ -4103,7 +4104,6 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 plen -= (labnum * 3*8);
 
-                rd_type = tvb_get_ntohs(tvb, offset);
                 if (plen < 8*8) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled VPN IPv4 prefix length %u invalid",
@@ -4112,108 +4112,25 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 plen -= 8*8;
 
-                switch (rd_type) {
-
-                    case FORMAT_AS2_LOC: /* Code borrowed from the decode_prefix4 function */
-                        length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv4 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
-                        SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
-                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
+                length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
+                if (length < 0) {
+                proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
+                                             "%s Labeled VPN IPv4 prefix length %u invalid",
+                                             tag, plen + (labnum * 3*8) + 8*8);
+                     return -1;
+                }
+                SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
-                                                 ett_bgp_prefix, NULL,
-                                                 "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
-                                                 wmem_strbuf_get_str(stack_strbuf),
-                                                 tvb_get_ntohs(tvb, offset + 2),
-                                                 tvb_get_ntohl(tvb, offset + 4),
-                                                 address_to_str(wmem_packet_scope(), &addr), plen);
-                        proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1,
-                                            plen + labnum * 3 * 8 + 8 * 8, "%s Prefix length: %u",
-                                            tag, plen + labnum * 3 * 8 + 8 * 8);
-                        proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum,
-                                            wmem_strbuf_get_str(stack_strbuf), "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
-                        proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
-                                            "%s Route Distinguisher: %u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohl(tvb, offset + 4));
-                        proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
-                                                offset + 8, length, ip4addr.addr);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
+                                                 ett_bgp_prefix, NULL, "BGP Prefix");
 
-                    case FORMAT_IP_LOC: /* Code borrowed from the decode_prefix4 function */
-                        length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr2.addr_bytes, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv4 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
+                proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_NA);
+                proto_tree_add_string(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf));
+                proto_tree_add_string(prefix_tree, hf_bgp_rd, tvb, start_offset + 1 + 3 * labnum, 8, decode_bgp_rd(tvb, offset));
 
-                        SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr2.addr_bytes);
-                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
-                                                 (offset + 8 + length) - start_offset,
-                                                 ett_bgp_prefix, NULL,
-                                                 "Label Stack=%s RD=%s:%u, IPv4=%s/%u",
-                                                 wmem_strbuf_get_str(stack_strbuf),
-                                                 tvb_ip_to_str(tvb, offset + 2),
-                                                 tvb_get_ntohs(tvb, offset + 6),
-                                                 address_to_str(wmem_packet_scope(), &addr),
-                                                 plen);
-                        proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1,
-                                            plen + labnum * 3 * 8 + 8 * 8, "%s Prefix length: %u",
-                                            tag, plen + labnum * 3 * 8 + 8 * 8);
-                        proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum,
-                                            wmem_strbuf_get_str(stack_strbuf), "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
-                        proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
-                                            "%s Route Distinguisher: %s:%u", tag, tvb_ip_to_str(tvb, offset + 2),
-                                            tvb_get_ntohs(tvb, offset + 6));
-                        proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
-                                                offset + 8, length, ip4addr2.addr);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
+                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 8, length, ip4addr.addr);
 
-                    case FORMAT_AS4_LOC: /* Code borrowed from the decode_prefix4 function */
-                        length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv4 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
-
-                        SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
-                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
-                                                 (offset + 8 + length) - start_offset,
-                                                 ett_bgp_prefix, NULL,
-                                                 "Label Stack=%s RD=%u.%u:%u, IPv4=%s/%u",
-                                                 wmem_strbuf_get_str(stack_strbuf),
-                                                 tvb_get_ntohs(tvb, offset + 2),
-                                                 tvb_get_ntohs(tvb, offset + 4),
-                                                 tvb_get_ntohs(tvb, offset + 6),
-                                                 address_to_str(wmem_packet_scope(), &addr), plen);
-                        proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1,
-                                            plen + labnum * 3 * 8 + 8 * 8, "%s Prefix length: %u",
-                                            tag, plen + labnum * 3 * 8 + 8 * 8);
-                        proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum,
-                                            wmem_strbuf_get_str(stack_strbuf), "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
-                        proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
-                                            "%s Route Distinguisher: %u.%u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohs(tvb, offset + 4), tvb_get_ntohs(tvb, offset + 6));
-                        proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
-                                                offset + 8, length, ip4addr.addr);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
-
-                    default:
-                        proto_tree_add_text(tree, tvb, start_offset,
-                                            (offset - start_offset) + 2,
-                                            "Unknown labeled VPN IPv4 address format %u", rd_type);
-                        return -1;
-                } /* switch (rd_type) */
+                total_length = (1 + labnum * 3 + 8) + length;
                 break;
 
            case SAFNUM_FSPEC_RULE:
@@ -6753,6 +6670,9 @@ proto_register_bgp(void)
           NULL, 0x0, "The total length of the message, including the header in octets", HFILL }},
       { &hf_bgp_prefix_length,
         { "Prefix Length", "bgp.prefix_length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_rd,
+        { "Router Distinguer", "bgp.rd", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_originating_as,
         { "Originating AS", "bgp.originating_as", FT_UINT32, BASE_DEC,
