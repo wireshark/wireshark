@@ -2081,14 +2081,14 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
             if (email_addr)
             {
-                proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset, num_fields - 1,
+                proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, num_fields + 1,
                     ansi_637_bigbuf,
                     "Number: %s",
                     ansi_637_bigbuf);
             }
             else
             {
-                proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset, num_fields - 1,
+                proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset - 1, num_fields + 1,
                     (guint8 *) ansi_637_bigbuf);
             }
 
@@ -2168,7 +2168,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             }
             ansi_637_bigbuf[i] = '\0';
 
-            proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset, num_fields - 1,
+            proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, num_fields + 1,
                 ansi_637_bigbuf,
                 "Number: %s",
                 ansi_637_bigbuf);
