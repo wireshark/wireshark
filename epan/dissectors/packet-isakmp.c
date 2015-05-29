@@ -1960,9 +1960,10 @@ typedef struct ikev2_fragmentation_state_t {
   guint8  next_payload;
 } ikev2_fragmentation_state_t;
 
+#ifdef HAVE_LIBGCRYPT
 /* frame_number -> next_payload.  The key will be the frame that completes the original message */
 static GHashTable *defrag_next_payload_hash = NULL;
-
+#endif
 
 static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, guint32 message_id, guint8 next_payload,
                                         void* decr_info);
@@ -3951,7 +3952,11 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 /* This is RFC7383 reassembly. */
 static void
 dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
+#ifdef HAVE_LIBGCRYPT
                             packet_info *pinfo, guint message_id, guint8 next_payload, void* decr_info)
+#else
+                            packet_info *pinfo, guint message_id, guint8 next_payload, void* decr_info _U_)
+#endif
 {
   guint16 fragment_number, total_fragments;
 #ifdef HAVE_LIBGCRYPT
