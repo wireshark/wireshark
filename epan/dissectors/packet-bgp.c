@@ -4221,10 +4221,17 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
                 SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
-                proto_tree_add_text(tree, tvb, start_offset,
+                prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
+                                    ett_bgp_prefix, NULL,
                                     "Tunnel Identifier=0x%x IPv6=%s/%u",
                                     tnl_id, address_to_str(wmem_packet_scope(), &addr), plen);
+                proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_BIG_ENDIAN);
+
+                proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
+                                    start_offset + 1, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, ip6addr.bytes);
+
                 total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
                 break;
 
