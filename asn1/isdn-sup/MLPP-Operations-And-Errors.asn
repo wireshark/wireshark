@@ -1,0 +1,135 @@
+-- MLPP-Operations-And-Errors.asn
+--
+-- Taken from ITU Recommendation Q.955.3 (03/93)
+--
+
+-- Begin MLPP-operations definitions
+MLPP-operations {ccitt recommendation q 955 mlpp (3) operations-and-errors(1)}
+DEFINITIONS			::=
+BEGIN
+EXPORTS		mLPPLFBQuery, mLPPCallRequest, mLPPCallPreemption,
+            unauthorizedPrecedenceLevel;
+
+IMPORTS     OPERATIONS, ERROR
+            FROM Remote-Operations-Information-Objects
+                {joint-iso-itu-t (2) remote-operations (4) informationObjects(5) version1(0)}
+
+            userNotSubscribed, rejectedByNetwork
+            FROM General-Error-List
+				{ccitt recommendation q 950 general-error-list (1)}
+
+            Q931InformationElement
+            FROM Embedded-Q931-Types
+                {ccitt identified-organization etsi(0) 196 embedded-q931-types(7)};
+
+-- Begin mLPPLFBquery operation
+mLPPLFBQuery OPERATION ::= {
+    ARGUMENT MLPPLFBArg
+    RESULT MLPPLFBResp
+    ERRORS {userNotSubscribed | rejectedByNetwork}
+	CODE local: 24
+}
+
+MLPPLFBArg ::= SEQUENCE {mlppParams MLPPParams, ieArg IEArg}
+
+MLPPParams ::= SEQUENCE {
+	precLevel PrecLevel, lfbIndictn LFBIndictn, mlppSvcDomn MLPPSvcDomn
+}
+
+PrecLevel  ::= ENUMERATED {
+	flashOverride(0), flash(1), immediate(2), priority(3), routine(4)
+}
+-- Prec level identifies the precedence level of the MLPP call.
+
+LFBIndictn ::= ENUMERATED {
+	ifbAllowed(0), ifbNotAllowed(1), pathReserved(2)
+}
+-- LFBIndictri is coded for values. as indicated.
+
+MLPPSvcDomn ::= OCTET STRING(5)
+-- Initial two octets provide the International ID. while the
+-- following three octets provide the MLPP Domain
+-- identification.
+
+IEArg ::= Q931InformationElement
+-- Bearer capability. Calling party number. Called party
+-- number. and Channel identification information elements in
+-- the IE arg shall be as defined in Q.931.
+
+MLPPLFBResp ::= SEQUENCE {statusQuery StatusQuery, location Location}
+-- The MLPP DSS1 LFB query response contains two
+-- parameters. StatusQuery and Location.
+
+StatusQuery ::= ENUMERATED {
+	success(1),
+	-- Many cases as described in the optional MLPP LFB
+	failure(2),
+	-- Many cases as described in the MLPP procedure with LFB
+	-- option.
+	bearerCapabilityNotAuthorized(3),
+	-- bearer capability check failure. not authorized
+	bearerCapabilityNotlmplemented(4),
+	-- bearer capability check failure. not implemented
+	bearerCapabilityNotAvailable(5),
+	-- bearer capability check failure. not available
+	pathReservationDenied(6)
+	-- circuit cannot be reserved at the far end
+}
+
+Location ::= Q931InformationElement
+-- a bit string which conforms to Octect 3 of the Cause
+-- information element as defined in 0.931. except that bit 8 is
+-- marked as a spare.
+
+-- End of mLPPLFBquery operation.
+
+-- Begin mLPPCallRequest operation
+mLPPCallRequest OPERATION ::= {
+    ARGUMENT MLPPParams
+    RESULT StatusRequest
+    ERRORS {userNotSubscribed | rejectedByNetwork | unauthorizedPrecedenceLevel}
+    CODE local: 25
+}
+
+StatusRequest ::= ENUMERATED {
+	successCalledUserMLPPSubscriber(1),
+	-- Called user is an MLPP subscriber.
+	successCalledUserNotMLPPSubscriber(2),
+	-- Called user is not an MLPP subscriber.
+	failureCaseA(3),
+	-- MLPP call from the calling user is a precedence call and
+	-- cannot be completed.
+	failureCaseB(4)
+	-- MLPP call from the calling user or MLPP call between two
+	-- MLPP subscribers experiences preemption.
+}
+-- End MLPPCallRequest operation.
+
+-- Begin mLPPCallpreemption operation
+mLPPCallPreemption OPERATION ::= {
+    ARGUMENT PreemptParams
+    --RESULT
+    --ERRORS
+	CODE local: 26
+}
+
+PreemptParams ::= ENUMERATED {
+	circuitReservedForReuse(1),
+	-- Circuit of the to be preempted call is reserved for reuse
+	circuitNotReservedForReuse(2)
+	-- Circuit of the to be preempted call is not reserved for reuse
+}
+-- End mLPPCallpreemption operation
+
+unauthorizedPrecedenceLevel ERROR ::= {
+	CODE local: 44
+}
+-- An indication that the calling user has exceeded the authorized. maximum
+-- precedence level.
+
+--mLPPLFBQuery MLPPLFBQuery                               ::= 24
+--mLPPCallRequest MLPPCallRequest                         ::= 25
+--mLPPCALLPreemption MLPPCALLPreemption                   ::= 26
+--unauthorizedPrecedenceLevel UnauthorizedPrecedenceLevel ::= 44
+END
+-- End MLPP-operations.

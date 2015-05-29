@@ -42,6 +42,7 @@ set( ASN_FILE_LIST
 	MCID-Operations.asn
 	User-To-User-Signalling-Operations.asn
 	Freephone-Operations.asn
+	MLPP-Operations-And-Errors.asn
 )
 
 set( EXTRA_DIST

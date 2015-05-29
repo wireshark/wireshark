@@ -34,7 +34,8 @@ ASN_FILE_LIST = \
 	Diversion-Operations.asn \
 	MCID-Operations.asn \
 	User-To-User-Signalling-Operations.asn \
-	Freephone-Operations.asn
+	Freephone-Operations.asn \
+	MLPP-Operations-And-Errors.asn
 
 INCLUDED_ASN_FILE_LIST = \
 	CCBS-Operations-and-Errors.asn \

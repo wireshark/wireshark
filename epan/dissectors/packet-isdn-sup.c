@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
+/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn MLPP-Operations-And-Errors.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -102,6 +102,9 @@ static const value_string isdn_sup_str_operation[] = {
   {  17, "interrogateServedUserNumbers" },
   {  18, "divertingLegInformation1" },
   {  19, "divertingLegInformation3" },
+  {  24, "mLPPLFBQuery" },
+  {  25, "mLPPCallRequest" },
+  {  26, "mLPPCallPreemption" },
   {  30, "chargingRequest" },
   {  31, "aOCSCurrency" },
   {  32, "aOCSSpecialArr" },
@@ -157,6 +160,7 @@ static const value_string isdn_sup_str_error[] = {
   {   48, "requestAlreadyAccepted" },
   {    1, "rejectedByTheNetwork" },
   {    2, "rejectedByTheUser" },
+  {   44, "unauthorizedPrecedenceLevel" },
 
 /*--- End of included file: packet-isdn-sup-table20.c ---*/
 #line 80 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -204,6 +208,11 @@ static int hf_isdn_sup_CalledFreephoneNrArg_PDU = -1;  /* CalledFreephoneNrArg *
 static int hf_isdn_sup_Monitor_T_FPHArg_PDU = -1;  /* Monitor_T_FPHArg */
 static int hf_isdn_sup_Free_T_FPHArg_PDU = -1;    /* Free_T_FPHArg */
 static int hf_isdn_sup_Call_T_FPHArg_PDU = -1;    /* Call_T_FPHArg */
+static int hf_isdn_sup_MLPPLFBArg_PDU = -1;       /* MLPPLFBArg */
+static int hf_isdn_sup_MLPPLFBResp_PDU = -1;      /* MLPPLFBResp */
+static int hf_isdn_sup_MLPPParams_PDU = -1;       /* MLPPParams */
+static int hf_isdn_sup_StatusRequest_PDU = -1;    /* StatusRequest */
+static int hf_isdn_sup_PreemptParams_PDU = -1;    /* PreemptParams */
 static int hf_isdn_sup_presentationallowedaddressscreened = -1;  /* AddressScreened */
 static int hf_isdn_sup_presentationRestricted = -1;  /* NULL */
 static int hf_isdn_sup_numberNotAvailableDueToInterworking = -1;  /* NULL */
@@ -324,6 +333,13 @@ static int hf_isdn_sup_servedUserDestination = -1;  /* PartyNumber */
 static int hf_isdn_sup_queueIdentity = -1;        /* QueueIdentity */
 static int hf_isdn_sup_fPHReference = -1;         /* FPHReference */
 static int hf_isdn_sup_calledFreephoneNr = -1;    /* CalledFreephoneNr */
+static int hf_isdn_sup_mlppParams = -1;           /* MLPPParams */
+static int hf_isdn_sup_ieArg = -1;                /* IEArg */
+static int hf_isdn_sup_precLevel = -1;            /* PrecLevel */
+static int hf_isdn_sup_lfbIndictn = -1;           /* LFBIndictn */
+static int hf_isdn_sup_mlppSvcDomn = -1;          /* MLPPSvcDomn */
+static int hf_isdn_sup_statusQuery = -1;          /* StatusQuery */
+static int hf_isdn_sup_location = -1;             /* Location */
 
 /*--- End of included file: packet-isdn-sup-hf.c ---*/
 #line 86 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -399,6 +415,9 @@ static gint ett_isdn_sup_UserUserServiceArg = -1;
 static gint ett_isdn_sup_Monitor_T_FPHArg = -1;
 static gint ett_isdn_sup_Free_T_FPHArg = -1;
 static gint ett_isdn_sup_Call_T_FPHArg = -1;
+static gint ett_isdn_sup_MLPPLFBArg = -1;
+static gint ett_isdn_sup_MLPPParams = -1;
+static gint ett_isdn_sup_MLPPLFBResp = -1;
 
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
 #line 92 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -2243,6 +2262,170 @@ dissect_isdn_sup_Call_T_FPHArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   return offset;
 }
 
+
+static const value_string isdn_sup_PrecLevel_vals[] = {
+  {   0, "flashOverride" },
+  {   1, "flash" },
+  {   2, "immediate" },
+  {   3, "priority" },
+  {   4, "routine" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_PrecLevel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_LFBIndictn_vals[] = {
+  {   0, "ifbAllowed" },
+  {   1, "ifbNotAllowed" },
+  {   2, "pathReserved" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_LFBIndictn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_MLPPSvcDomn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MLPPParams_sequence[] = {
+  { &hf_isdn_sup_precLevel  , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_PrecLevel },
+  { &hf_isdn_sup_lfbIndictn , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_LFBIndictn },
+  { &hf_isdn_sup_mlppSvcDomn, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_MLPPSvcDomn },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_MLPPParams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MLPPParams_sequence, hf_index, ett_isdn_sup_MLPPParams);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_IEArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_Q931InformationElement(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MLPPLFBArg_sequence[] = {
+  { &hf_isdn_sup_mlppParams , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_MLPPParams },
+  { &hf_isdn_sup_ieArg      , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_IEArg },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_MLPPLFBArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MLPPLFBArg_sequence, hf_index, ett_isdn_sup_MLPPLFBArg);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_StatusQuery_vals[] = {
+  {   1, "success" },
+  {   2, "failure" },
+  {   3, "bearerCapabilityNotAuthorized" },
+  {   4, "bearerCapabilityNotlmplemented" },
+  {   5, "bearerCapabilityNotAvailable" },
+  {   6, "pathReservationDenied" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_StatusQuery(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_Location(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_Q931InformationElement(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MLPPLFBResp_sequence[] = {
+  { &hf_isdn_sup_statusQuery, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_StatusQuery },
+  { &hf_isdn_sup_location   , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_Location },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_MLPPLFBResp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MLPPLFBResp_sequence, hf_index, ett_isdn_sup_MLPPLFBResp);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_StatusRequest_vals[] = {
+  {   1, "successCalledUserMLPPSubscriber" },
+  {   2, "successCalledUserNotMLPPSubscriber" },
+  {   3, "failureCaseA" },
+  {   4, "failureCaseB" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_StatusRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_PreemptParams_vals[] = {
+  {   1, "circuitReservedForReuse" },
+  {   2, "circuitNotReservedForReuse" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_PreemptParams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_ChargingRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -2497,6 +2680,41 @@ static int dissect_Call_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset = dissect_isdn_sup_Call_T_FPHArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_Call_T_FPHArg_PDU);
   return offset;
 }
+static int dissect_MLPPLFBArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_MLPPLFBArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_MLPPLFBArg_PDU);
+  return offset;
+}
+static int dissect_MLPPLFBResp_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_MLPPLFBResp(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_MLPPLFBResp_PDU);
+  return offset;
+}
+static int dissect_MLPPParams_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_MLPPParams(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_MLPPParams_PDU);
+  return offset;
+}
+static int dissect_StatusRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_StatusRequest(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_StatusRequest_PDU);
+  return offset;
+}
+static int dissect_PreemptParams_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_PreemptParams(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_PreemptParams_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
@@ -2535,6 +2753,9 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* divertingLegInformation3 */ {  19, dissect_DivertingLegInformation3Arg_PDU, NULL },
   /* mCIDRequest              */ {   3, NULL, NULL },
   /* userUserService          */ {   1, dissect_UserUserServiceArg_PDU, NULL },
+  /* mLPPLFBQuery             */ {  24, dissect_MLPPLFBArg_PDU, dissect_MLPPLFBResp_PDU },
+  /* mLPPCallRequest          */ {  25, dissect_MLPPParams_PDU, dissect_StatusRequest_PDU },
+  /* mLPPCallPreemption       */ {  26, dissect_PreemptParams_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
 #line 105 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -2589,6 +2810,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
   /* requestAlreadyAccepted   */ {   48, NULL },
   /* rejectedByTheNetwork     */ {    1, NULL },
   /* rejectedByTheUser        */ {    2, NULL },
+  /* unauthorizedPrecedenceLevel */ {   44, NULL },
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
 #line 115 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -2970,6 +3192,26 @@ void proto_register_isdn_sup(void) {
     { &hf_isdn_sup_Call_T_FPHArg_PDU,
       { "Call-T-FPHArg", "isdn-sup.Call_T_FPHArg_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_MLPPLFBArg_PDU,
+      { "MLPPLFBArg", "isdn-sup.MLPPLFBArg_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_MLPPLFBResp_PDU,
+      { "MLPPLFBResp", "isdn-sup.MLPPLFBResp_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_MLPPParams_PDU,
+      { "MLPPParams", "isdn-sup.MLPPParams_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_StatusRequest_PDU,
+      { "StatusRequest", "isdn-sup.StatusRequest",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_StatusRequest_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_PreemptParams_PDU,
+      { "PreemptParams", "isdn-sup.PreemptParams",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PreemptParams_vals), 0,
         NULL, HFILL }},
     { &hf_isdn_sup_presentationallowedaddressscreened,
       { "presentationAllowedAddress", "isdn-sup.presentationAllowedAddress_element",
@@ -3451,6 +3693,34 @@ void proto_register_isdn_sup(void) {
       { "calledFreephoneNr", "isdn-sup.calledFreephoneNr",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
         NULL, HFILL }},
+    { &hf_isdn_sup_mlppParams,
+      { "mlppParams", "isdn-sup.mlppParams_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_ieArg,
+      { "ieArg", "isdn-sup.ieArg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_precLevel,
+      { "precLevel", "isdn-sup.precLevel",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PrecLevel_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_lfbIndictn,
+      { "lfbIndictn", "isdn-sup.lfbIndictn",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_LFBIndictn_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_mlppSvcDomn,
+      { "mlppSvcDomn", "isdn-sup.mlppSvcDomn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_statusQuery,
+      { "statusQuery", "isdn-sup.statusQuery",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_StatusQuery_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_location,
+      { "location", "isdn-sup.location",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
 #line 348 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -3527,6 +3797,9 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_Monitor_T_FPHArg,
     &ett_isdn_sup_Free_T_FPHArg,
     &ett_isdn_sup_Call_T_FPHArg,
+    &ett_isdn_sup_MLPPLFBArg,
+    &ett_isdn_sup_MLPPParams,
+    &ett_isdn_sup_MLPPLFBResp,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
 #line 355 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
