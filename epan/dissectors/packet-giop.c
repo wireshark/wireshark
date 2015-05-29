@@ -2220,7 +2220,7 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_t
     break;
   case tk_float:
     my_float = get_CDR_float(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_double(tree, hf_giop_type_float, tvb, *offset-4, 4, my_float);
+    proto_tree_add_float(tree, hf_giop_type_float, tvb, *offset-4, 4, my_float);
     break;
   case tk_double:
     my_double = get_CDR_double(tvb, offset, stream_is_big_endian, boundary);
@@ -5301,13 +5301,9 @@ proto_register_giop (void)
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
-    /*
-     * float as double ?? -- FIX
-     */
-
     { &hf_giop_type_float,
       { "TypeCode float data", "giop.tcfloat",
-        FT_DOUBLE, BASE_NONE,  NULL, 0x0, NULL, HFILL }
+        FT_FLOAT, BASE_NONE,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_long,
