@@ -115,6 +115,8 @@ MSVC_VARIANT=MSVC2010
 MSVC_VARIANT=MSVC2012
 !ELSE IF "$(VISUALSTUDIOVERSION)" == "12.0"
 MSVC_VARIANT=MSVC2013
+!ELSE IF "$(VISUALSTUDIOVERSION)" == "14.0"
+MSVC_VARIANT=MSVC2015
 !ENDIF
 
 # For the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
@@ -451,14 +453,19 @@ K5SPRT_DLL=k5sprt32.dll
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
+!IF "$(MSVC_VARIANT)" == "MSVC2015" ||  "$(MSVC_VARIANT)" == "MSVC2015CE"
+#LUA_DIST=-5.2.3_Win32_dll14 No LUA binary available yet-
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
 LUA_DIST=-5.2.3_Win32_dll12
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
 LUA_DIST=-5.2.3_Win32_dll11
 !ELSE
 LUA_DIST=-5.2.3_Win32_dll10
 !ENDIF
+# There is no binary for LUA built with MSVC2015 currently (2015-08-13)
+!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
 LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
+!ENDIF
 
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
@@ -501,8 +508,10 @@ SMI_PKG=svn-40773
 # Optional: GeoIP, IP address database lookups
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
-#
+# GeoIP 1.5.1-2 does not work with MSVC2015 currently (2015-08-13)
+!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
 GEOIP_PKG=1.5.1-2
+!ENDIF
 
 #
 # Optional: WinSparkle, software updates
@@ -704,14 +713,19 @@ K5SPRT_DLL=k5sprt64.dll
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
+!IF "$(MSVC_VARIANT)" == "MSVC2015" ||  "$(MSVC_VARIANT)" == "MSVC2015CE"
+#LUA_DIST=-5.2.3_Win64_dll14 no LUA library for MSVC2015 yet
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
 LUA_DIST=-5.2.3_Win64_dll12
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
 LUA_DIST=-5.2.3_Win64_dll11
 !ELSE
 LUA_DIST=-5.2.3_Win64_dll10
 !ENDIF
+# There is no binary for LUA built with MSVC2015 currently (2015-08-13)
+!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
 LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
+!ENDIF
 
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
@@ -755,7 +769,10 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
+# GeoIP 1.5.1-2 does not work with MSVC2015 currently (2015-08-13)
+!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
 GEOIP_PKG=1.5.1-2
+!ENDIF
 
 #
 # Optional: WinSparkle, software updates
@@ -954,6 +971,8 @@ MSC_VER_REQUIRED=1600
 MSC_VER_REQUIRED=1700
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
 MSC_VER_REQUIRED=1800
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2015" ||  "$(MSVC_VARIANT)" == "MSVC2015CE"
+MSC_VER_REQUIRED=1900
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -1029,19 +1048,25 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2012"   || \
         "$(MSVC_VARIANT)" == "MSVC2012EE" || \
         "$(MSVC_VARIANT)" == "MSVC2013"   || \
-        "$(MSVC_VARIANT)" == "MSVC2013EE"
+        "$(MSVC_VARIANT)" == "MSVC2013EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2015"   || \
+        "$(MSVC_VARIANT)" == "MSVC2015CE"
 LOCAL_CFLAGS=/Zi /W3 /MD /O2 /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
 
 !IF "$(MSVC_VARIANT)" == "MSVC2012"   || \
         "$(MSVC_VARIANT)" == "MSVC2012EE" || \
         "$(MSVC_VARIANT)" == "MSVC2013"   || \
-        "$(MSVC_VARIANT)" == "MSVC2013EE"
+        "$(MSVC_VARIANT)" == "MSVC2013EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2015"   || \
+        "$(MSVC_VARIANT)" == "MSVC2015CE"
 LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_ALLOW_KEYWORD_MACROS
 !ENDIF
 
 !IF "$(MSVC_VARIANT)" == "MSVC2013"   || \
-        "$(MSVC_VARIANT)" == "MSVC2013EE"
+        "$(MSVC_VARIANT)" == "MSVC2013EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2015"   || \
+        "$(MSVC_VARIANT)" == "MSVC2015CE"
 LOCAL_CFLAGS=$(LOCAL_CFLAGS) /DBUILD_WINDOWS /Zo
 !ENDIF
 
@@ -1079,7 +1104,9 @@ WARNINGS_CFLAGS=/w34295 /w34189
         "$(MSVC_VARIANT)" == "MSVC2012"   || \
         "$(MSVC_VARIANT)" == "MSVC2012EE" || \
         "$(MSVC_VARIANT)" == "MSVC2013"   || \
-        "$(MSVC_VARIANT)" == "MSVC2013EE"
+        "$(MSVC_VARIANT)" == "MSVC2013EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2015"   || \
+        "$(MSVC_VARIANT)" == "MSVC2015CE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 
@@ -1275,6 +1302,21 @@ MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
 # with Visual Studio 2010.
 #
 MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC120.CRT\*.*
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2015" || "$(MSVC_VARIANT)" == "MSVC2015CE"
+#
+# For MSVC 2015, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC140.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC140.CRT\*.*
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF

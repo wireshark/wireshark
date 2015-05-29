@@ -86,7 +86,7 @@ Param(
     $Platform,
 
     [Parameter(Mandatory=$false, Position=2)]
-    [ValidateSet("12", "11", "10")]
+    [ValidateSet("14", "12", "11", "10")]
     [String]
     $VSVersion,
 

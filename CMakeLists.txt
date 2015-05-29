@@ -110,7 +110,9 @@ if(WIN32)
 	# Download third-party libraries
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
 	file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
-	if(MSVC12)
+	if(MSVC14)
+		set(_vsversion_args "14")
+	elseif(MSVC12)
 		set(_vsversion_args "12")
 	elseif(MSVC11)
 		set(_vsversion_args "11")
@@ -231,6 +233,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(MSC_VER_REQUIRED 1700)
 	elseif(MSVC12)
 		set(MSC_VER_REQUIRED 1800)
+	elseif(MSVC14)
+		set(MSC_VER_REQUIRED 1900)
 	else()
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
 	endif()
@@ -276,6 +280,11 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 
 	if(MSVC12)
 		# /Zo                               Enhanced debugging of optimised code for VS2013 Update 3 and beyond,
+		#                                   Assume all VS2013 builds are at least Update 3.
+		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
+	elseif(MSVC14)
+		# /Zo                               Enhanced debugging of optimised codem for VS2013 Update 3 and beyond,
 		#                                   Assume all VS2013 builds are at least Update 3.
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
