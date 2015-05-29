@@ -1245,6 +1245,14 @@ static int hf_bgp_update_path_attribute_multi_exit_disc = -1;
 static int hf_bgp_update_path_attribute_aggregator_as = -1;
 static int hf_bgp_update_path_attribute_aggregator_origin = -1;
 static int hf_bgp_update_path_attribute_link_state = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_address_family = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_safi = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa = -1;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri_address_family = -1;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri_safi = -1;
 static int hf_bgp_update_path_attribute_aigp = -1;
 static int hf_bgp_evpn_nlri = -1;
 static int hf_bgp_evpn_nlri_rt = -1;
@@ -1642,6 +1650,7 @@ static expert_field ei_bgp_route_refresh_orf_type_unknown = EI_INIT;
 static expert_field ei_bgp_length_invalid = EI_INIT;
 static expert_field ei_bgp_prefix_length_invalid = EI_INIT;
 static expert_field ei_bgp_afi_type_not_supported = EI_INIT;
+static expert_field ei_bgp_unknown_afi = EI_INIT;
 static expert_field ei_bgp_ls_error = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
@@ -5508,7 +5517,6 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
 
     while (i < path_attr_len) {
-        proto_item *hidden_item;
         proto_item *ti_pa, *ti_flags;
         int     off;
         guint16 alen, aoff, tlen, aoff_save;
@@ -5814,14 +5822,11 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                  * BGP extensions rather than RFC 2858-style extensions.
                  */
                 af = tvb_get_ntohs(tvb, o + i + aoff);
-                proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
-                                    "Address family: %s (%u)",
-                                    val_to_str_const(af, afn_vals, "Unknown"), af);
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_address_family, tvb,
+                                    o + i + aoff, 2, ENC_BIG_ENDIAN);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
-                proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
-                                    "Subsequent address family identifier: %s (%u)",
-                                    val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
-                                    saf);
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
+                                    o + i + aoff+2, 2, ENC_BIG_ENDIAN);
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
                 subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
                                                          nexthop_len + 1, ett_bgp_mp_nhna, NULL,
@@ -5836,8 +5841,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                  */
                 switch (af) {
                     default:
-                    proto_tree_add_text(subtree3, tvb, o + i + aoff + 4,
-                                        nexthop_len, "Unknown Address Family");
+                    proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff + 4, nexthop_len);
                     break;
 
                     case AFNUM_INET:
@@ -5854,9 +5858,9 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                 break;
                             if (j + advance > nexthop_len)
                                 break;
-                            proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-                                                advance, "Next hop: %s (%u)",
-                                                wmem_strbuf_get_str(junk_emstr), advance);
+                            proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
+                                                 o + i + aoff + 4 + j, advance, wmem_strbuf_get_str(junk_emstr));
+
                             j += advance;
                         }
                         break;
@@ -5868,20 +5872,19 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
                 off = 0;
                 snpa = tvb_get_guint8(tvb, o + i + aoff);
-                ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, 1,
-                                         "Subnetwork points of attachment: %u", snpa);
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa, tvb,
+                                         o + i + aoff, 1, ENC_BIG_ENDIAN);
                 off++;
                 if (snpa) {
                     subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_snpa);
                     for (/*nothing*/; snpa > 0; snpa--) {
-                        proto_tree_add_text(subtree3, tvb, o + i + aoff + off, 1,
-                                            "SNPA length: %u", tvb_get_guint8(tvb, o + i + aoff + off));
+                        guint8 snpa_length = tvb_get_guint8(tvb, o + i + aoff + off);
+                        proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length, tvb,
+                                            o + i + aoff + off, 1, ENC_BIG_ENDIAN);
                         off++;
-                        proto_tree_add_text(subtree3, tvb, o + i + aoff + off,
-                                            tvb_get_guint8(tvb, o + i + aoff + off - 1),
-                                            "SNPA (%u byte%s)", tvb_get_guint8(tvb, o + i + aoff + off - 1),
-                                            plurality(tvb_get_guint8(tvb, o + i + aoff + off - 1), "", "s"));
-                        off += tvb_get_guint8(tvb, o + i + aoff + off - 1);
+                        proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_snpa, tvb,
+                                            o + i + aoff + off, snpa_length, ENC_NA);
+                        off += snpa_length;
                     }
                 }
                 tlen -= off;
@@ -5892,8 +5895,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                          tlen, plurality(tlen, "", "s"));
                 if (tlen)  {
                     if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_LINK_STATE) {
-                        proto_tree_add_text(subtree3, tvb, o + i + aoff,
-                                            tlen, "Unknown Address Family");
+                        proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff, tlen);
                     } else {
                         while (tlen > 0) {
                             advance = decode_prefix_MP(subtree3,
@@ -5912,14 +5914,12 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 break;
             case BGPTYPE_MP_UNREACH_NLRI:
                 af = tvb_get_ntohs(tvb, o + i + aoff);
-                proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
-                                    "Address family: %s (%u)",
-                                    val_to_str_const(af, afn_vals, "Unknown"), af);
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri_address_family, tvb,
+                                    o + i + aoff, 2, ENC_BIG_ENDIAN);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
-                proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
-                                    "Subsequent address family identifier: %s (%u)",
-                                    val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
-                                    saf);
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri_safi, tvb,
+                                    o + i + aoff+2, 2, ENC_BIG_ENDIAN);
+
                 subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
                                                          tlen - 3, ett_bgp_mp_unreach_nlri, NULL, "Withdrawn routes (%u byte%s)", tlen - 3,
                                                          plurality(tlen - 3, "", "s"));
@@ -5994,18 +5994,15 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
                     proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
                                         q, 1, ENC_BIG_ENDIAN);
-                    hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
-                                                      q, 2, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(hidden_item);
-                    proto_tree_add_text(subtree3, tvb, q, 2,
-                                        "Type: %s", val_to_str_const(ssa_type, bgp_ssa_type, "Unknown"));
+                    proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb, q, 2, ENC_BIG_ENDIAN);
+
+                    proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb, q + 2, 2, ENC_BIG_ENDIAN);
+
                     if ((ssa_len == 0) || (q + ssa_len > end)) {
-                        proto_tree_add_text(subtree3, tvb, q + 2, end - q - 2,
-                                            "Invalid Length of %u", ssa_len);
+                        proto_tree_add_expert_format(subtree3, pinfo, &ei_bgp_length_invalid, tvb, q + 2,
+                                                     end - q - 2, "Invalid Length of %u", ssa_len);
                         break;
                     }
-                    proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb,
-                                        q + 2, 2, ENC_BIG_ENDIAN);
 
                     switch (ssa_type) {
                         case BGP_SSA_L2TPv3:
@@ -7076,6 +7073,32 @@ proto_register_bgp(void)
         { "Link State", "bgp.update.path_attribute.link_state", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
 
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_address_family,
+        { "Address family identifier (AFI)", "bgp.update.path_attribute.mp_reach_nlri.afi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_safi,
+        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_reach_nlri.afi", FT_UINT8, BASE_DEC,
+          VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop,
+        { "Next Hop", "bgp.update.path_attribute.mp_reach_nlri.next_hop", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa,
+        { "Number of Subnetwork points of attachment (SNPA)", "bgp.update.path_attribute.mp_reach_nlri.nbr_snpa", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length,
+        { "SNPA Length", "bgp.update.path_attribute.mp_reach_nlri.snpa_length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_snpa,
+        { "SNPA", "bgp.update.path_attribute.mp_reach_nlri.snpa", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+
+      { &hf_bgp_update_path_attribute_mp_unreach_nlri_address_family,
+        { "Address family identifier (AFI)", "bgp.update.path_attribute.mp_unreach_nlri.afi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_unreach_nlri_safi,
+        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_unreach_nlri.afi", FT_UINT8, BASE_DEC,
+          VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+
       { &hf_bgp_pmsi_tunnel_flags,
         { "Flags", "bgp.update.path_attribute.pmsi.tunnel.flags", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
@@ -8025,6 +8048,7 @@ proto_register_bgp(void)
         { &ei_bgp_length_invalid, { "bgp.length.invalid", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_prefix_length_invalid, { "bgp.prefix_length.invalid", PI_MALFORMED, PI_ERROR, "Prefix length is invalid", EXPFILL }},
         { &ei_bgp_afi_type_not_supported, { "bgp.afi_type_not_supported", PI_PROTOCOL, PI_ERROR, "AFI Type not supported", EXPFILL }},
+        { &ei_bgp_unknown_afi, { "bgp.unknown_afi", PI_PROTOCOL, PI_ERROR, "Unknown Address Family", EXPFILL }},
         { &ei_bgp_ls_error, { "bgp.ls.error", PI_PROTOCOL, PI_ERROR, "Link State error", EXPFILL }},
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
