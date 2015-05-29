@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/conversation.h>
 #include "packet-x509if.h"
 #include "packet-x509af.h"
 #include "packet-isakmp.h"
@@ -289,6 +290,9 @@ static int hf_isakmp_fragment_count = -1;
 static int hf_isakmp_reassembled_in = -1;
 static int hf_isakmp_reassembled_length = -1;
 
+static int hf_isakmp_ike2_fragment_number = -1;
+static int hf_isakmp_ike2_total_fragments = -1;
+
 static int hf_isakmp_cisco_frag_packetid = -1;
 static int hf_isakmp_cisco_frag_seq = -1;
 static int hf_isakmp_cisco_frag_last = -1;
@@ -376,10 +380,12 @@ static expert_field ei_isakmp_enc_data_length_mult_block_size = EI_INIT;
 static expert_field ei_isakmp_enc_pad_length_big = EI_INIT;
 static expert_field ei_isakmp_attribute_value_empty = EI_INIT;
 static expert_field ei_isakmp_payload_bad_length = EI_INIT;
+static expert_field ei_isakmp_bad_fragment_number = EI_INIT;
 
 static dissector_handle_t eap_handle = NULL;
 
-static reassembly_table isakmp_reassembly_table;
+static reassembly_table isakmp_cisco_reassembly_table;
+static reassembly_table isakmp_ike2_reassembly_table;
 
 static const fragment_items isakmp_frag_items = {
   /* Fragment subtrees */
@@ -532,6 +538,10 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE2_CP                   47
 #define PLOAD_IKE2_EAP                  48
 #define PLOAD_IKE2_GSPM                 49
+#define PLOAD_IKE2_IDG                  50
+#define PLOAD_IKE2_GSA                  51
+#define PLOAD_IKE2_KD                   52
+#define PLOAD_IKE2_SKF                  53
 #define PLOAD_IKE_NAT_D13               130
 #define PLOAD_IKE_NAT_OA14              131
 #define PLOAD_IKE_CISCO_FRAG            132
@@ -629,7 +639,11 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_CP,PLOAD_IKE2_CP, "Configuration"},
   { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP, "Extensible Authentication"},
   { PLOAD_IKE2_GSPM,PLOAD_IKE2_GSPM, "Generic Secure Password Method"},
-  { 50,127,    "Unassigned"     },
+  { PLOAD_IKE2_IDG,PLOAD_IKE2_IDG, "Group Identification"},
+  { PLOAD_IKE2_GSA,PLOAD_IKE2_GSA, "Group Security Association"},
+  { PLOAD_IKE2_KD,PLOAD_IKE2_KD, "Key Download"},
+  { PLOAD_IKE2_SKF,PLOAD_IKE2_SKF, "Encrypted and Authenticated Fragment"},
+  { 54,127,    "Unassigned"     },
   { 128,129,    "Private Use"   },
   { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
@@ -1574,6 +1588,7 @@ typedef struct decrypt_data {
   guint32        last_message_id;
 } decrypt_data_t;
 
+/* IKEv1: Lookup from  Initiator-SPI -> decrypt_data_t* */
 static GHashTable *isakmp_hash = NULL;
 
 static ikev1_uat_data_key_t* ikev1_uat_data = NULL;
@@ -1692,6 +1707,7 @@ static ikev2_uat_data_t* ikev2_uat_data = NULL;
 static guint num_ikev2_uat_data = 0;
 static uat_t* ikev2_uat;
 
+/* IKEv2: (I-SPI, R-SPI) -> ikev2_uat_data_t* */
 static GHashTable *ikev2_key_hash = NULL;
 
 #define IKEV2_ENCR_3DES_STR "3DES [RFC2451]"
@@ -1785,7 +1801,6 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
       break;
     default:
       return NULL;
-      break;
   }
   if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
     return NULL;
@@ -1813,7 +1828,6 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
       break;
     default:
       return NULL;
-      break;
   }
   digest_size = gcry_md_get_algo_dlen(gcry_md_algo);
 
@@ -1902,7 +1916,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   add_new_data_source(pinfo, encr_tvb, "Decrypted IKE");
 
   /* Fill in the next IV */
-  if (tvb_length(tvb) > cbc_block_size) {
+  if (tvb_reported_length(tvb) > cbc_block_size) {
     decr->last_cbc_len = cbc_block_size;
     memcpy(decr->last_cbc, buf + buf_len - cbc_block_size, cbc_block_size);
   } else {
@@ -1935,10 +1949,23 @@ static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, in
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
 static void dissect_ts(tvbuff_t *, int, int, proto_tree *);
-static void dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8, void*);
+static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8, void*, gboolean);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
 static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
+
+/* State of current fragmentation within a conversation */
+typedef struct ikev2_fragmentation_state_t {
+  guint32 message_id;
+  guint8  next_payload;
+} ikev2_fragmentation_state_t;
+
+/* frame_number -> next_payload.  The key will be the frame that completes the original message */
+static GHashTable *defrag_next_payload_hash = NULL;
+
+
+static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, guint32 message_id, guint8 next_payload,
+                                        void* decr_info);
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[] = { /* Ssh Communications Security IPSEC Express version 1.1.0 */
         0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA,
@@ -2615,17 +2642,16 @@ byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const c
 
 
 
-
 static void
-dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
+dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
                 int isakmp_version, guint8 initial_payload, int offset, int length,
-                packet_info *pinfo, void* decr_data)
+                packet_info *pinfo, guint32 message_id, void* decr_data)
 {
-  guint8 payload, next_payload;
-  guint16               payload_length;
-  proto_tree *          ntree;
+  guint8         payload, next_payload;
+  guint16        payload_length;
+  proto_tree *   ntree;
 
- for (payload = initial_payload; length > 0; payload = next_payload) {
+  for (payload = initial_payload; length > 0; payload = next_payload) {
     if (payload == PLOAD_IKE_NONE) {
       /*
        * What?  There's more stuff in this chunk of data, but the
@@ -2636,8 +2662,6 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
     }
 
     ntree = dissect_payload_header(tvb, pinfo, offset, length, isakmp_version, payload, &next_payload, &payload_length, tree);
-    if (ntree == NULL)
-      break;
     if (payload_length >= 4) {  /* XXX = > 4? */
       tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
         switch(payload){
@@ -2700,7 +2724,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
            break;
            case PLOAD_IKE2_SK:
            if(isakmp_version == 2)
-             dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, decr_data);
+             dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, decr_data, TRUE);
            break;
            case PLOAD_IKE2_EAP:
            dissect_eap(tvb, offset + 4, payload_length - 4, ntree, pinfo );
@@ -2720,6 +2744,10 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
            break;
            case PLOAD_IKE_CISCO_FRAG:
            dissect_cisco_fragmentation(tvb, offset + 4, payload_length - 4, ntree, pinfo );
+           break;
+           case PLOAD_IKE2_SKF:
+           /* N.B. not passing in length as must be the last payload in the message */
+           dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, decr_data );
            break;
            default:
            proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
@@ -2750,8 +2778,8 @@ isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
                         guint8 initial_payload, int offset, int length,
                         packet_info *pinfo)
 {
-  dissect_payloads(tvb, tree, tree, isakmp_version, initial_payload, offset, length,
-                   pinfo, NULL);
+  dissect_payloads(tvb, tree, isakmp_version, initial_payload, offset, length,
+                   pinfo, 0, NULL);
 }
 
 static int
@@ -2783,10 +2811,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   else if (tvb_get_ntohl(tvb, ISAKMP_HDR_SIZE-4) < ISAKMP_HDR_SIZE)
     return 0;
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
-    isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
-  }
+  ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
+  isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
 
   /* RFC3948 2.3 NAT Keepalive packet:
    * 1 byte payload with the value 0xff.
@@ -2944,7 +2970,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 4;
 
     if (hdr.flags & E_FLAG) {
-      if (len && isakmp_tree) {
+      /* Encrypted flag set (v1 only), so decrypt before dissecting payloads */
+      if (len) {
         ti = proto_tree_add_item(isakmp_tree, hf_isakmp_enc_data, tvb, offset, len, ENC_NA);
         proto_item_append_text(ti, " (%d byte%s)", len, plurality(len, "", "s"));
 
@@ -2954,17 +2981,17 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
           decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr, decr);
           if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
-            dissect_payloads(decr_tvb, decr_tree, tree, isakmp_version,
-                             hdr.next_payload, 0, tvb_length(decr_tvb), pinfo, decr_data);
+            dissect_payloads(decr_tvb, decr_tree, isakmp_version,
+                             hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, decr_data);
 
           }
         }
 #endif /* HAVE_LIBGCRYPT */
       }
     } else {
-      dissect_payloads(tvb, isakmp_tree, tree, isakmp_version, hdr.next_payload,
-                       offset, len, pinfo, decr_data);
-        }
+      dissect_payloads(tvb, isakmp_tree, isakmp_version, hdr.next_payload,
+                       offset, len, pinfo, hdr.message_id, decr_data);
+    }
   }
 
   return tvb_captured_length(tvb);
@@ -3008,9 +3035,9 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 static void
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, void* decr_data)
 {
-  guint32               doi;
-  proto_item            *sti;
-  proto_tree            *stree;
+  guint32       doi;
+  proto_item    *sti;
+  proto_tree    *stree;
 
   if (isakmp_version == 1) {
     doi = tvb_get_ntohl(tvb, offset);
@@ -3039,15 +3066,15 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       offset += 4;
       length -= 4;
 
-      dissect_payloads(tvb, tree, tree, isakmp_version, PLOAD_IKE_P, offset,
-                       length, pinfo, decr_data);
+      dissect_payloads(tvb, tree, isakmp_version, PLOAD_IKE_P, offset,
+                       length, pinfo, 0, decr_data);
     } else {
       /* Unknown */
       proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, length, ENC_NA);
     }
   } else if (isakmp_version == 2) {
-    dissect_payloads(tvb, tree, tree, isakmp_version, PLOAD_IKE_P, offset,
-                     length, pinfo, decr_data);
+    dissect_payloads(tvb, tree, isakmp_version, PLOAD_IKE_P, offset,
+                     length, pinfo, 0, decr_data);
   }
 }
 
@@ -3855,20 +3882,22 @@ dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_hash, tvb, offset, length, ENC_NA);
 }
+
 static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_sig, tvb, offset, length, ENC_NA);
 }
+
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_nonce, tvb, offset, length, ENC_NA);
 }
+
 static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
 {
-
   guint8 seq; /* Packet sequence number, starting from 1 */
   guint8 last;
   proto_tree *ptree;
@@ -3894,15 +3923,16 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    frag_msg = fragment_add_seq_check(&isakmp_reassembly_table, tvb, offset,
+    frag_msg = fragment_add_seq_check(&isakmp_cisco_reassembly_table, tvb, offset,
                                       pinfo,
                                       12345,                    /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
                                       NULL,
                                       seq-1,                    /* fragment sequence number, starting from 0 */
-                                      tvb_length_remaining(tvb, offset), /* fragment length - to the end */
+                                      tvb_reported_length_remaining(tvb, offset), /* fragment length - to the end */
                                       last);                    /* More fragments? */
     defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
-                                                 "Reassembled ISAKMP", frag_msg, &isakmp_frag_items,
+                                                 "Reassembled ISAKMP", frag_msg,
+                                                 &isakmp_frag_items,  /* groups and items, using same as Cisco */
                                                  NULL, ptree);
 
     if (defrag_isakmp_tvb) { /* take it all */
@@ -3917,10 +3947,175 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
   /* End Reassembly stuff for Cisco IKE fragmentation */
 
 }
+
+/* This is RFC7383 reassembly. */
+static void
+dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
+                            packet_info *pinfo, guint message_id, guint8 next_payload, void* decr_info)
+{
+  guint16 fragment_number, total_fragments;
+#ifdef HAVE_LIBGCRYPT
+  gboolean message_next_payload_set = FALSE;
+  guint8  message_next_payload;
+  gint iv_len, icd_len;
+  gint iv_offset;
+  gint icd_offset;
+  ikev2_decrypt_data_t *key_info;
+#endif
+
+  /* Fragment Number */
+  fragment_number = tvb_get_ntohs(tvb, offset);
+  total_fragments = tvb_get_ntohs(tvb, offset+2);
+  proto_tree_add_item(tree, hf_isakmp_ike2_fragment_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  if (fragment_number == 0) {
+    proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_bad_fragment_number, tvb, 0, 0,
+                                 "Fragment number must not be zero");
+  }
+  else if (fragment_number > total_fragments) {
+    proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_bad_fragment_number, tvb, 0, 0,
+                                 "Fragment number (%u) must not be greater than total fragments (%u)",
+                                 fragment_number, total_fragments);
+  }
+
+  /* During the first pass, store in the conversation the next_payload */
+  if (!pinfo->fd->flags.visited && (fragment_number == 1)) {
+    /* Create/update conversation with message_id -> next_payload */
+    conversation_t* p_conv = find_or_create_conversation(pinfo);
+    ikev2_fragmentation_state_t *p_state = wmem_new0(wmem_file_scope(), ikev2_fragmentation_state_t);
+    p_state->message_id = message_id;
+    p_state->next_payload = next_payload;
+
+    /* Store the state with the conversation */
+    conversation_add_proto_data(p_conv, proto_isakmp, (void*)p_state);
+  }
+
+  /* Total fragments */
+  proto_tree_add_item(tree, hf_isakmp_ike2_total_fragments, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  if (total_fragments == 0) {
+    proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_bad_fragment_number, tvb, 0, 0,
+                                 "Total fragments must not be zero");
+  }
+
+  /* Show fragment summary in Info column */
+  col_append_fstr(pinfo->cinfo, COL_INFO, " (fragment %u/%u)", fragment_number, total_fragments);
+
+#ifdef HAVE_LIBGCRYPT
+  /* If this is the last fragment, need to know what the payload type for the reassembled message is,
+     which was included in the first fragment */
+  if (fragment_number == total_fragments) {
+    if (!pinfo->fd->flags.visited) {
+      /* On first pass, get it from the conversation info */
+      conversation_t *p_conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                                 pinfo->ptype, pinfo->srcport,
+                                                 pinfo->destport, 0);
+      if (p_conv != NULL) {
+        ikev2_fragmentation_state_t *p_state = (ikev2_fragmentation_state_t*)conversation_get_proto_data(p_conv, proto_isakmp);
+        if (p_state != NULL) {
+          if (p_state->message_id == message_id) {
+            message_next_payload = p_state->next_payload;
+            message_next_payload_set = TRUE;
+
+            /* Store in table for this frame for future passes */
+            g_hash_table_insert(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(message_next_payload));
+          }
+        }
+      }
+    }
+    else {
+      /* On later passes, look up in hash table by frame number */
+      message_next_payload = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num)));
+      if (message_next_payload != 0) {
+        message_next_payload_set = TRUE;
+      }
+    }
+  }
+
+  /* Can only know lengths of following fields if we have the key information */
+  if (decr_info) {
+    key_info = (ikev2_decrypt_data_t*)(decr_info);
+    iv_len = key_info->encr_spec->iv_len;
+    icd_len = key_info->auth_spec->trunc_len;
+  }
+  else {
+    /* Can't show any more info. */
+    return;
+  }
+
+  /* Initialization Vector */
+  iv_offset = offset;
+  proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, ENC_NA);
+  offset += iv_len;
+
+  icd_offset = offset + tvb_reported_length_remaining(tvb, offset) - icd_len;
+
+  /* Encryption data */
+  proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, icd_offset-offset, ENC_NA);
+
+  /* Can only check how much padding there is after decrypting... */
+
+  /* Start Reassembly stuff for IKE2 fragmentation */
+  {
+    gboolean save_fragmented;
+    tvbuff_t *defrag_decrypted_isakmp_tvb;
+    tvbuff_t *isakmp_decrypted_fragment_tvb;
+    fragment_head *frag_msg;
+    guint8 padding_length;
+    guint16 fragment_length;
+
+    /* Decrypt but don't dissect this encrypted payload. */
+    isakmp_decrypted_fragment_tvb = dissect_enc(tvb, iv_offset, tvb_reported_length_remaining(tvb, iv_offset), tree, pinfo,
+                                                0,        /* Payload type won't be used in this call, and may not know yet */
+                                                decr_info,
+                                                FALSE     /* Don't dissect decrypted tvb as not a completed payload */
+                                                );
+
+    /* Save pinfo->fragmented, will later restore it */
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+
+    /* Remove padding length + any padding bytes from reassembled payload */
+    padding_length = tvb_get_guint8(isakmp_decrypted_fragment_tvb, tvb_reported_length(isakmp_decrypted_fragment_tvb)-1);
+    fragment_length = tvb_reported_length(isakmp_decrypted_fragment_tvb) - 1 - padding_length;
+
+    /* Adding decrypted tvb into reassembly table here */
+    frag_msg = fragment_add_seq_check(&isakmp_ike2_reassembly_table,
+                                      isakmp_decrypted_fragment_tvb,
+                                      0,    /* offset */
+                                      pinfo,
+                                      message_id,                                 /* message_id from top-level header */
+                                      NULL,                                       /* data? */
+                                      fragment_number-1,                          /* fragment sequence number, starting from 0 */
+                                      fragment_length,                            /* fragment - (padding_length + padding) */
+                                      fragment_number < total_fragments);         /* More fragments? */
+
+    defrag_decrypted_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                           "Reassembled IKE2 ISAKMP",
+                                                           frag_msg,
+                                                           &isakmp_frag_items, /* Tree IDs & items - using same ones as Cisco. */
+                                                           NULL, tree);
+
+    if (defrag_decrypted_isakmp_tvb && key_info && message_next_payload_set) {
+      /* Completely reassembled  - already decrypted - dissect reassembled payload if know next payload type */
+      col_append_fstr(pinfo->cinfo, COL_INFO, " (reassembled)");
+      dissect_payloads(defrag_decrypted_isakmp_tvb, tree,
+                      2,                      /* Version. TODO: store with next_payload? */
+                      message_next_payload,
+                      0, tvb_reported_length(defrag_decrypted_isakmp_tvb),
+                      pinfo, message_id, decr_info);
+    }
+    /* Restore this flag */
+    pinfo->fragmented = save_fragmented;
+  }
+  /* End Reassembly stuff for IKE2 fragmentation */
+#endif
+}
+
+
 static void
 dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
 {
-
   guint8                spi_size;
   guint16               msgtype;
   int                   offset_end = 0;
@@ -4649,7 +4844,10 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   }
 }
 
-static void
+/* For IKEv2, decrypt payload if necessary and dissect using inner_payload */
+/* For RFC 7383 reassembly, only need decrypted payload, so don't set dissect_payload_now .*/
+/* TODO: rename? */
+static tvbuff_t*
 dissect_enc(tvbuff_t *tvb,
             int offset,
             int length,
@@ -4657,11 +4855,13 @@ dissect_enc(tvbuff_t *tvb,
 #ifdef HAVE_LIBGCRYPT
             packet_info *pinfo,
             guint8 inner_payload,
-            void* decr_info)
+            void* decr_info,
+            gboolean dissect_payload_now)
 #else
             packet_info *pinfo _U_,
             guint8 inner_payload _U_,
-            void* decr_info _U_)
+            void* decr_info _U_,
+            gboolean dissect_payload_now _U_)
 #endif
 {
 #ifdef HAVE_LIBGCRYPT
@@ -4678,17 +4878,19 @@ dissect_enc(tvbuff_t *tvb,
   proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
 
   if (decr_info) {
+    /* Need decryption details to know field lengths. */
     key_info = (ikev2_decrypt_data_t*)(decr_info);
     iv_len = key_info->encr_spec->iv_len;
     icd_len = key_info->auth_spec->trunc_len;
     encr_data_len = length - iv_len - icd_len;
+
     /*
      * Zero or negative length of encrypted data shows that the user specified
      * wrong encryption algorithm and/or authentication algorithm.
      */
     if (encr_data_len <= 0) {
       proto_tree_add_expert(tree, pinfo, &ei_isakmp_enc_iv, tvb, offset, length);
-      return;
+      return NULL;
     }
 
     /*
@@ -4696,8 +4898,10 @@ dissect_enc(tvbuff_t *tvb,
      * if the specified encryption algorithm uses IV.
      */
     if (iv_len) {
-      iv_item = proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, ENC_NA);
-      proto_item_append_text(iv_item, " (%d bytes)", iv_len);
+      if (dissect_payload_now) {
+        iv_item = proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, ENC_NA);
+        proto_item_append_text(iv_item, " (%d bytes)", iv_len);
+      }
       iv = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, iv_len);
 
       offset += iv_len;
@@ -4706,8 +4910,10 @@ dissect_enc(tvbuff_t *tvb,
     /*
      * Add the encrypted portion to the tree and store it in a packet scope buffer for later decryption.
      */
-    encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
-    proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
+    if (dissect_payload_now) {
+      encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
+      proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
+    }
     encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, encr_data_len);
     offset += encr_data_len;
 
@@ -4766,7 +4972,7 @@ dissect_enc(tvbuff_t *tvb,
       proto_item_append_text(encr_data_item, "[Invalid length, should be a multiple of block size (%u)]",
         key_info->encr_spec->block_len);
       expert_add_info(pinfo, encr_data_item, &ei_isakmp_enc_data_length_mult_block_size);
-      return;
+      return NULL;
     }
 
     /*
@@ -4850,8 +5056,8 @@ dissect_enc(tvbuff_t *tvb,
      * We dissect the inner payloads at last in order to ensure displaying Padding, Pad Length and ICD
      * even if the dissection fails. This may occur when the user specify wrong encryption key.
      */
-    if (decr_payloads_tree) {
-      dissect_payloads(decr_tvb, decr_payloads_tree, decr_tree, 2, inner_payload, 0, payloads_len, pinfo, decr_info);
+    if (dissect_payload_now && decr_payloads_tree) {
+      dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, decr_info);
     }
   }else{
 #endif /* HAVE_LIBGCRYPT */
@@ -4859,7 +5065,10 @@ dissect_enc(tvbuff_t *tvb,
      proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length, ENC_NA);
 #ifdef HAVE_LIBGCRYPT
   }
-#endif /* HAVE_LIBGCRYPT */
+  return decr_tvb;
+#else /* HAVE_LIBGCRYPT */
+  return NULL;
+#endif
 }
 
 static void
@@ -4960,7 +5169,9 @@ isakmp_init_protocol(void) {
   decrypt_data_t *decr;
   guint8   *ic_key;
 #endif /* HAVE_LIBGCRYPT */
-  reassembly_table_init(&isakmp_reassembly_table,
+  reassembly_table_init(&isakmp_cisco_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_init(&isakmp_ike2_reassembly_table,
                         &addresses_reassembly_table_functions);
 
 #ifdef HAVE_LIBGCRYPT
@@ -4990,6 +5201,11 @@ isakmp_init_protocol(void) {
   for (i = 0; i < num_ikev2_uat_data; i++) {
     g_hash_table_insert(ikev2_key_hash, &(ikev2_uat_data[i].key), &(ikev2_uat_data[i]));
   }
+
+  if (defrag_next_payload_hash) {
+    g_hash_table_destroy(defrag_next_payload_hash);
+  }
+  defrag_next_payload_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -5639,6 +5855,15 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_isakmp_ike2_fragment_number,
+      { "Fragment Number", "isakmp.frag.number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "ISAKMP fragment number", HFILL }},
+    { &hf_isakmp_ike2_total_fragments,
+      { "Total Fragments", "isakmp.frag.total",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "ISAKMP total number of fragments", HFILL }},
+
     { &hf_isakmp_cisco_frag_packetid,
       { "Frag ID", "isakmp.frag.packetid",
         FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -6197,6 +6422,7 @@ proto_register_isakmp(void)
      { &ei_isakmp_enc_pad_length_big, { "isakmp.enc.pad_length.big", PI_MALFORMED, PI_WARN, "Pad length is too big", EXPFILL }},
      { &ei_isakmp_attribute_value_empty, { "isakmp.attribute_value_empty", PI_PROTOCOL, PI_NOTE, "Attribute value is empty", EXPFILL }},
      { &ei_isakmp_payload_bad_length, { "isakmp.payloadlength.invalid", PI_MALFORMED, PI_ERROR, "Invalid payload length", EXPFILL }},
+     { &ei_isakmp_bad_fragment_number, { "isakmp.fragment_number.invalid", PI_MALFORMED, PI_ERROR, "Invalid fragment numbering", EXPFILL }},
   };
 
   expert_module_t* expert_isakmp;
