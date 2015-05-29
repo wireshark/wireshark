@@ -5040,14 +5040,12 @@ dissect_scsi_lun(proto_tree *tree, tvbuff_t *tvb, guint offset) {
                 lun = tvb_get_guint8(tvb, offset + lun_len + 1);
                 proto_tree_add_uint(tt, hf_scsi_lun, tvb, offset + lun_len + 1, 1, lun);
             } else {
-                lun &= 0x3fff;
                 proto_tree_add_bits_item(tt, hf_scsi_lun, tvb, (offset + lun_len) * 8 + 2, 0xe, ENC_BIG_ENDIAN);
             }
             lun_len += len_code;
             break;
 
         case 1:
-            lun &= 0x3fff;
             proto_tree_add_bits_item(tt, hf_scsi_lun, tvb, (offset + lun_len) * 8 + 2, 0xe, ENC_BIG_ENDIAN);
             lun_len += len_code;
             break;
