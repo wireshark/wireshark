@@ -1122,6 +1122,7 @@ static int hf_bgp_marker = -1;
 static int hf_bgp_length = -1;
 static int hf_bgp_prefix_length = -1;
 static int hf_bgp_rd = -1;
+static int hf_bgp_continuation = -1;
 static int hf_bgp_originating_as = -1;
 static int hf_bgp_community_prefix = -1;
 static int hf_bgp_endpoint_address = -1;
@@ -1217,6 +1218,7 @@ static int hf_bgp_update_withdrawn_routes = -1;
 /* BGP update path attribute header field */
 static int hf_bgp_update_total_path_attribute_length = -1;
 static int hf_bgp_update_path_attributes = -1;
+static int hf_bgp_update_path_attributes_unknown = -1;
 static int hf_bgp_update_path_attribute_communities = -1;
 static int hf_bgp_update_path_attribute_community_well_known = -1;
 static int hf_bgp_update_path_attribute_community = -1;
@@ -1657,6 +1659,8 @@ static expert_field ei_bgp_length_invalid = EI_INIT;
 static expert_field ei_bgp_prefix_length_invalid = EI_INIT;
 static expert_field ei_bgp_afi_type_not_supported = EI_INIT;
 static expert_field ei_bgp_unknown_afi = EI_INIT;
+static expert_field ei_bgp_unknown_safi = EI_INIT;
+static expert_field ei_bgp_unknown_label_vpn = EI_INIT;
 static expert_field ei_bgp_ls_error = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
@@ -4141,7 +4145,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
              total_length++;
            break;
            default:
-                proto_tree_add_text(tree, tvb, start_offset, 0,
+                proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_safi, tvb, start_offset, 0,
                                     "Unknown SAFI (%u) for AFI %u", safi, afi);
                 return -1;
         } /* switch (safi) */
@@ -4325,7 +4329,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
                     default:
-                        proto_tree_add_text(tree, tvb, start_offset, 0,
+                        proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_label_vpn, tvb, start_offset, 0,
                                             "Unknown labeled VPN IPv6 address format %u", rd_type);
                         return -1;
                 } /* switch (rd_type) */
@@ -4338,7 +4342,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 total_length++;
                 break;
             default:
-                proto_tree_add_text(tree, tvb, start_offset, 0,
+                proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_safi, tvb, start_offset, 0,
                                     "Unknown SAFI (%u) for AFI %u", safi, afi);
                 return -1;
         } /* switch (safi) */
@@ -4389,7 +4393,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 break;
 
             default:
-                proto_tree_add_text(tree, tvb, start_offset, 0,
+                proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_safi, tvb, start_offset, 0,
                                     "Unknown SAFI (%u) for AFI %u", safi, afi);
                 return -1;
         } /* switch (safi) */
@@ -4583,14 +4587,15 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             break;
 
         default:
-            proto_tree_add_text(tree, tvb, start_offset, 0,
-                                "Unknown Link-State NLRI type (%u)", afi);
+            proto_tree_add_expert_format(tree, pinfo,  &ei_bgp_ls_error, tvb, start_offset, 0,
+                                         "Unknown Link-State NLRI type (%u)", afi);
+
         }
         break;
 
         default:
-            proto_tree_add_text(tree, tvb, start_offset, 0,
-                                "Unknown AFI (%u) value", afi);
+            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_afi, tvb, start_offset, 0,
+                                         "Unknown AFI (%u) value", afi);
             return -1;
     } /* switch (afi) */
     return(total_length);
@@ -6092,8 +6097,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 }
                 break;
             default:
-                proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                    "Unknown (%u byte%s)", tlen, plurality(tlen, "", "s"));
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attributes_unknown, tvb, o + i + aoff, tlen, ENC_NA);
                 break;
         } /* switch (bgpa.bgpa_type) */ /* end of second switch */
 
@@ -6537,7 +6541,8 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
         bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
-        proto_tree_add_text(bgp_tree, tvb, 0, offset, "Continuation");
+        proto_tree_add_item(bgp_tree, hf_bgp_continuation, tvb, 0, offset, ENC_NA);
+;
     }
 
     /*
@@ -6680,6 +6685,9 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_rd,
         { "Router Distinguer", "bgp.rd", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_continuation,
+        { "Continuation", "bgp.continuation", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_originating_as,
         { "Originating AS", "bgp.originating_as", FT_UINT32, BASE_DEC,
@@ -6924,6 +6932,9 @@ proto_register_bgp(void)
       /* BGP update path attributes */
       { &hf_bgp_update_path_attributes,
         { "Path attributes", "bgp.update.path_attributes", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attributes_unknown,
+        { "Unknown Path attributes", "bgp.update.path_attributes.unknown", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_total_path_attribute_length,
         { "Total Path Attribute Length", "bgp.update.path_attributes.length", FT_UINT16, BASE_DEC,
@@ -7995,6 +8006,8 @@ proto_register_bgp(void)
         { &ei_bgp_prefix_length_invalid, { "bgp.prefix_length.invalid", PI_MALFORMED, PI_ERROR, "Prefix length is invalid", EXPFILL }},
         { &ei_bgp_afi_type_not_supported, { "bgp.afi_type_not_supported", PI_PROTOCOL, PI_ERROR, "AFI Type not supported", EXPFILL }},
         { &ei_bgp_unknown_afi, { "bgp.unknown_afi", PI_PROTOCOL, PI_ERROR, "Unknown Address Family", EXPFILL }},
+        { &ei_bgp_unknown_safi, { "bgp.unknown_safi", PI_PROTOCOL, PI_ERROR, "Unknown SAFI", EXPFILL }},
+        { &ei_bgp_unknown_label_vpn, { "bgp.unknown_label", PI_PROTOCOL, PI_ERROR, "Unknown Label VPN", EXPFILL }},
         { &ei_bgp_ls_error, { "bgp.ls.error", PI_PROTOCOL, PI_ERROR, "Link State error", EXPFILL }},
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
