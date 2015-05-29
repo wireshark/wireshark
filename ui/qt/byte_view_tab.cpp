@@ -38,8 +38,12 @@ ByteViewTab::ByteViewTab(QWidget *parent) :
 }
 
 void ByteViewTab::addTab(const char *name, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *protoTree, packet_char_enc encoding) {
-    ByteViewText *byte_view_text = new ByteViewText(this, tvb, tree, protoTree, encoding);
+    if (count() == 1) { // Remove empty placeholder.
+        ByteViewText *cur_text = qobject_cast<ByteViewText *>(currentWidget());
+        if (cur_text && cur_text->isEmpty()) delete currentWidget();
+    }
 
+    ByteViewText *byte_view_text = new ByteViewText(this, tvb, tree, protoTree, encoding);
     byte_view_text->setAccessibleName(name);
     byte_view_text->setMonospaceFont(mono_font_);
     connect(this, SIGNAL(monospaceFontChanged(QFont)), byte_view_text, SLOT(setMonospaceFont(QFont)));
@@ -53,6 +57,7 @@ void ByteViewTab::clear()
     while (currentWidget()) {
         delete currentWidget();
     }
+    addTab();
     show();
 }
 
