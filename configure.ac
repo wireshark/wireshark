@@ -1815,98 +1815,71 @@ fi
 #
 # "make dist" requires that we have the Qt build tools.
 #
-# Annoyingly, at least on Fedora 16, uic and moc are named XXX-qt4
-# rather than just XXX, perhaps to allow Qt 3 and Qt 4 tools to be
-# installed; if they're still doing that in current Fedora releases,
-# perhaps there will also be XXX-qt5 when they pick up Qt 5.
+# Annoyingly, on some Linux distros (e.g. Debian) the Qt 5 tools have no
+# suffix and the Qt 4 tools have suffix -qt4. On other distros (e.g. openSUSE)
+# the Qt 5 tools have suffix -qt5 and the Qt 4 tools have no suffix. Hence
+# check for Qt tools in the following suffix order: "-qt5", "", "-qt4".
 #
-AC_PATH_PROG(UIC, uic)
-if test "x$UIC" = x
-then
-	AC_PATH_PROG(UIC, uic-qt5)
-	if test "x$UIC" = x
-	then
-		AC_PATH_PROG(UIC, uic-qt4)
-		if test "x$UIC" = x
-		then
-			if test "x$have_qt" != "xno"; then
-				#
-				# If you want to build with Qt, you'd better
-				# have uic.
-				#
-				AC_MSG_ERROR(I couldn't find uic or uic-qt5 or uic-qt4; make sure it's installed and in your path)
-			else
-				#
-				# We shouldn't fail here, as the user's not
-				# building with Qt, and we shouldn't force them
-				# to have Qt installed if they're not doing so.
-				# "make dist" will fail if they do that, but
-				# we don't know whether they'll be doing that,
-				# so this is the best we can do.
-				#
-				UIC=uic
-			fi
-		fi
+AC_PATH_PROGS(UIC, [uic-qt5 uic uic-qt4])
+if test "x$UIC" = x; then
+	if test "x$have_qt" != "xno"; then
+		#
+		# If you want to build with Qt, you'd better
+		# have uic.
+		#
+		AC_MSG_ERROR(I couldn't find uic or uic-qt5 or uic-qt4; make sure it's installed and in your path)
+	else
+		#
+		# We shouldn't fail here, as the user's not
+		# building with Qt, and we shouldn't force them
+		# to have Qt installed if they're not doing so.
+		# "make dist" will fail if they do that, but
+		# we don't know whether they'll be doing that,
+		# so this is the best we can do.
+		#
+		UIC=uic
 	fi
 fi
 AC_SUBST(UIC)
-AC_PATH_PROG(MOC, moc)
-if test "x$MOC" = x
-then
-	AC_PATH_PROG(MOC, moc-qt5)
-	if test "x$MOC" = x
-	then
-		AC_PATH_PROG(MOC, moc-qt4)
-		if test "x$MOC" = x
-		then
-			if test "x$have_qt" != "xno"; then
-				#
-				# If you want to build with Qt, you'd better
-				# have moc.
-				#
-				AC_MSG_ERROR(I couldn't find moc or moc-qt5 or moc-qt4; make sure it's installed and in your path)
-			else
-				#
-				# We shouldn't fail here, as the user's not
-				# building with Qt, and we shouldn't force them
-				# to have Qt installed if they're not doing so.
-				# "make dist" will fail if they do that, but
-				# we don't know whether they'll be doing that,
-				# so this is the best we can do.
-				#
-				MIC=moc
-			fi
-		fi
+AC_PATH_PROGS(MOC, [moc-qt5 moc moc-qt4])
+if test "x$MOC" = x; then
+	if test "x$have_qt" != "xno"; then
+		#
+		# If you want to build with Qt, you'd better
+		# have moc.
+		#
+		AC_MSG_ERROR(I couldn't find moc or moc-qt5 or moc-qt4; make sure it's installed and in your path)
+	else
+		#
+		# We shouldn't fail here, as the user's not
+		# building with Qt, and we shouldn't force them
+		# to have Qt installed if they're not doing so.
+		# "make dist" will fail if they do that, but
+		# we don't know whether they'll be doing that,
+		# so this is the best we can do.
+		#
+		MOC=moc
 	fi
 fi
 AC_SUBST(MOC)
-AC_PATH_PROG(RCC, rcc)
-if test "x$RCC" = x
-then
-	AC_PATH_PROG(RCC, rcc-qt5)
-	if test "x$RCC" = x
-	then
-		AC_PATH_PROG(RCC, rcc-qt4)
-		if test "x$RCC" = x
-		then
-			if test "x$have_qt" != "xno"; then
-				#
-				# If you want to build with Qt, you'd better
-				# have moc.
-				#
-				AC_MSG_ERROR(I couldn't find rcc or rcc-qt5; make sure it's installed and in your path)
-			else
-				#
-				# We shouldn't fail here, as the user's not
-				# building with Qt, and we shouldn't force them
-				# to have Qt installed if they're not doing so.
-				# "make dist" will fail if they do that, but
-				# we don't know whether they'll be doing that,
-				# so this is the best we can do.
-				#
-				RCC=rcc
-			fi
-		fi
+AC_PATH_PROGS(RCC, [rcc-qt5 rcc rcc-qt4])
+if test "x$RCC" = x; then
+	if test "x$have_qt" != "xno"; then
+		#
+		# If you want to build with Qt, you'd better
+		# have moc.
+		#
+		AC_MSG_ERROR(I couldn't find rcc or rcc-qt5; make sure it's installed and in your path)
+	else
+		#
+		# We shouldn't fail here, as the user's not
+		# building with Qt, and we shouldn't force them
+		# to have Qt installed if they're not doing so.
+		# "make dist" will fail if they do that, but
+		# we don't know whether they'll be doing that,
+		# so this is the best we can do.
+		#
+		RCC=rcc
 	fi
 fi
 AC_SUBST(RCC)
