@@ -758,7 +758,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     offset+=(int)sizeof(guint32);
 
                     proto_tree_add_item(ams_adstree, hf_ams_adsstate, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
-                    offset+=(int)sizeof(guint32);
+                    offset+=(int)sizeof(guint16);
 
                     proto_tree_add_item(ams_adstree, hf_ams_adsdevicestate, tvb, offset, (int)sizeof(guint16), ENC_LITTLE_ENDIAN);
                  }
