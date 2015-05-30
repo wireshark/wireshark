@@ -607,6 +607,7 @@ static int hf_gsm_a_bssmap_location_type_location_information = -1;
 static int hf_gsm_a_bssmap_location_type_positioning_method = -1;
 static int hf_gsm_a_bssmap_chan_type_extension = -1;
 static int hf_gsm_a_bssmap_cause_extension = -1;
+static int hf_gsm_a_bssmap_ass_req = -1;
 static int hf_gsm_a_bssmap_emlpp_prio = -1;
 static int hf_gsm_a_bssmap_rip = -1;
 static int hf_gsm_a_bssmap_rtd = -1;
@@ -2681,16 +2682,18 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 /*
  * 3.2.2.52 Assignment Requirement
  */
+static const value_string gsm_a_bssmap_assignment_requirement_vals[] = {
+    { 0x00, "Delay allowed" },
+    { 0x01, "Immediate and the resources shall not be de-allocated until the end of the call (channel establishment on demand forbidden by the MSC)" },
+    { 0x02, "Immediate and the resources may further be de-allocated by the BSS (channel establishment on demand permitted by the MSC)." },
+    { 0, NULL }
+};
 static guint16
-be_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_ass_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    curr_offset = offset;
-
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
-
-    return(len);
+    return 1;
 }
 /*
  * 3.2.2.53 (void)
@@ -7703,6 +7706,11 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_cause_extension,
         { "Extension", "gsm_a.bssmap.causeType.extension",
             FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_ass_req,
+        { "Assignment Requirement", "gsm_a.bssmap.assignment_requirement",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_assignment_requirement_vals), 0x0,
             NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_emlpp_prio,
