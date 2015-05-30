@@ -2533,7 +2533,7 @@ dissect_ldap_SEQUENCE_OF_LDAPURL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ldap_SearchResultReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 795 "../../asn1/ldap/ldap.cnf"
+#line 796 "../../asn1/ldap/ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 19, TRUE, dissect_ldap_SEQUENCE_OF_LDAPURL);
@@ -2810,7 +2810,7 @@ dissect_ldap_CompareResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ldap_AbandonRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 802 "../../asn1/ldap/ldap.cnf"
+#line 803 "../../asn1/ldap/ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 16, TRUE, dissect_ldap_MessageID);
@@ -3398,11 +3398,12 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
 	if (val >0) {
-		const int * flags[] = {
+		const int *flags[] = {
 			&hf_ldap_object_security_flag,
 			&hf_ldap_ancestor_first_flag,
 			&hf_ldap_public_data_only_flag,
 			&hf_ldap_incremental_value_flag,
+			NULL
 		};
 
 		proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,

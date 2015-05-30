@@ -778,11 +778,12 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
 	if (val >0) {
-		const int * flags[] = {
+		const int *flags[] = {
 			&hf_ldap_object_security_flag,
 			&hf_ldap_ancestor_first_flag,
 			&hf_ldap_public_data_only_flag,
 			&hf_ldap_incremental_value_flag,
+			NULL
 		};
 
 		proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,
