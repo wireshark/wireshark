@@ -1380,7 +1380,6 @@ DIAG_ON(cast-qual)
     }
 #endif /* HAVE_LIBPCAP */
 
-    g_main_loop_new(NULL, FALSE);
     return wsApp->exec();
 }
 
