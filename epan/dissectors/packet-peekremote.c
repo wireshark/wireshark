@@ -57,6 +57,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#define IS_ARUBA 0x01
 
 void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
@@ -311,7 +312,9 @@ static gint ett_peekremote_flags = -1;
 static gint ett_peekremote_status = -1;
 static gint ett_peekremote_extflags = -1;
 
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t wlan_withfcs;
+static dissector_handle_t wlan_withoutfcs;
+
 
 static int
 dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -464,22 +467,23 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   proto_item_set_end(ti, tvb, offset);
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+  call_dissector(wlan_withfcs, next_tvb, pinfo, tree);
   return TRUE;
 }
 
 static int
-dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *u)
+dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   tvbuff_t *next_tvb;
   proto_tree *peekremote_tree = NULL;
   proto_item *ti = NULL;
+  guint8 signal_percent;
 
   /*
    * Check whether this is peekremote-ng, and dissect it as such if it
    * is.
    */
-  if (dissect_peekremote_new(tvb, pinfo, tree, u)) {
+  if (dissect_peekremote_new(tvb, pinfo, tree, data)) {
     /* Yup, it was peekremote-ng, and it's been dissected as such. */
     return tvb_reported_length(tvb);
   }
@@ -503,9 +507,15 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
   }
+  signal_percent = tvb_get_guint8(tvb, 18);
   proto_item_set_end(ti, tvb, 20);
   next_tvb = tvb_new_subset_remaining(tvb, 20);
-  return 20 + call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+  /* When signal = 100 % and coming from ARUBA ERM, it is TX packet and there is no FCS */
+  if (GPOINTER_TO_INT(data) == IS_ARUBA && signal_percent == 100){
+    return 20 + call_dissector(wlan_withoutfcs, next_tvb, pinfo, tree);
+  } else {
+    return 20 + call_dissector(wlan_withfcs, next_tvb, pinfo, tree);
+  }
 }
 
 void
@@ -588,7 +598,8 @@ proto_reg_handoff_peekremote(void)
 {
   dissector_handle_t peekremote_handle;
 
-  ieee80211_handle = find_dissector("wlan_withfcs");
+  wlan_withfcs = find_dissector("wlan_withfcs");
+  wlan_withoutfcs = find_dissector("wlan_withoutfcs");
 
   peekremote_handle = new_create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);

@@ -102,6 +102,8 @@
 #define TYPE_PCAPPLUSRADIO 3
 #define TYPE_PPI 4
 
+#define IS_ARUBA 0x01
+
 static const value_string aruba_erm_type_vals[] = {
     { TYPE_PCAP,            "pcap (type 0)" },
     { TYPE_PEEK,            "peek (type 1)" },
@@ -209,7 +211,8 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(wlan_withfcs, eth_tvb, pinfo, tree);
             break;
         case TYPE_PEEK:
-            call_dissector(peek_handle, tvb, pinfo, tree);
+            /* Say to PEEK dissector, it is a Aruba PEEK packet */
+            call_dissector_with_data(peek_handle, tvb, pinfo, tree, GUINT_TO_POINTER(IS_ARUBA));
             break;
         case TYPE_AIRMAGNET:
             /* Not (yet) supported launch data dissector */
