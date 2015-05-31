@@ -215,7 +215,7 @@ if (WERROR)
 	set_source_files_properties(
 		${CLEAN_FILES}
 		PROPERTIES
-		COMPILE_FLAGS -Werror
+		COMPILE_FLAGS "-Werror -Wno-error=deprecated-declarations"
 	)
 endif()
 
