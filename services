@@ -3839,8 +3839,8 @@ netiq-ncap       2219/tcp # NetIQ NCAP Protocol [Roger_Huebner] [Roger_Huebner] 
 netiq-ncap       2219/udp # NetIQ NCAP Protocol [Roger_Huebner] [Roger_Huebner] 2010-08-25
 netiq            2220/tcp # NetIQ End2End [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
 netiq            2220/udp # NetIQ End2End [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
-rockwell-csp1    2221/tcp # Rockwell CSP1 [Brian_Batke] [Brian_Batke]
-rockwell-csp1    2221/udp # Rockwell CSP1 [Brian_Batke] [Brian_Batke]
+ethernet-ip-s    2221/tcp # EtherNet/IP over TLS [ODVA_Inc] [Brian_Batke_3] 2015-05-28
+ethernet-ip-s    2221/udp # EtherNet/IP over DTLS [ODVA_Inc] [Brian_Batke_3] 2015-05-28
 EtherNet-IP-1    2222/tcp # EtherNet/IP I/OIANA assigned this well-formed service name as a replacement for "EtherNet/IP-1". [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01
 EtherNet/IP-1    2222/tcp # EtherNet/IP I/O [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01This entry is an alias to "EtherNet-IP-1".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 EtherNet-IP-1    2222/udp # EtherNet/IP I/OIANA assigned this well-formed service name as a replacement for "EtherNet/IP-1". [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01
@@ -5130,8 +5130,8 @@ iwlistener       2866/tcp # iwlistener [Fred_Surr] [Fred_Surr]
 iwlistener       2866/udp # iwlistener [Fred_Surr] [Fred_Surr]
 esps-portal      2867/tcp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
 esps-portal      2867/udp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
-npep-messaging   2868/tcp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
-npep-messaging   2868/udp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
+npep-messaging   2868/tcp # Norman Proprietaqry Events Protocol [AVG_Technologies_Norway_AS] [Kristian_A_Bognaes_2] 2015-05-20
+npep-messaging   2868/udp # Norman Proprietaqry Events Protocol [AVG_Technologies_Norway_AS] [Kristian_A_Bognaes_2] 2015-05-20
 icslap           2869/tcp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 icslap           2869/udp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 daishi           2870/tcp # daishi [Patrick_Chipman] [Patrick_Chipman]
@@ -11187,6 +11187,8 @@ pago-services2  30002/udp # Pago Services 2 [Balduin_Mueller_Plat] [Balduin_Muel
 amicon-fpsu-ra  30003/tcp # Amicon FPSU-IP Remote Administration [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
 amicon-fpsu-ra  30003/udp # Amicon FPSU-IP Remote Administration [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
 amicon-fpsu-s   30004/udp # Amicon FPSU-IP VPN [Amicon_OOO] [Alexey_Novotorzhin] 2013-04-25
+rwp             30100/tcp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
+rwp             30100/sctp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
 kingdomsonline  30260/tcp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 kingdomsonline  30260/udp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 samsung-disc    30832/udp # Samsung Convergence Discovery Protocol [Samsung_2] [Young_Ki_Kim] 2013-05-29
