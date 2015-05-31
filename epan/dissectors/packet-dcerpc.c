@@ -449,6 +449,7 @@ static int hf_dcerpc_cn_flags_maybe = -1;
 static int hf_dcerpc_cn_flags_object = -1;
 static int hf_dcerpc_drep = -1;
        int hf_dcerpc_drep_byteorder = -1;
+       int hf_dcerpc_ndr_padding = -1;
 static int hf_dcerpc_drep_character = -1;
 static int hf_dcerpc_drep_fp = -1;
 static int hf_dcerpc_cn_frag_len = -1;
@@ -6011,6 +6012,8 @@ proto_register_dcerpc(void)
           { "Data Representation", "dcerpc.drep", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_drep_byteorder,
           { "Byte order", "dcerpc.drep.byteorder", FT_UINT8, BASE_DEC, VALS(drep_byteorder_vals), 0x0, NULL, HFILL }},
+        { &hf_dcerpc_ndr_padding,
+          { "NDR-Padding", "dcerpc.ndr_padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_drep_character,
           { "Character", "dcerpc.drep.character", FT_UINT8, BASE_DEC, VALS(drep_character_vals), 0x0, NULL, HFILL }},
         { &hf_dcerpc_drep_fp,

@@ -411,6 +411,8 @@ static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 static int hf_netlogon_s4u2proxytarget = -1;
 static int hf_netlogon_transitedlistsize = -1;
 static int hf_netlogon_transited_service = -1;
+static int hf_netlogon_logon_duration = -1;
+static int hf_netlogon_time_created = -1;
 
 static gint ett_nt_counted_longs_as_string = -1;
 static gint ett_dcerpc_netlogon = -1;
@@ -865,12 +867,15 @@ netlogon_dissect_LOGOFF_UAS_INFO(tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, guint8 *drep)
 {
+    guint32 duration;
+
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
     }
 
-    proto_tree_add_text(tree, tvb, offset, 4, "Duration: unknown time format");
+    duration = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
+    proto_tree_add_uint_format_value(tree, hf_netlogon_logon_duration, tvb, offset, 4, duration, "unknown time format");
     offset+= 4;
 
     offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
@@ -4354,6 +4359,7 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *tree,
                             dcerpc_info *di, guint8 *drep)
 {
+    guint32 time_created;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -4362,7 +4368,8 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
     proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset += 16;
 
-    proto_tree_add_text(tree, tvb, offset, 4, "Time Created: unknown time format");
+    time_created = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
+    proto_tree_add_uint_format_value(tree, hf_netlogon_time_created, tvb, offset, 4, time_created, "unknown time format");
     offset+= 4;
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -9208,6 +9215,12 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_transited_service,
           { "Transited Service", "netlogon.transited_service", FT_STRING, BASE_NONE,
             NULL, 0, "S4U2 Transited Service name", HFILL }},
+        { &hf_netlogon_logon_duration,
+          { "Duration", "netlogon.logon_duration", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+        { &hf_netlogon_time_created,
+          { "Time Created", "netlogon.time_created", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {

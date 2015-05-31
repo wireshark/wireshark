@@ -542,6 +542,7 @@ typedef struct pol_value {
 
 
 extern int hf_dcerpc_drep_byteorder;
+extern int hf_dcerpc_ndr_padding;
 
 #define FAKE_DCERPC_INFO_STRUCTURE      \
     /* Fake dcerpc_info structure */    \

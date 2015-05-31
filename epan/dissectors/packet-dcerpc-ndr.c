@@ -375,8 +375,7 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (!di->no_align && (offset % 8)) {
         gint padding = 8 - (offset % 8);
-        /*add the item for padding bytes*/
-        proto_tree_add_text(tree, tvb, offset, padding, "NDR-Padding: %d bytes", padding);
+        proto_tree_add_item(tree, hf_dcerpc_ndr_padding, tvb, offset, padding, ENC_NA);
         offset += padding;
     }
     return dissect_dcerpc_uint64(tvb, offset, pinfo,
