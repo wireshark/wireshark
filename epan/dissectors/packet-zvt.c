@@ -60,6 +60,8 @@
 
 static GHashTable *apdu_table = NULL;
 
+static wmem_tree_t *transactions = NULL;
+
 typedef enum _zvt_direction_t {
     DIRECTION_UNKNOWN,
     DIRECTION_ECR_TO_PT,
@@ -126,6 +128,8 @@ static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
 static int ett_zvt_tlv_dat_obj = -1;
 
+static int hf_zvt_resp_in = -1;
+static int hf_zvt_resp_to = -1;
 static int hf_zvt_serial_char = -1;
 static int hf_zvt_crc = -1;
 static int hf_zvt_ctrl = -1;
@@ -140,6 +144,12 @@ static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bitmap = -1;
 static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_len = -1;
+
+typedef struct _zvt_transaction_t {
+    guint32 rqst_frame;
+    guint32 resp_frame;
+    guint16 ctrl;
+} zvt_transaction_t;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -422,14 +432,16 @@ zvt_set_addresses(packet_info *pinfo _U_, zvt_direction_t dir)
 static int
 dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint         offset_start;
-    guint8       len_bytes = 1; /* number of bytes for the len field */
-    guint16      ctrl = ZVT_CTRL_NONE;
-    guint16      len;
-    guint8       byte;
-    proto_item  *apdu_it;
-    proto_tree  *apdu_tree;
-    apdu_info_t *ai;
+    gint               offset_start;
+    guint8             len_bytes = 1; /* number of bytes for the len field */
+    guint16            ctrl = ZVT_CTRL_NONE;
+    guint16            len;
+    guint8             byte;
+    proto_item        *apdu_it;
+    proto_tree        *apdu_tree;
+    apdu_info_t       *ai;
+    zvt_transaction_t *zvt_trans;
+    proto_item        *it;
 
     offset_start = offset;
 
@@ -459,6 +471,23 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         offset++;
         proto_tree_add_item(apdu_tree, hf_zvt_aprc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
+
+        /* XXX - can this ever be NULL? */
+        if (transactions) {
+            zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32_le(
+                    transactions, PINFO_FD_NUM(pinfo));
+           if (zvt_trans && zvt_trans->resp_frame==0) {
+               /* there's a pending request, this packet is the response */
+               zvt_trans->resp_frame = PINFO_FD_NUM(pinfo);
+           }
+
+           if (zvt_trans && zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+               it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_to,
+                       NULL, 0, 0, zvt_trans->rqst_frame);
+               PROTO_ITEM_SET_GENERATED(it);
+           }
+        }
+
     }
     else {
         ctrl = tvb_get_ntohs(tvb, offset);
@@ -466,6 +495,28 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
                 val_to_str_const(ctrl, ctrl_field, "Unknown 0x%x"));
         offset += 2;
+
+        if (PINFO_FD_VISITED(pinfo)) {
+            zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32(
+                    transactions, PINFO_FD_NUM(pinfo));
+            if (zvt_trans && zvt_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
+                    zvt_trans->resp_frame!=0) {
+               it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_in,
+                       NULL, 0, 0, zvt_trans->resp_frame);
+               PROTO_ITEM_SET_GENERATED(it);
+            }
+        }
+        else {
+            /* XXX - can this ever be NULL? */
+            if (transactions) {
+                zvt_trans = wmem_new(wmem_file_scope(), zvt_transaction_t);
+                zvt_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+                zvt_trans->resp_frame = 0;
+                zvt_trans->ctrl = ctrl;
+                wmem_tree_insert32(transactions,
+                        zvt_trans->rqst_frame, (void *)zvt_trans);
+            }
+        }
     }
 
     proto_tree_add_uint(apdu_tree, hf_zvt_len, tvb, offset, len_bytes, len);
@@ -663,7 +714,13 @@ proto_register_zvt(void)
         &ett_zvt_tlv_dat_obj
     };
     static hf_register_info hf[] = {
-        { &hf_zvt_serial_char,
+        { &hf_zvt_resp_in,
+            { "Response In", "zvt.resp_in",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_zvt_resp_to,
+            { "Response To", "zvt.resp_to",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+         { &hf_zvt_serial_char,
             { "Serial character", "zvt.serial_char", FT_UINT8,
                 BASE_HEX|BASE_EXT_STRING, &serial_char_ext, 0, NULL, HFILL } },
         { &hf_zvt_crc,
@@ -728,6 +785,8 @@ proto_register_zvt(void)
                    "Set the TCP port for ZVT messages (port 20007 according to the spec)",
                    10,
                    &pref_zvt_tcp_port);
+
+    transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 
