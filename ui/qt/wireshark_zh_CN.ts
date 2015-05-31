@@ -6752,10 +6752,6 @@ text-decoration: underline;
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <source>Loading: %1</source>
-        <translation type="vanished">正在加载: %1</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="639"/>
         <source>%1: %2</source>
         <translation type="unfinished">%1: %2</translation>

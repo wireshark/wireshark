@@ -483,7 +483,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="280"/>
         <source>Link type</source>
-        <translation type="unfinished"></translation>
+        <translation>Linktyp</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="281"/>
@@ -6760,10 +6760,6 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="1664"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
-    </message>
-    <message>
-        <source>Loading: %1</source>
-        <translation type="vanished">Lade %1</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="639"/>

@@ -6761,18 +6761,14 @@ a:hover {
         <translation>Wireshark l&apos;analizzatore di rete</translation>
     </message>
     <message>
-        <source>Loading: %1</source>
-        <translation type="vanished">Caricamento in corso: %1</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="639"/>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="703"/>
         <source>Saving %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvataggio di %1 in corso...</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="741"/>
@@ -6842,17 +6838,17 @@ a:hover {
     <message>
         <location filename="main_window.h" line="213"/>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento in corso</translation>
     </message>
     <message>
         <location filename="main_window.h" line="215"/>
         <source>Reloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricaricamento in corso</translation>
     </message>
     <message>
         <location filename="main_window.h" line="216"/>
         <source>Rescanning</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova scansione in corso</translation>
     </message>
 </context>
 <context>
@@ -7118,7 +7114,7 @@ a:hover {
     <message>
         <location filename="packet_dialog.cpp" line="135"/>
         <source>[%1 closed] </source>
-        <translation type="unfinished"></translation>
+        <translation> [%1 chiuso]</translation>
     </message>
 </context>
 <context>
