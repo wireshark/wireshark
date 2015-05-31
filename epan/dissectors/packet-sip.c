@@ -188,6 +188,9 @@ static gint hf_sip_rack_rseq_no           = -1;
 static gint hf_sip_rack_cseq_no           = -1;
 static gint hf_sip_rack_cseq_method       = -1;
 
+static gint hf_sip_reason_protocols       = -1;
+static gint hf_sip_reason_cause           = -1;
+
 static gint hf_sip_msg_body               = -1;
 static gint hf_sip_sec_mechanism          = -1;
 static gint hf_sip_sec_mechanism_alg      = -1;
@@ -233,6 +236,7 @@ static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
+static expert_field ei_sip_header_no_colon = EI_INIT;
 static expert_field ei_sip_header_not_terminated = EI_INIT;
 static expert_field ei_sip_odd_register_response = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
@@ -1862,6 +1866,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
     gint  current_offset, semi_colon_offset, length;
     gchar *param_name = NULL;
     guint cause_value;
+    proto_item* ti;
 
         /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1879,10 +1884,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
         return;
 
     length = semi_colon_offset - current_offset;
-    if (tree) {
-        proto_tree_add_text(tree, tvb, start_offset, length,
-            "Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
-    }
+    proto_tree_add_item(tree, hf_sip_reason_protocols, tvb, start_offset, length, ENC_UTF_8|ENC_NA);
 
     param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, length, ENC_UTF_8|ENC_NA);
     if (g_ascii_strcasecmp(param_name, "Q.850") == 0){
@@ -1891,9 +1893,10 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 
         /* q850_cause_code_vals */
         cause_value = (guint)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, length, ENC_UTF_8|ENC_NA), NULL, 10);
-        proto_tree_add_text(tree, tvb, current_offset, length,
-            "Cause: %u(0x%x)[%s]", cause_value,cause_value,
-            val_to_str_ext(cause_value, &q850_cause_code_vals_ext, "Unknown (%d)" ));
+        ti = proto_tree_add_uint(tree, hf_sip_reason_cause, tvb, current_offset, 1, cause_value);
+        /*, "Cause: %u(0x%x)[%s]", cause_value, cause_value,
+            val_to_str_ext(cause_value, &q850_cause_code_vals_ext, "Unknown (%d)" )); */
+        proto_item_set_len(ti, length);
 
     }
 
@@ -2698,12 +2701,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     remaining_length = remaining_length - (next_offset - offset);
     offset = next_offset;
-    if (sip_tree) {
-        th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
+
+    th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
                                  remaining_length, ENC_UTF_8|ENC_NA);
-        proto_item_set_text(th, "Message Header");
-        hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
-    }
+    proto_item_set_text(th, "Message Header");
+    hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
     /*
      * Process the headers - if we're not building a protocol tree,
@@ -2764,11 +2766,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             /*
              * Malformed header - no colon after the name.
              */
-            if(hdr_tree) {
-                proto_tree_add_text(hdr_tree, tvb, offset,
-                                    next_offset - offset, "%s",
-                                    tvb_format_text(tvb, offset, linelen));
-            }
+            expert_add_info(pinfo, th, &ei_sip_header_no_colon);
         } else {
             header_len = colon_offset - offset;
             header_name = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, header_len, ENC_UTF_8|ENC_NA);
@@ -2783,15 +2781,16 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             value_len = (gint) (line_end_offset - value_offset);
 
             if (hf_index == -1) {
-                proto_item *ti_c = proto_tree_add_text(hdr_tree, tvb,
-                                                     offset, next_offset - offset, "%s",
+                proto_item *ti_c;
+                proto_tree *ti_tree = proto_tree_add_subtree(hdr_tree, tvb,
+                                                     offset, next_offset - offset, ett_sip_ext_hdr, &ti_c,
                                                      tvb_format_text(tvb, offset, linelen));
 
                 ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
                 if (ext_hdr_handle != NULL) {
                     tvbuff_t *next_tvb2;
                     next_tvb2 = tvb_new_subset_length(tvb, value_offset, value_len);
-                    dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr), NULL);
+                    dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, ti_tree, NULL);
                 } else {
                     expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
                                            "Unrecognised SIP header (%s)",
@@ -3298,7 +3297,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, content_type_len, ENC_UTF_8|ENC_NA));
 
                         /* Debug code
-                        proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,
+                        proto_tree_add_debug_text(hdr_tree, tvb, value_offset,content_type_len,
                                             "media_type_str(lower cased)=%s",media_type_str_lower_case);
                         */
                     break;
@@ -5757,6 +5756,16 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             "RAck CSeq header method (from prov response)", HFILL}
         },
+        { &hf_sip_reason_protocols,
+          { "Reason protocols",  "sip.reason_protocols",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_reason_cause,
+          { "Cause",  "sip.reason_cause",
+            FT_UINT32, BASE_DEC_HEX|BASE_EXT_STRING, &q850_cause_code_vals_ext, 0x0,
+            NULL, HFILL}
+        },
         { &hf_sip_msg_body,
           { "Message Body",           "sip.msg_body",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -5865,6 +5874,7 @@ void proto_register_sip(void)
 
     static ei_register_info ei[] = {
         { &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
+        { &ei_sip_header_no_colon, { "sip.header_no_colon", PI_MALFORMED, PI_WARN, "Header has no colon after the name", EXPFILL }},
         { &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
         { &ei_sip_odd_register_response, { "sip.response.unusual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
