@@ -65,6 +65,8 @@ static int proto_http = -1;
 static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
+static int hf_http_response_number = -1;
+static int hf_http_request_number = -1;
 static int hf_http_response_line = -1;
 static int hf_http_request_line = -1;
 static int hf_http_basic = -1;
@@ -119,7 +121,10 @@ static int hf_http_next_response_in = -1;
 static int hf_http_prev_request_in = -1;
 static int hf_http_prev_response_in = -1;
 static int hf_http_time = -1;
+static int hf_http_chunk_size = -1;
+static int hf_http_chunk_boundary = -1;
 static int hf_http_chunked_trailer_part = -1;
+static int hf_http_unknown_header = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -1107,7 +1112,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (curr) {
 				nstime_t delta;
 
-				pi = proto_tree_add_text(http_tree, tvb, 0, 0, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
+				pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
 				PROTO_ITEM_SET_GENERATED(pi);
 
 				if (! nstime_is_unset(&(curr->req_ts))) {
@@ -1145,7 +1150,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			if (curr) {
-				pi = proto_tree_add_text(http_tree, tvb, 0, 0, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
+				pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0, curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
 				PROTO_ITEM_SET_GENERATED(pi);
 			}
 			if (prev && prev->req_framenum) {
@@ -1669,7 +1674,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					 ett_http_chunked_response, NULL, "HTTP chunked response");
 
 	while (datalen > 0) {
-		proto_item *chunk_ti = NULL;
+		proto_item *chunk_ti = NULL, *chuck_size_item;
 		proto_tree *chunk_subtree = NULL;
 		tvbuff_t *data_tvb = NULL; /*  */
 		gchar *c = NULL;
@@ -1763,15 +1768,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					    ett_http_chunk_data, NULL, "Data chunk (%u octets)", chunk_size);
 			}
 
-			proto_tree_add_text(chunk_subtree, tvb, offset,
-			    chunk_offset - offset, "Chunk size: %u octets",
-			    chunk_size);
+			chuck_size_item = proto_tree_add_uint_format_value(chunk_subtree, hf_http_chunk_size, tvb, offset,
+			    1, chunk_size, "%u octets", chunk_size);
+			proto_item_set_len(chuck_size_item, chunk_offset - offset);
 
 			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
 
 
 			/*
-			 * XXX - just use "proto_tree_add_text()"?
+			 * XXX - just use "proto_tree_add_string_format()"?
 			 * This means that, in TShark, you get
 			 * the entire chunk dumped out in hex,
 			 * in addition to whatever dissection is
@@ -1780,8 +1785,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			call_dissector(data_handle, data_tvb, pinfo,
 				    chunk_subtree);
 
-			proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
-			    chunk_size, 2, "Chunk boundary");
+			proto_tree_add_item(chunk_subtree, hf_http_chunked_boundary, tvb,
+								chunk_offset + chunk_size, 2, ENC_NA);
 		}
 
 		chunks_decoded++;
@@ -1901,6 +1906,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		if (subtree) {
 			proto_tree *chunk_subtree;
+			proto_item *chunk_size_item;
 
 			if(chunk_size == 0) {
 				chunk_subtree = proto_tree_add_subtree(subtree, tvb,
@@ -1916,16 +1922,16 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					    "Data chunk (%u octets)", chunk_size);
 			}
 
-			proto_tree_add_text(chunk_subtree, tvb, offset,
-			    chunk_offset - offset, "Chunk size: %u octets",
-			    chunk_size);
+			chunk_size_item = proto_tree_add_uint_format_value(chunk_subtree, hf_http_chunk_size, tvb, offset,
+			    1, chunk_size, "%u octets", chunk_size);
+			proto_item_set_len(chunk_size_item, chunk_offset - offset);
 
 			/* last-chunk does not have chunk-data CRLF. */
 			if (chunk_size > 0) {
 				data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, datalen);
 
 				/*
-				 * XXX - just use "proto_tree_add_text()"?
+				 * XXX - just use "proto_tree_add_string_format()"?
 				 * This means that, in TShark, you get
 				 * the entire chunk dumped out in hex,
 				 * in addition to whatever dissection is
@@ -1934,8 +1940,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 				call_dissector(data_handle, data_tvb, pinfo,
 					    chunk_subtree);
 
-				proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
-				    chunk_size, 2, "Chunk boundary");
+				proto_tree_add_item(chunk_subtree, hf_http_chunk_boundary, tvb,
+									chunk_offset + chunk_size, 2, ENC_NA);
 			}
 		}
 
@@ -2456,8 +2462,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					proto_item_set_text(it, "%s",
 							format_text(line, len));
 				} else {
-					proto_tree_add_text(tree, tvb, offset,
-						len, "%s", format_text(line, len));
+					gchar* str = format_text(line, len);
+					proto_tree_add_string_format(tree, hf_http_unknown_header, tvb, offset,
+						len, str, "%s", str);
 				}
 
 			} else {
@@ -3027,6 +3034,14 @@ proto_register_http(void)
 	      { "Request",		"http.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if HTTP request", HFILL }},
+	    { &hf_http_response_number,
+	      { "Response number",		"http.response_number",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+	    { &hf_http_request_number,
+	      { "Request number",		"http.request_number",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
 	    { &hf_http_basic,
 	      { "Credentials",		"http.authbasic",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3240,6 +3255,18 @@ proto_register_http(void)
 	      { "trailer-part", "http.chunked_trailer_part",
 		FT_STRING, BASE_NONE, NULL, 0,
 		"Optional trailer in a chunked body", HFILL }},
+	    { &hf_http_chunk_boundary,
+	      { "Chunk boundary", "http.chunk_boundary",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	    { &hf_http_chunk_size,
+	      { "Chunk size", "http.chunk_size",
+        FT_UINT32, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	    { &hf_http_unknown_header,
+	      { "Unknown header", "http.unknown_header",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -3460,8 +3487,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					&next_offset, FALSE);
 			if (len == -1)
 				break;
-			proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
-					"%s", tvb_format_text(tvb, offset, len));
+			proto_tree_add_format_text(subtree, tvb, offset, len);
 			offset = next_offset;
 		}
 	}
