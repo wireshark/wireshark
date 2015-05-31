@@ -1,6 +1,6 @@
 /* packet-dvbci.c
  * Routines for DVB-CI (Common Interface) dissection
- * Copyright 2011-2014, Martin Kaiser <martin@kaiser.cx>
+ * Copyright 2011-2015, Martin Kaiser <martin@kaiser.cx>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -5021,7 +5021,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item  *pi;
     guint8       hw_event;
 
-    if (tvb_length(tvb) < 4)
+    if (tvb_captured_length(tvb) < 4)
         return 0;
 
     offset_ver = offset;
