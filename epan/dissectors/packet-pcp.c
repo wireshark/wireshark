@@ -32,6 +32,7 @@ void proto_register_pcp(void);
 void proto_reg_handoff_pcp(void);
 
 #define PCP_PORT 44321
+#define PMPROXY_PORT 44322
 #define PCP_HEADER_LEN 12
 
 static dissector_handle_t pcp_handle;
@@ -1500,7 +1501,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     packet_type   = tvb_get_ntohl(tvb, 4);
 
     /* check if we are the client requesting or the server */
-    if (pinfo->srcport == PCP_PORT) {
+    if (pinfo->srcport == PCP_PORT || pinfo->srcport == PMPROXY_PORT) {
         col_set_str(pinfo->cinfo, COL_INFO, "Server > Client ");
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "Client > Server ");
@@ -2412,11 +2413,12 @@ void proto_register_pcp(void)
 
     proto_register_field_array(proto_pcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    pcp_handle = new_register_dissector("pcp", dissect_pcp, proto_pcp);
 }
 
 void proto_reg_handoff_pcp(void)
 {
-    pcp_handle = new_create_dissector_handle(dissect_pcp, proto_pcp);
     dissector_add_uint("tcp.port", PCP_PORT, pcp_handle);
 }
 

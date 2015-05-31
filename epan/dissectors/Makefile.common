@@ -1039,6 +1039,7 @@ DISSECTOR_SRC = \
 	packet-pktap.c		\
 	packet-pktc.c		\
 	packet-pktgen.c		\
+	packet-pmproxy.c	\
 	packet-pnrp.c		\
 	packet-pop.c		\
 	packet-portmap.c	\

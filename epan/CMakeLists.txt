@@ -1125,6 +1125,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pingpongprotocol.c
 	dissectors/packet-pktc.c
 	dissectors/packet-pktgen.c
+	dissectors/packet-pmproxy.c
 	dissectors/packet-pnrp.c
 	dissectors/packet-pop.c
 	dissectors/packet-portmap.c
