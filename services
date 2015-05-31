@@ -3839,8 +3839,8 @@ netiq-ncap       2219/tcp # NetIQ NCAP Protocol [Roger_Huebner] [Roger_Huebner] 
 netiq-ncap       2219/udp # NetIQ NCAP Protocol [Roger_Huebner] [Roger_Huebner] 2010-08-25
 netiq            2220/tcp # NetIQ End2End [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
 netiq            2220/udp # NetIQ End2End [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
-rockwell-csp1    2221/tcp # Rockwell CSP1 [Brian_Batke] [Brian_Batke]
-rockwell-csp1    2221/udp # Rockwell CSP1 [Brian_Batke] [Brian_Batke]
+ethernet-ip-s    2221/tcp # EtherNet/IP over TLS [ODVA_Inc] [Brian_Batke_3] 2015-05-28
+ethernet-ip-s    2221/udp # EtherNet/IP over DTLS [ODVA_Inc] [Brian_Batke_3] 2015-05-28
 EtherNet-IP-1    2222/tcp # EtherNet/IP I/OIANA assigned this well-formed service name as a replacement for "EtherNet/IP-1". [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01
 EtherNet/IP-1    2222/tcp # EtherNet/IP I/O [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01This entry is an alias to "EtherNet-IP-1".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 EtherNet-IP-1    2222/udp # EtherNet/IP I/OIANA assigned this well-formed service name as a replacement for "EtherNet/IP-1". [Brian_Batke_2] [Brian_Batke_2] New contact added for port 2222 on 2008-02-01
