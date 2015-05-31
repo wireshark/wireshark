@@ -23,7 +23,7 @@ include Makefile.common
 include ../../Makefile.am.inc
 
 if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
+AM_CLEAN_CFLAGS = -Werror -Wno-error=deprecated-declarations
 endif
 
 noinst_LIBRARIES = libgtkui.a
