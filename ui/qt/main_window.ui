@@ -603,6 +603,7 @@
    <attribute name="toolBarBreak">
     <bool>true</bool>
    </attribute>
+   <addaction name="actionDisplayFilterExpression"/>
   </widget>
   <action name="actionFileOpen">
    <property name="text">
@@ -2330,6 +2331,17 @@
    </property>
    <property name="toolTip">
     <string>Show expert notifications</string>
+   </property>
+  </action>
+  <action name="actionDisplayFilterExpression">
+   <property name="text">
+    <string>&amp;Expression...</string>
+   </property>
+   <property name="iconText">
+    <string>Expression...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add an expression to the display filter.</string>
    </property>
   </action>
  </widget>

@@ -421,8 +421,8 @@ for which there are no occurrences of a field named ip.addr with the value
 When you are accustomed to Wireshark's filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
 However if you are new to Wireshark or are working with a slightly unfamiliar
-protocol it can be very confusing to try to figure out what to type. The Filter
-Expression dialog box helps with this.
+protocol it can be very confusing to try to figure out what to type. The
+``Filter Expression'' dialog box helps with this.
 
 [TIP]
 ====
@@ -437,7 +437,7 @@ Wireshark display filter strings.
 image::wsug_graphics/ws-filter-add-expression.png[]
 
 When you first bring up the Filter Expression dialog box you are shown a tree
-list of field names, organized by protocol, and a box for selecting a relation.
+of field names, organized by protocol, and a box for selecting a relation.
 
 _Field Name_::
 Select a protocol field from the protocol field tree. Every protocol with

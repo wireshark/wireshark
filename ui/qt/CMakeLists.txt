@@ -45,6 +45,7 @@ set(WIRESHARK_QT_HEADERS
 	decode_as_dialog.h
 	display_filter_combo.h
 	display_filter_edit.h
+	display_filter_expression_dialog.h
 	elided_label.h
 	endpoint_dialog.h
 	expert_info_dialog.h
@@ -157,6 +158,7 @@ set(WIRESHARK_QT_SRC
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
+	display_filter_expression_dialog.cpp
 	elided_label.cpp
 	expert_info_dialog.cpp
 	export_dissection_dialog.cpp
@@ -264,6 +266,7 @@ set(WIRESHARK_QT_UI
 	column_editor_frame.ui
 	compiled_filter_output.ui
 	decode_as_dialog.ui
+	display_filter_expression_dialog.ui
 	expert_info_dialog.ui
 	export_object_dialog.ui
 	export_pdu_dialog.ui

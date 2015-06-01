@@ -323,7 +323,7 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
 
 /* This function converts a range_t to a (wmem-allocated) string.  */
 char *
-range_convert_range(wmem_allocator_t *scope, range_t *range)
+range_convert_range(wmem_allocator_t *scope, const range_t *range)
 {
    guint32 i;
    gboolean prepend_comma = FALSE;

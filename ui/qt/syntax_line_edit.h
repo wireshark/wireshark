@@ -51,6 +51,8 @@ public:
 
 public slots:
     void setStyleSheet(const QString &style_sheet);
+    // Insert filter text at the current position, adding spaces where needed.
+    void insertFilter(const QString &filter);
 
     // Built-in syntax checks. Connect textChanged to these as needed.
     void checkDisplayFilter(QString filter);

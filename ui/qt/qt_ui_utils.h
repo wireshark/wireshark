@@ -45,30 +45,8 @@ extern "C" {
 #define RECENT_KEY_CAPTURE_FILE   "recent.capture_file"
 #define RECENT_KEY_REMOTE_HOST "recent.remote_host"
 
-///* Type of capture source */
-//typedef enum {
-//    CAPTURE_IFLOCAL,        /**< Local network interface */
-//    CAPTURE_IFREMOTE        /**< Remote network interface */
-//} capture_source;
-
-///* Type of RPCAPD Authentication */
-//typedef enum {
-//    CAPTURE_AUTH_NULL,      /**< No authentication */
-//    CAPTURE_AUTH_PWD        /**< User/password authentication */
-//} capture_auth;
-
-//struct remote_host_t {
-//    gchar *remote_host;          /**< Host name or network address for remote capturing */
-//    gchar *remote_port;          /**< TCP port of remote RPCAP server */
-//    gint auth_type;              /**< Authentication type */
-//    gchar *auth_username;        /**< Remote authentication parameters */
-//    gchar *auth_password;        /**< Remote authentication parameters */
-//    gboolean datatx_udp;
-//    gboolean nocap_rpcap;
-//    gboolean nocap_local;
-//};
-
 struct _address;
+struct epan_range;
 
 #ifdef __cplusplus
 }
@@ -128,6 +106,14 @@ G_GNUC_PRINTF(3, 0);
  */
 const QString val_ext_to_qstring(const guint32 val, struct _value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
+
+/** Convert a range to a QString using range_convert_range().
+ *
+ * @param range A pointer to an range struct.
+ *
+ * @return A QString representation of the address. May be the null string (QString())
+ */
+const QString range_to_qstring(const struct epan_range *range);
 
 /** Convert a bits per second value to a human-readable QString using format_size().
  *

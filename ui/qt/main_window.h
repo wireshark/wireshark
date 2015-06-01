@@ -249,6 +249,7 @@ private slots:
 
     void setFeaturesEnabled(bool enabled = true);
 
+    void on_actionDisplayFilterExpression_triggered();
     void addDisplayFilterButton(QString df_text);
     void displayFilterButtonClicked();
 

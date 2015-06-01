@@ -26,6 +26,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * true_false strings
  */
@@ -97,4 +101,8 @@ WS_DLL_PUBLIC const true_false_string tfs_protocol_sensative_bit_transparent;
 WS_DLL_PUBLIC const true_false_string tfs_full_half;
 WS_DLL_PUBLIC const true_false_string tfs_acknowledged_not_acknowledged;
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TFS_H__ */

@@ -115,6 +115,24 @@ void SyntaxLineEdit::setStyleSheet(const QString &style_sheet) {
     QLineEdit::setStyleSheet(style_sheet_ + state_style_sheet_);
 }
 
+void SyntaxLineEdit::insertFilter(const QString &filter)
+{
+    QString padded_filter = filter;
+
+    if (hasSelectedText()) {
+        backspace();
+    }
+
+    int pos = cursorPosition();
+    if (pos > 0 && !text().at(pos - 1).isSpace()) {
+        padded_filter.prepend(" ");
+    }
+    if (pos < text().length() - 1 && !text().at(pos + 1).isSpace()) {
+        padded_filter.append(" ");
+    }
+    insert(padded_filter);
+}
+
 void SyntaxLineEdit::checkDisplayFilter(QString filter)
 {
     if (filter.isEmpty()) {

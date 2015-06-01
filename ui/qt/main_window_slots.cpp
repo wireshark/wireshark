@@ -81,6 +81,7 @@
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
 #include "display_filter_edit.h"
+#include "display_filter_expression_dialog.h"
 #include "endpoint_dialog.h"
 #include "expert_info_dialog.h"
 #include "export_object_dialog.h"
@@ -708,12 +709,13 @@ void MainWindow::filterExpressionsChanged()
     // Recreate filter buttons
     foreach (QAction *act, main_ui_->displayFilterToolBar->actions()) {
         // Permanent actions shouldn't have data
-        if (act->property(dfe_property_).isValid()) {
+        if (act->property(dfe_property_).isValid() || act->isSeparator()) {
             main_ui_->displayFilterToolBar->removeAction(act);
             delete act;
         }
     }
 
+    bool first = true;
     for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
         if (!fe->enabled) continue;
         QAction *dfb_action = new QAction(fe->label, main_ui_->displayFilterToolBar);
@@ -722,6 +724,10 @@ void MainWindow::filterExpressionsChanged()
         dfb_action->setProperty(dfe_property_, true);
         main_ui_->displayFilterToolBar->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
+        if (first) {
+            first = false;
+            main_ui_->displayFilterToolBar->insertSeparator(dfb_action);
+        }
     }
 }
 
@@ -1451,6 +1457,18 @@ void MainWindow::setFeaturesEnabled(bool enabled)
     {
         main_ui_->statusBar->showMessage(tr("Please wait while Wireshark is initializing" UTF8_HORIZONTAL_ELLIPSIS));
     }
+}
+
+// Display Filter Toolbar
+
+void MainWindow::on_actionDisplayFilterExpression_triggered()
+{
+    DisplayFilterExpressionDialog *dfe_dialog = new DisplayFilterExpressionDialog(this);
+
+    connect(dfe_dialog, SIGNAL(insertDisplayFilter(QString)),
+            df_combo_box_->lineEdit(), SLOT(insertFilter(const QString &)));
+
+    dfe_dialog->show();
 }
 
 // On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make

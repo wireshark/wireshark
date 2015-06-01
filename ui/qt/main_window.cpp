@@ -230,7 +230,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
     // https://bugreports.qt-project.org/browse/QTBUG-22433
     // This property is obsolete in Qt5 so this issue may be fixed in that version.
-    main_ui_->displayFilterToolBar->addWidget(df_combo_box_);
+    main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
 
     main_ui_->goToFrame->hide();
     // XXX For some reason the cursor is drawn funny with an input mask set

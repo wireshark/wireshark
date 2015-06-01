@@ -99,6 +99,8 @@ static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
     plain_(plain),
+    bookmark_button_(NULL),
+    clear_button_(NULL),
     apply_button_(NULL)
 {
     setAccessibleName(tr("Display filter entry"));
@@ -124,61 +126,64 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     //     Apply (right arrow) + Cancel (x) + Reload (arrowed circle)
     //     Combo drop-down
 
-    bookmark_button_ = new QToolButton(this);
-    bookmark_button_->setEnabled(false);
-    bookmark_button_->setCursor(Qt::ArrowCursor);
-    bookmark_button_->setStyleSheet(QString(
-            "QToolButton { /* all types of tool button */"
-            "  border 0 0 0 0;"
+    if (!plain_) {
+        bookmark_button_ = new QToolButton(this);
+        bookmark_button_->setEnabled(false);
+        bookmark_button_->setCursor(Qt::ArrowCursor);
+        bookmark_button_->setStyleSheet(QString(
+                "QToolButton { /* all types of tool button */"
+                "  border 0 0 0 0;"
 #ifdef Q_OS_MAC
-            "  border-right: %1px solid gray;"
+                "  border-right: %1px solid gray;"
 #else
-            "  border-right: %1px solid palette(shadow);"
+                "  border-right: %1px solid palette(shadow);"
 #endif
-            "  border-top-left-radius: 3px;"
-            "  border-bottom-left-radius: 3px;"
-            "  padding-left: 1px;"
-            "  image: url(:/dfilter/dfilter_bookmark_normal.png) center;"
-            "}"
+                "  border-top-left-radius: 3px;"
+                "  border-bottom-left-radius: 3px;"
+                "  padding-left: 1px;"
+                "  image: url(:/dfilter/dfilter_bookmark_normal.png) center;"
+                "}"
 
-            "QToolButton:hover {"
-            "  image: url(:/dfilter/dfilter_bookmark_hover.png) center;"
-            "}"
-            "QToolButton:pressed {"
-            "  image: url(:/dfilter/dfilter_bookmark_pressed.png) center;"
-            "}"
-            "QToolButton:disabled {"
-            "  image: url(:/dfilter/dfilter_bookmark_disabled.png) center;"
-            "}"
-
-
-            ).arg(plain_ ? 0 : 1)
-            );
+                "QToolButton:hover {"
+                "  image: url(:/dfilter/dfilter_bookmark_hover.png) center;"
+                "}"
+                "QToolButton:pressed {"
+                "  image: url(:/dfilter/dfilter_bookmark_pressed.png) center;"
+                "}"
+                "QToolButton:disabled {"
+                "  image: url(:/dfilter/dfilter_bookmark_disabled.png) center;"
+                "}"
+                ).arg(plain_ ? 0 : 1)
+                );
 #ifndef QT_NO_TOOLTIP
-    bookmark_button_->setToolTip(tr("Bookmark this filter string"));
+        bookmark_button_->setToolTip(tr("Bookmark this filter string"));
 #endif // QT_NO_TOOLTIP
-    connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+        connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+    }
 
-    clear_button_ = new QToolButton(this);
-    clear_button_->setCursor(Qt::ArrowCursor);
-    clear_button_->setStyleSheet(
-            "QToolButton {"
-            "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
-            "  border: none;"
-            "  width: 16px;"
-            "}"
-            "QToolButton:hover {"
-            "  image: url(:/dfilter/dfilter_erase_active.png) center;"
-            "}"
-            "QToolButton:pressed {"
-            "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
-            "}"
-            );
+    if (!plain_) {
+        clear_button_ = new QToolButton(this);
+        clear_button_->setCursor(Qt::ArrowCursor);
+        clear_button_->setStyleSheet(
+                "QToolButton {"
+                "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
+                "  border: none;"
+                "  width: 16px;"
+                "}"
+                "QToolButton:hover {"
+                "  image: url(:/dfilter/dfilter_erase_active.png) center;"
+                "}"
+                "QToolButton:pressed {"
+                "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
+                "}"
+                );
 #ifndef QT_NO_TOOLTIP
-    clear_button_->setToolTip(tr("Clear the filter string and update the display"));
+        clear_button_->setToolTip(tr("Clear the filter string and update the display"));
 #endif // QT_NO_TOOLTIP
-    clear_button_->hide();
-    connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
+        clear_button_->hide();
+        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
+    }
+
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
     if (!plain_) {
@@ -212,13 +217,17 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     }
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize bksz = bookmark_button_->sizeHint();
-    QSize cbsz = clear_button_->sizeHint();
+    QSize bksz;
+    if (bookmark_button_) {
+        bksz = bookmark_button_->sizeHint();
+    }
+    QSize cbsz;
+    if (clear_button_) {
+        cbsz = clear_button_->sizeHint();
+    }
     QSize apsz;
     if (apply_button_) {
         apsz = apply_button_->sizeHint();
-    } else {
-        apsz.setHeight(0); apsz.setWidth(0);
     }
     setStyleSheet(QString(
             "DisplayFilterEdit {"
@@ -263,7 +272,10 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
 
 void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 {
-    QSize cbsz = clear_button_->sizeHint();
+    QSize cbsz;
+    if (clear_button_) {
+        cbsz = clear_button_->sizeHint();
+    }
     QSize apsz;
     if (apply_button_) {
         apsz = apply_button_->sizeHint();
@@ -271,15 +283,19 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
         apsz.setHeight(0); apsz.setWidth(0);
     }
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
-                        contentsRect().top());
-    clear_button_->setMaximumHeight(contentsRect().height());
+    if (clear_button_) {
+        clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
+                            contentsRect().top());
+        clear_button_->setMaximumHeight(contentsRect().height());
+    }
     if (apply_button_) {
         apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
                             contentsRect().top());
         apply_button_->setMaximumHeight(contentsRect().height());
     }
-    bookmark_button_->setMaximumHeight(contentsRect().height());
+    if (bookmark_button_) {
+        bookmark_button_->setMaximumHeight(contentsRect().height());
+    }
 }
 
 void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
@@ -291,7 +307,9 @@ void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
 
 void DisplayFilterEdit::checkFilter(const QString& text)
 {
-    clear_button_->setVisible(!text.isEmpty());
+    if (clear_button_) {
+        clear_button_->setVisible(!text.isEmpty());
+    }
 
     popFilterSyntaxStatus();
     checkDisplayFilter(text);
@@ -319,7 +337,9 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         break;
     }
 
-    bookmark_button_->setEnabled(syntaxState() == Valid || syntaxState() == Deprecated);
+    if (bookmark_button_) {
+        bookmark_button_->setEnabled(syntaxState() == Valid || syntaxState() == Deprecated);
+    }
     if (apply_button_) {
         apply_button_->setEnabled(SyntaxState() != Invalid);
     }

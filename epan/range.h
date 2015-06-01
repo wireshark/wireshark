@@ -30,6 +30,10 @@
 #include "ws_symbol_export.h"
 #include <epan/wmem/wmem.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * Range strings a variant of value_strings
  */
@@ -116,7 +120,7 @@ WS_DLL_PUBLIC void range_foreach(range_t *range, void (*callback)(guint32 val));
 /**
  * This function converts a range_t to a (wmem_alloc()-allocated) string.
  */
-WS_DLL_PUBLIC char *range_convert_range(wmem_allocator_t *scope, range_t *range);
+WS_DLL_PUBLIC char *range_convert_range(wmem_allocator_t *scope, const range_t *range);
 
 /**
  * Create a copy of a range.
@@ -124,5 +128,9 @@ WS_DLL_PUBLIC char *range_convert_range(wmem_allocator_t *scope, range_t *range)
  * @return ep allocated copy of the range
  */
 WS_DLL_PUBLIC range_t *range_copy(range_t *src);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __RANGE_H__ */

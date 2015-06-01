@@ -322,7 +322,6 @@ static void
 build_boolean_values(GtkWidget *value_list_scrolled_win, GtkWidget *value_list,
                      const true_false_string *values)
 {
-    static const true_false_string true_false = { "True", "False" };
     GtkTreeSelection *sel;
     GtkTreeIter       iter;
 
@@ -346,7 +345,7 @@ build_boolean_values(GtkWidget *value_list_scrolled_win, GtkWidget *value_list,
      * Build the list.
      */
     if (values == NULL)
-        values = &true_false;
+        values = &tfs_true_false;
     add_value_list_item(value_list, values->true_string, (gpointer) values);
     add_value_list_item(value_list, values->false_string, NULL);
 

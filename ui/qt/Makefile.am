@@ -140,6 +140,8 @@ compiled_filter_output.cpp compiled_filter_output.h: ui_compiled_filter_output.h
 
 decode_as_dialog.cpp decode_as_dialog.h: ui_decode_as_dialog.h
 
+display_filter_expression_dialog.cpp display_filter_expression_dialog.h: ui_display_filter_expression_dialog.h
+
 expert_info_dialog.cpp expert_info_dialog.h: ui_expert_info_dialog.h
 
 export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
