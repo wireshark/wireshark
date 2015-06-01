@@ -413,15 +413,40 @@ dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
 
 
 static void
-zvt_set_addresses(packet_info *pinfo, zvt_direction_t dir)
+zvt_set_addresses(packet_info *pinfo, zvt_transaction_t *zvt_trans)
 {
-    if (dir == DIRECTION_ECR_TO_PT) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_ECR)+1, ADDR_ECR);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_PT)+1, ADDR_PT);
+    apdu_info_t     *ai;
+    zvt_direction_t  dir = DIRECTION_UNKNOWN;
+
+    if (!zvt_trans)
+        return;
+
+    ai = (apdu_info_t *)g_hash_table_lookup(
+            apdu_table, GUINT_TO_POINTER((guint)zvt_trans->ctrl));
+    if (!ai)
+        return;
+
+    if (zvt_trans->rqst_frame == PINFO_FD_NUM(pinfo)) {
+        dir = ai->direction;
     }
-    else if (dir == DIRECTION_PT_TO_ECR) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_PT)+1, ADDR_PT);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_ECR)+1, ADDR_ECR);
+    else if (zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+        if (ai->direction == DIRECTION_ECR_TO_PT)
+            dir = DIRECTION_PT_TO_ECR;
+        else
+            dir = DIRECTION_ECR_TO_PT;
+    }
+
+    if (dir  == DIRECTION_ECR_TO_PT) {
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+                (int)strlen(ADDR_ECR)+1, ADDR_ECR);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+                (int)strlen(ADDR_PT)+1, ADDR_PT);
+    }
+    else if (dir  == DIRECTION_PT_TO_ECR) {
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+                (int)strlen(ADDR_PT)+1, ADDR_PT);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+                (int)strlen(ADDR_ECR)+1, ADDR_ECR);
     }
 }
 
@@ -440,7 +465,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     proto_item        *apdu_it;
     proto_tree        *apdu_tree;
     apdu_info_t       *ai;
-    zvt_transaction_t *zvt_trans;
+    zvt_transaction_t *zvt_trans = NULL;
     proto_item        *it;
 
     offset_start = offset;
@@ -525,7 +550,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     ai = (apdu_info_t *)g_hash_table_lookup(
             apdu_table, GUINT_TO_POINTER((guint)ctrl));
 
-    zvt_set_addresses(pinfo, ai ? ai->direction : DIRECTION_UNKNOWN);
+    zvt_set_addresses(pinfo, zvt_trans);
     /* XXX - check the minimum length */
 
     if (len > 0) {
