@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
+#include <epan/ptvcursor.h>
 
 #include "packet-rx.h"
 
@@ -167,6 +168,7 @@ static int hf_afs_update = -1;
 static int hf_afs_rmtsys = -1;
 static int hf_afs_ubik = -1;
 static int hf_afs_backup = -1;
+static int hf_afs_service = -1;
 
 static int hf_afs_fs_opcode = -1;
 static int hf_afs_cb_opcode = -1;
@@ -299,6 +301,7 @@ static int hf_afs_bos_keyspare2 = -1;
 
 static int hf_afs_vldb_errcode = -1;
 static int hf_afs_vldb_name = -1;
+static int hf_afs_vldb_name_uint_string = -1;
 static int hf_afs_vldb_id = -1;
 static int hf_afs_vldb_type = -1;
 static int hf_afs_vldb_bump = -1;
@@ -364,6 +367,7 @@ static int hf_afs_cm_cap_errortrans = -1;
 
 static int hf_afs_prot_errcode = -1;
 static int hf_afs_prot_name = -1;
+static int hf_afs_prot_name_uint_string = -1;
 static int hf_afs_prot_id = -1;
 static int hf_afs_prot_count = -1;
 static int hf_afs_prot_oldid = -1;
@@ -384,6 +388,7 @@ static int hf_afs_ubik_votestart = -1;
 static int hf_afs_ubik_state = -1;
 static int hf_afs_ubik_site = -1;
 static int hf_afs_ubik_interface = -1;
+static int hf_afs_ubik_null_addresses = -1;
 static int hf_afs_ubik_file = -1;
 static int hf_afs_ubik_pos = -1;
 static int hf_afs_ubik_length = -1;
@@ -486,60 +491,24 @@ static const fragment_items afs_frag_items = {
  * should be incremented after performing the macro's operation.
  */
 
-
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using */
-#define OUT_UINT(field) \
-	proto_tree_add_uint(tree, field, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); \
-	offset += 4;
-
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using */
-#define OUT_INT(field) \
-	proto_tree_add_int(tree, field, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); \
-	offset += 4;
-
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using */
-#define OUT_UINT64(field) \
-	proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN); \
-	offset += 8;
-
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using */
-#define OUT_INT64(field) \
-	proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN); \
-	offset += 8;
-
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using,
-   Note - does not increment offset, so can be used repeatedly for bitfields */
-#define DISP_UINT(field) \
-	proto_tree_add_uint(tree,field,tvb,offset,4,tvb_get_ntohl(tvb, offset));
-
-/* Output an IPv4 address, stored into field 'field' */
-#define OUT_IP(field) \
-	proto_tree_add_ipv4(tree,field,tvb,offset,4,\
-		tvb_get_letohl(tvb, offset));\
-	offset += 4;
-
 /* Output a simple rx array */
-#define OUT_RXArray8(func) \
-	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb, offset); \
-		offset += 1; \
-		for (i=0; i<j; i++) { \
-			func; \
-		} \
+static void OUT_RXArray8(ptvcursor_t *cursor, int field, int field_size, int encoding)
+{
+	unsigned int i,
+		size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+
+	ptvcursor_advance(cursor, 1);
+	for (i=0; i<size; i++) {
+		ptvcursor_add(cursor, field, field_size, encoding);
 	}
+}
 
 /* Output a simple rx array */
 #define OUT_RXArray32(func) \
 	{ \
 		unsigned int j,i; \
-		j = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
+		j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)); \
+		ptvcursor_advance(cursor, 4); \
 		for (i=0; i<j; i++) { \
 			func; \
 		} \
@@ -547,272 +516,217 @@ static const fragment_items afs_frag_items = {
 
 /* Output a UNIX seconds/microseconds timestamp, after converting to an
    nstime_t */
-#define OUT_TIMESTAMP(field) \
-	{ nstime_t ts; \
-	ts.secs = tvb_get_ntohl(tvb, offset); \
-	ts.nsecs = tvb_get_ntohl(tvb, offset+4)*1000; \
-	proto_tree_add_time(tree,field, tvb,offset,2*4,&ts); \
-	offset += 8; \
-	}
+static void OUT_TIMESTAMP(ptvcursor_t *cursor, int field)
+{
+	nstime_t ts;
+
+	ts.secs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+	ts.nsecs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+4)*1000;
+
+	proto_tree_add_time(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 8, &ts);
+	ptvcursor_advance(cursor, 8);
+}
 
 /* Output a seconds-only time value, after converting to an nstime_t;
    this can be an absolute time as a UNIX time-since-epoch, or a
    relative time in seconds */
-#define OUT_TIMESECS(field) \
-	{ nstime_t ts; \
-	ts.secs = tvb_get_ntohl(tvb, offset); \
-	ts.nsecs = 0; \
-	proto_tree_add_time(tree,field, tvb,offset,4,&ts); \
-	offset += 4; \
-	}
+static void OUT_TIMESECS(ptvcursor_t *cursor, int field)
+{
+	nstime_t ts;
+
+	ts.secs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+	ts.nsecs = 0;
+	proto_tree_add_time(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 4, &ts);
+	ptvcursor_advance(cursor, 4);
+}
 
 /* Output a rx style string, up to a maximum length first
    4 bytes - length, then char data */
-#define OUT_RXString(field) \
-	{	guint32 i_orxs,len_orxs; \
-		i_orxs = tvb_get_ntohl(tvb, offset); \
-		len_orxs = ((i_orxs+4-1)/4)*4 + 4; \
-		proto_tree_add_item(tree, field, tvb, offset+4, i_orxs, \
-		ENC_ASCII|ENC_NA); \
-		offset += len_orxs; \
-	}
+static void OUT_RXString(ptvcursor_t *cursor, int field)
+{
+	int offset = ptvcursor_current_offset(cursor),
+		new_offset;
+
+	ptvcursor_add(cursor, field, 4, ENC_BIG_ENDIAN);
+	new_offset = ptvcursor_current_offset(cursor);
+
+	/* strings are padded to 32-bit boundary */
+	ptvcursor_advance(cursor, 4-((new_offset-offset)&3));
+}
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
-#define OUT_RXStringV(field, length) \
-	{	char tmp_orxsv[length+1]; \
-		int i_orxsv,soff_orxsv; \
-		soff_orxsv = offset;\
-		for (i_orxsv=0; i_orxsv<length; i_orxsv++)\
-		{\
-			tmp_orxsv[i_orxsv] = (char) tvb_get_ntohl(tvb, offset);\
-			offset += 4;\
-		}\
-		tmp_orxsv[length] = '\0';\
-		proto_tree_add_string(tree, field, tvb, soff_orxsv, length*4, tmp_orxsv);\
+static void OUT_RXStringV(ptvcursor_t *cursor, int field, guint32 length)
+{
+	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
+	char* str = (char*)wmem_alloc(wmem_packet_scope(), length+1);
+	int offset = ptvcursor_current_offset(cursor),
+		start_offset = offset;
+	guint32 index;
+
+	for (index = 0; index<length; index++)
+	{
+		str[index] = (char)tvb_get_ntohl(tvb, offset);
+		offset += 4;
 	}
+	str[length] = '\0';
+	proto_tree_add_string(ptvcursor_tree(cursor), field, tvb, start_offset, length*4, str);
+	ptvcursor_advance(cursor, length*4);
+}
 
 
 /* Output a callback */
-#define OUT_FS_AFSCallBack() \
-	{	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 3*4, ett_afs_callback, NULL, "Callback"); \
-		OUT_UINT(hf_afs_fs_callback_version); \
-		OUT_TIMESECS(hf_afs_fs_callback_expires); \
-		OUT_UINT(hf_afs_fs_callback_type); \
-		tree = save; \
-	}
+static void OUT_FS_AFSCallBack(ptvcursor_t *cursor)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_afs_callback, "Callback");
+	ptvcursor_add(cursor, hf_afs_fs_callback_version, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_fs_callback_expires);
+	ptvcursor_add(cursor, hf_afs_fs_callback_type, 4, ENC_BIG_ENDIAN);
+	ptvcursor_pop_subtree(cursor);
+}
+
 
 /* Output cache manager interfaces */
-#define OUT_CM_INTERFACES() \
-	{	proto_tree *save; \
-		unsigned int i; \
-		unsigned int maxint, numint; \
-		maxint = 32; \
-		numint = tvb_get_ntohl(tvb, offset); \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 4+11*4+3*32*4, ett_afs_cm_interfaces, NULL, "Interfaces"); \
-		OUT_UINT(hf_afs_cm_numint); \
-		OUT_UUID(hf_afs_cm_uuid); \
-		for ( i=0; i<numint; i++ ) { \
-		    OUT_IP(hf_afs_cm_ipaddr); \
-		} \
-		offset += 4*(maxint-numint); \
-		for ( i=0; i<numint; i++ ) { \
-			OUT_IP(hf_afs_cm_netmask); \
-		} \
-		offset += 4*(maxint-numint); \
-		for ( i=0; i<numint; i++ ) { \
-			OUT_UINT(hf_afs_cm_mtu); \
-		} \
-		offset += 4*(maxint-numint); \
-		tree = save; \
+static void OUT_CM_INTERFACES(ptvcursor_t *cursor)
+{
+	unsigned int i;
+	unsigned int maxint = 32,
+				numint = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_afs_cm_interfaces, "Interfaces");
+	ptvcursor_add(cursor, hf_afs_cm_numint, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_cm_uuid, 4*11, ENC_NA);
+	for ( i=0; i<numint; i++ ) {
+		ptvcursor_add(cursor, hf_afs_cm_ipaddr, 4, ENC_BIG_ENDIAN);
 	}
+	ptvcursor_advance(cursor, 4*(maxint-numint));
+	for ( i=0; i<numint; i++ ) {
+		ptvcursor_add(cursor, hf_afs_cm_netmask, 4, ENC_BIG_ENDIAN);
+	}
+	ptvcursor_advance(cursor, 4*(maxint-numint));
+	for ( i=0; i<numint; i++ ) {
+		ptvcursor_add(cursor, hf_afs_cm_mtu, 4, ENC_BIG_ENDIAN);
+	}
+	ptvcursor_advance(cursor, 4*(maxint-numint));
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output CM capabilities */
-#define OUT_CM_CAPABILITIES() \
-	{	proto_tree *save; \
-		unsigned int numcap; \
-		numcap = tvb_get_ntohl(tvb, offset); \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 4+numcap*4, ett_afs_cm_capabilities, NULL, "Capabilities"); \
-		OUT_UINT(hf_afs_cm_numcap); \
-		proto_tree_add_item(tree, hf_afs_cm_capabilities, tvb, offset, \
-			4, ENC_BIG_ENDIAN); \
-		proto_tree_add_item(tree, hf_afs_cm_cap_errortrans, \
-			tvb,offset,4, ENC_BIG_ENDIAN); \
-		offset += 4; \
-		tree = save; \
-	}
+static void OUT_CM_CAPABILITIES(ptvcursor_t *cursor)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_afs_cm_capabilities, "Capabilities");
+	ptvcursor_add(cursor, hf_afs_cm_numcap, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add_no_advance(cursor, hf_afs_cm_capabilities, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_cm_cap_errortrans, 4, ENC_BIG_ENDIAN);
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a callback */
-#define OUT_CB_AFSCallBack() \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 3*4, ett_afs_callback, NULL, "Callback"); \
-		OUT_UINT(hf_afs_cb_callback_version); \
-		OUT_TIMESECS(hf_afs_cb_callback_expires); \
-		OUT_UINT(hf_afs_cb_callback_type); \
-		tree = save; \
-	}
+static void OUT_CB_AFSCallBack(ptvcursor_t *cursor)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_callback, "Callback");
+	ptvcursor_add(cursor, hf_afs_cb_callback_version, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_cb_callback_expires);
+	ptvcursor_add(cursor, hf_afs_cb_callback_type, 4, ENC_BIG_ENDIAN);
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a File ID */
-#define OUT_FS_AFSFid(label) \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree_format(tree, tvb, offset, 3*4, \
-			ett_afs_fid, NULL, "FileID (%s)", label); \
-		OUT_UINT(hf_afs_fs_fid_volume); \
-		OUT_UINT(hf_afs_fs_fid_vnode); \
-		OUT_UINT(hf_afs_fs_fid_uniqifier); \
-		tree = save; \
-	}
-
-static const int * status_mask_flags[] = {
-	&hf_afs_fs_status_mask_setmodtime,
-	&hf_afs_fs_status_mask_setowner,
-	&hf_afs_fs_status_mask_setgroup,
-	&hf_afs_fs_status_mask_setmode,
-	&hf_afs_fs_status_mask_setsegsize,
-	&hf_afs_fs_status_mask_fsync,
-	NULL
-};
-
-/* Output a Status mask */
-#define OUT_FS_STATUSMASK() \
-	{ \
-		proto_tree_add_bitmask(tree, tvb, offset, hf_afs_fs_status_mask,	\
-					ett_afs_status_mask, status_mask_flags, ENC_BIG_ENDIAN);	\
-		offset += 4; \
-	}
-
-static const int * vldb_flags[] = {
-	&hf_afs_vldb_flags_rwexists,
-	&hf_afs_vldb_flags_roexists,
-	&hf_afs_vldb_flags_bkexists,
-	&hf_afs_vldb_flags_dfsfileset,
-	NULL
-};
-
-/* Output vldb flags */
-#define OUT_VLDB_Flags() \
-	{ \
-		proto_tree_add_bitmask(tree, tvb, offset, hf_afs_vldb_flags,	\
-					ett_afs_vldb_flags, vldb_flags, ENC_BIG_ENDIAN);	\
-		offset += 4; \
-	}
-
+static void OUT_FS_AFSFid(ptvcursor_t *cursor, const char* label)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_fid, "FileID (%s)", label);
+	ptvcursor_add(cursor, hf_afs_fs_fid_volume, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_fid_vnode, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_fid_uniqifier, 4, ENC_BIG_ENDIAN);
+	ptvcursor_pop_subtree(cursor);
+}
 
 
 /* Output a File ID */
-#define OUT_CB_AFSFid(label) \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree_format(tree, tvb, offset, 3*4, \
-			ett_afs_fid, NULL, "FileID (%s)", label); \
-		OUT_UINT(hf_afs_cb_fid_volume); \
-		OUT_UINT(hf_afs_cb_fid_vnode); \
-		OUT_UINT(hf_afs_cb_fid_uniqifier); \
-		tree = save; \
-	}
+static void OUT_CB_AFSFid(ptvcursor_t *cursor, const char* label)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_fid, "FileID (%s)", label);
+
+	ptvcursor_add(cursor, hf_afs_cb_fid_volume, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_cb_fid_vnode, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_cb_fid_uniqifier, 4, ENC_BIG_ENDIAN);
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a StoreStatus */
-#define OUT_FS_AFSStoreStatus(label) \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 6*4, \
-			ett_afs_status, NULL, label); \
-		OUT_FS_STATUSMASK(); \
-		OUT_TIMESECS(hf_afs_fs_status_clientmodtime); \
-		OUT_UINT(hf_afs_fs_status_owner); \
-		OUT_UINT(hf_afs_fs_status_group); \
-		OUT_UINT(hf_afs_fs_status_mode); \
-		OUT_UINT(hf_afs_fs_status_segsize); \
-		tree = save; \
-	}
+static void OUT_FS_AFSStoreStatus(ptvcursor_t *cursor, const char* label)
+{
+	static const int * status_mask_flags[] = {
+		&hf_afs_fs_status_mask_setmodtime,
+		&hf_afs_fs_status_mask_setowner,
+		&hf_afs_fs_status_mask_setgroup,
+		&hf_afs_fs_status_mask_setmode,
+		&hf_afs_fs_status_mask_setsegsize,
+		&hf_afs_fs_status_mask_fsync,
+		NULL
+	};
+
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_status, "%s", label);
+	proto_tree_add_bitmask(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor),
+						hf_afs_fs_status_mask, ett_afs_status_mask, status_mask_flags, ENC_BIG_ENDIAN);
+	ptvcursor_advance(cursor, 4);
+	OUT_TIMESECS(cursor, hf_afs_fs_status_clientmodtime);
+	ptvcursor_add(cursor, hf_afs_fs_status_owner, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_group, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_mode, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_segsize, 4, ENC_BIG_ENDIAN);
+
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a FetchStatus */
-#define OUT_FS_AFSFetchStatus(label) \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 21*4, \
-			ett_afs_status, NULL, label); \
-		OUT_UINT(hf_afs_fs_status_interfaceversion); \
-		OUT_UINT(hf_afs_fs_status_filetype); \
-		OUT_UINT(hf_afs_fs_status_linkcount); \
-		OUT_UINT(hf_afs_fs_status_length); \
-		OUT_UINT(hf_afs_fs_status_dataversion); \
-		OUT_UINT(hf_afs_fs_status_author); \
-		OUT_UINT(hf_afs_fs_status_owner); \
-		OUT_UINT(hf_afs_fs_status_calleraccess); \
-		OUT_UINT(hf_afs_fs_status_anonymousaccess); \
-		OUT_UINT(hf_afs_fs_status_mode); \
-		OUT_UINT(hf_afs_fs_status_parentvnode); \
-		OUT_UINT(hf_afs_fs_status_parentunique); \
-		OUT_UINT(hf_afs_fs_status_segsize); \
-		OUT_TIMESECS(hf_afs_fs_status_clientmodtime); \
-		OUT_TIMESECS(hf_afs_fs_status_servermodtime); \
-		OUT_UINT(hf_afs_fs_status_group); \
-		OUT_UINT(hf_afs_fs_status_synccounter); \
-		OUT_UINT(hf_afs_fs_status_dataversionhigh); \
-		OUT_UINT(hf_afs_fs_status_spare2); \
-		OUT_UINT(hf_afs_fs_status_spare3); \
-		OUT_UINT(hf_afs_fs_status_spare4); \
-		tree = save; \
-	}
+static void OUT_FS_AFSFetchStatus(ptvcursor_t *cursor, const char* label)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_status, "%s", label);
+
+	ptvcursor_add(cursor, hf_afs_fs_status_interfaceversion, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_filetype, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_linkcount, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_length, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_dataversion, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_author, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_owner, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_calleraccess, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_anonymousaccess, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_mode, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_parentvnode, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_parentunique, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_segsize, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_fs_status_clientmodtime);
+	OUT_TIMESECS(cursor, hf_afs_fs_status_servermodtime);
+	ptvcursor_add(cursor, hf_afs_fs_status_group, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_synccounter, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_dataversionhigh, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_spare2, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_spare3, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_status_spare4, 4, ENC_BIG_ENDIAN);
+
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a VolSync */
-#define OUT_FS_AFSVolSync() \
-	{ 	proto_tree *save; \
-		save = tree; \
-		tree = proto_tree_add_subtree(tree, tvb, offset, 6*4, \
-			ett_afs_volsync, NULL, "VolSync"); \
-		OUT_TIMESECS(hf_afs_fs_volsync_spare1); \
-		OUT_UINT(hf_afs_fs_volsync_spare2); \
-		OUT_UINT(hf_afs_fs_volsync_spare3); \
-		OUT_UINT(hf_afs_fs_volsync_spare4); \
-		OUT_UINT(hf_afs_fs_volsync_spare5); \
-		OUT_UINT(hf_afs_fs_volsync_spare6); \
-		tree = save; \
-	}
+static void OUT_FS_AFSVolSync(ptvcursor_t *cursor)
+{
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_status, "VolSync");
+	OUT_TIMESECS(cursor, hf_afs_fs_volsync_spare1);
+	ptvcursor_add(cursor, hf_afs_fs_volsync_spare2, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_volsync_spare3, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_volsync_spare4, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_volsync_spare5, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_fs_volsync_spare6, 4, ENC_BIG_ENDIAN);
 
-/* Output a AFSCBFids */
-#define OUT_FS_AFSCBFids() \
-	OUT_RXArray32(OUT_FS_AFSFid("Target"));
-
-/* Output a ViceIds */
-#define OUT_FS_ViceIds() \
-	OUT_RXArray8(OUT_UINT(hf_afs_fs_viceid));
-
-/* Output a IPAddrs */
-#define OUT_FS_IPAddrs() \
-	OUT_RXArray8(OUT_IP(hf_afs_fs_ipaddr));
-
-/* Output a AFSCBs */
-#define OUT_FS_AFSCBs()	\
-	OUT_RXArray32(OUT_FS_AFSCallBack());
-
-/* Output a AFSBulkStats */
-#define OUT_FS_AFSBulkStats() \
-	OUT_RXArray32(OUT_FS_AFSFetchStatus("Status"));
-
-/* Output a AFSFetchVolumeStatus */
-#define OUT_FS_AFSFetchVolumeStatus()
-
-/* Output a AFSStoreVolumeStatus */
-#define OUT_FS_AFSStoreVolumeStatus()
-
-/* Output a ViceStatistics structure */
-#define OUT_FS_ViceStatistics()
-
-/* Output a AFS_CollData structure */
-#define OUT_FS_AFS_CollData()
-
-/* Output a VolumeInfo structure */
-#define OUT_FS_VolumeInfo()
-
-/* Output an AFS Token - might just be bytes though */
-#define OUT_FS_AFSTOKEN() OUT_RXStringV(hf_afs_fs_token, 1024)
+	ptvcursor_pop_subtree(cursor);
+}
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \
@@ -845,156 +759,113 @@ static const int * vldb_flags[] = {
 		tree = save; \
 	}
 
-/* Output a UUID */
-#define OUT_UUID(x) \
-	OUT_BYTES(x, 11*4);
-#define SKIP_UUID() \
-	SKIP(11*4);
-
-
-/* Output a bulkaddr */
-#define OUT_VLDB_BulkAddr() \
-	OUT_RXArray32(OUT_IP(hf_afs_vldb_serverip));
-
 /* output a bozo_key */
-#define OUT_BOS_KEY() \
-	OUT_BYTES(hf_afs_bos_key, 8);
-
-/* output a bozo_key */
-#define OUT_BOS_KEYINFO() \
-	OUT_TIMESTAMP(hf_afs_bos_keymodtime); \
-	OUT_UINT(hf_afs_bos_keychecksum); \
-	OUT_UINT(hf_afs_bos_keyspare2);
-
-/* output a bozo_netKTime */
-#define OUT_BOS_TIME() \
-	SKIP(4); SKIP(2); SKIP(2); SKIP(2); SKIP(2);
-
-/* output a bozo_status */
-#define OUT_BOS_STATUS() \
-	SKIP(10 * 4);
+static void OUT_BOS_KEYINFO(ptvcursor_t *cursor)
+{
+	OUT_TIMESTAMP(cursor, hf_afs_bos_keymodtime);
+	ptvcursor_add(cursor, hf_afs_bos_keychecksum, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_bos_keyspare2, 4, ENC_BIG_ENDIAN);
+}
 
 /* output a ubik interface addr array */
-#define OUT_UBIK_InterfaceAddrs() \
-	{ \
-		unsigned int i,j,seen_null=0; \
-		for (i=0; i<255; i++) { \
-			j = tvb_get_ntohl(tvb, offset); \
-			if ( j != 0 ) { \
-				OUT_IP(hf_afs_ubik_interface); \
-				seen_null = 0; \
-			} else { \
-				if ( ! seen_null ) { \
-				proto_tree_add_text(tree, tvb, offset, \
-					tvb_captured_length_remaining(tvb, offset), \
-					"Null Interface Addresses"); \
-					seen_null = 1; \
-				} \
-				offset += 4; \
-			}\
-		} \
+static void OUT_UBIK_InterfaceAddrs(ptvcursor_t *cursor)
+{
+	unsigned int i,j,seen_null=0;
+
+	for (i=0; i<255; i++) {
+		j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+		if ( j != 0 ) {
+			ptvcursor_add(cursor, hf_afs_ubik_interface, 4, ENC_BIG_ENDIAN);
+			seen_null = 0;
+		} else {
+			if ( ! seen_null ) {
+				ptvcursor_add_no_advance(cursor, hf_afs_ubik_null_addresses, -1, ENC_NA);
+				seen_null = 1;
+			}
+			ptvcursor_advance(cursor, 4);
+		}
 	}
-
-#define OUT_UBIK_DebugOld() \
-	{ \
-		OUT_TIMESECS(hf_afs_ubik_now); \
-		OUT_TIMESECS(hf_afs_ubik_lastyestime); \
-		OUT_IP(hf_afs_ubik_lastyeshost); \
-		OUT_UINT(hf_afs_ubik_lastyesstate); \
-		OUT_TIMESECS(hf_afs_ubik_lastyesclaim); \
-		OUT_IP(hf_afs_ubik_lowesthost); \
-		OUT_TIMESECS(hf_afs_ubik_lowesttime); \
-		OUT_IP(hf_afs_ubik_synchost); \
-		OUT_TIMESECS(hf_afs_ubik_synctime); \
-		OUT_UBIKVERSION("Sync Version"); \
-		OUT_UBIKVERSION("Sync TID"); \
-		OUT_UINT(hf_afs_ubik_amsyncsite); \
-		OUT_TIMESECS(hf_afs_ubik_syncsiteuntil); \
-		OUT_UINT(hf_afs_ubik_nservers); \
-		OUT_UINT(hf_afs_ubik_lockedpages); \
-		OUT_UINT(hf_afs_ubik_writelockedpages); \
-		OUT_UBIKVERSION("Local Version"); \
-		OUT_UINT(hf_afs_ubik_activewrite); \
-		OUT_UINT(hf_afs_ubik_tidcounter); \
-		OUT_UINT(hf_afs_ubik_anyreadlocks); \
-		OUT_UINT(hf_afs_ubik_anywritelocks); \
-		OUT_UINT(hf_afs_ubik_recoverystate); \
-		OUT_UINT(hf_afs_ubik_currenttrans); \
-		OUT_UINT(hf_afs_ubik_writetrans); \
-		OUT_TIMESECS(hf_afs_ubik_epochtime); \
-	}
-
-#define OUT_UBIK_SDebugOld() \
-	{ \
-		OUT_IP(hf_afs_ubik_addr); \
-		OUT_TIMESECS(hf_afs_ubik_lastvotetime); \
-		OUT_TIMESECS(hf_afs_ubik_lastbeaconsent); \
-		OUT_UINT(hf_afs_ubik_lastvote); \
-		OUT_UBIKVERSION("Remote Version"); \
-		OUT_UINT(hf_afs_ubik_currentdb); \
-		OUT_UINT(hf_afs_ubik_beaconsincedown); \
-		OUT_UINT(hf_afs_ubik_up); \
-	}
-
-/* Skip a certain number of bytes */
-#define SKIP(bytes) \
-	offset += bytes;
-
-/* Raw data - to end of frame */
-#define OUT_BYTES_ALL(field) OUT_BYTES(field, tvb_captured_length_remaining(tvb,offset))
-
-/* Raw data */
-#define OUT_BYTES(field, bytes) \
-	proto_tree_add_item(tree, field, tvb, offset, bytes, ENC_NA);\
-	offset += bytes;
-
-
-
-/* Skip the opcode */
-#define SKIP_OPCODE() \
-	{ \
-		SKIP(4); \
-	}
+}
 
 /* Output a UBIK version code */
-#define OUT_UBIKVERSION(label) \
-	{ 	proto_tree *save; \
-		unsigned int epoch,counter; \
-		nstime_t ts; \
-		epoch = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
-		counter = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
-		ts.secs = epoch; \
-		ts.nsecs = 0; \
-		save = tree; \
-		tree = proto_tree_add_subtree_format(tree, tvb, offset-8, 8, \
-			ett_afs_ubikver, NULL, "UBIK Version (%s): %u.%u", label, epoch, counter ); \
-		if ( epoch != 0 ) \
-		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
-			4,&ts); \
-		else \
-			proto_tree_add_time_format_value(tree, hf_afs_ubik_version_epoch, tvb, offset-8, \
-			4, &ts, "0"); \
-		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, tvb,offset-4, \
-			4,counter); \
-		tree = save; \
-	}
+static void OUT_UBIKVERSION(ptvcursor_t *cursor, const char* label)
+{
+	unsigned int epoch,counter;
+	nstime_t ts;
+	epoch = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+	counter = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+4);
+	ts.secs = epoch;
+	ts.nsecs = 0;
+
+	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+		ett_afs_ubikver, "UBIK Version (%s): %u.%u", label, epoch, counter);
+	if ( epoch != 0 )
+		proto_tree_add_time(ptvcursor_tree(cursor), hf_afs_ubik_version_epoch, ptvcursor_tvbuff(cursor),
+				ptvcursor_current_offset(cursor), 4, &ts);
+	else
+		proto_tree_add_time_format_value(ptvcursor_tree(cursor), hf_afs_ubik_version_epoch, ptvcursor_tvbuff(cursor),
+				ptvcursor_current_offset(cursor), 4, &ts, "0");
+	ptvcursor_advance(cursor, 4);
+
+	ptvcursor_add(cursor, hf_afs_ubik_version_counter, 4, ENC_BIG_ENDIAN);
+
+	ptvcursor_pop_subtree(cursor);
+}
+
+static void OUT_UBIK_DebugOld(ptvcursor_t *cursor)
+{
+	OUT_TIMESECS(cursor, hf_afs_ubik_now);
+	OUT_TIMESECS(cursor, hf_afs_ubik_lastyestime);
+	ptvcursor_add(cursor, hf_afs_ubik_lastyeshost, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_lastyesstate, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_lastyesclaim);
+	ptvcursor_add(cursor, hf_afs_ubik_lowesthost, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_lowesttime);
+	ptvcursor_add(cursor, hf_afs_ubik_synchost, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_synctime);
+	OUT_UBIKVERSION(cursor, "Sync Version");
+	OUT_UBIKVERSION(cursor, "Sync TID");
+	ptvcursor_add(cursor, hf_afs_ubik_amsyncsite, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_syncsiteuntil);
+	ptvcursor_add(cursor, hf_afs_ubik_nservers, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_lockedpages, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_writelockedpages, 4, ENC_BIG_ENDIAN);
+	OUT_UBIKVERSION(cursor, "Local Version");
+	ptvcursor_add(cursor, hf_afs_ubik_activewrite, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_tidcounter, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_anyreadlocks, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_anywritelocks, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_recoverystate, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_currenttrans, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_writetrans, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_epochtime);
+}
+
+static void OUT_UBIK_SDebugOld(ptvcursor_t *cursor)
+{
+	ptvcursor_add(cursor, hf_afs_ubik_addr, 4, ENC_BIG_ENDIAN);
+	OUT_TIMESECS(cursor, hf_afs_ubik_lastvotetime);
+	OUT_TIMESECS(cursor, hf_afs_ubik_lastbeaconsent);
+	ptvcursor_add(cursor, hf_afs_ubik_lastvote, 4, ENC_BIG_ENDIAN);
+	OUT_UBIKVERSION(cursor, "Remote Version");
+	ptvcursor_add(cursor, hf_afs_ubik_currentdb, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_beaconsincedown, 4, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_afs_ubik_up, 4, ENC_BIG_ENDIAN);
+}
 
 /* Output a kauth getticket request */
-#define OUT_KAUTH_GetTicket() \
-	{ \
-		int len = 0; \
-		OUT_UINT(hf_afs_kauth_kvno); \
-		OUT_RXString(hf_afs_kauth_domain); \
-		len = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
-		OUT_BYTES(hf_afs_kauth_data, len); \
-		OUT_RXString(hf_afs_kauth_princ); \
-		OUT_RXString(hf_afs_kauth_realm); \
-	}
+static void OUT_KAUTH_GetTicket(ptvcursor_t *cursor)
+{
+	int len;
 
-#define GETSTR (tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb,offset)))
+	ptvcursor_add(cursor, hf_afs_kauth_kvno, 4, ENC_BIG_ENDIAN);
+	OUT_RXString(cursor, hf_afs_kauth_domain);
+	len = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+	ptvcursor_advance(cursor, 4);
+	ptvcursor_add(cursor, hf_afs_kauth_data, len, ENC_NA);
+	OUT_RXString(cursor, hf_afs_kauth_princ);
+	OUT_RXString(cursor, hf_afs_kauth_realm);
+}
 
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
@@ -1508,48 +1379,6 @@ static GHashTable *afs_request_hash = NULL;
 static reassembly_table afs_reassembly_table;
 
 /*
- * Dissector prototypes
- */
-static int dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset);
-static void dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_kauth_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-static void dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
-	proto_tree *tree, int offset, int opcode);
-
-/*
  * Hash Functions
  */
 static gint
@@ -1597,6 +1426,1294 @@ afs_init_protocol(void)
 			      &addresses_reassembly_table_functions);
 }
 
+/*
+ * Here is a helper routine for adding an AFS acl to the proto tree
+ * This is to be used with FS packets only
+ *
+ * An AFS ACL is a string that has the following format:
+ *
+ * <positive> <negative>
+ * <uid1> <aclbits1>
+ * ....
+ *
+ * "positive" and "negative" are integers which contain the number of
+ * positive and negative ACL's in the string.  The uid/aclbits pair are
+ * ASCII strings containing the UID/PTS record and and a ascii number
+ * representing a logical OR of all the ACL permission bits
+ */
+/*
+ * XXX - FIXME:
+ *
+ *	sscanf is probably quite dangerous if we run outside the packet.
+ *
+ * Should this just scan the string itself, rather than using "sscanf()"?
+ */
+#define GETSTR (tvb_format_text(tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
+
+static void
+dissect_acl(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_)
+{
+	int old_offset = ptvcursor_current_offset(cursor), offset;
+	gint32 bytes;
+	int i, n, pos, neg, acl;
+	proto_tree* tree = ptvcursor_tree(cursor);
+	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
+	char user[128] = "[Unknown]"; /* Be sure to adjust sscanf()s below if length is changed... */
+
+	bytes = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
+	ptvcursor_add(cursor, hf_afs_fs_acl_datasize, 4, ENC_BIG_ENDIAN);
+
+	if (sscanf(GETSTR, "%d %n", &pos, &n) != 1) {
+		/* does not matter what we return, if this fails,
+		 * we can't dissect anything else in the packet either.
+		 */
+		return;
+	}
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb,
+		ptvcursor_current_offset(cursor), n, pos);
+	ptvcursor_advance(cursor, n);
+
+	if (sscanf(GETSTR, "%d %n", &neg, &n) != 1) {
+		return;
+	}
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
+		ptvcursor_current_offset(cursor), n, neg);
+	ptvcursor_advance(cursor, n);
+
+	/*
+	 * This wacky order preserves the order used by the "fs" command
+	 */
+	offset = ptvcursor_current_offset(cursor);
+	for (i = 0; i < pos; i++) {
+		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
+			return;
+		}
+		ACLOUT(user,1,acl,n);
+		offset += n;
+	}
+	for (i = 0; i < neg; i++) {
+		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
+			return;
+		}
+		ACLOUT(user,0,acl,n);
+		offset += n;
+		if (offset >= old_offset+bytes ) {
+			return;
+		}
+	}
+}
+
+/*
+ * Here are the helper dissection routines
+ */
+
+static void
+dissect_fs_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+			case 130: /* fetch data */
+				OUT_FS_AFSFetchStatus(cursor, "Status");
+				OUT_FS_AFSCallBack(cursor);
+				OUT_FS_AFSVolSync(cursor);
+				ptvcursor_add(cursor, hf_afs_fs_data, -1, ENC_NA);
+				break;
+			case 131: /* fetch acl */
+				dissect_acl(cursor, rxinfo);
+				OUT_FS_AFSFetchStatus(cursor, "Status");
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 132: /* Fetch status */
+				OUT_FS_AFSFetchStatus(cursor, "Status");
+				OUT_FS_AFSCallBack(cursor);
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 133: /* Store data */
+			case 134: /* Store ACL */
+	 		case 135: /* Store status */
+			case 136: /* Remove file */
+				OUT_FS_AFSFetchStatus(cursor, "Status");
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 137: /* create file */
+			case 141: /* make dir */
+			case 161: /* lookup */
+			case 163: /* dfs symlink */
+				OUT_FS_AFSFid(cursor, (opcode == 137)? "New File" : ((opcode == 141)? "New Directory" : "File"));
+				OUT_FS_AFSFetchStatus(cursor, "File Status");
+				OUT_FS_AFSFetchStatus(cursor, "Directory Status");
+				OUT_FS_AFSCallBack(cursor);
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 138: /* rename */
+				OUT_FS_AFSFetchStatus(cursor, "Old Directory Status");
+				OUT_FS_AFSFetchStatus(cursor, "New Directory Status");
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 139: /* symlink */
+				OUT_FS_AFSFid(cursor, "Symlink");
+				break;
+			case 140: /* link */
+				OUT_FS_AFSFetchStatus(cursor, "Symlink Status");
+				break;
+			case 142: /* rmdir */
+				OUT_FS_AFSFetchStatus(cursor, "Directory Status");
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 143: /* old set lock */
+			case 144: /* old extend lock */
+			case 145: /* old release lock */
+			case 147: /* give up callbacks */
+			case 150: /* set volume status */
+			case 152: /* check token */
+				/* nothing returned */
+				break;
+			case 146: /* get statistics */
+				/* OUT_FS_ViceStatistics(); */
+				break;
+			case 148: /* get volume info */
+			case 154: /* n-get-volume-info */
+				/* OUT_FS_VolumeInfo(); */
+				break;
+			case 149: /* get volume status */
+				/* OUT_FS_AFSFetchVolumeStatus(); */
+				OUT_RXString(cursor, hf_afs_fs_volname);
+				OUT_RXString(cursor, hf_afs_fs_offlinemsg);
+				OUT_RXString(cursor, hf_afs_fs_motd);
+				break;
+			case 151: /* root volume */
+				OUT_RXString(cursor, hf_afs_fs_volname);
+				break;
+			case 153: /* get time */
+				OUT_TIMESTAMP(cursor, hf_afs_fs_timestamp);
+				break;
+			case 155: /* bulk status */
+				OUT_RXArray32(OUT_FS_AFSFetchStatus(cursor, "Status"));
+				ptvcursor_advance(cursor, 4); /* skip */
+				OUT_RXArray32(OUT_FS_AFSCallBack(cursor));
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 156: /* set lock */
+			case 157: /* extend lock */
+			case 158: /* release lock */
+				OUT_FS_AFSVolSync(cursor);
+				break;
+			case 159: /* x-stats-version */
+				ptvcursor_add(cursor, hf_afs_fs_xstats_version, 4, ENC_BIG_ENDIAN);
+				break;
+			case 160: /* get xstats */
+				ptvcursor_add(cursor, hf_afs_fs_xstats_version, 4, ENC_BIG_ENDIAN);
+				OUT_TIMESECS(cursor, hf_afs_fs_xstats_timestamp);
+				/* OUT_FS_AFS_CollData(); */
+				break;
+			case 162: /* flush cps */
+				ptvcursor_add(cursor, hf_afs_fs_cps_spare2, 4, ENC_BIG_ENDIAN);
+				ptvcursor_add(cursor, hf_afs_fs_cps_spare3, 4, ENC_BIG_ENDIAN);
+				break;
+			case 65536: /* inline bulk status */
+				OUT_RXArray32(OUT_FS_AFSFetchStatus(cursor, "Status"));
+				OUT_RXArray32(OUT_FS_AFSCallBack(cursor));
+				OUT_FS_AFSVolSync(cursor);
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_fs_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_fs_request(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 130: /* Fetch data */
+			OUT_FS_AFSFid(cursor, "Source");
+			ptvcursor_add(cursor, hf_afs_fs_offset, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_length, 4, ENC_BIG_ENDIAN);
+			break;
+		case 131: /* Fetch ACL */
+			OUT_FS_AFSFid(cursor, "Target");
+			break;
+		case 132: /* Fetch Status */
+			OUT_FS_AFSFid(cursor, "Target");
+			break;
+		case 133: /* Store Data */
+			OUT_FS_AFSFid(cursor, "Destination");
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			ptvcursor_add(cursor, hf_afs_fs_offset, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_length, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_flength, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_data, -1, ENC_NA);
+			break;
+		case 134: /* Store ACL */
+			OUT_FS_AFSFid(cursor, "Target");
+			dissect_acl(cursor, rxinfo);
+			break;
+		case 135: /* Store Status */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			break;
+		case 136: /* Remove File */
+			OUT_FS_AFSFid(cursor, "Remove File");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			break;
+		case 137: /* Create File */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			break;
+		case 138: /* Rename file */
+			OUT_FS_AFSFid(cursor, "Old");
+			OUT_RXString(cursor, hf_afs_fs_oldname);
+			OUT_FS_AFSFid(cursor, "New");
+			OUT_RXString(cursor, hf_afs_fs_newname);
+			break;
+		case 139: /* Symlink */
+			OUT_FS_AFSFid(cursor, "File");
+			OUT_RXString(cursor, hf_afs_fs_symlink_name);
+			OUT_RXString(cursor, hf_afs_fs_symlink_content);
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			break;
+		case 140: /* Link */
+			OUT_FS_AFSFid(cursor, "Link To (New File)");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			OUT_FS_AFSFid(cursor, "Link From (Old File)");
+			break;
+		case 141: /* Make dir */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			break;
+		case 142: /* Remove dir */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			break;
+		case 143: /* Old Set Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			ptvcursor_add(cursor, hf_afs_fs_vicelocktype, 4, ENC_BIG_ENDIAN);
+			OUT_FS_AFSVolSync(cursor);
+			break;
+		case 144: /* Old Extend Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_FS_AFSVolSync(cursor);
+			break;
+		case 145: /* Old Release Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_FS_AFSVolSync(cursor);
+			break;
+		case 146: /* Get statistics */
+			/* no params */
+			break;
+		case 147: /* Give up callbacks */
+			OUT_RXArray32(OUT_FS_AFSFid(cursor, "Target"));
+			OUT_RXArray32(OUT_FS_AFSCallBack(cursor));
+			break;
+		case 148: /* Get vol info */
+			OUT_RXString(cursor, hf_afs_fs_volname);
+			break;
+		case 149: /* Get vol stats */
+			ptvcursor_add(cursor, hf_afs_fs_volid, 4, ENC_BIG_ENDIAN);
+			break;
+		case 150: /* Set vol stats */
+			ptvcursor_add(cursor, hf_afs_fs_volid, 4, ENC_BIG_ENDIAN);
+			/* OUT_FS_AFSStoreVolumeStatus(); */
+			OUT_RXString(cursor, hf_afs_fs_volname);
+			OUT_RXString(cursor, hf_afs_fs_offlinemsg);
+			OUT_RXString(cursor, hf_afs_fs_motd);
+			break;
+		case 151: /* get root volume */
+			/* no params */
+			break;
+		case 152: /* check token */
+			ptvcursor_add(cursor, hf_afs_fs_viceid, 4, ENC_BIG_ENDIAN);
+			/* Output an AFS Token - might just be bytes though */
+			OUT_RXStringV(cursor, hf_afs_fs_token, 1024);
+			break;
+		case 153: /* get time */
+			/* no params */
+			break;
+		case 154: /* new get vol info */
+			OUT_RXString(cursor, hf_afs_fs_volname);
+			break;
+		case 155: /* bulk stat */
+			OUT_RXArray32(OUT_FS_AFSFid(cursor, "Target"));
+			break;
+		case 156: /* Set Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			ptvcursor_add(cursor, hf_afs_fs_vicelocktype, 4, ENC_BIG_ENDIAN);
+			break;
+		case 157: /* Extend Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			break;
+		case 158: /* Release Lock */
+			OUT_FS_AFSFid(cursor, "Target");
+			break;
+		case 159: /* xstats version */
+			/* no params */
+			break;
+		case 160: /* get xstats */
+			ptvcursor_add(cursor, hf_afs_fs_xstats_clientversion, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_xstats_collnumber, 4, ENC_BIG_ENDIAN);
+			break;
+		case 161: /* lookup */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_RXString(cursor, hf_afs_fs_name);
+			break;
+		case 162: /* flush cps */
+			OUT_RXArray8(cursor, hf_afs_fs_viceid, 4, ENC_BIG_ENDIAN);
+			OUT_RXArray8(cursor, hf_afs_fs_ipaddr, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_cps_spare1, 4, ENC_BIG_ENDIAN);
+			break;
+		case 163: /* dfs symlink */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_RXString(cursor, hf_afs_fs_symlink_name);
+			OUT_RXString(cursor, hf_afs_fs_symlink_content);
+			OUT_FS_AFSStoreStatus(cursor, "Symlink Status");
+			break;
+		case 220: /* residencycmd */
+			OUT_FS_AFSFid(cursor, "Target");
+			/* need residency inputs here */
+			break;
+		case 65536: /* inline bulk status */
+			OUT_RXArray32(OUT_FS_AFSFid(cursor, "Target"));
+			break;
+		case 65537: /* fetch-data-64 */
+			OUT_FS_AFSFid(cursor, "Target");
+			ptvcursor_add(cursor, hf_afs_fs_offset64, 8, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_length64, 8, ENC_BIG_ENDIAN);
+			/* need more here */
+			break;
+		case 65538: /* store-data-64 */
+			OUT_FS_AFSFid(cursor, "Target");
+			OUT_FS_AFSStoreStatus(cursor, "Status");
+			ptvcursor_add(cursor, hf_afs_fs_offset64, 8, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_length64, 8, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_fs_flength64, 8, ENC_BIG_ENDIAN);
+			/* need residency inputs here */
+			break;
+		case 65539: /* give up all cbs */
+			break;
+		case 65540: /* get capabilities */
+			break;
+	}
+}
+
+/*
+ * BOS Helpers
+ */
+static void
+dissect_bos_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+			case 80: /* create bnode */
+				/* no output */
+				break;
+			case 81: /* delete bnode */
+				/* no output */
+				break;
+			case 82: /* set status */
+				/* no output */
+				break;
+			case 83: /* get status */
+				ptvcursor_add(cursor, hf_afs_bos_status, 4, ENC_BIG_ENDIAN);
+				OUT_RXString(cursor, hf_afs_bos_statusdesc);
+				break;
+			case 84: /* enumerate instance */
+				OUT_RXString(cursor, hf_afs_bos_instance);
+				break;
+			case 85: /* get instance info */
+				OUT_RXString(cursor, hf_afs_bos_type);
+				ptvcursor_advance(cursor, 4*10);
+				break;
+			case 86: /* get instance parm */
+				OUT_RXString(cursor, hf_afs_bos_parm);
+				break;
+			case 87: /* add siperuser */
+				/* no output */
+				break;
+			case 88: /* delete superuser */
+				/* no output */
+				break;
+			case 89: /* list superusers */
+				OUT_RXString(cursor, hf_afs_bos_user);
+				break;
+			case 90: /* list keys */
+				ptvcursor_add(cursor, hf_afs_bos_kvno, 4, ENC_BIG_ENDIAN);
+				ptvcursor_add(cursor, hf_afs_bos_key, 8, ENC_NA);
+				OUT_BOS_KEYINFO(cursor);
+				break;
+			case 91: /* add key */
+				/* no output */
+				break;
+			case 92: /* delete key */
+				/* no output */
+				break;
+			case 93: /* set cell name */
+				/* no output */
+				break;
+			case 94: /* get cell name */
+				OUT_RXString(cursor, hf_afs_bos_cell);
+				break;
+			case 95: /* get cell host */
+				OUT_RXString(cursor, hf_afs_bos_host);
+				break;
+			case 96: /* add cell host */
+				/* no output */
+				break;
+			case 97: /* delete cell host */
+				/* no output */
+				break;
+			case 98: /* set tstatus */
+				/* no output */
+				break;
+			case 99: /* shutdown all */
+				/* no output */
+				break;
+			case 100: /* restart all */
+				/* no output */
+				break;
+			case 101: /* startup all */
+				/* no output */
+				break;
+			case 102: /* set noauth flag */
+				/* no output */
+				break;
+			case 103: /* rebozo */
+				/* no output */
+				break;
+			case 104: /* restart */
+				/* no output */
+				break;
+			case 105: /* install */
+				/* no output */
+				break;
+			case 106: /* uninstall */
+				/* no output */
+				break;
+			case 107: /* get dates */
+				OUT_TIMESECS(cursor, hf_afs_bos_newtime);
+				OUT_TIMESECS(cursor, hf_afs_bos_baktime);
+				OUT_TIMESECS(cursor, hf_afs_bos_oldtime);
+				break;
+			case 108: /* exec */
+				/* no output */
+				break;
+			case 109: /* prune */
+				/* no output */
+				break;
+			case 110: /* set restart time */
+				/* no output */
+				break;
+			case 111: /* get restart time */
+				ptvcursor_advance(cursor, 12);
+				break;
+			case 112: /* get log */
+				/* need to make this dump a big string somehow */
+				ptvcursor_add(cursor, hf_afs_bos_data, -1, ENC_NA);
+				break;
+			case 113: /* wait all */
+				/* no output */
+				break;
+			case 114: /* get instance strings */
+				OUT_RXString(cursor, hf_afs_bos_error);
+				OUT_RXString(cursor, hf_afs_bos_spare1);
+				OUT_RXString(cursor, hf_afs_bos_spare2);
+				OUT_RXString(cursor, hf_afs_bos_spare3);
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_bos_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_bos_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 80: /* create b node */
+			OUT_RXString(cursor, hf_afs_bos_type);
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			OUT_RXString(cursor, hf_afs_bos_parm);
+			break;
+		case 81: /* delete b node */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			break;
+		case 82: /* set status */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			ptvcursor_add(cursor, hf_afs_bos_status, 4, ENC_BIG_ENDIAN);
+			break;
+		case 83: /* get status */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			break;
+		case 84: /* enumerate instance */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 85: /* get instance info */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			break;
+		case 86: /* get instance parm */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 87: /* add super user */
+			OUT_RXString(cursor, hf_afs_bos_user);
+			break;
+		case 88: /* delete super user */
+			OUT_RXString(cursor, hf_afs_bos_user);
+			break;
+		case 89: /* list super users */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 90: /* list keys */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 91: /* add key */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_bos_key, 8, ENC_NA);
+			break;
+		case 92: /* delete key */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 93: /* set cell name */
+			OUT_RXString(cursor, hf_afs_bos_content);
+			break;
+		case 95: /* set cell host */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 96: /* add cell host */
+			OUT_RXString(cursor, hf_afs_bos_content);
+			break;
+		case 97: /* delete cell host */
+			OUT_RXString(cursor, hf_afs_bos_content);
+			break;
+		case 98: /* set t status */
+			OUT_RXString(cursor, hf_afs_bos_content);
+			ptvcursor_add(cursor, hf_afs_bos_status, 4, ENC_BIG_ENDIAN);
+			break;
+		case 99: /* shutdown all */
+			/* no params */
+			break;
+		case 100: /* restart all */
+			/* no params */
+			break;
+		case 101: /* startup all */
+			/* no params */
+			break;
+		case 102: /* set no-auth flag */
+			ptvcursor_add(cursor, hf_afs_bos_flags, 4, ENC_BIG_ENDIAN);
+			break;
+		case 103: /* re-bozo? */
+			/* no params */
+			break;
+		case 104: /* restart */
+			OUT_RXString(cursor, hf_afs_bos_instance);
+			break;
+		case 105: /* install */
+			OUT_RXString(cursor, hf_afs_bos_path);
+			ptvcursor_add(cursor, hf_afs_bos_size, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_bos_flags, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_bos_date, 4, ENC_BIG_ENDIAN);
+			break;
+		case 106: /* uninstall */
+			OUT_RXString(cursor, hf_afs_bos_path);
+			break;
+		case 107: /* get dates */
+			OUT_RXString(cursor, hf_afs_bos_path);
+			break;
+		case 108: /* exec */
+			OUT_RXString(cursor, hf_afs_bos_cmd);
+			break;
+		case 109: /* prune */
+			ptvcursor_add(cursor, hf_afs_bos_flags, 4, ENC_BIG_ENDIAN);
+			break;
+		case 110: /* set restart time */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			ptvcursor_advance(cursor, 12);
+			break;
+		case 111: /* get restart time */
+			ptvcursor_add(cursor, hf_afs_bos_num, 4, ENC_BIG_ENDIAN);
+			break;
+		case 112: /* get log */
+			OUT_RXString(cursor, hf_afs_bos_file);
+			break;
+		case 113: /* wait all */
+			/* no params */
+			break;
+		case 114: /* get instance strings */
+			OUT_RXString(cursor, hf_afs_bos_content);
+			break;
+	}
+}
+
+/*
+ * VOL Helpers
+ */
+static void
+dissect_vol_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+			case 121:
+				/* should loop here maybe */
+				ptvcursor_add(cursor, hf_afs_vol_count, 4, ENC_BIG_ENDIAN);
+				OUT_RXStringV(cursor, hf_afs_vol_name, 32); /* not sure on  */
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_vol_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_vol_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 121: /* list one vol */
+			ptvcursor_add(cursor, hf_afs_vol_count, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_vol_id, 4, ENC_BIG_ENDIAN);
+			break;
+	}
+}
+
+/*
+ * KAUTH Helpers
+ */
+static void
+dissect_kauth_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_kauth_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_kauth_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 1: /* authenticate old */
+		case 21: /* authenticate */
+		case 22: /* authenticate v2 */
+		case 2: /* change pw */
+		case 5: /* set fields */
+		case 6: /* create user */
+		case 7: /* delete user */
+		case 8: /* get entry */
+		case 14: /* unlock */
+		case 15: /* lock status */
+			OUT_RXString(cursor, hf_afs_kauth_princ);
+			OUT_RXString(cursor, hf_afs_kauth_realm);
+			ptvcursor_add(cursor, hf_afs_kauth_data, -1, ENC_NA);
+			break;
+		case 3: /* getticket-old */
+		case 23: /* getticket */
+			OUT_KAUTH_GetTicket(cursor);
+			break;
+		case 4: /* set pass */
+			OUT_RXString(cursor, hf_afs_kauth_princ);
+			OUT_RXString(cursor, hf_afs_kauth_realm);
+			ptvcursor_add(cursor, hf_afs_kauth_kvno, 4, ENC_BIG_ENDIAN);
+			break;
+		case 12: /* get pass */
+			OUT_RXString(cursor, hf_afs_kauth_name);
+			break;
+	}
+}
+
+/*
+ * CB Helpers
+ */
+static void
+dissect_cb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode ) {
+			case 65538: /* get-capabilites */
+				OUT_CM_INTERFACES(cursor);
+				OUT_CM_CAPABILITIES(cursor);
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_cb_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_cb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+	case 204: /* callback */
+		OUT_RXArray32(OUT_CB_AFSFid(cursor, "Target"));
+		OUT_RXArray32(OUT_CB_AFSCallBack(cursor));
+		break;
+	}
+}
+
+/*
+ * PROT Helpers
+ */
+static void
+dissect_prot_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+			case 504: /* name to id */
+				{
+					unsigned int i, size;
+
+					size = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
+
+					for (i=0; i<size; i++)
+					{
+						ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+					}
+				}
+				break;
+			case 505: /* id to name */
+				{
+					unsigned int i, size;
+
+					size = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
+
+					for (i=0; i<size; i++)
+					{
+						OUT_RXStringV(cursor, hf_afs_prot_name, PRNAMEMAX);
+					}
+				}
+				break;
+			case 508: /* get cps */
+			case 514: /* list elements */
+			case 517: /* list owned */
+			case 518: /* get cps2 */
+			case 519: /* get host cps */
+				{
+					unsigned int i, size;
+
+					size = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
+
+					for (i=0; i<size; i++)
+					{
+						ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+					}
+				}
+				break;
+			case 510: /* list max */
+				ptvcursor_add(cursor, hf_afs_prot_maxuid, 4, ENC_BIG_ENDIAN);
+				ptvcursor_add(cursor, hf_afs_prot_maxgid, 4, ENC_BIG_ENDIAN);
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_prot_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_prot_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 500: /* new user */
+			OUT_RXString(cursor, hf_afs_prot_name_uint_string);
+			ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_prot_oldid, 4, ENC_BIG_ENDIAN);
+			break;
+		case 501: /* where is it */
+		case 506: /* delete */
+		case 508: /* get cps */
+		case 512: /* list entry */
+		case 514: /* list elements */
+		case 517: /* list owned */
+		case 519: /* get host cps */
+			ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+			break;
+		case 502: /* dump entry */
+			ptvcursor_add(cursor, hf_afs_prot_pos, 4, ENC_BIG_ENDIAN);
+			break;
+		case 503: /* add to group */
+		case 507: /* remove from group */
+		case 515: /* is a member of? */
+			ptvcursor_add(cursor, hf_afs_prot_uid, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_prot_gid, 4, ENC_BIG_ENDIAN);
+			break;
+		case 504: /* name to id */
+			{
+				unsigned int i, size;
+
+				size = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+				ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
+				for (i=0; i<size; i++)
+				{
+					OUT_RXStringV(cursor, hf_afs_prot_name,PRNAMEMAX);
+				}
+			}
+			break;
+		case 505: /* id to name */
+			{
+				unsigned int i, size;
+
+				size = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+				ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
+
+				for (i=0; i<size; i++)
+				{
+					ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+				}
+			}
+			break;
+		case 509: /* new entry */
+			OUT_RXString(cursor, hf_afs_prot_name_uint_string);
+			ptvcursor_add(cursor, hf_afs_prot_flag, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_prot_oldid, 4, ENC_BIG_ENDIAN);
+			break;
+		case 511: /* set max */
+			ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_prot_flag, 4, ENC_BIG_ENDIAN);
+			break;
+		case 513: /* change entry */
+			ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+			OUT_RXString(cursor, hf_afs_prot_name_uint_string);
+			ptvcursor_add(cursor, hf_afs_prot_oldid, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_prot_newid, 4, ENC_BIG_ENDIAN);
+			break;
+		case 520: /* update entry */
+			ptvcursor_add(cursor, hf_afs_prot_id, 4, ENC_BIG_ENDIAN);
+			OUT_RXString(cursor, hf_afs_prot_name_uint_string);
+			break;
+	}
+}
+
+/*
+ * VLDB Helpers
+ */
+static void
+dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	static const int * vldb_flags[] = {
+		&hf_afs_vldb_flags_rwexists,
+		&hf_afs_vldb_flags_roexists,
+		&hf_afs_vldb_flags_bkexists,
+		&hf_afs_vldb_flags_dfsfileset,
+		NULL
+	};
+
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+			case 510: /* list entry */
+				ptvcursor_add(cursor, hf_afs_vldb_count, 4, ENC_BIG_ENDIAN);
+				ptvcursor_add(cursor, hf_afs_vldb_nextindex, 4, ENC_BIG_ENDIAN);
+				break;
+			case 503: /* get entry by id */
+			case 504: /* get entry by name */
+				{
+					int nservers,i,j;
+					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					ptvcursor_advance(cursor, 4);
+					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
+					for (i=0; i<8; i++)
+					{
+						if ( i<nservers )
+						{
+							ptvcursor_add(cursor, hf_afs_vldb_server, 4, ENC_BIG_ENDIAN);
+						}
+						else
+						{
+							ptvcursor_advance(cursor, 4);
+						}
+					}
+					for (i=0; i<8; i++)
+					{
+						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+						if ( i<nservers && j<=25 )
+						{
+							part[6] = 'a' + (char) j;
+							proto_tree_add_string(ptvcursor_tree(cursor), hf_afs_vldb_partition, ptvcursor_tvbuff(cursor),
+								ptvcursor_current_offset(cursor), 4, part);
+						}
+						ptvcursor_advance(cursor, 4);
+					}
+					ptvcursor_advance(cursor, 8*4);
+					ptvcursor_add(cursor, hf_afs_vldb_rwvol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_rovol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_bkvol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_clonevol, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_bitmask(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), hf_afs_vldb_flags,
+										ett_afs_vldb_flags, vldb_flags, ENC_BIG_ENDIAN);
+					ptvcursor_advance(cursor, 4);
+				}
+				break;
+			case 505: /* get new volume id */
+				ptvcursor_add(cursor, hf_afs_vldb_id, 4, ENC_BIG_ENDIAN);
+				break;
+			case 521: /* list entry */
+			case 529: /* list entry U */
+				ptvcursor_add(cursor, hf_afs_vldb_count, 4, ENC_BIG_ENDIAN);
+				ptvcursor_add(cursor, hf_afs_vldb_nextindex, 4, ENC_BIG_ENDIAN);
+				break;
+			case 518: /* get entry by id n */
+			case 519: /* get entry by name N */
+				{
+					int nservers,i,j;
+					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
+					for (i=0; i<13; i++)
+					{
+						if ( i<nservers )
+						{
+							ptvcursor_add(cursor, hf_afs_vldb_server, 4, ENC_BIG_ENDIAN);
+						}
+						else
+						{
+							ptvcursor_advance(cursor, 4);
+						}
+					}
+					for (i=0; i<13; i++)
+					{
+						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+						if ( i<nservers && j<=25 )
+						{
+							part[6] = 'a' + (char) j;
+							proto_tree_add_string(ptvcursor_tree(cursor), hf_afs_vldb_partition, ptvcursor_tvbuff(cursor),
+								ptvcursor_current_offset(cursor), 4, part);
+						}
+						ptvcursor_advance(cursor, 4);
+					}
+					ptvcursor_advance(cursor, 13*4);
+					ptvcursor_add(cursor, hf_afs_vldb_rwvol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_rovol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_bkvol, 4, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 526: /* get entry by id u */
+			case 527: /* get entry by name u */
+				{
+					int nservers,i,j;
+					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
+					for (i=0; i<13; i++)
+					{
+						if ( i<nservers )
+						{
+							ptvcursor_add(cursor, hf_afs_vldb_serveruuid, 4*11, ENC_NA);
+						}
+						else
+						{
+							ptvcursor_advance(cursor, 4*11);
+						}
+					}
+					for (i=0; i<13; i++)
+					{
+						if ( i<nservers )
+						{
+							ptvcursor_add(cursor, hf_afs_vldb_serveruniq, 4, ENC_BIG_ENDIAN);
+						}
+						else
+						{
+							ptvcursor_advance(cursor, 4);
+						}
+					}
+					for (i=0; i<13; i++)
+					{
+						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+						if ( i<nservers && j<=25 )
+						{
+							part[6] = 'a' + (char) j;
+							proto_tree_add_string(ptvcursor_tree(cursor), hf_afs_vldb_partition, ptvcursor_tvbuff(cursor),
+								ptvcursor_current_offset(cursor), 4, part);
+						}
+						ptvcursor_advance(cursor, 4);
+					}
+					for (i=0; i<13; i++)
+					{
+						if ( i<nservers )
+						{
+							ptvcursor_add(cursor, hf_afs_vldb_serverflags, 4, ENC_BIG_ENDIAN);
+						}
+						else
+						{
+							ptvcursor_advance(cursor, 4);
+						}
+					}
+					ptvcursor_add(cursor, hf_afs_vldb_rwvol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_rovol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_bkvol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_clonevol, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_flags, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare1, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare2, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare3, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare4, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare5, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare6, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare7, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare8, 4, ENC_BIG_ENDIAN);
+					ptvcursor_add(cursor, hf_afs_vldb_spare9, 4, ENC_BIG_ENDIAN);
+				}
+				break;
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_vldb_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_vldb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 501: /* create new volume */
+		case 517: /* create entry N */
+			OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+			break;
+		case 502: /* delete entry */
+		case 503: /* get entry by id */
+		case 507: /* update entry */
+		case 508: /* set lock */
+		case 509: /* release lock */
+		case 518: /* get entry by id */
+			ptvcursor_add(cursor, hf_afs_vldb_id, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_vldb_type, 4, ENC_BIG_ENDIAN);
+			break;
+		case 504: /* get entry by name */
+		case 519: /* get entry by name N */
+		case 524: /* update entry by name */
+		case 527: /* get entry by name U */
+			OUT_RXString(cursor, hf_afs_vldb_name_uint_string);
+			break;
+		case 505: /* get new vol id */
+			ptvcursor_add(cursor, hf_afs_vldb_bump, 4, ENC_BIG_ENDIAN);
+			break;
+		case 506: /* replace entry */
+		case 520: /* replace entry N */
+			ptvcursor_add(cursor, hf_afs_vldb_id, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_vldb_type, 4, ENC_BIG_ENDIAN);
+			OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+			break;
+		case 510: /* list entry */
+		case 521: /* list entry N */
+			ptvcursor_add(cursor, hf_afs_vldb_index, 4, ENC_BIG_ENDIAN);
+			break;
+		case 532: /* regaddr */
+			ptvcursor_add(cursor, hf_afs_vldb_serveruuid, 4*11, ENC_NA);
+			ptvcursor_add(cursor, hf_afs_vldb_spare1, 4, ENC_BIG_ENDIAN);
+			OUT_RXArray32(ptvcursor_add(cursor, hf_afs_vldb_serverip, 4, ENC_BIG_ENDIAN));
+			break;
+	}
+}
+
+/*
+ * UBIK Helpers
+ */
+static void
+dissect_ubik_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	switch ( opcode )
+	{
+		case 10000: /* vote-beacon */
+			break;
+		case 10001: /* vote-debug-old */
+			OUT_UBIK_DebugOld(cursor);
+			break;
+		case 10002: /* vote-sdebug-old */
+			OUT_UBIK_SDebugOld(cursor);
+			break;
+		case 10003: /* vote-get syncsite */
+			break;
+		case 10004: /* vote-debug */
+			OUT_UBIK_DebugOld(cursor);
+			OUT_UBIK_InterfaceAddrs(cursor);
+			break;
+		case 10005: /* vote-sdebug */
+			OUT_UBIK_SDebugOld(cursor);
+			OUT_UBIK_InterfaceAddrs(cursor);
+			break;
+		case 10006: /* vote-xdebug */
+			OUT_UBIK_DebugOld(cursor);
+			OUT_UBIK_InterfaceAddrs(cursor);
+			ptvcursor_add(cursor, hf_afs_ubik_isclone, 4, ENC_BIG_ENDIAN);
+			break;
+		case 10007: /* vote-xsdebug */
+			OUT_UBIK_SDebugOld(cursor);
+			OUT_UBIK_InterfaceAddrs(cursor);
+			ptvcursor_add(cursor, hf_afs_ubik_isclone, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20000: /* disk-begin */
+			break;
+		case 20004: /* get version */
+			OUT_UBIKVERSION(cursor, "DB Version");
+			break;
+		case 20010: /* disk-probe */
+			break;
+		case 20012: /* disk-interfaceaddr */
+			OUT_UBIK_InterfaceAddrs(cursor);
+			break;
+	}
+}
+
+static void
+dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+		case 10000: /* vote-beacon */
+			ptvcursor_add(cursor, hf_afs_ubik_state, 4, ENC_BIG_ENDIAN);
+			OUT_TIMESECS(cursor, hf_afs_ubik_votestart);
+			OUT_UBIKVERSION(cursor, "DB Version");
+			OUT_UBIKVERSION(cursor, "TID");
+			break;
+		case 10001: /* vote-debug-old */
+			break;
+		case 10002: /* vote-sdebug-old */
+			ptvcursor_add(cursor, hf_afs_ubik_site, 4, ENC_BIG_ENDIAN);
+			break;
+		case 10003: /* vote-get sync site */
+			ptvcursor_add(cursor, hf_afs_ubik_site, 4, ENC_BIG_ENDIAN);
+			break;
+		case 10004: /* vote-debug */
+		case 10005: /* vote-sdebug */
+			ptvcursor_add(cursor, hf_afs_ubik_site, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20000: /* disk-begin */
+			OUT_UBIKVERSION(cursor, "TID");
+			break;
+		case 20001: /* disk-commit */
+			OUT_UBIKVERSION(cursor, "TID");
+			break;
+		case 20002: /* disk-lock */
+			OUT_UBIKVERSION(cursor, "TID");
+			ptvcursor_add(cursor, hf_afs_ubik_file, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_pos, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_length, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_locktype, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20003: /* disk-write */
+			OUT_UBIKVERSION(cursor, "TID");
+			ptvcursor_add(cursor, hf_afs_ubik_file, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_pos, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20004: /* disk-get version */
+			break;
+		case 20005: /* disk-get file */
+			ptvcursor_add(cursor, hf_afs_ubik_file, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20006: /* disk-send file */
+			ptvcursor_add(cursor, hf_afs_ubik_file, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_length, 4, ENC_BIG_ENDIAN);
+			OUT_UBIKVERSION(cursor, "DB Version");
+			break;
+		case 20007: /* disk-abort */
+		case 20008: /* disk-release locks */
+		case 20010: /* disk-probe */
+			break;
+		case 20009: /* disk-truncate */
+			OUT_UBIKVERSION(cursor, "TID");
+			ptvcursor_add(cursor, hf_afs_ubik_file, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_afs_ubik_length, 4, ENC_BIG_ENDIAN);
+			break;
+		case 20011: /* disk-writev */
+			OUT_UBIKVERSION(cursor, "TID");
+			break;
+		case 20012: /* disk-interfaceaddr */
+			OUT_UBIK_InterfaceAddrs(cursor);
+			break;
+		case 20013: /* disk-set version */
+			OUT_UBIKVERSION(cursor, "TID");
+			OUT_UBIKVERSION(cursor, "Old DB Version");
+			OUT_UBIKVERSION(cursor, "New DB Version");
+			break;
+	}
+}
+
+/*
+ * BACKUP Helpers
+ */
+static void
+dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_backup_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+	}
+}
 
 
 /*
@@ -1619,8 +2736,9 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	nstime_t delta_ts;
 	guint8 save_fragmented;
 	int reassembled = 0;
+	ptvcursor_t *cursor;
 
-	void (*dissector)(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode);
+	void (*dissector)(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode);
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
@@ -1816,8 +2934,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	pinfo->fragmented = save_fragmented;
 
 	if (tree) {
-		proto_tree_add_text(afs_tree, tvb, 0, 0,
-			"Service: %s%s%s %s",
+		proto_tree_add_uint_format_value(afs_tree, hf_afs_service, tvb, 0, 0,
+			opcode, "%s%s%s %s",
 			VALID_OPCODE(opcode) ? "" : "Encrypted ",
 			typenode == hf_afs_ubik ? "UBIK - " : "",
 			val_to_str_ext(port, &port_types_ext, "Unknown(%d)"),
@@ -1852,18 +2970,15 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 					ti = proto_tree_add_uint(afs_tree,
 						node, tvb, 0, 0, opcode);
 				}
+				afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 			} else if ( reply && node != 0 ) {
 				/* the opcode isn't in this packet */
 				ti = proto_tree_add_uint(afs_tree,
 					node, tvb, 0, 0, opcode);
+				afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 			} else {
-				ti = proto_tree_add_text(afs_tree, tvb,
-					0, 0, "Operation: Unknown");
+				afs_op_tree = proto_tree_add_subtree(afs_tree, tvb, 0, 0, ett_afs_op, &ti, "Operation: Unknown");
 			}
-
-			/* Add the subtree for this particular service */
-			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
-
 
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
@@ -1874,7 +2989,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/* Process the packet according to what service it is */
 			/* Only for first packet in an rx data stream or the full reassembled stream */
 			if ( dissector && ( rxinfo->seq == 1 || reassembled ) ) {
-				(*dissector)(tvb, rxinfo, afs_op_tree, offset, opcode);
+				cursor = ptvcursor_new(afs_op_tree, tvb, offset);
+				(*dissector)(cursor, rxinfo, opcode);
 			}
 		}
 	}
@@ -1887,1307 +3003,6 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	}
 
 	return tvb_captured_length(tvb);
-}
-
-
-/*
- * Here is a helper routine for adding an AFS acl to the proto tree
- * This is to be used with FS packets only
- *
- * An AFS ACL is a string that has the following format:
- *
- * <positive> <negative>
- * <uid1> <aclbits1>
- * ....
- *
- * "positive" and "negative" are integers which contain the number of
- * positive and negative ACL's in the string.  The uid/aclbits pair are
- * ASCII strings containing the UID/PTS record and and a ascii number
- * representing a logical OR of all the ACL permission bits
- */
-/*
- * XXX - FIXME:
- *
- *	sscanf is probably quite dangerous if we run outside the packet.
- *
- *	"GETSTR" doesn't guarantee that the resulting string is
- *	null-terminated.
- *
- * Should this just scan the string itself, rather than using "sscanf()"?
- */
-static int
-dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset)
-{
-	int old_offset;
-	gint32 bytes;
-	int i, n, pos, neg, acl;
-	char user[128] = "[Unknown]"; /* Be sure to adjust sscanf()s below if length is changed... */
-
-	old_offset = offset;
-	bytes = tvb_get_ntohl(tvb, offset);
-	OUT_UINT(hf_afs_fs_acl_datasize);
-
-
-	if (sscanf(GETSTR, "%d %n", &pos, &n) != 1) {
-		/* does not matter what we return, if this fails,
-		 * we can't dissect anything else in the packet either.
-		 */
-		return offset;
-	}
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb,
-		offset, n, pos);
-	offset += n;
-
-
-	if (sscanf(GETSTR, "%d %n", &neg, &n) != 1) {
-		return offset;
-	}
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
-		offset, n, neg);
-	offset += n;
-
-	/*
-	 * This wacky order preserves the order used by the "fs" command
-	 */
-	for (i = 0; i < pos; i++) {
-		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
-			return offset;
-		}
-		ACLOUT(user,1,acl,n);
-		offset += n;
-	}
-	for (i = 0; i < neg; i++) {
-		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
-			return offset;
-		}
-		ACLOUT(user,0,acl,n);
-		offset += n;
-		if (offset >= old_offset+bytes ) {
-			return offset;
-		}
-	}
-
-	return offset;
-}
-
-/*
- * Here are the helper dissection routines
- */
-
-static void
-dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-			case 130: /* fetch data */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
-				OUT_BYTES_ALL(hf_afs_fs_data);
-				break;
-			case 131: /* fetch acl */
-				offset = dissect_acl(tvb, rxinfo, tree, offset);
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSVolSync();
-				break;
-			case 132: /* Fetch status */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
-				break;
-			case 133: /* Store data */
-			case 134: /* Store ACL */
-	 		case 135: /* Store status */
-			case 136: /* Remove file */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSVolSync();
-				break;
-			case 137: /* create file */
-			case 141: /* make dir */
-			case 161: /* lookup */
-			case 163: /* dfs symlink */
-				OUT_FS_AFSFid((opcode == 137)? "New File" : ((opcode == 141)? "New Directory" : "File"));
-				OUT_FS_AFSFetchStatus("File Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
-				break;
-			case 138: /* rename */
-				OUT_FS_AFSFetchStatus("Old Directory Status");
-				OUT_FS_AFSFetchStatus("New Directory Status");
-				OUT_FS_AFSVolSync();
-				break;
-			case 139: /* symlink */
-				OUT_FS_AFSFid("Symlink");
-				break;
-			case 140: /* link */
-				OUT_FS_AFSFetchStatus("Symlink Status");
-				break;
-			case 142: /* rmdir */
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSVolSync();
-				break;
-			case 143: /* old set lock */
-			case 144: /* old extend lock */
-			case 145: /* old release lock */
-			case 147: /* give up callbacks */
-			case 150: /* set volume status */
-			case 152: /* check token */
-				/* nothing returned */
-				break;
-			case 146: /* get statistics */
-				OUT_FS_ViceStatistics();
-				break;
-			case 148: /* get volume info */
-			case 154: /* n-get-volume-info */
-				OUT_FS_VolumeInfo();
-				break;
-			case 149: /* get volume status */
-				OUT_FS_AFSFetchVolumeStatus();
-				OUT_RXString(hf_afs_fs_volname);
-				OUT_RXString(hf_afs_fs_offlinemsg);
-				OUT_RXString(hf_afs_fs_motd);
-				break;
-			case 151: /* root volume */
-				OUT_RXString(hf_afs_fs_volname);
-				break;
-			case 153: /* get time */
-				OUT_TIMESTAMP(hf_afs_fs_timestamp);
-				break;
-			case 155: /* bulk status */
-				OUT_FS_AFSBulkStats();
-				SKIP(4);
-				OUT_FS_AFSCBs();
-				OUT_FS_AFSVolSync();
-				break;
-			case 156: /* set lock */
-			case 157: /* extend lock */
-			case 158: /* release lock */
-				OUT_FS_AFSVolSync();
-				break;
-			case 159: /* x-stats-version */
-				OUT_UINT(hf_afs_fs_xstats_version);
-				break;
-			case 160: /* get xstats */
-				OUT_UINT(hf_afs_fs_xstats_version);
-				OUT_TIMESECS(hf_afs_fs_xstats_timestamp);
-				OUT_FS_AFS_CollData();
-				break;
-			case 162: /* flush cps */
-				OUT_UINT(hf_afs_fs_cps_spare2);
-				OUT_UINT(hf_afs_fs_cps_spare3);
-				break;
-			case 65536: /* inline bulk status */
-				OUT_RXArray32(OUT_FS_AFSFetchStatus("Status"));
-				OUT_RXArray32(OUT_FS_AFSCallBack());
-				OUT_FS_AFSVolSync();
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_fs_errcode);
-	}
-}
-
-static void
-dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 130: /* Fetch data */
-			OUT_FS_AFSFid("Source");
-			OUT_UINT(hf_afs_fs_offset);
-			OUT_UINT(hf_afs_fs_length);
-			break;
-		case 131: /* Fetch ACL */
-			OUT_FS_AFSFid("Target");
-			break;
-		case 132: /* Fetch Status */
-			OUT_FS_AFSFid("Target");
-			break;
-		case 133: /* Store Data */
-			OUT_FS_AFSFid("Destination");
-			OUT_FS_AFSStoreStatus("Status");
-			OUT_UINT(hf_afs_fs_offset);
-			OUT_UINT(hf_afs_fs_length);
-			OUT_UINT(hf_afs_fs_flength);
-			OUT_BYTES_ALL(hf_afs_fs_data);
-			break;
-		case 134: /* Store ACL */
-			OUT_FS_AFSFid("Target");
-			/* offset = */ dissect_acl(tvb, rxinfo, tree, offset);
-			break;
-		case 135: /* Store Status */
-			OUT_FS_AFSFid("Target");
-			OUT_FS_AFSStoreStatus("Status");
-			break;
-		case 136: /* Remove File */
-			OUT_FS_AFSFid("Remove File");
-			OUT_RXString(hf_afs_fs_name);
-			break;
-		case 137: /* Create File */
-			OUT_FS_AFSFid("Target");
-			OUT_RXString(hf_afs_fs_name);
-			OUT_FS_AFSStoreStatus("Status");
-			break;
-		case 138: /* Rename file */
-			OUT_FS_AFSFid("Old");
-			OUT_RXString(hf_afs_fs_oldname);
-			OUT_FS_AFSFid("New");
-			OUT_RXString(hf_afs_fs_newname);
-			break;
-		case 139: /* Symlink */
-			OUT_FS_AFSFid("File");
-			OUT_RXString(hf_afs_fs_symlink_name);
-			OUT_RXString(hf_afs_fs_symlink_content);
-			OUT_FS_AFSStoreStatus("Status");
-			break;
-		case 140: /* Link */
-			OUT_FS_AFSFid("Link To (New File)");
-			OUT_RXString(hf_afs_fs_name);
-			OUT_FS_AFSFid("Link From (Old File)");
-			break;
-		case 141: /* Make dir */
-			OUT_FS_AFSFid("Target");
-			OUT_RXString(hf_afs_fs_name);
-			OUT_FS_AFSStoreStatus("Status");
-			break;
-		case 142: /* Remove dir */
-			OUT_FS_AFSFid("Target");
-			OUT_RXString(hf_afs_fs_name);
-			break;
-		case 143: /* Old Set Lock */
-			OUT_FS_AFSFid("Target");
-			OUT_UINT(hf_afs_fs_vicelocktype);
-			OUT_FS_AFSVolSync();
-			break;
-		case 144: /* Old Extend Lock */
-			OUT_FS_AFSFid("Target");
-			OUT_FS_AFSVolSync();
-			break;
-		case 145: /* Old Release Lock */
-			OUT_FS_AFSFid("Target");
-			OUT_FS_AFSVolSync();
-			break;
-		case 146: /* Get statistics */
-			/* no params */
-			break;
-		case 147: /* Give up callbacks */
-			OUT_FS_AFSCBFids();
-			OUT_FS_AFSCBs();
-			break;
-		case 148: /* Get vol info */
-			OUT_RXString(hf_afs_fs_volname);
-			break;
-		case 149: /* Get vol stats */
-			OUT_UINT(hf_afs_fs_volid);
-			break;
-		case 150: /* Set vol stats */
-			OUT_UINT(hf_afs_fs_volid);
-			OUT_FS_AFSStoreVolumeStatus();
-			OUT_RXString(hf_afs_fs_volname);
-			OUT_RXString(hf_afs_fs_offlinemsg);
-			OUT_RXString(hf_afs_fs_motd);
-			break;
-		case 151: /* get root volume */
-			/* no params */
-			break;
-		case 152: /* check token */
-			OUT_UINT(hf_afs_fs_viceid);
-			OUT_FS_AFSTOKEN();
-			break;
-		case 153: /* get time */
-			/* no params */
-			break;
-		case 154: /* new get vol info */
-			OUT_RXString(hf_afs_fs_volname);
-			break;
-		case 155: /* bulk stat */
-			OUT_FS_AFSCBFids();
-			break;
-		case 156: /* Set Lock */
-			OUT_FS_AFSFid("Target");
-			OUT_UINT(hf_afs_fs_vicelocktype);
-			break;
-		case 157: /* Extend Lock */
-			OUT_FS_AFSFid("Target");
-			break;
-		case 158: /* Release Lock */
-			OUT_FS_AFSFid("Target");
-			break;
-		case 159: /* xstats version */
-			/* no params */
-			break;
-		case 160: /* get xstats */
-			OUT_UINT(hf_afs_fs_xstats_clientversion);
-			OUT_UINT(hf_afs_fs_xstats_collnumber);
-			break;
-		case 161: /* lookup */
-			OUT_FS_AFSFid("Target");
-			OUT_RXString(hf_afs_fs_name);
-			break;
-		case 162: /* flush cps */
-			OUT_FS_ViceIds();
-			OUT_FS_IPAddrs();
-			OUT_UINT(hf_afs_fs_cps_spare1);
-			break;
-		case 163: /* dfs symlink */
-			OUT_FS_AFSFid("Target");
-			OUT_RXString(hf_afs_fs_symlink_name);
-			OUT_RXString(hf_afs_fs_symlink_content);
-			OUT_FS_AFSStoreStatus("Symlink Status");
-			break;
-		case 220: /* residencycmd */
-			OUT_FS_AFSFid("Target");
-			/* need residency inputs here */
-			break;
-		case 65536: /* inline bulk status */
-			OUT_FS_AFSCBFids();
-			break;
-		case 65537: /* fetch-data-64 */
-			OUT_FS_AFSFid("Target");
-			OUT_INT64(hf_afs_fs_offset64);
-			OUT_INT64(hf_afs_fs_length64);
-			/* need more here */
-			break;
-		case 65538: /* store-data-64 */
-			OUT_FS_AFSFid("Target");
-			OUT_FS_AFSStoreStatus("Status");
-			OUT_INT64(hf_afs_fs_offset64);
-			OUT_INT64(hf_afs_fs_length64);
-			OUT_INT64(hf_afs_fs_flength64);
-			/* need residency inputs here */
-			break;
-		case 65539: /* give up all cbs */
-			break;
-		case 65540: /* get capabilities */
-			break;
-	}
-}
-
-/*
- * BOS Helpers
- */
-static void
-dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-			case 80: /* create bnode */
-				/* no output */
-				break;
-			case 81: /* delete bnode */
-				/* no output */
-				break;
-			case 82: /* set status */
-				/* no output */
-				break;
-			case 83: /* get status */
-				OUT_INT(hf_afs_bos_status);
-				OUT_RXString(hf_afs_bos_statusdesc);
-				break;
-			case 84: /* enumerate instance */
-				OUT_RXString(hf_afs_bos_instance);
-				break;
-			case 85: /* get instance info */
-				OUT_RXString(hf_afs_bos_type);
-				OUT_BOS_STATUS();
-				break;
-			case 86: /* get instance parm */
-				OUT_RXString(hf_afs_bos_parm);
-				break;
-			case 87: /* add siperuser */
-				/* no output */
-				break;
-			case 88: /* delete superuser */
-				/* no output */
-				break;
-			case 89: /* list superusers */
-				OUT_RXString(hf_afs_bos_user);
-				break;
-			case 90: /* list keys */
-				OUT_UINT(hf_afs_bos_kvno);
-				OUT_BOS_KEY();
-				OUT_BOS_KEYINFO();
-				break;
-			case 91: /* add key */
-				/* no output */
-				break;
-			case 92: /* delete key */
-				/* no output */
-				break;
-			case 93: /* set cell name */
-				/* no output */
-				break;
-			case 94: /* get cell name */
-				OUT_RXString(hf_afs_bos_cell);
-				break;
-			case 95: /* get cell host */
-				OUT_RXString(hf_afs_bos_host);
-				break;
-			case 96: /* add cell host */
-				/* no output */
-				break;
-			case 97: /* delete cell host */
-				/* no output */
-				break;
-			case 98: /* set tstatus */
-				/* no output */
-				break;
-			case 99: /* shutdown all */
-				/* no output */
-				break;
-			case 100: /* restart all */
-				/* no output */
-				break;
-			case 101: /* startup all */
-				/* no output */
-				break;
-			case 102: /* set noauth flag */
-				/* no output */
-				break;
-			case 103: /* rebozo */
-				/* no output */
-				break;
-			case 104: /* restart */
-				/* no output */
-				break;
-			case 105: /* install */
-				/* no output */
-				break;
-			case 106: /* uninstall */
-				/* no output */
-				break;
-			case 107: /* get dates */
-				OUT_TIMESECS(hf_afs_bos_newtime);
-				OUT_TIMESECS(hf_afs_bos_baktime);
-				OUT_TIMESECS(hf_afs_bos_oldtime);
-				break;
-			case 108: /* exec */
-				/* no output */
-				break;
-			case 109: /* prune */
-				/* no output */
-				break;
-			case 110: /* set restart time */
-				/* no output */
-				break;
-			case 111: /* get restart time */
-				OUT_BOS_TIME();
-				break;
-			case 112: /* get log */
-				/* need to make this dump a big string somehow */
-				OUT_BYTES_ALL(hf_afs_bos_data);
-				break;
-			case 113: /* wait all */
-				/* no output */
-				break;
-			case 114: /* get instance strings */
-				OUT_RXString(hf_afs_bos_error);
-				OUT_RXString(hf_afs_bos_spare1);
-				OUT_RXString(hf_afs_bos_spare2);
-				OUT_RXString(hf_afs_bos_spare3);
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_bos_errcode);
-	}
-}
-
-static void
-dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 80: /* create b node */
-			OUT_RXString(hf_afs_bos_type);
-			OUT_RXString(hf_afs_bos_instance);
-			OUT_RXString(hf_afs_bos_parm);
-			OUT_RXString(hf_afs_bos_parm);
-			OUT_RXString(hf_afs_bos_parm);
-			OUT_RXString(hf_afs_bos_parm);
-			OUT_RXString(hf_afs_bos_parm);
-			OUT_RXString(hf_afs_bos_parm);
-			break;
-		case 81: /* delete b node */
-			OUT_RXString(hf_afs_bos_instance);
-			break;
-		case 82: /* set status */
-			OUT_RXString(hf_afs_bos_instance);
-			OUT_INT(hf_afs_bos_status);
-			break;
-		case 83: /* get status */
-			OUT_RXString(hf_afs_bos_instance);
-			break;
-		case 84: /* enumerate instance */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 85: /* get instance info */
-			OUT_RXString(hf_afs_bos_instance);
-			break;
-		case 86: /* get instance parm */
-			OUT_RXString(hf_afs_bos_instance);
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 87: /* add super user */
-			OUT_RXString(hf_afs_bos_user);
-			break;
-		case 88: /* delete super user */
-			OUT_RXString(hf_afs_bos_user);
-			break;
-		case 89: /* list super users */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 90: /* list keys */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 91: /* add key */
-			OUT_UINT(hf_afs_bos_num);
-			OUT_BOS_KEY();
-			break;
-		case 92: /* delete key */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 93: /* set cell name */
-			OUT_RXString(hf_afs_bos_content);
-			break;
-		case 95: /* set cell host */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 96: /* add cell host */
-			OUT_RXString(hf_afs_bos_content);
-			break;
-		case 97: /* delete cell host */
-			OUT_RXString(hf_afs_bos_content);
-			break;
-		case 98: /* set t status */
-			OUT_RXString(hf_afs_bos_content);
-			OUT_INT(hf_afs_bos_status);
-			break;
-		case 99: /* shutdown all */
-			/* no params */
-			break;
-		case 100: /* restart all */
-			/* no params */
-			break;
-		case 101: /* startup all */
-			/* no params */
-			break;
-		case 102: /* set no-auth flag */
-			OUT_UINT(hf_afs_bos_flags);
-			break;
-		case 103: /* re-bozo? */
-			/* no params */
-			break;
-		case 104: /* restart */
-			OUT_RXString(hf_afs_bos_instance);
-			break;
-		case 105: /* install */
-			OUT_RXString(hf_afs_bos_path);
-			OUT_UINT(hf_afs_bos_size);
-			OUT_UINT(hf_afs_bos_flags);
-			OUT_UINT(hf_afs_bos_date);
-			break;
-		case 106: /* uninstall */
-			OUT_RXString(hf_afs_bos_path);
-			break;
-		case 107: /* get dates */
-			OUT_RXString(hf_afs_bos_path);
-			break;
-		case 108: /* exec */
-			OUT_RXString(hf_afs_bos_cmd);
-			break;
-		case 109: /* prune */
-			OUT_UINT(hf_afs_bos_flags);
-			break;
-		case 110: /* set restart time */
-			OUT_UINT(hf_afs_bos_num);
-			OUT_BOS_TIME();
-			break;
-		case 111: /* get restart time */
-			OUT_UINT(hf_afs_bos_num);
-			break;
-		case 112: /* get log */
-			OUT_RXString(hf_afs_bos_file);
-			break;
-		case 113: /* wait all */
-			/* no params */
-			break;
-		case 114: /* get instance strings */
-			OUT_RXString(hf_afs_bos_content);
-			break;
-	}
-}
-
-/*
- * VOL Helpers
- */
-static void
-dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-			case 121:
-				/* should loop here maybe */
-				OUT_UINT(hf_afs_vol_count);
-				OUT_RXStringV(hf_afs_vol_name, 32); /* not sure on  */
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_vol_errcode);
-	}
-}
-
-static void
-dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 121: /* list one vol */
-			OUT_UINT(hf_afs_vol_count);
-			OUT_UINT(hf_afs_vol_id);
-			break;
-	}
-}
-
-/*
- * KAUTH Helpers
- */
-static void
-dissect_kauth_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_kauth_errcode);
-	}
-}
-
-static void
-dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 1: /* authenticate old */
-		case 21: /* authenticate */
-		case 22: /* authenticate v2 */
-		case 2: /* change pw */
-		case 5: /* set fields */
-		case 6: /* create user */
-		case 7: /* delete user */
-		case 8: /* get entry */
-		case 14: /* unlock */
-		case 15: /* lock status */
-			OUT_RXString(hf_afs_kauth_princ);
-			OUT_RXString(hf_afs_kauth_realm);
-			OUT_BYTES_ALL(hf_afs_kauth_data);
-			break;
-		case 3: /* getticket-old */
-		case 23: /* getticket */
-			OUT_KAUTH_GetTicket();
-			break;
-		case 4: /* set pass */
-			OUT_RXString(hf_afs_kauth_princ);
-			OUT_RXString(hf_afs_kauth_realm);
-			OUT_UINT(hf_afs_kauth_kvno);
-			break;
-		case 12: /* get pass */
-			OUT_RXString(hf_afs_kauth_name);
-			break;
-	}
-}
-
-/*
- * CB Helpers
- */
-static void
-dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode ) {
-			case 65538: /* get-capabilites */
-				OUT_CM_INTERFACES();
-				OUT_CM_CAPABILITIES();
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_cb_errcode);
-	}
-}
-
-static void
-dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 204: /* callback */
-		{
-			unsigned int i,j;
-
-			j = tvb_get_ntohl(tvb, offset);
-			offset += 4;
-
-			for (i=0; i<j; i++)
-			{
-				OUT_CB_AFSFid("Target");
-			}
-
-			j = tvb_get_ntohl(tvb, offset);
-			offset += 4;
-			for (i=0; i<j; i++)
-			{
-				OUT_CB_AFSCallBack();
-			}
-		}
-	}
-}
-
-/*
- * PROT Helpers
- */
-static void
-dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-			case 504: /* name to id */
-				{
-					unsigned int i, j;
-
-					j = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_prot_count);
-
-					for (i=0; i<j; i++)
-					{
-						OUT_UINT(hf_afs_prot_id);
-					}
-				}
-				break;
-			case 505: /* id to name */
-				{
-					unsigned int i, j;
-
-					j = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_prot_count);
-
-					for (i=0; i<j; i++)
-					{
-						OUT_RXStringV(hf_afs_prot_name, PRNAMEMAX);
-					}
-				}
-				break;
-			case 508: /* get cps */
-			case 514: /* list elements */
-			case 517: /* list owned */
-			case 518: /* get cps2 */
-			case 519: /* get host cps */
-				{
-					unsigned int i, j;
-
-					j = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_prot_count);
-
-					for (i=0; i<j; i++)
-					{
-						OUT_UINT(hf_afs_prot_id);
-					}
-				}
-				break;
-			case 510: /* list max */
-				OUT_UINT(hf_afs_prot_maxuid);
-				OUT_UINT(hf_afs_prot_maxgid);
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_prot_errcode);
-	}
-}
-
-static void
-dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 500: /* new user */
-			OUT_RXString(hf_afs_prot_name);
-			OUT_UINT(hf_afs_prot_id);
-			OUT_UINT(hf_afs_prot_oldid);
-			break;
-		case 501: /* where is it */
-		case 506: /* delete */
-		case 508: /* get cps */
-		case 512: /* list entry */
-		case 514: /* list elements */
-		case 517: /* list owned */
-		case 519: /* get host cps */
-			OUT_UINT(hf_afs_prot_id);
-			break;
-		case 502: /* dump entry */
-			OUT_UINT(hf_afs_prot_pos);
-			break;
-		case 503: /* add to group */
-		case 507: /* remove from group */
-		case 515: /* is a member of? */
-			OUT_UINT(hf_afs_prot_uid);
-			OUT_UINT(hf_afs_prot_gid);
-			break;
-		case 504: /* name to id */
-			{
-				unsigned int i, j;
-
-				j = tvb_get_ntohl(tvb, offset);
-				OUT_UINT(hf_afs_prot_count);
-
-				for (i=0; i<j; i++)
-				{
-					OUT_RXStringV(hf_afs_prot_name,PRNAMEMAX);
-				}
-			}
-			break;
-		case 505: /* id to name */
-			{
-				unsigned int i, j;
-
-				j = tvb_get_ntohl(tvb, offset);
-				OUT_UINT(hf_afs_prot_count);
-
-				for (i=0; i<j; i++)
-				{
-					OUT_UINT(hf_afs_prot_id);
-				}
-			}
-			break;
-		case 509: /* new entry */
-			OUT_RXString(hf_afs_prot_name);
-			OUT_UINT(hf_afs_prot_flag);
-			OUT_UINT(hf_afs_prot_oldid);
-			break;
-		case 511: /* set max */
-			OUT_UINT(hf_afs_prot_id);
-			OUT_UINT(hf_afs_prot_flag);
-			break;
-		case 513: /* change entry */
-			OUT_UINT(hf_afs_prot_id);
-			OUT_RXString(hf_afs_prot_name);
-			OUT_UINT(hf_afs_prot_oldid);
-			OUT_UINT(hf_afs_prot_newid);
-			break;
-		case 520: /* update entry */
-			OUT_UINT(hf_afs_prot_id);
-			OUT_RXString(hf_afs_prot_name);
-			break;
-	}
-}
-
-/*
- * VLDB Helpers
- */
-static void
-dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-			case 510: /* list entry */
-				OUT_UINT(hf_afs_vldb_count);
-				OUT_UINT(hf_afs_vldb_nextindex);
-				break;
-			case 503: /* get entry by id */
-			case 504: /* get entry by name */
-				{
-					int nservers,i,j;
-					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
-					SKIP(4);
-					nservers = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_vldb_numservers);
-					for (i=0; i<8; i++)
-					{
-						if ( i<nservers )
-						{
-							OUT_IP(hf_afs_vldb_server);
-						}
-						else
-						{
-							SKIP(4);
-						}
-					}
-					for (i=0; i<8; i++)
-					{
-						char *part;
-						j = tvb_get_ntohl(tvb, offset);
-						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
-						if ( i<nservers && j<=25 )
-						{
-							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
-								offset, 4, part);
-						}
-						SKIP(4);
-					}
-					SKIP(8 * 4);
-					OUT_UINT(hf_afs_vldb_rwvol);
-					OUT_UINT(hf_afs_vldb_rovol);
-					OUT_UINT(hf_afs_vldb_bkvol);
-					OUT_UINT(hf_afs_vldb_clonevol);
-					OUT_VLDB_Flags();
-				}
-				break;
-			case 505: /* get new volume id */
-				OUT_UINT(hf_afs_vldb_id);
-				break;
-			case 521: /* list entry */
-			case 529: /* list entry U */
-				OUT_UINT(hf_afs_vldb_count);
-				OUT_UINT(hf_afs_vldb_nextindex);
-				break;
-			case 518: /* get entry by id n */
-			case 519: /* get entry by name N */
-				{
-					int nservers,i,j;
-					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
-					nservers = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_vldb_numservers);
-					for (i=0; i<13; i++)
-					{
-						if ( i<nservers )
-						{
-							OUT_IP(hf_afs_vldb_server);
-						}
-						else
-						{
-							SKIP(4);
-						}
-					}
-					for (i=0; i<13; i++)
-					{
-						char *part;
-						j = tvb_get_ntohl(tvb, offset);
-						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
-						if ( i<nservers && j<=25 )
-						{
-							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
-								offset, 4, part);
-						}
-						SKIP(4);
-					}
-					SKIP(13 * 4);
-					OUT_UINT(hf_afs_vldb_rwvol);
-					OUT_UINT(hf_afs_vldb_rovol);
-					OUT_UINT(hf_afs_vldb_bkvol);
-				}
-				break;
-			case 526: /* get entry by id u */
-			case 527: /* get entry by name u */
-				{
-					int nservers,i,j;
-					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
-					nservers = tvb_get_ntohl(tvb, offset);
-					OUT_UINT(hf_afs_vldb_numservers);
-					for (i=0; i<13; i++)
-					{
-						if ( i<nservers )
-						{
-							OUT_UUID(hf_afs_vldb_serveruuid);
-						}
-						else
-						{
-							SKIP_UUID();
-						}
-					}
-					for (i=0; i<13; i++)
-					{
-						if ( i<nservers )
-						{
-							OUT_UINT(hf_afs_vldb_serveruniq);
-						}
-						else
-						{
-							SKIP(4);
-						}
-					}
-					for (i=0; i<13; i++)
-					{
-						char *part;
-						j = tvb_get_ntohl(tvb, offset);
-						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
-						if ( i<nservers && j<=25 )
-						{
-							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
-								offset, 4, part);
-						}
-						SKIP(4);
-					}
-					for (i=0; i<13; i++)
-					{
-						if ( i<nservers )
-						{
-							OUT_UINT(hf_afs_vldb_serverflags);
-						}
-						else
-						{
-							SKIP(4);
-						}
-					}
-					OUT_UINT(hf_afs_vldb_rwvol);
-					OUT_UINT(hf_afs_vldb_rovol);
-					OUT_UINT(hf_afs_vldb_bkvol);
-					OUT_UINT(hf_afs_vldb_clonevol);
-					OUT_UINT(hf_afs_vldb_flags);
-					OUT_UINT(hf_afs_vldb_spare1);
-					OUT_UINT(hf_afs_vldb_spare2);
-					OUT_UINT(hf_afs_vldb_spare3);
-					OUT_UINT(hf_afs_vldb_spare4);
-					OUT_UINT(hf_afs_vldb_spare5);
-					OUT_UINT(hf_afs_vldb_spare6);
-					OUT_UINT(hf_afs_vldb_spare7);
-					OUT_UINT(hf_afs_vldb_spare8);
-					OUT_UINT(hf_afs_vldb_spare9);
-				}
-				break;
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_vldb_errcode);
-	}
-}
-
-static void
-dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 501: /* create new volume */
-		case 517: /* create entry N */
-			OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
-			break;
-		case 502: /* delete entry */
-		case 503: /* get entry by id */
-		case 507: /* update entry */
-		case 508: /* set lock */
-		case 509: /* release lock */
-		case 518: /* get entry by id */
-			OUT_UINT(hf_afs_vldb_id);
-			OUT_UINT(hf_afs_vldb_type);
-			break;
-		case 504: /* get entry by name */
-		case 519: /* get entry by name N */
-		case 524: /* update entry by name */
-		case 527: /* get entry by name U */
-			OUT_RXString(hf_afs_vldb_name);
-			break;
-		case 505: /* get new vol id */
-			OUT_UINT(hf_afs_vldb_bump);
-			break;
-		case 506: /* replace entry */
-		case 520: /* replace entry N */
-			OUT_UINT(hf_afs_vldb_id);
-			OUT_UINT(hf_afs_vldb_type);
-			OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
-			break;
-		case 510: /* list entry */
-		case 521: /* list entry N */
-			OUT_UINT(hf_afs_vldb_index);
-			break;
-		case 532: /* regaddr */
-			OUT_UUID(hf_afs_vldb_serveruuid);
-			OUT_UINT(hf_afs_vldb_spare1);
-			OUT_VLDB_BulkAddr();
-			break;
-	}
-}
-
-/*
- * UBIK Helpers
- */
-static void
-dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	switch ( opcode )
-	{
-		case 10000: /* vote-beacon */
-			break;
-		case 10001: /* vote-debug-old */
-			OUT_UBIK_DebugOld();
-			break;
-		case 10002: /* vote-sdebug-old */
-			OUT_UBIK_SDebugOld();
-			break;
-		case 10003: /* vote-get syncsite */
-			break;
-		case 10004: /* vote-debug */
-			OUT_UBIK_DebugOld();
-			OUT_UBIK_InterfaceAddrs();
-			break;
-		case 10005: /* vote-sdebug */
-			OUT_UBIK_SDebugOld();
-			OUT_UBIK_InterfaceAddrs();
-			break;
-		case 10006: /* vote-xdebug */
-			OUT_UBIK_DebugOld();
-			OUT_UBIK_InterfaceAddrs();
-			OUT_UINT(hf_afs_ubik_isclone);
-			break;
-		case 10007: /* vote-xsdebug */
-			OUT_UBIK_SDebugOld();
-			OUT_UBIK_InterfaceAddrs();
-			OUT_UINT(hf_afs_ubik_isclone);
-			break;
-		case 20000: /* disk-begin */
-			break;
-		case 20004: /* get version */
-			OUT_UBIKVERSION("DB Version");
-			break;
-		case 20010: /* disk-probe */
-			break;
-		case 20012: /* disk-interfaceaddr */
-			OUT_UBIK_InterfaceAddrs();
-			break;
-	}
-}
-
-static void
-dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
-{
-	offset += 4;  /* skip the opcode */
-
-	switch ( opcode )
-	{
-		case 10000: /* vote-beacon */
-			OUT_UINT(hf_afs_ubik_state);
-			OUT_TIMESECS(hf_afs_ubik_votestart);
-			OUT_UBIKVERSION("DB Version");
-			OUT_UBIKVERSION("TID");
-			break;
-		case 10001: /* vote-debug-old */
-			break;
-		case 10002: /* vote-sdebug-old */
-			OUT_UINT(hf_afs_ubik_site);
-			break;
-		case 10003: /* vote-get sync site */
-			OUT_IP(hf_afs_ubik_site);
-			break;
-		case 10004: /* vote-debug */
-		case 10005: /* vote-sdebug */
-			OUT_IP(hf_afs_ubik_site);
-			break;
-		case 20000: /* disk-begin */
-			OUT_UBIKVERSION("TID");
-			break;
-		case 20001: /* disk-commit */
-			OUT_UBIKVERSION("TID");
-			break;
-		case 20002: /* disk-lock */
-			OUT_UBIKVERSION("TID");
-			OUT_UINT(hf_afs_ubik_file);
-			OUT_UINT(hf_afs_ubik_pos);
-			OUT_UINT(hf_afs_ubik_length);
-			OUT_UINT(hf_afs_ubik_locktype);
-			break;
-		case 20003: /* disk-write */
-			OUT_UBIKVERSION("TID");
-			OUT_UINT(hf_afs_ubik_file);
-			OUT_UINT(hf_afs_ubik_pos);
-			break;
-		case 20004: /* disk-get version */
-			break;
-		case 20005: /* disk-get file */
-			OUT_UINT(hf_afs_ubik_file);
-			break;
-		case 20006: /* disk-send file */
-			OUT_UINT(hf_afs_ubik_file);
-			OUT_UINT(hf_afs_ubik_length);
-			OUT_UBIKVERSION("DB Version");
-			break;
-		case 20007: /* disk-abort */
-		case 20008: /* disk-release locks */
-		case 20010: /* disk-probe */
-			break;
-		case 20009: /* disk-truncate */
-			OUT_UBIKVERSION("TID");
-			OUT_UINT(hf_afs_ubik_file);
-			OUT_UINT(hf_afs_ubik_length);
-			break;
-		case 20011: /* disk-writev */
-			OUT_UBIKVERSION("TID");
-			break;
-		case 20012: /* disk-interfaceaddr */
-			OUT_UBIK_InterfaceAddrs();
-			break;
-		case 20013: /* disk-set version */
-			OUT_UBIKVERSION("TID");
-			OUT_UBIKVERSION("Old DB Version");
-			OUT_UBIKVERSION("New DB Version");
-			break;
-	}
-}
-
-/*
- * BACKUP Helpers
- */
-static void
-dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
-{
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
-	{
-		OUT_UINT(hf_afs_backup_errcode);
-	}
-}
-
-static void
-dissect_backup_request(tvbuff_t *tvb _U_, struct rxinfo *rxinfo _U_, proto_tree *tree _U_, int offset _U_, int opcode)
-{
-	/* offset += 4; */ /* skip the opcode */
-
-	switch ( opcode )
-	{
-	}
 }
 
 /*
@@ -3222,7 +3037,8 @@ proto_register_afs(void)
 		FT_BOOLEAN, BASE_NONE, 0, 0x0, NULL, HFILL }},
 	{ &hf_afs_backup, { "Backup", "afs.backup",
 		FT_BOOLEAN, BASE_NONE, 0, 0x0, "Backup Server", HFILL }},
-
+	{ &hf_afs_service, { "Service", "afs.service",
+		FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_afs_fs_opcode, { "Operation", "afs.fs.opcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 		&fs_req_ext, 0, NULL, HFILL }},
@@ -3285,27 +3101,27 @@ proto_register_afs(void)
 	{ &hf_afs_fs_data, { "Data", "afs.fs.data",
 		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_token, { "Token", "afs.fs.token",
-		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_oldname, { "Old Name", "afs.fs.oldname",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_newname, { "New Name", "afs.fs.newname",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_name, { "Name", "afs.fs.name",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_symlink_name, { "Symlink Name", "afs.fs.symlink.name",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_symlink_content, { "Symlink Content", "afs.fs.symlink.content",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_volid, { "Volume ID", "afs.fs.volid",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_volname, { "Volume Name", "afs.fs.volname",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_timestamp, { "Timestamp", "afs.fs.timestamp",
 		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_offlinemsg, { "Offline Message", "afs.fs.offlinemsg",
-		FT_STRING, BASE_NONE, 0, 0, "Volume Name", HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, "Volume Name", HFILL }},
 	{ &hf_afs_fs_motd, { "Message of the Day", "afs.fs.motd",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_xstats_version, { "XStats Version", "afs.fs.xstats.version",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_xstats_clientversion, { "Client Version", "afs.fs.xstats.clientversion",
@@ -3442,37 +3258,37 @@ proto_register_afs(void)
 	{ &hf_afs_bos_errcode, { "Error Code", "afs.bos.errcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_bos_type, { "Type", "afs.bos.type",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_content, { "Content", "afs.bos.content",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_data, { "Data", "afs.bos.data",
 		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_path, { "Path", "afs.bos.path",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_parm, { "Parm", "afs.bos.parm",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_error, { "Error", "afs.bos.error",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_spare1, { "Spare1", "afs.bos.spare1",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_spare2, { "Spare2", "afs.bos.spare2",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_spare3, { "Spare3", "afs.bos.spare3",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_file, { "File", "afs.bos.file",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_cmd, { "Command", "afs.bos.cmd",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_key, { "Key", "afs.bos.key",
 		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_user, { "User", "afs.bos.user",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_instance, { "Instance", "afs.bos.instance",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_status, { "Status", "afs.bos.status",
 		FT_INT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_statusdesc, { "Status Description", "afs.bos.statusdesc",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_num, { "Number", "afs.bos.number",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_size, { "Size", "afs.bos.size",
@@ -3484,9 +3300,9 @@ proto_register_afs(void)
 	{ &hf_afs_bos_kvno, { "Key Version Number", "afs.bos.kvno",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_cell, { "Cell", "afs.bos.cell",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_host, { "Host", "afs.bos.host",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_newtime, { "New Time", "afs.bos.newtime",
 		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_baktime, { "Backup Time", "afs.bos.baktime",
@@ -3505,13 +3321,13 @@ proto_register_afs(void)
 	{ &hf_afs_kauth_errcode, { "Error Code", "afs.kauth.errcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_princ, { "Principal", "afs.kauth.princ",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_realm, { "Realm", "afs.kauth.realm",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_domain, { "Domain", "afs.kauth.domain",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_name, { "Name", "afs.kauth.name",
-		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_data, { "Data", "afs.kauth.data",
 		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_kvno, { "Key Version Number", "afs.kauth.kvno",
@@ -3554,6 +3370,8 @@ proto_register_afs(void)
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_vldb_name, { "Volume Name", "afs.vldb.name",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_vldb_name_uint_string, { "Volume Name", "afs.vldb.name",
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_vldb_partition, { "Partition", "afs.vldb.partition",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_vldb_server, { "Server", "afs.vldb.server",
@@ -3641,6 +3459,8 @@ proto_register_afs(void)
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_prot_name, { "Name", "afs.prot.name",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_prot_name_uint_string, { "Name", "afs.prot.name",
+		FT_UINT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_prot_id, { "ID", "afs.prot.id",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_prot_oldid, { "Old ID", "afs.prot.oldid",
@@ -3695,6 +3515,8 @@ proto_register_afs(void)
 		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_interface, { "Interface Address", "afs.ubik.interface",
 		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_ubik_null_addresses, { "Null Interface Addresses", "afs.ubik.null_addresses",
+		FT_NONE, BASE_NONE, 0, 0, NULL, HFILL }},
 
 	{ &hf_afs_ubik_now, { "Now", "afs.ubik.now",
 		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
