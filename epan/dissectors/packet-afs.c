@@ -561,11 +561,11 @@ static void OUT_RXStringV(ptvcursor_t *cursor, int field, guint32 length)
 	char* str = (char*)wmem_alloc(wmem_packet_scope(), length+1);
 	int offset = ptvcursor_current_offset(cursor),
 		start_offset = offset;
-	guint32 index;
+	guint32 idx;
 
-	for (index = 0; index<length; index++)
+	for (idx = 0; idx<length; idx++)
 	{
-		str[index] = (char)tvb_get_ntohl(tvb, offset);
+		str[idx] = (char)tvb_get_ntohl(tvb, offset);
 		offset += 4;
 	}
 	str[length] = '\0';
