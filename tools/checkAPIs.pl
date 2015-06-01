@@ -1440,6 +1440,30 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
         }
 }
 
+# List of possible shadow variable (Majority coming from Mac OS X..)
+my @ShadowVariable = (
+        'index',
+        'time',
+        'strlen',
+);
+
+sub checkShadowVariable($$$)
+{
+        my ($groupHashRef, $fileContentsRef, $foundAPIsRef) = @_;
+
+        for my $api ( @{$groupHashRef} )
+        {
+                my $cnt = 0;
+                while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
+                {
+                        $cnt += 1;
+                }
+                if ($cnt > 0) {
+                        push @{$foundAPIsRef}, $api;
+                }
+        }
+}
+
 sub check_snprintf_plus_strlen($$)
 {
         my ($fileContentsRef, $filename) = @_;
@@ -2153,6 +2177,12 @@ while ($_ = $ARGV[0])
         #if (@foundAPIs) {
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename." : ".join(',', @foundAPIs)."\n"
         #}
+
+        checkShadowVariable(\@ShadowVariable, \$fileContents, \@foundAPIs);
+        if (@foundAPIs) {
+               print STDERR "Warning: Found shadow variable(s) in ".$filename." : ".join(',', @foundAPIs)."\n"
+        }
+
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
 
