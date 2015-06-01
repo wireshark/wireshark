@@ -352,7 +352,7 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   if (payload_length > 0) {
     /* Always unmask payload data before analysing it. */
     if (mask) {
-      ti = proto_tree_add_item(ws_tree, hf_ws_masked_payload, tvb, payload_offset, payload_length, ENC_NA);
+      proto_tree_add_item(ws_tree, hf_ws_masked_payload, tvb, payload_offset, payload_length, ENC_NA);
       tvb_payload = tvb_unmasked(tvb, pinfo, payload_offset, payload_length, masking_key);
       tvb_set_child_real_data_tvbuff(tvb, tvb_payload);
       add_new_data_source(pinfo, tvb_payload, "Unmasked data");
