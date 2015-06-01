@@ -2747,8 +2747,10 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
            dissect_cisco_fragmentation(tvb, offset + 4, payload_length - 4, ntree, pinfo );
            break;
            case PLOAD_IKE2_SKF:
-           /* N.B. not passing in length as must be the last payload in the message */
-           dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, decr_data );
+           if (isakmp_version == 2) {
+               /* N.B. not passing in length as must be the last payload in the message */
+               dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, decr_data );
+           }
            break;
            default:
            proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
