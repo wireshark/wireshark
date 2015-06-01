@@ -79,7 +79,7 @@ LEMON=../../tools/lemon
 
 grammar.h : grammar.c
 grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
-	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
+	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) T=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
 checkapi:

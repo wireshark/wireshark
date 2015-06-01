@@ -130,7 +130,7 @@ mate_parser.obj : mate_parser.c
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
-	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon
+	$(LEMON)\lemon.exe T=$(LEMON)\lempar.c mate_grammar.lemon
 
 $(LEMON)\lemon.exe:
 	cd ../../tools

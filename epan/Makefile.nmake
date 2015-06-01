@@ -431,7 +431,7 @@ LEMON=..\tools\lemon
 
 dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
-	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
+	$(LEMON)\lemon T=$(LEMON)\lempar.c dtd_grammar.lemon
 
 #
 # We compile these specially because they're test programs, not library
