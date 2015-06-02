@@ -33,12 +33,17 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #include <string.h>
+#include <stddef.h>
 
 #include <epan/wmem/wmem.h>
 #include <epan/charsets.h>
 #include <epan/packet.h>
 
 #include "packet_panes.h"
+
+#ifndef offsetof
+#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
+#endif
 
 #define MARGIN 2
 #define REFRESH_TIMEOUT 10
@@ -1237,7 +1242,7 @@ bytes_view_class_init(BytesViewClass *klass)
 		g_signal_new(g_intern_static_string("set-scroll-adjustments"),
 			G_OBJECT_CLASS_TYPE(object_class),
 			(GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-			G_STRUCT_OFFSET(BytesViewClass, set_scroll_adjustments),
+			offsetof(BytesViewClass, set_scroll_adjustments),
 			NULL, NULL,
 			bv_VOID__OBJECT_OBJECT,
 			G_TYPE_NONE, 2,
