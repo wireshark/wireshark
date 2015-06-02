@@ -289,11 +289,14 @@ typedef struct
     lbm_uint8_t tqrs;
     lbm_uint16_t tirs;
 } lbmr_hdr_t;
-#define O_LBMR_HDR_T_VER_TYPE OFFSETOF(lbmr_hdr_t, ver_type)
+/*#define O_LBMR_HDR_T_VER_TYPE OFFSETOF(lbmr_hdr_t, ver_type) */
+#define O_LBMR_HDR_T_VER_TYPE 0
 #define L_LBMR_HDR_T_VER_TYPE SIZEOF(lbmr_hdr_t, ver_type)
-#define O_LBMR_HDR_T_TQRS OFFSETOF(lbmr_hdr_t, tqrs)
+/* #define O_LBMR_HDR_T_TQRS OFFSETOF(lbmr_hdr_t, tqrs) */
+#define O_LBMR_HDR_T_TQRS 1
 #define L_LBMR_HDR_T_TQRS SIZEOF(lbmr_hdr_t, tqrs)
-#define O_LBMR_HDR_T_TIRS OFFSETOF(lbmr_hdr_t, tirs)
+/* #define O_LBMR_HDR_T_TIRS OFFSETOF(lbmr_hdr_t, tirs) */
+#define O_LBMR_HDR_T_TIRS 2
 #define L_LBMR_HDR_T_TIRS SIZEOF(lbmr_hdr_t, tirs)
 #define L_LBMR_HDR_T (gint) sizeof(lbmr_hdr_t)
 
@@ -318,11 +321,14 @@ typedef struct
     lbm_uint8_t ext_type;
     lbm_uint16_t dep;
 } lbmr_hdr_ext_type_t;
-#define O_LBMR_HDR_EXT_TYPE_T_VER_TYPE OFFSETOF(lbmr_hdr_ext_type_t, ver_type)
+/* #define O_LBMR_HDR_EXT_TYPE_T_VER_TYPE OFFSETOF(lbmr_hdr_ext_type_t, ver_type) */
+#define O_LBMR_HDR_EXT_TYPE_T_VER_TYPE 0
 #define L_LBMR_HDR_EXT_TYPE_T_VER_TYPE SIZEOF(lbmr_hdr_ext_type_t, ver_type)
-#define O_LBMR_HDR_EXT_TYPE_T_EXT_TYPE OFFSETOF(lbmr_hdr_ext_type_t, ext_type)
+/* #define O_LBMR_HDR_EXT_TYPE_T_EXT_TYPE OFFSETOF(lbmr_hdr_ext_type_t, ext_type) */
+#define O_LBMR_HDR_EXT_TYPE_T_EXT_TYPE 1
 #define L_LBMR_HDR_EXT_TYPE_T_EXT_TYPE SIZEOF(lbmr_hdr_ext_type_t, ext_type)
-#define O_LBMR_HDR_EXT_TYPE_T_DEP OFFSETOF(lbmr_hdr_ext_type_t, dep)
+/*#define O_LBMR_HDR_EXT_TYPE_T_DEP OFFSETOF(lbmr_hdr_ext_type_t, dep)*/
+#define O_LBMR_HDR_EXT_TYPE_T_DEP 2
 #define L_LBMR_HDR_EXT_TYPE_T_DEP SIZEOF(lbmr_hdr_ext_type_t, dep)
 #define L_LBMR_HDR_EXT_TYPE_T (gint) sizeof(lbmr_hdr_ext_type_t)
 
@@ -342,13 +348,17 @@ typedef struct
     lbm_uint16_t ttl;
     lbm_uint32_t index;
 } lbmr_tir_t;
-#define O_LBMR_TIR_T_TRANSPORT OFFSETOF(lbmr_tir_t, transport)
+/*#define O_LBMR_TIR_T_TRANSPORT OFFSETOF(lbmr_tir_t, transport)*/
+#define O_LBMR_TIR_T_TRANSPORT 0
 #define L_LBMR_TIR_T_TRANSPORT SIZEOF(lbmr_tir_t, transport)
-#define O_LBMR_TIR_T_TLEN OFFSETOF(lbmr_tir_t, tlen)
+/*#define O_LBMR_TIR_T_TLEN OFFSETOF(lbmr_tir_t, tlen)*/
+#define O_LBMR_TIR_T_TLEN 1
 #define L_LBMR_TIR_T_TLEN SIZEOF(lbmr_tir_t, tlen)
-#define O_LBMR_TIR_T_TTL OFFSETOF(lbmr_tir_t, ttl)
+/*#define O_LBMR_TIR_T_TTL OFFSETOF(lbmr_tir_t, ttl)*/
+#define O_LBMR_TIR_T_TTL 2
 #define L_LBMR_TIR_T_TTL SIZEOF(lbmr_tir_t, ttl)
-#define O_LBMR_TIR_T_INDEX OFFSETOF(lbmr_tir_t, index)
+/*#define O_LBMR_TIR_T_INDEX OFFSETOF(lbmr_tir_t, index)*/
+#define O_LBMR_TIR_T_INDEX 4
 #define L_LBMR_TIR_T_INDEX SIZEOF(lbmr_tir_t, index)
 #define L_LBMR_TIR_T (gint) sizeof(lbmr_tir_t)
 
@@ -358,9 +368,11 @@ typedef struct
     lbm_uint32_t ip;
     lbm_uint16_t port;
 } lbmr_tir_tcp_t;
-#define O_LBMR_TIR_TCP_T_IP OFFSETOF(lbmr_tir_tcp_t, ip)
+/*#define O_LBMR_TIR_TCP_T_IP OFFSETOF(lbmr_tir_tcp_t, ip)*/
+#define O_LBMR_TIR_TCP_T_IP 0
 #define L_LBMR_TIR_TCP_T_IP SIZEOF(lbmr_tir_tcp_t, ip)
-#define O_LBMR_TIR_TCP_T_PORT OFFSETOF(lbmr_tir_tcp_t, port)
+/*#define O_LBMR_TIR_TCP_T_PORT OFFSETOF(lbmr_tir_tcp_t, port)*/
+#define O_LBMR_TIR_TCP_T_PORT 4
 #define L_LBMR_TIR_TCP_T_PORT SIZEOF(lbmr_tir_tcp_t, port)
 #define L_LBMR_TIR_TCP_T 6
 
@@ -369,11 +381,14 @@ typedef struct {
     lbm_uint32_t session_id;
     lbm_uint16_t port;
 } lbmr_tir_tcp_with_sid_t;
-#define O_LBMR_TIR_TCP_WITH_SID_T_IP OFFSETOF(lbmr_tir_tcp_with_sid_t, ip)
+/*#define O_LBMR_TIR_TCP_WITH_SID_T_IP OFFSETOF(lbmr_tir_tcp_with_sid_t, ip)*/
+#define O_LBMR_TIR_TCP_WITH_SID_T_IP 0
 #define L_LBMR_TIR_TCP_WITH_SID_T_IP SIZEOF(lbmr_tir_tcp_with_sid_t, ip)
-#define O_LBMR_TIR_TCP_WITH_SID_T_SESSION_ID OFFSETOF(lbmr_tir_tcp_with_sid_t, session_id)
+/*#define O_LBMR_TIR_TCP_WITH_SID_T_SESSION_ID OFFSETOF(lbmr_tir_tcp_with_sid_t, session_id)*/
+#define O_LBMR_TIR_TCP_WITH_SID_T_SESSION_ID 4
 #define L_LBMR_TIR_TCP_WITH_SID_T_SESSION_ID SIZEOF(lbmr_tir_tcp_with_sid_t, session_id)
-#define O_LBMR_TIR_TCP_WITH_SID_T_PORT OFFSETOF(lbmr_tir_tcp_with_sid_t, port)
+/*#define O_LBMR_TIR_TCP_WITH_SID_T_PORT OFFSETOF(lbmr_tir_tcp_with_sid_t, port)*/
+#define O_LBMR_TIR_TCP_WITH_SID_T_PORT 8
 #define L_LBMR_TIR_TCP_WITH_SID_T_PORT SIZEOF(lbmr_tir_tcp_with_sid_t, port)
 #define L_LBMR_TIR_TCP_WITH_SID_T 10
 
@@ -386,15 +401,20 @@ typedef struct
     lbm_uint16_t udp_dest_port;
     lbm_uint16_t src_ucast_port;
 } lbmr_tir_lbtrm_t;
-#define O_LBMR_TIR_LBTRM_T_SRC_ADDR OFFSETOF(lbmr_tir_lbtrm_t, src_addr)
+/*#define O_LBMR_TIR_LBTRM_T_SRC_ADDR OFFSETOF(lbmr_tir_lbtrm_t, src_addr)*/
+#define O_LBMR_TIR_LBTRM_T_SRC_ADDR 0
 #define L_LBMR_TIR_LBTRM_T_SRC_ADDR SIZEOF(lbmr_tir_lbtrm_t, src_addr)
-#define O_LBMR_TIR_LBTRM_T_MCAST_ADDR OFFSETOF(lbmr_tir_lbtrm_t, mcast_addr)
+/*#define O_LBMR_TIR_LBTRM_T_MCAST_ADDR OFFSETOF(lbmr_tir_lbtrm_t, mcast_addr)*/
+#define O_LBMR_TIR_LBTRM_T_MCAST_ADDR 4
 #define L_LBMR_TIR_LBTRM_T_MCAST_ADDR SIZEOF(lbmr_tir_lbtrm_t, mcast_addr)
-#define O_LBMR_TIR_LBTRM_T_SESSION_ID OFFSETOF(lbmr_tir_lbtrm_t, session_id)
+/*#define O_LBMR_TIR_LBTRM_T_SESSION_ID OFFSETOF(lbmr_tir_lbtrm_t, session_id)*/
+#define O_LBMR_TIR_LBTRM_T_SESSION_ID 8
 #define L_LBMR_TIR_LBTRM_T_SESSION_ID SIZEOF(lbmr_tir_lbtrm_t, session_id)
-#define O_LBMR_TIR_LBTRM_T_UDP_DEST_PORT OFFSETOF(lbmr_tir_lbtrm_t, udp_dest_port)
+/*#define O_LBMR_TIR_LBTRM_T_UDP_DEST_PORT OFFSETOF(lbmr_tir_lbtrm_t, udp_dest_port)*/
+#define O_LBMR_TIR_LBTRM_T_UDP_DEST_PORT 12
 #define L_LBMR_TIR_LBTRM_T_UDP_DEST_PORT SIZEOF(lbmr_tir_lbtrm_t, udp_dest_port)
-#define O_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT OFFSETOF(lbmr_tir_lbtrm_t, src_ucast_port)
+/*#define O_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT OFFSETOF(lbmr_tir_lbtrm_t, src_ucast_port)*/
+#define O_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT 14
 #define L_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT SIZEOF(lbmr_tir_lbtrm_t, src_ucast_port)
 #define L_LBMR_TIR_LBTRM_T (gint) sizeof(lbmr_tir_lbtrm_t)
 
@@ -404,9 +424,11 @@ typedef struct
     lbm_uint32_t ip;
     lbm_uint16_t port;
 } lbmr_tir_lbtru_t;
-#define O_LBMR_TIR_LBTRU_T_IP OFFSETOF(lbmr_tir_lbtru_t, ip)
+/*#define O_LBMR_TIR_LBTRU_T_IP OFFSETOF(lbmr_tir_lbtru_t, ip)*/
+#define O_LBMR_TIR_LBTRU_T_IP 0
 #define L_LBMR_TIR_LBTRU_T_IP SIZEOF(lbmr_tir_lbtru_t, ip)
-#define O_LBMR_TIR_LBTRU_T_PORT OFFSETOF(lbmr_tir_lbtru_t, port)
+/*#define O_LBMR_TIR_LBTRU_T_PORT OFFSETOF(lbmr_tir_lbtru_t, port)*/
+#define O_LBMR_TIR_LBTRU_T_PORT 4
 #define L_LBMR_TIR_LBTRU_T_PORT SIZEOF(lbmr_tir_lbtru_t, port)
 #define L_LBMR_TIR_LBTRU_T 6
 
@@ -416,11 +438,14 @@ typedef struct
     lbm_uint32_t session_id;
     lbm_uint16_t port;
 } lbmr_tir_lbtru_with_sid_t;
-#define O_LBMR_TIR_LBTRU_WITH_SID_T_IP OFFSETOF(lbmr_tir_lbtru_with_sid_t, ip)
+/*#define O_LBMR_TIR_LBTRU_WITH_SID_T_IP OFFSETOF(lbmr_tir_lbtru_with_sid_t, ip)*/
+#define O_LBMR_TIR_LBTRU_WITH_SID_T_IP 0
 #define L_LBMR_TIR_LBTRU_WITH_SID_T_IP SIZEOF(lbmr_tir_lbtru_with_sid_t, ip)
-#define O_LBMR_TIR_LBTRU_WITH_SID_T_SESSION_ID OFFSETOF(lbmr_tir_lbtru_with_sid_t, session_id)
+/*#define O_LBMR_TIR_LBTRU_WITH_SID_T_SESSION_ID OFFSETOF(lbmr_tir_lbtru_with_sid_t, session_id)*/
+#define O_LBMR_TIR_LBTRU_WITH_SID_T_SESSION_ID 4
 #define L_LBMR_TIR_LBTRU_WITH_SID_T_SESSION_ID SIZEOF(lbmr_tir_lbtru_with_sid_t, session_id)
-#define O_LBMR_TIR_LBTRU_WITH_SID_T_PORT OFFSETOF(lbmr_tir_lbtru_with_sid_t, port)
+/*#define O_LBMR_TIR_LBTRU_WITH_SID_T_PORT OFFSETOF(lbmr_tir_lbtru_with_sid_t, port)*/
+#define O_LBMR_TIR_LBTRU_WITH_SID_T_PORT 8
 #define L_LBMR_TIR_LBTRU_WITH_SID_T_PORT SIZEOF(lbmr_tir_lbtru_with_sid_t, port)
 #define L_LBMR_TIR_LBTRU_WITH_SID_T 10
 
@@ -431,11 +456,14 @@ typedef struct
     lbm_uint32_t session_id;
     lbm_uint16_t xport_id;
 } lbmr_tir_lbtipc_t;
-#define O_LBMR_TIR_LBTIPC_T_HOST_ID OFFSETOF(lbmr_tir_lbtipc_t, host_id)
+/*#define O_LBMR_TIR_LBTIPC_T_HOST_ID OFFSETOF(lbmr_tir_lbtipc_t, host_id)*/
+#define O_LBMR_TIR_LBTIPC_T_HOST_ID 0
 #define L_LBMR_TIR_LBTIPC_T_HOST_ID SIZEOF(lbmr_tir_lbtipc_t, host_id)
-#define O_LBMR_TIR_LBTIPC_T_SESSION_ID OFFSETOF(lbmr_tir_lbtipc_t, session_id)
+/*#define O_LBMR_TIR_LBTIPC_T_SESSION_ID OFFSETOF(lbmr_tir_lbtipc_t, session_id)*/
+#define O_LBMR_TIR_LBTIPC_T_SESSION_ID 4
 #define L_LBMR_TIR_LBTIPC_T_SESSION_ID SIZEOF(lbmr_tir_lbtipc_t, session_id)
-#define O_LBMR_TIR_LBTIPC_T_XPORT_ID OFFSETOF(lbmr_tir_lbtipc_t, xport_id)
+/*#define O_LBMR_TIR_LBTIPC_T_XPORT_ID OFFSETOF(lbmr_tir_lbtipc_t, xport_id)*/
+#define O_LBMR_TIR_LBTIPC_T_XPORT_ID 8
 #define L_LBMR_TIR_LBTIPC_T_XPORT_ID SIZEOF(lbmr_tir_lbtipc_t, xport_id)
 #define L_LBMR_TIR_LBTIPC_T 10
 
@@ -446,11 +474,14 @@ typedef struct
     lbm_uint32_t session_id;
     lbm_uint16_t port;
 } lbmr_tir_lbtrdma_t;
-#define O_LBMR_TIR_LBTRDMA_T_IP OFFSETOF(lbmr_tir_lbtrdma_t, ip)
+/*#define O_LBMR_TIR_LBTRDMA_T_IP OFFSETOF(lbmr_tir_lbtrdma_t, ip)*/
+#define O_LBMR_TIR_LBTRDMA_T_IP 0
 #define L_LBMR_TIR_LBTRDMA_T_IP SIZEOF(lbmr_tir_lbtrdma_t, ip)
-#define O_LBMR_TIR_LBTRDMA_T_SESSION_ID OFFSETOF(lbmr_tir_lbtrdma_t, session_id)
+/*#define O_LBMR_TIR_LBTRDMA_T_SESSION_ID OFFSETOF(lbmr_tir_lbtrdma_t, session_id)*/
+#define O_LBMR_TIR_LBTRDMA_T_SESSION_ID 4
 #define L_LBMR_TIR_LBTRDMA_T_SESSION_ID SIZEOF(lbmr_tir_lbtrdma_t, session_id)
-#define O_LBMR_TIR_LBTRDMA_T_PORT OFFSETOF(lbmr_tir_lbtrdma_t, port)
+/*#define O_LBMR_TIR_LBTRDMA_T_PORT OFFSETOF(lbmr_tir_lbtrdma_t, port)*/
+#define O_LBMR_TIR_LBTRDMA_T_PORT 8
 #define L_LBMR_TIR_LBTRDMA_T_PORT SIZEOF(lbmr_tir_lbtrdma_t, port)
 #define L_LBMR_TIR_LBTRDMA_T 10
 
@@ -461,11 +492,14 @@ typedef struct
     lbm_uint32_t session_id;
     lbm_uint16_t xport_id;
 } lbmr_tir_lbtsmx_t;
-#define O_LBMR_TIR_LBTSMX_T_HOST_ID OFFSETOF(lbmr_tir_lbtsmx_t, host_id)
+/*#define O_LBMR_TIR_LBTSMX_T_HOST_ID OFFSETOF(lbmr_tir_lbtsmx_t, host_id)*/
+#define O_LBMR_TIR_LBTSMX_T_HOST_ID 0
 #define L_LBMR_TIR_LBTSMX_T_HOST_ID SIZEOF(lbmr_tir_lbtsmx_t, host_id)
-#define O_LBMR_TIR_LBTSMX_T_SESSION_ID OFFSETOF(lbmr_tir_lbtsmx_t, session_id)
+/*#define O_LBMR_TIR_LBTSMX_T_SESSION_ID OFFSETOF(lbmr_tir_lbtsmx_t, session_id)*/
+#define O_LBMR_TIR_LBTSMX_T_SESSION_ID 4
 #define L_LBMR_TIR_LBTSMX_T_SESSION_ID SIZEOF(lbmr_tir_lbtsmx_t, session_id)
-#define O_LBMR_TIR_LBTSMX_T_XPORT_ID OFFSETOF(lbmr_tir_lbtsmx_t, xport_id)
+/*#define O_LBMR_TIR_LBTSMX_T_XPORT_ID OFFSETOF(lbmr_tir_lbtsmx_t, xport_id)*/
+#define O_LBMR_TIR_LBTSMX_T_XPORT_ID 8
 #define L_LBMR_TIR_LBTSMX_T_XPORT_ID SIZEOF(lbmr_tir_lbtsmx_t, xport_id)
 #define L_LBMR_TIR_LBTSMX_T 10
 
@@ -479,11 +513,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t flags;
 } lbmr_topic_opt_t;
-#define O_LBMR_TOPIC_OPT_T_TYPE OFFSETOF(lbmr_topic_opt_t, type)
+/*#define O_LBMR_TOPIC_OPT_T_TYPE OFFSETOF(lbmr_topic_opt_t, type)*/
+#define O_LBMR_TOPIC_OPT_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_T_TYPE SIZEOF(lbmr_topic_opt_t, type)
-#define O_LBMR_TOPIC_OPT_T_LEN OFFSETOF(lbmr_topic_opt_t, len)
+/*#define O_LBMR_TOPIC_OPT_T_LEN OFFSETOF(lbmr_topic_opt_t, len)*/
+#define O_LBMR_TOPIC_OPT_T_LEN 1
 #define L_LBMR_TOPIC_OPT_T_LEN SIZEOF(lbmr_topic_opt_t, len)
-#define O_LBMR_TOPIC_OPT_T_FLAGS OFFSETOF(lbmr_topic_opt_t, flags)
+/*#define O_LBMR_TOPIC_OPT_T_FLAGS OFFSETOF(lbmr_topic_opt_t, flags)*/
+#define O_LBMR_TOPIC_OPT_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_T_FLAGS SIZEOF(lbmr_topic_opt_t, flags)
 #define L_LBMR_TOPIC_OPT_T (gint) sizeof(lbmr_topic_opt_t)
 
@@ -496,11 +533,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t total_len;
 } lbmr_topic_opt_len_t;
-#define O_LBMR_TOPIC_OPT_LEN_T_TYPE OFFSETOF(lbmr_topic_opt_len_t, type)
+/*#define O_LBMR_TOPIC_OPT_LEN_T_TYPE OFFSETOF(lbmr_topic_opt_len_t, type)*/
+#define O_LBMR_TOPIC_OPT_LEN_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_LEN_T_TYPE SIZEOF(lbmr_topic_opt_len_t, type)
-#define O_LBMR_TOPIC_OPT_LEN_T_LEN OFFSETOF(lbmr_topic_opt_len_t, len)
+/*#define O_LBMR_TOPIC_OPT_LEN_T_LEN OFFSETOF(lbmr_topic_opt_len_t, len)*/
+#define O_LBMR_TOPIC_OPT_LEN_T_LEN 1
 #define L_LBMR_TOPIC_OPT_LEN_T_LEN SIZEOF(lbmr_topic_opt_len_t, len)
-#define O_LBMR_TOPIC_OPT_LEN_T_TOTAL_LEN OFFSETOF(lbmr_topic_opt_len_t, total_len)
+/*#define O_LBMR_TOPIC_OPT_LEN_T_TOTAL_LEN OFFSETOF(lbmr_topic_opt_len_t, total_len)*/
+#define O_LBMR_TOPIC_OPT_LEN_T_TOTAL_LEN 2
 #define L_LBMR_TOPIC_OPT_LEN_T_TOTAL_LEN SIZEOF(lbmr_topic_opt_len_t, total_len)
 #define L_LBMR_TOPIC_OPT_LEN_T (gint) sizeof(lbmr_topic_opt_len_t)
 
@@ -522,27 +562,38 @@ typedef struct
     lbm_uint32_t high_seqnum;
     lbm_uint32_t low_seqnum;
 } lbmr_topic_opt_ume_t;
-#define O_LBMR_TOPIC_OPT_UME_T_TYPE OFFSETOF(lbmr_topic_opt_ume_t, type)
+/*#define O_LBMR_TOPIC_OPT_UME_T_TYPE OFFSETOF(lbmr_topic_opt_ume_t, type)*/
+#define O_LBMR_TOPIC_OPT_UME_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_UME_T_TYPE SIZEOF(lbmr_topic_opt_ume_t, type)
-#define O_LBMR_TOPIC_OPT_UME_T_LEN OFFSETOF(lbmr_topic_opt_ume_t, len)
+/*#define O_LBMR_TOPIC_OPT_UME_T_LEN OFFSETOF(lbmr_topic_opt_ume_t, len)*/
+#define O_LBMR_TOPIC_OPT_UME_T_LEN 1
 #define L_LBMR_TOPIC_OPT_UME_T_LEN SIZEOF(lbmr_topic_opt_ume_t, len)
-#define O_LBMR_TOPIC_OPT_UME_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_t, flags)
+/*#define O_LBMR_TOPIC_OPT_UME_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_t, flags)*/
+#define O_LBMR_TOPIC_OPT_UME_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_UME_T_FLAGS SIZEOF(lbmr_topic_opt_ume_t, flags)
-#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_t, store_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_t, store_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_PORT 4
 #define L_LBMR_TOPIC_OPT_UME_T_STORE_TCP_PORT SIZEOF(lbmr_topic_opt_ume_t, store_tcp_port)
-#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_t, src_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_t, src_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_PORT 8
 #define L_LBMR_TOPIC_OPT_UME_T_SRC_TCP_PORT SIZEOF(lbmr_topic_opt_ume_t, src_tcp_port)
-#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_ADDR OFFSETOF(lbmr_topic_opt_ume_t, store_tcp_addr)
+/*#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_ADDR OFFSETOF(lbmr_topic_opt_ume_t, store_tcp_addr)*/
+#define O_LBMR_TOPIC_OPT_UME_T_STORE_TCP_ADDR 12
 #define L_LBMR_TOPIC_OPT_UME_T_STORE_TCP_ADDR SIZEOF(lbmr_topic_opt_ume_t, store_tcp_addr)
-#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_ADDR OFFSETOF(lbmr_topic_opt_ume_t, src_tcp_addr)
+/*#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_ADDR OFFSETOF(lbmr_topic_opt_ume_t, src_tcp_addr)*/
+#define O_LBMR_TOPIC_OPT_UME_T_SRC_TCP_ADDR 16
 #define L_LBMR_TOPIC_OPT_UME_T_SRC_TCP_ADDR SIZEOF(lbmr_topic_opt_ume_t, src_tcp_addr)
-#define O_LBMR_TOPIC_OPT_UME_T_SRC_REG_ID OFFSETOF(lbmr_topic_opt_ume_t, src_reg_id)
+/*#define O_LBMR_TOPIC_OPT_UME_T_SRC_REG_ID OFFSETOF(lbmr_topic_opt_ume_t, src_reg_id)*/
+#define O_LBMR_TOPIC_OPT_UME_T_SRC_REG_ID 20
 #define L_LBMR_TOPIC_OPT_UME_T_SRC_REG_ID SIZEOF(lbmr_topic_opt_ume_t, src_reg_id)
-#define O_LBMR_TOPIC_OPT_UME_T_TRANSPORT_IDX OFFSETOF(lbmr_topic_opt_ume_t, transport_idx)
+/*#define O_LBMR_TOPIC_OPT_UME_T_TRANSPORT_IDX OFFSETOF(lbmr_topic_opt_ume_t, transport_idx)*/
+#define O_LBMR_TOPIC_OPT_UME_T_TRANSPORT_IDX 24
 #define L_LBMR_TOPIC_OPT_UME_T_TRANSPORT_IDX SIZEOF(lbmr_topic_opt_ume_t, transport_idx)
-#define O_LBMR_TOPIC_OPT_UME_T_HIGH_SEQNUM OFFSETOF(lbmr_topic_opt_ume_t, high_seqnum)
+/*#define O_LBMR_TOPIC_OPT_UME_T_HIGH_SEQNUM OFFSETOF(lbmr_topic_opt_ume_t, high_seqnum)*/
+#define O_LBMR_TOPIC_OPT_UME_T_HIGH_SEQNUM 28
 #define L_LBMR_TOPIC_OPT_UME_T_HIGH_SEQNUM SIZEOF(lbmr_topic_opt_ume_t, high_seqnum)
-#define O_LBMR_TOPIC_OPT_UME_T_LOW_SEQNUM OFFSETOF(lbmr_topic_opt_ume_t, low_seqnum)
+/*#define O_LBMR_TOPIC_OPT_UME_T_LOW_SEQNUM OFFSETOF(lbmr_topic_opt_ume_t, low_seqnum)*/
+#define O_LBMR_TOPIC_OPT_UME_T_LOW_SEQNUM 32
 #define L_LBMR_TOPIC_OPT_UME_T_LOW_SEQNUM SIZEOF(lbmr_topic_opt_ume_t, low_seqnum)
 #define L_LBMR_TOPIC_OPT_UME_T (gint) sizeof(lbmr_topic_opt_ume_t)
 
@@ -566,21 +617,29 @@ typedef struct
     lbm_uint32_t store_ip_addr;
     lbm_uint32_t src_reg_id;
 } lbmr_topic_opt_ume_store_t;
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_TYPE OFFSETOF(lbmr_topic_opt_ume_store_t, type)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_TYPE OFFSETOF(lbmr_topic_opt_ume_store_t, type)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_TYPE SIZEOF(lbmr_topic_opt_ume_store_t, type)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_LEN OFFSETOF(lbmr_topic_opt_ume_store_t, len)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_LEN OFFSETOF(lbmr_topic_opt_ume_store_t, len)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_LEN 1
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_LEN SIZEOF(lbmr_topic_opt_ume_store_t, len)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_store_t, flags)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_store_t, flags)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_FLAGS SIZEOF(lbmr_topic_opt_ume_store_t, flags)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_GRP_IDX OFFSETOF(lbmr_topic_opt_ume_store_t, grp_idx)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_GRP_IDX OFFSETOF(lbmr_topic_opt_ume_store_t, grp_idx)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_GRP_IDX 3
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_GRP_IDX SIZEOF(lbmr_topic_opt_ume_store_t, grp_idx)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_store_t, store_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_TCP_PORT OFFSETOF(lbmr_topic_opt_ume_store_t, store_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_TCP_PORT 4
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_STORE_TCP_PORT SIZEOF(lbmr_topic_opt_ume_store_t, store_tcp_port)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IDX OFFSETOF(lbmr_topic_opt_ume_store_t, store_idx)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IDX OFFSETOF(lbmr_topic_opt_ume_store_t, store_idx)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IDX 6
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IDX SIZEOF(lbmr_topic_opt_ume_store_t, store_idx)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IP_ADDR OFFSETOF(lbmr_topic_opt_ume_store_t, store_ip_addr)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IP_ADDR OFFSETOF(lbmr_topic_opt_ume_store_t, store_ip_addr)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IP_ADDR 8
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_STORE_IP_ADDR SIZEOF(lbmr_topic_opt_ume_store_t, store_ip_addr)
-#define O_LBMR_TOPIC_OPT_UME_STORE_T_SRC_REG_ID OFFSETOF(lbmr_topic_opt_ume_store_t, src_reg_id)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_T_SRC_REG_ID OFFSETOF(lbmr_topic_opt_ume_store_t, src_reg_id)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_T_SRC_REG_ID 12
 #define L_LBMR_TOPIC_OPT_UME_STORE_T_SRC_REG_ID SIZEOF(lbmr_topic_opt_ume_store_t, src_reg_id)
 #define L_LBMR_TOPIC_OPT_UME_STORE_T (gint) sizeof(lbmr_topic_opt_ume_store_t)
 
@@ -598,17 +657,23 @@ typedef struct
     lbm_uint16_t grp_sz;
     lbm_uint16_t reserved;
 } lbmr_topic_opt_ume_store_group_t;
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_TYPE OFFSETOF(lbmr_topic_opt_ume_store_group_t, type)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_TYPE OFFSETOF(lbmr_topic_opt_ume_store_group_t, type)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_TYPE SIZEOF(lbmr_topic_opt_ume_store_group_t, type)
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_LEN OFFSETOF(lbmr_topic_opt_ume_store_group_t, len)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_LEN OFFSETOF(lbmr_topic_opt_ume_store_group_t, len)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_LEN 1
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_LEN SIZEOF(lbmr_topic_opt_ume_store_group_t, len)
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_store_group_t, flags)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_FLAGS OFFSETOF(lbmr_topic_opt_ume_store_group_t, flags)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_FLAGS SIZEOF(lbmr_topic_opt_ume_store_group_t, flags)
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_IDX OFFSETOF(lbmr_topic_opt_ume_store_group_t, grp_idx)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_IDX OFFSETOF(lbmr_topic_opt_ume_store_group_t, grp_idx)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_IDX 3
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_IDX SIZEOF(lbmr_topic_opt_ume_store_group_t, grp_idx)
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_SZ OFFSETOF(lbmr_topic_opt_ume_store_group_t, grp_sz)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_SZ OFFSETOF(lbmr_topic_opt_ume_store_group_t, grp_sz)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_SZ 4
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_GRP_SZ SIZEOF(lbmr_topic_opt_ume_store_group_t, grp_sz)
-#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_RESERVED OFFSETOF(lbmr_topic_opt_ume_store_group_t, reserved)
+/*#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_RESERVED OFFSETOF(lbmr_topic_opt_ume_store_group_t, reserved)*/
+#define O_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_RESERVED 6
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T_RESERVED SIZEOF(lbmr_topic_opt_ume_store_group_t, reserved)
 #define L_LBMR_TOPIC_OPT_UME_STORE_GROUP_T (gint) sizeof(lbmr_topic_opt_ume_store_group_t)
 
@@ -629,23 +694,32 @@ typedef struct
     lbm_uint32_t high_seqnum;
     lbm_uint32_t low_seqnum;
 } lbmr_topic_opt_latejoin_t;
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TYPE OFFSETOF(lbmr_topic_opt_latejoin_t, type)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TYPE OFFSETOF(lbmr_topic_opt_latejoin_t, type)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_TYPE SIZEOF(lbmr_topic_opt_latejoin_t, type)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LEN OFFSETOF(lbmr_topic_opt_latejoin_t, len)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LEN OFFSETOF(lbmr_topic_opt_latejoin_t, len)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LEN 1
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_LEN SIZEOF(lbmr_topic_opt_latejoin_t, len)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_FLAGS OFFSETOF(lbmr_topic_opt_latejoin_t, flags)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_FLAGS OFFSETOF(lbmr_topic_opt_latejoin_t, flags)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_FLAGS SIZEOF(lbmr_topic_opt_latejoin_t, flags)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_latejoin_t, src_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_latejoin_t, src_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_TCP_PORT 4
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_TCP_PORT SIZEOF(lbmr_topic_opt_latejoin_t, src_tcp_port)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_RESERVED OFFSETOF(lbmr_topic_opt_latejoin_t, reserved)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_RESERVED OFFSETOF(lbmr_topic_opt_latejoin_t, reserved)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_RESERVED 6
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_RESERVED SIZEOF(lbmr_topic_opt_latejoin_t, reserved)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_latejoin_t, src_ip_addr)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_latejoin_t, src_ip_addr)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_IP_ADDR 8
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_SRC_IP_ADDR SIZEOF(lbmr_topic_opt_latejoin_t, src_ip_addr)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TRANSPORT_IDX OFFSETOF(lbmr_topic_opt_latejoin_t, transport_idx)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TRANSPORT_IDX OFFSETOF(lbmr_topic_opt_latejoin_t, transport_idx)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_TRANSPORT_IDX 12
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_TRANSPORT_IDX SIZEOF(lbmr_topic_opt_latejoin_t, transport_idx)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_HIGH_SEQNUM OFFSETOF(lbmr_topic_opt_latejoin_t, high_seqnum)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_HIGH_SEQNUM OFFSETOF(lbmr_topic_opt_latejoin_t, high_seqnum)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_HIGH_SEQNUM 16
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_HIGH_SEQNUM SIZEOF(lbmr_topic_opt_latejoin_t, high_seqnum)
-#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LOW_SEQNUM OFFSETOF(lbmr_topic_opt_latejoin_t, low_seqnum)
+/*#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LOW_SEQNUM OFFSETOF(lbmr_topic_opt_latejoin_t, low_seqnum)*/
+#define O_LBMR_TOPIC_OPT_LATEJOIN_T_LOW_SEQNUM 20
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T_LOW_SEQNUM SIZEOF(lbmr_topic_opt_latejoin_t, low_seqnum)
 #define L_LBMR_TOPIC_OPT_LATEJOIN_T (gint) sizeof(lbmr_topic_opt_latejoin_t)
 
@@ -662,13 +736,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t rcr_idx;
 } lbmr_topic_opt_umq_rcridx_t;
-#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_TYPE OFFSETOF(lbmr_topic_opt_umq_rcridx_t, type)
+/*#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_TYPE OFFSETOF(lbmr_topic_opt_umq_rcridx_t, type)*/
+#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_TYPE SIZEOF(lbmr_topic_opt_umq_rcridx_t, type)
-#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_LEN OFFSETOF(lbmr_topic_opt_umq_rcridx_t, len)
+/*#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_LEN OFFSETOF(lbmr_topic_opt_umq_rcridx_t, len)*/
+#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_LEN 1
 #define L_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_LEN SIZEOF(lbmr_topic_opt_umq_rcridx_t, len)
-#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_FLAGS OFFSETOF(lbmr_topic_opt_umq_rcridx_t, flags)
+/*#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_FLAGS OFFSETOF(lbmr_topic_opt_umq_rcridx_t, flags)*/
+#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_FLAGS SIZEOF(lbmr_topic_opt_umq_rcridx_t, flags)
-#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_RCR_IDX OFFSETOF(lbmr_topic_opt_umq_rcridx_t, rcr_idx)
+/*#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_RCR_IDX OFFSETOF(lbmr_topic_opt_umq_rcridx_t, rcr_idx)*/
+#define O_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_RCR_IDX 4
 #define L_LBMR_TOPIC_OPT_UMQ_RCRIDX_T_RCR_IDX SIZEOF(lbmr_topic_opt_umq_rcridx_t, rcr_idx)
 #define L_LBMR_TOPIC_OPT_UMQ_RCRIDX_T (gint) sizeof(lbmr_topic_opt_umq_rcridx_t)
 
@@ -698,23 +776,32 @@ typedef struct
     lbm_uint16_t src_tcp_port;
     lbm_uint16_t reserved;
 } lbmr_topic_opt_ulb_t;
-#define O_LBMR_TOPIC_OPT_ULB_T_TYPE OFFSETOF(lbmr_topic_opt_ulb_t, type)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_TYPE OFFSETOF(lbmr_topic_opt_ulb_t, type)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_ULB_T_TYPE SIZEOF(lbmr_topic_opt_ulb_t, type)
-#define O_LBMR_TOPIC_OPT_ULB_T_LEN OFFSETOF(lbmr_topic_opt_ulb_t, len)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_LEN OFFSETOF(lbmr_topic_opt_ulb_t, len)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_LEN 1
 #define L_LBMR_TOPIC_OPT_ULB_T_LEN SIZEOF(lbmr_topic_opt_ulb_t, len)
-#define O_LBMR_TOPIC_OPT_ULB_T_FLAGS OFFSETOF(lbmr_topic_opt_ulb_t, flags)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_FLAGS OFFSETOF(lbmr_topic_opt_ulb_t, flags)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_ULB_T_FLAGS SIZEOF(lbmr_topic_opt_ulb_t, flags)
-#define O_LBMR_TOPIC_OPT_ULB_T_QUEUE_ID OFFSETOF(lbmr_topic_opt_ulb_t, queue_id)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_QUEUE_ID OFFSETOF(lbmr_topic_opt_ulb_t, queue_id)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_QUEUE_ID 4
 #define L_LBMR_TOPIC_OPT_ULB_T_QUEUE_ID SIZEOF(lbmr_topic_opt_ulb_t, queue_id)
-#define O_LBMR_TOPIC_OPT_ULB_T_REGID OFFSETOF(lbmr_topic_opt_ulb_t, regid)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_REGID OFFSETOF(lbmr_topic_opt_ulb_t, regid)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_REGID 8
 #define L_LBMR_TOPIC_OPT_ULB_T_REGID SIZEOF(lbmr_topic_opt_ulb_t, regid)
-#define O_LBMR_TOPIC_OPT_ULB_T_ULB_SRC_ID OFFSETOF(lbmr_topic_opt_ulb_t, ulb_src_id)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_ULB_SRC_ID OFFSETOF(lbmr_topic_opt_ulb_t, ulb_src_id)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_ULB_SRC_ID 16
 #define L_LBMR_TOPIC_OPT_ULB_T_ULB_SRC_ID SIZEOF(lbmr_topic_opt_ulb_t, ulb_src_id)
-#define O_LBMR_TOPIC_OPT_ULB_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_ulb_t, src_ip_addr)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_ulb_t, src_ip_addr)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_SRC_IP_ADDR 20
 #define L_LBMR_TOPIC_OPT_ULB_T_SRC_IP_ADDR SIZEOF(lbmr_topic_opt_ulb_t, src_ip_addr)
-#define O_LBMR_TOPIC_OPT_ULB_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_ulb_t, src_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_ulb_t, src_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_SRC_TCP_PORT 24
 #define L_LBMR_TOPIC_OPT_ULB_T_SRC_TCP_PORT SIZEOF(lbmr_topic_opt_ulb_t, src_tcp_port)
-#define O_LBMR_TOPIC_OPT_ULB_T_RESERVED OFFSETOF(lbmr_topic_opt_ulb_t, reserved)
+/*#define O_LBMR_TOPIC_OPT_ULB_T_RESERVED OFFSETOF(lbmr_topic_opt_ulb_t, reserved)*/
+#define O_LBMR_TOPIC_OPT_ULB_T_RESERVED 26
 #define L_LBMR_TOPIC_OPT_ULB_T_RESERVED SIZEOF(lbmr_topic_opt_ulb_t, reserved)
 #define L_LBMR_TOPIC_OPT_ULB_T (gint) sizeof(lbmr_topic_opt_ulb_t)
 
@@ -731,15 +818,20 @@ typedef struct
     lbm_uint8_t hop_count;
     lbm_uint32_t cost;
 } lbmr_topic_opt_cost_t;
-#define O_LBMR_TOPIC_OPT_COST_T_TYPE OFFSETOF(lbmr_topic_opt_cost_t, type)
+/*#define O_LBMR_TOPIC_OPT_COST_T_TYPE OFFSETOF(lbmr_topic_opt_cost_t, type)*/
+#define O_LBMR_TOPIC_OPT_COST_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_COST_T_TYPE SIZEOF(lbmr_topic_opt_cost_t, type)
-#define O_LBMR_TOPIC_OPT_COST_T_LEN OFFSETOF(lbmr_topic_opt_cost_t, len)
+/*#define O_LBMR_TOPIC_OPT_COST_T_LEN OFFSETOF(lbmr_topic_opt_cost_t, len)*/
+#define O_LBMR_TOPIC_OPT_COST_T_LEN 1
 #define L_LBMR_TOPIC_OPT_COST_T_LEN SIZEOF(lbmr_topic_opt_cost_t, len)
-#define O_LBMR_TOPIC_OPT_COST_T_FLAGS OFFSETOF(lbmr_topic_opt_cost_t, flags)
+/*#define O_LBMR_TOPIC_OPT_COST_T_FLAGS OFFSETOF(lbmr_topic_opt_cost_t, flags)*/
+#define O_LBMR_TOPIC_OPT_COST_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_COST_T_FLAGS SIZEOF(lbmr_topic_opt_cost_t, flags)
-#define O_LBMR_TOPIC_OPT_COST_T_HOP_COUNT OFFSETOF(lbmr_topic_opt_cost_t, hop_count)
+/*#define O_LBMR_TOPIC_OPT_COST_T_HOP_COUNT OFFSETOF(lbmr_topic_opt_cost_t, hop_count)*/
+#define O_LBMR_TOPIC_OPT_COST_T_HOP_COUNT 3
 #define L_LBMR_TOPIC_OPT_COST_T_HOP_COUNT SIZEOF(lbmr_topic_opt_cost_t, hop_count)
-#define O_LBMR_TOPIC_OPT_COST_T_COST OFFSETOF(lbmr_topic_opt_cost_t, cost)
+/*#define O_LBMR_TOPIC_OPT_COST_T_COST OFFSETOF(lbmr_topic_opt_cost_t, cost)*/
+#define O_LBMR_TOPIC_OPT_COST_T_COST 4
 #define L_LBMR_TOPIC_OPT_COST_T_COST SIZEOF(lbmr_topic_opt_cost_t, cost)
 #define L_LBMR_TOPIC_OPT_COST_T (gint) sizeof(lbmr_topic_opt_cost_t)
 
@@ -755,13 +847,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint8_t originating_transport[LBM_OTID_BLOCK_SZ];
 } lbmr_topic_opt_otid_t;
-#define O_LBMR_TOPIC_OPT_OTID_T_TYPE OFFSETOF(lbmr_topic_opt_otid_t, type)
+/*#define O_LBMR_TOPIC_OPT_OTID_T_TYPE OFFSETOF(lbmr_topic_opt_otid_t, type)*/
+#define O_LBMR_TOPIC_OPT_OTID_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_OTID_T_TYPE SIZEOF(lbmr_topic_opt_otid_t, type)
-#define O_LBMR_TOPIC_OPT_OTID_T_LEN OFFSETOF(lbmr_topic_opt_otid_t, len)
+/*#define O_LBMR_TOPIC_OPT_OTID_T_LEN OFFSETOF(lbmr_topic_opt_otid_t, len)*/
+#define O_LBMR_TOPIC_OPT_OTID_T_LEN 1
 #define L_LBMR_TOPIC_OPT_OTID_T_LEN SIZEOF(lbmr_topic_opt_otid_t, len)
-#define O_LBMR_TOPIC_OPT_OTID_T_FLAGS OFFSETOF(lbmr_topic_opt_otid_t, flags)
+/*#define O_LBMR_TOPIC_OPT_OTID_T_FLAGS OFFSETOF(lbmr_topic_opt_otid_t, flags)*/
+#define O_LBMR_TOPIC_OPT_OTID_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_OTID_T_FLAGS SIZEOF(lbmr_topic_opt_otid_t, flags)
-#define O_LBMR_TOPIC_OPT_OTID_T_ORIGINATING_TRANSPORT OFFSETOF(lbmr_topic_opt_otid_t, originating_transport)
+/*#define O_LBMR_TOPIC_OPT_OTID_T_ORIGINATING_TRANSPORT OFFSETOF(lbmr_topic_opt_otid_t, originating_transport)*/
+#define O_LBMR_TOPIC_OPT_OTID_T_ORIGINATING_TRANSPORT 4
 #define L_LBMR_TOPIC_OPT_OTID_T_ORIGINATING_TRANSPORT SIZEOF(lbmr_topic_opt_otid_t, originating_transport)
 #define L_LBMR_TOPIC_OPT_OTID_T (gint) sizeof(lbmr_topic_opt_otid_t)
 
@@ -778,15 +874,20 @@ typedef struct
     lbm_uint8_t res;
     lbm_uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_topic_opt_ctxinst_t;
-#define O_LBMR_TOPIC_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinst_t, type)
+/*#define O_LBMR_TOPIC_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinst_t, type)*/
+#define O_LBMR_TOPIC_OPT_CTXINST_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_CTXINST_T_TYPE SIZEOF(lbmr_topic_opt_ctxinst_t, type)
-#define O_LBMR_TOPIC_OPT_CTXINST_T_LEN OFFSETOF(lbmr_topic_opt_ctxinst_t, len)
+/*#define O_LBMR_TOPIC_OPT_CTXINST_T_LEN OFFSETOF(lbmr_topic_opt_ctxinst_t, len)*/
+#define O_LBMR_TOPIC_OPT_CTXINST_T_LEN 1
 #define L_LBMR_TOPIC_OPT_CTXINST_T_LEN SIZEOF(lbmr_topic_opt_ctxinst_t, len)
-#define O_LBMR_TOPIC_OPT_CTXINST_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinst_t, flags)
+/*#define O_LBMR_TOPIC_OPT_CTXINST_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinst_t, flags)*/
+#define O_LBMR_TOPIC_OPT_CTXINST_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_CTXINST_T_FLAGS SIZEOF(lbmr_topic_opt_ctxinst_t, flags)
-#define O_LBMR_TOPIC_OPT_CTXINST_T_RES OFFSETOF(lbmr_topic_opt_ctxinst_t, res)
+/*#define O_LBMR_TOPIC_OPT_CTXINST_T_RES OFFSETOF(lbmr_topic_opt_ctxinst_t, res)*/
+#define O_LBMR_TOPIC_OPT_CTXINST_T_RES 3
 #define L_LBMR_TOPIC_OPT_CTXINST_T_RES SIZEOF(lbmr_topic_opt_ctxinst_t, res)
-#define O_LBMR_TOPIC_OPT_CTXINST_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinst_t, ctxinst)
+/*#define O_LBMR_TOPIC_OPT_CTXINST_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinst_t, ctxinst)*/
+#define O_LBMR_TOPIC_OPT_CTXINST_T_CTXINST 4
 #define L_LBMR_TOPIC_OPT_CTXINST_T_CTXINST SIZEOF(lbmr_topic_opt_ctxinst_t, ctxinst)
 #define L_LBMR_TOPIC_OPT_CTXINST_T (gint) sizeof(lbmr_topic_opt_ctxinst_t)
 
@@ -803,15 +904,20 @@ typedef struct
     lbm_uint8_t idx;
     lbm_uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_topic_opt_ctxinsts_t;
-#define O_LBMR_TOPIC_OPT_CTXINSTS_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinsts_t, type)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTS_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinsts_t, type)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTS_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T_TYPE SIZEOF(lbmr_topic_opt_ctxinsts_t, type)
-#define O_LBMR_TOPIC_OPT_CTXINSTS_T_LEN OFFSETOF(lbmr_topic_opt_ctxinsts_t, len)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTS_T_LEN OFFSETOF(lbmr_topic_opt_ctxinsts_t, len)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTS_T_LEN 1
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T_LEN SIZEOF(lbmr_topic_opt_ctxinsts_t, len)
-#define O_LBMR_TOPIC_OPT_CTXINSTS_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinsts_t, flags)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTS_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinsts_t, flags)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTS_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T_FLAGS SIZEOF(lbmr_topic_opt_ctxinsts_t, flags)
-#define O_LBMR_TOPIC_OPT_CTXINSTS_T_IDX OFFSETOF(lbmr_topic_opt_ctxinsts_t, idx)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTS_T_IDX OFFSETOF(lbmr_topic_opt_ctxinsts_t, idx)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTS_T_IDX 3
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T_IDX SIZEOF(lbmr_topic_opt_ctxinsts_t, idx)
-#define O_LBMR_TOPIC_OPT_CTXINSTS_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinsts_t, ctxinst)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTS_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinsts_t, ctxinst)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTS_T_CTXINST 4
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T_CTXINST SIZEOF(lbmr_topic_opt_ctxinsts_t, ctxinst)
 #define L_LBMR_TOPIC_OPT_CTXINSTS_T (gint) sizeof(lbmr_topic_opt_ctxinsts_t)
 
@@ -828,15 +934,20 @@ typedef struct
     lbm_uint8_t idx;
     lbm_uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_topic_opt_ctxinstq_t;
-#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinstq_t, type)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_TYPE OFFSETOF(lbmr_topic_opt_ctxinstq_t, type)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T_TYPE SIZEOF(lbmr_topic_opt_ctxinstq_t, type)
-#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_LEN OFFSETOF(lbmr_topic_opt_ctxinstq_t, len)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_LEN OFFSETOF(lbmr_topic_opt_ctxinstq_t, len)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_LEN 1
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T_LEN SIZEOF(lbmr_topic_opt_ctxinstq_t, len)
-#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinstq_t, flags)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_FLAGS OFFSETOF(lbmr_topic_opt_ctxinstq_t, flags)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T_FLAGS SIZEOF(lbmr_topic_opt_ctxinstq_t, flags)
-#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_IDX OFFSETOF(lbmr_topic_opt_ctxinstq_t, idx)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_IDX OFFSETOF(lbmr_topic_opt_ctxinstq_t, idx)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_IDX 3
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T_IDX SIZEOF(lbmr_topic_opt_ctxinstq_t, idx)
-#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinstq_t, ctxinst)
+/*#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_CTXINST OFFSETOF(lbmr_topic_opt_ctxinstq_t, ctxinst)*/
+#define O_LBMR_TOPIC_OPT_CTXINSTQ_T_CTXINST 4
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T_CTXINST SIZEOF(lbmr_topic_opt_ctxinstq_t, ctxinst)
 #define L_LBMR_TOPIC_OPT_CTXINSTQ_T (gint) sizeof(lbmr_topic_opt_ctxinstq_t)
 
@@ -852,13 +963,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t domain_id;
 } lbmr_topic_opt_domain_id_t;
-#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_TYPE OFFSETOF(lbmr_topic_opt_domain_id_t, type)
+/*#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_TYPE OFFSETOF(lbmr_topic_opt_domain_id_t, type)*/
+#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_DOMAIN_ID_T_TYPE SIZEOF(lbmr_topic_opt_domain_id_t, type)
-#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_LEN OFFSETOF(lbmr_topic_opt_domain_id_t, len)
+/*#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_LEN OFFSETOF(lbmr_topic_opt_domain_id_t, len)*/
+#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_LEN 1
 #define L_LBMR_TOPIC_OPT_DOMAIN_ID_T_LEN SIZEOF(lbmr_topic_opt_domain_id_t, len)
-#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_FLAGS OFFSETOF(lbmr_topic_opt_domain_id_t, flags)
+/*#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_FLAGS OFFSETOF(lbmr_topic_opt_domain_id_t, flags)*/
+#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_DOMAIN_ID_T_FLAGS SIZEOF(lbmr_topic_opt_domain_id_t, flags)
-#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_DOMAIN_ID OFFSETOF(lbmr_topic_opt_domain_id_t, domain_id)
+/*#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_DOMAIN_ID OFFSETOF(lbmr_topic_opt_domain_id_t, domain_id)*/
+#define O_LBMR_TOPIC_OPT_DOMAIN_ID_T_DOMAIN_ID 4
 #define L_LBMR_TOPIC_OPT_DOMAIN_ID_T_DOMAIN_ID SIZEOF(lbmr_topic_opt_domain_id_t, domain_id)
 #define L_LBMR_TOPIC_OPT_DOMAIN_ID_T (gint) sizeof(lbmr_topic_opt_domain_id_t)
 
@@ -877,19 +992,26 @@ typedef struct
     lbm_uint32_t src_ip_addr;
     lbm_uint32_t functionality_flags;
 } lbmr_topic_opt_exfunc_t;
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_TYPE OFFSETOF(lbmr_topic_opt_exfunc_t, type)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_TYPE OFFSETOF(lbmr_topic_opt_exfunc_t, type)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_TYPE 0
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_TYPE SIZEOF(lbmr_topic_opt_exfunc_t, type)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_LEN OFFSETOF(lbmr_topic_opt_exfunc_t, len)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_LEN OFFSETOF(lbmr_topic_opt_exfunc_t, len)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_LEN 1
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_LEN SIZEOF(lbmr_topic_opt_exfunc_t, len)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_FLAGS OFFSETOF(lbmr_topic_opt_exfunc_t, flags)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_FLAGS OFFSETOF(lbmr_topic_opt_exfunc_t, flags)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_FLAGS 2
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_FLAGS SIZEOF(lbmr_topic_opt_exfunc_t, flags)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_exfunc_t, src_tcp_port)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_TCP_PORT OFFSETOF(lbmr_topic_opt_exfunc_t, src_tcp_port)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_TCP_PORT 4
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_SRC_TCP_PORT SIZEOF(lbmr_topic_opt_exfunc_t, src_tcp_port)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_RESERVED OFFSETOF(lbmr_topic_opt_exfunc_t, reserved)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_RESERVED OFFSETOF(lbmr_topic_opt_exfunc_t, reserved)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_RESERVED 6
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_RESERVED SIZEOF(lbmr_topic_opt_exfunc_t, reserved)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_exfunc_t, src_ip_addr)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_IP_ADDR OFFSETOF(lbmr_topic_opt_exfunc_t, src_ip_addr)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_SRC_IP_ADDR 8
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_SRC_IP_ADDR SIZEOF(lbmr_topic_opt_exfunc_t, src_ip_addr)
-#define O_LBMR_TOPIC_OPT_EXFUNC_T_FUNCTIONALITY_FLAGS OFFSETOF(lbmr_topic_opt_exfunc_t, functionality_flags)
+/*#define O_LBMR_TOPIC_OPT_EXFUNC_T_FUNCTIONALITY_FLAGS OFFSETOF(lbmr_topic_opt_exfunc_t, functionality_flags)*/
+#define O_LBMR_TOPIC_OPT_EXFUNC_T_FUNCTIONALITY_FLAGS 12
 #define L_LBMR_TOPIC_OPT_EXFUNC_T_FUNCTIONALITY_FLAGS SIZEOF(lbmr_topic_opt_exfunc_t, functionality_flags)
 #define L_LBMR_TOPIC_OPT_EXFUNC_T (gint) sizeof(lbmr_topic_opt_exfunc_t)
 
@@ -921,21 +1043,29 @@ typedef struct
     lbm_uint32_t ip;
     lbm_uint8_t instance[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_ctxinfo_t;
-#define O_LBMR_CTXINFO_T_VER_TYPE OFFSETOF(lbmr_ctxinfo_t, ver_type)
+/*#define O_LBMR_CTXINFO_T_VER_TYPE OFFSETOF(lbmr_ctxinfo_t, ver_type)*/
+#define O_LBMR_CTXINFO_T_VER_TYPE 0
 #define L_LBMR_CTXINFO_T_VER_TYPE SIZEOF(lbmr_ctxinfo_t, ver_type)
-#define O_LBMR_CTXINFO_T_EXT_TYPE OFFSETOF(lbmr_ctxinfo_t, ext_type)
+/*#define O_LBMR_CTXINFO_T_EXT_TYPE OFFSETOF(lbmr_ctxinfo_t, ext_type)*/
+#define O_LBMR_CTXINFO_T_EXT_TYPE 1
 #define L_LBMR_CTXINFO_T_EXT_TYPE SIZEOF(lbmr_ctxinfo_t, ext_type)
-#define O_LBMR_CTXINFO_T_LEN OFFSETOF(lbmr_ctxinfo_t, len)
+/*#define O_LBMR_CTXINFO_T_LEN OFFSETOF(lbmr_ctxinfo_t, len)*/
+#define O_LBMR_CTXINFO_T_LEN 2
 #define L_LBMR_CTXINFO_T_LEN SIZEOF(lbmr_ctxinfo_t, len)
-#define O_LBMR_CTXINFO_T_HOP_COUNT OFFSETOF(lbmr_ctxinfo_t, hop_count)
+/*#define O_LBMR_CTXINFO_T_HOP_COUNT OFFSETOF(lbmr_ctxinfo_t, hop_count)*/
+#define O_LBMR_CTXINFO_T_HOP_COUNT 3
 #define L_LBMR_CTXINFO_T_HOP_COUNT SIZEOF(lbmr_ctxinfo_t, hop_count)
-#define O_LBMR_CTXINFO_T_FLAGS OFFSETOF(lbmr_ctxinfo_t, flags)
+/*#define O_LBMR_CTXINFO_T_FLAGS OFFSETOF(lbmr_ctxinfo_t, flags)*/
+#define O_LBMR_CTXINFO_T_FLAGS 4
 #define L_LBMR_CTXINFO_T_FLAGS SIZEOF(lbmr_ctxinfo_t, flags)
-#define O_LBMR_CTXINFO_T_PORT OFFSETOF(lbmr_ctxinfo_t, port)
+/*#define O_LBMR_CTXINFO_T_PORT OFFSETOF(lbmr_ctxinfo_t, port)*/
+#define O_LBMR_CTXINFO_T_PORT 6
 #define L_LBMR_CTXINFO_T_PORT SIZEOF(lbmr_ctxinfo_t, port)
-#define O_LBMR_CTXINFO_T_IP OFFSETOF(lbmr_ctxinfo_t, ip)
+/*#define O_LBMR_CTXINFO_T_IP OFFSETOF(lbmr_ctxinfo_t, ip)*/
+#define O_LBMR_CTXINFO_T_IP 8
 #define L_LBMR_CTXINFO_T_IP SIZEOF(lbmr_ctxinfo_t, ip)
-#define O_LBMR_CTXINFO_T_INSTANCE OFFSETOF(lbmr_ctxinfo_t, instance)
+/*#define O_LBMR_CTXINFO_T_INSTANCE OFFSETOF(lbmr_ctxinfo_t, instance)*/
+#define O_LBMR_CTXINFO_T_INSTANCE 12
 #define L_LBMR_CTXINFO_T_INSTANCE SIZEOF(lbmr_ctxinfo_t, instance)
 #define L_LBMR_CTXINFO_T (gint) sizeof(lbmr_ctxinfo_t)
 
@@ -954,11 +1084,14 @@ typedef struct
     lbm_uint8_t ext_type;
     lbm_uint16_t flags;
 } lbmr_topic_res_request_t;
-#define O_LBMR_TOPIC_RES_REQUEST_T_VER_TYPE OFFSETOF(lbmr_topic_res_request_t, ver_type)
+/*#define O_LBMR_TOPIC_RES_REQUEST_T_VER_TYPE OFFSETOF(lbmr_topic_res_request_t, ver_type)*/
+#define O_LBMR_TOPIC_RES_REQUEST_T_VER_TYPE 0
 #define L_LBMR_TOPIC_RES_REQUEST_T_VER_TYPE SIZEOF(lbmr_topic_res_request_t, ver_type)
-#define O_LBMR_TOPIC_RES_REQUEST_T_EXT_TYPE OFFSETOF(lbmr_topic_res_request_t, ext_type)
+/*#define O_LBMR_TOPIC_RES_REQUEST_T_EXT_TYPE OFFSETOF(lbmr_topic_res_request_t, ext_type)*/
+#define O_LBMR_TOPIC_RES_REQUEST_T_EXT_TYPE 1
 #define L_LBMR_TOPIC_RES_REQUEST_T_EXT_TYPE SIZEOF(lbmr_topic_res_request_t, ext_type)
-#define O_LBMR_TOPIC_RES_REQUEST_T_FLAGS OFFSETOF(lbmr_topic_res_request_t, flags)
+/*#define O_LBMR_TOPIC_RES_REQUEST_T_FLAGS OFFSETOF(lbmr_topic_res_request_t, flags)*/
+#define O_LBMR_TOPIC_RES_REQUEST_T_FLAGS 2
 #define L_LBMR_TOPIC_RES_REQUEST_T_FLAGS SIZEOF(lbmr_topic_res_request_t, flags)
 #define L_LBMR_TOPIC_RES_REQUEST_T (gint) sizeof(lbmr_topic_res_request_t)
 
@@ -976,9 +1109,11 @@ typedef struct
     lbm_uint16_t len;
     lbm_uint16_t tmrs;
 } lbmr_tmb_t;
-#define O_LBMR_TMB_T_LEN OFFSETOF(lbmr_tmb_t, len)
+/*#define O_LBMR_TMB_T_LEN OFFSETOF(lbmr_tmb_t, len)*/
+#define O_LBMR_TMB_T_LEN 0
 #define L_LBMR_TMB_T_LEN SIZEOF(lbmr_tmb_t, len)
-#define O_LBMR_TMB_T_TMRS OFFSETOF(lbmr_tmb_t, tmrs)
+/*#define O_LBMR_TMB_T_TMRS OFFSETOF(lbmr_tmb_t, tmrs)*/
+#define O_LBMR_TMB_T_TMRS 2
 #define L_LBMR_TMB_T_TMRS SIZEOF(lbmr_tmb_t, tmrs)
 #define L_LBMR_TMB_T (gint) sizeof(lbmr_tmb_t)
 
@@ -989,11 +1124,14 @@ typedef struct
     lbm_uint8_t type;
     lbm_uint8_t flags;
 } lbmr_tmr_t;
-#define O_LBMR_TMR_T_LEN OFFSETOF(lbmr_tmr_t, len)
+/*#define O_LBMR_TMR_T_LEN OFFSETOF(lbmr_tmr_t, len)*/
+#define O_LBMR_TMR_T_LEN 0
 #define L_LBMR_TMR_T_LEN SIZEOF(lbmr_tmr_t, len)
-#define O_LBMR_TMR_T_TYPE OFFSETOF(lbmr_tmr_t, type)
+/*#define O_LBMR_TMR_T_TYPE OFFSETOF(lbmr_tmr_t, type)*/
+#define O_LBMR_TMR_T_TYPE 2
 #define L_LBMR_TMR_T_TYPE SIZEOF(lbmr_tmr_t, type)
-#define O_LBMR_TMR_T_FLAGS OFFSETOF(lbmr_tmr_t, flags)
+/*#define O_LBMR_TMR_T_FLAGS OFFSETOF(lbmr_tmr_t, flags)*/
+#define O_LBMR_TMR_T_FLAGS 3
 #define L_LBMR_TMR_T_FLAGS SIZEOF(lbmr_tmr_t, flags)
 #define L_LBMR_TMR_T (gint) sizeof(lbmr_tmr_t)
 
@@ -1014,15 +1152,20 @@ typedef struct
     lbm_uint16_t grp_blks;
     lbm_uint16_t queue_blks;
 } lbmr_qir_t;
-#define O_LBMR_QIR_T_QUEUE_ID OFFSETOF(lbmr_qir_t, queue_id)
+/*#define O_LBMR_QIR_T_QUEUE_ID OFFSETOF(lbmr_qir_t, queue_id)*/
+#define O_LBMR_QIR_T_QUEUE_ID 0
 #define L_LBMR_QIR_T_QUEUE_ID SIZEOF(lbmr_qir_t, queue_id)
-#define O_LBMR_QIR_T_QUEUE_VER OFFSETOF(lbmr_qir_t, queue_ver)
+/*#define O_LBMR_QIR_T_QUEUE_VER OFFSETOF(lbmr_qir_t, queue_ver)*/
+#define O_LBMR_QIR_T_QUEUE_VER 4
 #define L_LBMR_QIR_T_QUEUE_VER SIZEOF(lbmr_qir_t, queue_ver)
-#define O_LBMR_QIR_T_QUEUE_PREV_VER OFFSETOF(lbmr_qir_t, queue_prev_ver)
+/*#define O_LBMR_QIR_T_QUEUE_PREV_VER OFFSETOF(lbmr_qir_t, queue_prev_ver)*/
+#define O_LBMR_QIR_T_QUEUE_PREV_VER 8
 #define L_LBMR_QIR_T_QUEUE_PREV_VER SIZEOF(lbmr_qir_t, queue_prev_ver)
-#define O_LBMR_QIR_T_GRP_BLKS OFFSETOF(lbmr_qir_t, grp_blks)
+/*#define O_LBMR_QIR_T_GRP_BLKS OFFSETOF(lbmr_qir_t, grp_blks)*/
+#define O_LBMR_QIR_T_GRP_BLKS 12
 #define L_LBMR_QIR_T_GRP_BLKS SIZEOF(lbmr_qir_t, grp_blks)
-#define O_LBMR_QIR_T_QUEUE_BLKS OFFSETOF(lbmr_qir_t, queue_blks)
+/*#define O_LBMR_QIR_T_QUEUE_BLKS OFFSETOF(lbmr_qir_t, queue_blks)*/
+#define O_LBMR_QIR_T_QUEUE_BLKS 14
 #define L_LBMR_QIR_T_QUEUE_BLKS SIZEOF(lbmr_qir_t, queue_blks)
 #define L_LBMR_QIR_T (gint) sizeof(lbmr_qir_t)
 
@@ -1035,9 +1178,11 @@ typedef struct
     lbm_uint16_t grp_idx;
     lbm_uint16_t grp_sz;
 } lbmr_qir_grp_blk_t;
-#define O_LBMR_QIR_GRP_BLK_T_GRP_IDX OFFSETOF(lbmr_qir_grp_blk_t, grp_idx)
+/*#define O_LBMR_QIR_GRP_BLK_T_GRP_IDX OFFSETOF(lbmr_qir_grp_blk_t, grp_idx)*/
+#define O_LBMR_QIR_GRP_BLK_T_GRP_IDX 0
 #define L_LBMR_QIR_GRP_BLK_T_GRP_IDX SIZEOF(lbmr_qir_grp_blk_t, grp_idx)
-#define O_LBMR_QIR_GRP_BLK_T_GRP_SZ OFFSETOF(lbmr_qir_grp_blk_t, grp_sz)
+/*#define O_LBMR_QIR_GRP_BLK_T_GRP_SZ OFFSETOF(lbmr_qir_grp_blk_t, grp_sz)*/
+#define O_LBMR_QIR_GRP_BLK_T_GRP_SZ 2
 #define L_LBMR_QIR_GRP_BLK_T_GRP_SZ SIZEOF(lbmr_qir_grp_blk_t, grp_sz)
 #define L_LBMR_QIR_GRP_BLK_T (gint) sizeof(lbmr_qir_grp_blk_t)
 
@@ -1050,15 +1195,20 @@ typedef struct
     lbm_uint16_t grp_idx;
     lbm_uint16_t reserved;
 } lbmr_qir_queue_blk_t;
-#define O_LBMR_QIR_QUEUE_BLK_T_IP OFFSETOF(lbmr_qir_queue_blk_t, ip)
+/*#define O_LBMR_QIR_QUEUE_BLK_T_IP OFFSETOF(lbmr_qir_queue_blk_t, ip)*/
+#define O_LBMR_QIR_QUEUE_BLK_T_IP 0
 #define L_LBMR_QIR_QUEUE_BLK_T_IP SIZEOF(lbmr_qir_queue_blk_t, ip)
-#define O_LBMR_QIR_QUEUE_BLK_T_PORT OFFSETOF(lbmr_qir_queue_blk_t, port)
+/*#define O_LBMR_QIR_QUEUE_BLK_T_PORT OFFSETOF(lbmr_qir_queue_blk_t, port)*/
+#define O_LBMR_QIR_QUEUE_BLK_T_PORT 4
 #define L_LBMR_QIR_QUEUE_BLK_T_PORT SIZEOF(lbmr_qir_queue_blk_t, port)
-#define O_LBMR_QIR_QUEUE_BLK_T_IDX OFFSETOF(lbmr_qir_queue_blk_t, idx)
+/*#define O_LBMR_QIR_QUEUE_BLK_T_IDX OFFSETOF(lbmr_qir_queue_blk_t, idx)*/
+#define O_LBMR_QIR_QUEUE_BLK_T_IDX 6
 #define L_LBMR_QIR_QUEUE_BLK_T_IDX SIZEOF(lbmr_qir_queue_blk_t, idx)
-#define O_LBMR_QIR_QUEUE_BLK_T_GRP_IDX OFFSETOF(lbmr_qir_queue_blk_t, grp_idx)
+/*#define O_LBMR_QIR_QUEUE_BLK_T_GRP_IDX OFFSETOF(lbmr_qir_queue_blk_t, grp_idx)*/
+#define O_LBMR_QIR_QUEUE_BLK_T_GRP_IDX 8
 #define L_LBMR_QIR_QUEUE_BLK_T_GRP_IDX SIZEOF(lbmr_qir_queue_blk_t, grp_idx)
-#define O_LBMR_QIR_QUEUE_BLK_T_RESERVED OFFSETOF(lbmr_qir_queue_blk_t, reserved)
+/*#define O_LBMR_QIR_QUEUE_BLK_T_RESERVED OFFSETOF(lbmr_qir_queue_blk_t, reserved)*/
+#define O_LBMR_QIR_QUEUE_BLK_T_RESERVED 10
 #define L_LBMR_QIR_QUEUE_BLK_T_RESERVED SIZEOF(lbmr_qir_queue_blk_t, reserved)
 #define L_LBMR_QIR_QUEUE_BLK_T (gint) sizeof(lbmr_qir_queue_blk_t)
 
@@ -1071,11 +1221,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t flags;
 } lbmr_lbmr_opt_hdr_t;
-#define O_LBMR_LBMR_OPT_HDR_T_TYPE OFFSETOF(lbmr_lbmr_opt_hdr_t, type)
+/*#define O_LBMR_LBMR_OPT_HDR_T_TYPE OFFSETOF(lbmr_lbmr_opt_hdr_t, type)*/
+#define O_LBMR_LBMR_OPT_HDR_T_TYPE 0
 #define L_LBMR_LBMR_OPT_HDR_T_TYPE SIZEOF(lbmr_lbmr_opt_hdr_t, type)
-#define O_LBMR_LBMR_OPT_HDR_T_LEN OFFSETOF(lbmr_lbmr_opt_hdr_t, len)
+/*#define O_LBMR_LBMR_OPT_HDR_T_LEN OFFSETOF(lbmr_lbmr_opt_hdr_t, len)*/
+#define O_LBMR_LBMR_OPT_HDR_T_LEN 1
 #define L_LBMR_LBMR_OPT_HDR_T_LEN SIZEOF(lbmr_lbmr_opt_hdr_t, len)
-#define O_LBMR_LBMR_OPT_HDR_T_FLAGS OFFSETOF(lbmr_lbmr_opt_hdr_t, flags)
+/*#define O_LBMR_LBMR_OPT_HDR_T_FLAGS OFFSETOF(lbmr_lbmr_opt_hdr_t, flags)*/
+#define O_LBMR_LBMR_OPT_HDR_T_FLAGS 2
 #define L_LBMR_LBMR_OPT_HDR_T_FLAGS SIZEOF(lbmr_lbmr_opt_hdr_t, flags)
 #define L_LBMR_LBMR_OPT_HDR_T (gint) sizeof(lbmr_lbmr_opt_hdr_t)
 
@@ -1088,11 +1241,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t total_len;
 } lbmr_lbmr_opt_len_t;
-#define O_LBMR_LBMR_OPT_LEN_T_TYPE OFFSETOF(lbmr_lbmr_opt_len_t, type)
+/*#define O_LBMR_LBMR_OPT_LEN_T_TYPE OFFSETOF(lbmr_lbmr_opt_len_t, type)*/
+#define O_LBMR_LBMR_OPT_LEN_T_TYPE 0
 #define L_LBMR_LBMR_OPT_LEN_T_TYPE SIZEOF(lbmr_lbmr_opt_len_t, type)
-#define O_LBMR_LBMR_OPT_LEN_T_LEN OFFSETOF(lbmr_lbmr_opt_len_t, len)
+/*#define O_LBMR_LBMR_OPT_LEN_T_LEN OFFSETOF(lbmr_lbmr_opt_len_t, len)*/
+#define O_LBMR_LBMR_OPT_LEN_T_LEN 1
 #define L_LBMR_LBMR_OPT_LEN_T_LEN SIZEOF(lbmr_lbmr_opt_len_t, len)
-#define O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN OFFSETOF(lbmr_lbmr_opt_len_t, total_len)
+/* #define O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN OFFSETOF(lbmr_lbmr_opt_len_t, total_len) */
+#define O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN 2
 #define L_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN SIZEOF(lbmr_lbmr_opt_len_t, total_len)
 #define L_LBMR_LBMR_OPT_LEN_T (gint) sizeof(lbmr_lbmr_opt_len_t)
 
@@ -1106,13 +1262,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint8_t src_id[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_lbmr_opt_src_id_t;
-#define O_LBMR_LBMR_OPT_SRC_ID_T_TYPE OFFSETOF(lbmr_lbmr_opt_src_id_t, type)
+/*#define O_LBMR_LBMR_OPT_SRC_ID_T_TYPE OFFSETOF(lbmr_lbmr_opt_src_id_t, type)*/
+#define O_LBMR_LBMR_OPT_SRC_ID_T_TYPE 0
 #define L_LBMR_LBMR_OPT_SRC_ID_T_TYPE SIZEOF(lbmr_lbmr_opt_src_id_t, type)
-#define O_LBMR_LBMR_OPT_SRC_ID_T_LEN OFFSETOF(lbmr_lbmr_opt_src_id_t, len)
+/*#define O_LBMR_LBMR_OPT_SRC_ID_T_LEN OFFSETOF(lbmr_lbmr_opt_src_id_t, len)*/
+#define O_LBMR_LBMR_OPT_SRC_ID_T_LEN 1
 #define L_LBMR_LBMR_OPT_SRC_ID_T_LEN SIZEOF(lbmr_lbmr_opt_src_id_t, len)
-#define O_LBMR_LBMR_OPT_SRC_ID_T_FLAGS OFFSETOF(lbmr_lbmr_opt_src_id_t, flags)
+/*#define O_LBMR_LBMR_OPT_SRC_ID_T_FLAGS OFFSETOF(lbmr_lbmr_opt_src_id_t, flags)*/
+#define O_LBMR_LBMR_OPT_SRC_ID_T_FLAGS 2
 #define L_LBMR_LBMR_OPT_SRC_ID_T_FLAGS SIZEOF(lbmr_lbmr_opt_src_id_t, flags)
-#define O_LBMR_LBMR_OPT_SRC_ID_T_SRC_ID OFFSETOF(lbmr_lbmr_opt_src_id_t, src_id)
+/*#define O_LBMR_LBMR_OPT_SRC_ID_T_SRC_ID OFFSETOF(lbmr_lbmr_opt_src_id_t, src_id)*/
+#define O_LBMR_LBMR_OPT_SRC_ID_T_SRC_ID 4
 #define L_LBMR_LBMR_OPT_SRC_ID_T_SRC_ID SIZEOF(lbmr_lbmr_opt_src_id_t, src_id)
 #define L_LBMR_LBMR_OPT_SRC_ID_T (gint) sizeof(lbmr_lbmr_opt_src_id_t)
 
@@ -1127,13 +1287,17 @@ typedef struct
     lbm_uint8_t flags;
     lbm_uint8_t src_type;
 } lbmr_lbmr_opt_src_type_t;
-#define O_LBMR_LBMR_OPT_SRC_TYPE_T_TYPE OFFSETOF(lbmr_lbmr_opt_src_type_t, type)
+/*#define O_LBMR_LBMR_OPT_SRC_TYPE_T_TYPE OFFSETOF(lbmr_lbmr_opt_src_type_t, type)*/
+#define O_LBMR_LBMR_OPT_SRC_TYPE_T_TYPE 0
 #define L_LBMR_LBMR_OPT_SRC_TYPE_T_TYPE SIZEOF(lbmr_lbmr_opt_src_type_t, type)
-#define O_LBMR_LBMR_OPT_SRC_TYPE_T_LEN OFFSETOF(lbmr_lbmr_opt_src_type_t, len)
+/*#define O_LBMR_LBMR_OPT_SRC_TYPE_T_LEN OFFSETOF(lbmr_lbmr_opt_src_type_t, len)*/
+#define O_LBMR_LBMR_OPT_SRC_TYPE_T_LEN 1
 #define L_LBMR_LBMR_OPT_SRC_TYPE_T_LEN SIZEOF(lbmr_lbmr_opt_src_type_t, len)
-#define O_LBMR_LBMR_OPT_SRC_TYPE_T_FLAGS OFFSETOF(lbmr_lbmr_opt_src_type_t, flags)
+/*#define O_LBMR_LBMR_OPT_SRC_TYPE_T_FLAGS OFFSETOF(lbmr_lbmr_opt_src_type_t, flags)*/
+#define O_LBMR_LBMR_OPT_SRC_TYPE_T_FLAGS 2
 #define L_LBMR_LBMR_OPT_SRC_TYPE_T_FLAGS SIZEOF(lbmr_lbmr_opt_src_type_t, flags)
-#define O_LBMR_LBMR_OPT_SRC_TYPE_T_SRC_TYPE OFFSETOF(lbmr_lbmr_opt_src_type_t, src_type)
+/*#define O_LBMR_LBMR_OPT_SRC_TYPE_T_SRC_TYPE OFFSETOF(lbmr_lbmr_opt_src_type_t, src_type)*/
+#define O_LBMR_LBMR_OPT_SRC_TYPE_T_SRC_TYPE 3
 #define L_LBMR_LBMR_OPT_SRC_TYPE_T_SRC_TYPE SIZEOF(lbmr_lbmr_opt_src_type_t, src_type)
 #define L_LBMR_LBMR_OPT_SRC_TYPE_T (gint) sizeof(lbmr_lbmr_opt_src_type_t)
 
@@ -1153,13 +1317,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t version;
 } lbmr_lbmr_opt_version_t;
-#define O_LBMR_LBMR_OPT_VERSION_T_TYPE OFFSETOF(lbmr_lbmr_opt_version_t, type)
+/*#define O_LBMR_LBMR_OPT_VERSION_T_TYPE OFFSETOF(lbmr_lbmr_opt_version_t, type)*/
+#define O_LBMR_LBMR_OPT_VERSION_T_TYPE 0
 #define L_LBMR_LBMR_OPT_VERSION_T_TYPE SIZEOF(lbmr_lbmr_opt_version_t, type)
-#define O_LBMR_LBMR_OPT_VERSION_T_LEN OFFSETOF(lbmr_lbmr_opt_version_t, len)
+/*#define O_LBMR_LBMR_OPT_VERSION_T_LEN OFFSETOF(lbmr_lbmr_opt_version_t, len)*/
+#define O_LBMR_LBMR_OPT_VERSION_T_LEN 1
 #define L_LBMR_LBMR_OPT_VERSION_T_LEN SIZEOF(lbmr_lbmr_opt_version_t, len)
-#define O_LBMR_LBMR_OPT_VERSION_T_FLAGS OFFSETOF(lbmr_lbmr_opt_version_t, flags)
+/*#define O_LBMR_LBMR_OPT_VERSION_T_FLAGS OFFSETOF(lbmr_lbmr_opt_version_t, flags)*/
+#define O_LBMR_LBMR_OPT_VERSION_T_FLAGS 2
 #define L_LBMR_LBMR_OPT_VERSION_T_FLAGS SIZEOF(lbmr_lbmr_opt_version_t, flags)
-#define O_LBMR_LBMR_OPT_VERSION_T_VERSION OFFSETOF(lbmr_lbmr_opt_version_t, version)
+/*#define O_LBMR_LBMR_OPT_VERSION_T_VERSION OFFSETOF(lbmr_lbmr_opt_version_t, version)*/
+#define O_LBMR_LBMR_OPT_VERSION_T_VERSION 4
 #define L_LBMR_LBMR_OPT_VERSION_T_VERSION SIZEOF(lbmr_lbmr_opt_version_t, version)
 #define L_LBMR_LBMR_OPT_VERSION_T (gint) sizeof(lbmr_lbmr_opt_version_t)
 
@@ -1177,13 +1345,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t local_domain_id;
 } lbmr_lbmr_opt_local_domain_t;
-#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_TYPE OFFSETOF(lbmr_lbmr_opt_local_domain_t, type)
+/*#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_TYPE OFFSETOF(lbmr_lbmr_opt_local_domain_t, type)*/
+#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_TYPE 0
 #define L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_TYPE SIZEOF(lbmr_lbmr_opt_local_domain_t, type)
-#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LEN OFFSETOF(lbmr_lbmr_opt_local_domain_t, len)
+/*#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LEN OFFSETOF(lbmr_lbmr_opt_local_domain_t, len)*/
+#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LEN 1
 #define L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LEN SIZEOF(lbmr_lbmr_opt_local_domain_t, len)
-#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS OFFSETOF(lbmr_lbmr_opt_local_domain_t, flags)
+/*#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS OFFSETOF(lbmr_lbmr_opt_local_domain_t, flags)*/
+#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS 2
 #define L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS SIZEOF(lbmr_lbmr_opt_local_domain_t, flags)
-#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LOCAL_DOMAIN_ID OFFSETOF(lbmr_lbmr_opt_local_domain_t, local_domain_id)
+/*#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LOCAL_DOMAIN_ID OFFSETOF(lbmr_lbmr_opt_local_domain_t, local_domain_id)*/
+#define O_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LOCAL_DOMAIN_ID 4
 #define L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_LOCAL_DOMAIN_ID SIZEOF(lbmr_lbmr_opt_local_domain_t, local_domain_id)
 #define L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T (gint) sizeof(lbmr_lbmr_opt_local_domain_t)
 
@@ -1206,27 +1378,38 @@ typedef struct
     lbm_uint16_t source_port;
     lbm_uint16_t store_port;
 } lbmr_pser_t;
-#define O_LBMR_PSER_T_VER_TYPE OFFSETOF(lbmr_pser_t, ver_type)
+/*#define O_LBMR_PSER_T_VER_TYPE OFFSETOF(lbmr_pser_t, ver_type)*/
+#define O_LBMR_PSER_T_VER_TYPE 0
 #define L_LBMR_PSER_T_VER_TYPE SIZEOF(lbmr_pser_t, ver_type)
-#define O_LBMR_PSER_T_EXT_TYPE OFFSETOF(lbmr_pser_t, ext_type)
+/*#define O_LBMR_PSER_T_EXT_TYPE OFFSETOF(lbmr_pser_t, ext_type)*/
+#define O_LBMR_PSER_T_EXT_TYPE 1
 #define L_LBMR_PSER_T_EXT_TYPE SIZEOF(lbmr_pser_t, ext_type)
-#define O_LBMR_PSER_T_DEP_TYPE OFFSETOF(lbmr_pser_t, dep_type)
+/*#define O_LBMR_PSER_T_DEP_TYPE OFFSETOF(lbmr_pser_t, dep_type)*/
+#define O_LBMR_PSER_T_DEP_TYPE 2
 #define L_LBMR_PSER_T_DEP_TYPE SIZEOF(lbmr_pser_t, dep_type)
-#define O_LBMR_PSER_T_LEN OFFSETOF(lbmr_pser_t, len)
+/*#define O_LBMR_PSER_T_LEN OFFSETOF(lbmr_pser_t, len)*/
+#define O_LBMR_PSER_T_LEN 4
 #define L_LBMR_PSER_T_LEN SIZEOF(lbmr_pser_t, len)
-#define O_LBMR_PSER_T_FLAGS OFFSETOF(lbmr_pser_t, flags)
+/*#define O_LBMR_PSER_T_FLAGS OFFSETOF(lbmr_pser_t, flags)*/
+#define O_LBMR_PSER_T_FLAGS 6
 #define L_LBMR_PSER_T_FLAGS SIZEOF(lbmr_pser_t, flags)
-#define O_LBMR_PSER_T_SOURCE_IP OFFSETOF(lbmr_pser_t, source_ip)
+/*#define O_LBMR_PSER_T_SOURCE_IP OFFSETOF(lbmr_pser_t, source_ip)*/
+#define O_LBMR_PSER_T_SOURCE_IP 8
 #define L_LBMR_PSER_T_SOURCE_IP SIZEOF(lbmr_pser_t, source_ip)
-#define O_LBMR_PSER_T_STORE_IP OFFSETOF(lbmr_pser_t, store_ip)
+/*#define O_LBMR_PSER_T_STORE_IP OFFSETOF(lbmr_pser_t, store_ip)*/
+#define O_LBMR_PSER_T_STORE_IP 12
 #define L_LBMR_PSER_T_STORE_IP SIZEOF(lbmr_pser_t, store_ip)
-#define O_LBMR_PSER_T_TRANSPORT_IDX OFFSETOF(lbmr_pser_t, transport_idx)
+/*#define O_LBMR_PSER_T_TRANSPORT_IDX OFFSETOF(lbmr_pser_t, transport_idx)*/
+#define O_LBMR_PSER_T_TRANSPORT_IDX 16
 #define L_LBMR_PSER_T_TRANSPORT_IDX SIZEOF(lbmr_pser_t, transport_idx)
-#define O_LBMR_PSER_T_TOPIC_IDX OFFSETOF(lbmr_pser_t, topic_idx)
+/*#define O_LBMR_PSER_T_TOPIC_IDX OFFSETOF(lbmr_pser_t, topic_idx)*/
+#define O_LBMR_PSER_T_TOPIC_IDX 20
 #define L_LBMR_PSER_T_TOPIC_IDX SIZEOF(lbmr_pser_t, topic_idx)
-#define O_LBMR_PSER_T_SOURCE_PORT OFFSETOF(lbmr_pser_t, source_port)
+/*#define O_LBMR_PSER_T_SOURCE_PORT OFFSETOF(lbmr_pser_t, source_port) */
+#define O_LBMR_PSER_T_SOURCE_PORT 24
 #define L_LBMR_PSER_T_SOURCE_PORT SIZEOF(lbmr_pser_t, source_port)
-#define O_LBMR_PSER_T_STORE_PORT OFFSETOF(lbmr_pser_t, store_port)
+/*#define O_LBMR_PSER_T_STORE_PORT OFFSETOF(lbmr_pser_t, store_port)*/
+#define O_LBMR_PSER_T_STORE_PORT 26
 #define L_LBMR_PSER_T_STORE_PORT SIZEOF(lbmr_pser_t, store_port)
 #define O_LBMR_PSER_T_TOPIC (O_LBMR_PSER_T_STORE_PORT + L_LBMR_PSER_T_STORE_PORT)
 #define L_LBMR_PSER_T (gint) sizeof(lbmr_pser_t)
@@ -1240,9 +1423,11 @@ typedef struct
     lbm_uint16_t type;
     lbm_uint16_t optlen;
 } lbmr_pser_optlen_t;
-#define O_LBMR_PSER_OPTLEN_T_TYPE OFFSETOF(lbmr_pser_optlen_t, type)
+/*#define O_LBMR_PSER_OPTLEN_T_TYPE OFFSETOF(lbmr_pser_optlen_t, type)*/
+#define O_LBMR_PSER_OPTLEN_T_TYPE 0
 #define L_LBMR_PSER_OPTLEN_T_TYPE SIZEOF(lbmr_pser_optlen_t, type)
-#define O_LBMR_PSER_OPTLEN_T_OPTLEN OFFSETOF(lbmr_pser_optlen_t, optlen)
+/*#define O_LBMR_PSER_OPTLEN_T_OPTLEN OFFSETOF(lbmr_pser_optlen_t, optlen)*/
+#define O_LBMR_PSER_OPTLEN_T_OPTLEN 2
 #define L_LBMR_PSER_OPTLEN_T_OPTLEN SIZEOF(lbmr_pser_optlen_t, optlen)
 #define L_LBMR_PSER_OPTLEN_T (gint) sizeof(lbmr_pser_optlen_t)
 
@@ -1251,9 +1436,11 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint8_t type;
 } lbmr_pser_opt_hdr_t;
-#define O_LBMR_PSER_OPT_HDR_T_LEN OFFSETOF(lbmr_pser_opt_hdr_t, len)
+/*#define O_LBMR_PSER_OPT_HDR_T_LEN OFFSETOF(lbmr_pser_opt_hdr_t, len)*/
+#define O_LBMR_PSER_OPT_HDR_T_LEN 0
 #define L_LBMR_PSER_OPT_HDR_T_LEN SIZEOF(lbmr_pser_opt_hdr_t, len)
-#define O_LBMR_PSER_OPT_HDR_T_TYPE OFFSETOF(lbmr_pser_opt_hdr_t, type)
+/*#define O_LBMR_PSER_OPT_HDR_T_TYPE OFFSETOF(lbmr_pser_opt_hdr_t, type)*/
+#define O_LBMR_PSER_OPT_HDR_T_TYPE 1
 #define L_LBMR_PSER_OPT_HDR_T_TYPE SIZEOF(lbmr_pser_opt_hdr_t, type)
 #define L_LBMR_PSER_OPT_HDR_T (gint) sizeof(lbmr_pser_opt_hdr_t)
 
@@ -1266,11 +1453,14 @@ typedef struct
     lbm_uint8_t type;
     lbm_uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_pser_opt_ctxinst_t;
-#define O_LBMR_PSER_OPT_CTXINST_T_LEN OFFSETOF(lbmr_pser_opt_ctxinst_t, len)
+/*#define O_LBMR_PSER_OPT_CTXINST_T_LEN OFFSETOF(lbmr_pser_opt_ctxinst_t, len)*/
+#define O_LBMR_PSER_OPT_CTXINST_T_LEN 0
 #define L_LBMR_PSER_OPT_CTXINST_T_LEN SIZEOF(lbmr_pser_opt_ctxinst_t, len)
-#define O_LBMR_PSER_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_pser_opt_ctxinst_t, type)
+/*#define O_LBMR_PSER_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_pser_opt_ctxinst_t, type)*/
+#define O_LBMR_PSER_OPT_CTXINST_T_TYPE 1
 #define L_LBMR_PSER_OPT_CTXINST_T_TYPE SIZEOF(lbmr_pser_opt_ctxinst_t, type)
-#define O_LBMR_PSER_OPT_CTXINST_T_CTXINST OFFSETOF(lbmr_pser_opt_ctxinst_t, ctxinst)
+/*#define O_LBMR_PSER_OPT_CTXINST_T_CTXINST OFFSETOF(lbmr_pser_opt_ctxinst_t, ctxinst)*/
+#define O_LBMR_PSER_OPT_CTXINST_T_CTXINST 2
 #define L_LBMR_PSER_OPT_CTXINST_T_CTXINST SIZEOF(lbmr_pser_opt_ctxinst_t, ctxinst)
 #define L_LBMR_PSER_OPT_CTXINST_T (gint) sizeof(lbmr_pser_opt_ctxinst_t)
 
@@ -1283,15 +1473,20 @@ typedef struct
     lbm_uint16_t type;
     lbm_uint16_t reserved;
 } lbmr_tnwg_t;
-#define O_LBMR_TNWG_T_VER_TYPE OFFSETOF(lbmr_tnwg_t, ver_type)
+/*#define O_LBMR_TNWG_T_VER_TYPE OFFSETOF(lbmr_tnwg_t, ver_type)*/
+#define O_LBMR_TNWG_T_VER_TYPE 0
 #define L_LBMR_TNWG_T_VER_TYPE SIZEOF(lbmr_tnwg_t, ver_type)
-#define O_LBMR_TNWG_T_EXT_TYPE OFFSETOF(lbmr_tnwg_t, ext_type)
+/*#define O_LBMR_TNWG_T_EXT_TYPE OFFSETOF(lbmr_tnwg_t, ext_type)*/
+#define O_LBMR_TNWG_T_EXT_TYPE 1
 #define L_LBMR_TNWG_T_EXT_TYPE SIZEOF(lbmr_tnwg_t, ext_type)
-#define O_LBMR_TNWG_T_LEN OFFSETOF(lbmr_tnwg_t, len)
+/*#define O_LBMR_TNWG_T_LEN OFFSETOF(lbmr_tnwg_t, len)*/
+#define O_LBMR_TNWG_T_LEN 2
 #define L_LBMR_TNWG_T_LEN SIZEOF(lbmr_tnwg_t, len)
-#define O_LBMR_TNWG_T_TYPE OFFSETOF(lbmr_tnwg_t, type)
+/*#define O_LBMR_TNWG_T_TYPE OFFSETOF(lbmr_tnwg_t, type)*/
+#define O_LBMR_TNWG_T_TYPE 4
 #define L_LBMR_TNWG_T_TYPE SIZEOF(lbmr_tnwg_t, type)
-#define O_LBMR_TNWG_T_RESERVED OFFSETOF(lbmr_tnwg_t, reserved)
+/*#define O_LBMR_TNWG_T_RESERVED OFFSETOF(lbmr_tnwg_t, reserved)*/
+#define O_LBMR_TNWG_T_RESERVED 6
 #define L_LBMR_TNWG_T_RESERVED SIZEOF(lbmr_tnwg_t, reserved)
 #define L_LBMR_TNWG_T (gint) sizeof(lbmr_tnwg_t)
 
@@ -1305,9 +1500,11 @@ typedef struct
     lbm_uint16_t len;
     lbm_uint16_t count;
 } lbmr_tnwg_interest_t;
-#define O_LBMR_TNWG_INTEREST_T_LEN OFFSETOF(lbmr_tnwg_interest_t, len)
+/*#define O_LBMR_TNWG_INTEREST_T_LEN OFFSETOF(lbmr_tnwg_interest_t, len)*/
+#define O_LBMR_TNWG_INTEREST_T_LEN 0
 #define L_LBMR_TNWG_INTEREST_T_LEN SIZEOF(lbmr_tnwg_interest_t, len)
-#define O_LBMR_TNWG_INTEREST_T_COUNT OFFSETOF(lbmr_tnwg_interest_t, count)
+/*#define O_LBMR_TNWG_INTEREST_T_COUNT OFFSETOF(lbmr_tnwg_interest_t, count)*/
+#define O_LBMR_TNWG_INTEREST_T_COUNT 2
 #define L_LBMR_TNWG_INTEREST_T_COUNT SIZEOF(lbmr_tnwg_interest_t, count)
 #define L_LBMR_TNWG_INTEREST_T (gint) sizeof(lbmr_tnwg_interest_t)
 
@@ -1319,13 +1516,17 @@ typedef struct
     lbm_uint8_t pattype;
     lbm_uint32_t domain_id;
 } lbmr_tnwg_interest_rec_t;
-#define O_LBMR_TNWG_INTEREST_REC_T_LEN OFFSETOF(lbmr_tnwg_interest_rec_t, len)
+/*#define O_LBMR_TNWG_INTEREST_REC_T_LEN OFFSETOF(lbmr_tnwg_interest_rec_t, len)*/
+#define O_LBMR_TNWG_INTEREST_REC_T_LEN 0
 #define L_LBMR_TNWG_INTEREST_REC_T_LEN SIZEOF(lbmr_tnwg_interest_rec_t, len)
-#define O_LBMR_TNWG_INTEREST_REC_T_FLAGS OFFSETOF(lbmr_tnwg_interest_rec_t, flags)
+/*#define O_LBMR_TNWG_INTEREST_REC_T_FLAGS OFFSETOF(lbmr_tnwg_interest_rec_t, flags)*/
+#define O_LBMR_TNWG_INTEREST_REC_T_FLAGS 2
 #define L_LBMR_TNWG_INTEREST_REC_T_FLAGS SIZEOF(lbmr_tnwg_interest_rec_t, flags)
-#define O_LBMR_TNWG_INTEREST_REC_T_PATTYPE OFFSETOF(lbmr_tnwg_interest_rec_t, pattype)
+/*#define O_LBMR_TNWG_INTEREST_REC_T_PATTYPE OFFSETOF(lbmr_tnwg_interest_rec_t, pattype)*/
+#define O_LBMR_TNWG_INTEREST_REC_T_PATTYPE 3
 #define L_LBMR_TNWG_INTEREST_REC_T_PATTYPE SIZEOF(lbmr_tnwg_interest_rec_t, pattype)
-#define O_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID OFFSETOF(lbmr_tnwg_interest_rec_t, domain_id)
+/*#define O_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID OFFSETOF(lbmr_tnwg_interest_rec_t, domain_id)*/
+#define O_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID 4
 #define L_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID SIZEOF(lbmr_tnwg_interest_rec_t, domain_id)
 #define L_LBMR_TNWG_INTEREST_REC_T (gint) sizeof(lbmr_tnwg_interest_rec_t)
 
@@ -1342,15 +1543,21 @@ typedef struct
     lbm_uint32_t flags1;
     lbm_uint32_t flags2;
 } lbmr_tnwg_ctxinfo_t;
-#define O_LBMR_TNWG_CTXINFO_T_LEN OFFSETOF(lbmr_tnwg_ctxinfo_t, len)
+/*#define O_LBMR_TNWG_CTXINFO_T_LEN OFFSETOF(lbmr_tnwg_ctxinfo_t, len)*/
+#define O_LBMR_TNWG_CTXINFO_T_LEN 0
 #define L_LBMR_TNWG_CTXINFO_T_LEN SIZEOF(lbmr_tnwg_ctxinfo_t, len)
-#define O_LBMR_TNWG_CTXINFO_T_HOP_COUNT OFFSETOF(lbmr_tnwg_ctxinfo_t, hop_count)
+/*#define O_LBMR_TNWG_CTXINFO_T_HOP_COUNT OFFSETOF(lbmr_tnwg_ctxinfo_t, hop_count)*/
+#define O_LBMR_TNWG_CTXINFO_T_HOP_COUNT 2
 #define L_LBMR_TNWG_CTXINFO_T_HOP_COUNT SIZEOF(lbmr_tnwg_ctxinfo_t, hop_count)
-#define O_LBMR_TNWG_CTXINFO_T_RESERVED OFFSETOF(lbmr_tnwg_ctxinfo_t, reserved)
+/*#define O_LBMR_TNWG_CTXINFO_T_RESERVED OFFSETOF(lbmr_tnwg_ctxinfo_t, reserved)*/
+#define O_LBMR_TNWG_CTXINFO_T_RESERVED 3
 #define L_LBMR_TNWG_CTXINFO_T_RESERVED SIZEOF(lbmr_tnwg_ctxinfo_t, reserved)
-#define O_LBMR_TNWG_CTXINFO_T_FLAGS1 OFFSETOF(lbmr_tnwg_ctxinfo_t, flags1)
+/*#define O_LBMR_TNWG_CTXINFO_T_FLAGS1 OFFSETOF(lbmr_tnwg_ctxinfo_t, flags1)*/
+#define O_LBMR_TNWG_CTXINFO_T_FLAGS1 4
 #define L_LBMR_TNWG_CTXINFO_T_FLAGS1 SIZEOF(lbmr_tnwg_ctxinfo_t, flags1)
-#define O_LBMR_TNWG_CTXINFO_T_FLAGS2 OFFSETOF(lbmr_tnwg_ctxinfo_t, flags2)
+/*#define O_LBMR_TNWG_CTXINFO_T_FLAGS2 OFFSETOF(lbmr_tnwg_ctxinfo_t, flags2)*/
+#define O_LBMR_TNWG_CTXINFO_T_FLAGS2 8
+#define O_LBMR_TNWG_CTXINFO_T_8
 #define L_LBMR_TNWG_CTXINFO_T_FLAGS2 SIZEOF(lbmr_tnwg_ctxinfo_t, flags2)
 #define L_LBMR_TNWG_CTXINFO_T (gint) sizeof(lbmr_tnwg_ctxinfo_t)
 
@@ -1364,7 +1571,8 @@ typedef struct
 {
     lbm_uint16_t len;
 } lbmr_tnwg_trreq_t;
-#define O_LBMR_TNWG_TRREQ_T_LEN OFFSETOF(lbmr_tnwg_trreq_t, len)
+/*#define O_LBMR_TNWG_TRREQ_T_LEN OFFSETOF(lbmr_tnwg_trreq_t, len)*/
+#define O_LBMR_TNWG_TRREQ_T_LEN 0
 #define L_LBMR_TNWG_TRREQ_T_LEN SIZEOF(lbmr_tnwg_trreq_t, len)
 #define L_LBMR_TNWG_TRREQ_T (gint) sizeof(lbmr_tnwg_trreq_t)
 
@@ -1375,11 +1583,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t flags;
 } lbmr_tnwg_opt_t;
-#define O_LBMR_TNWG_OPT_T_TYPE OFFSETOF(lbmr_tnwg_opt_t, type)
+/*#define O_LBMR_TNWG_OPT_T_TYPE OFFSETOF(lbmr_tnwg_opt_t, type)*/
+#define O_LBMR_TNWG_OPT_T_TYPE 0
 #define L_LBMR_TNWG_OPT_T_TYPE SIZEOF(lbmr_tnwg_opt_t, type)
-#define O_LBMR_TNWG_OPT_T_LEN OFFSETOF(lbmr_tnwg_opt_t, len)
+/*#define O_LBMR_TNWG_OPT_T_LEN OFFSETOF(lbmr_tnwg_opt_t, len)*/
+#define O_LBMR_TNWG_OPT_T_LEN 1
 #define L_LBMR_TNWG_OPT_T_LEN SIZEOF(lbmr_tnwg_opt_t, len)
-#define O_LBMR_TNWG_OPT_T_FLAGS OFFSETOF(lbmr_tnwg_opt_t, flags)
+/*#define O_LBMR_TNWG_OPT_T_FLAGS OFFSETOF(lbmr_tnwg_opt_t, flags)*/
+#define O_LBMR_TNWG_OPT_T_FLAGS 2
 #define L_LBMR_TNWG_OPT_T_FLAGS SIZEOF(lbmr_tnwg_opt_t, flags)
 #define L_LBMR_TNWG_OPT_T (gint) sizeof(lbmr_tnwg_opt_t)
 
@@ -1393,13 +1604,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint8_t instance[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_tnwg_opt_ctxinst_t;
-#define O_LBMR_TNWG_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_tnwg_opt_ctxinst_t, type)
+/*#define O_LBMR_TNWG_OPT_CTXINST_T_TYPE OFFSETOF(lbmr_tnwg_opt_ctxinst_t, type)*/
+#define O_LBMR_TNWG_OPT_CTXINST_T_TYPE 0
 #define L_LBMR_TNWG_OPT_CTXINST_T_TYPE SIZEOF(lbmr_tnwg_opt_ctxinst_t, type)
-#define O_LBMR_TNWG_OPT_CTXINST_T_LEN OFFSETOF(lbmr_tnwg_opt_ctxinst_t, len)
+/*#define O_LBMR_TNWG_OPT_CTXINST_T_LEN OFFSETOF(lbmr_tnwg_opt_ctxinst_t, len)*/
+#define O_LBMR_TNWG_OPT_CTXINST_T_LEN 1
 #define L_LBMR_TNWG_OPT_CTXINST_T_LEN SIZEOF(lbmr_tnwg_opt_ctxinst_t, len)
-#define O_LBMR_TNWG_OPT_CTXINST_T_FLAGS OFFSETOF(lbmr_tnwg_opt_ctxinst_t, flags)
+/*#define O_LBMR_TNWG_OPT_CTXINST_T_FLAGS OFFSETOF(lbmr_tnwg_opt_ctxinst_t, flags)*/
+#define O_LBMR_TNWG_OPT_CTXINST_T_FLAGS 2
 #define L_LBMR_TNWG_OPT_CTXINST_T_FLAGS SIZEOF(lbmr_tnwg_opt_ctxinst_t, flags)
-#define O_LBMR_TNWG_OPT_CTXINST_T_INSTANCE OFFSETOF(lbmr_tnwg_opt_ctxinst_t, instance)
+/*#define O_LBMR_TNWG_OPT_CTXINST_T_INSTANCE OFFSETOF(lbmr_tnwg_opt_ctxinst_t, instance)*/
+#define O_LBMR_TNWG_OPT_CTXINST_T_INSTANCE 4
 #define L_LBMR_TNWG_OPT_CTXINST_T_INSTANCE SIZEOF(lbmr_tnwg_opt_ctxinst_t, instance)
 #define L_LBMR_TNWG_OPT_CTXINST_T (gint) sizeof(lbmr_tnwg_opt_ctxinst_t)
 
@@ -1415,17 +1630,23 @@ typedef struct
     lbm_uint16_t res;
     lbm_uint32_t ip;
 } lbmr_tnwg_opt_address_t;
-#define O_LBMR_TNWG_OPT_ADDRESS_T_TYPE OFFSETOF(lbmr_tnwg_opt_address_t, type)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_TYPE OFFSETOF(lbmr_tnwg_opt_address_t, type)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_TYPE 0
 #define L_LBMR_TNWG_OPT_ADDRESS_T_TYPE SIZEOF(lbmr_tnwg_opt_address_t, type)
-#define O_LBMR_TNWG_OPT_ADDRESS_T_LEN OFFSETOF(lbmr_tnwg_opt_address_t, len)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_LEN OFFSETOF(lbmr_tnwg_opt_address_t, len)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_LEN 1
 #define L_LBMR_TNWG_OPT_ADDRESS_T_LEN SIZEOF(lbmr_tnwg_opt_address_t, len)
-#define O_LBMR_TNWG_OPT_ADDRESS_T_FLAGS OFFSETOF(lbmr_tnwg_opt_address_t, flags)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_FLAGS OFFSETOF(lbmr_tnwg_opt_address_t, flags)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_FLAGS 2
 #define L_LBMR_TNWG_OPT_ADDRESS_T_FLAGS SIZEOF(lbmr_tnwg_opt_address_t, flags)
-#define O_LBMR_TNWG_OPT_ADDRESS_T_PORT OFFSETOF(lbmr_tnwg_opt_address_t, port)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_PORT OFFSETOF(lbmr_tnwg_opt_address_t, port)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_PORT 4
 #define L_LBMR_TNWG_OPT_ADDRESS_T_PORT SIZEOF(lbmr_tnwg_opt_address_t, port)
-#define O_LBMR_TNWG_OPT_ADDRESS_T_RES OFFSETOF(lbmr_tnwg_opt_address_t, res)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_RES OFFSETOF(lbmr_tnwg_opt_address_t, res)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_RES 6
 #define L_LBMR_TNWG_OPT_ADDRESS_T_RES SIZEOF(lbmr_tnwg_opt_address_t, res)
-#define O_LBMR_TNWG_OPT_ADDRESS_T_IP OFFSETOF(lbmr_tnwg_opt_address_t, ip)
+/*#define O_LBMR_TNWG_OPT_ADDRESS_T_IP OFFSETOF(lbmr_tnwg_opt_address_t, ip)*/
+#define O_LBMR_TNWG_OPT_ADDRESS_T_IP 8
 #define L_LBMR_TNWG_OPT_ADDRESS_T_IP SIZEOF(lbmr_tnwg_opt_address_t, ip)
 #define L_LBMR_TNWG_OPT_ADDRESS_T (gint) sizeof(lbmr_tnwg_opt_address_t)
 
@@ -1439,13 +1660,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t domain_id;
 } lbmr_tnwg_opt_domain_t;
-#define O_LBMR_TNWG_OPT_DOMAIN_T_TYPE OFFSETOF(lbmr_tnwg_opt_domain_t, type)
+/*#define O_LBMR_TNWG_OPT_DOMAIN_T_TYPE OFFSETOF(lbmr_tnwg_opt_domain_t, type)*/
+#define O_LBMR_TNWG_OPT_DOMAIN_T_TYPE 0
 #define L_LBMR_TNWG_OPT_DOMAIN_T_TYPE SIZEOF(lbmr_tnwg_opt_domain_t, type)
-#define O_LBMR_TNWG_OPT_DOMAIN_T_LEN OFFSETOF(lbmr_tnwg_opt_domain_t, len)
+/*#define O_LBMR_TNWG_OPT_DOMAIN_T_LEN OFFSETOF(lbmr_tnwg_opt_domain_t, len)*/
+#define O_LBMR_TNWG_OPT_DOMAIN_T_LEN 1
 #define L_LBMR_TNWG_OPT_DOMAIN_T_LEN SIZEOF(lbmr_tnwg_opt_domain_t, len)
-#define O_LBMR_TNWG_OPT_DOMAIN_T_FLAGS OFFSETOF(lbmr_tnwg_opt_domain_t, flags)
+/*#define O_LBMR_TNWG_OPT_DOMAIN_T_FLAGS OFFSETOF(lbmr_tnwg_opt_domain_t, flags)*/
+#define O_LBMR_TNWG_OPT_DOMAIN_T_FLAGS 2
 #define L_LBMR_TNWG_OPT_DOMAIN_T_FLAGS SIZEOF(lbmr_tnwg_opt_domain_t, flags)
-#define O_LBMR_TNWG_OPT_DOMAIN_T_DOMAIN_ID OFFSETOF(lbmr_tnwg_opt_domain_t, domain_id)
+/*#define O_LBMR_TNWG_OPT_DOMAIN_T_DOMAIN_ID OFFSETOF(lbmr_tnwg_opt_domain_t, domain_id)*/
+#define O_LBMR_TNWG_OPT_DOMAIN_T_DOMAIN_ID 4
 #define L_LBMR_TNWG_OPT_DOMAIN_T_DOMAIN_ID SIZEOF(lbmr_tnwg_opt_domain_t, domain_id)
 #define L_LBMR_TNWG_OPT_DOMAIN_T (gint) sizeof(lbmr_tnwg_opt_domain_t)
 
@@ -1466,19 +1691,26 @@ typedef struct
     lbm_uint32_t length;
     /* lbm_uint32_t domains[num_domains]; */
 } lbmr_remote_domain_route_hdr_t;
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_VER_TYPE OFFSETOF(lbmr_remote_domain_route_hdr_t, ver_type)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_VER_TYPE OFFSETOF(lbmr_remote_domain_route_hdr_t, ver_type)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_VER_TYPE 0
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_VER_TYPE SIZEOF(lbmr_remote_domain_route_hdr_t, ver_type)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_EXT_TYPE OFFSETOF(lbmr_remote_domain_route_hdr_t, ext_type)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_EXT_TYPE OFFSETOF(lbmr_remote_domain_route_hdr_t, ext_type)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_EXT_TYPE 1
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_EXT_TYPE SIZEOF(lbmr_remote_domain_route_hdr_t, ext_type)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS OFFSETOF(lbmr_remote_domain_route_hdr_t, num_domains)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS OFFSETOF(lbmr_remote_domain_route_hdr_t, num_domains)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS 2
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS SIZEOF(lbmr_remote_domain_route_hdr_t, num_domains)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP OFFSETOF(lbmr_remote_domain_route_hdr_t, ip)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP OFFSETOF(lbmr_remote_domain_route_hdr_t, ip)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP 4
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP SIZEOF(lbmr_remote_domain_route_hdr_t, ip)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT OFFSETOF(lbmr_remote_domain_route_hdr_t, port)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT OFFSETOF(lbmr_remote_domain_route_hdr_t, port)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT 8
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT SIZEOF(lbmr_remote_domain_route_hdr_t, port)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED OFFSETOF(lbmr_remote_domain_route_hdr_t, reserved)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED OFFSETOF(lbmr_remote_domain_route_hdr_t, reserved)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED 10
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED SIZEOF(lbmr_remote_domain_route_hdr_t, reserved)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH OFFSETOF(lbmr_remote_domain_route_hdr_t, length)
+/*#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH OFFSETOF(lbmr_remote_domain_route_hdr_t, length)*/
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH 12
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH SIZEOF(lbmr_remote_domain_route_hdr_t, length)
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T (gint) sizeof(lbmr_remote_domain_route_hdr_t)
 
@@ -1491,15 +1723,20 @@ typedef struct
     lbm_uint16_t num_recs;
     lbm_uint16_t reserved;
 } lbmr_rctxinfo_t;
-#define O_LBMR_RCTXINFO_T_VER_TYPE OFFSETOF(lbmr_rctxinfo_t, ver_type)
+/*#define O_LBMR_RCTXINFO_T_VER_TYPE OFFSETOF(lbmr_rctxinfo_t, ver_type)*/
+#define O_LBMR_RCTXINFO_T_VER_TYPE 0
 #define L_LBMR_RCTXINFO_T_VER_TYPE SIZEOF(lbmr_rctxinfo_t, ver_type)
-#define O_LBMR_RCTXINFO_T_EXT_TYPE OFFSETOF(lbmr_rctxinfo_t, ext_type)
+/*#define O_LBMR_RCTXINFO_T_EXT_TYPE OFFSETOF(lbmr_rctxinfo_t, ext_type)*/
+#define O_LBMR_RCTXINFO_T_EXT_TYPE 1
 #define L_LBMR_RCTXINFO_T_EXT_TYPE SIZEOF(lbmr_rctxinfo_t, ext_type)
-#define O_LBMR_RCTXINFO_T_LEN OFFSETOF(lbmr_rctxinfo_t, len)
+/*#define O_LBMR_RCTXINFO_T_LEN OFFSETOF(lbmr_rctxinfo_t, len)*/
+#define O_LBMR_RCTXINFO_T_LEN 2
 #define L_LBMR_RCTXINFO_T_LEN SIZEOF(lbmr_rctxinfo_t, len)
-#define O_LBMR_RCTXINFO_T_NUM_RECS OFFSETOF(lbmr_rctxinfo_t, num_recs)
+/*#define O_LBMR_RCTXINFO_T_NUM_RECS OFFSETOF(lbmr_rctxinfo_t, num_recs)*/
+#define O_LBMR_RCTXINFO_T_NUM_RECS 4
 #define L_LBMR_RCTXINFO_T_NUM_RECS SIZEOF(lbmr_rctxinfo_t, num_recs)
-#define O_LBMR_RCTXINFO_T_RESERVED OFFSETOF(lbmr_rctxinfo_t, reserved)
+/*#define O_LBMR_RCTXINFO_T_RESERVED OFFSETOF(lbmr_rctxinfo_t, reserved)*/
+#define O_LBMR_RCTXINFO_T_RESERVED 6
 #define L_LBMR_RCTXINFO_T_RESERVED SIZEOF(lbmr_rctxinfo_t, reserved)
 #define L_LBMR_RCTXINFO_T (gint) sizeof(lbmr_rctxinfo_t)
 
@@ -1509,9 +1746,11 @@ typedef struct
     lbm_uint16_t len;
     lbm_uint16_t flags;
 } lbmr_rctxinfo_rec_t;
-#define O_LBMR_RCTXINFO_REC_T_LEN OFFSETOF(lbmr_rctxinfo_rec_t, len)
+/*#define O_LBMR_RCTXINFO_REC_T_LEN OFFSETOF(lbmr_rctxinfo_rec_t, len)*/
+#define O_LBMR_RCTXINFO_REC_T_LEN 0
 #define L_LBMR_RCTXINFO_REC_T_LEN SIZEOF(lbmr_rctxinfo_rec_t, len)
-#define O_LBMR_RCTXINFO_REC_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_t, flags)
 #define L_LBMR_RCTXINFO_REC_T (gint) sizeof(lbmr_rctxinfo_rec_t)
 
@@ -1524,11 +1763,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t flags;
 } lbmr_rctxinfo_rec_opt_t;
-#define O_LBMR_RCTXINFO_REC_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_opt_t, type)
+/*#define O_LBMR_RCTXINFO_REC_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_opt_t, type)*/
+#define O_LBMR_RCTXINFO_REC_OPT_T_TYPE 0
 #define L_LBMR_RCTXINFO_REC_OPT_T_TYPE SIZEOF(lbmr_rctxinfo_rec_opt_t, type)
-#define O_LBMR_RCTXINFO_REC_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_opt_t, len)
+/*#define O_LBMR_RCTXINFO_REC_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_opt_t, len)*/
+#define O_LBMR_RCTXINFO_REC_OPT_T_LEN 1
 #define L_LBMR_RCTXINFO_REC_OPT_T_LEN SIZEOF(lbmr_rctxinfo_rec_opt_t, len)
-#define O_LBMR_RCTXINFO_REC_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_opt_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_opt_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_OPT_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_OPT_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_opt_t, flags)
 #define L_LBMR_RCTXINFO_REC_OPT_T (gint) sizeof(lbmr_rctxinfo_rec_opt_t)
 
@@ -1543,19 +1785,26 @@ typedef struct
     lbm_uint16_t port;
     lbm_uint16_t res;
 } lbmr_rctxinfo_rec_address_opt_t;
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, type)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, type)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_TYPE 0
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_TYPE SIZEOF(lbmr_rctxinfo_rec_address_opt_t, type)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, len)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, len)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_LEN 1
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_LEN SIZEOF(lbmr_rctxinfo_rec_address_opt_t, len)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_address_opt_t, flags)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_DOMAIN_ID OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, domain_id)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_DOMAIN_ID OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, domain_id)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_DOMAIN_ID 4
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_DOMAIN_ID SIZEOF(lbmr_rctxinfo_rec_address_opt_t, domain_id)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_IP OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, ip)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_IP OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, ip)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_IP 8
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_IP SIZEOF(lbmr_rctxinfo_rec_address_opt_t, ip)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_PORT OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, port)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_PORT OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, port)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_PORT 12
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_PORT SIZEOF(lbmr_rctxinfo_rec_address_opt_t, port)
-#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_RES OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, res)
+/*#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_RES OFFSETOF(lbmr_rctxinfo_rec_address_opt_t, res)*/
+#define O_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_RES 14
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T_RES SIZEOF(lbmr_rctxinfo_rec_address_opt_t, res)
 #define L_LBMR_RCTXINFO_REC_ADDRESS_OPT_T (gint) sizeof(lbmr_rctxinfo_rec_address_opt_t)
 
@@ -1569,13 +1818,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint8_t instance[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmr_rctxinfo_rec_instance_opt_t;
-#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, type)
+/*#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, type)*/
+#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_TYPE 0
 #define L_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_TYPE SIZEOF(lbmr_rctxinfo_rec_instance_opt_t, type)
-#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, len)
+/*#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, len)*/
+#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_LEN 1
 #define L_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_LEN SIZEOF(lbmr_rctxinfo_rec_instance_opt_t, len)
-#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_instance_opt_t, flags)
-#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_INSTANCE OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, instance)
+/*#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_INSTANCE OFFSETOF(lbmr_rctxinfo_rec_instance_opt_t, instance)*/
+#define O_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_INSTANCE 4
 #define L_LBMR_RCTXINFO_REC_INSTANCE_OPT_T_INSTANCE SIZEOF(lbmr_rctxinfo_rec_instance_opt_t, instance)
 #define L_LBMR_RCTXINFO_REC_INSTANCE_OPT_T (gint) sizeof(lbmr_rctxinfo_rec_instance_opt_t)
 
@@ -1589,13 +1842,17 @@ typedef struct
     lbm_uint16_t flags;
     lbm_uint32_t domain_id;
 } lbmr_rctxinfo_rec_odomain_opt_t;
-#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, type)
+/*#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, type)*/
+#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_TYPE 0
 #define L_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_TYPE SIZEOF(lbmr_rctxinfo_rec_odomain_opt_t, type)
-#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, len)
+/*#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, len)*/
+#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_LEN 1
 #define L_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_LEN SIZEOF(lbmr_rctxinfo_rec_odomain_opt_t, len)
-#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_odomain_opt_t, flags)
-#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_DOMAIN_ID OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, domain_id)
+/*#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_DOMAIN_ID OFFSETOF(lbmr_rctxinfo_rec_odomain_opt_t, domain_id)*/
+#define O_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_DOMAIN_ID 4
 #define L_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T_DOMAIN_ID SIZEOF(lbmr_rctxinfo_rec_odomain_opt_t, domain_id)
 #define L_LBMR_RCTXINFO_REC_ODOMAIN_OPT_T (gint) sizeof(lbmr_rctxinfo_rec_odomain_opt_t)
 
@@ -1608,11 +1865,14 @@ typedef struct
     lbm_uint8_t len;
     lbm_uint16_t flags;
 } lbmr_rctxinfo_rec_name_opt_t;
-#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, type)
+/*#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_TYPE OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, type)*/
+#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_TYPE 0
 #define L_LBMR_RCTXINFO_REC_NAME_OPT_T_TYPE SIZEOF(lbmr_rctxinfo_rec_name_opt_t, type)
-#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, len)
+/*#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, len)*/
+#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN 1
 #define L_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN SIZEOF(lbmr_rctxinfo_rec_name_opt_t, len)
-#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, flags)
+/*#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS OFFSETOF(lbmr_rctxinfo_rec_name_opt_t, flags)*/
+#define O_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS 2
 #define L_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS SIZEOF(lbmr_rctxinfo_rec_name_opt_t, flags)
 #define L_LBMR_RCTXINFO_REC_NAME_OPT_T (gint) sizeof(lbmr_rctxinfo_rec_name_opt_t)
 
@@ -1624,9 +1884,11 @@ typedef struct
     lbm_uint8_t ver_type;
     lbm_uint8_t ext_type;
 } lbmr_umq_qmgmt_hdr_t;
-#define O_LBMR_UMQ_QMGMT_HDR_T_VER_TYPE OFFSETOF(lbmr_umq_qmgmt_hdr_t, ver_type)
+/*#define O_LBMR_UMQ_QMGMT_HDR_T_VER_TYPE OFFSETOF(lbmr_umq_qmgmt_hdr_t, ver_type)*/
+#define O_LBMR_UMQ_QMGMT_HDR_T_VER_TYPE 0
 #define L_LBMR_UMQ_QMGMT_HDR_T_VER_TYPE SIZEOF(lbmr_umq_qmgmt_hdr_t, ver_type)
-#define O_LBMR_UMQ_QMGMT_HDR_T_EXT_TYPE OFFSETOF(lbmr_umq_qmgmt_hdr_t, ext_type)
+/*#define O_LBMR_UMQ_QMGMT_HDR_T_EXT_TYPE OFFSETOF(lbmr_umq_qmgmt_hdr_t, ext_type)*/
+#define O_LBMR_UMQ_QMGMT_HDR_T_EXT_TYPE 1
 #define L_LBMR_UMQ_QMGMT_HDR_T_EXT_TYPE SIZEOF(lbmr_umq_qmgmt_hdr_t, ext_type)
 #define L_LBMR_UMQ_QMGMT_HDR_T (gint) sizeof(lbmr_umq_qmgmt_hdr_t)
 
@@ -1645,26 +1907,36 @@ typedef struct
     lbm_uint16_t grp_idx;
     lbm_uint16_t pckt_type_dep16;
 } umq_qmgmt_hdr_t;
-#define O_UMQ_QMGMT_HDR_T_FLAGS OFFSETOF(umq_qmgmt_hdr_t, flags)
+/*#define O_UMQ_QMGMT_HDR_T_FLAGS OFFSETOF(umq_qmgmt_hdr_t, flags)*/
+#define O_UMQ_QMGMT_HDR_T_FLAGS 2
 #define L_UMQ_QMGMT_HDR_T_FLAGS SIZEOF(umq_qmgmt_hdr_t, flags)
-#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE OFFSETOF(umq_qmgmt_hdr_t, pckt_type)
+/*#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE OFFSETOF(umq_qmgmt_hdr_t, pckt_type)*/
+#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE 3
 #define L_UMQ_QMGMT_HDR_T_PCKT_TYPE SIZEOF(umq_qmgmt_hdr_t, pckt_type)
-#define O_UMQ_QMGMT_HDR_T_CFGSIG OFFSETOF(umq_qmgmt_hdr_t, cfgsig)
+/*#define O_UMQ_QMGMT_HDR_T_CFGSIG OFFSETOF(umq_qmgmt_hdr_t, cfgsig)*/
+#define O_UMQ_QMGMT_HDR_T_CFGSIG 4
 #define L_UMQ_QMGMT_HDR_T_CFGSIG SIZEOF(umq_qmgmt_hdr_t, cfgsig)
-#define O_UMQ_QMGMT_HDR_T_QUEUE_ID OFFSETOF(umq_qmgmt_hdr_t, queue_id)
+/*#define O_UMQ_QMGMT_HDR_T_QUEUE_ID OFFSETOF(umq_qmgmt_hdr_t, queue_id)*/
+#define O_UMQ_QMGMT_HDR_T_QUEUE_ID 24
 #define L_UMQ_QMGMT_HDR_T_QUEUE_ID SIZEOF(umq_qmgmt_hdr_t, queue_id)
-#define O_UMQ_QMGMT_HDR_T_QUEUE_VER OFFSETOF(umq_qmgmt_hdr_t, queue_ver)
+/*#define O_UMQ_QMGMT_HDR_T_QUEUE_VER OFFSETOF(umq_qmgmt_hdr_t, queue_ver)*/
+#define O_UMQ_QMGMT_HDR_T_QUEUE_VER 28
 #define L_UMQ_QMGMT_HDR_T_QUEUE_VER SIZEOF(umq_qmgmt_hdr_t, queue_ver)
-#define O_UMQ_QMGMT_HDR_T_IP OFFSETOF(umq_qmgmt_hdr_t, ip)
+/*#define O_UMQ_QMGMT_HDR_T_IP OFFSETOF(umq_qmgmt_hdr_t, ip)*/
+#define O_UMQ_QMGMT_HDR_T_IP 28
 #define L_UMQ_QMGMT_HDR_T_IP SIZEOF(umq_qmgmt_hdr_t, ip)
-#define O_UMQ_QMGMT_HDR_T_PORT OFFSETOF(umq_qmgmt_hdr_t, port)
+/*#define O_UMQ_QMGMT_HDR_T_PORT OFFSETOF(umq_qmgmt_hdr_t, port)*/
+#define O_UMQ_QMGMT_HDR_T_PORT 32
 #define L_UMQ_QMGMT_HDR_T_PORT SIZEOF(umq_qmgmt_hdr_t, port)
-#define O_UMQ_QMGMT_HDR_T_INST_IDX OFFSETOF(umq_qmgmt_hdr_t, inst_idx)
+/*#define O_UMQ_QMGMT_HDR_T_INST_IDX OFFSETOF(umq_qmgmt_hdr_t, inst_idx)*/
+#define O_UMQ_QMGMT_HDR_T_INST_IDX 34
 #define L_UMQ_QMGMT_HDR_T_INST_IDX SIZEOF(umq_qmgmt_hdr_t, inst_idx)
-#define O_UMQ_QMGMT_HDR_T_GRP_IDX OFFSETOF(umq_qmgmt_hdr_t, grp_idx)
+/*#define O_UMQ_QMGMT_HDR_T_GRP_IDX OFFSETOF(umq_qmgmt_hdr_t, grp_idx)*/
+#define O_UMQ_QMGMT_HDR_T_GRP_IDX 36
 #define L_UMQ_QMGMT_HDR_T_GRP_IDX SIZEOF(umq_qmgmt_hdr_t, grp_idx)
-#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE_DEP16 OFFSETOF(umq_qmgmt_hdr_t, pckt_type_dep16)
-#define L_UMQ_QMGMT_HDR_T_PCKT_TYPE_DEP16 SIZEOF(umq_qmgmt_hdr_t, pckt_type_dep16)
+/*#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE_DEP16 OFFSETOF(umq_qmgmt_hdr_t, pckt_type_dep16)*/
+#define O_UMQ_QMGMT_HDR_T_PCKT_TYPE_DEP16 38
+#define L_UMQ_QMGMT_HDR_T_PCKT_TYPE_DEP16 38
 #define L_UMQ_QMGMT_HDR_T (gint) sizeof(umq_qmgmt_hdr_t)
 
 #define UMQ_QMGMT_HDR_I_FLAG 0x80
@@ -1676,7 +1948,8 @@ typedef struct
 {
     lbm_uint32_t highest_rcr_tsp;
 } umq_qmgmt_il_hdr_t;
-#define O_UMQ_QMGMT_IL_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_il_hdr_t, highest_rcr_tsp)
+/*#define O_UMQ_QMGMT_IL_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_il_hdr_t, highest_rcr_tsp)*/
+#define O_UMQ_QMGMT_IL_HDR_T_HIGHEST_RCR_TSP 0
 #define L_UMQ_QMGMT_IL_HDR_T_HIGHEST_RCR_TSP SIZEOF(umq_qmgmt_il_hdr_t, highest_rcr_tsp)
 #define L_UMQ_QMGMT_IL_HDR_T (gint) sizeof(umq_qmgmt_il_hdr_t)
 
@@ -1688,15 +1961,20 @@ typedef struct
     lbm_uint16_t grp_idx;
     lbm_uint16_t flags;
 } umq_qmgmt_il_inst_hdr_t;
-#define O_UMQ_QMGMT_IL_INST_HDR_T_IP OFFSETOF(umq_qmgmt_il_inst_hdr_t, ip)
+/*#define O_UMQ_QMGMT_IL_INST_HDR_T_IP OFFSETOF(umq_qmgmt_il_inst_hdr_t, ip)*/
+#define O_UMQ_QMGMT_IL_INST_HDR_T_IP 0
 #define L_UMQ_QMGMT_IL_INST_HDR_T_IP SIZEOF(umq_qmgmt_il_inst_hdr_t, ip)
-#define O_UMQ_QMGMT_IL_INST_HDR_T_PORT OFFSETOF(umq_qmgmt_il_inst_hdr_t, port)
+/*#define O_UMQ_QMGMT_IL_INST_HDR_T_PORT OFFSETOF(umq_qmgmt_il_inst_hdr_t, port)*/
+#define O_UMQ_QMGMT_IL_INST_HDR_T_PORT 4
 #define L_UMQ_QMGMT_IL_INST_HDR_T_PORT SIZEOF(umq_qmgmt_il_inst_hdr_t, port)
-#define O_UMQ_QMGMT_IL_INST_HDR_T_INST_IDX OFFSETOF(umq_qmgmt_il_inst_hdr_t, inst_idx)
+/*#define O_UMQ_QMGMT_IL_INST_HDR_T_INST_IDX OFFSETOF(umq_qmgmt_il_inst_hdr_t, inst_idx)*/
+#define O_UMQ_QMGMT_IL_INST_HDR_T_INST_IDX 6
 #define L_UMQ_QMGMT_IL_INST_HDR_T_INST_IDX SIZEOF(umq_qmgmt_il_inst_hdr_t, inst_idx)
-#define O_UMQ_QMGMT_IL_INST_HDR_T_GRP_IDX OFFSETOF(umq_qmgmt_il_inst_hdr_t, grp_idx)
+/*#define O_UMQ_QMGMT_IL_INST_HDR_T_GRP_IDX OFFSETOF(umq_qmgmt_il_inst_hdr_t, grp_idx)*/
+#define O_UMQ_QMGMT_IL_INST_HDR_T_GRP_IDX 8
 #define L_UMQ_QMGMT_IL_INST_HDR_T_GRP_IDX SIZEOF(umq_qmgmt_il_inst_hdr_t, grp_idx)
-#define O_UMQ_QMGMT_IL_INST_HDR_T_FLAGS OFFSETOF(umq_qmgmt_il_inst_hdr_t, flags)
+/*#define O_UMQ_QMGMT_IL_INST_HDR_T_FLAGS OFFSETOF(umq_qmgmt_il_inst_hdr_t, flags)*/
+#define O_UMQ_QMGMT_IL_INST_HDR_T_FLAGS 10
 #define L_UMQ_QMGMT_IL_INST_HDR_T_FLAGS SIZEOF(umq_qmgmt_il_inst_hdr_t, flags)
 #define L_UMQ_QMGMT_IL_INST_HDR_T (gint) sizeof(umq_qmgmt_il_inst_hdr_t)
 
@@ -1708,7 +1986,8 @@ typedef struct
 {
     lbm_uint32_t queue_new_ver;
 } umq_qmgmt_ec_hdr_t;
-#define O_UMQ_QMGMT_EC_HDR_T_QUEUE_NEW_VER OFFSETOF(umq_qmgmt_ec_hdr_t, queue_new_ver)
+/*#define O_UMQ_QMGMT_EC_HDR_T_QUEUE_NEW_VER OFFSETOF(umq_qmgmt_ec_hdr_t, queue_new_ver)*/
+#define O_UMQ_QMGMT_EC_HDR_T_QUEUE_NEW_VER 0
 #define L_UMQ_QMGMT_EC_HDR_T_QUEUE_NEW_VER SIZEOF(umq_qmgmt_ec_hdr_t, queue_new_ver)
 #define L_UMQ_QMGMT_EC_HDR_T (gint) sizeof(umq_qmgmt_ec_hdr_t)
 
@@ -1717,9 +1996,11 @@ typedef struct
     lbm_uint32_t highest_rcr_tsp;
     lbm_uint32_t age;
 } umq_qmgmt_ev_hdr_t;
-#define O_UMQ_QMGMT_EV_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_ev_hdr_t, highest_rcr_tsp)
+/*#define O_UMQ_QMGMT_EV_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_ev_hdr_t, highest_rcr_tsp)*/
+#define O_UMQ_QMGMT_EV_HDR_T_HIGHEST_RCR_TSP 0
 #define L_UMQ_QMGMT_EV_HDR_T_HIGHEST_RCR_TSP SIZEOF(umq_qmgmt_ev_hdr_t, highest_rcr_tsp)
-#define O_UMQ_QMGMT_EV_HDR_T_AGE OFFSETOF(umq_qmgmt_ev_hdr_t, age)
+/*#define O_UMQ_QMGMT_EV_HDR_T_AGE OFFSETOF(umq_qmgmt_ev_hdr_t, age)*/
+#define O_UMQ_QMGMT_EV_HDR_T_AGE 4
 #define L_UMQ_QMGMT_EV_HDR_T_AGE SIZEOF(umq_qmgmt_ev_hdr_t, age)
 #define L_UMQ_QMGMT_EV_HDR_T (gint) sizeof(umq_qmgmt_ev_hdr_t)
 
@@ -1727,7 +2008,8 @@ typedef struct
 {
     lbm_uint32_t highest_rcr_tsp;
 } umq_qmgmt_qro_hdr_t;
-#define O_UMQ_QMGMT_QRO_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_qro_hdr_t, highest_rcr_tsp)
+/*#define O_UMQ_QMGMT_QRO_HDR_T_HIGHEST_RCR_TSP OFFSETOF(umq_qmgmt_qro_hdr_t, highest_rcr_tsp)*/
+#define O_UMQ_QMGMT_QRO_HDR_T_HIGHEST_RCR_TSP 0
 #define L_UMQ_QMGMT_QRO_HDR_T_HIGHEST_RCR_TSP SIZEOF(umq_qmgmt_qro_hdr_t, highest_rcr_tsp)
 #define L_UMQ_QMGMT_QRO_HDR_T (gint) sizeof(umq_qmgmt_qro_hdr_t)
 
