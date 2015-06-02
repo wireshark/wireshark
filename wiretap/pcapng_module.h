@@ -28,6 +28,8 @@
 #define BLOCK_TYPE_NRB 0x00000004 /* Name Resolution Block */
 #define BLOCK_TYPE_ISB 0x00000005 /* Interface Statistics Block */
 #define BLOCK_TYPE_EPB 0x00000006 /* Enhanced Packet Block */
+#define BLOCK_TYPE_SYSDIG_EVENT 0x00000204 /* Sysdig Event Block */
+#define BLOCK_TYPE_SYSDIG_EVF   0x00000208 /* Sysdig Event Block with flags */
 #define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
 /* TODO: the following are not yet well defined in the draft spec:
  * Compression Block

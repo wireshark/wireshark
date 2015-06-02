@@ -137,6 +137,7 @@ EXTRA_DIST = \
 	fuzz-test.sh					\
 	gen-bugnote					\
 	generate-bacnet-vendors.py			\
+	generate-sysdig-event.py			\
 	Get-HardenFlags.ps1				\
 	git-compare-abis.sh				\
 	git-export-release.sh				\

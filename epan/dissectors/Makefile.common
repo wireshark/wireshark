@@ -187,6 +187,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-smrse.c	\
 	packet-spnego.c	\
 	packet-sv.c	\
+	packet-sysdig-event.c	\
 	packet-sysex.c	\
 	packet-t124.c	\
 	packet-t125.c	\

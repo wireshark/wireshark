@@ -1119,6 +1119,20 @@ struct logcat_phdr {
     gint version;
 };
 
+/* Packet "pseudo-header" information for Sysdig events. */
+
+struct sysdig_event_phdr {
+    guint record_type;    /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
+    int byte_order;
+    guint16 cpu_id;
+    /* guint32 sentinel; */
+    guint64 timestamp; /* ns since epoch */
+    guint64 thread_id;
+    guint32 event_len; /* XXX dup of wtap_pkthdr.len */
+    guint16 event_type;
+    /* ... Event ... */
+};
+
 /* Pseudo-header for file-type-specific records */
 struct ft_specific_record_phdr {
     guint record_type;    /* the type of record this is */
@@ -1150,6 +1164,7 @@ union wtap_pseudo_header {
     struct nokia_phdr   nokia;
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
+    struct sysdig_event_phdr sysdig_event;
     struct ft_specific_record_phdr ftsrec;
 };
 

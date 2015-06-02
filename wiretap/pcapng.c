@@ -183,6 +183,11 @@ typedef struct pcapng_interface_statistics_block_s {
  */
 #define MIN_ISB_SIZE    ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_interface_statistics_block_t)))
 
+/*
+ * Minimum Sysdig size = minimum block size + packed size of sysdig_event_phdr.
+ */
+#define MIN_SYSDIG_EVENT_SIZE    ((guint32)(MIN_BLOCK_SIZE)) + ((16 + 64 + 64 + 32 + 16) / 8)
+
 /* pcapng: common option header file encoding for every option type */
 typedef struct pcapng_option_header_s {
     guint16 option_code;
@@ -195,7 +200,6 @@ struct option {
     guint16 type;
     guint16 value_length;
 };
-
 
 /* Option codes: 16-bit field */
 #define OPT_EOFOPT           0x0000
@@ -378,8 +382,9 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
 #define BT_INDEX_PBS        2  /* all packet blocks */
 #define BT_INDEX_NRB        3
 #define BT_INDEX_ISB        4
+#define BT_INDEX_EVT        5
 
-#define NUM_BT_INDICES      5
+#define NUM_BT_INDICES      6
 
 static GHashTable *option_handlers[NUM_BT_INDICES];
 
@@ -410,6 +415,11 @@ get_block_type_index(guint block_type, guint *bt_index)
 
         case BLOCK_TYPE_ISB:
             *bt_index = BT_INDEX_ISB;
+            break;
+
+        case BLOCK_TYPE_SYSDIG_EVENT:
+        /* case BLOCK_TYPE_SYSDIG_EVF: */
+            *bt_index = BT_INDEX_EVT;
             break;
 
         default:
@@ -2155,6 +2165,96 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
     return TRUE;
 }
 
+static gboolean
+pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock, int *err, gchar **err_info)
+{
+    unsigned block_read;
+    guint32 block_total_length;
+    guint16 cpu_id;
+    guint64 wire_ts;
+    guint64 ts;
+    guint64 thread_id;
+    guint32 event_len;
+    guint16 event_type;
+
+    if (bh->block_total_length < MIN_SYSDIG_EVENT_SIZE) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("%s: total block length %u is too small (< %u)", G_STRFUNC,
+                                    bh->block_total_length, MIN_SYSDIG_EVENT_SIZE);
+        return FALSE;
+    }
+
+    /* add padding bytes to "block total length" */
+    /* (the "block total length" of some example files don't contain any padding bytes!) */
+    if (bh->block_total_length % 4) {
+        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
+    } else {
+        block_total_length = bh->block_total_length;
+    }
+
+    pcapng_debug("pcapng_read_sysdig_event_block: block_total_length %u",
+                  bh->block_total_length);
+
+    wblock->packet_header->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
+    wblock->packet_header->pseudo_header.sysdig_event.record_type = BLOCK_TYPE_SYSDIG_EVENT;
+    wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
+    wblock->packet_header->pkt_tsprec = WTAP_TSPREC_NSEC;
+
+    block_read = block_total_length;
+
+    if (!wtap_read_bytes(fh, &cpu_id, sizeof cpu_id, err, err_info)) {
+        pcapng_debug("pcapng_read_packet_block: failed to read sysdig event cpu id");
+        return FALSE;
+    }
+    if (!wtap_read_bytes(fh, &wire_ts, sizeof wire_ts, err, err_info)) {
+        pcapng_debug("pcapng_read_packet_block: failed to read sysdig event timestamp");
+        return FALSE;
+    }
+    if (!wtap_read_bytes(fh, &thread_id, sizeof thread_id, err, err_info)) {
+        pcapng_debug("pcapng_read_packet_block: failed to read sysdig event thread id");
+        return FALSE;
+    }
+    if (!wtap_read_bytes(fh, &event_len, sizeof event_len, err, err_info)) {
+        pcapng_debug("pcapng_read_packet_block: failed to read sysdig event length");
+        return FALSE;
+    }
+    if (!wtap_read_bytes(fh, &event_type, sizeof event_type, err, err_info)) {
+        pcapng_debug("pcapng_read_packet_block: failed to read sysdig event type");
+        return FALSE;
+    }
+
+    block_read -= MIN_SYSDIG_EVENT_SIZE;
+    wblock->packet_header->pseudo_header.sysdig_event.byte_order = G_BYTE_ORDER;
+
+    if (pn->byte_swapped) {
+        wblock->packet_header->pseudo_header.sysdig_event.byte_order =
+                G_BYTE_ORDER == G_LITTLE_ENDIAN ? G_BIG_ENDIAN : G_LITTLE_ENDIAN;
+        wblock->packet_header->pseudo_header.sysdig_event.cpu_id = GUINT16_SWAP_LE_BE(cpu_id);
+        ts = GUINT64_SWAP_LE_BE(wire_ts);
+        wblock->packet_header->pseudo_header.sysdig_event.thread_id = GUINT64_SWAP_LE_BE(thread_id);
+        wblock->packet_header->pseudo_header.sysdig_event.event_len = GUINT32_SWAP_LE_BE(event_len);
+        wblock->packet_header->pseudo_header.sysdig_event.event_type = GUINT16_SWAP_LE_BE(event_type);
+    } else {
+        wblock->packet_header->pseudo_header.sysdig_event.cpu_id = cpu_id;
+        ts = wire_ts;
+        wblock->packet_header->pseudo_header.sysdig_event.thread_id = thread_id;
+        wblock->packet_header->pseudo_header.sysdig_event.event_len = event_len;
+        wblock->packet_header->pseudo_header.sysdig_event.event_type = event_type;
+    }
+
+    wblock->packet_header->ts.secs = (time_t) (ts / 1000000000);
+    wblock->packet_header->ts.nsecs = (int) (ts % 1000000000);
+
+    wblock->packet_header->caplen = block_read;
+    wblock->packet_header->len = wblock->packet_header->pseudo_header.sysdig_event.event_len;
+
+    /* "Sysdig Event Block" read event data */
+    if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
+                                block_read, err, err_info))
+        return FALSE;
+
+    return TRUE;
+}
 
 static gboolean
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
@@ -2288,6 +2388,11 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
                 break;
             case(BLOCK_TYPE_ISB):
                 if (!pcapng_read_interface_statistics_block(fh, &bh, pn, wblock, err, err_info))
+                    return PCAPNG_BLOCK_ERROR;
+                break;
+            case(BLOCK_TYPE_SYSDIG_EVENT):
+            /* case(BLOCK_TYPE_SYSDIG_EVF): */
+                if (!pcapng_read_sysdig_event_block(fh, &bh, pn, wblock, err, err_info))
                     return PCAPNG_BLOCK_ERROR;
                 break;
             default:
@@ -2523,6 +2628,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             case(BLOCK_TYPE_PB):
             case(BLOCK_TYPE_SPB):
             case(BLOCK_TYPE_EPB):
+            case(BLOCK_TYPE_SYSDIG_EVENT):
+            case(BLOCK_TYPE_SYSDIG_EVF):
                 /* packet block - we've found a packet */
                 goto got_packet;
 
@@ -2615,10 +2722,11 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     }
 
     /* block must be a "Packet Block", an "Enhanced Packet Block",
-       or a "Simple Packet Block" */
+       a "Simple Packet Block", or an event */
     if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB &&
-        wblock.type != BLOCK_TYPE_SPB) {
-        pcapng_debug("pcapng_seek_read: block type %u not PB/EPB/SPB", wblock.type);
+        wblock.type != BLOCK_TYPE_SPB &&
+        wblock.type != BLOCK_TYPE_SYSDIG_EVENT && wblock.type != BLOCK_TYPE_SYSDIG_EVF) {
+            pcapng_debug("pcapng_seek_read: block type %u not PB/EPB/SPB", wblock.type);
         return FALSE;
     }
 
