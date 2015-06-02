@@ -1931,7 +1931,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
 static proto_tree *dissect_payload_header(tvbuff_t *, packet_info *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
-static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
+static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, gboolean, void*);
 static void dissect_proposal(tvbuff_t *, packet_info *, int, int, proto_tree *, int, void*);
 static void dissect_transform(tvbuff_t *, packet_info *, int, int, proto_tree *, int, int, void*);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
@@ -1945,11 +1945,11 @@ static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
 static void dissect_notif(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
 static int dissect_vid(tvbuff_t *, int, int, proto_tree *);
-static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
+static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int, gboolean);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
 static void dissect_ts(tvbuff_t *, int, int, proto_tree *);
-static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8, void*, gboolean);
+static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8, gboolean, void*, gboolean);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
 static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
@@ -1966,7 +1966,7 @@ static GHashTable *defrag_next_payload_hash = NULL;
 #endif
 
 static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, guint32 message_id, guint8 next_payload,
-                                        void* decr_info);
+                                        gboolean is_request, void* decr_info);
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[] = { /* Ssh Communications Security IPSEC Express version 1.1.0 */
         0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA,
@@ -2646,7 +2646,7 @@ byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const c
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
                 int isakmp_version, guint8 initial_payload, int offset, int length,
-                packet_info *pinfo, guint32 message_id, void* decr_data)
+                packet_info *pinfo, guint32 message_id, gboolean is_request, void* decr_data)
 {
   guint8         payload, next_payload;
   guint16        payload_length;
@@ -2668,7 +2668,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
         switch(payload){
            case PLOAD_IKE_SA:
            case PLOAD_IKE2_SA:
-           dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data);
+           dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, is_request, decr_data);
            break;
            case PLOAD_IKE_P:
            dissect_proposal(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
@@ -2714,7 +2714,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
            break;
            case PLOAD_IKE_A:
            case PLOAD_IKE2_CP:
-           dissect_config(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version);
+           dissect_config(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, is_request);
            break;
            case PLOAD_IKE2_AUTH:
            dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
@@ -2725,7 +2725,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
            break;
            case PLOAD_IKE2_SK:
            if(isakmp_version == 2)
-             dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, decr_data, TRUE);
+             dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, is_request, decr_data, TRUE);
            break;
            case PLOAD_IKE2_EAP:
            dissect_eap(tvb, offset + 4, payload_length - 4, ntree, pinfo );
@@ -2749,7 +2749,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
            case PLOAD_IKE2_SKF:
            if (isakmp_version == 2) {
                /* N.B. not passing in length as must be the last payload in the message */
-               dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, decr_data );
+               dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, is_request, decr_data );
            }
            break;
            default:
@@ -2782,7 +2782,7 @@ isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
                         packet_info *pinfo)
 {
   dissect_payloads(tvb, tree, isakmp_version, initial_payload, offset, length,
-                   pinfo, 0, NULL);
+                   pinfo, 0, FALSE, NULL);
 }
 
 static int
@@ -2985,15 +2985,14 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
           if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
             dissect_payloads(decr_tvb, decr_tree, isakmp_version,
-                             hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, decr_data);
-
+                             hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
           }
         }
 #endif /* HAVE_LIBGCRYPT */
       }
     } else {
       dissect_payloads(tvb, isakmp_tree, isakmp_version, hdr.next_payload,
-                       offset, len, pinfo, hdr.message_id, decr_data);
+                       offset, len, pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
     }
   }
 
@@ -3036,7 +3035,7 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 }
 
 static void
-dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, void* decr_data)
+dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, gboolean is_request, void* decr_data)
 {
   guint32       doi;
   proto_item    *sti;
@@ -3070,14 +3069,14 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       length -= 4;
 
       dissect_payloads(tvb, tree, isakmp_version, PLOAD_IKE_P, offset,
-                       length, pinfo, 0, decr_data);
+                       length, pinfo, 0, is_request, decr_data);
     } else {
       /* Unknown */
       proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, length, ENC_NA);
     }
   } else if (isakmp_version == 2) {
     dissect_payloads(tvb, tree, isakmp_version, PLOAD_IKE_P, offset,
-                     length, pinfo, 0, decr_data);
+                     length, pinfo, 0, is_request, decr_data);
   }
 }
 
@@ -3955,9 +3954,9 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 static void
 dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 #ifdef HAVE_LIBGCRYPT
-                            packet_info *pinfo, guint message_id, guint8 next_payload, void* decr_info)
+                            packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info)
 #else
-                            packet_info *pinfo, guint message_id, guint8 next_payload, void* decr_info _U_)
+                            packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info _U_)
 #endif
 {
   guint16 fragment_number, total_fragments;
@@ -4074,6 +4073,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
     /* Decrypt but don't dissect this encrypted payload. */
     isakmp_decrypted_fragment_tvb = dissect_enc(tvb, iv_offset, tvb_reported_length_remaining(tvb, iv_offset), tree, pinfo,
                                                 0,        /* Payload type won't be used in this call, and may not know yet */
+                                                is_request,
                                                 decr_info,
                                                 FALSE     /* Don't dissect decrypted tvb as not a completed payload */
                                                 );
@@ -4107,10 +4107,10 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
       /* Completely reassembled  - already decrypted - dissect reassembled payload if know next payload type */
       col_append_fstr(pinfo->cinfo, COL_INFO, " (reassembled)");
       dissect_payloads(defrag_decrypted_isakmp_tvb, tree,
-                      2,                      /* Version. TODO: store with next_payload? */
+                      2,           /* Could store with next_payload, but wouldn't be here otherwise.. */
                       message_next_payload,
                       0, tvb_reported_length(defrag_decrypted_isakmp_tvb),
-                      pinfo, message_id, decr_info);
+                      pinfo, message_id, is_request, decr_info);
     }
     /* Restore this flag */
     pinfo->fragmented = save_fragmented;
@@ -4380,7 +4380,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version)
+dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version, gboolean is_request)
 {
         guint optlen, cfg_attr_type, len = 0;
         int offset_end = 0;
@@ -4399,7 +4399,6 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
         }
 
         if (isakmp_version == 1) {
-
            cfg_attr_type_item = proto_tree_add_none_format(cfg_attr_type_tree, hf_isakmp_cfg_attr, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v1_cfgattr,"Unknown Attribute Type (%02d)") );
            sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
            proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v1, tvb, offset, 2, cfg_attr_type);
@@ -4417,7 +4416,10 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
         }
         if (optlen == 0)
         {
-           expert_add_info(pinfo, cfg_attr_type_item, &ei_isakmp_attribute_value_empty);
+           /* Don't complain about zero length if part of a config request - values will be assigned and included in the response message */
+           if (!is_request) {
+             expert_add_info(pinfo, cfg_attr_type_item, &ei_isakmp_attribute_value_empty);
+           }
            return 2+len;
         }
         proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
@@ -4659,7 +4661,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
         return 2+len+optlen;
 }
 static void
-dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, gboolean is_request)
 {
   int offset_end = 0;
   offset_end = offset + length;
@@ -4679,7 +4681,7 @@ dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_
   }
 
   while (offset < offset_end) {
-    offset += dissect_config_attribute(tvb, pinfo, tree, offset, isakmp_version);
+    offset += dissect_config_attribute(tvb, pinfo, tree, offset, isakmp_version, is_request);
   }
 }
 
@@ -4862,11 +4864,13 @@ dissect_enc(tvbuff_t *tvb,
 #ifdef HAVE_LIBGCRYPT
             packet_info *pinfo,
             guint8 inner_payload,
+            gboolean is_request,
             void* decr_info,
             gboolean dissect_payload_now)
 #else
             packet_info *pinfo _U_,
             guint8 inner_payload _U_,
+            gboolean is_request _U_,
             void* decr_info _U_,
             gboolean dissect_payload_now _U_)
 #endif
@@ -5064,7 +5068,7 @@ dissect_enc(tvbuff_t *tvb,
      * even if the dissection fails. This may occur when the user specify wrong encryption key.
      */
     if (dissect_payload_now && decr_payloads_tree) {
-      dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, decr_info);
+      dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, is_request, decr_info);
     }
   }else{
 #endif /* HAVE_LIBGCRYPT */
