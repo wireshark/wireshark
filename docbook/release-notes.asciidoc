@@ -345,6 +345,7 @@ S7 Communication
 Secure Socket Tunnel Protocol (SSTP)
 Shared Memory Communications - RDMA (SMCR)
 Stateless Transport Tunneling
+Sysdig system call events
 TCP based Robot Operating System protocol (TCPROS)
 Thrift
 Time Division Multiplexing over Packet Network (TDMoP)
