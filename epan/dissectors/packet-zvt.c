@@ -46,6 +46,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 
 /* special characters of the serial transport protocol */
 #define STX 0x02
@@ -74,6 +75,9 @@ typedef enum _zvt_direction_t {
 
 #define CCRC_POS 0x80
 #define CCRC_NEG 0x84
+
+/* "don't care" value for min_len_field */
+#define LEN_FIELD_ANY G_MAXUINT32
 
 typedef struct _apdu_info_t {
     guint16          ctrl;
@@ -144,6 +148,8 @@ static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bitmap = -1;
 static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_len = -1;
+
+static expert_field ei_invalid_apdu_len = EI_INIT;
 
 typedef struct _zvt_transaction_t {
     guint32 rqst_frame;
@@ -544,20 +550,25 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         }
     }
 
-    proto_tree_add_uint(apdu_tree, hf_zvt_len, tvb, offset, len_bytes, len);
-    offset += len_bytes;
-
     ai = (apdu_info_t *)g_hash_table_lookup(
             apdu_table, GUINT_TO_POINTER((guint)ctrl));
 
+    it = proto_tree_add_uint(apdu_tree, hf_zvt_len, tvb, offset, len_bytes, len);
+    if (ai && ai->min_len_field!=LEN_FIELD_ANY && len<ai->min_len_field) {
+        expert_add_info_format(pinfo, it, &ei_invalid_apdu_len,
+                "The APDU length is too short. The minimum length is %d",
+                ai->min_len_field);
+    }
+    offset += len_bytes;
+
     zvt_set_addresses(pinfo, zvt_trans);
-    /* XXX - check the minimum length */
 
     if (len > 0) {
         if (ai && ai->dissect_payload)
             ai->dissect_payload(tvb, offset, len, pinfo, apdu_tree);
         else
-            proto_tree_add_item(apdu_tree, hf_zvt_data, tvb, offset, len, ENC_NA);
+            proto_tree_add_item(apdu_tree, hf_zvt_data,
+                    tvb, offset, len, ENC_NA);
     }
     offset += len;
 
@@ -730,6 +741,7 @@ proto_register_zvt(void)
 {
     guint     i;
     module_t *zvt_module;
+    expert_module_t* expert_zvt;
 
     static gint *ett[] = {
         &ett_zvt,
@@ -789,6 +801,12 @@ proto_register_zvt(void)
                 FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_invalid_apdu_len,
+            { "zvt.apdu_len.invalid", PI_PROTOCOL, PI_WARN,
+                "The APDU length is too short. The minimum length is %d",
+                EXPFILL }}
+    };
 
     apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(apdu_info); i++) {
@@ -801,6 +819,8 @@ proto_register_zvt(void)
             "ZVT Kassenschnittstelle", "ZVT", "zvt");
     proto_register_field_array(proto_zvt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_zvt = expert_register_protocol(proto_zvt);
+    expert_register_field_array(expert_zvt, ei, array_length(ei));
 
     zvt_module = prefs_register_protocol(proto_zvt, proto_reg_handoff_zvt);
     prefs_register_uint_preference(zvt_module, "tcp.port",
