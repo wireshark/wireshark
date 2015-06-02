@@ -2120,7 +2120,10 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         else
             break;
 
-        frameOffset += frameLength;
+        /* findSafetyFrame starts at frameOffset with the search for the next position. But the
+         * offset is assumed to be the ID, which can lead to scenarios, where the CRC of a previous
+         * detected frame is assumed to be the addr of the next one. +1 prevents such a scenario */
+        frameOffset += (frameLength + 1);
     }
 
     if ( handled == TRUE )
