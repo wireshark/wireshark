@@ -63,6 +63,12 @@ static GHashTable *apdu_table = NULL;
 
 static wmem_tree_t *transactions = NULL;
 
+typedef struct _zvt_transaction_t {
+    guint32 rqst_frame;
+    guint32 resp_frame;
+    guint16 ctrl;
+} zvt_transaction_t;
+
 typedef enum _zvt_direction_t {
     DIRECTION_UNKNOWN,
     DIRECTION_ECR_TO_PT,
@@ -83,7 +89,8 @@ typedef struct _apdu_info_t {
     guint16          ctrl;
     guint32          min_len_field;
     zvt_direction_t  direction;
-    void (*dissect_payload)(tvbuff_t *, gint, guint16, packet_info *, proto_tree *);
+    void (*dissect_payload)(tvbuff_t *, gint, guint16,
+            packet_info *, proto_tree *, zvt_transaction_t *);
 } apdu_info_t;
 
 /* control code 0 is not defined in the specification */
@@ -100,10 +107,10 @@ typedef struct _apdu_info_t {
 #define CTRL_INIT          0x0693
 #define CTRL_PRINT_LINE    0x06D1
 
-static void dissect_zvt_reg(
-        tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
-static void dissect_zvt_bitmap_apdu(
-        tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
+static void dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
+static void dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, NULL },
@@ -150,12 +157,6 @@ static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_len = -1;
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
-
-typedef struct _zvt_transaction_t {
-    guint32 rqst_frame;
-    guint32 resp_frame;
-    guint16 ctrl;
-} zvt_transaction_t;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -369,7 +370,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
 
 static void
 dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
-        packet_info *pinfo, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans)
 {
     proto_tree_add_item(tree, hf_zvt_reg_pwd, tvb, offset, 3, ENC_NA);
     offset += 3;
@@ -396,14 +397,14 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
     /* it's ok if the remaining len is 0 */
     dissect_zvt_bitmap_apdu(tvb, offset,
             tvb_captured_length_remaining(tvb, offset),
-            pinfo, tree);
+            pinfo, tree, zvt_trans);
 }
 
 
 /* dissect an APDU that contains a sequence of bitmaps */
 static void
 dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, proto_tree *tree, zvt_transaction_t *zvt_trans _U_)
 {
     gint offset_start, ret;
 
@@ -565,7 +566,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
 
     if (len > 0) {
         if (ai && ai->dissect_payload)
-            ai->dissect_payload(tvb, offset, len, pinfo, apdu_tree);
+            ai->dissect_payload(tvb, offset, len, pinfo, apdu_tree, zvt_trans);
         else
             proto_tree_add_item(apdu_tree, hf_zvt_data,
                     tvb, offset, len, ENC_NA);
