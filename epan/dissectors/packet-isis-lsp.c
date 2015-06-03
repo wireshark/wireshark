@@ -149,6 +149,12 @@ static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
 static int hf_isis_lsp_lsp_id = -1;
 static int hf_isis_lsp_hostname = -1;
+static int hf_isis_lsp_srlg_system_id = -1;
+static int hf_isis_lsp_srlg_pseudo_num = -1;
+static int hf_isis_lsp_srlg_flags_numbered = -1;
+static int hf_isis_lsp_srlg_ipv4_local = -1;
+static int hf_isis_lsp_srlg_ipv4_remote = -1;
+static int hf_isis_lsp_srlg_value = -1;
 static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_checksum_bad = -1;
 static int hf_isis_lsp_checksum_good = -1;
@@ -377,6 +383,7 @@ static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
 static gint ett_isis_lsp_clv_nlpid = -1;
 static gint ett_isis_lsp_clv_hostname = -1;
+static gint ett_isis_lsp_clv_srlg = -1;
 static gint ett_isis_lsp_clv_te_router_id = -1;
 static gint ett_isis_lsp_clv_authentication = -1;
 static gint ett_isis_lsp_clv_ip_authentication = -1;
@@ -1524,6 +1531,51 @@ dissect_lsp_hostname_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
 {
     isis_dissect_hostname_clv(tvb, tree, offset, length,
         hf_isis_lsp_hostname);
+}
+
+/*
+ * Name: dissect_lsp_srlg_clv()
+ *
+ * Description:
+ *      Decode for a lsp packets Shared Risk Link Group (SRLG) clv (138).  Calls into the
+ *      clv common one.
+ *
+ * Input:
+ *      tvbuff_t * : tvbuffer for packet data
+ *      proto_tree * : proto tree to build on (may be null)
+ *      int : current offset into packet data
+ *      int : length of IDs in packet.
+ *      int : length of this clv
+ *
+ * Output:
+ *      void, will modify proto_tree if not null.
+ */
+static void
+dissect_lsp_srlg_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+    int id_length _U_, int length)
+{
+
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_system_id, tvb, offset, 6, ENC_BIG_ENDIAN);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_pseudo_num, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_flags_numbered, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_ipv4_local, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_ipv4_remote, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    length -= 16;
+    while(length){
+        proto_tree_add_item(tree, hf_isis_lsp_srlg_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        length -= 4;
+    }
 }
 
 
@@ -3234,6 +3286,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         dissect_lsp_hostname_clv
     },
     {
+        ISIS_CLV_SHARED_RISK_GROUP,
+        "Shared Risk Link Group",
+        &ett_isis_lsp_clv_srlg,
+        dissect_lsp_srlg_clv
+    },
+    {
         ISIS_CLV_TE_ROUTER_ID,
         "Traffic Engineering Router ID",
         &ett_isis_lsp_clv_te_router_id,
@@ -3501,6 +3559,42 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_hostname,
             { "Hostname", "isis.lsp.hostname",
               FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_system_id,
+            { "System ID", "isis.lsp.srlg.system_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_pseudo_num,
+            { "Pseudonode num", "isis.lsp.srlg.pseudo_num",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_flags_numbered,
+            { "Numbered", "isis.lsp.srlg.flags_numbered",
+              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_ipv4_local,
+            { "IPv4 interface address/Link Local Identifier", "isis.lsp.srlg.ipv4_local",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_ipv4_remote,
+            { "IPv4 neighbor address/Link remote Identifier", "isis.lsp.srlg.ipv4_remote",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_srlg_value,
+            { "Shared Risk Link Group Value", "isis.lsp.srlg.value",
+              FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
 
@@ -4595,6 +4689,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_ip_authentication,
         &ett_isis_lsp_clv_nlpid,
         &ett_isis_lsp_clv_hostname,
+        &ett_isis_lsp_clv_srlg,
         &ett_isis_lsp_clv_ipv4_int_addr,
         &ett_isis_lsp_clv_ipv6_int_addr, /* CLV 232 */
         &ett_isis_lsp_clv_mt_cap,

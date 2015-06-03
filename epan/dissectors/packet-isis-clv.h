@@ -59,7 +59,7 @@
 #define ISIS_CLV_TE_ROUTER_ID        134 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_EXTD_IP_REACH       135 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_HOSTNAME            137 /* rfc2763 */
-#define ISIS_CLV_SHARED_RISK_GROUP   138 /* draft-ietf-isis-gmpls-extensions */
+#define ISIS_CLV_SHARED_RISK_GROUP   138 /* rfc5307 */
 #define ISIS_GRP_ADDR                142 /* rfc7176 */
 #define ISIS_CLV_MT_PORT_CAP         143 /* rfc6165, rfc7176 */
 #define ISIS_CLV_MT_CAP              144 /* rfc6329, rfc7176 */
