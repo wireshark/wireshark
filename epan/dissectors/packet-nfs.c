@@ -6667,6 +6667,8 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		*  attr_bitmap fields and the 4-byte 'total bytes in the values section field';
 		*  otherwise, just skip the bitmaps and offset will be returned. */
 		offset += (num_bitmaps * 4) + (type == FATTR4_DISSECT_VALUES ? 4 : 0);
+	} else {
+		return offset += 4;
 	}
 
 	if (!tree
