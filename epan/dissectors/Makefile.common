@@ -1113,6 +1113,7 @@ DISSECTOR_SRC = \
 	packet-roofnet.c	\
 	packet-rpc.c		\
 	packet-rpcap.c		\
+	packet-rpcrdma.c	\
 	packet-rpki-rtr.c	\
 	packet-rpl.c		\
 	packet-rquota.c		\

@@ -1200,6 +1200,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-roofnet.c
 	dissectors/packet-rpc.c
 	dissectors/packet-rpcap.c
+	dissectors/packet-rpcrdma.c
 	dissectors/packet-rpki-rtr.c
 	dissectors/packet-rpl.c
 	dissectors/packet-rquota.c
