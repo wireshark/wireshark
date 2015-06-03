@@ -32,6 +32,7 @@
 #include <ui/utf8_entities.h>
 
 #include "capture_filter_edit.h"
+#include "capture_filter_syntax_worker.h"
 #include "wireshark_application.h"
 
 #include <QComboBox>
@@ -108,6 +109,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
     plain_(plain),
     field_name_only_(false),
+    bookmark_button_(NULL),
+    clear_button_(NULL),
     apply_button_(NULL)
 {
     setAccessibleName(tr("Capture filter entry"));
@@ -131,9 +134,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     // XXX - Move bookmark and apply buttons to the toolbar a la Firefox, Chrome & Safari?
     // XXX - Use native buttons on OS X?
 
-    bookmark_button_ = new QToolButton(this);
-    bookmark_button_->setCursor(Qt::ArrowCursor);
-    bookmark_button_->setStyleSheet(QString(
+    if (!plain_) {
+        bookmark_button_ = new QToolButton(this);
+        bookmark_button_->setCursor(Qt::ArrowCursor);
+        bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
             "  border 0 0 0 0;"
 #ifdef Q_OS_MAC
@@ -156,15 +160,15 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             "QToolButton:disabled {"
             "  image: url(:/dfilter/dfilter_bookmark_disabled.png) center;"
             "}"
-
-
             ).arg(plain_ ? 0 : 1)
             );
-    connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+        connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+    }
 
-    clear_button_ = new QToolButton(this);
-    clear_button_->setCursor(Qt::ArrowCursor);
-    clear_button_->setStyleSheet(
+    if (!plain_) {
+        clear_button_ = new QToolButton(this);
+        clear_button_->setCursor(Qt::ArrowCursor);
+        clear_button_->setStyleSheet(
             "QToolButton {"
             "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
             "  border: none;"
@@ -177,8 +181,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
             "}"
             );
-    clear_button_->hide();
-    connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
+        clear_button_->hide();
+        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
+    }
+
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
     if (!plain_) {
@@ -209,14 +215,13 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     }
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize bksz = bookmark_button_->sizeHint();
-    QSize cbsz = clear_button_->sizeHint();
+    QSize bksz;
+    if (bookmark_button_) bksz = bookmark_button_->sizeHint();
+    QSize cbsz;
+    if (clear_button_) cbsz = clear_button_->sizeHint();
     QSize apsz;
-    if (apply_button_) {
-        apsz = apply_button_->sizeHint();
-    } else {
-        apsz.setHeight(0); apsz.setWidth(0);
-    }
+    if (apply_button_) apsz = apply_button_->sizeHint();
+
     setStyleSheet(QString(
             "CaptureFilterEdit {"
             "  padding-left: %1px;"
@@ -271,23 +276,25 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
 
 void CaptureFilterEdit::resizeEvent(QResizeEvent *)
 {
-    QSize cbsz = clear_button_->sizeHint();
+    QSize cbsz;
+    if (clear_button_) cbsz = clear_button_->sizeHint();
     QSize apsz;
-    if (apply_button_) {
-        apsz = apply_button_->sizeHint();
-    } else {
-        apsz.setHeight(0); apsz.setWidth(0);
-    }
+    if (apply_button_) apsz = apply_button_->sizeHint();
+
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
-                        contentsRect().top());
-    clear_button_->setMaximumHeight(contentsRect().height());
+    if (clear_button_) {
+        clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
+                            contentsRect().top());
+        clear_button_->setMaximumHeight(contentsRect().height());
+    }
     if (apply_button_) {
         apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
                             contentsRect().top());
         apply_button_->setMaximumHeight(contentsRect().height());
     }
-    bookmark_button_->setMaximumHeight(contentsRect().height());
+    if (bookmark_button_) {
+        bookmark_button_->setMaximumHeight(contentsRect().height());
+    }
 }
 
 void CaptureFilterEdit::checkFilter(const QString& text)
@@ -296,16 +303,21 @@ void CaptureFilterEdit::checkFilter(const QString& text)
     popFilterSyntaxStatus();
     bool empty = text.isEmpty();
 
-    bookmark_button_->setEnabled(false);
+    if (bookmark_button_) {
+        bookmark_button_->setEnabled(false);
+    }
+
     if (apply_button_) {
         apply_button_->setEnabled(false);
     }
 
+    if (clear_button_) {
+        clear_button_->setVisible(!empty);
+    }
+
     if (empty) {
-        clear_button_->setVisible(false);
         setFilterSyntaxState(text, true, QString());
     } else {
-        clear_button_->setVisible(true);
         syntax_worker_->checkFilter(text);
     }
 }
@@ -335,7 +347,9 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString
 
 #ifdef HAVE_LIBPCAP
     if (syntaxState() != Invalid) {
-        bookmark_button_->setEnabled(true);
+        if (bookmark_button_) {
+            bookmark_button_->setEnabled(true);
+        }
         if (apply_button_) {
             apply_button_->setEnabled(true);
         }

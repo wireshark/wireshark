@@ -162,7 +162,6 @@ void ColoringRulesDialog::updateWidgets()
         ui->bGPushButton->setStyleSheet(color_button_ss.arg(one_em).arg(fg_color).arg(bg_color));
     }
 
-
     ui->copyToolButton->setEnabled(num_selected == 1);
     ui->deleteToolButton->setEnabled(num_selected > 0);
     ui->fGPushButton->setVisible(num_selected == 1);

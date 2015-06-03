@@ -28,7 +28,7 @@ class QAbstractButton;
 class QTreeWidget;
 
 struct _color_filter;
-struct _GSList; // This is a completely and toltally safe forward declaration, right?
+struct _GSList; // This is a completely and totally safe forward declaration, right?
 
 namespace Ui {
 class ColoringRulesDialog;

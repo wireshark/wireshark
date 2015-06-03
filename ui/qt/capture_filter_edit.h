@@ -25,7 +25,8 @@
 #include <QThread>
 #include <QToolButton>
 #include "syntax_line_edit.h"
-#include "capture_filter_syntax_worker.h"
+
+class CaptureFilterSyntaxWorker;
 
 class CaptureFilterEdit : public SyntaxLineEdit
 {

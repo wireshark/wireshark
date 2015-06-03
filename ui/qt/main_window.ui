@@ -995,9 +995,6 @@
    </property>
   </action>
   <action name="actionCaptureCaptureFilters">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Capture &amp;Filters...</string>
    </property>
@@ -1197,9 +1194,6 @@
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilters">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Display Filters...</string>
    </property>

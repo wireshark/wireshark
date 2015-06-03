@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ColoringRulesDialog</class>
- <widget class="QDialog" name="ColoringRulesDialog">
+ <class>FilterDialog</class>
+ <widget class="QDialog" name="FilterDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>480</height>
+    <width>584</width>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,23 +15,17 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="coloringRulesTreeWidget">
+    <widget class="QTreeWidget" name="filterTreeWidget">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
      <property name="textElideMode">
       <enum>Qt::ElideMiddle</enum>
      </property>
+     <property name="indentation">
+      <number>0</number>
+     </property>
      <property name="rootIsDecorated">
-      <bool>false</bool>
-     </property>
-     <property name="uniformRowHeights">
-      <bool>true</bool>
-     </property>
-     <property name="itemsExpandable">
-      <bool>false</bool>
-     </property>
-     <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
      <column>
@@ -47,18 +41,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="hintLabel">
-     <property name="text">
-      <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1">
      <item>
       <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
-        <string>Add a new coloring rule.</string>
+        <string>Create a new profile using default settings.</string>
        </property>
        <property name="text">
         <string/>
@@ -72,10 +59,7 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Delete this coloring rule.</string>
-       </property>
-       <property name="text">
-        <string/>
+        <string>Remove this profile.</string>
        </property>
        <property name="icon">
         <iconset resource="../../image/toolbar.qrc">
@@ -86,62 +70,14 @@
      <item>
       <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Duplicate this coloring rule.</string>
+        <string>Copy this profile.</string>
+       </property>
+       <property name="text">
+        <string/>
        </property>
        <property name="icon">
         <iconset resource="../../image/toolbar.qrc">
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="fGPushButton">
-       <property name="toolTip">
-        <string>Set the foreground color for this rule.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
-       </property>
-       <property name="text">
-        <string>Foreground</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bGPushButton">
-       <property name="toolTip">
-        <string>Set the background color for this rule.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
-       </property>
-       <property name="text">
-        <string>Background</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -158,6 +94,25 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="ElidedLabel" name="pathLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -172,6 +127,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>elided_label.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../image/toolbar.qrc"/>
  </resources>
@@ -179,7 +141,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ColoringRulesDialog</receiver>
+   <receiver>FilterDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -195,7 +157,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ColoringRulesDialog</receiver>
+   <receiver>FilterDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

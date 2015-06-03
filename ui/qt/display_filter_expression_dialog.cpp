@@ -68,6 +68,7 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Display Filter Expression")));
+    setWindowIcon(wsApp->normalIcon());
 
     // XXX Use recent settings instead
     resize(parent->width() * 2 / 3, parent->height());

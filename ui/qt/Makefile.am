@@ -152,6 +152,8 @@ extcap_options_dialog.cpp extcap_options_dialog.h: ui_extcap_options_dialog.h
 
 file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h
 
+filter_dialog.cpp filter_dialog.h: ui_filter_dialog.h
+
 filter_expressions_preferences_frame.cpp filter_expressions_preferences_frame.h: ui_filter_expressions_preferences_frame.h
 
 follow_stream_dialog.cpp: ui_follow_stream_dialog.h

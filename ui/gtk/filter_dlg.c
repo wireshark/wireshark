@@ -799,7 +799,7 @@ filter_dlg_save(filter_list_type_t list_type)
     char *pf_dir_path;
     char *f_path;
     int f_save_errno;
-        const char *filter_type;
+    const char *filter_type;
 
     switch (list_type) {
 

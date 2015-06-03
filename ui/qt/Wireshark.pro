@@ -221,6 +221,7 @@ FORMS += \
     export_pdu_dialog.ui \
     extcap_options_dialog.ui \
     file_set_dialog.ui \
+    filter_dialog.ui \
     filter_expressions_preferences_frame.ui \
     follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
@@ -578,6 +579,7 @@ HEADERS += \
     display_filter_combo.h \
     display_filter_edit.h \
     file_set_dialog.h \
+    filter_dialog.h \
     import_text_dialog.h \
     interface_tree.h \
     io_graph_dialog.h \
@@ -642,6 +644,7 @@ SOURCES += \
     extcap_options_dialog.cpp \
     file_set_dialog.cpp \
     filter_action.cpp \
+    filter_dialog.cpp \
     filter_expressions_preferences_frame.cpp \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \

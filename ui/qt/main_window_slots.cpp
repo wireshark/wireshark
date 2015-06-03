@@ -89,6 +89,7 @@
 #if HAVE_EXTCAP
 #include "extcap_options_dialog.h"
 #endif
+#include "filter_dialog.h"
 #include "io_graph_dialog.h"
 #include "lbm_stream_dialog.h"
 #include "lbm_uimflow_dialog.h"
@@ -2232,6 +2233,17 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
     filterAction(field_filter, action, filter_type);
 }
 
+static FilterDialog *display_filter_dlg_ = NULL;
+void MainWindow::on_actionAnalyzeDisplayFilters_triggered()
+{
+    if (!display_filter_dlg_) {
+        display_filter_dlg_ = new FilterDialog(this, FilterDialog::DisplayFilter);
+    }
+    display_filter_dlg_->show();
+    display_filter_dlg_->raise();
+    display_filter_dlg_->activateWindow();
+}
+
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
 {
     gint colnr = 0;
@@ -2982,6 +2994,17 @@ void MainWindow::on_actionCaptureRestart_triggered()
 /* TODO: GTK use only this: capture_restart(&cap_session_); */
     captureStop();
     startCapture();
+}
+
+static FilterDialog *capture_filter_dlg_ = NULL;
+void MainWindow::on_actionCaptureCaptureFilters_triggered()
+{
+    if (!capture_filter_dlg_) {
+        capture_filter_dlg_ = new FilterDialog(this, FilterDialog::CaptureFilter);
+    }
+    capture_filter_dlg_->show();
+    capture_filter_dlg_->raise();
+    capture_filter_dlg_->activateWindow();
 }
 
 void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
