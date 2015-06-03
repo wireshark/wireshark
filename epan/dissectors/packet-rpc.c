@@ -1974,7 +1974,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   the reply was sent, because some clients (*cough* OS X
 		   NFS client *cough) might send retransmissions from a
 		   different port from the original request. */
-		if (pinfo->ptype == PT_TCP) {
+		if ((pinfo->ptype == PT_TCP) || (pinfo->ptype == PT_IBQP)) {
 			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
@@ -2016,7 +2016,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* unless we're permitted to scan for embedded records
 			 * and this is a connection-oriented transport, give up */
-			if ((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) {
+			if (((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) && (pinfo->ptype != PT_IBQP)) {
 				return FALSE;
 			}
 
@@ -2232,7 +2232,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   the reply was sent, because some clients (*cough* OS X
 		   NFS client *cough) might send retransmissions from a
 		   different port from the original request. */
-		if (pinfo->ptype == PT_TCP) {
+		if ((pinfo->ptype == PT_TCP) || (pinfo->ptype == PT_IBQP)) {
 			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
