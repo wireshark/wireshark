@@ -611,6 +611,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
         if (next_offset == offset) {
             break;
         }
+        if (last_field) {
+            /* Add the extra CRLF of the last field */
+            next_offset += 2;
+        }
 
         hdr_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, next_offset - offset, ENC_ASCII);
 
