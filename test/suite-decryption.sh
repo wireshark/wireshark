@@ -119,6 +119,20 @@ decryption_step_ssl() {
 	test_step_ok
 }
 
+# SSL, using the server's private key with password
+decryption_step_ssl_with_password() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+		-o "ssl.keys_list: 127.0.0.1,9131,http,$TEST_KEYS_DIR/key.p12,WebAS" \
+		-r "$CAPTURE_DIR/dmgr.pcapng" -Y http \
+		| grep unsecureLogon.jsp > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt SSL using the server's private key with password"
+		return
+	fi
+	test_step_ok
+}
+
 # SSL, using the master secret
 decryption_step_ssl_master_secret() {
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
@@ -233,6 +247,7 @@ tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
+	test_step_add "SSL Decryption (private key with password)" decryption_step_ssl_with_password
 	test_step_add "SSL Decryption (master secret)" decryption_step_ssl_master_secret
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
