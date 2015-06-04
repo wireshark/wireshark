@@ -1,7 +1,8 @@
-*              text=auto
-*.sh           eol=lf
-/test          export-ignore
-.bzrignore     export-ignore
-.gitattributes export-ignore
-.gitignore     export-ignore
-.gitreview     export-ignore
+*                           text=auto
+*.sh                        eol=lf
+/test/run_and_catch_crashes eol=lf
+/test                       export-ignore
+.bzrignore                  export-ignore
+.gitattributes              export-ignore
+.gitignore                  export-ignore
+.gitreview                  export-ignore
