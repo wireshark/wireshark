@@ -90,9 +90,9 @@ static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         if(host_and_port != NULL) {
             host = host_and_port[0];
             port = host_and_port[1];
-            proto_tree_add_string(tree, hf_pmproxy_host, tvb, offset, strlen(host), host);
+            proto_tree_add_string(tree, hf_pmproxy_host, tvb, offset, (guint32)strlen(host), host);
             offset += strlen(host) + PMPROXY_HOST_AND_PORT_DELIMETER_LENGTH;
-            proto_tree_add_string(tree, hf_pmproxy_port, tvb, offset, strlen(port), port);
+            proto_tree_add_string(tree, hf_pmproxy_port, tvb, offset, (guint32)strlen(port), port);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Host=%s, Port=%s", host, port);
         }
     }

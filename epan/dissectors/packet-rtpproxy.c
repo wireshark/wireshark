@@ -831,7 +831,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
              * then it's a version reply.
              */
             if (realsize == offset + (gint)strlen("YYYYMMDD")){
-                proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_supported, tvb, offset, strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
+                proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_supported, tvb, offset, (guint32)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
                 break;
             }
 
