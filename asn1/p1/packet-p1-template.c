@@ -112,7 +112,7 @@ static p1_address_ctx_t *get_do_address_ctx(asn1_ctx_t* actx)
 
     if (actx->pinfo->private_table) {
         /* First check if called from an extension attribute */
-        ctx = g_hash_table_lookup(actx->pinfo->private_table, (gpointer)P1_ADDRESS_CTX);
+        ctx = (p1_address_ctx_t *)g_hash_table_lookup(actx->pinfo->private_table, (gpointer)P1_ADDRESS_CTX);
     }
 
     if (!ctx) {
