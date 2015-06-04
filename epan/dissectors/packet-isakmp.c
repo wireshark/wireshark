@@ -3956,7 +3956,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 #ifdef HAVE_LIBGCRYPT
                             packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info)
 #else
-                            packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info _U_)
+                            packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request _U_, void* decr_info _U_)
 #endif
 {
   guint16 fragment_number, total_fragments;
