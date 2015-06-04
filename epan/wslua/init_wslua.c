@@ -910,8 +910,10 @@ int wslua_init(register_cb cb, gpointer client_data) {
 
 int wslua_cleanup(void) {
     /* cleanup lua */
-    lua_close(L);
-    L = NULL;
+    if (!L) {
+        lua_close(L);
+        L = NULL;
+    }
     return 0;
 }
 
