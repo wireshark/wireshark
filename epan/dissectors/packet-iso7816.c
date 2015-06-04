@@ -88,6 +88,10 @@ static int hf_iso7816_sw2 = -1;
 static int hf_iso7816_sel_file_ctrl = -1;
 static int hf_iso7816_sel_file_fci_req = -1;
 static int hf_iso7816_sel_file_occ = -1;
+static int hf_iso7816_get_resp = -1;
+static int hf_iso7816_offset_first_byte = -1;
+static int hf_iso7816_rfu = -1;
+static int hf_iso7816_application_data = -1;
 
 static expert_field ie_iso7816_atr_tck_not1 = EI_INIT;
 
@@ -161,8 +165,6 @@ static const value_string iso7816_ins[] = {
 };
 static value_string_ext iso7816_ins_ext = VALUE_STRING_EXT_INIT(iso7816_ins);
 
-#define P1P2 (p1<<8|p2)
-
 static const value_string iso7816_sel_file_ctrl[] = {
     { 0x00, "Select MF, DF or EF" },
     { 0x01, "Select child DF" },
@@ -202,6 +204,17 @@ static const range_string iso7816_sw1[] = {
   { 0x67, 0x6F, "Checking error" },
   { 0x90, 0x90, "Normal processing" },
   { 0,0,  NULL }
+};
+
+static const range_string iso7816_class_rvals[] = {
+    {0x00, 0x0F, "structure and coding according to ISO/IEC 7816" },
+    {0x10, 0x7F, "reserved for future use" },
+    {0x80, 0x8F, "structure and coding according to ISO/IEC 7816" },
+    {0xA0, 0xAF, "structure and coding according to ISO/IEC 7816 unless specified otherwise by the application context" },
+    {0xB0, 0xCF, "structure and coding according to ISO/IEC 7816" },
+    {0xD0, 0xFE, "proprietary structure and coding" },
+    {0xFF, 0xFF, "reserved for Protocol Type Selection" },
+    {0, 0,   NULL}
 };
 
 static inline
@@ -406,7 +419,6 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
     proto_item *class_item;
     proto_tree *class_tree;
     guint8      dev_class;
-    proto_item *enc_item;
     guint8      channel;
     proto_item *ch_item;
 
@@ -417,26 +429,13 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
     dev_class = tvb_get_guint8(tvb, offset);
 
     if (dev_class>=0x10 && dev_class<=0x7F) {
-        enc_item = proto_tree_add_text(class_tree,
-                tvb, offset, 1, "reserved for future use");
     }
     else if (dev_class>=0xD0 && dev_class<=0xFE) {
-        enc_item = proto_tree_add_text(class_tree,
-                tvb, offset, 1, "proprietary structure and coding");
         ret_fct = -1;
     }
     else if (dev_class==0xFF) {
-        enc_item = proto_tree_add_text(class_tree,
-                tvb, offset, 1, "reserved for Protocol Type Selection");
     }
     else {
-        enc_item = proto_tree_add_text(class_tree, tvb, offset, 1,
-                "structure and coding according to ISO/IEC 7816");
-        if (dev_class>=0xA0 && dev_class<=0xAF) {
-            proto_item_append_text(enc_item,
-                    " unless specified otherwise by the application context");
-        }
-
         if (dev_class<=0x0F || (dev_class>=0x80 && dev_class<=0xAF)) {
             proto_tree_add_item(class_tree, hf_iso7816_cla_sm,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -448,8 +447,6 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
                 proto_item_append_text(ch_item, " (or unused)");
         }
     }
-
-    PROTO_ITEM_SET_GENERATED(enc_item);
 
     return ret_fct;
 }
@@ -466,6 +463,7 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
     proto_item *p1_it = NULL, *p2_it = NULL;
     proto_tree *p1_tree = NULL, *p2_tree = NULL;
     proto_item *p1_p2_it = NULL;
+    guint16     P1P2;
 
     offset_start = offset;
 
@@ -482,6 +480,7 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     p2_offset = offset;
     offset++;
+    P1P2 = (p1<<8|p2);
 
     switch (ins) {
         case INS_EXT_AUTH:
@@ -509,27 +508,25 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
                 /* XXX - P2 == offset for the read */
             }
             else {
-                p1_p2_it = proto_tree_add_text(
-                        params_tree, tvb, offset_start, offset-offset_start,
-                        "Offset of the first byte to read: %d", P1P2);
+                p1_p2_it = proto_tree_add_uint(params_tree, hf_iso7816_offset_first_byte,
+                        tvb, offset_start, offset-offset_start, P1P2);
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                         "offset %d", P1P2);
             }
             break;
         case INS_GET_RESP:
-            p1_p2_it = proto_tree_add_text(
-                    params_tree, tvb, offset_start, offset-offset_start,
+            p1_p2_it = proto_tree_add_uint_format(params_tree, hf_iso7816_get_resp,
+                    tvb, offset_start, offset-offset_start, P1P2,
                     "Both should be 0x00, other values are RFU");
             break;
         case INS_GET_DATA:
             if (P1P2<=0x003F || (0x0300<=P1P2 && P1P2<=0x3FFF)) {
-                p1_p2_it = proto_tree_add_text(params_tree,
-                        tvb, offset_start, offset-offset_start, "RFU");
+                p1_p2_it = proto_tree_add_uint(params_tree, hf_iso7816_rfu,
+                        tvb, offset_start, offset-offset_start, P1P2);
             }
             else if (0x0100<=P1P2 && P1P2<=0x01FF) {
-                p1_p2_it = proto_tree_add_text(
-                        params_tree, tvb, offset_start, offset-offset_start,
-                        "Application data (proprietary coding)");
+                p1_p2_it = proto_tree_add_uint(params_tree, hf_iso7816_application_data,
+                        tvb, offset_start, offset-offset_start, P1P2);
             }
             break;
         default:
@@ -830,7 +827,7 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_cla,
             { "Class", "iso7816.apdu.cla",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL , HFILL }
+                FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(iso7816_class_rvals), 0, NULL , HFILL }
         },
         { &hf_iso7816_cla_sm,
             { "Secure Messaging", "iso7816.apdu.cla.sm",
@@ -886,7 +883,23 @@ proto_register_iso7816(void)
             { "Occurrence", "iso7816.apdu.select_file.occurrence",
                 FT_UINT8, BASE_HEX | BASE_EXT_STRING,
                 &ext_iso7816_sel_file_occ, 0x03, NULL, HFILL }
-        }
+        },
+        { &hf_iso7816_offset_first_byte,
+            { "Offset of the first byte to read", "iso7816.offset_first_byte",
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso7816_get_resp,
+            { "GetResp", "iso7816.get_resp",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso7816_rfu,
+            { "RFU", "iso7816.rfu",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso7816_application_data,
+            { "Application data (proprietary coding)", "iso7816.application_data",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_iso7816,

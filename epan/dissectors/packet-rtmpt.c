@@ -357,6 +357,10 @@ static int hf_amf_array = -1;
 static int hf_amf_arraylength = -1;
 static int hf_amf_arraydenselength = -1;
 
+static int hf_amf_end_of_object_marker = -1;
+static int hf_amf_end_of_associative_part = -1;
+static int hf_amf_end_of_dynamic_members = -1;
+
 static gint ett_amf = -1;
 static gint ett_amf_headers = -1;
 static gint ett_amf_messages = -1;
@@ -910,7 +914,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                 offset = dissect_amf0_value_type(tvb, offset, prop_tree, amf3_encoding, prop_ti);
                 proto_item_set_end(prop_ti, tvb, offset);
         }
-        proto_tree_add_text(tree, tvb, offset, 3, "End Of Object Marker");
+        proto_tree_add_item(tree, hf_amf_end_of_object_marker, tvb, offset, 3, ENC_NA);
         offset += 3;
 
         *countp = count;
@@ -948,6 +952,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * item a field for that type.
                  */
                 ti = proto_tree_add_item(tree, hf_amf_object, tvb, offset, -1, ENC_NA);
+                val_tree = proto_item_add_subtree(ti, ett_amf_value);
                 break;
 
         case AMF0_ECMA_ARRAY:
@@ -956,6 +961,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * item a field for that type.
                  */
                 ti = proto_tree_add_item(tree, hf_amf_ecmaarray, tvb, offset, -1, ENC_NA);
+                val_tree = proto_item_add_subtree(ti, ett_amf_value);
                 break;
 
         case AMF0_STRICT_ARRAY:
@@ -964,6 +970,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * item a field for that type.
                  */
                 ti = proto_tree_add_item(tree, hf_amf_strictarray, tvb, offset, -1, ENC_NA);
+                val_tree = proto_item_add_subtree(ti, ett_amf_value);
                 break;
 
         default:
@@ -971,12 +978,11 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * For all other types, make it just a text item; the
                  * field for that type will be used for the value.
                  */
-                ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                val_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amf_value, &ti,
                                          val_to_str_const(iObjType, amf0_type_vals, "Unknown"));
                 break;
         }
 
-        val_tree = proto_item_add_subtree(ti, ett_amf_value);
         proto_tree_add_uint(val_tree, hf_amf_amf0_type, tvb, iValueOffset, 1, iObjType);
         iValueOffset++;
 
@@ -1041,7 +1047,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 proto_item_append_text(ti, " (%u items)", count);
                 break;
         case AMF0_END_OF_OBJECT:
-                proto_tree_add_text(tree, tvb, iValueOffset, 3, "End Of Object Marker");
+                proto_tree_add_item(tree, hf_amf_end_of_object_marker, tvb, iValueOffset, 3, ENC_NA);
                 iValueOffset += 3;
                 break;
         case AMF0_STRICT_ARRAY:
@@ -1195,6 +1201,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                  * item a field for that type.
                  */
                 ti = proto_tree_add_item(tree, hf_amf_array, tvb, offset, -1, ENC_NA);
+                val_tree = proto_item_add_subtree(ti, ett_amf_value);
                 break;
 
         case AMF3_OBJECT:
@@ -1203,6 +1210,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                  * item a field for that type.
                  */
                 ti = proto_tree_add_item(tree, hf_amf_object, tvb, offset, -1, ENC_NA);
+                val_tree = proto_item_add_subtree(ti, ett_amf_value);
                 break;
 
         default:
@@ -1210,12 +1218,11 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                  * For all other types, make it just a text item; the
                  * field for that type will be used for the value.
                  */
-                ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                val_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amf_value, &ti,
                                          val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
                 break;
         }
 
-        val_tree = proto_item_add_subtree(ti, ett_amf_value);
         proto_tree_add_uint(val_tree, hf_amf_amf3_type, tvb, iValueOffset, 1, iObjType);
         iValueOffset++;
 
@@ -1329,7 +1336,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                         iStringLength = iIntegerValue >> 1;
                                         if (iStringLength == 0) {
                                                 /* null name marks the end of the associative part */
-                                                proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "End of associative part");
+                                                proto_tree_add_item(val_tree, hf_amf_end_of_associative_part, tvb, iValueOffset, iValueLength, ENC_NA);
                                                 iValueOffset += iValueLength;
                                                 break;
                                         }
@@ -1446,7 +1453,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                                 iStringLength = iIntegerValue >> 1;
                                                                 if (iStringLength == 0) {
                                                                         /* null name marks the end of the associative part */
-                                                                        proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength, "End of dynamic members");
+                                                                        proto_tree_add_item(traits_tree, hf_amf_end_of_dynamic_members, tvb, iValueOffset, iValueLength, ENC_NA);
                                                                         iValueOffset += iValueLength;
                                                                         break;
                                                                 }
@@ -1807,7 +1814,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         }
                 }
                 if ((tp->fmt>0 && !haveETS) || tp->fmt == 3) {
-                        proto_tree_add_text(rtmpt_tree, tvb, offset + tp->bhlen, 0, "Timestamp: %d (calculated)", tp->ts);
+                        proto_tree_add_uint_format_value(rtmpt_tree, hf_rtmpt_header_timestamp, tvb, offset + tp->bhlen, 0, tp->ts, "%d (calculated)", tp->ts);
                 }
                 if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_body_size, tvb, offset + tp->bhlen + 3, 3, ENC_BIG_ENDIAN);
                 if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_typeid, tvb, offset + tp->bhlen + 6, 1, ENC_BIG_ENDIAN);
@@ -2687,7 +2694,6 @@ proto_register_rtmpt(void)
                 { &hf_rtmpt_tag_tagsize,
                   { "Previous tag size", "rtmpt.tag.tagsize", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT Aggregate previous tag size", HFILL }}
-
         };
         static gint *ett[] = {
                 &ett_rtmpt,
@@ -2892,6 +2898,18 @@ proto_register_amf(void)
                 { &hf_amf_arraydenselength,
                   { "Length of dense portion", "amf.arraydenselength", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "AMF length of dense portion of array", HFILL }},
+
+                { &hf_amf_end_of_object_marker,
+                  { "End Of Object Marker", "amf.end_of_object_marker", FT_NONE, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_end_of_associative_part,
+                  { "End of associative part", "amf.end_of_associative_part", FT_NONE, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_end_of_dynamic_members,
+                  { "End Of dynamic members", "amf.end_of_dynamic_members", FT_NONE, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
         };
         static gint *ett[] = {
                 &ett_amf,

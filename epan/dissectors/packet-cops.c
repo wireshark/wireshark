@@ -622,7 +622,9 @@ static gint hf_cops_epd_unknown = -1;
 static gint hf_cops_reserved8 = -1;
 static gint hf_cops_reserved16 = -1;
 static gint hf_cops_reserved24 = -1;
-
+static gint hf_cops_keyed_message_digest = -1;
+static gint hf_cops_integrity_contents = -1;
+static gint hf_cops_opaque_data = -1;
 
 /* For PacketCable D-QoS */
 static gint hf_cops_subtree = -1;
@@ -668,7 +670,8 @@ static gint hf_cops_pc_token_bucket_rate = -1;
 static gint hf_cops_pc_token_bucket_size = -1;
 static gint hf_cops_pc_transaction_id = -1;
 static gint hf_cops_pc_bcid_ts = -1;
-/* static gint hf_cops_pc_bcid = -1; */
+static gint hf_cops_pc_bcid_id = -1;
+static gint hf_cops_pc_bcid_tz = -1;
 static gint hf_cops_pc_bcid_ev = -1;
 static gint hf_cops_pc_dfcdc_ip = -1;
 static gint hf_cops_pc_dfccc_ip = -1;
@@ -1516,7 +1519,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
 
         proto_tree_add_item(tree, hf_cops_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_cops_seq_num, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_text(tree, tvb, offset + 8 , len - 8, "Contents: Keyed Message Digest");
+        proto_tree_add_item(tree, hf_cops_keyed_message_digest, tvb, offset + 8 , len - 8, ENC_NA);
 
         break;
     default:
@@ -1779,7 +1782,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
+        proto_tree_add_bytes_format_value(tree, hf_cops_integrity_contents, tvb, offset, len, NULL, "%d bytes", len);
         break;
     }
 
@@ -1987,6 +1990,21 @@ void proto_register_cops(void)
           { "Contents: Sequence Number",           "cops.integrity.seq_num",
             FT_UINT32, BASE_DEC, NULL, 0,
             "Sequence Number in Integrity object", HFILL }
+        },
+        { &hf_cops_keyed_message_digest,
+          { "Contents: Keyed Message Digest",           "cops.integrity.keyed_message_digest",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_cops_integrity_contents,
+          { "Contents",           "cops.integrity.contents",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_cops_opaque_data,
+          { "Opaque Data",           "cops.opaque_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
         },
         { &hf_cops_gperror,
           { "Error",           "cops.gperror",
@@ -2265,13 +2283,16 @@ void proto_register_cops(void)
             FT_FLOAT, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-#if 0
-        { &hf_cops_pc_bcid,
-          { "Billing Correlation ID", "cops.pc_bcid",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+        { &hf_cops_pc_bcid_id,
+          { "BCID - Element ID", "cops.pc_bcid.id",
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-#endif
+        { &hf_cops_pc_bcid_tz,
+          { "BCID - Time Zone", "cops.pc_bcid.tz",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_cops_pc_bcid_ts,
           { "BDID Timestamp", "cops.pc_bcid_ts",
             FT_UINT32, BASE_HEX, NULL, 0x00,
@@ -3209,7 +3230,6 @@ static void
 cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
-     guint8 *bcid_str;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Electronic Surveillance Parameters");
@@ -3248,13 +3268,11 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Event Counter */
@@ -3266,7 +3284,6 @@ static void
 cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
-     guint8 *bcid_str;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Event Generation Info");
@@ -3309,13 +3326,11 @@ cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offse
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Event Counter */
@@ -3819,7 +3834,7 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : DOCSIS Service Class Name */
 static int
-cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
+cops_docsis_service_class_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint object_len, guint32 offset) {
 
     proto_tree *stt;
 
@@ -3838,7 +3853,8 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
         proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, ENC_ASCII|ENC_NA);
         offset += object_len - 8;
     } else {
-        proto_tree_add_text(stt, tvb, offset - 8, 2, "Invalid object length: %u", object_len);
+        proto_tree_add_expert_format(stt, pinfo, &ei_cops_bad_cops_object_length,
+                                    tvb, offset - 8, 2, "Invalid object length: %u", object_len);
     }
 
     return offset;
@@ -5634,7 +5650,6 @@ static void
 cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
-     guint8 *bcid_str;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Event Generation Info");
@@ -5669,13 +5684,11 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = (guchar*)tvb_format_text(tvb, offset, 8);
-     proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
      offset += 8;
 
      /* BCID Event Counter */
@@ -5728,7 +5741,7 @@ cops_opaque_data(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset
      offset += 4;
 
      /* Opaque Data */
-     proto_tree_add_text(stt, tvb, offset, 8,"Opaque Data");
+     proto_tree_add_item(stt, hf_cops_opaque_data, tvb, offset, 8, ENC_NA);
 }
 
 /* Cops - Section : Gate Time Info */
@@ -5950,7 +5963,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         /* In case we have remaining data, then lets try to get this analyzed */
         object_len   = tvb_get_ntohs(tvb, offset);
         if (object_len < 4) {
-            proto_tree_add_text(tree, tvb, offset, 2,
+            proto_tree_add_expert_format(tree, pinfo, &ei_cops_bad_cops_object_length, tvb, offset, 2,
                                 "Incorrect PacketCable object length %u < 4", object_len);
             return;
         }
@@ -6082,7 +6095,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* In case we have remaining data, then lets try to get this analyzed */
         object_len   = tvb_get_ntohs(tvb, offset);
         if (object_len < 4) {
-            proto_tree_add_text(tree, tvb, offset, 2,
+            proto_tree_add_expert_format(tree, pinfo, &ei_cops_bad_cops_object_length, tvb, offset, 2,
                                 "Incorrect PacketCable object length %u < 4", object_len);
             return;
         }
@@ -6126,7 +6139,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             cops_flow_spec(tvb, tree, object_len, offset);
             break;
         case PCMM_DOCSIS_SERVICE_CLASS_NAME:
-            cops_docsis_service_class_name(tvb, tree, object_len, offset);
+            cops_docsis_service_class_name(tvb, pinfo, tree, object_len, offset);
             break;
         case PCMM_BEST_EFFORT_SERVICE:
             if (object_len == 44 || object_len == 80 || object_len == 116)

@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 
 /* The CFDP standard can be found here:
@@ -102,6 +103,14 @@ static int hf_cfdp_rep_resp_code = -1;
 static int hf_cfdp_suspension_ind = -1;
 static int hf_cfdp_tlv_len = - 1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_cfdp_filestore_message = -1;
+static int hf_cfdp_entity = -1;
+static int hf_cfdp_message_to_user = -1;
+static int hf_cfdp_flow_label = -1;
+static int hf_cfdp_segment_requests = -1;
+static int hf_cfdp_user_data = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_cfdp = -1;
 static gint ett_cfdp_header = -1;
@@ -114,6 +123,9 @@ static gint ett_cfdp_filestore_resp = -1;
 static gint ett_cfdp_msg_to_user = -1;
 static gint ett_cfdp_fault_hdl_overr = -1;
 static gint ett_cfdp_flow_label = -1;
+
+static expert_field ei_cfdp_bad_length = EI_INIT;
+
 
 /* Generic data handle */
 static dissector_handle_t data_handle;
@@ -428,37 +440,37 @@ static const value_string cfdp_directive_codes[] = {
 
 /* Dissect the Source Entity ID field */
 static void
-dissect_cfdp_src_entity_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 len_ent_id)
+dissect_cfdp_src_entity_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 len_ent_id)
 {
     if(len_ent_id > 0 && len_ent_id <= 8){
         proto_tree_add_item(tree, hf_cfdp_srcid, tvb, offset, len_ent_id, ENC_BIG_ENDIAN);
     }
     else{
-        proto_tree_add_text(tree, tvb, offset, 0, "Wrong length for the entity ID");
+        proto_tree_add_expert_format(tree, pinfo, &ei_cfdp_bad_length, tvb, offset, 0, "Wrong length for the entity ID");
     }
 }
 
 /* Dissect the Destination Entity ID field */
 static void
-dissect_cfdp_dst_entity_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 len_ent_id)
+dissect_cfdp_dst_entity_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 len_ent_id)
 {
     if(len_ent_id > 0 && len_ent_id <= 8){
         proto_tree_add_item(tree, hf_cfdp_dstid, tvb, offset, len_ent_id, ENC_BIG_ENDIAN);
     }
     else{
-        proto_tree_add_text(tree, tvb, offset, 0, "Wrong length for the entity ID");
+        proto_tree_add_expert_format(tree, pinfo, &ei_cfdp_bad_length, tvb, offset, 0, "Wrong length for the entity ID");
     }
 }
 
 /* Dissect the Transaction Sequence Number field */
 static void
-dissect_cfdp_tseq_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 len_tseq_num)
+dissect_cfdp_tseq_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 len_tseq_num)
 {
     if(len_tseq_num > 0 && len_tseq_num <= 8){
         proto_tree_add_item(tree, hf_cfdp_transeqnum, tvb, offset, len_tseq_num, ENC_BIG_ENDIAN);
     }
     else{
-        proto_tree_add_text(tree, tvb, offset, 0, "Wrong length for transaction sequence number");
+        proto_tree_add_expert_format(tree, pinfo, &ei_cfdp_bad_length, tvb, offset, 0, "Wrong length for transaction sequence number");
     }
 }
 
@@ -571,7 +583,7 @@ static guint32 dissect_cfdp_filestore_resp_tlv(tvbuff_t *tvb, proto_tree *tree, 
         aux_byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         if(aux_byte > 0){
-            proto_tree_add_text(cfdp_filestore_resp_tree, tvb, offset, tlv_len, "Filestore Message");
+            proto_tree_add_item(cfdp_filestore_resp_tree, hf_cfdp_filestore_message, tvb, offset, tlv_len, ENC_NA);
             offset += aux_byte;
         }
     }
@@ -598,7 +610,7 @@ static guint32 dissect_cfdp_fault_location_tlv(tvbuff_t *tvb, proto_tree *tree, 
 
         proto_tree_add_uint(cfdp_fault_location_tree, hf_cfdp_tlv_len, tvb, offset-1, 1, tlv_len);
 
-        proto_tree_add_text(cfdp_fault_location_tree, tvb, offset, tlv_len, "Entity");
+        proto_tree_add_item(cfdp_fault_location_tree, hf_cfdp_entity, tvb, offset, tlv_len, ENC_NA);
         offset += tlv_len;
     }
 
@@ -606,7 +618,7 @@ static guint32 dissect_cfdp_fault_location_tlv(tvbuff_t *tvb, proto_tree *tree, 
 }
 
 /* Dissect the Message to User TLV */
-static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, guint32 ext_offset){
+static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ext_offset){
 
     guint8 aux_byte, tlv_type, tlv_len;
     proto_tree  *cfdp_msg_to_user_tree;
@@ -638,7 +650,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
             case PROXY_PUT_REQ:
                 tlv_len = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                dissect_cfdp_dst_entity_id(tvb, cfdp_msg_to_user_tree, offset, tlv_len);
+                dissect_cfdp_dst_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, tlv_len);
                 offset += tlv_len;
 
                 tlv_len = tvb_get_guint8(tvb, offset);
@@ -656,7 +668,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
             case PROXY_MSG_TO_USER:
                 tlv_len = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_text(cfdp_msg_to_user_tree, tvb, offset, tlv_len, "Message to User");
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_message_to_user, tvb, offset, tlv_len, ENC_NA);
                 break;
 
             case PROXY_FILESTORE_REQ:
@@ -678,7 +690,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 break;
 
             case PROXY_FLOW_LABEL:
-                proto_tree_add_text(cfdp_msg_to_user_tree, tvb, offset, tlv_len, "Flow label");
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_flow_label, tvb, offset, tlv_len, ENC_NA);
                 break;
 
             case PROXY_SEGMENT_CONTROL:
@@ -714,11 +726,11 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 offset += 1;
 
                 len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-                dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
+                dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
                 len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
-                dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
+                dissect_cfdp_tseq_num(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_tseq_num);
                 offset += len_tseq_num;
 
                 break;
@@ -762,11 +774,11 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 offset += 1;
 
                 len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-                dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
+                dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
                 len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
-                dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
+                dissect_cfdp_tseq_num(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_tseq_num);
                 offset += len_tseq_num;
 
                 /* Report File Name */
@@ -791,11 +803,11 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 offset += 1;
 
                 len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-                dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
+                dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
                 len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
-                dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
+                dissect_cfdp_tseq_num(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_tseq_num);
                 offset += len_tseq_num;
                 break;
 
@@ -809,11 +821,11 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 offset += 1;
 
                 len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-                dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
+                dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
                 len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
-                dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
+                dissect_cfdp_tseq_num(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_tseq_num);
                 offset += len_tseq_num;
                 break;
 
@@ -833,11 +845,11 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 offset += 1;
 
                 len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-                dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
+                dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
                 len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
-                dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
+                dissect_cfdp_tseq_num(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_tseq_num);
                 offset += len_tseq_num;
                 break;
 
@@ -845,7 +857,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
                 break;
         }
     }else{
-        proto_tree_add_text(cfdp_msg_to_user_tree, tvb, offset, tlv_len, "Message to User");
+        proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_message_to_user, tvb, offset, tlv_len, ENC_NA);
         offset += tlv_len;
     }
 
@@ -895,7 +907,7 @@ static guint32 dissect_cfdp_flow_label_tlv(tvbuff_t *tvb, proto_tree *tree, guin
                                         ett_cfdp_flow_label, NULL, "Flow Label TLV");
 
     /* It is undefined, so no specific encoding */
-    proto_tree_add_text(cfdp_flow_label_tree, tvb, offset, tlv_len, "Flow label");
+    proto_tree_add_item(cfdp_flow_label_tree, hf_cfdp_flow_label, tvb, offset, tlv_len, ENC_NA);
 
     return offset;
 }
@@ -931,7 +943,7 @@ static guint32 dissect_cfdp_eof_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             cfdp_fault_location_tree = proto_tree_add_subtree(tree, tvb, offset-2, tlv_len+2,
                         ett_cfdp_fault_location, NULL, "Fault location TLV");
 
-            proto_tree_add_text(cfdp_fault_location_tree, tvb, offset, tlv_len, "Entity");
+            proto_tree_add_item(cfdp_fault_location_tree, hf_cfdp_entity, tvb, offset, tlv_len, ENC_NA);
             offset += tlv_len;
         }
     }
@@ -1001,7 +1013,7 @@ static guint32 dissect_cfdp_ack_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 /* Dissect the Metadata PDU */
-static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 ext_offset, guint ext_packet_len){
+static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ext_offset, guint ext_packet_len){
 
     guint8 aux_byte, tlv_type;
     guint  cfdp_packet_data_length = ext_packet_len;
@@ -1032,7 +1044,7 @@ static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, proto_tree *tree, guint3
                 break;
 
             case MSG_TO_USER:
-                offset = dissect_cfdp_msg_to_user_tlv(tvb, tree, offset);
+                offset = dissect_cfdp_msg_to_user_tlv(tvb, pinfo, tree, offset);
                 break;
 
             case FAULT_HDL_OVERR:
@@ -1061,7 +1073,7 @@ static guint32 dissect_cfdp_nak_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 ext
     offset += 4;
     proto_tree_add_item(tree, hf_cfdp_nak_sp_scope, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_text(tree, tvb, offset, cfdp_packet_data_length-9, "Segment requests");
+    proto_tree_add_item(tree, hf_cfdp_segment_requests, tvb, offset, cfdp_packet_data_length-9, ENC_NA);
     offset += cfdp_packet_data_length-9;
 
     return offset;
@@ -1165,14 +1177,14 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     len_ent_id = ((second_byte & HDR_LEN_ENT_ID) >> 4) + 1;
-    dissect_cfdp_src_entity_id(tvb, cfdp_header_tree, offset, len_ent_id);
+    dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_header_tree, offset, len_ent_id);
     offset += len_ent_id;
 
     len_tseq_num = (second_byte & HDR_LEN_TSEQ_NUM) +1;
-    dissect_cfdp_tseq_num(tvb, cfdp_header_tree, offset, len_tseq_num);
+    dissect_cfdp_tseq_num(tvb, pinfo, cfdp_header_tree, offset, len_tseq_num);
     offset += len_tseq_num;
 
-    dissect_cfdp_dst_entity_id(tvb, cfdp_header_tree, offset, len_ent_id);
+    dissect_cfdp_dst_entity_id(tvb, pinfo, cfdp_header_tree, offset, len_ent_id);
     offset += len_ent_id;
 
     proto_item_set_end(cfdp_header, tvb, offset);
@@ -1208,7 +1220,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case METADATA_PDU:
-                offset = dissect_cfdp_metadata_pdu(tvb, cfdp_file_directive_header_tree, offset, cfdp_packet_data_length);
+                offset = dissect_cfdp_metadata_pdu(tvb, pinfo, cfdp_file_directive_header_tree, offset, cfdp_packet_data_length);
                 break;
 
             case NAK_PDU:
@@ -1241,7 +1253,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         offset += 4;
 
-        proto_tree_add_text(cfdp_file_data_header_tree, tvb, offset, cfdp_packet_data_length-4, "User Data");
+        proto_tree_add_item(cfdp_file_data_header_tree, hf_cfdp_user_data, tvb, offset, cfdp_packet_data_length-4, ENC_NA);
         offset += cfdp_packet_data_length-4;
 
     }
@@ -1570,7 +1582,15 @@ proto_register_cfdp(void)
             {"Suspension indicator", "cfdp.suspension_ind",
             FT_UINT8, BASE_DEC, VALS(cfdp_suspension_ind), 0x80,
             NULL, HFILL}
-        }
+        },
+
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_cfdp_filestore_message, { "Filestore Message", "cfdp.filestore_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_cfdp_entity, { "Entity", "cfdp.entity", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_cfdp_message_to_user, { "Message to User", "cfdp.message_to_user", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_cfdp_flow_label, { "Flow label", "cfdp.flow_label", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_cfdp_segment_requests, { "Segment requests", "cfdp.segment_requests", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_cfdp_user_data, { "User Data", "cfdp.user_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     };
 
@@ -1589,12 +1609,20 @@ proto_register_cfdp(void)
         &ett_cfdp_flow_label
     };
 
+    static ei_register_info ei[] = {
+        { &ei_cfdp_bad_length, { "cfdp.bad_length", PI_MALFORMED, PI_ERROR, "Bad length field", EXPFILL }},
+    };
+
+    expert_module_t* expert_cfdp;
+
     /* Register the protocol name and description */
     proto_cfdp = proto_register_protocol("CFDP", "CFDP", "cfdp");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_cfdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_cfdp = expert_register_protocol(proto_cfdp);
+    expert_register_field_array(expert_cfdp, ei, array_length(ei));
 
     register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
 }

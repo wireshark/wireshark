@@ -125,6 +125,7 @@ static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_ber_seq_of_eoc = -1;
+static int hf_ber_64bit_uint_as_bytes = -1;
 static int hf_ber_choice_eoc = -1;
 static int hf_ber_seq_field_eoc = -1;
 static int hf_ber_seq_eoc = -1;
@@ -1884,21 +1885,14 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
     /* we can't handle integers > 64 bits */
     /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
     if ((len > 9) || ((len == 9) && (first != 0))) {
-        header_field_info *hfinfo;
-        proto_item        *pi = NULL;
-
         if (hf_id >= 0) {
-            hfinfo = proto_registrar_get_nth(hf_id);
-            pi = proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
+            header_field_info *hfinfo = proto_registrar_get_nth(hf_id);
+
+            proto_tree_add_bytes_format(tree, hf_ber_64bit_uint_as_bytes, tvb, offset, len,
+                "%s : 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
         }
-        if (pi) {
-            for (i=0; i<len; i++) {
-                proto_item_append_text(pi, "%02x", tvb_get_guint8(tvb, offset));
-                offset++;
-            }
-        } else {
-            offset += len;
-        }
+
+        offset += len;
         return offset;
     }
 
@@ -4409,6 +4403,7 @@ proto_register_ber(void)
       { &hf_ber_set_eoc, { "SET EOC", "ber.set_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ber_choice_eoc, { "CHOICE EOC", "ber.choice_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ber_seq_of_eoc, { "SEQ OF EOC", "ber.seq_of_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_64bit_uint_as_bytes, { "64bits unsigned integer", "ber.64bit_uint_as_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
 
