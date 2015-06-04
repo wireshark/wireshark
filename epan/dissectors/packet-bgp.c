@@ -204,6 +204,7 @@ void proto_reg_handoff_bgp(void);
 #define EVPN_MAC_ROUTE          2
 #define EVPN_INC_MCAST_TREE     3
 #define EVPN_ETH_SEGMENT_ROUTE  4
+#define EVPN_IP_PREFIX_ROUTE    5 /* draft-rabadan-l2vpn-evpn-prefix-advertisement */
 
 /* NLRI type as define in BGP flow spec RFC */
 #define BGPNLRI_FSPEC_DST_PFIX      1 /* RFC 5575         */
@@ -586,6 +587,7 @@ static const value_string evpnrtypevals[] = {
     { EVPN_MAC_ROUTE,          "MAC Advertisement Route" },
     { EVPN_INC_MCAST_TREE,     "Inclusive Multicast Route" },
     { EVPN_ETH_SEGMENT_ROUTE,  "Ethernet Segment Route" },
+    { EVPN_IP_PREFIX_ROUTE,    "IP Prefix route"},
     { 0, NULL }
 };
 
@@ -1267,8 +1269,11 @@ static int hf_bgp_evpn_nlri_mpls_ls = -1;
 static int hf_bgp_evpn_nlri_maclen = -1;
 static int hf_bgp_evpn_nlri_mac_addr = -1;
 static int hf_bgp_evpn_nlri_iplen = -1;
+static int hf_bgp_evpn_nlri_prefix_len = -1;
 static int hf_bgp_evpn_nlri_ip_addr = -1;
 static int hf_bgp_evpn_nlri_ipv6_addr = -1;
+static int hf_bgp_evpn_nlri_ipv4_gtw = -1;
+static int hf_bgp_evpn_nlri_ipv6_gtw = -1;
 
 /* BGP update tunnel encaps attribute RFC 5512 */
 
@@ -2608,7 +2613,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
 static guint
 decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
 {
-    guint32     label_entry;    /* an MPLS label entry (label + COS field + stack bit)   */
+    guint32     label_entry=0;    /* an MPLS label entry (label + COS field + stack bit)   */
     gint        indx;          /* index for the label stack */
     proto_tree  *labels_tree=NULL;
     proto_item  *labels_item=NULL;
@@ -2617,6 +2622,7 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
     label_entry = 0x000000 ;
 
     labels_item = proto_tree_add_item(parent_tree, hf_bgp_update_mpls_label, tvb, offset, 3, ENC_NA);
+    proto_item_append_text(labels_item, ": ");
     labels_tree = proto_item_add_subtree(labels_item, ett_bgp_mpls_labels);
     while ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
 
@@ -2641,7 +2647,7 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
             break;
         }
     }
-    proto_item_set_len(labels_item, ((indx - offset) / 3));
+    proto_item_set_len(labels_item, (indx - offset));
     return((indx - offset) / 3);
 }
 
@@ -3672,13 +3678,13 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     guint labnum;
     guint8 nlri_len;
     guint8 ip_len;
-    guint32 total_length;
+    guint32 total_length = 0;
     proto_item *item;
     wmem_strbuf_t *stack_strbuf; /* label stack                  */
 
     route_type = tvb_get_guint8(tvb, offset);
 
-    if (route_type == 0 || route_type > 4) {
+    if (route_type == 0 || route_type > 5) {
         expert_add_info_format(pinfo, tree, &ei_bgp_evpn_nlri_rt_type_err,
                                "Invalid EVPN Route Type (%u)!", route_type);
         return -1;
@@ -3891,6 +3897,57 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
             return -1;
         }
 
+        break;
+    case EVPN_IP_PREFIX_ROUTE:
+
+/*
+    +---------------------------------------+
+    |      RD   (8 octets)                  |
+    +---------------------------------------+
+    |Ethernet Segment Identifier (10 octets)|
+    +---------------------------------------+
+    |  Ethernet Tag ID (4 octets)           |
+    +---------------------------------------+
+    |  IP Prefix Length (1 octet)           |
+    +---------------------------------------+
+    |  IP Prefix (4 or 16 octets)           |
+    +---------------------------------------+
+    |  GW IP Address (4 or 16 octets)       |
+    +---------------------------------------+
+    |  MPLS Label (3 octets)                |
+    +---------------------------------------+
+*/
+
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
+                            10, ENC_NA);
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
+                            4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, start_offset+24,
+                            1, ENC_BIG_ENDIAN);
+        switch (nlri_len) {
+            case 34 :
+                /* IPv4 address */
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, start_offset+25,
+                                    4, ENC_NA);
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv4_gtw, tvb, start_offset+29,
+                                    4, ENC_NA);
+                decode_MPLS_stack_tree(tvb, start_offset+33, prefix_tree);
+                total_length = 36;
+                break;
+            case 58 :
+                /* IPv6 address */
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, start_offset+25,
+                                    16, ENC_NA);
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_gtw, tvb, start_offset+41,
+                                    16, ENC_NA);
+                decode_MPLS_stack_tree(tvb, start_offset+57, prefix_tree);
+                total_length = 60;
+                break;
+            default :
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
+                                   "Invalid total nlri length (%u) in EVPN NLRI Route Type 5 (IP prefix Route)!", nlri_len);
+                break;
+        }
         break;
     default:
         return -1;
@@ -7938,13 +7995,21 @@ proto_register_bgp(void)
      { &hf_bgp_evpn_nlri_iplen,
        { "IP Address Length", "bgp.evpn.nlri.iplen", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_evpn_nlri_prefix_len,
+        { "IP prefix length", "bgp.evpn.nlri.prefix_len", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_ip_addr,
         { "IPv4 address", "bgp.evpn.nlri.ip.addr", FT_IPv4,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_ipv6_addr,
         { "IPv6 address", "bgp.evpn.nlri.ipv6.addr", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
-
+      { &hf_bgp_evpn_nlri_ipv4_gtw,
+        { "IPv4 Gateway address", "bgp.evpn.nlri.ipv4.gtw_addr", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_ipv6_gtw,
+        { "IPv6 Gateway address", "bgp.evpn.nlri.ipv6.gtw_addr", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}}
 };
 
     static gint *ett[] = {
