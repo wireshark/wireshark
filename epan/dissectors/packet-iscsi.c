@@ -219,7 +219,7 @@ static gint ett_iscsi_ISID = -1;
 /* this structure contains session wide state for a specific tcp conversation */
 typedef struct _iscsi_session_t {
     guint32 header_digest;
-    wmem_map_t *itlq;  /* indexed by ITT */
+    wmem_tree_t *itlq;  /* indexed by ITT */
     wmem_map_t *itl;   /* indexed by LUN */
 } iscsi_session_t;
 
@@ -513,6 +513,7 @@ static const value_string iscsi_reject_reasons[] = {
 typedef struct _iscsi_conv_data {
     guint32 data_in_frame;
     guint32 data_out_frame;
+    guint32 itt;
     itlq_nexus_t itlq;
 } iscsi_conv_data_t;
 
@@ -738,6 +739,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint ahs_cdb_length=0;
     guint ahs_cdb_offset=0;
     guint32 data_offset=0;
+    wmem_tree_key_t key[3];
+    guint32 itt;
 
     if(paddedDataSegmentLength & 3)
         paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -745,25 +748,62 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
-    /* XXX we need a way to handle replayed iscsi itt here */
-    cdata=(iscsi_conv_data_t *)wmem_map_lookup(iscsi_session->itlq, GUINT_TO_POINTER(tvb_get_ntohl(tvb, offset+16)));
-    if(!cdata){
-        cdata = wmem_new(wmem_file_scope(), iscsi_conv_data_t);
-        cdata->itlq.lun=0xffff;
-        cdata->itlq.scsi_opcode=0xffff;
-        cdata->itlq.task_flags=0;
-        cdata->itlq.data_length=0;
-        cdata->itlq.bidir_data_length=0;
-        cdata->itlq.fc_time = pinfo->fd->abs_ts;
-        cdata->itlq.first_exchange_frame=0;
-        cdata->itlq.last_exchange_frame=0;
-        cdata->itlq.flags=0;
-        cdata->itlq.alloc_len=0;
-        cdata->itlq.extra_data=NULL;
-        cdata->data_in_frame=0;
-        cdata->data_out_frame=0;
+    itt = tvb_get_ntohl(tvb, offset+16);
+    key[0].length = 1;
+    key[0].key = &itt;
+    key[1].length = 1;
+    key[1].key = &pinfo->fd->num;
+    key[2].length = 0;
+    key[2].key = NULL;
 
-        wmem_map_insert(iscsi_session->itlq, GUINT_TO_POINTER(tvb_get_ntohl(tvb, offset+16)), cdata);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if (opcode == ISCSI_OPCODE_SCSI_COMMAND) {
+            cdata = wmem_new(wmem_file_scope(), iscsi_conv_data_t);
+            cdata->itlq.lun = 0xffff;
+            cdata->itlq.scsi_opcode = 0xffff;
+            cdata->itlq.task_flags = 0;
+            cdata->itlq.data_length = 0;
+            cdata->itlq.bidir_data_length = 0;
+            cdata->itlq.fc_time = pinfo->fd->abs_ts;
+            cdata->itlq.first_exchange_frame = 0;
+            cdata->itlq.last_exchange_frame = 0;
+            cdata->itlq.flags = 0;
+            cdata->itlq.alloc_len = 0;
+            cdata->itlq.extra_data = NULL;
+            cdata->data_in_frame = 0;
+            cdata->data_out_frame = 0;
+            cdata->itt = itt;
+            wmem_tree_insert32_array(iscsi_session->itlq, key, (void *)cdata);
+        } else {
+            cdata = (iscsi_conv_data_t *)wmem_tree_lookup32_array_le(iscsi_session->itlq, key);
+            if (cdata && (cdata->itt != itt)) {
+                cdata = NULL;
+            }
+        }
+    } else {
+        cdata = (iscsi_conv_data_t *)wmem_tree_lookup32_array_le(iscsi_session->itlq, key);
+        if (cdata && (cdata->itt != itt)) {
+            cdata = NULL;
+        }
+    }
+
+    if(!cdata) {
+        /* Create a fake temporary structure */
+        cdata = wmem_new(wmem_packet_scope(), iscsi_conv_data_t);
+        cdata->itlq.lun = 0xffff;
+        cdata->itlq.scsi_opcode = 0xffff;
+        cdata->itlq.task_flags = 0;
+        cdata->itlq.data_length = 0;
+        cdata->itlq.bidir_data_length = 0;
+        cdata->itlq.fc_time = pinfo->fd->abs_ts;
+        cdata->itlq.first_exchange_frame = 0;
+        cdata->itlq.last_exchange_frame = 0;
+        cdata->itlq.flags = 0;
+        cdata->itlq.alloc_len = 0;
+        cdata->itlq.extra_data = NULL;
+        cdata->data_in_frame = 0;
+        cdata->data_out_frame = 0;
+        cdata->itt = itt;
     }
 
     if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
@@ -2351,7 +2391,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         if(!iscsi_session){
             iscsi_session = wmem_new(wmem_file_scope(), iscsi_session_t);
             iscsi_session->header_digest = ISCSI_HEADER_DIGEST_AUTO;
-            iscsi_session->itlq = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+            iscsi_session->itlq = wmem_tree_new(wmem_file_scope());
             iscsi_session->itl  = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
             conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
 
