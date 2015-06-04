@@ -36,6 +36,10 @@ RTABapdu
 AbortReason
 #.END
 
+#.OMIT_ASSIGNMENT
+PerRecipientReportFields
+#PerRecipientReportFields/report-type
+
 #.NO_EMIT
 # These fields are only used through COMPONENTS OF,
 # and consequently generate unused code warnings
@@ -45,8 +49,9 @@ PerReportTransferFields
 PerMessageSubmissionFields
 PerProbeSubmissionFields
 PerReportDeliveryFields
-PerRecipientReportFields
-#PerRecipientReportFields/report-type
+PerRecipientDeliveryReportFields
+PerRecipientNonDeliveryReportFields
+
 InternalAdditionalActions
 AdditionalActions
 NonBasicParameters
@@ -224,7 +229,7 @@ ExtensionField/value			extension-value
 
 LastTraceInformation/report-type	trace-report-type
 PerRecipientReportDeliveryFields/report-type	delivery-report-type
-PerRecipientReportFields/report-type/delivery		report-type-delivery
+#PerRecipientReportFields/report-type/delivery		report-type-delivery
 
 PerRecipientMessageSubmissionFields/recipient-name	submission-recipient-name
 PerRecipientProbeSubmissionFields/recipient-name	probe-recipient-name
@@ -233,7 +238,7 @@ PerRecipientReportTransferFields/actual-recipient-name	mta-actual-recipient-name
 
 MessageClass/priority			class-priority
 DeliveryQueue/octets			delivery-queue-octets
-PerRecipientReportFields/report-type/non-delivery	non-delivery-report
+#PerRecipientReportFields/report-type/non-delivery	non-delivery-report
 
 MTABindResult/authenticated	authenticated-result
 MTABindArgument/authenticated	authenticated-argument
