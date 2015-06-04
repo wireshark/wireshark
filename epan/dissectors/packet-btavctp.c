@@ -116,14 +116,9 @@ static void btavctp_pid_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btavctp_pid_value(packet_info *pinfo)
 {
-    gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV);
+    return (gpointer) p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV);
 
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
 }
 
 static gint
