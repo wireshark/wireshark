@@ -814,6 +814,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0225, "Adjust DCPBoundary"},
     { 0x0226, "Adjust PreambleLength"},
     { 0x0227, "Adjust FastForwardingBoundary"},
+    { 0x0228, "Reading real fiber optic diagnosis data"},
     { 0x022A, "PDIRSubframeData"},
     { 0x022B, "SubframeBlock"},
     { 0x0230, "PDNCDataCheck"},
@@ -5304,6 +5305,30 @@ dissect_FiberOpticManufacturerSpecific_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the FiberOpticDiagnosisInfo block */
+static int
+dissect_FiberOpticDiagnosisInfo_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint32 u32FiberOpticPowerBudget;
+
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* decode the u32FiberOpticPowerBudget better */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_maintenance_required_power_budget, &u32FiberOpticPowerBudget);
+
+    return offset;
+}
+
+
 /* dissect the PDPortFODataAdjust block */
 static int
 dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
@@ -8412,6 +8437,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x0226):
         dissect_AdjustPreambleLength_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0228):
+        dissect_FiberOpticDiagnosisInfo_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x022A):
         dissect_PDIRSubframeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
