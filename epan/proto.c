@@ -650,7 +650,7 @@ static void
 free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 {
 	GPtrArray         *ptrs = (GPtrArray *)value;
-	gint               hfid = (gint)(long)key;
+	gint               hfid = GPOINTER_TO_UINT(key);
 	header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
