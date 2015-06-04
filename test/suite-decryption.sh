@@ -122,7 +122,6 @@ decryption_step_ssl() {
 # SSL, using the server's private key with password
 decryption_step_ssl_with_password() {
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
-		-o "ssl.keys_list: 127.0.0.1,9131,http,$TEST_KEYS_DIR/key.p12,WebAS" \
 		-r "$CAPTURE_DIR/dmgr.pcapng" -Y http \
 		| grep unsecureLogon.jsp > /dev/null 2>&1
 	RETURNVALUE=$?
