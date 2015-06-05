@@ -569,17 +569,8 @@ free_tree_presentation(stats_tree* st)
 void
 register_tap_listener_stats_tree_stat(void)
 {
-
 	stats_tree_presentation(register_gtk_stats_tree_tap,
-				NULL,
-				NULL,
-				NULL,
-				NULL,
-				NULL,
-				free_tree_presentation,
-				NULL,
-				NULL,
-				NULL);
+				NULL, free_tree_presentation, NULL);
 }
 
 void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)

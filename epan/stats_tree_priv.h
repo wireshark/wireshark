@@ -140,7 +140,7 @@ struct _stats_tree_cfg {
 	gchar*			tapname;
 	register_stat_group_t	stat_group;
 
-    gboolean in_use; /* GTK+ only */
+	gboolean in_use; /* GTK+ only */
 	gboolean plugin;
 
 	/** dissector defined callbacks */
@@ -158,13 +158,6 @@ struct _stats_tree_cfg {
 	/** last to be called at node creation */
 	void (*setup_node_pr)(stat_node*);
 
-	/** last to be called at node destruction */
-	void (*free_node_pr)(stat_node*);
-
-	/** to be called for every node in the tree */
-	void (*draw_node)(stat_node*);
-	void (*reset_node)(stat_node*);
-
 	/**
 	 * tree presentation callbacks
 	 */
@@ -173,8 +166,6 @@ struct _stats_tree_cfg {
 
 	tree_pres *(*new_tree_pr)(stats_tree*);
 	void (*free_tree_pr)(stats_tree*);
-	void (*draw_tree)(stats_tree*);
-	void (*reset_tree)(stats_tree*);
 
 	/** flags for the stats tree (sorting etc.) default values to new trees */
 	guint st_flags;
@@ -183,13 +174,7 @@ struct _stats_tree_cfg {
 /* guess what, this is it! */
 WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
 				    void (*setup_node_pr)(stat_node*),
-				    void (*free_node_pr)(stat_node*),
-				    void (*draw_node)(stat_node*),
-				    void (*reset_node)(stat_node*),
-				    tree_pres *(*new_tree_pr)(stats_tree*),
 				    void (*free_tree_pr)(stats_tree*),
-				    void (*draw_tree)(stats_tree*),
-				    void (*reset_tree)(stats_tree*),
 				    void *data);
 
 WS_DLL_PUBLIC stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);

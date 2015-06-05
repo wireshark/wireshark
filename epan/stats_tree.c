@@ -117,8 +117,6 @@ free_stat_node(stat_node *node)
     }
     }
 
-    if(node->st->cfg->free_node_pr) node->st->cfg->free_node_pr(node);
-
     if (node->hash) g_hash_table_destroy(node->hash);
 
     while (node->bh) {
@@ -188,11 +186,6 @@ reset_stat_node(stat_node *node)
         for (child = node->children; child; child = child->next )
             reset_stat_node(child);
     }
-
-    if(node->st->cfg->reset_node) {
-        node->st->cfg->reset_node(node);
-    }
-
 }
 
 /* reset the whole stats_tree */
@@ -206,10 +199,6 @@ stats_tree_reset(void *p)
     st->now = - 1.0;
 
     reset_stat_node(&st->root);
-
-    if (st->cfg->reset_tree) {
-        st->cfg->reset_tree(st);
-    }
 }
 
 extern void
@@ -386,13 +375,7 @@ stats_tree_get_cfg_list(void)
 
 struct _stats_tree_pres_cbs {
     void (*setup_node_pr)(stat_node*);
-    void (*free_node_pr)(stat_node*);
-    void (*draw_node)(stat_node*);
-    void (*reset_node)(stat_node*);
-    tree_pres *(*new_tree_pr)(stats_tree*);
     void (*free_tree_pr)(stats_tree*);
-    void (*draw_tree)(stats_tree*);
-    void (*reset_tree)(stats_tree*);
 };
 
 static void
@@ -403,38 +386,20 @@ setup_tree_presentation(gpointer k _U_, gpointer v, gpointer p)
 
     cfg->in_use = FALSE;
     cfg->setup_node_pr = d->setup_node_pr;
-    cfg->new_tree_pr = d->new_tree_pr;
-    cfg->free_node_pr = d->free_node_pr;
     cfg->free_tree_pr = d->free_tree_pr;
-    cfg->draw_node = d->draw_node;
-    cfg->draw_tree = d->draw_tree;
-    cfg->reset_node = d->reset_node;
-    cfg->reset_tree = d->reset_tree;
 
 }
 
 extern void
 stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
             void (*setup_node_pr)(stat_node*),
-            void (*free_node_pr)(stat_node*),
-            void (*draw_node)(stat_node*),
-            void (*reset_node)(stat_node*),
-            tree_pres *(*new_tree_pr)(stats_tree*),
             void (*free_tree_pr)(stats_tree*),
-            void (*draw_tree)(stats_tree*),
-            void (*reset_tree)(stats_tree*),
             void *data)
 {
     static struct _stats_tree_pres_cbs d;
 
     d.setup_node_pr = setup_node_pr;
-    d.new_tree_pr = new_tree_pr;
-    d.free_node_pr = free_node_pr;
     d.free_tree_pr = free_tree_pr;
-    d.draw_node = draw_node;
-    d.draw_tree = draw_tree;
-    d.reset_node = reset_node;
-    d.reset_tree = reset_tree;
 
     if (registry) g_hash_table_foreach(registry,setup_tree_presentation,&d);
 
