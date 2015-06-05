@@ -5817,7 +5817,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                     o + i + aoff, 2, ENC_BIG_ENDIAN);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
-                                    o + i + aoff+2, 2, ENC_BIG_ENDIAN);
+                                    o + i + aoff+2, 1, ENC_BIG_ENDIAN);
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
                 subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
                                                          nexthop_len + 1, ett_bgp_mp_nhna, NULL,
@@ -5909,7 +5909,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                     o + i + aoff, 2, ENC_BIG_ENDIAN);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri_safi, tvb,
-                                    o + i + aoff+2, 2, ENC_BIG_ENDIAN);
+                                    o + i + aoff+2, 1, ENC_BIG_ENDIAN);
 
                 subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
                                                          tlen - 3, ett_bgp_mp_unreach_nlri, NULL, "Withdrawn routes (%u byte%s)", tlen - 3,
