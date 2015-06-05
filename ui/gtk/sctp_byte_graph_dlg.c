@@ -1516,7 +1516,6 @@ void create_byte_graph(guint16 dir, struct sctp_analyse* userdata)
 	struct sctp_udata *u_data;
 
 	u_data=(struct sctp_udata *)g_malloc(sizeof(struct sctp_udata));
-	u_data->assoc=(sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
 	u_data->assoc=userdata->assoc;
 	u_data->io=NULL;
 	u_data->dir = dir;

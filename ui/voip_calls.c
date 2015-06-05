@@ -1590,7 +1590,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
                         /* check if the called number match a LRQ/LCF */
                         if ( (strcmp(callsinfo->to_identity, tmp_listinfo->to_identity)==0)
-                                && (memcmp(&tmp2_h323info->guid, &guid_allzero, GUID_LEN) == 0) ) {
+                                && (memcmp(tmp2_h323info->guid, &guid_allzero, GUID_LEN) == 0) ) {
                             /* change the call graph to the LRQ/LCF to belong to this call */
                             callsinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, callsinfo->call_num);
 

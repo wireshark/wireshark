@@ -514,7 +514,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       subsize = get_cmd_len(&ecHdr);
       len = ecHdr.len & 0x07ff;
 
-      if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
+      if ( len >= ETHERCAT_MBOX_HEADER_LEN &&
            (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&
            ecHdr.anAddrUnion.a.ado>=0x1000
          )
@@ -528,7 +528,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          case ETHERCAT_MBOX_TYPE_FOE:
          case ETHERCAT_MBOX_TYPE_COE:
          case ETHERCAT_MBOX_TYPE_SOE:
-            if ( /*pMBox->Length > 0 &&*/ mbox.Length <= 1500 /*&& pMBox->Length+sizeof(ETHERCAT_MBOX_HEADER_LEN) >= len*/ )
+            if ( /*pMBox->Length > 0 &&*/ mbox.Length <= 1500 /*&& (pMBox->Length+ETHERCAT_MBOX_HEADER_LEN) >= len*/ )
             {
                bMBox = TRUE;
             }
