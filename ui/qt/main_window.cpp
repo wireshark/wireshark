@@ -27,7 +27,7 @@
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
-#include <epan/ext_menubar.h>
+#include <epan/plugin_if.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
@@ -42,6 +42,7 @@
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
 #include "ui/util.h"
+#include "ui/preference_utils.h"
 
 #include "byte_view_tab.h"
 #include "display_filter_edit.h"
@@ -81,6 +82,42 @@ static MainWindow *gbl_cur_main_window_ = NULL;
 void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
 {
     gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
+}
+
+void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
+{
+    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
+    {
+        GHashTable * dataSet = (GHashTable *) user_data;
+
+        if ( g_hash_table_contains(dataSet, "filter_string" ) )
+        {
+            QString filter((const char *)g_hash_table_lookup(dataSet, "filter_string"));
+            gbl_cur_main_window_->filterPackets(filter);
+        }
+    }
+}
+
+void plugin_if_mainwindow_preference(gconstpointer user_data)
+{
+    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
+    {
+        GHashTable * dataSet = (GHashTable *) user_data;
+        if ( g_hash_table_contains(dataSet, "pref_module" ) &&
+                g_hash_table_contains(dataSet, "pref_value" ) &&
+                g_hash_table_contains(dataSet, "pref_value" ) )
+        {
+            const char * module_name = (const char *)g_hash_table_lookup(dataSet, "pref_module");
+            const char * pref_name = (const char *)g_hash_table_lookup(dataSet, "pref_key");
+            const char * pref_value = (const char *)g_hash_table_lookup(dataSet, "pref_value");
+
+            if ( prefs_store_ext(module_name, pref_name, pref_value) )
+            {
+                wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+                wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+            }
+        }
+    }
 }
 
 gpointer
@@ -478,6 +515,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
             this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
 #endif
+
+    /* Create plugin_if hooks */
+    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_APPLY, plugin_if_mainwindow_apply_filter );
+    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_PREPARE, plugin_if_mainwindow_apply_filter );
+    plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_mainwindow_preference);
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }

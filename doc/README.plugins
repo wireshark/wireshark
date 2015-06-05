@@ -321,12 +321,14 @@ is encouraged to update their plugins as outlined below:
       the DOCSIS plugin.
 
 
-6 How to implement a plugin related menu
+6 How to plugin related interface options
+
+6.1 Implement a plugin GUI menu
 
 A plugin (as well as built-in dissectors) may implement a menu within
 Wireshark to be used to trigger options, start tools, open Websites, ...
 
-This menu structure is built using the ext_menubar.h interface and it's
+This menu structure is built using the plugin_if.h interface and it's
 corresponding functions.
 
 The menu items all call a callback provided by the plugin, which takes
@@ -365,7 +367,25 @@ Using the Gtk Version and a Mac OSX operating system, this will not work, and
 the Gtk interface is currently not supported on this plattform. The Qt interface
 on Mac provides the menu.
 
-For a more detailed information, please refer to ext_menubar.h
+For a more detailed information, please refer to plugin_if.h
+
+6.2 Implement interactions with the main interface
+
+Due to memory constraints on most plattforms, plugin functionality cannot be
+called directly from a DLL context. Instead special functions will be used, which
+will implement certain options for plugins to utilize.
+
+The following methods exist so far:
+
+	/* Applies the given filter string as display filter */
+	WS_DLL_PUBLIC void plugin_if_apply_filter
+		(const char * filter_string, gboolean force);
+
+	/* Saves the given preference to the main preference storage */
+	WS_DLL_PUBLIC void plugin_if_save_preference
+		(const char * pref_module, const char * pref_key, const char * pref_value);
+
+
 
 ----------------
 

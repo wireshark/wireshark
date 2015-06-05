@@ -273,6 +273,48 @@ prefs_main_write(void)
   }
 }
 
+gboolean
+prefs_store_ext(const char * module_name, const char *pref_name, const char *pref_value)
+{
+  module_t * module = NULL;
+  pref_t * pref = NULL;
+  gboolean pref_changed = TRUE;
+
+  if ( ! prefs_is_registered_protocol(module_name))
+    return FALSE;
+
+  module = prefs_find_module(module_name);
+  if ( ! module )
+    return FALSE;
+
+  pref = prefs_find_preference(module, pref_name);
+
+  if (!pref)
+    return FALSE;
+
+  if ( pref->type == PREF_STRING )
+  {
+    g_free((void *)pref->stashed_val.string);
+    pref->stashed_val.string = (gchar *) g_strdup(pref_value);
+    /* unstash - taken from preferences_util */
+    if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0)
+    {
+      pref_changed = TRUE;
+      g_free((void *)*pref->varp.string);
+      *pref->varp.string = g_strdup(pref->stashed_val.string);
+    }
+  }
+
+  if ( pref_changed )
+  {
+    prefs_main_write();
+    prefs_apply_all();
+    prefs_to_capture_opts();
+  }
+
+  return TRUE;
+}
+
 gint
 column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
 {

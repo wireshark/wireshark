@@ -80,6 +80,16 @@ extern void prefs_to_capture_opts(void);
  */
 extern void prefs_main_write(void);
 
+/** Convenient function for plugin_if
+ *
+ * @param module the module for the preference
+ * @param key the key for the preference
+ * @param value the new value as string for the preference
+ *
+ * @return true if the value has been stored successfully
+ */
+extern gboolean prefs_store_ext(const char * module, const char * key, const char * value);
+
 /** Add a custom column.
  *
  * @param fmt column format

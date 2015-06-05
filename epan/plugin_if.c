@@ -1,9 +1,12 @@
-/* ext_menubar.c
- * A menubar API for Wireshark dissectors
+/* plugin_if.c
+ * An API for Wireshark plugins
  *
  * This enables wireshark dissectors, especially those implemented by plugins
  * to register menubar entries, which then will call a pre-defined callback
- * function for the dissector or plugin
+ * function for the dissector or plugin.
+ *
+ * Also it implements additional methods, which allow plugins to interoperate
+ * with the main GUI.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -30,7 +33,7 @@
 #include <epan/epan.h>
 #include <epan/proto.h>
 
-#include "ext_menubar.h"
+#include "plugin_if.h"
 
 static GList * menubar_entries = NULL;
 static GList * menubar_menunames = NULL;
@@ -156,6 +159,84 @@ extern void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
 extern void ext_menubar_add_separator(ext_menu_t *parent)
 {
     ext_menubar_add_generic_entry ( EXT_MENUBAR_SEPARATOR, parent, g_strdup("-"), NULL, NULL, NULL );
+}
+
+/* Implementation of GUI callback methods follows.
+ * This is a necessity, as using modern UI systems, gui interfaces often operate
+ * in different threads then the calling application. Even more so, if the calling
+ * application is implemented using a separate plugin. Therefore the external menubars
+ * cannot call gui functionality directly, the gui has to perform the function within
+ * it' own scope. */
+
+static GHashTable * plugin_if_callback_functions;
+
+static void
+plugin_if_init_hashtable(void)
+{
+    if ( plugin_if_callback_functions == 0 )
+        plugin_if_callback_functions = g_hash_table_new(g_int_hash, g_int_equal);
+}
+
+static void plugin_if_call_gui_cb(plugin_if_callback_t actionType, GHashTable * dataSet)
+{
+    plugin_if_gui_cb action;
+    gint * key = 0;
+
+    key = (gint *)g_malloc0(sizeof(gint));
+    *key = (gint) actionType;
+
+    plugin_if_init_hashtable();
+
+    if ( g_hash_table_size(plugin_if_callback_functions) != 0 )
+    {
+        if ( g_hash_table_contains(plugin_if_callback_functions, key) )
+        {
+            action = (plugin_if_gui_cb)g_hash_table_lookup(plugin_if_callback_functions, key);
+            if ( action != NULL )
+                action(dataSet);
+        }
+    }
+}
+
+extern void plugin_if_apply_filter(const char * filter_string, gboolean force)
+{
+    plugin_if_callback_t actionType;
+    GHashTable * dataSet = NULL;
+
+    actionType = ( force == TRUE ) ? PLUGIN_IF_FILTER_ACTION_APPLY : PLUGIN_IF_FILTER_ACTION_PREPARE;
+    dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+
+    g_hash_table_insert( dataSet, g_strdup("action_type"), (gpointer) &actionType );
+    g_hash_table_insert( dataSet, g_strdup("filter_string"), g_strdup(filter_string) );
+    g_hash_table_insert( dataSet, g_strdup("force"), (gpointer) &force );
+
+    plugin_if_call_gui_cb(actionType, dataSet);
+}
+
+extern void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value)
+{
+    GHashTable * dataSet = NULL;
+
+    dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+
+    g_hash_table_insert( dataSet, g_strdup("pref_module"), g_strdup(pref_module) );
+    g_hash_table_insert( dataSet, g_strdup("pref_key"), g_strdup(pref_key) );
+    g_hash_table_insert( dataSet, g_strdup("pref_value"), g_strdup(pref_value) );
+
+    plugin_if_call_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, dataSet);
+}
+
+extern void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback)
+{
+    gint * key = 0;
+
+    key = (gint *)g_malloc0(sizeof(gint));
+    *key = actionType;
+
+    plugin_if_init_hashtable();
+
+    if ( ! g_hash_table_contains(plugin_if_callback_functions, key ) )
+        g_hash_table_insert(plugin_if_callback_functions, key, callback);
 }
 
 /*

@@ -1,9 +1,12 @@
-/* ext_menubar.h
- * A menubar API for Wireshark dissectors
+/* plugin_if.h
+ * An API for Wireshark plugins
  *
  * This enables wireshark dissectors, especially those implemented by plugins
  * to register menubar entries, which then will call a pre-defined callback
- * function for the dissector or plugin
+ * function for the dissector or plugin.
+ *
+ * Also it implements additional methods, which allow plugins to interoperate
+ * with the main GUI.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,8 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef EPAN_EXT_MENUBAR_H_
-#define EPAN_EXT_MENUBAR_H_
+#ifndef EPAN_PLUGIN_IF_H
+#define EPAN_PLUGIN_IF_H
 
 #include <config.h>
 
@@ -146,6 +149,33 @@ WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
 WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
         const gchar *tooltip, const gchar *url);
 
+
+/*
+ * Enumeration of possible actions, which are registered in GUI interfaces
+ */
+typedef enum
+{
+    /* Applies a given string as filter */
+    PLUGIN_IF_FILTER_ACTION_APPLY,
+
+    /* Prepares the given string as filter */
+    PLUGIN_IF_FILTER_ACTION_PREPARE,
+
+    /* Saves a preference entry */
+    PLUGIN_IF_PREFERENCE_SAVE
+} plugin_if_callback_t;
+
+
+typedef void (*plugin_if_gui_cb)(gconstpointer user_data);
+
+WS_DLL_PUBLIC void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback);
+
+/* Applies the given filter string as display filter */
+WS_DLL_PUBLIC void plugin_if_apply_filter(const char * filter_string, gboolean force);
+
+/* Saves the given preference to the main preference storage */
+WS_DLL_PUBLIC void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value);
+
 /* Private Method for retrieving the menubar entries
  *
  * Is only to be used by the UI interfaces to retrieve the menu entries
@@ -156,7 +186,7 @@ WS_DLL_PUBLIC GList * ext_menubar_get_entries(void);
 }
 #endif /* __cplusplus */
 
-#endif /* EPAN_EXT_MENUBAR_H_ */
+#endif /* EPAN_PLUGIN_IF_H */
 
 /*
  * Editor modelines

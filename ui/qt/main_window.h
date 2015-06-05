@@ -33,7 +33,7 @@
 #include "ui/ui_util.h"
 
 #include <epan/prefs.h>
-#include <epan/ext_menubar.h>
+#include <epan/plugin_if.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"

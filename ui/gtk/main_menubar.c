@@ -36,7 +36,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
-#include <epan/ext_menubar.h>
+#include <epan/plugin_if.h>
 
 #include "globals.h"
 #include "color_filters.h"

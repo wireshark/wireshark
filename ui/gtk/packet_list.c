@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/column.h>
 #include <epan/strutil.h>
+#include <epan/plugin_if.h>
 
 #include "ui/main_statusbar.h"
 #include "ui/packet_list_utils.h"
@@ -91,6 +92,7 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 static gint row_number_from_iter(GtkTreeIter *iter);
 static void scroll_to_current(void);
 static gboolean query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboard_tip, GtkTooltip *tooltip, gpointer data _U_);
+static void plugin_if_pktlist_preference(gconstpointer user_data);
 
 GtkWidget *
 packet_list_create(void)
@@ -104,6 +106,8 @@ packet_list_create(void)
 	gtk_container_add(GTK_CONTAINER(scrollwin), view);
 
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, view);
+
+	plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_pktlist_preference);
 
 	return scrollwin;
 }
@@ -1728,6 +1732,26 @@ query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboar
 	gtk_tree_path_free(path);
 
 	return result;
+}
+
+void plugin_if_pktlist_preference(gconstpointer user_data)
+{
+	if ( packetlist != NULL && user_data != NULL )
+	{
+		GHashTable * dataSet = (GHashTable *) user_data;
+		if ( g_hash_table_contains(dataSet, "pref_module" ) &&
+				g_hash_table_contains(dataSet, "pref_value" ) &&
+				g_hash_table_contains(dataSet, "pref_value" ) )
+		{
+			const char * module_name = (const char *)g_hash_table_lookup(dataSet, "pref_module");
+			const char * pref_name = (const char *)g_hash_table_lookup(dataSet, "pref_key");
+			const char * pref_value = (const char *)g_hash_table_lookup(dataSet, "pref_value");
+
+			if ( prefs_store_ext(module_name, pref_name, pref_value) )
+				packet_list_recreate();
+
+		}
+	}
 }
 
 /*
