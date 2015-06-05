@@ -177,7 +177,8 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	}
 
 	if (cur_fmt == COL_CUSTOM) {
-		if (strcmp (name, get_column_custom_field(col_id)) != 0) {
+		const gchar *custom_field = get_column_custom_field(col_id);
+		if ((custom_field && strcmp (name, custom_field) != 0) || (custom_field == NULL)) {
 			set_column_custom_field (col_id, name);
 			recreate = TRUE;
 		}
