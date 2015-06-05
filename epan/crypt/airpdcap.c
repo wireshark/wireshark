@@ -1115,7 +1115,7 @@ AirPDcapWepMng(
             sa->key=tmp_key;
 
             if (key!=NULL) {
-                memcpy(key, &sa->key, sizeof(AIRPDCAP_KEY_ITEM));
+                memcpy(key, sa->key, sizeof(AIRPDCAP_KEY_ITEM));
                 key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
             }
 

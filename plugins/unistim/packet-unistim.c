@@ -1130,8 +1130,9 @@ dissect_display_switch(proto_tree *msg_tree,
                                 hf_display_write_address_char_pos,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
-                             DISPLAY_WRITE_ADDRESS_LINE_FLAG)
+                             DISPLAY_WRITE_ADDRESS_LINE_FLAG){
                offset+=1;msg_len-=1;
+            }
          }
          if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
                           DISPLAY_WRITE_ADDRESS_LINE_FLAG){
@@ -1192,8 +1193,9 @@ dissect_display_switch(proto_tree *msg_tree,
                                 hf_display_write_address_char_pos,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
-                DISPLAY_WRITE_ADDRESS_LINE_FLAG)
+                DISPLAY_WRITE_ADDRESS_LINE_FLAG){
                offset+=1;msg_len-=1;
+            }
          }
          if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
              DISPLAY_WRITE_ADDRESS_LINE_FLAG){
