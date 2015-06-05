@@ -26,8 +26,6 @@
 
 #include <glib.h>
 
-#include "cfile.h"
-
 #include "epan/stats_tree_priv.h"
 
 #include "wireshark_dialog.h"

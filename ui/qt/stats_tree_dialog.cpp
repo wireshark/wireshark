@@ -41,7 +41,7 @@
 
 // The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
 // need tap parameters we should probably create a TapParameterDialog
-// class based on QDialog and subclass it here.
+// class based on WiresharkDialog and subclass it here.
 
 // To do:
 // - Add help
