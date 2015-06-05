@@ -2904,6 +2904,7 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
         main_ui_->goToFrame->animatedHide();
     } else {
         main_ui_->goToFrame->animatedShow();
+        main_ui_->goToLineEdit->clear();
     }
     main_ui_->goToLineEdit->setFocus();
 }
