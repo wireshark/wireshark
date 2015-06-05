@@ -211,6 +211,7 @@ MOC_HDRS =	\
 	sctp_graph_byte_dialog.h	\
 	sequence_diagram.h	\
 	sequence_dialog.h	\
+	service_response_time_dialog.h	\
 	simple_dialog.h	\
 	sparkline_delegate.h	\
 	splash_overlay.h	\
@@ -432,6 +433,7 @@ WIRESHARK_QT_SRC =	\
 	search_frame.cpp	\
 	sequence_diagram.cpp	\
 	sequence_dialog.cpp	\
+	service_response_time_dialog.cpp	\
 	simple_dialog.cpp	\
 	sparkline_delegate.cpp	\
 	splash_overlay.cpp	\

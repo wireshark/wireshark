@@ -57,11 +57,12 @@ typedef struct _tap_param {
 /*
  * UI information for a tap.
  */
+typedef void (* stat_tap_init_cb)(const char *, void*);
 typedef struct _stat_tap_ui {
     register_stat_group_t  group;      /* group to which statistic belongs */
     const char            *title;      /* title of statistic */
     const char            *cli_string; /* initial part of the "-z" argument for statistic */
-    void (* tap_init_cb)(const char *, void*); /* callback to init function of the tap */
+    stat_tap_init_cb tap_init_cb;      /* callback to init function of the tap */
     size_t                 nparams;    /* number of parameters */
     tap_param             *params;     /* pointer to table of parameter info */
 } stat_tap_ui;

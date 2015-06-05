@@ -643,6 +643,14 @@ Currently implemented statistics are:
 
 =over 4
 
+=item B<-z help>
+
+Display all possible values for B<-z>.
+
+=item B<-z> afp,srt[,I<filter>]
+
+Show Apple Filing Protocol service response time statistics.
+
 =item B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the
@@ -686,6 +694,10 @@ on those calls that match that filter.
 
 Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
 SRT statistics for a specific host.
+
+=item B<-z> bootp,stat[,I<filter>]
+
+Show DHCP (BOOTP) statistics.
 
 =item B<-z> fc,srt[,I<filter>]
 

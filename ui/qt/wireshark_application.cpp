@@ -62,6 +62,7 @@
 #  include "ui/win32/console_win32.h"
 #endif /* _WIN32 */
 
+#include <QAction>
 #include <QDesktopServices>
 #include <QDir>
 #include <QEvent>
@@ -87,6 +88,7 @@ WiresharkApplication *wsApp = NULL;
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
+static QHash<int, QList<QAction *> > statistics_groups_;
 
 QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
 
@@ -561,6 +563,30 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
 void WiresharkApplication::emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata)
 {
     emit openStatCommandDialog(menu_path, arg, userdata);
+}
+
+void WiresharkApplication::emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata)
+{
+    emit openTapParameterDialog(cfg_abbr, arg, userdata);
+}
+
+void WiresharkApplication::addStatisticsGroupItem(int group, QAction *sg_action)
+{
+    if (!statistics_groups_.contains(group)) {
+        statistics_groups_[group] = QList<QAction *>();
+    }
+    statistics_groups_[group] << sg_action;
+}
+
+QList<QAction *> WiresharkApplication::statisticsGroupItems(int group)
+{
+    if (!statistics_groups_.contains(group)) {
+        return QList<QAction *>();
+    }
+
+    QList<QAction *> sgi_list = statistics_groups_[group];
+    std::sort(sgi_list.begin(), sgi_list.end(), qActionLessThan);
+    return sgi_list;
 }
 
 #ifdef HAVE_LIBPCAP

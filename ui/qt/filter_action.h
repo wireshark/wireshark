@@ -75,7 +75,7 @@ public:
     static const QString actionName(Action action);
 
     ActionType actionType() { return type_; }
-    static const QList<ActionType> actionTypes();
+    static const QList<ActionType> actionTypes(Action filter_action = ActionApply);
     static const QString actionTypeName(ActionType type);
 
     ActionDirection actionDirection() { return direction_; }

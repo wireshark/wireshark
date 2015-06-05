@@ -91,7 +91,7 @@ const QString FilterAction::actionName(Action action) {
 }
 
 
-const QList<FilterAction::ActionType> FilterAction::actionTypes()
+const QList<FilterAction::ActionType> FilterAction::actionTypes(Action filter_action)
 {
     static const QList<ActionType> action_types_ = QList<ActionType>()
             << ActionTypePlain
@@ -100,6 +100,19 @@ const QList<FilterAction::ActionType> FilterAction::actionTypes()
             << ActionTypeOr
             << ActionTypeAndNot
             << ActionTypeOrNot;
+
+    static const QList<ActionType> simple_action_types_ = QList<ActionType>()
+            << ActionTypePlain
+            << ActionTypeNot;
+
+    switch (filter_action) {
+    case ActionFind:
+    case ActionColorize:
+        return simple_action_types_;
+    default:
+        break;
+    }
+
     return action_types_;
 }
 

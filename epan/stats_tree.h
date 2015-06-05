@@ -31,6 +31,10 @@
 #include "../register.h"
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define STAT_TREE_ROOT "root"
 
 #define ST_FLG_AVERAGE      0x10000000  /* Calculate averages for nodes, rather than totals */
@@ -232,6 +236,10 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 /* Clear flags for this node. Node created if it does not yet exist. */
 #define stat_node_clear_flags(st,name,parent_id,with_children,flags)    \
     (stats_tree_manip_node(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __STATS_TREE_H */
 

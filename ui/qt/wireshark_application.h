@@ -39,6 +39,7 @@
 
 struct _e_prefs;
 
+class QAction;
 class QSocketNotifier;
 
 // Recent items:
@@ -72,6 +73,11 @@ public:
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
+    void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
+    // Map a register_stat_group_t to a list of stat_tap_ui.title
+    void addStatisticsGroupItem(int group, QAction *sg_action);
+    QList<QAction *>statisticsGroupItems(int group);
+
     void allSystemsGo();
     void refreshLocalInterfaces();
     struct _e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
@@ -129,6 +135,7 @@ signals:
     void fieldsChanged();
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
+    void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
 
 public slots:
     void clearRecentItems();

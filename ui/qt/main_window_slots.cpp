@@ -110,6 +110,7 @@
 #include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
 #include "stats_tree_dialog.h"
+#include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "voip_calls_dialog.h"
@@ -131,7 +132,7 @@
 
 const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
-void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigned int type)
+bool MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigned int type)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
@@ -170,12 +171,12 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
             if (open_dlg.open(file_name, type)) {
                 cf_path = file_name;
             } else {
-                return;
+                return false;
             }
         }
 
         if (!testCaptureFileClose(false)) {
-            return;
+            return false;
         }
 
         if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
@@ -228,7 +229,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
                string and return (without changing the last containing
                directory). */
             capture_file_.setCapFile(NULL);
-            return;
+            return false;
         }
         break;
     }
@@ -236,6 +237,8 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
     wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
 
     main_ui_->statusBar->showExpert();
+
+    return true;
 }
 
 void MainWindow::filterPackets(QString& new_filter, bool force)
@@ -1528,6 +1531,27 @@ void MainWindow::openStatCommandDialog(const QString &menu_path, const char *arg
     QMetaObject::invokeMethod(this, slot.toLatin1().constData(), Q_ARG(const char *, arg), Q_ARG(void *, userdata));
 }
 
+void MainWindow::openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata)
+{
+    TapParameterDialog *tp_dialog = TapParameterDialog::showTapParameterStatistics(*this, capture_file_, cfg_str, arg, userdata);
+    if (!tp_dialog) return;
+
+    connect(tp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(tp_dialog, SIGNAL(updateFilter(QString&, bool)),
+            this, SLOT(filterPackets(QString&, bool)));
+    tp_dialog->show();
+}
+
+void MainWindow::openTapParameterDialog()
+{
+    QAction *tpa = qobject_cast<QAction *>(QObject::sender());
+    if (!tpa) return;
+
+    const QString cfg_str = tpa->data().toString();
+    openTapParameterDialog(cfg_str, NULL, NULL);
+}
+
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()
@@ -2710,7 +2734,7 @@ void MainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
     openStatisticsTreeDialog("http_srv");
 }
 
-void MainWindow::on_actionStatisticsPacketLen_triggered()
+void MainWindow::on_actionStatisticsPacketLengths_triggered()
 {
     openStatisticsTreeDialog("plen");
 }

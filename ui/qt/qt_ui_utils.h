@@ -148,6 +148,16 @@ const QString file_size_to_qstring(const gint64 size);
  */
 void smooth_font_size(QFont &font);
 
+/**
+ * Compare the text of two QActions. Useful for passing to std::sort.
+ *
+ * @param a1 First action
+ * @param a2 Second action
+ * @return
+ */
+class QAction;
+bool qActionLessThan(const QAction * a1, const QAction * a2);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

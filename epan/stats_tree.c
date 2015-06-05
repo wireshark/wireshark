@@ -364,6 +364,7 @@ stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *
 extern stats_tree_cfg*
 stats_tree_get_cfg_by_abbr(const char *abbr)
 {
+    if (!abbr) return NULL;
     return (stats_tree_cfg *)g_hash_table_lookup(registry,abbr);
 }
 
@@ -1106,7 +1107,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
         s = g_string_new("---\n");
         break;
     case ST_FORMAT_XML:
-        s = g_string_new("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
+        s = g_string_new("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         break;
     case ST_FORMAT_CSV:
         s = g_string_new("\"level\",\"parent\",");

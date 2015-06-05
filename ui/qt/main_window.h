@@ -199,7 +199,15 @@ signals:
 
 public slots:
     // in main_window_slots.cpp
-    void openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString(), unsigned int type = WTAP_TYPE_AUTO);
+    /**
+     * Open a capture file.
+     * @param cf_path Path to the file.
+     * @param display_filter Display filter to apply. May be empty.
+     * @param type File type.
+     * @return True on success, false on failure.
+     */
+    // XXX We might want to return a cf_read_status_t or a CaptureFile.
+    bool openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString(), unsigned int type = WTAP_TYPE_AUTO);
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
     void updateForUnsavedChanges();
     void layoutPanes();
@@ -251,6 +259,7 @@ private slots:
     void showColumnEditor(int column);
     void showPreferenceEditor(); // module_t *, pref *
     void addStatsPluginsToMenu();
+    void addStatisticsMenus();
     void addExternalMenus();
 
     void startInterfaceCapture(bool valid);
@@ -270,6 +279,14 @@ private slots:
      * @param userdata Optional user data.
      */
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
+
+    /** Pass tap parameter arguments to a slot.
+     * @param menu_path slot Partial slot name, e.g. "StatisticsAFPSrt".
+     * @param arg "-z" argument, e.g. "afp,srt".
+     * @param userdata Optional user data.
+     */
+    void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
+    void openTapParameterDialog();
 
     // Automatically connected slots ("on_<object>_<signal>").
     //
@@ -472,7 +489,7 @@ private slots:
     void on_actionStatisticsHTTPPacketCounter_triggered();
     void on_actionStatisticsHTTPRequests_triggered();
     void on_actionStatisticsHTTPLoadDistribution_triggered();
-    void on_actionStatisticsPacketLen_triggered();
+    void on_actionStatisticsPacketLengths_triggered();
     void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();

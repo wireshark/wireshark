@@ -24,6 +24,7 @@
 
 #include "file.h"
 
+#include <epan/epan_dissect.h>
 #include <epan/expert.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
@@ -338,7 +339,7 @@ void ExpertInfoDialog::tapReset(void *eid_ptr)
     eid->clearAllData();
 }
 
-gboolean ExpertInfoDialog::tapPacket(void *eid_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+gboolean ExpertInfoDialog::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
 {
     ExpertInfoDialog *eid = static_cast<ExpertInfoDialog *>(eid_ptr);
     expert_info_t    *expert_info = (expert_info_t *) data;

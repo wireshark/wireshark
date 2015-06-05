@@ -86,7 +86,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	if (!gtk_tree_selection_get_selected(sel, &model, &iter))
 		return;
 
-	gtk_tree_model_get (model, &iter, INDEX_COLUMN, &selection, -1);
+	gtk_tree_model_get (model, &iter, SRT_COLUMN_INDEX, &selection, -1);
 	if(selection>=(int)rst->num_procs){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No procedure selected");
 		return;
@@ -471,8 +471,6 @@ init_gtk_srt_table(srt_stat_table* rst, void* gui_data)
 	GtkTreeSelection  *sel;
 	gtk_srt_table_t *gtk_table_data = g_new0(gtk_srt_table_t, 1);
 
-	static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT (s)", "Max SRT (s)", "Avg SRT (s)", "Sum SRT (s)" };
-
 	/* Create GTK data for the table here */
 	gtk_table_data->rst = rst;
 	g_array_insert_val(ss->gtk_srt_array, ss->gtk_srt_array->len, gtk_table_data);
@@ -493,7 +491,7 @@ init_gtk_srt_table(srt_stat_table* rst, void* gui_data)
 	}
 
 	/* Create the store */
-	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
+	store = gtk_list_store_new (NUM_SRT_COLUMNS,  /* Total number of columns */
 				    G_TYPE_INT,   	/* Index     */
 				    G_TYPE_STRING,   /* Procedure */
 				    G_TYPE_UINT,   	/* Calls     */
@@ -510,38 +508,38 @@ init_gtk_srt_table(srt_stat_table* rst, void* gui_data)
 	/* The view now holds a reference.  We can get rid of our own reference */
 	g_object_unref (G_OBJECT (store));
 
-	for (i = 0; i < N_COLUMNS; i++) {
+	for (i = 0; i < NUM_SRT_COLUMNS; i++) {
 		renderer = gtk_cell_renderer_text_new ();
-		if (i != PROCEDURE_COLUMN) {
+		if (i != SRT_COLUMN_PROCEDURE) {
 			/* right align numbers */
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
 		}
 		g_object_set(renderer, "ypad", 0, NULL);
 		switch (i) {
-		case MIN_SRT_COLUMN:
-		case MAX_SRT_COLUMN:
-			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
+		case SRT_COLUMN_MIN:
+		case SRT_COLUMN_MAX:
+			column = gtk_tree_view_column_new_with_attributes (service_response_time_get_column_name(i), renderer, NULL);
 			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_time_func,  GINT_TO_POINTER(i), NULL);
 			gtk_tree_sortable_set_sort_func(sortable, i, srt_time_sort_func, GINT_TO_POINTER(i), NULL);
 			break;
-		case AVG_SRT_COLUMN:
-		case SUM_SRT_COLUMN:
-			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
+		case SRT_COLUMN_AVG:
+		case SRT_COLUMN_SUM:
+			column = gtk_tree_view_column_new_with_attributes (service_response_time_get_column_name(i), renderer, NULL);
 			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_avg_func,  GINT_TO_POINTER(i), NULL);
 			break;
 		case PROCEDURE_COLUMN:
-			column = gtk_tree_view_column_new_with_attributes (((rst->proc_column_name != NULL) ? rst->proc_column_name : default_titles[i]), renderer, "text",
+			column = gtk_tree_view_column_new_with_attributes ((rst->proc_column_name != NULL) ? rst->proc_column_name : service_response_time_get_column_name(i), renderer, "text",
 					i, NULL);
 			break;
 		default:
-			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", i, NULL);
+			column = gtk_tree_view_column_new_with_attributes (service_response_time_get_column_name(i), renderer, "text", i, NULL);
 			break;
 		}
 
 		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_append_column (gtk_table_data->table, column);
-		if (i == CALLS_COLUMN) {
+		if (i == SRT_COLUMN_CALLS) {
 			/* XXX revert order sort */
 			gtk_tree_view_column_clicked(column);
 			gtk_tree_view_column_clicked(column);
@@ -713,7 +711,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->gtk_data.win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(ss->gtk_data.win), SRT_PREFERRED_WIDTH, 600);
 
-	str = g_strdup_printf("%s Service Response Time statistics", proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt))));
+	str = g_strdup_printf("%s Service Response Time Statistics", proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt))));
 	set_window_title(ss->gtk_data.win, str);
 
 	ss->gtk_data.vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -737,7 +735,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 
 	label=gtk_label_new(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-    gtk_widget_set_tooltip_text (label, filter ? filter : "");
+	gtk_widget_set_tooltip_text (label, filter ? filter : "");
 	g_free(filter_string);
 	gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), label, FALSE, FALSE, 0);
 

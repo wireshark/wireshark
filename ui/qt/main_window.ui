@@ -438,14 +438,20 @@
      <addaction name="actionStatistics29WestLBTRM"/>
      <addaction name="actionStatistics29WestLBTRU"/>
     </widget>
+    <widget class="QMenu" name="menuServiceResponseTime">
+     <property name="title">
+      <string>Service Response Time</string>
+     </property>
+    </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionStatisticsProtocolHierarchy"/>
     <addaction name="actionStatisticsConversations"/>
     <addaction name="actionStatisticsEndpoints"/>
-    <addaction name="actionStatisticsPacketLen"/>
+    <addaction name="actionStatisticsPacketLengths"/>
     <addaction name="actionStatisticsIOGraph"/>
+    <addaction name="menuServiceResponseTime"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
+    <addaction name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED"/>
     <addaction name="menu29West"/>
     <addaction name="actionStatisticsANCP"/>
     <addaction name="menuBACnet"/>
@@ -1675,7 +1681,7 @@
     <string>HTTP load distribution</string>
    </property>
   </action>
-  <action name="actionStatisticsPacketLen">
+  <action name="actionStatisticsPacketLengths">
    <property name="text">
     <string>Packet Lengths</string>
    </property>
@@ -2347,6 +2353,20 @@
    </property>
    <property name="toolTip">
     <string>Add an expression to the display filter.</string>
+   </property>
+  </action>
+  <action name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED">
+   <property name="text">
+    <string>REGISTER_STAT_GROUP_UNSORTED</string>
+   </property>
+   <property name="toolTip">
+    <string>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
  </widget>

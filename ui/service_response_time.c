@@ -1,4 +1,7 @@
-/* stats_tree_dialog.h
+/* service_response_time.c
+ * Copied from ui/gtk/service_response_time_table.h, 2003 Ronnie Sahlberg
+ * Helper routines and structs common to all service response time statistics
+ * taps.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,42 +22,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef STATS_TREE_DIALOG_H
-#define STATS_TREE_DIALOG_H
+#include "service_response_time.h"
 
-#include "tap_parameter_dialog.h"
-
-#include <config.h>
-
-#include <glib.h>
-
-#include "epan/stats_tree_priv.h"
-
-struct _tree_cfg_pres {
-    class StatsTreeDialog* st_dlg;
-};
-
-class StatsTreeDialog : public TapParameterDialog
+extern const char*
+service_response_time_get_column_name (int index)
 {
-    Q_OBJECT
+    static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT (s)", "Max SRT (s)", "Avg SRT (s)", "Sum SRT (s)" };
 
-public:
-    explicit StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr);
-    ~StatsTreeDialog();
-    static void setupNode(stat_node* node);
-
-private:
-    struct _tree_cfg_pres cfg_pr_;
-    stats_tree *st_;
-    stats_tree_cfg *st_cfg_;
-
-    virtual void fillTree();
-    static void resetTap(void *st_ptr);
-    static void drawTreeItems(void *st_ptr);
-    virtual QByteArray getTreeAsString(st_format_type format);
-};
-
-#endif // STATS_TREE_DIALOG_H
+    if (index < 0 || index >= NUM_SRT_COLUMNS) return "(Unknown)";
+    return default_titles[index];
+}
 
 /*
  * Editor modelines

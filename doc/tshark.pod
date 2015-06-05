@@ -860,6 +860,8 @@ Display all possible values for B<-z>.
 
 =item B<-z> afp,srt[,I<filter>]
 
+Show Apple Filing Protocol service response time statistics.
+
 =item B<-z> camel,srt
 
 =item B<-z> compare,I<start>,I<stop>,I<ttl[0|1]>,I<order[0|1]>,I<variance>[,I<filter>]
@@ -914,6 +916,10 @@ on those calls that match that filter.
 
 Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
 SRT statistics for a specific host.
+
+=item B<-z> bootp,stat[,I<filter>]
+
+Show DHCP (BOOTP) statistics.
 
 =item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
 

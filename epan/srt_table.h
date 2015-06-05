@@ -49,12 +49,11 @@ typedef struct _srt_stat_table {
     void* table_specific_data; /** any dissector/table specific data needed for packet filtering */
 } srt_stat_table;
 
-
 struct register_srt;
 struct _srt_data_t;
-typedef void (*srt_gui_init_cb)(srt_stat_table* rst, void* gui_data);
-typedef void (*srt_gui_reset_cb)(srt_stat_table* rst, void* gui_data);
-typedef void (*srt_gui_free_cb)(srt_stat_table* rst, void* gui_data);
+typedef void (*srt_gui_init_cb)(srt_stat_table* rst, void* gui_data); /* GTK+ only? */
+typedef void (*srt_gui_reset_cb)(srt_stat_table* rst, void* gui_data);  /* GTK+ only? */
+typedef void (*srt_gui_free_cb)(srt_stat_table* rst, void* gui_data);  /* GTK+ only? */
 typedef void (*srt_proc_table_cb)(srt_stat_table* rst, int indx, struct _srt_data_t* gui_data);
 typedef void (*srt_init_cb)(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data);
 typedef guint (*srt_param_handler_cb)(struct register_srt* srt, const char* opt_arg, char** err);

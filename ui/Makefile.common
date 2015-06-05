@@ -66,6 +66,7 @@ WIRESHARK_UI_SRC = \
 	proto_hier_stats.c	\
 	recent.c		\
 	rtp_stream.c		\
+	service_response_time.c	\
 	software_update.c	\
 	ssl_key_export.c	\
 	tap_export_pdu.c	\
@@ -107,6 +108,7 @@ noinst_HEADERS = \
 	recent_utils.h		\
 	rtp_analysis.h		\
 	rtp_stream.h		\
+	service_response_time.h	\
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\

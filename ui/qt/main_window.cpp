@@ -213,6 +213,8 @@ MainWindow::MainWindow(QWidget *parent) :
     if (!gbl_cur_main_window_) {
         connect(wsApp, SIGNAL(openStatCommandDialog(QString,const char*,void*)),
                 this, SLOT(openStatCommandDialog(QString,const char*,void*)));
+        connect(wsApp, SIGNAL(openTapParameterDialog(QString,const QString,void*)),
+                this, SLOT(openTapParameterDialog(QString,const QString,void*)));
     }
     gbl_cur_main_window_ = this;
 #ifdef HAVE_LIBPCAP
@@ -235,6 +237,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatisticsMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
@@ -1964,6 +1967,30 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif
+}
+
+void MainWindow::addStatisticsMenus()
+{
+
+    // Unsorted
+    // actionStatistics_REGISTER_STAT_GROUP_UNSORTED should exist and be.
+    // invisible.
+    QList<QAction *>unsorted_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_UNSORTED);
+
+    foreach (QAction *unsorted_action, unsorted_actions) {
+        main_ui_->menuStatistics->insertAction(
+                    main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
+                    unsorted_action);
+        connect(unsorted_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    }
+
+    // Response time
+    QList<QAction *>sg_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_RESPONSE_TIME);
+
+    foreach (QAction *sg_action, sg_actions) {
+        main_ui_->menuServiceResponseTime->addAction(sg_action);
+        connect(sg_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    }
 }
 
 void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)

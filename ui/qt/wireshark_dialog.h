@@ -41,6 +41,7 @@ public slots:
 protected:
     virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
     void setWindowSubtitle(const QString &subtitle);
+    const QString &windowSubtitle() { return subtitle_; }
     virtual void updateWidgets();
 
     CaptureFile &cap_file_;
@@ -50,7 +51,6 @@ protected slots:
     virtual void captureFileClosing();
 
 private:
-    const QString &windowSubtitle() { return subtitle_; }
     void setWindowTitleFromSubtitle();
 
     QString subtitle_;

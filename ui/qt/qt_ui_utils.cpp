@@ -35,6 +35,7 @@
 
 #include <wsutil/str_util.h>
 
+#include <QAction>
 #include <QFontDatabase>
 
 /* Make the format_size_flags_e enum usable in C++ */
@@ -148,6 +149,10 @@ void smooth_font_size(QFont &font) {
         }
         last_size = cur_size;
     }
+}
+
+bool qActionLessThan(const QAction * a1, const QAction * a2) {
+    return a1->text().compare(a2->text()) < 0;
 }
 
 /*

@@ -36,10 +36,16 @@ const int item_col_ = 0;
 
 Q_DECLARE_METATYPE(stat_node *)
 
+const int sn_type_ = 1000;
 class StatsTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    StatsTreeWidgetItem(int type = Type) : QTreeWidgetItem (type) {}
+    StatsTreeWidgetItem(int type = sn_type_) : QTreeWidgetItem (type)
+    {
+        for (int col = 1; col < columnCount(); col++) {
+            setTextAlignment(col, Qt::AlignRight);
+        }
+    }
     bool operator< (const QTreeWidgetItem &other) const
     {
         stat_node *thisnode = data(item_col_, Qt::UserRole).value<stat_node *>();
@@ -55,7 +61,6 @@ public:
         return result < 0;
     }
 };
-
 
 StatsTreeDialog::StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr) :
     TapParameterDialog(parent, cf),
@@ -109,9 +114,7 @@ void StatsTreeDialog::fillTree()
     GString *error_string;
     if (!st_cfg_ || file_closed_) return;
 
-    gchar* display_name_temp = stats_tree_get_displayname(st_cfg_->name);
-    QString display_name(display_name_temp);
-    g_free(display_name_temp);
+    QString display_name = gchar_free_to_qstring(stats_tree_get_displayname(st_cfg_->name));
 
     // The GTK+ UI appends "Stats Tree" to the window title. If we do the same
     // here we should expand the name completely, e.g. to "Statistics Tree".
@@ -126,16 +129,13 @@ void StatsTreeDialog::fillTree()
     st_ = stats_tree_new(st_cfg_, NULL, displayFilter());
 
     // Add number of columns for this stats_tree
-    QStringList headerLabels;
+    QStringList header_labels;
     for (int count = 0; count<st_->num_columns; count++) {
-        headerLabels.push_back(stats_tree_get_column_name(count));
+        header_labels.push_back(stats_tree_get_column_name(count));
     }
-    statsTreeWidget()->setColumnCount(headerLabels.count());
-    statsTreeWidget()->setHeaderLabels(headerLabels);
+    statsTreeWidget()->setColumnCount(header_labels.count());
+    statsTreeWidget()->setHeaderLabels(header_labels);
     resize(st_->num_columns*80+80, height());
-    for (int count = 0; count<st_->num_columns; count++) {
-        headerLabels.push_back(stats_tree_get_column_name(count));
-    }
     statsTreeWidget()->setSortingEnabled(false);
 
     error_string = register_tap_listener(st_cfg_->tapname,

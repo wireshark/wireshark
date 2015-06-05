@@ -23,6 +23,7 @@
 # need to go here.
 set(WIRESHARK_QT_HEADERS
 	about_dialog.h
+	accordion_frame.h
 	bluetooth_att_server_attributes_dialog.h
 	bluetooth_devices_dialog.h
 	accordion_frame.h
@@ -106,6 +107,7 @@ set(WIRESHARK_QT_HEADERS
 	simple_dialog.h
 	splash_overlay.h
 	stats_tree_dialog.h
+	service_response_time_dialog.h
 	syntax_line_edit.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
@@ -223,6 +225,7 @@ set(WIRESHARK_QT_SRC
 	search_frame.cpp
 	sequence_diagram.cpp
 	sequence_dialog.cpp
+	service_response_time_dialog.cpp
 	simple_dialog.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp

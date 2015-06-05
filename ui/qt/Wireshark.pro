@@ -326,6 +326,7 @@ HEADERS += $$HEADERS_WS_C \
     sctp_graph_arwnd_dialog.h  \
     sctp_graph_byte_dialog.h  \
     search_frame.h \
+    service_response_time_dialog.h \
     splash_overlay.h \
     stats_tree_dialog.h \
     tango_colors.h \
@@ -612,6 +613,7 @@ HEADERS += \
     simple_dialog.h \
     sparkline_delegate.h \
     syntax_line_edit.h \
+    tap_parameter_dialog.h \
     time_shift_dialog.h \
     wireshark_application.h \
     wireshark_dialog.h \
@@ -706,6 +708,7 @@ SOURCES += \
     search_frame.cpp \
     sequence_diagram.cpp \
     sequence_dialog.cpp \
+    service_response_time_dialog.cpp \
     simple_dialog.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \

@@ -116,6 +116,9 @@
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 
+#include "epan/srt_table.h"
+#include "ui/qt/service_response_time_dialog.h"
+
 #if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 capture_options global_capture_opts;
 #endif
@@ -837,6 +840,7 @@ DIAG_ON(cast-qual)
     register_all_tap_listeners();
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_endpoint_table);
+    srt_table_iterate_tables(register_service_response_tables, NULL);
 
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
@@ -1324,31 +1328,30 @@ DIAG_ON(cast-qual)
     ////////
 #endif /* HAVE_LIBPCAP */
 
-//    w->setEnabled(true);
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
     SimpleDialog::displayQueuedMessages(main_w);
 
-    /* user could specify filename, or display filter, or both */
+    /* User could specify filename, or display filter, or both */
     if (!cf_name.isEmpty()) {
+        if (main_w->openCaptureFile(cf_name, read_filter, in_file_type)) {
+            if (!dfilter.isEmpty())
+                main_w->filterPackets(dfilter, false);
 
-        /* Open stat windows; we do so after creating the main window,
-           to avoid Qt warnings, and after successfully opening the
-           capture file, so we know we have something to compute stats
-           on, and after registering all dissectors, so that MATE will
-           have registered its field array and we can have a tap filter
-           with one of MATE's late-registered fields as part of the
-           filter. */
-        start_requested_stats();
+            /* Open stat windows; we do so after creating the main window,
+               to avoid Qt warnings, and after successfully opening the
+               capture file, so we know we have something to compute stats
+               on, and after registering all dissectors, so that MATE will
+               have registered its field array and we can have a tap filter
+               with one of MATE's late-registered fields as part of the
+               filter. */
+            start_requested_stats();
 
-        // XXX The GTK+ UI does error checking here.
-        main_w->openCaptureFile(cf_name, read_filter, in_file_type);
-        if (!dfilter.isEmpty())
-            main_w->filterPackets(dfilter, false);
-        if(go_to_packet != 0) {
-            /* Jump to the specified frame number, kept for backward
-               compatibility. */
-            cf_goto_frame(CaptureFile::globalCapFile(), go_to_packet);
+            if(go_to_packet != 0) {
+                /* Jump to the specified frame number, kept for backward
+                   compatibility. */
+                cf_goto_frame(CaptureFile::globalCapFile(), go_to_packet);
+            }
         }
     }
 #ifdef HAVE_LIBPCAP

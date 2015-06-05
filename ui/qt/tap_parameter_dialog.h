@@ -27,14 +27,22 @@
 #include <glib.h>
 
 #include <epan/stat_groups.h>
+#include <epan/stat_tap_ui.h>
 
+#include <QMenu>
+
+#include "filter_action.h"
 #include "wireshark_dialog.h"
 
 class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace Ui {
 class TapParameterDialog;
 }
+
+class TapParameterDialog;
+typedef TapParameterDialog* (*tpdCreator)(QWidget &parent, const QString cfg_str, const QString arg, CaptureFile &cf);
 
 class TapParameterDialog : public WiresharkDialog
 {
@@ -44,14 +52,31 @@ public:
     explicit TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic = 0);
     ~TapParameterDialog();
 
+    static void registerDialog(const QString title, const char *cfg_abbr, register_stat_group_t group, stat_tap_init_cb tap_init_cb, tpdCreator creator);
+
+    static TapParameterDialog *showTapParameterStatistics(QWidget &parent, CaptureFile &cf, const QString cfg_str, const QString arg, void *);
+    // Needed by static member functions in subclasses. Should we just make
+    // "ui" available instead?
     QTreeWidget *statsTreeWidget();
     void drawTreeItems();
+
+signals:
+    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+    void updateFilter(QString &filter, bool force = false);
 
 public slots:
 
 protected:
+    QMenu ctx_menu_;
+    QList<QAction *> filter_actions_;
+
     void showEvent(QShowEvent *);
+    void contextMenuEvent(QContextMenuEvent *event);
     const char *displayFilter();
+    void setDisplayFilter(const QString &filter);
+
+protected slots:
+    void filterActionTriggered();
 
 private:
     Ui::TapParameterDialog *ui;
@@ -59,7 +84,10 @@ private:
 
     // Called by the constructor. The subclass should tap packets here.
     virtual void fillTree() = 0;
-    virtual QByteArray getTreeAsString(st_format_type format) = 0;
+    virtual const QString filterExpression() { return QString(); }
+    QString itemDataToPlain(QVariant var, int width = 0);
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *) const;
+    virtual QByteArray getTreeAsString(st_format_type format);
 
 private slots:
     void updateWidgets();

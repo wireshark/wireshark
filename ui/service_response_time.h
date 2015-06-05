@@ -1,6 +1,7 @@
-/* timestats.h
- * Routines and definitions for time statistics
- * Copyright 2003 Lars Roland
+/* service_response_time.h
+ * Copied from ui/gtk/service_response_time_table.h, 2003 Ronnie Sahlberg
+ * Helper routines and structs common to all service response time statistics
+ * taps.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,40 +22,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __TIMESTATS_H__
-#define __TIMESTATS_H__
+/** @file
+ *  Helper routines common to all service response time statistics taps.
+ */
 
-#include <glib.h>
-#include "epan/packet_info.h"
-#include "wsutil/nstime.h"
+#ifndef __SRT_STATS_H__
+#define __SRT_STATS_H__
+
+#include <epan/timestats.h>
+#include <epan/srt_table.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
- /* Summary of time statistics*/
-typedef struct _timestat_t {
-	guint32 num;	 /* number of samples */
-	guint32	min_num; /* frame number of minimum */
-	guint32	max_num; /* frame number of maximum */
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-	gdouble variance;
-} timestat_t;
+enum
+{
+    SRT_COLUMN_INDEX,
+    SRT_COLUMN_PROCEDURE,
+    SRT_COLUMN_CALLS,
+    SRT_COLUMN_MIN,
+    SRT_COLUMN_MAX,
+    SRT_COLUMN_AVG,
+    SRT_COLUMN_SUM,
+    NUM_SRT_COLUMNS
+};
 
-/* functions */
-
-/* Initialize a timestat_t struct */
-WS_DLL_PUBLIC void time_stat_init(timestat_t *stats);
-
-/* Update a timestat_t struct with a new sample */
-WS_DLL_PUBLIC void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
-
-WS_DLL_PUBLIC gdouble get_average(const nstime_t *sum, guint32 num);
+/** returns the column name for a given column index */
+extern const char* service_response_time_get_column_name(int index);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __TIMESTATS_H__ */
+#endif /* __SRT_STATS_H__ */

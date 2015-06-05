@@ -27,7 +27,7 @@
 
 #include <gtk/gtk.h>
 #include "wsutil/nstime.h"
-#include "epan/srt_table.h"
+#include "ui/service_response_time.h"
 
 /** Suggested width of SRT window */
 #define SRT_PREFERRED_WIDTH 650
@@ -39,7 +39,7 @@
 #define MAX_FILTER_STRING_LENGTH 1000
 
 /** @file
- *  Helper routines common to all service response time statistics tap.
+ *  Helper routines common to all service response time statistics taps.
  */
 
 /** Statistics table */
