@@ -122,6 +122,7 @@ static expert_field ei_crc_frame_1_invalid = EI_INIT;
 static expert_field ei_crc_frame_1_valid_frame2_invalid = EI_INIT;
 static expert_field ei_crc_frame_2_invalid = EI_INIT;
 static expert_field ei_crc_frame_2_unknown_scm_udid = EI_INIT;
+static expert_field ei_crc_frame_2_scm_udid_encoded = EI_INIT;
 static expert_field ei_message_unknown_type = EI_INIT;
 static expert_field ei_message_reassembly_size_differs_from_header = EI_INIT;
 static expert_field ei_message_spdo_address_invalid = EI_INIT;
@@ -772,6 +773,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                                                 "0x%04X [%d] (%s)", ct, ct,
                                                 (packet->scm_udid_valid ? "Complete" : "Low byte only"));
         PROTO_ITEM_SET_GENERATED(item);
+        packet->payload.spdo->counter.b16 = ct;
 
         packet->payload.spdo->timerequest = taddr;
         proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request, message_tvb,
@@ -785,6 +787,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         {
             item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_ct, message_tvb, 0, 0, ct,
                     "0x%04X [%d] (%s)", ct, ct, (packet->scm_udid_valid ? "Complete" : "Low byte only"));
+            PROTO_ITEM_SET_GENERATED(item);
             packet->payload.spdo->counter.b16 = ct;
         }
         else
@@ -803,6 +806,8 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             ct40bit += tvb_get_guint8(message_tvb, packet->frame.subframe1 + 3);
 
             item = proto_tree_add_uint64(spdo_tree, hf_oss_spdo_ct_40bit, message_tvb, 0, 0, ct40bit);
+            PROTO_ITEM_SET_GENERATED(item);
+
             packet->payload.spdo->counter.b40 = ct40bit;
             expert_add_info ( pinfo, item, &ei_40bit_default_domain );
         }
@@ -1633,10 +1638,10 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
                             bytesf2[3] = 0;
                         }
                     }
-
-                    if ( packet->frame.length == 11 )
-                        frame2_crc ^= ((guint8)scmUDID->data[5]);
                 }
+
+                if ( isSlim || packet->frame.length == 11 )
+                    frame2_crc ^= ((guint8)scmUDID->data[5]);
 
                 /*
                  * If the second frame is 6 or 7 (slim) bytes in length, we have to decode the found
@@ -1677,7 +1682,12 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
                 expert_add_info(pinfo, item, &ei_crc_frame_2_invalid );
             }
             else
+            {
+                if ( isSlim || ( !isSNMT && packet->frame.length == 11 ) )
+                    expert_add_info(pinfo, item, &ei_crc_frame_2_scm_udid_encoded );
+
                 packet->crc.valid2 = TRUE;
+            }
         }
         else
             expert_add_info(pinfo, item, &ei_crc_frame_2_unknown_scm_udid );
@@ -2122,8 +2132,13 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
         /* findSafetyFrame starts at frameOffset with the search for the next position. But the
          * offset is assumed to be the ID, which can lead to scenarios, where the CRC of a previous
-         * detected frame is assumed to be the addr of the next one. +1 prevents such a scenario */
-        frameOffset += (frameLength + 1);
+         * detected frame is assumed to be the addr of the next one. +1 prevents such a scenario.
+         * It must be checked, if the resulting frameOffset does not scratch the max length. It
+         * cannot exceed by adding just frameLength, as this value is a result of the heuristic, and
+         * therefore must be within the correct length, but it can exceed if +1 is added unchecked. */
+        frameOffset += frameLength;
+        if ( tvb_captured_length_remaining(message_tvb, frameOffset) > 0 )
+            frameOffset += 1;
     }
 
     if ( handled == TRUE )
@@ -2631,6 +2646,9 @@ proto_register_opensafety(void)
         { &ei_crc_frame_2_unknown_scm_udid,
           { "opensafety.crc.error.frame2_unknown_scmudid", PI_PROTOCOL, PI_WARN,
             "Frame 2 CRC invalid, SCM UDID was not auto-detected", EXPFILL } },
+        { &ei_crc_frame_2_scm_udid_encoded,
+          { "opensafety.crc.error.crc2_scm_udid_encoded", PI_PROTOCOL, PI_NOTE,
+            "Frame 2 CRC is encoded with byte 6 of SCM UDID due to payload length of 0 in frame 2 or SLIM SSDO", EXPFILL } },
 
         { &ei_message_reassembly_size_differs_from_header,
           { "opensafety.msg.warning.reassembly_size_fail", PI_PROTOCOL, PI_WARN,
