@@ -18,7 +18,10 @@ INCLUDE(FindWSWinLibs)
 FindWSWinLibs("lua5*" "LUA_HINTS")
 
 find_package(PkgConfig)
-pkg_search_module(LUA lua)
+pkg_search_module(LUA lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50)
+if(NOT LUA_FOUND)
+    pkg_search_module(LUA "lua<=5.2.99")
+endif()
 
 FIND_PATH(LUA_INCLUDE_DIR lua.h
   HINTS

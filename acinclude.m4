@@ -808,22 +808,23 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# The user didn't tell us where to find Lua.  Let's go look for it.
 
 		# First, try the standard (pkg-config) way.
-		PKG_CHECK_MODULES(LUA, lua, [have_lua=yes], [true])
-
 		# Unfortunately Lua's pkg-config file isn't standardly named.
-		# Apparently Debian, in particular, allows installation of multiple
-		# versions of Lua at the same time (thus each version has its own
-		# package name).
-		for ver in 5.2 -5.2 5.1 -5.1 5.0 -5.0
+		# Some distributions allow installation of multiple versions of
+		# Lua at the same time.  On such systems each version has its
+		# own package name.
+		#
+		# We use a for loop instead of giving all the package names to
+		# PKG_CHECK_MODULES because doing the latter doesn't appear to
+		# work reliably (some package names are not searched for).
+		for pkg in lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50 "lua < 5.3"
 		do
+			PKG_CHECK_MODULES(LUA, $pkg, [have_lua=yes], [true])
+
 			if test "x$have_lua" = "xyes"
 			then
 				break
 			fi
-
-			PKG_CHECK_MODULES(LUA, lua$ver, [have_lua=yes], [true])
 		done
-
 	fi
 
 	if test "x$have_lua" != "xyes"
@@ -868,17 +869,24 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 
 			AC_MSG_CHECKING(the Lua version)
 			lua_ver=`$AWK AS_ESCAPE('/LUA_VERSION_NUM/ { print $NF; }' $header_dir/lua.h | sed 's/0/./')`
-			AC_MSG_RESULT($lua_ver)
 
-			wireshark_save_CPPFLAGS="$CPPFLAGS"
-			CPPFLAGS="$CPPFLAGS -I$header_dir"
-			AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h, ,
-			[
+			if test "x$lua_ver" = "x5.3"
+			then
+				# Wireshark doesn't compile with Lua 5.3 today
+				AC_MSG_RESULT($lua_ver - disabling Lua support)
 				have_lua=no
-				# Restore our CPPFLAGS
-				CPPFLAGS="$wireshark_save_CPPFLAGS"
-				break
-			])
+			else
+				AC_MSG_RESULT($lua_ver)
+
+				wireshark_save_CPPFLAGS="$CPPFLAGS"
+				CPPFLAGS="$CPPFLAGS -I$header_dir"
+				AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h, ,
+				[
+					have_lua=no
+					# Restore our CPPFLAGS
+					CPPFLAGS="$wireshark_save_CPPFLAGS"
+				])
+			fi
 
 			if test "x$have_lua" = "x"
 			then
