@@ -3674,8 +3674,16 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+
+    case 0x2909: /* Number of Digitals   - Not adopted, 0.9 now (18th July 2015) */
+    case 0x290E: /* Time Trigger Setting - Not adopted, 0.9 now (18th July 2015) */
+/* TODO: Implement, low priority because they are not adopted yet */
+    case 0x290A: /* Value Trigger Setting */
     case 0x2A53: /* RSC Measurement */
     case 0x2A55: /* SC Control Point */
+    case 0x2A56: /* Digital */
+    case 0x2A58: /* Analog */
+    case 0x2A5A: /* Aggregate */
     case 0x2A5B: /* CSC Measurement */
     case 0x2A63: /* Cycling Power Measurement */
     case 0x2A64: /* Cycling Power Vector */
@@ -3693,6 +3701,15 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     case 0x2AAA: /* CGM Session Start Time */
     case 0x2AAB: /* CGM Session Run Time */
     case 0x2AAC: /* CGM Specific Ops Control Point */
+    case 0x2AAD: /* Indoor Positioning Configuration    */
+    case 0x2AAE: /* Latitude    */
+    case 0x2AAF: /* Longitude   */
+    case 0x2AB0: /* Local North Coordinate  */
+    case 0x2AB1: /* Local East Coordinate   */
+    case 0x2AB2: /* Floor Number    */
+    case 0x2AB3: /* Altitude    */
+    case 0x2AB4: /* Uncertainty  */
+    case 0x2AB5: /* Location Name   */
 /* TODO: Implement (easy) */
     case 0x2906: /* Valid Range */
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
