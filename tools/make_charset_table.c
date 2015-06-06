@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 		iconv_close(conv);
 
 		if (ret != 0 || inlen != 0 || outlen != 0) {
-			fprintf(stderr, "%d: smth went wrong: %zd %zd %zd\n", i, ret, inlen, outlen);
+			fprintf(stderr, "%d: smth went wrong: %zu %zu %zu\n", i, ret, inlen, outlen);
 			return 3;
 		}
 
