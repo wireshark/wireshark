@@ -10810,7 +10810,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
       if (type_name == NULL)
         format_name=(char*)name;
       else if (name == NULL)
-        format_name=(char*)format_name;
+        format_name=(char*)type_name;
       else
       {
         format_name = (char*) wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
