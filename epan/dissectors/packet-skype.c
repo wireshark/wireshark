@@ -332,7 +332,7 @@ dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	 */
 	if (pinfo->ptype == PT_UDP) {
 		return dissect_skype_udp(tvb, pinfo, tree);
-	} else if (pinfo->ptype == PT_UDP) {
+	} else if (pinfo->ptype == PT_TCP) {
 		return dissect_skype_tcp(tvb, pinfo, tree);
 	}
 	return 0;
