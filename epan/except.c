@@ -422,10 +422,10 @@ int main(int argc, char **argv)
             /* inner catch */
             msg = except_message(ex);
             if (msg == NULL) {
-                printf("caught exception (inner): s=%ld, c=%ld\n",
+                printf("caught exception (inner): s=%lu, c=%lu\n",
                        except_group(ex), except_code(ex));
             } else {
-                printf("caught exception (inner): \"%s\", s=%ld, c=%ld\n",
+                printf("caught exception (inner): \"%s\", s=%lu, c=%lu\n",
                        msg, except_group(ex), except_code(ex));
             }
             except_rethrow(ex);
@@ -435,10 +435,10 @@ int main(int argc, char **argv)
         /* outer catch */
         msg = except_message(ex);
         if (msg == NULL) {
-            printf("caught exception (outer): s=%ld, c=%ld\n",
+            printf("caught exception (outer): s=%lu, c=%lu\n",
                    except_group(ex), except_code(ex));
         } else {
-            printf("caught exception (outer): \"%s\", s=%ld, c=%ld\n",
+            printf("caught exception (outer): \"%s\", s=%lu, c=%lu\n",
                    except_message(ex), except_group(ex), except_code(ex));
         }
     }
