@@ -3431,8 +3431,8 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 	smb2_find_dissector_t *dis = smb2_find_dissectors;
 
 	while (dis->dissector) {
-		if (si && si->saved && si->saved) {
-			if (dis->level ==si->saved->infolevel) {
+		if (si && si->saved) {
+			if (dis->level == si->saved->infolevel) {
 				dis->dissector(tvb, pinfo, tree, si);
 				return;
 			}
