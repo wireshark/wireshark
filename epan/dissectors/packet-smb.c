@@ -1052,22 +1052,12 @@ gboolean eosmb_take_name_as_fid = FALSE ;
 const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 	const gchar	*buf;
 
-	if (pinfo->src.type == AT_IPv4) {
-		if (	cmd == SMB_COM_READ_ANDX ||
-			cmd == SMB_COM_READ ||
-			cmd == SMB2_COM_READ) {
-			buf = address_to_str(wmem_packet_scope(), &pinfo->src);
-		} else {
-			buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
-		}
+	if (	cmd == SMB_COM_READ_ANDX ||
+		cmd == SMB_COM_READ ||
+		cmd == SMB2_COM_READ) {
+		buf = address_to_str(wmem_packet_scope(), &pinfo->src);
 	} else {
-		if (	cmd == SMB_COM_READ_ANDX ||
-			cmd == SMB_COM_READ ||
-			cmd == SMB2_COM_READ) {
-			buf = address_to_str(wmem_packet_scope(), &pinfo->src);
-		} else {
-			buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
-		}
+		buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
 	}
 
 	return buf;

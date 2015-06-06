@@ -3339,15 +3339,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 } else {
                     pdu_len = sizeof_SpiceDataHeader;
                     GET_PDU_FROM_OFFSET(offset)
-                    pdu_len = tvb_get_letohl(tvb, offset + 14); /* this is actually the sub-message list size */
-                    if (pdu_len == 0) {
-                        /* if there are no sub-messages, get the usual message body size.   */
-                        /* Note that we do not dissect properly yet sub-messages - but they */
-                        /* are not used in the protcol either */
-                        pdu_len = tvb_get_letohl(tvb, offset + 10);
-                    } else {
-                        pdu_len = tvb_get_letohl(tvb, offset + 10);
-                    }
+                    /* if there are no sub-messages, get the usual message body size.   */
+                    /* Note that we do not dissect properly yet sub-messages - but they */
+                    /* are not used in the protcol either */
+                    pdu_len = tvb_get_letohl(tvb, offset + 10);
                     pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
                                                    /* data header, which is sizeof_SpiceDataHeader (18) bytes long) */
                 }

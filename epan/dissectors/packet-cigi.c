@@ -2994,11 +2994,7 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             offset = cigi2_add_image_generator_message(tvb, cigi_packet_tree, offset);
             break;
         default:
-            if ( packet_id >= CIGI2_PACKET_ID_USER_DEFINABLE_MIN && packet_id <= CIGI2_PACKET_ID_USER_DEFINABLE_MAX ) {
-                offset = cigi_add_data(tvb, cigi_packet_tree, offset);
-            } else {
-                offset = cigi_add_data(tvb, cigi_packet_tree, offset);
-            }
+            offset = cigi_add_data(tvb, cigi_packet_tree, offset);
             break;
         }
 

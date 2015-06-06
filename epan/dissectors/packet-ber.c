@@ -3303,14 +3303,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
         /* first we must read the sequence header */
         offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &classx, &pcx, &tagx);
         offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &lenx, &ind);
-        if (ind) {
-            /* if the length is indefinite we don't really know (yet) where the
-             * object ends so assume it spans the rest of the tvb for now.
-             */
-            end_offset = offset + lenx;
-        } else {
-            end_offset = offset + lenx;
-        }
+        end_offset = offset + lenx;
 
         /* sanity check: we only handle Constructed Universal Sequences */
         if ((classx != BER_CLASS_APP) && (classx != BER_CLASS_PRI)) {
