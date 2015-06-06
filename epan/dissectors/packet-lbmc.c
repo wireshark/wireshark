@@ -8442,7 +8442,6 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
         NULL
     };
     guint8 index_len = 0;
-    int opt_len = 0;
     int len_dissected = 0;
     proto_item * cmd_type_item = NULL;
 
@@ -8496,7 +8495,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             break;
         case LBMC_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_TYPE:
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_release_assign, tvb, offset, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = opt_len - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
+            index_len = hdrlen - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_release_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_rcr_idx, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_RCR_IDX, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_RCR_IDX, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8516,7 +8515,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             break;
         case LBMC_UMQ_IDX_CMD_ULB_RCV_RELEASE_IDX_ASSIGN_TYPE:
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign, tvb, offset, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = opt_len - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
+            index_len = hdrlen - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_ulb_release_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_src_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_SRC_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_SRC_ID, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8537,7 +8536,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             break;
         case LBMC_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_TYPE:
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_reserve_assign, tvb, offset, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = opt_len - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
+            index_len = hdrlen - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_reserve_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_rcr_idx, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_RCR_IDX, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_RCR_IDX, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8557,7 +8556,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             break;
         case LBMC_UMQ_IDX_CMD_ULB_RCV_RESERVE_IDX_ASSIGN_TYPE:
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign, tvb, offset, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = opt_len - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
+            index_len = hdrlen - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_ulb_reserve_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_src_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_SRC_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_SRC_ID, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
