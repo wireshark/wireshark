@@ -680,7 +680,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint8  *s_510006_ptr = NULL;
     guint8  *s_510024_ptr = NULL;
     guint8  *s_510012_ptr = NULL; /* stats pointers */
-    gint64   filePos      = -1;
+    gint64   filePos;
     guint32  frame_type   = 0;
     int      f_len, v_type;
     guint16  data_length  = 0;
