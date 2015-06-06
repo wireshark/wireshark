@@ -189,7 +189,7 @@ void
 reset_udp_follow(void) {
   remove_tap_listener(&stream_to_follow[UDP_STREAM]);
   find_addr[UDP_STREAM] = FALSE;
-  find_addr[UDP_STREAM] = FALSE;
+  find_index[UDP_STREAM] = FALSE;
 }
 
 gchar*
