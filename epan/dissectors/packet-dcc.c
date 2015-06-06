@@ -276,7 +276,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		/* Very hokey check - if all three of pid/report/retrans look like little-endian
 			numbers, host is probably little endian. Probably innacurate on super-heavily-used
 			DCC clients though. This should be good enough for now. */
-		client_is_le = ( (tvb_get_guint8(tvb, offset+4) | tvb_get_guint8(tvb, offset+4)) &&
+		client_is_le = ( (tvb_get_guint8(tvb, offset+4) | tvb_get_guint8(tvb, offset+5)) &&
 						 (tvb_get_guint8(tvb, offset+8) | tvb_get_guint8(tvb, offset+9)) &&
 						 (tvb_get_guint8(tvb, offset+12) | tvb_get_guint8(tvb, offset+13)) );
 
