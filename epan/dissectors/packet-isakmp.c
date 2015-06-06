@@ -3998,7 +3998,6 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 
   /* Total fragments */
   proto_tree_add_item(tree, hf_isakmp_ike2_total_fragments, tvb, offset, 2, ENC_BIG_ENDIAN);
-  /* offset += 2; */
   if (total_fragments == 0) {
     proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_bad_fragment_number, tvb, 0, 0,
                                  "Total fragments must not be zero");
@@ -4008,6 +4007,8 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   col_append_fstr(pinfo->cinfo, COL_INFO, " (fragment %u/%u)", fragment_number, total_fragments);
 
 #ifdef HAVE_LIBGCRYPT
+  offset += 2;
+
   /* If this is the last fragment, need to know what the payload type for the reassembled message is,
      which was included in the first fragment */
   if (fragment_number == total_fragments) {
