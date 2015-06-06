@@ -3610,7 +3610,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /*XXX we should really make sure we calculate auth_info->auth_data
       and use that one instead of this auth_tvb hack
     */
-    if (tvb_reported_length(tvb) == tvb_reported_length(tvb)) {
+    if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         if (tvb_reported_length_remaining(tvb, offset+length) > 8) {
             auth_tvb = tvb_new_subset_remaining(tvb, offset+length+8);
         }
