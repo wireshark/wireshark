@@ -2551,6 +2551,12 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         return FALSE;
     }
 
+    /* check to see if the PMS was provided to us*/
+    if (ssl_restore_master_key(ssl_session, "Unencrypted pre-master secret", TRUE,
+           mk_map->pms, &ssl_session->client_random)) {
+        return TRUE;
+    }
+
     if (ssl_session->cipher_suite.kex == KEX_PSK)
     {
         /* calculate pre master secret*/
@@ -4369,6 +4375,11 @@ ssl_common_init(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
     else
         mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
 
+    if (mk_map->pms)
+        g_hash_table_remove_all(mk_map->pms);
+    else
+        mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
+
     g_free(decrypted_data->data);
     ssl_data_alloc(decrypted_data, 32);
 
@@ -4645,7 +4656,8 @@ ssl_compile_keyfile_regex(void)
 {
 #define OCTET "(?:[[:xdigit:]]{2})"
     const gchar *pattern =
-        "(?:"
+        "(?:PMS_CLIENT_RANDOM (?<client_random_pms>" OCTET "{32}) (?<pms>" OCTET "{32}))"
+        "|(?:"
         /* First part of encrypted RSA pre-master secret */
         "RSA (?<encrypted_pmk>" OCTET "{8}) "
         /* Matches Server Hellos having a Session ID */
@@ -4706,6 +4718,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "encrypted_pmk",  mk_map->pre_master },
         { "session_id",     mk_map->session },
         { "client_random",  mk_map->crandom },
+        { "client_random_pms",  mk_map->pms},
     };
     /* no need to try if no key log file is configured. */
     if (!ssl_keylog_filename) {
@@ -4727,9 +4740,16 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *     This is somewhat is a misnomer because there's nothing RSA specific
      *     about this.
      *
+     *   - "PMS_CLIENT_RANDOM xxxx yyyy"
+     *     Where xxxx is the client_random from the ClientHello (hex-encoded)
+     *     Where yyyy is the cleartext pre-master secret (hex-encoded)
+     *     (This format allows SSL connections to be decrypted, if a user can
+     *     capture the PMS but could not recover the MS for a specific session
+     *     with a SSL Server.)
+     *
      *   - "CLIENT_RANDOM xxxx yyyy"
      *     Where xxxx is the client_random from the ClientHello (hex-encoded)
-     *     Where yyy is the cleartext master secret (hex-encoded)
+     *     Where yyyy is the cleartext master secret (hex-encoded)
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
      */
@@ -4776,17 +4796,26 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
         if (g_regex_match(regex, line, G_REGEX_MATCH_ANCHORED, &mi)) {
-            gchar *hex_key, *hex_ms;
+            gchar *hex_key, *hex_pre_ms_or_ms;
             StringInfo *key = wmem_new(wmem_file_scope(), StringInfo);
-            StringInfo *ms = wmem_new(wmem_file_scope(), StringInfo);
+            StringInfo *pre_ms_or_ms = NULL;
             GHashTable *ht = NULL;
 
-            /* convert from hex to bytes and save to hashtable */
-            hex_ms = g_match_info_fetch_named(mi, "master_secret");
+            /* Is the PMS being supplied with the PMS_CLIENT_RANDOM
+             * otherwise we will use the Master Secret
+             */
+            hex_pre_ms_or_ms = g_match_info_fetch_named(mi, "master_secret");
+            if (hex_pre_ms_or_ms == NULL || strlen(hex_pre_ms_or_ms) == 0){
+                g_free(hex_pre_ms_or_ms);
+                hex_pre_ms_or_ms = g_match_info_fetch_named(mi, "pms");
+            }
             /* There is always a match, otherwise the regex is wrong. */
-            DISSECTOR_ASSERT(hex_ms);
-            from_hex(ms, hex_ms, strlen(hex_ms));
-            g_free(hex_ms);
+            DISSECTOR_ASSERT(hex_pre_ms_or_ms && strlen(hex_pre_ms_or_ms));
+
+            /* convert from hex to bytes and save to hashtable */
+            pre_ms_or_ms = wmem_new(wmem_file_scope(), StringInfo);
+            from_hex(pre_ms_or_ms, hex_pre_ms_or_ms, strlen(hex_pre_ms_or_ms));
+            g_free(hex_pre_ms_or_ms);
 
             /* Find a master key from any format (CLIENT_RANDOM, SID, ...) */
             for (i = 0; i < G_N_ELEMENTS(mk_groups); i++) {
@@ -4803,7 +4832,8 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
             }
             DISSECTOR_ASSERT(ht); /* Cannot be reached, or regex is wrong. */
 
-            g_hash_table_insert(ht, key, ms);
+            g_hash_table_insert(ht, key, pre_ms_or_ms);
+
         } else {
             ssl_debug_printf("    unrecognized line\n");
         }
@@ -6597,10 +6627,11 @@ ssl_common_register_options(module_t *module, ssl_common_options_t *options)
              "RSA <EPMS> <PMS>\n"
              "RSA Session-ID:<SSLID> Master-Key:<MS>\n"
              "CLIENT_RANDOM <CRAND> <MS>\n"
+             "PMS_CLIENT_RANDOM <CRAND> <PMS>\n"
              "\n"
              "Where:\n"
              "<EPMS> = First 8 bytes of the Encrypted PMS\n"
-             "<PMS> = The Pre-Master-Secret (PMS)\n"
+             "<PMS> = The Pre-Master-Secret (PMS) used to derive the MS\n"
              "<SSLID> = The SSL Session ID\n"
              "<MS> = The Master-Secret (MS)\n"
              "<CRAND> = The Client's random number from the ClientHello message\n"

@@ -444,6 +444,7 @@ typedef struct {
     GHashTable *crandom;    /* Client Random to master secret */
     GHashTable *pre_master; /* First 8 bytes of encrypted pre-master secret to
                                pre-master secret */
+    GHashTable *pms;        /* Client Random to unencrypted pre-master secret */
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
