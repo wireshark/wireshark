@@ -73,7 +73,7 @@ decode_arfcn(guint16 arfcn, const char **band, guint *uplink, guint *downlink)
 		*uplink = 890000 + 200 * (arfcn - 1024);
 		*downlink = *uplink + 45000;
 	}
-	else if( arfcn >= 955 && arfcn <= 1023 ) {
+	else if( arfcn >= 955 && arfcn <= 974 ) {
 		*band = "R-GSM 900";
 		*uplink = 890000 + 200 * (arfcn - 1024);
 		*downlink = *uplink + 45000;
