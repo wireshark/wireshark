@@ -2087,8 +2087,8 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
             /*
              * Add the aliases, too, if there are any.
              * XXX - except we only store the last one added.  The name
-	     * resolver returns the first name in the hosts file, we should
-	     * too.
+             * resolver returns the first name in the hosts file, we should
+             * too.
              */
             while ((cp = strtok(NULL, " \t")) != NULL) {
                 if (is_ipv6) {
@@ -2265,7 +2265,7 @@ read_subnets_file (const char *subnetspath)
         }
 
         mask_length = atoi(cp2);
-        if (0 >= mask_length || mask_length > 31) {
+        if (0 >= mask_length || mask_length > 32) {
             continue; /* invalid mask length */
         }
 
@@ -2352,13 +2352,19 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
     }
 
     if (NULL != (tp = entry->subnet_addresses[hash_idx])) {
-        if (tp->addr == subnet_addr) {
-            return;    /* XXX provide warning that an address was repeated? */
-        } else {
-            sub_net_hashipv4_t * new_tp = g_new(sub_net_hashipv4_t, 1);
-            tp->next = new_tp;
-            tp = new_tp;
+        sub_net_hashipv4_t * new_tp;
+
+        while (tp->next) {
+            if (tp->addr == subnet_addr) {
+                return; /* XXX provide warning that an address was repeated? */
+            } else {
+                tp = tp->next;
+            }
         }
+
+        new_tp = g_new(sub_net_hashipv4_t, 1);
+        tp->next = new_tp;
+        tp = new_tp;
     } else {
         tp = entry->subnet_addresses[hash_idx] = g_new(sub_net_hashipv4_t, 1);
     }
