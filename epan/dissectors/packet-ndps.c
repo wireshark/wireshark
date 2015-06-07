@@ -6482,13 +6482,13 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset = objectidentifier(tvb, btree, foffset);
                 proto_item_set_end(bitem, tvb, foffset);
                 /* Start of AttributeSet */
-                number_of_items = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_num_attributes, tvb, foffset, 4, number_of_items);
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_uint(atree, hf_ndps_num_attributes, tvb, foffset, 4, number_of_items2);
                 foffset += 4;
                 btree = proto_tree_add_subtree(atree, tvb, foffset, -1, ett_ndps, &bitem, "Attribute");
-                for (ii = 0; ii < number_of_items; ii++ )
+                for (jj = 0; jj < number_of_items2; jj++ )
                 {
-                    if (ii >= NDPS_MAX_ITEMS) {
+                    if (jj >= NDPS_MAX_ITEMS) {
                         expert_add_info(pinfo, bitem, &ei_ndps_truncated);
                         break;
                     }
@@ -7257,13 +7257,13 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += align_4(tvb, foffset);
                 proto_item_set_end(bitem, tvb, foffset);
                 /* End of NameorID */
-                number_of_items = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_delivery_add_count, tvb, foffset, 4, number_of_items);
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_uint(atree, hf_ndps_delivery_add_count, tvb, foffset, 4, number_of_items2);
                 foffset += 4;
                 btree = proto_tree_add_subtree(atree, tvb, foffset, -1, ett_ndps, &bitem, "Delivery Addresses");
-                for (ii = 0; ii < number_of_items; ii++ )
+                for (jj = 0; jj < number_of_items2; jj++ )
                 {
-                    if (ii >= NDPS_MAX_ITEMS) {
+                    if (jj >= NDPS_MAX_ITEMS) {
                         expert_add_info(pinfo, bitem, &ei_ndps_truncated);
                         break;
                     }
@@ -7278,12 +7278,12 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 proto_item_set_end(bitem, tvb, foffset);
                 /* Start of object identifier set */
                 btree = proto_tree_add_subtree(atree, tvb, foffset, -1, ett_ndps, &bitem, "Notify Attributes");
-                number_of_items = tvb_get_ntohl(tvb, foffset);
-                expert_item = proto_tree_add_uint(btree, hf_ndps_num_attributes, tvb, foffset, 4, number_of_items);
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                expert_item = proto_tree_add_uint(btree, hf_ndps_num_attributes, tvb, foffset, 4, number_of_items2);
                 foffset += 4;
-                for (ii = 0; ii < number_of_items; ii++ )
+                for (jj = 0; jj < number_of_items2; jj++ )
                 {
-                    if (ii >= NDPS_MAX_ITEMS) {
+                    if (jj >= NDPS_MAX_ITEMS) {
                         expert_add_info(pinfo, expert_item, &ei_ndps_truncated);
                         break;
                     }
