@@ -942,10 +942,11 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
             if (!try_val_to_str_idx((pkg_found->id)<<16, base_signal_name_vals, &j)) {
                 j++; idx=j;
                 while((base_signal_name_vals[j].strptr != NULL) && ((base_signal_name_vals[j].value>>16) == (pkg_found->id))) {
+                    j++;
                 };
                 if (idx < j) {
-                    vst = g_new0(value_string,j-idx+1);
-                    for (k=0;idx<i;k++) {
+                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    for (k=0;idx<j;k++) {
                         vst[k].strptr = base_signal_name_vals[idx].strptr;
                         vst[k].value = (base_signal_name_vals[idx].value &0xffff);
                         idx++;

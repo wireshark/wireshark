@@ -1417,10 +1417,11 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
             if (!try_val_to_str_idx((pkg_found->id)<<16, base_signal_name_vals, &j)) {
                 j++; idx=j;
                 while((base_signal_name_vals[j].strptr != NULL) && ((base_signal_name_vals[j].value>>16) == (pkg_found->id))) {
+                    j++;
                 };
                 if (idx < j) {
-                    vst = g_new0(value_string,j-idx+1);
-                    for (k=0;idx<i;k++) {
+                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    for (k=0;idx<j;k++) {
                         vst[k].strptr = base_signal_name_vals[idx].strptr;
                         vst[k].value = (base_signal_name_vals[idx].value &0xffff);
                         idx++;
@@ -5339,7 +5340,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1417 "../../asn1/h248/packet-h248-template.c"
+#line 1418 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6761,7 +6762,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1582 "../../asn1/h248/packet-h248-template.c"
+#line 1583 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6927,7 +6928,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1600 "../../asn1/h248/packet-h248-template.c"
+#line 1601 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
