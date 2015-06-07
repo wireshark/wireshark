@@ -448,7 +448,7 @@ static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int
 
 	proto_item_append_text(item, " (%u:%" G_GINT64_MODIFIER "u)", node_idx, seq);
 
-    return offset + 8;
+	return offset + 8;
 }
 
 static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset)
@@ -481,7 +481,7 @@ static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset)
 		&hf_dlm_lock_flag_put_lvb,
 		&hf_dlm_lock_flag_get_lvb,
 		&hf_dlm_lock_flag_recovery
-    };
+	};
 
 	proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_dlm_lock_flags,
 					ett_dtm_lock_flags, flags, ENC_BIG_ENDIAN, BMT_NO_INT | BMT_NO_FALSE | BMT_NO_TFS);
@@ -630,7 +630,7 @@ static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int off
 static void
 dlm_fmt_revision( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+	g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 #define DLM_QUERY_JOIN_REQUEST_OFF_DLMPROTO	4

@@ -32,3 +32,16 @@
 #define IANA_PID_L2TP			0x0007	/* RFC 3070 */
 #define IANA_PID_VPN_ID			0x0008	/* RFC 2684 */
 #define IANA_PID_MSDP_GRE_PROTO_TYPE	0x0009
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

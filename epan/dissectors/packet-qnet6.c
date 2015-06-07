@@ -4067,7 +4067,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
    * flags
    */
   proto_tree_add_bitmask_with_flags(qnet6_tree, tvb, offset,
-		hf_qnet6_l4_flags, ett_qnet6_flags, flags, ENC_NA, BMT_NO_APPEND|BMT_NO_FALSE);
+                hf_qnet6_l4_flags, ett_qnet6_flags, flags, ENC_NA, BMT_NO_APPEND|BMT_NO_FALSE);
   qflags = tvb_get_guint8(tvb, offset);
   offset++;
   /*
