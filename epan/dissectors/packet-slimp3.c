@@ -54,6 +54,17 @@ static int hf_slimp3_data_ack_write_pointer = -1;
 static int hf_slimp3_data_ack_read_pointer = -1;
 static int hf_slimp3_data_ack_sequence = -1;
 static int hf_slimp3_data_req_offset = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_slimp3_display_delay = -1;
+static int hf_slimp3_display_string = -1;
+static int hf_slimp3_display_command = -1;
+static int hf_slimp3_display_unknown = -1;
+static int hf_slimp3_hello_response_client_server = -1;
+static int hf_slimp3_hello_request_server_client = -1;
+static int hf_slimp3_i2c_response_client_server = -1;
+static int hf_slimp3_i2c_request_server_client = -1;
+static int hf_slimp3_data_length = -1;
+static int hf_slimp3_data_data = -1;
 
 static gint ett_slimp3 = -1;
 
@@ -335,6 +346,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     case SLIMP3_DISPLAY:
         if (tree) {
+            guint8 value;
+
             /* Loop through the commands */
             i1 = 18;
             in_str = FALSE;
@@ -344,8 +357,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 case 0:
                     in_str = FALSE;
                     lcd_strlen = 0;
-                    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-                                        "Delay (%u ms)", tvb_get_guint8(tvb, offset + i1 + 1));
+                    value = tvb_get_guint8(tvb, offset + i1 + 1);
+                    proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_display_delay, tvb, offset + i1, 2,
+                                        value, "%u ms", value);
                     i1 += 2;
                     break;
                 case 3:
@@ -357,8 +371,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         proto_item_append_text(ti, "%c", lcd_char);
                         proto_item_set_len(ti, lcd_strlen);
                     } else {
-                        ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-                                                 "String: %c", lcd_char);
+                        ti = proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_display_string, tvb, offset + i1, 2,
+                                                 lcd_char, "%c", lcd_char);
                         in_str = TRUE;
                         lcd_strlen = 2;
                     }
@@ -368,11 +382,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 case 2:
                     in_str = FALSE;
                     lcd_strlen = 0;
-                    ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-                                             "Command: %s",
-                                             val_to_str(tvb_get_guint8(tvb, offset + i1 + 1),
-                                                        slimp3_display_commands,
-                                                        "Unknown (0x%0x)"));
+                    value = tvb_get_guint8(tvb, offset + i1 + 1);
+                    ti = proto_tree_add_uint(slimp3_tree, hf_slimp3_display_command, tvb, offset + i1, 2, value);
                     if ((tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) {
                         proto_item_append_text(ti, ": %s",
                                                val_to_str(tvb_get_guint8(tvb, offset + i1 + 2),
@@ -384,10 +395,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     break;
 
                 default:
-                    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-                                        "Unknown 0x%0x, 0x%0x",
-                                        tvb_get_guint8(tvb, offset + i1),
-                                        tvb_get_guint8(tvb, offset + i1 + 1));
+                    proto_tree_add_item(slimp3_tree, hf_slimp3_display_unknown, tvb, offset + i1, 2, ENC_NA);
                     i1 += 2;
                     break;
                 }
@@ -441,14 +449,14 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             if (to_server) {
                 guint8 fw_ver;
                 /* Hello response; client->server */
-                proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Response (Client --> Server)");
+                proto_tree_add_item(slimp3_tree, hf_slimp3_hello_response_client_server, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 fw_ver = tvb_get_guint8(tvb, offset+2);
                 proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver,
                                                  "%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
             } else {
                 /* Hello request; server->client */
-                proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Request (Server --> Client)");
+                proto_tree_add_item(slimp3_tree, hf_slimp3_hello_request_server_client, tvb, offset, 1, ENC_NA);
             }
         }
         break;
@@ -456,13 +464,11 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     case SLIMP3_I2C:
         if (to_server) {
             /* Hello response; client->server */
-            proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-                                "I2C Response (Client --> Server)");
+            proto_tree_add_item(slimp3_tree, hf_slimp3_i2c_response_client_server, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, ", Response");
         } else {
             /* Hello request; server->client */
-            proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-                                "I2C Request (Server --> Client)");
+            proto_tree_add_item(slimp3_tree, hf_slimp3_i2c_request_server_client, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, ", Request");
         }
         break;
@@ -486,8 +492,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
          */
         if (old_protocol) {
             guint offset_buffer;
-            proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-                                "Length: %d bytes",
+            proto_tree_add_bytes_format(slimp3_tree, hf_slimp3_data_length, tvb, offset, -1,
+                                NULL, "Length: %d bytes",
                                 tvb_reported_length_remaining(tvb, offset+18));
             offset_buffer = tvb_get_ntohs(tvb, offset+2) * 2;
             proto_tree_add_uint(slimp3_tree, hf_slimp3_data_offset, tvb, offset+2, 2, offset_buffer);
@@ -500,8 +506,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         else {
             guint write_pointer;
             proto_tree_add_item(slimp3_tree, hf_slimp3_data_command, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-                                "Length: %d bytes",
+            proto_tree_add_bytes_format(slimp3_tree, hf_slimp3_data_length, tvb, offset, -1,
+                                NULL, "Length: %d bytes",
                                 tvb_reported_length_remaining(tvb, offset+18));
             write_pointer = tvb_get_ntohs(tvb, offset+6) * 2;
             proto_tree_add_uint(slimp3_tree, hf_slimp3_data_write_pointer, tvb, offset+6, 2, write_pointer);
@@ -566,8 +572,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     default:
         if (tree) {
-            proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-                                "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
+            proto_tree_add_item(slimp3_tree, hf_slimp3_data_data, tvb, offset, -1, ENC_NA);
         }
         break;
     }
@@ -678,6 +683,18 @@ proto_register_slimp3(void)
           { "Requested offset", "slimp3.data_req.offset",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_slimp3_display_delay, { "Delay", "slimp3.display_delay", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_display_string, { "String", "slimp3.display_string", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_display_command, { "Command", "slimp3.display_command", FT_UINT8, BASE_DEC, VALS(slimp3_display_commands), 0x0, NULL, HFILL }},
+        { &hf_slimp3_display_unknown, { "Unknown", "slimp3.display_unknown", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_hello_response_client_server, { "Hello Response (Client --> Server)", "slimp3.hello_response_client_server", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_hello_request_server_client, { "Hello Request (Server --> Client)", "slimp3.hello_request_server_client", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_i2c_response_client_server, { "I2C Response (Client --> Server)", "slimp3.i2c_response_client_server", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_i2c_request_server_client, { "I2C Request (Server --> Client)", "slimp3.i2c_request_server_client", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_data_length, { "Length", "slimp3.data.length", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_slimp3_data_data, { "Data", "slimp3.data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {

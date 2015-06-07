@@ -106,6 +106,9 @@ static int hf_send_buf_len = -1;
 /* static int hf_continuation_from = -1; */
 static int hf_status = -1;
 static int hf_convert = -1;
+static int hf_param_no_descriptor = -1;
+static int hf_data_no_descriptor = -1;
+static int hf_data_no_recv_buffer = -1;
 static int hf_ecount = -1;
 static int hf_acount = -1;
 static int hf_share_name = -1;
@@ -176,6 +179,9 @@ static int hf_code_page = -1;
 static int hf_new_password = -1;
 static int hf_old_password = -1;
 static int hf_reserved = -1;
+static int hf_share = -1;
+static int hf_server = -1;
+static int hf_aux_data_struct_count  = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_smb_pipe_stringz_param = -1;
@@ -792,8 +798,8 @@ static proto_item *
 netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset, -1,
-		    "Share %.13s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII));
+		return proto_tree_add_string(tree, hf_share, tvb, offset, -1,
+						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII));
 	} else
 		return NULL;
 }
@@ -992,8 +998,8 @@ static proto_item *
 netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset, -1,
-			    "Server %.16s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII));
+		return proto_tree_add_string(tree, hf_server, tvb, offset, -1,
+						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII));
 	} else
 		return NULL;
 }
@@ -2167,9 +2173,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 			 * XXX - hf_acount?
 			 */
 			WParam = tvb_get_letohs(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, 2,
-			    "Auxiliary data structure count: %u (0x%04X)",
-			    WParam, WParam);
+			proto_tree_add_uint(tree, hf_aux_data_struct_count, tvb, offset, 2, WParam);
 			offset += 2;
 			if (aux_count_p != NULL)
 				*aux_count_p = WParam;  /* Save this for later retrieval */
@@ -2516,8 +2520,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				    " (No descriptor available)");
 			}
 		} else {
-			proto_tree_add_text(data_tree, tvb, offset, -1,
-			    "Data (no descriptor available)");
+			proto_tree_add_item(data_tree, hf_data_no_descriptor, tvb, offset, -1, ENC_NA);
 		}
 		offset += tvb_length_remaining(tvb, offset);
 	} else {
@@ -2812,8 +2815,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * We can't dissect the parameters; just show them
 			 * as raw data.
 			 */
-			proto_tree_add_text(tree, p_tvb, offset, -1,
-			    "Parameters (no descriptor available)");
+			proto_tree_add_item(tree, hf_param_no_descriptor, p_tvb, offset, -1, ENC_NA);
 
 			/*
 			 * We don't know whether we have a receive buffer,
@@ -2821,8 +2823,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * bytes purport to be data.
 			 */
 			if (d_tvb && tvb_reported_length(d_tvb) > 0) {
-				proto_tree_add_text(tree, d_tvb, 0, -1,
-				    "Data (no descriptor available)");
+				proto_tree_add_item(tree, hf_data_no_descriptor, d_tvb, 0, -1, ENC_NA);
 			}
 		} else {
 			/* rest of the parameters */
@@ -2851,8 +2852,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 					 * but we do have data, so just
 					 * show what bytes are data.
 					 */
-					proto_tree_add_text(tree, d_tvb, 0, -1,
-					    "Data (no receive buffer)");
+					proto_tree_add_item(tree, hf_data_no_recv_buffer, d_tvb, 0, -1, ENC_NA);
 				}
 			}
 		}
@@ -2910,6 +2910,18 @@ proto_register_pipe_lanman(void)
 		{ &hf_convert,
 			{ "Convert", "lanman.convert", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Convert", HFILL }},
+
+		{ &hf_param_no_descriptor,
+			{ "Parameters (no descriptor available)", "lanman.param_no_descriptor", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_data_no_descriptor,
+			{ "Data (no descriptor available)", "lanman.data_no_descriptor", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_data_no_recv_buffer,
+			{ "Data (no receive buffer)", "lanman.data_no_recv_buffer", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ecount,
 			{ "Entry Count", "lanman.entry_count", FT_UINT16, BASE_DEC,
@@ -3191,6 +3203,18 @@ proto_register_pipe_lanman(void)
 		{ &hf_reserved,
 			{ "Reserved", "lanman.reserved", FT_UINT32, BASE_HEX,
 			NULL, 0, "LANMAN Reserved", HFILL }},
+
+		{ &hf_share,
+			{ "Share", "lanman.share", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_server,
+			{ "Server", "lanman.server", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_aux_data_struct_count,
+			{ "Auxiliary data structure count", "lanman.aux_data_struct_count", FT_UINT16, BASE_DEC_HEX,
+			NULL, 0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

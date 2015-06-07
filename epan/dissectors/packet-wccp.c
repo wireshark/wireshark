@@ -35,6 +35,8 @@ void proto_reg_handoff_wccp(void);
 static int proto_wccp = -1;
 static int hf_wccp_message_type = -1;   /* the message type */
 static int hf_wccp_version = -1;        /* protocol version */
+static int hf_bucket = -1;
+static int hf_bucket_bit = -1;
 static int hf_message_header_version = -1;
 static int hf_hash_revision = -1;       /* the version of the hash */
 static int hf_change_num = -1;          /* change number */
@@ -52,7 +54,9 @@ static int hf_security_info_option = -1;
 static int hf_security_info_md5_checksum = -1;
 static int hf_command_element_type = -1;
 static int hf_command_element_length = -1;
+static int hf_command_length = -1;
 static int hf_command_element_shutdown_ip = -1;
+static int hf_command_unknown = -1;
 static int hf_service_info_type = -1;
 static int hf_service_info_id_standard = -1;
 static int hf_service_info_id_dynamic = -1;
@@ -89,6 +93,7 @@ static int hf_assignment_weight = -1;
 static int hf_assignment_status = -1;
 static int hf_assignment_key_ip = -1;
 static int hf_assignment_key_change_num = -1;
+static int hf_assignment_no_data = -1;
 static int hf_router_view_member_change_num = -1;
 static int hf_router_router_num = -1;
 static int hf_router_identity_router_ip = -1;
@@ -125,6 +130,8 @@ static int hf_capability_timer_scale_timeout_scale_upper_limit = -1;
 static int hf_capability_timer_scale_timeout_scale_lower_limit = -1;
 static int hf_capability_timer_scale_ra_scale_upper_limit = -1;
 static int hf_capability_timer_scale_ra_scale_lower_limit = -1;
+static int hf_capability_value = -1;
+static int hf_reserved_zero = -1;
 static int hf_value_element_src_ip = -1;
 static int hf_value_element_dest_ip = -1;
 static int hf_value_element_src_port = -1;
@@ -145,6 +152,7 @@ static int hf_alt_assignment_info_num_routers = -1;
 static int hf_alt_assignment_mask_value_set_element_num_wc_value_elements = -1;
 static int hf_web_cache_value_element_wc_address = -1;
 static int hf_web_cache_value_element_num_values = -1;
+static int hf_web_cache_value_seq_num = -1;
 static int hf_alt_assignment_mask_value_set_list_num_elements = -1;
 static int hf_address_table_family = -1;
 static int hf_address_table_address_length = -1;
@@ -227,6 +235,9 @@ static expert_field ei_wccp_router_identity_receive_id_zero = EI_INIT;
 static expert_field ei_wccp_web_cache_identity_hash_rev_zero = EI_INIT;
 static expert_field ei_wccp_address_table_family_unknown = EI_INIT;
 static expert_field ei_wccp_capability_element_length = EI_INIT;
+static expert_field ei_wccp_port_fields_not_used = EI_INIT;
+static expert_field ei_wccp_a_zero_not_c = EI_INIT;
+static expert_field ei_wccp_c_zero_not_a = EI_INIT;
 
 /*
  * At
@@ -405,7 +416,6 @@ static guint dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
                                           int idx, proto_tree *wccp_tree);
 static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
                             guint32 start, tvbuff_t *tvb, int offset);
-static const gchar *bucket_name(guint8 bucket);
 static void dissect_wccp2_info(tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *wccp_tree, guint32 wccp_message_type);
 
@@ -482,7 +492,6 @@ static gint dissect_wccp2_alternate_mask_value_set_list(tvbuff_t *tvb, int offse
 static gint dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint el_index, packet_info *pinfo, proto_tree *info_tree);
 static gint dissect_wccp2_web_cache_value_element(tvbuff_t *tvb, int offset,
                                                   gint length,  packet_info *pinfo, proto_tree *info_tree);
-static const gchar *assignment_bucket_name(guint8 bucket);
 static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
                                             guint16 capability_val_len, gint ett, const capability_flag *flags,
                                             proto_tree *element_tree, proto_item *header,
@@ -684,6 +693,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   guint32 cache_count;
   guint32 ipaddr;
   guint i;
+  guint8 bucket;
 
   wccp_message_type = tvb_get_ntohl(tvb, offset);
 
@@ -757,15 +767,17 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    tvb_ip_to_str(tvb, offset));
         offset += 4;
       }
-      for (i = 0; i < 256; i += 4) {
-        proto_tree_add_text(wccp_tree, tvb, offset, 4,
-                            "Buckets %d - %d: %10s %10s %10s %10s",
-                            i, i + 3,
-                            bucket_name(tvb_get_guint8(tvb, offset)),
-                            bucket_name(tvb_get_guint8(tvb, offset+1)),
-                            bucket_name(tvb_get_guint8(tvb, offset+2)),
-                            bucket_name(tvb_get_guint8(tvb, offset+3)));
-        offset += 4;
+
+      for (i = 0; i < 256; i++) {
+          bucket = tvb_get_guint8(tvb, offset);
+          if (bucket == 0xff) {
+              proto_tree_add_uint_format(wccp_tree, hf_bucket, tvb, offset, 1,
+                  bucket, "Bucket %d: Unassigned", i);
+          } else {
+              proto_tree_add_uint_format(wccp_tree, hf_bucket, tvb, offset, 1,
+                    bucket, "Bucket %d: %d", i, bucket);
+          }
+        offset++;
       }
       break;
 
@@ -859,20 +871,11 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
   guint32 i;
 
   for(i = 0; i < 8; i++) {
-    proto_tree_add_text(bucket_tree, tvb, offset, sizeof(bucket_info), "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
+    proto_tree_add_uint_format(bucket_tree, hf_bucket_bit, tvb, offset, 1, bucket_info & 1<<i,
+                    "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
     start++;
   }
   return(start);
-}
-
-static const gchar *
-bucket_name(guint8 bucket)
-{
-  if (bucket == 0xff) {
-    return "Unassigned";
-  } else {
-    return wmem_strdup_printf(wmem_packet_scope(), "%u", bucket);
-  }
 }
 
 static void
@@ -1318,8 +1321,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
   else {
     /* just use up the space if there is */
     if (offset + 8 * 2 <= max_offset)  {
-      proto_tree_add_text(info_tree, tvb, offset, 8*2,
-                          "Ports fields not used");
+      proto_tree_add_expert(info_tree, pinfo, &ei_wccp_port_fields_not_used, tvb, offset, 8*2);
       /*offset += 8*2;*/
     }
   }
@@ -1429,8 +1431,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
     return dissect_wccp2_mask_assignment_data_element(tvb,offset,length,pinfo,info_tree);
 
   case WCCP2_WEB_CACHE_ASSIGNMENT_DATA_TYPE_NOT_PRESENT:
-    proto_tree_add_text(info_tree, tvb, offset, 2,
-                        "No Assignment Data Present");
+    proto_tree_add_item(info_tree, hf_assignment_no_data, tvb, offset, 2, ENC_NA);
     return length;
     break;
   case WCCP2_WEB_CACHE_ASSIGNMENT_DATA_TYPE_EXTENDED:
@@ -1688,12 +1689,12 @@ static gint dissect_wccp2_hash_buckets_assignment_element(tvbuff_t *tvb, int off
   guint32 i,n_web_caches;
   proto_item *te;
   proto_tree *element_tree;
+  guint8 bucket;
 
   if (length < 4)
     return length - 4;
 
-  n_web_caches = tvb_get_ntohl(tvb, offset);
-  te = proto_tree_add_uint(info_tree, hf_hash_buckets_assignment_wc_num, tvb, offset, 4, n_web_caches);
+  te = proto_tree_add_item_ret_uint(info_tree, hf_hash_buckets_assignment_wc_num, tvb, offset, 4, ENC_BIG_ENDIAN, &n_web_caches);
   EAT(4);
 
   element_tree = proto_item_add_subtree(te,ett_hash_buckets_assignment_wc_element);
@@ -1709,21 +1710,15 @@ static gint dissect_wccp2_hash_buckets_assignment_element(tvbuff_t *tvb, int off
     EAT(4);
   }
 
-  te = proto_tree_add_text(info_tree,tvb, offset,256, "Buckets");
-  element_tree = proto_item_add_subtree(te,ett_hash_buckets_assignment_buckets);
+  element_tree = proto_tree_add_subtree(info_tree,tvb, offset, 256, ett_hash_buckets_assignment_buckets, NULL, "Buckets");
 
-  for (i = 0; i < 256; i += 4) {
-    if (length < 4)
+  for (i = 0; i < 256; i++, offset++, length--) {
+    if (length < 1)
       return length - (256-i);
-
-    proto_tree_add_text(element_tree, tvb, offset, 4,
-                        "Buckets %3d - %3d: %10s %10s %10s %10s",
-                        i, i + 3,
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+1)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+2)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+3)));
-    EAT(4);
+    bucket = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(element_tree, hf_bucket, tvb, offset, 1,
+                        bucket, "Bucket %3d: %10s",
+                        i, assignment_bucket_name(bucket));
   }
   return length;
 }
@@ -1793,7 +1788,7 @@ dissect_wccp2_command_extension(tvbuff_t *tvb, int offset,
                                 int length, packet_info *pinfo _U_, proto_tree *info_tree)
 {
   guint16 command_type;
-  guint16 command_length;
+  guint32 command_length;
 
   for (;;) {
     if (length == 0)
@@ -1806,11 +1801,8 @@ dissect_wccp2_command_extension(tvbuff_t *tvb, int offset,
     proto_tree_add_item(info_tree, hf_command_element_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     EAT_AND_CHECK(2,2);
 
-
-    command_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(info_tree, hf_command_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_text(info_tree, tvb, offset, 2,
-                        "Command length: %u", command_length);
+    proto_tree_add_item_ret_uint(info_tree, hf_command_element_length, tvb, offset, 2, ENC_BIG_ENDIAN, &command_length);
+    proto_tree_add_item(info_tree, hf_command_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     EAT(2);
 
     if (((command_type == WCCP2_COMMAND_TYPE_SHUTDOWN) ||
@@ -1820,11 +1812,10 @@ dissect_wccp2_command_extension(tvbuff_t *tvb, int offset,
         return length - 4;
       proto_tree_add_item(info_tree, hf_command_element_shutdown_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     } else {
-      if (length < command_length)
+      if (length < (int)command_length)
         return length - command_length;
 
-      proto_tree_add_text(info_tree, tvb, offset, command_length,
-                          "Unknown command");
+      proto_tree_add_item(info_tree, hf_command_unknown, tvb, offset, command_length, ENC_NA);
     }
     EAT(command_length);
   }
@@ -1945,38 +1936,34 @@ static gint
 dissect_wccp2_hash_assignment_info(tvbuff_t *tvb, int offset, gint length,
                                    packet_info *pinfo, proto_tree *info_tree)
 {
-  guint32 n_web_caches;
+  guint32 n_web_caches, host_addr;
   guint i;
+  guint8 bucket;
 
   if (length < HASH_ASSIGNMENT_INFO_MIN_LEN)
     return length - ASSIGNMENT_INFO_MIN_LEN;
 
-  n_web_caches = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_uint(info_tree, hf_wc_view_wc_num, tvb, offset, 4, n_web_caches);
+  proto_tree_add_item_ret_uint(info_tree, hf_wc_view_wc_num, tvb, offset, 4, ENC_BIG_ENDIAN, &n_web_caches);
   EAT(4);
 
   for (i = 0; i < n_web_caches; i++) {
     if (length < 4)
       return length - 4*(n_web_caches-i)-256;
 
-    proto_tree_add_text(info_tree, tvb, offset, 4,
-                        "Web-Cache %d: IP address %s", i,
+    host_addr = tvb_get_ntohl(tvb,offset);
+    proto_tree_add_uint_format(info_tree, hf_cache_ip, tvb, offset, 4, host_addr, "Web-Cache %d: IP address %s", i,
                         decode_wccp_encoded_address(tvb, offset, pinfo, info_tree));
     EAT(4);
   }
 
-  for (i = 0; i < 256; i += 4) {
-    if (length < 4)
-      return length - (256-i);
 
-    proto_tree_add_text(info_tree, tvb, offset, 4,
-                        "Buckets %d - %d: %10s %10s %10s %10s",
-                        i, i + 3,
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+1)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+2)),
-                        assignment_bucket_name(tvb_get_guint8(tvb, offset+3)));
-    EAT(4);
+  for (i = 0; i < 256; i++, offset++, length--) {
+    if (length < 1)
+      return length - (256-i);
+    bucket = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(info_tree, hf_bucket, tvb, offset, 1,
+                        bucket, "Bucket %3d: %10s",
+                        i, assignment_bucket_name(bucket));
   }
   return length;
 }
@@ -2304,10 +2291,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
                                    tf, pinfo);
     break;
   default:
-    proto_tree_add_text(element_tree, tvb,
-                        offset, capability_val_len,
-                        "Value: %s",
-                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, capability_val_len));
+    proto_tree_add_item(element_tree, hf_capability_value, tvb, offset, capability_val_len, ENC_NA);
     break;
   }
   return length - 4 - capability_val_len;
@@ -2453,7 +2437,7 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
 static gint
 dissect_wccp2_web_cache_value_element(tvbuff_t *tvb, int offset, gint length,  packet_info *pinfo _U_, proto_tree *info_tree)
 {
-  guint number_of_elements;
+  guint number_of_elements, seq_num;
   proto_item *tl;
   proto_tree *element_tree;
   guint i;
@@ -2474,10 +2458,9 @@ dissect_wccp2_web_cache_value_element(tvbuff_t *tvb, int offset, gint length,  p
     if (length < 4)
       return length - 4*(number_of_elements-i);
 
-    proto_tree_add_text(element_tree, tvb, offset, 4,
-                        "Value Sequence Number %d: %x",
-                        i+1,
-                        tvb_get_ntohl(tvb, offset));
+    seq_num = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint_format(element_tree, hf_web_cache_value_seq_num, tvb, offset, 4,
+                        seq_num, "Value Sequence Number %d: %x", i+1, seq_num);
     EAT(4);
   }
 
@@ -2555,8 +2538,7 @@ dissect_transmit_t_capability(tvbuff_t *tvb, proto_item *te, int curr_offset,
   if ( upper_limit == 0) {
     method_tree = proto_tree_add_subtree(element_tree, tvb, curr_offset, 2,
                              ett, NULL, "Only accepting one value");
-    proto_tree_add_text(method_tree, tvb, curr_offset, 2,
-                        "Reserved, must be 0: %d", upper_limit);
+    proto_tree_add_uint(method_tree, hf_reserved_zero, tvb, curr_offset, 2, upper_limit);
 
     proto_tree_add_item(method_tree, hf_capability_transmit_t , tvb, curr_offset+2, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(te, " %d ms", lower_limit);
@@ -2595,23 +2577,19 @@ dissect_timer_scale_capability(tvbuff_t *tvb, int curr_offset,
       method_tree = proto_tree_add_subtree(element_tree, tvb, curr_offset, 2,
                                ett, NULL, "Only accepting one value");
 
-      proto_tree_add_text(method_tree, tvb, curr_offset, 1,
-                          "Reserved, must be 0: %d", a);
+      proto_tree_add_uint(method_tree, hf_reserved_zero, tvb, curr_offset, 1, a);
 
       proto_tree_add_item(method_tree, hf_capability_timer_scale_timeout_scale,
                           tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_text(method_tree, tvb, curr_offset+2, 1,
-                          "Reserved, must be 0: %d", c);
+      proto_tree_add_uint(method_tree, hf_reserved_zero, tvb, curr_offset+2, 1, c);
       proto_tree_add_item(method_tree, hf_capability_timer_scale_ra_timer_scale,
                           tvb, curr_offset+3, 1, ENC_BIG_ENDIAN);
     } else {
-      proto_tree_add_text(element_tree, tvb, curr_offset, 1,
-                               "Error A is 0, but C is not");
+      proto_tree_add_expert(element_tree, pinfo, &ei_wccp_a_zero_not_c, tvb, curr_offset, 1);
     }
   } else {
     if ( c == 0) {
-      proto_tree_add_text(element_tree, tvb, curr_offset, 1,
-                               "Error C is 0, but A is not");
+      proto_tree_add_expert(element_tree, pinfo, &ei_wccp_a_zero_not_c, tvb, curr_offset, 1);
     } else {
       method_tree = proto_tree_add_subtree(element_tree, tvb, curr_offset, 2,
                                ett, NULL, "Accepting a range");
@@ -2787,6 +2765,14 @@ proto_register_wccp(void)
       { "WCCP Version", "wccp.version", FT_UINT32, BASE_HEX, VALS(wccp_version_val), 0x0,
         "The WCCP version", HFILL }
     },
+    { &hf_bucket,
+      { "Bucket", "wccp.bucket", FT_UINT8, BASE_DEC, 0x0, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_bucket_bit,
+      { "Bucket", "wccp.bucket_bit", FT_UINT8, BASE_DEC, 0x0, 0x0,
+        NULL, HFILL }
+    },
     { &hf_message_header_version,
       { "WCCP Version (>=2)", "wccp.message_header_version", FT_UINT16, BASE_HEX, NULL, 0x0,
         "The WCCP version for version 2 and above", HFILL }
@@ -2851,8 +2837,16 @@ proto_register_wccp(void)
       {"Command Extension Length", "wccp.command_element_length", FT_UINT16, BASE_DEC, NULL, 0x0,
        NULL, HFILL }
     },
+    { &hf_command_length,
+      {"Command Length", "wccp.command_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+    },
     { &hf_command_element_shutdown_ip,
       {"Command Extension Length", "wccp.command_element_shudown_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_command_unknown,
+      {"Unknown Command", "wccp.command_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
        NULL, HFILL }
     },
     { &hf_service_info_type,
@@ -3003,6 +2997,10 @@ proto_register_wccp(void)
       { "Assignment Key Change Number", "wccp.assignment_key.change_num", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_assignment_no_data,
+      { "No Assignment Data Present", "wccp.assignment_no_data", FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_router_view_member_change_num,
       { "Member Change Number", "wccp.router_view.member_change_num", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
@@ -3151,6 +3149,14 @@ proto_register_wccp(void)
       { "RA Timer scale lower limit", "wccp.capability.timer_scale.ra_timer_scale.lower_limit", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_capability_value,
+      { "Value", "wccp.capability.value", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_reserved_zero,
+      { "Reserved, must be 0", "wccp.reserved_zero", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_value_element_src_ip,
       { "Source Address", "wccp.value_element.src_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
@@ -3228,7 +3234,11 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_web_cache_value_element_num_values,
-      { "Number of Valye Sequence Numbers", "wccp.web_cache_value_element.num_values", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Number of Value Sequence Numbers", "wccp.web_cache_value_element.num_values", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_web_cache_value_seq_num,
+      { "Value Sequence Number", "wccp.web_cache_value_element.value_seq_num", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_alt_assignment_mask_value_set_list_num_elements,
@@ -3333,6 +3343,9 @@ proto_register_wccp(void)
      { &ei_wccp_web_cache_identity_hash_rev_zero, { "wccp.web_cache_identity.hash_rev.zero", PI_PROTOCOL, PI_WARN, "Should be 0 (6.4)", EXPFILL }},
      { &ei_wccp_address_table_family_unknown, { "wccp.address_table.family_type.unknown", PI_PROTOCOL, PI_ERROR, "Unknown address family", EXPFILL }},
      { &ei_wccp_capability_element_length, { "wccp.capability_element.length.invalid", PI_PROTOCOL, PI_WARN, "Value Length invalid", EXPFILL }},
+     { &ei_wccp_port_fields_not_used, { "wccp.port_fields_not_used", PI_PROTOCOL, PI_NOTE, "Ports fields not used", EXPFILL }},
+     { &ei_wccp_a_zero_not_c, { "wccp.a_zero_not_c", PI_PROTOCOL, PI_WARN, "Error A is 0, but C is not", EXPFILL }},
+     { &ei_wccp_c_zero_not_a, { "wccp.c_zero_not_a", PI_PROTOCOL, PI_WARN, "Error C is 0, but A is not", EXPFILL }},
   };
 
   expert_module_t* expert_wccp;
