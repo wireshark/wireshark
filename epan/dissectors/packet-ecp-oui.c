@@ -165,7 +165,7 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 	entries = tvb_get_ntohs(tvb, offset);
 
 	ecp_vdp_tlv_fi_subtree = proto_tree_add_subtree_format(tree, tvb, tempOffset, 2, ett_ecp, NULL,
-			"%i MAC/VID pair%s", entries, plurality((entries > 1), "s", ""));
+			"%i MAC/VID pair%s", entries, plurality(entries, "", "s"));
 
 	tempOffset += 2;
 
