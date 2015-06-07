@@ -8317,7 +8317,6 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[1].vdesc = "Alias Name: %s";
                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[1].vvalue = 0;
-                pvalues[1].vlength = 256;
                 pvalues[1].vlength = tvb_get_letohl(tvb, nds_offset);
                 if (pvalues[1].vlength == 0x00)
                 {
@@ -8541,7 +8540,6 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].vdesc = "Server Distinguished Name: %s";
             pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[1].vvalue = 0;
-            pvalues[1].vlength = 256;
             pvalues[1].vlength = tvb_get_letohl(tvb, nds_offset);
             if (pvalues[1].vlength == 0x00)
             {
@@ -9321,7 +9319,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[3].vdesc = "Name: %s";
                 pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[3].vvalue = 0;
-                pvalues[3].vlength = 256;
                 pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
                 if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
                 {
@@ -9394,7 +9391,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[7].vdesc = "Output Delimiter: %s";
                 pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[7].vvalue = 0;
-                pvalues[7].vlength = 256;
                 pvalues[7].vlength = tvb_get_letohl(tvb, foffset);
                 pvalues[7].voffset = foffset+4;
                 foffset = foffset + 4;
@@ -9789,7 +9785,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vdesc = "Attribute Name Being Compared: %s";
             pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[2].vvalue = 0;
-            pvalues[2].vlength = 256;
             pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
             {
@@ -9808,7 +9803,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vdesc = "Attribute Value: %s";
             pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[3].vvalue = 0;
-            pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[3].voffset = foffset+4;
             /*foffset = foffset + 4;*/
@@ -9961,7 +9955,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[6].vdesc = "Name Filter: %s";
             pvalues[6].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[6].vvalue = 0;
-            pvalues[6].vlength = 256;
             pvalues[6].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[6].voffset = foffset+4;
             foffset = foffset + 4;
@@ -9977,7 +9970,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[7].vdesc = "Class Filter: %s";
             pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[7].vvalue = 0;
-            pvalues[7].vlength = 256;
             pvalues[7].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[7].voffset = foffset+4;
             foffset = foffset + 4;
@@ -10203,7 +10195,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[3].vstring = "";
                 pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[3].vvalue = 0;
-                pvalues[3].vlength = 256;
                 pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
                 if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
                 {
@@ -10251,7 +10242,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[4].vstring = "";
                 pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[4].vvalue = 0;
-                pvalues[4].vlength = 256;
                 pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
                 if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
                 {
@@ -10398,7 +10388,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vdesc = "New RDN: %s";
             pvalues[3].mvtype = 0;
             pvalues[3].vvalue = 0;
-            pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[3].voffset = foffset+4;
             /*foffset = foffset + 4;*/
@@ -10458,7 +10447,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vdesc = "Attribute Name: %s";
             pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[2].vvalue = 0;
-            pvalues[2].vlength = 256;
             pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
             {
@@ -10518,7 +10506,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].vdesc = "Attribute Name: %s";
             pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[1].vvalue = 0;
-            pvalues[1].vlength = 256;
             pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
             {
@@ -10597,7 +10584,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].vdesc = "Class Name: %s";
             pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[1].vvalue = 0;
-            pvalues[1].vlength = 256;
             pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
             {
@@ -10631,7 +10617,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].vdesc = "Class Name: %s";
             pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[1].vvalue = 0;
-            pvalues[1].vlength = 256;
             pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
             {
@@ -10690,7 +10675,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vdesc = "Trustee Name: %s";
             pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[2].vvalue = 0;
-            pvalues[2].vlength = 256;
             pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
             {
@@ -10707,7 +10691,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vdesc = "Attribute to be Checked: %s";
             pvalues[3].mvtype = 0;
             pvalues[3].vvalue = 0;
-            pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
             {
@@ -10726,7 +10709,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[4].vdesc = "Security Equivalence: %s";
                 pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[4].vvalue = 0;
-                pvalues[4].vlength = 256;
                 pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
                 if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
                 {
@@ -10978,7 +10960,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[4].vdesc = "Target Server Name: %s";
             pvalues[4].mvtype = 0;
             pvalues[4].vvalue = 0;
-            pvalues[4].vlength = 256;
             pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[4].vlength == 0x00 && !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
             {
@@ -11021,7 +11002,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vdesc = "Stream Name: %s";
             pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
             pvalues[3].vvalue = 0;
-            pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
             {
@@ -11093,7 +11073,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[3].vdesc = "Root Most Object Name: %s";
                 pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                 pvalues[3].vvalue = 0;
-                pvalues[3].vlength = 256;
                 pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
                 if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
                 {
@@ -11160,7 +11139,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vdesc = "New RDN: %s";
             pvalues[3].mvtype = 0;
             pvalues[3].vvalue = 0;
-            pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[3].voffset = foffset+4;
             foffset = foffset + 4;
@@ -11172,7 +11150,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[4].vdesc = "Source Server Name: %s";
             pvalues[4].mvtype = 0;
             pvalues[4].vvalue = 0;
-            pvalues[4].vlength = 256;
             pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
             {
@@ -11219,7 +11196,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[4].vdesc = "New RDN: %s";
             pvalues[4].mvtype = 0;
             pvalues[4].vvalue = 0;
-            pvalues[4].vlength = 256;
             pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[4].voffset = foffset+4;
             foffset = foffset + 4;
@@ -11231,7 +11207,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[5].vdesc = "Source Server Name: %s";
             pvalues[5].mvtype = 0;
             pvalues[5].vvalue = 0;
-            pvalues[5].vlength = 256;
             pvalues[5].vlength = tvb_get_letohl(tvb, foffset);
             if (pvalues[5].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
             {
