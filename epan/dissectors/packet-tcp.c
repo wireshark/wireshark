@@ -4302,29 +4302,16 @@ tcp_flags_to_str(const struct tcpheader *tcph)
 static const char *
 tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
 {
-    static const char flags[][4] = { "F", "S", "R", "P", "A", "U", "E", "C", "N" };
-    const int maxlength = 16; /* Max Flags length*/
+    char *buf;
+    unsigned i;
+    const unsigned flags_count = 12;
 
-    char *pbuf;
-    const char *buf;
-
-    int i;
-
-    buf = pbuf = (char *) wmem_alloc(wmem_packet_scope(), maxlength);
-    *pbuf = '\0';
-
-    for (i = 9; i > 0; i--) {
-        if (tcph->th_flags & (1 << i)) {
-            pbuf = g_stpcpy(pbuf, flags[i]);
-        } else {
-            pbuf = g_stpcpy(pbuf, "*");
+    /* upper three bytes are marked as reserved ('R'). */
+    buf = wmem_strdup(wmem_packet_scope(), "RRRNCEUAPRSF");
+    for (i = 0; i < flags_count; i++) {
+        if (!((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
+            buf[i] = '*';
         }
-    }
-
-    if (tcph->th_flags & TH_RES) {
-        g_stpcpy(pbuf, "RRR");
-    } else {
-        g_stpcpy(pbuf, "***");
     }
 
     return buf;
