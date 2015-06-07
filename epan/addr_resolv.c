@@ -2186,7 +2186,7 @@ read_subnets_file (const char *subnetspath)
         }
 
         mask_length = atoi(cp2);
-        if(0 >= mask_length || mask_length > 31) {
+        if (0 >= mask_length || mask_length > 32) {
             continue; /* invalid mask length */
         }
 
@@ -2272,14 +2272,20 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
         entry->subnet_addresses = (sub_net_hashipv4_t**) se_alloc0(sizeof(sub_net_hashipv4_t*) * HASHHOSTSIZE);
     }
 
-    if(NULL != (tp = entry->subnet_addresses[hash_idx])) {
-        if(tp->addr == subnet_addr) {
-            return;    /* XXX provide warning that an address was repeated? */
-        } else {
-            sub_net_hashipv4_t * new_tp = se_new(sub_net_hashipv4_t);
-            tp->next = new_tp;
-            tp = new_tp;
+    if (NULL != (tp = entry->subnet_addresses[hash_idx])) {
+        sub_net_hashipv4_t * new_tp;
+
+        while (tp->next) {
+            if (tp->addr == subnet_addr) {
+                return; /* XXX provide warning that an address was repeated? */
+            } else {
+                tp = tp->next;
+            }
         }
+
+        new_tp = se_new(sub_net_hashipv4_t);
+        tp->next = new_tp;
+        tp = new_tp;
     } else {
         tp = entry->subnet_addresses[hash_idx] = se_new(sub_net_hashipv4_t);
     }
