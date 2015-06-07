@@ -2420,7 +2420,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* total length, it is permited to set this to 0xffffffff */
-		phton32(pd, -1);
+		phton32(pd, 0xffffffff);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
