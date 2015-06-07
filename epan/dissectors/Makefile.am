@@ -62,9 +62,9 @@ packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py
 
 # Target to rebuild the X11 dissector header files.
 # See README.X11 before using this--it requires the xcb and mesa source.
-x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir)/tools/process-x11-xcb.pl
-	$(PERL) $(top_srcdir)/tools/process-x11-fields.pl < x11-fields
-	$(PERL) $(top_srcdir)/tools/process-x11-xcb.pl
+x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(top_srcdir)/tools/process-x11-xcb.pl
+	$(PERL) $(top_srcdir)/tools/process-x11-fields.pl $(srcdir) < $(srcdir)/x11-fields
+	$(PERL) $(top_srcdir)/tools/process-x11-xcb.pl $(srcdir)
 
 #
 # Build register.c, which contains a function register_all_protocols()

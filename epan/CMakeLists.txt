@@ -149,26 +149,20 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_SOURCE_DIR}/tools/ncp2222.py
 )
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT
-		x11-dissector
-#		x11-declarations.h
-#		x11-enum.h
-#		x11-extension-errors.h
-#		x11-extension-implementation.h
-#		x11-fields
-#		x11-glx-render-enum.h
-#		x11-register-info.h
+add_custom_target(x11-dissector
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
-		<dissectors/x11-fields
+		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl ${CMAKE_CURRENT_SOURCE_DIR}/dissectors
+		< ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/x11-fields
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl ${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	DEPENDS
 		dissectors/x11-fields
 		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
 		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+		${CMAKE_CURRENT_SOURCE_DIR}/dissectors/xcbproto
+		${CMAKE_CURRENT_SOURCE_DIR}/dissectors/mesa
 )
+set_target_properties(x11-dissector PROPERTIES FOLDER "Generated Dissectors/X11")
 
 # Note that some dissectors are added in dissectors/dcerpc/CMakeLists.txt
 set(PIDL_DISSECTOR_SRC
