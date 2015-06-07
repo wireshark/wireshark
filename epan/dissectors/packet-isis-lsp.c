@@ -193,8 +193,13 @@ static int hf_isis_lsp_adj_sid_system_id = -1;
 static int hf_isis_lsp_sid_sli_label = -1;
 static int hf_isis_lsp_sid_sli_index = -1;
 static int hf_isis_lsp_sid_sli_ipv6 = -1;
+static int hf_isis_lsp_spb_reserved = -1;
 static int hf_isis_lsp_spb_sr_bit = -1;
 static int hf_isis_lsp_spb_spvid = -1;
+static int hf_isis_lsp_spb_short_mac_address_t = -1;
+static int hf_isis_lsp_spb_short_mac_address_r = -1;
+static int hf_isis_lsp_spb_short_mac_address_reserved = -1;
+static int hf_isis_lsp_spb_short_mac_address = -1;
 /* TLV 149 items draft-previdi-isis-segment-routing-extensions */
 static int hf_isis_lsp_sl_binding_flags = -1;
 static int hf_isis_lsp_sl_binding_flags_f = -1;
@@ -230,6 +235,10 @@ static int hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost = -1;
 static int hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_bridge_priority = -1;
 static int hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid = -1;
+static int hf_isis_lsp_mt_cap_spbm_service_identifier_t = -1;
+static int hf_isis_lsp_mt_cap_spbm_service_identifier_r = -1;
+static int hf_isis_lsp_mt_cap_spbm_service_identifier_reserved = -1;
+static int hf_isis_lsp_mt_cap_spbm_service_identifier_i_sid = -1;
 static int hf_isis_lsp_64_bit_administrative_tag = -1;
 static int hf_isis_lsp_grp_macaddr_number_of_sources = -1;
 static int hf_isis_lsp_grp_ipv4addr_number_of_sources = -1;
@@ -277,6 +286,15 @@ static int hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4 = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv6 = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_number_of_trees = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_u = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_m = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_a = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_reserved = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_ect = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_base_vid = -1;
+static int hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_spvid = -1;
+static int hf_isis_lsp_mt_cap_spb_opaque_algorithm = -1;
+static int hf_isis_lsp_mt_cap_spb_opaque_information = -1;
 static int hf_isis_lsp_mt_cap_spbm_service_identifier_b_mac = -1;
 static int hf_isis_lsp_ipv6_reachability_distribution = -1;
 static int hf_isis_lsp_ipv6_reachability_distribution_internal = -1;
@@ -1673,6 +1691,14 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
     const int FIXED_LEN                      = NUM_TREES_OFFSET               + NUM_TREES_LEN;
     const int VLAN_ID_TUPLE_LEN = 8;
 
+    static const int *lsp_cap_spb_instance_vlanid_tuple[] = {
+        &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_u,
+        &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_m,
+        &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_a,
+        &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_reserved,
+        NULL
+    };
+
     if (sublen < FIXED_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
                               "Short SPB Digest subTLV (%d vs %d)", sublen, FIXED_LEN);
@@ -1720,24 +1746,15 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
                 return;
             }
             else {
-                const guint8 flags       = tvb_get_guint8(tvb, subofs);
-                const guint8 *ect_id     = tvb_get_ptr(tvb, subofs + 1, 4);
-                const guint8 *bvid_spvid = tvb_get_ptr(tvb, subofs + 1 + 4, 3);
-                const guint16 bvid       = (0xff0 & (((guint16)bvid_spvid[0]) << 4)) | (0x0f & (bvid_spvid[1] >> 4));
-                const guint16 spvid      = (0xf00 & (((guint16)bvid_spvid[1]) << 8)) | (0xff & (bvid_spvid[2]));
-                proto_tree_add_text( subtree, tvb, subofs, VLAN_ID_TUPLE_LEN,
-                                     "  U: %u, M: %u, A: %u, ECT: %02x-%02x-%02x-%02x, BVID: 0x%03x (%d),%s SPVID: 0x%03x (%d)",
-                                     (flags >> 7) & 1,
-                                     (flags >> 6) & 1,
-                                     (flags >> 5) & 1,
-                                     ect_id[0], ect_id[1], ect_id[2], ect_id[3],
-                                     bvid, bvid,
-                                     (  bvid < 10   ? "   "
-                                      : bvid < 100  ? "  "
-                                      : bvid < 1000 ? " "
-                                      : ""),
-                                     spvid, spvid);
-                subofs += VLAN_ID_TUPLE_LEN;
+                proto_tree_add_bitmask_list(subtree, tvb, subofs, 1, lsp_cap_spb_instance_vlanid_tuple, ENC_BIG_ENDIAN);
+                subofs += 1;
+
+                proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_ect, tvb, subofs, 4, ENC_BIG_ENDIAN);
+                subofs += 4;
+                proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_base_vid, tvb, subofs, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_spvid, tvb, subofs, 3, ENC_BIG_ENDIAN);
+                subofs += 3;
+
                 sublen -= VLAN_ID_TUPLE_LEN;
                 --num_trees;
             }
@@ -1751,10 +1768,13 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
 }
 static void
 dissect_isis_lsp_clv_mt_cap_spb_oalg(tvbuff_t   *tvb,
-    proto_tree *tree, int offset, int subtype, int sublen)
+    proto_tree *tree, int offset, int subtype _U_, int sublen _U_)
 {
-    proto_tree_add_text( tree, tvb, offset, -1,
-                          "MT-Cap SPB Opaque Algorithm: Type: 0x%02x, Length: %d", subtype, sublen);
+
+    proto_tree_add_item(tree, hf_isis_lsp_mt_cap_spb_opaque_algorithm, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_isis_lsp_mt_cap_spb_opaque_information, tvb, offset, -1, ENC_NA);
+
 }
 static void
 dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *pinfo,
@@ -1768,6 +1788,13 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
     const int FIXED_LEN   = BVID_OFFSET + BVID_LEN;
 
     const int ISID_LEN = 4;
+
+    static const int *lsp_cap_spbm_service_identifier[] = {
+        &hf_isis_lsp_mt_cap_spbm_service_identifier_t,
+        &hf_isis_lsp_mt_cap_spbm_service_identifier_r,
+        &hf_isis_lsp_mt_cap_spbm_service_identifier_reserved,
+        NULL
+    };
 
     if (sublen < FIXED_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
@@ -1793,19 +1820,17 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
         while (sublen > 0) {
             if (sublen < ISID_LEN) {
                 proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
-                                      "Short ISID entry (%d vs %d)", sublen, ISID_LEN);
+                                      "Short ISID entry (%d vs %d)", sublen, 4);
                 return;
             }
             else {
-                const guint32 isid = tvb_get_ntohl(tvb, subofs);
-                proto_tree_add_text( subtree, tvb, subofs, ISID_LEN,
-                                     "  T: %u, R: %u, ISID: 0x%06x (%d)",
-                                     (isid >> 31) & 1,
-                                     (isid >> 30) & 1,
-                                     isid & 0x00ffffff,
-                                     isid & 0x00ffffff);
-                subofs += ISID_LEN;
-                sublen -= ISID_LEN;
+                proto_tree_add_bitmask_list(subtree, tvb, subofs, 1, lsp_cap_spbm_service_identifier, ENC_BIG_ENDIAN);
+                subofs += 1;
+                sublen -= 1;
+
+                proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spbm_service_identifier_i_sid, tvb, subofs, 3, ENC_BIG_ENDIAN);
+                subofs += 3;
+                sublen -= 3;
             }
         }
     }
@@ -1814,63 +1839,52 @@ static void
 dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int offset, int subtype, int sublen)
 {
-    guint16 fixed_data;
-    guint16 spvid;
-    guint8 sr_bit;
-    const int GMAC_LEN = 6; /* GMAC Address */
-    const int SPVID_LEN = 2; /* SPVID */
-    const int MAC_TUPLE_LEN = 7;
 
-    const int SPVID_OFFSET = 0;
-    const int FIXED_LEN    = SPVID_OFFSET + SPVID_LEN;
+    static const int *lsp_spb_short_mac_address[] = {
+        &hf_isis_lsp_spb_short_mac_address_t,
+        &hf_isis_lsp_spb_short_mac_address_r,
+        &hf_isis_lsp_spb_short_mac_address_reserved,
+        NULL
+    };
 
-    if (sublen < FIXED_LEN) {
+
+    if (sublen < 2) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
-                              "Short SPBV Mac Address subTLV (%d vs %d)", sublen, FIXED_LEN);
+                              "Short SPBV Mac Address subTLV (%d vs %d)", sublen, 2);
         return;
     }
     else {
         proto_tree *subtree;
         int subofs = offset;
-        fixed_data = tvb_get_ntohs(tvb, subofs);
-        spvid = (fixed_data & 0x0FFF);
-        sr_bit = (fixed_data & 0x3000) >> 12;
 
         /*************************/
         subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_mt_cap_spbv_mac_address, NULL,
                                   "SPBV Mac Address: Type: 0x%02x, Length: %d", subtype, sublen);
 
         /*************************/
-        proto_tree_add_uint(subtree, hf_isis_lsp_spb_sr_bit,
-                            tvb, subofs, 1, sr_bit);
-        proto_tree_add_uint(subtree, hf_isis_lsp_spb_spvid,
-                                    tvb, subofs, 2, spvid);
+        proto_tree_add_item(subtree, hf_isis_lsp_spb_reserved, tvb, subofs, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_spb_sr_bit, tvb, subofs, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_spb_spvid, tvb, subofs, 2, ENC_BIG_ENDIAN);
 
-        subofs += FIXED_LEN;
-        sublen -= FIXED_LEN;
+        subofs += 2;
+        sublen -= 2;
 
         /*************************/
         while (sublen > 0) {
-            if (sublen < MAC_TUPLE_LEN) {
+            if (sublen < 7) {
                 proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
-                                      "Short MAC Address entry (%d vs %d)", sublen, MAC_TUPLE_LEN);
+                                      "Short MAC Address entry (%d vs %d)", sublen, 7);
                 return;
             }
             else {
-                const guint32 tr_bit = tvb_get_guint8(tvb, subofs);
-                const guint8 *gmac   = tvb_get_ptr(tvb, subofs + 1, GMAC_LEN);
-                proto_tree_add_text( subtree, tvb, subofs, MAC_TUPLE_LEN,
-                                     "  T: %u, R: %u, MAC: %02x-%02x-%02x-%02x-%02x-%02x",
-                                     (tr_bit >> 7) & 1,
-                                     (tr_bit >> 6) & 1,
-                                     gmac[0],
-                                     gmac[1],
-                                     gmac[2],
-                                     gmac[3],
-                                     gmac[4],
-                                     gmac[5]);
-                subofs += MAC_TUPLE_LEN;
-                sublen -= MAC_TUPLE_LEN;
+                proto_tree_add_bitmask_list(subtree, tvb, subofs, 1, lsp_spb_short_mac_address, ENC_BIG_ENDIAN);
+                subofs += 1;
+                sublen -= 1;
+
+                proto_tree_add_item(subtree, hf_isis_lsp_spb_short_mac_address, tvb, subofs, 6, ENC_NA);
+
+                subofs += 6;
+                sublen -= 6;
             }
         }
     }
@@ -3823,15 +3837,41 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
 
+        { &hf_isis_lsp_spb_reserved,
+            { "SR Bit", "isis.lsp.spb.reserved",
+              FT_UINT16, BASE_DEC, NULL, 0xC000,
+              NULL, HFILL }
+        },
+
         { &hf_isis_lsp_spb_sr_bit,
             { "SR Bit", "isis.lsp.spb.sr_bit",
-              FT_UINT8, BASE_DEC, NULL, 0,
+              FT_UINT16, BASE_DEC, NULL, 0x3000,
               NULL, HFILL }
         },
 
         { &hf_isis_lsp_spb_spvid,
             { "SPVID", "isis.lsp.spb.spvid",
-              FT_UINT16, BASE_HEX_DEC, NULL, 0,
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0FFF,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_spb_short_mac_address_t,
+            { "T", "isis.lsp.spb.mac_address.t",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_spb_short_mac_address_r,
+            { "R", "isis.lsp.spb.mac_address.r",
+              FT_BOOLEAN, 8, NULL, 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_spb_short_mac_address_reserved,
+            { "Reserved", "isis.lsp.spb.mac_address.reserved",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_spb_short_mac_address,
+            { "MAC Address", "isis.lsp.spb.mac_address",
+              FT_ETHER, BASE_NONE, NULL, 0x00,
               NULL, HFILL }
         },
       /* TLV 149 draft-previdi-isis-segmentrouting-extensions */
@@ -4341,6 +4381,51 @@ proto_register_isis_lsp(void)
               FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_u,
+            { "U", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.u",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              "Set if this bridge is currently using this ECT-ALGORITHM for I-SIDs it sources or sinks", HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_m,
+            { "M", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.m",
+              FT_BOOLEAN, 8, NULL, 0x40,
+              "indicates if this is SPBM or SPBV mode", HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_a,
+            { "A", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.a",
+              FT_BOOLEAN, 8, NULL, 0x20,
+              "When set, declares this is an SPVID with auto-allocation", HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_reserved,
+            { "Reserved", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x1F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_ect,
+            { "ECT-ALGORITHM", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.ect",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_base_vid,
+            { "Base VID", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.basevid",
+              FT_UINT24, BASE_DEC, NULL, 0xFFF000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_spvid,
+            { "SPVID", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.spvid",
+              FT_UINT24, BASE_DEC, NULL, 0xFFF000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_opaque_algorithm,
+            { "Algorithm", "isis.lsp.mt_cap_spb_opaque.algorithm",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_opaque_information,
+            { "information", "isis.lsp.mt_cap_spb_opaque.information",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_mt_cap_spbm_service_identifier_b_mac,
             { "B-MAC", "isis.lsp.mt_cap_spbm_service_identifier.b_mac",
               FT_ETHER, BASE_NONE, NULL, 0x0,
@@ -4349,6 +4434,26 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid,
             { "Base-VID", "isis.lsp.mt_cap_spbm_service_identifier.base_vid",
               FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_t,
+            { "T", "isis.lsp.mt_cap_spbm_service_identifier.t",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_r,
+            { "R", "isis.lsp.mt_cap_spbm_service_identifier.r",
+              FT_BOOLEAN, 8, NULL, 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_reserved,
+            { "Reserved", "isis.lsp.mt_cap_spbm_service_identifier.reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_i_sid,
+            { "I-SID", "isis.lsp.mt_cap_spbm_service_identifier.i_sid",
+              FT_UINT24, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_mtid,
