@@ -1116,7 +1116,7 @@ proto_reg_handoff_igmp(void)
 {
 	dissector_handle_t igmp_handle, igmpv0_handle, igmpv1_handle, igmpv2_handle,
 						igmp_mquery_handle, igmp_mtrace_handle, igmp_report_handle;
-	range_t *igmpv0_range;
+	range_t *igmpv0_range = NULL;
 
 	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
 	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
@@ -1125,6 +1125,7 @@ proto_reg_handoff_igmp(void)
 	range_convert_str(&igmpv0_range, "0-15", 15);
 	igmpv0_handle = new_create_dissector_handle(dissect_igmp_v0, proto_igmp);
 	dissector_add_uint_range("igmp.type", igmpv0_range, igmpv0_handle);
+	g_free(igmpv0_range);
 
 	/* IGMP v1 */
 	igmpv1_handle = new_create_dissector_handle(dissect_igmp_v1, proto_igmp);
