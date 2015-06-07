@@ -501,6 +501,328 @@ static int hf_btatt_record_access_control_point_operand_max_time_offset = -1;
 static int hf_btatt_record_access_control_point_operand_number_of_records = -1;
 static int hf_btatt_record_access_control_point_request_opcode = -1;
 static int hf_btatt_record_access_control_point_response_code = -1;
+static int hf_btatt_value_trigger_setting_condition = -1;
+static int hf_btatt_value_trigger_setting_analog = -1;
+static int hf_btatt_value_trigger_setting_analog_one = -1;
+static int hf_btatt_value_trigger_setting_analog_two = -1;
+static int hf_btatt_digital = -1;
+static int hf_btatt_analog = -1;
+static int hf_btatt_location_name = -1;
+static int hf_btatt_uncertainty = -1;
+static int hf_btatt_uncertainty_reserved = -1;
+static int hf_btatt_uncertainty_precision = -1;
+static int hf_btatt_uncertainty_update_time = -1;
+static int hf_btatt_uncertainty_stationary = -1;
+static int hf_btatt_latitude = -1;
+static int hf_btatt_longitude = -1;
+static int hf_btatt_local_north_coordinate = -1;
+static int hf_btatt_local_east_coordinate = -1;
+static int hf_btatt_floor_number = -1;
+static int hf_btatt_altitude = -1;
+static int hf_btatt_indoor_positioning_configuration = -1;
+static int hf_btatt_indoor_positioning_configuration_reserved = -1;
+static int hf_btatt_indoor_positioning_configuration_location_name = -1;
+static int hf_btatt_indoor_positioning_configuration_floor_number = -1;
+static int hf_btatt_indoor_positioning_configuration_altitude = -1;
+static int hf_btatt_indoor_positioning_configuration_tx_power = -1;
+static int hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets = -1;
+static int hf_btatt_indoor_positioning_configuration_coordinates = -1;
+static int hf_btatt_number_of_digitals = -1;
+static int hf_btatt_time_trigger_setting_condition = -1;
+static int hf_btatt_time_trigger_setting_value = -1;
+static int hf_btatt_time_trigger_setting_value_count = -1;
+static int hf_btatt_time_trigger_setting_value_time_interval = -1;
+static int hf_btatt_rsc_measurement_flags = -1;
+static int hf_btatt_rsc_measurement_flags_reserved = -1;
+static int hf_btatt_rsc_measurement_flags_type_of_movement = -1;
+static int hf_btatt_rsc_measurement_flags_total_distance_present = -1;
+static int hf_btatt_rsc_measurement_flags_instantaneous_stride_length_present = -1;
+static int hf_btatt_rsc_measurement_instantaneous_speed = -1;
+static int hf_btatt_rsc_measurement_instantaneous_cadence = -1;
+static int hf_btatt_rsc_measurement_instantaneous_stride_length = -1;
+static int hf_btatt_rsc_measurement_total_distance = -1;
+static int hf_btatt_sc_control_point_opcode = -1;
+static int hf_btatt_sc_control_point_cumulative_value = -1;
+static int hf_btatt_sc_control_point_request_opcode = -1;
+static int hf_btatt_sc_control_point_response_value = -1;
+static int hf_btatt_cycling_power_measurement_flags = -1;
+static int hf_btatt_cycling_power_measurement_flags_reserved = -1;
+static int hf_btatt_cycling_power_measurement_flags_offset_compensation_indicator = -1;
+static int hf_btatt_cycling_power_measurement_flags_accumulated_energy = -1;
+static int hf_btatt_cycling_power_measurement_flags_bottom_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_measurement_flags_top_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_measurement_flags_extreme_angles = -1;
+static int hf_btatt_cycling_power_measurement_flags_extreme_torque_magnitudes = -1;
+static int hf_btatt_cycling_power_measurement_flags_extreme_force_magnitudes = -1;
+static int hf_btatt_cycling_power_measurement_flags_crank_revolution_data = -1;
+static int hf_btatt_cycling_power_measurement_flags_wheel_revolution_data = -1;
+static int hf_btatt_cycling_power_measurement_flags_accumulated_torque_source = -1;
+static int hf_btatt_cycling_power_measurement_flags_accumulated_torque = -1;
+static int hf_btatt_cycling_power_measurement_flags_pedal_power_balance_reference = -1;
+static int hf_btatt_cycling_power_measurement_flags_pedal_power_balance = -1;
+static int hf_btatt_cycling_power_measurement_instantaneous_power = -1;
+static int hf_btatt_cycling_power_measurement_pedal_power_balance = -1;
+static int hf_btatt_cycling_power_measurement_accumulated_torque = -1;
+static int hf_btatt_cycling_power_measurement_wheel_revolution_data_cumulative_wheel_revolutions = -1;
+static int hf_btatt_cycling_power_measurement_wheel_revolution_data_last_wheel_event_time = -1;
+static int hf_btatt_cycling_power_measurement_crank_revolution_data_cumulative_crank_revolutions = -1;
+static int hf_btatt_cycling_power_measurement_crank_revolution_data_last_crank_event_time = -1;
+static int hf_btatt_cycling_power_measurement_extreme_force_magnitudes_maximum_force_magnitude = -1;
+static int hf_btatt_cycling_power_measurement_extreme_force_magnitudes_minimum_force_magnitude = -1;
+static int hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_maximum_torque_magnitude = -1;
+static int hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_minimum_torque_magnitude = -1;
+static int hf_btatt_cycling_power_measurement_extreme_angles = -1;
+static int hf_btatt_cycling_power_measurement_extreme_angles_maximum = -1;
+static int hf_btatt_cycling_power_measurement_extreme_angles_minimum = -1;
+static int hf_btatt_cycling_power_measurement_top_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_measurement_bottom_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_measurement_accumulated_energy = -1;
+static int hf_btatt_csc_measurement_flags = -1;
+static int hf_btatt_csc_measurement_flags_reserved = -1;
+static int hf_btatt_csc_measurement_flags_crank_revolution_data = -1;
+static int hf_btatt_csc_measurement_flags_wheel_revolution_data = -1;
+static int hf_btatt_csc_measurement_cumulative_wheel_revolutions = -1;
+static int hf_btatt_csc_measurement_cumulative_crank_revolutions = -1;
+static int hf_btatt_csc_measurement_last_event_time = -1;
+static int hf_btatt_cycling_power_vector_flags = -1;
+static int hf_btatt_cycling_power_vector_flags_reserved = -1;
+static int hf_btatt_cycling_power_vector_flags_instantaneous_measurement_direction = -1;
+static int hf_btatt_cycling_power_vector_flags_instantaneous_torque_magnitude_array = -1;
+static int hf_btatt_cycling_power_vector_flags_instantaneous_force_magnitude_array = -1;
+static int hf_btatt_cycling_power_vector_flags_first_crank_measurement_angle = -1;
+static int hf_btatt_cycling_power_vector_flags_crank_revolution_data = -1;
+static int hf_btatt_cycling_power_vector_crank_revolution_data_cumulative_crank_revolutions = -1;
+static int hf_btatt_cycling_power_vector_crank_revolution_data_last_crank_event_time = -1;
+static int hf_btatt_cycling_power_vector_first_crank_measurement_angle = -1;
+static int hf_btatt_cycling_power_vector_instantaneous_force_magnitude_array = -1;
+static int hf_btatt_cycling_power_vector_instantaneous_torque_magnitude_array = -1;
+static int hf_btatt_cycling_power_control_point_opcode = -1;
+static int hf_btatt_cycling_power_control_point_cumulative_value = -1;
+static int hf_btatt_cycling_power_control_point_sensor_location = -1;
+static int hf_btatt_cycling_power_control_point_crank_length = -1;
+static int hf_btatt_cycling_power_control_point_chain_length = -1;
+static int hf_btatt_cycling_power_control_point_chain_weight = -1;
+static int hf_btatt_cycling_power_control_point_span_length = -1;
+static int hf_btatt_cycling_power_control_point_content_mask = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_reserved = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_accumulated_energy = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_bottom_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_top_dead_spot_angle = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_extreme_angles = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_extreme_magnitudes = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_crank_revolution_data = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_wheel_revolution_data = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_accumulated_torque = -1;
+static int hf_btatt_cycling_power_control_point_content_mask_pedal_power_balance = -1;
+static int hf_btatt_cycling_power_control_point_request_opcode = -1;
+static int hf_btatt_cycling_power_control_point_response_value = -1;
+static int hf_btatt_cycling_power_control_point_start_offset_compensation = -1;
+static int hf_btatt_cycling_power_control_point_sampling_rate = -1;
+static int hf_btatt_cycling_power_control_point_factory_calibration_date = -1;
+static int hf_btatt_location_and_speed_flags = -1;
+static int hf_btatt_location_and_speed_flags_reserved = -1;
+static int hf_btatt_location_and_speed_flags_heading_source = -1;
+static int hf_btatt_location_and_speed_flags_elevation_source = -1;
+static int hf_btatt_location_and_speed_flags_speed_and_distance_format = -1;
+static int hf_btatt_location_and_speed_flags_position_status = -1;
+static int hf_btatt_location_and_speed_flags_utc_time = -1;
+static int hf_btatt_location_and_speed_flags_rolling_time = -1;
+static int hf_btatt_location_and_speed_flags_heading = -1;
+static int hf_btatt_location_and_speed_flags_elevation = -1;
+static int hf_btatt_location_and_speed_flags_location = -1;
+static int hf_btatt_location_and_speed_flags_total_distance = -1;
+static int hf_btatt_location_and_speed_flags_instantaneous_speed = -1;
+static int hf_btatt_location_and_speed_instantaneous_speed = -1;
+static int hf_btatt_location_and_speed_total_distance = -1;
+static int hf_btatt_location_and_speed_location_latitude = -1;
+static int hf_btatt_location_and_speed_location_longitude = -1;
+static int hf_btatt_location_and_speed_elevation = -1;
+static int hf_btatt_location_and_speed_heading = -1;
+static int hf_btatt_location_and_speed_rolling_time = -1;
+static int hf_btatt_location_and_speed_utc_time = -1;
+static int hf_btatt_navigation_flags = -1;
+static int hf_btatt_navigation_flags_reserved = -1;
+static int hf_btatt_navigation_flags_destination_reached = -1;
+static int hf_btatt_navigation_flags_waypoint_reached = -1;
+static int hf_btatt_navigation_flags_navigation_indicator_type = -1;
+static int hf_btatt_navigation_flags_heading_source = -1;
+static int hf_btatt_navigation_flags_position_status = -1;
+static int hf_btatt_navigation_flags_estimated_time_of_arrival = -1;
+static int hf_btatt_navigation_flags_remaining_vertical_distance = -1;
+static int hf_btatt_navigation_flags_remaining_distance = -1;
+static int hf_btatt_navigation_bearing = -1;
+static int hf_btatt_navigation_heading = -1;
+static int hf_btatt_navigation_remaining_distance = -1;
+static int hf_btatt_navigation_remaining_vertical_distance = -1;
+static int hf_btatt_navigation_estimated_time_of_arrival = -1;
+static int hf_btatt_position_quality_flags = -1;
+static int hf_btatt_position_quality_flags_reserved = -1;
+static int hf_btatt_position_quality_flags_position_status = -1;
+static int hf_btatt_position_quality_flags_vdop = -1;
+static int hf_btatt_position_quality_flags_hdop = -1;
+static int hf_btatt_position_quality_flags_evpe = -1;
+static int hf_btatt_position_quality_flags_ehpe = -1;
+static int hf_btatt_position_quality_flags_time_to_first_fix = -1;
+static int hf_btatt_position_quality_flags_number_of_beacons_in_view = -1;
+static int hf_btatt_position_quality_flags_number_of_beacons_in_solution = -1;
+static int hf_btatt_position_quality_number_of_beacons_in_solution = -1;
+static int hf_btatt_position_quality_number_of_beacons_in_view = -1;
+static int hf_btatt_position_quality_time_to_first_fix = -1;
+static int hf_btatt_position_quality_ehpe = -1;
+static int hf_btatt_position_quality_evpe = -1;
+static int hf_btatt_position_quality_hdop = -1;
+static int hf_btatt_position_quality_vdop = -1;
+static int hf_btatt_ln_control_point_opcode = -1;
+static int hf_btatt_ln_control_point_cumulative_value = -1;
+static int hf_btatt_ln_control_point_content_mask = -1;
+static int hf_btatt_ln_control_point_content_mask_reserved = -1;
+static int hf_btatt_ln_control_point_content_mask_utc_time = -1;
+static int hf_btatt_ln_control_point_content_mask_rolling_time = -1;
+static int hf_btatt_ln_control_point_content_mask_heading = -1;
+static int hf_btatt_ln_control_point_content_mask_elevation = -1;
+static int hf_btatt_ln_control_point_content_mask_location = -1;
+static int hf_btatt_ln_control_point_content_mask_total_distance = -1;
+static int hf_btatt_ln_control_point_content_mask_instantaneous_speed = -1;
+static int hf_btatt_ln_control_point_navigation_control = -1;
+static int hf_btatt_ln_control_point_route_number = -1;
+static int hf_btatt_ln_control_point_fix_rate = -1;
+static int hf_btatt_ln_control_point_elevation = -1;
+static int hf_btatt_ln_control_point_request_opcode = -1;
+static int hf_btatt_ln_control_point_response_value = -1;
+static int hf_btatt_ln_control_point_response_value_number_of_routes = -1;
+static int hf_btatt_ln_control_point_response_value_name_of_route = -1;
+static int hf_btatt_body_composition_measurement_flags = -1;
+static int hf_btatt_body_composition_measurement_flags_reserved = -1;
+static int hf_btatt_body_composition_measurement_flags_multiple_packet_measurement = -1;
+static int hf_btatt_body_composition_measurement_flags_height = -1;
+static int hf_btatt_body_composition_measurement_flags_weight = -1;
+static int hf_btatt_body_composition_measurement_flags_impedance = -1;
+static int hf_btatt_body_composition_measurement_flags_body_water_mass = -1;
+static int hf_btatt_body_composition_measurement_flags_soft_lean_mass = -1;
+static int hf_btatt_body_composition_measurement_flags_fat_free_mass = -1;
+static int hf_btatt_body_composition_measurement_flags_muscle_mass = -1;
+static int hf_btatt_body_composition_measurement_flags_muscle_percentage = -1;
+static int hf_btatt_body_composition_measurement_flags_basal_metabolism = -1;
+static int hf_btatt_body_composition_measurement_flags_user_id = -1;
+static int hf_btatt_body_composition_measurement_flags_timestamp = -1;
+static int hf_btatt_body_composition_measurement_flags_measurement_units = -1;
+static int hf_btatt_body_composition_measurement_body_fat_percentage = -1;
+static int hf_btatt_body_composition_measurement_timestamp = -1;
+static int hf_btatt_body_composition_measurement_user_id = -1;
+static int hf_btatt_body_composition_measurement_basal_metabolism = -1;
+static int hf_btatt_body_composition_measurement_muscle_percentage = -1;
+static int hf_btatt_body_composition_measurement_muscle_mass_lb = -1;
+static int hf_btatt_body_composition_measurement_muscle_mass_kg = -1;
+static int hf_btatt_body_composition_measurement_fat_free_mass_lb = -1;
+static int hf_btatt_body_composition_measurement_fat_free_mass_kg = -1;
+static int hf_btatt_body_composition_measurement_soft_lean_mass_lb = -1;
+static int hf_btatt_body_composition_measurement_soft_lean_mass_kg = -1;
+static int hf_btatt_body_composition_measurement_body_water_mass_lb = -1;
+static int hf_btatt_body_composition_measurement_body_water_mass_kg = -1;
+static int hf_btatt_body_composition_measurement_impedance = -1;
+static int hf_btatt_body_composition_measurement_weight_lb = -1;
+static int hf_btatt_body_composition_measurement_weight_kg = -1;
+static int hf_btatt_body_composition_measurement_height_inches = -1;
+static int hf_btatt_body_composition_measurement_height_meter = -1;
+static int hf_btatt_weight_measurement_flags = -1;
+static int hf_btatt_weight_measurement_flags_reserved = -1;
+static int hf_btatt_weight_measurement_flags_bmi_and_height = -1;
+static int hf_btatt_weight_measurement_flags_user_id = -1;
+static int hf_btatt_weight_measurement_flags_timestamp = -1;
+static int hf_btatt_weight_measurement_flags_measurement_units = -1;
+static int hf_btatt_weight_measurement_weight_lb = -1;
+static int hf_btatt_weight_measurement_weight_kg = -1;
+static int hf_btatt_weight_measurement_timestamp = -1;
+static int hf_btatt_weight_measurement_user_id = -1;
+static int hf_btatt_weight_measurement_bmi = -1;
+static int hf_btatt_weight_measurement_height_in = -1;
+static int hf_btatt_weight_measurement_height_m = -1;
+static int hf_btatt_user_control_point_opcode = -1;
+static int hf_btatt_user_control_point_request_opcode = -1;
+static int hf_btatt_user_control_point_response_value = -1;
+static int hf_btatt_user_control_point_consent_code = -1;
+static int hf_btatt_cgm_measurement_size = -1;
+static int hf_btatt_cgm_measurement_flags = -1;
+static int hf_btatt_cgm_measurement_flags_cgm_trend_information = -1;
+static int hf_btatt_cgm_measurement_flags_cgm_quality = -1;
+static int hf_btatt_cgm_measurement_flags_reserved = -1;
+static int hf_btatt_cgm_measurement_flags_sensor_status_annunciation_warning = -1;
+static int hf_btatt_cgm_measurement_flags_sensor_status_annunciation_cal_temp = -1;
+static int hf_btatt_cgm_measurement_flags_sensor_status_annunciation_status = -1;
+static int hf_btatt_cgm_measurement_glucose_concentration = -1;
+static int hf_btatt_cgm_measurement_time_offset = -1;
+static int hf_btatt_cgm_sensor_status_annunciation = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_reserved = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_general_device_fault_has_occurred_in_the_sensor = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_device_specific_alert = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_sensor_malfunction = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_sensor_type_incorrect_for_device = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_device_battery_low = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_status_session_stopped = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_reserved = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_low_for_valid_test_result_at_time_of_measurement = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_high_for_valid_test_result_at_time_of_measurement = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_required = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_recommended = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_not_allowed = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_cal_temp_time_synchronization_between_sensor_and_collector_required = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_device_can_process = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_device_can_process = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_increase_exceeded = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_decrease_exceeded = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_hyper_level = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_hypo_level = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_patient_high_level = -1;
+static int hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_patient_low_level = -1;
+static int hf_btatt_cgm_measurement_trend_information = -1;
+static int hf_btatt_cgm_measurement_quality = -1;
+static int hf_btatt_cgm_e2e_crc = -1;
+static int hf_btatt_cgm_feature_feature = -1;
+static int hf_btatt_cgm_feature_feature_reserved = -1;
+static int hf_btatt_cgm_feature_feature_quality = -1;
+static int hf_btatt_cgm_feature_feature_trend_information = -1;
+static int hf_btatt_cgm_feature_feature_multiple_sessions = -1;
+static int hf_btatt_cgm_feature_feature_multiple_bond = -1;
+static int hf_btatt_cgm_feature_feature_e2e_crc = -1;
+static int hf_btatt_cgm_feature_feature_general_device_fault = -1;
+static int hf_btatt_cgm_feature_feature_sensor_type_error_detection = -1;
+static int hf_btatt_cgm_feature_feature_low_battery_detection = -1;
+static int hf_btatt_cgm_feature_feature_sensor_result_high_low_detection = -1;
+static int hf_btatt_cgm_feature_feature_sensor_temperature_high_low_detection = -1;
+static int hf_btatt_cgm_feature_feature_sensor_malfunction_detection = -1;
+static int hf_btatt_cgm_feature_feature_device_specific_alert = -1;
+static int hf_btatt_cgm_feature_feature_rate_of_increase_decrease_alerts = -1;
+static int hf_btatt_cgm_feature_feature_hyper_alerts = -1;
+static int hf_btatt_cgm_feature_feature_hypo_alerts = -1;
+static int hf_btatt_cgm_feature_feature_patient_high_low_alerts = -1;
+static int hf_btatt_cgm_feature_feature_calibration = -1;
+static int hf_btatt_cgm_type_and_sample_location = -1;
+static int hf_btatt_cgm_type = -1;
+static int hf_btatt_cgm_sample_location = -1;
+static int hf_btatt_cgm_time_offset = -1;
+static int hf_btatt_cgm_status = -1;
+static int hf_btatt_cgm_session_start_time = -1;
+static int hf_btatt_cgm_session_run_time = -1;
+static int hf_btatt_cgm_specific_ops_control_point_opcode = -1;
+static int hf_btatt_cgm_specific_ops_control_point_operand = -1;
+static int hf_btatt_cgm_specific_ops_control_point_operand_communication_interval = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_glucose_concentration = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_time = -1;
+static int hf_btatt_cgm_specific_ops_control_point_next_calibration_time = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_data_record_number = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_status = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_status_reserved = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_status_pending = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_status_out_of_range = -1;
+static int hf_btatt_cgm_specific_ops_control_point_calibration_status_rejected = -1;
+static int hf_btatt_cgm_specific_ops_control_point_operand_calibration_data_record_number = -1;
+static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level = -1;
+static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate = -1;
+static int hf_btatt_cgm_specific_ops_control_point_request_opcode = -1;
+static int hf_btatt_cgm_specific_ops_control_point_response_code = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -906,6 +1228,248 @@ static const int *hfx_btatt_heart_rate_measurement_flags[] = {
     NULL
 };
 
+static const int *hfx_btatt_uncertainty[] = {
+    &hf_btatt_uncertainty_reserved,
+    &hf_btatt_uncertainty_precision,
+    &hf_btatt_uncertainty_update_time,
+    &hf_btatt_uncertainty_stationary,
+    NULL
+};
+
+static const int *hfx_btatt_indoor_positioning_configuration[] = {
+    &hf_btatt_indoor_positioning_configuration_reserved,
+    &hf_btatt_indoor_positioning_configuration_location_name,
+    &hf_btatt_indoor_positioning_configuration_floor_number,
+    &hf_btatt_indoor_positioning_configuration_altitude,
+    &hf_btatt_indoor_positioning_configuration_tx_power,
+    &hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets,
+    &hf_btatt_indoor_positioning_configuration_coordinates,
+    NULL
+};
+
+static const int *hfx_btatt_rsc_measurement_flags[] = {
+    &hf_btatt_rsc_measurement_flags_reserved,
+    &hf_btatt_rsc_measurement_flags_type_of_movement,
+    &hf_btatt_rsc_measurement_flags_total_distance_present,
+    &hf_btatt_rsc_measurement_flags_instantaneous_stride_length_present,
+    NULL
+};
+
+static const int *hfx_btatt_cycling_power_measurement_flags[] = {
+    &hf_btatt_cycling_power_measurement_flags_reserved,
+    &hf_btatt_cycling_power_measurement_flags_offset_compensation_indicator,
+    &hf_btatt_cycling_power_measurement_flags_accumulated_energy,
+    &hf_btatt_cycling_power_measurement_flags_bottom_dead_spot_angle,
+    &hf_btatt_cycling_power_measurement_flags_top_dead_spot_angle,
+    &hf_btatt_cycling_power_measurement_flags_extreme_angles,
+    &hf_btatt_cycling_power_measurement_flags_extreme_torque_magnitudes,
+    &hf_btatt_cycling_power_measurement_flags_extreme_force_magnitudes,
+    &hf_btatt_cycling_power_measurement_flags_crank_revolution_data,
+    &hf_btatt_cycling_power_measurement_flags_wheel_revolution_data,
+    &hf_btatt_cycling_power_measurement_flags_accumulated_torque_source,
+    &hf_btatt_cycling_power_measurement_flags_accumulated_torque,
+    &hf_btatt_cycling_power_measurement_flags_pedal_power_balance_reference,
+    &hf_btatt_cycling_power_measurement_flags_pedal_power_balance,
+    NULL
+};
+
+static const int *hfx_btatt_cycling_power_measurement_extreme_angles[] = {
+    &hf_btatt_cycling_power_measurement_extreme_angles_maximum,
+    &hf_btatt_cycling_power_measurement_extreme_angles_minimum,
+    NULL
+};
+
+static const int *hfx_btatt_csc_measurement_flags[] = {
+    &hf_btatt_csc_measurement_flags_reserved,
+    &hf_btatt_csc_measurement_flags_crank_revolution_data,
+    &hf_btatt_csc_measurement_flags_wheel_revolution_data,
+    NULL
+};
+
+static const int *hfx_btatt_cycling_power_vector_flags[] = {
+    &hf_btatt_cycling_power_vector_flags_reserved,
+    &hf_btatt_cycling_power_vector_flags_instantaneous_measurement_direction,
+    &hf_btatt_cycling_power_vector_flags_instantaneous_torque_magnitude_array,
+    &hf_btatt_cycling_power_vector_flags_instantaneous_force_magnitude_array,
+    &hf_btatt_cycling_power_vector_flags_first_crank_measurement_angle,
+    &hf_btatt_cycling_power_vector_flags_crank_revolution_data,
+    NULL
+};
+
+static const int *hfx_btatt_cycling_power_control_point_content_mask[] = {
+    &hf_btatt_cycling_power_control_point_content_mask_reserved,
+    &hf_btatt_cycling_power_control_point_content_mask_accumulated_energy,
+    &hf_btatt_cycling_power_control_point_content_mask_bottom_dead_spot_angle,
+    &hf_btatt_cycling_power_control_point_content_mask_top_dead_spot_angle,
+    &hf_btatt_cycling_power_control_point_content_mask_extreme_angles,
+    &hf_btatt_cycling_power_control_point_content_mask_extreme_magnitudes,
+    &hf_btatt_cycling_power_control_point_content_mask_crank_revolution_data,
+    &hf_btatt_cycling_power_control_point_content_mask_wheel_revolution_data,
+    &hf_btatt_cycling_power_control_point_content_mask_accumulated_torque,
+    &hf_btatt_cycling_power_control_point_content_mask_pedal_power_balance,
+    NULL
+};
+
+static const int *hfx_btatt_location_and_speed_flags[] = {
+    &hf_btatt_location_and_speed_flags_reserved,
+    &hf_btatt_location_and_speed_flags_heading_source,
+    &hf_btatt_location_and_speed_flags_elevation_source,
+    &hf_btatt_location_and_speed_flags_speed_and_distance_format,
+    &hf_btatt_location_and_speed_flags_position_status,
+    &hf_btatt_location_and_speed_flags_utc_time,
+    &hf_btatt_location_and_speed_flags_rolling_time,
+    &hf_btatt_location_and_speed_flags_heading,
+    &hf_btatt_location_and_speed_flags_elevation,
+    &hf_btatt_location_and_speed_flags_location,
+    &hf_btatt_location_and_speed_flags_total_distance,
+    &hf_btatt_location_and_speed_flags_instantaneous_speed,
+    NULL
+};
+
+static const int *hfx_btatt_navigation_flags[] = {
+    &hf_btatt_navigation_flags_reserved,
+    &hf_btatt_navigation_flags_destination_reached,
+    &hf_btatt_navigation_flags_waypoint_reached,
+    &hf_btatt_navigation_flags_navigation_indicator_type,
+    &hf_btatt_navigation_flags_heading_source,
+    &hf_btatt_navigation_flags_position_status,
+    &hf_btatt_navigation_flags_estimated_time_of_arrival,
+    &hf_btatt_navigation_flags_remaining_vertical_distance,
+    &hf_btatt_navigation_flags_remaining_distance,
+    NULL
+};
+
+static const int *hfx_btatt_position_quality_flags[] = {
+    &hf_btatt_position_quality_flags_reserved,
+    &hf_btatt_position_quality_flags_position_status,
+    &hf_btatt_position_quality_flags_vdop,
+    &hf_btatt_position_quality_flags_hdop,
+    &hf_btatt_position_quality_flags_evpe,
+    &hf_btatt_position_quality_flags_ehpe,
+    &hf_btatt_position_quality_flags_time_to_first_fix,
+    &hf_btatt_position_quality_flags_number_of_beacons_in_view,
+    &hf_btatt_position_quality_flags_number_of_beacons_in_solution,
+    NULL
+};
+
+static const int *hfx_btatt_ln_control_point_content_mask[] = {
+    &hf_btatt_ln_control_point_content_mask_reserved,
+    &hf_btatt_ln_control_point_content_mask_utc_time,
+    &hf_btatt_ln_control_point_content_mask_rolling_time,
+    &hf_btatt_ln_control_point_content_mask_heading,
+    &hf_btatt_ln_control_point_content_mask_elevation,
+    &hf_btatt_ln_control_point_content_mask_location,
+    &hf_btatt_ln_control_point_content_mask_total_distance,
+    &hf_btatt_ln_control_point_content_mask_instantaneous_speed,
+    NULL
+};
+
+static const int *hfx_btatt_body_composition_measurement_flags[] = {
+    &hf_btatt_body_composition_measurement_flags_reserved,
+    &hf_btatt_body_composition_measurement_flags_multiple_packet_measurement,
+    &hf_btatt_body_composition_measurement_flags_height,
+    &hf_btatt_body_composition_measurement_flags_weight,
+    &hf_btatt_body_composition_measurement_flags_impedance,
+    &hf_btatt_body_composition_measurement_flags_body_water_mass,
+    &hf_btatt_body_composition_measurement_flags_soft_lean_mass,
+    &hf_btatt_body_composition_measurement_flags_fat_free_mass,
+    &hf_btatt_body_composition_measurement_flags_muscle_mass,
+    &hf_btatt_body_composition_measurement_flags_muscle_percentage,
+    &hf_btatt_body_composition_measurement_flags_basal_metabolism,
+    &hf_btatt_body_composition_measurement_flags_user_id,
+    &hf_btatt_body_composition_measurement_flags_timestamp,
+    &hf_btatt_body_composition_measurement_flags_measurement_units,
+    NULL
+};
+
+static const int *hfx_btatt_weight_measurement_flags[] = {
+    &hf_btatt_weight_measurement_flags_reserved,
+    &hf_btatt_weight_measurement_flags_bmi_and_height,
+    &hf_btatt_weight_measurement_flags_user_id,
+    &hf_btatt_weight_measurement_flags_timestamp,
+    &hf_btatt_weight_measurement_flags_measurement_units,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_measurement_flags[] = {
+    &hf_btatt_cgm_measurement_flags_cgm_trend_information,
+    &hf_btatt_cgm_measurement_flags_cgm_quality,
+    &hf_btatt_cgm_measurement_flags_reserved,
+    &hf_btatt_cgm_measurement_flags_sensor_status_annunciation_warning,
+    &hf_btatt_cgm_measurement_flags_sensor_status_annunciation_cal_temp,
+    &hf_btatt_cgm_measurement_flags_sensor_status_annunciation_status,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_sensor_status_annunciation_status[] = {
+    &hf_btatt_cgm_sensor_status_annunciation_status_reserved,
+    &hf_btatt_cgm_sensor_status_annunciation_status_general_device_fault_has_occurred_in_the_sensor,
+    &hf_btatt_cgm_sensor_status_annunciation_status_device_specific_alert,
+    &hf_btatt_cgm_sensor_status_annunciation_status_sensor_malfunction,
+    &hf_btatt_cgm_sensor_status_annunciation_status_sensor_type_incorrect_for_device,
+    &hf_btatt_cgm_sensor_status_annunciation_status_device_battery_low,
+    &hf_btatt_cgm_sensor_status_annunciation_status_session_stopped,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_sensor_status_annunciation_cal_temp[] = {
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_reserved,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_low_for_valid_test_result_at_time_of_measurement,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_high_for_valid_test_result_at_time_of_measurement,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_required,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_recommended,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_not_allowed,
+    &hf_btatt_cgm_sensor_status_annunciation_cal_temp_time_synchronization_between_sensor_and_collector_required,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_sensor_status_annunciation_warning[] = {
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_device_can_process,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_device_can_process,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_increase_exceeded,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_decrease_exceeded,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_hyper_level,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_hypo_level,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_patient_high_level,
+    &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_patient_low_level,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_feature_feature[] = {
+    &hf_btatt_cgm_feature_feature_reserved,
+    &hf_btatt_cgm_feature_feature_quality,
+    &hf_btatt_cgm_feature_feature_trend_information,
+    &hf_btatt_cgm_feature_feature_multiple_sessions,
+    &hf_btatt_cgm_feature_feature_multiple_bond,
+    &hf_btatt_cgm_feature_feature_e2e_crc,
+    &hf_btatt_cgm_feature_feature_general_device_fault,
+    &hf_btatt_cgm_feature_feature_sensor_type_error_detection,
+    &hf_btatt_cgm_feature_feature_low_battery_detection,
+    &hf_btatt_cgm_feature_feature_sensor_result_high_low_detection,
+    &hf_btatt_cgm_feature_feature_sensor_temperature_high_low_detection,
+    &hf_btatt_cgm_feature_feature_sensor_malfunction_detection,
+    &hf_btatt_cgm_feature_feature_device_specific_alert,
+    &hf_btatt_cgm_feature_feature_rate_of_increase_decrease_alerts,
+    &hf_btatt_cgm_feature_feature_hyper_alerts,
+    &hf_btatt_cgm_feature_feature_hypo_alerts,
+    &hf_btatt_cgm_feature_feature_patient_high_low_alerts,
+    &hf_btatt_cgm_feature_feature_calibration,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_type_and_sample_location[] = {
+    &hf_btatt_cgm_type,
+    &hf_btatt_cgm_sample_location,
+    NULL
+};
+
+static const int *hfx_btatt_cgm_specific_ops_control_point_calibration_status[] = {
+    &hf_btatt_cgm_specific_ops_control_point_calibration_status_reserved,
+    &hf_btatt_cgm_specific_ops_control_point_calibration_status_pending,
+    &hf_btatt_cgm_specific_ops_control_point_calibration_status_out_of_range,
+    &hf_btatt_cgm_specific_ops_control_point_calibration_status_rejected,
+    NULL
+};
 
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
@@ -920,6 +1484,10 @@ static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
 static expert_field ei_btatt_handle_too_few = EI_INIT;
 static expert_field ei_btatt_mtu_exceeded = EI_INIT;
 static expert_field ei_btatt_mtu_full = EI_INIT;
+static expert_field ei_btatt_consent_out_of_bounds = EI_INIT;
+static expert_field ei_btatt_cgm_size_too_small = EI_INIT;
+static expert_field ei_btatt_opcode_invalid_request = EI_INIT;
+static expert_field ei_btatt_opcode_invalid_response = EI_INIT;
 static expert_field ei_btatt_undecoded = EI_INIT;
 
 static wmem_tree_t *mtus = NULL;
@@ -1941,6 +2509,297 @@ static const value_string record_access_control_point_response_code_vals[] = {
     {0x0, NULL}
 };
 
+static const value_string value_trigger_setting_condition_vals[] = {
+    { 0x00,   "None"},
+    { 0x01,   "Analog - Crossed a boundary"},
+    { 0x02,   "Analog - On the boundary"},
+    { 0x03,   "Analog - Exceeds a boundary"},
+    { 0x04,   "Bitmask"},
+    { 0x05,   "Analog Interval - Inside or outside the boundaries"},
+    { 0x06,   "Analog Interval - On the boundaries"},
+    { 0x07,   "No value trigger"},
+    {0x0, NULL}
+};
+
+
+static const value_string digital_vals[] = {
+    { 0x00,   "Inactive"},
+    { 0x01,   "Active"},
+    { 0x02,   "Tri-state"},
+    { 0x03,   "Output-state"},
+    {0x0, NULL}
+};
+
+
+static const value_string uncertainty_stationary_vals[] = {
+    { 0x00,   "Stationary"},
+    { 0x01,   "Mobile"},
+    {0x0, NULL}
+};
+
+
+static const value_string uncertainty_update_time_vals[] = {
+    { 0x00,   "Up to 3s"},
+    { 0x01,   "Up to 4s"},
+    { 0x02,   "Up to 6s"},
+    { 0x03,   "Up to 12s"},
+    { 0x04,   "Up to 28s"},
+    { 0x05,   "Up to 89s"},
+    { 0x06,   "Up to 426s"},
+    { 0x07,   "3541s"},
+    {0x0, NULL}
+};
+
+
+static const value_string uncertainty_precision_vals[] = {
+    { 0x00,   "Less than 0.1m"},
+    { 0x01,   "0.1-1m"},
+    { 0x02,   "1-2m"},
+    { 0x03,   "2-5m"},
+    { 0x04,   "5-10m"},
+    { 0x05,   "10-50m"},
+    { 0x06,   "Greater than 50m"},
+    { 0x07,   "N/A"},
+    {0x0, NULL}
+};
+
+
+static const value_string indoor_positioning_configuration_coordinate_system_used_in_advertising_packets_vals[] = {
+    { 0x00,   "WGS84 Coordinate System"},
+    { 0x01,   "Local Coordinate System"},
+    {0x0, NULL}
+};
+
+
+static const value_string time_trigger_setting_condition_vals[] = {
+    { 0x00,   "No time-based triggering used"},
+    { 0x01,   "Indicates or notifies unconditionally after a settable time"},
+    { 0x02,   "Not indicated or notified more often than a settable time"},
+    { 0x03,   "Changed more often than"},
+    {0x0, NULL}
+};
+
+
+static const value_string rsc_measurement_flags_type_of_movement_vals[] = {
+    { 0x00,   "Walking"},
+    { 0x01,   "Running"},
+    {0x0, NULL}
+};
+
+static const value_string sc_control_point_opcode_vals[] = {
+    { 0x01,   "Set Cumulative Value"},
+    { 0x02,   "Start Sensor Calibration"},
+    { 0x03,   "Update Sensor Location"},
+    { 0x04,   "Request Supported Sensor Locations"},
+    { 0x10,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string sc_control_point_response_value_vals[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Opcode not Supported"},
+    { 0x03,   "Invalid Parameter"},
+    { 0x04,   "Operation Failed"},
+    {0x0, NULL}
+};
+
+static const value_string cycling_power_measurement_flags_accumulated_torque_source_vals[] = {
+    { 0x00,   "Wheel Based"},
+    { 0x01,   "Crank Based"},
+    {0x0, NULL}
+};
+
+static const value_string cycling_power_vector_flags_instantaneous_measurement_direction_vals[] = {
+    { 0x00,   "Unknown"},
+    { 0x01,   "Tangential Component"},
+    { 0x02,   "Radial Component"},
+    { 0x03,   "Lateral Component"},
+    {0x0, NULL}
+};
+
+static const value_string cycling_power_control_point_opcode[] = {
+    { 0x01,   "Set Cumulative Value"},
+    { 0x02,   "Update Sensor Location"},
+    { 0x03,   "Request Supported Sensor Locations"},
+    { 0x04,   "Set Crank Length"},
+    { 0x05,   "Request Crank Length"},
+    { 0x06,   "Set Chain Length"},
+    { 0x07,   "Request Chain Length"},
+    { 0x08,   "Set Chain Weight"},
+    { 0x09,   "Request Chain Weight"},
+    { 0x0A,   "Set Span Length"},
+    { 0x0B,   "Request Span Length"},
+    { 0x0C,   "Start Offset Compensation"},
+    { 0x0D,   "Mask Cycling Power Measurement Characteristic Content"},
+    { 0x0E,   "Request Sampling Rate"},
+    { 0x0F,   "Request Factory Calibration Date"},
+    { 0x20,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string cycling_power_control_point_response_value[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Opcode not Supported"},
+    { 0x03,   "Invalid Parameter"},
+    { 0x04,   "Operation Failed"},
+    {0x0, NULL}
+};
+
+static const value_string location_and_speed_flags_elevation_source_vals[] = {
+    { 0x00,   "Positioning System"},
+    { 0x01,   "Barometric Air Pressure"},
+    { 0x02,   "Database Service (or similiar)"},
+    { 0x03,   "Other"},
+    {0x0, NULL}
+};
+
+static const value_string flags_position_status_vals[] = {
+    { 0x00,   "No Position"},
+    { 0x01,   "Position Ok"},
+    { 0x02,   "Estimated Position"},
+    { 0x03,   "Last Known Position"},
+    {0x0, NULL}
+};
+
+static const value_string ln_control_point_opcode[] = {
+    { 0x01,   "Set Cumulative Value"},
+    { 0x02,   "Mask Location and Speed Characteristic Content"},
+    { 0x03,   "Navigation Control"},
+    { 0x04,   "Request Number of Routes"},
+    { 0x05,   "Request Name of Route"},
+    { 0x06,   "Select Route"},
+    { 0x07,   "Set Fix Rate"},
+    { 0x08,   "Set Elevation"},
+    { 0x20,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string ln_control_point_navigation_control_vals[] = {
+    { 0x00,   "Stop Notification of the Navigation characteristic. Stop Navigation."},
+    { 0x01,   "Start Notification of the Navigation characteristic. Start Navigation to the first waypoint on a route."},
+    { 0x02,   "Stop Notification of the Navigation characteristic. Pause Navigation keeping the next waypoint on the route in the memory for continuing the navigation later."},
+    { 0x03,   "Start Notification of the Navigation characteristic. Continue Navigation from the point where navigation was paused to the next waypoint on the route."},
+    { 0x04,   "Notification of the Navigation characteristic not affected. Skip Waypoint: disregard next waypoint and continue navigation to the waypoint following next waypoint on the route."},
+    { 0x05,   "Start Notification of the Navigation characteristic. Select Nearest Waypoint on a Route: measure the distance to all waypoints on the route, and start navigation to the closest or optimal waypoint on the route (left to the implementation) and from there to waypoints following next waypoint along the route."},
+    {0x0, NULL}
+};
+
+static const value_string ln_control_point_response_value[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Opcode not Supported"},
+    { 0x03,   "Invalid Parameter"},
+    { 0x04,   "Operation Failed"},
+    {0x0, NULL}
+};
+
+static const value_string body_composition_measurement_flags_measurement_units_vals[] = {
+    { 0,   "SI (kg & m)"},
+    { 1,   "Imperial (lb & in)"},
+    {0x0, NULL}
+};
+
+static const value_string user_control_point_opcode_vals[] = {
+    { 0x01,   "Register New User"},
+    { 0x02,   "Consent"},
+    { 0x03,   "Delete User Data"},
+    { 0x20,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string user_control_point_response_value_vals[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Opcode not Supported"},
+    { 0x03,   "Invalid Parameter"},
+    { 0x04,   "Operation Failed"},
+    { 0x04,   "User not Authorized"},
+    {0x0, NULL}
+};
+
+static const value_string cgm_feature_type_vals[] = {
+    { 0x01,   "Capillary Whole Blood"},
+    { 0x02,   "Capillary Plasma"},
+    { 0x03,   "Capillary Whole Blood"},
+    { 0x04,   "Venous Plasma"},
+    { 0x05,   "Arterial Whole Blood"},
+    { 0x06,   "Arterial Plasma"},
+    { 0x07,   "Undetermined Whole Blood"},
+    { 0x08,   "Undetermined Plasma"},
+    { 0x09,   "Interstitial Fluid (ISF)"},
+    { 0x0A,   "Control Solution"},
+    {0x0, NULL}
+};
+
+static const value_string cgm_feature_sample_location_vals[] = {
+    { 0x01,   "Finger"},
+    { 0x02,   "Alternate Site Test (AST)"},
+    { 0x03,   "Earlobe"},
+    { 0x04,   "Control Solution"},
+    { 0x05,   "Subcutaneous Tissue"},
+    { 0x0F,   "Sample Location Value not Available"},
+    {0x0, NULL}
+};
+
+static const value_string cgm_specific_ops_control_point_opcode_vals[] = {
+    { 0x01,   "Set CGM Communication Interval"},
+    { 0x02,   "Get CGM Communication Interval"},
+    { 0x03,   "CGM Communication Interval response"},
+    { 0x04,   "Set Glucose Calibration Value"},
+    { 0x05,   "Get Glucose Calibration Value"},
+    { 0x06,   "Glucose Calibration Value response"},
+    { 0x07,   "Set Patient High Alert Level"},
+    { 0x08,   "Get Patient High Alert Level"},
+    { 0x09,   "Patient High Alert Level Response"},
+    { 0x0A,   "Set Patient Low Alert Level"},
+    { 0x0B,   "Get Patient Low Alert Level"},
+    { 0x0C,   "Patient Low Alert Level Response"},
+    { 0x0D,   "Set Hypo Alert Level"},
+    { 0x0E,   "Get Hypo Alert Level"},
+    { 0x0F,   "Hypo Alert Level Response"},
+    { 0x10,   "Set Hyper Alert Level"},
+    { 0x11,   "Get Hyper Alert Level"},
+    { 0x12,   "Hyper Alert Level Response"},
+    { 0x13,   "Set Rate of Decrease Alert Level"},
+    { 0x14,   "Get Rate of Decrease Alert Level"},
+    { 0x15,   "Rate of Decrease Alert Level Response"},
+    { 0x16,   "Set Rate of Increase Alert Level"},
+    { 0x17,   "Get Rate of Increase Alert Level"},
+    { 0x18,   "Rate of Increase Alert Level Response"},
+    { 0x19,   "Reset Device Specific Alert"},
+    { 0x1A,   "Start the Session"},
+    { 0x1B,   "Stop the Session"},
+    { 0x1C,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string cgm_specific_ops_control_point_response_code_vals[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Op Code not Supported"},
+    { 0x03,   "Invalid Operand"},
+    { 0x04,   "Procedure not Completed"},
+    { 0x05,   "Parameter Out of Range"},
+    {0x0, NULL}
+};
+
+static const true_false_string control_point_mask_value_tfs = {
+    "Leave as Default",
+    "Turn Off" };
+
+static const true_false_string flags_heading_source_tfs = {
+    "Magnetic Compass",
+    "Movement" };
+
+static const true_false_string location_and_speed_flags_speed_and_distance_format_tfs = {
+    "3D",
+    "2D" };
+
+static const true_false_string navigation_indicator_type_tfs = {
+    "To Destination",
+    "To Waypoint" };
+
+static const true_false_string weight_measurement_flags_measurement_units_tfs = {
+    "Imperial (lb & in)",
+    "SI (kg & m)" };
+
 
 union request_parameters_union {
     void *data;
@@ -2326,7 +3185,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         gint old_offset, gint length, guint16 handle, bluetooth_uuid_t uuid, bluetooth_data_t *bluetooth_data)
 {
     proto_item  *sub_item;
-    proto_tree  *sub_tree;
+    proto_tree  *sub_tree = NULL;
     tvbuff_t    *tvb;
     gint         offset = 0;
     bluetooth_uuid_t sub_uuid;
@@ -2519,6 +3378,32 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2909: /* Number of Digitals   - Not adopted, 0.9 now (18th July 2015) */
+/* TODO: Remove this comment if attribute will be adopted */
+        proto_tree_add_item(tree, hf_btatt_number_of_digitals, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x290A: /* Value Trigger Setting */
+        proto_tree_add_item(tree, hf_btatt_value_trigger_setting_condition, tvb, offset, 1, ENC_NA);
+        value = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (value >= 1 && value <= 3) {
+            proto_tree_add_item(tree, hf_btatt_value_trigger_setting_analog, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        } else if (value == 4) {
+            call_dissector_with_data(find_dissector("btgatt.uuid0x2a56"), tvb_new_subset(tvb, offset, 1, 1), pinfo, tree, NULL);
+            offset += 1;
+        } else if (value == 5 || value == 6) {
+            proto_tree_add_item(tree, hf_btatt_value_trigger_setting_analog_one, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_value_trigger_setting_analog_two, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x290B: /* Environmental Sensing Configuration */
         proto_tree_add_item(tree, hf_btatt_esp_trigger_logic, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -2550,6 +3435,24 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_esp_operand, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
         offset += tvb_captured_length_remaining(tvb, offset);
+        break;
+    case 0x290E: /* Time Trigger Setting - Not adopted, 0.9 now (18th July 2015) */
+/* TODO: Remove this comment if attribute will be adopted */
+        proto_tree_add_item(tree, hf_btatt_time_trigger_setting_condition, tvb, offset, 1, ENC_NA);
+        value = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (value == 0) {
+            proto_tree_add_item(tree, hf_btatt_time_trigger_setting_value, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        } else if (value == 1 || value == 2) {
+            proto_tree_add_item(tree, hf_btatt_time_trigger_setting_value_time_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        } else if (value == 3) {
+            proto_tree_add_item(tree, hf_btatt_time_trigger_setting_value_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
         break;
     case 0x2A4A: /* HOGP: HID Information */
         proto_tree_add_item(tree, hf_btatt_hogp_bcd_hid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3333,9 +4236,110 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         proto_item_set_len(sub_item, offset - operand_offset);
 
         break;
+    case 0x2A53: /* RSC Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_rsc_measurement_flags, ett_btatt_value, hfx_btatt_rsc_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_rsc_measurement_instantaneous_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_rsc_measurement_instantaneous_cadence, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_rsc_measurement_instantaneous_stride_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_rsc_measurement_total_distance, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        break;
     case 0x2A54: /* RSC Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_rsc_feature, ett_btatt_value, hfx_btatt_rsc_feature, ENC_LITTLE_ENDIAN);
         offset += 2;
+
+        break;
+    case 0x2A55: /* SC Control Point */
+        proto_tree_add_item(tree, hf_btatt_sc_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        switch (opcode) {
+        case  1: /* Set Cumulative Value */
+            proto_tree_add_item(tree, hf_btatt_sc_control_point_cumulative_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            break;
+        case  3: /* Update Sensor Location */
+            proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 16: /* Response Code */
+            proto_tree_add_item(tree, hf_btatt_sc_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            value = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_sc_control_point_response_value, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (value == 0x04 && tvb_get_guint8(tvb, offset) == 0x01) { /* Request Supported Sensor Locations */
+                while (tvb_captured_length_remaining(tvb, offset)) {
+                    proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+            }
+
+            break;
+        case  2: /* Start Sensor Calibration */
+        case  4: /* Request Supported Sensor Locations */
+            /* N/A */
+            break;
+        }
+
+        break;
+    case 0x2A56: /* Digital */
+        proto_tree_add_item(tree, hf_btatt_digital, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2A58: /* Analog */
+        proto_tree_add_item(tree, hf_btatt_analog, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x2A5A: /* Aggregate */
+        call_dissector_with_data(find_dissector("btgatt.uuid0x2a56"), tvb_new_subset(tvb, offset, 1, 1), pinfo, tree, NULL);
+        offset += 1;
+
+        call_dissector_with_data(find_dissector("btgatt.uuid0x2a58"), tvb_new_subset(tvb, offset, 2, 2), pinfo, tree, NULL);
+        offset += 2;
+
+        break;
+    case 0x2A5B: /* CSC Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_csc_measurement_flags, ett_btatt_value, hfx_btatt_csc_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_csc_measurement_cumulative_wheel_revolutions, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_btatt_csc_measurement_last_event_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_csc_measurement_cumulative_crank_revolutions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_csc_measurement_last_event_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
 
         break;
     case 0x2A5C: /* CSC Feature */
@@ -3348,14 +4352,490 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2A63: /* Cycling Power Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_measurement_flags, ett_btatt_value, hfx_btatt_cycling_power_measurement_flags, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_instantaneous_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_pedal_power_balance, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_accumulated_torque, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_wheel_revolution_data_cumulative_wheel_revolutions, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_wheel_revolution_data_last_wheel_event_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x20) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_crank_revolution_data_cumulative_crank_revolutions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_crank_revolution_data_last_crank_event_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x40) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_extreme_force_magnitudes_maximum_force_magnitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_extreme_force_magnitudes_minimum_force_magnitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x80) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_maximum_torque_magnitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_minimum_torque_magnitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x100) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_measurement_extreme_angles, ett_btatt_value, hfx_btatt_cycling_power_measurement_extreme_angles, ENC_NA);
+            offset += 3;
+        }
+
+        if (flags & 0x200) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_top_dead_spot_angle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x400) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_bottom_dead_spot_angle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x800) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_accumulated_energy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A64: /* Cycling Power Vector */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_vector_flags, ett_btatt_value, hfx_btatt_cycling_power_vector_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_vector_crank_revolution_data_cumulative_crank_revolutions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_vector_crank_revolution_data_last_crank_event_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_cycling_power_vector_first_crank_measurement_angle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x04) {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(tree, hf_btatt_cycling_power_vector_instantaneous_force_magnitude_array, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+        }
+
+        if (flags & 0x08) {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(tree, hf_btatt_cycling_power_vector_instantaneous_torque_magnitude_array, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+        }
+
+        break;
     case 0x2A65: /* Cycling Power Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_feature, ett_btatt_value, hfx_btatt_cycling_power_feature, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         break;
+    case 0x2A66: /* Cycling Power Control Point */
+        proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        switch (opcode) {
+        case  1: /* Set Cumulative Value */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_cumulative_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            break;
+        case  2: /* Update Sensor Location */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_sensor_location, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case  4: /* Set Crank Length */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_crank_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  6: /* Set Chain Length */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  8: /* Set Chain Weight */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_weight, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 10: /* Set Span Length */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_span_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 13: /* Mask Cycling Power Measurement Characteristic Content */
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_control_point_content_mask, ett_btatt_value, hfx_btatt_cycling_power_control_point_content_mask, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  3: /* Request Supported Sensor Locations */
+        case  5: /* Request Crank Length */
+        case  7: /* Request Chain Length */
+        case  9: /* Request Chain Weight */
+        case 11: /* Request Span Length */
+        case 12: /* Start Offset Compensation */
+        case 14: /* Request Sampling Rate */
+        case 15: /* Request Factory Calibration Date */
+            /* N/A */
+
+            break;
+        case 32: /* Response Code */
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_response_value, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            switch (tvb_get_guint8(tvb, offset - 2)) {
+            case  1: /* Set Cumulative Value */
+            case  2: /* Update Sensor Location */
+            case  4: /* Set Crank Length */
+            case  6: /* Set Chain Length */
+            case  8: /* Set Chain Weight */
+            case 10: /* Set Span Length */
+            case 13: /* Mask Cycling Power Measurement Characteristic Content */
+                /* N/A */
+
+                break;
+            case  3: /* Request Supported Sensor Locations */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    while (tvb_captured_length_remaining(tvb, offset)) {
+                        proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                    }
+                }
+
+                break;
+            case  5: /* Request Crank Length */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_crank_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                break;
+            case  7: /* Request Chain Length */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                break;
+            case  9: /* Request Chain Weight */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_weight, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                break;
+            case 11: /* Request Span Length */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_span_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                break;
+            case 12: /* Start Offset Compensation */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_start_offset_compensation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                break;
+            case 14: /* Request Sampling Rate */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_sampling_rate, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                break;
+            case 15: /* Request Factory Calibration Date */
+                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                    sub_item = proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_factory_calibration_date, tvb, offset, 7, ENC_NA);
+                    sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+                    proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                break;
+            }
+            break;
+        }
+
+        break;
+    case 0x2A67: /* Location and Speed */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_location_and_speed_flags, ett_btatt_value, hfx_btatt_location_and_speed_flags, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_instantaneous_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_total_distance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_location_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_location_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_elevation, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_heading, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x20) {
+            proto_tree_add_item(tree, hf_btatt_location_and_speed_rolling_time, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x40) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_location_and_speed_utc_time, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        break;
+    case 0x2A68: /* Navigation */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_navigation_flags, ett_btatt_value, hfx_btatt_navigation_flags, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_navigation_bearing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_navigation_heading, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_navigation_remaining_distance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_navigation_remaining_vertical_distance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x04) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_navigation_estimated_time_of_arrival, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        break;
+    case 0x2A69: /* Position Quality */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_position_quality_flags, ett_btatt_value, hfx_btatt_position_quality_flags, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_number_of_beacons_in_solution, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_number_of_beacons_in_view, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_time_to_first_fix, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_ehpe, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_evpe, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        if (flags & 0x20) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_hdop, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x40) {
+            proto_tree_add_item(tree, hf_btatt_position_quality_vdop, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
     case 0x2A6A: /* LN Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_ln_feature, ett_btatt_value, hfx_btatt_ln_feature, ENC_LITTLE_ENDIAN);
         offset += 4;
+
+        break;
+    case 0x2A6B: /* LN Control Point */
+        proto_tree_add_item(tree, hf_btatt_ln_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        switch (opcode) {
+        case  1: /* Set Cumulative Value */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_cumulative_value, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+
+            break;
+        case  2: /* Mask Location and Speed Characteristic Content */
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_ln_control_point_content_mask, ett_btatt_value, hfx_btatt_ln_control_point_content_mask, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  3: /* Navigation Control */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_navigation_control, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case  4: /* Request Number of Routes */
+            /* N/A */
+
+            break;
+        case  5: /* Request Name of Route */
+        case  6: /* Select Route */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_route_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  7: /* Set Fix Rate */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_fix_rate, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case  8: /* Set Elevation */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_elevation, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+
+            break;
+        case 32: /* Response Code */
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            switch (tvb_get_guint8(tvb, offset - 2)) {
+            case  1: /* Set Cumulative Value */
+            case  2: /* Mask Location and Speed Characteristic Content */
+            case  3: /* Navigation Control */
+            case  6: /* Select Route */
+            case  7: /* Set Fix Rate */
+            case  8: /* Set Elevation */
+                /* N/A */
+
+                break;
+            case  4: /* Request Number of Routes */
+                proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value_number_of_routes, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
+            case  5: /* Request Name of Route */
+                proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value_name_of_route, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+                offset += tvb_captured_length_remaining(tvb, offset);
+
+                break;
+            }
+
+            break;
+        }
 
         break;
     case 0x2A6C: /* Elevation */
@@ -3618,9 +5098,206 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 4;
 
         break;
+    case 0x2A9C: /* Body Composition Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_body_composition_measurement_flags, ett_btatt_value, hfx_btatt_body_composition_measurement_flags, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_body_composition_measurement_body_fat_percentage, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x02) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_body_composition_measurement_timestamp, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_body_composition_measurement_user_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_basal_metabolism, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_percentage, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x20) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+        }
+
+        if (flags & 0x40) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_fat_free_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_fat_free_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+        }
+
+        if (flags & 0x80) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_soft_lean_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_soft_lean_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x100) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_body_water_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_body_water_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x200) {
+            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_impedance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x400) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_weight_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_weight_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x800) {
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_height_inches, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_height_meter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A9D: /* Weight Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_weight_measurement_flags, ett_btatt_value, hfx_btatt_weight_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01)
+            proto_tree_add_item(tree, hf_btatt_weight_measurement_weight_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        else
+            proto_tree_add_item(tree, hf_btatt_weight_measurement_weight_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x02) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_weight_measurement_timestamp, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_weight_measurement_user_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_bmi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            if (flags & 0x01)
+                proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_height_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_height_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2A9E: /* Weight Scale Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_weight_scale_feature, ett_btatt_value, hfx_btatt_weight_scale_feature, ENC_LITTLE_ENDIAN);
         offset += 4;
+
+        break;
+    case 0x2A9F: /* User Control Point */
+        proto_tree_add_item(tree, hf_btatt_user_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        switch (opcode) {
+        case 0x01: /* Register New User */
+            sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            value =  tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            if (value > 9999)
+                expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
+            offset += 2;
+
+            break;
+        case 0x02: /* Consent */
+            proto_tree_add_item(tree, hf_btatt_user_index, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            value =  tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            if (value > 9999)
+                expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
+            offset += 2;
+
+            break;
+        case 0x03: /* Delete User Data */
+            /* N/A */
+            break;
+        case 0x20: /* Response Code */
+            proto_tree_add_item(tree, hf_btatt_user_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_user_control_point_response_value, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_get_guint8(tvb, offset - 2) == 0x01 && tvb_get_guint8(tvb, offset - 1) == 0x01) { /* Register New User && Success */
+                proto_tree_add_item(tree, hf_btatt_user_index, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            break;
+        }
 
         break;
     case 0x2AA0: /* Magnetic Flux Density - 2D */
@@ -3674,47 +5351,359 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
-
-    case 0x2909: /* Number of Digitals   - Not adopted, 0.9 now (18th July 2015) */
-    case 0x290E: /* Time Trigger Setting - Not adopted, 0.9 now (18th July 2015) */
-/* TODO: Implement, low priority because they are not adopted yet */
-    case 0x290A: /* Value Trigger Setting */
-    case 0x2A53: /* RSC Measurement */
-    case 0x2A55: /* SC Control Point */
-    case 0x2A56: /* Digital */
-    case 0x2A58: /* Analog */
-    case 0x2A5A: /* Aggregate */
-    case 0x2A5B: /* CSC Measurement */
-    case 0x2A63: /* Cycling Power Measurement */
-    case 0x2A64: /* Cycling Power Vector */
-    case 0x2A66: /* Cycling Power Control Point */
-    case 0x2A67: /* Location and Speed */
-    case 0x2A68: /* Navigation */
-    case 0x2A69: /* Position Quality */
-    case 0x2A6B: /* LN Control Point */
-    case 0x2A9C: /* Body Composition Measurement */
-    case 0x2A9D: /* Weight Measurement */
-    case 0x2A9F: /* User Control Point */
     case 0x2AA7: /* CGM Measurement */
+        sub_item = proto_tree_add_item(tree, hf_btatt_cgm_measurement_size, tvb, offset, 1, ENC_NA);
+        if (tvb_get_guint8(tvb, offset) >= 6)
+            expert_add_info(pinfo, sub_item, &ei_btatt_cgm_size_too_small);
+        offset += 1;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cgm_measurement_flags, ett_btatt_value, hfx_btatt_cgm_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_cgm_measurement_glucose_concentration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_cgm_measurement_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0xE0) {
+            value = 0;
+            if (flags & 0x80)
+                value += 1;
+            if (flags & 0x40)
+                value += 1;
+            if (flags & 0x20)
+                value += 1;
+
+            sub_item = proto_tree_add_item(tree, hf_btatt_cgm_sensor_status_annunciation, tvb, offset, value, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+        }
+
+        if (flags & 0x80) {
+            proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_status, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_status, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x40) {
+            proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_cal_temp, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_cal_temp, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x20) {
+            proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_warning, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_warning, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_cgm_measurement_trend_information, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_cgm_measurement_quality, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        /* NOTE: only add if "E2E-CRC Supported bit is set in CGM Feature", but for now simple heuristic should be enough */
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2AA8: /* CGM Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cgm_feature_feature, ett_btatt_value, hfx_btatt_cgm_feature_feature, ENC_LITTLE_ENDIAN);
+        offset += 3;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cgm_type_and_sample_location, ett_btatt_value, hfx_btatt_cgm_type_and_sample_location, ENC_NA);
+        offset += 1;
+
+        /* NOTE: This one is mandatory - if not supported then 0xFFFF */
+        proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
     case 0x2AA9: /* CGM Status */
+        proto_tree_add_item(tree, hf_btatt_cgm_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_cgm_status, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+        proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_status, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_status, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_cal_temp, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_cal_temp, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_sensor_status_annunciation_warning, ett_btatt_value, hfx_btatt_cgm_sensor_status_annunciation_warning, ENC_NA);
+        offset += 1;
+
+
+        /* NOTE: only add if "E2E-CRC Supported bit is set in CGM Feature", but for now simple heuristic should be enough */
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2AAA: /* CGM Session Start Time */
+        sub_item = proto_tree_add_item(tree, hf_btatt_cgm_session_start_time, tvb, offset, 7, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+        proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_timezone, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_dst_offset, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* NOTE: only add if "E2E-CRC Supported bit is set in CGM Feature", but for now simple heuristic should be enough */
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2AAB: /* CGM Session Run Time */
+        proto_tree_add_item(tree, hf_btatt_cgm_session_run_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        /* NOTE: only add if "E2E-CRC Supported bit is set in CGM Feature", but for now simple heuristic should be enough */
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2AAC: /* CGM Specific Ops Control Point */
-    case 0x2AAD: /* Indoor Positioning Configuration    */
-    case 0x2AAE: /* Latitude    */
-    case 0x2AAF: /* Longitude   */
-    case 0x2AB0: /* Local North Coordinate  */
-    case 0x2AB1: /* Local East Coordinate   */
-    case 0x2AB2: /* Floor Number    */
-    case 0x2AB3: /* Altitude    */
-    case 0x2AB4: /* Uncertainty  */
-    case 0x2AB5: /* Location Name   */
-/* TODO: Implement (easy) */
+        proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_operand, tvb, offset, 0, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+        operand_offset = offset;
+
+        switch (opcode) {
+        case  1: /* Set CGM Communication Interval */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_communication_interval, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case  2: /* Get CGM Communication Interval */
+        case  8: /* Get Patient High Alert Level */
+        case 11: /* Get Patient Low Alert Level */
+        case 14: /* Get Hypo Alert Level */
+        case 17: /* Get Hyper Alert Level */
+        case 20: /* Get Rate of Decrease Alert Level */
+        case 23: /* Get Rate of Increase Alert Level */
+        case 25: /* Reset Device Specific Alert */
+        case 26: /* Start the Session */
+        case 27: /* Stop the Session */
+            /* N/A */
+
+            break;
+        case  4: /* Set Glucose Calibration Value */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_glucose_concentration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_type_and_sample_location, ett_btatt_value, hfx_btatt_cgm_type_and_sample_location, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_next_calibration_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_data_record_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_specific_ops_control_point_calibration_status, ett_btatt_value, hfx_btatt_cgm_specific_ops_control_point_calibration_status, ENC_NA);
+            offset += 1;
+
+            break;
+        case  5: /* Get Glucose Calibration Value */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_calibration_data_record_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  7: /* Set Patient High Alert Level */
+        case 10: /* Set Patient Low Alert Level */
+        case 13: /* Set Hypo Alert Level */
+        case 16: /* Set Hyper Alert Level */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_alert_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 19: /* Set Rate of Decrease Alert Level */
+        case 22: /* Set Rate of Increase Alert Level */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  3: /* CGM Communication Interval response */
+        case  6: /* Glucose Calibration Value response */
+        case  9: /* Patient High Alert Level Response */
+        case 12: /* Patient Low Alert Level Response */
+        case 15: /* Hypo Alert Level Response */
+        case 18: /* Hyper Alert Level Response */
+        case 21: /* Rate of Decrease Alert Level Response */
+        case 24: /* Rate of Increase Alert Level Response */
+            expert_add_info(pinfo, sub_item, &ei_btatt_opcode_invalid_request);
+            break;
+
+        case 28: /* Response Code */
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_response_code, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            switch (tvb_get_guint8(tvb, offset - 2)) {
+            case  1: /* Set CGM Communication Interval */
+            case  2: /* Get CGM Communication Interval */
+            case  4: /* Set Glucose Calibration Value */
+            case  5: /* Get Glucose Calibration Value */
+            case  7: /* Set Patient High Alert Level */
+            case  8: /* Get Patient High Alert Level */
+            case 10: /* Set Patient Low Alert Level */
+            case 11: /* Get Patient Low Alert Level */
+            case 13: /* Set Hypo Alert Level */
+            case 14: /* Get Hypo Alert Level */
+            case 16: /* Set Hyper Alert Level */
+            case 17: /* Get Hyper Alert Level */
+            case 19: /* Set Rate of Decrease Alert Level */
+            case 20: /* Get Rate of Decrease Alert Level */
+            case 22: /* Set Rate of Increase Alert Level */
+            case 23: /* Get Rate of Increase Alert Level */
+            case 25: /* Reset Device Specific Alert */
+            case 26: /* Start the Session */
+            case 27: /* Stop the Session */
+                expert_add_info(pinfo, sub_item, &ei_btatt_opcode_invalid_response);
+                break;
+
+            case  3: /* CGM Communication Interval response */
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_communication_interval, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                break;
+            case  6: /* Glucose Calibration Value response */
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_glucose_concentration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_type_and_sample_location, ett_btatt_value, hfx_btatt_cgm_type_and_sample_location, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_next_calibration_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_calibration_data_record_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_bitmask(sub_tree, tvb, offset, hf_btatt_cgm_specific_ops_control_point_calibration_status, ett_btatt_value, hfx_btatt_cgm_specific_ops_control_point_calibration_status, ENC_NA);
+                offset += 1;
+
+                break;
+            case  9: /* Patient High Alert Level Response */
+            case 12: /* Patient Low Alert Level Response */
+            case 15: /* Hypo Alert Level Response */
+            case 18: /* Hyper Alert Level Response */
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_alert_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
+            case 21: /* Rate of Decrease Alert Level Response */
+            case 24: /* Rate of Increase Alert Level Response */
+                proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
+            }
+
+            break;
+        };
+
+        proto_item_set_len(sub_item, offset - operand_offset);
+
+        /* NOTE: only add if "E2E-CRC Supported bit is set in CGM Feature", but for now simple heuristic should be enough */
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(tree, hf_btatt_cgm_e2e_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2AAD: /* Indoor Positioning Configuration */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_indoor_positioning_configuration, ett_btatt_value, hfx_btatt_indoor_positioning_configuration, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2AAE: /* Latitude */
+        proto_tree_add_item(tree, hf_btatt_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        break;
+    case 0x2AAF: /* Longitude */
+        proto_tree_add_item(tree, hf_btatt_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        break;
+    case 0x2AB0: /* Local North Coordinate */
+        proto_tree_add_item(tree, hf_btatt_local_north_coordinate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x2AB1: /* Local East Coordinate */
+        proto_tree_add_item(tree, hf_btatt_local_east_coordinate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x2AB2: /* Floor Number */
+        proto_tree_add_item(tree, hf_btatt_floor_number, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2AB3: /* Altitude */
+        proto_tree_add_item(tree, hf_btatt_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x2AB4: /* Uncertainty */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_uncertainty, ett_btatt_value, hfx_btatt_uncertainty, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2AB5: /* Location Name */
+        proto_tree_add_item(tree, hf_btatt_location_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        offset += tvb_captured_length_remaining(tvb, offset);
+
+        break;
+
     case 0x2906: /* Valid Range */
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
     case 0x2A4D: /* Report */
-
 /* TODO: Implement */
         sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
@@ -3771,6 +5760,7 @@ is_long_attribute_value(bluetooth_uuid_t uuid)
     case 0x2A87: /* Email Address */
     case 0x2A90: /* Last Name */
     case 0x2AA4: /* Bond Management Control Point */
+    case 0x2AB5: /* Location Name */
         return TRUE;
     }
 
@@ -3885,11 +5875,8 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
     sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
     while (1) {
         fragment_data = (sub_wmemtree) ? (fragment_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
-        if (!fragment_data || (fragment_data && fragment_data->offset >= last_offset)) {
-            if (length)
-                *length = 0;
-            return NULL;
-        }
+        if (!fragment_data || (fragment_data && fragment_data->offset >= last_offset))
+            break;
 
         if (first) {
             size = fragment_data->offset + fragment_data->length;
@@ -3899,11 +5886,8 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
                 *length = size;
 
             first = FALSE;
-        }
-        else if (fragment_data->offset + fragment_data->length != last_offset) {
-            if (length)
-                *length = 0;
-            return NULL;
+        } else if (fragment_data->offset + fragment_data->length != last_offset) {
+            break;
         }
 
         memcpy(data + fragment_data->offset, fragment_data->data, fragment_data->length);
@@ -3914,6 +5898,8 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
         last_offset = fragment_data->offset;
     }
 
+    if (length)
+        *length = 0;
     return NULL;
 }
 
@@ -6837,6 +8823,1624 @@ proto_register_btatt(void)
             FT_UINT8, BASE_DEC, VALS(record_access_control_point_response_code_vals), 0x0,
             NULL, HFILL}
         },
+        {&hf_btatt_value_trigger_setting_condition,
+            {"Condition", "btatt.value_trigger_setting.condition",
+            FT_UINT8, BASE_DEC, VALS(value_trigger_setting_condition_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_value_trigger_setting_analog,
+            {"Analog", "btatt.value_trigger_setting.analog",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_value_trigger_setting_analog_one,
+            {"Analog One", "btatt.value_trigger_setting.analog_one",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_value_trigger_setting_analog_two,
+            {"Analog Two", "btatt.value_trigger_setting.analog_two",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_digital,
+            {"Digital", "btatt.digital",
+            FT_UINT8, BASE_DEC, VALS(digital_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_analog,
+            {"Analog", "btatt.analog",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_name,
+            {"Location Name", "btatt.location_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_uncertainty,
+            {"Uncertainty", "btatt.uncertainty",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_uncertainty_reserved,
+            {"Reserved", "btatt.uncertainty.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_uncertainty_precision,
+            {"Precision", "btatt.uncertainty.precision",
+            FT_UINT8, BASE_HEX, VALS(uncertainty_precision_vals), 0x70,
+            NULL, HFILL}
+        },
+        {&hf_btatt_uncertainty_update_time,
+            {"Update Time", "btatt.uncertainty.update_time",
+            FT_UINT8, BASE_HEX, VALS(uncertainty_update_time_vals), 0x0E,
+            NULL, HFILL}
+        },
+        {&hf_btatt_uncertainty_stationary,
+            {"Stationary", "btatt.uncertainty.stationary",
+            FT_UINT8, BASE_HEX, VALS(uncertainty_stationary_vals), 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_latitude,
+            {"Latitude", "btatt.latitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_longitude,
+            {"Longitude", "btatt.longitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_local_north_coordinate,
+            {"Local North Coordinate", "btatt.local_north_coordinate",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_local_east_coordinate,
+            {"Local East Coordinate", "btatt.local_east_coordinate",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_floor_number,
+            {"Floor Number", "btatt.floor_number",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_altitude,
+            {"Altitude", "btatt.altitude",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration,
+            {"Indoor Positioning Configuration", "btatt.indoor_positioning_configuration",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_reserved,
+            {"Reserved", "btatt.indoor_positioning_configuration.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_location_name,
+            {"Location Name", "btatt.indoor_positioning_configuration.location_name",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_floor_number,
+            {"Floor Number", "btatt.indoor_positioning_configuration.floor_number",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_altitude,
+            {"Altitude", "btatt.indoor_positioning_configuration.altitude",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_tx_power,
+            {"Tx Power", "btatt.indoor_positioning_configuration.tx_power",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets,
+            {"Coordinate System Used in Advertising Packets", "btatt.indoor_positioning_configuration.coordinate_system_used_in_advertising_packets",
+            FT_UINT8, BASE_HEX, VALS(indoor_positioning_configuration_coordinate_system_used_in_advertising_packets_vals), 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_coordinates,
+            {"Coordinates", "btatt.indoor_positioning_configuration.coordinates",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_number_of_digitals,
+            {"Number of Digitals", "btatt.number_of_digitals",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_time_trigger_setting_condition,
+            {"Condition", "btatt.time_trigger_setting.condition",
+            FT_UINT8, BASE_HEX, VALS(time_trigger_setting_condition_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_time_trigger_setting_value,
+            {"Value", "btatt.time_trigger_setting.value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_time_trigger_setting_value_count,
+            {"Count", "btatt.time_trigger_setting.count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_time_trigger_setting_value_time_interval,
+            {"Time Interval", "btatt.time_trigger_setting.time_interval",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_flags,
+            {"Flags", "btatt.rsc_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_flags_reserved,
+            {"Reserved", "btatt.rsc_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF8,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_flags_type_of_movement,
+            {"Type of Movement", "btatt.rsc_measurement.flags.type_of_movement",
+            FT_UINT8, BASE_HEX, VALS(rsc_measurement_flags_type_of_movement_vals), 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_flags_total_distance_present,
+            {"Total Distance Present", "btatt.rsc_measurement.flags.total_distance_present",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_flags_instantaneous_stride_length_present,
+            {"Instantaneous Stride Length Present", "btatt.rsc_measurement.flags.instantaneous_stride_length_present",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_instantaneous_speed,
+            {"Instantaneous Speed", "btatt.rsc_measurement.instantaneous_speed",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_instantaneous_cadence,
+            {"Instantaneous Cadence", "btatt.rsc_measurement.instantaneous_cadence",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_instantaneous_stride_length,
+            {"Instantaneous Stride Length", "btatt.rsc_measurement.instantaneous_stride_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_rsc_measurement_total_distance,
+            {"Total Distance", "btatt.rsc_measurement.total_distance",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_sc_control_point_opcode,
+            {"Opcode", "btatt.sc_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(sc_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_sc_control_point_request_opcode,
+            {"Request Opcode", "btatt.sc_control_point.request_opcode",
+            FT_UINT8, BASE_HEX, VALS(sc_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_sc_control_point_cumulative_value,
+            {"Cumulative Value", "btatt.sc_control_point.cumulative_value",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_sc_control_point_response_value,
+            {"Response Value", "btatt.sc_control_point.response_value",
+            FT_UINT8, BASE_HEX, VALS(sc_control_point_response_value_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags,
+            {"Flags", "btatt.cycling_power_measurement.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_reserved,
+            {"Reserved", "btatt.cycling_power_measurement.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xE000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_offset_compensation_indicator,
+            {"Offset Compensation Indicator", "btatt.cycling_power_measurement.flags.offset_compensation_indicator",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_accumulated_energy,
+            {"Accumulated Energy", "btatt.cycling_power_measurement.flags.accumulated_energy",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_bottom_dead_spot_angle,
+            {"Bottom Dead Spot Angle", "btatt.cycling_power_measurement.flags.bottom_dead_spot_angle",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_top_dead_spot_angle,
+            {"Top Dead Spot Angle", "btatt.cycling_power_measurement.flags.top_dead_spot_angle",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_extreme_angles,
+            {"Extreme_angles", "btatt.cycling_power_measurement.flags.extreme_angles",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_extreme_torque_magnitudes,
+            {"Extreme Torque Magnitudes", "btatt.cycling_power_measurement.flags.extreme_torque_magnitudes",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_extreme_force_magnitudes,
+            {"Extreme Force Magnitudes", "btatt.cycling_power_measurement.flags.extreme_force_magnitudes",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_crank_revolution_data,
+            {"Crank Revolution Data", "btatt.cycling_power_measurement.flags.crank_revolution_data",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_wheel_revolution_data,
+            {"Wheel Revolution Data", "btatt.cycling_power_measurement.flags.wheel_revolution_data",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_accumulated_torque_source,
+            {"accumulated_torque_source", "btatt.cycling_power_measurement.flags.accumulated_torque_source",
+            FT_UINT16, BASE_HEX, VALS(cycling_power_measurement_flags_accumulated_torque_source_vals), 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_accumulated_torque,
+            {"Accumulated Torque", "btatt.cycling_power_measurement.flags.accumulated_torque",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_pedal_power_balance_reference,
+            {"Pedal Power Balance Reference", "btatt.cycling_power_measurement.flags.pedal_power_balance_reference",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_flags_pedal_power_balance,
+            {"Pedal Power Balance", "btatt.cycling_power_measurement.flags.pedal_power_balance",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_instantaneous_power,
+            {"Instantaneous Power", "btatt.cycling_power_measurement.instantaneous_power",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_pedal_power_balance,
+            {"Pedal Power Balance", "btatt.cycling_power_measurement.pedal_power_balance",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_accumulated_torque,
+            {"Accumulated Torque", "btatt.cycling_power_measurement.accumulated_torque",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_wheel_revolution_data_cumulative_wheel_revolutions,
+            {"Wheel Revolution Data Cumulative Wheel Revolutions", "btatt.cycling_power_measurement.wheel_revolution_data_cumulative_wheel_revolutions",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_wheel_revolution_data_last_wheel_event_time,
+            {"Wheel Revolution Data Last Wheel Event Time", "btatt.cycling_power_measurement.wheel_revolution_data_last_wheel_event_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_crank_revolution_data_cumulative_crank_revolutions,
+            {"Crank Revolution Data Cumulative Crank Revolutions", "btatt.cycling_power_measurement.crank_revolution_data_cumulative_crank_revolutions",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_crank_revolution_data_last_crank_event_time,
+            {"Crank Revolution Data Last Crank Event Time", "btatt.cycling_power_measurement.crank_revolution_data_last_crank_event_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_force_magnitudes_maximum_force_magnitude,
+            {"Extreme Force Magnitudes Maximum Force Magnitude", "btatt.cycling_power_measurement.extreme_force_magnitudes_maximum_force_magnitude",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_force_magnitudes_minimum_force_magnitude,
+            {"Extreme Force Magnitudes Minimum Force Magnitude", "btatt.cycling_power_measurement.extreme_force_magnitudes_minimum_force_magnitude",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_maximum_torque_magnitude,
+            {"Extreme Torque Magnitudes Maximum Torque Magnitude", "btatt.cycling_power_measurement.extreme_torque_magnitudes_maximum_torque_magnitude",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_torque_magnitudes_minimum_torque_magnitude,
+            {"Extreme Torque Magnitudes Minimum Torque Magnitude", "btatt.cycling_power_measurement.extreme_torque_magnitudes_minimum_torque_magnitude",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_angles,
+            {"Extreme Angles", "btatt.cycling_power_measurement.extreme_angles",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_angles_maximum,
+            {"Minimum", "btatt.cycling_power_measurement.extreme_angles.maximum",
+            FT_UINT24, BASE_DEC, NULL, 0xFFF000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_extreme_angles_minimum,
+            {"Maximum", "btatt.cycling_power_measurement.extreme_angles.minimum",
+            FT_UINT24, BASE_DEC, NULL, 0x000FFF,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_top_dead_spot_angle,
+            {"Top Dead Spot Angle", "btatt.cycling_power_measurement.top_dead_spot_angle",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_bottom_dead_spot_angle,
+            {"Bottom Dead Spot Angle", "btatt.cycling_power_measurement.bottom_dead_spot_angle",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_measurement_accumulated_energy,
+            {"Accumulated Energy", "btatt.cycling_power_measurement.accumulated_energy",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_flags,
+            {"Flags", "btatt.csc_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_flags_reserved,
+            {"Reserved", "btatt.csc_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_flags_crank_revolution_data,
+            {"Crank Revolution Data", "btatt.csc_measurement.flags.crank_revolution_data",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_flags_wheel_revolution_data,
+            {"Wheel Revolution Data", "btatt.csc_measurement.flags.wheel_revolution_data",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_cumulative_wheel_revolutions,
+            {"Cumulative Wheel Revolutions", "btatt.csc_measurement.cumulative_wheel_revolutions",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_cumulative_crank_revolutions,
+            {"Cumulative Crank Revolutions", "btatt.csc_measurement.cumulative_crank_revolutions",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_csc_measurement_last_event_time,
+            {"Last Event Time", "btatt.csc_measurement.last_event_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags,
+            {"Flags", "btatt.csc_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_reserved,
+            {"Reserved", "btatt.csc_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_instantaneous_measurement_direction,
+            {"Instantaneous Measurement Direction", "btatt.cycling_power_vector.flags.instantaneous_measurement_direction",
+            FT_UINT8, BASE_HEX, VALS(cycling_power_vector_flags_instantaneous_measurement_direction_vals), 0x30,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_instantaneous_torque_magnitude_array,
+            {"Instantaneous Torque Magnitude Array", "btatt.cycling_power_vector.flags.instantaneous_torque_magnitude_array",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_instantaneous_force_magnitude_array,
+            {"Instantaneous Force Magnitude Array", "btatt.cycling_power_vector.flags.instantaneous_force_magnitude_array",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_first_crank_measurement_angle,
+            {"First Crank Measurement Angle", "btatt.cycling_power_vector.flags.first_crank_measurement_angle",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_flags_crank_revolution_data,
+            {"Crank Revolution Data", "btatt.cycling_power_vector.flags.crank_revolution_data",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+
+        {&hf_btatt_cycling_power_vector_crank_revolution_data_cumulative_crank_revolutions,
+            {"cumulative_crank_revolutions", "btatt.csc_measurement.cumulative_crank_revolutions",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_crank_revolution_data_last_crank_event_time,
+            {"Last Crank Event Time", "btatt.csc_measurement.last_crank_event_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_first_crank_measurement_angle,
+            {"First Crank Measurement Angle", "btatt.csc_measurement.first_crank_measurement_angle",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+
+        {&hf_btatt_cycling_power_vector_instantaneous_force_magnitude_array,
+            {"Instantaneous Force Magnitude Array", "btatt.csc_measurement.instantaneous_force_magnitude_array",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_vector_instantaneous_torque_magnitude_array,
+            {"Instantaneous Torque Magnitude Array", "btatt.csc_measurement.instantaneous_torque_magnitude_array",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_opcode,
+            {"Opcode", "btatt.cycling_power_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(cycling_power_control_point_opcode), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_cumulative_value,
+            {"Cumulative Value", "btatt.cycling_power_control_point.cumulative_value",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_sensor_location,
+            {"Sensor Location", "btatt.cycling_power_control_point.sensor_location",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_crank_length,
+            {"Crank Length", "btatt.cycling_power_control_point.crank_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_chain_length,
+            {"Chain Length", "btatt.cycling_power_control_point.chain_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_chain_weight,
+            {"Chain Weight", "btatt.cycling_power_control_point.chain_weight",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_span_length,
+            {"Span Length", "btatt.cycling_power_control_point.span_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask,
+            {"Content Mask", "btatt.cycling_power_control_point.content_mask",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_reserved,
+            {"Reserved", "btatt.cycling_power_control_point.content_mask.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_accumulated_energy,
+            {"Accumulated Energy", "btatt.cycling_power_control_point.content_mask.accumulated_energy",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_bottom_dead_spot_angle,
+            {"Bottom Dead Spot Angle", "btatt.cycling_power_control_point.content_mask.bottom_dead_spot_angle",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_top_dead_spot_angle,
+            {"Top Dead Spot Angle", "btatt.cycling_power_control_point.content_mask.top_dead_spot_angle",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_extreme_angles,
+            {"Extreme Angles", "btatt.cycling_power_control_point.content_mask.extreme_angles",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_extreme_magnitudes,
+            {"Extreme Magnitudes", "btatt.cycling_power_control_point.content_mask.extreme_magnitudes",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_crank_revolution_data,
+            {"Crank Revolution Data", "btatt.cycling_power_control_point.content_mask.crank_revolution_data",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_wheel_revolution_data,
+            {"Wheel Revolution Data", "btatt.cycling_power_control_point.content_mask.wheel_revolution_data",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_accumulated_torque,
+            {"Accumulated Torque", "btatt.cycling_power_control_point.content_mask.accumulated_torque",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_content_mask_pedal_power_balance,
+            {"Pedal Power Balance", "btatt.cycling_power_control_point.content_mask.pedal_power_balance",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_request_opcode,
+            {"Request Opcode", "btatt.cycling_power_control_point.request_opcode",
+            FT_UINT8, BASE_HEX, VALS(cycling_power_control_point_opcode), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_response_value,
+            {"Response Value", "btatt.cycling_power_control_point.response_value",
+            FT_UINT8, BASE_HEX, VALS(cycling_power_control_point_response_value), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_start_offset_compensation,
+            {"Start Offset Compensation", "btatt.cycling_power_control_point.start_offset_compensation",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_sampling_rate,
+            {"Sampling Rate", "btatt.cycling_power_control_point.sampling_rate",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_control_point_factory_calibration_date,
+            {"Factory Calibration Date", "btatt.cycling_power_control_point.factory_calibration_date",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags,
+            {"Flags", "btatt.location_and_speed.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_reserved,
+            {"Reserved", "btatt.location_and_speed.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xC000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_heading_source,
+            {"Heading Source", "btatt.location_and_speed.flags.heading_source",
+            FT_BOOLEAN, 16, TFS(&flags_heading_source_tfs), 0x3000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_elevation_source,
+            {"Elevation Source", "btatt.location_and_speed.flags.elevation_source",
+            FT_UINT16, BASE_HEX, VALS(location_and_speed_flags_elevation_source_vals), 0x0C00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_speed_and_distance_format,
+            {"Speed_and Distance Format", "btatt.location_and_speed.flags.speed_and_distance_format",
+            FT_BOOLEAN, 16, TFS(&location_and_speed_flags_speed_and_distance_format_tfs), 0x0200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_position_status,
+            {"Position Status", "btatt.location_and_speed.flags.position_status",
+            FT_UINT16, BASE_HEX, VALS(flags_position_status_vals), 0x0180,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_utc_time,
+            {"UTC Time Present", "btatt.location_and_speed.flags.utc_time",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_rolling_time,
+            {"Rolling Time", "btatt.location_and_speed.flags.rolling_time",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_heading,
+            {"Heading", "btatt.location_and_speed.flags.heading",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_elevation,
+            {"Elevation", "btatt.location_and_speed.flags.elevation",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_location,
+            {"Location", "btatt.location_and_speed.flags.location",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_total_distance,
+            {"Total Distance Present", "btatt.location_and_speed.flags.total_distance",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_flags_instantaneous_speed,
+            {"Instantaneous Speed", "btatt.location_and_speed.flags.instantaneous_speed",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_instantaneous_speed,
+            {"Instantaneous Speed", "btatt.location_and_speed.instantaneous_speed",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_total_distance,
+            {"Total Distance", "btatt.location_and_speed.total_distance",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_location_longitude,
+            {"Location Longitude", "btatt.location_and_speed.location.longitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_location_latitude,
+            {"Location Latitude", "btatt.location_and_speed.location.latitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_elevation,
+            {"Elevation", "btatt.location_and_speed.elevation",
+            FT_INT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_heading,
+            {"Heading", "btatt.location_and_speed.heading",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_rolling_time,
+            {"Rolling Time", "btatt.location_and_speed.rolling_time",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_location_and_speed_utc_time,
+            {"UTC Time", "btatt.location_and_speed.utc_time",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags,
+            {"Flags", "btatt.navigation.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_reserved,
+            {"Reserved", "btatt.navigation.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_destination_reached,
+            {"Destination Reached", "btatt.navigation.flags.destination_reached",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_waypoint_reached,
+            {"Waypoint Reached", "btatt.navigation.flags.waypoint_reached",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_navigation_indicator_type,
+            {"Navigation Indicator Type", "btatt.navigation.flags.navigation_indicator_type",
+            FT_BOOLEAN, 16, TFS(&navigation_indicator_type_tfs), 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_heading_source,
+            {"Heading Source", "btatt.navigation.flags.heading_source",
+            FT_BOOLEAN, 16, TFS(&flags_heading_source_tfs), 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_position_status,
+            {"Position Status", "btatt.navigation.flags.position_status",
+            FT_UINT16, BASE_HEX, VALS(flags_position_status_vals), 0x0018,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_estimated_time_of_arrival,
+            {"Estimated Time of Arrival", "btatt.navigation.flags.estimated_time_of_arrival",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_remaining_vertical_distance,
+            {"Remaining Vertical Distance", "btatt.navigation.flags.remaining_vertical_distance",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_flags_remaining_distance,
+            {"Remaining Distance", "btatt.navigation.flags.remaining_distance",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_bearing,
+            {"Bearing", "btatt.navigation.bearing",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_heading,
+            {"Heading", "btatt.navigation.heading",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_remaining_distance,
+            {"Remaining Distance", "btatt.navigation.remaining_distance",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_remaining_vertical_distance,
+            {"Remaining Vertical Distance", "btatt.navigation.remaining_vertical_distance",
+            FT_INT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_navigation_estimated_time_of_arrival,
+            {"Estimated Time of Arrival", "btatt.navigation.estimated_time_of_arrival",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags,
+            {"Flags", "btatt.position_quality.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_reserved,
+            {"Reserved", "btatt.position_quality.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_position_status,
+            {"Position Status", "btatt.position_quality.flags.position_status",
+            FT_UINT16, BASE_HEX, VALS(flags_position_status_vals), 0x0180,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_vdop,
+            {"VDOP", "btatt.position_quality.flags.vdop",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_hdop,
+            {"HDOP", "btatt.position_quality.flags.hdop",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_evpe,
+            {"EVPE", "btatt.position_quality.flags.evpe",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_ehpe,
+            {"EHPE", "btatt.position_quality.flags.ehpe",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_time_to_first_fix,
+            {"Time to First Fix", "btatt.position_quality.flags.time_to_first_fix",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_number_of_beacons_in_view,
+            {"Number of Beacons in View", "btatt.position_quality.flags.number_of_beacons_in_view",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_flags_number_of_beacons_in_solution,
+            {"Number of Beacons_in Solution", "btatt.position_quality.flags.number_of_beacons_in_solution",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_number_of_beacons_in_solution,
+            {"number_of_beacons_in_solution", "btatt.position_quality.number_of_beacons_in_solution",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_number_of_beacons_in_view,
+            {"number_of_beacons_in_view", "btatt.position_quality.number_of_beacons_in_view",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_time_to_first_fix,
+            {"time_to_first_fix", "btatt.position_quality.time_to_first_fix",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_ehpe,
+            {"EHPE", "btatt.position_quality.ehpe",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_evpe,
+            {"EVPE", "btatt.position_quality.evpe",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_hdop,
+            {"HDOP", "btatt.position_quality.hdop",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_position_quality_vdop,
+            {"VDOP", "btatt.position_quality.vdop",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_opcode,
+            {"Opcode", "btatt.ln_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(ln_control_point_opcode), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_cumulative_value,
+            {"Cumulative Value", "btatt.ln_control_point.cumulative_value",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask,
+            {"Content Mask", "btatt.ln_control_point.content_mask",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_reserved,
+            {"Reserved", "btatt.ln_control_point.content_mask.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFF80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_utc_time,
+            {"UTC Time", "btatt.ln_control_point.content_mask.utc_time",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_rolling_time,
+            {"Rolling Time", "btatt.ln_control_point.content_mask.rolling_time",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_heading,
+            {"Heading", "btatt.ln_control_point.content_mask.heading",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_elevation,
+            {"Elevation", "btatt.ln_control_point.content_mask.elevation",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_location,
+            {"Location", "btatt.ln_control_point.content_mask.location",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_total_distance,
+            {"Total Distance", "btatt.ln_control_point.content_mask.total_distance",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_content_mask_instantaneous_speed,
+            {"Instantaneous Speed", "btatt.ln_control_point.content_mask.instantaneous_speed",
+            FT_BOOLEAN, 16, TFS(&control_point_mask_value_tfs), 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_navigation_control,
+            {"Navigation Control", "btatt.ln_control_point.navigation_control",
+            FT_UINT8, BASE_HEX, VALS(ln_control_point_navigation_control_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_route_number,
+            {"Route Number", "btatt.ln_control_point.route_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_fix_rate,
+            {"Fix Rate", "btatt.ln_control_point.fix_rate",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_elevation,
+            {"Elevation", "btatt.ln_control_point.elevation",
+            FT_INT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_request_opcode,
+            {"Request Opcode", "btatt.ln_control_point.request_opcode",
+            FT_UINT8, BASE_HEX, VALS(ln_control_point_opcode), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_response_value,
+            {"Response Value", "btatt.ln_control_point.response_value",
+            FT_UINT8, BASE_HEX, VALS(ln_control_point_response_value), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_response_value_number_of_routes,
+            {"Number of Routes", "btatt.ln_control_point.number_of_routes",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_control_point_response_value_name_of_route,
+            {"Name_of Route", "btatt.ln_control_point.name_of_route",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags,
+            {"Flags", "btatt.body_composition_measurement.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_reserved,
+            {"Reserved", "btatt.body_composition_measurement.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xE000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_multiple_packet_measurement,
+            {"Multiple Packet Measurement", "btatt.body_composition_measurement.flags.multiple_packet_measurement",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_height,
+            {"Height", "btatt.body_composition_measurement.flags.height",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_weight,
+            {"Weight", "btatt.body_composition_measurement.flags.weight",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_impedance,
+            {"Impedance", "btatt.body_composition_measurement.flags.impedance",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_body_water_mass,
+            {"Body Water Mass", "btatt.body_composition_measurement.flags.body_water_mass",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_soft_lean_mass,
+            {"Soft Lean Mass", "btatt.body_composition_measurement.flags.soft_lean_mass",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_fat_free_mass,
+            {"Fat Free Mass", "btatt.body_composition_measurement.flags.fat_free_mass",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_muscle_mass,
+            {"Muscle Mass", "btatt.body_composition_measurement.flags.muscle_mass",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_muscle_percentage,
+            {"Muscle Percentage", "btatt.body_composition_measurement.flags.muscle_percentage",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_basal_metabolism,
+            {"Basal Metabolism", "btatt.body_composition_measurement.flags.basal_metabolism",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_user_id,
+            {"User ID", "btatt.body_composition_measurement.flags.user_id",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_timestamp,
+            {"Timestamp", "btatt.body_composition_measurement.flags.timestamp",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_flags_measurement_units,
+            {"Measurement Units", "btatt.body_composition_measurement.flags.measurement_units",
+            FT_UINT16, BASE_HEX, VALS(body_composition_measurement_flags_measurement_units_vals), 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_body_fat_percentage,
+            {"Body Fat Percentage", "btatt.body_composition_measurement.body_fat_percentage",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_timestamp,
+            {"Timestamp", "btatt.body_composition_measurement.timestamp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_user_id,
+            {"User ID", "btatt.body_composition_measurement.user_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_basal_metabolism,
+            {"Basal Metabolism", "btatt.body_composition_measurement.basal_metabolism",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_muscle_percentage,
+            {"Muscle Percentage", "btatt.body_composition_measurement.muscle_percentage",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_muscle_mass_lb,
+            {"Muscle Mass [lb]", "btatt.body_composition_measurement.muscle_mass.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_muscle_mass_kg,
+            {"Muscle Mass [kg]", "btatt.body_composition_measurement.muscle_mass.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_fat_free_mass_lb,
+            {"Fat Free Mass [lb]", "btatt.body_composition_measurement.fat_free_mass.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_fat_free_mass_kg,
+            {"Fat Free Mass [kg]", "btatt.body_composition_measurement.fat_free_mass.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_soft_lean_mass_lb,
+            {"Soft Lean Mass [lb]", "btatt.body_composition_measurement.soft_lean_mass.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_soft_lean_mass_kg,
+            {"Soft Lean Mass [kg]", "btatt.body_composition_measurement.soft_lean_mass.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_body_water_mass_lb,
+            {"Body Water Mass [lb]", "btatt.body_composition_measurement.body_water_mass.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_body_water_mass_kg,
+            {"Body Water Mass [kg]", "btatt.body_composition_measurement.body_water_mass.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_impedance,
+            {"Impedance", "btatt.body_composition_measurement.impedance",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_weight_lb,
+            {"Weight [lb]", "btatt.body_composition_measurement.weight.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_weight_kg,
+            {"Weight [kg]", "btatt.body_composition_measurement.weight.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_height_inches,
+            {"Height [inches]", "btatt.body_composition_measurement.height.inches",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_measurement_height_meter,
+            {"Height [meter]", "btatt.body_composition_measurement.height.meter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags,
+            {"Flags", "btatt.weight_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags_reserved,
+            {"Reserved", "btatt.weight_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags_bmi_and_height,
+            {"BMI and Height", "btatt.weight_measurement.flags.bmi_and_height",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags_user_id,
+            {"User ID", "btatt.weight_measurement.flags.user_id",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags_timestamp,
+            {"Timestamp", "btatt.weight_measurement.flags.timestamp",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_flags_measurement_units,
+            {"Measurement Units", "btatt.weight_measurement.flags.measurement_units",
+            FT_BOOLEAN, 8, TFS(&weight_measurement_flags_measurement_units_tfs), 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_weight_lb,
+            {"Weight [lb]", "btatt.weight_measurement.weight.lb",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_weight_kg,
+            {"Weight [kg]", "btatt.weight_measurement.weight.kg",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_timestamp,
+            {"Timestamp", "btatt.weight_measurement.timestamp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_user_id,
+            {"User ID", "btatt.weight_measurement.user_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_bmi,
+            {"BMI", "btatt.weight_measurement.bmi",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_height_in,
+            {"Height [in]", "btatt.weight_measurement.height.in",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_measurement_height_m,
+            {"Height [m]", "btatt.weight_measurement.height.m",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_user_control_point_opcode,
+            {"Opcode", "btatt.user_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(user_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_user_control_point_request_opcode,
+            {"Request Opcode", "btatt.user_control_point.request_opcode",
+            FT_UINT8, BASE_HEX, VALS(user_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_user_control_point_response_value,
+            {"Response Value", "btatt.user_control_point.response_value",
+            FT_UINT8, BASE_HEX, VALS(user_control_point_response_value_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_user_control_point_consent_code,
+            {"Consent Code", "btatt.user_control_point.consent_code",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_size,
+            {"Size", "btatt.cgm_measurement.size",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags,
+            {"Flags", "btatt.cgm_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_cgm_trend_information,
+            {"CGM Trend Information", "btatt.cgm_measurement.flags.cgm_trend_information",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_cgm_quality,
+            {"CGM Quality", "btatt.cgm_measurement.flags.cgm_quality",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_reserved,
+            {"Reserved", "btatt.cgm_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x38,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_sensor_status_annunciation_warning,
+            {"Sensor Status Annunciation - Warning", "btatt.cgm_measurement.flags.sensor_status_annunciation.warning",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_sensor_status_annunciation_cal_temp,
+            {"Sensor Status Annunciation - Cal/Temp", "btatt.cgm_measurement.flags.sensor_status_annunciation.cal_temp",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_flags_sensor_status_annunciation_status,
+            {"Sensor Status Annunciation - Status", "btatt.cgm_measurement.flags.sensor_status_annunciation.status",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_measurement_glucose_concentration,
+            {"Glucose Concentration", "btatt.cgm_measurement.glucose_concentration",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_measurement_time_offset,
+            {"Time Offset", "btatt.cgm_measurement.time_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation,
+            {"Sensor Status Annunciation", "btatt.cgm.sensor_status_annunciation",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status,
+            {"Status", "btatt.cgm.sensor_status_annunciation.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_reserved,
+            {"Reserved", "btatt.cgm.sensor_status_annunciation.status.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_general_device_fault_has_occurred_in_the_sensor,
+            {"General Device Fault has Occurred in the Sensor", "btatt.cgm.sensor_status_annunciation.status.general_device_fault_has_occurred_in_the_sensor",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_device_specific_alert,
+            {"Device Specific Alert", "btatt.cgm.sensor_status_annunciation.status.device_specific_alert",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_sensor_malfunction,
+            {"Sensor Malfunction", "btatt.cgm.sensor_status_annunciation.status.sensor_malfunction",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_sensor_type_incorrect_for_device,
+            {"Sensor Type Incorrect for Device", "btatt.cgm.sensor_status_annunciation.status.sensor_type_incorrect_for_device",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_device_battery_low,
+            {"Device Battery Low", "btatt.cgm.sensor_status_annunciation.status.device_battery_low",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_status_session_stopped,
+            {"Session Stopped", "btatt.cgm.sensor_status_annunciation.status.session_stopped",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp,
+            {"Cal/Temp", "btatt.cgm.sensor_status_annunciation.cal_temp",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_reserved,
+            {"Reserved", "btatt.cgm.sensor_status_annunciation.cal_temp.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_low_for_valid_test_result_at_time_of_measurement,
+            {"Sensor Temperature too Low for Valid Test Result at Time of Measurement", "btatt.cgm.sensor_status_annunciation.cal_temp.sensor_temperature_too_low_for_valid_test_result_at_time_of_measurement",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_high_for_valid_test_result_at_time_of_measurement,
+            {"Sensor Temperature too High for Valid Test Result at Time of Measurement", "btatt.cgm_measurement.sensor_cal_temp_annunciation.cal_temp.sensor_temperature_too_high_for_valid_test_result_at_time_of_measurement",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_required,
+            {"Calibration Required", "btatt.cgm_measurement.sensor_cal_temp_annunciation.cal_temp.calibration_required",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_recommended,
+            {"Calibration Recommended", "btatt.cgm_measurement.sensor_cal_temp_annunciation.cal_temp.calibration_recommended",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_calibration_not_allowed,
+            {"Calibration not Allowed", "btatt.cgm_measurement.sensor_cal_temp_annunciation.cal_temp.calibration_not_allowed",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_cal_temp_time_synchronization_between_sensor_and_collector_required,
+            {"Time Synchronization between Sensor and Collector Required", "btatt.cgm_measurement.sensor_cal_temp_annunciation.cal_temp.time_synchronization_between_sensor_and_collector_required",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning,
+            {"Warning", "btatt.cgm.sensor_status_annunciation.warning",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_device_can_process,
+            {"Sensor Result Higher than the Device Can Process", "btatt.cgm.sensor_status_annunciation.warning.sensor_result_higher_than_the_device_can_process",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_device_can_process,
+            {"Sensor Result Lower than the Device Can Process", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_result_lower_than_the_device_can_process",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_increase_exceeded,
+            {"Sensor Rate of Increase Exceeded", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_rate_of_increase_exceeded",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_decrease_exceeded,
+            {"Sensor Rate of Decrease Exceeded", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_rate_of_decrease_exceeded",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_hyper_level,
+            {"Sensor Result Higher than the Hyper Level", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_result_higher_than_the_hyper_level",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_hypo_level,
+            {"Sensor Result Lower than the Hypo Level", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_result_lower_than_the_hypo_level",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_patient_high_level,
+            {"Sensor Result Higher than the Patient High Level", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_result_higher_than_the_patient_high_level",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_patient_low_level,
+            {"Sensor Result Lower than the Patient Low Level", "btatt.cgm_measurement.sensor_warning_annunciation.warning.sensor_result_lower_than_the_patient_low_level",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_measurement_trend_information,
+            {"Trend Information", "btatt.cgm_measurement.trend_information",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_measurement_quality,
+            {"Quality", "btatt.cgm_measurement.quality",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_e2e_crc,
+            {"E2E-CRC", "btatt.cgm.e2e_crc.",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature,
+            {"Feature", "btatt.cgm_feature.feature",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_reserved,
+            {"Reserved", "btatt.cgm_feature.feature.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0xFE0000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_quality,
+            {"Quality", "btatt.cgm_feature.feature.quality",
+            FT_BOOLEAN, 24, NULL, 0x010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_trend_information,
+            {"Trend Information", "btatt.cgm_feature.feature.trend_information",
+            FT_BOOLEAN, 24, NULL, 0x008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_multiple_sessions,
+            {"Multiple Sessions", "btatt.cgm_feature.feature.multiple_sessions",
+            FT_BOOLEAN, 24, NULL, 0x004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_multiple_bond,
+            {"Multiple Bond", "btatt.cgm_feature.feature.multiple_bond",
+            FT_BOOLEAN, 24, NULL, 0x002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_e2e_crc,
+            {"E2E-CRC", "btatt.cgm_feature.feature.e2e_crc",
+            FT_BOOLEAN, 24, NULL, 0x001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_general_device_fault,
+            {"General Device Fault", "btatt.cgm_feature.feature.general_device_fault",
+            FT_BOOLEAN, 24, NULL, 0x000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_sensor_type_error_detection,
+            {"Sensor Type Error Detection", "btatt.cgm_feature.feature.sensor_type_error_detection",
+            FT_BOOLEAN, 24, NULL, 0x000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_low_battery_detection,
+            {"Low Battery Detection", "btatt.cgm_feature.feature.low_battery_detection",
+            FT_BOOLEAN, 24, NULL, 0x000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_sensor_result_high_low_detection,
+            {"Sensor Result High-Low Detection", "btatt.cgm_feature.feature.sensor_result_high_low_detection",
+            FT_BOOLEAN, 24, NULL, 0x000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_sensor_temperature_high_low_detection,
+            {"Sensor Temperature High-Low Detection", "btatt.cgm_feature.feature.sensor_temperature_high_low_detection",
+            FT_BOOLEAN, 24, NULL, 0x000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_sensor_malfunction_detection,
+            {"Sensor Malfunction Detection", "btatt.cgm_feature.feature.sensor_malfunction_detection",
+            FT_BOOLEAN, 24, NULL, 0x000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_device_specific_alert,
+            {"Device Specific Alert", "btatt.cgm_feature.feature.device_specific_alert",
+            FT_BOOLEAN, 24, NULL, 0x000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_rate_of_increase_decrease_alerts,
+            {"Rate of Increase Decrease Alerts", "btatt.cgm_feature.feature.rate_of_increase_decrease_alerts",
+            FT_BOOLEAN, 24, NULL, 0x000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_hyper_alerts,
+            {"Hyper Alerts", "btatt.cgm_feature.feature.hyper_alerts",
+            FT_BOOLEAN, 24, NULL, 0x000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_hypo_alerts,
+            {"Hypo Alerts", "btatt.cgm_feature.feature.hypo_alerts",
+            FT_BOOLEAN, 24, NULL, 0x000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_patient_high_low_alerts,
+            {"Patient High-Low Alerts", "btatt.cgm_feature.feature.patient_high_low_alerts",
+            FT_BOOLEAN, 24, NULL, 0x000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_feature_feature_calibration,
+            {"Calibration", "btatt.cgm_feature.feature.calibration",
+            FT_BOOLEAN, 24, NULL, 0x000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_type_and_sample_location,
+            {"Type and Sample Location", "btatt.cgm.type_and_sample_location",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_type,
+            {"Type and Sample Location", "btatt.cgm.type_and_sample_location.type",
+            FT_UINT8, BASE_HEX, VALS(cgm_feature_type_vals), 0xF0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_sample_location,
+            {"Sample Location", "btatt.cgm.type_and_sample_location.sample_location",
+            FT_UINT8, BASE_HEX, VALS(cgm_feature_sample_location_vals), 0x0F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_time_offset,
+            {"Time Offset", "btatt.cgm.time_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_status,
+            {"Status", "btatt.cgm.status",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_session_start_time,
+            {"Session Start Time", "btatt.cgm.session_start_time",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_session_run_time,
+            {"Session Run Time", "btatt.cgm.session_run_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_opcode,
+            {"Opcode", "btatt.cgm_specific_ops_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(cgm_specific_ops_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_operand,
+            {"Operand", "btatt.cgm_specific_ops_control_point.operand",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_operand_communication_interval,
+            {"Communication Interval", "btatt.cgm_specific_ops_control_point.operand.communication_interval",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_glucose_concentration,
+            {"Calibration Glucose Concentration", "btatt.cgm_specific_ops_control_point.operand.calibration_glucose_concentration",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_time,
+            {"Calibration Time", "btatt.cgm_specific_ops_control_point.operand.calibration_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_next_calibration_time,
+            {"Next Calibration Time", "btatt.cgm_specific_ops_control_point.operand.next_calibration_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_data_record_number,
+            {"Calibration Data Record Number", "btatt.cgm_specific_ops_control_point.operand.calibration_data_record_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_status,
+            {"Calibration Status", "btatt.cgm_specific_ops_control_point.operand.calibration_status",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_status_reserved,
+            {"Reserved", "btatt.cgm_specific_ops_control_point.operand.calibration_status.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_status_pending,
+            {"Pending", "btatt.cgm_specific_ops_control_point.operand.calibration_status.pending",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_status_out_of_range,
+            {"Out of Range", "btatt.cgm_specific_ops_control_point.operand.calibration_status.out_of_range",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_calibration_status_rejected,
+            {"Rejected", "btatt.cgm_specific_ops_control_point.operand.calibration_status.rejected",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_operand_calibration_data_record_number,
+            {"Calibration Data Record Number", "btatt.cgm_specific_ops_control_point.operand.calibration_data_record_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_specific_ops_control_point_operand_alert_level,
+            {"Alert Level [mg/dL]", "btatt.cgm_specific_ops_control_point.operand.alert_level",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate,
+            {"Alert Level Rate [mg/dL/min]", "btatt.cgm_specific_ops_control_point.operand.alert_level_rate",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_request_opcode,
+            {"Request Opcode", "btatt.cgm_specific_ops_control_point.request_opcode",
+            FT_UINT8, BASE_HEX, VALS(cgm_specific_ops_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cgm_specific_ops_control_point_response_code,
+            {"Response Code", "btatt.cgm_specific_ops_control_point.response_code",
+            FT_UINT8, BASE_HEX, VALS(cgm_specific_ops_control_point_response_code_vals), 0x0,
+            NULL, HFILL}
+        },
         {&hf_request_in_frame,
             {"Request in Frame", "btatt.request_in_frame",
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
@@ -6861,11 +10465,15 @@ proto_register_btatt(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_btatt_uuid_format_unknown, { "btatt.uuid_format.unknown", PI_PROTOCOL, PI_WARN, "Unknown format", EXPFILL }},
-        { &ei_btatt_handle_too_few,      { "btatt.handle.too_few",      PI_PROTOCOL, PI_WARN, "Too few handles, should be 2 or more", EXPFILL }},
-        { &ei_btatt_mtu_exceeded,        { "btatt.mtu.exceeded",        PI_PROTOCOL, PI_WARN, "Packet size exceed current ATT_MTU", EXPFILL }},
-        { &ei_btatt_mtu_full,            { "btatt.mtu.full",            PI_PROTOCOL, PI_NOTE, "Reached ATT_MTU. Attribute value may be longer.", EXPFILL }},
-        { &ei_btatt_undecoded,           { "btatt.undecoded",           PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_btatt_uuid_format_unknown,    { "btatt.uuid_format.unknown",            PI_PROTOCOL, PI_WARN, "Unknown format", EXPFILL }},
+        { &ei_btatt_handle_too_few,         { "btatt.handle.too_few",                 PI_PROTOCOL, PI_WARN, "Too few handles, should be 2 or more", EXPFILL }},
+        { &ei_btatt_mtu_exceeded,           { "btatt.mtu.exceeded",                   PI_PROTOCOL, PI_WARN, "Packet size exceed current ATT_MTU", EXPFILL }},
+        { &ei_btatt_mtu_full,               { "btatt.mtu.full",                       PI_PROTOCOL, PI_NOTE, "Reached ATT_MTU. Attribute value may be longer.", EXPFILL }},
+        { &ei_btatt_consent_out_of_bounds,  { "btatt.consent.out_of_bounds",          PI_PROTOCOL, PI_WARN, "Consent Code is out of bounds (0 to 9999)", EXPFILL }},
+        { &ei_btatt_cgm_size_too_small,     { "btatt.cgm_measurement.size.too_small", PI_PROTOCOL, PI_WARN, "Size too small (6 or geater)", EXPFILL }},
+        { &ei_btatt_opcode_invalid_request, { "btatt.opcode.invalid_request" ,        PI_PROTOCOL, PI_WARN, "Invalid request", EXPFILL }},
+        { &ei_btatt_opcode_invalid_response,{ "btatt.opcode.invalid_response",        PI_PROTOCOL, PI_WARN, "Invalid response", EXPFILL }},
+        { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
     };
 
     static build_valid_func btatt_handle_da_build_value[1] = {btatt_handle_value};
@@ -6953,7 +10561,7 @@ proto_reg_handoff_btatt(void)
                 bluetooth_uuid_vals[i_array].value);
 
         proto_tmp = proto_register_protocol(name, short_name, abbrev);
-        handle_tmp = new_register_dissector(short_name, dissect_btgatt, proto_tmp);
+        handle_tmp = new_register_dissector(abbrev, dissect_btgatt, proto_tmp);
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
