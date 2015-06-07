@@ -2565,7 +2565,7 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
     val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
 
     if (oid == NULL ||
-        (len = dissector_try_string(per_oid_dissector_table, oid, val_tvb, pinfo, tree, actx) == 0))
+        ((len = dissector_try_string(per_oid_dissector_table, oid, val_tvb, pinfo, tree, actx)) == 0))
     {
         proto_tree_add_expert(tree, pinfo, &ei_per_oid_not_implemented, val_tvb, 0, -1);
         dissect_per_open_type(tvb, start_offset, actx, tree, hf_index, NULL);
