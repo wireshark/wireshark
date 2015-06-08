@@ -252,8 +252,6 @@ dissect_aruba_erm_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     aruba_erm_tree = dissect_aruba_erm_common(tvb, pinfo, tree, &offset);
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-
     offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
     proto_item_set_len(aruba_erm_tree, offset);
 
