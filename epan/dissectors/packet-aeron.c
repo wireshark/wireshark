@@ -644,7 +644,7 @@ static void aeron_fragment_frame_add(aeron_fragment_t * fragment, aeron_frame_in
 }
 
 /*----------------------------------------------------------------------------*/
-/* Utilioty functions.                                                        */
+/* Utility functions.                                                         */
 /*----------------------------------------------------------------------------*/
 static gboolean aeron_is_address_multicast(const address * addr)
 {
@@ -735,7 +735,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_PAD_SESSION_ID 12
 #define O_AERON_PAD_STREAM_ID 16
 #define O_AERON_PAD_TERM_ID 20
-#define L_AERON_PAD 24
+#define L_AERON_PAD_MIN 24
 
 /* Data frame */
 #define O_AERON_DATA_FRAME_LENGTH 0
@@ -747,7 +747,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_DATA_STREAM_ID 16
 #define O_AERON_DATA_TERM_ID 20
 #define O_AERON_DATA_DATA 24
-#define L_AERON_DATA 24
+#define L_AERON_DATA_MIN 24
 
 /* NAK frame */
 #define O_AERON_NAK_FRAME_LENGTH 0
@@ -759,6 +759,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_NAK_TERM_ID 16
 #define O_AERON_NAK_TERM_OFFSET 20
 #define O_AERON_NAK_LENGTH 24
+#define L_AERON_NAK 28
 
 /* Status message */
 #define O_AERON_SM_FRAME_LENGTH 0
@@ -771,6 +772,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_SM_COMPLETED_TERM_OFFSET 20
 #define O_AERON_SM_RECEIVER_WINDOW 24
 #define O_AERON_SM_FEEDBACK 28
+#define L_AERON_SM_MIN 28
 
 /* Error header */
 #define O_AERON_ERR_FRAME_LENGTH 0
@@ -783,6 +785,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_ERR_COMPLETED_TERM_OFFSET 20
 #define O_AERON_ERR_RECEIVER_WINDOW 24
 #define O_AERON_ERR_FEEDBACK 28
+#define L_AERON_ERR_MIN 12
 
 /* Setup frame */
 #define O_AERON_SETUP_FRAME_LENGTH 0
@@ -796,6 +799,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_SETUP_ACTIVE_TERM_ID 24
 #define O_AERON_SETUP_TERM_LENGTH 28
 #define O_AERON_SETUP_MTU 32
+#define L_AERON_SETUP 36
 
 #define HDR_TYPE_PAD 0x0000
 #define HDR_TYPE_DATA 0x0001
@@ -1102,6 +1106,12 @@ static expert_field ei_aeron_analysis_keepalive_sm = EI_INIT;
 static expert_field ei_aeron_analysis_window_resize = EI_INIT;
 static expert_field ei_aeron_analysis_rx = EI_INIT;
 static expert_field ei_aeron_analysis_term_id_change = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_pad_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_data_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_nak_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_sm_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_err_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_setup_length = EI_INIT;
 
 /*----------------------------------------------------------------------------*/
 /* Setup packet information                                                   */
@@ -2161,8 +2171,9 @@ static void aeron_msg_process(tvbuff_t * tvb, int offset, packet_info * pinfo, a
 static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
 {
     proto_tree * subtree = NULL;
-    proto_item * item = NULL;
+    proto_item * pad_item = NULL;
     proto_item * channel_item = NULL;
+    proto_item * frame_length_item = NULL;
     guint32 frame_length;
     guint32 pad_length;
     aeron_transport_t * transport;
@@ -2180,7 +2191,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_STREAM_ID);
     term_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_TERM_ID);
-    pad_length = frame_length - L_AERON_PAD;
+    pad_length = frame_length - L_AERON_PAD_MIN;
     memset((void *) &pktinfo, 0, sizeof(aeron_packet_info_t));
     pktinfo.stream_id = stream_id;
     pktinfo.term_id = term_id;
@@ -2193,12 +2204,12 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_PAD, pktinfo.flags, term_id, term_offset, finfo);
-    item = proto_tree_add_none_format(tree, hf_aeron_pad, tvb, offset, -1, "Pad Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
+    pad_item = proto_tree_add_none_format(tree, hf_aeron_pad, tvb, offset, -1, "Pad Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
         term_id, term_offset, frame_length, rounded_length);
-    subtree = proto_item_add_subtree(item, ett_aeron_pad);
+    subtree = proto_item_add_subtree(pad_item, ett_aeron_pad);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     PROTO_ITEM_SET_GENERATED(channel_item);
-    proto_tree_add_item(subtree, hf_aeron_pad_frame_length, tvb, offset + O_AERON_PAD_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_pad_frame_length, tvb, offset + O_AERON_PAD_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_version, tvb, offset + O_AERON_PAD_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_flags, tvb, offset + O_AERON_PAD_FLAGS, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_type, tvb, offset + O_AERON_PAD_TYPE, 2, ENC_LITTLE_ENDIAN);
@@ -2209,8 +2220,13 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_tree_add_item(subtree, hf_aeron_pad_term_id, tvb, offset + O_AERON_PAD_TERM_ID, 4, ENC_LITTLE_ENDIAN);
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
     aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
-    proto_item_set_len(item, L_AERON_PAD);
-    return (L_AERON_PAD);
+    proto_item_set_len(pad_item, rounded_length);
+    if (frame_length < L_AERON_PAD_MIN)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_pad_length);
+        return (-rounded_length);
+    }
+    return (rounded_length);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2278,7 +2294,9 @@ static void dissect_aeron_reassembled_data(packet_info * pinfo, proto_tree * tre
 static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
 {
     proto_tree * subtree = NULL;
-    proto_item * item = NULL;
+    proto_item * data_item = NULL;
+    proto_item * channel_item = NULL;
+    proto_item * frame_length_item = NULL;
     guint32 frame_length;
     static const int * flags[] =
     {
@@ -2326,12 +2344,12 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_DATA, pktinfo.flags, term_id, term_offset, finfo);
-    item = proto_tree_add_none_format(tree, hf_aeron_data, tvb, offset, -1, "Data Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
+    data_item = proto_tree_add_none_format(tree, hf_aeron_data, tvb, offset, -1, "Data Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
         (guint32) term_id, term_offset, frame_length, rounded_length);
-    subtree = proto_item_add_subtree(item, ett_aeron_data);
-    item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(item);
-    proto_tree_add_item(subtree, hf_aeron_data_frame_length, tvb, offset + O_AERON_DATA_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    subtree = proto_item_add_subtree(data_item, ett_aeron_data);
+    channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
+    PROTO_ITEM_SET_GENERATED(channel_item);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_data_frame_length, tvb, offset + O_AERON_DATA_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_data_version, tvb, offset + O_AERON_DATA_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_DATA_FLAGS, hf_aeron_data_flags, ett_aeron_data_flags, flags, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_data_type, tvb, offset + O_AERON_DATA_TYPE, 2, ENC_LITTLE_ENDIAN);
@@ -2380,7 +2398,12 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     }
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
     aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
-    proto_item_set_len(item, rounded_length);
+    proto_item_set_len(data_item, rounded_length);
+    if ((frame_length != 0) && (frame_length < L_AERON_DATA_MIN))
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_data_length);
+        return (-rounded_length);
+    }
     return (rounded_length);
 }
 
@@ -2390,9 +2413,10 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
 static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
 {
     proto_tree * subtree = NULL;
-    proto_item * item = NULL;
-    proto_item * channel_item = NULL;
     proto_item * nak_item = NULL;
+    proto_item * frame_length_item = NULL;
+    proto_item * channel_item = NULL;
+    proto_item * nak_offset_item = NULL;
     guint32 frame_length;
     aeron_transport_t * transport;
     guint32 session_id;
@@ -2422,23 +2446,28 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "NAK");
-    item = proto_tree_add_none_format(tree, hf_aeron_nak, tvb, offset, -1, "NAK Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT,
+    nak_item = proto_tree_add_none_format(tree, hf_aeron_nak, tvb, offset, -1, "NAK Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT,
         term_id, nak_term_offset, nak_length);
-    subtree = proto_item_add_subtree(item, ett_aeron_nak);
+    subtree = proto_item_add_subtree(nak_item, ett_aeron_nak);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     PROTO_ITEM_SET_GENERATED(channel_item);
-    proto_tree_add_item(subtree, hf_aeron_nak_frame_length, tvb, offset + O_AERON_NAK_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_nak_frame_length, tvb, offset + O_AERON_NAK_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_version, tvb, offset + O_AERON_NAK_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_flags, tvb, offset + O_AERON_NAK_FLAGS, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_type, tvb, offset + O_AERON_NAK_TYPE, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_session_id, tvb, offset + O_AERON_NAK_SESSION_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_stream_id, tvb, offset + O_AERON_NAK_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_term_id, tvb, offset + O_AERON_NAK_TERM_ID, 4, ENC_LITTLE_ENDIAN);
-    nak_item = proto_tree_add_item(subtree, hf_aeron_nak_term_offset, tvb, offset + O_AERON_NAK_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
+    nak_offset_item = proto_tree_add_item(subtree, hf_aeron_nak_term_offset, tvb, offset + O_AERON_NAK_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_length, tvb, offset + O_AERON_NAK_LENGTH, 4, ENC_LITTLE_ENDIAN);
-    expert_add_info_format(pinfo, nak_item, &ei_aeron_analysis_nak, "NAK offset %" G_GUINT32_FORMAT " length %" G_GUINT32_FORMAT, nak_term_offset, nak_length);
+    expert_add_info_format(pinfo, nak_offset_item, &ei_aeron_analysis_nak, "NAK offset %" G_GUINT32_FORMAT " length %" G_GUINT32_FORMAT, nak_term_offset, nak_length);
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
-    proto_item_set_len(item, rounded_length);
+    proto_item_set_len(nak_item, rounded_length);
+    if (frame_length != L_AERON_NAK)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_nak_length);
+        return (-rounded_length);
+    }
     return (rounded_length);
 }
 
@@ -2459,8 +2488,10 @@ static void aeron_window_resize_report(packet_info * pinfo, proto_item * item, a
 static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
 {
     proto_tree * subtree = NULL;
+    proto_item * sm_item = NULL;
+    proto_item * frame_length_item = NULL;
     proto_item * item = NULL;
-    proto_item * channel_item = NULL;
+    proto_item * rcv_window_item = NULL;
     guint32 frame_length;
     static const int * flags[] =
     {
@@ -2509,12 +2540,12 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_SM, pktinfo.flags, term_id, consumption_offset, finfo);
-    item = proto_tree_add_none_format(tree, hf_aeron_sm, tvb, offset, -1, "Status Message: Term 0x%x, ConsumptionOfs %" G_GUINT32_FORMAT ", RcvWindow %" G_GUINT32_FORMAT,
+    sm_item = proto_tree_add_none_format(tree, hf_aeron_sm, tvb, offset, -1, "Status Message: Term 0x%x, ConsumptionOfs %" G_GUINT32_FORMAT ", RcvWindow %" G_GUINT32_FORMAT,
         term_id, consumption_offset, rcv_window);
-    subtree = proto_item_add_subtree(item, ett_aeron_sm);
-    channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
-    proto_tree_add_item(subtree, hf_aeron_sm_frame_length, tvb, offset + O_AERON_SM_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    subtree = proto_item_add_subtree(sm_item, ett_aeron_sm);
+    item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
+    PROTO_ITEM_SET_GENERATED(item);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_sm_frame_length, tvb, offset + O_AERON_SM_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_sm_version, tvb, offset + O_AERON_SM_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_SM_FLAGS, hf_aeron_sm_flags, ett_aeron_sm_flags, flags, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_sm_type, tvb, offset + O_AERON_SM_TYPE, 2, ENC_LITTLE_ENDIAN);
@@ -2522,51 +2553,63 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_tree_add_item(subtree, hf_aeron_sm_stream_id, tvb, offset + O_AERON_SM_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_sm_consumption_term_id, tvb, offset + O_AERON_SM_TERM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_sm_consumption_term_offset, tvb, offset + O_AERON_SM_COMPLETED_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
-    item = proto_tree_add_item(subtree, hf_aeron_sm_receiver_window, tvb, offset + O_AERON_SM_RECEIVER_WINDOW, 4, ENC_LITTLE_ENDIAN);
-    aeron_window_resize_report(pinfo, item, finfo);
+    rcv_window_item = proto_tree_add_item(subtree, hf_aeron_sm_receiver_window, tvb, offset + O_AERON_SM_RECEIVER_WINDOW, 4, ENC_LITTLE_ENDIAN);
+    aeron_window_resize_report(pinfo, rcv_window_item, finfo);
     if (feedback_length > 0)
     {
         proto_tree_add_item(subtree, hf_aeron_sm_feedback, tvb, offset + O_AERON_SM_FEEDBACK, feedback_length, ENC_NA);
     }
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
     aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
-    proto_item_set_len(item, rounded_length);
+    proto_item_set_len(sm_item, rounded_length);
+    if (frame_length < L_AERON_SM_MIN)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_sm_length);
+        return (-rounded_length);
+    }
     return (rounded_length);
 }
 
 /*----------------------------------------------------------------------------*/
 /* Aeron error packet dissection functions.                                   */
 /*----------------------------------------------------------------------------*/
-static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_tree * subtree = NULL;
-    proto_item * item = NULL;
-    guint32 length;
+    proto_item * err_item = NULL;
+    proto_item * frame_length_item = NULL;
+    int rounded_length;
     guint32 bad_frame_length;
     gint string_length = 0;
+    guint32 frame_length;
     int ofs;
 
+    frame_length = tvb_get_letohl(tvb, offset + O_AERON_ERR_FRAME_LENGTH);
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Error");
-    item = proto_tree_add_item(tree, hf_aeron_err, tvb, offset, -1, ENC_NA);
-    subtree = proto_item_add_subtree(item, ett_aeron_err);
-    proto_tree_add_item(subtree, hf_aeron_err_frame_length, tvb, offset + O_AERON_ERR_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    err_item = proto_tree_add_item(tree, hf_aeron_err, tvb, offset, -1, ENC_NA);
+    subtree = proto_item_add_subtree(err_item, ett_aeron_err);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_err_frame_length, tvb, offset + O_AERON_ERR_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_err_version, tvb, offset + O_AERON_ERR_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_err_code, tvb, offset + O_AERON_ERR_CODE, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_err_type, tvb, offset + O_AERON_ERR_TYPE, 2, ENC_LITTLE_ENDIAN);
-    length = tvb_get_letohl(tvb, offset + O_AERON_ERR_FRAME_LENGTH);
     proto_tree_add_item(subtree, hf_aeron_err_off_frame_length, tvb, offset + O_AERON_ERR_OFFENDING_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     bad_frame_length = tvb_get_letohl(tvb, offset + O_AERON_ERR_OFFENDING_FRAME_LENGTH);
     ofs = offset + O_AERON_ERR_OFFENDING_HEADER;
     proto_tree_add_item(subtree, hf_aeron_err_off_hdr, tvb, offset + ofs, bad_frame_length, ENC_NA);
     ofs += bad_frame_length;
-    string_length = length - ofs;
+    string_length = frame_length - ofs;
     if (string_length > 0)
     {
         proto_tree_add_item(subtree, hf_aeron_err_string, tvb, offset + ofs, string_length, ENC_ASCII|ENC_NA);
     }
-    length = aeron_pos_roundup(length);
-    proto_item_set_len(item, (int) length);
-    return ((int) length);
+    rounded_length = (int) aeron_pos_roundup(frame_length);
+    proto_item_set_len(err_item, rounded_length);
+    if (frame_length < L_AERON_ERR_MIN)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_err_length);
+        return (-rounded_length);
+    }
+    return (rounded_length);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2588,7 +2631,8 @@ static void aeron_set_stream_mtu_term_length(packet_info * pinfo, aeron_transpor
 static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
 {
     proto_tree * subtree = NULL;
-    proto_item * item = NULL;
+    proto_item * setup_item = NULL;
+    proto_item * frame_length_item = NULL;
     guint32 frame_length;
     proto_item * channel_item = NULL;
     aeron_transport_t * transport;
@@ -2626,12 +2670,12 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     aeron_set_stream_mtu_term_length(pinfo, transport, stream_id, mtu, term_length);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Setup");
-    item = proto_tree_add_none_format(tree, hf_aeron_setup, tvb, offset, -1, "Setup Frame: InitTerm 0x%x, ActiveTerm 0x%x, TermLen %" G_GUINT32_FORMAT ", Ofs %" G_GUINT32_FORMAT ", MTU %" G_GUINT32_FORMAT,
+    setup_item = proto_tree_add_none_format(tree, hf_aeron_setup, tvb, offset, -1, "Setup Frame: InitTerm 0x%x, ActiveTerm 0x%x, TermLen %" G_GUINT32_FORMAT ", Ofs %" G_GUINT32_FORMAT ", MTU %" G_GUINT32_FORMAT,
         initial_term_id, (guint32) active_term_id, term_length, term_offset, mtu);
-    subtree = proto_item_add_subtree(item, ett_aeron_setup);
+    subtree = proto_item_add_subtree(setup_item, ett_aeron_setup);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     PROTO_ITEM_SET_GENERATED(channel_item);
-    proto_tree_add_item(subtree, hf_aeron_setup_frame_length, tvb, offset + O_AERON_SETUP_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_setup_frame_length, tvb, offset + O_AERON_SETUP_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_version, tvb, offset + O_AERON_SETUP_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_flags, tvb, offset + O_AERON_SETUP_FLAGS, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_type, tvb, offset + O_AERON_SETUP_TYPE, 2, ENC_LITTLE_ENDIAN);
@@ -2643,7 +2687,12 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     proto_tree_add_item(subtree, hf_aeron_setup_term_length, tvb, offset + O_AERON_SETUP_TERM_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_mtu, tvb, offset + O_AERON_SETUP_MTU, 4, ENC_LITTLE_ENDIAN);
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
-    proto_item_set_len(item, rounded_length);
+    proto_item_set_len(setup_item, rounded_length);
+    if (frame_length != L_AERON_SETUP)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_setup_length);
+        return (-rounded_length);
+    }
     return (rounded_length);
 }
 
@@ -2710,13 +2759,16 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             default:
                 return (total_dissected_length);
         }
-        if (length_remaining - dissected_length >= length_remaining) {
+        if (dissected_length <= 0)
+        {
+            total_dissected_length += -dissected_length;
+            proto_item_set_len(aeron_item, total_dissected_length);
             return (total_dissected_length);
         }
         total_dissected_length += dissected_length;
         offset += dissected_length;
         length_remaining -= dissected_length;
-        proto_item_set_len(aeron_item, dissected_length);
+        proto_item_set_len(aeron_item, total_dissected_length);
     }
     return (total_dissected_length);
 }
@@ -3009,7 +3061,13 @@ void proto_register_aeron(void)
         { &ei_aeron_analysis_ooo_sm, { "aeron.analysis.ooo_sm", PI_SEQUENCE, PI_NOTE, "This frame contains an Out-of-order SM", EXPFILL } },
         { &ei_aeron_analysis_keepalive_sm, { "aeron.analysis.keepalive_sm", PI_SEQUENCE, PI_NOTE, "This frame contains a Keepalive SM", EXPFILL } },
         { &ei_aeron_analysis_rx, { "aeron.analysis.rx", PI_SEQUENCE, PI_NOTE, "This frame contains a (likely) retransmission", EXPFILL } },
-        { &ei_aeron_analysis_term_id_change, { "aeron.analysis.term_id_change", PI_SEQUENCE, PI_CHAT, "This frame contains a new term ID", EXPFILL } }
+        { &ei_aeron_analysis_term_id_change, { "aeron.analysis.term_id_change", PI_SEQUENCE, PI_CHAT, "This frame contains a new term ID", EXPFILL } },
+        { &ei_aeron_analysis_invalid_pad_length, { "aeron.analysis.invalid_pad_length", PI_MALFORMED, PI_ERROR, "Invalid pad frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_data_length, { "aeron.analysis.invalid_data_length", PI_MALFORMED, PI_ERROR, "Invalid data frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_nak_length, { "aeron.analysis.invalid_nak_length", PI_MALFORMED, PI_ERROR, "Invalid NAK frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_sm_length, { "aeron.analysis.invalid_sm_length", PI_MALFORMED, PI_ERROR, "Invalid SM frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_err_length, { "aeron.analysis.invalid_err_length", PI_MALFORMED, PI_ERROR, "Invalid error frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_setup_length, { "aeron.analysis.invalid_setup_length", PI_MALFORMED, PI_ERROR, "Invalid setup frame length", EXPFILL } }
     };
     module_t * aeron_module;
     expert_module_t * expert_aeron;
