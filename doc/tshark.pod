@@ -1024,12 +1024,13 @@ I<prot> specifies the transport protocol.  It can be one of:
 
 I<mode> specifies the output mode.  It can be one of:
 
-  ascii ASCII output with dots for non-printable characters
-  hex   Hexadecimal and ASCII data with offsets
-  raw   Hexadecimal data
+  ascii  ASCII output with dots for non-printable characters
+  ebcdic EBCDIC output with dots for non-printable characters
+  hex    Hexadecimal and ASCII data with offsets
+  raw    Hexadecimal data
 
-Since the output in B<ascii> mode may contain newlines, the length of each section
-of output plus a newline precedes each section of output.
+Since the output in B<ascii> or B<ebcdic> mode may contain newlines, the length
+of each section of output plus a newline precedes each section of output.
 
 I<filter> specifies the stream to be displayed. UDP/TCP streams are selected
 with either the stream index or IP address plus port pairs. SSL streams are

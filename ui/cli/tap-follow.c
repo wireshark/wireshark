@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <epan/addr_resolv.h>
+#include <epan/charsets.h>
 #include <epan/epan_dissect.h>
 #include <epan/follow.h>
 #include <epan/stat_tap_ui.h>
@@ -66,6 +67,7 @@ typedef enum
 {
   mode_HEX,
   mode_ASCII,
+  mode_EBCDIC,
   mode_RAW
 } mode_e;
 
@@ -96,6 +98,7 @@ typedef struct
 
 #define STR_HEX         ",hex"
 #define STR_ASCII       ",ascii"
+#define STR_EBCDIC      ",ebcdic"
 #define STR_RAW         ",raw"
 
 static void
@@ -133,6 +136,7 @@ followStrMode(
   {
   case mode_HEX:        return "hex";
   case mode_ASCII:      return "ascii";
+  case mode_EBCDIC:     return "ebcdic";
   case mode_RAW:        return "raw";
   }
 
@@ -632,6 +636,7 @@ followDraw(
         break;
 
       case mode_ASCII:
+      case mode_EBCDIC:
         printf("%s%u\n", node ? "\t" : "", sc.dlen);
         break;
 
@@ -659,6 +664,7 @@ followDraw(
           break;
 
         case mode_ASCII:
+        case mode_EBCDIC:
           for (ii = 0; ii < len; ii++)
           {
             switch (bin[ii])
@@ -677,6 +683,9 @@ followDraw(
             data[ii++] = '\n';
           }
           data[ii] = 0;
+          if (fp->mode == mode_EBCDIC) {
+            EBCDIC_to_ASCII(data, ii);
+          }
           printf("%s", data);
           break;
 
@@ -751,6 +760,10 @@ followArgMode(
   else if (followArgStrncmp(opt_argp, STR_ASCII))
   {
     fp->mode = mode_ASCII;
+  }
+  else if (followArgStrncmp(opt_argp, STR_EBCDIC))
+  {
+    fp->mode = mode_EBCDIC;
   }
   else if (followArgStrncmp(opt_argp, STR_RAW))
   {
