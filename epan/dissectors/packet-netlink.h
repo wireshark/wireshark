@@ -50,13 +50,51 @@ enum {
 	WS_NETLINK_CRYPTO = 21
 };
 
+/* from <linux/netlink.h> prefixed with WS_ */
+enum {
+	WS_NLM_F_REQUEST = 1,    /* It is request message.*/
+	WS_NLM_F_MULTI = 2,      /* Multipart message, terminated by NETLINK_MSG_DONE */
+	WS_NLM_F_ACK = 4,        /* Reply with ack, with zero or error code */
+	WS_NLM_F_ECHO = 8,       /* Echo this request */
+
+	/* Modifiers to Get request */
+	WS_NLM_F_ROOT = 0x100,   /* specify tree root */
+	WS_NLM_F_MATCH = 0x200,  /* return all matching */
+	WS_NLM_F_ATOMIC = 0x400, /* = (NETLINK_MSG_F_ROOT | NETLINK_MSG_F_MATCH) */
+
+	/* Modifiers to NEW request */
+	WS_NLM_F_REPLACE = 0x100,  /* Override existing */
+	WS_NLM_F_EXCL = 0x200,     /* Do not touch, if it exists */
+	WS_NLM_F_CREATE = 0x400,   /* Create, if it does */
+	WS_NLM_F_APPEND = 0x800    /* Add to end of list */
+};
+
+
 extern value_string_ext netlink_family_vals_ext;
 
 enum {
 	WS_NLMSG_NOOP     = 0x01,
 	WS_NLMSG_ERROR    = 0x02,
 	WS_NLMSG_DONE     = 0x03,
-	WS_NLMSG_OVERRUN  = 0x04
+	WS_NLMSG_OVERRUN  = 0x04,
+	WS_NLMSG_MIN_TYPE     = 0x10    /** type < WS_NLMSG_MIN_TYPE are reserved */
+};
+
+enum {
+	NETLINK_RTM_BASE = 16,
+
+	NETLINK_RTM_NEWLINK = 16,
+	NETLINK_RTM_DELLINK,
+	NETLINK_RTM_GETLINK,
+	NETLINK_RTM_SETLINK,
+
+	NETLINK_RTM_NEWADDR = 20,
+	NETLINK_RTM_DELADDR,
+	NETLINK_RTM_GETADDR,
+
+	NETLINK_RTM_NEWROUTE = 24,
+	NETLINK_RTM_DELROUTE,
+	NETLINK_RTM_GETROUTE
 };
 
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
