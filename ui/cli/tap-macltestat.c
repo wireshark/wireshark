@@ -226,6 +226,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     /* Get reference to stat window instance */
     mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;
     mac_lte_ep_t *tmp = NULL, *te = NULL;
+    int i;
 
     /* Cast tap info struct */
     const struct mac_lte_tap_info *si = (const struct mac_lte_tap_info *)phi;
@@ -349,7 +350,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.UL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            te->stats.UL_total_bytes += si->single_number_of_bytes;
+            for (i = 0; i < 11; i++) {
+                te->stats.UL_total_bytes += si->bytes_for_lcid[i];
+            }
         }
     }
 
@@ -397,7 +400,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.DL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            te->stats.DL_total_bytes += si->single_number_of_bytes;
+            for (i = 0; i < 11; i++) {
+                te->stats.DL_total_bytes += si->bytes_for_lcid[i];
+            }
         }
 
     }
