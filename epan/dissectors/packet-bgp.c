@@ -3946,7 +3946,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
             default :
                 expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
                                    "Invalid total nlri length (%u) in EVPN NLRI Route Type 5 (IP prefix Route)!", nlri_len);
-                break;
+                return -1;
         }
         break;
     default:
