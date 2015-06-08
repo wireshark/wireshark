@@ -3265,7 +3265,7 @@ proto_register_http(void)
 		NULL, HFILL }},
 	    { &hf_http_unknown_header,
 	      { "Unknown header", "http.unknown_header",
-		FT_BYTES, BASE_NONE, NULL, 0,
+		FT_STRING, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
 	};
 	static gint *ett[] = {
