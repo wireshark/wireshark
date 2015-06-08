@@ -89,7 +89,11 @@ in_cksum(const vec_t *vec, int veclen)
 		/*
 		 * Force to even boundary.
 		 */
+#if GLIB_CHECK_VERSION(2,18,0)
+		if ((1 & (gintptr)w) && (mlen > 0)) {
+#else
 		if ((1 & (unsigned long) w) && (mlen > 0)) {
+#endif /* GLIB_CHECK_VERSION(2,18,0) */
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const guint8 *)w;
