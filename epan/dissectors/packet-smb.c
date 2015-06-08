@@ -3388,7 +3388,7 @@ smb_fid_info_t *
 dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     int len, guint16 fid, gboolean is_created, gboolean is_closed, gboolean is_generated, smb_info_t* si)
 {
-	smb_saved_info_t *sip              = si->sip;
+	smb_saved_info_t *sip;
 	proto_item       *it;
 	proto_tree       *tr;
 	smb_fid_info_t   *fid_info         = NULL;
@@ -3397,6 +3397,8 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	GSList           *GSL_iterator;
 
 	DISSECTOR_ASSERT(si);
+
+	sip = si->sip;
 
 	it = proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, len, fid);
 	if (is_generated) {
