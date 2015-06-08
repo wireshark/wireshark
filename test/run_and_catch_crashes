@@ -39,6 +39,7 @@ then
 		do
 			shift
 		done
+echo last expr command was expr "$1" : ".*=.*"
 	fi
 	if [ -x "$1" ]
 	then
