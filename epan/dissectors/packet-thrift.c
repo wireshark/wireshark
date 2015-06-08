@@ -223,7 +223,7 @@ dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
 }
 
 static void
-disscet_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
     proto_tree *sub_tree;
     int offset = 0;
@@ -325,7 +325,7 @@ dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *d
         offset++;
     }
 
-    disscet_thrift_common(tvb, pinfo, tree);
+    dissect_thrift_common(tvb, pinfo, tree);
 
     return TRUE;
 
