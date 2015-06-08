@@ -176,9 +176,11 @@ static void plen_stats_tree_init(stats_tree *st) {
 	char **str_range_array = (char **)wmem_alloc(NULL, num_plen_uat*sizeof(char*));
 
 	/* Convert the ranges to strings for the stats tree API */
-	for (i = 0; i < num_plen_uat; i++) {
+	for (i = 0; i < num_plen_uat - 1; i++) {
 		str_range_array[i] = range_convert_range(NULL, uat_plen_records[i].packet_range);
 	}
+	str_range_array[num_plen_uat - 1] = g_strdup_printf("%u and greater",
+		uat_plen_records[num_plen_uat - 1].packet_range->ranges[0].low);
 
 	st_node_plen = stats_tree_create_range_node_string(st, st_str_plen, 0, num_plen_uat, str_range_array);
 	for (i = 0; i < num_plen_uat; i++) {
