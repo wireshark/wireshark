@@ -153,6 +153,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ns_cert_exts.c	\
 	packet-ocsp.c	\
 	packet-opsi.c	\
+	packet-p1.c	\
 	packet-p22.c	\
 	packet-p7.c	\
 	packet-p772.c	\

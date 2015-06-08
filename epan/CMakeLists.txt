@@ -252,6 +252,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-novell_pkis.c
 	dissectors/packet-ns_cert_exts.c
 	dissectors/packet-ocsp.c
+	dissectors/packet-p1.c
 	dissectors/packet-p22.c
 	dissectors/packet-p7.c
 	dissectors/packet-p772.c
@@ -297,7 +298,6 @@ set(ASN1_DISSECTOR_SRC
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
-	dissectors/packet-p1.c
 	dissectors/packet-snmp.c
 	dissectors/packet-tcap.c
 )
