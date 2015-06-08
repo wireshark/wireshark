@@ -761,6 +761,7 @@ static gint ett_nfs4_want_notify_flags = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
+static expert_field ei_protocol_violation = EI_INIT;
 
 
 /* Types of fhandles we can dissect */
@@ -6624,9 +6625,9 @@ static int
 dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int type, rpc_call_info_value *civ)
 {
 	int	  attr_mask_offset = 0;
-	guint8	  i, j;
-	guint8	  num_bitmaps;
-	guint8	  count		   = 0;
+	guint32	  i, j;
+	guint32	  num_bitmaps;
+	guint32	  count		   = 0;
 	guint32	  attr_num;
 	guint32	 *bitmaps	   = NULL;
 	guint32	  bitmap, sl;
@@ -6636,20 +6637,19 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	proto_item *bitmap_item = NULL;
 	proto_tree *bitmap_tree = NULL;
-	proto_item *hitem	= NULL;
-	proto_item *attr_item	= NULL;
+	proto_item *hitem = NULL;
+	proto_item *attr_item = NULL;
 	proto_tree *attr_tree	= NULL;
 
 	num_bitmaps = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 
-	if (num_bitmaps > MAX_BITMAPS) {
-		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
-		THROW(ReportedBoundsError);
-	}
-	tvb_ensure_bytes_exist(tvb, offset, num_bitmaps * 4);
-
 	if (num_bitmaps) {
+		if (num_bitmaps > MAX_BITMAPS) {
+			proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
+			THROW(ReportedBoundsError);
+		}
+
 		bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
 		attr_mask_offset = offset;
 
@@ -6667,6 +6667,10 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		*  attr_bitmap fields and the 4-byte 'total bytes in the values section field';
 		*  otherwise, just skip the bitmaps and offset will be returned. */
 		offset += (num_bitmaps * 4) + (type == FATTR4_DISSECT_VALUES ? 4 : 0);
+
+	} else if (type == FATTR4_DISSECT_VALUES) {
+		expert_add_info(pinfo, tree, &ei_protocol_violation);
+		return offset += 4;
 	}
 
 	if (!tree
@@ -12396,6 +12400,8 @@ proto_register_nfs(void)
 	static ei_register_info ei[] = {
 		{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
 		{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
+		{ &ei_protocol_violation, { "nfs.protocol_violation", PI_PROTOCOL, PI_WARN,
+			"Per RFCs 3530 and 5661 an attribute mask is required but was not provided.", EXPFILL }},
 	};
 
 	module_t *nfs_module;
