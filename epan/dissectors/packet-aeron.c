@@ -2710,6 +2710,9 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             default:
                 return (total_dissected_length);
         }
+        if (length_remaining - dissected_length >= length_remaining) {
+            return (total_dissected_length);
+        }
         total_dissected_length += dissected_length;
         offset += dissected_length;
         length_remaining -= dissected_length;
