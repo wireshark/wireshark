@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tap.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_cmd.h"
@@ -404,6 +405,28 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
+        if (have_tap_listener(bluetooth_hci_summary_tap)) {
+            bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            if (bluetooth_data) {
+                tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+                tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+            } else {
+                tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
+                tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
+            }
+
+            tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE;
+            tap_hci_summary->ogf = opcode >> 10;
+            tap_hci_summary->ocf = ocf;
+            if (try_val_to_str(ocf, opcode_ocf_vals))
+                tap_hci_summary->name = description;
+            else
+                tap_hci_summary->name = NULL;
+            tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+        }
+
         proto_tree_add_item(main_tree, hf_parameter_length, tvb, offset, 1, ENC_NA);
         length = tvb_get_guint8(tvb, offset);
         offset += 1;
@@ -757,9 +780,31 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd Broadcom ");
 
         event_code = tvb_get_guint8(tvb, offset);
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x"));
+        description = val_to_str_ext_const(event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
+        col_append_str(pinfo->cinfo, COL_INFO, description);
         proto_tree_add_item(main_tree, hf_event_code, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        if (have_tap_listener(bluetooth_hci_summary_tap)) {
+            bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            if (bluetooth_data) {
+                tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+                tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+            } else {
+                tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
+                tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
+            }
+
+            tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT;
+            tap_hci_summary->event = event_code;
+            if (try_val_to_str_ext(event_code, &bthci_evt_evt_code_vals_ext))
+                tap_hci_summary->name = description;
+            else
+                tap_hci_summary->name = NULL;
+            tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+        }
 
         proto_tree_add_item(main_tree, hf_parameter_length, tvb, offset, 1, ENC_NA);
         length = tvb_get_guint8(tvb, offset);
@@ -784,6 +829,28 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", description);
             else
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (Unknown Command 0x%04X [opcode 0x%04X])", ocf, opcode);
+
+            if (have_tap_listener(bluetooth_hci_summary_tap)) {
+                bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+                tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+                if (bluetooth_data) {
+                    tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+                    tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+                } else {
+                    tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
+                    tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
+                }
+
+                tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT_OPCODE;
+                tap_hci_summary->ogf = opcode >> 10;
+                tap_hci_summary->ocf = ocf;
+                if (try_val_to_str(ocf, opcode_ocf_vals))
+                    tap_hci_summary->name = description;
+                else
+                    tap_hci_summary->name = NULL;
+                tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+            }
 
             proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
             status = tvb_get_guint8(tvb, offset);

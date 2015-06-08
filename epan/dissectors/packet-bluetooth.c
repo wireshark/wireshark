@@ -61,6 +61,7 @@ static wmem_tree_t *hci_vendors             = NULL;
 
 static int bluetooth_tap = -1;
 int bluetooth_device_tap = -1;
+int bluetooth_hci_summary_tap = -1;
 
 const value_string bluetooth_uuid_vals[] = {
     /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
@@ -1554,6 +1555,7 @@ proto_register_bluetooth(void)
 
     bluetooth_tap = register_tap("bluetooth");
     bluetooth_device_tap = register_tap("bluetooth.device");
+    bluetooth_hci_summary_tap = register_tap("bluetooth.hci_summary");
 
     bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", FT_STRING, BASE_NONE);
 

@@ -519,6 +519,7 @@ private slots:
 
     void on_actionATT_Server_Attributes_triggered();
     void on_actionDevices_triggered();
+    void on_actionHCI_Summary_triggered();
 
     void externalMenuItem_triggered();
 

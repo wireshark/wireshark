@@ -26,6 +26,7 @@ set(WIRESHARK_QT_HEADERS
 	accordion_frame.h
 	bluetooth_att_server_attributes_dialog.h
 	bluetooth_devices_dialog.h
+	bluetooth_hci_summary_dialog.h
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
@@ -157,6 +158,7 @@ set(WIRESHARK_QT_SRC
 	accordion_frame.cpp
 	bluetooth_att_server_attributes_dialog.cpp
 	bluetooth_devices_dialog.cpp
+	bluetooth_hci_summary_dialog.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
 	capture_file.cpp
@@ -291,6 +293,7 @@ set(WIRESHARK_QT_UI
 	about_dialog.ui
 	bluetooth_att_server_attributes_dialog.ui
 	bluetooth_devices_dialog.ui
+	bluetooth_hci_summary_dialog.ui
 	capture_file_progress_frame.ui
 	capture_file_properties_dialog.ui
 	capture_interfaces_dialog.ui

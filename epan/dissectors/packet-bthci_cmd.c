@@ -3122,6 +3122,33 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ocf = opcode & 0x03ff;
     ogf = (guint8) (opcode >> 10);
 
+    if (ogf == HCI_OGF_VENDOR_SPECIFIC)
+        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Vendor Command 0x%04x"));
+    else
+        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
+
+    if (have_tap_listener(bluetooth_hci_summary_tap)) {
+        bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+        tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+        if (bluetooth_data) {
+            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+        } else {
+            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
+            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
+        }
+
+        tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_OPCODE;
+        tap_hci_summary->ogf = ogf;
+        tap_hci_summary->ocf = ocf;
+        if (try_val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext))
+            tap_hci_summary->name = val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x");
+        else
+            tap_hci_summary->name = NULL;
+        tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+    }
+
     if (!pinfo->fd->flags.visited) {
         bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
@@ -3132,12 +3159,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         bthci_cmd_data->response_in_frame = max_disconnect_in_frame;
         bthci_cmd_data->response_abs_ts = pinfo->fd->abs_ts;
     }
-
-    if (ogf == HCI_OGF_VENDOR_SPECIFIC)
-        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Vendor Command 0x%04x"));
-    else
-        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
-
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 

@@ -36,6 +36,7 @@ since version 1.99.7:
 ** The reload button has been added back to the toolbar.
 ** The "Decode As" dialog no longer saves decoding behavior.
 ** You can now stop loading large capture files.
+** The Bluetooth HCI Summary has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.99.6:
