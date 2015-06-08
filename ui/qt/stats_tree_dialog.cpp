@@ -20,36 +20,19 @@
  */
 
 #include "stats_tree_dialog.h"
-#include "ui_stats_tree_dialog.h"
 
 #include "file.h"
 
 #include "epan/stats_tree_priv.h"
 
-#include "ui/last_open_dir.h"
-#include "ui/utf8_entities.h"
+#include "qt_ui_utils.h"
 
-#include "wsutil/file_util.h"
-
-#include "wireshark_application.h"
-
-#include <QClipboard>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
-#include <QFileDialog>
-
-// The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
-// need tap parameters we should probably create a TapParameterDialog
-// class based on WiresharkDialog and subclass it here.
-
-// To do:
-// - Add help
-// - Update to match bug 9452 / r53657
 
 const int item_col_ = 0;
-
-const int expand_all_threshold_ = 100; // Arbitrary
 
 Q_DECLARE_METATYPE(stat_node *)
 
@@ -67,19 +50,18 @@ public:
         result = stats_tree_sort_compare(thisnode, othernode, treeWidget()->sortColumn(),
                                          order==Qt::DescendingOrder);
         if (order==Qt::DescendingOrder) {
-            result= -result;
+            result = -result;
         }
         return result < 0;
     }
 };
 
+
 StatsTreeDialog::StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr) :
-    WiresharkDialog(parent, cf),
-    ui(new Ui::StatsTreeDialog),
+    TapParameterDialog(parent, cf),
     st_(NULL),
     st_cfg_(NULL)
 {
-    ui->setupUi(this);
     st_cfg_ = stats_tree_get_cfg_by_abbr(cfg_abbr);
     memset(&cfg_pr_, 0, sizeof(struct _tree_cfg_pres));
 
@@ -88,19 +70,6 @@ StatsTreeDialog::StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *c
                              tr("Unable to find configuration for %1.").arg(cfg_abbr));
         QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
     }
-
-    ui->statsTreeWidget->addAction(ui->actionCopyToClipboard);
-    ui->statsTreeWidget->addAction(ui->actionSaveAs);
-    ui->statsTreeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-    QPushButton *button;
-    button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
-    connect(button, SIGNAL(clicked()), this, SLOT(on_actionCopyToClipboard_triggered()));
-
-    button = ui->buttonBox->addButton(tr("Save as..."), QDialogButtonBox::ActionRole);
-    connect(button, SIGNAL(clicked()), this, SLOT(on_actionSaveAs_triggered()));
-
-    fillTree();
 }
 
 StatsTreeDialog::~StatsTreeDialog()
@@ -108,73 +77,6 @@ StatsTreeDialog::~StatsTreeDialog()
     if (st_) {
         stats_tree_free(st_);
     }
-    delete ui;
-}
-
-void StatsTreeDialog::fillTree()
-{
-    GString *error_string;
-    if (!st_cfg_ || file_closed_) return;
-
-    gchar* display_name_temp = stats_tree_get_displayname(st_cfg_->name);
-    QString display_name(display_name_temp);
-    g_free(display_name_temp);
-
-    // The GTK+ UI appends "Stats Tree" to the window title. If we do the same
-    // here we should expand the name completely, e.g. to "Statistics Tree".
-    setWindowSubtitle(display_name);
-
-    st_cfg_->pr = &cfg_pr_;
-    cfg_pr_.st_dlg = this;
-
-    if (st_) {
-        stats_tree_free(st_);
-    }
-    st_ = stats_tree_new(st_cfg_, NULL, ui->displayFilterLineEdit->text().toUtf8().constData());
-
-    // Add number of columns for this stats_tree
-    QStringList headerLabels;
-    for (int count = 0; count<st_->num_columns; count++) {
-        headerLabels.push_back(stats_tree_get_column_name(count));
-    }
-    ui->statsTreeWidget->setColumnCount(headerLabels.count());
-    ui->statsTreeWidget->setHeaderLabels(headerLabels);
-    resize(st_->num_columns*80+80, height());
-    for (int count = 0; count<st_->num_columns; count++) {
-        headerLabels.push_back(stats_tree_get_column_name(count));
-    }
-    ui->statsTreeWidget->setSortingEnabled(false);
-
-    error_string = register_tap_listener(st_cfg_->tapname,
-                          st_,
-                          st_->filter,
-                          st_cfg_->flags,
-                          resetTap,
-                          stats_tree_packet,
-                          drawTreeItems);
-    if (error_string) {
-        QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(display_name),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
-        reject();
-    }
-
-    cf_retap_packets(cap_file_.capFile());
-    drawTreeItems(st_);
-
-    ui->statsTreeWidget->setSortingEnabled(true);
-    remove_tap_listener(st_);
-
-    st_cfg_->pr = NULL;
-}
-
-void StatsTreeDialog::resetTap(void *st_ptr)
-{
-    stats_tree *st = (stats_tree *) st_ptr;
-    if (!st || !st->cfg || !st->cfg->pr || !st->cfg->pr->st_dlg) return;
-
-    st->cfg->pr->st_dlg->ui->statsTreeWidget->clear();
-    st->cfg->init(st);
 }
 
 // Adds a node to the QTreeWidget
@@ -197,17 +99,83 @@ void StatsTreeDialog::setupNode(stat_node* node)
     if (parent) {
         parent->addChild(ti);
     } else {
-        st_dlg->ui->statsTreeWidget->addTopLevelItem(ti);
+        st_dlg->statsTreeWidget()->addTopLevelItem(ti);
     }
-    st_dlg->ui->statsTreeWidget->resizeColumnToContents(item_col_);
+    st_dlg->statsTreeWidget()->resizeColumnToContents(item_col_);
+}
+
+void StatsTreeDialog::fillTree()
+{
+    GString *error_string;
+    if (!st_cfg_ || file_closed_) return;
+
+    gchar* display_name_temp = stats_tree_get_displayname(st_cfg_->name);
+    QString display_name(display_name_temp);
+    g_free(display_name_temp);
+
+    // The GTK+ UI appends "Stats Tree" to the window title. If we do the same
+    // here we should expand the name completely, e.g. to "Statistics Tree".
+    setWindowSubtitle(display_name);
+
+    st_cfg_->pr = &cfg_pr_;
+    cfg_pr_.st_dlg = this;
+
+    if (st_) {
+        stats_tree_free(st_);
+    }
+    st_ = stats_tree_new(st_cfg_, NULL, displayFilter());
+
+    // Add number of columns for this stats_tree
+    QStringList headerLabels;
+    for (int count = 0; count<st_->num_columns; count++) {
+        headerLabels.push_back(stats_tree_get_column_name(count));
+    }
+    statsTreeWidget()->setColumnCount(headerLabels.count());
+    statsTreeWidget()->setHeaderLabels(headerLabels);
+    resize(st_->num_columns*80+80, height());
+    for (int count = 0; count<st_->num_columns; count++) {
+        headerLabels.push_back(stats_tree_get_column_name(count));
+    }
+    statsTreeWidget()->setSortingEnabled(false);
+
+    error_string = register_tap_listener(st_cfg_->tapname,
+                          st_,
+                          st_->filter,
+                          st_cfg_->flags,
+                          resetTap,
+                          stats_tree_packet,
+                          drawTreeItems);
+    if (error_string) {
+        QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(display_name),
+                             error_string->str);
+        g_string_free(error_string, TRUE);
+        reject();
+    }
+
+    cf_retap_packets(cap_file_.capFile());
+    drawTreeItems(st_);
+
+    statsTreeWidget()->setSortingEnabled(true);
+    remove_tap_listener(st_);
+
+    st_cfg_->pr = NULL;
+}
+
+void StatsTreeDialog::resetTap(void *st_ptr)
+{
+    stats_tree *st = (stats_tree *) st_ptr;
+    if (!st || !st->cfg || !st->cfg->pr || !st->cfg->pr->st_dlg) return;
+
+    st->cfg->pr->st_dlg->statsTreeWidget()->clear();
+    st->cfg->init(st);
 }
 
 void StatsTreeDialog::drawTreeItems(void *st_ptr)
 {
     stats_tree *st = (stats_tree *) st_ptr;
     if (!st || !st->cfg || !st->cfg->pr || !st->cfg->pr->st_dlg) return;
-    StatsTreeDialog *st_dlg = st->cfg->pr->st_dlg;
-    QTreeWidgetItemIterator iter(st_dlg->ui->statsTreeWidget);
+    TapParameterDialog *st_dlg = st->cfg->pr->st_dlg;
+    QTreeWidgetItemIterator iter(st_dlg->statsTreeWidget());
     int node_count = 0;
 
     while (*iter) {
@@ -225,101 +193,19 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
         node_count++;
         ++iter;
     }
-    if (node_count < expand_all_threshold_) {
-        st_dlg->ui->statsTreeWidget->expandAll();
-    }
 
-    for (int count = 0; count<st->num_columns; count++) {
-        st_dlg->ui->statsTreeWidget->resizeColumnToContents(count);
-    }
+    st_dlg->drawTreeItems();
 }
 
-void StatsTreeDialog::updateWidgets()
+QByteArray StatsTreeDialog::getTreeAsString(st_format_type format)
 {
-    if (file_closed_) {
-        ui->displayFilterLineEdit->setEnabled(false);
-        ui->applyFilterButton->setEnabled(false);
-    }
-}
-
-void StatsTreeDialog::on_applyFilterButton_clicked()
-{
-    fillTree();
-}
-
-void StatsTreeDialog::on_actionCopyToClipboard_triggered()
-{
-    GString* s= stats_tree_format_as_str(st_ ,ST_FORMAT_PLAIN, ui->statsTreeWidget->sortColumn(),
-                ui->statsTreeWidget->header()->sortIndicatorOrder()==Qt::DescendingOrder);
-    wsApp->clipboard()->setText(s->str);
-    g_string_free(s,TRUE);
-}
-
-void StatsTreeDialog::on_actionSaveAs_triggered()
-{
-    QString selectedFilter;
-    st_format_type file_type;
-    const char *file_ext;
-    FILE *f;
     GString *str_tree;
-    bool success= false;
-    int last_errno;
-
-    QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As" UTF8_HORIZONTAL_ELLIPSIS)),
-                                                            get_last_open_dir());
-    SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
-                                    "Comma separated values (*.csv);;"
-                                    "XML document (*.xml);;"
-                                    "YAML document (*.yaml)"));
-    SaveAsDialog.selectNameFilter(tr("Plain text file (*.txt)"));
-    SaveAsDialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (!SaveAsDialog.exec()) {
-        return;
-    }
-    selectedFilter= SaveAsDialog.selectedNameFilter();
-    if (selectedFilter.contains("*.yaml", Qt::CaseInsensitive)) {
-        file_type= ST_FORMAT_YAML;
-        file_ext = ".yaml";
-    }
-    else if (selectedFilter.contains("*.xml", Qt::CaseInsensitive)) {
-        file_type= ST_FORMAT_XML;
-        file_ext = ".xml";
-    }
-    else if (selectedFilter.contains("*.csv", Qt::CaseInsensitive)) {
-        file_type= ST_FORMAT_CSV;
-        file_ext = ".csv";
-    }
-    else {
-        file_type= ST_FORMAT_PLAIN;
-        file_ext = ".txt";
-    }
-
-    // Get selected filename and add extension of necessary
-    QString file_name = SaveAsDialog.selectedFiles()[0];
-    if (!file_name.endsWith(file_ext, Qt::CaseInsensitive)) {
-        file_name.append(file_ext);
-    }
 
     // produce output in selected format using current sort information
-    str_tree=stats_tree_format_as_str(st_ ,file_type, ui->statsTreeWidget->sortColumn(),
-                ui->statsTreeWidget->header()->sortIndicatorOrder()==Qt::DescendingOrder);
+    str_tree = stats_tree_format_as_str(st_, format, statsTreeWidget()->sortColumn(),
+                statsTreeWidget()->header()->sortIndicatorOrder()==Qt::DescendingOrder);
 
-    // actually save the file
-    f= ws_fopen (file_name.toUtf8().constData(),"w");
-    last_errno= errno;
-    if (f) {
-        if (fputs(str_tree->str, f)!=EOF) {
-            success= true;
-        }
-        last_errno= errno;
-        fclose(f);
-    }
-    if (!success) {
-        QMessageBox::warning(this, tr("Error saving file %1").arg(file_name),
-                             g_strerror (last_errno));
-    }
-
-    g_string_free(str_tree, TRUE);
+    return gstring_free_to_qbytearray(str_tree);
 }
 
 extern "C" {

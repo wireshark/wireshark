@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StatsTreeDialog</class>
- <widget class="QDialog" name="StatsTreeDialog">
+ <class>TapParameterDialog</class>
+ <widget class="QDialog" name="TapParameterDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -74,7 +74,7 @@
     <string>Save as...</string>
    </property>
    <property name="toolTip">
-    <string>Save the stats_tree data in various formats</string>
+    <string>Save the displayed data in various formats</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -92,7 +92,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>StatsTreeDialog</receiver>
+   <receiver>TapParameterDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -108,7 +108,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>StatsTreeDialog</receiver>
+   <receiver>TapParameterDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

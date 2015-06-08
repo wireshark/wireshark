@@ -1,4 +1,4 @@
-/* stats_tree_dialog.h
+/* tap_parameter_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,42 +19,57 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef STATS_TREE_DIALOG_H
-#define STATS_TREE_DIALOG_H
+#ifndef TAP_PARAMETER_DIALOG_H
+#define TAP_PARAMETER_DIALOG_H
 
-#include "tap_parameter_dialog.h"
-
-#include <config.h>
+#include "config.h"
 
 #include <glib.h>
 
-#include "epan/stats_tree_priv.h"
+#include <epan/stat_groups.h>
 
-struct _tree_cfg_pres {
-    class StatsTreeDialog* st_dlg;
-};
+#include "wireshark_dialog.h"
 
-class StatsTreeDialog : public TapParameterDialog
+class QTreeWidget;
+
+namespace Ui {
+class TapParameterDialog;
+}
+
+class TapParameterDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr = NULL);
-    ~StatsTreeDialog();
-    static void setupNode(stat_node* node);
+    explicit TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic = 0);
+    ~TapParameterDialog();
+
+    QTreeWidget *statsTreeWidget();
+    void drawTreeItems();
+
+public slots:
+
+protected:
+    void showEvent(QShowEvent *);
+    const char *displayFilter();
 
 private:
-    struct _tree_cfg_pres cfg_pr_;
-    stats_tree *st_;
-    stats_tree_cfg *st_cfg_;
+    Ui::TapParameterDialog *ui;
+    int help_topic_;
 
-    virtual void fillTree();
-    static void resetTap(void *st_ptr);
-    static void drawTreeItems(void *st_ptr);
-    virtual QByteArray getTreeAsString(st_format_type format);
+    // Called by the constructor. The subclass should tap packets here.
+    virtual void fillTree() = 0;
+    virtual QByteArray getTreeAsString(st_format_type format) = 0;
+
+private slots:
+    void updateWidgets();
+    void on_applyFilterButton_clicked();
+    void on_actionCopyToClipboard_triggered();
+    void on_actionSaveAs_triggered();
+    void on_buttonBox_helpRequested();
 };
 
-#endif // STATS_TREE_DIALOG_H
+#endif // TAP_PARAMETER_DIALOG_H
 
 /*
  * Editor modelines

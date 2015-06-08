@@ -224,7 +224,7 @@ sctp_graph_byte_dialog.cpp sctp_graph_byte_dialog.h: ui_sctp_graph_byte_dialog.h
 
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
-stats_tree_dialog.cpp stats_tree_dialog.h: ui_stats_tree_dialog.h
+tap_parameter_dialog.cpp tap_parameter_dialog.h: ui_tap_parameter_dialog.h
 
 tcp_stream_dialog.cpp: ui_tcp_stream_dialog.h
 

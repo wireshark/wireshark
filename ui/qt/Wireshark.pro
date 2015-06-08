@@ -257,7 +257,7 @@ FORMS += \
     search_frame.ui \
     sequence_dialog.ui \
     splash_overlay.ui \
-    stats_tree_dialog.ui \
+    tap_parameter_dialog.ui \
     tcp_stream_dialog.ui \
     time_shift_dialog.ui \
     traffic_table_dialog.ui \
@@ -321,6 +321,7 @@ HEADERS += $$HEADERS_WS_C \
     splash_overlay.h \
     stats_tree_dialog.h \
     tango_colors.h \
+    tap_parameter_dialog.h \
     tcp_stream_dialog.h \
     traffic_table_dialog.h \
     uat_dialog.h \
@@ -700,6 +701,7 @@ SOURCES += \
     stats_tree_dialog.cpp \
     stock_icon.cpp \
     syntax_line_edit.cpp \
+    tap_parameter_dialog.cpp \
     tcp_stream_dialog.cpp \
     time_shift_dialog.cpp \
     traffic_table_dialog.cpp \

@@ -69,6 +69,15 @@ gchar *qstring_strdup(QString q_string);
  */
 QString gchar_free_to_qstring(gchar *glib_string);
 
+/** Transfer ownership of a GLib character string to a newly constructed QByteArray
+ *
+ * @param glib_string A string allocated with g_malloc() or NULL. Will be
+ * freed.
+ *
+ * @return A QByteArray instance created from the input string.
+ */
+QByteArray gstring_free_to_qbytearray(GString *glib_gstring);
+
 /** Convert an address to a QString using address_to_str().
  *
  * @param address A pointer to an address.

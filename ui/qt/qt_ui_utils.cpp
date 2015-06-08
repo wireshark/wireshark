@@ -58,6 +58,13 @@ QString gchar_free_to_qstring(gchar *glib_string) {
     return qt_string;
 }
 
+QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
+{
+    QByteArray qt_ba(glib_gstring->str);
+    g_string_free(glib_gstring, TRUE);
+    return qt_ba;
+}
+
 const QString address_to_qstring(const _address *address)
 {
     QString address_qstr = QString();

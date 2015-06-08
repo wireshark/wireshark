@@ -69,6 +69,12 @@ typedef enum {
     REGISTER_TOOLS_GROUP_UNSORTED               /* unsorted tools */
 } register_stat_group_t;
 
+/** Format types for "Save As..." */
+/* XXX Is there a more appropriate place to define this? */
+typedef enum _st_format_type {
+    ST_FORMAT_PLAIN, ST_FORMAT_CSV, ST_FORMAT_XML, ST_FORMAT_YAML
+    } st_format_type;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
