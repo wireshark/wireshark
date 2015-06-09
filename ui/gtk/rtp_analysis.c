@@ -2523,7 +2523,7 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 		if (nchars != 4)
 			goto copy_file_err;
 		/* total length; it is permitted to set this to 0xffffffff */
-		phton32(pd, -1);
+		phton32(pd, 0xffffffff);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
