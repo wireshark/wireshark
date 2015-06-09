@@ -1366,7 +1366,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     uint64_t                      *timestamp;
     char                          *packet = buffer + BLUEDROID_TIMESTAMP_SIZE - sizeof(own_pcap_bluetooth_h4_header); /* skip timestamp (8 bytes) and reuse its space for header */
     own_pcap_bluetooth_h4_header  *h4_header;
-    char                          *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
+    guint8                        *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
     const char                    *adb_transport  = "0012""host:transport-any";
     const char                    *adb_transport_serial_templace              = "%04x""host:transport:%s";
     const char                    *adb_tcp_bluedroid_external_parser_template = "%04x""tcp:%05u";
@@ -1519,6 +1519,9 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_ACL &&
                     used_buffer_length >= BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + 2 &&
                     BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + payload[BLUEDROID_H4_SIZE + 2] + (payload[BLUEDROID_H4_SIZE + 2 + 1] << 8) + 2 <= used_buffer_length) ||
+                (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_SCO &&
+                    used_buffer_length >= BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + 1 &&
+                    BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + payload[BLUEDROID_H4_SIZE + 2] + 1 <= used_buffer_length) ||
                 (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_EVT &&
                     used_buffer_length >= BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 1 + 1 &&
                     BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 1 + payload[BLUEDROID_H4_SIZE + 1] + 1 <= used_buffer_length)) {
@@ -1562,6 +1565,14 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 if (verbose)
                     printf("ERROR: Invalid stream\n");
                 return 1;
+            }
+
+            if (verbose) {
+                static unsigned int id = 1;
+                printf("\t Packet %u: used_buffer_length=%"G_GSSIZE_FORMAT" length=%"G_GSSIZE_FORMAT" captured_length=%i type=0x%02x\n", id, used_buffer_length, length, captured_length, payload[BLUEDROID_H4_PACKET_TYPE]);
+                if (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_EVT)
+                    printf("\t Packet: %02x %02x %02x\n", (unsigned int) payload[0], (unsigned int) payload[1], (unsigned int)payload[2]);
+                id +=1;
             }
 
             ts -= BLUEDROID_TIMESTAMP_BASE;
