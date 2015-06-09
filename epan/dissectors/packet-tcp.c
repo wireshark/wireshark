@@ -5110,18 +5110,20 @@ tcp_init(void)
 void
 proto_register_tcp(void)
 {
+    static value_string tcp_ports[65536+1];
+
     static hf_register_info hf[] = {
 
         { &hf_tcp_srcport,
-        { "Source Port",        "tcp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Source Port",        "tcp.srcport", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_dstport,
-        { "Destination Port",       "tcp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Destination Port",       "tcp.dstport", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_port,
-        { "Source or Destination Port", "tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Source or Destination Port", "tcp.port", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_stream,
@@ -5961,6 +5963,28 @@ proto_register_tcp(void)
 
     module_t *tcp_module;
     expert_module_t* expert_tcp;
+
+    {
+        int i, j;
+        gboolean transport_name_old = gbl_resolv_flags.transport_name;
+
+        gbl_resolv_flags.transport_name = TRUE;
+        for (i = 0, j = 0; i <= 65535; i++) {
+            const char *serv = tcp_port_to_display(NULL, i);
+
+            if (serv) {
+                value_string *p = &tcp_ports[j++];
+
+                p->value = i;
+                p->strptr = serv;
+            }
+        }
+        /* NULL terminate */
+        tcp_ports[j].value = 0;
+        tcp_ports[j].strptr = NULL;
+
+        gbl_resolv_flags.transport_name = transport_name_old;
+    }
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
     register_dissector("tcp", dissect_tcp, proto_tcp);
