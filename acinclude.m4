@@ -1964,7 +1964,7 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 	#
 	case "$3" in
 
-	yes)
+	yes|unspecified)
 		#
 		# Check for all versions of Qt we support.
 		#

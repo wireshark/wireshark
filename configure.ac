@@ -1640,9 +1640,22 @@ if test "x$enable_wireshark" = "xyes"; then
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
+
+			#
+			# XXX - greasy hack to make ui/gtk/recent.c
+			# compile.
+			#
+			CPPFLAGS="-DQT_GUI_LIB"
 		],
 		[
 			case "$with_qt" in
+
+			unspecified)
+				#
+				# They didn't explicitly ask for Qt,
+				# so just don't build with it.
+				#
+				;;
 
 			yes)
 				AC_MSG_ERROR([Qt is not available])
@@ -1657,12 +1670,6 @@ if test "x$enable_wireshark" = "xyes"; then
 				;;
 			esac
 		])
-
-		#
-		# XXX - greasy hack to make ui/gtk/recent.c
-		# compile.
-		#
-		CPPFLAGS="-DQT_GUI_LIB"
 	fi
 
 	if test "x$with_gtk3" = "xyes"; then
