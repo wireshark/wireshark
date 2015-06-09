@@ -336,7 +336,7 @@ raw_pipe_open(const char *pipe_name)
             }
         }
 
-        rfd = _open_osfhandle((long) hPipe, _O_RDONLY);
+        rfd = _open_osfhandle((intptr_t) hPipe, _O_RDONLY);
         if (rfd == -1) {
             fprintf(stderr, "rawshark: \"%s\" could not be opened: %s\n",
                     pipe_name, g_strerror(errno));

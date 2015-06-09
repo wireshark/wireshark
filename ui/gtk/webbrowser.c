@@ -155,7 +155,7 @@ browser_open_url (const gchar *url)
 {
 #if defined(G_OS_WIN32)
 
-  return ((gint) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(url), NULL, NULL, SW_SHOWNORMAL) > 32);
+  return ((intptr_t) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(url), NULL, NULL, SW_SHOWNORMAL) > 32);
 
 #elif defined(HAVE_OS_X_FRAMEWORKS)
 
@@ -312,12 +312,12 @@ filemanager_open_directory (const gchar *path)
      (eg: wireshak-gtk2.exe exists in the same directory as  a wireshark-gtk2
           directory entry).
   */
-  gint   ret;
-  gchar *xpath;
+  intptr_t   ret;
+  gchar     *xpath;
   xpath = g_strconcat(path,
                       g_str_has_suffix(path, "\\") ? "" : "\\",
                       NULL);
-  ret = (gint) ShellExecute (HWND_DESKTOP, _T("explore"), utf_8to16(xpath), NULL, NULL, SW_SHOWNORMAL);
+  ret = (intptr_t) ShellExecute (HWND_DESKTOP, _T("explore"), utf_8to16(xpath), NULL, NULL, SW_SHOWNORMAL);
   g_free(xpath);
   return (ret > 32);
 
