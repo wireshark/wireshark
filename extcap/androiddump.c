@@ -362,18 +362,21 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 #endif
             if (verbose)
                 fprintf(stderr, "WARNING: Cannot execute system command to start adb: %s\n", strerror(errno));
+            closesocket(sock);
             return INVALID_SOCKET;
         };
 
         if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
             if (verbose)
                 fprintf(stderr, "ERROR: Cannot connect to ADB: <%s> Please check that adb daemon is running.\n", strerror(errno));
+            closesocket(sock);
             return INVALID_SOCKET;
         }
 #else
     if (verbose) {
         fprintf(stderr, "ERROR: Cannot connect to ADB: <%s> Please check that adb daemon is running.\n", strerror(errno));
     }
+    closesocket(sock);
     return INVALID_SOCKET;
 #endif
     }
@@ -384,11 +387,13 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
         length = sizeof(client);
         if (getsockname(sock, (struct sockaddr *) &client, &length)) {
             fprintf(stderr, "ERROR getsockname: %s\n", strerror(errno));
+            closesocket(sock);
             return INVALID_SOCKET;
         }
 
         if (length != sizeof(client)) {
             fprintf(stderr, "ERROR: incorrect length\n");
+            closesocket(sock);
             return INVALID_SOCKET;
         }
 
@@ -575,6 +580,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+            closesocket(sock);
             return 1;
         }
 
@@ -702,12 +708,14 @@ static int add_android_interfaces(struct interface_t **interface_list,
             disable_interface = 0;
 
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+            if (sock == INVALID_SOCKET) continue;
 
             sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+                closesocket(sock);
                 return 1;
             }
 
@@ -749,12 +757,14 @@ static int add_android_interfaces(struct interface_t **interface_list,
         if (api_level >= 17 && api_level < 21) {
             disable_interface = 0;
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+            if (sock == INVALID_SOCKET) continue;
 
             sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+                closesocket(sock);
                 return 1;
             }
 
@@ -785,6 +795,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
                     if (result) {
                         if (verbose)
                             fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+                        closesocket(sock);
                         return 1;
                     }
 
@@ -826,12 +837,14 @@ static int add_android_interfaces(struct interface_t **interface_list,
         if (api_level >= 21) {
             disable_interface = 0;
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+            if (sock == INVALID_SOCKET) continue;
 
             sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+                closesocket(sock);
                 return 1;
             }
 
@@ -862,6 +875,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
                     if (result) {
                         if (verbose)
                             fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+                        closesocket(sock);
                         return 1;
                     }
 
@@ -1066,6 +1080,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", adb_transport);
+            closesocket(sock);
             return 1;
         }
     } else {
@@ -1074,6 +1089,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+            closesocket(sock);
             return 1;
         }
     }
@@ -1082,6 +1098,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     if (result) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while starting capture by sending command: %s\n", adb_shell_hcidump);
+        closesocket(sock);
         return 1;
     }
 
@@ -1094,6 +1111,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
@@ -1105,6 +1123,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             if (!strncmp(data, "/system/bin/sh: hcidump: not found", 34)) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Command not found for <%s>\n", adb_shell_hcidump);
+                closesocket(sock);
                 return 2;
             }
 
@@ -1135,6 +1154,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
+            closesocket(sock);
             return 1;
         }
 
@@ -1142,6 +1162,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while starting capture by sending command: <%s>\n", adb_shell_su_hcidump);
+            closesocket(sock);
             return 1;
         }
 
@@ -1155,6 +1176,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             else if (errno != 0) {
                 if (verbose)
                     printf("ERROR capture: %s\n", strerror(errno));
+                closesocket(sock);
                 return 100;
             }
 
@@ -1164,6 +1186,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 if (!strncmp(data, "/system/bin/sh: su: not found", 29)) {
                     if (verbose)
                         fprintf(stderr, "ERROR: Command 'su' not found for <%s>\n", adb_shell_su_hcidump);
+                    closesocket(sock);
                     return 2;
                 }
 
@@ -1185,6 +1208,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
@@ -1203,6 +1227,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
                             if (verbose)
                                 printf("ERROR: data format error: %s\n", strerror(errno));
+                            closesocket(sock);
                             return 101;
                         }
 
@@ -1211,6 +1236,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
                             if (verbose)
                                 printf("ERROR: data format error: %s\n", strerror(errno));
+                            closesocket(sock);
                             return 101;
                         }
 
@@ -1224,6 +1250,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
                             if (verbose)
                                 printf("ERROR: data format error: %s\n", strerror(errno));
+                            closesocket(sock);
                             return 101;
                         }
 
@@ -1237,6 +1264,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
                             if (verbose)
                                 printf("ERROR: data format error: %s\n", strerror(errno));
+                            closesocket(sock);
                             return 101;
                         }
 
@@ -1245,6 +1273,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
                             if (verbose)
                                 printf("ERROR: data format error: %s\n", strerror(errno));
+                            closesocket(sock);
                             return 101;
                         }
 
@@ -1260,7 +1289,8 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 } else {
                     if (verbose)
                         fprintf(stderr, "ERROR: bad raw stream\n");
-                    exit(1);
+                    closesocket(sock);
+                    return 1;
                 }
             } else {
                 used_buffer_length += length;
@@ -1318,6 +1348,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         }
     }
 
+    closesocket(sock);
     return 0;
 }
 
@@ -1416,6 +1447,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
             if (verbose)
                 printf("ERROR: <%s> Please check that adb daemon is running.\n\n", strerror(errno));
+            closesocket(sock);
             return 2;
         }
 
@@ -1425,11 +1457,13 @@ static int capture_android_bluetooth_external_parser(char *interface,
             length = sizeof(client);
             if (getsockname(sock, (struct sockaddr *) &client, (socklen_t *) &length)) {
                 printf("ERROR getsockname: %s\n", strerror(errno));
+                closesocket(sock);
                 return 3;
             }
 
             if (length != sizeof(client)) {
                 printf("ERROR: incorrect length\n");
+                closesocket(sock);
                 return 4;
             }
 
@@ -1447,6 +1481,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             if (result) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Error while setting adb transport\n");
+                closesocket(sock);
                 return 1;
             }
         } else {
@@ -1455,6 +1490,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             if (result) {
                 if (verbose)
                     fprintf(stderr, "ERROR: Error while setting adb transport\n");
+                closesocket(sock);
                 return 1;
             }
         }
@@ -1464,6 +1500,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while forwarding adb port\n");
+            closesocket(sock);
             return 1;
         }
     }
@@ -1475,6 +1512,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
@@ -1488,6 +1526,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
                     if (verbose)
                         printf("ERROR1: %s\n", strerror(errno));
+                    closesocket(sock);
                     return 1;
                 }
 
@@ -1498,11 +1537,13 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
                     if (verbose)
                         printf("ERROR reconnect: <%s> Please check that adb daemon is running.\n", strerror(errno));
+                    closesocket(sock);
                     return 2;
                 }
             } else {
                 if (verbose)
                     printf("ERROR: Broken socket connection.\n");
+                closesocket(sock);
                 return 1;
             }
 
@@ -1564,6 +1605,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             default:
                 if (verbose)
                     printf("ERROR: Invalid stream\n");
+                closesocket(sock);
                 return 1;
             }
 
@@ -1587,12 +1629,14 @@ static int capture_android_bluetooth_external_parser(char *interface,
             if (used_buffer_length < 0) {
                 if (verbose)
                     printf("ERROR: Internal error: Negative used buffer length.\n");
+                closesocket(sock);
                 return 1;
             }
             memmove(buffer, packet + length, used_buffer_length);
         }
     }
 
+    closesocket(sock);
     return 0;
 }
 
@@ -1653,6 +1697,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", packet);
+            closesocket(sock);
             return 1;
         }
     }
@@ -1661,6 +1706,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     if (result) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending command <%s>\n", adb_tcp_btsnoop_net);
+        closesocket(sock);
         return 1;
     }
 
@@ -1682,6 +1728,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
@@ -1714,6 +1761,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
             if (used_buffer_length < 0) {
                 if (verbose)
                     printf("ERROR: Internal error: Negative used buffer length.\n");
+                closesocket(sock);
                 return 1;
             }
 
@@ -1722,6 +1770,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
         }
     }
 
+    closesocket(sock);
     return 0;
 }
 
@@ -1784,6 +1833,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", adb_transport);
+            closesocket(sock);
             return 1;
         }
     } else {
@@ -1792,6 +1842,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", packet);
+            closesocket(sock);
             return 1;
         }
     }
@@ -1808,6 +1859,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         logcat_buffer = " -b crash";
     else {
         printf("ERROR: Unknown interface: <%s>\n", interface);
+        closesocket(sock);
         return -1;
     }
 
@@ -1817,6 +1869,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     if (result) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending command <%s>\n", packet);
+        closesocket(sock);
         return 1;
     }
 
@@ -1843,13 +1896,15 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
         if (length <= 0) {
             if (verbose)
                 printf("ERROR: Broken socket connection. Try reconnect.\n");
-            exit(1);
+            closesocket(sock);
+            return 1;
         }
 
         used_buffer_length += length;
@@ -1882,6 +1937,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         }
     }
 
+    closesocket(sock);
     return 0;
 }
 
@@ -1947,6 +2003,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport\n");
+            closesocket(sock);
             return 1;
         }
     } else {
@@ -1955,6 +2012,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         if (result) {
             if (verbose)
                 fprintf(stderr, "ERROR: Error while setting adb transport\n");
+            closesocket(sock);
             return 1;
         }
     }
@@ -1969,6 +2027,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         adb_command = adb_log_events;
     else {
         printf("ERROR: Unknown interface: <%s>\n", interface);
+        closesocket(sock);
         return -1;
     }
 
@@ -1976,6 +2035,7 @@ static int capture_android_logcat(char *interface, char *fifo,
     if (result) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending command <%s>\n", adb_command);
+        closesocket(sock);
         return 1;
     }
 
@@ -2012,6 +2072,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
+            closesocket(sock);
             return 100;
         }
 
@@ -2031,6 +2092,7 @@ static int capture_android_logcat(char *interface, char *fifo,
                     if (result) {
                         if (verbose)
                             fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", adb_transport);
+                        closesocket(sock);
                         return 1;
                     }
                 } else {
@@ -2039,6 +2101,7 @@ static int capture_android_logcat(char *interface, char *fifo,
                     if (result) {
                         if (verbose)
                             fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helper_packet);
+                        closesocket(sock);
                         return 1;
                     }
                 }
@@ -2053,6 +2116,7 @@ static int capture_android_logcat(char *interface, char *fifo,
                     adb_command = adb_log_events;
                 else {
                     printf("ERROR: Unknown interface: <%s>\n", interface);
+                    closesocket(sock);
                     return 1;
                 }
 
@@ -2097,6 +2161,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         used_buffer_length -= exported_pdu_headers_size;
     }
 
+    closesocket(sock);
     return 0;
 }
 
