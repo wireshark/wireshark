@@ -825,6 +825,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0250, "PDInterfaceAdjust"},
     { 0x0251, "PDPortStatistic"},
     { 0x0400, "MultipleBlockHeader"},
+    { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
     { 0x0600, "FSHello"},
     { 0x0601, "FSParameterBlock"},
@@ -1810,7 +1811,8 @@ static const value_string pn_io_index[] = {
     { 0x8080, "PDInterfaceDataReal" },
     /*0x8081 - 0x808F reserved */
     { 0x8090, "Expected PDInterfaceFSUDataAdjust" },
-    /*0x8091 - 0xAFEF reserved */
+    /*0x8091 - 0xAFEF reserved except 0x80B0*/
+    { 0x80B0, "CombinedObjectContainer" },
     { 0xAFF0, "I&M0" },
     { 0xAFF1, "I&M1" },
     { 0xAFF2, "I&M2" },
@@ -8094,6 +8096,48 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect Combined Object Container Content block */
+static int
+dissect_COContainerContent_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
+{
+    guint32    u32Api;
+    guint16    u16SlotNr;
+    guint16    u16SubslotNr;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_api, &u32Api);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_slot_nr, &u16SlotNr);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_subslot_nr, &u16SubslotNr);
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_index, &u16Index);
+
+    proto_item_append_text(item, ": Api:0x%x Slot:%u Subslot:0x%x Index:0x%x",
+        u32Api, u16SlotNr, u16SubslotNr, u16Index);
+
+    if(u16Index != 0x80B0) {
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, u32RecDataLen, ar);
+    }
+
+    return offset;
+}
+
 
 static const gchar *
 indexReservedForProfiles(guint16 u16Index)
@@ -8472,6 +8516,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case(0x0401):
+        dissect_COContainerContent_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, *u16Index, u32RecDataLen, ar);
         break;
     case(0x0500):
         dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, *u16Index, u16BodyLength);
@@ -9168,7 +9215,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8071):   /* PDInterfaceAdjust */
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
-
+    case(0x80B0):   /* CombinedObjectContainer*/
     case(0xe030):   /* IsochronousModeData for one AR */
     case(0xe050):   /* FastStartUp data for one AR */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);

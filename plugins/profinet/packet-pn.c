@@ -245,7 +245,7 @@ int
 dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text)
 {
-    if (tree) {
+    if (tree && length != 0) {
         proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
             "%s: %d bytes", text, length);
     }
