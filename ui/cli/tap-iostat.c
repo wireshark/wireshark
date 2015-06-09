@@ -629,7 +629,7 @@ iostat_draw(void *arg)
         borderlen = 30 + dur_mag + (invl_prec == 0 ? 0 : invl_prec+1);
     } else {
         invl_prec = iot->invl_prec;
-        borderlen = 24 + invl_mag + (invl_prec == 0 ? 0 : invl_prec+1);
+        borderlen = 25 + MAX(invl_mag,dur_mag) + (invl_prec == 0 ? 0 : invl_prec+1);
     }
 
     /* Round the duration according to invl_prec */
