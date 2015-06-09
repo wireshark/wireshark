@@ -233,9 +233,10 @@ void ProfileDialog::on_deleteToolButton_clicked()
 void ProfileDialog::on_copyToolButton_clicked()
 {
     QTreeWidgetItem *cur_item = pd_ui_->profileTreeWidget->currentItem();
-    profile_def *cur_profile = (profile_def *) cur_item->data(0, Qt::UserRole).value<GList *>()->data;
+    if (!cur_item) return;
 
-    if (!cur_item || !cur_profile) return;
+    profile_def *cur_profile = (profile_def *) cur_item->data(0, Qt::UserRole).value<GList *>()->data;
+    if (!cur_profile) return;
 
     QTreeWidgetItem *new_item = new QTreeWidgetItem();
     GList *fl_entry;
