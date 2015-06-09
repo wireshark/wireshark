@@ -77,7 +77,7 @@
 // If we ever add support for multiple windows this will need to be replaced.
 static MainWindow *gbl_cur_main_window_ = NULL;
 
-void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+void pipe_input_set_handler(gint source, gpointer user_data, intptr_t *child_process, pipe_input_cb_t input_cb)
 {
     gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
 }
@@ -472,7 +472,7 @@ QString MainWindow::getFilter()
     return df_combo_box_->itemText(df_combo_box_->count());
 }
 
-void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+void MainWindow::setPipeInputHandler(gint source, gpointer user_data, intptr_t *child_process, pipe_input_cb_t input_cb)
 {
     pipe_source_        = source;
     pipe_child_process_ = child_process;

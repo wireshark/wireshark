@@ -54,7 +54,7 @@ sync_pipe_stop(capture_session *cap_session);
 
 /** User wants to stop the program, just kill the child as soon as possible */
 extern void
-sync_pipe_kill(int fork_child);
+sync_pipe_kill(intptr_t fork_child);
 
 /** Set wireless channel using dumpcap */
 extern int
@@ -75,11 +75,11 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
 
 /** Start getting interface statistics using dumpcap. */
 extern int
-sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg, void (*update_cb)(void));
+sync_interface_stats_open(int *read_fd, intptr_t *fork_child, gchar **msg, void (*update_cb)(void));
 
 /** Stop gathering statistics. */
 extern int
-sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg);
+sync_interface_stats_close(int *read_fd, intptr_t *fork_child, gchar **msg);
 
 /** Read a line from a pipe, similar to fgets.  Non-blocking. */
 extern int

@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
+    void setPipeInputHandler(gint source, gpointer user_data, intptr_t *child_process, pipe_input_cb_t input_cb);
 
     QString getFilter();
 #ifdef HAVE_LIBPCAP
@@ -140,7 +140,7 @@ private:
     // Pipe input
     gint                pipe_source_;
     gpointer            pipe_user_data_;
-    int                 *pipe_child_process_;
+    intptr_t           *pipe_child_process_;
     pipe_input_cb_t     pipe_input_cb_;
 #ifdef _WIN32
     QTimer *pipe_timer_;

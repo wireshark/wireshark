@@ -25,6 +25,8 @@
 #ifndef __UI_UTIL_H__
 #define __UI_UTIL_H__
 
+#include <stdint.h>
+
 #include "epan/packet_info.h"
 #include "epan/column-utils.h"
 
@@ -56,7 +58,7 @@ extern void main_window_quit(void);
 /* read from a pipe (callback) */
 typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 /* install callback function, called if pipe input is available */
-extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
+extern void pipe_input_set_handler(gint source, gpointer user_data, intptr_t *child_process, pipe_input_cb_t input_cb);
 
 /* packet_list.c */
 

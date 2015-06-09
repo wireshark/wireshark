@@ -29,6 +29,7 @@ extern "C" {
 
 #ifndef _WIN32
 #include <sys/types.h>
+#include <stdint.h>
 #endif
 
 #include "capture_opts.h"
@@ -47,20 +48,20 @@ struct _capture_file;
  * State of a capture session.
  */
 typedef struct _capture_session {
-    int fork_child;                 /**< If not -1, in parent, process ID of child */
-    int fork_child_status;          /**< Child exit status */
+	intptr_t  fork_child;                 /**< If not -1, in parent, process ID of child */
+    int       fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
-    int signal_pipe_write_fd;       /**< the pipe to signal the child */
+    int       signal_pipe_write_fd;       /**< the pipe to signal the child */
 #endif
-    capture_state state;            /**< current state of the capture engine */
+              capture_state state;        /**< current state of the capture engine */
 #ifndef _WIN32
-    uid_t owner;                    /**< owner of the cfile */
-    gid_t group;                    /**< group of the cfile */
+              uid_t owner;                /**< owner of the cfile */
+    gid_t     group;                      /**< group of the cfile */
 #endif
-    gboolean session_started;
-    guint32 count;                  /**< Total number of frames captured */
-    capture_options *capture_opts;  /**< options for this capture */
-    struct _capture_file *cf;       /**< handle to cfile */
+    gboolean  session_started;
+    guint32   count;                      /**< Total number of frames captured */
+    capture_options *capture_opts;        /**< options for this capture */
+    struct    _capture_file *cf;          /**< handle to cfile */
 } capture_session;
 
 extern void

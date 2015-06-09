@@ -118,7 +118,7 @@ static const char *sync_pipe_signame(int);
 
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
+static int sync_pipe_wait_for_child(intptr_t fork_child, gchar **msgp);
 static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
 static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
@@ -659,15 +659,15 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
         g_free( (gpointer) argv);
         return FALSE;
     }
-    cap_session->fork_child = (int) pi.hProcess;
+    cap_session->fork_child = (intptr_t) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
     /* (good file handle infos at: http://www.flounder.com/handles.htm) */
-    sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
+    sync_pipe_read_fd = _open_osfhandle( (intptr_t) sync_pipe_read, _O_BINARY);
 
     /* associate the operating system filehandle to a C run-time file handle */
-    cap_session->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe, _O_BINARY);
+    cap_session->signal_pipe_write_fd = _open_osfhandle( (intptr_t) signal_pipe, _O_BINARY);
 
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
@@ -771,7 +771,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
 #define PIPE_BUF_SIZE 5120
 static int
 sync_pipe_open_command(char** argv, int *data_read_fd,
-                       int *message_read_fd, int *fork_child, gchar **msg, void(*update_cb)(void))
+                       int *message_read_fd, intptr_t *fork_child, gchar **msg, void(*update_cb)(void))
 {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #ifdef _WIN32
@@ -875,13 +875,13 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         g_free( (gpointer) argv);
         return -1;
     }
-    *fork_child = (int) pi.hProcess;
+    *fork_child = (intptr_t) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandles to C run-time file handles */
     /* (good file handle infos at: http://www.flounder.com/handles.htm) */
-    *data_read_fd = _open_osfhandle( (long) data_pipe[PIPE_READ], _O_BINARY);
-    *message_read_fd = _open_osfhandle( (long) sync_pipe[PIPE_READ], _O_BINARY);
+    *data_read_fd = _open_osfhandle( (intptr_t) data_pipe[PIPE_READ], _O_BINARY);
+    *message_read_fd = _open_osfhandle( (intptr_t) sync_pipe[PIPE_READ], _O_BINARY);
 #else /* _WIN32 */
     /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
@@ -983,7 +983,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
  */
 static int
 sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
-                        int *fork_child, gchar **msgp)
+	intptr_t *fork_child, gchar **msgp)
 {
     ws_close(*data_read_fd);
     if (message_read_fd != NULL)
@@ -1017,7 +1017,8 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
                       gchar **secondary_msg,  void(*update_cb)(void))
 {
     gchar *msg;
-    int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
+    int data_pipe_read_fd, sync_pipe_read_fd, ret;
+	intptr_t fork_child;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
@@ -1362,7 +1363,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
  * that must be g_free()d, and -1 will be returned.
  */
 int
-sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg, void (*update_cb)(void))
+sync_interface_stats_open(int *data_read_fd, intptr_t *fork_child, gchar **msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1514,7 +1515,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg, void 
 
 /* Close down the stats process */
 int
-sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg)
+sync_interface_stats_close(int *read_fd, intptr_t *fork_child, gchar **msg)
 {
 #ifndef _WIN32
     /*
@@ -1868,7 +1869,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
  * must be freed with g_free().
  */
 static int
-sync_pipe_wait_for_child(int fork_child, gchar **msgp)
+sync_pipe_wait_for_child(intptr_t fork_child, gchar **msgp)
 {
     int fork_child_status;
 #ifndef _WIN32
@@ -2139,7 +2140,7 @@ sync_pipe_stop(capture_session *cap_session)
 
 /* Wireshark has to exit, force the capture child to close */
 void
-sync_pipe_kill(int fork_child)
+sync_pipe_kill(intptr_t fork_child)
 {
     if (fork_child != -1) {
 #ifndef _WIN32

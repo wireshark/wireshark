@@ -63,7 +63,7 @@ typedef struct if_stat_cache_item_s {
 
 struct if_stat_cache_s {
     int stat_fd;
-    int fork_child;
+	intptr_t fork_child;
     GList *cache_list;  /* List of if_stat_chache_entry_t */
 };
 
@@ -644,7 +644,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
 if_stat_cache_t *
 capture_stat_start(capture_options *capture_opts) {
-  int stat_fd, fork_child;
+  int stat_fd;
+  intptr_t fork_child;
   gchar *msg;
   if_stat_cache_t *sc = NULL;
   if_stat_cache_item_t *sc_item;

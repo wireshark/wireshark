@@ -580,7 +580,7 @@ main_window_quit(void)
 typedef struct pipe_input_tag {
     gint             source;
     gpointer         user_data;
-    int             *child_process;
+    intptr_t        *child_process;
     pipe_input_cb_t  input_cb;
     guint            pipe_input_id;
 #ifdef _WIN32
@@ -693,7 +693,7 @@ pipe_input_cb(GIOChannel   *source _U_,
 void
 pipe_input_set_handler(gint             source,
                        gpointer         user_data,
-                       int             *child_process,
+	                   intptr_t        *child_process,
                        pipe_input_cb_t  input_cb)
 {
     static pipe_input_t pipe_input;
