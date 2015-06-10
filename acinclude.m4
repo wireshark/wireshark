@@ -816,7 +816,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# We use a for loop instead of giving all the package names to
 		# PKG_CHECK_MODULES because doing the latter doesn't appear to
 		# work reliably (some package names are not searched for).
-		for pkg in lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50 "lua < 5.3"
+		for pkg in "lua < 5.3" lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50
 		do
 			PKG_CHECK_MODULES(LUA, $pkg, [have_lua=yes], [true])
 
