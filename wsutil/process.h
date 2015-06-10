@@ -30,6 +30,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef _WIN32
+#include <windows.h>
+
 typedef HANDLE ws_process_id; /* on Windows, a process ID is a HANDLE */
 #else
 typedef pid_t ws_process_id;  /* on UN\*X, a process ID is a pid_t */
