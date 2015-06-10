@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#include <wsutil/process.h>
+#include <wsutil/processes.h>
 
 #include "epan/packet_info.h"
 #include "epan/column-utils.h"

@@ -34,7 +34,7 @@ extern "C" {
 
 #include "capture_opts.h"
 
-#include <wsutil/process.h>
+#include <wsutil/processes.h>
 
 #ifdef HAVE_LIBPCAP
 /* Current state of capture engine. XXX - differentiate states */

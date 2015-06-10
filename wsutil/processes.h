@@ -1,4 +1,4 @@
-/* process.h
+/* processes.h
  * Process utility definitions
  *
  * Wireshark - Network traffic analyzer
@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _WSUTIL_PROCESS_H_
-#define _WSUTIL_PROCESS_H_
+#ifndef _WSUTIL_PROCESSES_H_
+#define _WSUTIL_PROCESSES_H_
 
 #include "ws_symbol_export.h"
 
@@ -41,4 +41,4 @@ typedef pid_t ws_process_id;  /* on UN\*X, a process ID is a pid_t */
 }
 #endif /* __cplusplus */
 
-#endif /* _WSUTIL_PROCESS_H_ */
+#endif /* _WSUTIL_PROCESSES_H_ */
