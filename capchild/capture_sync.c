@@ -130,7 +130,7 @@ void
 capture_session_init(capture_session *cap_session, struct _capture_file *cf)
 {
     cap_session->cf                              = cf;
-    cap_session->fork_child                      = -1;               /* invalid process handle */
+    cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
 #ifdef _WIN32
     cap_session->signal_pipe_write_fd            = -1;
 #endif
@@ -396,7 +396,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
     capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
 
-    cap_session->fork_child = -1;
+    cap_session->fork_child = WS_INVALID_PID;
 
 #ifdef HAVE_EXTCAP
     if (!extcaps_init_initerfaces(capture_opts)) {
@@ -726,7 +726,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
-    if (cap_session->fork_child == -1) {
+    if (cap_session->fork_child == WS_INVALID_PID) {
         /* We couldn't even create the child process. */
         report_failure("Couldn't create child process: %s", g_strerror(errno));
         ws_close(sync_pipe_read_fd);
@@ -788,7 +788,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     int data_pipe[2];                       /* pipe used to send data from child to parent */
 #endif
     int i;
-    *fork_child = -1;
+    *fork_child = WS_INVALID_PID;
     *data_read_fd = -1;
     *message_read_fd = -1;
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_open_command");
@@ -960,7 +960,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
-    if (*fork_child == -1) {
+    if (*fork_child == WS_INVALID_PID) {
         /* We couldn't even create the child process. */
         *msg = g_strdup_printf("Couldn't create child process: %s", g_strerror(errno));
         ws_close(*data_read_fd);
@@ -1775,7 +1775,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         }
 
         /* No more child process. */
-        cap_session->fork_child = -1;
+        cap_session->fork_child = WS_INVALID_PID;
         cap_session->fork_child_status = ret;
 
 #ifdef _WIN32
@@ -1887,11 +1887,11 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
     g_get_current_time(&start_time);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
-    g_assert(fork_child != -1);
+    g_assert(fork_child != WS_INVALID_PID);
 
     *msgp = NULL; /* assume no error */
 #ifdef _WIN32
-    if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
+    if (_cwait(&fork_child_status, (intptr_t) fork_child, _WAIT_CHILD) == -1) {
         *msgp = g_strdup_printf("Error from cwait(): %s", g_strerror(errno));
         ret = -1;
     } else {
@@ -2101,7 +2101,7 @@ sync_pipe_stop(capture_session *cap_session)
     DWORD childstatus;
     gboolean terminate = TRUE;
 #endif
-    if (cap_session->fork_child != -1) {
+    if (cap_session->fork_child != WS_INVALID_PID) {
 #ifndef _WIN32
         /* send the SIGINT signal to close the capture child gracefully. */
         int sts = kill(cap_session->fork_child, SIGINT);
@@ -2142,7 +2142,7 @@ sync_pipe_stop(capture_session *cap_session)
 void
 sync_pipe_kill(ws_process_id fork_child)
 {
-    if (fork_child != -1) {
+    if (fork_child != WS_INVALID_PID) {
 #ifndef _WIN32
         int sts = kill(fork_child, SIGTERM);    /* SIGTERM so it can clean up if necessary */
         if (sts != 0) {
