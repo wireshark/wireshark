@@ -40,4 +40,3 @@ typedef pid_t ws_process_id;  /* on UN\*X, a process ID is a pid_t */
 #endif /* __cplusplus */
 
 #endif /* _WSUTIL_PROCESS_H_ */
-
