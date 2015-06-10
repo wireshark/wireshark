@@ -51,6 +51,8 @@ static dissector_handle_t udplite_handle;
 static int udp_tap = -1;
 static int udp_follow_tap = -1;
 
+static value_string udp_ports[65536+1];
+
 static header_field_info *hfi_udp = NULL;
 static header_field_info *hfi_udplite = NULL;
 
@@ -58,15 +60,15 @@ static header_field_info *hfi_udplite = NULL;
 #define UDPLITE_HFI_INIT HFI_INIT(proto_udplite)
 
 static header_field_info hfi_udp_srcport UDP_HFI_INIT =
-{ "Source Port", "udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+{ "Source Port", "udp.srcport", FT_UINT16, BASE_DEC, VALS(udp_ports), 0x0,
   NULL, HFILL };
 
 static header_field_info hfi_udp_dstport UDP_HFI_INIT =
-{ "Destination Port", "udp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+{ "Destination Port", "udp.dstport", FT_UINT16, BASE_DEC, VALS(udp_ports), 0x0,
   NULL, HFILL };
 
 static header_field_info hfi_udp_port UDP_HFI_INIT =
-{ "Source or Destination Port", "udp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
+{ "Source or Destination Port", "udp.port", FT_UINT16, BASE_DEC, VALS(udp_ports), 0x0,
   NULL, HFILL };
 
 static header_field_info hfi_udp_stream UDP_HFI_INIT =
@@ -952,7 +954,27 @@ proto_register_udp(void)
   static decode_as_t udp_da = {"udp", "Transport", "udp.port", 3, 2, udp_da_values, "UDP", "port(s) as",
                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-  int proto_udp, proto_udplite;
+  int proto_udp, proto_udplite, i, j;
+  gboolean transport_name_old = gbl_resolv_flags.transport_name;
+
+  gbl_resolv_flags.transport_name = TRUE;
+  for (i = 0, j = 0; i <= 65535; i++) {
+    const char *serv = udp_port_to_display(NULL, i);
+
+    if (serv) {
+        value_string *p = &udp_ports[j++];
+
+        p->value = i;
+        p->strptr = serv;
+    }
+  }
+
+  /* NULL terminate */
+  udp_ports[j].value = 0;
+  udp_ports[j].strptr = NULL;
+
+  gbl_resolv_flags.transport_name = transport_name_old;
+
 
   proto_udp = proto_register_protocol("User Datagram Protocol",
                                       "UDP", "udp");
