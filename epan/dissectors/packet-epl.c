@@ -1505,6 +1505,7 @@ static expert_field ei_sendcon_value          = EI_INIT;
 
 static dissector_handle_t epl_handle;
 
+static gboolean show_cmd_layer_for_duplicated = FALSE;
 static gint ett_epl_asnd_sdo_data_reassembled = -1;
 
 static reassembly_table epl_reassembly_table;
@@ -2616,7 +2617,7 @@ dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gi
 	offset = dissect_epl_sdo_sequence(epl_tree, tvb, pinfo, offset);
 
 	/* if a frame is duplicated don't show the command layer */
-	if(pinfo->fd->subnum == 0x00)
+	if(pinfo->fd->subnum == 0x00 || show_cmd_layer_for_duplicated == TRUE )
 	{
 		if (tvb_reported_length_remaining(tvb, offset) > 0)
 		{
@@ -4276,6 +4277,9 @@ proto_register_epl(void)
 
 	prefs_register_bool_preference(epl_module, "show_soc_flags", "Show flags of SoC frame in Info column",
 		"If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
+
+	prefs_register_bool_preference(epl_module, "show_duplicated_command_layer", "Show command-layer in duplicated frames",
+		"For analysis purposes one might want to show the command layer even if the dissectore assumes a duplicated frame", &show_cmd_layer_for_duplicated);
 
 	/* tap-registration */
 	/*  epl_tap = register_tap("epl");*/
