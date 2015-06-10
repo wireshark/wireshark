@@ -38,7 +38,7 @@ extern "C" {
 
 typedef HANDLE ws_process_id;
 
-#define WS_INVALID_PID    INVALID_HANDLE
+#define WS_INVALID_PID    INVALID_HANDLE_VALUE
 #else
 /*
  * On UN*X, a process ID is a pid_t.
