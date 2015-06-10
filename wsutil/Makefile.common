@@ -107,6 +107,7 @@ libwsutil_nonrepl_INCLUDES = \
 	os_version_info.h \
 	plugins.h	\
 	privileges.h	\
+	process.h	\
 	sha1.h		\
 	sign_ext.h	\
 	sober128.h	\

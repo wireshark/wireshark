@@ -34,6 +34,8 @@ extern "C" {
 
 #include "capture_opts.h"
 
+#include <wsutil/process.h>
+
 #ifdef HAVE_LIBPCAP
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
@@ -48,14 +50,14 @@ struct _capture_file;
  * State of a capture session.
  */
 typedef struct _capture_session {
-	intptr_t  fork_child;                 /**< If not -1, in parent, process ID of child */
+    ws_process_id fork_child;             /**< If not -1, in parent, process ID of child */
     int       fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
     int       signal_pipe_write_fd;       /**< the pipe to signal the child */
 #endif
-              capture_state state;        /**< current state of the capture engine */
+    capture_state state;                  /**< current state of the capture engine */
 #ifndef _WIN32
-              uid_t owner;                /**< owner of the cfile */
+    uid_t     owner;                      /**< owner of the cfile */
     gid_t     group;                      /**< group of the cfile */
 #endif
     gboolean  session_started;

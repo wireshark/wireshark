@@ -2278,7 +2278,7 @@ DIAG_ON(cast-qual)
 typedef struct pipe_input_tag {
   gint             source;
   gpointer         user_data;
-  intptr_t        *child_process;
+  ws_process_id   *child_process;
   pipe_input_cb_t  input_cb;
   guint            pipe_input_id;
 #ifdef _WIN32
@@ -2351,7 +2351,7 @@ pipe_timer_cb(gpointer data)
 
 
 void
-pipe_input_set_handler(gint source, gpointer user_data, intptr_t *child_process, pipe_input_cb_t input_cb)
+pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
 {
 
   pipe_input.source         = source;
