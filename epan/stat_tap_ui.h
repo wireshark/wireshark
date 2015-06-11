@@ -37,10 +37,10 @@ extern "C" {
 #include <epan/stat_groups.h>
 
 typedef enum {
-    PARAM_UINT,
-    PARAM_STRING,
-    PARAM_ENUM,
-    PARAM_UUID,
+    PARAM_UINT,   /* Unused? */
+    PARAM_STRING, /* Unused? */
+    PARAM_ENUM,   /* SCSI SRT */
+    PARAM_UUID,   /* Unused? */
     PARAM_FILTER
 } param_type;
 
