@@ -110,7 +110,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -608,6 +608,17 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionDisplayFilterExpression"/>
+  </widget>
+  <widget class="QToolBar" name="wirelessToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
   </widget>
   <action name="actionFileOpen">
    <property name="text">
@@ -2153,17 +2164,11 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Wire&amp;less Toolbar</string>
    </property>
    <property name="toolTip">
     <string>Show or hide the wireless toolbar</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
    </property>
   </action>
   <action name="actionViewStatusBar">

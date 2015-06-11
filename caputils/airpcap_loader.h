@@ -51,6 +51,8 @@ extern "C" {
 #define AIRPCAP_DLL_ERROR     2
 #define AIRPCAP_DLL_NOT_FOUND 3
 
+/* #define AIRPCAP_DEBUG 1 */
+
 typedef gchar * (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
 typedef gboolean (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, gchar * Ebuf);
 typedef void (*AirpcapFreeDeviceListHandler)(PAirpcapDeviceDescription PAllDevs);
@@ -141,38 +143,13 @@ extern airpcap_if_info_t *airpcap_if_selected;
 /* Airpcap current active interface */
 extern airpcap_if_info_t *airpcap_if_active;
 
-/* WLAN preferences pointer */
-/*extern module_t *wlan_prefs; - TODO: What is this?? */
-
-/*
- * Function used to read the Decryption Keys from the preferences and store them
- * properly into the airpcap adapter.
- */
-gboolean
-load_wlan_driver_wep_keys(void);
-
-/*
- *  Function used to save to the prefereces file the Decryption Keys.
- */
-gboolean
-save_wlan_wep_keys(airpcap_if_info_t* info_if);
-
-/*
- * This function will tell the airpcap driver the key list to use
- * This will be stored into the registry...
- */
-gboolean
-write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list);
-
-/* Returs TRUE if the WEP key is valid, false otherwise */
-gboolean
-wep_key_is_valid(char* key);
-
+#ifdef AIRPCAP_DEBUG
 /*
  * USED FOR DEBUG ONLY... PRINTS AN AirPcap ADAPTER STRUCTURE in a fancy way.
  */
 void
 airpcap_if_info_print(airpcap_if_info_t* if_info);
+#endif
 
 /*
  * Used to retrieve the two chars string from interface
@@ -188,7 +165,7 @@ free_airpcap_interface_list(GList *if_list);
 
 /*
  * Used to retrieve the interface given the name
- * (the name is used in AirpcapOpen)
+ * (the name is used in AirpcapOpen).
  */
 airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name);
 
@@ -234,6 +211,7 @@ airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val);
 gboolean
 airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val);
 
+/* Many of these are GTK+ only. */
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap adapter
  */
@@ -352,14 +330,7 @@ int load_airpcap(void);
  * This function will use the airpcap.dll to find all the airpcap devices.
  * Will return null if no device is found.
  */
-GList*
-get_airpcap_interface_list(int *err, char **err_str);
-
-/*
- * Returns the ASCII string of a key given the key bites
- */
-gchar*
-airpcap_get_key_string(AirpcapKey key);
+GList* get_airpcap_interface_list(int *err, char **err_str);
 
 /*
  * Load the configuration for the specified interface
@@ -378,12 +349,6 @@ airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info);
  */
 gchar*
 airpcap_get_if_string_number(airpcap_if_info_t* if_info);
-
-/*
- * Returns the default airpcap interface of a list, NULL if list is empty
- */
-airpcap_if_info_t*
-airpcap_get_default_if(GList* airpcap_if_list);
 
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
@@ -433,116 +398,10 @@ void
 airpcap_if_info_free(airpcap_if_info_t *if_info);
 
 /*
- * This function will tell the airpcap driver the key list to use
- * This will be stored into the registry...
- */
-gboolean
-write_wlan_driver_wep_keys_to_registry(GList* key_list);
-
-/*
  * Clear keys and decryption status for the specified interface
  */
 void
 airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if);
-
-/*
- *  Function used to save to the preference file the Decryption Keys.
- */
-int
-save_wlan_driver_wep_keys(void);
-
-/*
- *  Function used to save to the preference file the Decryption Keys.
- */
-int
-save_wlan_wireshark_wep_keys(GList* key_ls);
-
-/*
- * DECRYPTION KEYS FUNCTIONS
- */
-/*
- * This function is used for DEBUG PURPOSES ONLY!!!
- */
-void
-print_key_list(GList* key_list);
-
-/*
- * Retrieves a GList of decryption_key_t structures containing infos about the
- * keys for the given adapter... returns NULL if no keys are found.
- */
-GList*
-get_airpcap_device_keys(airpcap_if_info_t* if_info);
-
-/*
- * Retrieves a GList of decryption_key_t structures containing infos about the
- * keys for the global AirPcap driver... returns NULL if no keys are found.
- */
-GList*
-get_airpcap_driver_keys(void);
-
-/*
- * Returns the list of the decryption keys specified for wireshark, NULL if
- * no key is found
- */
-GList*
-get_wireshark_keys(void);
-
-/*
- * Tests if two collection of keys are equal or not, to be considered equals, they have to
- * contain the same keys in the SAME ORDER! (If both lists are NULL, which means empty will
- * return TRUE)
- */
-gboolean
-key_lists_are_equal(GList* list1, GList* list2);
-
-/*
- * Merges two lists of keys. If a key is found multiple times, it will just appear once!
- */
-GList*
-merge_key_list(GList* list1, GList* list2);
-
-/*
- * If the given key is contained in the list, returns TRUE.
- * Returns FALSE otherwise.
- */
-gboolean
-key_is_in_list(decryption_key_t *dk,GList *list);
-
-/*
- * Returns TRUE if keys are equals, FALSE otherwise
- */
-gboolean
-keys_are_equals(decryption_key_t *k1,decryption_key_t *k2);
-
-/*
- * Use this function to free a key list.
- */
-void
-free_key_list(GList *list);
-
-/*
- * Returns TRUE if the Wireshark decryption is active, FALSE otherwise
- */
-gboolean
-wireshark_decryption_on(void);
-
-/*
- * Returns TRUE if the AirPcap decryption for the current adapter is active, FALSE otherwise
- */
-gboolean
-airpcap_decryption_on(void);
-
-/*
- * Enables decryption for Wireshark if on_off is TRUE, disables it otherwise.
- */
-void
-set_wireshark_decryption(gboolean on_off);
-
-/*
- * Enables decryption for all the adapters if on_off is TRUE, disables it otherwise.
- */
-gboolean
-set_airpcap_decryption(gboolean on_off);
 
 /*
  * Adds compiled version string to str

@@ -49,6 +49,7 @@ LIBWSUTIL_SRC = 	\
 	des.c		\
 	eax.c		\
 	filesystem.c	\
+	frequency-utils.c \
 	g711.c		\
 	jsmn.c		\
 	md4.c		\
@@ -98,6 +99,7 @@ libwsutil_nonrepl_INCLUDES = \
 	des.h		\
 	eax.h		\
 	filesystem.h	\
+	frequency-utils.h \
 	g711.h		\
 	jsmn.h		\
 	md4.h		\

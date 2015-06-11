@@ -1605,7 +1605,6 @@ set(LIBWIRESHARK_FILES
 	follow.c
 	frame_data.c
 	frame_data_sequence.c
-	frequency-utils.c
 	funnel.c
 	g_int64_hash_routines.c
 	gcp.c

@@ -381,7 +381,7 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		}
 		added = 1;
 		iface->ifname = ifname;
-		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(int));
+		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(uint32_t));
 		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
 	} else {
 		g_free(ifname);
@@ -587,7 +587,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 	int i;
 	unsigned int j;
 
-	struct ws80211_iface_info pub = {-1, WS80211_CHAN_NO_HT};
+	struct ws80211_iface_info pub = {-1, WS80211_CHAN_NO_HT, WS80211_FCS_ALL};
 	struct __iface_info iface_info;
 	struct ws80211_interface *iface;
 
@@ -769,23 +769,6 @@ nla_put_failure:
 
 }
 
-void ws80211_free_interfaces(GArray *interfaces)
-{
-	struct ws80211_interface *iface;
-
-	if (!interfaces)
-		return;
-
-	while (interfaces->len) {
-		iface = g_array_index(interfaces, struct ws80211_interface *, 0);
-		g_array_remove_index(interfaces, 0);
-		g_array_free(iface->frequencies, TRUE);
-		g_free(iface->ifname);
-		g_free(iface);
-	}
-	g_array_free(interfaces, TRUE);
-}
-
 GArray* ws80211_find_interfaces(void)
 {
 	GArray *interfaces;
@@ -802,17 +785,6 @@ GArray* ws80211_find_interfaces(void)
 		return NULL;
 	}
 	return interfaces;
-}
-
-int ws80211_frequency_to_channel(int freq)
-{
-	if (freq == 2484)
-		return 14;
-
-	if (freq < 2484)
-		return (freq - 2407) / 5;
-
-	return freq / 5 - 1000;
 }
 
 int
@@ -849,7 +821,297 @@ const gchar
 	return NULL;
 }
 
-#else /* HAVE_LIBNL */
+gboolean ws80211_has_fcs_filter(void)
+{
+	return FALSE;
+}
+
+int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
+{
+	return -1;
+}
+
+const char *network_manager_path = "/usr/sbin/NetworkManager"; /* Is this correct? */
+const char *ws80211_get_helper_path(void) {
+	if (g_file_test(network_manager_path, G_FILE_TEST_IS_EXECUTABLE)) {
+		return network_manager_path;
+	}
+	return NULL;
+}
+
+#elif defined(HAVE_AIRPCAP)
+
+#include <wsutil/unicode-utils.h>
+
+#include "airpcap.h"
+#include "airpcap_loader.h"
+
+int ws80211_init(void)
+{
+	if (airpcap_get_dll_state() == AIRPCAP_DLL_OK) {
+		return 0;
+	}
+	return -1;
+}
+
+static const char *airpcap_dev_prefix_ = "\\\\.\\";
+
+GArray* ws80211_find_interfaces(void)
+{
+	GArray *interfaces;
+	GList *airpcap_if_list, *cur_if;
+	int err;
+	gchar *err_str = NULL;
+
+	interfaces = g_array_new(FALSE, FALSE, sizeof(struct ws80211_interface *));
+	if (!interfaces)
+		return NULL;
+
+	airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+
+	if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
+		g_free(err_str);
+		g_array_free(interfaces, TRUE);
+		return NULL;
+	}
+
+	for (cur_if = airpcap_if_list; cur_if; cur_if = g_list_next(cur_if)) {
+		struct ws80211_interface *iface;
+		airpcap_if_info_t *airpcap_if_info = (airpcap_if_info_t *) cur_if->data;
+		char *ifname;
+		guint32 chan;
+		guint32 i;
+
+		if (!airpcap_if_info) continue;
+		ifname = airpcap_if_info->name;
+		if (strlen(ifname) > 4 && g_str_has_prefix(ifname, airpcap_dev_prefix_)) ifname += 4;
+
+		iface = (struct ws80211_interface *)g_malloc0(sizeof(*iface));
+		iface->ifname = g_strdup(ifname);
+		iface->can_set_freq = TRUE;
+		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(guint32));
+
+		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
+		/*
+		 * AirPcap stores per-channel capabilities. We should probably
+		 * do the same. */
+		for (i = 0; i < airpcap_if_info->numSupportedChannels; i++) {
+			if (airpcap_if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH) {
+				iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+				iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+				break;
+			}
+		}
+
+		iface->cap_monitor = 1;
+
+		for (chan = 0; chan < airpcap_if_info->numSupportedChannels; chan++) {
+			g_array_append_val(iface->frequencies, airpcap_if_info->pSupportedChannels[chan].Frequency);
+		}
+
+		g_array_append_val(interfaces, iface);
+	}
+
+	return interfaces;
+}
+
+int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_info)
+{
+	GList *airpcap_if_list;
+	int err;
+	gchar *err_str = NULL;
+	airpcap_if_info_t *airpcap_if_info;
+
+	if (!iface_info) return -1;
+
+	airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+
+	if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
+		g_free(err_str);
+		return -1;
+	}
+
+	airpcap_if_info = get_airpcap_if_from_name(airpcap_if_list, name);
+
+	if (!airpcap_if_info) {
+		free_airpcap_interface_list(airpcap_if_list);
+		return -1;
+	}
+
+	memset(iface_info, 0, sizeof(*iface_info));
+	iface_info->current_freq = airpcap_if_info->channelInfo.Frequency;
+	switch (airpcap_if_info->channelInfo.ExtChannel) {
+		case 0:
+			iface_info->current_chan_type = WS80211_CHAN_NO_HT;
+			break;
+		case -1:
+			iface_info->current_chan_type = WS80211_CHAN_HT40MINUS;
+			break;
+		case 1:
+			iface_info->current_chan_type = WS80211_CHAN_HT40PLUS;
+			break;
+		default:
+			return -1;
+	}
+
+	switch (airpcap_if_info->CrcValidationOn) {
+		case AIRPCAP_VT_ACCEPT_CORRECT_FRAMES:
+			iface_info->current_fcs_validation = WS80211_FCS_VALID;
+			break;
+		case AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES:
+			iface_info->current_fcs_validation = WS80211_FCS_INVALID;
+			break;
+		default:
+			iface_info->current_fcs_validation = WS80211_FCS_ALL;
+			break;
+	}
+
+	return 0;
+}
+
+int ws80211_set_freq(const char *name, int freq, int chan_type)
+{
+	GList *airpcap_if_list;
+	int err;
+	gchar *err_str = NULL;
+	airpcap_if_info_t *airpcap_if_info;
+	gchar err_buf[AIRPCAP_ERRBUF_SIZE];
+	PAirpcapHandle adapter;
+	int ret_val = -1;
+
+	airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+
+	if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
+		g_free(err_str);
+		return ret_val;
+	}
+
+	airpcap_if_info = get_airpcap_if_from_name(airpcap_if_list, name);
+
+	if (!airpcap_if_info) {
+		free_airpcap_interface_list(airpcap_if_list);
+		return ret_val;
+	}
+
+	adapter = airpcap_if_open(airpcap_if_info->name, err_buf);
+	if (adapter) {
+		airpcap_if_info->channelInfo.Frequency = freq;
+		switch (chan_type) {
+			case WS80211_CHAN_HT40MINUS:
+				airpcap_if_info->channelInfo.ExtChannel = -1;
+				break;
+			case WS80211_CHAN_HT40PLUS:
+				airpcap_if_info->channelInfo.ExtChannel = 1;
+				break;
+			default:
+				airpcap_if_info->channelInfo.ExtChannel = 0;
+				break;
+		}
+
+		if (airpcap_if_set_device_channel_ex(adapter, airpcap_if_info->channelInfo)) {
+			ret_val = 0;
+		}
+		airpcap_if_close(adapter);
+	}
+
+	free_airpcap_interface_list(airpcap_if_list);
+	return ret_val;
+}
+
+int ws80211_str_to_chan_type(const gchar *s _U_)
+{
+	return -1;
+}
+
+const gchar *ws80211_chan_type_to_str(int type _U_)
+{
+	return NULL;
+}
+
+gboolean ws80211_has_fcs_filter(void)
+{
+	return TRUE;
+}
+
+int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs_validation)
+{
+	GList *airpcap_if_list;
+	int err;
+	gchar *err_str = NULL;
+	airpcap_if_info_t *airpcap_if_info;
+	gchar err_buf[AIRPCAP_ERRBUF_SIZE];
+	PAirpcapHandle adapter;
+	int ret_val = -1;
+
+	airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+
+	if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
+		g_free(err_str);
+		return ret_val;
+	}
+
+	airpcap_if_info = get_airpcap_if_from_name(airpcap_if_list, name);
+
+	if (!airpcap_if_info) {
+		free_airpcap_interface_list(airpcap_if_list);
+		return ret_val;
+	}
+
+	adapter = airpcap_if_open(airpcap_if_info->name, err_buf);
+	if (adapter) {
+		AirpcapValidationType val_type = AIRPCAP_VT_ACCEPT_EVERYTHING;
+		switch (fcs_validation) {
+			case WS80211_FCS_VALID:
+				val_type = AIRPCAP_VT_ACCEPT_CORRECT_FRAMES;
+				break;
+			case WS80211_FCS_INVALID:
+				val_type = AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES;
+				break;
+			default:
+				break;
+		}
+
+		if (airpcap_if_set_fcs_validation(adapter, val_type)) {
+			/* Appears to be necessary for this to take effect. */
+			airpcap_if_store_cur_config_as_adapter_default(adapter);
+			ret_val = 0;
+		}
+		airpcap_if_close(adapter);
+	}
+
+	free_airpcap_interface_list(airpcap_if_list);
+	return ret_val;
+}
+
+static char *airpcap_conf_path = NULL;
+const char *ws80211_get_helper_path(void)
+{
+	HKEY h_key = NULL;
+
+	if (!airpcap_conf_path && RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\AirPcap"), 0, KEY_QUERY_VALUE|KEY_WOW64_32KEY, &h_key) == ERROR_SUCCESS) {
+		DWORD reg_ret;
+		TCHAR airpcap_dir_utf16[MAX_PATH];
+		DWORD ad_size = sizeof(airpcap_dir_utf16);
+
+		reg_ret = RegQueryValueEx(h_key, NULL, NULL, NULL,
+				(LPBYTE) &airpcap_dir_utf16, &ad_size);
+
+		if (reg_ret == ERROR_SUCCESS) {
+			airpcap_dir_utf16[ad_size] = L'\0';
+			g_free(airpcap_conf_path);
+			airpcap_conf_path = g_strdup_printf("%s\\AirpcapConf.exe", utf_16to8(airpcap_dir_utf16));
+
+			if (!g_file_test(airpcap_conf_path, G_FILE_TEST_IS_EXECUTABLE)) {
+				g_free(airpcap_conf_path);
+				airpcap_conf_path = NULL;
+			}
+		}
+	}
+
+	return airpcap_conf_path;
+}
+
+#else /* Everyone else. */
 int ws80211_init(void)
 {
 	return -1;
@@ -865,16 +1127,7 @@ int ws80211_get_iface_info(const char *name _U_, struct ws80211_iface_info *ifac
 	return -1;
 }
 
-void ws80211_free_interfaces(GArray *interfaces _U_)
-{
-}
-
-int ws80211_frequency_to_channel(int freq _U_)
-{
-	return -1;
-}
-
-int ws80211_set_freq(const char *name _U_, int freq _U_, int chan_type _U_)
+int ws80211_set_freq(const char *name _U_, int freq _U_, int _U_ chan_type)
 {
 	return -1;
 }
@@ -888,7 +1141,57 @@ const gchar *ws80211_chan_type_to_str(int type _U_)
 {
 	return NULL;
 }
+
+gboolean ws80211_has_fcs_filter(void)
+{
+	return FALSE;
+}
+
+int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
+{
+	return -1;
+}
+
+const char *ws80211_get_helper_path(void) {
+	return NULL;
+}
+
 #endif /* HAVE_LIBNL && HAVE_NL80211 */
+
+/* Common to everyone */
+
+void ws80211_free_interfaces(GArray *interfaces)
+{
+	struct ws80211_interface *iface;
+
+	if (!interfaces)
+		return;
+
+	while (interfaces->len) {
+		iface = g_array_index(interfaces, struct ws80211_interface *, 0);
+		g_array_remove_index(interfaces, 0);
+		g_array_free(iface->frequencies, TRUE);
+		g_free(iface->ifname);
+		g_free(iface);
+	}
+	g_array_free(interfaces, TRUE);
+}
+
+int ws80211_frequency_to_channel(int freq)
+{
+	if (freq == 2484)
+		return 14;
+
+	if (freq < 2484)
+		return (freq - 2407) / 5;
+
+	/* 4.9 GHz. https://en.wikipedia.org/wiki/List_of_WLAN_channels, fetched
+	 * 2015-06-15 */
+	if (freq < 5000)
+		return freq / 5 - 800;
+
+	return freq / 5 - 1000;
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

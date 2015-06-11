@@ -51,6 +51,7 @@
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "stock_icon.h"
+#include "wireless_frame.h"
 #include "wireshark_application.h"
 
 #include "qt_ui_utils.h"
@@ -231,6 +232,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // https://bugreports.qt-project.org/browse/QTBUG-22433
     // This property is obsolete in Qt5 so this issue may be fixed in that version.
     main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
+
+    wireless_frame_ = new WirelessFrame(this);
+    main_ui_->wirelessToolBar->addWidget(wireless_frame_);
+    connect(wireless_frame_, SIGNAL(pushAdapterStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
+    connect (wireless_frame_, SIGNAL(showWirelessPreferences(QString)),
+             this, SLOT(showPreferencesDialog(QString)));
 
     main_ui_->goToFrame->hide();
     // XXX For some reason the cursor is drawn funny with an input mask set
@@ -1507,7 +1515,7 @@ void MainWindow::initShowHideMainWidgets()
     show_hide_actions_->setExclusive(false);
     shmw_actions[main_ui_->actionViewMainToolbar] = main_ui_->mainToolBar;
     shmw_actions[main_ui_->actionViewFilterToolbar] = main_ui_->displayFilterToolBar;
-    shmw_actions[main_ui_->actionViewWirelessToolbar] = NULL; // Doesn't exist yet.
+    shmw_actions[main_ui_->actionViewWirelessToolbar] = main_ui_->wirelessToolBar;
     shmw_actions[main_ui_->actionViewStatusBar] = main_ui_->statusBar;
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
@@ -1878,6 +1886,8 @@ void MainWindow::changeEvent(QEvent* event)
 void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 {
     setMenusForCaptureInProgress(capture_in_progress);
+
+    wireless_frame_->setCaptureInProgress(capture_in_progress);
 
 #ifdef HAVE_LIBPCAP
     packet_list_->setCaptureInProgress(capture_in_progress);

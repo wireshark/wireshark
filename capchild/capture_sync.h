@@ -32,6 +32,10 @@
 #ifndef __CAPTURE_SYNC_H__
 #define __CAPTURE_SYNC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
@@ -135,4 +139,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg);
 /* set a callback to be called after fork with the pid of the forked child */
 extern void capture_sync_set_fetch_dumpcap_pid_cb(void(*cb)(ws_process_id pid));
 
-#endif /* capture_sync.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __CAPTURE_SYNC_H__ */

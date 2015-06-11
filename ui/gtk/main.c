@@ -80,7 +80,6 @@
 #include <epan/ex-opt.h>
 #include <epan/funnel.h>
 #include <epan/expert.h>
-#include <epan/frequency-utils.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/tap.h>
@@ -96,6 +95,7 @@
 #endif
 
 #include <wsutil/cmdarg_err.h>
+#include <wsutil/frequency-utils.h>
 #include <wsutil/plugins.h>
 
 /* general (not GTK specific) */

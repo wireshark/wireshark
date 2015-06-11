@@ -214,4 +214,92 @@ airpcap_save_decryption_keys(GList* key_list, GList* adapters_list);
 void
 airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en);
 
+/*
+ * Returns the default airpcap interface of a list, NULL if list is empty
+ */
+airpcap_if_info_t*
+airpcap_get_default_if(GList* airpcap_if_list);
+
+/*
+ * DECRYPTION KEYS FUNCTIONS
+ */
+
+/*
+ * Retrieves a GList of decryption_key_t structures containing infos about the
+ * keys for the given adapter... returns NULL if no keys are found.
+ */
+GList*
+get_airpcap_device_keys(airpcap_if_info_t* if_info);
+
+/*
+ * Retrieves a GList of decryption_key_t structures containing infos about the
+ * keys for the global AirPcap driver... returns NULL if no keys are found.
+ */
+GList*
+get_airpcap_driver_keys(void);
+
+/*
+ * Returns the list of the decryption keys specified for wireshark, NULL if
+ * no key is found
+ */
+GList*
+get_wireshark_keys(void);
+
+/*
+ * Tests if two collection of keys are equal or not, to be considered equals, they have to
+ * contain the same keys in the SAME ORDER! (If both lists are NULL, which means empty will
+ * return TRUE)
+ */
+gboolean
+key_lists_are_equal(GList* list1, GList* list2);
+
+/*
+ * Merges two lists of keys. If a key is found multiple times, it will just appear once!
+ */
+GList*
+merge_key_list(GList* list1, GList* list2);
+
+/*
+ * If the given key is contained in the list, returns TRUE.
+ * Returns FALSE otherwise.
+ */
+gboolean
+key_is_in_list(decryption_key_t *dk,GList *list);
+
+/*
+ * Returns TRUE if keys are equals, FALSE otherwise
+ */
+gboolean
+keys_are_equals(decryption_key_t *k1,decryption_key_t *k2);
+
+/*
+ * Use this function to free a key list.
+ */
+void
+free_key_list(GList *list);
+
+/*
+ * Returns TRUE if the Wireshark decryption is active, FALSE otherwise
+ */
+gboolean
+wireshark_decryption_on(void);
+
+/*
+ * Returns TRUE if the AirPcap decryption for the current adapter is active, FALSE otherwise
+ */
+gboolean
+airpcap_decryption_on(void);
+
+/*
+ * Enables decryption for Wireshark if on_off is TRUE, disables it otherwise.
+ */
+void
+set_wireshark_decryption(gboolean on_off);
+
+/*
+ * Enables decryption for all the adapters if on_off is TRUE, disables it otherwise.
+ */
+gboolean
+set_airpcap_decryption(gboolean on_off);
+
 #endif

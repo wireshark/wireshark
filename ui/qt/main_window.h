@@ -63,6 +63,7 @@ class ByteViewTab;
 class MainWelcome;
 class PacketList;
 class ProtoTree;
+class WirelessFrame;
 
 class QAction;
 class QActionGroup;
@@ -120,6 +121,7 @@ private:
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
     QFont mono_font_;
+    WirelessFrame *wireless_frame_;
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;

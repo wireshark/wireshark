@@ -32,7 +32,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #include "epan/epan.h"
-#include "epan/frequency-utils.h"
+
+#include "wsutil/frequency-utils.h"
 
 #include "ui/recent.h"
 #include "simple_dialog.h"

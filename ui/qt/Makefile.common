@@ -87,7 +87,8 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_time_shift_dialog.h	\
 	ui_traffic_table_dialog.h	\
 	ui_uat_dialog.h		\
-	ui_voip_calls_dialog.h
+	ui_voip_calls_dialog.h	\
+	ui_wireless_frame.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =	\
@@ -217,6 +218,7 @@ MOC_HDRS =	\
 	traffic_table_dialog.h	\
 	uat_dialog.h	\
 	voip_calls_dialog.h	\
+	wireless_frame.h	\
 	wireshark_application.h	\
 	wireshark_dialog.h
 
@@ -283,7 +285,8 @@ UI_FILES =	\
 	time_shift_dialog.ui	\
 	traffic_table_dialog.ui	\
 	uat_dialog.ui		\
-	voip_calls_dialog.ui
+	voip_calls_dialog.ui	\
+	wireless_frame.ui
 
 #
 # The .moc.cpp files generated from them.
@@ -433,6 +436,7 @@ WIRESHARK_QT_SRC =	\
 	traffic_table_dialog.cpp	\
 	uat_dialog.cpp	\
 	voip_calls_dialog.cpp	\
+	wireless_frame.cpp	\
 	wireshark_application.cpp	\
 	wireshark_dialog.cpp
 

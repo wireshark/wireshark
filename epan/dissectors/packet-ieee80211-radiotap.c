@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 #include <epan/crc32-tvb.h>
-#include <epan/frequency-utils.h>
+#include <wsutil/frequency-utils.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>

@@ -52,6 +52,7 @@ set(WSUTIL_FILES
 	des.c
 	eax.c
 	filesystem.c
+	frequency-utils.c
 	g711.c
 	jsmn.c
 	md4.c

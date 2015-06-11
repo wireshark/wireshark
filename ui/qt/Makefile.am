@@ -238,6 +238,8 @@ uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
 
 voip_calls_dialog.cpp voip_calls_dialog.h: ui_voip_calls_dialog.h
 
+wireless_frame.cpp wireless_frame.h: ui_wireless_frame.h
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg

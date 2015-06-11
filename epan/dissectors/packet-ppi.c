@@ -51,7 +51,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/frequency-utils.h>
+#include <wsutil/frequency-utils.h>
 #include <wsutil/pint.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */

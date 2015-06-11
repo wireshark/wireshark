@@ -56,7 +56,6 @@ LIBWIRESHARK_SRC =		\
 	follow.c		\
 	frame_data.c		\
 	frame_data_sequence.c	\
-	frequency-utils.c	\
 	funnel.c		\
 	g_int64_hash_routines.c	\
 	gcp.c			\
@@ -196,7 +195,6 @@ LIBWIRESHARK_INCLUDES =		\
 	follow.h		\
 	frame_data.h		\
 	frame_data_sequence.h	\
-	frequency-utils.h	\
 	funnel.h		\
 	g_int64_hash_routines.h	\
 	garrayfix.h		\

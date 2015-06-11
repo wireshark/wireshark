@@ -111,6 +111,7 @@ set(WIRESHARK_QT_HEADERS
 	traffic_table_dialog.h
 	uat_dialog.h
 	voip_calls_dialog.h
+	wireless_frame.h
 	wireshark_application.h
 	wireshark_dialog.h
 )
@@ -229,6 +230,7 @@ set(WIRESHARK_QT_SRC
 	traffic_table_dialog.cpp
 	uat_dialog.cpp
 	voip_calls_dialog.cpp
+	wireless_frame.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
 )
@@ -319,6 +321,7 @@ set(WIRESHARK_QT_UI
 	traffic_table_dialog.ui
 	uat_dialog.ui
 	voip_calls_dialog.ui
+	wireless_frame.ui
 )
 
 if(HAVE_PCAP_REMOTE)

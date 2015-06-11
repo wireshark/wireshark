@@ -263,7 +263,8 @@ FORMS += \
     time_shift_dialog.ui \
     traffic_table_dialog.ui \
     uat_dialog.ui \
-    voip_calls_dialog.ui
+    voip_calls_dialog.ui \
+    wireless_frame.ui
 
 
 HEADERS += $$HEADERS_WS_C \
@@ -327,7 +328,8 @@ HEADERS += $$HEADERS_WS_C \
     tcp_stream_dialog.h \
     traffic_table_dialog.h \
     uat_dialog.h \
-    voip_calls_dialog.h
+    voip_calls_dialog.h \
+    wireless_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -710,6 +712,7 @@ SOURCES += \
     traffic_table_dialog.cpp \
     uat_dialog.cpp \
     voip_calls_dialog.cpp \
+    wireless_frame.cpp \
     wireshark_application.cpp \
     wireshark_dialog.cpp \
     ../../wireshark-qt.cpp

@@ -119,10 +119,6 @@
 capture_options global_capture_opts;
 #endif
 
-#ifdef HAVE_AIRPCAP
-int    airpcap_dll_ret_val = -1;
-#endif
-
 GString *comp_info_str, *runtime_info_str;
 
 /* update the main window */
@@ -438,7 +434,7 @@ int main(int argc, char *argv[])
     gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
-    WSADATA            wsaData;
+    WSADATA              wsaData;
 #endif  /* _WIN32 */
 
     char                *rf_path;
@@ -644,6 +640,8 @@ DIAG_ON(cast-qual)
 #ifdef HAVE_AIRPCAP
     /* Load the airpcap.dll.  This must also be done before collecting
      * run-time version information. */
+    load_airpcap();
+#if 0
     airpcap_dll_ret_val = load_airpcap();
 
     switch (airpcap_dll_ret_val) {
@@ -664,7 +662,6 @@ DIAG_ON(cast-qual)
             airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
         }
         break;
-#if 0
     /*
      * XXX - Maybe we need to warn the user if one of the following happens???
      */
@@ -679,8 +676,8 @@ DIAG_ON(cast-qual)
     case AIRPCAP_DLL_NOT_FOUND:
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
         break;
-#endif
     }
+#endif
 #endif /* HAVE_AIRPCAP */
 #endif /* _WIN32 */
 
