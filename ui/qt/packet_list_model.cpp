@@ -34,7 +34,9 @@
 #include "color_filters.h"
 #include "frame_tvbuff.h"
 
+#include "color_utils.h"
 #include "wireshark_application.h"
+
 #include <QColor>
 #include <QFontMetrics>
 #include <QModelIndex>
@@ -398,7 +400,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         } else {
             return QVariant();
         }
-        return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
+        return ColorUtils::fromColorT(color);
     case Qt::ForegroundRole:
         if (fdata->flags.ignored) {
             color = &prefs.gui_ignored_fg;
@@ -410,7 +412,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         } else {
             return QVariant();
         }
-        return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
+        return ColorUtils::fromColorT(color);
     case Qt::DisplayRole:
     {
         int column = d_index.column();
@@ -483,6 +485,18 @@ frame_data *PacketListModel::getRowFdata(int row) {
     if (!record)
         return NULL;
     return record->frameData();
+}
+
+void PacketListModel::ensureRowColorized(int row)
+{
+    if (row < 0 || row >= visible_rows_.count())
+        return;
+    PacketListRecord *record = visible_rows_[row];
+    if (!record)
+        return;
+    if (!record->colorized()) {
+        record->columnString(cap_file_, 1);
+    }
 }
 
 int PacketListModel::visibleIndexOf(frame_data *fdata) const

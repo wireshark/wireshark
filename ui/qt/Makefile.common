@@ -65,6 +65,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_main_window_preferences_frame.h	\
 	ui_manage_interfaces_dialog.h	\
 	ui_module_preferences_scroll_area.h	\
+	ui_overlay_scroll_bar.h	\
 	ui_packet_comment_dialog.h	\
 	ui_packet_dialog.h	\
 	ui_packet_format_group_box.h	\
@@ -190,6 +191,7 @@ MOC_HDRS =	\
 	main_window_preferences_frame.h	\
 	manage_interfaces_dialog.h	\
 	module_preferences_scroll_area.h	\
+	overlay_scroll_bar.h	\
 	packet_comment_dialog.h	\
 	packet_dialog.h	\
 	packet_format_group_box.h	\
@@ -421,6 +423,7 @@ WIRESHARK_QT_SRC =	\
 	main_window_slots.cpp	\
 	manage_interfaces_dialog.cpp	\
 	module_preferences_scroll_area.cpp	\
+	overlay_scroll_bar.cpp	\
 	packet_comment_dialog.cpp	\
 	packet_dialog.cpp	\
 	packet_format_group_box.cpp	\

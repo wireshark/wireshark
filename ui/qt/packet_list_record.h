@@ -46,6 +46,7 @@ public:
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
+    bool colorized() { return colorized_; }
     struct conversation *conversation() { return conv_; }
 
     int columnTextSize(const char *str);

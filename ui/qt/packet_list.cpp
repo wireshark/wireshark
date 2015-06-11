@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "packet_list.h"
+
 #include "config.h"
 
 #include <glib.h>
@@ -30,15 +32,9 @@
 
 #include <epan/column-info.h>
 #include <epan/column.h>
+#include <epan/ipproto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
-#include "packet_list.h"
-#include "proto_tree.h"
-#include "wireshark_application.h"
-#include "epan/ipproto.h"
-
-#include "qt_ui_utils.h"
 
 #include "ui/main_statusbar.h"
 #include "ui/packet_list_utils.h"
@@ -47,17 +43,30 @@
 #include "ui/recent_utils.h"
 #include "ui/ui_util.h"
 #include "ui/utf8_entities.h"
+#include "ui/util.h"
 
 #include "wsutil/str_util.h"
 
+#include "color.h"
+#include "color_filters.h"
 #include "frame_tvbuff.h"
+
+#include "color_utils.h"
+#include "overlay_scroll_bar.h"
+#include "proto_tree.h"
+#include "qt_ui_utils.h"
+#include "wireshark_application.h"
 
 #include <QAction>
 #include <QActionGroup>
 #include <QContextMenuEvent>
+#include <QtCore/qmath.h>
+#include <QElapsedTimer>
 #include <QFontMetrics>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QPainter>
+#include <QScreen>
 #include <QScrollBar>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -74,6 +83,7 @@ static PacketList *gbl_cur_packet_list = NULL;
 
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
 const int tail_update_interval_ = 100; // Milliseconds.
+const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 
 guint
 packet_list_append(column_info *, frame_data *fdata)
@@ -224,6 +234,8 @@ PacketList::PacketList(QWidget *parent) :
     cap_file_(NULL),
     decode_as_(NULL),
     ctx_column_(-1),
+    create_near_overlay_(true),
+    create_far_overlay_(true),
     capture_in_progress_(false),
     tail_timer_id_(0),
     rows_inserted_(false)
@@ -236,6 +248,10 @@ PacketList::PacketList(QWidget *parent) :
     setSortingEnabled(true);
     setAccessibleName("Packet list");
     setItemDelegateForColumn(0, &related_packet_delegate_);
+
+    overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
+    setVerticalScrollBar(overlay_sb_);
+    overlay_timer_id_ = startTimer(overlay_update_interval_);
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
@@ -578,13 +594,25 @@ void PacketList::timerEvent(QTimerEvent *event)
 {
     QTreeView::timerEvent(event);
 
-    if (rows_inserted_
-            && event->timerId() == tail_timer_id_
+    if (event->timerId() == tail_timer_id_
+            && rows_inserted_
             && capture_in_progress_
             && tail_at_end_) {
         scrollToBottom();
         rows_inserted_ = false;
+    } else if (event->timerId() == overlay_timer_id_ && !capture_in_progress_) {
+        if (create_near_overlay_) drawNearOverlay();
+        if (create_far_overlay_) drawFarOverlay();
     }
+}
+
+void PacketList::paintEvent(QPaintEvent *event)
+{
+    // XXX This is overkill, but there are quite a few events that
+    // require a new overlay, e.g. page up/down, scrolling, column
+    // resizing, etc.
+    create_near_overlay_ = true;
+    QTreeView::paintEvent(event);
 }
 
 void PacketList::setColumnVisibility()
@@ -671,6 +699,7 @@ void PacketList::columnsChanged()
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
     packet_list_model_->recreateVisibleRows(); // Calls PacketListRecord::resetColumns
     setColumnVisibility();
+    create_far_overlay_ = true;
     redrawVisiblePackets();
 }
 
@@ -760,6 +789,12 @@ void PacketList::clear() {
     packet_list_model_->clear();
     proto_tree_->clear();
     byte_view_tab_->clear();
+
+    QImage overlay;
+    overlay_sb_->setNearOverlayImage(overlay);
+    overlay_sb_->setFarOverlayImage(overlay);
+    create_near_overlay_ = true;
+    create_far_overlay_ = true;
 
     /* XXX is this correct in all cases?
      * Reset the sort column, use packetlist as model in case the list is frozen.
@@ -859,6 +894,12 @@ QString &PacketList::getFilterFromRowAndColumn()
     return filter;
 }
 
+void PacketList::resetColorized()
+{
+    packet_list_model_->resetColorized();
+    update();
+}
+
 QString PacketList::packetComment()
 {
     int row = currentIndex().row();
@@ -936,6 +977,7 @@ void PacketList::setCaptureFile(capture_file *cf)
     }
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);
+    create_near_overlay_ = true;
 }
 
 void PacketList::setMonospaceFont(const QFont &mono_font)
@@ -1004,6 +1046,7 @@ void PacketList::markFrame()
     if (!cap_file_ || !packet_list_model_) return;
 
     packet_list_model_->toggleFrameMark(currentIndex());
+    create_far_overlay_ = true;
     packets_bar_update();
 }
 
@@ -1012,6 +1055,7 @@ void PacketList::markAllDisplayedFrames(bool set)
     if (!cap_file_ || !packet_list_model_) return;
 
     packet_list_model_->setDisplayedFrameMark(set);
+    create_far_overlay_ = true;
     packets_bar_update();
 }
 
@@ -1020,6 +1064,7 @@ void PacketList::ignoreFrame()
     if (!cap_file_ || !packet_list_model_) return;
 
     packet_list_model_->toggleFrameIgnore(currentIndex());
+    create_far_overlay_ = true;
     int sb_val = verticalScrollBar()->value(); // Surely there's a better way to keep our position?
     setUpdatesEnabled(false);
     emit packetDissectionChanged();
@@ -1032,6 +1077,7 @@ void PacketList::ignoreAllDisplayedFrames(bool set)
     if (!cap_file_ || !packet_list_model_) return;
 
     packet_list_model_->setDisplayedFrameIgnore(set);
+    create_far_overlay_ = true;
     emit packetDissectionChanged();
 }
 
@@ -1039,12 +1085,14 @@ void PacketList::setTimeReference()
 {
     if (!cap_file_ || !packet_list_model_) return;
     packet_list_model_->toggleFrameRefTime(currentIndex());
+    create_far_overlay_ = true;
 }
 
 void PacketList::unsetAllTimeReferences()
 {
     if (!cap_file_ || !packet_list_model_) return;
     packet_list_model_->unsetAllFrameRefTime();
+    create_far_overlay_ = true;
 }
 
 void PacketList::showHeaderMenu(QPoint pos)
@@ -1220,6 +1268,172 @@ void PacketList::vScrollBarActionTriggered(int)
 
     if (capture_in_progress_ && prefs.capture_auto_scroll) {
         emit packetListScrolled(tail_at_end_);
+    }
+}
+
+// Goal: Overlay the packet list scroll bar with the colors of all of the
+// packets.
+// Try 1: Average packet colors in each scroll bar raster line. This has
+// two problems: It's easy to wash out colors and we dissect every packet.
+// Try 2: Color across a 5000 or 10000 packet window. We still end up washing
+// out colors.
+// Try 3: One packet per vertical scroll bar pixel. This seems to work best
+// but has the smallest window.
+// Try 4: Use a multiple of the scroll bar heigh and scale the image down
+// using Qt::SmoothTransformation. This gives us more packets per raster
+// line.
+
+// Odd (prime?) numbers resulted in fewer scaling artifacts. A multiplier
+// of 9 washed out colors a little too much.
+const int height_multiplier_ = 7;
+void PacketList::drawNearOverlay()
+{
+    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
+
+    if (create_near_overlay_) {
+        create_near_overlay_ = false;
+    }
+
+    qreal dp_ratio = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+    dp_ratio = overlay_sb_->devicePixelRatio();
+#endif
+    int o_height = overlay_sb_->height() * dp_ratio * height_multiplier_;
+    int o_rows = qMin(packet_list_model_->rowCount(), o_height);
+
+    if (recent.packet_list_colorize && o_rows > 0) {
+        QImage overlay(1, o_height, QImage::Format_ARGB32_Premultiplied);
+
+        QPainter painter(&overlay);
+#if 0
+        QElapsedTimer timer;
+        timer.start();
+#endif
+
+        overlay.fill(Qt::transparent);
+
+        int cur_line = 0;
+        int start = 0;
+
+        if (packet_list_model_->rowCount() > o_height) {
+            start += ((double) overlay_sb_->value() / overlay_sb_->maximum()) * (packet_list_model_->rowCount() - o_rows);
+        }
+        int end = start + o_rows;
+        for (int row = start; row < end; row++) {
+            packet_list_model_->ensureRowColorized(row);
+
+#if 0
+            // Try to remain responsive for large captures.
+            if (timer.elapsed() > update_time_) {
+                wsApp->processEvents();
+                if (!cap_file_ || cap_file_->state != FILE_READ_DONE) {
+                    create_overlay_ = true;
+                    return;
+                }
+                timer.restart();
+            }
+#endif
+
+            frame_data *fdata = packet_list_model_->getRowFdata(row);
+            const color_t *bgcolor = NULL;
+            if (fdata->color_filter) {
+                const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
+                bgcolor = &color_filter->bg_color;
+            }
+
+            int next_line = (row - start) * o_height / o_rows;
+            if (bgcolor) {
+                QColor color(ColorUtils::fromColorT(bgcolor));
+
+                painter.setPen(color);
+                painter.drawLine(0, cur_line, 0, next_line);
+            }
+            cur_line = next_line;
+        }
+
+        overlay_sb_->setNearOverlayImage(overlay);
+    } else {
+        QImage overlay;
+        overlay_sb_->setNearOverlayImage(overlay);
+    }
+}
+
+void PacketList::drawFarOverlay()
+{
+    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
+
+    if (create_far_overlay_) {
+        create_far_overlay_ = false;
+    }
+
+    qreal dp_ratio = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+    dp_ratio = overlay_sb_->devicePixelRatio();
+#endif
+    int o_width = 2 * dp_ratio;
+    int o_height = overlay_sb_->height() * dp_ratio;
+    int pl_rows = packet_list_model_->rowCount();
+
+    if (recent.packet_list_colorize && pl_rows > 0) {
+        // Create a tall image here. OverlayScrollBar will scale it to fit.
+        QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
+
+        QPainter painter(&overlay);
+        painter.setRenderHint(QPainter::Antialiasing);
+#if 0
+        QElapsedTimer timer;
+        timer.start();
+#endif
+
+        // The default "marked" background is black and the default "ignored"
+        // background is white. Instead of trying to figure out if our
+        // available colors will show up, just use the palette's background
+        // here and foreground below.
+        overlay.fill(palette().base().color());
+        QColor arrow_fg = palette().text().color();
+        arrow_fg.setAlphaF(0.3);
+        painter.setPen(arrow_fg);
+        painter.setBrush(arrow_fg);
+
+        bool have_far = false;
+        for (int row = 0; row < pl_rows; row++) {
+#if 0
+            // Try to remain responsive for large captures.
+            if (timer.elapsed() > update_time_) {
+                wsApp->processEvents();
+                if (!cap_file_ || cap_file_->state != FILE_READ_DONE) {
+                    create_overlay_ = true;
+                    return;
+                }
+                timer.restart();
+            }
+#endif
+
+            frame_data *fdata = packet_list_model_->getRowFdata(row);
+            bool marked = false;
+            if (fdata->flags.marked || fdata->flags.ref_time || fdata->flags.ignored) {
+                marked = true;
+            }
+
+            if (marked) {
+                int new_line = (row) * o_height / pl_rows;
+
+                QPointF points[3] = {
+                    QPointF(o_width, new_line),
+                    QPointF(0, new_line - (o_width * 0.7)),
+                    QPointF(0, new_line + (o_width * 0.7))
+                };
+                painter.drawPolygon(points, 3);
+                have_far = true;
+            }
+        }
+
+        if (have_far) {
+            overlay_sb_->setFarOverlayImage(overlay);
+            return;
+        }
+        QImage null_overlay;
+        overlay_sb_->setFarOverlayImage(null_overlay);
     }
 }
 

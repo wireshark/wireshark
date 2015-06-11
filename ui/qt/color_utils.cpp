@@ -76,7 +76,7 @@ ColorUtils::ColorUtils(QObject *parent) :
 {
 }
 
-QColor ColorUtils::fromColorT (color_t *color) {
+QColor ColorUtils::fromColorT (const color_t *color) {
     if (!color) return QColor();
     return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
 }

@@ -33,6 +33,8 @@
 #include <QTime>
 #include <QTreeView>
 
+class OverlayScrollBar;
+
 class QAction;
 class QTimerEvent;
 
@@ -62,6 +64,7 @@ public:
     void writeRecent(FILE *rf);
     bool contextMenuActive();
     QString &getFilterFromRowAndColumn();
+    void resetColorized();
     QString packetComment();
     void setPacketComment(QString new_comment);
     QString allPacketComments();
@@ -70,10 +73,11 @@ public:
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
 
 protected:
-    void showEvent (QShowEvent *);
-    void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
+    void showEvent(QShowEvent *);
+    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
     void contextMenuEvent(QContextMenuEvent *event);
     void timerEvent(QTimerEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end);
@@ -89,6 +93,11 @@ private:
     QAction *decode_as_;
     int ctx_column_;
     QByteArray column_state_;
+    OverlayScrollBar *overlay_sb_;
+    int overlay_timer_id_;
+    bool create_near_overlay_;
+    bool create_far_overlay_;
+    QVector<QRgb> overlay_colors_;
 
     RelatedPacketDelegate related_packet_delegate_;
     QMenu header_ctx_menu_;
@@ -142,6 +151,8 @@ private slots:
     void sectionResized(int col, int, int new_width);
     void sectionMoved(int, int, int);
     void vScrollBarActionTriggered(int);
+    void drawFarOverlay();
+    void drawNearOverlay();
 };
 
 #endif // PACKET_LIST_H
