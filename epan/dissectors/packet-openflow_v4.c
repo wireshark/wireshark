@@ -1106,6 +1106,9 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
 
     } else {
+        if (oxm_class == OFPXMC_EXPERIMENTER) {
+            oxm_length -= 4; /* oxm_length includes experimenter field */
+        }
         proto_tree_add_expert_format(oxm_tree, pinfo, &ei_openflow_v4_oxm_undecoded,
                                      tvb, offset, oxm_length, "Unknown OXM body.");
         offset+=oxm_length;
