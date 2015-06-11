@@ -693,7 +693,7 @@ pipe_input_cb(GIOChannel   *source _U_,
 void
 pipe_input_set_handler(gint             source,
                        gpointer         user_data,
-	               ws_process_id   *child_process,
+                       ws_process_id   *child_process,
                        pipe_input_cb_t  input_cb)
 {
     static pipe_input_t pipe_input;

@@ -1109,7 +1109,7 @@ typedef enum
     DE_BCC_CAUSE,                       /* Cause */
     DE_BCC_ORIG_IND,                    /* Originator indication */
     DE_BCC_STATE_ATTR,                  /* State attributes */
-    DE_BCC_COMPR_OTDI,					/* Compressed otdi */
+    DE_BCC_COMPR_OTDI,                  /* Compressed otdi */
     DE_NONE                             /* NONE */
 }
 dtap_elem_idx_t;

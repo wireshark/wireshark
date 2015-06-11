@@ -152,10 +152,10 @@ void
 ftype_register_pcre(void)
 {
     static ftype_t pcre_type = {
-        FT_PCRE,        /* ftype */
-        "FT_PCRE",      /* name */
+        FT_PCRE,            /* ftype */
+        "FT_PCRE",          /* name */
         "Compiled Perl-Compatible Regular Expression (GRegex) object", /* pretty_name */
-        0,          /* wire_size */
+        0,                  /* wire_size */
         gregex_fvalue_new,  /* new_value */
         gregex_fvalue_free, /* free_value */
         val_from_unparsed,  /* val_from_unparsed */
@@ -178,8 +178,8 @@ ftype_register_pcre(void)
         gregex_fvalue_get,  /* get_value */
         NULL,               /* get_value_uinteger */
         NULL,               /* get_value_sinteger */
-	NULL,		    /* get_value_uinteger64 */
-	NULL,		    /* get_value_sinteger64 */
+        NULL,               /* get_value_uinteger64 */
+        NULL,               /* get_value_sinteger64 */
         NULL,               /* get_value_floating */
 
         NULL,               /* cmp_eq */

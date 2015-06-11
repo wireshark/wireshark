@@ -2001,7 +2001,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
                     /*  Don't cast a guint8 * into a guint32 *--the
                      *  guint8 * may not point to something that's
-		     *  aligned correctly.
+                     *  aligned correctly.
                      */
                     memcpy(&high, option_content, sizeof(guint32));
                     memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));

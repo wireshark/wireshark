@@ -153,8 +153,8 @@ ftype_register_guid(void)
         value_get,           /* get_value */
         NULL,                /* get_value_uinteger */
         NULL,                /* get_value_sinteger */
-        NULL,		     /* get_value_uinteger64 */
-        NULL,		     /* get_value_sinteger64 */
+        NULL,                /* get_value_uinteger64 */
+        NULL,                /* get_value_sinteger64 */
         NULL,                /* get_value_floating */
 
         cmp_eq,

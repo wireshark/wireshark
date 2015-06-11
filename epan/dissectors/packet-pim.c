@@ -34,8 +34,8 @@
 void proto_register_pim(void);
 void proto_reg_handoff_pim(void);
 
-#define PIM_TYPE(x)     ((x) & 0x0f)
-#define PIM_VER(x)      (((x) & 0xf0) >> 4)
+#define PIM_TYPE(x)             ((x) & 0x0f)
+#define PIM_VER(x)              (((x) & 0xf0) >> 4)
 #define PIM_BIDIR_SUBTYPE(x)    ((x) & 0x0f)
 #define PIM_BIDIR_RSVD(x)       (((x) & 0xf0) >> 4)
 
@@ -225,7 +225,7 @@ static gboolean use_main_tree  = TRUE;
 /*
  * The Story About Ping^WPIM:
  *
- *	http://www.cs.usc.edu/assets/003/83187.pdf
+ *   http://www.cs.usc.edu/assets/003/83187.pdf
  *
  * dated January 11, 1995, entitled "Protocol Independent Multicast (PIM):
  * Protocol Specification", calls itself draft-ietf-idmr-pim-spec-01,
@@ -233,18 +233,18 @@ static gboolean use_main_tree  = TRUE;
  * that runs atop IGMP, with a type of 4 for "Router PIM Messages", and
  * a PIM version number field of 1.
  *
- *	https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-00
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-00
  *
  * dated September 7, 1995, and
  *
- *	http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
+ *   http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
  *
  * dated September 7, 1995, both entitled "Protocol Independent Multicast-
  * Sparse Mode (PIM-SM): Protocol Specification", describe a protocol that
  * runs atop IGMP, with a type of 4 for "Router PIM Messages", and a PIM
  * version number field of 2.
  *
- *	https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-03
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-03
  *
  * dated June 6, 1996, and all subsequent drafts, and RFC 2117, dated
  * June 1997, all entitled "Protocol Independent Multicast-Sparse Mode
@@ -262,7 +262,7 @@ static gboolean use_main_tree  = TRUE;
  *
  * Looking at the Dense Mode specs,
  *
- *	http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
+ *   http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
  *
  * entitled "Protocol Independent Multicast-Dense Mode (PIM-DM): Protocol
  * Specification", dated September 1995, describes a protocol that runs

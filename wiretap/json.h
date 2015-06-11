@@ -35,7 +35,7 @@
  *
  * For now, go for 50MB.
  */
-#define MAX_FILE_SIZE	(50*1024*1024)
+#define MAX_FILE_SIZE  (50*1024*1024)
 
 wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info);
 

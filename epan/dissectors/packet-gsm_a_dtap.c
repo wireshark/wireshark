@@ -144,16 +144,16 @@ const value_string gsm_a_dtap_msg_gcc_strings[] = {
 };
 
 const value_string gsm_a_dtap_msg_bcc_strings[] = {
-    { 0x31,	"Immediate Setup" },
-    { 0x32,	"Setup" },
-    { 0x33,	"Connect" },
-    { 0x34,	"Termination" },
-    { 0x35,	"Termination Request" },
-    { 0x36,	"Termination Reject" },
-    { 0x38,	"Status" },
-    { 0x39,	"Get Status" },
-    { 0x3A,	"Set Parameter" },
-    { 0x3B,	"Immediate Setup 2" },
+    { 0x31, "Immediate Setup" },
+    { 0x32, "Setup" },
+    { 0x33, "Connect" },
+    { 0x34, "Termination" },
+    { 0x35, "Termination Request" },
+    { 0x36, "Termination Reject" },
+    { 0x38, "Status" },
+    { 0x39, "Get Status" },
+    { 0x3A, "Set Parameter" },
+    { 0x3B, "Immediate Setup 2" },
     { 0, NULL }
 };
 
@@ -453,7 +453,7 @@ static const true_false_string tfs_acceptable_not_acceptable = { "Acceptable", "
 
 #define DTAP_MM_IEI_MASK    0x3f
 #define DTAP_GCC_IEI_MASK   0x3f
-#define	DTAP_BCC_IEI_MASK   0x3f
+#define DTAP_BCC_IEI_MASK   0x3f
 #define DTAP_CC_IEI_MASK    0x3f
 #define DTAP_SMS_IEI_MASK   0xff
 #define DTAP_SS_IEI_MASK    0x3f

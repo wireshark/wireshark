@@ -1901,7 +1901,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
 #define VSP_CISCO_RAD                       3
 #define VSP_CISCO_RAD_SLOT                  4
 #define VSP_CISCO_RAD_NAME                  5
-#define	VSP_CISCO_MWAR                      6
+#define VSP_CISCO_MWAR                      6
 #define VSP_CISCO_ADD_WLAN                  7
 #define VSP_CISCO_WTP_RADIO_CFG             8
 

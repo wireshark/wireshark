@@ -237,7 +237,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
       /* the name used for sorting in the left column */
       len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
                        -short_namel,  short_name,
-                       -namel,	  name,
+                       -namel, name,
                        -filter_namel, filter_name);
       insert_text(w, buffer, len);
     }
