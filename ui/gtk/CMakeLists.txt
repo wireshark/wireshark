@@ -157,6 +157,7 @@ if(PORTAUDIO_FOUND)
 		set_target_properties(portaudio PROPERTIES
 			INCLUDE_DIRECTORIES "${PORTAUDIO_INCLUDE_DIRS}"
 			FOLDER "UI")
+
 		# Portaudio has some warnings, annoyingly the combination of CMake
 		# and MSBuild means that just disabling the warnings on the specific
 		# source files doesn't work, so set them to level 4 for the target
@@ -172,6 +173,17 @@ if(PORTAUDIO_FOUND)
 			PUBLIC "/w44189"
 			PUBLIC "/w44305"
 		)
+
+		# Portaudio has some size_t > long warnings as a result of using strlen() on x64.
+		if (WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+			#set_source_files_properties(${PORTAUDIO_SRC_DIR}/hostapi/wmme/pa_win_wmme.c
+			#	PROPERTIES
+			#	COMPILE_FLAGS "/wd4267"
+			#)
+			target_compile_options(portaudio
+				PUBLIC "/w44267"
+			)
+		endif()
 	endif()
 endif()
 
