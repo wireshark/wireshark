@@ -152,6 +152,154 @@ static gint hf_002_100_THETAS = -1;
 static gint hf_002_100_THETAE = -1;
 static gint hf_002_RE = -1;
 static gint hf_002_SP = -1;
+/* Category 004 */
+static gint hf_004_000 = -1;
+static gint hf_004_000_MT = -1;
+static gint hf_004_010 = -1;
+static gint hf_004_015 = -1;
+static gint hf_004_020 = -1;
+static gint hf_004_030 = -1;
+static gint hf_004_030_TN1 = -1;
+static gint hf_004_035 = -1;
+static gint hf_004_035_TN2 = -1;
+static gint hf_004_040 = -1;
+static gint hf_004_040_AI = -1;
+static gint hf_004_045 = -1;
+static gint hf_004_045_AS = -1;
+static gint hf_004_060 = -1;
+static gint hf_004_060_MRVA = -1;
+static gint hf_004_060_RAMLD = -1;
+static gint hf_004_060_RAMHD = -1;
+static gint hf_004_060_MSAW = -1;
+static gint hf_004_060_APW = -1;
+static gint hf_004_060_CLAM = -1;
+static gint hf_004_060_STCA = -1;
+static gint hf_004_060_AFDA = -1;
+static gint hf_004_060_RIMCA = -1;
+static gint hf_004_060_ACASRA = -1;
+static gint hf_004_060_NTCA = -1;
+static gint hf_004_060_DG = -1;
+static gint hf_004_060_OF = -1;
+static gint hf_004_060_OL = -1;
+static gint hf_004_070 = -1;
+static gint hf_004_070_01 = -1;
+static gint hf_004_070_01_TC = -1;
+static gint hf_004_070_02 = -1;
+static gint hf_004_070_02_TCA = -1;
+static gint hf_004_070_03 = -1;
+static gint hf_004_070_03_CHS = -1;
+static gint hf_004_070_04 = -1;
+static gint hf_004_070_04_MHS = -1;
+static gint hf_004_070_05 = -1;
+static gint hf_004_070_05_CVS = -1;
+static gint hf_004_070_06 = -1;
+static gint hf_004_070_06_MVS = -1;
+static gint hf_004_074 = -1;
+static gint hf_004_074_LD = -1;
+static gint hf_004_075 = -1;
+static gint hf_004_075_TDD = -1;
+static gint hf_004_076 = -1;
+static gint hf_004_076_VD = -1;
+static gint hf_004_100 = -1;
+static gint hf_004_100_01 = -1;
+static gint hf_004_100_01_AN = -1;
+static gint hf_004_100_02 = -1;
+static gint hf_004_100_02_CAN = -1;
+static gint hf_004_100_03 = -1;
+static gint hf_004_100_03_RT1 = -1;
+static gint hf_004_100_04 = -1;
+static gint hf_004_100_04_RT2 = -1;
+static gint hf_004_100_05 = -1;
+static gint hf_004_100_05_SB = -1;
+static gint hf_004_100_06 = -1;
+static gint hf_004_100_06_G = -1;
+static gint hf_004_110 = -1;
+static gint hf_004_110_Centre = -1;
+static gint hf_004_110_Position = -1;
+static gint hf_004_120 = -1;
+static gint hf_004_120_01 = -1;
+static gint hf_004_120_01_MAS = -1;
+static gint hf_004_120_01_CAS = -1;
+static gint hf_004_120_01_FLD = -1;
+static gint hf_004_120_01_FVD = -1;
+static gint hf_004_120_01_Type = -1;
+static gint hf_004_120_01_Cross = -1;
+static gint hf_004_120_01_Div = -1;
+static gint hf_004_120_01_RRC = -1;
+static gint hf_004_120_01_RTC = -1;
+static gint hf_004_120_01_MRVA = -1;
+static gint hf_004_120_02 = -1;
+static gint hf_004_120_02_TID = -1;
+static gint hf_004_120_02_SC = -1;
+static gint hf_004_120_02_CS = -1;
+static gint hf_004_120_03 = -1;
+static gint hf_004_120_03_Probability = -1;
+static gint hf_004_120_04 = -1;
+static gint hf_004_120_04_Duration = -1;
+static gint hf_004_170 = -1;
+static gint hf_004_170_01 = -1;
+static gint hf_004_170_01_AI1 = -1;
+static gint hf_004_170_02 = -1;
+static gint hf_004_170_02_M31 = -1;
+static gint hf_004_170_03 = -1;
+static gint hf_004_170_03_LAT = -1;
+static gint hf_004_170_03_LON = -1;
+static gint hf_004_170_03_ALT = -1;
+static gint hf_004_170_04 = -1;
+static gint hf_004_170_04_X = -1;
+static gint hf_004_170_04_Y = -1;
+static gint hf_004_170_04_Z = -1;
+static gint hf_004_170_05 = -1;
+static gint hf_004_170_05_TT1 = -1;
+static gint hf_004_170_06 = -1;
+static gint hf_004_170_06_DT1 = -1;
+static gint hf_004_170_07 = -1;
+static gint hf_004_170_07_GATOAT = -1;
+static gint hf_004_170_07_FR1FR2 = -1;
+static gint hf_004_170_07_RVSM = -1;
+static gint hf_004_170_07_HPR = -1;
+static gint hf_004_170_07_CDM = -1;
+static gint hf_004_170_07_PRI = -1;
+static gint hf_004_170_07_GV = -1;
+static gint hf_004_170_08 = -1;
+static gint hf_004_170_08_MS1 = -1;
+static gint hf_004_170_09 = -1;
+static gint hf_004_170_09_FP1 = -1;
+static gint hf_004_170_10 = -1;
+static gint hf_004_170_10_CF1 = -1;
+static gint hf_004_171 = -1;
+static gint hf_004_171_01 = -1;
+static gint hf_004_171_01_AI2 = -1;
+static gint hf_004_171_02 = -1;
+static gint hf_004_171_02_M32 = -1;
+static gint hf_004_171_03 = -1;
+static gint hf_004_171_03_LAT = -1;
+static gint hf_004_171_03_LON = -1;
+static gint hf_004_171_03_ALT = -1;
+static gint hf_004_171_04 = -1;
+static gint hf_004_171_04_X = -1;
+static gint hf_004_171_04_Y = -1;
+static gint hf_004_171_04_Z = -1;
+static gint hf_004_171_05 = -1;
+static gint hf_004_171_05_TT2 = -1;
+static gint hf_004_171_06 = -1;
+static gint hf_004_171_06_DT2 = -1;
+static gint hf_004_171_07 = -1;
+static gint hf_004_171_07_GATOAT = -1;
+static gint hf_004_171_07_FR1FR2 = -1;
+static gint hf_004_171_07_RVSM = -1;
+static gint hf_004_171_07_HPR = -1;
+static gint hf_004_171_07_CDM = -1;
+static gint hf_004_171_07_PRI = -1;
+static gint hf_004_171_07_GV = -1;
+static gint hf_004_171_08 = -1;
+static gint hf_004_171_08_MS2 = -1;
+static gint hf_004_171_09 = -1;
+static gint hf_004_171_09_FP2 = -1;
+static gint hf_004_171_10 = -1;
+static gint hf_004_171_10_CF2 = -1;
+static gint hf_004_SP = -1;
+static gint hf_004_RE = -1;
 /* Category 008 */
 static gint hf_008_000 = -1;
 static gint hf_008_000_MT = -1;
@@ -1312,6 +1460,154 @@ static gint ett_002_100_THETAS = -1;
 static gint ett_002_100_THETAE = -1;
 static gint ett_002_RE = -1;
 static gint ett_002_SP = -1;
+/* Category 004 */
+static gint ett_004_000 = -1;
+static gint ett_004_000_MT = -1;
+static gint ett_004_010 = -1;
+static gint ett_004_015 = -1;
+static gint ett_004_020 = -1;
+static gint ett_004_030 = -1;
+static gint ett_004_030_TN1 = -1;
+static gint ett_004_035 = -1;
+static gint ett_004_035_TN2 = -1;
+static gint ett_004_040 = -1;
+static gint ett_004_040_AI = -1;
+static gint ett_004_045 = -1;
+static gint ett_004_045_AS = -1;
+static gint ett_004_060 = -1;
+static gint ett_004_060_MRVA = -1;
+static gint ett_004_060_RAMLD = -1;
+static gint ett_004_060_RAMHD = -1;
+static gint ett_004_060_MSAW = -1;
+static gint ett_004_060_APW = -1;
+static gint ett_004_060_CLAM = -1;
+static gint ett_004_060_STCA = -1;
+static gint ett_004_060_AFDA = -1;
+static gint ett_004_060_RIMCA = -1;
+static gint ett_004_060_ACASRA = -1;
+static gint ett_004_060_NTCA = -1;
+static gint ett_004_060_DG = -1;
+static gint ett_004_060_OF = -1;
+static gint ett_004_060_OL = -1;
+static gint ett_004_070 = -1;
+static gint ett_004_070_01 = -1;
+static gint ett_004_070_01_TC = -1;
+static gint ett_004_070_02 = -1;
+static gint ett_004_070_02_TCA = -1;
+static gint ett_004_070_03 = -1;
+static gint ett_004_070_03_CHS = -1;
+static gint ett_004_070_04 = -1;
+static gint ett_004_070_04_MHS = -1;
+static gint ett_004_070_05 = -1;
+static gint ett_004_070_05_CVS = -1;
+static gint ett_004_070_06 = -1;
+static gint ett_004_070_06_MVS = -1;
+static gint ett_004_074 = -1;
+static gint ett_004_074_LD = -1;
+static gint ett_004_075 = -1;
+static gint ett_004_075_TDD = -1;
+static gint ett_004_076 = -1;
+static gint ett_004_076_VD = -1;
+static gint ett_004_100 = -1;
+static gint ett_004_100_01 = -1;
+static gint ett_004_100_01_AN = -1;
+static gint ett_004_100_02 = -1;
+static gint ett_004_100_02_CAN = -1;
+static gint ett_004_100_03 = -1;
+static gint ett_004_100_03_RT1 = -1;
+static gint ett_004_100_04 = -1;
+static gint ett_004_100_04_RT2 = -1;
+static gint ett_004_100_05 = -1;
+static gint ett_004_100_05_SB = -1;
+static gint ett_004_100_06 = -1;
+static gint ett_004_100_06_G = -1;
+static gint ett_004_110 = -1;
+static gint ett_004_110_Centre = -1;
+static gint ett_004_110_Position = -1;
+static gint ett_004_120 = -1;
+static gint ett_004_120_01 = -1;
+static gint ett_004_120_01_MAS = -1;
+static gint ett_004_120_01_CAS = -1;
+static gint ett_004_120_01_FLD = -1;
+static gint ett_004_120_01_FVD = -1;
+static gint ett_004_120_01_Type = -1;
+static gint ett_004_120_01_Cross = -1;
+static gint ett_004_120_01_Div = -1;
+static gint ett_004_120_01_RRC = -1;
+static gint ett_004_120_01_RTC = -1;
+static gint ett_004_120_01_MRVA = -1;
+static gint ett_004_120_02 = -1;
+static gint ett_004_120_02_TID = -1;
+static gint ett_004_120_02_SC = -1;
+static gint ett_004_120_02_CS = -1;
+static gint ett_004_120_03 = -1;
+static gint ett_004_120_03_Probability = -1;
+static gint ett_004_120_04 = -1;
+static gint ett_004_120_04_Duration = -1;
+static gint ett_004_170 = -1;
+static gint ett_004_170_01 = -1;
+static gint ett_004_170_01_AI1 = -1;
+static gint ett_004_170_02 = -1;
+static gint ett_004_170_02_M31 = -1;
+static gint ett_004_170_03 = -1;
+static gint ett_004_170_03_LAT = -1;
+static gint ett_004_170_03_LON = -1;
+static gint ett_004_170_03_ALT = -1;
+static gint ett_004_170_04 = -1;
+static gint ett_004_170_04_X = -1;
+static gint ett_004_170_04_Y = -1;
+static gint ett_004_170_04_Z = -1;
+static gint ett_004_170_05 = -1;
+static gint ett_004_170_05_TT1 = -1;
+static gint ett_004_170_06 = -1;
+static gint ett_004_170_06_DT1 = -1;
+static gint ett_004_170_07 = -1;
+static gint ett_004_170_07_GATOAT = -1;
+static gint ett_004_170_07_FR1FR2 = -1;
+static gint ett_004_170_07_RVSM = -1;
+static gint ett_004_170_07_HPR = -1;
+static gint ett_004_170_07_CDM = -1;
+static gint ett_004_170_07_PRI = -1;
+static gint ett_004_170_07_GV = -1;
+static gint ett_004_170_08 = -1;
+static gint ett_004_170_08_MS1 = -1;
+static gint ett_004_170_09 = -1;
+static gint ett_004_170_09_FP1 = -1;
+static gint ett_004_170_10 = -1;
+static gint ett_004_170_10_CF1 = -1;
+static gint ett_004_171 = -1;
+static gint ett_004_171_01 = -1;
+static gint ett_004_171_01_AI2 = -1;
+static gint ett_004_171_02 = -1;
+static gint ett_004_171_02_M32 = -1;
+static gint ett_004_171_03 = -1;
+static gint ett_004_171_03_LAT = -1;
+static gint ett_004_171_03_LON = -1;
+static gint ett_004_171_03_ALT = -1;
+static gint ett_004_171_04 = -1;
+static gint ett_004_171_04_X = -1;
+static gint ett_004_171_04_Y = -1;
+static gint ett_004_171_04_Z = -1;
+static gint ett_004_171_05 = -1;
+static gint ett_004_171_05_TT2 = -1;
+static gint ett_004_171_06 = -1;
+static gint ett_004_171_06_DT2 = -1;
+static gint ett_004_171_07 = -1;
+static gint ett_004_171_07_GATOAT = -1;
+static gint ett_004_171_07_FR1FR2 = -1;
+static gint ett_004_171_07_RVSM = -1;
+static gint ett_004_171_07_HPR = -1;
+static gint ett_004_171_07_CDM = -1;
+static gint ett_004_171_07_PRI = -1;
+static gint ett_004_171_07_GV = -1;
+static gint ett_004_171_08 = -1;
+static gint ett_004_171_08_MS2 = -1;
+static gint ett_004_171_09 = -1;
+static gint ett_004_171_09_FP2 = -1;
+static gint ett_004_171_10 = -1;
+static gint ett_004_171_10_CF2 = -1;
+static gint ett_004_SP = -1;
+static gint ett_004_RE = -1;
 /* Category 008 */
 static gint ett_008_000 = -1;
 static gint ett_008_000_MT = -1;
@@ -2819,16 +3115,635 @@ static const enum_val_t I002_versions[] = {
 };
 
 /* *********************** */
+/*      Category 004       */
+/* *********************** */
+/* Fields */
+
+/* Message Type */
+static const value_string valstr_004_000_MT[] = {
+    { 1, "Alive Message" },
+    { 2, "Route Adherence Monitor Longitudinal Deviation" },
+    { 3, "Route Adherence Monitor Heading Deviation" },
+    { 4, "Minimum Safe Altitude Warning" },
+    { 5, "Area Proximity Warning" },
+    { 6, "Clearance Level Adherence Monitor" },
+    { 7, "Short Term Conflict Alert" },
+    { 8, "Approach Funnel Deviation Alert" },
+    { 9, "RIMCAS Arrival / Landing Monitor (ALM)" },
+    { 10, "RIMCAS Arrival / Departure Wrong Runway Alert (WRA)" },
+    { 11, "RIMCAS Arrival / Departure Opposite Traffic Alert (OTA)" },
+    { 12, "RIMCAS Departure Monitor (RDM)" },
+    { 13, "RIMCAS Runway / Taxiway Crossing Monitor (RCM)" },
+    { 14, "RIMCAS Taxiway Separation Monitor (TSM)" },
+    { 15, "RIMCAS Unauthorized Taxiway Movement Monitor(UTMM)" },
+    { 16, "RIMCAS Stop Bar Overrun Alert (SBOA)" },
+    { 17, "End Of Conflict (EOC)" },
+    { 18, "ACAS Resolution Advisory (ACASRA)" },
+    { 19, "Near Term Conflict Alert (NTCA)" },
+    { 0, NULL }
+};
+static const FieldPart I004_000_MT = { 8, 1.0, FIELD_PART_UINT, &hf_004_000_MT, NULL };
+static const FieldPart *I004_000_PARTS[] = { &I004_000_MT, NULL };
+
+/* Track number 1 */
+static const FieldPart I004_030_TN1 = { 16, 1.0, FIELD_PART_UINT, &hf_004_030_TN1, NULL };
+static const FieldPart *I004_030_PARTS[] = { &I004_030_TN1, NULL };
+
+/* Track number 2 */
+static const FieldPart I004_035_TN2 = { 16, 1.0, FIELD_PART_UINT, &hf_004_035_TN2, NULL };
+static const FieldPart *I004_035_PARTS[] = { &I004_035_TN2, NULL };
+
+/* Alert Identifier */
+static const FieldPart I004_040_AI = { 16, 1.0, FIELD_PART_UINT, &hf_004_040_AI, NULL };
+static const FieldPart *I004_040_PARTS[] = { &I004_040_AI, NULL };
+
+/* Alert Status */
+static const FieldPart I004_045_AS = { 3, 1.0, FIELD_PART_UINT, &hf_004_045_AS, NULL };
+static const FieldPart *I004_045_PARTS[] = { &IXXX_4bit_spare, &I004_045_AS, &IXXX_1bit_spare, NULL };
+
+/* Safety Net Function & System Status */
+/* MRVA */
+static const value_string valstr_004_060_MRVA[] = {
+    { 0, "Default" },
+    { 1, "MRVA function" },
+    { 0, NULL }
+};
+
+/* RAMLD */
+static const value_string valstr_004_060_RAMLD[] = {
+    { 0, "Default" },
+    { 1, "RAMLD function" },
+    { 0, NULL }
+};
+
+/* RAMHD */
+static const value_string valstr_004_060_RAMHD[] = {
+    { 0, "Default" },
+    { 1, "RAMHD function" },
+    { 0, NULL }
+};
+
+/* MSAW */
+static const value_string valstr_004_060_MSAW[] = {
+    { 0, "Default" },
+    { 1, "MSAW function" },
+    { 0, NULL }
+};
+
+/* APW */
+static const value_string valstr_004_060_APW[] = {
+    { 0, "Default" },
+    { 1, "APW function" },
+    { 0, NULL }
+};
+
+/* CLAM */
+static const value_string valstr_004_060_CLAM[] = {
+    { 0, "Default" },
+    { 1, "CLAM function" },
+    { 0, NULL }
+};
+
+/* STCA */
+static const value_string valstr_004_060_STCA[] = {
+    { 0, "Default" },
+    { 1, "STCA function" },
+    { 0, NULL }
+};
+
+/* AFDA */
+static const value_string valstr_004_060_AFDA[] = {
+    { 0, "Default" },
+    { 1, "AFDA function" },
+    { 0, NULL }
+};
+
+/* RIMCA */
+static const value_string valstr_004_060_RIMCA[] = {
+    { 0, "Default" },
+    { 1, "RIMCA function" },
+    { 0, NULL }
+};
+
+/* ACASRA */
+static const value_string valstr_004_060_ACASRA[] = {
+    { 0, "Default" },
+    { 1, "ACAS RA function" },
+    { 0, NULL }
+};
+
+/* NTCA */
+static const value_string valstr_004_060_NTCA[] = {
+    { 0, "Default" },
+    { 1, "NTCA function" },
+    { 0, NULL }
+};
+
+/* DG */
+static const value_string valstr_004_060_DG[] = {
+    { 0, "Default" },
+    { 1, "System degraded" },
+    { 0, NULL }
+};
+
+/* OF */
+static const value_string valstr_004_060_OF[] = {
+    { 0, "Default" },
+    { 1, "Overflow error" },
+    { 0, NULL }
+};
+
+/* OL */
+static const value_string valstr_004_060_OL[] = {
+    { 0, "Default" },
+    { 1, "Overload error" },
+    { 0, NULL }
+};
+
+static const FieldPart I004_060_MRVA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_MRVA, NULL };
+static const FieldPart I004_060_RAMLD = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_RAMLD, NULL };
+static const FieldPart I004_060_RAMHD = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_RAMHD, NULL };
+static const FieldPart I004_060_MSAW = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_MSAW, NULL };
+static const FieldPart I004_060_APW = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_APW, NULL };
+static const FieldPart I004_060_CLAM = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_CLAM, NULL };
+static const FieldPart I004_060_STCA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_STCA, NULL };
+static const FieldPart I004_060_AFDA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_AFDA, NULL };
+static const FieldPart I004_060_RIMCA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_RIMCA, NULL };
+static const FieldPart I004_060_ACASRA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_ACASRA, NULL };
+static const FieldPart I004_060_NTCA = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_NTCA, NULL };
+static const FieldPart I004_060_DG = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_DG, NULL };
+static const FieldPart I004_060_OF = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_OF, NULL };
+static const FieldPart I004_060_OL = { 1, 1.0, FIELD_PART_UINT, &hf_004_060_OL, NULL };
+static const FieldPart *I004_060_PARTS[] = { &I004_060_MRVA, &I004_060_RAMLD, &I004_060_RAMHD, &I004_060_MSAW, &I004_060_APW, &I004_060_CLAM, &I004_060_STCA, &IXXX_FX,
+                                             &I004_060_AFDA, &I004_060_RIMCA, &I004_060_ACASRA, &I004_060_NTCA, &I004_060_DG, &I004_060_OF, &I004_060_OL, &IXXX_FX, NULL };
+
+/* Conflict Timing and Separation */
+/* Time to Conflict */
+static const FieldPart I004_070_01_TC = { 24, 1.0/128.0, FIELD_PART_UFLOAT, &hf_004_070_01_TC, "%.3f" };
+static const FieldPart *I004_070_01_PARTS[] = { &I004_070_01_TC, NULL };
+
+/* Time to Closest Approach */
+static const FieldPart I004_070_02_TCA = { 24, 1.0/128.0, FIELD_PART_UFLOAT, &hf_004_070_02_TCA, "%.3f" };
+static const FieldPart *I004_070_02_PARTS[] = { &I004_070_02_TCA, NULL };
+
+/* Current Horizontal Separation */
+static const FieldPart I004_070_03_CHS = { 24, 0.5, FIELD_PART_UFLOAT, &hf_004_070_03_CHS, NULL };
+static const FieldPart *I004_070_03_PARTS[] = { &I004_070_03_CHS, NULL };
+
+/* Estimated Minimum Horizontal Separation */
+static const FieldPart I004_070_04_MHS = { 16, 0.5, FIELD_PART_UFLOAT, &hf_004_070_04_MHS, NULL };
+static const FieldPart *I004_070_04_PARTS[] = { &I004_070_04_MHS, NULL };
+
+/* Current Vertical Separation */
+static const FieldPart I004_070_05_CVS = { 16, 25.0, FIELD_PART_UFLOAT, &hf_004_070_05_CVS, NULL };
+static const FieldPart *I004_070_05_PARTS[] = { &I004_070_05_CVS, NULL };
+
+/* Estimated Minimum Vertical Separation */
+static const FieldPart I004_070_06_MVS = { 16, 25.0, FIELD_PART_UFLOAT, &hf_004_070_06_MVS, NULL };
+static const FieldPart *I004_070_06_PARTS[] = { &I004_070_06_MVS, NULL };
+
+/* Longitudinal Deviation */
+static const FieldPart I004_074_LD = { 16, 32.0, FIELD_PART_FLOAT, &hf_004_074_LD, NULL };
+static const FieldPart *I004_074_PARTS[] = { &I004_074_LD, NULL };
+
+/* Transversal Distance Deviation */
+static const FieldPart I004_075_TDD = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_075_TDD, NULL };
+static const FieldPart *I004_075_PARTS[] = { &I004_075_TDD, NULL };
+
+/* Vertical Deviation */
+static const FieldPart I004_076_VD = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_076_VD, NULL };
+static const FieldPart *I004_076_PARTS[] = { &I004_076_VD, NULL };
+
+/* Area Definition*/
+/* Area Name */
+static const FieldPart I004_100_01_AN = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_100_01_AN, NULL };
+static const FieldPart *I004_100_01_PARTS[] = { &I004_100_01_AN, NULL };
+
+/* Crossing Area Name */
+static const FieldPart I004_100_02_CAN = { 56, 1.0, FIELD_PART_ASCII, &hf_004_100_02_CAN, NULL };
+static const FieldPart *I004_100_02_PARTS[] = { &I004_100_02_CAN, NULL };
+
+/* Runway/Taxiway Designator 1 */
+static const FieldPart I004_100_03_RT1 = { 56, 1.0, FIELD_PART_ASCII, &hf_004_100_03_RT1, NULL };
+static const FieldPart *I004_100_03_PARTS[] = { &I004_100_03_RT1, NULL };
+
+/* Runway/Taxiway Designator 2 */
+static const FieldPart I004_100_04_RT2 = { 56, 1.0, FIELD_PART_ASCII, &hf_004_100_04_RT2, NULL };
+static const FieldPart *I004_100_04_PARTS[] = { &I004_100_04_RT2, NULL };
+
+/* Stop Bar Designator */
+static const FieldPart I004_100_05_SB = { 56, 1.0, FIELD_PART_ASCII, &hf_004_100_05_SB, NULL };
+static const FieldPart *I004_100_05_PARTS[] = { &I004_100_05_SB, NULL };
+
+/* Gate Designator */
+static const FieldPart I004_100_06_G = { 56, 1.0, FIELD_PART_ASCII, &hf_004_100_06_G, NULL };
+static const FieldPart *I004_100_06_PARTS[] = { &I004_100_06_G, NULL };
+
+/* FDPS Sector Control Identification */
+static const FieldPart I004_110_Centre = { 8, 1.0, FIELD_PART_UINT, &hf_004_110_Centre, NULL };
+static const FieldPart I004_110_Position = { 8, 1.0, FIELD_PART_UINT, &hf_004_110_Position, NULL };
+static const FieldPart *I004_110_PARTS[] = { &I004_110_Centre, &I004_110_Position, NULL };
+
+/* Conflict Characteristics */
+/* Conflict Nature */
+static const value_string valstr_004_120_01_MAS[] = {
+    { 0, "conflict not predicted to occur in military airspace" },
+    { 1, "conflict predicted to occur in military airspace" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_CAS[] = {
+    { 0, "conflict not predicted to occur in civil airspace" },
+    { 1, "conflict predicted to occur in civil airspace" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_FLD[] = {
+    { 0, "Aircraft are not fast diverging laterally at current time" },
+    { 1, "Aircraft are fast diverging laterally at current time" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_FVD[] = {
+    { 0, "Aircraft are not fast diverging vertically at current time" },
+    { 1, "Aircraft are fast diverging vertically at current time" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_Type[] = {
+    { 0, "Minor separation infringement" },
+    { 1, "Major separation infringement" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_Cross[] = {
+    { 0, "Aircraft have not crossed at starting time of conflict" },
+    { 1, "Aircraft have crossed at starting time of conflict" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_Div[] = {
+    { 0, "Aircraft are not diverging at starting time of conflict" },
+    { 1, "Aircraft are diverging at starting time of conflict" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_RRC[] = {
+    { 0, "Default" },
+    { 1, "Runway/Runway Crossing" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_RTC[] = {
+    { 0, "Default" },
+    { 1, "Runway/Taxiway Crossing" },
+    { 0, NULL }
+};
+
+static const value_string valstr_004_120_01_MRVA[] = {
+    { 0, "Default" },
+    { 1, "Msg Type 4 (MSAW) indicates MRVA" },
+    { 0, NULL }
+};
+
+static const FieldPart I004_120_01_MAS = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_MAS, NULL };
+static const FieldPart I004_120_01_CAS = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_CAS, NULL };
+static const FieldPart I004_120_01_FLD = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_FLD, NULL };
+static const FieldPart I004_120_01_FVD = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_FVD, NULL };
+static const FieldPart I004_120_01_Type = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_Type, NULL };
+static const FieldPart I004_120_01_Cross = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_Cross, NULL };
+static const FieldPart I004_120_01_Div = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_Div, NULL };
+static const FieldPart I004_120_01_RRC = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_RRC, NULL };
+static const FieldPart I004_120_01_RTC = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_RTC, NULL };
+static const FieldPart I004_120_01_MRVA = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_01_MRVA, NULL };
+static const FieldPart *I004_120_01_PARTS[] = { &I004_120_01_MAS, &I004_120_01_CAS, &I004_120_01_FLD, &I004_120_01_FVD, &I004_120_01_Type, &I004_120_01_Cross, &I004_120_01_Div,
+                                                &I004_120_01_RRC, &I004_120_01_RTC, &I004_120_01_MRVA, &IXXX_4bit_spare, NULL };
+
+/* Conflict Classification */
+static const value_string valstr_004_120_02_CS[] = {
+    { 0, "LOW" },
+    { 1, "HIGH" },
+    { 0, NULL }
+};
+
+static const FieldPart I004_120_02_TID = { 4, 1.0, FIELD_PART_UINT, &hf_004_120_02_TID, NULL };
+static const FieldPart I004_120_02_SC = { 3, 1.0, FIELD_PART_UINT, &hf_004_120_02_SC, NULL };
+static const FieldPart I004_120_02_CS = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_02_CS, NULL };
+static const FieldPart *I004_120_02_PARTS[] = { &I004_120_02_TID, &I004_120_02_SC, &I004_120_02_CS, NULL };
+
+/* Conflict Probabilty */
+static const FieldPart I004_120_03_Probability = { 8, 0.5, FIELD_PART_UFLOAT, &hf_004_120_03_Probability, NULL };
+static const FieldPart *I004_120_03_PARTS[] = { &I004_120_03_Probability, NULL };
+
+/* Conflict Duration */
+static const FieldPart I004_120_04_Duration = { 24, 1.0/128.0, FIELD_PART_UFLOAT, &hf_004_120_04_Duration, "%.3f" };
+static const FieldPart *I004_120_04_PARTS[] = { &I004_120_04_Duration, NULL };
+
+/* Aircraft Identification & Characteristics 1 */
+/* Aircraft Identifier 1 */
+static const FieldPart I004_170_01_AI1 = { 56, 1.0, FIELD_PART_ASCII, &hf_004_170_01_AI1, NULL };
+static const FieldPart *I004_170_01_PARTS[] = { &I004_170_01_AI1, NULL };
+
+/* Mode 3/A Code Aircraft 1 */
+static const FieldPart I004_170_02_M31 = { 12, 1.0, FIELD_PART_SQUAWK, &hf_004_170_02_M31, NULL };
+static const FieldPart *I004_170_02_PARTS[] = { &IXXX_4bit_spare, &I004_170_02_M31, NULL };
+
+/* Predicted Conflict Position Aircraft 1 (WGS-84) */
+static const FieldPart I004_170_03_LAT = { 32, 180.0/33554432.0, FIELD_PART_FLOAT, &hf_004_170_03_LAT, NULL };
+static const FieldPart I004_170_03_LON = { 32, 180.0/33554432.0, FIELD_PART_FLOAT, &hf_004_170_03_LON, NULL };
+static const FieldPart I004_170_03_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_170_03_ALT, NULL };
+static const FieldPart *I004_170_03_PARTS[] = { &I004_170_03_LAT, &I004_170_03_LON, &I004_170_03_ALT, NULL };
+
+/* Predicted Conflict Position Aircraft 1 in Cartesian Coordinates */
+static const FieldPart I004_170_04_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_170_04_X, NULL };
+static const FieldPart I004_170_04_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_170_04_Y, NULL };
+static const FieldPart I004_170_04_Z = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_170_04_Z, NULL };
+static const FieldPart *I004_170_04_PARTS[] = { &I004_170_04_X, &I004_170_04_Y, &I004_170_04_Z, NULL };
+
+/* Time to Threshold Aircraft 1 */
+static const FieldPart I004_170_05_TT1 = { 24, 1.0/128.0, FIELD_PART_UFLOAT, &hf_004_170_05_TT1, "%.3f" };
+static const FieldPart *I004_170_05_PARTS[] = { &I004_170_05_TT1, NULL };
+
+/* Distance to Threshold Aircraft 1 */
+static const FieldPart I004_170_06_DT1 = { 16, 0.5, FIELD_PART_UFLOAT, &hf_004_170_06_DT1, NULL };
+static const FieldPart *I004_170_06_PARTS[] = { &I004_170_06_DT1, NULL };
+
+/* Aircraft Characteristics Aircraft 1 */
+static const value_string valstr_004_170_07_GATOAT[] = {
+    { 0, "Unknown" },
+    { 1, "General Air Traffic" },
+    { 2, "Operational Air Traffic" },
+    { 3, "Not applicable" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_FR1FR2[] = {
+    { 0, "Instrument Flight Rules" },
+    { 1, "Visual Flight rules" },
+    { 2, "Not applicable" },
+    { 3, "Controlled Visual Flight Rules" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_RVSM[] = {
+    { 0, "Unknown" },
+    { 1, "Approved" },
+    { 2, "Exempt" },
+    { 3, "Not Approved" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_HPR[] = {
+    { 0, "Normal Priority Flight" },
+    { 1, "High Priority Flight" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_CDM[] = {
+    { 0, "Maintaining" },
+    { 1, "Climbing" },
+    { 2, "Descending" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_PRI[] = {
+    { 0, "Non primary target" },
+    { 1, "Primary target" },
+    { 0, NULL }
+};
+static const value_string valstr_004_170_07_GV[] = {
+    { 0, "Default" },
+    { 1, "Ground Vehicle" },
+    { 0, NULL }
+};
+
+static const FieldPart I004_170_07_GATOAT = { 2, 1.0, FIELD_PART_UINT, &hf_004_170_07_GATOAT, NULL };
+static const FieldPart I004_170_07_FR1FR2 = { 2, 1.0, FIELD_PART_UINT, &hf_004_170_07_FR1FR2, NULL };
+static const FieldPart I004_170_07_RVSM = { 2, 1.0, FIELD_PART_UINT, &hf_004_170_07_RVSM, NULL };
+static const FieldPart I004_170_07_HPR = { 1, 1.0, FIELD_PART_UINT, &hf_004_170_07_HPR, NULL };
+static const FieldPart I004_170_07_CDM = { 2, 1.0, FIELD_PART_UINT, &hf_004_170_07_CDM, NULL };
+static const FieldPart I004_170_07_PRI = { 1, 1.0, FIELD_PART_UINT, &hf_004_170_07_PRI, NULL };
+static const FieldPart I004_170_07_GV = { 1, 1.0, FIELD_PART_UINT, &hf_004_170_07_GV, NULL };
+static const FieldPart *I004_170_07_PARTS[] = { &I004_170_07_GATOAT, &I004_170_07_FR1FR2, &I004_170_07_RVSM, &I004_170_07_HPR, &IXXX_FX,
+                                                &I004_170_07_CDM, &I004_170_07_PRI, &I004_170_07_GV, &IXXX_3bit_spare, &IXXX_FX, NULL };
+
+/* Mode-S Identifier Aircraft 1 */
+static const FieldPart I004_170_08_MS1 = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_170_08_MS1, NULL };
+static const FieldPart *I004_170_08_PARTS[] = { &I004_170_08_MS1, NULL };
+
+/* Flight Plan Number Aircraft 1 */
+static const FieldPart I004_170_09_FP1 = { 27, 1.0, FIELD_PART_UINT, &hf_004_170_09_FP1, NULL };
+static const FieldPart *I004_170_09_PARTS[] = { &IXXX_5bit_spare, &I004_170_09_FP1, NULL };
+
+/* Cleared Flight Level Aircraft 1 */
+static const FieldPart I004_170_10_CF1 = { 16, 0.25, FIELD_PART_FLOAT, &hf_004_170_10_CF1, NULL };
+static const FieldPart *I004_170_10_PARTS[] = { &I004_170_10_CF1, NULL };
+
+/* Aircraft Identification & Characteristics 2 */
+/* Aircraft Identifier 2 */
+static const FieldPart I004_171_01_AI2 = { 56, 1.0, FIELD_PART_ASCII, &hf_004_171_01_AI2, NULL };
+static const FieldPart *I004_171_01_PARTS[] = { &I004_171_01_AI2, NULL };
+
+/* Mode 3/A Code Aircraft 2 */
+static const FieldPart I004_171_02_M32 = { 12, 1.0, FIELD_PART_SQUAWK, &hf_004_171_02_M32, NULL };
+static const FieldPart *I004_171_02_PARTS[] = { &IXXX_4bit_spare, &I004_171_02_M32, NULL };
+
+/* Predicted Conflict Position Aircraft 2 (WGS-84) */
+static const FieldPart I004_171_03_LAT = { 32, 180.0/33554432.0, FIELD_PART_FLOAT, &hf_004_171_03_LAT, NULL };
+static const FieldPart I004_171_03_LON = { 32, 180.0/33554432.0, FIELD_PART_FLOAT, &hf_004_171_03_LON, NULL };
+static const FieldPart I004_171_03_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_171_03_ALT, NULL };
+static const FieldPart *I004_171_03_PARTS[] = { &I004_171_03_LAT, &I004_171_03_LON, &I004_171_03_ALT, NULL };
+
+/* Predicted Conflict Position Aircraft 2 in Cartesian Coordinates */
+static const FieldPart I004_171_04_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_171_04_X, NULL };
+static const FieldPart I004_171_04_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_171_04_Y, NULL };
+static const FieldPart I004_171_04_Z = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_171_04_Z, NULL };
+static const FieldPart *I004_171_04_PARTS[] = { &I004_171_04_X, &I004_171_04_Y, &I004_171_04_Z, NULL };
+
+/* Time to Threshold Aircraft 2 */
+static const FieldPart I004_171_05_TT2 = { 24, 1.0/128.0, FIELD_PART_UFLOAT, &hf_004_171_05_TT2, "%.3f" };
+static const FieldPart *I004_171_05_PARTS[] = { &I004_171_05_TT2, NULL };
+
+/* Distance to Threshold Aircraft 2 */
+static const FieldPart I004_171_06_DT2 = { 16, 0.5, FIELD_PART_UFLOAT, &hf_004_171_06_DT2, NULL };
+static const FieldPart *I004_171_06_PARTS[] = { &I004_171_06_DT2, NULL };
+
+/* Aircraft Characteristics Aircraft 2 */
+static const value_string valstr_004_171_07_GATOAT[] = {
+    { 0, "Unknown" },
+    { 1, "General Air Traffic" },
+    { 2, "Operational Air Traffic" },
+    { 3, "Not applicable" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_FR1FR2[] = {
+    { 0, "Instrument Flight Rules" },
+    { 1, "Visual Flight rules" },
+    { 2, "Not applicable" },
+    { 3, "Controlled Visual Flight Rules" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_RVSM[] = {
+    { 0, "Unknown" },
+    { 1, "Approved" },
+    { 2, "Exempt" },
+    { 3, "Not Approved" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_HPR[] = {
+    { 0, "Normal Priority Flight" },
+    { 1, "High Priority Flight" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_CDM[] = {
+    { 0, "Maintaining" },
+    { 1, "Climbing" },
+    { 2, "Descending" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_PRI[] = {
+    { 0, "Non primary target" },
+    { 1, "Primary target" },
+    { 0, NULL }
+};
+static const value_string valstr_004_171_07_GV[] = {
+    { 0, "Default" },
+    { 1, "Ground Vehicle" },
+    { 0, NULL }
+};
+
+static const FieldPart I004_171_07_GATOAT = { 2, 1.0, FIELD_PART_UINT, &hf_004_171_07_GATOAT, NULL };
+static const FieldPart I004_171_07_FR1FR2 = { 2, 1.0, FIELD_PART_UINT, &hf_004_171_07_FR1FR2, NULL };
+static const FieldPart I004_171_07_RVSM = { 2, 1.0, FIELD_PART_UINT, &hf_004_171_07_RVSM, NULL };
+static const FieldPart I004_171_07_HPR = { 1, 1.0, FIELD_PART_UINT, &hf_004_171_07_HPR, NULL };
+static const FieldPart I004_171_07_CDM = { 2, 1.0, FIELD_PART_UINT, &hf_004_171_07_CDM, NULL };
+static const FieldPart I004_171_07_PRI = { 1, 1.0, FIELD_PART_UINT, &hf_004_171_07_PRI, NULL };
+static const FieldPart I004_171_07_GV = { 1, 1.0, FIELD_PART_UINT, &hf_004_171_07_GV, NULL };
+static const FieldPart *I004_171_07_PARTS[] = { &I004_171_07_GATOAT, &I004_171_07_FR1FR2, &I004_171_07_RVSM, &I004_171_07_HPR, &IXXX_FX,
+                                                &I004_171_07_CDM, &I004_171_07_PRI, &I004_171_07_GV, &IXXX_3bit_spare, &IXXX_FX, NULL };
+
+/* Mode-S Identifier Aircraft 2 */
+static const FieldPart I004_171_08_MS2 = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_171_08_MS2, NULL };
+static const FieldPart *I004_171_08_PARTS[] = { &I004_171_08_MS2, NULL };
+
+/* Flight Plan Number Aircraft 2 */
+static const FieldPart I004_171_09_FP2 = { 27, 1.0, FIELD_PART_UINT, &hf_004_171_09_FP2, NULL };
+static const FieldPart *I004_171_09_PARTS[] = { &IXXX_5bit_spare, &I004_171_09_FP2, NULL };
+
+/* Cleared Flight Level Aircraft 2 */
+static const FieldPart I004_171_10_CF2 = { 16, 0.25, FIELD_PART_FLOAT, &hf_004_171_10_CF2, NULL };
+static const FieldPart *I004_171_10_PARTS[] = { &I004_171_10_CF2, NULL };
+
+/* Items */
+DIAG_OFF(pedantic)
+static const AsterixField I004_000 = { FIXED, 1, 0, 0, &hf_004_000, I004_000_PARTS, { NULL } };
+static const AsterixField I004_010 = { FIXED, 2, 0, 0, &hf_004_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I004_015 = { REPETITIVE, 2, 1, 0, &hf_004_015, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I004_020 = { FIXED, 3, 0, 0, &hf_004_020, IXXX_TOD, { NULL } };
+static const AsterixField I004_030 = { FIXED, 2, 0, 0, &hf_004_030, I004_030_PARTS, { NULL } };
+static const AsterixField I004_035 = { FIXED, 2, 0, 0, &hf_004_035, I004_035_PARTS, { NULL } };
+static const AsterixField I004_040 = { FIXED, 2, 0, 0, &hf_004_040, I004_040_PARTS, { NULL } };
+static const AsterixField I004_045 = { FIXED, 1, 0, 0, &hf_004_045, I004_045_PARTS, { NULL } };
+static const AsterixField I004_060 = { FX, 1, 0, 0, &hf_004_060, I004_060_PARTS, { NULL } };
+static const AsterixField I004_070_01 = { FIXED, 3, 0, 0, &hf_004_070_01, I004_070_01_PARTS, { NULL } };
+static const AsterixField I004_070_02 = { FIXED, 3, 0, 0, &hf_004_070_02, I004_070_02_PARTS, { NULL } };
+static const AsterixField I004_070_03 = { FIXED, 3, 0, 0, &hf_004_070_03, I004_070_03_PARTS, { NULL } };
+static const AsterixField I004_070_04 = { FIXED, 2, 0, 0, &hf_004_070_04, I004_070_04_PARTS, { NULL } };
+static const AsterixField I004_070_05 = { FIXED, 2, 0, 0, &hf_004_070_05, I004_070_05_PARTS, { NULL } };
+static const AsterixField I004_070_06 = { FIXED, 2, 0, 0, &hf_004_070_06, I004_070_06_PARTS, { NULL } };
+static const AsterixField I004_070 = { COMPOUND, 0, 0, 0, &hf_004_070, NULL, { &I004_070_01,
+                                                                               &I004_070_02,
+                                                                               &I004_070_03,
+                                                                               &I004_070_04,
+                                                                               &I004_070_05,
+                                                                               &I004_070_06 } };
+static const AsterixField I004_074 = { FIXED, 2, 0, 0, &hf_004_074, I004_074_PARTS, { NULL } };
+static const AsterixField I004_075 = { FIXED, 3, 0, 0, &hf_004_075, I004_075_PARTS, { NULL } };
+static const AsterixField I004_076 = { FIXED, 2, 0, 0, &hf_004_076, I004_076_PARTS, { NULL } };
+static const AsterixField I004_100_01 = { FIXED, 6, 0, 0, &hf_004_100_01, I004_100_01_PARTS, { NULL } };
+static const AsterixField I004_100_02 = { FIXED, 7, 0, 0, &hf_004_100_02, I004_100_02_PARTS, { NULL } };
+static const AsterixField I004_100_03 = { FIXED, 7, 0, 0, &hf_004_100_03, I004_100_03_PARTS, { NULL } };
+static const AsterixField I004_100_04 = { FIXED, 7, 0, 0, &hf_004_100_04, I004_100_04_PARTS, { NULL } };
+static const AsterixField I004_100_05 = { FIXED, 7, 0, 0, &hf_004_100_05, I004_100_05_PARTS, { NULL } };
+static const AsterixField I004_100_06 = { FIXED, 7, 0, 0, &hf_004_100_06, I004_100_06_PARTS, { NULL } };
+static const AsterixField I004_100 = { COMPOUND, 0, 0, 0, &hf_004_100, NULL, { &I004_100_01,
+                                                                               &I004_100_02,
+                                                                               &I004_100_03,
+                                                                               &I004_100_04,
+                                                                               &I004_100_05,
+                                                                               &I004_100_06 } };
+static const AsterixField I004_110 = { REPETITIVE, 1, 2, 0, &hf_004_110, I004_110_PARTS, { NULL } };
+static const AsterixField I004_120_01 = { FX, 1, 0, 0, &hf_004_120_01, I004_120_01_PARTS, { NULL } };
+static const AsterixField I004_120_02 = { FIXED, 1, 0, 0, &hf_004_120_02, I004_120_02_PARTS, { NULL } };
+static const AsterixField I004_120_03 = { FIXED, 1, 0, 0, &hf_004_120_03, I004_120_03_PARTS, { NULL } };
+static const AsterixField I004_120_04 = { FIXED, 3, 0, 0, &hf_004_120_04, I004_120_04_PARTS, { NULL } };
+static const AsterixField I004_120 = { COMPOUND, 0, 0, 0, &hf_004_120, NULL, { &I004_120_01,
+                                                                               &I004_120_02,
+                                                                               &I004_120_03,
+                                                                               &I004_120_04 } };
+static const AsterixField I004_170_01 = { FIXED, 7, 0, 0, &hf_004_170_01, I004_170_01_PARTS, { NULL } };
+static const AsterixField I004_170_02 = { FIXED, 2, 0, 0, &hf_004_170_02, I004_170_02_PARTS, { NULL } };
+static const AsterixField I004_170_03 = { FIXED, 10, 0, 0, &hf_004_170_03, I004_170_03_PARTS, { NULL } };
+static const AsterixField I004_170_04 = { FIXED, 8, 0, 0, &hf_004_170_04, I004_170_04_PARTS, { NULL } };
+static const AsterixField I004_170_05 = { FIXED, 3, 0, 0, &hf_004_170_05, I004_170_05_PARTS, { NULL } };
+static const AsterixField I004_170_06 = { FIXED, 2, 0, 0, &hf_004_170_06, I004_170_06_PARTS, { NULL } };
+static const AsterixField I004_170_07 = { FX, 1, 0, 0, &hf_004_170_07, I004_170_07_PARTS, { NULL } };
+static const AsterixField I004_170_08 = { FIXED, 6, 0, 0, &hf_004_170_08, I004_170_08_PARTS, { NULL } };
+static const AsterixField I004_170_09 = { FIXED, 4, 0, 0, &hf_004_170_09, I004_170_09_PARTS, { NULL } };
+static const AsterixField I004_170_10 = { FIXED, 2, 0, 0, &hf_004_170_10, I004_170_10_PARTS, { NULL } };
+static const AsterixField I004_170 = { COMPOUND, 0, 0, 0, &hf_004_170, NULL, { &I004_170_01,
+                                                                               &I004_170_02,
+                                                                               &I004_170_03,
+                                                                               &I004_170_04,
+                                                                               &I004_170_05,
+                                                                               &I004_170_06,
+                                                                               &I004_170_07,
+                                                                               &I004_170_08,
+                                                                               &I004_170_09,
+                                                                               &I004_170_10 } };
+static const AsterixField I004_171_01 = { FIXED, 7, 0, 0, &hf_004_171_01, I004_171_01_PARTS, { NULL } };
+static const AsterixField I004_171_02 = { FIXED, 2, 0, 0, &hf_004_171_02, I004_171_02_PARTS, { NULL } };
+static const AsterixField I004_171_03 = { FIXED, 10, 0, 0, &hf_004_171_03, I004_171_03_PARTS, { NULL } };
+static const AsterixField I004_171_04 = { FIXED, 8, 0, 0, &hf_004_171_04, I004_171_04_PARTS, { NULL } };
+static const AsterixField I004_171_05 = { FIXED, 3, 0, 0, &hf_004_171_05, I004_171_05_PARTS, { NULL } };
+static const AsterixField I004_171_06 = { FIXED, 2, 0, 0, &hf_004_171_06, I004_171_06_PARTS, { NULL } };
+static const AsterixField I004_171_07 = { FX, 1, 0, 0, &hf_004_171_07, I004_171_07_PARTS, { NULL } };
+static const AsterixField I004_171_08 = { FIXED, 6, 0, 0, &hf_004_171_08, I004_171_08_PARTS, { NULL } };
+static const AsterixField I004_171_09 = { FIXED, 4, 0, 0, &hf_004_171_09, I004_171_09_PARTS, { NULL } };
+static const AsterixField I004_171_10 = { FIXED, 2, 0, 0, &hf_004_171_10, I004_171_10_PARTS, { NULL } };
+static const AsterixField I004_171 = { COMPOUND, 0, 0, 0, &hf_004_171, NULL, { &I004_171_01,
+                                                                               &I004_171_02,
+                                                                               &I004_171_03,
+                                                                               &I004_171_04,
+                                                                               &I004_171_05,
+                                                                               &I004_171_06,
+                                                                               &I004_171_07,
+                                                                               &I004_171_08,
+                                                                               &I004_171_09,
+                                                                               &I004_171_10 } };
+static const AsterixField I004_SP = { SP, 0, 0, 1, &hf_004_SP, NULL, { NULL } };
+static const AsterixField I004_RE = { RE, 0, 0, 1, &hf_004_RE, NULL, { NULL } };
+
+static const AsterixField *I004_v1_7_uap[] = { &I004_010, &I004_000, &I004_015, &I004_020, &I004_040, &I004_045, &I004_060,
+                                               &I004_030, &I004_170, &I004_120, &I004_070, &I004_076, &I004_074, &I004_075,
+                                               &I004_100, &I004_035, &I004_171, &I004_110, &IX_SPARE, &I004_RE,  &I004_SP, NULL };
+static const AsterixField **I004_v1_7[] = { I004_v1_7_uap, NULL };
+static const AsterixField ***I004[] = { I004_v1_7 };
+DIAG_ON(pedantic)
+
+static const enum_val_t I004_versions[] = {
+    { "I004_v1_7", "Version 1.7", 0 },
+    { NULL, NULL, 0 }
+};
+
+/* *********************** */
 /*      Category 008       */
 /* *********************** */
 /* Fields */
 
 /* Message Type */
 static const value_string valstr_008_000_MT[] = {
-    { 001, "Polar vector" },
-    { 002, "Cartesian vector of start point/ length" },
-    { 003, "Contour record" },
-    { 004, "Cartesian start point and end point vector" },
+    { 1, "Polar vector" },
+    { 2, "Cartesian vector of start point/ length" },
+    { 3, "Contour record" },
+    { 4, "Cartesian start point and end point vector" },
     { 254, "SOP message" },
     { 255, "EOP message" },
     { 0, NULL }
@@ -7015,7 +7930,7 @@ static const AsterixField ****categories[] = {
     I001, /* 001 */
     I002, /* 002 */
     NULL, /* 003 */
-    NULL, /* 004 */
+    I004, /* 004 */
     NULL, /* 005 */
     NULL, /* 006 */
     NULL, /* 007 */
@@ -7691,6 +8606,154 @@ void proto_register_asterix (void)
         { &hf_002_100_THETAE, { "Theta end[deg]", "asterix.002_100_THETAE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_002_RE, { "Reserved Field", "asterix.002_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_002_SP, { "Special Field", "asterix.002_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        /* Category 004 */
+        { &hf_004_000, { "000, Message Type", "asterix.004_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_000_MT, { "MT", "asterix.004_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_004_000_MT), 0x0, NULL, HFILL } },
+        { &hf_004_010, { "010, Data Source Identifier", "asterix.004_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_015, { "015, SDPS Identifier", "asterix.004_015", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_020, { "020, Time of Message", "asterix.004_020", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_030, { "030, Track Number 1", "asterix.004_030", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_030_TN1, { "TN1", "asterix.004_030_TN1", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_035, { "035, Track Number 1", "asterix.004_035", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_035_TN2, { "TN2", "asterix.004_035_TN1", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_040, { "040, Alert Identifier", "asterix.004_040", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_040_AI, { "AI", "asterix.004_040_AI", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_045, { "045, Alert Status", "asterix.004_045", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_045_AS, { "AS", "asterix.004_045_AS", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_060, { "060, Safety Net Function & System Status", "asterix.004_060", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_060_MRVA, { "MRVA", "asterix.004_060_MRVA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_MRVA), 0x80, NULL, HFILL } },
+        { &hf_004_060_RAMLD, { "RAMLD", "asterix.004_060_RAMLD", FT_UINT8, BASE_DEC, VALS (valstr_004_060_RAMLD), 0x40, NULL, HFILL } },
+        { &hf_004_060_RAMHD, { "RAMHD", "asterix.004_060_RAMHD", FT_UINT8, BASE_DEC, VALS (valstr_004_060_RAMHD), 0x20, NULL, HFILL } },
+        { &hf_004_060_MSAW, { "MSAW", "asterix.004_060_MSAW", FT_UINT8, BASE_DEC, VALS (valstr_004_060_MSAW), 0x10, NULL, HFILL } },
+        { &hf_004_060_APW, { "APW", "asterix.004_060_APW", FT_UINT8, BASE_DEC, VALS (valstr_004_060_APW), 0x08, NULL, HFILL } },
+        { &hf_004_060_CLAM, { "CLAM", "asterix.004_060_CLAM", FT_UINT8, BASE_DEC, VALS (valstr_004_060_CLAM), 0x04, NULL, HFILL } },
+        { &hf_004_060_STCA, { "STCA", "asterix.004_060_STCA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_STCA), 0x02, NULL, HFILL } },
+        { &hf_004_060_AFDA, { "AFDA", "asterix.004_060_AFDA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_AFDA), 0x80, NULL, HFILL } },
+        { &hf_004_060_RIMCA, { "RIMCA", "asterix.004_060_RIMCA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_RIMCA), 0x40, NULL, HFILL } },
+        { &hf_004_060_ACASRA, { "ACASRA", "asterix.004_060_ACASRA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_ACASRA), 0x20, NULL, HFILL } },
+        { &hf_004_060_NTCA, { "NTCA", "asterix.004_060_NTCA", FT_UINT8, BASE_DEC, VALS (valstr_004_060_NTCA), 0x10, NULL, HFILL } },
+        { &hf_004_060_DG, { "DG", "asterix.004_060_DG", FT_UINT8, BASE_DEC, VALS (valstr_004_060_DG), 0x08, NULL, HFILL } },
+        { &hf_004_060_OF, { "OF", "asterix.004_060_OF", FT_UINT8, BASE_DEC, VALS (valstr_004_060_OF), 0x04, NULL, HFILL } },
+        { &hf_004_060_OL, { "OL", "asterix.004_060_OL", FT_UINT8, BASE_DEC, VALS (valstr_004_060_OL), 0x02, NULL, HFILL } },
+        { &hf_004_070, { "070, Conflict Timing and Separation", "asterix.004_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_01, { "#1: Time to Conflict", "asterix.004_070_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_01_TC, { "TC[s]", "asterix.004_070_01_TC", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_02, { "#2: Time to Closest Approach", "asterix.004_070_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_02_TCA, { "TCA[s]", "asterix.004_070_02_TCA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_03, { "#3: Current Horizontal Separation", "asterix.004_070_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_03_CHS, { "CHS[m]", "asterix.004_070_03_CHS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_04, { "#4: Estimated Minimum Horizontal Separation", "asterix.004_070_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_04_MHS, { "MHS[m]", "asterix.004_070_04_MHS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_05, { "#5: Current Vertical Separation", "asterix.004_070_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_05_CVS, { "CVS[ft]", "asterix.004_070_05_CVS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_06, { "#6: Estimated Minimum Vertical Separation", "asterix.004_070_06", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_070_06_MVS, { "MVS[ft]", "asterix.004_070_06_MVS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_074, { "074, Longitudinal Deviation", "asterix.004_074", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_074_LD, { "LD[m]", "asterix.004_074_LD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_075, { "075, Transversal Distance Deviation", "asterix.004_075", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_075_TDD, { "TDD[m]", "asterix.004_074_TDD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_076, { "076, Vertical Deviation", "asterix.004_076", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_076_VD, { "VD[ft]", "asterix.004_076_VD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100, { "100, Area Definition", "asterix.004_100", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_01, { "#1: Area Name", "asterix.004_100_", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_01_AN, { "AN", "asterix.004_100_01_AN", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_02, { "#2: Crossing Area Name", "asterix.004_100_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_02_CAN, { "CAN", "asterix.004_100_02_CAN", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_03, { "#3: Runway/Taxiway Designator 1", "asterix.004_100_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_03_RT1, { "RT1", "asterix.004_100_03_RT1", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_04, { "#4: Runway/Taxiway Designator 2", "asterix.004_100_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_04_RT2, { "RT2", "asterix.004_100_04_RT2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_05, { "#5: Stop Bar Designator", "asterix.004_100_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_05_SB, { "SB", "asterix.004_100_05_SB", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_06, { "#6: Gate Designator", "asterix.004_100_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_100_06_G, { "G", "asterix.004_100_06_G", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_110, { "110, FDPS Sector Control Identification", "asterix.004_110", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_110_Centre, { "Centre", "asterix.004_110_Centre", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_110_Position, { "Position", "asterix.004_110_Position", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120, { "120, Conflict Characteristics", "asterix.004_120", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_01, { "#1: Conflict Nature", "asterix.004_120_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_01_MAS, { "MAS", "asterix.004_120_01_MAS", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_MAS), 0x80, NULL, HFILL } },
+        { &hf_004_120_01_CAS, { "CAS", "asterix.004_120_01_CAS", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_CAS), 0x40, NULL, HFILL } },
+        { &hf_004_120_01_FLD, { "FLD", "asterix.004_120_01_FLD", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_FLD), 0x20, NULL, HFILL } },
+        { &hf_004_120_01_FVD, { "FVD", "asterix.004_120_01_FVD", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_FVD), 0x10, NULL, HFILL } },
+        { &hf_004_120_01_Type, { "Type", "asterix.004_120_01_Type", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_Type), 0x08, NULL, HFILL } },
+        { &hf_004_120_01_Cross, { "Cross", "asterix.004_120_01_Cross", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_Cross), 0x04, NULL, HFILL } },
+        { &hf_004_120_01_Div, { "Div", "asterix.004_120_01_Div", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_Div), 0x02, NULL, HFILL } },
+        { &hf_004_120_01_RRC, { "RRC", "asterix.004_120_01_RRC", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_RRC), 0x80, NULL, HFILL } },
+        { &hf_004_120_01_RTC, { "RTC", "asterix.004_120_01_RTC", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_RTC), 0x40, NULL, HFILL } },
+        { &hf_004_120_01_MRVA, { "MRVA", "asterix.004_120_01_MRVA", FT_UINT8, BASE_DEC, VALS (valstr_004_120_01_MRVA), 0x20, NULL, HFILL } },
+        { &hf_004_120_02, { "#2: Conflict Classification", "asterix.004_120_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_02_TID, { "TID", "asterix.004_120_02_TID", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_004_120_02_SC, { "SC", "asterix.004_120_02_SC", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
+        { &hf_004_120_02_CS, { "CS", "asterix.004_120_02_CS", FT_UINT8, BASE_DEC, VALS (valstr_004_120_02_CS), 0x01, NULL, HFILL } },
+        { &hf_004_120_03, { "#3: Conflict Probability", "asterix.004_120_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_03_Probability, { "Probatility[%]", "asterix.004_120_03_Probability", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_04, { "#4: Conflict Duration", "asterix.004_120_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_04_Duration, { "Duration[s]", "asterix.004_120_04_Duration", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170, { "170, Aircraft Identification & Characteristics 1", "asterix.004_170", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_01, { "#1: Aircraft Identifier 1", "asterix.004_170_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_01_AI1, { "AI1", "asterix.004_170_01_AI1", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_02, { "#2: Mode 3/A Code Aircraft 1", "asterix.004_170_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_02_M31, { "M31", "asterix.001_170_02_M31", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_004_170_03, { "#3: Predicted Conflict Position 1 (WGS84)", "asterix.004_170_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_03_LAT, { "LAT[degrees]", "asterix.004_170_03_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_03_LON, { "LON[degrees]", "asterix.004_170_03_LON", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_03_ALT, { "ALT[ft]", "asterix.004_170_03_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_04, { "#4: Predicted Conflict Position 1 (Cartesian Coordinates)", "asterix.004_170_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_04_X, { "X[m]", "asterix.004_170_04_X", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_04_Y, { "Y[m]", "asterix.004_170_04_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_04_Z, { "Z[ft]", "asterix.004_170_04_Z", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_05, { "#5: Time to Threshold Aircraft 1", "asterix.004_170_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_05_TT1, { "TT1[s]", "asterix.004_070_05_TT1", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_06, { "#6: Distance to Threshold Aircraft 1", "asterix.004_170_06", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_06_DT1, { "DT1[m]", "asterix.004_070_06_DT1", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_07, { "#7: Aircraft Characteristics Aircraft 1", "asterix.004_170_07", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_07_GATOAT, { "GATOAT", "asterix.004_170_07_GATOAT", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_GATOAT), 0xc0, NULL, HFILL } },
+        { &hf_004_170_07_FR1FR2, { "FR1FR2", "asterix.004_170_07_FR1FR2", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_FR1FR2), 0x30, NULL, HFILL } },
+        { &hf_004_170_07_RVSM, { "RVSM", "asterix.004_170_07_RVSM", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_RVSM), 0x0c, NULL, HFILL } },
+        { &hf_004_170_07_HPR, { "HPR", "asterix.004_170_07_HPR", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_HPR), 0x02, NULL, HFILL } },
+        { &hf_004_170_07_CDM, { "CDM", "asterix.004_170_07_CDM", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_CDM), 0xc0, NULL, HFILL } },
+        { &hf_004_170_07_PRI, { "PRI", "asterix.004_170_07_PRI", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_PRI), 0x20, NULL, HFILL } },
+        { &hf_004_170_07_GV, { "GV", "asterix.004_170_07_GV", FT_UINT8, BASE_DEC, VALS (valstr_004_170_07_GV), 0x10, NULL, HFILL } },
+        { &hf_004_170_08, { "#8: Mode S Identifier Aircraft 1", "asterix.004_170_08", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_08_MS1, { "MS1", "asterix.004_170_08_MS1", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_09, { "#9: Flight Plan Number Aircraft 1", "asterix.004_170_09", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_09_FP1, { "FP1", "asterix.004_170_09_FP1", FT_UINT32, BASE_DEC, NULL, 0x07ffffff, NULL, HFILL } },
+        { &hf_004_170_10, { "#10: Cleared Flight Level Aircraft 1", "asterix.004_170_10", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_170_10_CF1, { "CF1[FL]", "asterix.004_170_10_CF1", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171, { "171, Aircraft Identification & Characteristics 2", "asterix.004_171", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_01, { "#1: Aircraft Identifier 2", "asterix.004_171_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_01_AI2, { "AI2", "asterix.004_171_01_AI2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_02, { "#2: Mode 3/A Code Aircraft 2", "asterix.004_171_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_02_M32, { "M32", "asterix.001_171_02_M32", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_004_171_03, { "#3: Predicted Conflict Position 2 (WGS84)", "asterix.004_171_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_03_LAT, { "LAT[degrees]", "asterix.004_171_03_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_03_LON, { "LON[degrees]", "asterix.004_171_03_LON", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_03_ALT, { "ALT[ft]", "asterix.004_171_03_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_04, { "#4: Predicted Conflict Position 2 (Cartesian Coordinates)", "asterix.004_171_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_04_X, { "X[m]", "asterix.004_171_04_X", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_04_Y, { "Y[m]", "asterix.004_171_04_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_04_Z, { "Z[ft]", "asterix.004_171_04_Z", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_05, { "#5: Time to Threshold Aircraft 2", "asterix.004_171_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_05_TT2, { "TT2[s]", "asterix.004_070_05_TT2", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_06, { "#6: Distance to Threshold Aircraft 2", "asterix.004_171_06", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_06_DT2, { "DT2[m]", "asterix.004_070_06_DT2", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_07, { "#7: Aircraft Characteristics Aircraft 2", "asterix.004_171_07", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_07_GATOAT, { "GATOAT", "asterix.004_171_07_GATOAT", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_GATOAT), 0xc0, NULL, HFILL } },
+        { &hf_004_171_07_FR1FR2, { "FR1FR2", "asterix.004_171_07_FR1FR2", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_FR1FR2), 0x30, NULL, HFILL } },
+        { &hf_004_171_07_RVSM, { "RVSM", "asterix.004_171_07_RVSM", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_RVSM), 0x0c, NULL, HFILL } },
+        { &hf_004_171_07_HPR, { "HPR", "asterix.004_171_07_HPR", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_HPR), 0x02, NULL, HFILL } },
+        { &hf_004_171_07_CDM, { "CDM", "asterix.004_171_07_CDM", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_CDM), 0xc0, NULL, HFILL } },
+        { &hf_004_171_07_PRI, { "PRI", "asterix.004_171_07_PRI", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_PRI), 0x20, NULL, HFILL } },
+        { &hf_004_171_07_GV, { "GV", "asterix.004_171_07_GV", FT_UINT8, BASE_DEC, VALS (valstr_004_171_07_GV), 0x10, NULL, HFILL } },
+        { &hf_004_171_08, { "#8: Mode S Identifier Aircraft 2", "asterix.004_171_08", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_08_MS2, { "MS2", "asterix.004_171_08_MS2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_09, { "#9: Flight Plan Number Aircraft 2", "asterix.004_171_09", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_09_FP2, { "FP2", "asterix.004_171_09_FP2", FT_UINT32, BASE_DEC, NULL, 0x07ffffff, NULL, HFILL } },
+        { &hf_004_171_10, { "#10: Cleared Flight Level Aircraft 2", "asterix.004_171_10", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_171_10_CF2, { "CF2[FL]", "asterix.004_171_10_CF2", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_RE, { "Reserved Field", "asterix.004_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_SP, { "Special Field", "asterix.004_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         /* Category 008 */
         { &hf_008_000, { "000, Message Type", "asterix.008_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_008_000_MT, { "MT", "asterix.008_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_008_000_MT), 0x0, NULL, HFILL } },
@@ -8854,6 +9917,154 @@ void proto_register_asterix (void)
         &ett_002_100_THETAE,
         &ett_002_RE,
         &ett_002_SP,
+        /* Category 004 */
+        &ett_004_000,
+        &ett_004_000_MT,
+        &ett_004_010,
+        &ett_004_015,
+        &ett_004_020,
+        &ett_004_030,
+        &ett_004_030_TN1,
+        &ett_004_035,
+        &ett_004_035_TN2,
+        &ett_004_040,
+        &ett_004_040_AI,
+        &ett_004_045,
+        &ett_004_045_AS,
+        &ett_004_060,
+        &ett_004_060_MRVA,
+        &ett_004_060_RAMLD,
+        &ett_004_060_RAMHD,
+        &ett_004_060_MSAW,
+        &ett_004_060_APW,
+        &ett_004_060_CLAM,
+        &ett_004_060_STCA,
+        &ett_004_060_AFDA,
+        &ett_004_060_RIMCA,
+        &ett_004_060_ACASRA,
+        &ett_004_060_NTCA,
+        &ett_004_060_DG,
+        &ett_004_060_OF,
+        &ett_004_060_OL,
+        &ett_004_070,
+        &ett_004_070_01,
+        &ett_004_070_01_TC,
+        &ett_004_070_02,
+        &ett_004_070_02_TCA,
+        &ett_004_070_03,
+        &ett_004_070_03_CHS,
+        &ett_004_070_04,
+        &ett_004_070_04_MHS,
+        &ett_004_070_05,
+        &ett_004_070_05_CVS,
+        &ett_004_070_06,
+        &ett_004_070_06_MVS,
+        &ett_004_074,
+        &ett_004_074_LD,
+        &ett_004_075,
+        &ett_004_075_TDD,
+        &ett_004_076,
+        &ett_004_076_VD,
+        &ett_004_100,
+        &ett_004_100_01,
+        &ett_004_100_01_AN,
+        &ett_004_100_02,
+        &ett_004_100_02_CAN,
+        &ett_004_100_03,
+        &ett_004_100_03_RT1,
+        &ett_004_100_04,
+        &ett_004_100_04_RT2,
+        &ett_004_100_05,
+        &ett_004_100_05_SB,
+        &ett_004_100_06,
+        &ett_004_100_06_G,
+        &ett_004_110,
+        &ett_004_110_Centre,
+        &ett_004_110_Position,
+        &ett_004_120,
+        &ett_004_120_01,
+        &ett_004_120_01_MAS,
+        &ett_004_120_01_CAS,
+        &ett_004_120_01_FLD,
+        &ett_004_120_01_FVD,
+        &ett_004_120_01_Type,
+        &ett_004_120_01_Cross,
+        &ett_004_120_01_Div,
+        &ett_004_120_01_RRC,
+        &ett_004_120_01_RTC,
+        &ett_004_120_01_MRVA,
+        &ett_004_120_02,
+        &ett_004_120_02_TID,
+        &ett_004_120_02_SC,
+        &ett_004_120_02_CS,
+        &ett_004_120_03,
+        &ett_004_120_03_Probability,
+        &ett_004_120_04,
+        &ett_004_120_04_Duration,
+        &ett_004_170,
+        &ett_004_170_01,
+        &ett_004_170_01_AI1,
+        &ett_004_170_02,
+        &ett_004_170_02_M31,
+        &ett_004_170_03,
+        &ett_004_170_03_LAT,
+        &ett_004_170_03_LON,
+        &ett_004_170_03_ALT,
+        &ett_004_170_04,
+        &ett_004_170_04_X,
+        &ett_004_170_04_Y,
+        &ett_004_170_04_Z,
+        &ett_004_170_05,
+        &ett_004_170_05_TT1,
+        &ett_004_170_06,
+        &ett_004_170_06_DT1,
+        &ett_004_170_07,
+        &ett_004_170_07_GATOAT,
+        &ett_004_170_07_FR1FR2,
+        &ett_004_170_07_RVSM,
+        &ett_004_170_07_HPR,
+        &ett_004_170_07_CDM,
+        &ett_004_170_07_PRI,
+        &ett_004_170_07_GV,
+        &ett_004_170_08,
+        &ett_004_170_08_MS1,
+        &ett_004_170_09,
+        &ett_004_170_09_FP1,
+        &ett_004_170_10,
+        &ett_004_170_10_CF1,
+        &ett_004_171,
+        &ett_004_171_01,
+        &ett_004_171_01_AI2,
+        &ett_004_171_02,
+        &ett_004_171_02_M32,
+        &ett_004_171_03,
+        &ett_004_171_03_LAT,
+        &ett_004_171_03_LON,
+        &ett_004_171_03_ALT,
+        &ett_004_171_04,
+        &ett_004_171_04_X,
+        &ett_004_171_04_Y,
+        &ett_004_171_04_Z,
+        &ett_004_171_05,
+        &ett_004_171_05_TT2,
+        &ett_004_171_06,
+        &ett_004_171_06_DT2,
+        &ett_004_171_07,
+        &ett_004_171_07_GATOAT,
+        &ett_004_171_07_FR1FR2,
+        &ett_004_171_07_RVSM,
+        &ett_004_171_07_HPR,
+        &ett_004_171_07_CDM,
+        &ett_004_171_07_PRI,
+        &ett_004_171_07_GV,
+        &ett_004_171_08,
+        &ett_004_171_08_MS2,
+        &ett_004_171_09,
+        &ett_004_171_09_FP2,
+        &ett_004_171_10,
+        &ett_004_171_10_CF2,
+        &ett_004_SP,
+        &ett_004_RE,
         /* Category 008 */
         &ett_008_000,
         &ett_008_000_MT,
@@ -9919,6 +11130,7 @@ void proto_register_asterix (void)
 
     prefs_register_enum_preference (asterix_prefs_module, "i001_version", "I001 version", "Select the CAT001 version", &global_categories_version[1],  I001_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i002_version", "I002 version", "Select the CAT001 version", &global_categories_version[2],  I002_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i004_version", "I004 version", "Select the CAT004 version", &global_categories_version[4],  I004_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i008_version", "I008 version", "Select the CAT008 version", &global_categories_version[8],  I008_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i009_version", "I009 version", "Select the CAT009 version", &global_categories_version[9],  I009_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i021_version", "I021 version", "Select the CAT021 version", &global_categories_version[21], I021_versions, FALSE);
