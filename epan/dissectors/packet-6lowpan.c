@@ -22,7 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "config.h"
-
+#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -2218,8 +2218,10 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_orig64, tvb, offset, 8, addr64);
         }
         src_ifcid = tvb_get_ptr(tvb, offset, 8);
-        memcpy(siid, src_ifcid, 8);
-        siid[0] ^= 0x02; /* swap U/L bit */
+        /* Update source IID */
+        memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        siid[0] ^= 0x02;
         offset += 8;
     }
     else {
@@ -2231,7 +2233,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
         ifcid = (guint8 *)wmem_alloc(pinfo->pool, 8);
         lowpan_addr16_to_ifcid(addr16, ifcid);
         src_ifcid = ifcid;
-        memcpy(siid, src_ifcid, 8);
+        /* Update source IID */
+        memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
     SET_ADDRESS(&pinfo->src,  AT_EUI64, 8, src_ifcid);
@@ -2244,8 +2247,10 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_dest64, tvb, offset, 8, addr64);
         }
         dst_ifcid = tvb_get_ptr(tvb, offset, 8);
-        memcpy(diid, dst_ifcid, 8);
-        diid[0] ^= 0x02; /* swap U/L bit */
+        /* Update destination IID */
+        memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        diid[0] ^= 0x02;
         offset += 8;
     }
     else  {
@@ -2257,7 +2262,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
         ifcid = (guint8 *)wmem_alloc(pinfo->pool, 8);
         lowpan_addr16_to_ifcid(addr16, ifcid);
         dst_ifcid = ifcid;
-        memcpy(diid, dst_ifcid, 8);
+        /* Update destination IID */
+        memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
     SET_ADDRESS(&pinfo->dst,  AT_EUI64, 8, dst_ifcid);
@@ -2786,6 +2792,8 @@ proto_register_6lowpan(void)
     module_t    *prefs_module;
     expert_module_t* expert_6lowpan;
 
+    lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_free);
+
     proto_6lowpan = proto_register_protocol("IPv6 over IEEE 802.15.4", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2837,12 +2845,6 @@ proto_init_6lowpan(void)
     reassembly_table_init(&lowpan_reassembly_table,
                           &addresses_reassembly_table_functions);
 
-    /* Initialize the context table. */
-    if (lowpan_context_table)
-        g_hash_table_destroy(lowpan_context_table);
-    lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_free);
-
-
     /* Initialize the link-local context. */
     lowpan_context_local.frame = 0;
     lowpan_context_local.plen = LOWPAN_CONTEXT_LINK_LOCAL_BITS;
@@ -2869,12 +2871,20 @@ prefs_6lowpan_apply(void)
 {
     int                 i;
     struct e_in6_addr   prefix;
+    gchar               *prefix_str;
+    gchar               *prefix_len_str;
+    guint32             prefix_len;
+    gchar               prefix_buf[48]; /* max length of IPv6 str. plus a bit */
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         if (!lowpan_context_prefs[i]) continue;
-        if (!str_to_ip6(lowpan_context_prefs[i], &prefix)) continue;
+        g_strlcpy(prefix_buf, lowpan_context_prefs[i], 48);
+        if ((prefix_str = strtok(prefix_buf, "/")) == NULL) continue;
+        if ((prefix_len_str = strtok(NULL, "/")) == NULL) continue;
+        if (sscanf(prefix_len_str, "%d", &prefix_len) != 1) continue;
+        if (!str_to_ip6(prefix_str, &prefix)) continue;
         /* Set the prefix */
-        lowpan_context_insert(i, IEEE802154_BCAST_PAN, 64, &prefix, 0);
+        lowpan_context_insert(i, IEEE802154_BCAST_PAN, prefix_len, &prefix, 0);
     } /* for */
 } /* prefs_6lowpan_apply */
 
