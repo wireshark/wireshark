@@ -175,7 +175,7 @@ if(PORTAUDIO_FOUND)
 		)
 
 		# Portaudio has some size_t > long warnings as a result of using strlen() on x64.
-		if (WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+		if ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
 			#set_source_files_properties(${PORTAUDIO_SRC_DIR}/hostapi/wmme/pa_win_wmme.c
 			#	PROPERTIES
 			#	COMPILE_FLAGS "/wd4267"
