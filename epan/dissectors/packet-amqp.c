@@ -1032,6 +1032,11 @@ format_amqp_1_0_double(tvbuff_t *tvb,
                        const char **value);
 
 static int
+format_amqp_1_0_decimal(tvbuff_t *tvb _U_,
+                        guint offset _U_, guint bound _U_, guint length,
+                        const char **value);
+
+static int
 format_amqp_1_0_char(tvbuff_t *tvb,
                      guint offset, guint bound _U_, guint length _U_,
                      const char **value);
@@ -2707,6 +2712,9 @@ static struct amqp_typeinfo amqp_1_0_fixed_types[] = {
     { 0x55, "smalllong",  format_amqp_1_0_int,          1 },
     { 0x72, "float",      format_amqp_1_0_float,        4 },
     { 0x82, "double",     format_amqp_1_0_double,       8 },
+    { 0x74, "decimal32",  format_amqp_1_0_decimal,      4 },
+    { 0x84, "decimal64",  format_amqp_1_0_decimal,      8 },
+    { 0x94, "decimal128", format_amqp_1_0_decimal,      16 },
     { 0x73, "char",       format_amqp_1_0_char,         4 },
     { 0x83, "timestamp",  format_amqp_1_0_timestamp,    8 },
     { 0x98, "uuid",       format_amqp_1_0_uuid,         16 },
@@ -10485,7 +10493,17 @@ format_amqp_1_0_double(tvbuff_t *tvb,
     return 8;
 }
 
-/* TODO: add AMQP 1.0 decimal[32|64|128] primitive types */
+static int
+format_amqp_1_0_decimal(tvbuff_t *tvb _U_,
+                        guint offset _U_, guint bound _U_, guint length,
+                        const char **value)
+{
+    /* TODO: this requires the _Decimal32 datatype from ISO/IEC TR 24732
+     * and corresponding support in printf and glib
+     */
+    *value = wmem_strdup_printf(wmem_packet_scope(), "(not supported)");
+    return length;
+}
 
 static int
 format_amqp_1_0_char(tvbuff_t *tvb,
