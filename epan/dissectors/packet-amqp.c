@@ -10469,7 +10469,7 @@ format_amqp_1_0_float(tvbuff_t *tvb,
                       const char **value)
 {
     float floatval;
-    floatval = tvb_get_letohieee_float(tvb, offset);
+    floatval = tvb_get_ntohieee_float(tvb, offset);
     *value = wmem_strdup_printf(wmem_packet_scope(), "%f", floatval);
     return 4;
 }
@@ -10480,7 +10480,7 @@ format_amqp_1_0_double(tvbuff_t *tvb,
                        const char **value)
 {
     double doubleval;
-    doubleval = tvb_get_letohieee_double(tvb, offset);
+    doubleval = tvb_get_ntohieee_double(tvb, offset);
     *value = wmem_strdup_printf(wmem_packet_scope(), "%f", doubleval);
     return 8;
 }
