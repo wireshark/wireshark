@@ -1914,7 +1914,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
             }
         }
         for (i=0; i<len; i++) {
-            val = (val<<8) | tvb_get_guint8(tvb, offset);
+            val = ((guint64)val<<8) | tvb_get_guint8(tvb, offset);
             offset++;
         }
     }
