@@ -43,6 +43,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
@@ -10989,8 +10990,8 @@ format_amqp_1_0_uuid(tvbuff_t *tvb,
 {
     e_guid_t uuid;
     tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
-    *value = tvb_format_text(tvb, offset, 16);
-    return 1;
+    *value = guid_to_str(wmem_packet_scope(), &uuid);
+    return 16;
 }
 
 static int
