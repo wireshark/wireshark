@@ -10492,8 +10492,9 @@ format_amqp_1_0_char(tvbuff_t *tvb,
                      guint offset, guint bound _U_, guint length _U_,
                      const char **value)
 {
-    *value = tvb_format_text(tvb, offset, 1);
-    return 1;
+    /* one UTF-32BE encoded Unicode character */
+    *value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_UCS_4|ENC_BIG_ENDIAN);
+    return 4;
 }
 
 static int
