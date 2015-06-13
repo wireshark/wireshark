@@ -191,6 +191,8 @@ proto_register_pw_eth(void)
                                 "pwethheuristic");
     proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
+                       proto_pw_eth_heuristic);
 }
 
 void
@@ -206,7 +208,7 @@ proto_reg_handoff_pw_eth(void)
     pw_eth_handle_nocw = create_dissector_handle( dissect_pw_eth_nocw, proto_pw_eth_nocw );
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_nocw);
 
-    pw_eth_handle_heuristic = create_dissector_handle( dissect_pw_eth_heuristic, proto_pw_eth_heuristic );
+    pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_heuristic);
 }
 

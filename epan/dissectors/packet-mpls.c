@@ -94,7 +94,7 @@ static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
 static dissector_handle_t dissector_pw_ach;
-
+static dissector_handle_t dissector_pw_eth_heuristic;
 
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
 static gboolean mpls_bos_flowlabel = FALSE;
@@ -470,14 +470,18 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else if (first_nibble == 1) {
         call_dissector(dissector_pw_ach, next_tvb, pinfo, tree);
         return;
-    } else if (first_nibble == 0) {
-        /*
-         * FF: it should be a PW with a CW but... it's not
-         * guaranteed (e.g. an Ethernet PW w/o CW and a DA MAC
-         * address like 00:xx:xx:xx:xx:xx).  So, let the user and
-         * eventually any further PW heuristics decide.
-         */
+    } else if (tvb_captured_length(next_tvb) >= 14) {
+        guint16 etype = tvb_get_ntohs(next_tvb, 12);
+        if ((etype == ETHERTYPE_IP) ||(etype == ETHERTYPE_ARP) ||
+            (etype == ETHERTYPE_ARP) ||(etype == ETHERTYPE_VLAN) ||
+            (etype ==ETHERTYPE_IPv6)) {
+            /* This looks like an ethernet packet with a known ethertype.
+               Decode payload as Ethernet PW */
+            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
+            return;
+        }
     }
+    call_dissector(dissector_data, next_tvb, pinfo, tree);
 }
 
 void
@@ -646,6 +650,7 @@ proto_reg_handoff_mpls(void)
     dissector_data                  = find_dissector("data");
     dissector_ipv6                  = find_dissector("ipv6");
     dissector_ip                    = find_dissector("ip");
+    dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
 
     dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
 }
