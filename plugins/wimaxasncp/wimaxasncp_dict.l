@@ -473,7 +473,7 @@ static void wimaxasncp_dict_debug(const gchar *fmt, ...) {
 
 static guint wimaxasncp_bits(guint bits, char *n)
 {
-	return 1 << ((bits - 1) - (strtoul(n, NULL, 10)));
+	return 1u << ((bits - 1) - (strtoul(n, NULL, 10)));
 }
 
 static const value_string wimaxasncp_decode_type_vals[] =

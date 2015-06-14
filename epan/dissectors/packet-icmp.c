@@ -1465,9 +1465,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				if (pinfo->flags.in_gre_pkt)
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				conv_key[1] =
-				    (guint32) ((tvb_get_ntohs(tvb, 4) <<
-						16) | tvb_get_ntohs(tvb,
-								    6));
+				    ((guint32) tvb_get_ntohs(tvb, 4) << 16) |
+				     tvb_get_ntohs(tvb, 6);
 				trans =
 				    transaction_end(pinfo, icmp_tree,
 						    conv_key);
@@ -1488,9 +1487,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				}
 				conv_key[1] =
-				    (guint32) ((tvb_get_ntohs(tvb, 4) <<
-						16) | tvb_get_ntohs(tvb,
-								    6));
+				    ((guint32) tvb_get_ntohs(tvb, 4) << 16) |
+				     tvb_get_ntohs(tvb, 6);
 				trans =
 				    transaction_start(pinfo, icmp_tree,
 						      conv_key);
