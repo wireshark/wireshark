@@ -1353,135 +1353,17 @@ static const value_string ft_ad_vals[] = {
 };
 
 
-/*
- * Check for OAM cells.
- * OAM F4 is VCI 3 or 4 and PT 0X0.
- * OAM F5 is PT 10X.
- */
-gboolean
-atm_is_oam_cell(const guint16 vci, const guint8 pt)
-{
-  return  (((vci == 3 || vci == 4) && ((pt & 0x5) == 0))
-           || ((pt & 0x6) == 0x4));
-}
-
-
 static void
-dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 proto_tree *atm_tree, guint aal, gboolean nni,
-                 gboolean crc_stripped, const pwatm_private_data_t *pwpd)
+dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                         proto_tree *tree, guint aal,
+                         const pwatm_private_data_t *pwpd)
 {
-  int         offset;
   proto_tree *aal_tree;
   proto_item *ti;
-  guint8      octet, pt;
-  int         err;
-  guint16     vpi, vci, aal3_4_hdr, crc10;
+  guint8      octet;
   gint        length;
+  guint16     aal3_4_hdr, crc10;
   tvbuff_t   *next_tvb;
-
-  if (NULL == pwpd) {
-    if (!nni) {
-      /*
-       * FF: ITU-T I.361 (Section 2.2) defines the cell header format
-       * and encoding at UNI reference point as:
-       *
-       *  8 7 6 5 4 3 2 1
-       * +-+-+-+-+-+-+-+-+
-       * |  GFC  |  VPI  |
-       * +-+-+-+-+-+-+-+-+
-       * |  VPI  |  VCI  |
-       * +-+-+-+-+-+-+-+-+
-       * |      VCI      |
-       * +-+-+-+-+-+-+-+-+
-       * |  VCI  |  PT |C|
-       * +-+-+-+-+-+-+-+-+
-       * |   HEC (CRC)   |
-       * +-+-+-+-+-+-+-+-+
-       */
-      octet = tvb_get_guint8(tvb, 0);
-      proto_tree_add_item(atm_tree, hf_atm_gfc, tvb, 0, 1, ENC_NA);
-      vpi = (octet & 0xF) << 4;
-      octet = tvb_get_guint8(tvb, 1);
-      vpi |= octet >> 4;
-      proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
-    } else {
-      /*
-       * FF: ITU-T I.361 (Section 2.3) defines the cell header format
-       * and encoding at NNI reference point as:
-       *
-       *  8 7 6 5 4 3 2 1
-       * +-+-+-+-+-+-+-+-+
-       * |      VPI      |
-       * +-+-+-+-+-+-+-+-+
-       * |  VPI  |  VCI  |
-       * +-+-+-+-+-+-+-+-+
-       * |      VCI      |
-       * +-+-+-+-+-+-+-+-+
-       * |  VCI  |  PT |C|
-       * +-+-+-+-+-+-+-+-+
-       * |   HEC (CRC)   |
-       * +-+-+-+-+-+-+-+-+
-       */
-      octet = tvb_get_guint8(tvb, 0);
-      vpi = octet << 4;
-      octet = tvb_get_guint8(tvb, 1);
-      vpi |= (octet & 0xF0) >> 4;
-      proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
-    }
-
-    vci = (octet & 0x0F) << 12;
-    octet = tvb_get_guint8(tvb, 2);
-    vci |= octet << 4;
-    octet = tvb_get_guint8(tvb, 3);
-    vci |= octet >> 4;
-    proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
-    pt = (octet >> 1) & 0x7;
-    proto_tree_add_item(atm_tree, hf_atm_payload_type, tvb, 3, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(atm_tree, hf_atm_cell_loss_priority, tvb, 3, 1, ENC_BIG_ENDIAN);
-
-    if (!crc_stripped) {
-      /*
-       * FF: parse the Header Error Check (HEC).
-       */
-      ti = proto_tree_add_item(atm_tree, hf_atm_header_error_check, tvb, 4, 1, ENC_BIG_ENDIAN);
-      err = get_header_err(tvb_get_ptr(tvb, 0, 5));
-      if (err == NO_ERROR_DETECTED)
-        proto_item_append_text(ti, " (correct)");
-      else if (err == UNCORRECTIBLE_ERROR)
-        proto_item_append_text(ti, " (uncorrectable error)");
-      else
-        proto_item_append_text(ti, " (error in bit %d)", err);
-      offset = 5;
-    } else {
-      /*
-       * FF: in some encapsulation modes (e.g. RFC 4717, ATM N-to-One
-       * Cell Mode) the Header Error Check (HEC) field is stripped.
-       * So we do nothing here.
-       */
-      offset = 4;
-    }
-  }
-  else
-  {
-    offset = 0; /* For PWs. Header is decoded by PW dissector.*/
-/*  Not used !
-    vpi = pwpd->vpi;
-*/
-    vci = pwpd->vci;
-    pt  = pwpd->pti;
-  }
-
-  /*
-   * Check for OAM cells.
-   * XXX - do this for all AAL values, overriding whatever information
-   * Wiretap got from the file?
-   */
-  if (aal == AAL_USER || aal == AAL_UNKNOWN) {
-    if (atm_is_oam_cell(vci,pt)) {
-      aal = AAL_OAMCELL;
-    }
-  }
 
   switch (aal) {
 
@@ -1583,6 +1465,125 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
+/*
+ * Check for OAM cells.
+ * OAM F4 is VCI 3 or 4 and PT 0X0.
+ * OAM F5 is PT 10X.
+ */
+gboolean
+atm_is_oam_cell(const guint16 vci, const guint8 pt)
+{
+  return  (((vci == 3 || vci == 4) && ((pt & 0x5) == 0))
+           || ((pt & 0x6) == 0x4));
+}
+
+
+static void
+dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                 proto_tree *atm_tree, guint aal, gboolean nni,
+                 gboolean crc_stripped)
+{
+  int         offset;
+  proto_item *ti;
+  guint8      octet, pt;
+  int         err;
+  guint16     vpi, vci;
+
+  if (!nni) {
+    /*
+     * FF: ITU-T I.361 (Section 2.2) defines the cell header format
+     * and encoding at UNI reference point as:
+     *
+     *  8 7 6 5 4 3 2 1
+     * +-+-+-+-+-+-+-+-+
+     * |  GFC  |  VPI  |
+     * +-+-+-+-+-+-+-+-+
+     * |  VPI  |  VCI  |
+     * +-+-+-+-+-+-+-+-+
+     * |      VCI      |
+     * +-+-+-+-+-+-+-+-+
+     * |  VCI  |  PT |C|
+     * +-+-+-+-+-+-+-+-+
+     * |   HEC (CRC)   |
+     * +-+-+-+-+-+-+-+-+
+     */
+    octet = tvb_get_guint8(tvb, 0);
+    proto_tree_add_item(atm_tree, hf_atm_gfc, tvb, 0, 1, ENC_NA);
+    vpi = (octet & 0xF) << 4;
+    octet = tvb_get_guint8(tvb, 1);
+    vpi |= octet >> 4;
+    proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  } else {
+    /*
+     * FF: ITU-T I.361 (Section 2.3) defines the cell header format
+     * and encoding at NNI reference point as:
+     *
+     *  8 7 6 5 4 3 2 1
+     * +-+-+-+-+-+-+-+-+
+     * |      VPI      |
+     * +-+-+-+-+-+-+-+-+
+     * |  VPI  |  VCI  |
+     * +-+-+-+-+-+-+-+-+
+     * |      VCI      |
+     * +-+-+-+-+-+-+-+-+
+     * |  VCI  |  PT |C|
+     * +-+-+-+-+-+-+-+-+
+     * |   HEC (CRC)   |
+     * +-+-+-+-+-+-+-+-+
+     */
+    octet = tvb_get_guint8(tvb, 0);
+    vpi = octet << 4;
+    octet = tvb_get_guint8(tvb, 1);
+    vpi |= (octet & 0xF0) >> 4;
+    proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  }
+
+  vci = (octet & 0x0F) << 12;
+  octet = tvb_get_guint8(tvb, 2);
+  vci |= octet << 4;
+  octet = tvb_get_guint8(tvb, 3);
+  vci |= octet >> 4;
+  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
+  pt = (octet >> 1) & 0x7;
+  proto_tree_add_item(atm_tree, hf_atm_payload_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(atm_tree, hf_atm_cell_loss_priority, tvb, 3, 1, ENC_BIG_ENDIAN);
+
+  if (!crc_stripped) {
+    /*
+     * FF: parse the Header Error Check (HEC).
+     */
+    ti = proto_tree_add_item(atm_tree, hf_atm_header_error_check, tvb, 4, 1, ENC_BIG_ENDIAN);
+    err = get_header_err(tvb_get_ptr(tvb, 0, 5));
+    if (err == NO_ERROR_DETECTED)
+      proto_item_append_text(ti, " (correct)");
+    else if (err == UNCORRECTIBLE_ERROR)
+      proto_item_append_text(ti, " (uncorrectable error)");
+    else
+      proto_item_append_text(ti, " (error in bit %d)", err);
+    offset = 5;
+  } else {
+    /*
+     * FF: in some encapsulation modes (e.g. RFC 4717, ATM N-to-One
+     * Cell Mode) the Header Error Check (HEC) field is stripped.
+     * So we do nothing here.
+     */
+    offset = 4;
+  }
+
+  /*
+   * Check for OAM cells.
+   * XXX - do this for all AAL values, overriding whatever information
+   * Wiretap got from the file?
+   */
+  if (aal == AAL_USER || aal == AAL_UNKNOWN) {
+    if (atm_is_oam_cell(vci,pt)) {
+      aal = AAL_OAMCELL;
+    }
+  }
+
+  dissect_atm_cell_payload(tvb, offset, pinfo, tree, aal, NULL);
+}
+
 static int
 dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean truncated, const pwatm_private_data_t *pwpd)
@@ -1651,7 +1652,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     dissect_atm_cell(tvb, pinfo, tree, atm_tree,
                      pinfo->pseudo_header->atm.aal, FALSE,
-                     pinfo->pseudo_header->atm.flags & ATM_NO_HEC, pwpd);
+                     pinfo->pseudo_header->atm.flags & ATM_NO_HEC);
   } else {
     /* This is a reassembled PDU. */
 
@@ -1668,7 +1669,13 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_atm_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  return dissect_atm_common(tvb, pinfo, tree, TRUE, NULL);
+}
+
+static int
+dissect_atm_pw_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
 
@@ -1676,7 +1683,13 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static int
-dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  return dissect_atm_common(tvb, pinfo, tree, FALSE, NULL);
+}
+
+static int
+dissect_atm_pw_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
 
@@ -1684,21 +1697,29 @@ dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static int
-dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  proto_tree *atm_tree        = NULL;
-  proto_item *atm_ti          = NULL;
-  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
-  gboolean    pseudowire_mode = (NULL != pwpd);
+  proto_tree *atm_tree;
+  proto_item *atm_ti;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
-  if (!pseudowire_mode) {
-      atm_ti   = proto_tree_add_item(tree, proto_atm, tvb, 0, 0, ENC_NA);
-      atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
-  }
+  atm_ti   = proto_tree_add_item(tree, proto_atm, tvb, 0, 0, ENC_NA);
+  atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE, pwpd);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
+  return tvb_reported_length(tvb);
+}
+
+static int
+dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+
+  dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL, pwpd);
+
   return tvb_reported_length(tvb);
 }
 
@@ -1978,9 +1999,12 @@ proto_register_atm(void)
   atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type subdissector", FT_UINT32, BASE_DEC);
   atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type subdissector", FT_UINT32, BASE_DEC);
 
-  atm_handle = new_register_dissector("atm_truncated", dissect_atm, proto_atm);
+  atm_handle = new_register_dissector("atm_truncated", dissect_atm_truncated, proto_atm);
+  new_register_dissector("atm_pw_truncated", dissect_atm_pw_truncated, proto_atm);
   atm_untruncated_handle = new_register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+  new_register_dissector("atm_pw_untruncated", dissect_atm_pw_untruncated, proto_atm);
   new_register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
+  new_register_dissector("atm_pw_oam_cell", dissect_atm_pw_oam_cell, proto_oamaal);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
