@@ -65,6 +65,7 @@
 #include <QTabWidget>
 #include <QToolButton>
 #include <QTreeWidget>
+#include <QUrl>
 
 #if defined(QT_MACEXTRAS_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 2, 1)
 #include <QtMacExtras/QMacNativeToolBar>
