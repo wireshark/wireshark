@@ -10,6 +10,9 @@
     <height>768</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Wireshark</string>
   </property>

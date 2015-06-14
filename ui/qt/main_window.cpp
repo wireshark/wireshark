@@ -29,8 +29,6 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/ext_menubar.h>
 
-//#include <wiretap/wtap.h>
-
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #include <capchild/capture_session.h>
@@ -63,6 +61,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QMetaObject>
+#include <QMimeData>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -588,6 +587,30 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         exit(0);
     }
     wsApp->quit();
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    bool accept = false;
+    foreach (QUrl drag_url, event->mimeData()->urls()) {
+        if (!drag_url.toLocalFile().isEmpty()) {
+            accept = true;
+            break;
+        }
+    }
+    if (accept) event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    foreach (QUrl drop_url, event->mimeData()->urls()) {
+        QString local_file = drop_url.toLocalFile();
+        if (!local_file.isEmpty()) {
+            openCaptureFile(local_file);
+            event->acceptProposedAction();
+            break;
+        }
+    }
 }
 
 // Apply recent settings to the main window geometry.
