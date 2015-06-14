@@ -96,9 +96,24 @@
         <translation>Zeilen kopieren</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
         <source>Copy All</source>
         <translation>Alles kopieren</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="195"/>
+        <source>Save as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="361"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="363"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1931,73 +1946,78 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished">Ein neues Profil mit den Standardeinstellungen erstellen.</translation>
+        <translation>Neues Profil mit den Standardeinstellungen erstellen.</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
         <source>Remove this profile.</source>
-        <translation type="unfinished">Diese Profil löschen.</translation>
+        <translation>Diese Profil entfernen.</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
         <source>Copy this profile.</source>
-        <translation type="unfinished">Dieses Profil kopieren.</translation>
+        <translation>Diese Profil kopieren.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="73"/>
         <source>Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitschnittfilter</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="85"/>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigefilter</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="161"/>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Mitschnittfilter</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="165"/>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Anzeigefilter</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="210"/>
         <source>Unable to create profile directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilverzeichnis kann nicht erstellt werden.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="211"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis
+&quot;%1&quot;
+für die Filterdateien kann nicht erstellt werden:
+%2.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="225"/>
         <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für die Mitschnittfilter konnten nicht gespeichert werden.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="226"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Mitschnittfilterdatei konnte nicht gespeichert werden
+&quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="229"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für die Anzeigenfilter konnten nicht gespeichert werden.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="230"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Anzeigefilterdatei konnte nicht gespeichert werden
+&quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -4610,7 +4630,7 @@ for filter files: %2.</source>
         <location filename="main_status_bar.cpp" line="199"/>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>liefert die detailliertesten Experten-Informationen</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="204"/>
@@ -4636,7 +4656,7 @@ for filter files: %2.</source>
         <location filename="main_status_bar.cpp" line="223"/>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Keine Experten-Informationen</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="318"/>
@@ -7719,7 +7739,7 @@ Wollen Sie zur Anzeige &quot;Sekunden seit dem Beginn der Aufzeichnung&quot; wec
         <translation>Ein Profil mit diesem Namen existiert bereits.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="276"/>
         <source>Profile Error</source>
         <translation>Profil Fehler</translation>
     </message>
@@ -9881,91 +9901,75 @@ Wollen Sie zur Anzeige &quot;Sekunden seit dem Beginn der Aufzeichnung&quot; wec
 <context>
     <name>StatsTreeDialog</name>
     <message>
-        <location filename="stats_tree_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>Dialog</translation>
+        <translation type="vanished">Dialog</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="31"/>
         <source>Display filter:</source>
-        <translation>Anzeigefilter:</translation>
+        <translation type="vanished">Anzeigefilter:</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>Statistik mit Anzeigenfilter neu generieren</translation>
+        <translation type="vanished">Statistik mit Anzeigenfilter neu generieren</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="44"/>
         <source>Apply</source>
-        <translation>Anwenden</translation>
+        <translation type="vanished">Anwenden</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="63"/>
-        <location filename="stats_tree_dialog.cpp" line="97"/>
         <source>Copy</source>
-        <translation>Kopieren</translation>
+        <translation type="vanished">Kopieren</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="66"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation>Baumansicht als Text in die Zwischenablage kopieren</translation>
+        <translation type="vanished">Baumansicht als Text in die Zwischenablage kopieren</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="69"/>
         <source>Ctrl+C</source>
-        <translation>Strg+C</translation>
+        <translation type="vanished">Strg+C</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="74"/>
-        <location filename="stats_tree_dialog.cpp" line="100"/>
         <source>Save as...</source>
-        <translation>Speichern unter...</translation>
+        <translation type="vanished">Speichern unter...</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="77"/>
         <source>Save the stats_tree data in various formats</source>
-        <translation>Statistikbaum speichern</translation>
+        <translation type="vanished">Statistikbaum speichern</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="80"/>
         <source>Ctrl+S</source>
-        <translation>Strg + S</translation>
+        <translation type="vanished">Strg + S</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="87"/>
+        <location filename="stats_tree_dialog.cpp" line="69"/>
         <source>Configuration not found</source>
         <translation>Konfiguration nicht gefunden</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="88"/>
+        <location filename="stats_tree_dialog.cpp" line="70"/>
         <source>Unable to find configuration for %1.</source>
         <translation>Konfiguration für %1 nicht auffindbar.</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="156"/>
+        <location filename="stats_tree_dialog.cpp" line="149"/>
         <source>%1 failed to attach to tap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="268"/>
         <source>Save Statistics As</source>
-        <translation>Statistik speichern als</translation>
+        <translation type="vanished">Statistik speichern als</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>Textdatei (*.txt);;Komma separierte werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
+        <translation type="vanished">Textdatei (*.txt);;Komma separierte werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation>Textdatei (*.txt)</translation>
+        <translation type="vanished">Textdatei (*.txt)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
-        <translation>Fehler beim Speichern der Datei %1</translation>
+        <translation type="vanished">Fehler beim Speichern der Datei %1</translation>
     </message>
 </context>
 <context>
@@ -10528,6 +10532,81 @@ Wollen Sie zur Anzeige &quot;Sekunden seit dem Beginn der Aufzeichnung&quot; wec
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
         <translation>Graph speichern als</translation>
+    </message>
+</context>
+<context>
+    <name>TapParameterDialog</name>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="31"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">Anzeigefilter:</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="41"/>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <source>Apply</source>
+        <translation type="unfinished">Anwenden</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="63"/>
+        <location filename="tap_parameter_dialog.cpp" line="73"/>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="66"/>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished">Baumansicht als Text in die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="69"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished">Strg+C</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="74"/>
+        <location filename="tap_parameter_dialog.cpp" line="76"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="77"/>
+        <source>Save the displayed data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="80"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="147"/>
+        <source>Save Statistics As</source>
+        <translation type="unfinished">Statistik speichern als</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="149"/>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">Textdatei (*.txt);;Komma separierte werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="153"/>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">Textdatei (*.txt)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="195"/>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">Fehler beim Speichern der Datei %1</translation>
     </message>
 </context>
 <context>

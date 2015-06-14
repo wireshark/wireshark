@@ -96,9 +96,24 @@
         <translation>Copier la ligne</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
         <source>Copy All</source>
         <translation>Copier Tout</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="195"/>
+        <source>Save as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="361"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="363"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7644,7 +7659,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation>Un profil déjà avec ce nom.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="276"/>
         <source>Profile Error</source>
         <translation>Erreur de Profil</translation>
     </message>
@@ -9787,91 +9802,55 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>StatsTreeDialog</name>
     <message>
-        <location filename="stats_tree_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>Dialogue</translation>
+        <translation type="vanished">Dialogue</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="31"/>
         <source>Display filter:</source>
-        <translation>Filtre d&apos;affichage:</translation>
+        <translation type="vanished">Filtre d&apos;affichage:</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>Régénérer les statistiques en utilisant ce filtre d&apos;affichage</translation>
+        <translation type="vanished">Régénérer les statistiques en utilisant ce filtre d&apos;affichage</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="44"/>
         <source>Apply</source>
-        <translation>Appliquer</translation>
+        <translation type="vanished">Appliquer</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="63"/>
-        <location filename="stats_tree_dialog.cpp" line="97"/>
         <source>Copy</source>
-        <translation>Copier</translation>
+        <translation type="vanished">Copier</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="66"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation>Copier une représentation textuelle pour le presse-papiers</translation>
+        <translation type="vanished">Copier une représentation textuelle pour le presse-papiers</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="69"/>
-        <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.ui" line="74"/>
-        <location filename="stats_tree_dialog.cpp" line="100"/>
         <source>Save as...</source>
-        <translation>Sauvegarder sous...</translation>
+        <translation type="vanished">Sauvegarder sous...</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="77"/>
         <source>Save the stats_tree data in various formats</source>
-        <translation>Sauvegardez les données de stats_tree dans différents formats</translation>
+        <translation type="vanished">Sauvegardez les données de stats_tree dans différents formats</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="80"/>
-        <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.cpp" line="87"/>
+        <location filename="stats_tree_dialog.cpp" line="69"/>
         <source>Configuration not found</source>
         <translation>Configuration non trouvée</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="88"/>
+        <location filename="stats_tree_dialog.cpp" line="70"/>
         <source>Unable to find configuration for %1.</source>
         <translation>Impossible de trouver la configuration pour %1.</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="156"/>
+        <location filename="stats_tree_dialog.cpp" line="149"/>
         <source>%1 failed to attach to tap</source>
         <translation>%1 Impossible de joindre le tap</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="268"/>
-        <source>Save Statistics As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.cpp" line="270"/>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.cpp" line="274"/>
-        <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
-        <translation>Erreur pour sauvegarder le fichier %1</translation>
+        <translation type="vanished">Erreur pour sauvegarder le fichier %1</translation>
     </message>
 </context>
 <context>
@@ -10400,6 +10379,81 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TapParameterDialog</name>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialogue</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="31"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">Filtre d&apos;affichage:</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="41"/>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished">Régénérer les statistiques en utilisant ce filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <source>Apply</source>
+        <translation type="unfinished">Appliquer</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="63"/>
+        <location filename="tap_parameter_dialog.cpp" line="73"/>
+        <source>Copy</source>
+        <translation type="unfinished">Copier</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="66"/>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished">Copier une représentation textuelle pour le presse-papiers</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="69"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="74"/>
+        <location filename="tap_parameter_dialog.cpp" line="76"/>
+        <source>Save as...</source>
+        <translation type="unfinished">Sauvegarder sous...</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="77"/>
+        <source>Save the displayed data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="80"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="147"/>
+        <source>Save Statistics As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="149"/>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="153"/>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="195"/>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">Erreur pour sauvegarder le fichier %1</translation>
     </message>
 </context>
 <context>

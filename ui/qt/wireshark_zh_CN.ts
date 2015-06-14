@@ -96,9 +96,24 @@
         <translation>复制行</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
         <source>Copy All</source>
         <translation>复制所有</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="195"/>
+        <source>Save as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="361"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="363"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1437,27 +1452,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">对话框</translation>
+        <translation>对话框</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="24"/>
         <source>Select a field to start building a display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个字段以开始建立一个显示筛选器。</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="27"/>
         <source>Field Name</source>
-        <translation type="unfinished">字段名称</translation>
+        <translation>字段名称</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="51"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;搜索字段名称列表。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="54"/>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索:</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="72"/>
@@ -1468,67 +1483,73 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;“关系”可用于限定字段为指定的值。每项关系将执行下列操作：&lt;/p&gt;
+&lt;table&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;th&gt;目前在&lt;/th&gt;&lt;td&gt;匹配包含此字段的任何分组&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;==、!= 等&lt;/th&gt;&lt;td&gt;在字段与指定值之间进行比较&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;包含、匹配&lt;/th&gt;&lt;td&gt;检查该字段是否对应一个字符串（包含）或者正则表达式（匹配）&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="81"/>
         <source>Relation</source>
-        <translation type="unfinished"></translation>
+        <translation>关系</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="108"/>
         <source>Match against this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>匹配对应此值。</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="111"/>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="125"/>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果您已选择的字段有一个已知的有效值的集，它将被在这里列出。</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="128"/>
         <source>Predefined Values</source>
-        <translation type="unfinished"></translation>
+        <translation>预定义的值</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="155"/>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果您已选择的字段涵盖范围字节（例如您选择了一个协议），您可以在这里对匹配进行字节范围的限制。</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="158"/>
         <source>Range (offset:length)</source>
-        <translation type="unfinished"></translation>
+        <translation>范围 (偏移:长度)</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="177"/>
         <source>No display filter</source>
-        <translation type="unfinished">无显示过滤器</translation>
+        <translation>无显示筛选器</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="184"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="70"/>
         <source>Display Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>显示筛选器例外</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="187"/>
         <source>Select a field name to get started</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个字段名称以开始</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="191"/>
         <source>Click OK to insert this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>点击确定插入此筛选器</translation>
     </message>
 </context>
 <context>
@@ -1915,88 +1936,92 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="filter_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">对话框</translation>
+        <translation>对话框</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="33"/>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="38"/>
         <source>Filter</source>
-        <translation type="unfinished">筛选器</translation>
+        <translation>筛选器</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished">用默认设置创建新的配置文件。</translation>
+        <translation>使用默认设置创建一个新的配置文件。</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
         <source>Remove this profile.</source>
-        <translation type="unfinished">移除该配置文件。</translation>
+        <translation>移除此配置文件。</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
         <source>Copy this profile.</source>
-        <translation type="unfinished">复制该配置文件。</translation>
+        <translation>复制此配置文件。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="73"/>
         <source>Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获筛选器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="85"/>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>显示筛选器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="161"/>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>新建捕获筛选器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="165"/>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>新建显示筛选器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="210"/>
         <source>Unable to create profile directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建配置文件目录。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="211"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建目录
+“%1”
+为筛选器文件：%2。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="225"/>
         <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存捕获筛选器设置。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="226"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能保存您的捕获筛选器文件
+“%1”：%2。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="229"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存显示筛选器设置。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="230"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能保存您的显示筛选器文件
+“%1”：%2。</translation>
     </message>
 </context>
 <context>
@@ -6791,17 +6816,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2332"/>
         <source>&amp;Expression...</source>
-        <translation type="unfinished"></translation>
+        <translation>例外(&amp;E)...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2335"/>
         <source>Expression...</source>
-        <translation type="unfinished"></translation>
+        <translation>例外...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2338"/>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>添加一个例外到显示筛选器。</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="265"/>
@@ -7708,7 +7733,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation>已存在该名称的配置文件。</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="276"/>
         <source>Profile Error</source>
         <translation>配置文件错误</translation>
     </message>
@@ -9868,91 +9893,75 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 <context>
     <name>StatsTreeDialog</name>
     <message>
-        <location filename="stats_tree_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>对话框</translation>
+        <translation type="vanished">对话框</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="31"/>
         <source>Display filter:</source>
-        <translation>显示筛选器：</translation>
+        <translation type="vanished">显示筛选器：</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示筛选器重新生成统计</translation>
+        <translation type="vanished">使用显示筛选器重新生成统计</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="44"/>
         <source>Apply</source>
-        <translation>应用</translation>
+        <translation type="vanished">应用</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="63"/>
-        <location filename="stats_tree_dialog.cpp" line="97"/>
         <source>Copy</source>
-        <translation>复制</translation>
+        <translation type="vanished">复制</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="66"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation>复制代表树的文本到剪贴板</translation>
+        <translation type="vanished">复制代表树的文本到剪贴板</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="69"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="74"/>
-        <location filename="stats_tree_dialog.cpp" line="100"/>
         <source>Save as...</source>
-        <translation>保存为...</translation>
+        <translation type="vanished">保存为...</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="77"/>
         <source>Save the stats_tree data in various formats</source>
-        <translation>使用不同的格式保存状态树数据</translation>
+        <translation type="vanished">使用不同的格式保存状态树数据</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="80"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="87"/>
+        <location filename="stats_tree_dialog.cpp" line="69"/>
         <source>Configuration not found</source>
         <translation>配置未找到</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="88"/>
+        <location filename="stats_tree_dialog.cpp" line="70"/>
         <source>Unable to find configuration for %1.</source>
         <translation>不能为 %1找到配置。</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="156"/>
+        <location filename="stats_tree_dialog.cpp" line="149"/>
         <source>%1 failed to attach to tap</source>
         <translation>%1 附加到tap失败</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="268"/>
         <source>Save Statistics As</source>
-        <translation>保存统计为</translation>
+        <translation type="vanished">保存统计为</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>纯文本文件 (*.txt);;逗号分隔值 (*.csv);;XML 文档 (*.xml);;YAML 文档 (*.yaml)</translation>
+        <translation type="vanished">纯文本文件 (*.txt);;逗号分隔值 (*.csv);;XML 文档 (*.xml);;YAML 文档 (*.yaml)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation>纯文本文件 (*.txt)</translation>
+        <translation type="vanished">纯文本文件 (*.txt)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
-        <translation>错误保存文件 %1</translation>
+        <translation type="vanished">错误保存文件 %1</translation>
     </message>
 </context>
 <context>
@@ -10515,6 +10524,81 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
         <translation>保存图形为</translation>
+    </message>
+</context>
+<context>
+    <name>TapParameterDialog</name>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">对话框</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="31"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">显示筛选器：</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="41"/>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished">使用显示筛选器重新生成统计</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <source>Apply</source>
+        <translation type="unfinished">应用</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="63"/>
+        <location filename="tap_parameter_dialog.cpp" line="73"/>
+        <source>Copy</source>
+        <translation type="unfinished">复制</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="66"/>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished">复制代表树的文本到剪贴板</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="69"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished">Ctrl+C</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="74"/>
+        <location filename="tap_parameter_dialog.cpp" line="76"/>
+        <source>Save as...</source>
+        <translation type="unfinished">保存为...</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="77"/>
+        <source>Save the displayed data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="80"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished">Ctrl+S</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="147"/>
+        <source>Save Statistics As</source>
+        <translation type="unfinished">保存统计为</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="149"/>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">纯文本文件 (*.txt);;逗号分隔值 (*.csv);;XML 文档 (*.xml);;YAML 文档 (*.yaml)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="153"/>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">纯文本文件 (*.txt)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="195"/>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">错误保存文件 %1</translation>
     </message>
 </context>
 <context>

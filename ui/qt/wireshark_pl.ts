@@ -96,9 +96,24 @@
         <translation>Kopiuj wiersze</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
         <source>Copy All</source>
         <translation>Kopiuj wszystko</translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="195"/>
+        <source>Save as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="361"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="363"/>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1437,27 +1452,27 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="display_filter_expression_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="24"/>
         <source>Select a field to start building a display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz pole by zacząć tworzenie filtru wyświetlania.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="27"/>
         <source>Field Name</source>
-        <translation type="unfinished">Nazwa pola</translation>
+        <translation>Nazwa pola</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="51"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przeszukiwanie listy nazw pól.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="54"/>
         <source>Search:</source>
-        <translation type="unfinished">Szukaj:</translation>
+        <translation>Szukaj:</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="72"/>
@@ -1468,67 +1483,73 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 &lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relacji można użyć by ograniczyć wyszukiwanie pól do wybranych ich wartości. Każda relacja posiada następujące właściwości:&lt;/p&gt;
+&lt;table&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;th&gt;ramka posiadająca to pole&lt;/th&gt;&lt;td&gt;Sprawdza każdy pakiet czy zawiera to pole&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;==, !=, itd.&lt;/th&gt;&lt;td&gt;Porównuje wartość pola do zadanej wartości&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Sprawdza czy pole zawiera dany tekst (contains) lub spełnia dane wyrażenie regularne (matches)&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="81"/>
         <source>Relation</source>
-        <translation type="unfinished"></translation>
+        <translation>Relacja</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="108"/>
         <source>Match against this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Porównuje z tą wartością.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="111"/>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="125"/>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli pole, które wybrano ma znane wartości to będą tu wyświetlane.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="128"/>
         <source>Predefined Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefiniowane wartości</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="155"/>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli pole, które wybrano obejmuje zakres bajtów (np. wybrano protokół) to tutaj można ograniczyć porównywanie do pewnego zakresu bajtów.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="158"/>
         <source>Range (offset:length)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakres (pozycja:długość)</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="177"/>
         <source>No display filter</source>
-        <translation type="unfinished">Brak filtru wyświetlania.</translation>
+        <translation>Brak filtru wyświetlania</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="184"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="70"/>
         <source>Display Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyrażenie filtru wyświetlania</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="187"/>
         <source>Select a field name to get started</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz nazwę pola by rozpocząć</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="191"/>
         <source>Click OK to insert this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliknij OK by dodać filtr</translation>
     </message>
 </context>
 <context>
@@ -1915,88 +1936,92 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="filter_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="33"/>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="38"/>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished">Utwórz nowy profil używając ustawień domyślnych.</translation>
+        <translation>Utwórz nowy profil używając domyślnych ustawień.</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
         <source>Remove this profile.</source>
-        <translation type="unfinished">Usuń profil.</translation>
+        <translation>Usuń profil.</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
         <source>Copy this profile.</source>
-        <translation type="unfinished">Kopiuj ten profil.</translation>
+        <translation>Kopiuj profil.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="73"/>
         <source>Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtry przechwytywania</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="85"/>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtry wyświetlania</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="161"/>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nowy filtr przechwytywania</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="165"/>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nowy filtr wyświetlania</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="210"/>
         <source>Unable to create profile directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć katalogu profilu.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="211"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć katalogu
+&quot;%1&quot;
+dla plików filtrów: %2.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="225"/>
         <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="226"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać do pliku filtrów przechwytywania
+&quot;%1&quot;:%2.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="229"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać ustawień filtru wyświetlania.</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="230"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać do pliku filtrów wyświetlania
+&quot;%1&quot;:%2.</translation>
     </message>
 </context>
 <context>
@@ -6807,17 +6832,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2332"/>
         <source>&amp;Expression...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyraż&amp;enie...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2335"/>
         <source>Expression...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyrażenie...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2338"/>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj wyrażenie do filtru wyświetlania.</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="265"/>
@@ -7724,7 +7749,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <translation>Utwórz nowy profil używając ustawień domyślnych.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="276"/>
         <source>Profile Error</source>
         <translation>Błąd w profilu</translation>
     </message>
@@ -9888,91 +9913,75 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
 <context>
     <name>StatsTreeDialog</name>
     <message>
-        <location filename="stats_tree_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>Okno</translation>
+        <translation type="vanished">Okno</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="31"/>
         <source>Display filter:</source>
-        <translation>Filtr:</translation>
+        <translation type="vanished">Filtr:</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>Wygeneruj statystyki używając filtru</translation>
+        <translation type="vanished">Wygeneruj statystyki używając filtru</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="44"/>
         <source>Apply</source>
-        <translation>Zastosuj</translation>
+        <translation type="vanished">Zastosuj</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="63"/>
-        <location filename="stats_tree_dialog.cpp" line="97"/>
         <source>Copy</source>
-        <translation>Kopiuj</translation>
+        <translation type="vanished">Kopiuj</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="66"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation>Kopiuj prezentację drzewa do schowka</translation>
+        <translation type="vanished">Kopiuj prezentację drzewa do schowka</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="69"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="74"/>
-        <location filename="stats_tree_dialog.cpp" line="100"/>
         <source>Save as...</source>
-        <translation>Zapisz jako...</translation>
+        <translation type="vanished">Zapisz jako...</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="77"/>
         <source>Save the stats_tree data in various formats</source>
-        <translation>Zapisz dane statystyk w formatach</translation>
+        <translation type="vanished">Zapisz dane statystyk w formatach</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="80"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="87"/>
+        <location filename="stats_tree_dialog.cpp" line="69"/>
         <source>Configuration not found</source>
         <translation>Nie znaleziono konfiguracji</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="88"/>
+        <location filename="stats_tree_dialog.cpp" line="70"/>
         <source>Unable to find configuration for %1.</source>
         <translation>Nie można znaleźć konfiguracji dla %1.</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="156"/>
+        <location filename="stats_tree_dialog.cpp" line="149"/>
         <source>%1 failed to attach to tap</source>
         <translation>%1 nie można podłączyć do kanału komunikacyjnego</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="268"/>
         <source>Save Statistics As</source>
-        <translation>Zapisz statystyki jako</translation>
+        <translation type="vanished">Zapisz statystyki jako</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>Plik tekstowy (*.c);; Wartości rozdzielane przecinkami (*.csv);; Dokument XML (*.xml);;Dokument YAML (*.yaml)</translation>
+        <translation type="vanished">Plik tekstowy (*.c);; Wartości rozdzielane przecinkami (*.csv);; Dokument XML (*.xml);;Dokument YAML (*.yaml)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation>Plik tekstowy (*.c)</translation>
+        <translation type="vanished">Plik tekstowy (*.c)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
-        <translation>Błąd podczas zapisywania pliku %1</translation>
+        <translation type="vanished">Błąd podczas zapisywania pliku %1</translation>
     </message>
 </context>
 <context>
@@ -10535,6 +10544,81 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
+    </message>
+</context>
+<context>
+    <name>TapParameterDialog</name>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="31"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">Filtr:</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="41"/>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished">Wygeneruj statystyki używając filtru</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <source>Apply</source>
+        <translation type="unfinished">Zastosuj</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="63"/>
+        <location filename="tap_parameter_dialog.cpp" line="73"/>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiuj</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="66"/>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished">Kopiuj prezentację drzewa do schowka</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="69"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished">Ctrl+C</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="74"/>
+        <location filename="tap_parameter_dialog.cpp" line="76"/>
+        <source>Save as...</source>
+        <translation type="unfinished">Zapisz jako...</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="77"/>
+        <source>Save the displayed data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="80"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished">Ctrl+S</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="147"/>
+        <source>Save Statistics As</source>
+        <translation type="unfinished">Zapisz statystyki jako</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="149"/>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">Plik tekstowy (*.c);; Wartości rozdzielane przecinkami (*.csv);; Dokument XML (*.xml);;Dokument YAML (*.yaml)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="153"/>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">Plik tekstowy (*.c)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="195"/>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">Błąd podczas zapisywania pliku %1</translation>
     </message>
 </context>
 <context>

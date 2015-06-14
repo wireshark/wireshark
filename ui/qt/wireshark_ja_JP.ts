@@ -96,8 +96,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
         <source>Copy All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.ui" line="195"/>
+        <source>Save as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="361"/>
+        <source>Save Table Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="363"/>
+        <source>PNG Image (*.png)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7675,7 +7690,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation>その名前のプロファイルはすでに存在しています</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="276"/>
         <source>Profile Error</source>
         <translation>プロファイルエラー</translation>
     </message>
@@ -9835,91 +9850,71 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 <context>
     <name>StatsTreeDialog</name>
     <message>
-        <location filename="stats_tree_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation>ダイアログ</translation>
+        <translation type="vanished">ダイアログ</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="31"/>
         <source>Display filter:</source>
-        <translation>表示フィルタ:</translation>
+        <translation type="vanished">表示フィルタ:</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="41"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>この表示フィルタを用いて統計を再生成</translation>
+        <translation type="vanished">この表示フィルタを用いて統計を再生成</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="44"/>
         <source>Apply</source>
-        <translation>適用</translation>
+        <translation type="vanished">適用</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="63"/>
-        <location filename="stats_tree_dialog.cpp" line="97"/>
         <source>Copy</source>
-        <translation>コピー</translation>
+        <translation type="vanished">コピー</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="66"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation>ツリーのテキスト表現をクリップボードへコピー</translation>
+        <translation type="vanished">ツリーのテキスト表現をクリップボードへコピー</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="69"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="74"/>
-        <location filename="stats_tree_dialog.cpp" line="100"/>
         <source>Save as...</source>
-        <translation>...として保存</translation>
+        <translation type="vanished">...として保存</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="77"/>
         <source>Save the stats_tree data in various formats</source>
-        <translation>様々なフォーマットで統計ツリーデータを保存</translation>
+        <translation type="vanished">様々なフォーマットで統計ツリーデータを保存</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.ui" line="80"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="87"/>
+        <location filename="stats_tree_dialog.cpp" line="69"/>
         <source>Configuration not found</source>
         <translation>設定が見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="88"/>
+        <location filename="stats_tree_dialog.cpp" line="70"/>
         <source>Unable to find configuration for %1.</source>
         <translation>%1 に対する設定を見つけることができません</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="156"/>
+        <location filename="stats_tree_dialog.cpp" line="149"/>
         <source>%1 failed to attach to tap</source>
         <translation>%1 タップに割り当てるのに失敗しました</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="268"/>
-        <source>Save Statistics As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>プレインテキストファイル (*.txt);;カンマ区切りテキストファイル (*.csv);;XML形式文章 (*.xml);;YAML形式文章 (*.yaml)</translation>
+        <translation type="vanished">プレインテキストファイル (*.txt);;カンマ区切りテキストファイル (*.csv);;XML形式文章 (*.xml);;YAML形式文章 (*.yaml)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation>プレインテキストファイル (*.txt)</translation>
+        <translation type="vanished">プレインテキストファイル (*.txt)</translation>
     </message>
     <message>
-        <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
-        <translation>ファイル保存中エラー %1</translation>
+        <translation type="vanished">ファイル保存中エラー %1</translation>
     </message>
 </context>
 <context>
@@ -10482,6 +10477,81 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TapParameterDialog</name>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">ダイアログ</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="31"/>
+        <source>Display filter:</source>
+        <translation type="unfinished">表示フィルタ:</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="41"/>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="44"/>
+        <source>Apply</source>
+        <translation type="unfinished">適用</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="63"/>
+        <location filename="tap_parameter_dialog.cpp" line="73"/>
+        <source>Copy</source>
+        <translation type="unfinished">コピー</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="66"/>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished">ツリーのテキスト表現をクリップボードへコピー</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="69"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished">Ctrl+C</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="74"/>
+        <location filename="tap_parameter_dialog.cpp" line="76"/>
+        <source>Save as...</source>
+        <translation type="unfinished">...として保存</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="77"/>
+        <source>Save the displayed data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.ui" line="80"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished">Ctrl+S</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="147"/>
+        <source>Save Statistics As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="149"/>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">プレインテキストファイル (*.txt);;カンマ区切りテキストファイル (*.csv);;XML形式文章 (*.xml);;YAML形式文章 (*.yaml)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="153"/>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">プレインテキストファイル (*.txt)</translation>
+    </message>
+    <message>
+        <location filename="tap_parameter_dialog.cpp" line="195"/>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">ファイル保存中エラー %1</translation>
     </message>
 </context>
 <context>

@@ -8365,6 +8365,8 @@ surfpass         5030/tcp # SurfPass [Olivier_Guezenec] [Olivier_Guezenec] 2006-
 surfpass         5030/udp # SurfPass [Olivier_Guezenec] [Olivier_Guezenec] 2006-12
 dmp              5031/udp # Direct Message Protocol [Gjermund_Wallenius] [Gjermund_Wallenius] 2009-09-30
 signacert-agent  5032/tcp # SignaCert Enterprise Trust Server Agent [Harris_Corporation] [Daniel_R_Somerfield] 2011-08-05
+jtnetd-server    5033/tcp # Janstor Secure Data [Janstor_Technology] [Anthony_Johnson_2] 2015-06-08
+jtnetd-status    5034/tcp # Janstor Status [Janstor_Technology] [Anthony_Johnson_2] 2015-06-08
 asnaacceler8db   5042/tcp # asnaacceler8db [Walter_Goodwin] [Walter_Goodwin]
 asnaacceler8db   5042/udp # asnaacceler8db [Walter_Goodwin] [Walter_Goodwin]
 swxadmin         5043/tcp # ShopWorX Administration [Don_W_Fitzpatrick] [Don_W_Fitzpatrick] 2005-08
@@ -10017,6 +10019,7 @@ cruise-update    8380/tcp # Cruise UPDATE [Steve_Husak] [Steve_Husak]
 cruise-update    8380/udp # Cruise UPDATE [Steve_Husak] [Steve_Husak]
 m2mservices      8383/tcp # M2m Services [Carlos_Arteaga_2] [Carlos_Arteaga_2] 2004-11
 m2mservices      8383/udp # M2m Services [Carlos_Arteaga_2] [Carlos_Arteaga_2] 2004-11
+marathontp       8384/udp # Marathon Transport Protocol [Inertia_Systemes] [Jasmin_Blouin] 2015-06-11
 cvd              8400/tcp # cvd [Aaron_Bilbrey] [Aaron_Bilbrey]
 cvd              8400/udp # cvd [Aaron_Bilbrey] [Aaron_Bilbrey]
 sabarsd          8401/tcp # sabarsd [Aaron_Bilbrey] [Aaron_Bilbrey]
@@ -10057,6 +10060,7 @@ fmtp             8500/udp # Flight Message Transfer Protocol [Eivan_Cerasi] [Eiv
 cmtp-mgt         8501/tcp # CYTEL Message Transfer Management
 cmtp-av          8501/udp # CYTEL Message Transfer Audio and Video [Frank_Jakel] [Frank_Jakel] 2011-04-29
 ftnmtp           8502/tcp # FTN Message Transfer Protocol [Yuri_Myakotin] [Yuri_Myakotin] 2014-01-07
+lsp-self-ping    8503/udp # MPLS LSP Self Ping [Juniper_Networks_2] [Ron_Bonica] 2015-06-11 [draft-ietf-mpls-self-ping]
 rtsp-alt         8554/tcp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 rtsp-alt         8554/udp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 d-fence          8555/tcp # SYMAX D-FENCE [Thomas_Geisel] [Thomas_Geisel] 2003-01
