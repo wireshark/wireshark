@@ -29,7 +29,7 @@ PBEParameter		B "1.2.840.113549.1.12.1.2" "pbeWithSHAAnd40BitRC4"
 PBEParameter		B "1.2.840.113549.1.12.1.3" "pbeWithSHAAnd3-KeyTripleDES-CBC"
 PBEParameter		B "1.2.840.113549.1.12.1.4" "pbeWithSHAAnd2-KeyTripleDES-CBC"
 PBEParameter		B "1.2.840.113549.1.12.1.5" "pbeWithSHAAnd128BitRC2-CBC"
-PBEParameter		B "1.2.840.113549.1.12.1.6" "pbeWithSHAAnd128BitRC2-CBC"
+PBEParameter		B "1.2.840.113549.1.12.1.6" "pbeWithSHAAnd40BitRC2-CBC"
 
 PBEParameter		B "1.2.840.113549.1.5.1" "pbeWithMD2AndDES-CBC"
 PBEParameter		B "1.2.840.113549.1.5.3" "pbeWithMD5AndDES-CBC"
