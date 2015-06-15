@@ -37,15 +37,15 @@ void proto_reg_handoff_vsip(void);
 
 static const value_string EVsipMessageType_vals[] =
 {
-   {1, "VSIP Ping Request"},
-   {2, "VSIP Ping Response"},
-   {3, "VSIP Get Capabilities Request"},
-   {4, "VSIP Get Capabilities Response"},
-   {5, "VSIP Start Device Request"},
-   {6, "VSIP Stop Device Request"},
-   {7, "VSIP Set Configuration Request"},
-   {8, "VSIP Get Configuration Request"},
-   {9, "VSIP Get Configuration Response"},
+   { 1, "VSIP Ping Request"},
+   { 2, "VSIP Ping Response"},
+   { 3, "VSIP Get Capabilities Request"},
+   { 4, "VSIP Get Capabilities Response"},
+   { 5, "VSIP Start Device Request"},
+   { 6, "VSIP Stop Device Request"},
+   { 7, "VSIP Set Configuration Request"},
+   { 8, "VSIP Get Configuration Request"},
+   { 9, "VSIP Get Configuration Response"},
    {10, "VSIP Send Command Request"},
    {11, "VSIP Event Notify"},
    {12, "VSIP Event Subscribe"},
@@ -78,14 +78,14 @@ const value_string EVsipVendorID_vals[] =
 
 const value_string EVsipEntityType_vals[] =
 {
-   {0, "Device"},
-   {1, "Video decoder"},
-   {2, "Video encoder"},
-   {3, "Audio decoder"},
-   {4, "Audio encoder"},
-   {5, "Serial port"},
-   {6, "Input pin"},
-   {7, "Output pin"},
+   { 0, "Device"},
+   { 1, "Video decoder"},
+   { 2, "Video encoder"},
+   { 3, "Audio decoder"},
+   { 4, "Audio encoder"},
+   { 5, "Serial port"},
+   { 6, "Input pin"},
+   { 7, "Output pin"},
    {11, "Wireless connection"},
    {12, "Ethernet connection"},
    {13, "Motion detection"},
@@ -123,16 +123,16 @@ const value_string EVsipValueType_vals[] =
 
 const value_string EVsipConnectionType_vals[] =
 {
-   {0, "VSIP_CONN_TYPE_NULL"},
-   {1, "VSIP_CONN_TYPE_UDP_UNICAST"},
-   {2, "VSIP_CONN_TYPE_UDP_MULTICAST"},
-   {3, "VSIP_CONN_TYPE_UDP"},
-   {7, "VSIP_CONN_TYPE_RTPSTANDARDH264_UDP"},
-   {11, "VSIP_CONN_TYPE_RTPSTANDARDH264_UDP_VOLATILE"},
-   {12, "VSIP_CONN_TYPE_TCP"},
-   {64, "VSIP_CONN_TYPE_RTP"},
-   {65, "VSIP_CONN_TYPE_RTPVERINT_UDP"},
-   {76, "VSIP_CONN_TYPE_RTPVERINT_TCP"},
+   {  0, "VSIP_CONN_TYPE_NULL"},
+   {  1, "VSIP_CONN_TYPE_UDP_UNICAST"},
+   {  2, "VSIP_CONN_TYPE_UDP_MULTICAST"},
+   {  3, "VSIP_CONN_TYPE_UDP"},
+   {  7, "VSIP_CONN_TYPE_RTPSTANDARDH264_UDP"},
+   { 11, "VSIP_CONN_TYPE_RTPSTANDARDH264_UDP_VOLATILE"},
+   { 12, "VSIP_CONN_TYPE_TCP"},
+   { 64, "VSIP_CONN_TYPE_RTP"},
+   { 65, "VSIP_CONN_TYPE_RTPVERINT_UDP"},
+   { 76, "VSIP_CONN_TYPE_RTPVERINT_TCP"},
    {129, "VSIP_CONN_TYPE_UDP_VOLATILE"},
    {140, "VSIP_CONN_TYPE_TCP_VOLATILE"},
    {192, "VSIP_CONN_TYPE_RTPVERINT_UDP_VOLATILE"},
@@ -142,14 +142,14 @@ const value_string EVsipConnectionType_vals[] =
 
 const value_string EVsipCommand_vals[] =
 {
-   {1, "Send Key Frame"},
-   {2, "VSIP Proprietary Command"},
-   {3, "Set TCP Connection As Vital"},
-   {4, "Reset Wireless Passkey"},
-   {5, "Remove Multicast Stream"},
-   {7, "Clear Statistics"},
-   {8, "Clear Logs"},
-   {9, "Ping Remote Host"},
+   { 1, "Send Key Frame"},
+   { 2, "VSIP Proprietary Command"},
+   { 3, "Set TCP Connection As Vital"},
+   { 4, "Reset Wireless Passkey"},
+   { 5, "Remove Multicast Stream"},
+   { 7, "Clear Statistics"},
+   { 8, "Clear Logs"},
+   { 9, "Ping Remote Host"},
    {10, "VSIP_CA_COMMAND_ADD_VIEW"},
    {11, "VSIP_CA_COMMAND_DEL_VIEW"},
    {12, "VSIP_CA_COMMAND_FORCE_VIEW"},
@@ -174,52 +174,52 @@ value_string_ext EVsipCommand_vals_ext = VALUE_STRING_EXT_INIT(EVsipCommand_vals
 
 const value_string EVsipConfigItem_vals[] =
 {
-   {1, "CONFIG_NETWORK_PORT/CONFIG_NETWORK_RX_PORT"},
-   {2, "CONFIG_NETWORK_CONNECTION_TYPE"},
-   {3, "CONFIG_NETWORK_SUPPORTED_CONNECTION_TYPE"},
-   {4, "CONFIG_NETWORK_SSL_PASSKEY"},
-   {5, "CONFIG_NETWORK_MAC_ADDRESS"},
-   {6, "CONFIG_NETWORK_TX_PORT"},
-   {7, "CONFIG_NETWORK_RX_PORT2"},
-   {8, "CONFIG_NETWORK_RX_PORT3"},
-   {9, "CONFIG_NETWORK_RX_PORT4"},
-   {10, "CONFIG_NETWORK_TX_PORT2"},
-   {11, "CONFIG_NETWORK_TX_PORT3"},
-   {12, "CONFIG_NETWORK_TX_PORT4"},
-   {13, "CONFIG_NETWORK_DESTINATION_GUID"},
-   {14, "CONFIG_NETWORK_DESTINATION_GUID2"},
-   {15, "CONFIG_NETWORK_DESTINATION_GUID3"},
-   {16, "CONFIG_NETWORK_DESTINATION_GUID4"},
-   {257, "CONFIG_CONTENT_ANALYZER_TARGET_FRAME_RATE"},
-   {258, "CONFIG_CONTENT_ANALYZER_CURRENT_STREAMING_STATE"},
-   {259, "CONFIG_CONTENT_ANALYZER_INITIAL_STREAMING_STATE"},
-   {260, "CONFIG_CONTENT_ANALYZER_TARGET_IP_ADDRESS"},
-   {261, "CONFIG_CONTENT_ANALYZER_TARGET_VSIP_GUID"},
-   {262, "CONFIG_CONTENT_ANALYZER_SUPPORTED_TYPE"},
-   {263, "CONFIG_CONTENT_ANALYZER_JPEG_ENCODING_STATE"},
-   {264, "CONFIG_CONTENT_ANALYZER_JPEG_FRAME_RATE"},
-   {265, "CONFIG_CONTENT_ANALYZER_JPEG_QUALITY"},
-   {266, "CONFIG_CONTENT_ANALYZER_SOURCE_INPUT_NUMBER"},
-   {267, "CONFIG_CONTENT_ANALYZER_ACTUAL_TYPE"},
-   {268, "CONFIG_CONTENT_ANALYZER_VERSION"},
-   {269, "CONFIG_CONTENT_ANALYZER_FORENSICS_METADATA_ENABLED"},
-   {270, "CONFIG_CONTENT_ANALYZER_POSSIBLE_SENSORS"},
-   {271, "CONFIG_CONTENT_ANALYZER_CONNECTION_MODE"},
-   {272, "CONFIG_CONTENT_ANALYZER_INTERNAL_PARAMETERS"},
-   {273, "CONFIG_CONTENT_ANALYZER_STATUS"},
-   {274, "CONFIG_CONTENT_ANALYZER_CURRENT_VIEW_ID"},
-   {275, "CONFIG_CONTENT_ANALYZER_SUPPORTED_FEATURES"},
-   {276, "CONFIG_CONTENT_ANALYZER_CURRENT_SENSOR"},
-   {277, "CONFIG_CONTENT_ANALYZER_AVAILABLE_SENSORS"},
-   {278, "CONFIG_CONTENT_ANALYZER_AUTO_DISABLE_SCHEDULES"},
-   {513, "CONFIG_NETWORK_QOS_TYPE"},
-   {514, "CONFIG_NETWORK_QOS_VIDEO_PRIORITY"},
-   {515, "CONFIG_NETWORK_QOS_AUDIO_PRIORITY"},
-   {516, "CONFIG_NETWORK_QOS_CONTROL_PRIORITY"},
-   {517, "CONFIG_NETWORK_QOS_TOS_VIDEO_PRIORITY"},
-   {518, "CONFIG_NETWORK_QOS_TOS_AUDIO_PRIORITY"},
-   {519, "CONFIG_NETWORK_QOS_TOS_CONTROL_PRIORITY"},
-   {769, "CONFIG_SYSTEM_MONITOR_MAX_FATAL_ERR_COUNT"},
+   {   1, "CONFIG_NETWORK_PORT/CONFIG_NETWORK_RX_PORT"},
+   {   2, "CONFIG_NETWORK_CONNECTION_TYPE"},
+   {   3, "CONFIG_NETWORK_SUPPORTED_CONNECTION_TYPE"},
+   {   4, "CONFIG_NETWORK_SSL_PASSKEY"},
+   {   5, "CONFIG_NETWORK_MAC_ADDRESS"},
+   {   6, "CONFIG_NETWORK_TX_PORT"},
+   {   7, "CONFIG_NETWORK_RX_PORT2"},
+   {   8, "CONFIG_NETWORK_RX_PORT3"},
+   {   9, "CONFIG_NETWORK_RX_PORT4"},
+   {  10, "CONFIG_NETWORK_TX_PORT2"},
+   {  11, "CONFIG_NETWORK_TX_PORT3"},
+   {  12, "CONFIG_NETWORK_TX_PORT4"},
+   {  13, "CONFIG_NETWORK_DESTINATION_GUID"},
+   {  14, "CONFIG_NETWORK_DESTINATION_GUID2"},
+   {  15, "CONFIG_NETWORK_DESTINATION_GUID3"},
+   {  16, "CONFIG_NETWORK_DESTINATION_GUID4"},
+   { 257, "CONFIG_CONTENT_ANALYZER_TARGET_FRAME_RATE"},
+   { 258, "CONFIG_CONTENT_ANALYZER_CURRENT_STREAMING_STATE"},
+   { 259, "CONFIG_CONTENT_ANALYZER_INITIAL_STREAMING_STATE"},
+   { 260, "CONFIG_CONTENT_ANALYZER_TARGET_IP_ADDRESS"},
+   { 261, "CONFIG_CONTENT_ANALYZER_TARGET_VSIP_GUID"},
+   { 262, "CONFIG_CONTENT_ANALYZER_SUPPORTED_TYPE"},
+   { 263, "CONFIG_CONTENT_ANALYZER_JPEG_ENCODING_STATE"},
+   { 264, "CONFIG_CONTENT_ANALYZER_JPEG_FRAME_RATE"},
+   { 265, "CONFIG_CONTENT_ANALYZER_JPEG_QUALITY"},
+   { 266, "CONFIG_CONTENT_ANALYZER_SOURCE_INPUT_NUMBER"},
+   { 267, "CONFIG_CONTENT_ANALYZER_ACTUAL_TYPE"},
+   { 268, "CONFIG_CONTENT_ANALYZER_VERSION"},
+   { 269, "CONFIG_CONTENT_ANALYZER_FORENSICS_METADATA_ENABLED"},
+   { 270, "CONFIG_CONTENT_ANALYZER_POSSIBLE_SENSORS"},
+   { 271, "CONFIG_CONTENT_ANALYZER_CONNECTION_MODE"},
+   { 272, "CONFIG_CONTENT_ANALYZER_INTERNAL_PARAMETERS"},
+   { 273, "CONFIG_CONTENT_ANALYZER_STATUS"},
+   { 274, "CONFIG_CONTENT_ANALYZER_CURRENT_VIEW_ID"},
+   { 275, "CONFIG_CONTENT_ANALYZER_SUPPORTED_FEATURES"},
+   { 276, "CONFIG_CONTENT_ANALYZER_CURRENT_SENSOR"},
+   { 277, "CONFIG_CONTENT_ANALYZER_AVAILABLE_SENSORS"},
+   { 278, "CONFIG_CONTENT_ANALYZER_AUTO_DISABLE_SCHEDULES"},
+   { 513, "CONFIG_NETWORK_QOS_TYPE"},
+   { 514, "CONFIG_NETWORK_QOS_VIDEO_PRIORITY"},
+   { 515, "CONFIG_NETWORK_QOS_AUDIO_PRIORITY"},
+   { 516, "CONFIG_NETWORK_QOS_CONTROL_PRIORITY"},
+   { 517, "CONFIG_NETWORK_QOS_TOS_VIDEO_PRIORITY"},
+   { 518, "CONFIG_NETWORK_QOS_TOS_AUDIO_PRIORITY"},
+   { 519, "CONFIG_NETWORK_QOS_TOS_CONTROL_PRIORITY"},
+   { 769, "CONFIG_SYSTEM_MONITOR_MAX_FATAL_ERR_COUNT"},
    {1025, "CONFIG_CONTENT_ANALYZER_VIEW_NAME"},
    {1026, "CONFIG_CONTENT_ANALYZER_VIEW_IS_DEFINED"},
    {1027, "CONFIG_CONTENT_ANALYZER_VIEW_SOURCE_INPUT_NUMBER"},
@@ -644,24 +644,24 @@ value_string_ext EVsipConfigItem_vals_ext = VALUE_STRING_EXT_INIT(EVsipConfigIte
 
 const value_string EVsipEventType_vals[] =
 {
-   {1, "Input Pin State Change"},
-   {2, "Analog Video Input State Change"},
-   {3, "Motion Detection State Change"},
-   {4, "Device Temperature Critical"},
-   {5, "Device Temperature Above Normal"},
+   { 1, "Input Pin State Change"},
+   { 2, "Analog Video Input State Change"},
+   { 3, "Motion Detection State Change"},
+   { 4, "Device Temperature Critical"},
+   { 5, "Device Temperature Above Normal"},
+   { 8, "Video Decoder Packet Loss"},
+   { 9, "Video Decoder State"},
    {10, "Fatal Message Logged"},
    {12, "Last Event Repeated"},
-   {8, "Video Decoder Packet Loss"},
-   {9, "Video Decoder State"},
    {16, "Camera Tampering Detection"},
    {0, NULL}
 };
 
 const value_string EVsipErrorCode_vals[] =
 {
-   {0, "VSIP_ERROR_CODE_SUCCESS"},
-   {1, "VSIP_ERROR_CODE_FAILURE"},
-   {3, "VSIP_ERROR_CODE_UNKNOWNCAPABILITY"},
+   {   0, "VSIP_ERROR_CODE_SUCCESS"},
+   {   1, "VSIP_ERROR_CODE_FAILURE"},
+   {   3, "VSIP_ERROR_CODE_UNKNOWNCAPABILITY"},
    {4096, "VSIP_ERROR_CODE_ALREADY_EXISTS"},
    {4097, "VSIP_ERROR_CODE_DOESNT_EXIST"},
    {4098, "VSIP_ERROR_CODE_INVALID_ARGUMENTS"},
@@ -909,8 +909,8 @@ static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 {
    int soffset = offset;
    guint16 len;
-   proto_item* ti;
-   const int * supp_conn_types[] = {
+   proto_item *ti;
+   const int  *supp_conn_types[] = {
         &hf_vsip_PingResp_SuppConnTypes_VOLATILE,
         &hf_vsip_PingResp_SuppConnTypes_RTP,
         &hf_vsip_PingResp_SuppConnTypes_SSL,
@@ -1041,8 +1041,7 @@ static guint32 vsip_GetCapabilitiesResp(proto_tree *tree, packet_info *pinfo, tv
        offset += vsip_GetCapabilitiesResp_CapabilityArray(tree, pinfo, tvb, offset);
    }
 
-   ti = proto_tree_get_parent(tree);
-   proto_item_set_len(ti, (offset - soffset + 7) >> 3);
+   proto_item_set_len(ti, offset - soffset);
 
    return offset - soffset;
 }
@@ -1424,8 +1423,7 @@ static guint32 vsip_SendCommandEx_AddArgsArray(proto_tree *tree, packet_info *pi
       break;
    }
 
-   ti = proto_tree_get_parent(tree);
-   proto_item_set_len(ti, (offset - soffset + 7) >> 3);
+   proto_item_set_len(ti, offset - soffset);
 
    return offset - soffset;
 }
@@ -2081,16 +2079,10 @@ void proto_register_vsip(void)
 void proto_reg_handoff_vsip(void)
 {
     dissector_handle_t vsip_handle;
-    static int Initialized=FALSE;
 
-    if( !Initialized )
-    {
-        vsip_handle = new_create_dissector_handle(dissect_vsip, proto_vsip);
-        dissector_add_for_decode_as("udp.port", vsip_handle);
-        dissector_add_for_decode_as("tcp.port", vsip_handle);
-
-        Initialized = TRUE;
-    }
+    vsip_handle = new_create_dissector_handle(dissect_vsip, proto_vsip);
+    dissector_add_for_decode_as("udp.port", vsip_handle);
+    dissector_add_for_decode_as("tcp.port", vsip_handle);
 }
 
 /*
