@@ -39,8 +39,6 @@ static const enum_val_t time_display_types[] = {
     { NULL, NULL, 0 }
 };
 
-static const true_false_string tfs_response_request = { "Response", "Request" };
-
 static int proto_time = -1;
 static int hf_time_time = -1;
 static int hf_time_response = -1;

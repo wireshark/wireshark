@@ -162,11 +162,6 @@ static const value_string result_vals[] = {
   { 0, NULL }
 };
 
-const true_false_string tfs_response_request = {
-  "Response",
-  "Request"
-};
-
 static const value_string pcp_opcode_vals[] = {
   { 0,  "Announce" },
   { 1,  "Map" },

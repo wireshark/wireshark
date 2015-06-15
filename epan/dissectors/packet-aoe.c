@@ -78,11 +78,6 @@ static const true_false_string tfs_aflags_w = {
   "No write to device"
 };
 
-static const true_false_string tfs_response = {
-  "Response",
-  "Request"
-};
-
 static const true_false_string tfs_error = {
   "Error",
   "No error"
@@ -432,7 +427,7 @@ proto_register_aoe(void)
       { "Sector Count", "aoe.sector_count", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}},
     { &hf_aoe_flags_response,
-      { "Response flag", "aoe.response", FT_BOOLEAN, 8, TFS(&tfs_response), AOE_FLAGS_RESPONSE, "Whether this is a response PDU or not", HFILL}},
+      { "Response flag", "aoe.response", FT_BOOLEAN, 8, TFS(&tfs_response_request), AOE_FLAGS_RESPONSE, "Whether this is a response PDU or not", HFILL}},
     { &hf_aoe_flags_error,
       { "Error flag", "aoe.flags_error", FT_BOOLEAN, 8, TFS(&tfs_error), AOE_FLAGS_ERROR, "Whether this is an error PDU or not", HFILL}},
     { &hf_aoe_major,

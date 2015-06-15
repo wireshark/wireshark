@@ -6466,7 +6466,6 @@ dissect_isup_call_transfer_reference_parameter(tvbuff_t *parameter_tvb, proto_tr
 /* ------------------------------------------------------------------
   Dissector Parameter Loop prevention
  */
-static const true_false_string tfs_response_request = { "Response", "Request"};
 
 static void
 dissect_isup_loop_prevention_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)

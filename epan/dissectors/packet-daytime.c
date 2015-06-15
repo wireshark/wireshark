@@ -34,8 +34,6 @@ void proto_reg_handoff_daytime(void);
 
 static dissector_handle_t daytime_handle;
 
-static const true_false_string tfs_response_request = { "Response", "Request" };
-
 static header_field_info *hfi_daytime = NULL;
 
 #define DAYTIME_HFI_INIT HFI_INIT(proto_daytime)

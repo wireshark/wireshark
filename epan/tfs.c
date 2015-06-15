@@ -85,4 +85,5 @@ const true_false_string tfs_asynchronous_synchronous = { "Asynchronous", "Synchr
 const true_false_string tfs_protocol_sensative_bit_transparent = { "Protocol sensitive", "Bit transparent" };
 const true_false_string tfs_full_half = { "Full", "Half" };
 const true_false_string tfs_acknowledged_not_acknowledged = { "Acknowledged", "Not Acknowledged" };
+const true_false_string tfs_response_request = { "Response", "Request" };
 
