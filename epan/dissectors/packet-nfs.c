@@ -8148,6 +8148,7 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint i;
 	guint32 num_addr;
+	guint32 num_vers;
 
 	/* disect indices */
 	num_addr = tvb_get_ntohl(tvb, offset);
@@ -8158,15 +8159,22 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 		offset = dissect_rpc_string(tvb, tree, hf_nfs4_r_addr, offset,
 					    NULL);
 	}
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_version, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_minorversion,
+
+	num_vers = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	for (i = 0; i < num_vers; i++) {
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_version, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_minorversion,
 				    offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_rsize,
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_rsize,
 				    offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_wsize,
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_wsize,
 				    offset);
-	offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ffda_tightly_coupled,
+		offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ffda_tightly_coupled,
 				  offset);
+	}
+
 	return offset;
 }
 
