@@ -59,8 +59,11 @@ public:
         ppFilterExpressions
     };
 
-    explicit PreferencesDialog(QWidget *parent = 0, PreferencesPane start_pane = ppAppearance);
+    explicit PreferencesDialog(QWidget *parent = 0);
     ~PreferencesDialog();
+    void setPane(PreferencesPane start_pane);
+    void setPane(const QString module_name);
+
     const QList<WiresharkApplication::AppSignal> appSignals() const { return app_signals_; }
 
 protected:
@@ -72,6 +75,7 @@ private:
     void updateItem(QTreeWidgetItem &item);
 
     Ui::PreferencesDialog *pd_ui_;
+    QHash<PreferencesDialog::PreferencesPane, QTreeWidgetItem *>prefs_pane_to_item_;
     int cur_pref_type_;
     QLineEdit *cur_line_edit_;
     QString saved_string_pref_;

@@ -1970,8 +1970,23 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
 
 void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane)
 {
-    PreferencesDialog pref_dialog(this, start_pane);
+    PreferencesDialog pref_dialog(this);
 
+    pref_dialog.setPane(start_pane);
+    pref_dialog.exec();
+
+    // Emitting PacketDissectionChanged directly from PreferencesDialog
+    // can cause problems. Queue them up and emit them here.
+    foreach (WiresharkApplication::AppSignal app_signal, pref_dialog.appSignals()) {
+        wsApp->emitAppSignal(app_signal);
+    }
+}
+
+void MainWindow::showPreferencesDialog(QString module_name)
+{
+    PreferencesDialog pref_dialog(this);
+
+    pref_dialog.setPane(module_name);
     pref_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from PreferencesDialog

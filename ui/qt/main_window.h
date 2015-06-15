@@ -330,6 +330,7 @@ private slots:
     void on_actionEditPacketComment_triggered();
     void on_actionEditConfigurationProfiles_triggered();
     void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane = PreferencesDialog::ppAppearance);
+    void showPreferencesDialog(QString module_name);
     void on_actionEditPreferences_triggered();
 
     void showHideMainWidgets(QAction *action);
