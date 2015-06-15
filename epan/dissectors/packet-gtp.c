@@ -8463,7 +8463,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
         if(tvb_reported_length_remaining(tvb, offset) > 0){
-            proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+            proto_tree_add_item(gtp_tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
 
             sub_proto = tvb_get_guint8(tvb, offset);
 
