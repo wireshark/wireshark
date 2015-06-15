@@ -607,8 +607,8 @@ void MainWindow::dropEvent(QDropEvent *event)
     foreach (QUrl drop_url, event->mimeData()->urls()) {
         QString local_file = drop_url.toLocalFile();
         if (!local_file.isEmpty()) {
-            openCaptureFile(local_file);
             event->acceptProposedAction();
+            openCaptureFile(local_file);
             break;
         }
     }
