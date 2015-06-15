@@ -711,6 +711,7 @@ if(ENABLE_ZLIB)
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_LIBRARY zlib)
+		set(ZLIB_DLL "zlib1.dll")
 		set_target_properties(zlib PROPERTIES FOLDER "Libs/zlib")
 		# Annoyingly zlib also builds some other stuff we aren't interested in
 		set_target_properties(zlibstatic PROPERTIES FOLDER "Libs/zlib")
