@@ -162,9 +162,9 @@ static const value_string result_vals[] = {
   { 0, NULL }
 };
 
-const true_false_string tfs_request_response = {
-  "Request",
-  "Response"
+const true_false_string tfs_response_request = {
+  "Response",
+  "Request"
 };
 
 static const value_string pcp_opcode_vals[] = {
@@ -618,7 +618,7 @@ void proto_register_nat_pmp(void)
         NULL, 0x01, NULL, HFILL } },
     { &hf_pcp_r,
       { "R", "portcontrol.r", FT_BOOLEAN, 8,
-        TFS(&tfs_request_response), 0x80, "Indicates Request (0) or Response (1)", HFILL } },
+        TFS(&tfs_response_request), 0x80, "Indicates Request (0) or Response (1)", HFILL } },
     { &hf_pcp_opcode,
       { "Opcode", "portcontrol.opcode", FT_UINT8, BASE_DEC,
         VALS(pcp_opcode_vals), 0x7F, NULL, HFILL } },
