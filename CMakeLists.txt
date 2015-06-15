@@ -234,12 +234,12 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	else()
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
 	endif()
-	set(LOCAL_CFLAGS
+
+	add_definitions(
 		/DWIN32_LEAN_AND_MEAN
 		"/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
 		/D_CRT_SECURE_NO_DEPRECATE
 		/D_CRT_NONSTDC_NO_DEPRECATE
-		/MP
 		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 		# This avoids conflicts with the C++ standard library.
 		/DNOMINMAX
@@ -262,15 +262,23 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		/D_ALLOW_KEYWORD_MACROS
 	)
 
+	if(NOT "${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
+		add_definitions("/D_BIND_TO_CURRENT_CRT_VERSION=1")
+	endif()
+
+	# FIXME: WINPCAP_VERSION cannot be determined from source or executable.
+	set(WINPCAP_VERSION "unknown")
+	add_definitions("/DWINPCAP_VERSION=${WINPCAP_VERSION}")
+
+	set(LOCAL_CFLAGS
+		/MP
+	)
+
 	if(MSVC12)
-		# /Zo                               Enhanced debugging of optimised codem for VS2013 Update 3 and beyond,
+		# /Zo                               Enhanced debugging of optimised code for VS2013 Update 3 and beyond,
 		#                                   Assume all VS2013 builds are at least Update 3.
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
-	endif()
-
-	if(NOT "${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
 	if(ENABLE_CODE_ANALYSIS)
@@ -283,10 +291,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4189: local variable is initialized but not referenced
 	set(WARNINGS_CFLAGS "/w34295 /w34189")
 
-	# FIXME: WINPCAP_VERSION cannot be determined from source or executable.
-	set(WINPCAP_VERSION "unknown")
 	set(WIRESHARK_COMMON_FLAGS
-		"/DWINPCAP_VERSION=${WINPCAP_VERSION}"
 		${LOCAL_CFLAGS}
 		${WARNINGS_CFLAGS}
 	)
