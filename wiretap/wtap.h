@@ -390,28 +390,6 @@ extern "C" {
  */
 
 
-struct nstr_phdr {
-    gint64 rec_offset;
-    gint32 rec_len;
-    guint8 nicno_offset;
-    guint8 nicno_len;
-    guint8 dir_offset;
-    guint8 dir_len;
-    guint8 eth_offset;
-    guint8 pcb_offset;
-    guint8 l_pcb_offset;
-    guint8 rec_type;
-    guint8 vlantag_offset;
-    guint8 coreid_offset;
-    guint8 srcnodeid_offset;
-    guint8 destnodeid_offset;
-    guint8 clflags_offset;
-    guint8 src_vmname_len_offset;
-    guint8 dst_vmname_len_offset;
-    guint8 ns_activity_offset;
-    guint8 data_offset;
-};
-
 /* Packet "pseudo-header" information for Ethernet capture files. */
 struct eth_phdr {
     gint   fcs_len;  /* Number of bytes of FCS - -1 means "unknown" */
@@ -522,12 +500,6 @@ struct atm_phdr {
     guint16 aal5t_u2u;  /* user-to-user indicator */
     guint16 aal5t_len;  /* length of the packet */
     guint32 aal5t_chksum;   /* checksum for AAL5 packet */
-};
-
-/* Packet "pseudo-header" for Nokia output */
-struct nokia_phdr {
-    struct eth_phdr eth;
-    guint8 stuff[4];    /* mysterious stuff */
 };
 
 /* Packet "pseudo-header" for the output from "wandsession", "wannext",
@@ -779,12 +751,6 @@ struct erf_mc_phdr {
     } subhdr;
 };
 
-#define LLCP_PHDR_FLAG_SENT 0
-struct llcp_phdr {
-    guint8 adapter;
-    guint8 flags;
-};
-
 #define SITA_FRAME_DIR_TXED            (0x00)  /* values of sita_phdr.flags */
 #define SITA_FRAME_DIR_RXED            (0x01)
 #define SITA_FRAME_DIR                 (0x01)  /* mask */
@@ -898,6 +864,41 @@ struct gsm_um_phdr {
 #define GSM_UM_CHANNEL_RACH     6
 #define GSM_UM_CHANNEL_AGCH     7
 #define GSM_UM_CHANNEL_PCH      8
+
+/* Pseudo-header for nstrace packets */
+struct nstr_phdr {
+    gint64 rec_offset;
+    gint32 rec_len;
+    guint8 nicno_offset;
+    guint8 nicno_len;
+    guint8 dir_offset;
+    guint8 dir_len;
+    guint8 eth_offset;
+    guint8 pcb_offset;
+    guint8 l_pcb_offset;
+    guint8 rec_type;
+    guint8 vlantag_offset;
+    guint8 coreid_offset;
+    guint8 srcnodeid_offset;
+    guint8 destnodeid_offset;
+    guint8 clflags_offset;
+    guint8 src_vmname_len_offset;
+    guint8 dst_vmname_len_offset;
+    guint8 ns_activity_offset;
+    guint8 data_offset;
+};
+
+/* Packet "pseudo-header" for Nokia output */
+struct nokia_phdr {
+    struct eth_phdr eth;
+    guint8 stuff[4];    /* mysterious stuff */
+};
+
+#define LLCP_PHDR_FLAG_SENT 0
+struct llcp_phdr {
+    guint8 adapter;
+    guint8 flags;
+};
 
 /* pseudo header for WTAP_ENCAP_LOGCAT */
 struct logcat_phdr {
