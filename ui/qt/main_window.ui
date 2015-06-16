@@ -2296,16 +2296,6 @@
     <string>Devices</string>
    </property>
   </action>
-  <action name="actionDevices">
-   <property name="text">
-    <string>Devices</string>
-   </property>
-  </action>
-  <action name="actionServices">
-   <property name="text">
-    <string>Services</string>
-   </property>
-  </action>
   <action name="actionViewShowPacketInNewWindow">
    <property name="text">
     <string>Show Packet in New &amp;Window</string>
