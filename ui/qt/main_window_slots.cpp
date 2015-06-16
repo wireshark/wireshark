@@ -2016,8 +2016,8 @@ void MainWindow::showHideMainWidgets(QAction *action)
         recent.main_toolbar_show = show;
     } else if (widget == main_ui_->displayFilterToolBar) {
         recent.filter_toolbar_show = show;
-    // } else if (widget == main_ui_->wirelessToolbar) {
-    //    recent.wireless_toolbar_show = show;
+     } else if (widget == main_ui_->wirelessToolBar) {
+        recent.wireless_toolbar_show = show;
     } else if (widget == main_ui_->statusBar) {
         recent.statusbar_show = show;
     } else if (widget == packet_list_) {
