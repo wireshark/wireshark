@@ -47,6 +47,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
@@ -605,7 +606,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 112 "../../asn1/camel/packet-camel-template.c"
+#line 113 "../../asn1/camel/packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -835,7 +836,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 143 "../../asn1/camel/packet-camel-template.c"
+#line 144 "../../asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1180,7 +1181,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 303 "../../asn1/camel/packet-camel-template.c"
+#line 304 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1270,7 +1271,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 305 "../../asn1/camel/packet-camel-template.c"
+#line 306 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -1293,6 +1294,45 @@ static void dbg(guint level, char *fmt, ...) {
   va_end(ap);
 }
 #endif
+
+static void
+camelstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+  srt_stat_table *camel_srt_table;
+  gchar* tmp_str;
+  guint32 i;
+
+  camel_srt_table = init_srt_table("CAMEL Commands", NULL, srt_array, NB_CAMELSRT_CATEGORY, NULL, NULL, gui_callback, gui_data, NULL);
+  for (i = 0; i < NB_CAMELSRT_CATEGORY; i++)
+  {
+    tmp_str = val_to_str_wmem(NULL,i,camelSRTtype_naming,"Unknown (%d)");
+    init_srt_table_row(camel_srt_table, i, tmp_str);
+    wmem_free(NULL, tmp_str);
+  }
+}
+
+static int
+camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
+{
+  guint idx = 0;
+  srt_stat_table *camel_srt_table;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)psi;
+  srt_data_t *data = (srt_data_t *)pcamel;
+  int i;
+
+  for (i=1; i<NB_CAMELSRT_CATEGORY; i++) {
+    if ( pi->bool_msginfo[i] &&
+         pi->msginfo[i].is_delta_time
+         && pi->msginfo[i].request_available
+         && !pi->msginfo[i].is_duplicate )
+    {
+      camel_srt_table = g_array_index(data->srt_array, srt_stat_table*, idx);
+      add_srt_table_data(camel_srt_table, i, &pi->msginfo[i].req_time, pinfo);
+    }
+  } /* category */
+  return 1;
+}
+
 
 static char camel_number_to_char(int number)
 {
@@ -7071,7 +7111,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 374 "../../asn1/camel/packet-camel-template.c"
+#line 414 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7278,7 +7318,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 376 "../../asn1/camel/packet-camel-template.c"
+#line 416 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8130,7 +8170,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1220 "../../asn1/camel/packet-camel-template.c"
+#line 1260 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10244,7 +10284,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1393 "../../asn1/camel/packet-camel-template.c"
+#line 1433 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10460,7 +10500,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1410 "../../asn1/camel/packet-camel-template.c"
+#line 1450 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10525,5 +10565,7 @@ void proto_register_camel(void) {
   /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
   camel_tap=register_tap(PSNAME);
+
+  register_srt_table(proto_camel, "CAMEL", 1, camelstat_packet, camelstat_init, NULL);
 }
 

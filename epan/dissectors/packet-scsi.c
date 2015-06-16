@@ -79,11 +79,13 @@
  */
 #include "config.h"
 
+#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include "packet-scsi.h"
@@ -935,6 +937,110 @@ static const value_string scsi_log_pc_val[] = {
     {3, "Default Cumulative Values"},
     {0, NULL},
 };
+
+#define SCSI_NUM_PROCEDURES 256
+typedef struct scsistat_tap_data
+{
+    guint8     cmdset;
+    const char *prog;
+    value_string_ext *cdbnames_ext;
+    const char *hf_name;
+} scsistat_tap_data_t;
+
+static void
+scsistat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+    scsistat_tap_data_t* tap_data = (scsistat_tap_data_t*)get_srt_table_param_data(srt);
+    srt_stat_table *scsi_srt_table;
+    guint32 i;
+
+    DISSECTOR_ASSERT(tap_data);
+
+    scsi_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, SCSI_NUM_PROCEDURES, NULL, tap_data->hf_name, gui_callback, gui_data, tap_data);
+    for (i = 0; i < SCSI_NUM_PROCEDURES; i++)
+    {
+        init_srt_table_row(scsi_srt_table, i, val_to_str_ext_const(i, tap_data->cdbnames_ext, "Unknown-0x%02x"));
+    }
+}
+
+static int
+scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+    guint i = 0;
+    srt_stat_table *scsi_srt_table;
+    srt_data_t *data = (srt_data_t *)pss;
+    const scsi_task_data_t *ri = (const scsi_task_data_t *)prv;
+    scsistat_tap_data_t* tap_data;
+
+    scsi_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+    tap_data = (scsistat_tap_data_t*)scsi_srt_table->table_specific_data;
+
+    /* we are only interested in response packets */
+    if (ri->type != SCSI_PDU_TYPE_RSP) {
+        return 0;
+    }
+    /* we are only interested in a specific commandset */
+    if ( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK) != tap_data->cmdset) ) {
+        return 0;
+    }
+    /* check that the opcode looks sane */
+    if ( (!ri->itlq) || (ri->itlq->scsi_opcode > 255) ) {
+        return 0;
+    }
+
+    add_srt_table_data(scsi_srt_table, ri->itlq->scsi_opcode, &ri->itlq->fc_time, pinfo);
+    return 1;
+}
+
+static guint
+scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
+{
+    guint pos = 0;
+    int program;
+    scsistat_tap_data_t* tap_data;
+
+    if (sscanf(opt_arg, ",%d,%n", &program, &pos) == 1)
+    {
+        tap_data = g_new0(scsistat_tap_data_t, 1);
+        tap_data->cmdset = (guint8)program;
+
+        switch(program){
+        case SCSI_DEV_SBC:
+            tap_data->prog = "SBC (disk)";
+            tap_data->cdbnames_ext = &scsi_sbc_vals_ext;
+            tap_data->hf_name = "scsi_sbc.opcode";
+        break;
+        case SCSI_DEV_SSC:
+            tap_data->prog = "SSC (tape)";
+            tap_data->cdbnames_ext = &scsi_ssc_vals_ext;
+            tap_data->hf_name = "scsi_ssc.opcode";
+        break;
+        case SCSI_DEV_CDROM:
+            tap_data->prog = "MMC (cd/dvd)";
+            tap_data->cdbnames_ext = &scsi_mmc_vals_ext;
+            tap_data->hf_name = "scsi_mmc.opcode";
+        break;
+        case SCSI_DEV_SMC:
+            tap_data->prog = "SMC (tape robot)";
+            tap_data->cdbnames_ext = &scsi_smc_vals_ext;
+            tap_data->hf_name = "scsi_smc.opcode";
+        break;
+        case SCSI_DEV_OSD:
+            tap_data->prog = "OSD (object based)";
+            tap_data->cdbnames_ext = &scsi_osd_vals_ext;
+            tap_data->hf_name = "scsi_osd.opcode";
+        break;
+        }
+
+        set_srt_table_param_data(srt, tap_data);
+    }
+    else
+    {
+        *err = g_strdup_printf("<cmdset>[,<filter>]");
+    }
+
+    return pos;
+}
 
 /* TapeAlert page : read warning flag */
 static void
@@ -7567,6 +7673,8 @@ proto_register_scsi(void)
                                    "Whether fragmented SCSI DATA IN/OUT transfers should be reassembled",
                                    &scsi_defragment);
     register_init_routine(scsi_defragment_init);
+
+    register_srt_table(proto_scsi, NULL, 1, scsistat_packet, scsistat_init, scsistat_param);
 }
 
 void

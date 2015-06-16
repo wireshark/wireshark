@@ -25,7 +25,7 @@
 
 #include "config.h"
 
-
+#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
 
@@ -311,6 +312,129 @@ typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 			      guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
+
+
+static guint32 rpc_program = 0;
+static guint32 rpc_version = 0;
+static gint32 rpc_min_proc = -1;
+static gint32 rpc_max_proc = -1;
+
+static void *
+rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
+{
+	rpc_proc_info_key *k = (rpc_proc_info_key *)key;
+
+	if (k->prog != rpc_program) {
+		return NULL;
+	}
+	if (k->vers != rpc_version) {
+		return NULL;
+	}
+	if (rpc_min_proc == -1) {
+		rpc_min_proc = k->proc;
+		rpc_max_proc = k->proc;
+	}
+	if ((gint32)k->proc < rpc_min_proc) {
+		rpc_min_proc = k->proc;
+	}
+	if ((gint32)k->proc > rpc_max_proc) {
+		rpc_max_proc = k->proc;
+	}
+
+	return NULL;
+}
+
+static void
+rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+	rpcstat_tap_data_t* tap_data = (rpcstat_tap_data_t*)get_srt_table_param_data(srt);
+	srt_stat_table *rpc_srt_table;
+	int i, hf_index;
+	header_field_info *hfi;
+	static char table_name[100];
+
+	DISSECTOR_ASSERT(tap_data);
+
+	hf_index=rpc_prog_hf(tap_data->program, tap_data->version);
+	hfi=proto_registrar_get_nth(hf_index);
+
+	g_snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
+	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, gui_callback, gui_data, tap_data);
+	for (i = 0; i < rpc_srt_table->num_procs; i++)
+	{
+		init_srt_table_row(rpc_srt_table, i, rpc_proc_name(tap_data->program, tap_data->version, i));
+	}
+}
+
+static int
+rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+	guint i = 0;
+	srt_stat_table *rpc_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const rpc_call_info_value *ri = (const rpc_call_info_value *)prv;
+	rpcstat_tap_data_t* tap_data;
+
+	rpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+	tap_data = (rpcstat_tap_data_t*)rpc_srt_table->table_specific_data;
+
+	if ((int)ri->proc >= rpc_srt_table->num_procs) {
+		/* don't handle this since its outside of known table */
+		return 0;
+	}
+	/* we are only interested in reply packets */
+	if (ri->request) {
+		return 0;
+	}
+	/* we are only interested in certain program/versions */
+	if ( (ri->prog != tap_data->program) || (ri->vers != tap_data->version) ) {
+		return 0;
+	}
+
+	add_srt_table_data(rpc_srt_table, ri->proc, &ri->req_time, pinfo);
+	return 1;
+
+}
+
+static guint
+rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
+{
+	guint pos = 0;
+	int program, version;
+	rpcstat_tap_data_t* tap_data;
+
+	if (sscanf(opt_arg, ",%d,%d,%n", &program, &version, &pos) == 2)
+	{
+		tap_data = g_new0(rpcstat_tap_data_t, 1);
+
+		tap_data->prog    = rpc_prog_name(program);
+		tap_data->program = program;
+		tap_data->version = version;
+
+		set_srt_table_param_data(srt, tap_data);
+
+		rpc_program  = tap_data->program;
+		rpc_version  = tap_data->version;
+		rpc_min_proc = -1;
+		rpc_max_proc = -1;
+		g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
+
+		tap_data->num_procedures = rpc_max_proc+1;
+		if (rpc_min_proc == -1) {
+			*err = g_strdup_printf("Program:%u version:%u isn't supported", rpc_program, rpc_version);
+		}
+	}
+	else
+	{
+		*err = g_strdup_printf("<program>,<version>[,<filter>]");
+	}
+
+	return pos;
+}
+
+
+
+
 
 /***********************************/
 /* Hash array with procedure names */
@@ -4029,6 +4153,8 @@ proto_register_rpc(void)
 	register_dissector("rpc", dissect_rpc, proto_rpc);
 	new_register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 	rpc_tap = register_tap("rpc");
+
+	register_srt_table(proto_rpc, NULL, 1, rpcstat_packet, rpcstat_init, rpcstat_param);
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must

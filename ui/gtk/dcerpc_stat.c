@@ -57,12 +57,11 @@ void register_tap_listener_gtkdcerpcstat(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _dcerpcstat_t {
-	GtkWidget *win;
-	srt_stat_table srt_table;
 	const char *prog;
-	e_guid_t uuid;
 	guint16 ver;
-	int num_procedures;
+	gtk_srt_t gtk_data;
+	register_srt_t* srt;
+	srt_data_t data;
 } dcerpcstat_t;
 
 
@@ -103,62 +102,35 @@ dcerpcstat_set_title(dcerpcstat_t *rs)
 	char *title;
 
 	title = dcerpcstat_gen_title(rs);
-	gtk_window_set_title(GTK_WINDOW(rs->win), title);
+	gtk_window_set_title(GTK_WINDOW(rs->gtk_data.win), title);
 	g_free(title);
 }
 
 static void
 dcerpcstat_reset(void *rs_arg)
 {
-	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
+	srt_data_t *srt = (srt_data_t*)rs_arg;
+	dcerpcstat_t *rs = (dcerpcstat_t *)srt->user_data;
 
-	reset_srt_table_data(&rs->srt_table);
+	reset_srt_table(rs->data.srt_array, reset_table_data, &rs->gtk_data);
+
 	dcerpcstat_set_title(rs);
-}
-
-
-static gboolean
-dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ri_arg)
-{
-	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
-	const dcerpc_info *ri = (dcerpc_info *)ri_arg;
-
-	if(!ri->call_data){
-		return FALSE;
-	}
-	if(!ri->call_data->req_frame){
-		/* we have not seen the request so we don't know the delta*/
-		return FALSE;
-	}
-	if(ri->call_data->opnum >= rs->num_procedures){
-		/* don't handle this since it's outside of known table */
-		return FALSE;
-	}
-
-	/* we are only interested in reply packets */
-	if(ri->ptype != PDU_RESP){
-		return FALSE;
-	}
-
-	/* we are only interested in certain program/versions */
-	if( (!uuid_equal( (&ri->call_data->uuid), (&rs->uuid)))
-	  ||(ri->call_data->ver != rs->ver)){
-		return FALSE;
-	}
-
-
-	add_srt_table_data(&rs->srt_table, ri->call_data->opnum, &ri->call_data->req_time, pinfo);
-
-
-	return TRUE;
 }
 
 static void
 dcerpcstat_draw(void *rs_arg)
 {
-	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
+	guint i = 0;
+	srt_stat_table *srt_table;
+	srt_data_t *srt = (srt_data_t*)rs_arg;
+	dcerpcstat_t *rs = (dcerpcstat_t *)srt->user_data;
 
-	draw_srt_table_data(&rs->srt_table);
+	for (i = 0; i < srt->srt_array->len; i++)
+	{
+		srt_table = g_array_index(srt->srt_array, srt_stat_table*, i);
+		draw_srt_table_data(srt_table, &rs->gtk_data);
+	}
+
 }
 
 static void
@@ -166,9 +138,9 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	dcerpcstat_t *rs = (dcerpcstat_t *)data;
 
-	remove_tap_listener(rs);
+	remove_tap_listener(&rs->data);
 
-	free_srt_table_data(&rs->srt_table);
+	free_srt_table(rs->srt, rs->data.srt_array, free_table_data, &rs->gtk_data);
 	g_free(rs);
 }
 
@@ -181,7 +153,6 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	guint32 i, max_procs;
 	char *title_string;
 	char *filter_string;
-	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	GtkWidget *bbox;
@@ -193,8 +164,8 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	guint16 ver;
 	int pos = 0;
 	const char *filter = NULL;
+	dcerpcstat_tap_data_t* tap_data;
 	GString *error_string;
-	int hf_opnum;
 
 	/*
 	 * XXX - DCE RPC statistics are maintained only by major version,
@@ -243,7 +214,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	}
 	ver = major;
 
-	rs = (dcerpcstat_t *)g_malloc(sizeof(dcerpcstat_t));
+	rs = (dcerpcstat_t *)g_malloc0(sizeof(dcerpcstat_t));
 	rs->prog = dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
@@ -252,88 +223,84 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 			uuid.data1,uuid.data2,uuid.data3,uuid.data4[0],uuid.data4[1],uuid.data4[2],uuid.data4[3],uuid.data4[4],uuid.data4[5],uuid.data4[6],uuid.data4[7],ver);
 		exit(1);
 	}
-	hf_opnum = dcerpc_get_proto_hf_opnum(&uuid, ver);
+
 	procs    = dcerpc_get_proto_sub_dissector(&uuid, ver);
-	rs->uuid = uuid;
 	rs->ver  = ver;
 
-	rs->win  = dlg_window_new("dcerpc-stat");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(rs->win), TRUE);
+	rs->gtk_data.win  = dlg_window_new("dcerpc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(rs->gtk_data.win), TRUE);
 
 	dcerpcstat_set_title(rs);
-	gtk_window_set_default_size(GTK_WINDOW(rs->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
+	gtk_window_set_default_size(GTK_WINDOW(rs->gtk_data.win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 
-	vbox =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+	rs->gtk_data.vbox =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+	gtk_container_add(GTK_CONTAINER(rs->gtk_data.win), rs->gtk_data.vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(rs->gtk_data.vbox), 12);
 
 	title_string = dcerpcstat_gen_title(rs);
 	stat_label   = gtk_label_new(title_string);
 	g_free(title_string);
-	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(rs->gtk_data.vbox), stat_label, FALSE, FALSE, 0);
 
 	filter_string = g_strdup_printf("Filter: %s",filter ? filter : "");
 	filter_label  = gtk_label_new(filter_string);
 	g_free(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(rs->gtk_data.vbox), filter_label, FALSE, FALSE, 0);
+
+	/* We must display TOP LEVEL Widget before calling init_gtk_srt_table() */
+	gtk_widget_show_all(rs->gtk_data.win);
+
+	rs->srt = get_srt_table_by_name("dcerpc");
+
 
 	for(i=0,max_procs=0;procs[i].name;i++){
 		if(procs[i].num>max_procs){
 			max_procs = procs[i].num;
 		}
 	}
-	rs->num_procedures = max_procs+1;
 
-	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show_all(rs->win);
+	/* Setup the tap data */
+	tap_data = g_new0(dcerpcstat_tap_data_t, 1);
 
-	if(hf_opnum != -1){
-		init_srt_table(&rs->srt_table, max_procs+1, vbox, proto_registrar_get_nth(hf_opnum)->abbrev);
-	} else {
-		init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
-	}
+	tap_data->uuid    = uuid;
+	tap_data->prog    = dcerpc_get_proto_name(&tap_data->uuid, ver);
+	tap_data->ver     = ver;
+	tap_data->num_procedures = max_procs+1;
 
-	for(i=0;i<(max_procs+1);i++){
-		int j;
-		const char *proc_name;
+	set_srt_table_param_data(rs->srt, tap_data);
 
-		proc_name = "unknown";
-		for(j=0;procs[j].name;j++){
-			if (procs[j].num == i){
-				proc_name = procs[j].name;
-			}
-		}
+	rs->gtk_data.gtk_srt_array = g_array_new(FALSE, TRUE, sizeof(gtk_srt_table_t*));
+	rs->data.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+	rs->data.user_data = rs;
 
-		init_srt_table_row(&rs->srt_table, i, proc_name);
-	}
+	srt_table_dissector_init(rs->srt, rs->data.srt_array, init_gtk_srt_table, &rs->gtk_data);
 
-
-	error_string = register_tap_listener("dcerpc", rs, filter, 0, dcerpcstat_reset, dcerpcstat_packet, dcerpcstat_draw);
+	error_string = register_tap_listener("dcerpc", &rs->data, filter, 0, dcerpcstat_reset, get_srt_packet_func(rs->srt), dcerpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		free_srt_table_data(&rs->srt_table);
+		free_srt_table(rs->srt, rs->data.srt_array, NULL, NULL);
 		g_free(rs);
 		return;
 	}
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(rs->gtk_data.vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
-	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(rs->gtk_data.win, close_bt, window_cancel_button_cb);
 
-	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(rs->win, "destroy",      G_CALLBACK(win_destroy_cb), rs);
+	g_signal_connect(rs->gtk_data.win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(rs->gtk_data.win, "destroy",      G_CALLBACK(win_destroy_cb), rs);
 
-	gtk_widget_show_all(rs->win);
-	window_present(rs->win);
+	gtk_widget_show_all(rs->gtk_data.win);
+	window_present(rs->gtk_data.win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(gtk_widget_get_window(rs->win));
+	gdk_window_raise(gtk_widget_get_window(rs->gtk_data.win));
 }
 
 
@@ -711,7 +678,7 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static stat_tap_ui dcerpcstat_ui = {
-	REGISTER_STAT_GROUP_GENERIC,
+	REGISTER_STAT_GROUP_RESPONSE_TIME,
 	NULL,
 	"dcerpc,srt",
 	gtk_dcerpcstat_init,

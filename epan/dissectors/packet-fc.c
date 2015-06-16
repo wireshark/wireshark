@@ -33,6 +33,7 @@
 #include <epan/reassemble.h>
 #include <epan/conversation_table.h>
 #include <epan/etypes.h>
+#include <epan/srt_table.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
@@ -252,6 +253,47 @@ fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
     return 1;
 }
+
+#define FC_NUM_PROCEDURES     256
+
+static void
+fcstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+    srt_stat_table *fc_srt_table;
+    guint32 i;
+
+    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, gui_callback, gui_data, NULL);
+    for (i = 0; i < FC_NUM_PROCEDURES; i++)
+    {
+        gchar* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
+        init_srt_table_row(fc_srt_table, i, tmp_str);
+        wmem_free(NULL, tmp_str);
+    }
+}
+
+static int
+fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+    guint i = 0;
+    srt_stat_table *fc_srt_table;
+    srt_data_t *data = (srt_data_t *)pss;
+    const fc_hdr *fc=(const fc_hdr *)prv;
+
+    /* we are only interested in reply packets */
+    if(!(fc->fctl&FC_FCTL_EXCHANGE_RESPONDER)){
+	    return 0;
+    }
+    /* if we havnt seen the request, just ignore it */
+    if ( (!fc->fc_ex) || (fc->fc_ex->first_exchange_frame==0) ){
+	    return 0;
+    }
+
+    fc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+    add_srt_table_data(fc_srt_table, fc->type, &fc->fc_ex->fc_time, pinfo);
+
+    return 1;
+}
+
 
 const value_string fc_fc4_val[] = {
     {FC_TYPE_BLS,        "Basic Link Svc"},
@@ -1544,6 +1586,7 @@ proto_register_fc(void)
     fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 
     register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_hostlist_packet);
+    register_srt_table(proto_fc, NULL, 1, fcstat_packet, fcstat_init, NULL);
 }
 
 

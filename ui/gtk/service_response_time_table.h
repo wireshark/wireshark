@@ -27,7 +27,7 @@
 
 #include <gtk/gtk.h>
 #include "wsutil/nstime.h"
-#include "epan/timestats.h"
+#include "epan/srt_table.h"
 
 /** Suggested width of SRT window */
 #define SRT_PREFERRED_WIDTH 650
@@ -39,68 +39,62 @@
  *  Helper routines common to all service response time statistics tap.
  */
 
-/** Procedure data */
-typedef struct _srt_procedure_t {
-	int  index;
-	timestat_t stats;   /**< stats */
-	char *procedure;   /**< column entries */
-	GtkTreeIter iter;
-} srt_procedure_t;
-
 /** Statistics table */
-typedef struct _srt_stat_table {
+typedef struct _gtk_srt_stat_table {
 	GtkWidget *scrolled_window; /**< window widget */
 	GtkTreeView  *table;        /**< Tree view */
 	GtkWidget *menu;            /**< context menu */
-	char *filter_string;        /**< append procedure number (%d) to this string
-				to create a display filter */
-	int num_procs;              /**< number of elements on procedures array */
-	srt_procedure_t *procedures;/**< the procedures array */
-} srt_stat_table;
+	srt_stat_table stat_table;
+} gtk_srt_stat_table;
+
+typedef struct _gtk_srt_table_t {
+	GtkTreeView  *table;        /**< Tree view */
+	GtkWidget *scrolled_window; /**< window widget */
+	GtkWidget *menu;            /**< context menu */
+	srt_stat_table* rst;        /**< Used to match tables with its GUI data */
+} gtk_srt_table_t;
+
+typedef struct _gtk_srt_t {
+	GtkWidget *vbox;
+	GtkWidget *win;
+	GtkWidget *main_nb;            /** Used for tab displays */
+	GArray    *gtk_srt_array;      /**< array of gtk_srt_table_t */
+} gtk_srt_t;
 
 /** Init an srt table data structure.
  *
  * @param rst the srt table to init
- * @param num_procs number of procedures
- * @param vbox the corresponding GtkVBox to fill in
- * @param filter_string filter string or NULL
+ * @param gui_data contains GTK specific data
  */
-void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox,
-                    const char *filter_string);
-
-/** Init an srt table row data structure.
- *
- * @param rst the srt table
- * @param index number of procedure
- * @param procedure the procedures name
- */
-void init_srt_table_row(srt_stat_table *rst, int index, const char *procedure);
-
-/** Add srt response to table row data. This will not draw the data!
- *
- * @param rst the srt table
- * @param index number of procedure
- * @param req_time the time of the corresponding request
- * @param pinfo current packet info
- */
-void add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo);
+void init_gtk_srt_table(srt_stat_table* rst, void* gui_data);
 
 /** Draw the srt table data.
  *
  * @param rst the srt table
+ * @param gui_data contains GTK specific data
  */
-void draw_srt_table_data(srt_stat_table *rst);
+void draw_srt_table_data(srt_stat_table *rst, gtk_srt_t* gtk_data);
 
-/** Reset the srt table data.
+/** Clean up memory of the srt table.
  *
  * @param rst the srt table
+ * @param gui_data contains GTK specific data
  */
-void reset_srt_table_data(srt_stat_table *rst);
+void free_table_data(srt_stat_table* rst, void* gui_data);
 
-/** Free the srt table data.
+/** Reset srt table data.
+ * Called when a tap listener is reset
  *
  * @param rst the srt table
+ * @param gui_data contains GTK specific data
  */
-void free_srt_table_data(srt_stat_table *rst);
+void reset_table_data(srt_stat_table* rst, void* gui_data);
+
+/** Register function to register dissectors that support SRT for GTK.
+ *
+ * @param data register_srt_t* representing dissetor SRT table
+ * @param user_data is unused
+ */
+void register_service_response_tables(gpointer data, gpointer user_data);
 
 #endif /* __SERVICE_RESPONSE_TIME_TABLE_H__ */

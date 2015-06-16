@@ -195,37 +195,30 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_TAP_SRC
-	afp_stat.c
 	ansi_a_stat.c
 	ansi_map_stat.c
 	bootp_stat.c
 	camel_counter.c
-	camel_srt.c
 	compare_stat.c
 	dcerpc_stat.c
-	diameter_stat.c
 	expert_comp_dlg.c
-	fc_stat.c
 	flow_graph.c
 	funnel_stat.c
 	gsm_a_stat.c
 	gsm_map_stat.c
 	gsm_map_summary.c
-	gtp_stat.c
 	h225_counter.c
 	h225_ras_srt.c
 	iax2_analysis.c
 	io_stat.c
 	lbm_stream_dlg.c
 	lbm_uimflow_dlg.c
-	ldap_stat.c
 	mac_lte_stat_dlg.c
 	mcast_stream_dlg.c
 	megaco_stat.c
 	mgcp_stat.c
 	mtp3_stat.c
 	mtp3_summary.c
-	ncp_stat.c
 	radius_stat.c
 	rlc_lte_graph.c
 	rlc_lte_stat_dlg.c
@@ -233,14 +226,11 @@ set(WIRESHARK_TAP_SRC
 	rpc_stat.c
 	rtp_analysis.c
 	rtp_stream_dlg.c
-	scsi_stat.c
 	sctp_assoc_analyse.c
 	sctp_chunk_stat.c
 	sctp_chunk_stat_dlg.c
 	sctp_stat_dlg.c
 	sip_stat.c
-	smb_stat.c
-	smb2_stat.c
 	stats_tree_stat.c
 	tcp_graph.c
 	voip_calls_dlg.c

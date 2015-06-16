@@ -104,6 +104,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
+#include <epan/srt_table.h>
 #include <epan/ex-opt.h>
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -1215,6 +1216,7 @@ DIAG_ON(cast-qual)
   register_all_tap_listeners();
   conversation_table_set_gui_info(init_iousers);
   hostlist_table_set_gui_info(init_hostlists);
+  srt_table_iterate_tables(register_srt_tables, NULL);
 
   /* If invoked with the "-G" flag, we dump out information based on
      the argument to the "-G" flag; if no argument is specified,

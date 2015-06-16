@@ -48,6 +48,7 @@
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/exported_pdu.h>
 #include <epan/diam_dict.h>
 #include <epan/sctpppids.h>
@@ -364,6 +365,67 @@ compare_avps(const void *a, const void *b)
 
 	return 0;
 }
+
+static GHashTable* diameterstat_cmd_str_hash = NULL;
+#define DIAMETER_NUM_PROCEDURES     1
+
+static void
+diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+	srt_stat_table *diameter_srt_table;
+	int* idx;
+
+    /* XXX - This is a hack/workaround support so reseting/freeing parameters at the dissector
+       level doesn't need to be supported. */
+	if (diameterstat_cmd_str_hash != NULL)
+	{
+		g_hash_table_destroy(diameterstat_cmd_str_hash);
+	}
+
+	idx = (int *)g_malloc(sizeof(int));
+	*idx = 0;
+	diameterstat_cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
+	g_hash_table_insert(diameterstat_cmd_str_hash, (gchar *)"Unknown", idx);
+
+	/** @todo the filter to use in stead of NULL is "diameter.cmd.code"
+	 * to enable the filter popup in the service response time dalouge
+	 * Note to make it work the command code must be stored rather than the
+	 * index.
+	 */
+	diameter_srt_table = init_srt_table("Diameter Requests", NULL, srt_array, DIAMETER_NUM_PROCEDURES, NULL, NULL, gui_callback, gui_data, NULL);
+	init_srt_table_row(diameter_srt_table, 0, "Unknown");
+}
+
+static int
+diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+	guint i = 0;
+	srt_stat_table *diameter_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const diameter_req_ans_pair_t *diameter=(const diameter_req_ans_pair_t *)prv;
+	int* idx = NULL;
+
+	/* Process only answers where corresponding request is found.
+	 * Unpaired daimeter messages are currently not supported by statistics.
+	 * Return 0, since redraw is not needed. */
+	if(!diameter || diameter->processing_request || !diameter->req_frame)
+		return 0;
+
+	diameter_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+
+	idx = (int*) g_hash_table_lookup(diameterstat_cmd_str_hash, diameter->cmd_str);
+	if (idx == NULL) {
+		idx = (int *)g_malloc(sizeof(int));
+		*idx = (int) g_hash_table_size(diameterstat_cmd_str_hash);
+		g_hash_table_insert(diameterstat_cmd_str_hash, (gchar*) diameter->cmd_str, idx);
+		init_srt_table_row(diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
+	}
+
+	add_srt_table_data(diameter_srt_table, *idx, &diameter->req_time, pinfo);
+
+	return 1;
+}
+
 
 /* Special decoding of some AVPs */
 
@@ -2200,6 +2262,8 @@ real_proto_register_diameter(void)
 
 	/* Register tap */
 	diameter_tap = register_tap("diameter");
+
+	register_srt_table(proto_diameter, NULL, 1, diameterstat_packet, diameterstat_init, NULL);
 }
 
 void

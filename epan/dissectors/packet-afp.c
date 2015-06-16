@@ -32,6 +32,7 @@
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/expert.h>
 
 #include "packet-afp.h"
@@ -1093,6 +1094,45 @@ static const value_string afp_server_addr_type_vals[] = {
 	{7,   "IP6+port address" },
 	{0,   NULL } };
 value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_server_addr_type_vals);
+
+#define AFP_NUM_PROCEDURES     256
+
+static void
+afpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+	srt_stat_table *afp_srt_table;
+	guint32 i;
+
+	afp_srt_table = init_srt_table("AFP Commands", NULL, srt_array, AFP_NUM_PROCEDURES, NULL, "afp.command", gui_callback, gui_data, NULL);
+	for (i = 0; i < AFP_NUM_PROCEDURES; i++)
+	{
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown(%u)");
+		init_srt_table_row(afp_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
+	}
+}
+
+static int
+afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+	guint i = 0;
+	srt_stat_table *afp_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const afp_request_val *request_val = (const afp_request_val *)prv;
+
+	/* if we haven't seen the request, just ignore it */
+	if (!request_val) {
+		return 0;
+	}
+
+	afp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+
+	add_srt_table_data(afp_srt_table, request_val->command, &request_val->req_time, pinfo);
+
+	return 1;
+}
+
+
 
 #define hash_init_count 20
 
@@ -7232,6 +7272,8 @@ proto_register_afp(void)
 	new_register_dissector("afp_spotlight", dissect_spotlight, proto_afp);
 
 	afp_tap = register_tap("afp");
+
+	register_srt_table(proto_afp, NULL, 1, afpstat_packet, afpstat_init, NULL);
 }
 
 void

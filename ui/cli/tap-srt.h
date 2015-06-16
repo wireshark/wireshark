@@ -1,5 +1,7 @@
-/* tshark-tap.h
- * Registation tap hooks for TShark
+/* tap-srt.h
+ * TShark service_response_time_table based on GTK version by Ronnie Sahlberg
+ * Helper routines common to all service response time statistics
+ * tap.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,13 +21,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef __TSHARK_TAP_H__
-#define __TSHARK_TAP_H__
 
-#include <epan/conversation_table.h>
+#ifndef __TAP_SRT_H__
+#define __TAP_SRT_H__
 
-extern void init_iousers(struct register_ct* ct, const char *filter);
-extern void init_hostlists(struct register_ct* ct, const char *filter);
-extern void register_srt_tables(gpointer data, gpointer user_data);
+#include "wsutil/nstime.h"
+#include "epan/srt_table.h"
 
-#endif /* __TSHARK_TAP_H__ */
+/** @file
+ *  Helper routines common to all service response time statistics tap.
+ */
+
+/** Draw the srt table data.
+ *
+ * @param rst the srt table
+ * @param draw_header draw the header
+ * @param draw_footer draw the footer
+ */
+void draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer);
+
+#endif /* __TAP_SRT_H__ */

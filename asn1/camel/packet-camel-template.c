@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
@@ -324,6 +325,45 @@ static void dbg(guint level, char *fmt, ...) {
   va_end(ap);
 }
 #endif
+
+static void
+camelstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+  srt_stat_table *camel_srt_table;
+  gchar* tmp_str;
+  guint32 i;
+
+  camel_srt_table = init_srt_table("CAMEL Commands", NULL, srt_array, NB_CAMELSRT_CATEGORY, NULL, NULL, gui_callback, gui_data, NULL);
+  for (i = 0; i < NB_CAMELSRT_CATEGORY; i++)
+  {
+    tmp_str = val_to_str_wmem(NULL,i,camelSRTtype_naming,"Unknown (%d)");
+    init_srt_table_row(camel_srt_table, i, tmp_str);
+    wmem_free(NULL, tmp_str);
+  }
+}
+
+static int
+camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
+{
+  guint idx = 0;
+  srt_stat_table *camel_srt_table;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)psi;
+  srt_data_t *data = (srt_data_t *)pcamel;
+  int i;
+
+  for (i=1; i<NB_CAMELSRT_CATEGORY; i++) {
+    if ( pi->bool_msginfo[i] &&
+         pi->msginfo[i].is_delta_time
+         && pi->msginfo[i].request_available
+         && !pi->msginfo[i].is_duplicate )
+    {
+      camel_srt_table = g_array_index(data->srt_array, srt_stat_table*, idx);
+      add_srt_table_data(camel_srt_table, i, &pi->msginfo[i].req_time, pinfo);
+    }
+  } /* category */
+  return 1;
+}
+
 
 static char camel_number_to_char(int number)
 {
@@ -1471,5 +1511,7 @@ void proto_register_camel(void) {
   /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
   camel_tap=register_tap(PSNAME);
+
+  register_srt_table(proto_camel, "CAMEL", 1, camelstat_packet, camelstat_init, NULL);
 }
 

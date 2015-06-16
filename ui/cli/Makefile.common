@@ -38,14 +38,11 @@ GENERATOR_FILES =
 
 # sources for TShark taps
 TSHARK_TAP_SRC = \
-	cli_service_response_time_table.c		\
-	tap-afpstat.c		\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c		\
 	tap-camelcounter.c	\
 	tap-camelsrt.c		\
 	tap-comparestat.c	\
-	tap-dcerpcstat.c	\
 	tap-diameter-avp.c	\
 	tap-endpoints.c		\
 	tap-expert.c		\
@@ -60,29 +57,24 @@ TSHARK_TAP_SRC = \
 	tap-icmpv6stat.c	\
 	tap-iostat.c		\
 	tap-iousers.c		\
-	tap-ldapstat.c		\
 	tap-macltestat.c	\
 	tap-megacostat.c	\
 	tap-mgcpstat.c		\
-	tap-ncpstat.c		\
 	tap-protocolinfo.c	\
 	tap-protohierstat.c	\
 	tap-radiusstat.c	\
 	tap-rlcltestat.c	\
 	tap-rpcprogs.c		\
-	tap-rpcstat.c		\
 	tap-rtp.c		\
 	tap-rtspstat.c		\
-	tap-scsistat.c		\
 	tap-sctpchunkstat.c	\
 	tap-sipstat.c		\
 	tap-smbsids.c		\
-	tap-smb2stat.c		\
-	tap-smbstat.c		\
+	tap-srt.c			\
 	tap-stats_tree.c	\
 	tap-sv.c		\
 	tap-wspstat.c
 
 noinst_HEADERS = \
 	tshark-tap.h	\
-	cli_service_response_time_table.h
+	tap-srt.h

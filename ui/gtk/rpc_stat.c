@@ -54,12 +54,11 @@ void register_tap_listener_gtkrpcstat(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
-	GtkWidget *win;
-	srt_stat_table srt_table;
 	const char *prog;
-	guint32 program;
 	guint32 version;
-	guint32 num_procedures;
+	gtk_srt_t gtk_data;
+	register_srt_t* srt;
+	srt_data_t data;
 } rpcstat_t;
 
 static char *
@@ -81,62 +80,34 @@ rpcstat_set_title(rpcstat_t *rs)
 	char *title;
 
 	title = rpcstat_gen_title(rs);
-	gtk_window_set_title(GTK_WINDOW(rs->win), title);
+	gtk_window_set_title(GTK_WINDOW(rs->gtk_data.win), title);
 	g_free(title);
 }
 
 static void
 rpcstat_reset(void *arg)
 {
-	rpcstat_t *rs = (rpcstat_t *)arg;
+	srt_data_t *srt = (srt_data_t*)arg;
+	rpcstat_t *rs = (rpcstat_t *)srt->user_data;
 
-	reset_srt_table_data(&rs->srt_table);
+	reset_srt_table(rs->data.srt_array, reset_table_data, &rs->gtk_data);
+
 	rpcstat_set_title(rs);
-}
-
-
-static gboolean
-rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
-{
-	rpcstat_t *rs = (rpcstat_t *)arg;
-	const rpc_call_info_value *ri = (const rpc_call_info_value *)arg2;
-
-	/* we are only interested in reply packets */
-	if(ri->request){
-		return FALSE;
-	}
-	/* we are only interested in certain program/versions */
-	if( (ri->prog!=rs->program) || (ri->vers!=rs->version) ){
-		return FALSE;
-	}
-	/* maybe we have discovered a new procedure?
-	 * then we might need to extend our tables
-	 */
-	if(ri->proc>=rs->num_procedures){
-		guint32 i;
-		if(ri->proc>256){
-			/* no program have probably ever more than this many
-			 * procedures anyway and it prevents us from allocating
-			 * infinite memory if passed a garbage procedure id
-			 */
-			return FALSE;
-		}
-		for(i=rs->num_procedures;i<=ri->proc;i++){
-			init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rs->program, rs->version, i));
-		}
-		rs->num_procedures=ri->proc+1;
-	}
-	add_srt_table_data(&rs->srt_table, ri->proc, &ri->req_time, pinfo);
-
-	return TRUE;
 }
 
 static void
 rpcstat_draw(void *arg)
 {
-	rpcstat_t *rs = (rpcstat_t *)arg;
+	guint i = 0;
+	srt_stat_table *srt_table;
+	srt_data_t *srt = (srt_data_t*)arg;
+	rpcstat_t *rs = (rpcstat_t *)srt->user_data;
 
-	draw_srt_table_data(&rs->srt_table);
+	for (i = 0; i < srt->srt_array->len; i++)
+	{
+		srt_table = g_array_index(srt->srt_array, srt_stat_table*, i);
+		draw_srt_table_data(srt_table, &rs->gtk_data);
+	}
 }
 
 
@@ -200,9 +171,9 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	rpcstat_t *rs=(rpcstat_t *)data;
 
-	remove_tap_listener(rs);
+	remove_tap_listener(&rs->data);
 
-	free_srt_table_data(&rs->srt_table);
+	free_srt_table(rs->srt, rs->data.srt_array, free_table_data, &rs->gtk_data);
 	g_free(rs);
 }
 
@@ -212,10 +183,8 @@ static void
 gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 {
 	rpcstat_t *rs;
-	guint32 i;
 	char *title_string;
 	char *filter_string;
-	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	GtkWidget *bbox;
@@ -223,8 +192,7 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 	int program, version, pos;
 	const char *filter=NULL;
 	GString *error_string;
-	int hf_index;
-	header_field_info *hfi;
+	rpcstat_tap_data_t* tap_data;
 
 	pos=0;
 	if(sscanf(opt_arg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
@@ -240,72 +208,80 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 
 	rpc_program=program;
 	rpc_version=version;
-	rs=(rpcstat_t *)g_malloc(sizeof(rpcstat_t));
-	rs->prog=rpc_prog_name(rpc_program);
-	rs->program=rpc_program;
-	rs->version=rpc_version;
-	hf_index=rpc_prog_hf(rpc_program, rpc_version);
-	hfi=proto_registrar_get_nth(hf_index);
 
-	rs->win = dlg_window_new("rpc-stat");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(rs->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
+	rs=(rpcstat_t *)g_malloc0(sizeof(rpcstat_t));
+	rs->prog = rpc_prog_name(program);
+	rs->version = version;
+
+	rs->gtk_data.win = dlg_window_new("rpc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->gtk_data.win), TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(rs->gtk_data.win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 	rpcstat_set_title(rs);
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+	rs->gtk_data.vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+	gtk_container_add(GTK_CONTAINER(rs->gtk_data.win), rs->gtk_data.vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(rs->gtk_data.vbox), 12);
 
 	title_string = rpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
-	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(rs->gtk_data.vbox), stat_label, FALSE, FALSE, 0);
 
 	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
 	filter_label=gtk_label_new(filter_string);
 	g_free(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(rs->gtk_data.vbox), filter_label, FALSE, FALSE, 0);
 
 	rpc_min_proc=-1;
 	rpc_max_proc=-1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
-	rs->num_procedures=rpc_max_proc+1;
 
-	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show_all(rs->win);
+	/* We must display TOP LEVEL Widget before calling init_gtk_srt_table() */
+	gtk_widget_show_all(rs->gtk_data.win);
 
-	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox, hfi->abbrev);
+	rs->srt = get_srt_table_by_name("rpc");
 
-	for(i=0;i<rs->num_procedures;i++){
-		init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rpc_program, rpc_version, i));
-	}
+	/* Setup the tap data */
+	tap_data = g_new0(rpcstat_tap_data_t, 1);
 
+	tap_data->prog    = rpc_prog_name(program);
+	tap_data->program = program;
+	tap_data->version = version;
+	tap_data->num_procedures = rpc_max_proc+1;
 
-	error_string=register_tap_listener("rpc", rs, filter, 0, rpcstat_reset, rpcstat_packet, rpcstat_draw);
+	set_srt_table_param_data(rs->srt, tap_data);
+
+	rs->gtk_data.gtk_srt_array = g_array_new(FALSE, TRUE, sizeof(gtk_srt_table_t*));
+	rs->data.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+	rs->data.user_data = rs;
+
+	srt_table_dissector_init(rs->srt, rs->data.srt_array, init_gtk_srt_table, &rs->gtk_data);
+
+	error_string=register_tap_listener("rpc", &rs->data, filter, 0, rpcstat_reset, get_srt_packet_func(rs->srt), rpcstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		free_srt_table_data(&rs->srt_table);
+		free_srt_table(rs->srt, rs->data.srt_array, NULL, NULL);
 		g_free(rs);
 		return;
 	}
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(rs->gtk_data.vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
-	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(rs->gtk_data.win, close_bt, window_cancel_button_cb);
 
-	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(rs->win, "destroy", G_CALLBACK(win_destroy_cb), rs);
+	g_signal_connect(rs->gtk_data.win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(rs->gtk_data.win, "destroy", G_CALLBACK(win_destroy_cb), rs);
 
-	gtk_widget_show_all(rs->win);
-	window_present(rs->win);
+	gtk_widget_show_all(rs->gtk_data.win);
+	window_present(rs->gtk_data.win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(gtk_widget_get_window(rs->win));
+	gdk_window_raise(gtk_widget_get_window(rs->gtk_data.win));
 }
 
 
@@ -520,7 +496,7 @@ gtk_rpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 
 static stat_tap_ui rpcstat_ui = {
-	REGISTER_STAT_GROUP_GENERIC,
+	REGISTER_STAT_GROUP_RESPONSE_TIME,
 	NULL,
 	"rpc,srt",
 	gtk_rpcstat_init,

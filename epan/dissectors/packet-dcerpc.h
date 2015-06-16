@@ -108,6 +108,14 @@ typedef struct _dcerpc_auth_info {
   tvbuff_t *auth_data;
 } dcerpc_auth_info;
 
+typedef struct dcerpcstat_tap_data
+{
+	const char *prog;
+	e_guid_t uuid;
+	guint16 ver;
+	int num_procedures;
+} dcerpcstat_tap_data_t;
+
 /* Private data passed to subdissectors from the main DCERPC dissector.
  * One unique instance of this structure is created for each
  * DCERPC request/response transaction when we see the initial request

@@ -81,6 +81,7 @@ LIBWIRESHARK_SRC =		\
 	req_resp_hdrs.c		\
 	show_exception.c	\
 	sminmpec.c		\
+	srt_table.c	\
 	stat_tap_ui.c		\
 	stats_tree.c		\
 	strutil.c		\
@@ -236,6 +237,7 @@ LIBWIRESHARK_INCLUDES =		\
 	show_exception.h	\
 	slow_protocol_subtypes.h \
 	sminmpec.h		\
+	srt_table.h	\
 	stat_tap_ui.h		\
 	stat_groups.h		\
 	stats_tree.h		\

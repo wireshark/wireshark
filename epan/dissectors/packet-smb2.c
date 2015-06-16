@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/aftypes.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
@@ -577,6 +578,53 @@ static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
 	{ 0, NULL }
 };
+
+#define SMB2_NUM_PROCEDURES     256
+
+static void
+smb2stat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+	srt_stat_table *smb2_srt_table;
+	guint32 i;
+
+	smb2_srt_table = init_srt_table("SMB2", NULL, srt_array, SMB2_NUM_PROCEDURES, "Commands", "smb2.cmd", gui_callback, gui_data, NULL);
+	for (i = 0; i < SMB2_NUM_PROCEDURES; i++)
+	{
+		init_srt_table_row(smb2_srt_table, i, val_to_str_ext_const(i, &smb2_cmd_vals_ext, "<unknown>"));
+	}
+}
+
+static int
+smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+	guint i = 0;
+	srt_stat_table *smb2_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const smb2_info_t *si=(const smb2_info_t *)prv;
+
+	/* we are only interested in response packets */
+	if(!(si->flags&SMB2_FLAGS_RESPONSE)){
+		return 0;
+	}
+	/* if we haven't seen the request, just ignore it */
+	if(!si->saved){
+		return 0;
+	}
+
+	/* SMB2 SRT can be very inaccurate in the presence of retransmissions. Retransmitted responses
+	 * not only add additional (bogus) transactions but also the latency associated with them.
+	 * This can greatly inflate the maximum and average SRT stats especially in the case of
+	 * retransmissions triggered by the expiry of the rexmit timer (RTOs). Only calculating SRT
+	 * for the last received response accomplishes this goal without requiring the TCP pref
+	 * "Do not call subdissectors for error packets" to be set. */
+	if ((si->saved->frame_req == 0) || (si->saved->frame_res != pinfo->fd->num))
+		return 0;
+
+	smb2_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+	add_srt_table_data(smb2_srt_table, si->opcode, &si->saved->req_time, pinfo);
+	return 1;
+}
+
 
 static const gint8 zeros[NTLMSSP_KEY_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -8724,6 +8772,7 @@ proto_register_smb2(void)
 	smb2_tap = register_tap("smb2");
 	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
+	register_srt_table(proto_smb2, NULL, 1, smb2stat_packet, smb2stat_init, NULL);
 }
 
 void

@@ -24,15 +24,24 @@
 
 #include "config.h"
 
+#include <gtk/gtk.h>
 
 #include "epan/packet_info.h"
+#include "epan/proto.h"
 
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 
-#include "ui/gtk/service_response_time_table.h"
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/dlg_utils.h"
+#include "ui/gtk/service_response_time_table.h"
+#include "ui/gtk/tap_param_dlg.h"
+#include "ui/gtk/main.h"
+
+/* XXX - Part of temporary hack */
+#include "epan/conversation.h"
+#include "epan/dissectors/packet-scsi.h"
 
 #define NANOSECS_PER_SEC 1000000000
 
@@ -48,11 +57,20 @@ enum
 	N_COLUMNS
 };
 
+typedef struct _srt_t {
+	const char *type;
+	const char *filter;
+	gtk_srt_t gtk_data;
+	register_srt_t* srt;
+	srt_data_t data;
+} srt_t;
+
 
 static void
 srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	srt_stat_table *rst = (srt_stat_table *)callback_data;
+	gtk_srt_table_t *rst_table = (gtk_srt_table_t*)callback_data;
+	srt_stat_table* rst = rst_table->rst;
 	char *str = NULL;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -63,7 +81,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		return;
 	}
 
-	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(rst->table));
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(rst_table->table));
 
 	if (!gtk_tree_selection_get_selected(sel, &model, &iter))
 		return;
@@ -82,7 +100,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 }
 
 static gboolean
-srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, srt_stat_table *rst)
+srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gtk_srt_table_t *rst)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
@@ -291,7 +309,7 @@ static const GtkActionEntry service_resp_t__popup_entries[] = {
 };
 
 static void
-srt_create_popup_menu(srt_stat_table *rst)
+srt_create_popup_menu(gtk_srt_table_t* rst_table)
 {
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
@@ -301,7 +319,7 @@ srt_create_popup_menu(srt_stat_table *rst)
 	gtk_action_group_add_actions (action_group,						/* the action group */
 				      (GtkActionEntry *)service_resp_t__popup_entries,		/* an array of action descriptions */
 				      G_N_ELEMENTS(service_resp_t__popup_entries),	/* the number of entries */
-				      rst);											/* data to pass to the action callbacks */
+				      rst_table);											/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager,
@@ -315,9 +333,9 @@ srt_create_popup_menu(srt_stat_table *rst)
 		g_error_free (error);
 		error = NULL;
 	}
-	rst->menu = gtk_ui_manager_get_widget(ui_manager, "/ServiceRespTFilterPopup");
-	g_signal_connect(rst->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst);
 
+	rst_table->menu = gtk_ui_manager_get_widget(ui_manager, "/ServiceRespTFilterPopup");
+	g_signal_connect(rst_table->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst_table);
 }
 
 /* ---------------- */
@@ -388,11 +406,57 @@ srt_time_sort_func(GtkTreeModel *model,
 	return ret;
 }
 
-/*
-XXX Resizable columns are ugly when there's more than on table cf. SMB
-*/
+static void
+srt_set_title(srt_t *ss)
+{
+	gchar *str;
+
+	str = g_strdup_printf("%s Service Response Time statistics", proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(ss->srt))));
+	set_window_title(ss->gtk_data.win, str);
+	g_free(str);
+}
+
+
+static gtk_srt_table_t*
+get_gtk_table_from_srt(srt_stat_table* rst, gtk_srt_t* gtk)
+{
+	guint i;
+	gtk_srt_table_t* srt;
+
+	for (i = 0; i < gtk->gtk_srt_array->len; i++) {
+		srt = g_array_index(gtk->gtk_srt_array, gtk_srt_table_t*, i);
+
+		if (srt->rst == rst)
+			return srt;
+	}
+
+	return NULL;
+}
+
 void
-init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *filter_string)
+free_table_data(srt_stat_table* rst, void* gui_data)
+{
+	gtk_srt_t* gtk_data = (gtk_srt_t*)gui_data;
+	gtk_srt_table_t* gtk_table = get_gtk_table_from_srt(rst, gtk_data);
+	g_assert(gtk_table);
+
+	g_free(gtk_table);
+}
+
+static void
+win_destroy_cb(GtkWindow *win _U_, gpointer data)
+{
+	srt_t *ss=(srt_t *)data;
+
+	remove_tap_listener(&ss->data);
+
+	free_srt_table(ss->srt, ss->data.srt_array, free_table_data, &ss->gtk_data);
+
+	g_free(ss);
+}
+
+void
+init_gtk_srt_table(srt_stat_table* rst, void* gui_data)
 {
 	int i;
 	GtkListStore *store;
@@ -400,9 +464,33 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSortable *sortable;
+	GtkWidget *label;
+	GtkWidget *tab_page;
+	gtk_srt_t *ss = (gtk_srt_t*)gui_data;
+	GtkWidget *parent_box = ss->vbox;
 	GtkTreeSelection  *sel;
+	gtk_srt_table_t *gtk_table_data = g_new0(gtk_srt_table_t, 1);
 
 	static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT (s)", "Max SRT (s)", "Avg SRT (s)", "Sum SRT (s)" };
+
+	/* Create GTK data for the table here */
+	gtk_table_data->rst = rst;
+	g_array_insert_val(ss->gtk_srt_array, ss->gtk_srt_array->len, gtk_table_data);
+
+	/* Create the label for the table here */
+	label=gtk_label_new(rst->name);
+	if (ss->main_nb == NULL)
+	{
+		gtk_box_pack_start(GTK_BOX(ss->vbox), label, FALSE, FALSE, 0);
+	}
+	else
+	{
+		GtkWidget *tab_label=gtk_label_new(rst->short_name);
+		tab_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+		gtk_notebook_append_page(GTK_NOTEBOOK(ss->main_nb), tab_page, tab_label);
+		gtk_box_pack_start(GTK_BOX(tab_page), label, FALSE, FALSE, 0);
+		parent_box = tab_page;
+	}
 
 	/* Create the store */
 	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
@@ -416,17 +504,12 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 
 	/* Create a view */
 	tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
-	rst->table = GTK_TREE_VIEW(tree);
+	gtk_table_data->table = GTK_TREE_VIEW(tree);
 	sortable = GTK_TREE_SORTABLE(store);
 
 	/* The view now holds a reference.  We can get rid of our own reference */
 	g_object_unref (G_OBJECT (store));
 
-	if(filter_string){
-		rst->filter_string=g_strdup(filter_string);
-	} else {
-		rst->filter_string=NULL;
-	}
 	for (i = 0; i < N_COLUMNS; i++) {
 		renderer = gtk_cell_renderer_text_new ();
 		if (i != PROCEDURE_COLUMN) {
@@ -446,15 +529,18 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
 			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_avg_func,  GINT_TO_POINTER(i), NULL);
 			break;
-		default:
-			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text",
+		case PROCEDURE_COLUMN:
+			column = gtk_tree_view_column_new_with_attributes (((rst->proc_column_name != NULL) ? rst->proc_column_name : default_titles[i]), renderer, "text",
 					i, NULL);
+			break;
+		default:
+			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", i, NULL);
 			break;
 		}
 
 		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_append_column (rst->table, column);
+		gtk_tree_view_append_column (gtk_table_data->table, column);
 		if (i == CALLS_COLUMN) {
 			/* XXX revert order sort */
 			gtk_tree_view_column_clicked(column);
@@ -462,156 +548,315 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 		}
 	}
 
-	rst->scrolled_window=scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rst->scrolled_window),
+	gtk_table_data->scrolled_window=scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(gtk_table_data->scrolled_window),
 					    GTK_SHADOW_IN);
-	gtk_container_add(GTK_CONTAINER(rst->scrolled_window), GTK_WIDGET (rst->table));
-	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(gtk_table_data->scrolled_window), GTK_WIDGET (gtk_table_data->table));
+	gtk_box_pack_start(GTK_BOX(parent_box), gtk_table_data->scrolled_window, TRUE, TRUE, 0);
 
-	gtk_tree_view_set_reorderable (rst->table, FALSE);
+	gtk_tree_view_set_reorderable (gtk_table_data->table, FALSE);
 	/* Now enable the sorting of each column */
-	gtk_tree_view_set_rules_hint(rst->table, TRUE);
-	gtk_tree_view_set_headers_clickable(rst->table, TRUE);
+	gtk_tree_view_set_rules_hint(gtk_table_data->table, TRUE);
+	gtk_tree_view_set_headers_clickable(gtk_table_data->table, TRUE);
 
-	gtk_widget_show(rst->scrolled_window);
+	gtk_widget_show(gtk_table_data->scrolled_window);
 
-	rst->num_procs=num_procs;
-	rst->procedures=(srt_procedure_t *)g_malloc(sizeof(srt_procedure_t)*num_procs);
-	for(i=0;i<num_procs;i++){
-		time_stat_init(&rst->procedures[i].stats);
-		rst->procedures[i].index = 0;
-		rst->procedures[i].procedure = NULL;
-	}
-
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(rst->table));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_table_data->table));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
+
 	/* create popup menu for this table */
 	if(rst->filter_string){
-		srt_create_popup_menu(rst);
+		srt_create_popup_menu(gtk_table_data);
 	}
 }
 
 void
-init_srt_table_row(srt_stat_table *rst, int indx, const char *procedure)
+draw_srt_table_data(srt_stat_table *rst, gtk_srt_t* gtk_data)
 {
-	/* we have discovered a new procedure. Extend the table accordingly */
-	if(indx>=rst->num_procs){
-		int old_num_procs=rst->num_procs;
-		int i;
+	int idx, new_idx;
+	GtkTreeIter iter;
+	gboolean first = TRUE;
+	gtk_srt_table_t* gtk_table;
+	GtkListStore *store;
+	gboolean iter_valid;
 
-		rst->num_procs=indx+1;
-		rst->procedures=(srt_procedure_t *)g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
-		for(i=old_num_procs;i<rst->num_procs;i++){
-			time_stat_init(&rst->procedures[i].stats);
-			rst->procedures[i].index = i;
-			rst->procedures[i].procedure=NULL;
+	gtk_table = get_gtk_table_from_srt(rst, gtk_data);
+	g_assert(gtk_table);
+
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(gtk_table->table));
+	iter_valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+
+	new_idx = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store), NULL);
+
+	/* Update list items (which may not be in "idx" order), then add new items */
+	while (iter_valid || (new_idx < rst->num_procs)) {
+		srt_procedure_t* procedure;
+		guint64 td;
+		guint64 sum;
+
+		if (iter_valid) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, INDEX_COLUMN, &idx, -1);
+		} else {
+			idx = new_idx;
+			new_idx++;
 		}
-	}
-	rst->procedures[indx].index = indx;
-	rst->procedures[indx].procedure=g_strdup(procedure);
-}
 
-void
-add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, packet_info *pinfo)
-{
-	srt_procedure_t *rp;
-	nstime_t t, delta;
-
-	g_assert(indx >= 0 && indx < rst->num_procs);
-	rp=&rst->procedures[indx];
-
-	/*
-	 * If the count of calls for this procedure is currently zero, it's
-	 * going to become non-zero, so add a row for it (we don't want
-	 * rows for procedures that have no calls - especially if the
-	 * procedure has no calls because the index doesn't correspond
-	 * to a procedure, but is an unused/reserved value).
-	 *
-	 * (Yes, this means that the rows aren't in order by anything
-	 * interesting.  That's why we have the table sorted by a column.)
-	 */
-
-	if (rp->stats.num==0){
-		GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
-		gtk_list_store_append(store, &rp->iter);
-		gtk_list_store_set(store, &rp->iter,
-				   INDEX_COLUMN,     rp->index,
-				   PROCEDURE_COLUMN, rp->procedure,
-				   CALLS_COLUMN,     rp->stats.num,
-				   MIN_SRT_COLUMN,   NULL,
-				   MAX_SRT_COLUMN,   NULL,
-				   AVG_SRT_COLUMN,   (guint64)0,
-				   SUM_SRT_COLUMN,   (guint64)0,
-				   -1);
-	}
-
-	/* calculate time delta between request and reply */
-	t=pinfo->fd->abs_ts;
-	nstime_delta(&delta, &t, req_time);
-
-	time_stat_update(&rp->stats, &delta, pinfo);
-}
-
-void
-draw_srt_table_data(srt_stat_table *rst)
-{
-	int i;
-	guint64 td;
-	guint64 sum;
-	GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
-
-	for(i=0;i<rst->num_procs;i++){
-		/* ignore procedures with no calls (they don't have rows) */
-		if(rst->procedures[i].stats.num==0){
+		procedure = &rst->procedures[idx];
+		if ((procedure->procedure == NULL) || (procedure->stats.num == 0)) {
+			iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
 			continue;
 		}
-		/* Scale the average SRT in units of 1us and round to the nearest us.
-		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
-		   depending uon the platform.  After casting tot.secs to 64 bits, it
-		   would take a capture with a duration of over 136 *years* to
-		   overflow the secs portion of td. */
-		td = ((guint64)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
-		sum = (td + 500) / 1000;
-		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
-		gtk_list_store_set(store, &rst->procedures[i].iter,
-				   CALLS_COLUMN,     rst->procedures[i].stats.num,
-				   MIN_SRT_COLUMN,   &rst->procedures[i].stats.min,
-				   MAX_SRT_COLUMN,   &rst->procedures[i].stats.max,
-				   AVG_SRT_COLUMN,   td,
-				   SUM_SRT_COLUMN,   sum,
-				   -1);
+		if (first) {
+			g_object_ref(store);
+			gtk_tree_view_set_model(GTK_TREE_VIEW(gtk_table->table), NULL);
+
+			first = FALSE;
+		}
+
+		/* Scale the average SRT in units of 1us and round to the nearest us.
+		    tot.secs is a time_t which may be 32 or 64 bits (or even floating)
+		    depending uon the platform.  After casting tot.secs to 64 bits, it
+		    would take a capture with a duration of over 136 *years* to
+		    overflow the secs portion of td. */
+		td = ((guint64)(procedure->stats.tot.secs))*NANOSECS_PER_SEC + procedure->stats.tot.nsecs;
+		sum = (td + 500) / 1000;
+		td = ((td / procedure->stats.num) + 500) / 1000;
+
+		if (iter_valid) {
+			/* Existing row. Only changeable entries */
+
+			gtk_list_store_set(store, &iter,
+						PROCEDURE_COLUMN, procedure->procedure,
+						CALLS_COLUMN,     procedure->stats.num,
+						MIN_SRT_COLUMN,   &procedure->stats.min,
+						MAX_SRT_COLUMN,   &procedure->stats.max,
+						AVG_SRT_COLUMN,   td,
+						SUM_SRT_COLUMN,   sum,
+						-1);
+		} else {
+			/* New row. All entries, including fixed ones */
+			gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
+						PROCEDURE_COLUMN, procedure->procedure,
+						CALLS_COLUMN,     procedure->stats.num,
+						MIN_SRT_COLUMN,   &procedure->stats.min,
+						MAX_SRT_COLUMN,   &procedure->stats.max,
+						AVG_SRT_COLUMN,   td,
+						SUM_SRT_COLUMN,   sum,
+						INDEX_COLUMN,    idx,
+						-1);
+		}
+
+		iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
+	}
+
+	if (!first) {
+		gtk_tree_view_set_model(GTK_TREE_VIEW(gtk_table->table), GTK_TREE_MODEL(store));
+		g_object_unref(store);
 	}
 }
 
+static void
+srt_draw(void *arg)
+{
+	guint i = 0;
+	srt_stat_table *srt_table;
+	srt_data_t *srt = (srt_data_t*)arg;
+	srt_t *ss = (srt_t*)srt->user_data;
+
+	for (i = 0; i < srt->srt_array->len; i++)
+	{
+		srt_table = g_array_index(srt->srt_array, srt_stat_table*, i);
+		draw_srt_table_data(srt_table, &ss->gtk_data);
+	}
+}
 
 void
-reset_srt_table_data(srt_stat_table *rst)
+reset_table_data(srt_stat_table* rst, void* gui_data)
 {
-	int i;
 	GtkListStore *store;
+	gtk_srt_t* gtk_data = (gtk_srt_t*)gui_data;
+	gtk_srt_table_t* gtk_table = get_gtk_table_from_srt(rst, gtk_data);
+	g_assert(gtk_table);
 
-	for(i=0;i<rst->num_procs;i++){
-		time_stat_init(&rst->procedures[i].stats);
-	}
-	store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(gtk_table->table));
 	gtk_list_store_clear(store);
 }
 
-void
-free_srt_table_data(srt_stat_table *rst)
+static void
+srt_reset(void *arg)
 {
-	int i;
+	srt_data_t *srt = (srt_data_t*)arg;
+	srt_t *ss = (srt_t *)srt->user_data;
 
-	for(i=0;i<rst->num_procs;i++){
-		g_free(rst->procedures[i].procedure);
-		rst->procedures[i].procedure=NULL;
+	reset_srt_table(ss->data.srt_array, reset_table_data, &ss->gtk_data);
+
+	srt_set_title(ss);
+}
+
+static void
+init_srt_tables(register_srt_t* srt, const char *filter)
+{
+	srt_t *ss;
+	gchar *str;
+	GtkWidget *label;
+	char *filter_string;
+	GString *error_string;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
+
+	ss = g_new0(srt_t, 1);
+
+	str = g_strdup_printf("%s-stat", proto_get_protocol_filter_name(get_srt_proto_id(srt)));
+	ss->gtk_data.win=dlg_window_new(str);  /* transient_for top_level */
+	g_free(str);
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->gtk_data.win), TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(ss->gtk_data.win), SRT_PREFERRED_WIDTH, 600);
+
+	str = g_strdup_printf("%s Service Response Time statistics", proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt))));
+	set_window_title(ss->gtk_data.win, str);
+
+	ss->gtk_data.vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+	gtk_container_add(GTK_CONTAINER(ss->gtk_data.win), ss->gtk_data.vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(ss->gtk_data.vbox), 12);
+
+	label=gtk_label_new(str);
+	gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), label, FALSE, FALSE, 0);
+	g_free(str);
+
+	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
+	label=gtk_label_new(filter_string);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	g_free(filter_string);
+	gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), label, FALSE, FALSE, 0);
+
+	/* up to 3 tables is reasonable real estate to display tables.  Any more than
+	 *  that and we need to switch to a tab view
+	 */
+	if (get_srt_max_tables(srt) > 3)
+	{
+		ss->gtk_data.main_nb = gtk_notebook_new();
+		gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), ss->gtk_data.main_nb, TRUE, TRUE, 0);
 	}
-	g_free(rst->filter_string);
-	rst->filter_string=NULL;
-	g_free(rst->procedures);
-	rst->procedures=NULL;
-	rst->num_procs=0;
+
+	/* We must display TOP LEVEL Widget before calling srt_table_dissector_init() */
+	gtk_widget_show_all(ss->gtk_data.win);
+
+	ss->type = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
+	ss->filter = g_strdup(filter);
+	ss->srt = srt;
+	ss->gtk_data.gtk_srt_array = g_array_new(FALSE, TRUE, sizeof(gtk_srt_table_t*));
+	ss->data.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+	ss->data.user_data = ss;
+
+	srt_table_dissector_init(srt, ss->data.srt_array, init_gtk_srt_table, &ss->gtk_data);
+
+	error_string = register_tap_listener(get_srt_tap_listener_name(srt), &ss->data, filter, 0, srt_reset, get_srt_packet_func(srt), srt_draw);
+	if(error_string){
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		free_srt_table(ss->srt, ss->data.srt_array, NULL, NULL);
+		g_free(ss);
+		return;
+	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(ss->gtk_data.vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	window_set_cancel_button(ss->gtk_data.win, close_bt, window_cancel_button_cb);
+
+	g_signal_connect(ss->gtk_data.win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(ss->gtk_data.win, "destroy", G_CALLBACK(win_destroy_cb), ss);
+
+	gtk_widget_show_all(ss->gtk_data.win);
+	window_present(ss->gtk_data.win);
+
+	cf_retap_packets(&cfile);
+	gdk_window_raise(gtk_widget_get_window(ss->gtk_data.win));
+}
+
+static void
+gtk_srtstat_init(const char *opt_arg, void *userdata _U_)
+{
+	gchar** dissector_name;
+	register_srt_t *srt;
+	const char *filter=NULL;
+	char* err;
+
+	/* Use first comma to find dissector name */
+	dissector_name = g_strsplit(opt_arg, ",", -1);
+	g_assert(dissector_name[0]);
+
+	/* Use dissector name to find SRT table */
+	srt = get_srt_table_by_name(dissector_name[0]);
+	g_assert(srt);
+
+	srt_table_get_filter(srt, opt_arg, &filter, &err);
+
+	if (err != NULL)
+	{
+		gchar* cmd_str = srt_table_get_tap_string(srt);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "invalid \"-z %s,%s\" argument", cmd_str, err);
+		g_free(cmd_str);
+		g_free(err);
+		return;
+	}
+
+	init_srt_tables(srt, filter);
+}
+
+static tap_param srt_stat_params[] = {
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+};
+
+/* XXX - Temporary hack/workaround until a more generic approach can be implemented */
+static const enum_val_t scsi_command_sets[] = {
+	{ "sbc", "SBC (disk)",	       SCSI_DEV_SBC },
+	{ "ssc", "SSC (tape)",	       SCSI_DEV_SSC },
+	{ "mmc", "MMC (cd/dvd)",       SCSI_DEV_CDROM },
+	{ "smc", "SMC (tape robot)",   SCSI_DEV_SMC },
+	{ "osd", "OSD (object based)", SCSI_DEV_OSD },
+	{ NULL, NULL, 0 }
+};
+
+static tap_param scsi_stat_params[] = {
+	{ PARAM_ENUM,   "cmdset", "Command set", scsi_command_sets, FALSE },
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+};
+
+
+void register_service_response_tables(gpointer data, gpointer user_data _U_)
+{
+	register_srt_t *srt = (register_srt_t*)data;
+	const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
+	tap_param_dlg* srt_dlg;
+
+	/* XXX - These dissectors haven't been converted over to due to an "interactive input dialog" for their
+	   tap data.  Let those specific dialogs register for themselves */
+	if ((strcmp(short_name, "RPC") == 0) ||
+		(strcmp(short_name, "DCERPC") == 0))
+		return;
+
+	srt_dlg = g_new(tap_param_dlg, 1);
+
+	srt_dlg->win_title = g_strdup_printf("%s SRT Statistics", short_name);
+	srt_dlg->init_string = srt_table_get_tap_string(srt);
+	srt_dlg->tap_init_cb = gtk_srtstat_init;
+	srt_dlg->index = -1;
+	if (get_srt_proto_id(srt) == proto_get_id_by_filter_name("scsi"))
+	{
+		srt_dlg->nparams = G_N_ELEMENTS(scsi_stat_params);
+		srt_dlg->params = scsi_stat_params;
+	}
+	else
+	{
+		srt_dlg->nparams = G_N_ELEMENTS(srt_stat_params);
+		srt_dlg->params = srt_stat_params;
+	}
+
+	register_param_stat(srt_dlg, short_name, REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 
 

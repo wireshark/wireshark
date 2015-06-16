@@ -1140,14 +1140,11 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(TSHARK_TAP_SRC
-	ui/cli/cli_service_response_time_table.c
-	ui/cli/tap-afpstat.c
 	ui/cli/tap-ansi_astat.c
 	ui/cli/tap-bootpstat.c
 	ui/cli/tap-camelcounter.c
 	ui/cli/tap-camelsrt.c
 	ui/cli/tap-comparestat.c
-	ui/cli/tap-dcerpcstat.c
 	ui/cli/tap-diameter-avp.c
 	ui/cli/tap-expert.c
 	ui/cli/tap-endpoints.c
@@ -1162,25 +1159,20 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-icmpv6stat.c
 	ui/cli/tap-iostat.c
 	ui/cli/tap-iousers.c
-	ui/cli/tap-ldapstat.c
 	ui/cli/tap-macltestat.c
 	ui/cli/tap-mgcpstat.c
 	ui/cli/tap-megacostat.c
-	ui/cli/tap-ncpstat.c
 	ui/cli/tap-protocolinfo.c
 	ui/cli/tap-protohierstat.c
 	ui/cli/tap-radiusstat.c
 	ui/cli/tap-rlcltestat.c
-	ui/cli/tap-rpcstat.c
 	ui/cli/tap-rpcprogs.c
 	ui/cli/tap-rtp.c
 	ui/cli/tap-rtspstat.c
-	ui/cli/tap-scsistat.c
 	ui/cli/tap-sctpchunkstat.c
 	ui/cli/tap-sipstat.c
 	ui/cli/tap-smbsids.c
-	ui/cli/tap-smb2stat.c
-	ui/cli/tap-smbstat.c
+	ui/cli/tap-srt.c
 	ui/cli/tap-stats_tree.c
 	ui/cli/tap-sv.c
 	ui/cli/tap-wspstat.c

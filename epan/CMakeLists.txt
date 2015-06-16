@@ -1631,6 +1631,7 @@ set(LIBWIRESHARK_FILES
 	req_resp_hdrs.c
 	show_exception.c
 	sminmpec.c
+	srt_table.c
 	stat_tap_ui.c
 	stats_tree.c
 	strutil.c

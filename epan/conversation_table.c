@@ -32,8 +32,6 @@
 
 #include "stat_tap_ui.h"
 
-GList *cmd_string_list_ = NULL;
-
 struct register_ct {
     gboolean hide_ports;       /* hide TCP / UDP port columns */
     int proto_id;              /* protocol id (0-indexed) */
@@ -164,7 +162,6 @@ set_conv_gui_data(gpointer data, gpointer user_data)
     table->conv_gui_init = (conv_gui_init_cb)user_data;
 
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
-    cmd_string_list_ = g_list_append(cmd_string_list_, conv_cmd_str->str);
     ui_info.group = REGISTER_STAT_GROUP_CONVERSATION_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
     ui_info.cli_string = g_string_free(conv_cmd_str, FALSE);

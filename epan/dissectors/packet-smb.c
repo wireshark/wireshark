@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
@@ -882,6 +883,75 @@ static const fragment_items smb_frag_items = {
 static proto_tree *top_tree_global = NULL;     /* ugly */
 
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu, smb_info_t *si);
+
+#define SMB_NUM_PROCEDURES     256
+#define SMB_SRT_TABLE_INDEX    0
+#define TRANS2_SRT_TABLE_INDEX 1
+#define NT_SRT_TABLE_INDEX     2
+
+static void
+smbstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+	srt_stat_table *smb_srt_table;
+	srt_stat_table *trans2_srt_table;
+	srt_stat_table *nt_srt_table;
+	guint32 i;
+
+	smb_srt_table = init_srt_table("SMB Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Commands", "smb.cmd", gui_callback, gui_data, NULL);
+	trans2_srt_table = init_srt_table("Transaction2 Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Transaction2 Commands", "smb.trans2.cmd", gui_callback, gui_data, NULL);
+	nt_srt_table = init_srt_table("NT Transaction Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "NT Transaction Sub-Commands", "smb.nt.function", gui_callback, gui_data, NULL);
+	for (i = 0; i < SMB_NUM_PROCEDURES; i++)
+	{
+		init_srt_table_row(smb_srt_table, i, val_to_str_ext_const(i, &smb_cmd_vals_ext, "<unknown>"));
+		init_srt_table_row(trans2_srt_table, i, val_to_str_ext_const(i, &trans2_cmd_vals_ext, "<unknown>"));
+		init_srt_table_row(nt_srt_table, i, val_to_str_ext_const(i, &nt_cmd_vals_ext, "<unknown>"));
+	}
+}
+
+static int
+smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+	guint i = 0;
+	srt_stat_table *smb_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const smb_info_t *si = (const smb_info_t *)prv;
+
+	/* we are only interested in reply packets */
+	if (si->request) {
+		return 0;
+	}
+	/* if we havnt seen the request, just ignore it */
+	if (!si->sip) {
+		return 0;
+	}
+
+	if (si->cmd == 0xA0 && si->sip->extra_info_type == SMB_EI_NTI) {
+		smb_nt_transact_info_t *sti = (smb_nt_transact_info_t *)si->sip->extra_info;
+
+		/*nt transaction*/
+		if (sti) {
+			i = NT_SRT_TABLE_INDEX;
+			smb_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+			add_srt_table_data(smb_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
+		}
+	} else if (si->cmd == 0x32 && si->sip->extra_info_type == SMB_EI_T2I) {
+		smb_transact2_info_t *st2i = (smb_transact2_info_t *)si->sip->extra_info;
+
+		/*transaction2*/
+		if (st2i) {
+			i = TRANS2_SRT_TABLE_INDEX;
+			smb_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+			add_srt_table_data(smb_srt_table, st2i->subcmd, &si->sip->req_time, pinfo);
+		}
+	} else {
+		i = SMB_SRT_TABLE_INDEX;
+		smb_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+		add_srt_table_data(smb_srt_table, si->cmd, &si->sip->req_time, pinfo);
+	}
+
+	return 1;
+
+}
 
 /*
  * Macros for use in the main dissector routines for an SMB.
@@ -20463,6 +20533,8 @@ proto_register_smb(void)
 	smb_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
 	register_dissector("smb", dissect_smb, proto_smb);
+
+	register_srt_table(proto_smb, NULL, 3, smbstat_packet, smbstat_init, NULL);
 }
 
 void

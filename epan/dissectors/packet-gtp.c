@@ -59,6 +59,7 @@
 #include <epan/sminmpec.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/to_str.h>
 #include "packet-ppp.h"
 #include "packet-radius.h"
@@ -1766,6 +1767,61 @@ static const value_string tft_code_type[] = {
     {7, "Reserved"},
     {0, NULL}
 };
+
+static void
+gtpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+    srt_stat_table *gtp_srt_table;
+
+    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, gui_callback, gui_data, NULL);
+    init_srt_table_row(gtp_srt_table, 0, "Echo");
+    init_srt_table_row(gtp_srt_table, 1, "Create PDP context");
+    init_srt_table_row(gtp_srt_table, 2, "Update PDP context");
+    init_srt_table_row(gtp_srt_table, 3, "Delete PDP context");
+}
+
+static int
+gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+    guint i = 0;
+    srt_stat_table *gtp_srt_table;
+    srt_data_t *data = (srt_data_t *)pss;
+    const gtp_msg_hash_t *gtp=(const gtp_msg_hash_t *)prv;
+    int idx=0;
+
+    /* we are only interested in reply packets */
+    if(gtp->is_request){
+        return 0;
+    }
+    /* if we have not seen the request, just ignore it */
+    if(!gtp->req_frame){
+        return 0;
+    }
+
+    /* Only use the commands we know how to handle, this is not a comprehensive list */
+    /* Redoing the message indexing is bit reduntant,                    */
+    /*  but using message type as such would yield a long gtp_srt_table. */
+    /*  Only a fraction of the messages are matchable req/resp pairs,    */
+    /*  it just doesn't feel feasible.                                   */
+
+    switch(gtp->msgtype){
+    case GTP_MSG_ECHO_REQ: idx=0;
+        break;
+    case GTP_MSG_CREATE_PDP_REQ: idx=1;
+        break;
+    case GTP_MSG_UPDATE_PDP_REQ: idx=2;
+        break;
+    case GTP_MSG_DELETE_PDP_REQ: idx=3;
+        break;
+    default:
+        return 0;
+    }
+
+    gtp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+    add_srt_table_data(gtp_srt_table, idx, &gtp->req_time, pinfo);
+
+    return 1;
+}
 
 
 static dissector_handle_t ip_handle;
@@ -9734,6 +9790,8 @@ proto_register_gtp(void)
     register_init_routine(gtp_reinit);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");
+
+    register_srt_table(proto_gtp, NULL, 1, gtpstat_packet, gtpstat_init, NULL);
 }
 /* TS 132 295 V9.0.0 (2010-02)
  * 5.1.3 Port usage

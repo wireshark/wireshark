@@ -222,5 +222,13 @@ typedef struct _rpc_proc_info_value {
  */
 WS_DLL_PUBLIC GHashTable *rpc_procs;
 
+typedef struct rpcstat_tap_data
+{
+	const char *prog;
+	guint32 program;
+	guint32 version;
+	int num_procedures;
+} rpcstat_tap_data_t;
+
 #endif /* packet-rpc.h */
 

@@ -29,12 +29,13 @@
 
 #include "config.h"
 
-
+#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
@@ -1479,6 +1480,161 @@ dcerpc_matched_hash(gconstpointer k)
     return key->frame;
 }
 
+static gboolean
+uuid_equal(e_guid_t *uuid1, e_guid_t *uuid2)
+{
+    if( (uuid1->data1    != uuid2->data1)
+      ||(uuid1->data2    != uuid2->data2)
+      ||(uuid1->data3    != uuid2->data3)
+      ||(uuid1->data4[0] != uuid2->data4[0])
+      ||(uuid1->data4[1] != uuid2->data4[1])
+      ||(uuid1->data4[2] != uuid2->data4[2])
+      ||(uuid1->data4[3] != uuid2->data4[3])
+      ||(uuid1->data4[4] != uuid2->data4[4])
+      ||(uuid1->data4[5] != uuid2->data4[5])
+      ||(uuid1->data4[6] != uuid2->data4[6])
+      ||(uuid1->data4[7] != uuid2->data4[7]) ){
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static void
+dcerpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+{
+    dcerpcstat_tap_data_t* tap_data = (dcerpcstat_tap_data_t*)get_srt_table_param_data(srt);
+    srt_stat_table *dcerpc_srt_table;
+    int i, hf_opnum;
+    dcerpc_sub_dissector *procs;
+
+    DISSECTOR_ASSERT(tap_data);
+
+    hf_opnum = dcerpc_get_proto_hf_opnum(&tap_data->uuid, tap_data->ver);
+    procs    = dcerpc_get_proto_sub_dissector(&tap_data->uuid, tap_data->ver);
+
+    if(hf_opnum != -1){
+        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, proto_registrar_get_nth(hf_opnum)->abbrev, gui_callback, gui_data, tap_data);
+    } else {
+        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, NULL, gui_callback, gui_data, tap_data);
+    }
+
+    for(i=0;i<tap_data->num_procedures;i++){
+        int j;
+        const char *proc_name;
+
+        proc_name = "unknown";
+        for(j=0;procs[j].name;j++)
+        {
+            if (procs[j].num == i)
+            {
+                proc_name = procs[j].name;
+            }
+        }
+
+        init_srt_table_row(dcerpc_srt_table, i, proc_name);
+    }
+}
+
+static int
+dcerpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+{
+    guint i = 0;
+    srt_stat_table *dcerpc_srt_table;
+    srt_data_t *data = (srt_data_t *)pss;
+    const dcerpc_info *ri = (dcerpc_info *)prv;
+    dcerpcstat_tap_data_t* tap_data;
+
+    dcerpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+    tap_data = (dcerpcstat_tap_data_t*)dcerpc_srt_table->table_specific_data;
+
+    if(!ri->call_data){
+        return 0;
+    }
+    if(!ri->call_data->req_frame){
+        /* we have not seen the request so we don't know the delta*/
+        return 0;
+    }
+    if(ri->call_data->opnum >= tap_data->num_procedures){
+        /* don't handle this since it's outside of known table */
+        return 0;
+    }
+
+    /* we are only interested in reply packets */
+    if(ri->ptype != PDU_RESP){
+        return 0;
+    }
+
+    /* we are only interested in certain program/versions */
+    if( (!uuid_equal( (&ri->call_data->uuid), (&tap_data->uuid)))
+        ||(ri->call_data->ver != tap_data->ver)){
+        return 0;
+    }
+
+    add_srt_table_data(dcerpc_srt_table, ri->call_data->opnum, &ri->call_data->req_time, pinfo);
+
+    return 1;
+}
+
+static guint
+dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
+{
+    guint pos = 0;
+    guint32 i, max_procs;
+    dcerpcstat_tap_data_t* tap_data;
+    guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
+    int major, minor;
+    guint16 ver;
+    dcerpc_sub_dissector *procs;
+
+    if (sscanf(opt_arg, ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n",
+           &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos) == 13)
+    {
+        if ((major < 0) || (major > 65535)) {
+            *err = g_strdup_printf("dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535", major);
+            return pos;
+        }
+        if ((minor < 0) || (minor > 65535)) {
+            *err = g_strdup_printf("dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535", minor);
+            return pos;
+        }
+        ver = major;
+
+        tap_data = g_new0(dcerpcstat_tap_data_t, 1);
+
+        tap_data->uuid.data1    = d1;
+        tap_data->uuid.data2    = d2;
+        tap_data->uuid.data3    = d3;
+        tap_data->uuid.data4[0] = d40;
+        tap_data->uuid.data4[1] = d41;
+        tap_data->uuid.data4[2] = d42;
+        tap_data->uuid.data4[3] = d43;
+        tap_data->uuid.data4[4] = d44;
+        tap_data->uuid.data4[5] = d45;
+        tap_data->uuid.data4[6] = d46;
+        tap_data->uuid.data4[7] = d47;
+
+        procs             = dcerpc_get_proto_sub_dissector(&tap_data->uuid, ver);
+        tap_data->prog    = dcerpc_get_proto_name(&tap_data->uuid, ver);
+        tap_data->ver     = ver;
+
+        for(i=0,max_procs=0;procs[i].name;i++)
+        {
+            if(procs[i].num>max_procs)
+            {
+                max_procs = procs[i].num;
+            }
+        }
+        tap_data->num_procedures = max_procs+1;
+
+        set_srt_table_param_data(srt, tap_data);
+    }
+    else
+    {
+        *err = g_strdup_printf("<uuid>,<major version>.<minor version>[,<filter>]");
+    }
+
+    return pos;
+}
 
 
 /*
@@ -6384,6 +6540,8 @@ proto_register_dcerpc(void)
     dcerpc_tap = register_tap("dcerpc");
 
     register_decode_as(&dcerpc_da);
+
+    register_srt_table(proto_dcerpc, NULL, 1, dcerpcstat_packet, dcerpcstat_init, dcerpcstat_param);
 }
 
 void
