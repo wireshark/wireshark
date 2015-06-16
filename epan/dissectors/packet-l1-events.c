@@ -46,27 +46,12 @@ static gint proto_l1_events = -1;
 static gint ett_l1_events = -1;
 
 static int
-dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
 	gint		offset = 0, next_offset;
 	gint		len;
-	const char	*data_name;
-
-	data_name = pinfo->match_string;
-	if (! (data_name && data_name[0])) {
-		/*
-		 * No information from "match_string"
-		 */
-		data_name = (char *)data;
-		if (! (data_name && data_name[0])) {
-			/*
-			 * No information from dissector data
-			 */
-			data_name = NULL;
-		}
-	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
 	col_set_str(pinfo->cinfo, COL_DEF_SRC,
@@ -79,8 +64,6 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_l1_events,
 				tvb, 0, -1, ENC_NA);
-		if (data_name)
-			proto_item_append_text(ti, ": %s", data_name);
 		subtree = proto_item_add_subtree(ti, ett_l1_events);
 		/* Read the media line by line */
 		while (tvb_offset_exists(tvb, offset)) {
@@ -124,15 +107,13 @@ proto_register_l1_events(void)
 			"Layer 1 Event Messages", /* Long name */
 			"Layer 1 Events",	  /* Short name */
 			"data-l1-events");		/* Filter name */
-	new_register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
 }
 
 void
 proto_reg_handoff_l1_events(void)
 {
-	dissector_handle_t l1_events_handle;
+	dissector_handle_t l1_events_handle = new_create_dissector_handle(dissect_l1_events, proto_l1_events);
 
-	l1_events_handle = find_dissector("data-l1-events");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
 }
 
