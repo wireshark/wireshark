@@ -27,6 +27,13 @@ since version 1.99.6:
 * Qt port:
 
 ** The Bluetooth Devices dialog has been added.
+** The wireless toolbar has been added.
+** Opening files via drag and drop is now supported.
+** The Capture Filter and Display Filter dialogs have been added.
+** The Display Filter Expression dialog has been added.
+** Conversation Filter menu items have been added.
+** You can change protocol preferences by right clicking on the packet list
+   and details.
 
 The following features are new (or have been significantly updated)
 since version 1.99.4 and 1.99.5:
