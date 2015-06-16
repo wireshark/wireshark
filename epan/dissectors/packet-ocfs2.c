@@ -135,7 +135,7 @@ static int hf_dlm_payload = -1;
 static dissector_handle_t  data_handle;
 
 #define O2NM_MAX_NAME_LEN	64
-#define O2NM_NODE_MAP_IN_BYTES		32
+#define O2NM_NODE_MAP_IN_BYTES	32
 
 #define OCFS2_DENTRY_LOCK_INO_START 18
 
@@ -148,9 +148,9 @@ static dissector_handle_t  data_handle;
 #define O2NET_MSG_KEEP_REQ_MAGIC	0xfa57
 #define O2NET_MSG_KEEP_RESP_MAGIC	0xfa58
 static const value_string o2net_magic[] = {
-	{ O2NET_MSG_MAGIC, "Request" },
-	{ O2NET_MSG_STATUS_MAGIC, "Response" },
-	{ O2NET_MSG_KEEP_REQ_MAGIC, "Keepalive Request" },
+	{ O2NET_MSG_MAGIC,	     "Request" },
+	{ O2NET_MSG_STATUS_MAGIC,    "Response" },
+	{ O2NET_MSG_KEEP_REQ_MAGIC,  "Keepalive Request" },
 	{ O2NET_MSG_KEEP_RESP_MAGIC, "Keepalive Response" },
 	{ 0x0000,  NULL  }
 };
@@ -217,27 +217,27 @@ enum {
 };
 
 static const value_string dlm_magic[] = {
-	{ DLM_MASTER_REQUEST_MSG, "Master Request" },
-	{ DLM_UNUSED_MSG1,        "Unused 1" },
-	{ DLM_ASSERT_MASTER_MSG,  "Assert Master" },
-	{ DLM_CREATE_LOCK_MSG,    "Create Lock" },
-	{ DLM_CONVERT_LOCK_MSG,   "Convert Lock" },
-	{ DLM_PROXY_AST_MSG,      "Proxy AST" },
-	{ DLM_UNLOCK_LOCK_MSG,    "Unlock Lock" },
-	{ DLM_DEREF_LOCKRES_MSG,  "Deref Lockres" },
-	{ DLM_MIGRATE_REQUEST_MSG,"Migrate Request" },
-	{ DLM_MIG_LOCKRES_MSG,    "Migrate Lockres" },
-	{ DLM_QUERY_JOIN_MSG,     "Query Join" },
-	{ DLM_ASSERT_JOINED_MSG,  "Assert Join" },
-	{ DLM_CANCEL_JOIN_MSG,    "Cancel Join" },
-	{ DLM_EXIT_DOMAIN_MSG,    "Exit Domain" },
-	{ DLM_MASTER_REQUERY_MSG, "Master Requery" },
-	{ DLM_LOCK_REQUEST_MSG,   "Lock Request" },
-	{ DLM_RECO_DATA_DONE_MSG, "Recovery Data Done" },
-	{ DLM_BEGIN_RECO_MSG,     "Begin Recovery" },
-	{ DLM_FINALIZE_RECO_MSG,  "Finalize Recovery" },
-	{ DLM_QUERY_REGION_MSG,   "Query Region" },
-	{ DLM_QUERY_NODEINFO_MSG, "Query Node Info" },
+	{ DLM_MASTER_REQUEST_MSG,  "Master Request" },
+	{ DLM_UNUSED_MSG1,	   "Unused 1" },
+	{ DLM_ASSERT_MASTER_MSG,   "Assert Master" },
+	{ DLM_CREATE_LOCK_MSG,	   "Create Lock" },
+	{ DLM_CONVERT_LOCK_MSG,	   "Convert Lock" },
+	{ DLM_PROXY_AST_MSG,	   "Proxy AST" },
+	{ DLM_UNLOCK_LOCK_MSG,	   "Unlock Lock" },
+	{ DLM_DEREF_LOCKRES_MSG,   "Deref Lockres" },
+	{ DLM_MIGRATE_REQUEST_MSG, "Migrate Request" },
+	{ DLM_MIG_LOCKRES_MSG,	   "Migrate Lockres" },
+	{ DLM_QUERY_JOIN_MSG,	   "Query Join" },
+	{ DLM_ASSERT_JOINED_MSG,   "Assert Join" },
+	{ DLM_CANCEL_JOIN_MSG,	   "Cancel Join" },
+	{ DLM_EXIT_DOMAIN_MSG,	   "Exit Domain" },
+	{ DLM_MASTER_REQUERY_MSG,  "Master Requery" },
+	{ DLM_LOCK_REQUEST_MSG,	   "Lock Request" },
+	{ DLM_RECO_DATA_DONE_MSG,  "Recovery Data Done" },
+	{ DLM_BEGIN_RECO_MSG,	   "Begin Recovery" },
+	{ DLM_FINALIZE_RECO_MSG,   "Finalize Recovery" },
+	{ DLM_QUERY_REGION_MSG,	   "Query Region" },
+	{ DLM_QUERY_NODEINFO_MSG,  "Query Node Info" },
 	{ 0x0000, NULL }
 };
 
@@ -252,9 +252,9 @@ enum {
 };
 
 static const value_string dlm_lockres_list[] = {
-	{ DLM_GRANTED_LIST, "Granted" },
+	{ DLM_GRANTED_LIST,    "Granted" },
 	{ DLM_CONVERTING_LIST, "Converting" },
-	{ DLM_BLOCKED_LIST,  "Blocked" },
+	{ DLM_BLOCKED_LIST,    "Blocked" },
 	{ 0x0000, NULL }
 };
 
@@ -306,96 +306,96 @@ enum dlm_status {
 };
 
 static const value_string dlm_errnames[] = {
-	{ DLM_NORMAL, "DLM_NORMAL" },
-	{ DLM_GRANTED, "DLM_GRANTED" },
-	{ DLM_DENIED, "DLM_DENIED" },
-	{ DLM_DENIED_NOLOCKS, "DLM_DENIED_NOLOCKS" },
-	{ DLM_WORKING, "DLM_WORKING" },
-	{ DLM_BLOCKED, "DLM_BLOCKED" },
-	{ DLM_BLOCKED_ORPHAN, "DLM_BLOCKED_ORPHAN" },
-	{ DLM_DENIED_GRACE_PERIOD, "DLM_DENIED_GRACE_PERIOD" },
-	{ DLM_SYSERR, "DLM_SYSERR" },
-	{ DLM_NOSUPPORT, "DLM_NOSUPPORT" },
-	{ DLM_CANCELGRANT, "DLM_CANCELGRANT" },
-	{ DLM_IVLOCKID, "DLM_IVLOCKID" },
-	{ DLM_SYNC, "DLM_SYNC" },
-	{ DLM_BADTYPE, "DLM_BADTYPE" },
-	{ DLM_BADRESOURCE, "DLM_BADRESOURCE" },
-	{ DLM_MAXHANDLES, "DLM_MAXHANDLES" },
-	{ DLM_NOCLINFO, "DLM_NOCLINFO" },
-	{ DLM_NOLOCKMGR, "DLM_NOLOCKMGR" },
-	{ DLM_NOPURGED, "DLM_NOPURGED" },
-	{ DLM_BADARGS, "DLM_BADARGS" },
-	{ DLM_VOID, "DLM_VOID" },
-	{ DLM_NOTQUEUED, "DLM_NOTQUEUED" },
-	{ DLM_IVBUFLEN, "DLM_IVBUFLEN" },
-	{ DLM_CVTUNGRANT, "DLM_CVTUNGRANT" },
-	{ DLM_BADPARAM, "DLM_BADPARAM" },
-	{ DLM_VALNOTVALID, "DLM_VALNOTVALID" },
-	{ DLM_REJECTED, "DLM_REJECTED" },
-	{ DLM_ABORT, "DLM_ABORT" },
-	{ DLM_CANCEL, "DLM_CANCEL" },
-	{ DLM_IVRESHANDLE, "DLM_IVRESHANDLE" },
-	{ DLM_DEADLOCK, "DLM_DEADLOCK" },
-	{ DLM_DENIED_NOASTS, "DLM_DENIED_NOASTS" },
-	{ DLM_FORWARD, "DLM_FORWARD" },
-	{ DLM_TIMEOUT, "DLM_TIMEOUT" },
-	{ DLM_IVGROUPID, "DLM_IVGROUPID" },
-	{ DLM_VERS_CONFLICT, "DLM_VERS_CONFLICT" },
-	{ DLM_BAD_DEVICE_PATH, "DLM_BAD_DEVICE_PATH" },
+	{ DLM_NORMAL,		    "DLM_NORMAL" },
+	{ DLM_GRANTED,		    "DLM_GRANTED" },
+	{ DLM_DENIED,		    "DLM_DENIED" },
+	{ DLM_DENIED_NOLOCKS,	    "DLM_DENIED_NOLOCKS" },
+	{ DLM_WORKING,		    "DLM_WORKING" },
+	{ DLM_BLOCKED,		    "DLM_BLOCKED" },
+	{ DLM_BLOCKED_ORPHAN,	    "DLM_BLOCKED_ORPHAN" },
+	{ DLM_DENIED_GRACE_PERIOD,  "DLM_DENIED_GRACE_PERIOD" },
+	{ DLM_SYSERR,		    "DLM_SYSERR" },
+	{ DLM_NOSUPPORT,	    "DLM_NOSUPPORT" },
+	{ DLM_CANCELGRANT,	    "DLM_CANCELGRANT" },
+	{ DLM_IVLOCKID,		    "DLM_IVLOCKID" },
+	{ DLM_SYNC,		    "DLM_SYNC" },
+	{ DLM_BADTYPE,		    "DLM_BADTYPE" },
+	{ DLM_BADRESOURCE,	    "DLM_BADRESOURCE" },
+	{ DLM_MAXHANDLES,	    "DLM_MAXHANDLES" },
+	{ DLM_NOCLINFO,		    "DLM_NOCLINFO" },
+	{ DLM_NOLOCKMGR,	    "DLM_NOLOCKMGR" },
+	{ DLM_NOPURGED,		    "DLM_NOPURGED" },
+	{ DLM_BADARGS,		    "DLM_BADARGS" },
+	{ DLM_VOID,		    "DLM_VOID" },
+	{ DLM_NOTQUEUED,	    "DLM_NOTQUEUED" },
+	{ DLM_IVBUFLEN,		    "DLM_IVBUFLEN" },
+	{ DLM_CVTUNGRANT,	    "DLM_CVTUNGRANT" },
+	{ DLM_BADPARAM,		    "DLM_BADPARAM" },
+	{ DLM_VALNOTVALID,	    "DLM_VALNOTVALID" },
+	{ DLM_REJECTED,		    "DLM_REJECTED" },
+	{ DLM_ABORT,		    "DLM_ABORT" },
+	{ DLM_CANCEL,		    "DLM_CANCEL" },
+	{ DLM_IVRESHANDLE,	    "DLM_IVRESHANDLE" },
+	{ DLM_DEADLOCK,		    "DLM_DEADLOCK" },
+	{ DLM_DENIED_NOASTS,	    "DLM_DENIED_NOASTS" },
+	{ DLM_FORWARD,		    "DLM_FORWARD" },
+	{ DLM_TIMEOUT,		    "DLM_TIMEOUT" },
+	{ DLM_IVGROUPID,	    "DLM_IVGROUPID" },
+	{ DLM_VERS_CONFLICT,	    "DLM_VERS_CONFLICT" },
+	{ DLM_BAD_DEVICE_PATH,	    "DLM_BAD_DEVICE_PATH" },
 	{ DLM_NO_DEVICE_PERMISSION, "DLM_NO_DEVICE_PERMISSION" },
-	{ DLM_NO_CONTROL_DEVICE , "DLM_NO_CONTROL_DEVICE " },
-	{ DLM_RECOVERING, "DLM_RECOVERING" },
-	{ DLM_MIGRATING, "DLM_MIGRATING" },
-	{ DLM_MAXSTATS, "DLM_MAXSTATS" },
+	{ DLM_NO_CONTROL_DEVICE ,   "DLM_NO_CONTROL_DEVICE " },
+	{ DLM_RECOVERING,	    "DLM_RECOVERING" },
+	{ DLM_MIGRATING,	    "DLM_MIGRATING" },
+	{ DLM_MAXSTATS,		    "DLM_MAXSTATS" },
 	{ 0x0000,  NULL }
 };
 
 value_string_ext ext_dlm_errnames = VALUE_STRING_EXT_INIT(dlm_errnames);
 
 static const value_string dlm_errmsgs[] = {
-	{ DLM_NORMAL, "request in progress" },
-	{ DLM_GRANTED, "request granted" },
-	{ DLM_DENIED, "request denied" },
-	{ DLM_DENIED_NOLOCKS, "request denied, out of system resources" },
-	{ DLM_WORKING, "async request in progress" },
-	{ DLM_BLOCKED, "lock request blocked" },
-	{ DLM_BLOCKED_ORPHAN, "lock request blocked by a orphan lock" },
-	{ DLM_DENIED_GRACE_PERIOD, "topological change in progress" },
-	{ DLM_SYSERR, "system error" },
-	{ DLM_NOSUPPORT, "unsupported" },
-	{ DLM_CANCELGRANT, "can't cancel convert: already granted" },
-	{ DLM_IVLOCKID, "bad lockid" },
-	{ DLM_SYNC, "synchronous request granted" },
-	{ DLM_BADTYPE, "bad resource type" },
-	{ DLM_BADRESOURCE, "bad resource handle" },
-	{ DLM_MAXHANDLES, "no more resource handles" },
-	{ DLM_NOCLINFO, "can't contact cluster manager" },
-	{ DLM_NOLOCKMGR, "can't contact lock manager" },
-	{ DLM_NOPURGED, "can't contact purge daemon" },
-	{ DLM_BADARGS, "bad api args" },
-	{ DLM_VOID, "no status" },
-	{ DLM_NOTQUEUED, "NOQUEUE was specified and request failed" },
-	{ DLM_IVBUFLEN, "invalid resource name length" },
-	{ DLM_CVTUNGRANT, "attempted to convert ungranted lock" },
-	{ DLM_BADPARAM, "invalid lock mode specified" },
-	{ DLM_VALNOTVALID, "value block has been invalidated" },
-	{ DLM_REJECTED, "request rejected, unrecognized client" },
-	{ DLM_ABORT, "blocked lock request cancelled" },
-	{ DLM_CANCEL, "conversion request cancelled" },
-	{ DLM_IVRESHANDLE, "invalid resource handle" },
-	{ DLM_DEADLOCK, "deadlock recovery refused this request" },
-	{ DLM_DENIED_NOASTS, "failed to allocate AST" },
-	{ DLM_FORWARD, "request must wait for primary's response" },
-	{ DLM_TIMEOUT, "timeout value for lock has expired" },
-	{ DLM_IVGROUPID, "invalid group specification" },
-	{ DLM_VERS_CONFLICT, "version conflicts prevent request handling" },
-	{ DLM_BAD_DEVICE_PATH, "Locks device does not exist or path wrong" },
+	{ DLM_NORMAL,		    "request in progress" },
+	{ DLM_GRANTED,		    "request granted" },
+	{ DLM_DENIED,		    "request denied" },
+	{ DLM_DENIED_NOLOCKS,	    "request denied, out of system resources" },
+	{ DLM_WORKING,		    "async request in progress" },
+	{ DLM_BLOCKED,		    "lock request blocked" },
+	{ DLM_BLOCKED_ORPHAN,	    "lock request blocked by a orphan lock" },
+	{ DLM_DENIED_GRACE_PERIOD,  "topological change in progress" },
+	{ DLM_SYSERR,		    "system error" },
+	{ DLM_NOSUPPORT,	    "unsupported" },
+	{ DLM_CANCELGRANT,	    "can't cancel convert: already granted" },
+	{ DLM_IVLOCKID,		    "bad lockid" },
+	{ DLM_SYNC,		    "synchronous request granted" },
+	{ DLM_BADTYPE,		    "bad resource type" },
+	{ DLM_BADRESOURCE,	    "bad resource handle" },
+	{ DLM_MAXHANDLES,	    "no more resource handles" },
+	{ DLM_NOCLINFO,		    "can't contact cluster manager" },
+	{ DLM_NOLOCKMGR,	    "can't contact lock manager" },
+	{ DLM_NOPURGED,		    "can't contact purge daemon" },
+	{ DLM_BADARGS,		    "bad api args" },
+	{ DLM_VOID,		    "no status" },
+	{ DLM_NOTQUEUED,	    "NOQUEUE was specified and request failed" },
+	{ DLM_IVBUFLEN,		    "invalid resource name length" },
+	{ DLM_CVTUNGRANT,	    "attempted to convert ungranted lock" },
+	{ DLM_BADPARAM,		    "invalid lock mode specified" },
+	{ DLM_VALNOTVALID,	    "value block has been invalidated" },
+	{ DLM_REJECTED,		    "request rejected, unrecognized client" },
+	{ DLM_ABORT,		    "blocked lock request cancelled" },
+	{ DLM_CANCEL,		    "conversion request cancelled" },
+	{ DLM_IVRESHANDLE,	    "invalid resource handle" },
+	{ DLM_DEADLOCK,		    "deadlock recovery refused this request" },
+	{ DLM_DENIED_NOASTS,	    "failed to allocate AST" },
+	{ DLM_FORWARD,		    "request must wait for primary's response" },
+	{ DLM_TIMEOUT,		    "timeout value for lock has expired" },
+	{ DLM_IVGROUPID,	    "invalid group specification" },
+	{ DLM_VERS_CONFLICT,	    "version conflicts prevent request handling" },
+	{ DLM_BAD_DEVICE_PATH,	    "Locks device does not exist or path wrong" },
 	{ DLM_NO_DEVICE_PERMISSION, "Client has insufficient perms for device" },
-	{ DLM_NO_CONTROL_DEVICE, "Cannot set options on opened device " },
-	{ DLM_RECOVERING, "lock resource being recovered" },
-	{ DLM_MIGRATING, "lock resource being migrated" },
-	{ DLM_MAXSTATS, "invalid error number" },
+	{ DLM_NO_CONTROL_DEVICE,    "Cannot set options on opened device " },
+	{ DLM_RECOVERING,	    "lock resource being recovered" },
+	{ DLM_MIGRATING,	    "lock resource being migrated" },
+	{ DLM_MAXSTATS,		    "invalid error number" },
 	{ 0x0000,  NULL }
 };
 
@@ -407,8 +407,8 @@ value_string_ext ext_dlm_errmsgs = VALUE_STRING_EXT_INIT(dlm_errmsgs);
 #define DLM_ASSERT_MASTER_REQUERY          0x00000002
 #define DLM_ASSERT_MASTER_FINISH_MIGRATION 0x00000004
 static const value_string dlm_assert_master_flags[] = {
-	{ DLM_ASSERT_MASTER_MLE_CLEANUP, "cleanup" },
-	{ DLM_ASSERT_MASTER_REQUERY, "requery" },
+	{ DLM_ASSERT_MASTER_MLE_CLEANUP,      "cleanup" },
+	{ DLM_ASSERT_MASTER_REQUERY,          "requery" },
 	{ DLM_ASSERT_MASTER_FINISH_MIGRATION, "finish" },
 	{ 0x0000,  NULL }
 };
@@ -426,8 +426,8 @@ enum dlm_ast_type {
 };
 
 static const value_string dlm_proxy_ast_types[] = {
-	{ DLM_AST, "AST" },
-	{ DLM_BAST, "BAST" },
+	{ DLM_AST,       "AST" },
+	{ DLM_BAST,      "BAST" },
 	{ DLM_ASTUNLOCK, "Unlock AST (unused)" },
 	{ 0x0000,  NULL }
 };
@@ -704,7 +704,7 @@ static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
 				     guint offset)
 {
 	guint32 i, num_regions;
-	guint8 *region;
+	guchar *region;
 
 	/* qr_node */
 	proto_tree_add_item(tree, hf_dlm_qr_node, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1027,7 +1027,7 @@ static int dissect_finalize_reco_msg(proto_tree *tree, tvbuff_t *tvb, int offset
 
 static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_tree *subtree = NULL;
+	proto_tree *subtree;
 	proto_item *ti;
 	guint32 len, msg_type;
 	guint32 magic;
@@ -1054,7 +1054,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 2;
 
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
-               val_to_str_ext(msg_type, &ext_dlm_magic, "Unknown Type (0x%02x)") );
+		val_to_str_ext(msg_type, &ext_dlm_magic, "Unknown Type (0x%02x)") );
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	proto_tree_add_item(subtree, hf_msg_pad, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -1090,12 +1090,12 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_proxy_ast_msg(subtree, tvb, offset);
 			break;
 		case DLM_UNLOCK_LOCK_MSG:
-            dissect_unlock_msg(subtree, tvb, offset);
+			dissect_unlock_msg(subtree, tvb, offset);
 			break;
 		case DLM_DEREF_LOCKRES_MSG:
 			dissect_deref_lockres_msg(subtree, tvb, offset);
 			break;
-        case DLM_MIGRATE_REQUEST_MSG:
+		case DLM_MIGRATE_REQUEST_MSG:
 			dissect_migrate_request_msg(subtree, tvb, offset);
 			break;
 		case DLM_MIG_LOCKRES_MSG:
