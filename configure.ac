@@ -2235,11 +2235,13 @@ fi
 
 
 dnl Check for airpcap
+dnl We might want to remove this entirely unless we want to support
+dnl AutoTools on Windows.
 AC_MSG_CHECKING(whether to include airpcap support)
 AC_ARG_ENABLE(airpcap,
   AC_HELP_STRING( [--enable-airpcap],
-		  [use AirPcap in Wireshark @<:@default=yes@:>@]),
-  enable_airpcap=$enableval, enable_airpcap=yes)
+		  [use AirPcap in Wireshark @<:@default=no@:>@]),
+  enable_airpcap=$enableval, enable_airpcap=no)
 
 if test x$enable_airpcap = xyes; then
 	if test "x$want_pcap" = "xno" ; then
