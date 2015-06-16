@@ -49,6 +49,7 @@
 #endif
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
+#include <wsutil/unicode-utils.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
@@ -463,9 +464,23 @@ int main(int argc, char *argv[])
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
-#ifdef _WIN32
-    create_app_running_mutex();
+    // In Qt 5, C strings are treated always as UTF-8 when converted to
+    // QStrings; in Qt 4, the codec must be set to make that happen
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+    // Hopefully we won't have to use QString::fromUtf8() in as many places.
+    QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
+    QTextCodec::setCodecForCStrings(utf8codec);
+    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
+    QTextCodec::setCodecForTr(utf8codec);
 #endif
+
+    /* Set the C-language locale to the native environment. */
+    // The GTK+ UI calls this. Should we as well?
+    //setlocale(LC_ALL, "");
+#ifdef _WIN32
+    arg_list_utf_16to8(argc, argv);
+    create_app_running_mutex();
+#endif /* _WIN32 */
 
     /*
      * Get credential information for later use, and drop privileges
@@ -684,16 +699,6 @@ DIAG_ON(cast-qual)
     QString locale;
     QString cf_name;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
-
-    // In Qt 5, C strings are treated always as UTF-8 when converted to
-    // QStrings; in Qt 4, the codec must be set to make that happen
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    // Hopefully we won't have to use QString::fromUtf8() in as many places.
-    QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-    QTextCodec::setCodecForCStrings(utf8codec);
-    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
-    QTextCodec::setCodecForTr(utf8codec);
-#endif
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Wireshark %s\n"
