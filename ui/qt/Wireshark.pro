@@ -569,7 +569,7 @@ RC_FILE = ../../image/wireshark.rc
     message(No translation files in project)
 }
 
-win32: QMAKE_CLEAN += *.pdb
+win32: QMAKE_CLEAN += *.pdb *.pri
 
 HEADERS += \
     byte_view_tab.h \
