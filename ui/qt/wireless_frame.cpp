@@ -61,7 +61,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
         ui->stackedWidget->setEnabled(true);
         ui->stackedWidget->setCurrentWidget(ui->interfacePage);
 
-#ifdef Q_OS_WIN
+#ifdef HAVE_AIRPCAP
         // We should arguably add ws80211_get_helper_name and ws80211_get_helper_tooltip.
         // This works for now and is translatable.
         ui->helperToolButton->setText(tr("AirPcap Control Panel"));
@@ -242,16 +242,7 @@ void WirelessFrame::setChannel()
 
     if (cur_iface.isEmpty() || cur_chan_idx < 0 || cur_type_idx < 0) return;
 
-#ifdef Q_OS_WIN
-    int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
-    int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
-    if (frequency < 0 || chan_type < 0) return;
-
-    if (ws80211_set_freq(cur_iface.toUtf8().constData(), frequency, chan_type) != 0) {
-        QString err_str = tr("Unable to set channel or offset.");
-        emit pushAdapterStatus(err_str);
-    }
-#else // Assume we have to go through dumpcap.
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     const QString frequency = ui->channelComboBox->itemData(cur_chan_idx).toString();
     int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
     const gchar *chan_type_s = ws80211_chan_type_to_str(chan_type);
@@ -269,6 +260,15 @@ void WirelessFrame::setChannel()
 
     /* Parse the error msg */
     if (ret) {
+        QString err_str = tr("Unable to set channel or offset.");
+        emit pushAdapterStatus(err_str);
+    }
+#elif defined(HAVE_AIRPCAP)
+    int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
+    int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
+    if (frequency < 0 || chan_type < 0) return;
+
+    if (ws80211_set_freq(cur_iface.toUtf8().constData(), frequency, chan_type) != 0) {
         QString err_str = tr("Unable to set channel or offset.");
         emit pushAdapterStatus(err_str);
     }
