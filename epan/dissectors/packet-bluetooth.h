@@ -116,9 +116,9 @@ typedef struct _bluetooth_data_t {
 
     bt_protocol_data_type  previous_protocol_data_type;
     union {
-    	void              *none;
-    	struct bthci_phdr *bthci;
-    	struct btmon_phdr *btmon;
+        void              *none;
+        struct bthci_phdr *bthci;
+        struct btmon_phdr *btmon;
         usb_conv_info_t   *usb_conv_info;
         ubertooth_data_t  *ubertooth_data;
     } previous_protocol_data;
