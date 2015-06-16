@@ -1380,10 +1380,10 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
 
     /*
-     * Point to the bthci pseudo-header.
+     * data points to a struct bthci_phdr.
      */
     bluetooth_data->previous_protocol_data_type = BT_PD_BTHCI;
-    bluetooth_data->previous_protocol_data.bthci = &pinfo->pseudo_header->bthci;
+    bluetooth_data->previous_protocol_data.bthci = (struct bthci_phdr *)data;
 
     if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_dissector(data_handle, tvb, pinfo, tree);
@@ -1403,10 +1403,10 @@ dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
 
     /*
-     * Point to the btmon pseudo-header.
+     * data points to a struct btmon_phdr.
      */
     bluetooth_data->previous_protocol_data_type = BT_PD_BTMON;
-    bluetooth_data->previous_protocol_data.btmon = &pinfo->pseudo_header->btmon;
+    bluetooth_data->previous_protocol_data.btmon = (struct btmon_phdr *)data;
 
     if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_dissector(data_handle, tvb, pinfo, tree);

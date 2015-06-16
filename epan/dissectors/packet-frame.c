@@ -491,15 +491,20 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			case REC_TYPE_PACKET:
 				if ((force_docsis_encap) && (docsis_handle)) {
-					call_dissector(docsis_handle, tvb, pinfo, parent_tree);
+					call_dissector_with_data(docsis_handle,
+					    tvb, pinfo, parent_tree,
+					    (void *)pinfo->pseudo_header);
 				} else {
-					if (!dissector_try_uint(wtap_encap_dissector_table, pinfo->fd->lnk_t,
-								tvb, pinfo, parent_tree)) {
-
+					if (!dissector_try_uint_new(wtap_encap_dissector_table,
+					    pinfo->fd->lnk_t, tvb, pinfo,
+					    parent_tree, TRUE,
+					    (void *)pinfo->pseudo_header)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
 							     pinfo->fd->lnk_t);
-						call_dissector(data_handle,tvb, pinfo, parent_tree);
+						call_dissector_with_data(data_handle,
+						    tvb, pinfo, parent_tree,
+						    (void *)pinfo->pseudo_header);
 					}
 				}
 				break;
@@ -514,8 +519,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					}
 
 					if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
-								tvb, pinfo, parent_tree)) {
-
+					    tvb, pinfo, parent_tree)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
 							     file_type_subtype);
