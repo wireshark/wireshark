@@ -28,6 +28,8 @@
 
 #include "epan/packet.h"
 #include "epan/expert.h"
+#include "epan/exported_pdu.h"
+#include "epan/tap.h"
 #include "wiretap/logcat_text.h"
 
 extern const value_string priority_vals[];
@@ -53,6 +55,8 @@ static dissector_handle_t logcat_text_time_handle;
 static dissector_handle_t logcat_text_thread_handle;
 static dissector_handle_t logcat_text_threadtime_handle;
 static dissector_handle_t logcat_text_long_handle;
+
+static gint exported_pdu_tap = -1;
 
 static GRegex *special_regex = NULL;
 static GRegex *brief_regex = NULL;
@@ -216,11 +220,24 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     return offset;
 }
 
+static void add_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, const char * subdissector_name){
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data_t *exp_pdu_data;
+
+        exp_pdu_data = load_export_pdu_tags(pinfo, subdissector_name, -1, NULL, 0);
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+        exp_pdu_data->pdu_tvb = tvb;
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
+}
+
 static int dissect_logcat_text_brief(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_priority, get_tag, get_pid, get_log };
     dissect_info_t dinfo = { &brief_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_brief");
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
@@ -229,6 +246,7 @@ static int dissect_logcat_text_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     static const tGETTER getters[] = { get_priority, get_tag, get_log };
     dissect_info_t dinfo = { &tag_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_tag");
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
@@ -237,6 +255,7 @@ static int dissect_logcat_text_process(tvbuff_t *tvb, packet_info *pinfo, proto_
     static const tGETTER getters[] = { get_priority, get_pid, get_log };
     dissect_info_t dinfo = { &process_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_process");
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
 
@@ -248,6 +267,7 @@ static int dissect_logcat_text_time(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     static const tGETTER getters[] = { get_time, get_priority, get_tag, get_pid, get_log };
     dissect_info_t dinfo = { &time_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_time");
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
@@ -256,6 +276,7 @@ static int dissect_logcat_text_thread(tvbuff_t *tvb, packet_info *pinfo, proto_t
     static const tGETTER getters[] = { get_priority, get_pid, get_tid, get_log };
     dissect_info_t dinfo = { &thread_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_brief");
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
 
@@ -267,6 +288,7 @@ static int dissect_logcat_text_threadtime(tvbuff_t *tvb, packet_info *pinfo, pro
     static const tGETTER getters[] = { get_time, get_pid, get_tid, get_priority, get_tag, get_log };
     dissect_info_t dinfo = { &threadtime_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_threadtime");
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
@@ -275,6 +297,7 @@ static int dissect_logcat_text_long(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     static const tGETTER getters[] = { get_time, get_pid, get_tid, get_priority, get_tag, get_log };
     dissect_info_t dinfo = { &long_regex, getters, array_length(getters) };
 
+    add_exported_pdu(tvb,pinfo,"logcat_text_long");
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
@@ -351,6 +374,8 @@ void proto_register_logcat_text(void) {
 
     expert_module = expert_register_protocol(proto_logcat_text);
     expert_register_field_array(expert_module, ei, array_length(ei));
+
+    exported_pdu_tap = register_export_pdu_tap("Logcat Text");
 }
 
 void proto_reg_handoff_logcat_text(void) {
