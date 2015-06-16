@@ -126,6 +126,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (data == NULL)
         return 0;
 
+    DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_USB_CONV_INFO);
     usb_conv_info = bluetooth_data->previous_protocol_data.usb_conv_info;
 
     titem = proto_tree_add_item(tree, proto_hci_usb, tvb, offset, -1, ENC_NA);

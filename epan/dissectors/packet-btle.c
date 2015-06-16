@@ -38,7 +38,6 @@
 
 static int proto_btle = -1;
 static int proto_btle_rf = -1;
-static int proto_ubertooth = -1;
 
 static int hf_access_address = -1;
 static int hf_crc = -1;
@@ -346,7 +345,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         list_data = wmem_list_frame_prev(list_data);
-        if (bluetooth_data && list_data && proto_ubertooth == GPOINTER_TO_INT(wmem_list_frame_data(list_data))) {
+        if (bluetooth_data && bluetooth_data->previous_protocol_data_type == BT_PD_UBERTOOTH_DATA) {
             ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
         }
     }
@@ -1396,7 +1395,6 @@ proto_reg_handoff_btle(void)
     btl2cap_handle = find_dissector("btl2cap");
 
     proto_btle_rf = proto_get_id_by_filter_name("btle_rf");
-    proto_ubertooth = proto_get_id_by_filter_name("ubertooth");
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
 }

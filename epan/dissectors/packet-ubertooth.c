@@ -332,7 +332,7 @@ static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_unexpected_data = EI_INIT;
 
 static dissector_handle_t ubertooth_handle;
-static dissector_handle_t bluetooth_handle;
+static dissector_handle_t bluetooth_ubertooth_handle;
 
 static wmem_tree_t *command_info = NULL;
 
@@ -1318,7 +1318,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
         ubertooth_data->channel = channel;
 
         next_tvb = tvb_new_subset_length(tvb, offset, length);
-        call_dissector_with_data(bluetooth_handle, next_tvb, pinfo, main_tree, ubertooth_data);
+        call_dissector_with_data(bluetooth_ubertooth_handle, next_tvb, pinfo, main_tree, ubertooth_data);
         offset += length;
 
         if (tvb_length_remaining(tvb, offset) > 0) {
@@ -3424,7 +3424,7 @@ proto_register_ubertooth(void)
 void
 proto_reg_handoff_ubertooth(void)
 {
-    bluetooth_handle = find_dissector("bluetooth");
+    bluetooth_ubertooth_handle = find_dissector("bluetooth_ubertooth");
 
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6000, ubertooth_handle); /* Ubertooth Zero */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6002, ubertooth_handle); /* Ubertooth One */

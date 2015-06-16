@@ -86,6 +86,14 @@ extern const value_string bluetooth_address_type_vals[];
 #define HCI_INTERFACE_DEFAULT  0
 #define HCI_ADAPTER_DEFAULT    0
 
+typedef enum {
+    BT_PD_NONE,           /* no protocol data */
+    BT_PD_BTHCI,          /* struct bthci_phdr * */
+    BT_PD_BTMON,          /* struct btmon_phdr * */
+    BT_PD_USB_CONV_INFO,  /* usb_conv_info_t * */
+    BT_PD_UBERTOOTH_DATA  /* ubertooth_data_t * */
+} bt_protocol_data_type;
+
 /* chandle_sessions:         interface_id + adapter_id + connection_handle + frame_number -> connect_in_frame, disconnect_in_frame */
 /* chandle_to_bdaddr:        interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
 /* chandle_to_mode:          interface_id + adapter_id + connection_handle + frame_number -> mode */
@@ -106,8 +114,11 @@ typedef struct _bluetooth_data_t {
     wmem_tree_t *localhost_name;
     wmem_tree_t *hci_vendors;
 
+    bt_protocol_data_type  previous_protocol_data_type;
     union {
-        void              *data;
+    	void              *none;
+    	struct bthci_phdr *bthci;
+    	struct btmon_phdr *btmon;
         usb_conv_info_t   *usb_conv_info;
         ubertooth_data_t  *ubertooth_data;
     } previous_protocol_data;

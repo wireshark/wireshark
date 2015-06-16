@@ -32,7 +32,6 @@
 #include "packet-bluetooth.h"
 
 int proto_bluetooth = -1;
-static int proto_ubertooth = -1;
 
 static int hf_bluetooth_src = -1;
 static int hf_bluetooth_dst = -1;
@@ -43,7 +42,6 @@ static int hf_bluetooth_str_addr = -1;
 
 static gint ett_bluetooth = -1;
 
-static dissector_handle_t bluetooth_handle;
 static dissector_handle_t btle_handle;
 static dissector_handle_t data_handle;
 
@@ -1255,8 +1253,8 @@ print_numeric_uuid(bluetooth_uuid_t *uuid)
 }
 
 
-static gint
-dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bluetooth_data_t *
+dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *main_item;
     proto_tree        *main_tree;
@@ -1303,8 +1301,6 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     bluetooth_data->localhost_name               = localhost_name;
     bluetooth_data->hci_vendors                  = hci_vendors;
 
-    bluetooth_data->previous_protocol_data.data = data;
-
     if (have_tap_listener(bluetooth_tap)) {
         bluetooth_tap_data_t  *bluetooth_tap_data;
 
@@ -1346,12 +1342,119 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         PROTO_ITEM_SET_GENERATED(sub_item);
     }
 
-    if (proto_ubertooth == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
-                wmem_list_frame_prev(wmem_list_tail(pinfo->layers))))) {
-        call_dissector(btle_handle, tvb, pinfo, tree);
-    } else if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    return bluetooth_data;
+}
+
+/*
+ * Register this in the wtap_encap dissector table.
+ */
+static gint
+dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    bluetooth_data_t  *bluetooth_data;
+
+    bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
+
+    /*
+     * There is no pseudo-header, or there's just a p2p pseudo-header.
+     */
+    bluetooth_data->previous_protocol_data_type = BT_PD_NONE;
+    bluetooth_data->previous_protocol_data.none = NULL;
+
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_dissector(data_handle, tvb, pinfo, tree);
     }
+
+    return tvb_captured_length(tvb);
+}
+
+
+/*
+ * Register this in the wtap_encap dissector table.
+ */
+static gint
+dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    bluetooth_data_t  *bluetooth_data;
+
+    bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
+
+    /*
+     * Point to the bthci pseudo-header.
+     */
+    bluetooth_data->previous_protocol_data_type = BT_PD_BTHCI;
+    bluetooth_data->previous_protocol_data.bthci = &pinfo->pseudo_header->bthci;
+
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+        call_dissector(data_handle, tvb, pinfo, tree);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/*
+ * Register this in the wtap_encap dissector table.
+ */
+static gint
+dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    bluetooth_data_t  *bluetooth_data;
+
+    bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
+
+    /*
+     * Point to the btmon pseudo-header.
+     */
+    bluetooth_data->previous_protocol_data_type = BT_PD_BTMON;
+    bluetooth_data->previous_protocol_data.btmon = &pinfo->pseudo_header->btmon;
+
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+        call_dissector(data_handle, tvb, pinfo, tree);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/*
+ * Register this in various USB dissector tables.
+ */
+static gint
+dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    bluetooth_data_t  *bluetooth_data;
+
+    bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
+
+    /*
+     * data points to a usb_conv_info_t.
+     */
+    bluetooth_data->previous_protocol_data_type = BT_PD_USB_CONV_INFO;
+    bluetooth_data->previous_protocol_data.usb_conv_info = (usb_conv_info_t *)data;
+
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+        call_dissector(data_handle, tvb, pinfo, tree);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/*
+ * Register this by name; it's called from the Ubertooth dissector.
+ */
+static gint
+dissect_bluetooth_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    bluetooth_data_t  *bluetooth_data;
+
+    bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
+
+    /*
+     * data points to a ubertooth_data_t.
+     */
+    bluetooth_data->previous_protocol_data_type = BT_PD_UBERTOOTH_DATA;
+    bluetooth_data->previous_protocol_data.ubertooth_data = (ubertooth_data_t *)data;
+
+    call_dissector(btle_handle, tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);
 }
@@ -1399,7 +1502,7 @@ proto_register_bluetooth(void)
     proto_bluetooth = proto_register_protocol("Bluetooth",
             "Bluetooth", "bluetooth");
 
-    bluetooth_handle = new_register_dissector("bluetooth", dissect_bluetooth, proto_bluetooth);
+    new_register_dissector("bluetooth_ubertooth", dissect_bluetooth_ubertooth, proto_bluetooth);
 
     proto_register_field_array(proto_bluetooth, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1427,32 +1530,36 @@ proto_register_bluetooth(void)
 void
 proto_reg_handoff_bluetooth(void)
 {
-    proto_ubertooth = proto_get_id_by_filter_name("ubertooth");
+    dissector_handle_t bluetooth_handle = new_create_dissector_handle(dissect_bluetooth, proto_bluetooth);
+    dissector_handle_t bluetooth_bthci_handle = new_create_dissector_handle(dissect_bluetooth_bthci, proto_bluetooth);
+    dissector_handle_t bluetooth_btmon_handle = new_create_dissector_handle(dissect_bluetooth_btmon, proto_bluetooth);
+    dissector_handle_t bluetooth_usb_handle = new_create_dissector_handle(dissect_bluetooth_usb, proto_bluetooth);
+
     btle_handle = find_dissector("btle");
     data_handle = find_dissector("data");
 
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI,           bluetooth_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI,           bluetooth_bthci_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4,            bluetooth_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR,  bluetooth_handle);
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR, bluetooth_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR, bluetooth_btmon_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PACKETLOGGER,            bluetooth_handle);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL,           bluetooth_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR, bluetooth_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_BREDR_BB,        bluetooth_handle);
 
-    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x21e8, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x1131 << 16) | 0x1001, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x050d << 16) | 0x0081, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x2198, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x21e8, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x04bf << 16) | 0x0320, bluetooth_handle);
-    dissector_add_uint("usb.product", (0x13d3 << 16) | 0x3375, bluetooth_handle);
+    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x21e8, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x1131 << 16) | 0x1001, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x050d << 16) | 0x0081, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x2198, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x0a5c << 16) | 0x21e8, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x04bf << 16) | 0x0320, bluetooth_usb_handle);
+    dissector_add_uint("usb.product", (0x13d3 << 16) | 0x3375, bluetooth_usb_handle);
 
-    dissector_add_uint("usb.protocol", 0xE00101, bluetooth_handle);
-    dissector_add_uint("usb.protocol", 0xE00104, bluetooth_handle);
+    dissector_add_uint("usb.protocol", 0xE00101, bluetooth_usb_handle);
+    dissector_add_uint("usb.protocol", 0xE00104, bluetooth_usb_handle);
 
-    dissector_add_for_decode_as("usb.device", bluetooth_handle);
+    dissector_add_for_decode_as("usb.device", bluetooth_usb_handle);
 }
 
 /*

@@ -70,7 +70,8 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    type = pinfo->pseudo_header->bthci.channel;
+    DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_BTHCI);
+    type = bluetooth_data->previous_protocol_data.bthci->channel;
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 0, ENC_NA);

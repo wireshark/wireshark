@@ -80,6 +80,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   guint8             pl_type;
   gint               len;
   bluetooth_data_t  *bluetooth_data;
+  struct bthci_phdr  bthci;
 
   bluetooth_data = (bluetooth_data_t *) data;
 
@@ -100,35 +101,36 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
     /* HCI H1 packages */
     switch (pl_type) {
     case PKT_HCI_COMMAND:
-      pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_COMMAND;
-      pinfo->pseudo_header->bthci.sent = P2P_DIR_SENT;
+      bthci.channel = BTHCI_CHANNEL_COMMAND;
+      bthci.sent = P2P_DIR_SENT;
       pinfo->p2p_dir = P2P_DIR_SENT;
       break;
     case PKT_HCI_EVENT:
-      pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_EVENT;
-      pinfo->pseudo_header->bthci.sent = P2P_DIR_RECV;
+      bthci.channel = BTHCI_CHANNEL_EVENT;
+      bthci.sent = P2P_DIR_RECV;
       pinfo->p2p_dir = P2P_DIR_RECV;
       break;
     case PKT_SENT_ACL_DATA:
-      pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_ACL;
-      pinfo->pseudo_header->bthci.sent = P2P_DIR_SENT;
+      bthci.channel = BTHCI_CHANNEL_ACL;
+      bthci.sent = P2P_DIR_SENT;
       pinfo->p2p_dir = P2P_DIR_SENT;
       break;
     case PKT_RECV_ACL_DATA:
-      pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_ACL;
-      pinfo->pseudo_header->bthci.sent = P2P_DIR_RECV;
+      bthci.channel = BTHCI_CHANNEL_ACL;
+      bthci.sent = P2P_DIR_RECV;
       pinfo->p2p_dir = P2P_DIR_RECV;
       break;
     default:
-      pinfo->pseudo_header->bthci.channel = pl_type;
-      pinfo->pseudo_header->bthci.sent = P2P_DIR_UNKNOWN;
+      bthci.channel = pl_type;
+      bthci.sent = P2P_DIR_UNKNOWN;
       pinfo->p2p_dir = P2P_DIR_UNKNOWN;
       break;
     }
+    bluetooth_data->previous_protocol_data.bthci = &bthci;
     proto_item_set_len (ti, 1);
 
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-    if (!dissector_try_uint_new(hci_h1_table, pinfo->pseudo_header->bthci.channel,
+    if (!dissector_try_uint_new(hci_h1_table, bthci.channel,
             next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
       call_dissector (data_handle, next_tvb, pinfo, tree);
     }

@@ -105,10 +105,11 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32          k_adapter_id;
     guint32          k_frame_number;
 
-    adapter_id = pinfo->pseudo_header->btmon.adapter_id;
-    opcode = pinfo->pseudo_header->btmon.opcode;
-
     bluetooth_data = (bluetooth_data_t *) data;
+
+    DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_BTMON);
+    adapter_id = bluetooth_data->previous_protocol_data.btmon->adapter_id;
+    opcode = bluetooth_data->previous_protocol_data.btmon->opcode;
 
     if (opcode == 0x00 || opcode == 0x01)
         pinfo->p2p_dir = P2P_DIR_RECV;
