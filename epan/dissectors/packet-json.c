@@ -186,6 +186,15 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_captured_length(tvb);
 }
 
+/*
+ * For dissecting JSON in a file; we don't get passed a media type.
+ */
+static int
+dissect_json_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	return dissect_json(tvb, pinfo, tree, NULL);
+}
+
 static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
@@ -635,9 +644,11 @@ proto_register_json(void)
 void
 proto_reg_handoff_json(void)
 {
+	dissector_handle_t json_file_handle = new_create_dissector_handle(dissect_json_file, proto_json);
+
 	heur_dissector_add("hpfeeds", dissect_json_heur, proto_json);
 	heur_dissector_add("db-lsp", dissect_json_heur, proto_json);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_file_handle);
 
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
 	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */
