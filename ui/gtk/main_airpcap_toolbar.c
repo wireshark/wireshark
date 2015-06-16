@@ -33,8 +33,6 @@
 
 #include "epan/epan.h"
 
-#include "wsutil/frequency-utils.h"
-
 #include "ui/recent.h"
 #include "simple_dialog.h"
 

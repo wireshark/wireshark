@@ -31,7 +31,6 @@
 #include <string.h>
 
 #include <wsutil/filesystem.h>
-#include <wsutil/frequency-utils.h>
 
 #include <epan/prefs.h>
 #include <epan/crypt/wep-wpadefs.h>

@@ -95,7 +95,6 @@
 #endif
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/frequency-utils.h>
 #include <wsutil/plugins.h>
 
 /* general (not GTK specific) */
