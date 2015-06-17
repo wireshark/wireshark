@@ -166,6 +166,7 @@ arg_list_utf_16to8(int argc, char *argv[]) {
       argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
     }
   } /* XXX else bail because something is horribly, horribly wrong? */
+  LocalFree(wc_argv);
 }
 
 #endif

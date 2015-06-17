@@ -433,6 +433,7 @@ int main(int argc, char *argv[])
 
     int                  opt;
     gboolean             arg_error = FALSE;
+    char               **ws_argv = argv;
 
 #ifdef _WIN32
     WSADATA              wsaData;
@@ -478,7 +479,12 @@ int main(int argc, char *argv[])
     // The GTK+ UI calls this. Should we as well?
     //setlocale(LC_ALL, "");
 #ifdef _WIN32
-    arg_list_utf_16to8(argc, argv);
+    // QCoreApplication clobbers argv. Let's have a local copy.
+    ws_argv = (char **) g_malloc(sizeof(char *) * argc);
+    for (opt = 0; opt < argc; opt++) {
+        ws_argv[opt] = argv[opt];
+    }
+    arg_list_utf_16to8(argc, ws_argv);
     create_app_running_mutex();
 #endif /* _WIN32 */
 
@@ -493,7 +499,7 @@ int main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    /* init_progfile_dir_error = */ init_progfile_dir(argv[0],
+    /* init_progfile_dir_error = */ init_progfile_dir(ws_argv[0],
         (void *) get_gui_compiled_info);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
@@ -556,7 +562,7 @@ DIAG_ON(cast-qual)
 
     opterr = 0;
 
-    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, ws_argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
                 if (profile_exists (optarg, FALSE)) {
@@ -875,7 +881,7 @@ DIAG_ON(cast-qual)
     opterr = 1;
 
     /* Now get our args */
-    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, ws_argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
         /*** capture option specific ***/
         case 'a':        /* autostop criteria */
@@ -1090,7 +1096,7 @@ DIAG_ON(cast-qual)
 
     if (!arg_error) {
         argc -= optind;
-        argv += optind;
+        ws_argv += optind;
         if (argc >= 1) {
             if (!cf_name.isEmpty()) {
                 /*
@@ -1110,18 +1116,18 @@ DIAG_ON(cast-qual)
                  * file - yes, you could have "-r" as the last part of the command,
                  * but that's a bit ugly.
                  */
-                cf_name = argv[0];
+                cf_name = ws_argv[0];
 
             }
             argc--;
-            argv++;
+            ws_argv++;
         }
 
         if (argc != 0) {
             /*
              * Extra command line arguments were specified; complain.
              */
-            cmdarg_err("Invalid argument: %s", argv[0]);
+            cmdarg_err("Invalid argument: %s", ws_argv[0]);
             arg_error = TRUE;
         }
     }
