@@ -416,8 +416,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(redissectPackets()));
     connect(packet_list_, SIGNAL(packetSelectionChanged()),
             this, SLOT(setMenusForFollowStream()));
-    connect(packet_list_, SIGNAL(showPreferences(PreferencesDialog::PreferencesPane)),
+    connect(packet_list_, SIGNAL(showColumnPreferences(PreferencesDialog::PreferencesPane)),
             this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(packet_list_, SIGNAL(showProtocolPreferences(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
     connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
     connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
             packet_list_, SLOT(redrawVisiblePackets()));
@@ -432,6 +434,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(setMenusForSelectedTreeRow(field_info *)));
     connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
             this, SLOT(openPacketDialog(bool)));
+    connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
 
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
             main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));

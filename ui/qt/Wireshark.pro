@@ -311,6 +311,7 @@ HEADERS += $$HEADERS_WS_C \
     print_dialog.h \
     profile_dialog.h \
     protocol_hierarchy_dialog.h \
+    protocol_preferences_menu.h \
     remote_capture_dialog.h  \
     remote_settings_dialog.h    \
     rtp_stream_dialog.h  \
@@ -684,6 +685,7 @@ SOURCES += \
     progress_bar.cpp \
     proto_tree.cpp \
     protocol_hierarchy_dialog.cpp \
+    protocol_preferences_menu.cpp \
     qcustomplot.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \

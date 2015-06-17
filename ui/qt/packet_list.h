@@ -26,6 +26,7 @@
 #include "packet_list_model.h"
 #include "preferences_dialog.h"
 #include "proto_tree.h"
+#include "protocol_preferences_menu.h"
 #include "related_packet_delegate.h"
 
 #include <QMenu>
@@ -84,6 +85,7 @@ private:
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QMenu conv_menu_;
+    ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
     int ctx_column_;
     QByteArray column_state_;
@@ -111,9 +113,10 @@ private:
 signals:
     void packetDissectionChanged();
     void packetSelectionChanged();
-    void showPreferences(PreferencesDialog::PreferencesPane start_pane);
+    void showColumnPreferences(PreferencesDialog::PreferencesPane start_pane);
     void editColumn(int column);
     void packetListScrolled(bool at_end);
+    void showProtocolPreferences(const QString module_name);
 
 public slots:
     void setCaptureFile(capture_file *cf);

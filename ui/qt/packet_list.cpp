@@ -400,11 +400,10 @@ PacketList::PacketList(QWidget *parent) :
 //    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
 //    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
     ctx_menu_.addSeparator();
-//    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
+    ctx_menu_.addMenu(&proto_prefs_menu_);
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
     ctx_menu_.addAction(decode_as_);
     // "Print" not ported intentionally
-//    "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
     action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
     ctx_menu_.addAction(action);
 
@@ -423,6 +422,9 @@ PacketList::PacketList(QWidget *parent) :
             this, SLOT(sectionResized(int,int,int)));
 
     connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
+
+    connect(&proto_prefs_menu_, SIGNAL(showProtocolPreferences(QString)),
+            this, SIGNAL(showProtocolPreferences(QString)));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -532,6 +534,29 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
         action->setEnabled(TRUE);
     else
         action->setEnabled(FALSE);
+
+    const char *module_name = NULL;
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        GPtrArray          *finfo_array = proto_all_finfos(cap_file_->edt->tree);
+
+        for (guint i = finfo_array->len - 1; i > 0 ; i --) {
+            field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
+            header_field_info *hfinfo =  fi->hfinfo;
+
+            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
+
+                if (hfinfo->parent == -1) {
+                    module_name = hfinfo->abbrev;
+                } else {
+                    module_name = proto_registrar_get_abbrev(hfinfo->parent);
+                }
+                break;
+            }
+        }
+    }
+    proto_prefs_menu_.setModule(module_name);
 
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
@@ -1162,7 +1187,7 @@ void PacketList::headerMenuTriggered()
         recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_RIGHT : COLUMN_XALIGN_DEFAULT);
         break;
     case caColumnPreferences:
-        emit showPreferences(PreferencesDialog::ppColumn);
+        emit showColumnPreferences(PreferencesDialog::ppColumn);
         break;
     case caEditColumn:
         emit editColumn(header_ctx_column_);

@@ -26,6 +26,8 @@
 
 #include <epan/proto.h>
 
+#include "protocol_preferences_menu.h"
+
 #include <QTreeWidget>
 #include <QMenu>
 
@@ -47,6 +49,7 @@ protected:
 private:
     QMenu ctx_menu_;
     QMenu conv_menu_;
+    ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
     QFont mono_font_;
 
@@ -56,6 +59,7 @@ signals:
     void openPacketInNewWindow(bool);
     void goToPacket(int);
     void relatedFrame(int, ft_framenum_type_t);
+    void showProtocolPreferences(const QString module_name);
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);

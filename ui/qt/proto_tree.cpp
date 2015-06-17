@@ -251,8 +251,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
 //    "     <menuitem name='FilterFieldReference' action='/FilterFieldReference'/>\n"
 //    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
-//    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
-//    ctx_menu_.addSeparator();
+        ctx_menu_.addMenu(&proto_prefs_menu_);
+        ctx_menu_.addSeparator();
         decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
         ctx_menu_.addAction(decode_as_);
 //    "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
@@ -269,6 +269,9 @@ ProtoTree::ProtoTree(QWidget *parent) :
     connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(collapse(QModelIndex)));
     connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
             this, SLOT(itemDoubleClick(QTreeWidgetItem*, int)));
+
+    connect(&proto_prefs_menu_, SIGNAL(showProtocolPreferences(QString)),
+            this, SIGNAL(showProtocolPreferences(QString)));
 }
 
 void ProtoTree::clear() {
@@ -285,6 +288,19 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     foreach (QAction *action, main_conv_menu->actions()) {
         conv_menu_.addAction(action);
     }
+
+    const char *module_name = NULL;
+    if (selectedItems().count() > 0) {
+        field_info *fi = selectedItems()[0]->data(0, Qt::UserRole).value<field_info *>();
+        if (fi && fi->hfinfo) {
+            if (fi->hfinfo->parent == -1) {
+                module_name = fi->hfinfo->abbrev;
+            } else {
+                module_name = proto_registrar_get_abbrev(fi->hfinfo->parent);
+            }
+        }
+    }
+    proto_prefs_menu_.setModule(module_name);
 
     decode_as_->setData(qVariantFromValue(true));
     ctx_menu_.exec(event->globalPos());

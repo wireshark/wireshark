@@ -88,6 +88,7 @@ set(WIRESHARK_QT_HEADERS
 	progress_bar.h
 	proto_tree.h
 	protocol_hierarchy_dialog.h
+	protocol_preferences_menu.h
 	qcustomplot.h
 	recent_file_status.h
 	related_packet_delegate.h
@@ -205,6 +206,7 @@ set(WIRESHARK_QT_SRC
 	progress_bar.cpp
 	proto_tree.cpp
 	protocol_hierarchy_dialog.cpp
+	protocol_preferences_menu.cpp
 	qcustomplot.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
