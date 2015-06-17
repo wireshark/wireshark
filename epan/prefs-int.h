@@ -160,7 +160,7 @@ struct preference {
       } enum_info;                   /**< for PREF_ENUM */
     } info;                          /**< display/text file information */
     struct pref_custom_cbs custom_cbs;   /**< for PREF_CUSTOM */
-    void    *control;                /**< handle for GUI control for this preference */
+    void    *control;                /**< handle for GUI control for this preference. GTK+ only? */
 };
 
 /* read_prefs_file: read in a generic config file and do a callback to */

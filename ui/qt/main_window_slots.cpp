@@ -1400,14 +1400,35 @@ void MainWindow::fieldsChanged()
     proto_free_deregistered_fields();
 }
 
+void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)
+{
+    QList<AccordionFrame *>frame_list = QList<AccordionFrame *>()
+            << main_ui_->goToFrame << main_ui_->searchFrame
+            << main_ui_->columnEditorFrame << main_ui_->preferenceEditorFrame;
+
+    frame_list.removeAll(show_frame);
+    foreach (AccordionFrame *af, frame_list) af->animatedHide();
+
+    if (toggle) {
+        if (show_frame->isVisible()) {
+            show_frame->animatedHide();
+            return;
+        }
+    }
+    show_frame->animatedShow();
+}
+
 void MainWindow::showColumnEditor(int column)
 {
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    main_ui_->goToFrame->animatedHide();
-    main_ui_->searchFrame->animatedHide();
+    showAccordionFrame(main_ui_->columnEditorFrame);
     main_ui_->columnEditorFrame->editColumn(column);
-    main_ui_->columnEditorFrame->animatedShow();
+}
+
+void MainWindow::showPreferenceEditor()
+{
+    showAccordionFrame(main_ui_->preferenceEditorFrame);
 }
 
 void MainWindow::addStatsPluginsToMenu() {
@@ -1862,13 +1883,7 @@ void MainWindow::on_actionEditFindPacket_triggered()
     }
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    main_ui_->goToFrame->animatedHide();
-    main_ui_->columnEditorFrame->animatedHide();
-    if (main_ui_->searchFrame->isVisible()) {
-        main_ui_->searchFrame->animatedHide();
-    } else {
-        main_ui_->searchFrame->animatedShow();
-    }
+    showAccordionFrame(main_ui_->searchFrame, true);
 }
 
 void MainWindow::on_actionEditFindNext_triggered()
@@ -2933,15 +2948,11 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
 
-    main_ui_->searchFrame->animatedHide();
-    main_ui_->columnEditorFrame->animatedHide();
+    showAccordionFrame(main_ui_->goToFrame, true);
     if (main_ui_->goToFrame->isVisible()) {
-        main_ui_->goToFrame->animatedHide();
-    } else {
-        main_ui_->goToFrame->animatedShow();
         main_ui_->goToLineEdit->clear();
+        main_ui_->goToLineEdit->setFocus();
     }
-    main_ui_->goToLineEdit->setFocus();
 }
 
 void MainWindow::on_actionGoAutoScroll_toggled(bool checked)

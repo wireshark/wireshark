@@ -249,6 +249,7 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
 
     main_ui_->columnEditorFrame->hide();
+    main_ui_->preferenceEditorFrame->hide();
 
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
@@ -378,6 +379,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
             main_ui_->statusBar, SLOT(popFilterStatus()));
 
+    connect(main_ui_->preferenceEditorFrame, SIGNAL(showProtocolPreferences(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
+
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
@@ -420,6 +424,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
     connect(packet_list_, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
+    connect(packet_list_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*,pref_module*)));
     connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
     connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
             packet_list_, SLOT(redrawVisiblePackets()));
@@ -436,6 +442,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(openPacketDialog(bool)));
     connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
+    connect(proto_tree_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*,pref_module*)));
 
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
             main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));

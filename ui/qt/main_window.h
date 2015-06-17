@@ -59,6 +59,7 @@
 #include "follow_stream_dialog.h"
 #include "preferences_dialog.h"
 
+class AccordionFrame;
 class ByteViewTab;
 class MainWelcome;
 class PacketList;
@@ -247,7 +248,9 @@ private slots:
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
     void fieldsChanged();
+    void showAccordionFrame(AccordionFrame *show_frame, bool toggle = false);
     void showColumnEditor(int column);
+    void showPreferenceEditor(); // module_t *, pref *
     void addStatsPluginsToMenu();
     void addExternalMenus();
 

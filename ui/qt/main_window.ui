@@ -95,6 +95,9 @@
      <widget class="ColumnEditorFrame" name="columnEditorFrame"/>
     </item>
     <item>
+     <widget class="PreferenceEditorFrame" name="preferenceEditorFrame"/>
+    </item>
+    <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
        <bool>true</bool>
@@ -2374,6 +2377,12 @@
    <class>ColumnEditorFrame</class>
    <extends>QFrame</extends>
    <header>column_editor_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PreferenceEditorFrame</class>
+   <extends>QFrame</extends>
+   <header>preference_editor_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

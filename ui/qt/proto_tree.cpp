@@ -272,6 +272,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
 
     connect(&proto_prefs_menu_, SIGNAL(showProtocolPreferences(QString)),
             this, SIGNAL(showProtocolPreferences(QString)));
+    connect(&proto_prefs_menu_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
 }
 
 void ProtoTree::clear() {

@@ -194,6 +194,8 @@ packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_bo
 
 packet_range_group_box.cpp packet_range_group_box.h: ui_packet_range_group_box.h
 
+preference_editor_frame.cpp preference_editor_frame.h: ui_preference_editor_frame.h
+
 preferences_dialog.cpp preferences_dialog.h: ui_preferences_dialog.h
 
 print_dialog.cpp print_dialog.h: ui_print_dialog.h

@@ -1,4 +1,4 @@
-/* protocol_preferences_menu.h
+/* preference_editor_frame.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,41 +19,56 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PROTOCOL_PREFERENCES_MENU_H__
-#define __PROTOCOL_PREFERENCES_MENU_H__
+#ifndef PREFERENCE_EDITOR_FRAME_H
+#define PREFERENCE_EDITOR_FRAME_H
 
-#include <QMenu>
+#include "accordion_frame.h"
 
 struct pref_module;
 struct preference;
+struct epan_range;
 
-class ProtocolPreferencesMenu : public QMenu
+namespace Ui {
+class PreferenceEditorFrame;
+}
+
+class PreferenceEditorFrame : public AccordionFrame
 {
     Q_OBJECT
 
 public:
-    ProtocolPreferencesMenu();
+    explicit PreferenceEditorFrame(QWidget *parent = 0);
+    ~PreferenceEditorFrame();
 
-    void setModule(const char *module_name);
-    void addMenuItem(struct preference *pref);
+public slots:
+    void editPreference(struct preference *pref = NULL, struct pref_module *module = NULL);
 
 signals:
     void showProtocolPreferences(const QString module_name);
-    void editProtocolPreference(struct preference *pref, struct pref_module *module);
-
-private:
-    QString module_name_;
-    struct pref_module *module_;
 
 private slots:
-    void modulePreferencesTriggered();
-    void editorPreferenceTriggered();
-    void boolPreferenceTriggered();
-    void enumPreferenceTriggered();
-    void uatPreferenceTriggered();
+    // Similar to ModulePreferencesScrollArea
+    void uintLineEditTextEdited(const QString &new_str);
+    void stringLineEditTextEdited(const QString &new_str);
+    void rangeLineEditTextEdited(const QString &new_str);
+
+    void on_modulePreferencesToolButton_clicked();
+    void on_preferenceLineEdit_returnPressed();
+    void on_okButton_clicked();
+    void on_cancelButton_clicked();
+
+private:
+    Ui::PreferenceEditorFrame *ui;
+
+    struct pref_module *module_;
+    struct preference *pref_;
+
+    unsigned int new_uint_;
+    QString new_str_;
+    struct epan_range *new_range_;
 };
 
-#endif // __PROTOCOL_PREFERENCES_MENU_H__
+#endif // PREFERENCE_EDITOR_FRAME_H
 
 /*
  * Editor modelines

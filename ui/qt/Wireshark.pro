@@ -242,6 +242,7 @@ FORMS += \
     packet_dialog.ui \
     packet_format_group_box.ui \
     packet_range_group_box.ui \
+    preference_editor_frame.ui \
     preferences_dialog.ui \
     print_dialog.ui \
     profile_dialog.ui \
@@ -307,6 +308,7 @@ HEADERS += $$HEADERS_WS_C \
     packet_comment_dialog.h \
     packet_dialog.h \
     packet_format_group_box.h \
+    preference_editor_frame.h \
     preferences_dialog.h \
     print_dialog.h \
     profile_dialog.h \
@@ -679,6 +681,7 @@ SOURCES += \
     packet_list_model.cpp \
     packet_list_record.cpp \
     packet_range_group_box.cpp \
+    preference_editor_frame.cpp \
     preferences_dialog.cpp \
     print_dialog.cpp \
     profile_dialog.cpp \

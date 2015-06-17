@@ -32,16 +32,34 @@
 
 #include "protocol_preferences_menu.h"
 
+#include "qt_ui_utils.h"
 #include "uat_dialog.h"
 #include "wireshark_application.h"
 
 // To do:
-// - Add a PreferencesEditorFrame to the main window similar to
-//   menu_prefs_edit_dlg in the GTK+ UI. For now we just open the main
-//   preferences dialog.
 // - Elide really long items?
+// - Handle PREF_FILENAME and PREF_DIRNAME.
+// - Handle color prefs.
 
-#include <QDebug>
+class BoolPreferenceAction : public QAction
+{
+public:
+    BoolPreferenceAction(pref_t *pref) :
+        QAction(NULL),
+        pref_(pref)
+    {
+        setText(pref_->title);
+        setCheckable(true);
+        setChecked(*pref->varp.boolp);
+    }
+
+    void setBoolValue() {
+        *pref_->varp.boolp = isChecked();
+    }
+
+private:
+    pref_t *pref_;
+};
 
 class EnumPreferenceAction : public QAction
 {
@@ -88,11 +106,11 @@ private:
     pref_t *pref_;
 };
 
-
-class PreferenceAction : public QAction
+// Preference requires an external editor (PreferenceEditorFrame)
+class EditorPreferenceAction : public QAction
 {
 public:
-    PreferenceAction(pref_t *pref) :
+    EditorPreferenceAction(pref_t *pref) :
         QAction(NULL),
         pref_(pref)
     {
@@ -115,34 +133,20 @@ public:
             title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(QString::number(*pref->varp.uint, base)));
             break;
         }
-        case PREF_BOOL:
-            setCheckable(true);
-            setChecked(*pref->varp.boolp);
-            break;
-        case PREF_ENUM:
-            // We shoudn't be here.
-            break;
         case PREF_STRING:
             title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(*pref->varp.string));
             break;
-        case PREF_UAT:
-            title.append(UTF8_HORIZONTAL_ELLIPSIS);
+        case PREF_RANGE:
+            title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(range_to_qstring(*pref->varp.range)));
             break;
-        case PREF_COLOR: // XXX Add an icon?
-
-        case PREF_CUSTOM: // We shouldn't be here.
-        case PREF_STATIC_TEXT:
-        case PREF_OBSOLETE:
         default:
+            // We shouldn't be here.
             break;
         }
 
         setText(title);
     }
-
-    void setBoolValue() {
-        *pref_->varp.boolp = isChecked();
-    }
+    pref_t *pref() { return pref_; }
 
 private:
     pref_t *pref_;
@@ -203,7 +207,7 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
 
     action = addAction(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(proto_name));
     action->setData(QString(module_name));
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(protocolPreferencesTriggered()));
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
 
     addSeparator();
 
@@ -213,6 +217,13 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
 void ProtocolPreferencesMenu::addMenuItem(preference *pref)
 {
     switch (pref->type) {
+    case PREF_BOOL:
+    {
+        BoolPreferenceAction *bpa = new BoolPreferenceAction(pref);
+        addAction(bpa);
+        connect(bpa, SIGNAL(triggered(bool)), this, SLOT(boolPreferenceTriggered()));
+        break;
+    }
     case PREF_ENUM:
     {
         QActionGroup *ag = new QActionGroup(this);
@@ -227,6 +238,15 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
         }
         break;
     }
+    case PREF_UINT:
+    case PREF_STRING:
+    case PREF_RANGE:
+    {
+        EditorPreferenceAction *epa = new EditorPreferenceAction(pref);
+        addAction(epa);
+        connect(epa, SIGNAL(triggered(bool)), this, SLOT(editorPreferenceTriggered()));
+        break;
+    }
     case PREF_UAT:
     {
         UatPreferenceAction *upa = new UatPreferenceAction(pref);
@@ -239,16 +259,12 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_OBSOLETE:
         break;
     default:
-    {
-        PreferenceAction *pa = new PreferenceAction(pref);
-        addAction(pa);
-        if (pref->type == PREF_BOOL) {
-            connect(pa, SIGNAL(triggered(bool)), this, SLOT(boolPreferenceTriggered()));
-        } else {
-            connect(pa, SIGNAL(triggered(bool)), this, SLOT(protocolPreferencesTriggered()));
-        }
+        // A type we currently don't handle (e.g. PREF_FILENAME). Just open
+        // the prefs dialog.
+        QString title = QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(pref->title);
+        QAction *mpa = addAction(title);
+        connect(mpa, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
         break;
-    }
     }
 
     if (pref->type != PREF_ENUM) {
@@ -256,19 +272,29 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     }
 }
 
-void ProtocolPreferencesMenu::protocolPreferencesTriggered()
+void ProtocolPreferencesMenu::modulePreferencesTriggered()
 {
     if (!module_name_.isEmpty()) {
         emit showProtocolPreferences(module_name_);
     }
 }
 
+void ProtocolPreferencesMenu::editorPreferenceTriggered()
+{
+    EditorPreferenceAction *epa = static_cast<EditorPreferenceAction *>(QObject::sender());
+    if (!epa) return;
+
+    if (epa->pref() && module_) {
+        emit editProtocolPreference(epa->pref(), module_);
+    }
+}
+
 void ProtocolPreferencesMenu::boolPreferenceTriggered()
 {
-    PreferenceAction *pa = static_cast<PreferenceAction *>(QObject::sender());
-    if (!pa) return;
+    BoolPreferenceAction *bpa = static_cast<BoolPreferenceAction *>(QObject::sender());
+    if (!bpa) return;
 
-    pa->setBoolValue();
+    bpa->setBoolValue();
 
     prefs_apply(module_);
     if (!prefs.gui_use_pref_save) {

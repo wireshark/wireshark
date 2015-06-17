@@ -117,6 +117,7 @@ signals:
     void editColumn(int column);
     void packetListScrolled(bool at_end);
     void showProtocolPreferences(const QString module_name);
+    void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
 public slots:
     void setCaptureFile(capture_file *cf);

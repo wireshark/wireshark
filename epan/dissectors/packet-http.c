@@ -3350,7 +3350,7 @@ proto_register_http(void)
 					"SSL/TLS Ports range",
 					&global_http_ssl_range, 65535);
 	/* UAT */
-	headers_uat = uat_new("Custom HTTP headers fields Table",
+	headers_uat = uat_new("Custom HTTP Header Fields",
 			      sizeof(header_field_t),
 			      "custom_http_header_fields",
 			      TRUE,
@@ -3367,7 +3367,7 @@ proto_register_http(void)
 			      custom_header_uat_fields
 	);
 
-	prefs_register_uat_preference(http_module, "custom_http_header_fields", "Custom HTTP headers fields",
+	prefs_register_uat_preference(http_module, "custom_http_header_fields", "Custom HTTP header fields",
 	    "A table to define custom HTTP header for which fields can be setup and used for filtering/data extraction etc.",
 	   headers_uat);
 
