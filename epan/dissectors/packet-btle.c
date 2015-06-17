@@ -344,7 +344,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             bluetooth_data = (bluetooth_data_t *) data;
         }
 
-        list_data = wmem_list_frame_prev(list_data);
         if (bluetooth_data && bluetooth_data->previous_protocol_data_type == BT_PD_UBERTOOTH_DATA) {
             ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
         }
