@@ -110,7 +110,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -610,6 +610,9 @@
    <addaction name="actionDisplayFilterExpression"/>
   </widget>
   <widget class="QToolBar" name="wirelessToolBar">
+   <property name="windowTitle">
+    <string>Wireless Toolbar</string>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>

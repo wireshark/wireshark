@@ -2012,20 +2012,29 @@ void MainWindow::showHideMainWidgets(QAction *action)
     bool show = action->isChecked();
     QWidget *widget = action->data().value<QWidget*>();
 
+    // We may have come from the toolbar context menu, so check/uncheck each
+    // action as well.
     if (widget == main_ui_->mainToolBar) {
         recent.main_toolbar_show = show;
+        main_ui_->actionViewMainToolbar->setChecked(show);
     } else if (widget == main_ui_->displayFilterToolBar) {
         recent.filter_toolbar_show = show;
+        main_ui_->actionViewFilterToolbar->setChecked(show);
      } else if (widget == main_ui_->wirelessToolBar) {
         recent.wireless_toolbar_show = show;
+        main_ui_->actionViewWirelessToolbar->setChecked(show);
     } else if (widget == main_ui_->statusBar) {
         recent.statusbar_show = show;
+        main_ui_->actionViewStatusBar->setChecked(show);
     } else if (widget == packet_list_) {
         recent.packet_list_show = show;
+        main_ui_->actionViewPacketList->setChecked(show);
     } else if (widget == proto_tree_) {
         recent.tree_view_show = show;
+        main_ui_->actionViewPacketDetails->setChecked(show);
     } else if (widget == byte_view_tab_) {
         recent.byte_view_show = show;
+        main_ui_->actionViewPacketBytes->setChecked(show);
     }
 
     if (widget) {

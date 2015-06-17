@@ -86,6 +86,8 @@ public:
     capture_session *captureSession() { return &cap_session_; }
 #endif
 
+    virtual QMenu *createPopupMenu();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);

@@ -484,6 +484,20 @@ QString MainWindow::getFilter()
     return df_combo_box_->itemText(df_combo_box_->count());
 }
 
+QMenu *MainWindow::createPopupMenu()
+{
+    QMenu *menu = new QMenu();
+    menu->addAction(main_ui_->actionViewMainToolbar);
+    menu->addAction(main_ui_->actionViewFilterToolbar);
+    menu->addAction(main_ui_->actionViewWirelessToolbar);
+    menu->addAction(main_ui_->actionViewStatusBar);
+    menu->addSeparator();
+    menu->addAction(main_ui_->actionViewPacketList);
+    menu->addAction(main_ui_->actionViewPacketDetails);
+    menu->addAction(main_ui_->actionViewPacketBytes);
+    return menu;
+}
+
 void MainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
 {
     pipe_source_        = source;
