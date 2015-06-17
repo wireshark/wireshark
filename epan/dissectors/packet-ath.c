@@ -22,7 +22,7 @@
  */
 
 #include "config.h"
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
@@ -52,30 +52,28 @@ void proto_reg_handoff_ath(void);
 
 static int proto_ath = -1;
 
-static int hf_ath_begin  = -1;
+static int hf_ath_begin   = -1;
 static int hf_ath_padding = -1;
-static int hf_ath_length = -1;
-static int hf_ath_alive  = -1;
-static int hf_ath_port   = -1;
-static int hf_ath_sport  = -1;
-static int hf_ath_uport  = -1;
-static int hf_ath_hlen   = -1;
-static int hf_ath_ipv4   = -1;
-static int hf_ath_ipv6   = -1;
-static int hf_ath_clen   = -1;
-static int hf_ath_comm   = -1;
-static int hf_ath_dlen   = -1;
-static int hf_ath_domain = -1;
-static int hf_ath_unique = -1;
-static int hf_ath_plen   = -1;
-static int hf_ath_payload= -1;
-static int hf_ath_end    = -1;
+static int hf_ath_length  = -1;
+static int hf_ath_alive   = -1;
+static int hf_ath_port    = -1;
+static int hf_ath_sport   = -1;
+static int hf_ath_uport   = -1;
+static int hf_ath_hlen    = -1;
+static int hf_ath_ipv4    = -1;
+static int hf_ath_ipv6    = -1;
+static int hf_ath_clen    = -1;
+static int hf_ath_comm    = -1;
+static int hf_ath_dlen    = -1;
+static int hf_ath_domain  = -1;
+static int hf_ath_unique  = -1;
+static int hf_ath_plen    = -1;
+static int hf_ath_payload = -1;
+static int hf_ath_end     = -1;
 
 static gint ett_ath = -1;
 
-static guint ett_length = 0;
-
-static expert_field ei_ath_hlen_invalid = EI_INIT;
+static expert_field ei_ath_hlen_invalid  = EI_INIT;
 static expert_field ei_ath_hmark_invalid = EI_INIT;
 
 static void
@@ -91,11 +89,11 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint32 plen = 0;
 
   /* detect the Tribes (Tomcat) version */
-  gint   tribes_version_mark = 0;
+  gint   tribes_version_mark;
 
   /* store the info */
   const gchar *info_srcaddr = "";
-  const gchar *info_domain = "";
+  const gchar *info_domain  = "";
   const gchar *info_command = "";
 
   proto_item *ti, *hlen_item;
@@ -115,94 +113,94 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * and Tomcat 7/8 packets end with "Ox01 0x00" (256 in decimal)
    * This is why we read these 2 last bytes of the packet
    */
-  tribes_version_mark = tvb_get_ntohs( tvb, tvb_reported_length(tvb)-2 );
+  tribes_version_mark = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
 
   /* dissecting a Tomcat 6 packet
    */
-  if( tribes_version_mark == 11589 ) {
+  if (tribes_version_mark == 11589) { /* "-E" */
 
     /* BEGIN
      */
       proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII|ENC_NA);
-      offset+=8;
+      offset += 8;
 
       /* LENGTH
        */
       proto_tree_add_item(ath_tree, hf_ath_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* ALIVE TIME
        */
       proto_tree_add_item(ath_tree, hf_ath_alive, tvb, offset, 8, ENC_BIG_ENDIAN);
-      offset+=8;
+      offset += 8;
 
       /* PORT
        */
       proto_tree_add_item(ath_tree, hf_ath_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* SECURE PORT
        */
       proto_tree_add_item(ath_tree, hf_ath_sport, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* HOST LENGTH
        */
       hlen_item = proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
       hlen = tvb_get_guint8(tvb, offset);
-      offset+=1;
+      offset += 1;
 
       /* HOST
        */
-      if(hlen == 4) {
+      if (hlen == 4) {
         proto_tree_add_item(ath_tree, hf_ath_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         info_srcaddr = tvb_ip_to_str(tvb, offset);
-      } else if(hlen == 6) {
+      } else if (hlen == 6) {
         proto_tree_add_item(ath_tree, hf_ath_ipv6, tvb, offset, 6, ENC_NA);
         info_srcaddr = tvb_ip6_to_str(tvb, offset);
       } else {
         expert_add_info(pinfo, hlen_item, &ei_ath_hlen_invalid);
       }
-      offset+=hlen;
+      offset += hlen;
 
       /* COMMAND LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
-      offset+=4;
+      offset += 4;
 
       /* COMMAND
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
       if (clen != -1)
         info_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, clen, ENC_ASCII);
-      offset+=clen;
+      offset += clen;
 
       /* DOMAIN LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
-      offset+=4;
+      offset += 4;
 
       /* DOMAIN
        */
       proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
       if (dlen != 0)
         info_domain = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, dlen, ENC_ASCII);
-      offset+=dlen;
+      offset += dlen;
 
       /* UNIQUEID
        */
       proto_tree_add_item(ath_tree, hf_ath_unique, tvb, offset, 16, ENC_NA);
-      offset+=16;
+      offset += 16;
 
       /* PAYLOAD LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
-      offset+=4;
+      offset += 4;
 
       /* PAYLOAD
        */
       proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII|ENC_NA);
-      offset+=plen;
+      offset += plen;
 
       /* END
        */
@@ -216,93 +214,93 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* BEGIN
      */
       proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII|ENC_NA);
-      offset+=8;
+      offset += 8;
 
       proto_tree_add_item(ath_tree, hf_ath_padding, tvb, offset, 2, ENC_ASCII|ENC_NA);
-      offset+=2;
+      offset += 2;
 
       /* LENGTH
        */
       proto_tree_add_item(ath_tree, hf_ath_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* ALIVE TIME
        */
       proto_tree_add_item(ath_tree, hf_ath_alive, tvb, offset, 8, ENC_BIG_ENDIAN);
-      offset+=8;
+      offset += 8;
 
       /* PORT
        */
       proto_tree_add_item(ath_tree, hf_ath_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* SECURE PORT
        */
       proto_tree_add_item(ath_tree, hf_ath_sport, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* UDP PORT, only in Tomcat 7/8
        */
       proto_tree_add_item(ath_tree, hf_ath_uport, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset+=4;
+      offset += 4;
 
       /* HOST LENGTH
        */
       hlen_item = proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
       hlen = tvb_get_guint8(tvb, offset);
-      offset+=1;
+      offset += 1;
 
       /* HOST
        */
-      if(hlen == 4) {
+      if (hlen == 4) {
         proto_tree_add_item(ath_tree, hf_ath_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         info_srcaddr = tvb_ip_to_str(tvb, offset);
-      } else if(hlen == 6) {
+      } else if (hlen == 6) {
         proto_tree_add_item(ath_tree, hf_ath_ipv6, tvb, offset, 6, ENC_NA);
         info_srcaddr = tvb_ip6_to_str(tvb, offset);
       } else {
         expert_add_info(pinfo, hlen_item, &ei_ath_hlen_invalid);
       }
-      offset+=hlen;
+      offset += hlen;
 
       /* COMMAND LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
-      offset+=4;
+      offset += 4;
 
       /* COMMAND
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
       if (clen != -1)
         info_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, clen, ENC_ASCII);
-      offset+=clen;
+      offset += clen;
 
       /* DOMAIN LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
-      offset+=4;
+      offset += 4;
 
       /* DOMAIN
        */
       proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
       if (dlen != 0)
         info_domain = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, dlen, ENC_ASCII);
-      offset+=dlen;
+      offset += dlen;
 
       /* UNIQUEID
        */
       proto_tree_add_item(ath_tree, hf_ath_unique, tvb, offset, 16, ENC_NA);
-      offset+=16;
+      offset += 16;
 
       /* PAYLOAD LENGTH
        */
       proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
-      offset+=4;
+      offset += 4;
 
       /* PAYLOAD
        */
       proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII|ENC_NA);
-      offset+=plen;
+      offset += plen;
 
       /* END
        */
@@ -315,22 +313,22 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* set the INFO column, and we're done !
    */
-  if( strcmp(info_command, "") != 0 ) {
-    if( strcmp(info_command, "BABY-ALEX") == 0 ) {
-      if( strcmp(info_domain, "") != 0 ) {
+  if (strcmp(info_command, "") != 0) {
+    if (strcmp(info_command, "BABY-ALEX") == 0) {
+      if (strcmp(info_domain, "") != 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s is leaving domain %s", info_srcaddr, info_domain);
       } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s is leaving default domain", info_srcaddr);
       }
     } else {
-      if( strcmp(info_domain, "") != 0 ) {
+      if (strcmp(info_domain, "") != 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat from %s to domain %s", info_srcaddr, info_domain);
       } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat from %s to default domain", info_srcaddr);
       }
     }
   } else {
-    if( strcmp(info_domain, "") != 0 ) {
+    if (strcmp(info_domain, "") != 0) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat from %s to domain %s", info_srcaddr, info_domain);
     } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat from %s to default domain", info_srcaddr);
@@ -428,8 +426,6 @@ proto_register_ath(void)
   static gint *ett[] = {
     &ett_ath,
   };
-
-  ett_length = array_length(ett);
 
   proto_ath = proto_register_protocol("Apache Tribes Heartbeat Protocol", "ATH", "ath");
   proto_register_field_array(proto_ath, hf, array_length(hf));
