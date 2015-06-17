@@ -235,6 +235,9 @@ dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     int length = tvb_reported_length(tvb);
     guint8 type;
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "THRIFT");
+    col_clear(pinfo->cinfo, COL_INFO);
+
     version = tvb_get_ntohs(tvb, 0);
     mtype = tvb_get_guint8(tvb, 3);
     str_len = tvb_get_ntohl(tvb, 4);
@@ -248,7 +251,6 @@ dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         seq_id,
         method_str);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "THRIFT");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str(mtype, thrift_mtype_vals, "%d"), method_str);
 
     if (tree){
@@ -304,7 +306,7 @@ dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *d
 
     header = tvb_get_ntohl(tvb, offset);
 
-    if ((header & THRIFT_VERSION_1) != THRIFT_VERSION_1){
+    if ((header & THRIFT_VERSION_MASK) != THRIFT_VERSION_1){
         return FALSE;
     }
 
