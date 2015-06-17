@@ -1,0 +1,702 @@
+commit 793457b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jun 16 10:56:31 2015 -0700
+
+    Prep for 1.12.6.
+    
+    Change-Id: I49c8ac97b1b892d10c3cf41d95795abc5e30930e
+    Reviewed-on: https://code.wireshark.org/review/8952
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 107a626
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jun 15 14:06:18 2015 +0200
+
+    PCP: fix dissection of R bit
+    
+    Request and response values were inverted.
+    
+    Bug: 11278
+    Change-Id: I9b337f423055578252cc01211d74c77837b7ae87
+    Reviewed-on: https://code.wireshark.org/review/8924
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 1131398db35484f1f32a18bd3e76788bd9de0080)
+    Reviewed-on: https://code.wireshark.org/review/8925
+
+commit c818461
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 14 08:40:13 2015 -0700
+
+    [Automatic update for 2015-06-14]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I57ea19132b782f3c2fb5cebdb4a16aa6dfc7795e
+    Reviewed-on: https://code.wireshark.org/review/8915
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 00888cd
+Author: Petr Gotthard <petr.gotthard@honeywell.com>
+Date:   Fri Jun 12 16:57:07 2015 -0700
+
+    AMQP 1.0: Fix dissection of UUID datatypes
+    
+    Set a correct data length: 16-bytes, not 1-byte. And use the
+    standard function to print the uuid.
+    
+    Change-Id: Ic4cc8d8de3f469e43664fbd7f6eb89083dc83be6
+    Reviewed-on: https://code.wireshark.org/review/8905
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit a7f2b7f1de4648c1adff50b4ac735329b994acaf)
+    Conflicts:
+    	epan/dissectors/packet-amqp.c
+    Reviewed-on: https://code.wireshark.org/review/8907
+
+commit 89dd0f0
+Author: Petr Gotthard <petr.gotthard@honeywell.com>
+Date:   Fri Jun 12 15:41:04 2015 -0700
+
+    AMQP 1.0: Don't treat decimal[32|64|128] as packet errors
+    
+    Packets with a decimal datatype should be correctly dissected.
+    Yet, we still cannot display the decimal floating-point numbers as
+    there is no support in printf and glib.
+    
+    Change-Id: I48a6dafd1e12ab55f660fad37a759dd16a9cf4b1
+    Reviewed-on: https://code.wireshark.org/review/8902
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 70fa77f1a39202b1d622cc2091288b51d4f1091e)
+    Reviewed-on: https://code.wireshark.org/review/8906
+
+commit 1f28519
+Author: Petr Gotthard <petr.gotthard@honeywell.com>
+Date:   Thu Jun 11 22:59:38 2015 -0700
+
+    AMQP 1.0: float/double should be in network byte order
+    
+    The standard says that (unless otherwise specified) AMQP uses
+    network byte order for all numeric values.
+    
+    Change-Id: I3ca154a6fb882d9194a9af891f92f760aae776eb
+    Reviewed-on: https://code.wireshark.org/review/8889
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 7a927d60d48570a6b33ceafccff55b6045d259aa)
+    Reviewed-on: https://code.wireshark.org/review/8891
+
+commit abb0f11
+Author: Petr Gotthard <petr.gotthard@honeywell.com>
+Date:   Thu Jun 11 22:30:58 2015 -0700
+
+    AMQP 1.0: 'char' should be 4-bytes UTF32
+    
+    Change-Id: I219b65fd989e1811eda9e2b7197148e6b22ef97a
+    Reviewed-on: https://code.wireshark.org/review/8887
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 74421b35c2c79fddd0c596a609b997e80e5570cc)
+    Reviewed-on: https://code.wireshark.org/review/8890
+
+commit f52abd7
+Author: Christopher Maynard <Christopher.Maynard@igt.com>
+Date:   Sat Jun 6 20:04:42 2015 -0400
+
+    Fix insertion of subnets read from the subnets file: append to the *end* of
+    the list.
+    
+    The patch ensures that non-duplicate subnets are appended to the end of the
+    list rather than as the second element, which if there had been a second
+    element previously, the memory for it was effectively leaked.
+    
+    It also allows /32 "subnets", even though arguably the hosts file should be
+    used instead, but now the test in read_subnets_file() matches the assert in
+    subnet_entry_set().
+    
+    Bug: 11247
+    Change-Id: I54bf1cbb34edfcf410aa634043a377c27091df51
+    Reviewed-on: https://code.wireshark.org/review/8802
+    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 41ac67cbb218d9d7da4bd7d767b12c03a0096b5b)
+    Conflicts:
+    	epan/addr_resolv.c
+    Reviewed-on: https://code.wireshark.org/review/8857
+    Reviewed-by: Christopher Maynard <Christopher.Maynard@gtech.com>
+
+commit 8dea924
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Jun 9 23:48:06 2015 +0200
+
+    tshark: fix computation of iostat table width when specifying an interval
+    
+    Bug: 11262
+    Change-Id: I57468d1e96ade8926a2911bd035adf85500eba39
+    Reviewed-on: https://code.wireshark.org/review/8860
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 6f675b56398a08f2dc674e29a34f872bce97a840)
+    Conflicts:
+    	ui/cli/tap-iostat.c
+    Reviewed-on: https://code.wireshark.org/review/8873
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit faf280a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 7 08:12:38 2015 -0700
+
+    [Automatic update for 2015-06-07]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I61be9fcf038110535f2eba18403b403d49da0061
+    Reviewed-on: https://code.wireshark.org/review/8812
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit ee2465e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Jun 5 21:08:31 2015 +0200
+
+    GTK: fix a crash when switching a column to custom through 'Edit Column Details'
+    
+    Bug: 11245
+    Change-Id: I269d4dc8bd1ec23e3e6be4c9432563b8e275c548
+    Reviewed-on: https://code.wireshark.org/review/8778
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 244f2fbbf6c4167c75c4eb626aa8a73208ba3d8e)
+    Reviewed-on: https://code.wireshark.org/review/8780
+
+commit d3117c0
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Jun 4 21:54:44 2015 +0200
+
+    iSCSI: handle repetition of InitiatorTaskTag fore request / response tracking
+    
+    Use a red-black tree instead of a hash map so as to take he current frame number into account
+    Only insert entries in the red-black tree on first pass
+    
+    Bug: 11250
+    Change-Id: Ic6e4a5e4f3cd4a22c2df0b8851c6651695648fa8
+    Reviewed-on: https://code.wireshark.org/review/8763
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 5061da3f96b95b30d5d12812394ef375cd67bfc4)
+    Conflicts:
+    	epan/dissectors/packet-iscsi.c
+    Reviewed-on: https://code.wireshark.org/review/8771
+
+commit 92483af
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Wed Jun 3 22:16:37 2015 -0400
+
+    WCCP: Fix up storing and decoding of IP addresses.
+    
+    Try to decode as many IP addresses as we can, even if they don't fit in the
+    table we store them in.
+    
+    Only add IP addresses in the table once.  We could theoretically reallocate
+    the table but the original code seems to assume the addresses should (in
+    non-fuzzed captures) only show up once per PDU.  This part of the change fixes
+    the fuzz failure.
+    
+    Bug: 11153
+    Change-Id: I56b9854ac1342080c9f32699a3f97750fa335696
+    Reviewed-on: https://code.wireshark.org/review/8748
+    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 524ed1df6e6126cd63ba419ccb82c83636d77ee4)
+    Conflicts:
+    	epan/dissectors/packet-wccp.c
+    Reviewed-on: https://code.wireshark.org/review/8770
+    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
+
+commit f683fc7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Jun 4 00:05:52 2015 +0200
+
+    MIME Multipart: fix display of the last IMF field
+    
+    Regression was introduced in g23f0e16
+    
+    Bug: 11249
+    Change-Id: I2822a4452d3cdf2e53e5f3f1f3034e758fec129b
+    Reviewed-on: https://code.wireshark.org/review/8747
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit e309d9e8a7635cb7917c2c3b7bfde964341d9146)
+    Reviewed-on: https://code.wireshark.org/review/8751
+
+commit 9fa6881
+Author: AndersBroman <anders.broman@ericsson.com>
+Date:   Fri Oct 31 15:13:36 2014 +0100
+
+    Clean up handling of BDC coded numbers a bit.
+    
+    [Back-ported to 1.12 to fix the fuzz failure reported in bug 11201.]
+    
+    Bug: 11201
+    Change-Id: Ic3d523664e3c78b4ed289b7e5acf3f53614c6d54
+    Reviewed-on: https://code.wireshark.org/review/5027
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit d93be95fc0e7011e8b4ade9171e7e66146063296)
+    Conflicts:
+    	epan/dissectors/packet-gsm_a_dtap.c
+    Reviewed-on: https://code.wireshark.org/review/8730
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+
+commit 8f6edb1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 31 08:41:36 2015 -0700
+
+    [Automatic update for 2015-05-31]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Iebf7aa4179d59c519ca6192909f6007939488657
+    Reviewed-on: https://code.wireshark.org/review/8708
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f9a4031
+Author: Thomas Wiens <th.wiens@gmx.de>
+Date:   Sat May 30 13:43:00 2015 +0200
+
+    ams: fixed wrong offset calculation, adsstate has 2 bytes
+    
+    Change-Id: I95813bb49dd9a51662bac521e82599c26de59e8e
+    Reviewed-on: https://code.wireshark.org/review/8701
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 28481cda0119de767ff1baba96b793c3690eb4bf)
+    Conflicts:
+    	plugins/ethercat/packet-ams.c
+    Reviewed-on: https://code.wireshark.org/review/8702
+
+commit 24350bd
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 28 20:49:37 2015 -0700
+
+    Make the XQuartz fixer a separate subpackage.
+    
+    That appears to be what PackageMaker or whatever it's called wants.
+    Make it a hidden package that gets installed by default.
+    
+    Change-Id: Ib834f0dd8914b768fa2c26d45c3faf69c1494941
+    Bug-Ping: 10640
+    Reviewed-on: https://code.wireshark.org/review/8680
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit e08aa73
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Wed May 27 21:15:50 2015 -0400
+
+    is_linux_bonding_device() is only used if we HAVE_PCAP_CREATE so only define it
+    if we HAVE_PCAP_CREATE.
+    
+    Change-Id: Ic4eb6e69bde7d244b68a9fd97f66682eda6bdf91
+    Reviewed-on: https://code.wireshark.org/review/8667
+    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
+    (cherry picked from commit 6d5fa70976c28a7e967ff7db3ade8733663f6e2a)
+    Conflicts:
+    	dumpcap.c
+    Reviewed-on: https://code.wireshark.org/review/8668
+
+commit 3f1a488
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue May 26 01:53:38 2015 -0700
+
+    Fix variable that needs to survive a longjmp().
+    
+    Pointed out by a warning in a compilation for ARM.
+    
+    Change-Id: Iab2748adbdc88c9e6749da1c3835896683a1a091
+    Reviewed-on: https://code.wireshark.org/review/8648
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 26384027279238087df4e2133d1b0708a81df141)
+    Reviewed-on: https://code.wireshark.org/review/8649
+
+commit 213b494
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 24 14:37:59 2015 -0700
+
+    Get rid of trailing blank line.
+    
+    Change-Id: I9fd8cec0aac1a44fe84cab3e2c4be5d26b76e721
+    Reviewed-on: https://code.wireshark.org/review/8614
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 449a90a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 24 14:35:04 2015 -0700
+
+    Put the XQuartz fixer into a separate launchd daemon.
+    
+    That's a bit cleaner, and also allows it to run if we are updating an
+    existing Wireshark installation - the ChmodBPF job won't be rerun if it
+    was already there, as launchd will say "hey, that's already running" and
+    won't re-run it.
+    
+    Change-Id: Ib453ccaa5ad4405f4e8687e05c4a6cbd084b3458
+    Reviewed-on: https://code.wireshark.org/review/8613
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 0ff68f0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 24 11:55:40 2015 -0700
+
+    Try fixing broken XQuartz installations in ChmodBPF.
+    
+    That's a lot simpler than trying to run a fixer in Wireshark.app, and it
+    happens without bothering the user.
+    
+    Bug: 10640
+    Change-Id: I35875d6f2e7efb7e0944ea5a1219c957718e69bf
+    Reviewed-on: https://code.wireshark.org/review/8612
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit b611e4d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 24 11:41:37 2015 -0700
+
+    Trying to fix the /usr/X11 link in Wireshark.app is too much trouble.
+    
+    Back that fix out; I'll look at fixing it in ChmodBPF instead - it
+    already runs as root, so it has the necessary privileges.
+    
+    Change-Id: Ia1078a9ab7e71ef07bce12777e2b550978df7e0d
+    Reviewed-on: https://code.wireshark.org/review/8611
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 59f2536
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 24 08:05:59 2015 -0700
+
+    [Automatic update for 2015-05-24]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ifc4f4fc5224a296d0787a3da0368783d9cff3b98
+    Reviewed-on: https://code.wireshark.org/review/8609
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 14be5df
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 19:42:13 2015 -0700
+
+    OK, let's see if weak-linking it works.
+    
+    Xcode + project that has to work on a large range of OS X versions =
+    large amounts of pain.  Remember, shiny+new = good!  Old = bad!  Kick
+    old stuff to the curb, just as Apple does!
+    
+    Change-Id: Icd4b02d6bbac3f52076a02b6f2738285cd813e8d
+    Reviewed-on: https://code.wireshark.org/review/8606
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 99f6181
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 18:29:58 2015 -0700
+
+    Manually remove the ServiceManagement framework.
+    
+    I think this is the project used when building on 10.6 for 10.5, and the
+    10.5 SDK doesn't have the ServiceManagement.
+    
+    Change-Id: Ibfb37131720acbd89b405824f0d3ec42b528caac
+    Reviewed-on: https://code.wireshark.org/review/8605
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 92f6fa8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 17:13:51 2015 -0700
+
+    Fix all the other tests for "can use ServiceManagement framework".
+    
+    Change-Id: I7e13d7898f3bcb68c05dfcb68544997214483598
+    Reviewed-on: https://code.wireshark.org/review/8604
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 979e8e9
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 16:44:54 2015 -0700
+
+    Do the check for "building for pre-10.6" in a way that works.
+    
+    won't work, because MAC_OS_X_VERSION_10_6 isn't defined by the 10.5 SDK,
+    which apparently makes the #if succeed rather than failing.  Go figure.
+    
+    Just check whether MAC_OS_X_VERSION_10_6 is defined, instead.
+    
+    Change-Id: I65df48a5ee7ebca12c77863e2813365fe15e3b5d
+    Reviewed-on: https://code.wireshark.org/review/8603
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 5e4bbf1
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 16:15:15 2015 -0700
+
+    Include <AvailabilityMacros.h> to get stuff defined.
+    
+    Change-Id: Ib5a5e282191b60cdc45f299a550adbd1416bdee9
+    Reviewed-on: https://code.wireshark.org/review/8602
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit eea913a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 15:30:01 2015 -0700
+
+    Don't use the ServiceManagement framework when building for 10.5.
+    
+    The 10.5 SDK doesn't have that framework, so we can't use it.
+    
+    All three people for whom it's important that they be able to upgrade
+    their Leopard box, running Wireshark, release by release, all the way up
+    to Yosemite, and have Wireshark repair the damage done by the Yosemite
+    installer to the XQuartz installation a previous upgrade required, cried
+    bitter tears.
+    
+    Change-Id: I9359da5ba8d5896d98fd3f15a14107822a65df70
+    Reviewed-on: https://code.wireshark.org/review/8601
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit d835915
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 14:50:24 2015 -0700
+
+    Manually add the ServiceManagement framework.
+    
+    Change-Id: Id54ff9bb93f09b3636863bf02490b4d19696322e
+    Reviewed-on: https://code.wireshark.org/review/8600
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 138a259
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 14:03:03 2015 -0700
+
+    Fix path for ServiceManagement framework; make it absolute like others.
+    
+    Change-Id: I54f92182aea6adc623c1a3bfb916646aaf87d1a6
+    Reviewed-on: https://code.wireshark.org/review/8599
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit be67bfb
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 23 00:26:48 2015 -0700
+
+    Pop up error dialogs and quit if we don't have a working X11.
+    
+    If XQuartz is missing the /usr/X11 symlink but the user doesn't allow us
+    to fix it, don't try to run Wireshark.
+    
+    If the OS has X11 bundled but the user didn't install it, let them know,
+    and don't try to run Wireshark.
+    
+    We should probably just say "your X11/XQuartz is hosed" for other
+    problem cases.
+    
+    Get rid of some debugging fprintfs while we're at it.
+    
+    Change-Id: I6ef4581e9a45967b4cda709c4be25dad41a9613d
+    Reviewed-on: https://code.wireshark.org/review/8598
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 63cfa75
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri May 22 18:39:08 2015 -0700
+
+    Include XQuartzFixer.c in the tarball.
+    
+    Bug: 10640
+    
+    Change-Id: Ia9d1589a641241ae47ef9c60664896eeb65cfff3
+    Reviewed-on: https://code.wireshark.org/review/8596
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 11f2e86
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri May 22 18:34:38 2015 -0700
+
+    Have Wireshark.app try to fix broken XQuartz installations.
+    
+    If the user had a pre-Yosemite system with XQuartz installed, and
+    upgraded to Yosemite, the Yosemite installer will have removed the
+    /usr/X11 symlink.  If we have /opt/X11 but not /usr/X11, ask the user if
+    we should fix the XQuartz installation and, if they say to do so, run a
+    little helper as root in order to re-install the symlink.
+    
+    Bug: 10640
+    Change-Id: I0495bd60b7c913ad04eb4ef62817dc39bcebefe7
+    Reviewed-on: https://code.wireshark.org/review/8595
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 51f7a9a
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri May 22 18:48:40 2015 +0200
+
+    p1: Fixed do_address for extension attributes
+    
+    This is not an optimal solution, but fixes the reported problem.
+    The do_address functionality should probably be rewritten to
+    only use pinfo for storing data.
+    
+    Bug: 11210
+    Ping-Bug: 8515
+    
+    Change-Id: Iad41e28b9d71f2cb9d8804998332c11fa57cb49d
+    Reviewed-on: https://code.wireshark.org/review/8591
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit eb93c66
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 21 01:42:15 2015 -0700
+
+    Include <sys/param.h> to get MAXPATHLEN.
+    
+    Change-Id: Ibf40b75eb224262c4d5a571e56e2575bca787b91
+    Reviewed-on: https://code.wireshark.org/review/8565
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 27bfcc8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 21 00:28:34 2015 -0700
+
+    Remove trailing whitespace.
+    
+    Change-Id: Ibc6620f489ae5d956b03ee61dc6f08dfc0a93371
+    Reviewed-on: https://code.wireshark.org/review/8562
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 29aeea744dc9485ee045de075f7e96564223a4bb)
+    Reviewed-on: https://code.wireshark.org/review/8563
+
+commit 6380d81
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 21 00:25:55 2015 -0700
+
+    Don't just blindly tell application X11 to do anything.
+    
+    Determine what type of X11 (bundled from Apple, unbundled XQuartz) we
+    should have and what type we do have.
+    
+    If we don't have any installed, don't tell X11 to do anything, as that
+    just pops up a "where is X11?" dialog; that's information the user
+    shouldn't need to tell the system if it is installed, and it's
+    information for which the user shouldn't be asked if it's not installed
+    - and if they're asked, they might answer incorrectly, leaving a system
+    that doesn't properly launch X11 for Wireshark.  (See various
+    ask.wireshark.org questions about this, for example.)
+    
+    Pick up some changes from newer versions of Inkscape, such as using
+    unsigned char *, not using FSSpecs, and adding some comments, while
+    we're at it.
+    
+    Change-Id: Ic9a2b25938c4eec5628d1c16c7db28aa0714203e
+    Reviewed-on: https://code.wireshark.org/review/8559
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 72b0051
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed May 20 22:36:25 2015 +0200
+
+    MBIM: fix GSM SMS transmitted PDU length
+    
+    Change-Id: I5568d6048f620f5332577e2cf0d36ffa20200ebf
+    Reviewed-on: https://code.wireshark.org/review/8556
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 22aa241eff46b1b69e27032e5cbf22285fb55c14)
+    Conflicts:
+    	epan/dissectors/packet-mbim.c
+    Reviewed-on: https://code.wireshark.org/review/8557
+
+commit 249cc84
+Author: Jiří Engelthaler <engycz@gmail.com>
+Date:   Thu May 7 07:54:00 2015 +0200
+
+    Recent files: Disable mnemonic accelerator key for menu item
+    
+    If recent file name contains underscore, menu item parses it as mnemonic accelerator. So disabled using underline for recent file menu item.
+    
+    Change-Id: I1253a0103e750a14a69f0d064587e0eb56581b82
+    Reviewed-on: https://code.wireshark.org/review/8325
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/8357
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit f9a5e53
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue May 19 14:30:01 2015 +0200
+
+    p1: Handle OrganizationalUnitName
+    
+    Added back code removed in commit for bug 8515.
+    
+    Bug: 11210
+    Change-Id: Ife237f9e062d2ddf20405239d844f594e15aed4c
+    Reviewed-on: https://code.wireshark.org/review/8538
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 399589c
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Sun May 17 15:58:17 2015 +0200
+
+    DVB-CI: fix a TPDU parsing error
+    
+    if the response TPDU starts with 0x80 (T_SB), this is not an unknown
+    tag, it simply indicates that the optional header and body are absent
+    
+    this bug was introduced in e597acdc4827ef62bc9597fdd248366411533a36
+    
+    Change-Id: I076a0c9f0ea124e11edbb7a0bc0e41d1ab6f374a
+    Reviewed-on: https://code.wireshark.org/review/8527
+    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
+    (cherry picked from commit f33aa0c6d4fec670832b53cc6abd6b546205156c)
+    Reviewed-on: https://code.wireshark.org/review/8531
+
+commit 68a40b7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 17 08:58:27 2015 -0700
+
+    [Automatic update for 2015-05-17]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I037c69726485b86d6935f92fc6b685efe49e0cff
+    Reviewed-on: https://code.wireshark.org/review/8496
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4295fb3
+Author: Edwin Groothuis <wireshark@mavetju.org>
+Date:   Thu May 14 20:15:44 2015 -0400
+
+    ui/gtk/mcast_stream.c: Add dependency on sys/time.h for struct timeval
+    
+    Needed to compile on FreeBSD.
+    
+    Bug: 11199
+    Change-Id: Ia35f51c88a5b2cfbf0045019663b3373d96dfee2
+    Reviewed-on: https://code.wireshark.org/review/8487
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 49a7dfb
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri May 15 18:43:15 2015 +0200
+
+    MBIM: fix dissection of CDMA SMS timestamp
+    
+    Change-Id: I2ea7f295541743bffa75f8f5b898b3874df51924
+    Reviewed-on: https://code.wireshark.org/review/8473
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 6e7a07c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 12 14:33:29 2015 -0700
+
+    1.12.5 → 1.12.6.
+    
+    Change-Id: Id450c1ec647ea6cb0f9d5a6e1c376eb62bd05067
+    Reviewed-on: https://code.wireshark.org/review/8438
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
