@@ -394,6 +394,7 @@ static gint hf_021_040_SIM = -1;
 static gint hf_021_040_TST = -1;
 static gint hf_021_040_SAA = -1;
 static gint hf_021_040_CL = -1;
+static gint hf_021_040_LLC = -1;
 static gint hf_021_040_IPC = -1;
 static gint hf_021_040_NOGO = -1;
 static gint hf_021_040_CPR = -1;
@@ -487,6 +488,7 @@ static gint hf_021_170 = -1;
 static gint hf_021_200 = -1;
 static gint hf_021_200_ICF = -1;
 static gint hf_021_200_LNAV = -1;
+static gint hf_021_200_ME = -1;
 static gint hf_021_200_PS = -1;
 static gint hf_021_200_SS = -1;
 static gint hf_021_210 = -1;
@@ -521,6 +523,7 @@ static gint hf_021_271_B2low = -1;
 static gint hf_021_271_RAS = -1;
 static gint hf_021_271_IDENT = -1;
 static gint hf_021_271_LW = -1;
+static gint hf_021_271_LW_v2_1 = -1;
 static gint hf_021_295 = -1;
 static gint hf_021_295_01 = -1;
 static gint hf_021_295_01_AOS = -1;
@@ -1702,6 +1705,7 @@ static gint ett_021_040_SIM = -1;
 static gint ett_021_040_TST = -1;
 static gint ett_021_040_SAA = -1;
 static gint ett_021_040_CL = -1;
+static gint ett_021_040_LLC = -1;
 static gint ett_021_040_IPC = -1;
 static gint ett_021_040_NOGO = -1;
 static gint ett_021_040_CPR = -1;
@@ -1795,6 +1799,7 @@ static gint ett_021_170 = -1;
 static gint ett_021_200 = -1;
 static gint ett_021_200_ICF = -1;
 static gint ett_021_200_LNAV = -1;
+static gint ett_021_200_ME = -1;
 static gint ett_021_200_PS = -1;
 static gint ett_021_200_SS = -1;
 static gint ett_021_210 = -1;
@@ -1829,6 +1834,7 @@ static gint ett_021_271_B2low = -1;
 static gint ett_021_271_RAS = -1;
 static gint ett_021_271_IDENT = -1;
 static gint ett_021_271_LW = -1;
+static gint ett_021_271_LW_v2_1 = -1;
 static gint ett_021_295 = -1;
 static gint ett_021_295_01 = -1;
 static gint ett_021_295_01_AOS = -1;
@@ -4119,6 +4125,11 @@ static const value_string valstr_021_040_CL[] = {
     { 3, "Reserved for future use" },
     { 0, NULL }
 };
+static const value_string valstr_021_040_LLC[] = {
+    { 0, "default" },
+    { 1, "List Lookup failed" },
+    { 0, NULL }
+};
 static const value_string valstr_021_040_IPC[] = {
     { 0, "default" },
     { 1, "Independent Position Check failed" },
@@ -4154,12 +4165,16 @@ static const FieldPart I021_040_SIM = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_SIM
 static const FieldPart I021_040_TST = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_TST, NULL };
 static const FieldPart I021_040_SAA = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_SAA, NULL };
 static const FieldPart I021_040_CL = { 2, 1.0, FIELD_PART_UINT, &hf_021_040_CL, NULL };
+static const FieldPart I021_040_LLC = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_LLC, NULL };
 static const FieldPart I021_040_IPC = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_IPC, NULL };
 static const FieldPart I021_040_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_NOGO, NULL };
 static const FieldPart I021_040_CPR = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_CPR, NULL };
 static const FieldPart I021_040_LDPJ = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_LDPJ, NULL };
 static const FieldPart I021_040_RCF = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_RCF, NULL };
 static const FieldPart *I021_040_PARTS[] = { &I021_040_ATP, &I021_040_ARC, &I021_040_RC, &I021_040_RAB, &IXXX_FX,
+                                             &I021_040_DCR, &I021_040_GBS, &I021_040_SIM, &I021_040_TST, &I021_040_SAA, &I021_040_CL, &IXXX_FX,
+                                             &I021_040_LLC, &I021_040_IPC, &I021_040_NOGO, &I021_040_CPR, &I021_040_LDPJ, &I021_040_RCF, &IXXX_FX, NULL };
+static const FieldPart *I021_040_PARTS_v2_1[] = { &I021_040_ATP, &I021_040_ARC, &I021_040_RC, &I021_040_RAB, &IXXX_FX,
                                              &I021_040_DCR, &I021_040_GBS, &I021_040_SIM, &I021_040_TST, &I021_040_SAA, &I021_040_CL, &IXXX_FX,
                                              &I021_040_IPC, &I021_040_NOGO, &I021_040_CPR, &I021_040_LDPJ, &I021_040_RCF, &IXXX_FX, NULL };
 
@@ -4420,6 +4435,11 @@ static const value_string valstr_021_200_LNAV[] = {
     { 1, "LNAV Mode not engaged" },
     { 0, NULL }
 };
+static const value_string valstr_021_200_ME[] = {
+    { 0, "No military emergency" },
+    { 1, "Military emergency" },
+    { 0, NULL }
+};
 static const value_string valstr_021_200_PS[] = {
     { 0, "No emergency / not reported" },
     { 1, "General emergency" },
@@ -4439,9 +4459,11 @@ static const value_string valstr_021_200_SS[] = {
 };
 static const FieldPart I021_200_ICF = { 1, 1.0, FIELD_PART_UINT, &hf_021_200_ICF, NULL };
 static const FieldPart I021_200_LNAV = { 1, 1.0, FIELD_PART_UINT, &hf_021_200_LNAV, NULL };
+static const FieldPart I021_200_ME = { 1, 1.0, FIELD_PART_UINT, &hf_021_200_ME, NULL };
 static const FieldPart I021_200_PS = { 3, 1.0, FIELD_PART_UINT, &hf_021_200_PS, NULL };
 static const FieldPart I021_200_SS = { 2, 1.0, FIELD_PART_UINT, &hf_021_200_SS, NULL };
-static const FieldPart *I021_200_PARTS[] = { &I021_200_ICF, &I021_200_LNAV, &I021_200_PS, &I021_200_SS, NULL };
+static const FieldPart *I021_200_PARTS[] = { &I021_200_ICF, &I021_200_LNAV, &I021_200_ME, &I021_200_PS, &I021_200_SS, NULL };
+static const FieldPart *I021_200_PARTS_v2_1[] = { &I021_200_ICF, &I021_200_LNAV, &I021_200_PS, &I021_200_SS, NULL };
 
 /* MOPS Version */
 static const value_string valstr_021_210_VNS[] = {
@@ -4531,7 +4553,9 @@ static const FieldPart I021_271_RAS = { 1, 1.0, FIELD_PART_UINT, &hf_021_271_RAS
 static const FieldPart I021_271_IDENT = { 1, 1.0, FIELD_PART_UINT, &hf_021_271_IDENT, NULL };
 static const FieldPart I021_271_LW = { 4, 1.0, FIELD_PART_UINT, &hf_021_271_LW, NULL };
 static const FieldPart *I021_271_PARTS[] = { &I021_271_POA, &I021_271_CDTIS, &I021_271_B2low, &I021_271_RAS, &I021_271_IDENT, &IXXX_FX,
-                                             &IXXX_4bit_spare, &I021_271_LW, NULL };
+                                             &I021_271_LW, &IXXX_3bit_spare, &IXXX_FX, NULL };
+static const FieldPart *I021_271_PARTS_v2_1[] = { &I021_271_POA, &I021_271_CDTIS, &I021_271_B2low, &I021_271_RAS, &I021_271_IDENT, &IXXX_FX,
+                                                  &IXXX_4bit_spare, &I021_271_LW, NULL };
 
 /* Data Ages */
 static const FieldPart I021_295_01_AOS = { 8, 0.1, FIELD_PART_UFLOAT, &hf_021_295_01_AOS, NULL };
@@ -4593,6 +4617,7 @@ static const AsterixField I021_015 = { FIXED, 1, 0, 0, &hf_021_015, I021_015_PAR
 static const AsterixField I021_016 = { FIXED, 1, 0, 0, &hf_021_016, I021_016_PARTS, { NULL } };
 static const AsterixField I021_020 = { FIXED, 1, 0, 0, &hf_021_020, I021_020_PARTS, { NULL } };
 static const AsterixField I021_040 = { FX, 1, 0, 0, &hf_021_040, I021_040_PARTS, { NULL } };
+static const AsterixField I021_040_v2_1 = { FX, 1, 0, 0, &hf_021_040, I021_040_PARTS_v2_1, { NULL } };
 static const AsterixField I021_070 = { FIXED, 2, 0, 0, &hf_021_070, I021_070_PARTS, { NULL } };
 static const AsterixField I021_071 = { FIXED, 3, 0, 0, &hf_021_071, IXXX_TOD, { NULL } };
 static const AsterixField I021_072 = { FIXED, 3, 0, 0, &hf_021_072, IXXX_TOD, { NULL } };
@@ -4625,6 +4650,7 @@ static const AsterixField I021_161 = { FIXED, 2, 0, 0, &hf_021_161, I021_161_PAR
 static const AsterixField I021_165 = { FIXED, 2, 0, 0, &hf_021_165, I021_165_PARTS, { NULL } };
 static const AsterixField I021_170 = { FIXED, 6, 0, 0, &hf_021_170, IXXX_AI_PARTS, { NULL } };
 static const AsterixField I021_200 = { FIXED, 1, 0, 0, &hf_021_200, I021_200_PARTS, { NULL } };
+static const AsterixField I021_200_v2_1 = { FIXED, 1, 0, 0, &hf_021_200, I021_200_PARTS_v2_1, { NULL } };
 static const AsterixField I021_210 = { FIXED, 1, 0, 0, &hf_021_210, I021_210_PARTS, { NULL } };
 static const AsterixField I021_220_01 = { FIXED, 2, 0, 0, &hf_021_220_01, I021_220_01_PARTS, { NULL } };
 static const AsterixField I021_220_02 = { FIXED, 2, 0, 0, &hf_021_220_02, I021_220_02_PARTS, { NULL } };
@@ -4639,6 +4665,7 @@ static const AsterixField I021_230 = { FIXED, 2, 0, 0, &hf_021_230, I021_230_PAR
 static const AsterixField I021_250 = { REPETITIVE, 8, 1, 0, &hf_021_250, IXXX_MB, { NULL } };
 static const AsterixField I021_260 = { FIXED, 7, 0, 0, &hf_021_260, I021_260_PARTS, { NULL } };
 static const AsterixField I021_271 = { FX, 1, 0, 0, &hf_021_271, I021_271_PARTS, { NULL } };
+static const AsterixField I021_271_v2_1 = { FX, 1, 0, 0, &hf_021_271, I021_271_PARTS_v2_1, { NULL } };
 static const AsterixField I021_295_01 = { FIXED, 1, 0, 0, &hf_021_295_01, I021_295_01_PARTS, { NULL } };
 static const AsterixField I021_295_02 = { FIXED, 1, 0, 0, &hf_021_295_02, I021_295_02_PARTS, { NULL } };
 static const AsterixField I021_295_03 = { FIXED, 1, 0, 0, &hf_021_295_03, I021_295_03_PARTS, { NULL } };
@@ -4690,19 +4717,28 @@ static const AsterixField I021_400 = { FIXED, 1, 0, 0, &hf_021_400, I021_400_PAR
 static const AsterixField I021_RE = { RE, 0, 0, 1, &hf_021_RE, NULL, { NULL } };
 static const AsterixField I021_SP = { SP, 0, 0, 1, &hf_021_SP, NULL, { NULL } };
 
-static const AsterixField *I021_v2_1_uap[] = { &I021_010, &I021_040, &I021_161, &I021_015, &I021_071, &I021_130, &I021_131,
+static const AsterixField *I021_v2_3_uap[] = { &I021_010, &I021_040, &I021_161, &I021_015, &I021_071, &I021_130, &I021_131,
                                                &I021_072, &I021_150, &I021_151, &I021_080, &I021_073, &I021_074, &I021_075,
                                                &I021_076, &I021_140, &I021_090, &I021_210, &I021_070, &I021_230, &I021_145,
                                                &I021_152, &I021_200, &I021_155, &I021_157, &I021_160, &I021_165, &I021_077,
                                                &I021_170, &I021_020, &I021_220, &I021_146, &I021_148, &I021_110, &I021_016,
                                                &I021_008, &I021_271, &I021_132, &I021_250, &I021_260, &I021_400, &I021_295,
                                                &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I021_RE,  &I021_SP, NULL };
+static const AsterixField *I021_v2_1_uap[] = { &I021_010, &I021_040_v2_1, &I021_161, &I021_015, &I021_071, &I021_130, &I021_131,
+                                               &I021_072, &I021_150, &I021_151, &I021_080, &I021_073, &I021_074, &I021_075,
+                                               &I021_076, &I021_140, &I021_090, &I021_210, &I021_070, &I021_230, &I021_145,
+                                               &I021_152, &I021_200_v2_1, &I021_155, &I021_157, &I021_160, &I021_165, &I021_077,
+                                               &I021_170, &I021_020, &I021_220, &I021_146, &I021_148, &I021_110, &I021_016,
+                                               &I021_008, &I021_271_v2_1, &I021_132, &I021_250, &I021_260, &I021_400, &I021_295,
+                                               &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I021_RE,  &I021_SP, NULL };
+static const AsterixField **I021_v2_3[] = { I021_v2_3_uap, NULL };
 static const AsterixField **I021_v2_1[] = { I021_v2_1_uap, NULL };
-static const AsterixField ***I021[] = { I021_v2_1 };
+static const AsterixField ***I021[] = { I021_v2_3, I021_v2_1 };
 DIAG_ON(pedantic)
 
 static const enum_val_t I021_versions[] = {
-    { "I021_v2_1", "Version 2.1", 0 },
+    { "I021_v2_3", "Version 2.3", 0 },
+    { "I021_v2_1", "Version 2.1", 1 },
     { NULL, NULL, 0 }
 };
 
@@ -8848,6 +8884,7 @@ void proto_register_asterix (void)
         { &hf_021_040_TST, { "TST", "asterix.021_040_TST", FT_UINT8, BASE_DEC, VALS (valstr_021_040_TST), 0x10, NULL, HFILL } },
         { &hf_021_040_SAA, { "SAA", "asterix.021_040_SAA", FT_UINT8, BASE_DEC, VALS (valstr_021_040_SAA), 0x08, NULL, HFILL } },
         { &hf_021_040_CL, { "CL", "asterix.021_040_CL", FT_UINT8, BASE_DEC, VALS (valstr_021_040_CL), 0x06, NULL, HFILL } },
+        { &hf_021_040_LLC, { "LLC", "asterix.021_040_LLC", FT_UINT8, BASE_DEC, VALS (valstr_021_040_LLC), 0x40, NULL, HFILL } },
         { &hf_021_040_IPC, { "IPC", "asterix.021_040_IPC", FT_UINT8, BASE_DEC, VALS (valstr_021_040_IPC), 0x20, NULL, HFILL } },
         { &hf_021_040_NOGO, { "NOGO", "asterix.021_040_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_021_040_NOGO), 0x10, NULL, HFILL } },
         { &hf_021_040_CPR, { "CPR", "asterix.021_040_CPR", FT_UINT8, BASE_DEC, VALS (valstr_021_040_CPR), 0x08, NULL, HFILL } },
@@ -8941,6 +8978,7 @@ void proto_register_asterix (void)
         { &hf_021_200, { "200, Target Status", "asterix.021_200", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_200_ICF, { "ICF", "asterix.021_200_ICF", FT_UINT8, BASE_DEC, VALS (valstr_021_200_ICF), 0x80, NULL, HFILL } },
         { &hf_021_200_LNAV, { "LNAV", "asterix.021_200_LNAV", FT_UINT8, BASE_DEC, VALS (valstr_021_200_LNAV), 0x40, NULL, HFILL } },
+        { &hf_021_200_ME, { "ME", "asterix.021_200_ME", FT_UINT8, BASE_DEC, VALS (valstr_021_200_ME), 0x20, NULL, HFILL } },
         { &hf_021_200_PS, { "PS", "asterix.021_200_PS", FT_UINT8, BASE_DEC, VALS (valstr_021_200_PS), 0x1c, NULL, HFILL } },
         { &hf_021_200_SS, { "SS", "asterix.021_200_SS", FT_UINT8, BASE_DEC, VALS (valstr_021_200_SS), 0x03, NULL, HFILL } },
         { &hf_021_210, { "210, MOPS Version", "asterix.021_210", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -8974,7 +9012,8 @@ void proto_register_asterix (void)
         { &hf_021_271_B2low, { "B2low", "asterix.021_271_B2low", FT_UINT8, BASE_DEC, VALS (valstr_021_271_B2low), 0x08, NULL, HFILL } },
         { &hf_021_271_RAS, { "RAS", "asterix.021_271_RAS", FT_UINT8, BASE_DEC, VALS (valstr_021_271_RAS), 0x04, NULL, HFILL } },
         { &hf_021_271_IDENT, { "IDENT", "asterix.021_271_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_021_271_IDENT), 0x02, NULL, HFILL } },
-        { &hf_021_271_LW, { "L+W", "asterix.021_271_LW", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
+        { &hf_021_271_LW, { "L+W", "asterix.021_271_LW", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_021_271_LW_v2_1, { "L+W", "asterix.021_271_LW", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
         { &hf_021_295, { "295, Data Ages", "asterix.021_295", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_295_01, { "#01: Aircraft Operational Status age", "asterix.021_295_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_295_01_AOS, { "AOS [s]", "asterix.021_295_01_AOS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10159,6 +10198,7 @@ void proto_register_asterix (void)
         &ett_021_040_TST,
         &ett_021_040_SAA,
         &ett_021_040_CL,
+        &ett_021_040_LLC,
         &ett_021_040_IPC,
         &ett_021_040_NOGO,
         &ett_021_040_CPR,
@@ -10252,6 +10292,7 @@ void proto_register_asterix (void)
         &ett_021_200,
         &ett_021_200_ICF,
         &ett_021_200_LNAV,
+        &ett_021_200_ME,
         &ett_021_200_PS,
         &ett_021_200_SS,
         &ett_021_210,
@@ -10286,6 +10327,7 @@ void proto_register_asterix (void)
         &ett_021_271_RAS,
         &ett_021_271_IDENT,
         &ett_021_271_LW,
+        &ett_021_271_LW_v2_1,
         &ett_021_295,
         &ett_021_295_01,
         &ett_021_295_01_AOS,
