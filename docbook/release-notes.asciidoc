@@ -13,20 +13,12 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2015-19[]
+* ws-salink:2015-21[]
 +
-WCCP dissector crash.
-// Fixed in master: g524ed1d
-// Fixed in master-1.12: g92483af
-(ws-buglink:11153[])
-//cve-idlink:2015-XXXX[]
-
-* ws-salink:2015-20[]
-+
-GSM DTAP dissector crash.
-// Fixed in master: gd93be95
-// Fixed in master-1.12: g9fa6881
-(ws-buglink:11201[])
+A dissector went awry.
+// Fixed in master: gXXX
+// Fixed in master-1.12: gXXX
+(ws-buglink:XXX[])
 //cve-idlink:2015-XXXX[]
 
 
@@ -34,23 +26,7 @@ The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.6rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Wireshark 1.12.1 crashes on startup on Mac OS X 10.10 (Yosemite). (ws-buglink:10640[])
-
-* Wireshark does not display X.400 addresses correctly. (ws-buglink:11210[])
-
-* Reproducible crash in "Edit column details" dialog. (ws-buglink:11245[])
-
-* Subnet name resolution doesn't always work. (ws-buglink:11247[])
-
-* SIP MIME body containing ISUP does not decode properly. (ws-buglink:11249[])
-
-* iSCSI: Read(10): shows incorrect "Data In" & "Response" frame number. (ws-buglink:11250[])
-
-* tshark -z io,stat,1,SUM(ip.len) reports invalid stats, triggers ASAN buffer overrun. (ws-buglink:11262[])
-
-* Port Control Protocol packet dissection decodes R bit incorrectly. (ws-buglink:11278[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 
 === New and Updated Features
@@ -64,12 +40,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-GSM DTAP
-iSCSI
-P1
-PCP
-SIP
-WCCP
 --sort-and-group--
 
 === New and Updated Capture File Support
