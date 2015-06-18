@@ -368,8 +368,9 @@ void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
     image.save(fileName, "PNG");
 }
 
-void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *button _U_)
+void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
+    Q_UNUSED(button);
 /*    if (button == foo_button_) */
 }
 

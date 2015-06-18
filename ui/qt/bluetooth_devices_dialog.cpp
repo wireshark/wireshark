@@ -393,8 +393,9 @@ void BluetoothDevicesDialog::on_actionSave_as_image_triggered()
     image.save(fileName, "PNG");
 }
 
-void BluetoothDevicesDialog::on_buttonBox_clicked(QAbstractButton *button _U_)
+void BluetoothDevicesDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
+    Q_UNUSED(button);
 /*    if (button == foo_button_) */
 }
 
