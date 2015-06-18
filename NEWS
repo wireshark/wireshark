@@ -1,4 +1,4 @@
-                         Wireshark 1.99.6 Release Notes
+                         Wireshark 1.99.7 Release Notes
 
    This is an experimental release intended to test new features for
    Wireshark 2.0.
@@ -13,6 +13,18 @@ What is Wireshark?
 What's New
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 1.99.6:
+     * Qt port:
+          + The Bluetooth Devices dialog has been added.
+          + The wireless toolbar has been added.
+          + Opening files via drag and drop is now supported.
+          + The Capture Filter and Display Filter dialogs have been added.
+          + The Display Filter Expression dialog has been added.
+          + Conversation Filter menu items have been added.
+          + You can change protocol preferences by right clicking on the
+            packet list and details.
 
    The following features are new (or have been significantly updated)
    since version 1.99.4 and 1.99.5:
@@ -111,10 +123,10 @@ What's New
 
   New Protocol Support
 
-   (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
-   ADB, Android Logcat text, Apache Tribes Heartbeat, BGP Monitoring
-   Prototol (BMP), C15 Call History Protocol dissection (C15ch), ceph,
-   corosync/totemnet corosync cluster engine ( lowest
+   (LISP) TCP Control Message, Aeron, AllJoyn Reliable Datagram Protocol,
+   Android ADB, Android Logcat text, Apache Tribes Heartbeat, BGP
+   Monitoring Prototol (BMP), C15 Call History Protocol dissection
+   (C15ch), ceph, corosync/totemnet corosync cluster engine ( lowest
    levelencryption/decryption protocol), corosync/totemsrp corosync
    cluster engine ( totem single ring protocol), Couchbase, CP "Cooper"
    2179, DJI UAV Drone Control Protocol, Dynamic Source Routing (RFC
@@ -123,11 +135,12 @@ What's New
    Geospatial and Imagery Access Service (GIAS), GVSP GigE Vision (TM)
    Streaming Protocol, HCrt, HiQnet, IP Detail Record (IPDR), IPMI Trace,
    iSER, KNXnetIP, MACsec Key Agreement - EAPoL-MKA, MCPE (Minecraft
-   Pocket Edition), OCFS2, OptoMMP, QNEX6 (QNET), RakNet games library,
-   Remote Shared Virtual Disk - RSVD, Riemann, S7 Communication, Secure
-   Socket Tunnel Protocol (SSTP), Shared Memory Communications - RDMA,
-   Stateless Transport Tunneling, Thrift, Video Services over IP (VSIP),
-   and ZVT Kassenschnittstelle
+   Pocket Edition), Network File System over Remote Direct Memory Access
+   (NFSoRDMA), OCFS2, OptoMMP, Performance Co-Pilot Proxy, QNEX6 (QNET),
+   RakNet games library, Remote Shared Virtual Disk - RSVD, Riemann, S7
+   Communication, Secure Socket Tunnel Protocol (SSTP), Shared Memory
+   Communications - RDMA, Stateless Transport Tunneling, Thrift, Video
+   Services over IP (VSIP), and ZVT Kassenschnittstelle
 
   Updated Protocol Support
 
@@ -222,7 +235,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-05-28 18:47:50 UTC
+   Last updated 2015-06-18 15:33:59 UTC
 
 References
 
