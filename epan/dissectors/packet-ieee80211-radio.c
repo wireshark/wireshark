@@ -464,8 +464,8 @@ static gint ett_radio = -1;
  * Dissect 802.11 with a variable-length link-layer header and a pseudo-
  * header containing radio information.
  */
-static void
-dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
   proto_item *ti = NULL;
   proto_tree *radio_tree = NULL;
@@ -590,7 +590,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   /* dissect the 802.11 header next */
   pinfo->current_proto = "IEEE 802.11";
-  call_dissector(ieee80211_handle, tvb, pinfo, tree);
+  return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
 }
 
 static hf_register_info hf_radio[] = {
@@ -652,7 +652,7 @@ void proto_reg_handoff_ieee80211_radio(void)
   dissector_handle_t radio_handle;
 
   /* Register handoff to radio-header dissectors */
-  radio_handle = create_dissector_handle(dissect_radio, proto_radio);
+  radio_handle = new_create_dissector_handle(dissect_radio, proto_radio);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
                      radio_handle);
   ieee80211_handle = find_dissector("wlan");

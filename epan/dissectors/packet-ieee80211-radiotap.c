@@ -586,6 +586,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	struct _radiotap_info              *radiotap_info;
 	static struct _radiotap_info        rtp_info_arr;
 	struct ieee80211_radiotap_iterator  iter;
+	struct ieee_802_11_phdr phdr;
 
 	/* our non-standard overrides */
 	static struct radiotap_override overrides[] = {
@@ -600,6 +601,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		n_overrides--;
 
 	radiotap_info = &rtp_info_arr;
+
+	/* We don't have any 802.11 metadata yet. */
+	phdr.fcs_len = -1;
+	phdr.decrypted = FALSE;
+	phdr.presence_flags = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -827,6 +833,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_FLAGS: {
 			rflags = tvb_get_guint8(tvb, offset);
+			if (rflags & IEEE80211_RADIOTAP_F_FCS)
+				phdr.fcs_len = 4;
+			else
+				phdr.fcs_len = 0;
+
 			if (tree) {
 				proto_tree *flags_tree;
 
@@ -1438,12 +1449,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_item_append_text(ti, " (malformed)");
 	}
 
-	/* This handles the case of an FCS exiting at the end of the frame. */
-	if (rflags & IEEE80211_RADIOTAP_F_FCS)
-		pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
-	else
-		pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
-
  hand_off_to_80211:
 	/* Grab the rest of the frame. */
 	next_tvb = tvb_new_subset_remaining(tvb, length);
@@ -1452,17 +1457,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	 * This can only happen if the backward-compat configuration option
 	 * is chosen by the user. */
 	if (hdr_fcs_ti) {
+		guint captured_length = tvb_captured_length(next_tvb);
+		guint reported_length = tvb_reported_length(next_tvb);
+		guint fcs_len = (phdr.fcs_len > 0) ? phdr.fcs_len : 0;
+
 		/* It would be very strange for the header to have an FCS for the
 		 * frame *and* the frame to have the FCS at the end, but it's possible, so
 		 * take that into account by using the FCS length recorded in pinfo. */
 
 		/* Watch out for [erroneously] short frames */
-		if (tvb_length(next_tvb) >
-		    (unsigned int)pinfo->pseudo_header->ieee_802_11.fcs_len) {
+		if (captured_length >= reported_length &&
+		    captured_length > fcs_len) {
 			calc_fcs =
-			    crc32_802_tvb(next_tvb,
-			    	tvb_length(next_tvb) -
-			    	pinfo->pseudo_header->ieee_802_11.fcs_len);
+			    crc32_802_tvb(next_tvb, tvb_length(next_tvb) - fcs_len);
 
 			/* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,
 			 * so there's no need to check it here. */
@@ -1486,10 +1493,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	}
 
-	/* dissect the 802.11 header next */
-	call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
-		       ieee80211_datapad_handle : ieee80211_handle,
-		       next_tvb, pinfo, tree);
+	/* dissect the 802.11 packet next */
+	call_dissector_with_data((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
+	    ieee80211_datapad_handle : ieee80211_handle, next_tvb, pinfo,
+	    tree, &phdr);
 
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
 }

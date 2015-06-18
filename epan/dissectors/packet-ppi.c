@@ -333,6 +333,7 @@ static expert_field ei_ppi_invalid_length = EI_INIT;
 static dissector_handle_t ppi_handle;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_ht_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
@@ -476,7 +477,7 @@ add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
 
 /* XXX - The main dissection function in the 802.11 dissector has the same name. */
 static void
-dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len)
+dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, struct ieee_802_11_phdr *phdr)
 {
     proto_tree  *ftree;
     proto_item  *ti;
@@ -497,9 +498,9 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     common_flags = tvb_get_letohs(tvb, offset + 8);
     if (common_flags & DOT11_FLAG_HAVE_FCS)
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
+        phdr->fcs_len = 4;
     else
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
+        phdr->fcs_len = 0;
 
     csr = ptvcursor_new(ftree, tvb, offset);
 
@@ -752,6 +753,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint          last_frame  = 0;
     gboolean       is_ht       = FALSE;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
+    struct ieee_802_11_phdr phdr;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -790,6 +792,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tot_len -= PPI_V0_HEADER_LEN;
     offset += 8;
 
+    /* We don't have any 802.11 metadata yet. */
+    phdr.fcs_len = -1;
+    phdr.decrypted = FALSE;
+    phdr.presence_flags = 0;
+
     while (tot_len > 0) {
         data_type = tvb_get_letohs(tvb, offset);
         data_len = tvb_get_letohs(tvb, offset + 2) + 4;
@@ -797,7 +804,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch (data_type) {
             case PPI_80211_COMMON:
-                dissect_80211_common(tvb, pinfo, ppi_tree, offset, data_len);
+                dissect_80211_common(tvb, pinfo, ppi_tree, offset, data_len,
+                    &phdr);
                 break;
 
             case PPI_80211N_MAC:
@@ -988,7 +996,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
                     ampdu_tree = proto_tree_add_subtree(agg_tree, next_tvb, 0, -1, ett_ampdu_segment, NULL, mpdu_str);
-                    call_dissector(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree);
+                    call_dissector_with_data(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree, &phdr);
                 }
                 fd_head = fd_head->next;
             }
@@ -1004,9 +1012,26 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (is_ht) { /* We didn't hit the reassembly code */
-        call_dissector(ieee80211_ht_handle, next_tvb, pinfo, tree);
+    /*
+     * You can't just call an arbitrary subdissector based on a
+     * LINKTYPE_ value, because they may expect a particular
+     * pseudo-header to be passed to them.
+     *
+     * So we look for LINKTYPE_IEEE802_11, which is 105, and, if
+     * that's what the LINKTYPE_ value is, pass it a pointer
+     * to a struct ieee_802_11_phdr; otherwise, we pass it
+     * a null pointer - if it actually matters, we need to
+     * construct the appropriate pseudo-header and pass that.
+     */
+    if (dlt == 105) {
+        /* LINKTYPE_IEEE802_11 */
+        if (is_ht) { /* We didn't hit the reassembly code */
+            call_dissector_with_data(ieee80211_ht_handle, next_tvb, pinfo, tree, &phdr);
+        } else {
+            call_dissector_with_data(ieee80211_handle, next_tvb, pinfo, tree, &phdr);
+        }
     } else {
+        /* Everything else.  This will pass a NULL data argument. */
         dissector_try_uint(wtap_encap_dissector_table,
             wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
     }
@@ -1376,6 +1401,7 @@ void
 proto_reg_handoff_ppi(void)
 {
     data_handle = find_dissector("data");
+    ieee80211_handle = find_dissector("wlan");
     ieee80211_ht_handle = find_dissector("wlan_ht");
     ppi_gps_handle = find_dissector("ppi_gps");
     ppi_vector_handle = find_dissector("ppi_vector");
