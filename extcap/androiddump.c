@@ -254,6 +254,11 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 
     pcap = pcap_open_dead_with_tstamp_precision(encap_ext, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
     extcap_dumper.dumper.pcap = pcap_dump_open(pcap, fifo);
+    if (!extcap_dumper.dumper.pcap) {
+        if (verbose)
+            fprintf(stderr, "ERROR: Cannot save dump file\n");
+        exit(1);
+    }
     extcap_dumper.encap = encap;
     pcap_dump_flush(extcap_dumper.dumper.pcap);
 #else
@@ -270,6 +275,11 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     }
 
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap_ext, PACKET_LENGTH, FALSE, &err);
+    if (!extcap_dumper.dumper.wtap) {
+        if (verbose)
+            fprintf(stderr, "ERROR: Cannot save dump file\n");
+        exit(1);
+    }
     extcap_dumper.encap = encap;
     wtap_dump_flush(extcap_dumper.dumper.wtap);
 #endif
@@ -1440,6 +1450,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                         *bt_local_tcp_port, *bt_server_tcp_port, result);
         }
 
+        memset(&server, 0 , sizeof(server));
         server.sin_family = AF_INET;
         server.sin_port = GINT16_TO_BE(*bt_local_tcp_port);
         server.sin_addr.s_addr = inet_addr(bt_local_ip);
@@ -1526,7 +1537,6 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
                     if (verbose)
                         printf("ERROR1: %s\n", strerror(errno));
-                    closesocket(sock);
                     return 1;
                 }
 

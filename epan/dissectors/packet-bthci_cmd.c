@@ -1604,7 +1604,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if (!pinfo->fd->flags.visited && bluetooth_data) {
+            if (!pinfo->fd->flags.visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -1671,7 +1671,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             role = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            if (!pinfo->fd->flags.visited && bluetooth_data) {
+            if (!pinfo->fd->flags.visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -3122,7 +3122,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ocf = opcode & 0x03ff;
     ogf = (guint8) (opcode >> 10);
 
-    if (!pinfo->fd->flags.visited && bluetooth_data) {
+    if (!pinfo->fd->flags.visited) {
         bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
         bthci_cmd_data->command_in_frame = frame_number;
@@ -3231,7 +3231,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
     }
 
-    if (!pinfo->fd->flags.visited && bluetooth_data && bthci_cmd_data) {
+    if (!pinfo->fd->flags.visited && bthci_cmd_data) {
         key[0].length = 1;
         key[0].key    = &interface_id;
         key[1].length = 1;
