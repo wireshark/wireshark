@@ -1186,7 +1186,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							    tvb, offset + 1, 1, mcs_flags);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
-				proto_tree_add_boolean(mcs_tree, hf_radiotap_mcs_stbc,
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_stbc,
 							    tvb, offset + 1, 1, mcs_flags);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
@@ -1972,14 +1972,14 @@ void proto_register_radiotap(void)
 		  "Format information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_fec,
-		 {"FEC", "radiotap.mcs.have_fec",
+		 {"FEC type", "radiotap.mcs.have_fec",
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
-		  "Forward error correction information present", HFILL}},
+		  "Forward error correction type information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_stbc,
-		 {"STBC", "radiotap.mcs.have_stbc",
+		 {"STBC streams", "radiotap.mcs.have_stbc",
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
-		  "Space Time Block Coding information present", HFILL}},
+		  "Space Time Block Coding streams information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_index,
 		 {"MCS index", "radiotap.mcs.have_index",
@@ -2002,14 +2002,14 @@ void proto_register_radiotap(void)
 		  NULL, HFILL}},
 
 		{&hf_radiotap_mcs_fec,
-		 {"FEC", "radiotap.mcs.fec",
+		 {"FEC type", "radiotap.mcs.fec",
 		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
-		  "forward error correction", HFILL}},
+		  "Forward error correction type", HFILL}},
 
 		{&hf_radiotap_mcs_stbc,
-		 {"STBC", "radiotap.mcs.stbc",
-		  FT_BOOLEAN, 8, TFS(&tfs_on_off), IEEE80211_RADIOTAP_MCS_STBC,
-		  "Space Time Block Code", HFILL}},
+		 {"STBC streams", "radiotap.mcs.stbc",
+		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_STBC_MASK,
+		  "Number of Space Time Block Code streams", HFILL}},
 
 		{&hf_radiotap_mcs_index,
 		 {"MCS index", "radiotap.mcs.index",
