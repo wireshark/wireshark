@@ -555,10 +555,9 @@ struct p2p_phdr {
  * times the ratio of the RSSI and the maximum RSSI.
  */
 struct ieee_802_11_phdr {
-    guint32  presence_flags; /* Flags indicating presence of certain fields */
-    guint32  flags_11n;      /* Various flags for 802.11n traffic */
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
+    guint32  presence_flags; /* Flags indicating presence of fields */
     guint16  channel;        /* Channel number */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
     guint16  mcs_index;      /* MCS index */
@@ -568,7 +567,6 @@ struct ieee_802_11_phdr {
     guint    ldpc:1;         /* Tue for LDPC FEC */
     guint    stbc_streams:2; /* Number of STBC streams */
     guint    ness:1;         /* Number of extension spatial streams */
-    guint16  mcs_info;       /* 11n flags and bandwidth */
     guint32  frequency;      /* Channel center frequency */
     guint8   signal_percent; /* Signal level, as a percentage */
     guint8   noise_percent;  /* Noise level, as a percentage */
