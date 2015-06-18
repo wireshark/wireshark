@@ -4875,6 +4875,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     guint8       bd_addr[6];
     guint8      *name = NULL;
 
+    DISSECTOR_ASSERT(bluetooth_data);
+
     data_size = tvb_reported_length(tvb);
 
     while (offset < data_size) {
