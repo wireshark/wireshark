@@ -3659,7 +3659,8 @@ static const AsterixField I004_070 = { COMPOUND, 0, 0, 0, &hf_004_070, NULL, { &
                                                                                &I004_070_03,
                                                                                &I004_070_04,
                                                                                &I004_070_05,
-                                                                               &I004_070_06 } };
+                                                                               &I004_070_06,
+                                                                               NULL } };
 static const AsterixField I004_074 = { FIXED, 2, 0, 0, &hf_004_074, I004_074_PARTS, { NULL } };
 static const AsterixField I004_075 = { FIXED, 3, 0, 0, &hf_004_075, I004_075_PARTS, { NULL } };
 static const AsterixField I004_076 = { FIXED, 2, 0, 0, &hf_004_076, I004_076_PARTS, { NULL } };
@@ -3674,7 +3675,8 @@ static const AsterixField I004_100 = { COMPOUND, 0, 0, 0, &hf_004_100, NULL, { &
                                                                                &I004_100_03,
                                                                                &I004_100_04,
                                                                                &I004_100_05,
-                                                                               &I004_100_06 } };
+                                                                               &I004_100_06,
+                                                                               NULL } };
 static const AsterixField I004_110 = { REPETITIVE, 1, 2, 0, &hf_004_110, I004_110_PARTS, { NULL } };
 static const AsterixField I004_120_01 = { FX, 1, 0, 0, &hf_004_120_01, I004_120_01_PARTS, { NULL } };
 static const AsterixField I004_120_02 = { FIXED, 1, 0, 0, &hf_004_120_02, I004_120_02_PARTS, { NULL } };
@@ -3683,7 +3685,8 @@ static const AsterixField I004_120_04 = { FIXED, 3, 0, 0, &hf_004_120_04, I004_1
 static const AsterixField I004_120 = { COMPOUND, 0, 0, 0, &hf_004_120, NULL, { &I004_120_01,
                                                                                &I004_120_02,
                                                                                &I004_120_03,
-                                                                               &I004_120_04 } };
+                                                                               &I004_120_04,
+                                                                               NULL } };
 static const AsterixField I004_170_01 = { FIXED, 7, 0, 0, &hf_004_170_01, I004_170_01_PARTS, { NULL } };
 static const AsterixField I004_170_02 = { FIXED, 2, 0, 0, &hf_004_170_02, I004_170_02_PARTS, { NULL } };
 static const AsterixField I004_170_03 = { FIXED, 10, 0, 0, &hf_004_170_03, I004_170_03_PARTS, { NULL } };
@@ -3703,7 +3706,8 @@ static const AsterixField I004_170 = { COMPOUND, 0, 0, 0, &hf_004_170, NULL, { &
                                                                                &I004_170_07,
                                                                                &I004_170_08,
                                                                                &I004_170_09,
-                                                                               &I004_170_10 } };
+                                                                               &I004_170_10,
+                                                                               NULL } };
 static const AsterixField I004_171_01 = { FIXED, 7, 0, 0, &hf_004_171_01, I004_171_01_PARTS, { NULL } };
 static const AsterixField I004_171_02 = { FIXED, 2, 0, 0, &hf_004_171_02, I004_171_02_PARTS, { NULL } };
 static const AsterixField I004_171_03 = { FIXED, 10, 0, 0, &hf_004_171_03, I004_171_03_PARTS, { NULL } };
@@ -3723,7 +3727,8 @@ static const AsterixField I004_171 = { COMPOUND, 0, 0, 0, &hf_004_171, NULL, { &
                                                                                &I004_171_07,
                                                                                &I004_171_08,
                                                                                &I004_171_09,
-                                                                               &I004_171_10 } };
+                                                                               &I004_171_10,
+                                                                               NULL } };
 static const AsterixField I004_SP = { SP, 0, 0, 1, &hf_004_SP, NULL, { NULL } };
 static const AsterixField I004_RE = { RE, 0, 0, 1, &hf_004_RE, NULL, { NULL } };
 
