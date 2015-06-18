@@ -69,48 +69,24 @@ static frame_end_data previous_frame_data = {0,0};
 #define VW_RADIOTAP_FPGA_VER_vVW510021      0x000C  /* vVW510021 version detected */
 #define VW_RADIOTAP_FPGA_VER_vVW510021_11n  0x000D
 
-#define IEEE80211_CHAN_CCK                  0x00020 /* CCK channel */
-#define IEEE80211_CHAN_OFDM                 0x00040 /* OFDM channel */
-#define IEEE80211_CHAN_2GHZ                 0x00080 /* 2 GHz spectrum channel. */
-#define IEEE80211_CHAN_5GHZ                 0x00100 /* 5 GHz spectrum channel */
+#define CHAN_CCK                            0x00020 /* CCK channel */
+#define CHAN_OFDM                           0x00040 /* OFDM channel */
+#define CHAN_2GHZ                           0x00080 /* 2 GHz spectrum channel. */
+#define CHAN_5GHZ                           0x00100 /* 5 GHz spectrum channel */
 
-#define IEEE80211_RADIOTAP_F_FCS            0x0010  /* frame includes FCS */
-#define IEEE80211_RADIOTAP_F_DATAPAD        0x0020  /* frame has padding between
-                                                     * 802.11 header and payload
-                                                     * (to 32-bit boundary)
-                                                     */
-#define IEEE80211_RADIOTAP_F_HT             0x0040  /* HT mode */
-#define IEEE80211_RADIOTAP_F_VHT            0x0080  /* VHT mode */
-#define IEEE80211_RADIOTAP_F_CFP            0x0001  /* sent/received
-                                                     * during CFP
-                                                     */
-#define IEEE80211_RADIOTAP_F_SHORTPRE       0x0002  /* sent/received
+#define FLAGS_SHORTPRE                      0x0002  /* sent/received
                                                      * with short
                                                      * preamble
                                                      */
-#define IEEE80211_RADIOTAP_F_WEP            0x0004  /* sent/received
+#define FLAGS_WEP                           0x0004  /* sent/received
                                                      * with WEP encryption
                                                      */
-#define IEEE80211_RADIOTAP_F_FRAG           0x0008  /* sent/received
-                                                     * with fragmentation
-                                                     */
-#define IEEE80211_PLCP_RATE_MASK        0x7f    /* parses out the rate or MCS index from the PLCP header(s) */
-#define IEEE80211_RADIOTAP_F_40MHZ      0x0200  /* 40 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_80MHZ      0x0400  /* 80 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_160MHZ     0x0800  /* 80 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_SHORTGI    0x0100
-
-/* For RADIOTAP_FLAGS */
-#define RADIOTAP_F_CFP          0x001               /* sent/received during CFP */
-#define RADIOTAP_F_SHORTPRE     0x002               /* sent/received with short preamble */
-#define RADIOTAP_F_WEP          0x004               /* sent/received with WEP encryption */
-#define RADIOTAP_F_FRAG         0x008               /* sent/received with fragmentation */
-#define RADIOTAP_F_FCS          0x010               /* frame includes FCS */
-#define RADIOTAP_F_DATAPAD      0x020               /* padding between 802.11 hdr & payload */
-#define RADIOTAP_F_CHAN_HT      0x040               /* In HT mode */
-#define RADIOTAP_F_CHAN_40MHZ   0x080               /* 40 Mhz CBW */
-#define RADIOTAP_F_CHAN_80MHZ   0x100               /* 80 Mhz CBW */
-#define RADIOTAP_F_CHAN_SHORTGI 0x200               /* Short guard interval */
+#define FLAGS_CHAN_HT                       0x0040  /* HT mode */
+#define FLAGS_CHAN_VHT                      0x0080  /* VHT mode */
+#define FLAGS_CHAN_SHORTGI                  0x0100  /* short guard interval */
+#define FLAGS_CHAN_40MHZ                    0x0200  /* 40 Mhz channel bandwidth */
+#define FLAGS_CHAN_80MHZ                    0x0400  /* 80 Mhz channel bandwidth */
+#define FLAGS_CHAN_160MHZ                   0x0800  /* 160 Mhz channel bandwidth */
 
 #define ETHERNET_PORT           1
 #define WLAN_PORT               0
@@ -149,7 +125,6 @@ static gint ett_radiotap_flags = -1;
 /* static gint ett_radiotap_channel_flags = -1; */
 
 static dissector_handle_t ieee80211_handle;
-static dissector_handle_t ieee80211_datapad_handle;
 
 /* Ethernet fields */
 static int hf_ixveriwave_vw_info = -1;
@@ -195,12 +170,8 @@ static int hf_radiotap_dbm_antc = -1;
 static int hf_radiotap_dbm_antd = -1;
 static int hf_radiotap_fcs_bad = -1;
 
-static int hf_radiotap_flags_cfp = -1;
 static int hf_radiotap_flags_preamble = -1;
 static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_frag = -1;
-static int hf_radiotap_flags_fcs = -1;
-static int hf_radiotap_flags_datapad = -1;
 static int hf_radiotap_flags_ht = -1;
 static int hf_radiotap_flags_vht = -1;
 static int hf_radiotap_flags_40mhz = -1;
@@ -677,13 +648,10 @@ static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree)
 {
     proto_tree *ft, *flags_tree         = NULL;
-    proto_item *hdr_fcs_ti              = NULL;
     int         align_offset, offset;
-    guint32     calc_fcs;
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      rflags                  = 0;
     guint8      mcs_index;
     float       phyRate;
 
@@ -714,19 +682,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     if (tree) {
         ft = proto_tree_add_uint(tap_tree, hf_radiotap_flags, tvb, offset, 2, vw_rflags);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
-        proto_tree_add_boolean(flags_tree, hf_radiotap_flags_cfp,
-            tvb, offset, 2, vw_rflags);
         proto_tree_add_boolean(flags_tree, hf_radiotap_flags_preamble,
             tvb, offset, 2, vw_rflags);
         proto_tree_add_boolean(flags_tree, hf_radiotap_flags_wep,
             tvb, offset, 2, vw_rflags);
-        proto_tree_add_boolean(flags_tree, hf_radiotap_flags_frag,
-            tvb, offset, 2, vw_rflags);
-        proto_tree_add_boolean(flags_tree, hf_radiotap_flags_fcs,
-            tvb, offset, 2, vw_rflags);
-        proto_tree_add_boolean(flags_tree, hf_radiotap_flags_datapad,
-            tvb, offset, 2, vw_rflags);
-        if ( vw_rflags & IEEE80211_RADIOTAP_F_HT ) {
+        if ( vw_rflags & FLAGS_CHAN_HT ) {
             proto_tree_add_boolean(flags_tree, hf_radiotap_flags_ht,
             tvb, offset, 2, vw_rflags);
             proto_tree_add_boolean(flags_tree, hf_radiotap_flags_40mhz,
@@ -734,7 +694,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_boolean(flags_tree, hf_radiotap_flags_shortgi,
             tvb, offset, 2, vw_rflags);
         }
-        if ( vw_rflags & IEEE80211_RADIOTAP_F_VHT ) {
+        if ( vw_rflags & FLAGS_CHAN_VHT ) {
             proto_tree_add_boolean(flags_tree, hf_radiotap_flags_vht,
             tvb, offset, 2, vw_rflags);
             proto_tree_add_boolean(flags_tree, hf_radiotap_flags_shortgi,
@@ -756,7 +716,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset++;
     offset++;
 
-    if ((vw_rflags & IEEE80211_RADIOTAP_F_HT) || (vw_rflags & IEEE80211_RADIOTAP_F_VHT) ) {
+    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
         if (tree) {
             proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
                                 tvb, offset - 2, 1, ENC_BIG_ENDIAN);
@@ -941,48 +901,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     }
 
-    /* This handles the case of an FCS existing at the end of the frame. */
-    if (rflags & IEEE80211_RADIOTAP_F_FCS)
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
-    else
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
-
     /* Grab the rest of the frame. */
     next_tvb = tvb_new_subset_remaining(tvb, length);
 
-    /* If we had an in-header FCS, check it. */
-    if (hdr_fcs_ti) {
-        /* It would be very strange for the header to have an FCS for the
-         * frame *and* the frame to have the FCS at the end, but it's possible, so
-         * take that into account by using the FCS length recorded in pinfo. */
-
-        /* Watch out for [erroneously] short frames */
-        if (tvb_length(next_tvb) > (unsigned int) pinfo->pseudo_header->ieee_802_11.fcs_len) {
-            guint32 sent_fcs = 0;
-            calc_fcs = crc32_802_tvb(next_tvb,
-                                     tvb_length(next_tvb) - pinfo->pseudo_header->ieee_802_11.fcs_len);
-
-            /* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,
-            * so there's no need to check it here. */
-            if (calc_fcs == sent_fcs) {
-                proto_item_append_text(hdr_fcs_ti, " [correct]");
-            }
-            else {
-                proto_item_append_text(hdr_fcs_ti, " [incorrect, should be 0x%08x]", calc_fcs);
-                proto_tree_add_boolean(tap_tree, hf_radiotap_fcs_bad,
-                    tvb, 0, 4, TRUE);
-            }
-        }
-        else {
-            proto_item_append_text(hdr_fcs_ti,
-            " [cannot verify - not enough data]");
-        }
-    }
-
-    /* dissect the 802.11 header next */
-    call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
-                   ieee80211_datapad_handle : ieee80211_handle,
-                   next_tvb, pinfo, tree);
+    /* dissect the 802.11 packet next */
+    call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
 void proto_register_ixveriwave(void)
@@ -1214,55 +1137,35 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Flags", "ixveriwave.flags",
         FT_UINT16, BASE_HEX, NULL,  0x0, NULL, HFILL } },
 
-    { &hf_radiotap_flags_cfp,
-        { "CFP", "ixveriwave.flags.cfp",
-        FT_BOOLEAN, 12, NULL,  IEEE80211_RADIOTAP_F_CFP,
-        "Sent/Received during CFP", HFILL } },
-
     { &hf_radiotap_flags_preamble,
         { "Preamble", "ixveriwave.flags.preamble",
-        FT_BOOLEAN, 12, TFS(&preamble_type),  IEEE80211_RADIOTAP_F_SHORTPRE,
+        FT_BOOLEAN, 12, TFS(&preamble_type),  FLAGS_SHORTPRE,
         "Sent/Received with short preamble", HFILL } },
 
     { &hf_radiotap_flags_wep,
         { "WEP", "ixveriwave.flags.wep",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_WEP,
+        FT_BOOLEAN, 12, NULL, FLAGS_WEP,
         "Sent/Received with WEP encryption", HFILL } },
-
-    { &hf_radiotap_flags_frag,
-        { "Fragmentation", "ixveriwave.flags.frag",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_FRAG,
-        "Sent/Received with fragmentation", HFILL } },
-
-    { &hf_radiotap_flags_fcs,
-        { "FCS at end", "ixveriwave.flags.fcs",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_FCS,
-        "Frame includes FCS at end", HFILL } },
-
-    { &hf_radiotap_flags_datapad,
-        { "Data Pad", "ixveriwave.flags.datapad",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_DATAPAD,
-        "Frame has padding between 802.11 header and payload", HFILL } },
 
     { &hf_radiotap_flags_ht,
         { "HT frame", "ixveriwave.flags.ht",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_HT, NULL, HFILL } },
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_HT, NULL, HFILL } },
 
     { &hf_radiotap_flags_vht,
         { "VHT frame", "ixveriwave.flags.vht",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_VHT, NULL, HFILL } },
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_VHT, NULL, HFILL } },
 
     { &hf_radiotap_flags_40mhz,
         { "40 MHz channel bandwidth", "ixveriwave.flags.40mhz",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_40MHZ, NULL, HFILL } },
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_40MHZ, NULL, HFILL } },
 
     { &hf_radiotap_flags_80mhz,
         { "80 MHz channel bandwidth", "ixveriwave.flags.80mhz",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_80MHZ, NULL, HFILL } },
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_80MHZ, NULL, HFILL } },
 
     { &hf_radiotap_flags_shortgi,
         { "Short guard interval", "ixveriwave.flags.shortgi",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_SHORTGI, NULL, HFILL } },
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_SHORTGI, NULL, HFILL } },
 
     { &hf_radiotap_dbm_antsignal,
         { "SSI Signal", "ixveriwave.dbm_antsignal",
@@ -1448,8 +1351,7 @@ void proto_reg_handoff_ixveriwave(void)
     /* handle for ethertype dissector */
     ethernet_handle          = find_dissector("eth_withoutfcs");
     /* handle for 802.11 dissector */
-    ieee80211_handle         = find_dissector("wlan");
-    ieee80211_datapad_handle = find_dissector("wlan_datapad");
+    ieee80211_handle         = find_dissector("wlan_withoutfcs");
 
     ixveriwave_handle           = create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);
