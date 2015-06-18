@@ -74,6 +74,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_tempfile_path@Base 1.12.0~rc1
  get_ws_vcs_version_info@Base 1.99.0
  has_global_profiles@Base 1.12.0~rc1
+ ieee80211_chan_to_mhz@Base 1.99.7
+ ieee80211_mhz_to_chan@Base 1.99.7
+ ieee80211_mhz_to_str@Base 1.99.7
  init_process_policies@Base 1.10.0
  init_progfile_dir@Base 1.12.0~rc1
  init_report_err@Base 1.12.0~rc1
