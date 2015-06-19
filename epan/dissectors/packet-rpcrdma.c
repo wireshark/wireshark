@@ -34,9 +34,9 @@
 
 #include "packet-infiniband.h"
 
-#define MIN_RPCRDMA_HDR_SZ 16
-#define MIN_RPCRDMA_MSG_SZ (MIN_RPCRDMA_HDR_SZ + 12)
-#define MIN_RPCRDMA_MSGP_SZ (MIN_RPCRDMA_MSG_SZ + 8)
+#define MIN_RPCRDMA_HDR_SZ  16
+#define MIN_RPCRDMA_MSG_SZ  (MIN_RPCRDMA_HDR_SZ + 12)
+#define MIN_RPCRDMA_MSGP_SZ (MIN_RPCRDMA_MSG_SZ +  8)
 
 #define SID_ULP_MASK   0x00000000FF000000
 #define SID_PROTO_MASK 0x0000000000FF0000
@@ -46,7 +46,7 @@
 #define SID_PROTO_TCP   0x06
 #define TCP_PORT_RPCRDMA_RANGE    "20049,2050"
 
-#define SID_MASK (SID_ULP_MASK | SID_PROTO_MASK)
+#define SID_MASK    (SID_ULP_MASK | SID_PROTO_MASK)
 #define SID_ULP_TCP ((SID_ULP << 3 * 8) | (SID_PROTO_TCP << 2 * 8))
 
 void proto_reg_handoff_rpcordma(void);
@@ -115,10 +115,10 @@ enum MSG_TYPE {
 };
 
 static const value_string rpcordma_message_type[] = {
-    {RDMA_MSG, "RDMA_MSG"},
+    {RDMA_MSG,   "RDMA_MSG"},
     {RDMA_NOMSG, "RDMA_NOMSG"},
-    {RDMA_MSGP, "RDMA_MSGP"},
-    {RDMA_DONE, "RDMA_DONE"},
+    {RDMA_MSGP,  "RDMA_MSGP"},
+    {RDMA_DONE,  "RDMA_DONE"},
     {RDMA_ERROR, "RDMA_ERROR"},
     {0, NULL}
 };
@@ -127,13 +127,13 @@ static const value_string rpcordma_message_type[] = {
 #define ERR_CHUNK 2
 
 static const value_string rpcordma_err[] = {
-    {ERR_VERS, "ERR_VERS"},
+    {ERR_VERS,  "ERR_VERS"},
     {ERR_CHUNK, "ERR_CHUNK"},
     {0, NULL}
 };
 
 static guint parse_list(tvbuff_t *tvb, guint offset, proto_tree *tree,
-        int hf_item, const char* msg, int have_position)
+        int hf_item, const char* msg, gboolean have_position)
 {
     proto_item *fitem;
     proto_tree *ftree;
@@ -174,51 +174,49 @@ static guint parse_list(tvbuff_t *tvb, guint offset, proto_tree *tree,
 
 static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    offset = parse_list(tvb, offset, tree, hf_rpcordma_reads_count, "Reads", 1);
-    offset = parse_list(tvb, offset, tree, hf_rpcordma_writes_count, "Writes", 0);
-    offset = parse_list(tvb, offset, tree, hf_rpcordma_reply_count, "Reply", 0);
+    offset = parse_list(tvb, offset, tree, hf_rpcordma_reads_count,  "Reads",  TRUE);
+    offset = parse_list(tvb, offset, tree, hf_rpcordma_writes_count, "Writes", FALSE);
+    offset = parse_list(tvb, offset, tree, hf_rpcordma_reply_count,  "Reply",  FALSE);
     return offset;
 }
 
-static int get_chunk_len(tvbuff_t *tvb, guint offset, guint len, int have_position, guint *res)
+static gboolean
+get_chunk_len(tvbuff_t *tvb, guint offset, guint len, guint num_position_bytes, guint *res)
 {
-    guint32 arr_len, i, val, j;
+    guint32 arr_len, i, val, temp;
+
+    if (offset + 4 > len)
+        return FALSE;
 
     arr_len = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
-    for (i = 0; i < arr_len; ++i) {
+    for (i = 0; i < arr_len; i++) {
         if (offset + 4 > len)
-            return -1;
+            return FALSE;
         val = tvb_get_ntohl(tvb, offset);
         offset += 4;
-        for (j = 0; j < val; ++j) {
-            if (have_position)
-                offset += 4;
-            /* xdr_rdma_segment */
-            offset += 16; /* handle + length + offset */
-            if (offset > len)
-                return -1;
-        }
+
+        /* xdr_rdma_segment(s) */
+        temp = offset + val * (16 + num_position_bytes);
+        if ((temp > len) || (temp < offset))
+            return FALSE;
+        offset = temp;
     }
-    if (offset > len)
-        return -1;
+    DISSECTOR_ASSERT(offset <= len);
 
     *res = offset;
-    return 0;
+    return TRUE;
 }
 
-static int get_chunks_len(tvbuff_t *tvb, guint offset, guint len, guint *res)
+static gboolean
+get_chunks_len(tvbuff_t *tvb, guint offset, guint len, guint *res)
 {
-    int ret;
+    if (!get_chunk_len(tvb, offset, len, 4, res))
+        return FALSE;
 
-    ret = get_chunk_len(tvb, offset, len, 1, res);
-    if (ret)
-        return ret;
-
-    ret = get_chunk_len(tvb, *res, len, 0, res);
-    if (ret)
-        return ret;
+    if (!get_chunk_len(tvb, *res, len, 0, res))
+        return FALSE;
 
     return get_chunk_len(tvb, *res, len, 0, res);
 }
@@ -229,73 +227,77 @@ static int get_chunks_len(tvbuff_t *tvb, guint offset, guint len, guint *res)
  * and RDMA_MSGP types, RPC call or RPC reply header follows. We can do this by comparing
  * XID in RPC and RPCoRDMA headers.
  */
-static int packet_is_rpcordma(tvbuff_t *tvb)
+/* msg_type has already been validated */
+static gboolean
+packet_is_rpcordma(tvbuff_t *tvb)
 {
     guint len = tvb_reported_length(tvb);
-    guint32 xid_rpc, xid = tvb_get_ntohl(tvb, 0);
+    guint32 xid_rpc;
+    guint32 xid = tvb_get_ntohl(tvb, 0);
     guint32 msg_type = tvb_get_ntohl(tvb, 12);
     guint offset;
 
     switch (msg_type) {
     case RDMA_MSG:
         if (len < MIN_RPCRDMA_MSG_SZ)
-            return 0;
-        if (get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ, len, &offset))
-            return 0;
+            return FALSE;
+        if (!get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ, len, &offset))
+            return FALSE;
 
         if (offset + 4 > len)
-            return 0;
+            return FALSE;
         xid_rpc = tvb_get_ntohl(tvb, offset);
         if (xid != xid_rpc)
-            return 0;
+            return FALSE;
         break;
 
     case RDMA_MSGP:
         if (len < MIN_RPCRDMA_MSGP_SZ)
-            return 0;
-        if (get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ + 8, len, &offset))
-            return 0;
+            return FALSE;
+        if (!get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ + 8, len, &offset))
+            return FALSE;
 
         if (offset + 4 > len)
-            return 0;
+            return FALSE;
         xid_rpc = tvb_get_ntohl(tvb, offset);
         if (xid != xid_rpc)
-            return 0;
+            return FALSE;
+        break;
+
+    default:
         break;
     }
 
-    return 1;
+    return TRUE;
 }
 
-static int dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
-    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *rpcordma_tree;
     guint offset = 0;
-    guint32 xid = tvb_get_ntohl(tvb, 0);
-    guint32 vers = tvb_get_ntohl(tvb, 4);
-    guint32 msg_type = tvb_get_ntohl(tvb, 12);
-    guint len = tvb_reported_length(tvb);
+    guint32 xid;
+    guint32 msg_type;
     guint32 val;
 
-    if (len < MIN_RPCRDMA_HDR_SZ)
+    if (tvb_reported_length(tvb) < MIN_RPCRDMA_HDR_SZ)
         return 0;
 
-    if (vers != 1)
+    if (tvb_get_ntohl(tvb, 4) != 1)  /* vers */
         return 0;
 
+    msg_type = tvb_get_ntohl(tvb, 12);
     if (msg_type > RDMA_ERROR)
         return 0;
 
     if (!packet_is_rpcordma(tvb))
         return call_dissector(rpc_handler, tvb, pinfo, tree);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCoRDMA");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
+    xid = tvb_get_ntohl(tvb, 0);
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCoRDMA");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s XID 0x%x",
         val_to_str(msg_type, rpcordma_message_type, "Unknown (%d)"), xid);
 
@@ -387,7 +389,7 @@ dissect_rpcordma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return dissect_packet(tvb, pinfo, tree);
 }
 
-static int
+static gboolean
 dissect_rpcordma_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
@@ -405,7 +407,7 @@ dissect_rpcordma_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  ADDRESSES_EQUAL(&pinfo->dst, &manual_addr[0]) &&
                  (pinfo->srcport == 0xffffffff /* is unknown */ || pinfo->srcport == gPREF_QP[1]) &&
                  (pinfo->destport == 0xffffffff /* is unknown */ || pinfo->destport == gPREF_QP[0]))    )
-            return dissect_packet(tvb, pinfo, tree);
+            return (dissect_packet(tvb, pinfo, tree) != 0);
     }
 
     /* first try to find a conversation between the two current hosts. in most cases this
@@ -422,24 +424,24 @@ dissect_rpcordma_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
 
         if (!conv)
-            return 0;   /* nothing to do with no conversation context */
+            return FALSE;   /* nothing to do with no conversation context */
     }
 
     convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_ib);
 
     if (!convo_data)
-        return 0;
+        return FALSE;
 
     if ((convo_data->service_id & SID_MASK) != SID_ULP_TCP)
-        return 0;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
+        return FALSE;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
 
     if (!(value_is_in_range(gPORT_RANGE, (guint32)(convo_data->service_id & SID_PORT_MASK))))
-        return 0;   /* the port doesn't match that of RPCoRDMA - nothing for us to do here */
+        return FALSE;   /* the port doesn't match that of RPCoRDMA - nothing for us to do here */
 
     conv = find_or_create_conversation(pinfo);
     conversation_set_dissector(conv, rpcordma_handler);
 
-    return dissect_packet(tvb, pinfo, tree);
+    return (dissect_packet(tvb, pinfo, tree) != 0);
 }
 
 void
@@ -447,86 +449,90 @@ proto_register_rpcordma(void)
 {
     module_t *rpcordma_module;
     static hf_register_info hf[] = {
-        { &hf_rpcordma, {
-            "RPCoRDMA", "rpcordma",
-            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        { &hf_rpcordma,
+          { "RPCoRDMA", "rpcordma",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_xid,
-            { "XID", "rpcordma.xid",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+          { "XID", "rpcordma.xid",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_vers,
-            { "Version", "rpcordma.version",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+          { "Version", "rpcordma.version",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_flow_control,
-            { "Flow Control", "rpcordma.flow_control",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+          { "Flow Control", "rpcordma.flow_control",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_message_type,
-            { "Message Type", "rpcordma.msg_type",
-               FT_UINT32, BASE_HEX,
-               VALS(rpcordma_message_type), 0x0, NULL, HFILL}
+          { "Message Type", "rpcordma.msg_type",
+            FT_UINT32, BASE_HEX,
+            VALS(rpcordma_message_type), 0x0, NULL, HFILL}
         },
-    { &hf_rpcordma_reads_count,
-            { "Read list", "rpcordma.reads_count",
-                FT_UINT32, BASE_DEC,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_reads_count,
+          { "Read list", "rpcordma.reads_count",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_writes_count,
-            { "Write list", "rpcordma.writes_count",
-                FT_UINT32, BASE_DEC,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_writes_count,
+          { "Write list", "rpcordma.writes_count",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_reply_count,
-            { "Reply list", "rpcordma.reply_count",
-                FT_UINT32, BASE_DEC,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_reply_count,
+          { "Reply list", "rpcordma.reply_count",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_rdma_handle,
-            { "RDMA handle", "rpcordma.rdma_handle",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_rdma_handle,
+          { "RDMA handle", "rpcordma.rdma_handle",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_rdma_length,
-            { "RDMA length", "rpcordma.rdma_length",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_rdma_length,
+          { "RDMA length", "rpcordma.rdma_length",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_rdma_offset,
-            { "RDMA offset", "rpcordma.rdma_offset",
-                FT_UINT64, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_rdma_offset,
+          { "RDMA offset", "rpcordma.rdma_offset",
+            FT_UINT64, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_position,
-            { "Postion in XDR", "rpcordma.position",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_position,
+          { "Postion in XDR", "rpcordma.position",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_rdma_align,
-            { "RDMA align", "rpcordma.rdma_align",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_rdma_align,
+          { "RDMA align", "rpcordma.rdma_align",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_rdma_thresh,
-            { "RDMA threshold", "rpcordma.rdma_thresh",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_rdma_thresh,
+          { "RDMA threshold", "rpcordma.rdma_thresh",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_errcode,
-            { "Error code", "rpcordma.errcode",
-                FT_UINT32, BASE_HEX,
-        VALS(rpcordma_err), 0, NULL, HFILL }
+        { &hf_rpcordma_errcode,
+          { "Error code", "rpcordma.errcode",
+            FT_UINT32, BASE_HEX,
+            VALS(rpcordma_err), 0, NULL, HFILL }
         },
-    { &hf_rpcordma_vers_low,
-            { "Version low", "rpcordma.vers_low",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_vers_low,
+          { "Version low", "rpcordma.vers_low",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
-    { &hf_rpcordma_vers_high,
-            { "Version high", "rpcordma.vers_high",
-                FT_UINT32, BASE_HEX,
-        NULL, 0, NULL, HFILL }
+        { &hf_rpcordma_vers_high,
+          { "Version high", "rpcordma.vers_high",
+            FT_UINT32, BASE_HEX,
+            NULL, 0, NULL, HFILL }
         },
     };
 
@@ -573,7 +579,7 @@ proto_register_rpcordma(void)
     prefs_register_range_preference(rpcordma_module,
                                     "target_ports",
                                     "Target Ports Range",
-                                    "Range of RPCoRDNA server ports"
+                                    "Range of RPCoRDMA server ports"
                                     "(default " TCP_PORT_RPCRDMA_RANGE ")",
                                     &gPORT_RANGE, MAX_TCP_PORT);
 }
