@@ -261,15 +261,6 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
     }
 }
 
-// XXX We should probably call common_create_progress_dlg in CaptureFile and
-// have it handle emitting progress signals and the stop flag.
-void MainWindow::setCaptureStopFlag(bool stop_flag)
-{
-    ProgressBar *progress_bar = main_ui_->statusBar->findChild<ProgressBar *>();
-
-    if (progress_bar) progress_bar->setStopFlag(stop_flag);
-}
-
 // A new layout should be applied when it differs from the old layout AND
 // at the following times:
 // - At startup

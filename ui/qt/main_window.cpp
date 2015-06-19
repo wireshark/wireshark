@@ -347,9 +347,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_file_, SIGNAL(captureFileSaveStopped()),
             main_ui_->statusBar, SLOT(popFileStatus()));
 
-    connect(&capture_file_, SIGNAL(setCaptureStopFlag(bool)),
-            this, SLOT(setCaptureStopFlag(bool)));
-
     connect(&capture_file_, SIGNAL(captureFileReadStarted()),
             wsApp, SLOT(captureFileReadStarted()));
     connect(&capture_file_, SIGNAL(captureFileReadFinished()),
@@ -450,6 +447,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
             this, SLOT(on_actionAnalyzeExpertInfo_triggered()));
+
+    connect(main_ui_->statusBar, SIGNAL(stopLoading()),
+            &capture_file_, SLOT(stopLoading()));
 
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));

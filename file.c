@@ -408,6 +408,7 @@ cf_add_encapsulation_type(capture_file *cf, int encap)
 void
 cf_close(capture_file *cf)
 {
+  cf->stop_flag = FALSE;
   if (cf->state == FILE_CLOSED)
     return; /* Nothing to do */
 
@@ -533,7 +534,6 @@ cf_read(capture_file *cf, gboolean reloading)
   gchar               *err_info;
   gchar               *name_ptr;
   progdlg_t           *progbar        = NULL;
-  gboolean             stop_flag;
   GTimeVal             start_time;
   epan_dissect_t       edt;
   dfilter_t           *dfcode;
@@ -569,7 +569,7 @@ cf_read(capture_file *cf, gboolean reloading)
   /* The packet list window will be empty until the file is completly loaded */
   packet_list_freeze();
 
-  stop_flag = FALSE;
+  cf->stop_flag = FALSE;
   g_get_current_time(&start_time);
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
@@ -619,10 +619,10 @@ cf_read(capture_file *cf, gboolean reloading)
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           if (reloading)
             progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
-                TRUE, &stop_flag, &start_time, progbar_val);
+                TRUE, &cf->stop_flag, &start_time, progbar_val);
           else
             progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
-                TRUE, &stop_flag, &start_time, progbar_val);
+                TRUE, &cf->stop_flag, &start_time, progbar_val);
         }
 
         /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -648,7 +648,7 @@ cf_read(capture_file *cf, gboolean reloading)
         }
       }
 
-      if (stop_flag) {
+      if (cf->stop_flag) {
         /* Well, the user decided to abort the read. He/She will be warned and
            it might be enough for him/her to work with the already loaded
            packets.
@@ -722,7 +722,7 @@ cf_read(capture_file *cf, gboolean reloading)
     packet_list_select_first_row();
   }
 
-  if (stop_flag) {
+  if (cf->stop_flag) {
     simple_message_box(ESD_TYPE_WARN, NULL,
                   "The remaining packets in the file were discarded.\n"
                   "\n"
@@ -1406,7 +1406,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   /* Progress so far. */
   progbar_val = 0.0f;
 
-  stop_flag = FALSE;
   g_get_current_time(&start_time);
 
   /* do the merge (or append) */
@@ -1798,7 +1797,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   guint32     framenum;
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
-  gboolean    stop_flag;
   int         count;
   frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
   int         selected_frame_num, preceding_frame_num, following_frame_num, prev_frame_num;
@@ -1890,7 +1888,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   /* Progress so far. */
   progbar_val = 0.0f;
 
-  stop_flag = FALSE;
+  cf->stop_flag = FALSE;
   g_get_current_time(&start_time);
 
   /* no previous row yet */
@@ -1918,7 +1916,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg(cf->window, action, action_item, TRUE,
-                                            &stop_flag, &start_time,
+                                            &cf->stop_flag,
+                                            &start_time,
                                             progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -1942,7 +1941,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
       progbar_nextstep += progbar_quantum;
     }
 
-    if (stop_flag) {
+    if (cf->stop_flag) {
       /* Well, the user decided to abort the filtering.  Just stop.
 
          XXX - go back to the previous filter?  Users probably just
@@ -2211,7 +2210,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   progdlg_t       *progbar = NULL;
   int              progbar_count;
   float            progbar_val;
-  gboolean         progbar_stop_flag;
   GTimeVal         progbar_start_time;
   gchar            progbar_status_str[100];
   int              progbar_nextstep;
@@ -2232,7 +2230,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   /* Progress so far. */
   progbar_val = 0.0f;
 
-  progbar_stop_flag = FALSE;
+  cf->stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
 
   if (range != NULL)
@@ -2251,7 +2249,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg(cf->window, string1, string2,
                                             terminate_is_stop,
-                                            &progbar_stop_flag,
+                                            &cf->stop_flag,
                                             &progbar_start_time,
                                             progbar_val);
 
@@ -2276,7 +2274,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       progbar_nextstep += progbar_quantum;
     }
 
-    if (progbar_stop_flag) {
+    if (cf->stop_flag) {
       /* Well, the user decided to abort the operation.  Just stop,
          and arrange to return PSP_STOPPED to our caller, so they know
          it was stopped explicitly. */
@@ -3523,7 +3521,6 @@ find_packet(capture_file *cf,
   frame_data  *fdata;
   frame_data  *new_fd = NULL;
   progdlg_t   *progbar = NULL;
-  gboolean     stop_flag;
   int          count;
   gboolean     found;
   float        progbar_val;
@@ -3550,7 +3547,7 @@ find_packet(capture_file *cf,
     /* Progress so far. */
     progbar_val = 0.0f;
 
-    stop_flag = FALSE;
+    cf->stop_flag = FALSE;
     g_get_current_time(&start_time);
 
     title = cf->sfilter?cf->sfilter:"";
@@ -3562,7 +3559,7 @@ find_packet(capture_file *cf,
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
          progbar = delayed_create_progress_dlg(cf->window, "Searching", title,
-           FALSE, &stop_flag, &start_time, progbar_val);
+           FALSE, &cf->stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
@@ -3586,7 +3583,7 @@ find_packet(capture_file *cf,
         progbar_nextstep += progbar_quantum;
       }
 
-      if (stop_flag) {
+      if (cf->stop_flag) {
         /* Well, the user decided to abort the search.  Go back to the
            frame where we started. */
         new_fd = start_fd;
@@ -4353,7 +4350,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   gchar               *name_ptr;
   gint64               data_offset;
   progdlg_t           *progbar        = NULL;
-  gboolean             stop_flag;
   gint64               size;
   float                progbar_val;
   GTimeVal             start_time;
@@ -4430,7 +4426,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   }else
     progbar_quantum = 0;
 
-  stop_flag = FALSE;
+  cf->stop_flag = FALSE;
   g_get_current_time(&start_time);
 
   framenum = 0;
@@ -4449,7 +4445,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
-                                              TRUE, &stop_flag, &start_time, progbar_val);
+                                              TRUE, &cf->stop_flag, &start_time, progbar_val);
       }
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -4475,7 +4471,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       }
     }
 
-    if (stop_flag) {
+    if (cf->stop_flag) {
       /* Well, the user decided to abort the rescan.  Sadly, as this
          isn't a reread, recovering is difficult, so we'll just
          close the current capture. */
@@ -4515,7 +4511,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf_callback_invoke(cf_cb_file_rescan_finished, cf);
 
-  if (stop_flag) {
+  if (cf->stop_flag) {
     /* Our caller will give up at this point. */
     return CF_READ_ABORTED;
   }

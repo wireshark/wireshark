@@ -40,6 +40,7 @@ public:
 
     capture_file *capFile() const { return isValid() ? cap_file_ : NULL; }
     void setCapFile(capture_file *cap_file) { cap_file_ = cap_file; }
+
     /** Check capture file validity
      *
      * @return true if the file is open, readable, and tappable. false if the file
@@ -70,10 +71,6 @@ public:
     /** Retap the capture file
      */
     void retapPackets();
-
-    /** Cancel any tapping that might be in progress.
-     */
-    void stopTapping();
 
 
     // XXX This shouldn't be needed.
@@ -106,9 +103,13 @@ signals:
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
 
-    void setCaptureStopFlag(bool);
-
 public slots:
+    /** Cancel any tapping that might be in progress.
+     */
+    void stopLoading();
+
+    // XXX Not used.
+    void setCaptureStopFlag(bool stop_flag = true);
 
 private:
     static void captureFileCallback(gint event, gpointer data, gpointer user_data);

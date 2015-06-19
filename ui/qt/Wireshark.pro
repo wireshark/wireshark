@@ -208,6 +208,7 @@ FORMS += \
     about_dialog.ui \
     bluetooth_att_server_attributes_dialog.ui \
     bluetooth_devices_dialog.ui \
+    capture_file_progress_frame.ui \
     capture_file_properties_dialog.ui \
     capture_interfaces_dialog.ui \
     capture_preferences_frame.ui \
@@ -273,6 +274,7 @@ HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     bluetooth_att_server_attributes_dialog.h \
     bluetooth_devices_dialog.h \
+    capture_file_progress_frame.h \
     capture_file_properties_dialog.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
@@ -599,7 +601,6 @@ HEADERS += \
     packet_list_model.h \
     packet_list_record.h \
     packet_range_group_box.h \
-    progress_bar.h \
     proto_tree.h \
     qt_ui_utils.h \
     qt_ui_utils.h \
@@ -625,6 +626,7 @@ SOURCES += \
     byte_view_text.cpp \
     capture_file.cpp \
     capture_file_dialog.cpp \
+    capture_file_progress_frame.cpp \
     capture_file_properties_dialog.cpp \
     capture_filter_combo.cpp \
     capture_filter_edit.cpp \
@@ -685,7 +687,6 @@ SOURCES += \
     preferences_dialog.cpp \
     print_dialog.cpp \
     profile_dialog.cpp \
-    progress_bar.cpp \
     proto_tree.cpp \
     protocol_hierarchy_dialog.cpp \
     protocol_preferences_menu.cpp \

@@ -22,17 +22,19 @@
 #ifndef MAIN_STATUS_BAR_H
 #define MAIN_STATUS_BAR_H
 
-#include "wireshark_application.h"
-#include "label_stack.h"
-#include "progress_bar.h"
-
-#include <QLabel>
-#include <QMenu>
-#include <QStatusBar>
+#include "config.h"
 
 #include "cfile.h"
 
 #include "capchild/capture_session.h"
+
+#include "capture_file_progress_frame.h"
+#include "label_stack.h"
+#include "wireshark_application.h"
+
+#include <QLabel>
+#include <QMenu>
+#include <QStatusBar>
 
 class CaptureFile;
 
@@ -50,7 +52,7 @@ private:
     QLabel expert_status_;
     QLabel comment_label_;
     LabelStack info_status_;
-    ProgressBar progress_bar_;
+    CaptureFileProgressFrame progress_frame_;
     LabelStack packet_status_;
     LabelStack profile_status_;
     capture_file *cap_file_;
@@ -62,6 +64,7 @@ private:
 signals:
     void showExpertInfo();
     void editCaptureComment();
+    void stopLoading();
 
 public slots:
     void setCaptureFile(capture_file *cf);

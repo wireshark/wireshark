@@ -138,7 +138,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     info_progress_hb->addWidget(&expert_status_);
     info_progress_hb->addWidget(&comment_label_);
     info_progress_hb->addWidget(&info_status_);
-    info_progress_hb->addWidget(&progress_bar_);
+    info_progress_hb->addWidget(&progress_frame_);
     info_progress_hb->addStretch(10);
 
     splitter->addWidget(info_progress);
@@ -182,6 +182,9 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
             this, SLOT(pushProfileName()));
     connect(&profile_status_, SIGNAL(mousePressedAt(QPoint,Qt::MouseButton)),
             this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));
+
+    connect(&progress_frame_, SIGNAL(stopLoading()),
+            this, SIGNAL(stopLoading()));
 }
 
 void MainStatusBar::showExpert() {

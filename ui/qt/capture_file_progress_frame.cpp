@@ -1,4 +1,4 @@
-/* progress_bar.cpp
+/* capture_file_progress_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,24 +21,33 @@
 
 #include "config.h"
 
-#include "progress_bar.h"
-
-#include "wireshark_application.h"
+#include "capture_file_progress_frame.h"
+#include "ui_capture_file_progress_frame.h"
 
 #include "ui/progress_dlg.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
-// XXX We should probably add an NSProgressIndicator to the dock icon
-// on OS X.
+#include "stock_icon.h"
+#include "wireshark_application.h"
 
-static progdlg_t *
-common_create_progress_dlg(bool animate, const gpointer top_level_window,
-                           gboolean terminate_is_stop, gboolean *stop_flag,
-                           int value)
+// To do:
+// - Use a different icon?
+// - Add an NSProgressIndicator to the dock icon on OS X.
+// - Start adding the progress bar to dialogs.
+// - Don't complain so loudly when the user stops a capture.
+
+progdlg_t *
+delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+                            gboolean terminate_is_stop, gboolean *stop_flag,
+                            const GTimeVal *start_time, gfloat progress)
 {
-    ProgressBar *pb;
+    Q_UNUSED(task_title);
+    Q_UNUSED(item_title);
+    Q_UNUSED(start_time);
+
+    CaptureFileProgressFrame *cfpf;
     QWidget *main_window;
 
     if (!top_level_window) {
@@ -51,38 +60,12 @@ common_create_progress_dlg(bool animate, const gpointer top_level_window,
         return NULL;
     }
 
-    pb = main_window->findChild<ProgressBar *>();
+    cfpf = main_window->findChild<CaptureFileProgressFrame *>();
 
-    if (!pb) {
+    if (!cfpf) {
         return NULL;
     }
-    return pb->show(animate, terminate_is_stop, stop_flag, value);
-}
-
-#if 0
-progdlg_t *
-create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-                            gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *start_time, gfloat progress)
-{
-    Q_UNUSED(task_title);
-    Q_UNUSED(item_title);
-    Q_UNUSED(start_time);
-
-    return common_create_progress_dlg(false, top_level_window, terminate_is_stop, stop_flag, progress * 100);
-}
-#endif
-
-progdlg_t *
-delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-                            gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *start_time, gfloat progress)
-{
-    Q_UNUSED(task_title);
-    Q_UNUSED(item_title);
-    Q_UNUSED(start_time);
-
-    return common_create_progress_dlg(true, top_level_window, terminate_is_stop, stop_flag, progress * 100);
+    return cfpf->show(true, terminate_is_stop, stop_flag, progress * 100);
 }
 
 /*
@@ -92,8 +75,9 @@ void
 update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 {
     Q_UNUSED(status);
+    if (!dlg) return;
 
-    dlg->progress_bar->setValue(percentage * 100);
+    dlg->progress_frame->setValue(percentage * 100);
 
     /*
      * Flush out the update and process any input events.
@@ -107,44 +91,67 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 void
 destroy_progress_dlg(progdlg_t *dlg)
 {
-    dlg->progress_bar->hide();
+    dlg->progress_frame->hide();
 }
 
-// XXX - Add a "stop what you're doing this instant" button.
-// XXX - We need to show the task and item titles. Maybe as a tooltip or popped
-//       into our sibling status message?
-ProgressBar::ProgressBar(QWidget *parent) :
-    QProgressBar(parent), terminate_is_stop_(false), stop_flag_(NULL)
+CaptureFileProgressFrame::CaptureFileProgressFrame(QWidget *parent) :
+    QFrame(parent),
+    ui(new Ui::CaptureFileProgressFrame)
+  , terminate_is_stop_(false)
+  , stop_flag_(NULL)
 #ifdef QWINTASKBARPROGRESS_H
-    , taskbar_progress_(NULL)
+  , taskbar_progress_(NULL)
 #endif
 {
-    progress_dialog_.progress_bar = this;
+    ui->setupUi(this);
+
+    progress_dialog_.progress_frame = this;
     progress_dialog_.top_level_window = window();
 
-//#ifdef Q_OS_MAC
-//    // https://bugreports.qt-project.org/browse/QTBUG-11569
-//    setAttribute(Qt::WA_MacSmallSize, true);
-//#endif
-    setTextVisible(false);
-    setStyleSheet(QString(
-            "ProgressBar {"
+    ui->progressBar->setStyleSheet(QString(
+            "QProgressBar {"
             "  max-width: 20em;"
             "  min-height: 0.8em;"
             "  max-height: 1em;"
-            "  border-bottom: 0;"
+            "  border-bottom: 0px;"
+            "  border-top: 0px;"
             "  background: transparent;"
             "}"));
 
+    int one_em = fontMetrics().height();
+    ui->pushButton->setIconSize(QSize(one_em, one_em));
+    ui->pushButton->setStyleSheet(QString(
+            "QPushButton {"
+            "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
+            "  min-height: 0.8em;"
+            "  max-height: 1em;"
+            "  min-width: 0.8em;"
+            "  max-width: 1em;"
+            "  border: 0px;"
+            "  padding: 0px;"
+            "  margin: 0px;"
+            "  background: transparent;"
+            "}"
+            "QPushButton:hover {"
+            "  image: url(:/dfilter/dfilter_erase_active.png) center;"
+            "}"
+            "QPushButton:pressed {"
+            "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
+            "}"));
     hide();
 }
 
-progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value) {
+CaptureFileProgressFrame::~CaptureFileProgressFrame()
+{
+    delete ui;
+}
 
+struct progdlg *CaptureFileProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
+{
     terminate_is_stop_ = terminate_is_stop;
     stop_flag_ = stop_flag;
 
-    setValue(value);
+    ui->progressBar->setValue(value);
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     if (animate) {
@@ -180,25 +187,30 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
     taskbar_progress_->resume();
 #endif
 
-    QProgressBar::show();
+    QFrame::show();
     return &progress_dialog_;
 }
 
-void ProgressBar::setStopFlag(bool stop_flag)
+void CaptureFileProgressFrame::setValue(int value)
 {
-    if (stop_flag_) *stop_flag_ = stop_flag;
+    ui->progressBar->setValue(value);
 }
 
 #ifdef QWINTASKBARPROGRESS_H
-void ProgressBar::hide()
+void CaptureFileProgressFrame::hide()
 {
     if (taskbar_progress_) {
         taskbar_progress_->reset();
         taskbar_progress_->hide();
     }
-    QProgressBar::hide();
+    QFrame::hide();
 }
 #endif
+
+void CaptureFileProgressFrame::on_pushButton_clicked()
+{
+    emit stopLoading();
+}
 
 /*
  * Editor modelines

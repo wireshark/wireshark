@@ -1,4 +1,4 @@
-/* progress_bar.h
+/* capture_file_progress_frame.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,42 +19,56 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PROGRESS_BAR_H
-#define PROGRESS_BAR_H
+#ifndef CAPTURE_FILE_PROGRESS_FRAME_H
+#define CAPTURE_FILE_PROGRESS_FRAME_H
 
 #include <glib.h>
 
-#include "ui/progress_dlg.h"
+#include <QFrame>
 
-#include <QProgressBar>
+namespace Ui {
+class CaptureFileProgressFrame;
+}
 
 #if defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
 #endif
 
-class ProgressBar;
+class CaptureFileProgressFrame;
 
 // Define the structure describing a progress dialog.
 struct progdlg {
-    ProgressBar *progress_bar;  // This progress bar
-    QWidget *top_level_window;  // Top-level window widget
+    CaptureFileProgressFrame *progress_frame;  // This progress frame
+    QWidget *top_level_window;  // Progress frame's main window
 };
 
-class ProgressBar : public QProgressBar
+class CaptureFileProgressFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit ProgressBar(QWidget *parent = 0);
-    progdlg_t *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
+    explicit CaptureFileProgressFrame(QWidget *parent = 0);
+    ~CaptureFileProgressFrame();
+
+    struct progdlg *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
 #ifdef QWINTASKBARPROGRESS_H
     void hide();
 #endif
-    void setStopFlag(bool stop_flag);
+
+public slots:
+    void setValue(int value);
+
+signals:
+    void stopLoading();
+
+private slots:
+    void on_pushButton_clicked();
 
 private:
-    progdlg_t progress_dialog_;
+    Ui::CaptureFileProgressFrame *ui;
+
+    struct progdlg progress_dialog_;
     QString message_;
     QString status_;
     bool terminate_is_stop_;
@@ -62,12 +76,9 @@ private:
 #ifdef QWINTASKBARPROGRESS_H
     QWinTaskbarProgress *taskbar_progress_;
 #endif
-
-public slots:
-
 };
 
-#endif // PROGRESS_BAR_H
+#endif // CAPTURE_FILE_PROGRESS_FRAME_H
 
 /*
  * Editor modelines

@@ -126,6 +126,8 @@ bluetooth_att_server_attributes_dialog.cpp bluetooth_att_server_attributes_dialo
 
 bluetooth_devices_dialog.cpp bluetooth_devices_dialog.h: ui_bluetooth_devices_dialog.h
 
+capture_file_progress_frame.cpp capture_file_progress_frame.h: ui_capture_file_progress_frame.h
+
 capture_file_properties_dialog.cpp capture_file_properties_dialog.h: ui_capture_file_properties_dialog.h
 
 capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces_dialog.h

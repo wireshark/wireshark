@@ -314,7 +314,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
 
 IOGraphDialog::~IOGraphDialog()
 {
-    cap_file_.stopTapping();
+    cap_file_.stopLoading();
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         IOGraph *iog = qvariant_cast<IOGraph *>(ui->graphTreeWidget->topLevelItem(i)->data(name_col_, Qt::UserRole));
         delete iog;

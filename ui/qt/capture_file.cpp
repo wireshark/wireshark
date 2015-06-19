@@ -96,9 +96,9 @@ void CaptureFile::retapPackets()
     }
 }
 
-void CaptureFile::stopTapping()
+void CaptureFile::stopLoading()
 {
-    emit setCaptureStopFlag(true);
+    setCaptureStopFlag(true);
 }
 
 capture_file *CaptureFile::globalCapFile()
@@ -110,6 +110,11 @@ gpointer CaptureFile::window()
 {
     if (cap_file_) return cap_file_->window;
     return NULL;
+}
+
+void CaptureFile::setCaptureStopFlag(bool stop_flag)
+{
+    if (cap_file_) cap_file_->stop_flag = stop_flag;
 }
 
 void CaptureFile::captureFileCallback(gint event, gpointer data, gpointer user_data)
