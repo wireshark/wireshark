@@ -26,10 +26,10 @@
 
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/srt_table.h>
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
 #include <ui/cli/tshark-tap.h>
-#include <ui/cli/tap-srt.h>
 
 #define NANOSECS_PER_SEC 1000000000
 
@@ -39,7 +39,7 @@ typedef struct _srt_t {
 	srt_data_t data;
 } srt_t;
 
-void
+static void
 draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer)
 {
 	int i;

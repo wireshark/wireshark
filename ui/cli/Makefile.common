@@ -76,5 +76,4 @@ TSHARK_TAP_SRC = \
 	tap-wspstat.c
 
 noinst_HEADERS = \
-	tshark-tap.h	\
-	tap-srt.h
+	tshark-tap.h
