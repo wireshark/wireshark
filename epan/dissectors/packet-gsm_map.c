@@ -3826,10 +3826,10 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	octet = tvb_get_guint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, 4, ENC_BIG_ENDIAN);
 		break;
-	case 0x50: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
+	case 0x50: /* IPv6 */
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv6, parameter_tvb, 1, 16, ENC_NA);
 		break;
 	default:
 		break;
@@ -22654,7 +22654,7 @@ void proto_register_gsm_map(void) {
           "IPAddress IPv4", HFILL }},
       { &hf_gsm_map_GSNAddress_IPv6,
         { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
-          FT_IPv4, BASE_NONE, NULL, 0,
+          FT_IPv6, BASE_NONE, NULL, 0,
           "IPAddress IPv6", HFILL }},
       { &hf_gsm_map_ranap_service_Handover,
         { "service-Handover", "gsm_map.ranap.service_Handover",

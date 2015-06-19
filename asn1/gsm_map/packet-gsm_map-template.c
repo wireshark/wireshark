@@ -2804,7 +2804,7 @@ void proto_register_gsm_map(void) {
           "IPAddress IPv4", HFILL }},
       { &hf_gsm_map_GSNAddress_IPv6,
         { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
-          FT_IPv4, BASE_NONE, NULL, 0,
+          FT_IPv6, BASE_NONE, NULL, 0,
           "IPAddress IPv6", HFILL }},
       { &hf_gsm_map_ranap_service_Handover,
         { "service-Handover", "gsm_map.ranap.service_Handover",
