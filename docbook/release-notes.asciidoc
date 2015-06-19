@@ -207,6 +207,7 @@ IP Detail Record (IPDR)
 Performance Co-Pilot Proxy
 Aeron
 Network File System over Remote Direct Memory Access (NFSoRDMA)
+eXpressive Internet Protocol (XIP)
 --sort-and-group--
 
 === Updated Protocol Support

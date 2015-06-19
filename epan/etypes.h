@@ -554,6 +554,10 @@ extern "C" {
 #define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif
 
+#ifndef ETHERTYPE_XIP
+#define ETHERTYPE_XIP			0xC0DE	/* eXpressive Internet Protocol (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_TDMOE
 #define ETHERTYPE_TDMOE			0xD00D	/* Digium TDMoE packets (not officially registered) */
 #endif

@@ -184,6 +184,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
 	{ ETHERTYPE_BPQ,                  "AX.25"},
 	{ ETHERTYPE_CMD,                  "CiscoMetaData"},
+	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol"},
 	{ 0, NULL }
 };
 
