@@ -170,6 +170,11 @@ void InterfaceTree::display()
         return;
     }
 
+    /* when no interfaces were available initially and an update of the
+       interface list called this function, the column count is set to 1
+       reset it to ensure that the interface list is properly displayed */
+    resetColumnCount();
+
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         QList<int> *points;
 
