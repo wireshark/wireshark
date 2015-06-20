@@ -1629,6 +1629,7 @@ set(LIBWIRESHARK_FILES
 	reassemble.c
 	reedsolomon.c
 	req_resp_hdrs.c
+	rtd_table.c
 	show_exception.c
 	sminmpec.c
 	srt_table.c

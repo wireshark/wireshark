@@ -1,5 +1,6 @@
-/* tshark-tap.h
- * Registation tap hooks for TShark
+/* response_time_delay_table.h
+ *
+ * Based on service_response_time_table.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,14 +20,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef __TSHARK_TAP_H__
-#define __TSHARK_TAP_H__
 
-#include <epan/conversation_table.h>
+#ifndef __RESPONSE_TIME_DELAY_TABLE_H__
+#define __RESPONSE_TIME_DELAY_TABLE_H__
 
-extern void init_iousers(struct register_ct* ct, const char *filter);
-extern void init_hostlists(struct register_ct* ct, const char *filter);
-extern void register_srt_tables(gpointer data, gpointer user_data);
-extern void register_rtd_tables(gpointer data, gpointer user_data);
+#include <gtk/gtk.h>
+#include "wsutil/nstime.h"
+#include "epan/rtd_table.h"
 
-#endif /* __TSHARK_TAP_H__ */
+
+/** Suggested width of RTD window */
+#define RTD_PREFERRED_WIDTH 650
+
+/** Register function to register dissectors that support RTD for GTK.
+ *
+ * @param data register_rtd_t* representing dissetor RTD table
+ * @param user_data is unused
+ */
+void register_response_time_delay_tables(gpointer data, gpointer user_data);
+
+#endif /* __RESPONSE_TIME_DELAY_TABLE_H__ */

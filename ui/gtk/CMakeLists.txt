@@ -98,6 +98,7 @@ set(WIRESHARK_GTK_SRC
 	proto_hier_tree_model.c
 	proto_tree_model.c
 	range_utils.c
+	response_time_delay_table.c
 	sctp_byte_graph_dlg.c
 	sctp_error_dlg.c
 	sctp_graph_dlg.c
@@ -215,11 +216,8 @@ set(WIRESHARK_TAP_SRC
 	lbm_uimflow_dlg.c
 	mac_lte_stat_dlg.c
 	mcast_stream_dlg.c
-	megaco_stat.c
-	mgcp_stat.c
 	mtp3_stat.c
 	mtp3_summary.c
-	radius_stat.c
 	rlc_lte_graph.c
 	rlc_lte_stat_dlg.c
 	rpc_progs.c

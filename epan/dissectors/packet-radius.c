@@ -63,6 +63,7 @@
 #include <epan/sminmpec.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/rtd_table.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
@@ -211,6 +212,150 @@ static const value_string radius_pkt_type_codes[] =
 	{0, NULL}
 };
 static value_string_ext radius_pkt_type_codes_ext = VALUE_STRING_EXT_INIT(radius_pkt_type_codes);
+
+typedef enum _radius_category {
+	RADIUS_CAT_OVERALL = 0,
+	RADIUS_CAT_ACCESS,
+	RADIUS_CAT_ACCOUNTING,
+	RADIUS_CAT_PASSWORD,
+	RADIUS_CAT_RESOURCE_FREE,
+	RADIUS_CAT_RESOURCE_QUERY,
+	RADIUS_CAT_NAS_REBOOT,
+	RADIUS_CAT_EVENT,
+	RADIUS_CAT_DISCONNECT,
+	RADIUS_CAT_COA,
+	RADIUS_CAT_OTHERS,
+	RADIUS_CAT_NUM_TIMESTATS
+} radius_category;
+
+static const value_string radius_message_code[] = {
+	{  RADIUS_CAT_OVERALL,        "Overall"},
+	{  RADIUS_CAT_ACCESS,         "Access"},
+	{  RADIUS_CAT_ACCOUNTING,     "Accounting"},
+	{  RADIUS_CAT_PASSWORD,       "Password"},
+	{  RADIUS_CAT_RESOURCE_FREE,  "Resource Free"},
+	{  RADIUS_CAT_RESOURCE_QUERY, "Resource Query"},
+	{  RADIUS_CAT_NAS_REBOOT,     "NAS Reboot"},
+	{  RADIUS_CAT_EVENT,          "Event"},
+	{  RADIUS_CAT_DISCONNECT,     "Disconnect"},
+	{  RADIUS_CAT_COA,            "CoA"},
+	{  RADIUS_CAT_OTHERS,         "Other"},
+	{  0, NULL}
+};
+
+static int
+radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
+{
+	rtd_data_t* rtd_data = (rtd_data_t*)prs;
+	rtd_stat_table* rs = &rtd_data->stat_table;
+	const radius_info_t *ri=(radius_info_t *)pri;
+	nstime_t delta;
+	radius_category radius_cat = RADIUS_CAT_OTHERS;
+	int ret = 0;
+
+	switch (ri->code) {
+		case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+		case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+		case RADIUS_PKT_TYPE_ACCESS_REJECT:
+			radius_cat = RADIUS_CAT_ACCESS;
+			break;
+		case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+		case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+			radius_cat = RADIUS_CAT_ACCOUNTING;
+			break;
+		case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+		case RADIUS_PKT_TYPE_PASSWORD_ACK:
+		case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+			radius_cat = RADIUS_CAT_PASSWORD;
+			break;
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE:
+			radius_cat = RADIUS_CAT_RESOURCE_FREE;
+			break;
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE:
+			radius_cat = RADIUS_CAT_RESOURCE_QUERY;
+			break;
+		case RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST:
+		case RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE:
+			radius_cat = RADIUS_CAT_NAS_REBOOT;
+			break;
+		case RADIUS_PKT_TYPE_EVENT_REQUEST:
+		case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+			radius_cat = RADIUS_CAT_EVENT;
+			break;
+		case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+		case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+		case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+			radius_cat = RADIUS_CAT_DISCONNECT;
+			break;
+		case RADIUS_PKT_TYPE_COA_REQUEST:
+		case RADIUS_PKT_TYPE_COA_ACK:
+		case RADIUS_PKT_TYPE_COA_NAK:
+			radius_cat = RADIUS_CAT_COA;
+			break;
+	}
+
+	switch (ri->code) {
+
+	case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+	case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+	case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+	case RADIUS_PKT_TYPE_EVENT_REQUEST:
+	case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+	case RADIUS_PKT_TYPE_COA_REQUEST:
+		if(ri->is_duplicate){
+			/* Duplicate is ignored */
+			rs->time_stats[RADIUS_CAT_OVERALL].req_dup_num++;
+			rs->time_stats[radius_cat].req_dup_num++;
+		}
+		else {
+			rs->time_stats[RADIUS_CAT_OVERALL].open_req_num++;
+			rs->time_stats[radius_cat].open_req_num++;
+		}
+		break;
+
+	case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+	case RADIUS_PKT_TYPE_ACCESS_REJECT:
+	case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+	case RADIUS_PKT_TYPE_PASSWORD_ACK:
+	case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+	case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+	case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+	case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+	case RADIUS_PKT_TYPE_COA_ACK:
+	case RADIUS_PKT_TYPE_COA_NAK:
+		if(ri->is_duplicate){
+			/* Duplicate is ignored */
+			rs->time_stats[RADIUS_CAT_OVERALL].rsp_dup_num++;
+			rs->time_stats[radius_cat].rsp_dup_num++;
+		}
+		else if (!ri->request_available) {
+			/* no request was seen */
+			rs->time_stats[RADIUS_CAT_OVERALL].disc_rsp_num++;
+			rs->time_stats[radius_cat].disc_rsp_num++;
+		}
+		else {
+			rs->time_stats[RADIUS_CAT_OVERALL].open_req_num--;
+			rs->time_stats[radius_cat].open_req_num--;
+			/* calculate time delta between request and response */
+			nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
+
+			time_stat_update(&(rs->time_stats[RADIUS_CAT_OVERALL].rtd[0]),&delta, pinfo);
+			time_stat_update(&(rs->time_stats[radius_cat].rtd[0]),&delta, pinfo);
+
+			ret = 1;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return ret;
+}
+
+
 
 /*
  * Init Hash table stuff for conversation
@@ -2130,6 +2275,8 @@ proto_register_radius(void)
 	dict->vendors_by_id   = g_hash_table_new(g_direct_hash,g_direct_equal);
 	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 	dict->tlvs_by_name    = g_hash_table_new(g_str_hash,g_str_equal);
+
+	register_rtd_table(proto_radius, NULL, RADIUS_CAT_NUM_TIMESTATS, 1, radius_message_code, radiusstat_packet, NULL);
 }
 
 void

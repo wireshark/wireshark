@@ -69,7 +69,6 @@ WIRESHARK_UI_SRC = \
 	software_update.c	\
 	ssl_key_export.c	\
 	tap_export_pdu.c	\
-	tap-megaco-common.c	\
 	tap-rtp-common.c	\
 	tap-sctp-analysis.c \
 	tap-sequence-analysis.c	\
@@ -112,7 +111,6 @@ noinst_HEADERS = \
 	software_update.h	\
 	ssl_key_export.h	\
 	tap_export_pdu.h	\
-	tap-megaco-common.h	\
 	tap-rtp-common.h	\
 	tap-sctp-analysis.h  \
 	tap-sequence-analysis.h	\

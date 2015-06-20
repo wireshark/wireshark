@@ -79,6 +79,7 @@ LIBWIRESHARK_SRC =		\
 	reassemble.c		\
 	reedsolomon.c		\
 	req_resp_hdrs.c		\
+	rtd_table.c	\
 	show_exception.c	\
 	sminmpec.c		\
 	srt_table.c	\
@@ -232,6 +233,7 @@ LIBWIRESHARK_INCLUDES =		\
 	reassemble.h		\
 	reedsolomon.h		\
 	req_resp_hdrs.h		\
+	rtd_table.h	\
 	rtp_pt.h		\
 	sctpppids.h		\
 	show_exception.h	\

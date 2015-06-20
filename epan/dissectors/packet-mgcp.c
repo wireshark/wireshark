@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/rtd_table.h>
 #include "packet-mgcp.h"
 
 
@@ -278,6 +279,102 @@ static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_
 
 
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
+
+#define NUM_TIMESTATS 11
+
+static const value_string mgcp_mesage_type[] = {
+	{  0, "Overall"},
+	{  1, "EPCF   "},
+	{  2, "CRCX   "},
+	{  3, "MDCX   "},
+	{  4, "DLCX   "},
+	{  5, "RQNT   "},
+	{  6, "NTFY   "},
+	{  7, "AUEP   "},
+	{  8, "AUCX   "},
+	{  9, "RSIP   "},
+	{  0, NULL}
+};
+
+static int
+mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
+{
+	rtd_data_t* rtd_data = (rtd_data_t*)pms;
+	rtd_stat_table* ms = &rtd_data->stat_table;
+	const mgcp_info_t *mi = (const mgcp_info_t *)pmi;
+	nstime_t delta;
+	int ret = 0;
+
+	switch (mi->mgcp_type) {
+
+	case MGCP_REQUEST:
+		if (mi->is_duplicate) {
+			/* Duplicate is ignored */
+			ms->time_stats[0].req_dup_num++;
+		}
+		else {
+			ms->time_stats[0].open_req_num++;
+		}
+		break;
+
+	case MGCP_RESPONSE:
+		if (mi->is_duplicate) {
+			/* Duplicate is ignored */
+			ms->time_stats[0].rsp_dup_num++;
+		}
+		else if (!mi->request_available) {
+			/* no request was seen */
+			ms->time_stats[0].disc_rsp_num++;
+		}
+		else {
+			ms->time_stats[0].open_req_num--;
+			/* calculate time delta between request and response */
+			nstime_delta(&delta, &pinfo->fd->abs_ts, &mi->req_time);
+
+			time_stat_update(&(ms->time_stats[0].rtd[0]), &delta, pinfo);
+
+			if (g_ascii_strncasecmp(mi->code, "EPCF", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[1]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "CRCX", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[2]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "MDCX", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[3]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "DLCX", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[4]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "RQNT", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[5]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "NTFY", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[6]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "AUEP", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[7]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "AUCX", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[8]), &delta, pinfo);
+			}
+			else if (g_ascii_strncasecmp(mi->code, "RSIP", 4) == 0 ) {
+				time_stat_update(&(ms->time_stats[0].rtd[9]), &delta, pinfo);
+			}
+			else {
+				time_stat_update(&(ms->time_stats[0].rtd[10]), &delta, pinfo);
+			}
+
+			ret = 1;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return ret;
+}
+
 
 /*
  * Some functions which should be moved to a library
@@ -2258,6 +2355,8 @@ void proto_register_mgcp(void)
 				       &global_mgcp_message_count);
 
 	mgcp_tap = register_tap("mgcp");
+
+	register_rtd_table(proto_mgcp, NULL, 1, NUM_TIMESTATS, mgcp_mesage_type, mgcpstat_packet, NULL);
 }
 
 /* The registration hand-off routine */
