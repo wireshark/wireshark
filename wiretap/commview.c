@@ -143,11 +143,13 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 	case MEDIUM_WIFI :
 		phdr->pkt_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
+		phdr->pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
+		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
+		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
 		phdr->pseudo_header.ieee_802_11.presence_flags =
 		    PHDR_802_11_HAS_CHANNEL |
 		    PHDR_802_11_HAS_DATA_RATE |
 		    PHDR_802_11_HAS_SIGNAL_PERCENT;
-		phdr->pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
 		phdr->pseudo_header.ieee_802_11.channel = cv_hdr.channel;
 		phdr->pseudo_header.ieee_802_11.data_rate =
 		    cv_hdr.rate | (cv_hdr.direction << 8);

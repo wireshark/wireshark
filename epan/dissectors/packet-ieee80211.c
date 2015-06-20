@@ -16563,10 +16563,9 @@ typedef enum {
 
 static int
 dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, gboolean fixed_length_header, gint fcs_len,
-                          gboolean wlan_broken_fc, gboolean datapad,
-                          gboolean is_ht, gboolean is_centrino,
-                          struct ieee_802_11_phdr *phdr)
+                          proto_tree *tree, gboolean fixed_length_header,
+                          gboolean wlan_broken_fc, gboolean is_ht,
+                          gboolean is_centrino, struct ieee_802_11_phdr *phdr)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
   guint16          seq_control;
@@ -16673,7 +16672,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
    * of recalculating it every time we need it.
    */
   ohdr_len = hdr_len;
-  if (datapad)
+  if (phdr->datapad)
     hdr_len = roundup2(hdr_len, 4);
 
   /* Add the FC and duration/id to the current tree */
@@ -16687,7 +16686,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
     }
 
-  switch (fcs_len)
+  switch (phdr->fcs_len)
     {
       case 0: /* Definitely has no FCS */
         has_fcs = FALSE;
@@ -17507,7 +17506,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
           guint32 fcs;
 
-          if (datapad)
+          if (phdr->datapad)
             fcs = crc32_802_tvb_padded(tvb, ohdr_len, hdr_len, len);
           else
             fcs = crc32_802_tvb(tvb, hdr_len + len);
@@ -17770,7 +17769,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     }
 
   if (IS_PROTECTED(FCF_FLAGS(fcf))
-      && (phdr == NULL || !phdr->decrypted)
+      && !phdr->decrypted
       && (wlan_ignore_wep != WLAN_IGNORE_WEP_WO_IV)) {
     /*
      * It's a WEP or WPA encrypted frame, and it hasn't already been
@@ -18272,80 +18271,76 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and with the FCS
- * presence or absence indicated by the pseudo-header.
+ * presence or absence indicated by the pseudo-header, if there is one.
  */
 static int
 dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+  struct ieee_802_11_phdr ourphdr;
 
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                                   (phdr == NULL) ? -1 : phdr->fcs_len, FALSE, FALSE, FALSE, FALSE, phdr);
+  if (phdr == NULL) {
+    /*
+     * Fake a pseudo-header.
+     * XXX - what are we supposed to do if the FCS length is unknown?
+     */
+    ourphdr.fcs_len = -1;
+    ourphdr.decrypted = FALSE;
+    ourphdr.datapad = FALSE;
+    ourphdr.presence_flags = 0;
+    phdr = &ourphdr;
+  }
+  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, phdr);
 }
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and with an
- * FCS.
+ * FCS, but no pseudo-header.
  */
 static void
 dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, FALSE, FALSE, FALSE, NULL);
+  struct ieee_802_11_phdr phdr;
+
+  /* Construct a pseudo-header to hand to the common code. */
+  phdr.fcs_len = 4;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, &phdr);
 }
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and without an
- * FCS.
+ * FCS, but no pseudo-header.
  */
 static void
 dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, FALSE, FALSE, FALSE, NULL);
+  struct ieee_802_11_phdr phdr;
+
+  /* Construct a pseudo-header to hand to the common code. */
+  phdr.fcs_len = 0;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, &phdr);
 }
 
 /*
  * Dissect 802.11 with a variable-length link-layer header.
  */
-static int
-dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
-
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                                   (phdr == NULL) ? -1 : phdr->fcs_len, FALSE, FALSE, FALSE, TRUE, phdr);
-}
-
-/*
- * Dissect 802.11 with a variable-length link-layer header and data padding
- * and with the FCS presence or absence indicated by the pseudo-header.
- */
-static int
-dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
-
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                                   (phdr == NULL) ? -1 : phdr->fcs_len, FALSE, TRUE, FALSE, FALSE, phdr);
-}
-
-/*
- * Dissect 802.11 with a variable-length link-layer header and data padding
- * and with an FCS.
- */
 static void
-dissect_ieee80211_datapad_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, TRUE, FALSE, FALSE, NULL);
-}
+  struct ieee_802_11_phdr phdr;
 
-/*
- * Dissect 802.11 with a variable-length link-layer header and data padding
- * and without an FCS.
- */
-static void
-dissect_ieee80211_datapad_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, TRUE, FALSE, FALSE, NULL);
+  /* Construct a pseudo-header to hand to the common code. */
+  phdr.fcs_len = 0;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, TRUE, &phdr);
 }
 
 /*
@@ -18356,7 +18351,14 @@ dissect_ieee80211_datapad_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void
 dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, TRUE, FALSE, FALSE, FALSE, NULL);
+  struct ieee_802_11_phdr phdr;
+
+  /* Construct a pseudo-header to hand to the common code. */
+  phdr.fcs_len = 0;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, FALSE, FALSE, &phdr);
 }
 
 /*
@@ -18366,7 +18368,14 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, 0, FALSE, FALSE, FALSE, FALSE, NULL);
+  struct ieee_802_11_phdr phdr;
+
+  /* Construct a pseudo-header to hand to the common code. */
+  phdr.fcs_len = 0;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, FALSE, &phdr);
 }
 
 /*
@@ -18379,8 +18388,7 @@ dissect_ieee80211_ht (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
   struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
 
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                                   (phdr == NULL) ? -1 : phdr->fcs_len, FALSE, FALSE, TRUE, FALSE, phdr);
+  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, TRUE, FALSE, phdr);
 }
 
 static void
@@ -26932,9 +26940,6 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
   register_dissector("wlan_fixed",              dissect_ieee80211_fixed,              proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
-  new_register_dissector("wlan_datapad",        dissect_ieee80211_datapad,            proto_wlan);
-  register_dissector("wlan_datapad_withfcs",    dissect_ieee80211_datapad_withfcs,    proto_wlan);
-  register_dissector("wlan_datapad_withoutfcs", dissect_ieee80211_datapad_withoutfcs, proto_wlan);
   new_register_dissector("wlan_ht",             dissect_ieee80211_ht,                 proto_wlan);
 
   register_init_routine(wlan_defragment_init);
@@ -27158,9 +27163,8 @@ proto_reg_handoff_ieee80211(void)
 
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, ieee80211_handle);
 
-  centrino_handle = new_create_dissector_handle( dissect_ieee80211_centrino, proto_wlan );
+  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_wlan );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   /* Register handoff to Aruba GRE */

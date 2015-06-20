@@ -1604,9 +1604,10 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		 * XXX - in pcap-ng, there *could* be a packet option
 		 * indicating the FCS length.
 		 */
-		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* absent or supplied in the packet data */
 		phdr->pseudo_header.ieee_802_11.fcs_len = -1;
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
+		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
+		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* absent or supplied in the packet data */
 		break;
 
 	case WTAP_ENCAP_IRDA:

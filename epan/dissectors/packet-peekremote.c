@@ -54,6 +54,8 @@
 
 #include "config.h"
 
+#include <wiretap/wtap.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 
@@ -312,8 +314,7 @@ static gint ett_peekremote_flags = -1;
 static gint ett_peekremote_status = -1;
 static gint ett_peekremote_extflags = -1;
 
-static dissector_handle_t wlan_withfcs;
-static dissector_handle_t wlan_withoutfcs;
+static dissector_handle_t wlan_radio_handle;
 
 
 static int
@@ -380,6 +381,8 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   proto_item *ti_header_version, *ti_header_size;
   guint8 header_version;
   guint header_size;
+  struct ieee_802_11_phdr phdr;
+  guint16 frequency;
   tvbuff_t *next_tvb;
 
   if (tvb_memeql(tvb, 0, magic, 4) == -1) {
@@ -389,6 +392,12 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      */
     return FALSE;
   }
+
+  /* We don't have any 802.11 metadata yet. */
+  phdr.fcs_len = 4; /* has an FCS */
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.presence_flags = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -412,23 +421,42 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (header_size > 9)
         offset += (header_size - 9);
     } else {
+      phdr.presence_flags |=
+          PHDR_802_11_HAS_MCS_INDEX|
+          PHDR_802_11_HAS_CHANNEL|
+          PHDR_802_11_HAS_SIGNAL_PERCENT|
+          PHDR_802_11_HAS_NOISE_PERCENT|
+          PHDR_802_11_HAS_SIGNAL_DBM|
+          PHDR_802_11_HAS_NOISE_DBM|
+          PHDR_802_11_HAS_TSF_TIMESTAMP;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
+      phdr.mcs_index = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
+      phdr.channel = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
+      frequency = tvb_get_ntohl(tvb, offset);
+      if (frequency != 0) {
+        phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+        phdr.frequency = frequency;
+      }
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
+      phdr.signal_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.noise_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.signal_dbm = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.noise_dbm = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_1_dbm, tvb, offset, 1, ENC_NA);
@@ -454,6 +482,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += dissect_peekremote_flags(tvb, pinfo, peekremote_tree, offset);
       offset += dissect_peekremote_status(tvb, pinfo, peekremote_tree, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+      phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
       offset += 8;
     }
     break;
@@ -467,7 +496,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   proto_item_set_end(ti, tvb, offset);
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(wlan_withfcs, next_tvb, pinfo, tree);
+  call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
   return TRUE;
 }
 
@@ -477,6 +506,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   tvbuff_t *next_tvb;
   proto_tree *peekremote_tree = NULL;
   proto_item *ti = NULL;
+  struct ieee_802_11_phdr phdr;
   guint8 signal_percent;
 
   /*
@@ -511,11 +541,29 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_item_set_end(ti, tvb, 20);
   next_tvb = tvb_new_subset_remaining(tvb, 20);
   /* When signal = 100 % and coming from ARUBA ERM, it is TX packet and there is no FCS */
-  if (GPOINTER_TO_INT(data) == IS_ARUBA && signal_percent == 100){
-    return 20 + call_dissector(wlan_withoutfcs, next_tvb, pinfo, tree);
+  if (GPOINTER_TO_INT(data) == IS_ARUBA && signal_percent == 100) {
+    phdr.fcs_len = 0; /* TX packet, no FCS */
   } else {
-    return 20 + call_dissector(wlan_withfcs, next_tvb, pinfo, tree);
+    phdr.fcs_len = 4; /* We have an FCS */
   }
+  phdr.decrypted = FALSE;
+  phdr.presence_flags =
+      PHDR_802_11_HAS_CHANNEL|
+      PHDR_802_11_HAS_DATA_RATE|
+      PHDR_802_11_HAS_SIGNAL_PERCENT|
+      PHDR_802_11_HAS_NOISE_PERCENT|
+      PHDR_802_11_HAS_SIGNAL_DBM|
+      PHDR_802_11_HAS_NOISE_DBM|
+      PHDR_802_11_HAS_TSF_TIMESTAMP;
+  phdr.channel = tvb_get_guint8(tvb, 17);
+  phdr.data_rate = tvb_get_guint8(tvb, 16);
+  phdr.signal_percent = tvb_get_guint8(tvb, 18);
+  phdr.noise_percent = tvb_get_guint8(tvb, 18);
+  phdr.signal_dbm = tvb_get_guint8(tvb, 0);
+  phdr.noise_dbm = tvb_get_guint8(tvb, 1);
+  phdr.tsf_timestamp = tvb_get_ntoh64(tvb, 8);
+
+  return 20 + call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
 
 void
@@ -598,8 +646,7 @@ proto_reg_handoff_peekremote(void)
 {
   dissector_handle_t peekremote_handle;
 
-  wlan_withfcs = find_dissector("wlan_withfcs");
-  wlan_withoutfcs = find_dissector("wlan_withoutfcs");
+  wlan_radio_handle = find_dissector("wlan_radio");
 
   peekremote_handle = new_create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);

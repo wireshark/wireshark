@@ -215,8 +215,7 @@ static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
 static expert_field ei_radiotap_present = EI_INIT;
 
-static dissector_handle_t ieee80211_handle;
-static dissector_handle_t ieee80211_datapad_handle;
+static dissector_handle_t ieee80211_radio_handle;
 
 static int radiotap_tap = -1;
 
@@ -608,6 +607,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/* We don't have any 802.11 metadata yet. */
 	phdr.fcs_len = -1;
 	phdr.decrypted = FALSE;
+	phdr.datapad = FALSE;
 	phdr.presence_flags = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -826,6 +826,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_TSFT:
 			radiotap_info->tsft = tvb_get_letoh64(tvb, offset);
+			phdr.tsf_timestamp = radiotap_info->tsft;
+			phdr.presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
 			if (tree) {
 				proto_tree_add_uint64(radiotap_tree,
 						      hf_radiotap_mactime, tvb,
@@ -836,10 +838,22 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_FLAGS: {
 			rflags = tvb_get_guint8(tvb, offset);
+			if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
+				phdr.datapad = TRUE;
 			if (rflags & IEEE80211_RADIOTAP_F_FCS)
 				phdr.fcs_len = 4;
 			else
 				phdr.fcs_len = 0;
+			/*
+			 * This is "Currently unspecified but used",
+			 * according to the radiotap.org page for
+			 * the Flags field.
+			 */
+			phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+			if (rflags & 0x80)
+				phdr.short_gi = 1;
+			else
+				phdr.short_gi = 0;
 
 			if (tree) {
 				proto_tree *flags_tree;
@@ -938,11 +952,22 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 								    (float)rate / 2);
 				}
 				radiotap_info->rate = rate;
+				phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+				phdr.data_rate = rate;
 			}
 			break;
 		}
 
 		case IEEE80211_RADIOTAP_CHANNEL: {
+			freq	 = tvb_get_letohs(tvb, offset);
+			if (freq != 0) {
+				/*
+				 * XXX - some captures have 0, which is
+				 * obviously bogus.
+				 */
+				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+				phdr.frequency = freq;
+			}
 			if (tree) {
 				guint16     flags;
 				gchar	   *chan_str;
@@ -962,7 +987,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					NULL
 				};
 
-				freq	 = tvb_get_letohs(tvb, offset);
 				flags	 = tvb_get_letohs(tvb, offset + 2);
 				chan_str = ieee80211_mhz_to_str(freq);
 				col_add_fstr(pinfo->cinfo,
@@ -1153,7 +1177,46 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			mcs_known = tvb_get_guint8(tvb, offset);
 			mcs_flags = tvb_get_guint8(tvb, offset + 1);
-			mcs = tvb_get_guint8(tvb, offset + 2);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
+				mcs = tvb_get_guint8(tvb, offset + 2);
+				phdr.presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
+				phdr.mcs_index = mcs;
+			} else {
+				mcs = 0;
+				can_calculate_rate = FALSE;	/* no MCS index */
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
+				phdr.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
+				phdr.bandwidth = (mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
+				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
+				    1 : 0;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+				phdr.short_gi = (gi_length == 0);
+			} else {
+				gi_length = 0;
+				can_calculate_rate = FALSE;	/* no GI width */
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
+				phdr.presence_flags |= PHDR_802_11_HAS_GREENFIELD;
+				phdr.greenfield = (mcs_flags & IEEE80211_RADIOTAP_MCS_FMT_GF) != 0;
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
+				phdr.presence_flags |= PHDR_802_11_HAS_LDPC;
+				phdr.ldpc = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) != 0;
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
+				phdr.presence_flags |= PHDR_802_11_HAS_STBC_STREAMS;
+				phdr.stbc_streams = (mcs_flags & IEEE80211_RADIOTAP_MCS_STBC_MASK) >> IEEE80211_RADIOTAP_MCS_STBC_SHIFT;
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_NESS) {
+				phdr.presence_flags |= PHDR_802_11_HAS_NESS;
+				/* This is stored a bit weirdly */
+				phdr.ness =
+				    ((mcs_known & IEEE80211_RADIOTAP_MCS_NESS_BIT1) >> 6) |
+				    ((mcs_flags & IEEE80211_RADIOTAP_MCS_NESS_BIT0) >> 7);
+			}
 
 			if (tree) {
 				proto_item *it;
@@ -1198,13 +1261,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				can_calculate_rate = FALSE;	/* no bandwidth */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
-				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
-				    1 : 0;
 				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_gi,
 							    tvb, offset + 1, 1, mcs_flags);
-			} else {
-				gi_length = 0;
-				can_calculate_rate = FALSE;	/* no GI width */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
 				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_format,
@@ -1225,8 +1283,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
 				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_index,
 							    tvb, offset + 2, 1, mcs);
-			} else
-				can_calculate_rate = FALSE;	/* no MCS index */
+			}
 
 			/*
 			 * If we have the MCS index, channel width, and
@@ -1516,8 +1573,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	/* dissect the 802.11 packet next */
-	call_dissector_with_data((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
-	    ieee80211_datapad_handle : ieee80211_handle, next_tvb, pinfo,
+	call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo,
 	    tree, &phdr);
 
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
@@ -1991,6 +2047,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_BW,
 		  "Bandwidth information present", HFILL}},
 
+		{&hf_radiotap_mcs_have_index,
+		 {"MCS index", "radiotap.mcs.have_index",
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_MCS,
+		  "MCS index information present", HFILL}},
+
 		{&hf_radiotap_mcs_have_gi,
 		 {"Guard interval", "radiotap.mcs.have_gi",
 		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_GI,
@@ -2020,11 +2081,6 @@ void proto_register_radiotap(void)
 		 {"Number of extension spatial streams bit 1", "radiotap.mcs.ness_bit1",
 		  FT_BOOLEAN, 8, TFS(&tfs_1_0), IEEE80211_RADIOTAP_MCS_NESS_BIT1,
 		  "Bit 1 of number of extension spatial streams information", HFILL}},
-
-		{&hf_radiotap_mcs_have_index,
-		 {"MCS index", "radiotap.mcs.have_index",
-		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_MCS,
-		  "MCS index information present", HFILL}},
 
 		{&hf_radiotap_mcs_bw,
 		 {"Bandwidth", "radiotap.mcs.bw",
@@ -2391,9 +2447,8 @@ void proto_reg_handoff_radiotap(void)
 {
 	dissector_handle_t radiotap_handle;
 
-	/* handle for 802.11 dissector */
-	ieee80211_handle = find_dissector("wlan");
-	ieee80211_datapad_handle = find_dissector("wlan_datapad");
+	/* handle for 802.11+radio information dissector */
+	ieee80211_radio_handle = find_dissector("wlan_radio");
 
 	radiotap_handle = find_dissector("radiotap");
 

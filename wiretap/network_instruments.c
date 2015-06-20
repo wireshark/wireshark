@@ -97,7 +97,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+static int read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info);
 static gboolean process_packet_header(wtap *wth,
     packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
@@ -254,7 +254,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        header_bytes_consumed = read_packet_header(wth->fh, &wth->phdr.pseudo_header, &packet_header, err,
+        header_bytes_consumed = read_packet_header(wth, wth->fh, &wth->phdr.pseudo_header, &packet_header, err,
             err_info);
         if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
@@ -302,7 +302,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
 
     /* process the packet header, including TLVs */
-    offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, err,
+    offset = read_packet_header(wth, wth->random_fh, pseudo_header, &packet_header, err,
         err_info);
     if (offset <= 0)
         return FALSE;    /* EOF or error */
@@ -321,7 +321,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static int
-read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info)
 {
     int offset;
@@ -367,6 +367,21 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
         return -1;
     }
 
+    /* initialize the pseudo header */
+    switch (wth->file_encap) {
+    case WTAP_ENCAP_ETHERNET:
+        /* There is no FCS in the frame */
+        pseudo_header->eth.fcs_len = 0;
+        break;
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+        pseudo_header->ieee_802_11.fcs_len = 0;
+        pseudo_header->ieee_802_11.decrypted = FALSE;
+        pseudo_header->ieee_802_11.datapad = FALSE;
+        pseudo_header->ieee_802_11.presence_flags = 0;
+        /* Updated below */
+        break;
+    }
+
     /* process extra information */
     for (i = 0; i < packet_header->number_of_information_elements; i++) {
         /* read the TLV header */
@@ -389,11 +404,10 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
                                  err, err_info))
                 return -1;
             /* update the pseudo header */
-            pseudo_header->ieee_802_11.presence_flags =
+            pseudo_header->ieee_802_11.presence_flags |=
                 PHDR_802_11_HAS_CHANNEL |
                 PHDR_802_11_HAS_DATA_RATE |
                 PHDR_802_11_HAS_SIGNAL_PERCENT;
-            pseudo_header->ieee_802_11.fcs_len = 0;
             /* set decryption status */
             pseudo_header->ieee_802_11.decrypted = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) != 0;
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
@@ -482,17 +496,6 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
             dst_offset = mktime(&standard_tm) - mktime(&daylight_tm);
             phdr->ts.secs -= dst_offset;
         }
-    }
-
-    /* update the pseudo header */
-    switch (wth->file_encap) {
-    case WTAP_ENCAP_ETHERNET:
-        /* There is no FCS in the frame */
-        phdr->pseudo_header.eth.fcs_len = 0;
-        break;
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-        /* Updated in read_packet_header */
-        break;
     }
 
     return TRUE;

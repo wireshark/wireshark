@@ -45,6 +45,8 @@
 
 #include "config.h"
 
+#include <wiretap/wtap.h>
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
@@ -66,7 +68,7 @@ static gint ett_cwids = -1;
 
 static expert_field ie_ieee80211_subpacket = EI_INIT;
 
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_radio_handle;
 
 static void
 dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -83,13 +85,20 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cwids_tree = NULL;
 
 	while(tvb_reported_length_remaining(tvb, offset) > 0) {
+		struct ieee_802_11_phdr phdr;
+
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, ENC_NA);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 
+		phdr.fcs_len = 0;	/* no FCS */
+		phdr.decrypted = FALSE;
+		phdr.datapad = FALSE;
+		phdr.presence_flags = PHDR_802_11_HAS_CHANNEL;
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, ENC_NA);
 		offset += 7;
+		phdr.channel = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 6, ENC_NA);
@@ -105,7 +114,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		wlan_tvb = tvb_new_subset_length(tvb, offset, capturelen);
 		/* Continue after ieee80211 dissection errors */
 		TRY {
-			call_dissector(ieee80211_handle, wlan_tvb, pinfo, tree);
+			call_dissector_with_data(ieee80211_radio_handle, wlan_tvb, pinfo, tree, &phdr);
 		} CATCH_BOUNDS_ERRORS {
 			show_exception(wlan_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
@@ -187,7 +196,7 @@ proto_reg_handoff_cwids(void)
 	if (!initialized) {
 		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
 		dissector_add_for_decode_as("udp.port", cwids_handle);
-		ieee80211_handle = find_dissector("wlan_withoutfcs");
+		ieee80211_radio_handle = find_dissector("wlan_radio");
 		initialized = TRUE;
 	} else {
 		if (saved_udp_port != 0) {

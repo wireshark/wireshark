@@ -124,7 +124,7 @@ static gint ett_radiotap_present = -1;
 static gint ett_radiotap_flags = -1;
 /* static gint ett_radiotap_channel_flags = -1; */
 
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_radio_handle;
 
 /* Ethernet fields */
 static int hf_ixveriwave_vw_info = -1;
@@ -653,6 +653,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     guint       length;
     gint8       dbm;
     guint8      mcs_index;
+    guint8      ness;
     float       phyRate;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwift,*vw_infoFlags_tree = NULL;
@@ -661,6 +662,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
     ifg_info   *p_ifg_info;
     proto_item *ti;
+    struct ieee_802_11_phdr phdr;
+
+    /* We don't have any 802.11 metadata yet. */
+    phdr.fcs_len = 0; /* no FCS */
+    phdr.decrypted = FALSE;
+    phdr.datapad = FALSE;
+    phdr.presence_flags = 0;
 
     /* First add the IFG information, need to grab the info bit field here */
     vw_info = tvb_get_letohs(tvb, 20);
@@ -679,6 +687,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      += 2;
 
     vw_rflags = tvb_get_letohs(tvb, offset);
+    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
+        phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+        phdr.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+    }
     if (tree) {
         ft = proto_tree_add_uint(tap_tree, hf_radiotap_flags, tvb, offset, 2, vw_rflags);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
@@ -711,12 +723,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      +=2;
     phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
     offset      +=2;
+    ness = tvb_get_guint8(tvb, offset);
     offset++;
     mcs_index = tvb_get_guint8(tvb, offset);
     offset++;
     offset++;
 
     if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
+        phdr.presence_flags |= (PHDR_802_11_HAS_MCS_INDEX|PHDR_802_11_HAS_NESS);
+        phdr.mcs_index = mcs_index;
+        phdr.ness = ness;
         if (tree) {
             proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
                                 tvb, offset - 2, 1, ENC_BIG_ENDIAN);
@@ -729,6 +745,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                                        "%.1f (MCS %d)", phyRate, mcs_index);
         }
     } else {
+        phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+        phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
         if (tree) {
             proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
             tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
@@ -738,7 +756,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
 
     dbm = (gint8) tvb_get_guint8(tvb, offset);
-
+    phdr.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+    phdr.signal_dbm = dbm;
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
     if (tree) {
         proto_tree_add_int_format_value(tap_tree,
@@ -905,7 +924,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     next_tvb = tvb_new_subset_remaining(tvb, length);
 
     /* dissect the 802.11 packet next */
-    call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+    call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
 
 void proto_register_ixveriwave(void)
@@ -1350,8 +1369,8 @@ void proto_reg_handoff_ixveriwave(void)
 {
     /* handle for ethertype dissector */
     ethernet_handle          = find_dissector("eth_withoutfcs");
-    /* handle for 802.11 dissector */
-    ieee80211_handle         = find_dissector("wlan_withoutfcs");
+    /* handle for 802.11+radio information dissector */
+    ieee80211_radio_handle   = find_dissector("wlan_radio");
 
     ixveriwave_handle           = create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);

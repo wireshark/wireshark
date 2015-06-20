@@ -32,23 +32,25 @@
 void proto_register_ieee80211_radio(void);
 void proto_reg_handoff_ieee80211_radio(void);
 
+static dissector_handle_t wlan_radio_handle;
 static dissector_handle_t ieee80211_handle;
 
-static int proto_radio = -1;
+static int proto_wlan_radio = -1;
 
 /* ************************************************************************* */
 /*                Header field info values for radio information             */
 /* ************************************************************************* */
-static int hf_data_rate = -1;
-static int hf_mcs_index = -1;
-static int hf_bandwidth = -1;
-static int hf_short_gi = -1;
-static int hf_channel = -1;
-static int hf_frequency = -1;
-static int hf_signal_percent = -1;
-static int hf_signal_dbm = -1;
-static int hf_noise_percent = -1;
-static int hf_noise_dbm = -1;
+static int hf_wlan_radio_data_rate = -1;
+static int hf_wlan_radio_mcs_index = -1;
+static int hf_wlan_radio_bandwidth = -1;
+static int hf_wlan_radio_short_gi = -1;
+static int hf_wlan_radio_channel = -1;
+static int hf_wlan_radio_frequency = -1;
+static int hf_wlan_radio_signal_percent = -1;
+static int hf_wlan_radio_signal_dbm = -1;
+static int hf_wlan_radio_noise_percent = -1;
+static int hf_wlan_radio_noise_dbm = -1;
+static int hf_wlan_radio_timestamp = -1;
 
 static const value_string bandwidth_vals[] = {
     { PHDR_802_11_BANDWIDTH_20_MHZ, "20 MHz" },
@@ -458,15 +460,16 @@ const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
   },
 };
 
-static gint ett_radio = -1;
+static gint ett_wlan_radio = -1;
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and a pseudo-
  * header containing radio information.
  */
 static int
-dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
+  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
   proto_item *ti = NULL;
   proto_tree *radio_tree = NULL;
   float data_rate = 0.0f;
@@ -476,8 +479,8 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *dat
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Calculate the data rate, if we have the necessary data */
-  if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_DATA_RATE) {
-    data_rate = pinfo->pseudo_header->ieee_802_11.data_rate * 0.5f;
+  if (phdr->presence_flags & PHDR_802_11_HAS_DATA_RATE) {
+    data_rate = phdr->data_rate * 0.5f;
     have_data_rate = TRUE;
   } else {
     /* Do we have all the fields we need to look it up? */
@@ -488,12 +491,12 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *dat
 
     guint bandwidth_40;
 
-    if ((pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_ALL_MCS_FIELDS) == PHDR_802_11_ALL_MCS_FIELDS) {
+    if ((phdr->presence_flags & PHDR_802_11_ALL_MCS_FIELDS) == PHDR_802_11_ALL_MCS_FIELDS) {
       bandwidth_40 =
-        (pinfo->pseudo_header->ieee_802_11.bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
+        (phdr->bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
          1 : 0;
-      if (pinfo->pseudo_header->ieee_802_11.mcs_index < MAX_MCS_INDEX) {
-        data_rate = ieee80211_float_htrates[pinfo->pseudo_header->ieee_802_11.mcs_index][bandwidth_40][pinfo->pseudo_header->ieee_802_11.short_gi];
+      if (phdr->mcs_index < MAX_MCS_INDEX) {
+        data_rate = ieee80211_float_htrates[phdr->mcs_index][bandwidth_40][phdr->short_gi];
         have_data_rate = TRUE;
       }
     }
@@ -503,7 +506,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *dat
   if (have_data_rate)
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", data_rate);
 
-  if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+  if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
     /*
      * For tagged Peek files, this is presumably signal strength as a
      * percentage of the maximum, as it is for classic Peek files,
@@ -518,143 +521,151 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *dat
      * It's *probably* something similar for other capture file formats.
      */
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
-          pinfo->pseudo_header->ieee_802_11.signal_percent);
+          phdr->signal_percent);
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, ENC_NA);
-    radio_tree = proto_item_add_subtree (ti, ett_radio);
+    ti = proto_tree_add_item(tree, proto_wlan_radio, tvb, 0, 0, ENC_NA);
+    radio_tree = proto_item_add_subtree (ti, ett_wlan_radio);
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_MCS_INDEX) {
-      proto_tree_add_uint(radio_tree, hf_mcs_index, tvb, 0, 0,
-               pinfo->pseudo_header->ieee_802_11.mcs_index);
+    if (phdr->presence_flags & PHDR_802_11_HAS_MCS_INDEX) {
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_mcs_index, tvb, 0, 0,
+               phdr->mcs_index);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_BANDWIDTH) {
-      proto_tree_add_uint(radio_tree, hf_bandwidth, tvb, 0, 0,
-               pinfo->pseudo_header->ieee_802_11.bandwidth);
+    if (phdr->presence_flags & PHDR_802_11_HAS_BANDWIDTH) {
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_bandwidth, tvb, 0, 0,
+               phdr->bandwidth);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SHORT_GI) {
-      proto_tree_add_boolean(radio_tree, hf_short_gi, tvb, 0, 0,
-               pinfo->pseudo_header->ieee_802_11.short_gi);
+    if (phdr->presence_flags & PHDR_802_11_HAS_SHORT_GI) {
+      proto_tree_add_boolean(radio_tree, hf_wlan_radio_short_gi, tvb, 0, 0,
+               phdr->short_gi);
     }
 
     if (have_data_rate) {
-      proto_tree_add_float_format_value(radio_tree, hf_data_rate, tvb, 0, 0,
+      proto_tree_add_float_format_value(radio_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
                data_rate,
                "%.1f Mb/s",
                data_rate);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) {
-      proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.channel);
+    if (phdr->presence_flags & PHDR_802_11_HAS_CHANNEL) {
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_channel, tvb, 0, 0,
+              phdr->channel);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_FREQUENCY) {
-      proto_tree_add_uint_format_value(radio_tree, hf_frequency, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.frequency,
+    if (phdr->presence_flags & PHDR_802_11_HAS_FREQUENCY) {
+      proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_frequency, tvb, 0, 0,
+              phdr->frequency,
               "%u MHz",
-              pinfo->pseudo_header->ieee_802_11.frequency);
+              phdr->frequency);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
-      proto_tree_add_uint_format_value(radio_tree, hf_signal_percent, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.signal_percent,
+    if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+      proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0,
+              phdr->signal_percent,
               "%u%%",
-              pinfo->pseudo_header->ieee_802_11.signal_percent);
+              phdr->signal_percent);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
-      proto_tree_add_int_format_value(radio_tree, hf_signal_dbm, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.signal_dbm,
+    if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
+      proto_tree_add_int_format_value(radio_tree, hf_wlan_radio_signal_dbm, tvb, 0, 0,
+              phdr->signal_dbm,
               "%d dBm",
-              pinfo->pseudo_header->ieee_802_11.signal_dbm);
+              phdr->signal_dbm);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_NOISE_PERCENT) {
-      proto_tree_add_uint_format_value(radio_tree, hf_noise_percent, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.noise_percent,
+    if (phdr->presence_flags & PHDR_802_11_HAS_NOISE_PERCENT) {
+      proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_noise_percent, tvb, 0, 0,
+              phdr->noise_percent,
               "%u%%",
-              pinfo->pseudo_header->ieee_802_11.noise_percent);
+              phdr->noise_percent);
     }
 
-    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_NOISE_DBM) {
-      proto_tree_add_int_format_value(radio_tree, hf_noise_dbm, tvb, 0, 0,
-              pinfo->pseudo_header->ieee_802_11.noise_dbm,
+    if (phdr->presence_flags & PHDR_802_11_HAS_NOISE_DBM) {
+      proto_tree_add_int_format_value(radio_tree, hf_wlan_radio_noise_dbm, tvb, 0, 0,
+              phdr->noise_dbm,
               "%d dBm",
-              pinfo->pseudo_header->ieee_802_11.noise_dbm);
+              phdr->noise_dbm);
+    }
+
+    if (phdr->presence_flags & PHDR_802_11_HAS_TSF_TIMESTAMP) {
+      proto_tree_add_uint64(radio_tree, hf_wlan_radio_timestamp, tvb, 0, 0,
+              phdr->tsf_timestamp);
     }
   }
 
-  /* dissect the 802.11 header next */
+  /* dissect the 802.11 packet next */
   pinfo->current_proto = "IEEE 802.11";
   return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
 }
 
-static hf_register_info hf_radio[] = {
-    {&hf_data_rate,
-     {"Data rate", "wlan.data_rate", FT_FLOAT, BASE_NONE, NULL, 0,
+static hf_register_info hf_wlan_radio[] = {
+    {&hf_wlan_radio_data_rate,
+     {"Data rate", "wlan_radio.data_rate", FT_FLOAT, BASE_NONE, NULL, 0,
       "Data rate (bits/s)", HFILL }},
 
-    {&hf_mcs_index,
-     {"MCS index", "wlan.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_mcs_index,
+     {"MCS index", "wlan_radio.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_bandwidth,
-     {"Bandwidth", "wlan.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
+    {&hf_wlan_radio_bandwidth,
+     {"Bandwidth", "wlan_radio.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
       NULL, HFILL }},
 
-    {&hf_short_gi,
-     {"Short GI", "wlan.short_gi", FT_BOOLEAN, 0, NULL, 0,
+    {&hf_wlan_radio_short_gi,
+     {"Short GI", "wlan_radio.short_gi", FT_BOOLEAN, 0, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_channel,
-     {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_channel,
+     {"Channel", "wlan_radio.channel", FT_UINT8, BASE_DEC, NULL, 0,
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
-    {&hf_frequency,
-     {"Frequency", "wlan.frequency", FT_UINT16, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_frequency,
+     {"Frequency", "wlan_radio.frequency", FT_UINT16, BASE_DEC, NULL, 0,
       "Center frequency of the 802.11 channel that this frame was sent/received on", HFILL }},
 
-    {&hf_signal_percent,
-     {"Signal strength (percentage)", "wlan.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_signal_percent,
+     {"Signal strength (percentage)", "wlan_radio.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
-    {&hf_signal_dbm,
-     {"Signal strength (dBm)", "wlan.signal_dbm", FT_INT8, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_signal_dbm,
+     {"Signal strength (dBm)", "wlan_radio.signal_dbm", FT_INT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_noise_percent,
-     {"Noise level (percentage)", "wlan.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_noise_percent,
+     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_noise_dbm,
-     {"Noise level (dBm)", "wlan.noise_dbm", FT_INT8, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_noise_dbm,
+     {"Noise level (dBm)", "wlan_radio.noise_dbm", FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_timestamp,
+     {"TSF timestamp", "wlan_radio.timestamp", FT_UINT64, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 };
 
 static gint *tree_array[] = {
-  &ett_radio
+  &ett_wlan_radio
 };
 
 void proto_register_ieee80211_radio(void)
 {
-  proto_radio = proto_register_protocol("802.11 radio information", "Radio",
-                                        "radio");
-  proto_register_field_array(proto_radio, hf_radio, array_length(hf_radio));
+  proto_wlan_radio = proto_register_protocol("802.11 radio information", "802.11 Radio",
+                                             "wlan_radio");
+  proto_register_field_array(proto_wlan_radio, hf_wlan_radio, array_length(hf_wlan_radio));
   proto_register_subtree_array(tree_array, array_length(tree_array));
+
+  wlan_radio_handle = new_register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
 }
 
 void proto_reg_handoff_ieee80211_radio(void)
 {
-  dissector_handle_t radio_handle;
-
   /* Register handoff to radio-header dissectors */
-  radio_handle = new_create_dissector_handle(dissect_radio, proto_radio);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-                     radio_handle);
+                     wlan_radio_handle);
   ieee80211_handle = find_dissector("wlan");
 }
 

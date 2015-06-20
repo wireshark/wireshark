@@ -557,6 +557,7 @@ struct p2p_phdr {
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
+    gboolean datapad;        /* TRUE if frame has padding between 802.11 header and payload */
     guint32  presence_flags; /* Flags indicating presence of fields */
     guint16  channel;        /* Channel number */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
@@ -564,9 +565,9 @@ struct ieee_802_11_phdr {
     guint    bandwidth:2;    /* Bandwidth = 20 MHz, 40 MHz, 20+20L, 20+20U */
     guint    short_gi:1;     /* True for short guard interval */
     guint    greenfield:1;   /* True for greenfield, short for mixed */
-    guint    ldpc:1;         /* Tue for LDPC FEC */
+    guint    ldpc:1;         /* True for LDPC FEC */
     guint    stbc_streams:2; /* Number of STBC streams */
-    guint    ness:1;         /* Number of extension spatial streams */
+    guint    ness;           /* Number of extension spatial streams */
     guint32  frequency;      /* Channel center frequency */
     guint8   signal_percent; /* Signal level, as a percentage */
     guint8   noise_percent;  /* Noise level, as a percentage */

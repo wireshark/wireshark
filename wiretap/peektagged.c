@@ -751,6 +751,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             skip_len = 4;
         }
         phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
+        phdr->pseudo_header.ieee_802_11.datapad = FALSE;
         break;
 
     case WTAP_ENCAP_ETHERNET:

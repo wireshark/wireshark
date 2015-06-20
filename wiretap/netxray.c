@@ -1251,6 +1251,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				phdr->pseudo_header.ieee_802_11.fcs_len = 0;
 
 			phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
+			phdr->pseudo_header.ieee_802_11.datapad = FALSE;
 
 			phdr->pseudo_header.ieee_802_11.channel =
 			    hdr.hdr_2_x.xxx[12];
