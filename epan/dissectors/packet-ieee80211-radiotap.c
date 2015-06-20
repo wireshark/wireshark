@@ -110,12 +110,15 @@ static int hf_radiotap_mcs_have_gi = -1;
 static int hf_radiotap_mcs_have_format = -1;
 static int hf_radiotap_mcs_have_fec = -1;
 static int hf_radiotap_mcs_have_stbc = -1;
+static int hf_radiotap_mcs_have_ness = -1;
+static int hf_radiotap_mcs_ness_bit1 = -1;
 static int hf_radiotap_mcs_bw = -1;
 static int hf_radiotap_mcs_index = -1;
 static int hf_radiotap_mcs_gi = -1;
 static int hf_radiotap_mcs_format = -1;
 static int hf_radiotap_mcs_fec = -1;
 static int hf_radiotap_mcs_stbc = -1;
+static int hf_radiotap_mcs_ness_bit0 = -1;
 static int hf_radiotap_ampdu = -1;
 static int hf_radiotap_ampdu_ref = -1;
 static int hf_radiotap_ampdu_flags = -1;
@@ -1154,13 +1157,25 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			if (tree) {
 				proto_item *it;
-				static const int * mcs_haves[] = {
+				static const int * mcs_haves_with_ness_bit1[] = {
 					&hf_radiotap_mcs_have_bw,
 					&hf_radiotap_mcs_have_index,
 					&hf_radiotap_mcs_have_gi,
 					&hf_radiotap_mcs_have_format,
 					&hf_radiotap_mcs_have_fec,
 					&hf_radiotap_mcs_have_stbc,
+					&hf_radiotap_mcs_have_ness,
+					&hf_radiotap_mcs_ness_bit1,
+					NULL
+				};
+				static const int * mcs_haves_without_ness_bit1[] = {
+					&hf_radiotap_mcs_have_bw,
+					&hf_radiotap_mcs_have_index,
+					&hf_radiotap_mcs_have_gi,
+					&hf_radiotap_mcs_have_format,
+					&hf_radiotap_mcs_have_fec,
+					&hf_radiotap_mcs_have_stbc,
+					&hf_radiotap_mcs_have_ness,
 					NULL
 				};
 
@@ -1168,7 +1183,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							 tvb, offset, 3, ENC_NA);
 				mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
 
-				proto_tree_add_bitmask(mcs_tree, tvb, offset, hf_radiotap_mcs_known, ett_radiotap_mcs_known, mcs_haves, ENC_LITTLE_ENDIAN);
+				if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_NESS)
+					proto_tree_add_bitmask(mcs_tree, tvb, offset, hf_radiotap_mcs_known, ett_radiotap_mcs_known, mcs_haves_with_ness_bit1, ENC_LITTLE_ENDIAN);
+				else
+					proto_tree_add_bitmask(mcs_tree, tvb, offset, hf_radiotap_mcs_known, ett_radiotap_mcs_known, mcs_haves_without_ness_bit1, ENC_LITTLE_ENDIAN);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
 				bandwidth = ((mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK) == IEEE80211_RADIOTAP_MCS_BW_40) ?
@@ -1198,6 +1216,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
 				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_stbc,
+							    tvb, offset + 1, 1, mcs_flags);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_NESS) {
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_ness_bit0,
 							    tvb, offset + 1, 1, mcs_flags);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
@@ -1501,6 +1523,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
 }
 
+static const true_false_string tfs_1_0 = { "1", "0" };
 
 void proto_register_radiotap(void)
 {
@@ -1988,6 +2011,16 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
 		  "Space Time Block Coding streams information present", HFILL}},
 
+		{&hf_radiotap_mcs_have_ness,
+		 {"Number of extension spatial streams", "radiotap.mcs.have_ness",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_NESS,
+		  "Number of extension spatial streams information present", HFILL}},
+
+		{&hf_radiotap_mcs_ness_bit1,
+		 {"Number of extension spatial streams bit 1", "radiotap.mcs.ness_bit1",
+		  FT_BOOLEAN, 8, TFS(&tfs_1_0), IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		  "Bit 1 of number of extension spatial streams information", HFILL}},
+
 		{&hf_radiotap_mcs_have_index,
 		 {"MCS index", "radiotap.mcs.have_index",
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
@@ -2017,6 +2050,11 @@ void proto_register_radiotap(void)
 		 {"STBC streams", "radiotap.mcs.stbc",
 		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_STBC_MASK,
 		  "Number of Space Time Block Code streams", HFILL}},
+
+		{&hf_radiotap_mcs_ness_bit0,
+		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit1",
+		  FT_BOOLEAN, 8, TFS(&tfs_1_0), IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		  "Bit 0 of number of extension spatial streams information", HFILL}},
 
 		{&hf_radiotap_mcs_index,
 		 {"MCS index", "radiotap.mcs.index",
