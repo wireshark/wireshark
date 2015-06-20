@@ -98,7 +98,7 @@ InterfaceTree::~InterfaceTree() {
 
 /* Resets the column count to the maximum colum count
  *
- * This is necessary, because the treeview may have more columns, then
+ * This is necessary, because the treeview may have more columns than
  * the default value (2).
  */
 void InterfaceTree::resetColumnCount()
