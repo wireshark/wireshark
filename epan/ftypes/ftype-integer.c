@@ -251,7 +251,7 @@ uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 {
-	if (field_display == BASE_HEX)
+	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{
 		/* This format perfectly fits into 11 bytes. */
 		*buf++ = '0';
@@ -588,7 +588,7 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	if (field_display == BASE_HEX)
+	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{
 		/* This format perfectly fits into 19 bytes. */
 		*buf++ = '0';
