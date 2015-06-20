@@ -1801,7 +1801,8 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
         default:
             dfilter_string = fvalue_to_string_repr(
                 &fi->value,
-                fi->hfinfo->display == BASE_HEX ? FTREPR_DISPLAY_HEX : FTREPR_DISPLAY,
+                ((fi->hfinfo->display == BASE_HEX) || (fi->hfinfo->display == BASE_HEX_DEC))
+                    ? FTREPR_DISPLAY_HEX : FTREPR_DISPLAY,
                 NULL);
             if (dfilter_string != NULL) {
                 return dfilter_string;
