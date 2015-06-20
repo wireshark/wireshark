@@ -43,6 +43,7 @@ static int hf_mifare_key_a = -1;
 static int hf_mifare_key_b = -1;
 static int hf_mifare_uid = -1;
 static int hf_mifare_operand = -1;
+static int hf_mifare_payload = -1;
 
 #define AUTH_A    0x60
 #define AUTH_B    0x61
@@ -67,8 +68,6 @@ static const value_string hf_mifare_commands[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t data_handle;
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_mifare = -1;
 
@@ -78,7 +77,6 @@ dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item;
     proto_tree *mifare_tree;
     guint8      cmd;
-    tvbuff_t   *next_tvb;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MiFare");
@@ -124,13 +122,7 @@ dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-            /* Because we don't know what the user will write, just let Data have away
-               with the rest of the packet's contents for now. */
-
-            next_tvb = tvb_new_subset_remaining(tvb, 2);
-
-            call_dissector(data_handle, next_tvb, pinfo, tree);
-
+            proto_tree_add_item(mifare_tree, hf_mifare_payload, tvb, 2, -1, ENC_NA);
             break;
 
         case TRANSFER:
@@ -184,6 +176,9 @@ proto_register_mifare(void)
            NULL, 0x0, NULL, HFILL }},
         {&hf_mifare_operand,
          { "Operand", "mifare.operand", FT_INT32, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_mifare_payload,
+         { "Payload", "mifare.payload", FT_BYTES, BASE_NONE,
            NULL, 0x0, NULL, HFILL }}
     };
 
@@ -198,12 +193,6 @@ proto_register_mifare(void)
     register_dissector("mifare", dissect_mifare, proto_mifare);
 }
 
-/* Handler registration */
-void
-proto_reg_handoff_mifare(void)
-{
-    data_handle = find_dissector("data");
-}
 /*
  * Editor modelines - http://www.wireshark.org/tools/modelines.html
  *
