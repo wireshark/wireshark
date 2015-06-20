@@ -78,50 +78,44 @@ dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item;
     proto_tree *mifare_tree;
     guint8      cmd;
-    tvbuff_t   *next_tvb = NULL;
+    tvbuff_t   *next_tvb;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MiFare");
-    col_set_str(pinfo->cinfo, COL_INFO, "MiFare Packet");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        /* Start with a top-level item to add everything else to */
+    /* Start with a top-level item to add everything else to */
 
-        item = proto_tree_add_item(tree, proto_mifare, tvb, 0, -1, ENC_NA);
-        mifare_tree = proto_item_add_subtree(item, ett_mifare);
+    item = proto_tree_add_item(tree, proto_mifare, tvb, 0, -1, ENC_NA);
+    mifare_tree = proto_item_add_subtree(item, ett_mifare);
 
-        proto_tree_add_item(mifare_tree, hf_mifare_command, tvb, 0, 1, ENC_BIG_ENDIAN);
-        cmd = tvb_get_guint8(tvb, 0);
+    proto_tree_add_item(mifare_tree, hf_mifare_command, tvb, 0, 1, ENC_BIG_ENDIAN);
+    cmd = tvb_get_guint8(tvb, 0);
 
-        switch (cmd) {
+
+    switch (cmd) {
 
         case AUTH_A:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_key_a, tvb, 2, 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key A");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Authenticate with Key A");
             break;
 
         case AUTH_B:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_key_b, tvb, 2, 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key B");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Authenticate with Key B");
             break;
 
         case READ:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Read");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Read");
             break;
 
         case WRITE:
-            col_set_str(pinfo->cinfo, COL_INFO, "Write");
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Write");
 
             /* LibNFC and the TouchATag-branded reader don't expose the 2-byte CRC
                or 4-bit NAK, as per MF1S703x, so we pretend that they don't exist.
@@ -141,40 +135,30 @@ dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case TRANSFER:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Transfer");
             break;
 
         case DECREMENT:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Decrement");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Decrement");
             break;
 
         case INCREMENT:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Increment");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Increment");
             break;
 
         case RESTORE:
             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Restore");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Restore");
             break;
 
         default:
-            col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
-
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Unknown");
             break;
-        }
     }
 }
 
