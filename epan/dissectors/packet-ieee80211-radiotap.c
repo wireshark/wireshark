@@ -1554,108 +1554,108 @@ void proto_register_radiotap(void)
 		/* Boolean 'present' flags */
 		{&hf_radiotap_present_tsft,
 		 {"TSFT", "radiotap.present.tsft",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TSFT),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TSFT),
 		  "Specifies if the Time Synchronization Function Timer field is present", HFILL}},
 
 		{&hf_radiotap_present_flags,
 		 {"Flags", "radiotap.present.flags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FLAGS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(FLAGS),
 		  "Specifies if the channel flags field is present", HFILL}},
 
 		{&hf_radiotap_present_rate,
 		 {"Rate", "radiotap.present.rate",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RATE),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RATE),
 		  "Specifies if the transmit/receive rate field is present", HFILL}},
 
 		{&hf_radiotap_present_channel,
 		 {"Channel", "radiotap.present.channel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(CHANNEL),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(CHANNEL),
 		  "Specifies if the transmit/receive frequency field is present", HFILL}},
 
 		{&hf_radiotap_present_fhss,
 		 {"FHSS", "radiotap.present.fhss",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FHSS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(FHSS),
 		  "Specifies if the hop set and pattern is present for frequency hopping radios", HFILL}},
 
 		{&hf_radiotap_present_dbm_antsignal,
 		 {"dBm Antenna Signal", "radiotap.present.dbm_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTSIGNAL),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DBM_ANTSIGNAL),
 		  "Specifies if the antenna signal strength in dBm is present", HFILL}},
 
 		{&hf_radiotap_present_dbm_antnoise,
 		 {"dBm Antenna Noise", "radiotap.present.dbm_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTNOISE),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DBM_ANTNOISE),
 		  "Specifies if the RF noise power at antenna field is present", HFILL}},
 
 		{&hf_radiotap_present_lock_quality,
 		 {"Lock Quality", "radiotap.present.lock_quality",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(LOCK_QUALITY),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(LOCK_QUALITY),
 		  "Specifies if the signal quality field is present", HFILL}},
 
 		{&hf_radiotap_present_tx_attenuation,
 		 {"TX Attenuation", "radiotap.present.tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TX_ATTENUATION),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TX_ATTENUATION),
 		  "Specifies if the transmit power distance from max power field is present", HFILL}},
 
 		{&hf_radiotap_present_db_tx_attenuation,
 		 {"dB TX Attenuation", "radiotap.present.db_tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DB_TX_ATTENUATION),
 		  "Specifies if the transmit power distance from max power (in dB) field is present", HFILL}},
 
 		{&hf_radiotap_present_dbm_tx_power,
 		 {"dBm TX Power", "radiotap.present.dbm_tx_power",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_TX_POWER),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DBM_TX_POWER),
 		  "Specifies if the transmit power (in dBm) field is present", HFILL}},
 
 		{&hf_radiotap_present_antenna,
 		 {"Antenna", "radiotap.present.antenna",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(ANTENNA),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(ANTENNA),
 		  "Specifies if the antenna number field is present", HFILL}},
 
 		{&hf_radiotap_present_db_antsignal,
 		 {"dB Antenna Signal", "radiotap.present.db_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTSIGNAL),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DB_ANTSIGNAL),
 		  "Specifies if the RF signal power at antenna in dB field is present", HFILL}},
 
 		{&hf_radiotap_present_db_antnoise,
 		 {"dB Antenna Noise", "radiotap.present.db_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTNOISE),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DB_ANTNOISE),
 		  "Specifies if the RF signal power at antenna in dBm field is present", HFILL}},
 
 		{&hf_radiotap_present_rxflags,
 		 {"RX flags", "radiotap.present.rxflags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the RX flags field is present", HFILL}},
 
 		{&hf_radiotap_present_hdrfcs,
 		 {"FCS in header", "radiotap.present.fcs",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the FCS field is present", HFILL}},
 
 		{&hf_radiotap_present_xchannel,
 		 {"Channel+", "radiotap.present.xchannel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(XCHANNEL),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(XCHANNEL),
 		  "Specifies if the extended channel info field is present", HFILL}},
 
 		{&hf_radiotap_present_mcs,
 		 {"HT information", "radiotap.present.mcs",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(MCS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(MCS),
 		  "Specifies if the HT field is present", HFILL}},
 
 		{&hf_radiotap_present_ampdu,
 		 {"A-MPDU Status", "radiotap.present.ampdu",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(AMPDU_STATUS),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(AMPDU_STATUS),
 		  "Specifies if the A-MPDU status field is present", HFILL}},
 
 		{&hf_radiotap_present_vht,
 		 {"VHT information", "radiotap.present.vht",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(VHT),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(VHT),
 		  "Specifies if the VHT field is present", HFILL}},
 
 		{&hf_radiotap_present_reserved,
 		 {"Reserved", "radiotap.present.reserved",
 		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
-		  "Not (yet) defined present flag (Must be zero)", HFILL}},
+		  "Not (yet) defined present flags (Must be zero)", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",
@@ -1669,7 +1669,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_present_ext,
 		 {"Ext", "radiotap.present.ext",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(EXT),
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(EXT),
 		  "Specifies if there are any extensions to the header present", HFILL}},
 
 		/* Boolean 'present.flags' flags */
@@ -1988,32 +1988,32 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_mcs_have_bw,
 		 {"Bandwidth", "radiotap.mcs.have_bw",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_BW,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_BW,
 		  "Bandwidth information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_gi,
 		 {"Guard interval", "radiotap.mcs.have_gi",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_GI,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_GI,
 		  "Sent/Received guard interval information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_format,
 		 {"Format", "radiotap.mcs.have_format",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FMT,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_FMT,
 		  "Format information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_fec,
 		 {"FEC type", "radiotap.mcs.have_fec",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_FEC,
 		  "Forward error correction type information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_stbc,
 		 {"STBC streams", "radiotap.mcs.have_stbc",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_STBC,
 		  "Space Time Block Coding streams information present", HFILL}},
 
 		{&hf_radiotap_mcs_have_ness,
 		 {"Number of extension spatial streams", "radiotap.mcs.have_ness",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_NESS,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_NESS,
 		  "Number of extension spatial streams information present", HFILL}},
 
 		{&hf_radiotap_mcs_ness_bit1,
@@ -2023,7 +2023,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_mcs_have_index,
 		 {"MCS index", "radiotap.mcs.have_index",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_MCS_HAVE_MCS,
 		  "MCS index information present", HFILL}},
 
 		{&hf_radiotap_mcs_bw,
