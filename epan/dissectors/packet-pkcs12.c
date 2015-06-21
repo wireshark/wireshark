@@ -66,6 +66,7 @@ void proto_reg_handoff_pkcs12(void);
 static int proto_pkcs12 = -1;
 
 static int hf_pkcs12_X509Certificate_PDU = -1;
+static int hf_pkcs12_AuthenticatedSafe_PDU = -1;  /* AuthenticatedSafe */
 static gint ett_decrypted_pbe = -1;
 
 static expert_field ei_pkcs12_octet_string_expected = EI_INIT;
@@ -85,7 +86,6 @@ static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /*--- Included file: packet-pkcs12-hf.c ---*/
 #line 1 "../../asn1/pkcs12/packet-pkcs12-hf.c"
 static int hf_pkcs12_PFX_PDU = -1;                /* PFX */
-static int hf_pkcs12_AuthenticatedSafe_PDU = -1;  /* AuthenticatedSafe */
 static int hf_pkcs12_SafeContents_PDU = -1;       /* SafeContents */
 static int hf_pkcs12_KeyBag_PDU = -1;             /* KeyBag */
 static int hf_pkcs12_PKCS8ShroudedKeyBag_PDU = -1;  /* PKCS8ShroudedKeyBag */
@@ -140,7 +140,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 77 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 78 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -168,7 +168,7 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 80 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 81 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static void append_oid(proto_tree *tree, const char *oid)
 {
@@ -1065,13 +1065,6 @@ static int dissect_PFX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
   offset = dissect_pkcs12_PFX(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_PFX_PDU);
   return offset;
 }
-static int dissect_AuthenticatedSafe_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_pkcs12_AuthenticatedSafe(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_AuthenticatedSafe_PDU);
-  return offset;
-}
 static int dissect_SafeContents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1159,7 +1152,7 @@ static int dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 388 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 389 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
@@ -1226,16 +1219,17 @@ void proto_register_pkcs12(void) {
       { "X509Certificate", "pkcs12.X509Certificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkcs12.X509Certificate", HFILL }},
+    { &hf_pkcs12_AuthenticatedSafe_PDU,
+      { "AuthenticatedSafe", "pkcs12.AuthenticatedSafe",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
 
 /*--- Included file: packet-pkcs12-hfarr.c ---*/
 #line 1 "../../asn1/pkcs12/packet-pkcs12-hfarr.c"
     { &hf_pkcs12_PFX_PDU,
       { "PFX", "pkcs12.PFX_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_pkcs12_AuthenticatedSafe_PDU,
-      { "AuthenticatedSafe", "pkcs12.AuthenticatedSafe",
-        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_pkcs12_SafeContents_PDU,
       { "SafeContents", "pkcs12.SafeContents",
@@ -1447,7 +1441,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 455 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 461 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1478,7 +1472,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 461 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 467 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
   static ei_register_info ei[] = {
       { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
@@ -1546,7 +1540,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 500 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 506 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

@@ -51,7 +51,7 @@ PrivateKeyInfo/version		privateKeyVersion
 PBKDF2Params/salt		saltChoice
 
 #.PDU_NEW
-AuthenticatedSafe
+#AuthenticatedSafe
 PrivateKeyInfo
 
 #.FN_BODY PFX

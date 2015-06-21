@@ -58,6 +58,7 @@ void proto_reg_handoff_pkcs12(void);
 static int proto_pkcs12 = -1;
 
 static int hf_pkcs12_X509Certificate_PDU = -1;
+static int hf_pkcs12_AuthenticatedSafe_PDU = -1;  /* AuthenticatedSafe */
 static gint ett_decrypted_pbe = -1;
 
 static expert_field ei_pkcs12_octet_string_expected = EI_INIT;
@@ -451,6 +452,11 @@ void proto_register_pkcs12(void) {
       { "X509Certificate", "pkcs12.X509Certificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkcs12.X509Certificate", HFILL }},
+    { &hf_pkcs12_AuthenticatedSafe_PDU,
+      { "AuthenticatedSafe", "pkcs12.AuthenticatedSafe",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
 #include "packet-pkcs12-hfarr.c"
   };
 
