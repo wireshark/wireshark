@@ -2200,8 +2200,7 @@ ibm-res          1405/tcp # IBM Remote Execution Starter
 ibm-res          1405/udp # IBM Remote Execution Starter
 netlabs-lm       1406/tcp # NetLabs License Manager
 netlabs-lm       1406/udp # NetLabs License Manager
-dbsa-lm          1407/tcp # DBSA License Manager [Scott_Shattuck] [Scott_Shattuck]
-dbsa-lm          1407/udp # DBSA License Manager [Scott_Shattuck] [Scott_Shattuck]
+tibet-server     1407/tcp # TIBET Data Server [Technical_Pursuit_Inc] [Scott_Shattuck] 2015-06-16 This port has been retasked on 2015-06-16.
 sophia-lm        1408/tcp # Sophia License Manager [Eric_Brown] [Eric_Brown]
 sophia-lm        1408/udp # Sophia License Manager [Eric_Brown] [Eric_Brown]
 here-lm          1409/tcp # Here License Manager [David_Ison] [David_Ison]
@@ -11302,6 +11301,8 @@ allpeers        36001/udp # AllPeers Network [Cedric_Maloux] [Cedric_Maloux] 200
 wlcp            36411/udp # Wireless LAN Control plane Protocol (WLCP) [ThreeGPP_3] [Frederic_Firmin] 2014-11-14
 s1-control      36412/sctp # S1-Control Plane (3GPP) [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2009-09-01
 x2-control      36422/sctp # X2-Control Plane (3GPP) [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2009-09-01
+slmap           36423/sctp # SLm Interface Application Protocol [ThreeGPP_4] [Kimmo_Kymalainen] 2015-06-18
+nq-ap           36424/sctp # Nq and Nq' Application Protocol [ThreeGPP_4] [Kimmo_Kymalainen] 2015-06-18
 m2ap            36443/sctp # M2 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
 m3ap            36444/sctp # M3 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
 febooti-aw      36524/tcp # Febooti Automation Workshop [Maris_Bormanis] [Maris_Bormanis] 2011-06-10
