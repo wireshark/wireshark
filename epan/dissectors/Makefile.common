@@ -158,6 +158,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-p772.c	\
 	packet-pcap.c	\
 	packet-pkcs1.c	\
+	packet-pkcs12.c	\
 	packet-pkinit.c	\
 	packet-pkix1explicit.c	\
 	packet-pkix1implicit.c	\
@@ -207,7 +208,6 @@ CORBA_IDL_DISSECTOR_SRC =
 #
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-p1.c	\
-	packet-pkcs12.c	\
 	packet-snmp.c	\
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)

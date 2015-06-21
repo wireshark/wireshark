@@ -257,6 +257,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-p772.c
 	dissectors/packet-pcap.c
 	dissectors/packet-pkcs1.c
+	dissectors/packet-pkcs12.c
 	dissectors/packet-pkinit.c
 	dissectors/packet-pkix1explicit.c
 	dissectors/packet-pkix1implicit.c
@@ -297,7 +298,6 @@ set(ASN1_DISSECTOR_SRC
 
 set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-p1.c
-	dissectors/packet-pkcs12.c
 	dissectors/packet-snmp.c
 	dissectors/packet-tcap.c
 )
