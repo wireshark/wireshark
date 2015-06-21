@@ -728,7 +728,8 @@ print_usage(FILE *output)
     fprintf(output, "                         this option more than once, allowing up to 2 chopping\n");
     fprintf(output, "                         regions within a packet provided that at least 1\n");
     fprintf(output, "                         choplen is positive and at least 1 is negative.\n");
-    fprintf(output, "  -L                     adjust the frame (i.e. reported) length when chopping and/or snapping\n");
+    fprintf(output, "  -L                     adjust the frame (i.e. reported) length when chopping\n");
+    fprintf(output, "                         and/or snapping\n");
     fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
     fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
     fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
