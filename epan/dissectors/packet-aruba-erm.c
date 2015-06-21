@@ -281,7 +281,7 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
 
     phdr.decrypted = FALSE;
-    phdr.presence_flags |= 
+    phdr.presence_flags =
         PHDR_802_11_HAS_DATA_RATE|
         PHDR_802_11_HAS_CHANNEL|
         PHDR_802_11_HAS_SIGNAL_PERCENT;
