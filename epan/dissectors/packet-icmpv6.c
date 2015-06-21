@@ -16,6 +16,8 @@
  *
  * Enhance ICMPv6 dissector by Alexis La Goutte
  *
+ * P2P-RPL support added by Cenk Gundogan <cnkgndgn@gmail.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -32,6 +34,8 @@
  */
 
 #include "config.h"
+
+#include "math.h"
 
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
@@ -80,6 +84,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
  * RFC 6743: ICMP Locator Update message for ILNPv6
  * RFC 6775: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
+ * RFC 6997: Reactive Discovery of Point-to-Point Routes in Low-Power and Lossy Networks
  * RFC 7112: Implications of Oversized IPv6 Header Chains
  * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2015-01-22)
@@ -350,7 +355,7 @@ static int hf_icmpv6_ni_reply_node_name = -1;
 static int hf_icmpv6_ni_reply_node_address = -1;
 static int hf_icmpv6_ni_reply_ipv4_address = -1;
 
-/* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
+/* RPL: RFC 6550/6997 : Routing and Discovery of P2P Routes in Low-Power and Lossy Networks. */
 static int hf_icmpv6_rpl_dis_flag = -1;
 static int hf_icmpv6_rpl_dio_instance = -1;
 static int hf_icmpv6_rpl_dio_version = -1;
@@ -447,6 +452,28 @@ static int hf_icmpv6_rpl_opt_prefix_vlifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_length = -1;
 static int hf_icmpv6_rpl_opt_targetdesc = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_flag = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_reply = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_hop_by_hop = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_num_of_routes = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_compr = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_lifetime = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_nh = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_maxrank = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_target_addr = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_addr_vec = -1;
+static int hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr = -1;
+static int hf_icmpv6_rpl_p2p_dro_instance = -1;
+static int hf_icmpv6_rpl_p2p_dro_version = -1;
+static int hf_icmpv6_rpl_p2p_dro_flag = -1;
+static int hf_icmpv6_rpl_p2p_dro_flag_stop = -1;
+static int hf_icmpv6_rpl_p2p_dro_flag_ack = -1;
+static int hf_icmpv6_rpl_p2p_dro_flag_seq = -1;
+static int hf_icmpv6_rpl_p2p_dro_flag_reserved = -1;
+static int hf_icmpv6_rpl_p2p_dro_dagid = -1;
+static int hf_icmpv6_rpl_p2p_droack_flag = -1;
+static int hf_icmpv6_rpl_p2p_droack_flag_seq = -1;
+static int hf_icmpv6_rpl_p2p_droack_flag_reserved = -1;
 
 /* RFC6743 Locator Update (156) */
 static int hf_icmpv6_ilnp_nb_locs = -1;
@@ -490,6 +517,10 @@ static gint ett_icmpv6_rpl_flag_config = -1;
 static gint ett_icmpv6_rpl_flag_transit = -1;
 static gint ett_icmpv6_rpl_flag_solicited = -1;
 static gint ett_icmpv6_rpl_flag_prefix = -1;
+static gint ett_icmpv6_rpl_route_discovery_flag = -1;
+static gint ett_icmpv6_rpl_route_discovery_addr_vec = -1;
+static gint ett_icmpv6_rpl_p2p_dro_flag = -1;
+static gint ett_icmpv6_rpl_p2p_droack_flag = -1;
 static gint ett_icmpv6_flag_ni = -1;
 static gint ett_icmpv6_flag_rr = -1;
 static gint ett_icmpv6_rr_mp = -1;
@@ -521,6 +552,10 @@ static expert_field ei_icmpv6_rr_pco_mp_matchlen = EI_INIT;
 static expert_field ei_icmpv6_rr_pco_mp_matchedlen = EI_INIT;
 static expert_field ei_icmpv6_checksum = EI_INIT;
 static expert_field ei_icmpv6_resp_not_found = EI_INIT;
+static expert_field ei_icmpv6_rpl_p2p_hop_by_hop = EI_INIT;
+static expert_field ei_icmpv6_rpl_p2p_num_of_routes = EI_INIT;
+static expert_field ei_icmpv6_rpl_p2p_dro_rdo_zero = EI_INIT;
+static expert_field ei_icmpv6_rpl_p2p_dro_zero = EI_INIT;
 
 static dissector_handle_t icmpv6_handle;
 
@@ -984,15 +1019,19 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 
 /* RPL : RFC 6550 : Routing over Low-Power and Lossy Networks. */
 /* RPL ICMPv6 Codes */
-#define ICMP6_RPL_DIS       0x00   /* DODAG Information Solicitation */
-#define ICMP6_RPL_DIO       0x01   /* DODAG Information Object */
-#define ICMP6_RPL_DAO       0x02   /* Destination Advertisement Object */
-#define ICMP6_RPL_DAOACK    0x03   /* Destination Advertisement Object Ack */
-#define ICMP6_RPL_SDIS      0x80   /* Secure DODAG Information Solicitation */
-#define ICMP6_RPL_SDIO      0x81   /* Secure DODAG Information Object */
-#define ICMP6_RPL_SDAO      0x82   /* Secure Destination Advertisement Object */
-#define ICMP6_RPL_SDAOACK   0x83   /* Secure Destination Advertisement Object Ack */
-#define ICMP6_RPL_CC        0x8A   /* Consistency Check */
+#define ICMP6_RPL_DIS           0x00   /* DODAG Information Solicitation */
+#define ICMP6_RPL_DIO           0x01   /* DODAG Information Object */
+#define ICMP6_RPL_DAO           0x02   /* Destination Advertisement Object */
+#define ICMP6_RPL_DAOACK        0x03   /* Destination Advertisement Object Ack */
+#define ICMP6_RPL_P2P_DRO       0x04   /* P2P Discovery Reply Object */
+#define ICMP6_RPL_P2P_DROACK    0x05   /* P2P Discovery Reply Object Acknowledgement */
+#define ICMP6_RPL_SDIS          0x80   /* Secure DODAG Information Solicitation */
+#define ICMP6_RPL_SDIO          0x81   /* Secure DODAG Information Object */
+#define ICMP6_RPL_SDAO          0x82   /* Secure Destination Advertisement Object */
+#define ICMP6_RPL_SDAOACK       0x83   /* Secure Destination Advertisement Object Ack */
+#define ICMP6_RPL_P2P_SDRO      0x84   /* Secure P2P Discovery Reply Object */
+#define ICMP6_RPL_P2P_SDROACK   0x85   /* Secure P2P Discovery Reply Object Acknowledgement */
+#define ICMP6_RPL_CC            0x8A   /* Consistency Check */
 
 
 /* RPL DIO Flags */
@@ -1024,6 +1063,16 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_SECURE_KIM      0xC0
 #define RPL_SECURE_RSV      0x38
 
+/* RPL P2P DRO Flags */
+#define RPL_P2P_DRO_FLAG_S      0x8000
+#define RPL_P2P_DRO_FLAG_A      0x4000
+#define RPL_P2P_DRO_FLAG_SEQ    0x3000
+#define RPL_P2P_DRO_FLAG_RSV    0x0FFF
+
+/* RPL P2P DROACK Flags */
+#define RPL_P2P_DROACK_FLAG_SEQ    0xc000
+#define RPL_P2P_DROACK_FLAG_RSV    0x3FFF
+
 /* RPL Option Bitfields */
 #define RPL_OPT_PREFIX_FLAG_L           0x80
 #define RPL_OPT_PREFIX_FLAG_A           0x40
@@ -1040,24 +1089,35 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_OPT_SOLICITED_FLAG_I        0x40
 #define RPL_OPT_SOLICITED_FLAG_D        0x20
 #define RPL_OPT_SOLICITED_FLAG_RSV      0x1F
+#define RPL_OPT_ROUTE_DISCOVERY_R       0x80
+#define RPL_OPT_ROUTE_DISCOVERY_H       0x40
+#define RPL_OPT_ROUTE_DISCOVERY_N       0x30
+#define RPL_OPT_ROUTE_DISCOVERY_COMPR   0x0F
+#define RPL_OPT_ROUTE_DISCOVERY_L       0xC0
+#define RPL_OPT_ROUTE_DISCOVERY_MR_NH   0x3F
 
 static const value_string rpl_dio_map_val[] = {
     { 0, "No Downward routes maintained by RPL" },
     { 1, "Non-Storing Mode of Operation" },
     { 2, "Storing Mode of Operation with no multicast support" },
     { 3, "Storing Mode of Operation with multicast support" },
+    { 4, "P2P Route Discovery Mode of Operation" },
     { 0, NULL }
 };
 static const value_string rpl_code_val[] = {
-    { ICMP6_RPL_DIS,    "DODAG Information Solicitation" },
-    { ICMP6_RPL_DIO,    "DODAG Information Object" },
-    { ICMP6_RPL_DAO,    "Destination Advertisement Object" },
-    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgment" },
-    { ICMP6_RPL_SDIS,   "Secure DODAG Information Solicitation" },
-    { ICMP6_RPL_SDIO,   "Secure DODAG Information Object" },
-    { ICMP6_RPL_SDAO,   "Secure Destination Advertisement Object" },
-    { ICMP6_RPL_SDAOACK,"Secure Destination Advertisement Object Acknowledgment" },
-    { ICMP6_RPL_CC,     "Consistency Check" },
+    { ICMP6_RPL_DIS,        "DODAG Information Solicitation" },
+    { ICMP6_RPL_DIO,        "DODAG Information Object" },
+    { ICMP6_RPL_DAO,        "Destination Advertisement Object" },
+    { ICMP6_RPL_DAOACK,     "Destination Advertisement Object Acknowledgment" },
+    { ICMP6_RPL_SDIS,       "Secure DODAG Information Solicitation" },
+    { ICMP6_RPL_SDIO,       "Secure DODAG Information Object" },
+    { ICMP6_RPL_SDAO,       "Secure Destination Advertisement Object" },
+    { ICMP6_RPL_SDAOACK,    "Secure Destination Advertisement Object Acknowledgment" },
+    { ICMP6_RPL_CC,         "Consistency Check" },
+    { ICMP6_RPL_P2P_DRO,    "P2P Discovery Reply Object" },
+    { ICMP6_RPL_P2P_SDRO,   "P2P Secure Discovery Reply Object" },
+    { ICMP6_RPL_P2P_DROACK, "P2P Discovery Reply Object Acknowledgement" },
+    { ICMP6_RPL_P2P_SDROACK,"P2P Secure Discovery Reply Object Acknowledgement" },
     { 0, NULL }
 };
 
@@ -1072,28 +1132,30 @@ static const value_string rpl_secure_algorithm_signature_val[] = {
 };
 /* RPL Option Types */
 /* Pending IANA Assignment */
-#define RPL_OPT_PAD1        0   /* 1-byte padding */
-#define RPL_OPT_PADN        1   /* n-byte padding */
-#define RPL_OPT_METRIC      2   /* DAG metric container */
-#define RPL_OPT_ROUTING     3   /* Routing Information */
-#define RPL_OPT_CONFIG      4   /* DAG configuration */
-#define RPL_OPT_TARGET      5   /* RPL Target */
-#define RPL_OPT_TRANSIT     6   /* Transit */
-#define RPL_OPT_SOLICITED   7   /* Solicited Information */
-#define RPL_OPT_PREFIX      8   /* Destination prefix */
-#define RPL_OPT_TARGETDESC  9   /* RPL Target Descriptor */
+#define RPL_OPT_PAD1            0   /* 1-byte padding */
+#define RPL_OPT_PADN            1   /* n-byte padding */
+#define RPL_OPT_METRIC          2   /* DAG metric container */
+#define RPL_OPT_ROUTING         3   /* Routing Information */
+#define RPL_OPT_CONFIG          4   /* DAG configuration */
+#define RPL_OPT_TARGET          5   /* RPL Target */
+#define RPL_OPT_TRANSIT         6   /* Transit */
+#define RPL_OPT_SOLICITED       7   /* Solicited Information */
+#define RPL_OPT_PREFIX          8   /* Destination prefix */
+#define RPL_OPT_TARGETDESC      9   /* RPL Target Descriptor */
+#define RPL_OPT_ROUTE_DISCOVERY 10  /* P2P Route Discovery */
 
 static const value_string rpl_option_vals[] = {
-    { RPL_OPT_PAD1,       "1-byte padding" },
-    { RPL_OPT_PADN,       "n-byte padding" },
-    { RPL_OPT_METRIC,     "DAG Metric container" },
-    { RPL_OPT_ROUTING,    "Routing Information"},
-    { RPL_OPT_CONFIG,     "DODAG configuration" },
-    { RPL_OPT_TARGET,     "RPL Target" },
-    { RPL_OPT_TRANSIT,    "Transit Information" },
-    { RPL_OPT_SOLICITED,  "Solicited Information"},
-    { RPL_OPT_PREFIX,     "Prefix Information"},
-    { RPL_OPT_TARGETDESC, "RPL Target Descriptor"},
+    { RPL_OPT_PAD1,             "1-byte padding" },
+    { RPL_OPT_PADN,             "n-byte padding" },
+    { RPL_OPT_METRIC,           "DAG Metric container" },
+    { RPL_OPT_ROUTING,          "Routing Information"},
+    { RPL_OPT_CONFIG,           "DODAG configuration" },
+    { RPL_OPT_TARGET,           "RPL Target" },
+    { RPL_OPT_TRANSIT,          "Transit Information" },
+    { RPL_OPT_SOLICITED,        "Solicited Information"},
+    { RPL_OPT_PREFIX,           "Prefix Information"},
+    { RPL_OPT_TARGETDESC,       "RPL Target Descriptor"},
+    { RPL_OPT_ROUTE_DISCOVERY,  "P2P Route Discovery"},
     { 0, NULL }
 };
 
@@ -2270,12 +2332,13 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 
-/* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
+/* RPL: RFC 6550/6997 : Routing and Discovery of P2P Routes in Low-Power and Lossy Networks. */
 static int
-dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 icmp6_code)
 {
     proto_tree *icmp6opt_tree, *flag_tree;
-    proto_item *ti, *ti_opt, *ti_opt_len;
+    proto_item *ti, *ti_opt, *ti_opt_len, *ti_opt_reply, *ti_opt_hop_by_hop, *ti_opt_num_of_routes,
+               *ti_opt_lifetime, *ti_opt_mr_nh = NULL;
     guint8      opt_type;
     int         opt_len;
     int         opt_offset;
@@ -2579,6 +2642,105 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset += 4;
                 break;
             }
+
+            case RPL_OPT_ROUTE_DISCOVERY: {
+                int num_of_addr = 0;
+                guint8 flags = 0, compr = 0, addr_len = 0, lt_mr_nh = 0;
+                guint8 addr[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                /* Flags */
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_flag, tvb, opt_offset, 1, ENC_NA);
+                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_route_discovery_flag);
+
+                flags = tvb_get_guint8(tvb, opt_offset);
+                compr = flags & RPL_OPT_ROUTE_DISCOVERY_COMPR;
+
+                /* Reply */
+                ti_opt_reply = proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_discovery_reply, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+
+                /* Hop-by-Hop */
+                ti_opt_hop_by_hop = proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_discovery_hop_by_hop, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+
+                /* Num of Source Routes */
+                ti_opt_num_of_routes = proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_discovery_num_of_routes, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+
+                /* Compr */
+                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_discovery_compr, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                opt_offset +=1;
+
+                /* Lifetime / MaxRank / NH */
+                lt_mr_nh = tvb_get_guint8(tvb, opt_offset);
+                ti_opt_lifetime = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_lifetime, tvb, opt_offset, 1, ENC_NA);
+
+                if ((icmp6_code == ICMP6_RPL_P2P_DRO) || (icmp6_code == ICMP6_RPL_P2P_SDRO)) {
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_nh, tvb, opt_offset, 1, ENC_NA);
+                } else {
+                    ti_opt_mr_nh = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_maxrank, tvb, opt_offset, 1, ENC_NA);
+                }
+
+                opt_offset +=1;
+
+                /* add expert and auxiliary info */
+                switch (icmp6_code) {
+                    case ICMP6_RPL_P2P_SDRO:
+                    case ICMP6_RPL_P2P_DRO:
+
+                        if (flags & RPL_OPT_ROUTE_DISCOVERY_R) {
+                            expert_add_info(pinfo, ti_opt_reply, &ei_icmpv6_rpl_p2p_dro_rdo_zero);
+                        }
+
+                        if (flags & RPL_OPT_ROUTE_DISCOVERY_N) {
+                            expert_add_info(pinfo, ti_opt_num_of_routes, &ei_icmpv6_rpl_p2p_dro_rdo_zero);
+                        }
+
+                        if (lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) {
+                            expert_add_info(pinfo, ti_opt_lifetime, &ei_icmpv6_rpl_p2p_dro_rdo_zero);
+                        }
+
+                        break;
+                    default:
+
+                        if (flags & RPL_OPT_ROUTE_DISCOVERY_H) {
+                            if (!(flags & RPL_OPT_ROUTE_DISCOVERY_R)) {
+                                expert_add_info(pinfo, ti_opt_hop_by_hop, &ei_icmpv6_rpl_p2p_hop_by_hop);
+                            }
+
+                            if (flags & RPL_OPT_ROUTE_DISCOVERY_N) {
+                                expert_add_info(pinfo, ti_opt_num_of_routes, &ei_icmpv6_rpl_p2p_num_of_routes);
+                            }
+                        }
+
+                        proto_item_append_text(ti_opt_lifetime, " (%d sec)", (int) pow(4.0, (lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) >> 6));
+
+                        if (!(lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_MR_NH)) {
+                            proto_item_append_text(ti_opt_mr_nh, " (Infinity)");
+                        }
+
+                        break;
+                }
+
+                /* TargetAddr */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_target_addr, tvb, opt_offset, 16, ENC_NA);
+                opt_offset +=16;
+
+                addr_len = (16 - compr);
+                num_of_addr = (opt_len - 18) / addr_len;
+
+                /* Address Vector */
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_discovery_addr_vec, tvb, opt_offset, (opt_len - 18), ENC_NA);
+                flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_route_discovery_addr_vec);
+
+                proto_item_append_text(flag_tree, " (%d Address%s)", num_of_addr, num_of_addr != 1 ? "es" : "");
+
+                while (num_of_addr--) {
+                    memset(addr, 0, sizeof(addr));
+                    memcpy(addr + compr, tvb_get_ptr(tvb, opt_offset, addr_len), addr_len);
+                    proto_tree_add_ipv6(flag_tree, hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr, tvb, opt_offset, addr_len, addr);
+                    opt_offset += addr_len;
+                }
+
+                break;
+            }
             default :
                 expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_rpl_option,
                                        "Dissector for ICMPv6 RPL Option"
@@ -2694,7 +2856,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 1;
 
             /* RPL Options */
-            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
             break;
         }
         case ICMP6_RPL_DIO: /* DODAG Information Object (1) */
@@ -2738,7 +2900,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 16;
 
             /* RPL Options */
-            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
             break;
         }
         case ICMP6_RPL_DAO: /* Destination Advertisement Object (2) */
@@ -2774,7 +2936,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
                 rpl_offset += 16;
             }
             /* Options */
-            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
             break;
         }
         case ICMP6_RPL_DAOACK: /* Destination Advertisement Object Acknowledgment (3) */
@@ -2810,7 +2972,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             }
 
             /* Options */
-            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
             break;
         }
        case ICMP6_RPL_CC:
@@ -2839,9 +3001,74 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 4;
 
             /* Options */
-            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
             break;
        }
+        case ICMP6_RPL_P2P_DRO: /* P2P Discovery Reply Object (0x4) */
+        case ICMP6_RPL_P2P_SDRO: /* Secure P2P Discovery Reply Object (0x84) */
+        {
+            /* RPLInstanceID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_instance, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Version Number */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_version, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, rpl_offset)) {
+                expert_add_info(pinfo, ti, &ei_icmpv6_rpl_p2p_dro_zero);
+            }
+            rpl_offset += 1;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_flag, tvb, rpl_offset, 2, ENC_NA);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rpl_p2p_dro_flag);
+
+            /* Stop */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_stop, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            /* Ack */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_ack, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            /* Seq */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_seq, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            /* Reserved */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_reserved, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            rpl_offset += 2;
+
+            /* DODAGID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_dagid, tvb, rpl_offset, 16, ENC_NA);
+            rpl_offset += 16;
+
+            /* RPL Options */
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
+            break;
+        }
+        case ICMP6_RPL_P2P_DROACK:  /* P2P Discovery Reply Object Acknowledgement (0x5) */
+        case ICMP6_RPL_P2P_SDROACK: /* Secure P2P Discovery Reply Object Acknowledgement (0x85) */
+        {
+            /* RPLInstanceID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_instance, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Version Number */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_version, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, rpl_offset)) {
+                expert_add_info(pinfo, ti, &ei_icmpv6_rpl_p2p_dro_zero);
+            }
+            rpl_offset += 1;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_droack_flag, tvb, rpl_offset, 2, ENC_NA);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rpl_p2p_droack_flag);
+
+            /* Seq */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_droack_flag_seq, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            /* Reserved */
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_p2p_dro_flag_reserved, tvb, rpl_offset, 2, ENC_BIG_ENDIAN);
+            rpl_offset += 2;
+
+            /* DODAGID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_p2p_dro_dagid, tvb, rpl_offset, 16, ENC_NA);
+            rpl_offset += 16;
+            break;
+        }
 
     }
     return rpl_offset;
@@ -4932,6 +5159,73 @@ proto_register_icmpv6(void)
            { "Descriptor", "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
              "Opaque Data", HFILL }},
 
+        { &hf_icmpv6_rpl_opt_route_discovery_flag,
+           { "Flags", "icmpv6.rpl.opt.routediscovery.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+             "NULL", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_reply,
+           { "Reply", "icmpv6.rpl.opt.routediscovery.flag.reply", FT_BOOLEAN, 8, TFS(&tfs_yes_no), RPL_OPT_ROUTE_DISCOVERY_R,
+             "The Origin sets this flag to one to allow the Target(s) to send P2P-DRO messages back to the Origin", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_hop_by_hop,
+           { "Hop-by-Hop", "icmpv6.rpl.opt.routediscovery.flag.hopbyhop", FT_BOOLEAN, 8, TFS(&tfs_yes_no), RPL_OPT_ROUTE_DISCOVERY_H,
+             "The Origin sets this flag to one if it desires Hop-by-hop Routes and to zero if it desires Source Routes.", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_num_of_routes,
+           { "Number of Routes", "icmpv6.rpl.opt.routediscovery.flag.numofroutes", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_DISCOVERY_N,
+             "This value plus one indicates the number of Source Routes that each Target should convey to the Origin", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_compr,
+           { "Compr", "icmpv6.rpl.opt.routediscovery.flag.compr", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_DISCOVERY_COMPR,
+             "Number of prefix octets that are elided from the Target field and Address vector", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_lifetime,
+           { "Lifetime", "icmpv6.rpl.opt.routediscovery.lifetime", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_DISCOVERY_L,
+             "Lifetime of the temporary DODAG", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_maxrank,
+           { "MaxRank", "icmpv6.rpl.opt.routediscovery.maxrank", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_DISCOVERY_MR_NH,
+             "Upper limit of the integer portion of the rank when used inside a DIO", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_nh,
+           { "NH", "icmpv6.rpl.opt.routediscovery.nh", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_DISCOVERY_MR_NH,
+             "Index of the next-hop (NH) address inside the Address vector", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_target_addr,
+           { "Target Address", "icmpv6.rpl.opt.routediscovery.targetaddr", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "An IPv6 address of the Target after eliding Compr number of prefix octets", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_addr_vec,
+           { "Address Vector", "icmpv6.rpl.opt.routediscovery.addr_vec", FT_NONE, BASE_NONE, NULL, 0x0,
+             "NULL", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr,
+          { "Address", "icmpv6.rpl.opt.routediscovery.addrvec.addr", FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_instance,
+           { "RPLInstanceID", "icmpv6.rpl.p2p.dro.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Set by the DODAG root that indicates which RPL Instance the DODAG is part of", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_version,
+           { "Version", "icmpv6.rpl.p2p.dro.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Set by the DODAG root to the DODAGVersionNumber", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_flag,
+           { "Flags", "icmpv6.rpl.p2p.dro.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+             "NULL", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_flag_stop,
+           { "Stop", "icmpv6.rpl.p2p.dro.flag.stop", FT_BOOLEAN, 16, TFS(&tfs_yes_no), RPL_P2P_DRO_FLAG_S,
+             "Indicates that the P2P-RPL route discovery is over", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_flag_ack,
+           { "Ack", "icmpv6.rpl.p2p.dro.flag.ack", FT_BOOLEAN, 16, TFS(&tfs_yes_no), RPL_P2P_DRO_FLAG_A,
+             "Indicates that the Origin MUST unicast a P2P-DRO-ACK message to the Target", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_flag_seq,
+           { "Seq", "icmpv6.rpl.p2p.dro.flag.seq", FT_UINT16, BASE_DEC, NULL, RPL_P2P_DRO_FLAG_SEQ,
+             "Indicates the sequence number for the P2P-DRO", HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_flag_reserved,
+           { "Reserved", "icmpv6.rpl.p2p.dro.flag.reserved", FT_UINT16, BASE_DEC, NULL, RPL_P2P_DRO_FLAG_RSV,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_p2p_dro_dagid,
+           { "DODAGID", "icmpv6.rpl.p2p.dro.dagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_p2p_droack_flag,
+           { "Flags", "icmpv6.rpl.p2p.droack.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+             "NULL", HFILL }},
+        { &hf_icmpv6_rpl_p2p_droack_flag_seq,
+           { "Seq", "icmpv6.rpl.p2p.droack.flag.seq", FT_UINT16, BASE_DEC, NULL, RPL_P2P_DROACK_FLAG_SEQ,
+             "Indicates the sequence number for the P2P-DRO", HFILL }},
+        { &hf_icmpv6_rpl_p2p_droack_flag_reserved,
+           { "Reserved", "icmpv6.rpl.p2p.droack.flag.reserved", FT_UINT16, BASE_DEC, NULL, RPL_P2P_DROACK_FLAG_RSV,
+             NULL, HFILL }},
+
         /* RFC6743 Locator Update (156) */
 
         { &hf_icmpv6_ilnp_nb_locs,
@@ -4994,6 +5288,10 @@ proto_register_icmpv6(void)
         &ett_icmpv6_rpl_flag_transit,
         &ett_icmpv6_rpl_flag_solicited,
         &ett_icmpv6_rpl_flag_prefix,
+        &ett_icmpv6_rpl_route_discovery_flag,
+        &ett_icmpv6_rpl_route_discovery_addr_vec,
+        &ett_icmpv6_rpl_p2p_dro_flag,
+        &ett_icmpv6_rpl_p2p_droack_flag,
         &ett_icmpv6_flag_ni,
         &ett_icmpv6_flag_rr,
         &ett_icmpv6_rr_mp,
@@ -5027,6 +5325,10 @@ proto_register_icmpv6(void)
         { &ei_icmpv6_rr_pco_mp_matchedlen, { "icmpv6.rr.pco.mp.matchedlen.gt128", PI_PROTOCOL, PI_WARN, "MatchedLen is greater than 128", EXPFILL }},
         { &ei_icmpv6_checksum, { "icmpv6.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
         { &ei_icmpv6_resp_not_found, { "icmpv6.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
+        { &ei_icmpv6_rpl_p2p_hop_by_hop, { "icmpv6.rpl.p2p.hop_by_hop", PI_PROTOCOL, PI_WARN, "Reply MUST be set to one in order to establish a Hop-by-Hop Route", EXPFILL }},
+        { &ei_icmpv6_rpl_p2p_num_of_routes, { "icmpv6.rpl.p2p.num_of_routes", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when Hop-by-Hop Routes are being discovered", EXPFILL }},
+        { &ei_icmpv6_rpl_p2p_dro_rdo_zero, { "icmpv6.rpl.p2p.dro.rdo.zero", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when the P2P-RDO is included in a P2P-DRO", EXPFILL }},
+        { &ei_icmpv6_rpl_p2p_dro_zero, { "icmpv6.rpl.p2p.dro.zero", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero", EXPFILL }},
     };
 
     expert_module_t* expert_icmpv6;
