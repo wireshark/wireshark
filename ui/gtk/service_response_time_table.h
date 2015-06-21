@@ -71,7 +71,7 @@ void init_gtk_srt_table(srt_stat_table* rst, void* gui_data);
 /** Draw the srt table data.
  *
  * @param rst the srt table
- * @param gui_data contains GTK specific data
+ * @param gtk_data contains GTK specific data
  */
 void draw_srt_table_data(srt_stat_table *rst, gtk_srt_t* gtk_data);
 
