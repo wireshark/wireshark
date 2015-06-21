@@ -36,6 +36,7 @@
 #include "packet-gsm_a_common.h"
 #include "lapd_sapi.h"
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
@@ -133,7 +134,20 @@ static int hf_rsl_cstat_rx_octs        = -1;
 static int hf_rsl_cstat_lost_pkts      = -1;
 static int hf_rsl_cstat_ia_jitter      = -1;
 static int hf_rsl_cstat_avg_tx_dly     = -1;
-
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_rsl_channel_description_tag = -1;
+static int hf_rsl_mobile_allocation_tag = -1;
+static int hf_rsl_no_resources_required = -1;
+static int hf_rsl_llsdu_ccch = -1;
+static int hf_rsl_llsdu_sacch = -1;
+static int hf_rsl_llsdu = -1;
+static int hf_rsl_rach_supplementary_information = -1;
+static int hf_rsl_full_immediate_assign_info_field = -1;
+static int hf_rsl_layer_3_message = -1;
+static int hf_rsl_descriptive_group_or_broadcast_call_reference = -1;
+static int hf_rsl_group_channel_description = -1;
+static int hf_rsl_uic = -1;
+static int hf_rsl_codec_list = -1;
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
@@ -199,6 +213,10 @@ static int ett_ie_local_port = -1;
 static int ett_ie_local_ip = -1;
 static int ett_ie_rtp_payload = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_rsl_speech_or_data_indicator = EI_INIT;
+static expert_field ei_rsl_facility_information_element_3gpp_ts_44071 = EI_INIT;
+static expert_field ei_rsl_embedded_message_tfo_configuration = EI_INIT;
 
 static proto_tree *top_tree;
 static dissector_handle_t gsm_cbch_handle;
@@ -933,14 +951,14 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
      * length should be included.
      * XXX Hmm a type 3 IE (TV).
      */
-    proto_tree_add_text(ie_tree, tvb, offset, 1, "Channel Description Tag");
+    proto_tree_add_item(ie_tree, hf_rsl_channel_description_tag, tvb, offset, 1, ENC_NA);
     de_rr_ch_dsc(tvb, ie_tree, pinfo, offset+1, length, NULL, 0);
     offset += 4;
     /*
      * The 3GPP TS 24.008 "Mobile Allocation" shall for compatibility reasons be
      * included but empty, i.e. the length shall be zero.
      */
-    proto_tree_add_text(ie_tree, tvb, offset, 2, "Mobile Allocation Tag+Length(0)");
+    proto_tree_add_item(ie_tree, hf_rsl_mobile_allocation_tag, tvb, offset, 2, ENC_NA);
     return ie_offset + length;
 }
 /*
@@ -1083,11 +1101,11 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
          * If octet 4 indicates signalling then octet 6 is coded as follows:
          * 0000 0000 No resources required
          */
-        proto_tree_add_text(ie_tree, tvb, offset, 1, "0 No resources required(All other values are reserved)");
+        proto_tree_add_item(ie_tree, hf_rsl_no_resources_required, tvb, offset, 1, ENC_NA);
         break;
     default:
         /* Should not happen */
-        proto_tree_add_text(ie_tree, tvb, offset, 1, "Speech or data indicator != 1,2 or 3");
+        proto_tree_add_expert(ie_tree, pinfo, &ei_rsl_speech_or_data_indicator, tvb, offset, 1);
         break;
     }
 
@@ -1285,14 +1303,14 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     if (type == L3_INF_CCCH)
     {
        /* L3 PDUs carried on CCCH have L2 PSEUDO LENGTH octet or are RR Short PD format */
-       proto_tree_add_text(ie_tree, tvb, offset, length, "Link Layer Service Data Unit (L3 Message)(CCCH)");
+       proto_tree_add_item(ie_tree, hf_rsl_llsdu_ccch, tvb, offset, length, ENC_NA);
        next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
     }
     else if (type == L3_INF_SACCH)
     {
        /* L3 PDUs carried on SACCH are normal format or are RR Short PD format */
-       proto_tree_add_text(ie_tree, tvb, offset, length, "Link Layer Service Data Unit (L3 Message)(SACCH)");
+       proto_tree_add_item(ie_tree, hf_rsl_llsdu_sacch, tvb, offset, length, ENC_NA);
        next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_sacch_handle, next_tvb, pinfo, top_tree);
     }
@@ -1301,7 +1319,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
        /* Link Layer Service Data Unit (i.e. a layer 3 message
         * as defined in 3GPP TS 24.008 or 3GPP TS 44.018)
         */
-       proto_tree_add_text(ie_tree, tvb, offset, length, "Link Layer Service Data Unit (L3 Message)");
+       proto_tree_add_item(ie_tree, hf_rsl_llsdu, tvb, offset, length, ENC_NA);
        next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_dtap_handle, next_tvb, pinfo, top_tree);
     }
@@ -1554,7 +1572,7 @@ dissect_rsl_ie_rach_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* Supplementary Information */
     if ( length > 0) {
-        proto_tree_add_text(ie_tree, tvb, offset, length , "Supplementary Information");
+        proto_tree_add_item(ie_tree, hf_rsl_rach_supplementary_information, tvb, offset, length, ENC_NA);
     }
     offset = ie_offset + length;
 
@@ -2067,7 +2085,7 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      * IMMEDIATE ASSIGNMENT EXTENDED or IMMEDIATE ASSIGNMENT REJECT)
      * as defined in 3GPP TS 44.018.
      */
-    proto_tree_add_text(ie_tree, tvb, offset, length, "Full Immediate Assign Info field");
+    proto_tree_add_item(ie_tree, hf_rsl_full_immediate_assign_info_field, tvb, offset, length, ENC_NA);
     next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
 
@@ -2223,7 +2241,7 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
      * Octets 3-25 contain the complete L3 message as defined in 3GPP TS 44.018.
      */
 
-    proto_tree_add_text(ie_tree, tvb, offset, length, "Layer 3 message");
+    proto_tree_add_item(ie_tree, hf_rsl_layer_3_message, tvb, offset, length, ENC_NA);
     next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
 
@@ -2445,7 +2463,7 @@ dissect_rsl_ie_grp_call_ref(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(ie_tree, tvb, offset, length, "Descriptive group or broadcast call reference");
+    proto_tree_add_item(ie_tree, hf_rsl_descriptive_group_or_broadcast_call_reference, tvb, offset, length, ENC_NA);
 
     /* The octets 3 to 7 are coded in the same way as the octets 2 to 6
      * in the Descriptive group or broadcast call reference
@@ -2484,7 +2502,7 @@ dissect_rsl_ie_ch_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(ie_tree, tvb, offset, length, "Group Channel Description");
+    proto_tree_add_item(ie_tree, hf_rsl_group_channel_description, tvb, offset, length, ENC_NA);
 
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j-2 of a radio interface Group Channel description
      * information element as defined in 3GPP TS 44.018, n-2 is equal to the length of the radio interface
@@ -2643,7 +2661,7 @@ dissect_rsl_ie_uic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     /* Octet 3 bits 1 to 6 contain the radio interface octet 2 bits 3 to 8 of the
      * UIC information element as defined in 3GPP TS 44.018.
      */
-    proto_tree_add_text(ie_tree, tvb, offset, 1, "UIC");
+    proto_tree_add_item(ie_tree, hf_rsl_uic, tvb, offset, 1, ENC_NA);
     offset++;
 
     return offset;
@@ -2777,7 +2795,7 @@ dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(tree, tvb, offset, length, "Codec List");
+    proto_tree_add_item(tree, hf_rsl_codec_list, tvb, offset, length, ENC_NA);
 
     /* The Codec List field (octet 4) lists the codec types that are supported
      * by the BSS and Transcoder, and are therefore potential candidates for TFO
@@ -2965,8 +2983,7 @@ dissect_rsl_ie_llp_apdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
      * octets defined in 3GPP TS 44.071.
      */
     /* TODO: Given traces with LLP data this IE could be further dissected */
-    proto_tree_add_text(tree, tvb, offset, length,
-        "Facility Information Element as defined in 3GPP TS 44.071");
+    proto_tree_add_expert(tree, pinfo, &ei_rsl_facility_information_element_3gpp_ts_44071, tvb, offset, length);
     return ie_offset + length;
 }
 /*
@@ -3009,8 +3026,7 @@ dissect_rsl_ie_tfo_transp_cont(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
      * 3GPP TS 44.071 excluding the Facility IEI and length of Facility IEI
      * octets defined in 3GPP TS 44.071.
      */
-    proto_tree_add_text(tree, tvb, offset, length,
-        "Embedded message that contains the TFO configuration");
+    proto_tree_add_expert(tree, pinfo, &ei_rsl_embedded_message_tfo_configuration, tvb, offset, length);
     return ie_offset + length;
 }
 
@@ -4259,6 +4275,20 @@ void proto_register_rsl(void)
           { "Average Tx Delay", "gsm_abis_rsl.ipacc.cstat.avg_tx_delay",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag+Length(0)", "gsm_abis_rsl.mobile_allocation_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_no_resources_required, { "0 No resources required(All other values are reserved)", "gsm_abis_rsl.no_resources_required", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_llsdu_ccch, { "Link Layer Service Data Unit (L3 Message)(CCCH)", "gsm_abis_rsl.llsdu.ccch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_llsdu_sacch, { "Link Layer Service Data Unit (L3 Message)(SACCH)", "gsm_abis_rsl.llsdu.sacch)", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_llsdu, { "Link Layer Service Data Unit (L3 Message)", "gsm_abis_rsl.llsdu", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_rach_supplementary_information, { "Supplementary Information", "gsm_abis_rsl.supplementary_information", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_full_immediate_assign_info_field, { "Full Immediate Assign Info field", "gsm_abis_rsl.full_immediate_assign_info_field", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_layer_3_message, { "Layer 3 message", "gsm_abis_rsl.layer_3_message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_descriptive_group_or_broadcast_call_reference, { "Descriptive group or broadcast call reference", "gsm_abis_rsl.descriptive_group_or_broadcast_call_reference", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_group_channel_description, { "Group Channel Description", "gsm_abis_rsl.group_channel_description", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_uic, { "UIC", "gsm_abis_rsl.uic", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_codec_list, { "Codec List", "gsm_abis_rsl.codec_list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_rsl,
@@ -4324,7 +4354,15 @@ void proto_register_rsl(void)
         &ett_ie_local_ip,
         &ett_ie_rtp_payload,
     };
+    static ei_register_info ei[] = {
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &ei_rsl_speech_or_data_indicator, { "gsm_abis_rsl.speech_or_data_indicator.bad", PI_PROTOCOL, PI_WARN, "Speech or data indicator != 1,2 or 3", EXPFILL }},
+      { &ei_rsl_facility_information_element_3gpp_ts_44071, { "gsm_abis_rsl.facility_information_element_3gpp_ts_44071", PI_PROTOCOL, PI_NOTE, "Facility Information Element as defined in 3GPP TS 44.071", EXPFILL }},
+      { &ei_rsl_embedded_message_tfo_configuration, { "gsm_abis_rsl.embedded_message_tfo_configuration", PI_PROTOCOL, PI_NOTE, "Embedded message that contains the TFO configuration", EXPFILL }},
+    };
+
     module_t *rsl_module;
+    expert_module_t *expert_rsl;
 
 #define RSL_ATT_TLVDEF(_attr, _type, _fixed_len)                \
         rsl_att_tlvdef.def[_attr].type = _type;                 \
@@ -4410,6 +4448,8 @@ void proto_register_rsl(void)
 
     proto_register_field_array(proto_rsl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rsl = expert_register_protocol(proto_rsl);
+    expert_register_field_array(expert_rsl, ei, array_length(ei));
 
     new_register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 

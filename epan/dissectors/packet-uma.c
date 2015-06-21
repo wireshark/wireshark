@@ -54,6 +54,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include "packet-bssap.h"
@@ -177,11 +178,22 @@ static int hf_uma_urr_UNC_tcp_port			= -1;
 static int hf_uma_urr_RTP_port				= -1;
 static int hf_uma_urr_RTCP_port				= -1;
 static int hf_uma_urr_RXLEV_NCELL			= -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_uma_access_control_class_n = -1;
+static int hf_uma_data = -1;
 
 /* Initialize the subtree pointers */
 static int ett_uma     = -1;
 static int ett_uma_toc = -1;
 static int ett_urr_ie  = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_uma_fqdn_not_present = EI_INIT;
+static expert_field ei_uma_wrong_message_type = EI_INIT;
+static expert_field ei_uma_unknown_protocol = EI_INIT;
+static expert_field ei_uma_skip_this_message = EI_INIT;
+static expert_field ei_uma_cbs_frames = EI_INIT;
+static expert_field ei_uma_unknown_format = EI_INIT;
 
 /* The dynamic payload type which will be dissected as uma */
 
@@ -911,7 +923,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			ie_offset++;
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_id, tvb, ie_offset, ie_len-1, ENC_NA);
 		}else{
-			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
+			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_unknown_format, tvb, ie_offset, ie_len);
 		}
 		break;
 	case 4:
@@ -969,10 +981,9 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 10:		/* UNC SGW Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
-			string = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, ie_offset, ie_len, ENC_ASCII);
-			proto_tree_add_string(urr_ie_tree, hf_uma_urr_FQDN, tvb, ie_offset, ie_len, string);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_FQDN, tvb, ie_offset, ie_len, ENC_ASCII|ENC_NA);
 		}else{
-			proto_tree_add_text(urr_ie_tree,tvb,offset,1,"FQDN not present");
+			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_fqdn_not_present, tvb, offset, 1);
 		}
 		break;
 	case 11:		/* Redirection Counter */
@@ -1013,7 +1024,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* PS HO, PS Handover indicator (octet 6) Bit 6 */
 
 		ie_offset++;
-		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,2,"Access Control Class N");
+		proto_tree_add_item(urr_ie_tree, hf_uma_access_control_class_n, tvb, ie_offset, 2, ENC_NA);
 		/* These fields are specified and described in 3GPP TS 44.018 and 3GPP TS 22.011. */
 		break;
 	case 15:
@@ -1362,7 +1373,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.72 Broadcast Container */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_num_of_cbs_frms , tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* The coding of the page of the CBS message is defined in sub-clause 9.4.1 in TS 23.041. */
-		proto_tree_add_text(urr_ie_tree, tvb, ie_offset + 1, ie_len-1,"CBS Frames - Not decoded");
+		proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_cbs_frames, tvb, ie_offset + 1, ie_len-1);
 		break;
 	case 73:
 		/* 11.2.73 3G Cell Identity */
@@ -1404,7 +1415,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.94 CTC Modification Ack List */
 	case 95:
 		/* 11.2.95 CTC Modification Ack Description */
-		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"DATA");
+		proto_tree_add_item(urr_ie_tree, hf_uma_data, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 96:		/* MS Radio Identity */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
@@ -1413,7 +1424,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			ie_offset++;
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len-1, ENC_NA);
 		}else{
-			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
+			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_unknown_format, tvb, ie_offset, ie_len);
 		}
 		break;
 
@@ -1438,7 +1449,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			string = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, ie_offset, ie_len, ENC_ASCII);
 			proto_tree_add_string(urr_ie_tree, hf_uma_unc_FQDN, tvb, ie_offset, ie_len, string);
 		}else{
-			proto_tree_add_text(urr_ie_tree,tvb,offset,1,"UNC FQDN not present");
+			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_fqdn_not_present, tvb, offset, 1);
 		}
 		break;
 	case 99:
@@ -1523,7 +1534,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
 		/* Debug
-		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u,
+		proto_tree_add_debug_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u,
 			rtp_ipv4_address,RTP_UDP_port);
 			*/
 		if(unc_ipv4_address!=0){
@@ -1600,7 +1611,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 126:
 		/* 11.2.107 CN Domains to Handover */
 	default:
-		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"DATA");
+		proto_tree_add_item(urr_ie_tree, hf_uma_data, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	}
 	offset = offset + ie_len;
@@ -1615,6 +1626,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	int		offset = 0;
 	guint8	octet, pd;
 	guint16 msg_len;
+	proto_item* pd_item;
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -1635,11 +1647,11 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	pd = octet & 0x0f;
 	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if ((octet & 0xf0) != 0 ){
-		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
+		proto_tree_add_expert(uma_tree, pinfo, &ei_uma_skip_this_message, tvb, offset, -1);
 		return tvb_reported_length(tvb);
 	}
 
-	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, ENC_BIG_ENDIAN);
+	pd_item = proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, ENC_BIG_ENDIAN);
 	switch  ( pd ){
 	case 0: /* URR_C */
 	case 1: /* URR */
@@ -1667,7 +1679,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		}
 		break;
 	default:
-		proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
+		expert_add_info(pinfo, pd_item, &ei_uma_unknown_protocol);
 		break;
 	}
 
@@ -1696,6 +1708,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	int		offset = 0;
 	guint8	octet;
 	guint16 msg_len;
+	proto_item* msg_item;
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -1709,7 +1722,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	msg_item = proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 	col_set_fence(pinfo->cinfo,COL_INFO);
 	msg_len = tvb_reported_length_remaining(tvb,offset) - 1;
@@ -1730,7 +1743,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		}
 		return offset;
 	default:
-		proto_tree_add_text(uma_tree, tvb,offset,-1,"Wrong message type %u",octet);
+		expert_add_info(pinfo, msg_item, &ei_uma_wrong_message_type);
 		return tvb_reported_length(tvb);
 
 	}
@@ -2265,6 +2278,9 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
 			NULL, HFILL }
 		},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_uma_access_control_class_n, { "Access Control Class N", "uma.access_control_class_n", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_uma_data, { "DATA", "uma.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 /* Setup protocol subtree array */
@@ -2273,6 +2289,18 @@ proto_register_uma(void)
 		&ett_uma_toc,
 		&ett_urr_ie,
 	};
+
+	static ei_register_info ei[] = {
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &ei_uma_unknown_format, { "uma.unknown_format", PI_PROTOCOL, PI_WARN, "Unknown format", EXPFILL }},
+		{ &ei_uma_fqdn_not_present, { "uma.fqdn_not_present", PI_PROTOCOL, PI_NOTE, "FQDN not present", EXPFILL }},
+		{ &ei_uma_cbs_frames, { "uma.cbs_frames", PI_UNDECODED, PI_WARN, "CBS Frames - Not decoded", EXPFILL }},
+		{ &ei_uma_skip_this_message, { "uma.skip_this_message", PI_PROTOCOL, PI_NOTE, "Skip this message", EXPFILL }},
+		{ &ei_uma_unknown_protocol, { "uma.unknown_protocol", PI_PROTOCOL, PI_WARN, "Unknown protocol", EXPFILL }},
+		{ &ei_uma_wrong_message_type, { "uma.wrong_message_type", PI_PROTOCOL, PI_WARN, "Wrong message type", EXPFILL }},
+	};
+
+	expert_module_t *expert_uma;
 
 /* Register the protocol name and description */
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
@@ -2283,6 +2311,8 @@ proto_register_uma(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_uma, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_uma = expert_register_protocol(proto_uma);
+	expert_register_field_array(expert_uma, ei, array_length(ei));
 
 	/* Register a configuration option for port */
 	uma_module = prefs_register_protocol(proto_uma, proto_reg_handoff_uma);

@@ -1664,6 +1664,17 @@ static gint hf_r3_dumpm41t81_reg12_notused = -1;
 static gint hf_r3_dumpm41t81_reg13_rs = -1;
 static gint hf_r3_dumpm41t81_reg13_notused = -1;
 
+static gint hf_r3_sn_manufacturer = -1;
+static gint hf_r3_sn_year = -1;
+static gint hf_r3_sn_week = -1;
+static gint hf_r3_sn_model = -1;
+static gint hf_r3_sn_sequence = -1;
+static gint hf_r3_sn_group = -1;
+static gint hf_r3_sn_nid = -1;
+static gint hf_r3_sn_hid = -1;
+static gint hf_r3_sn_power_supply = -1;
+static gint hf_r3_sn_mortise = -1;
+
 static gint hf_r3_debuglog_recordnumber = -1;
 static gint hf_r3_debuglog_flags = -1;
 static gint hf_r3_debuglog_tick = -1;
@@ -3561,25 +3572,23 @@ dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, p
   sn_tree = proto_item_add_subtree (sn_item, ett_r3serialnumber);
 
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  0, 2, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset +  0, 2, "Manufacturer .. : %s (%s)", s, str_to_str (s, r3_snmanufacturernames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_manufacturer, tvb, start_offset +  0, 2, s, "%s (%s)", s, str_to_str (s, r3_snmanufacturernames, "[Unknown]"));
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  2, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset +  2, 1, "Year .......... : %s (%s)", s, str_to_str (s, r3_snyearnames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  3, 2, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset +  3, 2, "Week .......... : %s",      s);
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_year, tvb, start_offset +  2, 1, s, "%s (%s)", s, str_to_str (s, r3_snyearnames, "[Unknown]"));
+  proto_tree_add_item(sn_tree, hf_r3_sn_week, tvb, start_offset +  3, 2, ENC_ASCII|ENC_NA);
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  5, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset +  5, 1, "Model ......... : %s (%s)", s, str_to_str (s, r3_snmodelnames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  6, 4, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset +  6, 4, "Sequence ...... : %s",      s);
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_model, tvb, start_offset +  5, 1, s, "%s (%s)", s, str_to_str (s, r3_snmodelnames, "[Unknown]"));
+  proto_tree_add_item(sn_tree, hf_r3_sn_sequence, tvb, start_offset +  6, 4, ENC_ASCII|ENC_NA);
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 10, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset + 10, 1, "Group ......... : %s (%s)", s, str_to_str (s, r3_sngroupnames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_group, tvb, start_offset + 10, 1, s, "%s (%s)", s, str_to_str (s, r3_sngroupnames, "[Unknown]"));
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 11, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset + 11, 1, "NID ........... : %s (%s)", s, str_to_str (s, r3_snnidnames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_nid, tvb, start_offset + 11, 1, s, "%s (%s)", s, str_to_str (s, r3_snnidnames, "[Unknown]"));
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 12, 2, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset + 12, 2, "HID ........... : %s (%s)", s, str_to_str (s, r3_snhidnames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_hid, tvb, start_offset + 12, 2, s, "%s (%s)", s, str_to_str (s, r3_snhidnames, "[Unknown]"));
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 14, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset + 14, 1, "Power Supply .. : %s (%s)", s, str_to_str (s, r3_snpowersupplynames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_power_supply, tvb, start_offset + 14, 1, s, "%s (%s)", s, str_to_str (s, r3_snpowersupplynames, "[Unknown]"));
   s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 15, 1, ENC_ASCII|ENC_NA);
-  proto_tree_add_text (sn_tree, tvb, start_offset + 15, 1, "Mortise ....... : %s (%s)", s, str_to_str (s, r3_snmortisenames, "[Unknown]"));
+  proto_tree_add_string_format_value(sn_tree, hf_r3_sn_mortise, tvb, start_offset + 15, 1, s, "%s (%s)", s, str_to_str (s, r3_snmortisenames, "[Unknown]"));
 }
 
 /*
@@ -5274,7 +5283,8 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
       }
     }
     else {
-      proto_tree_add_text (sc_tree, payload_tvb, offset + 2, item_length - 2, "[Unknown Field Type]");
+      proto_tree_add_none_format (sc_tree, hf_r3_upstreamfielderror, payload_tvb, offset + 2,
+                                      item_length - 2, "Unknown Field Type");
     }
 
     offset += item_length;
@@ -9830,7 +9840,56 @@ void proto_register_r3 (void)
           FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-
+      { &hf_r3_sn_manufacturer,
+        { "Manufacturer", "r3.sn.manufacturer",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_year,
+        { "Year", "r3.sn.year",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_week,
+        { "Week", "r3.sn.week",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_model,
+        { "Model", "r3.sn.model",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_sequence,
+        { "Sequence", "r3.sn.sequence",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_group,
+        { "Group", "r3.sn.group",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_nid,
+        { "NID", "r3.sn.nid",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_hid,
+        { "HID", "r3.sn.hid",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_power_supply,
+        { "Power Supply", "r3.sn.power_supply",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_sn_mortise,
+        { "Mortise", "r3.sn.mortise",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
       { &hf_r3_debuglog_recordnumber,
         { "Record Number", "r3.debuglog.recordnumber",
           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
