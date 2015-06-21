@@ -179,7 +179,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is_802_2 = TRUE;
 
     /* Don't throw an exception for this check (even a BoundsError) */
-    if (tvb_length_remaining(tvb, 4) >= 2) {
+    if (tvb_captured_length_remaining(tvb, 4) >= 2) {
       if (tvb_get_ntohs(tvb, 4) == 0xffff) {
         is_802_2 = FALSE;
       }

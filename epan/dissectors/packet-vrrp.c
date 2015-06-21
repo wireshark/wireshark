@@ -173,7 +173,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     cksum = tvb_get_ntohs(tvb, offset);
     vrrp_len = (gint)tvb_reported_length(tvb);
-    if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
+    if (!pinfo->fragmented && (gint)tvb_captured_length(tvb) >= vrrp_len) {
         /* The packet isn't part of a fragmented datagram
            and isn't truncated, so we can checksum it. */
         switch(hi_nibble(ver_type)) {

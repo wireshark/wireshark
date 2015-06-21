@@ -4062,7 +4062,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
     guint8             bearer_type;
     guint8             address_flags_len;
     int                address_len;
-    guint32            tvb_len = tvb_length(tvb);
+    guint32            tvb_len = tvb_reported_length(tvb);
     guint32            offset  = 0;
     guint32            idx     = 0; /* Address index */
     guint32            address_record_len; /* Length of the entire address record */

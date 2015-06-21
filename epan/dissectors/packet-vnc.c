@@ -1037,7 +1037,7 @@ process_tight_capabilities(proto_tree *tree,
 static gboolean
 vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if(tvb_length(tvb) != 12) {
+	if(tvb_captured_length(tvb) != 12) {
 		return FALSE;
 	}
 
@@ -1545,7 +1545,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				    tvb, offset, 3, ENC_NA);
 		offset += 3; /* Skip over 3 bytes of padding */
 
-		if(tvb_length_remaining(tvb, offset) > 4) {
+		if(tvb_reported_length_remaining(tvb, offset) > 4) {
 			/* Sometimes the desktop name & length is skipped */
 			proto_tree_add_item(tree, hf_vnc_desktop_name_len,
 					    tvb, offset, 4, ENC_BIG_ENDIAN);

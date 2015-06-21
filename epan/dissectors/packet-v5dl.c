@@ -225,9 +225,9 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Check the checksum, if available.
 	 * The checksum is a CCITT CRC-16 at the end of the packet, so
 	 * if we don't have the entire packet in the capture - i.e., if
-	 * tvb_length(tvb) != tvb_reported_length(tvb) we can't check it.
+	 * tvb_captured_length(tvb) != tvb_reported_length(tvb) we can't check it.
 	 */
-	length = tvb_length(tvb);
+	length = tvb_captured_length(tvb);
 	reported_length = tvb_reported_length(tvb);
 
 	/*
@@ -270,7 +270,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Remove the V5DL header *and* the checksum.
 		 */
 		next_tvb = tvb_new_subset(tvb, v5dl_header_len,
-		    tvb_length_remaining(tvb, v5dl_header_len) - 2,
+		    tvb_captured_length_remaining(tvb, v5dl_header_len) - 2,
 		    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 	} else {
 		/*
@@ -285,7 +285,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * and both bytes from the reported length.
 			 */
 			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
-			    tvb_length_remaining(tvb, v5dl_header_len) - 1,
+			    tvb_captured_length_remaining(tvb, v5dl_header_len) - 1,
 			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 		} else {
 			/*
@@ -295,7 +295,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * length.
 			 */
 			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
-			    tvb_length_remaining(tvb, v5dl_header_len),
+			    tvb_captured_length_remaining(tvb, v5dl_header_len),
 			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 		}
 	}

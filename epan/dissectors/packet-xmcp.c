@@ -937,7 +937,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   msg_length = tvb_get_ntohs(tvb, 2);
   if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
     expert_add_info_format(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
   }
 
   /* ...a 4 byte magic cookie... */
@@ -1044,7 +1044,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -1052,14 +1052,14 @@ dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
                    get_xmcp_message_len, dissect_xmcp_message, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean
 dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* See if this looks like a real XMCP packet */
-  if (tvb_length(tvb) < XMCP_HDR_LEN) {
+  if (tvb_captured_length(tvb) < XMCP_HDR_LEN) {
     return FALSE;
   }
   /* Check for valid message type field */

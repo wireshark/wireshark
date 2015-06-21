@@ -1209,7 +1209,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                              offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  while (tvb_length_remaining(tvb, offset) >= (request ? 4 : 5)) {
+  while (tvb_reported_length_remaining(tvb, offset) >= (request ? 4 : 5)) {
     guint16 len;
     proto_tree *tlv;
     guint8 type, id, sd_proto;
@@ -1219,7 +1219,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short Service TLV field");
       return;
     }
-    if (len > tvb_length_remaining(tvb, offset + 2)) {
+    if (len > tvb_reported_length_remaining(tvb, offset + 2)) {
       expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short frame for Service TLV field");
       return;
     }
@@ -1252,7 +1252,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     offset += len;
   }
 
-  if (tvb_length_remaining(tvb, offset) > 0) {
+  if (tvb_reported_length_remaining(tvb, offset) > 0) {
     expert_add_info(pinfo, item, &ei_wifi_p2p_anqp_unexpected_padding);
   }
 }

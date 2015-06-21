@@ -365,7 +365,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				count += offset-offset_wtls;
 			}
 			else {
-				count = tvb_length_remaining (tvb, offset_wtls);
+				count = tvb_reported_length_remaining (tvb, offset_wtls);
 			}
 			ti = proto_tree_add_uint(wtls_tree, hf_wtls_record, tvb, offset_wtls,
 				 count, pdut);
@@ -392,7 +392,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset+=2;
 			}
 			else {
-				count = tvb_length_remaining (tvb, offset);
+				count = tvb_reported_length_remaining (tvb, offset);
 			}
 
 			if (pdut & WTLS_RECORD_TYPE_CIPHER_CUR) {

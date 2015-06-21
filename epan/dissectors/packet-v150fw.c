@@ -254,7 +254,7 @@ dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
     guint8 octet1;
     guint8 extb, ric;
     guint16 ric_info;
-    gint payload_length = tvb_length(tvb);
+    gint payload_length = tvb_captured_length(tvb);
     unsigned int offset = 0;
 
     /* see appendix C (State Signalling Events) in ITU-T Rec. V.150.1 for details */
@@ -318,7 +318,7 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
         ti = proto_tree_add_item(tree, proto_v150fw, tvb, 0, -1, ENC_NA);
         v150fw_tree = proto_item_add_subtree(ti, ett_v150fw);
 
-        payload_length = tvb_length(tvb);
+        payload_length = tvb_reported_length(tvb);
 
         /* Get fields needed for further dissection */
         extb = tvb_get_guint8(tvb, offset) & 0x01; /* extension bit */
@@ -399,7 +399,7 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

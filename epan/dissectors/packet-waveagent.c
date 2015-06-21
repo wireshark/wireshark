@@ -1003,7 +1003,7 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint32     wa_payload_offset;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < 52 )
+    if (tvb_reported_length(tvb) < 52 )
         return 0;
 
     magic_number    = tvb_get_ntohl(tvb, 16) & 0x0FFFFFFF;  /* Mask magic number off */
@@ -1071,8 +1071,8 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         dissect_wa_payload(wa_payload_offset, payload_tree, tvb, control_word, version);
     }
 
-/* Return the amount of data this dissector was able to dissect */
-    return tvb_length(tvb);
+    /* Return the amount of data this dissector was able to dissect */
+    return tvb_captured_length(tvb);
 }
 
 static gboolean dissect_waveagent_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

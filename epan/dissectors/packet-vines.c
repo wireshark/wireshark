@@ -374,7 +374,7 @@ dissect_vines_frp_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return 0;
 	}
 	dissect_vines_frp(tvb, pinfo, tree);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

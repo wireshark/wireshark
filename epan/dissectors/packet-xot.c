@@ -107,7 +107,7 @@ static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)
 {
    guint16 plen;
-   int remain = tvb_length_remaining(tvb, offset);
+   int remain = tvb_captured_length_remaining(tvb, offset);
    if ( remain < XOT_HEADER_LENGTH){
       /* We did not get the data we asked for, use up what we can */
       return remain;
@@ -127,7 +127,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
    int offset_next = offset + XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
    int tvb_len;
 
-   while (tvb_len = tvb_length_remaining(tvb, offset), tvb_len>0){
+   while (tvb_len = tvb_captured_length_remaining(tvb, offset), tvb_len>0){
       guint16 plen = 0;
       int modulo;
       guint16 bytes0_1;
@@ -204,9 +204,9 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
                 version, plen);
    if (offset == 0 &&
-       tvb_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
+       tvb_reported_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
       col_append_fstr(pinfo->cinfo, COL_INFO, " TotX25: %d",
-                      tvb_length_remaining(tvb, offset));
+                      tvb_reported_length_remaining(tvb, offset));
 
    if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, XOT_HEADER_LENGTH,
@@ -268,12 +268,12 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
       } else {
          next_tvb = tvb_new_subset(tvb, offset,
-                                   MIN(plen, tvb_length_remaining(tvb, offset)), plen);
+                                   MIN(plen, tvb_captured_length_remaining(tvb, offset)), plen);
          call_dissector(x25_handle, next_tvb, pinfo, tree);
       }
    }
 
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -281,7 +281,7 @@ static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    int offset = 0;
    int len = get_xot_pdu_len_mult(pinfo, tvb, offset, NULL);
    tvbuff_t   *next_tvb;
-   int offset_max = offset+MIN(len,tvb_length_remaining(tvb, offset));
+   int offset_max = offset+MIN(len,tvb_captured_length_remaining(tvb, offset));
    proto_item *ti;
    proto_tree *xot_tree;
 
@@ -296,16 +296,16 @@ static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    while (offset <= offset_max - XOT_HEADER_LENGTH){
       int plen = get_xot_pdu_len(pinfo, tvb, offset, NULL);
       next_tvb = tvb_new_subset(tvb, offset,plen, plen);
-                                /*MIN(plen,tvb_length_remaining(tvb, offset)),plen*/
+                                /*MIN(plen,tvb_captured_length_remaining(tvb, offset)),plen*/
 
       dissect_xot_pdu(next_tvb, pinfo, tree, data);
       offset += plen;
    }
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   int tvb_len = tvb_length(tvb);
+   int tvb_len = tvb_captured_length(tvb);
    int len = 0;
 
    if (tvb_len >= 2 && tvb_get_ntohs(tvb,0) != XOT_VERSION) {
