@@ -218,7 +218,7 @@ void PBE_reset_parameters(void)
 	salt = NULL;
 }
 
-int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted_tvb, asn1_ctx_t *actx, proto_item *item)
+int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encrypted_tvb _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
 {
 #ifdef HAVE_LIBGCRYPT
 	const char	*encryption_algorithm;
