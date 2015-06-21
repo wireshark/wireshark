@@ -174,8 +174,8 @@ WS_DLL_PUBLIC void srt_table_get_filter(register_srt_t* srt, const char *opt_arg
  *
  * @param srt Registered SRT
  * @param srt_array SRT table array
- * @param opt_arg passed in opt_arg from GUI
- * @param filter returned filter string to be used for registering tap
+ * @param gui_callback optional callback from GUI
+ * @param callback_data callback data needed for GUI
  */
 WS_DLL_PUBLIC void srt_table_dissector_init(register_srt_t* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void *callback_data);
 
