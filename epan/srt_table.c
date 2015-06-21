@@ -166,7 +166,7 @@ gchar* srt_table_get_tap_string(register_srt_t* srt)
 void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char **filter, char** err)
 {
     gchar* cmd_str = srt_table_get_tap_string(srt);
-    guint len = strlen(cmd_str);
+    guint len = (guint32)strlen(cmd_str);
     guint pos = len;
     *filter=NULL;
     *err = NULL;
