@@ -98,7 +98,7 @@ int ws80211_frequency_to_channel(int freq);
  *
  * @param name The interface name.
  * @param freq The frequency in MHz.
- * @param chan_type
+ * @param chan_type The HT channel type (no, 20Mhz, 40Mhz...).
  * @return Zero on success, nonzero on failure.
  */
 int ws80211_set_freq(const char *name, int freq, int chan_type);
