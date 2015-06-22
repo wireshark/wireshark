@@ -448,7 +448,7 @@ set_last_open_dir(const char *dirname)
     size_t len;
     gchar *new_last_open_dir;
 
-    if (dirname) {
+    if (dirname && dirname[0]) {
         len = strlen(dirname);
         if (dirname[len-1] == G_DIR_SEPARATOR) {
             new_last_open_dir = g_strconcat(dirname, NULL);

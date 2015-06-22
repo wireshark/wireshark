@@ -395,7 +395,7 @@ void WiresharkApplication::setLastOpenDir(const char *dir_name)
     qint64 len;
     gchar *new_last_open_dir;
 
-    if (dir_name) {
+    if (dir_name && dir_name[0]) {
         len = strlen(dir_name);
         if (dir_name[len-1] == G_DIR_SEPARATOR) {
             new_last_open_dir = g_strconcat(dir_name, (char *)NULL);
