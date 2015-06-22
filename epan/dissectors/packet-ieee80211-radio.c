@@ -40,6 +40,7 @@ static int proto_wlan_radio = -1;
 /* ************************************************************************* */
 /*                Header field info values for radio information             */
 /* ************************************************************************* */
+static int hf_wlan_radio_phy_band = -1;
 static int hf_wlan_radio_data_rate = -1;
 static int hf_wlan_radio_mcs_index = -1;
 static int hf_wlan_radio_bandwidth = -1;
@@ -52,11 +53,50 @@ static int hf_wlan_radio_noise_percent = -1;
 static int hf_wlan_radio_noise_dbm = -1;
 static int hf_wlan_radio_timestamp = -1;
 
+static const value_string phy_band_vals[] = {
+    { PHDR_802_11_PHY_BAND_11_FHSS,       "802.11 FHSS" },
+    { PHDR_802_11_PHY_BAND_11B,           "802.11b" },
+    { PHDR_802_11_PHY_BAND_11A,           "802.11a" },
+    { PHDR_802_11_PHY_BAND_11G,           "802.11g" },
+    { PHDR_802_11_PHY_BAND_11G_PURE,      "802.11g (pure-g)" },
+    { PHDR_802_11_PHY_BAND_11G_MIXED,     "802.11g (mixed g/b)" },
+    { PHDR_802_11_PHY_BAND_11A_108,       "802.11a (turbo)" },
+    { PHDR_802_11_PHY_BAND_11G_PURE_108,  "802.11g (pure-g, turbo)" },
+    { PHDR_802_11_PHY_BAND_11G_MIXED_108, "802.11g (mixed g/b, turbo)" },
+    { PHDR_802_11_PHY_BAND_11G_STURBO,    "802.11g (static turbo)" },
+    { PHDR_802_11_PHY_BAND_11N,           "802.11n" },
+    { PHDR_802_11_PHY_BAND_11N_5GHZ,      "802.11n (5 GHz)" },
+    { PHDR_802_11_PHY_BAND_11N_2_4GHZ,    "802.11n (2.4 GHz)" },
+    { PHDR_802_11_PHY_BAND_11AC,          "802.11ac" },
+    { 0, NULL }
+};
 static const value_string bandwidth_vals[] = {
-    { PHDR_802_11_BANDWIDTH_20_MHZ, "20 MHz" },
-    { PHDR_802_11_BANDWIDTH_40_MHZ, "40 MHz" },
-    { PHDR_802_11_BANDWIDTH_20_20L, "20 MHz + 20 MHz lower" },
-    { PHDR_802_11_BANDWIDTH_20_20U, "20 MHz + 20 MHz upper" },
+    { PHDR_802_11_BANDWIDTH_20_MHZ,  "20 MHz" },
+    { PHDR_802_11_BANDWIDTH_40_MHZ,  "40 MHz" },
+    { PHDR_802_11_BANDWIDTH_20_20L,  "20 MHz + 20 MHz lower" },
+    { PHDR_802_11_BANDWIDTH_20_20U,  "20 MHz + 20 MHz upper" },
+    { PHDR_802_11_BANDWIDTH_80_MHZ,  "80 MHz" },
+    { PHDR_802_11_BANDWIDTH_40_40L,  "40 MHz + 40 MHz lower" },
+    { PHDR_802_11_BANDWIDTH_40_40U,  "40 MHz + 40 MHz upper" },
+    { PHDR_802_11_BANDWIDTH_20LL,    "20LL" },
+    { PHDR_802_11_BANDWIDTH_20LU,    "20LU" },
+    { PHDR_802_11_BANDWIDTH_20UL,    "20UL" },
+    { PHDR_802_11_BANDWIDTH_20UU,    "20UU" },
+    { PHDR_802_11_BANDWIDTH_160_MHZ, "160 MHz" },
+    { PHDR_802_11_BANDWIDTH_80_80L,  "80 MHz + 80 MHz lower" },
+    { PHDR_802_11_BANDWIDTH_80_80U,  "80 MHz + 80 MHz upper" },
+    { PHDR_802_11_BANDWIDTH_40LL,    "40LL" },
+    { PHDR_802_11_BANDWIDTH_40LU,    "40LU" },
+    { PHDR_802_11_BANDWIDTH_40UL,    "40UL" },
+    { PHDR_802_11_BANDWIDTH_40UU,    "40UU" },
+    { PHDR_802_11_BANDWIDTH_20LLL,   "20LLL" },
+    { PHDR_802_11_BANDWIDTH_20LLU,   "20LLU" },
+    { PHDR_802_11_BANDWIDTH_20LUL,   "20LUL" },
+    { PHDR_802_11_BANDWIDTH_20LUU,   "20LUU" },
+    { PHDR_802_11_BANDWIDTH_20ULL,   "20ULL" },
+    { PHDR_802_11_BANDWIDTH_20ULU,   "20ULU" },
+    { PHDR_802_11_BANDWIDTH_20UUL,   "20UUL" },
+    { PHDR_802_11_BANDWIDTH_20UUU,   "20UUU" },
     { 0, NULL }
 };
 
@@ -483,21 +523,33 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
     data_rate = phdr->data_rate * 0.5f;
     have_data_rate = TRUE;
   } else {
-    /* Do we have all the fields we need to look it up? */
+    /* This applies only to 802.11n and 802.11ac */
+    if (phdr->presence_flags & PHDR_802_11_HAS_PHY_BAND) {
+      switch (phdr->phy_band) {
+
+      case PHDR_802_11_PHY_BAND_11N:
+      case PHDR_802_11_PHY_BAND_11N_5GHZ:
+      case PHDR_802_11_PHY_BAND_11N_2_4GHZ:
+        /* Do we have all the fields we need to look it up? */
+        {
 #define PHDR_802_11_ALL_MCS_FIELDS \
-    (PHDR_802_11_HAS_MCS_INDEX | \
-     PHDR_802_11_HAS_BANDWIDTH | \
-     PHDR_802_11_HAS_SHORT_GI)
+          (PHDR_802_11_HAS_MCS_INDEX | \
+           PHDR_802_11_HAS_BANDWIDTH | \
+           PHDR_802_11_HAS_SHORT_GI)
 
-    guint bandwidth_40;
+          guint bandwidth_40;
 
-    if ((phdr->presence_flags & PHDR_802_11_ALL_MCS_FIELDS) == PHDR_802_11_ALL_MCS_FIELDS) {
-      bandwidth_40 =
-        (phdr->bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
-         1 : 0;
-      if (phdr->mcs_index < MAX_MCS_INDEX) {
-        data_rate = ieee80211_float_htrates[phdr->mcs_index][bandwidth_40][phdr->short_gi];
-        have_data_rate = TRUE;
+          if ((phdr->presence_flags & PHDR_802_11_ALL_MCS_FIELDS) == PHDR_802_11_ALL_MCS_FIELDS) {
+            bandwidth_40 =
+              (phdr->bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
+               1 : 0;
+            if (phdr->mcs_index < MAX_MCS_INDEX) {
+              data_rate = ieee80211_float_htrates[phdr->mcs_index][bandwidth_40][phdr->short_gi];
+              have_data_rate = TRUE;
+            }
+          }
+        }
+        break;
       }
     }
   }
@@ -506,27 +558,20 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   if (have_data_rate)
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", data_rate);
 
-  if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
-    /*
-     * For tagged Peek files, this is presumably signal strength as a
-     * percentage of the maximum, as it is for classic Peek files,
-     * i.e. (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100, or, at least, that's
-     * what I infer it is, given what the WildPackets note "Converting
-     * Signal Strength Percentage to dBm Values" says.
-     *
-     * It also says that the conversion the percentage to a dBm value is
-     * an adapter-dependent process, so, as we don't know what type of
-     * adapter was used to do the capture, we can't do the conversion.
-     *
-     * It's *probably* something similar for other capture file formats.
-     */
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
-          phdr->signal_percent);
+  if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", phdr->signal_dbm);
+  } else if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
   }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_wlan_radio, tvb, 0, 0, ENC_NA);
     radio_tree = proto_item_add_subtree (ti, ett_wlan_radio);
+
+    if (phdr->presence_flags & PHDR_802_11_HAS_PHY_BAND) {
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_phy_band, tvb, 0, 0,
+               phdr->phy_band);
+    }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_MCS_INDEX) {
       proto_tree_add_uint(radio_tree, hf_wlan_radio_mcs_index, tvb, 0, 0,
@@ -602,6 +647,10 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 }
 
 static hf_register_info hf_wlan_radio[] = {
+    {&hf_wlan_radio_phy_band,
+     {"PHY type and band", "wlan_radio.phy_band", FT_UINT32, BASE_DEC, VALS(phy_band_vals), 0,
+      NULL, HFILL }},
+
     {&hf_wlan_radio_data_rate,
      {"Data rate", "wlan_radio.data_rate", FT_FLOAT, BASE_NONE, NULL, 0,
       "Data rate (bits/s)", HFILL }},

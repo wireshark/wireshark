@@ -146,6 +146,12 @@
 #define IEEE80211_CHAN_DYN      0x0400  /* Dynamic CCK-OFDM channel */
 #define IEEE80211_CHAN_GFSK     0x0800  /* GFSK channel (FHSS PHY) */
 
+#define	IEEE80211_CHAN_ALL \
+	(IEEE80211_CHAN_2GHZ | IEEE80211_CHAN_5GHZ | IEEE80211_CHAN_GFSK | \
+         IEEE80211_CHAN_CCK | IEEE80211_CHAN_OFDM | IEEE80211_CHAN_DYN)
+#define	IEEE80211_CHAN_ALLTURBO \
+	(IEEE80211_CHAN_ALL | IEEE80211_CHAN_TURBO)
+
 /*
  * Useful combinations of channel characteristics.
  */
@@ -159,8 +165,8 @@
         (IEEE80211_CHAN_2GHZ | IEEE80211_CHAN_OFDM)
 #define IEEE80211_CHAN_G \
         (IEEE80211_CHAN_2GHZ | IEEE80211_CHAN_DYN)
-#define IEEE80211_CHAN_T \
-        (IEEE80211_CHAN_5GHZ | IEEE80211_CHAN_OFDM | IEEE80211_CHAN_TURBO)
+#define	IEEE80211_CHAN_108A \
+	(IEEE80211_CHAN_A | IEEE80211_CHAN_TURBO)
 #define IEEE80211_CHAN_108G \
         (IEEE80211_CHAN_G | IEEE80211_CHAN_TURBO)
 #define IEEE80211_CHAN_108PUREG \
@@ -378,7 +384,7 @@ static const value_string vs_80211_common_phy_type[] = {
     { IEEE80211_CHAN_B,         "802.11b" },
     { IEEE80211_CHAN_PUREG,     "802.11g (pure-g)" },
     { IEEE80211_CHAN_G,         "802.11g" },
-    { IEEE80211_CHAN_T,         "802.11a (turbo)" },
+    { IEEE80211_CHAN_108A,      "802.11a (turbo)" },
     { IEEE80211_CHAN_108PUREG,  "802.11g (pure-g, turbo)" },
     { IEEE80211_CHAN_108G,      "802.11g (turbo)" },
     { IEEE80211_CHAN_FHSS,      "FHSS" },
@@ -494,6 +500,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     guint        rate_kbps;
     guint32      common_flags;
     guint16      common_frequency;
+    guint16      chan_flags;
     gint8        dbm_value;
     gchar       *chan_str;
 
@@ -559,6 +566,44 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
+    chan_flags = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
+    switch (chan_flags & IEEE80211_CHAN_ALLTURBO) {
+
+    case IEEE80211_CHAN_FHSS:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+        break;
+
+    case IEEE80211_CHAN_A:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11A;
+        break;
+
+    case IEEE80211_CHAN_B:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11B;
+        break;
+
+    case IEEE80211_CHAN_PUREG:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+        break;
+
+    case IEEE80211_CHAN_G:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+        break;
+
+    case IEEE80211_CHAN_108A:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11A_108;
+        break;
+
+    case IEEE80211_CHAN_108PUREG:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_PURE_108;
+        break;
+    }
     ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, ENC_LITTLE_ENDIAN,
                                ett_dot11_common_channel_flags);
     ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
@@ -612,6 +657,9 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     ptvcursor_t *csr;
     int          subtree_off = add_subtree ? 4 : 0;
     guint32      flags;
+
+    phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+    phdr->phy_band = PHDR_802_11_PHY_BAND_11N;
 
     *n_mac_flags = tvb_get_letohl(tvb, offset + subtree_off);
     *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
@@ -1178,28 +1226,28 @@ proto_register_ppi(void)
 
     { &hf_80211_common_chan_flags_turbo,
        { "Turbo", "ppi.80211-common.chan.type.turbo",
-         FT_BOOLEAN, 16, NULL, 0x0010, "PPI 802.11-Common Channel Type Turbo", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_TURBO, "PPI 802.11-Common Channel Type Turbo", HFILL } },
     { &hf_80211_common_chan_flags_cck,
        { "Complementary Code Keying (CCK)", "ppi.80211-common.chan.type.cck",
-         FT_BOOLEAN, 16, NULL, 0x0020, "PPI 802.11-Common Channel Type Complementary Code Keying (CCK) Modulation", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_CCK, "PPI 802.11-Common Channel Type Complementary Code Keying (CCK) Modulation", HFILL } },
     { &hf_80211_common_chan_flags_ofdm,
        { "Orthogonal Frequency-Division Multiplexing (OFDM)", "ppi.80211-common.chan.type.ofdm",
-         FT_BOOLEAN, 16, NULL, 0x0040, "PPI 802.11-Common Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_OFDM, "PPI 802.11-Common Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL } },
     { &hf_80211_common_chan_flags_2ghz,
        { "2 GHz spectrum", "ppi.80211-common.chan.type.2ghz",
-         FT_BOOLEAN, 16, NULL, 0x0080, "PPI 802.11-Common Channel Type 2 GHz spectrum", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_2GHZ, "PPI 802.11-Common Channel Type 2 GHz spectrum", HFILL } },
     { &hf_80211_common_chan_flags_5ghz,
        { "5 GHz spectrum", "ppi.80211-common.chan.type.5ghz",
-         FT_BOOLEAN, 16, NULL, 0x0100, "PPI 802.11-Common Channel Type 5 GHz spectrum", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_5GHZ, "PPI 802.11-Common Channel Type 5 GHz spectrum", HFILL } },
     { &hf_80211_common_chan_flags_passive,
        { "Passive", "ppi.80211-common.chan.type.passive",
-         FT_BOOLEAN, 16, NULL, 0x0200, "PPI 802.11-Common Channel Type Passive", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_PASSIVE, "PPI 802.11-Common Channel Type Passive", HFILL } },
     { &hf_80211_common_chan_flags_dynamic,
        { "Dynamic CCK-OFDM", "ppi.80211-common.chan.type.dynamic",
-         FT_BOOLEAN, 16, NULL, 0x0400, "PPI 802.11-Common Channel Type Dynamic CCK-OFDM Channel", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_DYN, "PPI 802.11-Common Channel Type Dynamic CCK-OFDM Channel", HFILL } },
     { &hf_80211_common_chan_flags_gfsk,
        { "Gaussian Frequency Shift Keying (GFSK)", "ppi.80211-common.chan.type.gfsk",
-         FT_BOOLEAN, 16, NULL, 0x0800, "PPI 802.11-Common Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation", HFILL } },
+         FT_BOOLEAN, 16, NULL, IEEE80211_CHAN_GFSK, "PPI 802.11-Common Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation", HFILL } },
 
     { &hf_80211_common_fhss_hopset,
        { "FHSS hopset", "ppi.80211-common.fhss.hopset",

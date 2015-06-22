@@ -559,10 +559,11 @@ struct ieee_802_11_phdr {
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
     gboolean datapad;        /* TRUE if frame has padding between 802.11 header and payload */
     guint32  presence_flags; /* Flags indicating presence of fields */
+    guint16  phy_band;       /* Type of PHY and band */
     guint16  channel;        /* Channel number */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
     guint16  mcs_index;      /* MCS index */
-    guint    bandwidth:2;    /* Bandwidth = 20 MHz, 40 MHz, 20+20L, 20+20U */
+    guint    bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
     guint    short_gi:1;     /* True for short guard interval */
     guint    greenfield:1;   /* True for greenfield, short for mixed */
     guint    ldpc:1;         /* True for LDPC FEC */
@@ -576,26 +577,65 @@ struct ieee_802_11_phdr {
     guint64  tsf_timestamp;
 };
 
-#define PHDR_802_11_HAS_CHANNEL        0x00000001 /* channel */
-#define PHDR_802_11_HAS_DATA_RATE      0x00000002 /* data_rate */
-#define PHDR_802_11_HAS_MCS_INDEX      0x00000004 /* mcs */
-#define PHDR_802_11_HAS_BANDWIDTH      0x00000008 /* bandwidth */
-#define PHDR_802_11_HAS_SHORT_GI       0x00000010 /* short_gi */
-#define PHDR_802_11_HAS_GREENFIELD     0x00000020 /* greenfield */
-#define PHDR_802_11_HAS_LDPC           0x00000040 /* ldpc */
-#define PHDR_802_11_HAS_STBC_STREAMS   0x00000080 /* stbc_streams */
-#define PHDR_802_11_HAS_NESS           0x00000100 /* ness */
-#define PHDR_802_11_HAS_FREQUENCY      0x00000200 /* frequency */
-#define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000400 /* signal_percent */
-#define PHDR_802_11_HAS_NOISE_PERCENT  0x00000800 /* noise_percent */
-#define PHDR_802_11_HAS_SIGNAL_DBM     0x00001000 /* signal_dbm */
-#define PHDR_802_11_HAS_NOISE_DBM      0x00002000 /* noise_dbm */
-#define PHDR_802_11_HAS_TSF_TIMESTAMP  0x00004000 /* tsf_timestamp */
+#define PHDR_802_11_HAS_PHY_BAND       0x00000001 /* phy_band */
+#define PHDR_802_11_HAS_CHANNEL        0x00000002 /* channel */
+#define PHDR_802_11_HAS_DATA_RATE      0x00000004 /* data_rate */
+#define PHDR_802_11_HAS_MCS_INDEX      0x00000008 /* mcs */
+#define PHDR_802_11_HAS_BANDWIDTH      0x00000010 /* bandwidth */
+#define PHDR_802_11_HAS_SHORT_GI       0x00000020 /* short_gi */
+#define PHDR_802_11_HAS_GREENFIELD     0x00000040 /* greenfield */
+#define PHDR_802_11_HAS_LDPC           0x00000080 /* ldpc */
+#define PHDR_802_11_HAS_STBC_STREAMS   0x00000100 /* stbc_streams */
+#define PHDR_802_11_HAS_NESS           0x00000200 /* ness */
+#define PHDR_802_11_HAS_FREQUENCY      0x00000400 /* frequency */
+#define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000800 /* signal_percent */
+#define PHDR_802_11_HAS_NOISE_PERCENT  0x00001000 /* noise_percent */
+#define PHDR_802_11_HAS_SIGNAL_DBM     0x00002000 /* signal_dbm */
+#define PHDR_802_11_HAS_NOISE_DBM      0x00004000 /* noise_dbm */
+#define PHDR_802_11_HAS_TSF_TIMESTAMP  0x00008000 /* tsf_timestamp */
 
-#define PHDR_802_11_BANDWIDTH_20_MHZ   0 /* 20 MHz */
-#define PHDR_802_11_BANDWIDTH_40_MHZ   1 /* 40 MHz */
-#define PHDR_802_11_BANDWIDTH_20_20L   2 /* 20 + 20L */
-#define PHDR_802_11_BANDWIDTH_20_20U   3 /* 20 + 20U */
+#define PHDR_802_11_PHY_BAND_11_FHSS        0  /* 802.11 FHSS (2.4 GHz GFSK) */
+#define PHDR_802_11_PHY_BAND_11_DSSS        1  /* 802.11 DSSS (2.4 GHz not GFSK) */
+#define PHDR_802_11_PHY_BAND_11B            2  /* 802.11b (2.4 GHz CCK) */
+#define PHDR_802_11_PHY_BAND_11A            3  /* 802.11a (5 GHz OFDM) */
+#define PHDR_802_11_PHY_BAND_11G            4  /* 802.11g (2.4 GHz, unknown modulation) */
+#define PHDR_802_11_PHY_BAND_11G_PURE       5  /* pure 802.11g (2.4 GHz OFDM) */
+#define PHDR_802_11_PHY_BAND_11G_MIXED      6  /* 802.11g (2.4 GHz dynamic CCK-OFDM) */
+#define PHDR_802_11_PHY_BAND_11A_108        7  /* turbo 802.11a */
+#define PHDR_802_11_PHY_BAND_11G_PURE_108   8  /* turbo pure 802.11g */
+#define PHDR_802_11_PHY_BAND_11G_MIXED_108  9  /* turbo 802.11g (dynamic CCK-OFDM) */
+#define PHDR_802_11_PHY_BAND_11G_STURBO     10 /* static turbo 802.11g */
+#define PHDR_802_11_PHY_BAND_11N            11 /* 802.11n (HT, unknown band) */
+#define PHDR_802_11_PHY_BAND_11N_5GHZ       12 /* 802.11n (5 GHz HT) */
+#define PHDR_802_11_PHY_BAND_11N_2_4GHZ     13 /* 802.11n (2.4 GHz HT) */
+#define PHDR_802_11_PHY_BAND_11AC           14 /* 802.11ac (VHT) */
+
+#define PHDR_802_11_BANDWIDTH_20_MHZ   0  /* 20 MHz */
+#define PHDR_802_11_BANDWIDTH_40_MHZ   1  /* 40 MHz */
+#define PHDR_802_11_BANDWIDTH_20_20L   2  /* 20 + 20L, 40 MHz */
+#define PHDR_802_11_BANDWIDTH_20_20U   3  /* 20 + 20U, 40 MHz */
+#define PHDR_802_11_BANDWIDTH_80_MHZ   4  /* 80 MHz */
+#define PHDR_802_11_BANDWIDTH_40_40L   5  /* 40 + 40L MHz, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_40_40U   6  /* 40 + 40U MHz, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_20LL     7  /* ???, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_20LU     8  /* ???, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_20UL     9  /* ???, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_20UU     10 /* ???, 80 MHz */
+#define PHDR_802_11_BANDWIDTH_160_MHZ  11 /* 160 MHz */
+#define PHDR_802_11_BANDWIDTH_80_80L   12 /* 80 + 80L, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_80_80U   13 /* 80 + 80U, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_40LL     14 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_40LU     15 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_40UL     16 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_40UU     17 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20LLL    18 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20LLU    19 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20LUL    20 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20LUU    21 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20ULL    22 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20ULU    23 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20UUL    24 /* ???, 160 MHz */
+#define PHDR_802_11_BANDWIDTH_20UUU    25 /* ???, 160 MHz */
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

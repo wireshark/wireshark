@@ -118,6 +118,28 @@ static const value_string peekremote_type_vals[] = {
   { 0, NULL }
 };
 
+/*
+ * Extended flags.
+ *
+ * Some determined from bug 10637, some determined from bug 9586,
+ * and the ones present in both agree, so we're assuming that
+ * the "remote Peek" protocol and the "Peek tagged" file format
+ * use the same bits (which wouldn't be too surprising, as they
+ * both come from Wildpackets).
+ */
+#define EXT_FLAG_20_MHZ_LOWER                   0x00000001
+#define EXT_FLAG_20_MHZ_UPPER                   0x00000002
+#define EXT_FLAG_40_MHZ                         0x00000004
+#define EXT_FLAGS_BANDWIDTH                     0x00000007
+#define EXT_FLAG_HALF_GI                        0x00000008
+#define EXT_FLAG_FULL_GI                        0x00000010
+#define EXT_FLAGS_GI                            0x00000018
+#define EXT_FLAG_AMPDU                          0x00000020
+#define EXT_FLAG_AMSDU                          0x00000040
+#define EXT_FLAG_802_11ac                       0x00000080
+#define EXT_FLAG_MCS_INDEX_USED                 0x00000100
+#define EXT_FLAGS_RESERVED                      0xFFFFFE00
+
 /* hfi elements */
 #define THIS_HF_INIT HFI_INIT(proto_peekremote)
 static header_field_info *hfi_peekremote = NULL;
@@ -235,43 +257,43 @@ static header_field_info hfi_peekremote_extflags THIS_HF_INIT =
 
 static header_field_info hfi_peekremote_extflags_20mhz_lower THIS_HF_INIT =
       { "20 MHz Lower",     "peekremote.extflags.20mhz_lower", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000001, NULL, HFILL };
+        EXT_FLAG_20_MHZ_LOWER, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_20mhz_upper THIS_HF_INIT =
       { "20 MHz Upper",     "peekremote.extflags.20mhz_upper", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000002, NULL, HFILL };
+        EXT_FLAG_20_MHZ_UPPER, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_40mhz THIS_HF_INIT =
       { "40 MHz",     "peekremote.extflags.40mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000004, NULL, HFILL };
+        EXT_FLAG_40_MHZ, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_half_gi THIS_HF_INIT =
       { "Half Guard Interval",     "peekremote.extflags.half_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000008, NULL, HFILL };
+        EXT_FLAG_HALF_GI, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_full_gi THIS_HF_INIT =
       { "Full Guard Interval",     "peekremote.extflags.full_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000010, NULL, HFILL };
+        EXT_FLAG_FULL_GI, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_ampdu THIS_HF_INIT =
       { "AMPDU",     "peekremote.extflags.ampdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000020, NULL, HFILL };
+        EXT_FLAG_AMPDU, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_amsdu THIS_HF_INIT =
       { "AMSDU",     "peekremote.extflags.amsdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000040, NULL, HFILL };
+        EXT_FLAG_AMSDU, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_11ac THIS_HF_INIT =
       { "802.11ac",     "peekremote.extflags.11ac", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000080, NULL, HFILL };
+        EXT_FLAG_802_11ac, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_future_use THIS_HF_INIT =
       { "MCS index used",     "peekremote.extflags.future_use", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        0x00000100, NULL, HFILL };
+        EXT_FLAG_MCS_INDEX_USED, NULL, HFILL };
 
 static header_field_info hfi_peekremote_extflags_reserved THIS_HF_INIT =
       { "Reserved",     "peekremote.extflags.reserved", FT_UINT32, BASE_HEX, NULL,
-        0xFFFFFE80, "Must be zero", HFILL };
+        EXT_FLAGS_RESERVED, "Must be zero", HFILL };
 
 /* XXX - are the numbers antenna numbers? */
 static header_field_info hfi_peekremote_signal_1_dbm THIS_HF_INIT =
@@ -382,6 +404,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   guint8 header_version;
   guint header_size;
   struct ieee_802_11_phdr phdr;
+  guint32 extflags;
   guint16 frequency;
   tvbuff_t *next_tvb;
 
@@ -422,6 +445,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         offset += (header_size - 9);
     } else {
       phdr.presence_flags |=
+          PHDR_802_11_HAS_PHY_BAND|
           PHDR_802_11_HAS_MCS_INDEX|
           PHDR_802_11_HAS_CHANNEL|
           PHDR_802_11_HAS_SIGNAL_PERCENT|
@@ -446,6 +470,15 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
+      /*
+       * XXX - can the band field be used to distinguish between 2.4 GHz
+       * and 5 GHz 11n?
+       */
+      extflags = tvb_get_ntohl(tvb, offset);
+      if (extflags & EXT_FLAG_802_11ac)
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11AC;
+      else
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11N;
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
       phdr.signal_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);

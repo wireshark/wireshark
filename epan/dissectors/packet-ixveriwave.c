@@ -71,8 +71,6 @@ static frame_end_data previous_frame_data = {0,0};
 
 #define CHAN_CCK                            0x00020 /* CCK channel */
 #define CHAN_OFDM                           0x00040 /* OFDM channel */
-#define CHAN_2GHZ                           0x00080 /* 2 GHz spectrum channel. */
-#define CHAN_5GHZ                           0x00100 /* 5 GHz spectrum channel */
 
 #define FLAGS_SHORTPRE                      0x0002  /* sent/received
                                                      * with short
@@ -657,7 +655,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     float       phyRate;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwift,*vw_infoFlags_tree = NULL;
-    guint16     vw_flags, vw_info, vw_ht_length, vw_rflags;
+    guint16     vw_flags, vw_chanflags, vw_info, vw_ht_length, vw_rflags;
     guint32     vw_errors;
 
     ifg_info   *p_ifg_info;
@@ -719,7 +717,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
     offset      +=2;
 
-    /* Need to add in 2 more bytes to the offset to account for the channel flags */
+    vw_chanflags = tvb_get_letohs(tvb, offset);
     offset      +=2;
     phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
     offset      +=2;
@@ -730,7 +728,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset++;
 
     if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
-        phdr.presence_flags |= (PHDR_802_11_HAS_MCS_INDEX|PHDR_802_11_HAS_NESS);
+        phdr.presence_flags |= (PHDR_802_11_HAS_PHY_BAND|PHDR_802_11_HAS_MCS_INDEX|PHDR_802_11_HAS_NESS);
+        phdr.phy_band = (vw_rflags & FLAGS_CHAN_VHT) ? PHDR_802_11_PHY_BAND_11AC : PHDR_802_11_PHY_BAND_11N;
         phdr.mcs_index = mcs_index;
         phdr.ness = ness;
         if (tree) {
@@ -745,6 +744,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                                        "%.1f (MCS %d)", phyRate, mcs_index);
         }
     } else {
+        if (vw_chanflags & CHAN_CCK) {
+            phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+            phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+        }
+        /* XXX - 11A vs. 11G */
         phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
         phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
         if (tree) {

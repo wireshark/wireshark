@@ -409,6 +409,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
                 PHDR_802_11_HAS_DATA_RATE |
                 PHDR_802_11_HAS_SIGNAL_PERCENT;
             /* set decryption status */
+            /* XXX - what other bits are there in conditions? */
             pseudo_header->ieee_802_11.decrypted = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) != 0;
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;

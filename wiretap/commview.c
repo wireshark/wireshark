@@ -69,6 +69,16 @@ typedef struct commview_header {
 #define FLAGS_COMPRESSED	0x40
 #define FLAGS_RESERVED		0x80
 
+/* Values for the band variable of the header */
+#define BAND_11A		0x01
+#define BAND_11B		0x02
+#define BAND_11G		0x04
+#define BAND_11A_TURBO		0x08
+#define BAND_SUPERG		0x10
+#define BAND_PUBLIC_SAFETY	0x20	/* 499 GHz public safety */
+#define BAND_11N_5GHZ		0x40
+#define BAND_11N_2_4GHZ	0x80
+
 /* Capture mediums as defined by the commview file format */
 #define MEDIUM_ETHERNET		0
 #define MEDIUM_WIFI		1
@@ -150,6 +160,44 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		    PHDR_802_11_HAS_CHANNEL |
 		    PHDR_802_11_HAS_DATA_RATE |
 		    PHDR_802_11_HAS_SIGNAL_PERCENT;
+		switch (cv_hdr.band) {
+
+		case BAND_11A:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11A;
+			break;
+
+		case BAND_11B:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11B;
+			break;
+
+		case BAND_11G:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11G;
+			break;
+
+		case BAND_11A_TURBO:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11A_108;
+			break;
+
+		case BAND_SUPERG:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			/* So what is "SuperG" here? */
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11G_STURBO;
+			break;
+
+		case BAND_11N_5GHZ:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11N_5GHZ;
+			break;
+
+		case BAND_11N_2_4GHZ:
+			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11N_2_4GHZ;
+			break;
+		}
 		phdr->pseudo_header.ieee_802_11.channel = cv_hdr.channel;
 		phdr->pseudo_header.ieee_802_11.data_rate =
 		    cv_hdr.rate | (cv_hdr.direction << 8);

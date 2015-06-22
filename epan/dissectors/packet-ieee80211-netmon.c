@@ -76,6 +76,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   int         offset;
   guint8      version;
   guint16     length;
+  guint32     phy_type;
   guint32     flags;
   guint32     channel;
   gint32      rssi;
@@ -123,6 +124,29 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   flags = tvb_get_letohl(tvb, offset);
   offset += 4;
   if (flags != 0xffffffff) {
+    phy_type = tvb_get_letohl(tvb, offset);
+    switch (phy_type) {
+
+    case PHY_TYPE_11B:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11B;
+        break;
+
+    case PHY_TYPE_11A:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11A;
+        break;
+
+    case PHY_TYPE_11G:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11G;
+        break;
+
+    case PHY_TYPE_11N:
+        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr->phy_band = PHDR_802_11_PHY_BAND_11N;
+        break;
+    }
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_phy_type, tvb, offset, 4,
                         ENC_LITTLE_ENDIAN);
     offset += 4;
