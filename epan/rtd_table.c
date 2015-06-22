@@ -151,7 +151,7 @@ gchar* rtd_table_get_tap_string(register_rtd_t* rtd)
 void rtd_table_get_filter(register_rtd_t* rtd, const char *opt_arg, const char **filter, char** err)
 {
     gchar* cmd_str = rtd_table_get_tap_string(rtd);
-    guint len = strlen(cmd_str);
+    guint len = (guint) strlen(cmd_str);
     *filter=NULL;
     *err=NULL;
 
