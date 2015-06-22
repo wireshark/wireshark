@@ -225,7 +225,7 @@ open STAT_GROUPS, "< $WSROOT/epan/stat_groups.h" or die "cannot open '$WSROOT/ep
 my $foundit = 0;
 while(<STAT_GROUPS>) {
     # need to skip matching words in comments, and get to the enum
-    if (/^typedef enum {/) { $foundit = 1; }
+    if (/^typedef enum \{/) { $foundit = 1; }
     # the problem here is we need to pick carefully, so we don't break existing scripts
     if ($foundit && /REGISTER_([A-Z]+)_GROUP_(CONVERSATION|RESPONSE|ENDPOINT|[A-Z_]+)/) {
         $menu_groups .= "MENU_$1_$2 = $menu_i\n";
