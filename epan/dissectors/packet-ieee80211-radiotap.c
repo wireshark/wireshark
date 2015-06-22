@@ -574,12 +574,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	tvbuff_t   *next_tvb;
 	guint8      version;
 	guint       length;
-	guint32     flags;
+	guint16     cflags;
 	guint32     freq;
 	proto_item *rate_ti;
 	gint8       dbm, db;
 	gboolean    have_rflags       = FALSE;
 	guint8      rflags            = 0;
+	guint32     xcflags;
 	/* backward compat with bit 14 == fcs in header */
 	proto_item *hdr_fcs_ti        = NULL;
 	int         hdr_fcs_offset    = 0;
@@ -952,8 +953,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 
 		case IEEE80211_RADIOTAP_CHANNEL: {
-			freq	 = tvb_get_letohs(tvb, offset);
-			flags	 = tvb_get_letohs(tvb, offset + 2);
+			freq = tvb_get_letohs(tvb, offset);
 			if (freq != 0) {
 				/*
 				 * XXX - some captures have 0, which is
@@ -962,7 +962,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
 				phdr.frequency = freq;
 			}
-			switch (flags & IEEE80211_CHAN_ALLTURBO) {
+			cflags = tvb_get_letohs(tvb, offset + 2);
+			switch (cflags & IEEE80211_CHAN_ALLTURBO) {
 
 			case IEEE80211_CHAN_FHSS:
 				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
@@ -1030,7 +1031,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				/* We're already 2-byte aligned. */
 				proto_tree_add_bitmask(radiotap_tree, tvb, offset + 2, hf_radiotap_channel_flags, ett_radiotap_channel_flags, channel_flags, ENC_LITTLE_ENDIAN);
 				radiotap_info->freq = freq;
-				radiotap_info->flags = flags;
+				radiotap_info->flags = cflags;
 			}
 			break;
 		}
@@ -1152,7 +1153,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 
 		case IEEE80211_RADIOTAP_XCHANNEL: {
-			switch (flags & IEEE80211_CHAN_ALLTURBO) {
+			xcflags = tvb_get_letohl(tvb, offset);
+			switch (xcflags & IEEE80211_CHAN_ALLTURBO) {
 
 			case IEEE80211_CHAN_FHSS:
 				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
@@ -1234,6 +1236,17 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					phdr.short_gi = 0;
 				break;
 			}
+			freq = tvb_get_letohs(tvb, offset + 4);
+			if (freq != 0) {
+				/*
+				 * XXX - some captures have 0, which is
+				 * obviously bogus.
+				 */
+				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+				phdr.frequency = freq;
+			}
+			phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+			phdr.channel = tvb_get_guint8(tvb, offset + 6);
 			if (tree) {
 				static const int * xchannel_flags[] = {
 					&hf_radiotap_xchannel_flags_turbo,
