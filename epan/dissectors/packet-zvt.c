@@ -153,6 +153,7 @@ static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
 static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bitmap = -1;
+static int hf_zvt_tlv_total_len = -1;
 static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_len = -1;
 
@@ -247,6 +248,37 @@ dissect_zvt_tlv_tag(tvbuff_t *tvb, gint offset,
 
 
 static gint
+dissect_zvt_tlv_len(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree, int hf, guint16 *len)
+{
+    guint16 _len;
+    gint    len_bytes = 1;
+
+    _len = tvb_get_guint8(tvb, offset);
+    if (_len & 0x80) {
+        if ((_len & 0x03) == 1) {
+            len_bytes++;
+            _len = tvb_get_guint8(tvb, offset+1);
+        }
+        else if ((_len & 0x03) == 2) {
+            len_bytes += 2;
+            _len = tvb_get_ntohs(tvb, offset+1);
+        }
+        else {
+            /* XXX - expert info */
+            return -1;
+        }
+    }
+
+    proto_tree_add_uint(tree, hf, tvb, offset, len_bytes, _len);
+    if (len)
+        *len = _len;
+
+    return len_bytes;
+}
+
+ 
+static gint
 dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
@@ -255,10 +287,15 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
     proto_tree *dat_obj_tree;
     gint        tag_len;
     guint32     tag;
-    guint8      data_len_bytes = 1;
-    guint16     data_len;
+    gint        total_len_bytes, data_len_bytes;
+    guint16     data_len = 0;
 
     offset_start = offset;
+
+    total_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
+                tree, hf_zvt_tlv_total_len, NULL);
+    if (total_len_bytes > 0)
+        offset += total_len_bytes;
 
     while (tvb_captured_length_remaining(tvb, offset) > 0) {
         dat_obj_tree = proto_tree_add_subtree(tree,
@@ -270,23 +307,10 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
             return offset - offset_start;
         offset += tag_len;
 
-        data_len = tvb_get_guint8(tvb, offset);
-        if (data_len & 0x80) {
-            if ((data_len & 0x03) == 1) {
-                data_len_bytes++;
-                data_len = tvb_get_guint8(tvb, offset+1);
-            }
-            else if ((data_len & 0x03) == 2) {
-                data_len_bytes += 2;
-                data_len = tvb_get_ntohs(tvb, offset+1);
-            }
-            else {
-                /* XXX - expert info, exit */
-            }
-        }
-        proto_tree_add_uint(dat_obj_tree, hf_zvt_tlv_len,
-                tvb, offset, data_len_bytes, data_len);
-        offset += data_len_bytes;
+        data_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
+                dat_obj_tree,hf_zvt_tlv_len, &data_len); 
+        if (data_len_bytes > 0)
+            offset += data_len_bytes;
 
         /* XXX - dissect the data-element */
         offset += data_len;
@@ -787,12 +811,15 @@ proto_register_zvt(void)
         { &hf_zvt_bitmap,
             { "Bitmap", "zvt.bitmap", FT_UINT8,
                 BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } },
+        { &hf_zvt_tlv_total_len,
+            { "Total length", "zvt.tlv.total_len",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_zvt_tlv_tag,
             { "Tag", "zvt.tlv.tag", FT_UINT32,
                 BASE_HEX|BASE_EXT_STRING, &tlv_tags_ext, 0, NULL, HFILL } },
         { &hf_zvt_tlv_len,
             { "Length", "zvt.tlv.len",
-                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } }
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
