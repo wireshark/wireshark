@@ -765,9 +765,9 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x07:
             proto_tree_add_item(pn532_tree, hf_pn532_andet_bot, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(pn532_tree, hf_pn532_andet_up, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(pn532_tree, hf_pn532_andet_up,  tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pn532_tree, hf_pn532_andet_ith, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(pn532_tree, hf_pn532_andet_en, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(pn532_tree, hf_pn532_andet_en,  tvb, offset, 1, ENC_NA);
             offset += 1;
             break;
         case 0x01:
@@ -1106,7 +1106,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(sub_tree, hf_pn532_config_ciu_mif_nfc, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_424_kbps, tvb, offset, 3, ENC_NA);
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_424_kbps, tvb, offset, 3, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn532_config_424_kbps);
 
             proto_tree_add_item(sub_tree, hf_pn532_config_ciu_rx_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1118,7 +1118,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(sub_tree, hf_pn532_config_ciu_mif_nfc, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_848_kbps, tvb, offset, 3, ENC_NA);
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_848_kbps, tvb, offset, 3, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn532_config_848_kbps);
 
             proto_tree_add_item(sub_tree, hf_pn532_config_ciu_rx_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2304,10 +2304,10 @@ void proto_register_pn532(void)
     };
 
     static const enum_val_t sub_enum_vals[] = {
-        { "data", "Data", SUB_DATA },
-        { "felica", "Sony FeliCa", SUB_FELICA },
-        { "mifare", "NXP MiFare", SUB_MIFARE },
-        { "iso7816", "ISO 7816", SUB_ISO7816 },
+        { "data",    "Data",        SUB_DATA    },
+        { "felica",  "Sony FeliCa", SUB_FELICA  },
+        { "mifare",  "NXP MiFare",  SUB_MIFARE  },
+        { "iso7816", "ISO 7816",    SUB_ISO7816 },
         { NULL, NULL, 0 }
     };
 
