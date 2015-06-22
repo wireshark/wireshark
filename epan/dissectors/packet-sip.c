@@ -202,6 +202,10 @@ static gint hf_sip_sec_mechanism_port1    = -1;
 static gint hf_sip_sec_mechanism_port_c   = -1;
 static gint hf_sip_sec_mechanism_port2    = -1;
 static gint hf_sip_sec_mechanism_port_s   = -1;
+static gint hf_sip_session_id_sess_id     = -1;
+static gint hf_sip_session_id_param       = -1;
+static gint hf_sip_session_id_local_uuid  = -1;
+static gint hf_sip_session_id_remote_uuid = -1;
 static gint hf_sip_continuation           = -1;
 
 /* Initialize the subtree pointers */
@@ -234,6 +238,7 @@ static gint ett_sip_pai_uri               = -1;
 static gint ett_sip_pmiss_uri             = -1;
 static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
+static gint ett_sip_session_id            = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_no_colon = EI_INIT;
@@ -643,7 +648,7 @@ static gint hf_header_array[] = {
     -1, /* 95"Server",                          RFC3261 */
     -1, /* 96"Service-Route",                   RFC3608 */
     -1, /* 97"Session-Expires",                 RFC4028 */
-    -1, /* 98"Session-Id",                      RFC7329 */
+    -1, /* 98"Session-ID",                      RFC7329 */
     -1, /* 99"SIP-ETag",                        RFC3903 */
     -1, /* 100"SIP-If-Match",                    RFC3903 */
     -1, /* 101"Subject",                        RFC3261 */
@@ -2403,6 +2408,93 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
     }
 }
 
+/* Dissect the details of a Session-ID header
+ *
+ * Session-ID           =  "Session-ID" HCOLON sess-id
+ *                         *( SEMI generic-param )
+ * sess-id              =  32(DIGIT / %x61-66)  ; 32 chars of [0-9a-f]
+ */
+static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+    gint current_offset, semi_colon_offset, equals_offset, length;
+    GByteArray *bytes;
+    proto_item *pi;
+
+    current_offset = start_offset;
+    semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
+    if(semi_colon_offset == -1){
+        semi_colon_offset = line_end_offset;
+    }
+
+    length = semi_colon_offset-current_offset;
+    bytes = g_byte_array_sized_new(16);
+    pi = proto_tree_add_bytes_item(tree, hf_sip_session_id_sess_id, tvb,
+                              start_offset, length, ENC_UTF_8|ENC_STR_HEX|ENC_SEP_NONE,
+                              bytes, NULL, NULL);
+
+    current_offset = current_offset + length + 1;
+
+    /* skip Spaces and Tabs */
+    current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+    if (current_offset < line_end_offset) {
+        /* Parse parameter and value */
+        equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+        if (equals_offset != -1) {
+            /* Extract the parameter name */
+            GByteArray *uuid = g_byte_array_sized_new(16);
+            guint8 *param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset,
+                                                    tvb_skip_wsp_return(tvb, equals_offset - 1) - current_offset,
+                                                    ENC_UTF_8|ENC_NA);
+
+            if ((bytes->len == 16) && (g_ascii_strcasecmp(param_name, "remote") == 0) &&
+                tvb_get_string_bytes(tvb, equals_offset + 1, line_end_offset - equals_offset - 1,
+                                     ENC_UTF_8|ENC_STR_HEX|ENC_SEP_NONE, uuid, NULL) &&
+                (uuid->len == 16)) {
+                /* Decode header as draft-ietf-insipid-session-id
+                 *
+                 * session-id          = "Session-ID" HCOLON session-id-value
+                 * session-id-value    = local-uuid *(SEMI sess-id-param)
+                 * local-uuid          = sess-uuid / null
+                 * remote-uuid         = sess-uuid / null
+                 * sess-uuid           = 32(DIGIT / %x61-66)  ;32 chars of [0-9a-f]
+                 * sess-id-param       = remote-param / generic-param
+                 * remote-param        = "remote" EQUAL remote-uuid
+                 * null                = 32("0")
+                 */
+                e_guid_t guid;
+
+                PROTO_ITEM_SET_HIDDEN(pi);
+                guid.data1 = (bytes->data[0] << 24) | (bytes->data[1] << 16) |
+                             (bytes->data[2] <<  8) |  bytes->data[3];
+                guid.data2 = (bytes->data[4] <<  8) |  bytes->data[5];
+                guid.data3 = (bytes->data[6] <<  8) |  bytes->data[7];
+                memcpy(guid.data4, &bytes->data[8], 8);
+                proto_tree_add_guid(tree, hf_sip_session_id_local_uuid, tvb,
+                                    start_offset, semi_colon_offset - start_offset, &guid);
+                guid.data1 = (uuid->data[0] << 24) | (uuid->data[1] << 16) |
+                             (uuid->data[2] <<  8) |  uuid->data[3];
+                guid.data2 = (uuid->data[4] <<  8) |  uuid->data[5];
+                guid.data3 = (uuid->data[6] <<  8) |  uuid->data[7];
+                memcpy(guid.data4, &uuid->data[8], 8);
+                proto_tree_add_guid(tree, hf_sip_session_id_remote_uuid, tvb,
+                                    equals_offset + 1, line_end_offset - equals_offset - 1, &guid);
+            } else {
+                /* Display generic parameter */
+                proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,
+                                    line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+            }
+            g_byte_array_free(uuid, TRUE);
+        } else {
+            /* Display generic parameter */
+            proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,
+                                line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+        }
+    }
+
+    g_byte_array_free(bytes, TRUE);
+}
+
 /* Code to actually dissect the packets */
 static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2537,7 +2629,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     proto_tree *sip_tree  = NULL, *reqresp_tree      = NULL, *hdr_tree  = NULL,
         *message_body_tree = NULL, *cseq_tree = NULL,
         *via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
-        *route_tree       = NULL, *security_client_tree = NULL;
+        *route_tree       = NULL, *security_client_tree = NULL, *session_id_tree = NULL;
     guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0, contacts_expires_0 = 0, contacts_expires_unknown = 0;
     guint32 cseq_number = 0;
     guchar  cseq_number_set = 0;
@@ -3604,6 +3696,17 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             comma_offset = value_offset = comma_offset+1;
                         }
 
+                        break;
+                    case POS_SESSION_ID:
+                        if(hdr_tree) {
+                            sip_element_item = sip_proto_tree_add_string(hdr_tree,
+                                                            hf_header_array[hf_index], tvb,
+                                                            offset, next_offset - offset,
+                                                            value_offset, value_len);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+                            session_id_tree = proto_item_add_subtree(sip_element_item, ett_sip_session_id);
+                            dissect_sip_session_id_header(tvb, session_id_tree, value_offset, line_end_offset);
+                        }
                         break;
                     default :
                         /* Default case is to assume it's an FT_STRING field */
@@ -5469,7 +5572,7 @@ void proto_register_sip(void)
             "RFC 4028: Session-Expires Header", HFILL }
         },
         { &hf_header_array[POS_SESSION_ID],
-          { "Session-Id", "sip.Session-Id",
+          { "Session-ID", "sip.Session-ID",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5821,6 +5924,26 @@ void proto_register_sip(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_sip_session_id_sess_id,
+            { "sess-id", "sip.Session-ID.sess_id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_session_id_param,
+            { "param", "sip.Session-ID.param",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_session_id_local_uuid,
+            { "local-uuid", "sip.Session-ID.local_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_session_id_remote_uuid,
+            { "remote-uuid", "sip.Session-ID.remote_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_sip_continuation,
           { "Continuation data",  "sip.continuation",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -5866,7 +5989,8 @@ void proto_register_sip(void)
         &ett_sip_tc_uri,
         &ett_sip_to_uri,
         &ett_sip_from_uri,
-        &ett_sip_curi
+        &ett_sip_curi,
+        &ett_sip_session_id
     };
     static gint *ett_raw[] = {
         &ett_raw_text,
