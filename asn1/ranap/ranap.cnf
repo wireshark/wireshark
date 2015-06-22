@@ -322,10 +322,11 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		/* IPv6 */
 		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
 	}
-	if (tvb_len==20){
-		item = proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+	/* Length will be 25 if optional bearerId is present */
+	if ((tvb_len==20) || (tvb_len==25)) {
+		item = proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_nsap, parameter_tvb, 0, 20, ENC_NA);
 		nsap_tree = proto_item_add_subtree(item, ett_ranap_TransportLayerAddress_nsap);
-		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
+		dissect_nsap(parameter_tvb, 0, tvb_len, nsap_tree);
 	}
 
 #.FN_BODY GTP-TEI VAL_PTR = &parameter_tvb
