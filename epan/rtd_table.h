@@ -114,8 +114,8 @@ WS_DLL_PUBLIC register_rtd_t* get_rtd_table_by_name(const char* name);
 
 /** Free the RTD table data.
  *
- * @param srt Registered RTD
- * @param srt_array RTD table array
+ * @param rtd Registered RTD
+ * @param rtd_stat_table RTD table array
  * @param gui_callback optional callback from GUI
  * @param callback_data callback data needed for GUI
  */
@@ -139,7 +139,7 @@ WS_DLL_PUBLIC void rtd_table_iterate_tables(GFunc func, gpointer user_data);
 
 /** Return filter used for register_tap_listener
  *
- * @param srt Registered RTD
+ * @param rtd Registered RTD
  * @param opt_arg passed in opt_arg from GUI
  * @param filter returned filter string to be used for registering tap
  * @param err returned error if opt_arg string can't be successfully handled. Caller must free memory
@@ -148,7 +148,7 @@ WS_DLL_PUBLIC void rtd_table_get_filter(register_rtd_t* rtd, const char *opt_arg
 
 /** "Common" initialization function for all GUIs
  *
- * @param srt Registered RTD
+ * @param rtd Registered RTD
  * @param table RTD table
  * @param gui_callback optional GUI callback function
  * @param callback_data optional GUI callback data
@@ -158,7 +158,7 @@ WS_DLL_PUBLIC void rtd_table_dissector_init(register_rtd_t* rtd, rtd_stat_table*
 /** Helper function to get tap string name
  * Caller is responsible for freeing returned string
  *
- * @param srt Registered RTD
+ * @param rtd Registered RTD
  * @return RTD tap string
  */
 WS_DLL_PUBLIC gchar* rtd_table_get_tap_string(register_rtd_t* rtd);
