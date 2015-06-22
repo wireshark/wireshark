@@ -4280,7 +4280,7 @@ void proto_register_rsl(void)
       { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag+Length(0)", "gsm_abis_rsl.mobile_allocation_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_no_resources_required, { "0 No resources required(All other values are reserved)", "gsm_abis_rsl.no_resources_required", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_llsdu_ccch, { "Link Layer Service Data Unit (L3 Message)(CCCH)", "gsm_abis_rsl.llsdu.ccch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsl_llsdu_sacch, { "Link Layer Service Data Unit (L3 Message)(SACCH)", "gsm_abis_rsl.llsdu.sacch)", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_llsdu_sacch, { "Link Layer Service Data Unit (L3 Message)(SACCH)", "gsm_abis_rsl.llsdu.sacch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_llsdu, { "Link Layer Service Data Unit (L3 Message)", "gsm_abis_rsl.llsdu", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_rach_supplementary_information, { "Supplementary Information", "gsm_abis_rsl.supplementary_information", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_full_immediate_assign_info_field, { "Full Immediate Assign Info field", "gsm_abis_rsl.full_immediate_assign_info_field", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
