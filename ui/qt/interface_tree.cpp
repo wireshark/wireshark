@@ -32,6 +32,7 @@
 
 #include "qt_ui_utils.h"
 #include "sparkline_delegate.h"
+#include "stock_icon.h"
 #include "wireshark_application.h"
 
 #ifdef HAVE_EXTCAP
@@ -145,7 +146,7 @@ void InterfaceTree::display()
 #ifdef HAVE_LIBPCAP
     interface_t device;
 #if HAVE_EXTCAP
-    QIcon extcap_icon(":/icons/toolbar/16x16/x-capture-options.png");
+    QIcon extcap_icon(StockIcon("x-capture-options"));
 #endif
 
     setDisabled(false);
