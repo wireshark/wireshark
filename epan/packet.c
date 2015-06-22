@@ -119,11 +119,12 @@ destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
 static void
 destroy_heuristic_dissector_list(void *data)
 {
-	GSList **list = &((heur_dissector_list_t)data)->dissectors;
+	heur_dissector_list_t dissector_list = (heur_dissector_list_t)data;
+	GSList **list = &(dissector_list->dissectors);
 
 	g_slist_foreach(*list, destroy_heuristic_dissector_entry, NULL);
 	g_slist_free(*list);
-	*list = NULL;
+	g_slice_free(struct heur_dissector_list, dissector_list);
 }
 
 static void
