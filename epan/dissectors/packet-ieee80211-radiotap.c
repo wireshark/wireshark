@@ -1209,11 +1209,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				 * but used" for that purpose, according to
 				 * the radiotap.org page for that field.
 				 */
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-				if (rflags & 0x80)
-					phdr.short_gi = 1;
-				else
-					phdr.short_gi = 0;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+					if (rflags & 0x80)
+						phdr.short_gi = 1;
+					else
+						phdr.short_gi = 0;
+				}
 				break;
 
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT20:
@@ -1229,11 +1231,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				 * but used" for that purpose, according to
 				 * the radiotap.org page for that field.
 				 */
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-				if (rflags & 0x80)
-					phdr.short_gi = 1;
-				else
-					phdr.short_gi = 0;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+					if (rflags & 0x80)
+						phdr.short_gi = 1;
+					else
+						phdr.short_gi = 0;
+				}
 				break;
 			}
 			freq = tvb_get_letohs(tvb, offset + 4);
