@@ -501,37 +501,37 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        sub_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, tvb_length_remaining(tvb, offset), command);
+        sub_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, tvb_captured_length_remaining(tvb, offset), command);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
         if (command != CMD_UNKNOWN) {
-            sub_item = proto_tree_add_uint(main_tree, hf_response_for, tvb, offset, tvb_length_remaining(tvb, offset), command_frame_number);
+            sub_item = proto_tree_add_uint(main_tree, hf_response_for, tvb, offset, tvb_captured_length_remaining(tvb, offset), command_frame_number);
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
 
         switch (command) {
         case CMD_GET_FIRMWARE_VERSION:
             proto_tree_add_item(main_tree, hf_firmware_version, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
 
         case CMD_DIRECT_TRANSMIT:
             use_status_word = TRUE;
 
-            if (tvb_length_remaining(tvb, offset) > 2) {
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 2);
+            if (tvb_captured_length_remaining(tvb, offset) > 2) {
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2);
                 call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
-                offset += tvb_length_remaining(tvb, offset) - 2;
+                offset += tvb_captured_length_remaining(tvb, offset) - 2;
             }
             break;
 
 
         case CMD_READ_BINARY_BLOCKS:
             use_status_word = TRUE;
-            proto_tree_add_item(main_tree, hf_data, tvb, offset, tvb_length_remaining(tvb, offset) - 2, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset) - 2;
+            proto_tree_add_item(main_tree, hf_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
+            offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
 
         case CMD_READ_VALUE_BLOCK:
@@ -541,14 +541,14 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         case CMD_GET_DATA_UID:
             use_status_word = TRUE;
-            proto_tree_add_item(main_tree, hf_uid, tvb, offset, tvb_length_remaining(tvb, offset) - 2, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset) - 2;
+            proto_tree_add_item(main_tree, hf_uid, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
+            offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
 
         case CMD_GET_DATA_ATS:
             use_status_word = TRUE;
-            proto_tree_add_item(main_tree, hf_ats, tvb, offset, tvb_length_remaining(tvb, offset) - 2, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset) - 2;
+            proto_tree_add_item(main_tree, hf_ats, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, ENC_NA);
+            offset += tvb_captured_length_remaining(tvb, offset) - 2;
             break;
 
         case CMD_BI_COLOR_AND_BUZZER_LED_CONTROL:

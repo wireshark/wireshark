@@ -161,7 +161,7 @@ get_utp_version(tvbuff_t *tvb) {
 
   /* Simple heuristics inspired by code from utp.cpp */
 
-  len = tvb_length(tvb);
+  len = tvb_captured_length(tvb);
 
   /* Version 1? */
   if (len < V1_FIXED_HDR_SIZE) {
@@ -357,7 +357,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     offset = dissect_utp_extension(tvb, pinfo, sub_tree, offset, &extension_type);
 
-    len_tvb = tvb_length_remaining(tvb, offset);
+    len_tvb = tvb_captured_length_remaining(tvb, offset);
     if(len_tvb > 0)
       proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, len_tvb, ENC_NA);
 

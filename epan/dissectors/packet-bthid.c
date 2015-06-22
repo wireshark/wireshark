@@ -230,8 +230,8 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                Global Items are declared in the report descriptor, and in
                Boot Protocol Mode. Otherwise the field does not exist."
             */
-            if (((parameter >> 3) && tvb_length_remaining(tvb, offset) >= 3) ||
-                    (!(parameter >> 3) && tvb_length_remaining(tvb, offset) >= 1)) {
+            if (((parameter >> 3) && tvb_reported_length_remaining(tvb, offset) >= 3) ||
+                    (!(parameter >> 3) && tvb_reported_length_remaining(tvb, offset) >= 1)) {
                 proto_tree_add_item(bthid_tree, hf_bthid_report_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
             }
@@ -251,7 +251,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
             /* playload */
             proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
         case 0x06: /* GET_PROTOCOL */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
