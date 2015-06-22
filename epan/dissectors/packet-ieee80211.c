@@ -181,6 +181,7 @@ uat_wep_key_record_update_cb(void* r, char** err)
 {
   uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
   decryption_key_t* dk;
+  guint dk_type;
 
   if (rec->string == NULL) {
     *err = g_strdup("Key can't be blank");
@@ -191,7 +192,9 @@ uat_wep_key_record_update_cb(void* r, char** err)
   dk = parse_key_string(rec->string, rec->key);
 
   if (dk != NULL) {
-    switch (dk->type) {
+    dk_type = dk->type;
+    g_free(dk);
+    switch (dk_type) {
       case AIRPDCAP_KEY_TYPE_WEP:
       case AIRPDCAP_KEY_TYPE_WEP_40:
       case AIRPDCAP_KEY_TYPE_WEP_104:
@@ -18777,6 +18780,7 @@ set_airpdcap_keys(void)
           keys.nKeys += 1;
         }
       }
+      g_free(dk);
     }
   }
 
