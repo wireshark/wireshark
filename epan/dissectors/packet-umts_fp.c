@@ -619,11 +619,11 @@ static gboolean verify_control_frame_crc(tvbuff_t * tvb, packet_info * pinfo, pr
     guint8 crc = 0;
     guint8 * data = NULL;
     /* Get data. */
-    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
     /* Include only FT flag bit in CRC calculation. */
     data[0] = data[0] & 1;
     /* Calculate crc7 sum. */
-    crc = crc7update(0, data, tvb_length(tvb));
+    crc = crc7update(0, data, tvb_reported_length(tvb));
     crc = crc7finalize(crc); /* finalize crc */
     if (frame_crc == crc) {
         proto_item_append_text(pi, " [correct]");
@@ -3782,7 +3782,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
              * i.e. from bit 0 of the first byte of the header (the FT IE) to bit 0 of the last byte of the payload,
              * with the corresponding generator polynomial: G(D) = D7+D6+D2+1. See subclause 7.2.
              */
-            length =  tvb_length(tvb);
+            length =  tvb_reported_length(tvb);
             buf = (unsigned char *)tvb_memdup(wmem_packet_scope(), tvb, 0, length);
             buf[0] = 01;
 

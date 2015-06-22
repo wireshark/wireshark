@@ -776,7 +776,7 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, 2,
 	    get_tns_pdu_len, dissect_tns_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -887,7 +887,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			break;
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_tns(void)

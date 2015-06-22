@@ -968,7 +968,7 @@ static int
 dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	/* Make sure there are enough bytes... */
-	if (tvb_length(tvb) < 5)
+	if (tvb_captured_length(tvb) < 5)
 		return 0;
 	/* Check if the first two bytes are 0x90 0xEB: if not,
 	   then this is not a S5066 PDU or an unreassembled one.
@@ -979,7 +979,7 @@ dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		return 0;
 	}
 	tcp_dissect_pdus(tvb, pinfo, tree, s5066_desegment, s5066_header_size, get_s5066_pdu_len, dissect_s5066_common, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1048,7 +1048,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	/* Call sub dissector(s) */
 	reported_length = pdu_size - offset;
-	available_length = tvb_length(tvb) - offset;
+	available_length = tvb_captured_length(tvb) - offset;
 
 	next_tvb = tvb_new_subset(tvb, offset, MIN(available_length, reported_length), reported_length);
 
@@ -1056,7 +1056,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

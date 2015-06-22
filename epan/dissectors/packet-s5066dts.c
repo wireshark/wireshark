@@ -894,12 +894,12 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int dissect_s5066dts_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint b_length =  tvb_length(tvb);
+    guint b_length =  tvb_captured_length(tvb);
 
     /* Make sure there are enough bytes for a DPDU */
     if ( b_length < S5066_DPDU_FRAME_HEADER_LEN){
@@ -922,7 +922,7 @@ static int dissect_s5066dts_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static int dissect_s5066dts_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint b_length = tvb_length(tvb);
+    guint b_length = tvb_captured_length(tvb);
 
     /* Make sure there are enough bytes for a DPDU */
     if ( b_length < S5066_DPDU_FRAME_HEADER_LEN){

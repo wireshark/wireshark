@@ -891,7 +891,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	len = tvb_get_ntohl(tvb, 8);
 
-	if(len > (guint)tvb_length_remaining(tvb, 12) &&
+	if(len > (guint)tvb_captured_length_remaining(tvb, 12) &&
 	   pinfo->can_desegment && tacplus_preference_desegment) {
 		pinfo->desegment_offset = 0;
 		pinfo->desegment_len = len;

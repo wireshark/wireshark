@@ -1077,7 +1077,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					offset += padlen;
 				};
 				if ((offset-msg_size) > 0) {
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "Filler for MTU discovery: %d byte%c", tvb_length_remaining(tipc_tvb, offset), (padlen!=1?'s':0));
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "Filler for MTU discovery: %d byte%c", tvb_reported_length_remaining(tipc_tvb, offset), (padlen!=1?'s':0));
 				};
 			break;
 		case TIPCv2_CONN_MANAGER:
@@ -1969,7 +1969,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						pinfo,
 						link_sel,				/* ID for fragments belonging together - NEEDS IMPROVING? */
 						NULL,
-						tvb_length_remaining(tvb, offset),	/* fragment length - to the end */
+						tvb_captured_length_remaining(tvb, offset),	/* fragment length - to the end */
 						TRUE);					/* More fragments? */
 				if (msg_type == TIPC_FIRST_SEGMENT) {
 					reassembled_msg_length = tvb_get_ntohl(tvb, offset) & 0x1ffff;
@@ -2048,7 +2048,7 @@ dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 {
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, tipc_tcp_desegment, 4, get_tipc_pdu_len,
 			dissect_tipc, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -2079,7 +2079,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	user = (dword>>25) & 0xf;
 	msg_size = dword & 0x1ffff;
 
-	if ((guint32)tvb_length_remaining(tvb, offset) < msg_size) {
+	if ((guint32)tvb_reported_length_remaining(tvb, offset) < msg_size) {
 		tipc_tvb = tvb;
 	} else {
 		tipc_tvb = tvb_new_subset_length(tvb, offset, msg_size);
@@ -2167,7 +2167,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 	if (version == TIPCv2) {
 		dissect_tipc_v2(tipc_tvb, tipc_tree, pinfo, offset, user, msg_size, hdr_size, datatype_hdr);
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	/* Word 0-2 common for all messages */
@@ -2204,7 +2204,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		case TIPC_SEGMENTATION_MANAGER:
 		case TIPC_MSG_BUNDLER:
 			dissect_tipc_int_prot_msg(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size);
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		default:
 			break;
 	}
@@ -2282,7 +2282,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 													"TIPC_NAME_DISTRIBUTOR %u bytes User Data", (msg_size - hdr_size*4));
 				data_tvb = tvb_new_subset_remaining(tipc_tvb, offset);
 				dissect_tipc_name_dist_data(data_tvb, tipc_data_tree, 0);
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			} else {
 				/* Port name type / Connection level sequence number */
 				proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "Port name type / Connection level sequence number");
@@ -2319,7 +2319,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 	} /*if (hdr_size <= 5) */
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Register TIPC with Wireshark */

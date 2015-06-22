@@ -534,7 +534,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
         while (offset+2<length) {
             offset += 2;
             /* If the length passed is longer then the actual payload then this must be an incomplete packet. */
-            if (tvb_length_remaining(tvb, 4)<length) {
+            if (tvb_reported_length_remaining(tvb, 4)<length) {
                 proto_tree_add_expert(tree, pinfo, &ei_srvloc_malformed, tvb, offset, -1);
                 break;
             }
@@ -1406,7 +1406,7 @@ dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      */
     tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 5, get_srvloc_pdu_len,
                      dissect_srvloc, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Register protocol with Wireshark. */

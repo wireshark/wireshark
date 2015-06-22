@@ -605,7 +605,7 @@ static const usb_setup_dissector_table_t setup_dissectors[] = {
 
 /* Dissector for USB HUB class-specific control request as defined in
  * USB 2.0, Chapter 11.24.2 Class-specific Requests
- * Returns tvb_length(tvb) if a class specific dissector was found
+ * Returns tvb_captured_length(tvb) if a class specific dissector was found
  * and 0 otherwise.
  */
 static gint
@@ -656,7 +656,7 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

@@ -554,7 +554,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     /* TODO: Try use "offset" instead of hardcoded constants */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

@@ -1627,7 +1627,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
   parameter_tree = proto_tree_add_subtree(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_sua_parameter, &parameter_item, val_to_str_const(tag, v8_parameter_tag_values, "Unknown parameter"));
@@ -1906,7 +1906,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
   /* Extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   /* Create proto_tree stuff */
   /* If it's a known parameter it's present in the value_string.
@@ -2109,7 +2109,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
+  while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
     if (remaining_length >= length)

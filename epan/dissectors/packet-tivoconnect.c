@@ -67,7 +67,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         return 0;
     }
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     string = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, 0, length, ENC_ASCII);
 
     /* Make entries in Protocol column and Info column on summary display */

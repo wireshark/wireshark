@@ -67,7 +67,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	int         chan;
 
 	/* Check that there's enough data */
-	if (tvb_length(tvb) < 8)
+	if (tvb_captured_length(tvb) < 8)
 		return 0;
 
 	subaddress = tvb_get_ntohs(tvb, 0);

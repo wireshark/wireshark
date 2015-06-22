@@ -209,7 +209,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             ua_tap_info.expseq = tvb_get_ntohs(tvb, offset+0);
             ua_tap_info.sntseq = tvb_get_ntohs(tvb, offset+2);
             offset += 4;
-            datalen  = (tvb_length(tvb) - offset);
+            datalen  = (tvb_reported_length(tvb) - offset);
 
             if (noesip_enabled)
             {

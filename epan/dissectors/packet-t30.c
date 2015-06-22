@@ -958,7 +958,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     tr_fif = proto_item_add_subtree(it_fcf, ett_t30_fif);
 
-    frag_len = tvb_length_remaining(tvb, offset);
+    frag_len = tvb_reported_length_remaining(tvb, offset);
     if (t38)
         t38->t30_Facsimile_Control = octet;
 

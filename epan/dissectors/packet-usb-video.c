@@ -1472,7 +1472,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
 
-    bytes_available = tvb_length_remaining(tvb, offset);
+    bytes_available = tvb_captured_length_remaining(tvb, offset);
     desc_tvb = tvb_new_subset(tvb, 0, bytes_available, descriptor_len);
 
     if (descriptor_type == CS_ENDPOINT)
@@ -1547,7 +1547,7 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     offset += 26;
 
     /* UVC 1.1 fields */
-    if (tvb_length_remaining(tvb, offset) > 0)
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         static const int *framing_bits[] = {
             &hf_usb_vid_probe_framing_D[0],
@@ -2044,7 +2044,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     int  offset = 0;
 
     usb_conv_info   = (usb_conv_info_t *)data;
-    bytes_available = tvb_length_remaining(tvb, offset);
+    bytes_available = tvb_reported_length_remaining(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBVIDEO");
 

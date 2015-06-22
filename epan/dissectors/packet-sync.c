@@ -87,11 +87,11 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if ( type > 3 )
         return 0;
 
-    if ( type == 0 && tvb_length(tvb) < 18) {
+    if ( type == 0 && tvb_captured_length(tvb) < 18) {
         return 0;
-    } else if ( type == 1 && tvb_length(tvb) < 11 ) {
+    } else if ( type == 1 && tvb_captured_length(tvb) < 11 ) {
         return 0;
-    } else if ( type == 3 && tvb_length(tvb) < 19 ) {
+    } else if ( type == 3 && tvb_captured_length(tvb) < 19 ) {
         return 0;
     }
 
@@ -219,7 +219,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 break;
         }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 

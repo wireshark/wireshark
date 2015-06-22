@@ -622,7 +622,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    }
 
    tap_queue_packet(sametime_tap, pinfo, sinfo);
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 
@@ -672,7 +672,7 @@ get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
    /*      because tcp_dissect_pdus was called with 4 as a required "fixed length".  */
    /*        But newer variants of this protocol with a full encrypted network stream  */
    /*        may require a more sophisticated dissection logic here                    */
-   guint32 N = tvb_length_remaining(tvb, offset);
+   guint32 N = tvb_captured_length_remaining(tvb, offset);
 
    return (N < 4) ? N : tvb_get_ntohl(tvb, offset) + 4;
 }
@@ -689,7 +689,7 @@ dissect_sametime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
    tcp_dissect_pdus(tvb, pinfo, tree, global_sametime_reassemble_packets, 4,
          get_sametime_message_len, dissect_sametime_content, data);
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 

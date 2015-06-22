@@ -60,7 +60,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	gint		offset = 0, next_offset;
 	gint		len;
 	const char	*data_name;
-	int length = tvb_length(tvb);
+	int length = tvb_captured_length(tvb);
 
 	/* Check if this is actually xml
 	 * If there is less than 38 characters this is not XML

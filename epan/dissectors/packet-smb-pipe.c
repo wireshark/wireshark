@@ -2522,7 +2522,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 		} else {
 			proto_tree_add_item(data_tree, hf_data_no_descriptor, tvb, offset, -1, ENC_NA);
 		}
-		offset += tvb_length_remaining(tvb, offset);
+		offset += tvb_captured_length_remaining(tvb, offset);
 	} else {
 		/*
 		 * If we have an entry count, show all the entries,
@@ -3276,7 +3276,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
 	reported_len = tvb_reported_length(d_tvb);
-	if(smb_dcerpc_reassembly && tvb_length(d_tvb) >= reported_len){
+	if(smb_dcerpc_reassembly && tvb_captured_length(d_tvb) >= reported_len){
 		pinfo->can_desegment=2;
 	}
 
@@ -3520,7 +3520,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	 * anything.)
 	 */
 	if (sp_tvb != NULL)
-		sp_len = tvb_length(sp_tvb);
+		sp_len = tvb_captured_length(sp_tvb);
 	else
 		sp_len = 0;
 	if (tree) {
@@ -3533,7 +3533,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	/*
 	 * Do we have any setup words at all?
 	 */
-	if (s_tvb != NULL && tvb_length(s_tvb) != 0) {
+	if (s_tvb != NULL && tvb_reported_length(s_tvb) != 0) {
 		/*
 		 * Yes.  The first of them is the function.
 		 */

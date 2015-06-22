@@ -832,7 +832,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 seg_id = 0;
 
 	/* Basic length check */
-	if (tvb_length(tvb) < STANAG4607_MIN_LENGTH)
+	if (tvb_captured_length(tvb) < STANAG4607_MIN_LENGTH)
 		return;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4607");

@@ -234,7 +234,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             int pt_string_len;
             guint8* pt_str;
 
-            remaining_len = tvb_length_remaining(tvb, offset);
+            remaining_len = tvb_captured_length_remaining(tvb, offset);
             if (remaining_len == 0) {
                 /*
                     * "tvb_strneql()" failed because there was no

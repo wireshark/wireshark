@@ -898,7 +898,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             proto_tree_add_item(tree, (hash_info->command  == PING_COMMAND) ? hf_socks_ping_results : hf_socks_traceroute_results, tvb, offset, -1, ENC_NA);
 
             data = tvb_get_ptr(tvb, offset, -1);
-            dataend = data + tvb_length_remaining(tvb, offset);
+            dataend = data + tvb_captured_length_remaining(tvb, offset);
 
             while (data < dataend) {
 
