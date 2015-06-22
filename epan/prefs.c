@@ -1790,29 +1790,12 @@ capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
 static void
 capture_column_free_cb(pref_t* pref)
 {
-    GList    *clist = prefs.capture_columns;
-    gchar    *col_name;
-
-    while (clist) {
-        col_name = (gchar *)clist->data;
-        g_free(col_name);
-        clist = g_list_remove_link(clist, clist);
-    }
-    g_list_free(clist);
+    prefs_clear_string_list(prefs.capture_columns);
     prefs.capture_columns = NULL;
 
     if (pref->stashed_val.boolval == TRUE) {
-      GList *dlist;
-      gchar *col;
-
-      dlist = pref->default_val.list;
-      while (dlist != NULL) {
-        col = (gchar *)dlist->data;
-        g_free(col);
-        dlist = g_list_remove_link(dlist, dlist);
-      }
-      g_list_free(dlist);
-      dlist = NULL;
+      prefs_clear_string_list(pref->default_val.list);
+      pref->default_val.list = NULL;
     }
 }
 
@@ -1821,18 +1804,10 @@ capture_column_free_cb(pref_t* pref)
 static void
 capture_column_reset_cb(pref_t* pref)
 {
-    GList *vlist, *dlist;
-    gchar *vcol;
+    GList *vlist = NULL, *dlist;
 
     /* Free the column name strings and remove the links from *pref->varp.list */
-    vlist = *pref->varp.list;
-    while (vlist != NULL) {
-      vcol = (gchar *)vlist->data;
-      g_free(vcol);
-      vlist = g_list_remove_link(vlist, vlist);
-    }
-    g_list_free(vlist);
-    vlist = NULL;
+    prefs_clear_string_list(*pref->varp.list);
 
     for (dlist = pref->default_val.list; dlist != NULL; dlist = g_list_next(dlist)) {
       vlist = g_list_append(vlist, g_strdup((gchar *)dlist->data));
@@ -2710,12 +2685,9 @@ char *join_string_list(GList *sl)
 void
 prefs_clear_string_list(GList *sl)
 {
-    GList *l = sl;
-
-    while (l) {
-        g_free(l->data);
-        l = g_list_remove_link(l, l);
-    }
+    /* g_list_free_full() only exists since 2.28. */
+    g_list_foreach(sl, (GFunc)g_free, NULL);
+    g_list_free(sl);
 }
 
 /*
@@ -4868,9 +4840,10 @@ write_prefs(char **pf_path_return)
  * it's freed here
  */
 static void
-free_col_info(GList * list)
+free_col_info(GList *list)
 {
     fmt_data *cfmt;
+    GList *list_head = list;
 
     while (list != NULL) {
         cfmt = (fmt_data *)list->data;
@@ -4878,10 +4851,9 @@ free_col_info(GList * list)
         g_free(cfmt->title);
         g_free(cfmt->custom_field);
         g_free(cfmt);
-        list = g_list_remove_link(list, list);
+        list = g_list_next(list);
     }
-    g_list_free(list);
-    list = NULL;
+    g_list_free(list_head);
 }
 
 /*
