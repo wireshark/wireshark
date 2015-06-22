@@ -37,8 +37,6 @@
 void proto_register_bmp(void);
 void proto_reg_handoff_bmp(void);
 
-static dissector_handle_t data_handle;
-
 #define FRAME_HEADER_LEN                5
 
 /* BMP Common Header Message Types */
@@ -320,12 +318,13 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 i;
 
     guint32 stats_count = tvb_get_ntohl(tvb, offset);
+
     proto_tree_add_item(tree, hf_stats_count, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     for (i = 0; i < stats_count; i++) {
-        proto_item *ti = NULL;
-        proto_item *subtree = NULL;
+        proto_item *ti;
+        proto_item *subtree;
 
         ti = proto_tree_add_item(tree, hf_stat_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(ti, ett_bmp_stat_type);
@@ -362,8 +361,8 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint16 term_type;
     guint16 term_len;
 
-    proto_item *ti = NULL;
-    proto_item *subtree = NULL;
+    proto_item *ti;
+    proto_item *subtree;
 
     ti = proto_tree_add_item(tree, hf_term_types, tvb, offset, len, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_bmp_term_types);
@@ -415,9 +414,9 @@ static void
 dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type, guint16 len)
 {
     guint8  flags;
-    proto_item *item = NULL;
-    proto_item *ti = NULL;
-    proto_item *subtree = NULL;
+    proto_item *item;
+    proto_item *ti;
+    proto_item *subtree;
 
     static const int * peer_flags[] = {
         &hf_peer_flags_ipv6,
@@ -477,10 +476,9 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
             dissect_bmp_peer_up_notification(tvb, tree, pinfo, offset, flags);
             break;
         case BMP_MSG_TYPE_INIT:
-            break;
         case BMP_MSG_TYPE_TERM:
-            break;
         default:
+            DISSECTOR_ASSERT_NOT_REACHED();
             break;
     }
 }
@@ -504,20 +502,21 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
 {
     guint16 init_type;
     guint16 init_len;
-    proto_tree *pti = NULL;
-    proto_tree *parent_tree = NULL;
-    proto_tree *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_tree *pti;
+    proto_tree *parent_tree;
 
     pti = proto_tree_add_item(tree, hf_init_types, tvb, offset, len, ENC_NA);
     parent_tree = proto_item_add_subtree(pti, ett_bmp_init_types);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree *ti;
+        proto_tree *subtree;
+
         init_type = tvb_get_ntohs(tvb, offset);
-        proto_item_append_text(parent_tree, ", Type %s",
+        proto_item_append_text(pti, ", Type %s",
                 val_to_str(init_type, init_typevals, "Unknown (0x%02x)"));
 
-        ti = proto_tree_add_item(parent_tree, hf_init_type, tvb, offset, 2, ENC_NA);
+        ti = proto_tree_add_item(parent_tree, hf_init_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(ti, ett_bmp_init_type);
         offset += 2;
 
@@ -546,7 +545,7 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
 static guint
 get_bmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (guint)tvb_get_ntohl(tvb, offset + 1);
+    return tvb_get_ntohl(tvb, offset + 1);
 }
 
 static int
@@ -555,14 +554,15 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     int         offset = 0;
     guint8      bmp_type;
     guint16     len;
-    proto_item  *ti = NULL;
-    proto_item  *bmp_tree = NULL;
+    gint        arg;
+    proto_item  *ti;
+    proto_item  *bmp_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BMP");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     bmp_type = tvb_get_guint8(tvb, 5);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BMP");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
             val_to_str(bmp_type, bmp_typevals, "Unknown (0x%02x)"));
 
@@ -572,27 +572,29 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     switch (bmp_type) {
         case BMP_MSG_TYPE_ROUTE_MONITORING:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_route_monitoring);
+            arg = ett_bmp_route_monitoring;
             break;
         case BMP_MSG_TYPE_STAT_REPORT:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_stat_report);
+            arg = ett_bmp_stat_report;
             break;
         case BMP_MSG_TYPE_PEER_DOWN:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_peer_down);
+            arg = ett_bmp_peer_down;
             break;
         case BMP_MSG_TYPE_PEER_UP:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_peer_up);
+            arg = ett_bmp_peer_up;
             break;
         case BMP_MSG_TYPE_INIT:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_init);
+            arg = ett_bmp_init;
             break;
         case BMP_MSG_TYPE_TERM:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp_term);
+            arg = ett_bmp_term;
             break;
         default:
-            bmp_tree = proto_item_add_subtree(ti, ett_bmp);
+            arg = ett_bmp;
             break;
     }
+
+    bmp_tree = proto_item_add_subtree(ti, arg);
 
     proto_tree_add_item(bmp_tree, hf_bmp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -608,14 +610,8 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             dissect_bmp_init(tvb, bmp_tree, pinfo, offset, bmp_type, len);
             break;
         case BMP_MSG_TYPE_ROUTE_MONITORING:
-            dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
-            break;
         case BMP_MSG_TYPE_STAT_REPORT:
-            dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
-            break;
         case BMP_MSG_TYPE_PEER_DOWN:
-            dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
-            break;
         case BMP_MSG_TYPE_PEER_UP:
             dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
             break;
@@ -815,8 +811,6 @@ proto_reg_handoff_bmp(void)
 
     bmp_handle = new_create_dissector_handle(dissect_bmp, proto_bmp);
     dissector_add_for_decode_as("tcp.port", bmp_handle);
-    data_handle = find_dissector("data");
-
     dissector_bgp = find_dissector("bgp");
 }
 /*
