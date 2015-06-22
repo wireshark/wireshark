@@ -13973,6 +13973,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
   ti_tag = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_BIG_ENDIAN);
   ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
+  if (tag_len > (guint)tvb_reported_length_remaining(tvb, offset)) {
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
+                           "Tag Length is longer than remaining payload");
+  }
 
   switch (tag_no) {
   case TAG_SSID:
