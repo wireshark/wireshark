@@ -1840,7 +1840,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
         guint8       al_2bit, al_ptflags, al_bi_val, al_tcc_code, da_len;
         gint16       al_val_int16;
         guint16      al_val_uint16, al_ctlobj_stat;
-        guint16      al_relms, al_filename_offs, al_filename_len, al_file_ctrl_mode;
+        guint16      al_relms, al_filename_len, al_file_ctrl_mode;
         gint32       al_val_int32;
         guint32      al_val_uint32, file_data_size;
         nstime_t     al_reltime, al_abstime;
@@ -2671,7 +2671,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
           case AL_OBJ_FILE_CMD: /* File Control - File Command (Obj:70, Var:03) */
             /* File name offset and length */
-            al_filename_offs = tvb_get_letohs(tvb, data_pos);
             proto_tree_add_item(point_tree, hf_dnp3_al_file_string_offset, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
             al_filename_len = tvb_get_letohs(tvb, data_pos);
@@ -2732,9 +2731,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             /* Filename */
             if (al_filename_len > 0) {
-              const gchar *al_filename;
-
-              al_filename = tvb_get_string_enc(wmem_packet_scope(), tvb, data_pos, al_filename_len, ENC_ASCII);
               proto_tree_add_item(point_tree, hf_dnp3_al_file_name, tvb, data_pos, al_filename_len, ENC_ASCII|ENC_NA);
             }
             data_pos += al_filename_len;
