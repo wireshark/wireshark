@@ -1102,6 +1102,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_giop_user_module@Base 1.9.1
  register_heur_dissector_list@Base 1.9.1
  register_init_routine@Base 1.9.1
+ register_cleanup_routine@Base 1.99.8
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8

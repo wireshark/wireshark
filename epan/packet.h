@@ -563,11 +563,23 @@ extern void dissect_cleanup(void);
  */
 WS_DLL_PUBLIC void set_actual_length(tvbuff_t *tvb, const guint specified_len);
 
-/* Allow protocols to register "init" routines, which are called before
-   we make a pass through a capture file and dissect all its packets
-   (e.g., when we read in a new capture file, or run a "filter packets"
-   or "colorize packets" pass over the current capture file). */
+/**
+ * Allow protocols to register "init" routines, which are called before
+ * we make a pass through a capture file and dissect all its packets
+ * (e.g., when we read in a new capture file, or run a "filter packets"
+ * or "colorize packets" pass over the current capture file or when the
+ * preferences are changed).
+ */
 WS_DLL_PUBLIC void register_init_routine(void (*func)(void));
+
+/**
+ * Allows protocols to register "cleanup" routines which are called
+ * after closing a capture file (or when preferences are changed, in
+ * that case these routines are called before the init routines are
+ * executed). It can be used to release resources that are allocated in
+ * register_init_routine.
+ */
+WS_DLL_PUBLIC void register_cleanup_routine(void (*func)(void));
 
 /* Initialize all data structures used for dissection. */
 void init_dissection(void);

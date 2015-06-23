@@ -193,11 +193,11 @@ set_actual_length(tvbuff_t *tvb, const guint specified_len)
 	}
 }
 
-/* Allow protocols to register "init" routines, which are called before
-   we make a pass through a capture file and dissect all its packets
-   (e.g., when we read in a new capture file, or run a "filter packets"
-   or "colorize packets" pass over the current capture file). */
+/* List of routines that are called before we make a pass through a capture file
+ * and dissect all its packets. See register_init_routine and
+ * register_cleanup_routine in packet.h */
 static GSList *init_routines;
+static GSList *cleanup_routines;
 
 void
 register_init_routine(void (*func)(void))
@@ -205,24 +205,22 @@ register_init_routine(void (*func)(void))
 	init_routines = g_slist_prepend(init_routines, (gpointer)func);
 }
 
+void
+register_cleanup_routine(void (*func)(void))
+{
+	cleanup_routines = g_slist_prepend(cleanup_routines, (gpointer)func);
+}
+
 typedef void (*void_func_t)(void);
 
 /* Initialize all data structures used for dissection. */
 static void
-call_init_routine(gpointer routine, gpointer dummy _U_)
+call_routine(gpointer routine, gpointer dummy _U_)
 {
 	void_func_t func = (void_func_t)routine;
 	(*func)();
 }
 
-/*
- * XXX - for now, these are the same; the "init" routines free whatever
- * stuff is left over from any previous dissection, and then initialize
- * their tables.
- *
- * We should probably split that into "init" and "cleanup" routines, for
- * cleanliness' sake.
- */
 void
 init_dissection(void)
 {
@@ -241,7 +239,7 @@ init_dissection(void)
 	epan_circuit_init();
 
 	/* Initialize protocol-specific variables. */
-	g_slist_foreach(init_routines, &call_init_routine, NULL);
+	g_slist_foreach(init_routines, &call_routine, NULL);
 
 	/* Initialize the stream-handling tables */
 	stream_init();
@@ -261,9 +259,8 @@ cleanup_dissection(void)
 	/* Cleanup the table of circuits. */
 	epan_circuit_cleanup();
 
-	/* TODO: Introduce cleanup_routines */
 	/* Cleanup protocol-specific variables. */
-	g_slist_foreach(init_routines, &call_init_routine, NULL);
+	g_slist_foreach(cleanup_routines, &call_routine, NULL);
 
 	/* Cleanup the stream-handling tables */
 	stream_cleanup();
