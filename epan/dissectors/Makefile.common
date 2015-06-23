@@ -208,7 +208,6 @@ CORBA_IDL_DISSECTOR_SRC =
 # asn2wrs-generated ASN.1 dissectors with warnings.
 #
 DIRTY_ASN1_DISSECTOR_SRC = \
-	packet-p1.c	\
 	packet-snmp.c	\
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
