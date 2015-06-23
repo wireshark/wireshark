@@ -744,6 +744,8 @@ void MainWindow::startCapture() {
         return;
     }
 
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
+
     // Ideally we should have disabled the start capture
     // toolbar buttons and menu items. This may not be the
     // case, e.g. with QtMacExtras.
@@ -3008,8 +3010,6 @@ void MainWindow::on_actionCaptureStart_triggered()
 //    if (!success)
 //      return;   /* error in options dialog */
 //  }
-
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
 
 #ifdef HAVE_LIBPCAP
     if (global_capture_opts.num_selected == 0) {
