@@ -2859,7 +2859,7 @@ static int dissect_kademlia_udp_compressed_message(guint8 msg_type,
     if (tvbraw) {
         guint32 raw_length;
 
-        raw_length = tvb_length( tvbraw );
+        raw_length = tvb_captured_length( tvbraw );
         add_new_data_source(pinfo, tvbraw, "Decompressed Data");
 
         dissect_kademlia_udp_message( msg_type, tvbraw, pinfo, 0, raw_length, tree );
@@ -2971,12 +2971,12 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                      offset+1, msg_len-1, ENC_NA);
             emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
             add_new_data_source(pinfo, tvbraw, "Decompressed Data");
-            (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
+            (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_captured_length(tvbraw), emule_zlib_tree);
           }
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -3046,7 +3046,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                     "%s (0x%02x)", message_name, msg_type);
 
         offset += EDONKEY_UDP_HEADER_LENGTH;
-        remainingLength = tvb_length_remaining( tvb, offset );
+        remainingLength = tvb_captured_length_remaining( tvb, offset );
 
         if (remainingLength > 0) {
             switch (protocol) {

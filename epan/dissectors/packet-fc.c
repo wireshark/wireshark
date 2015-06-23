@@ -1230,7 +1230,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
        return 0;
 
     dissect_fc_helper (tvb, pinfo, tree, FALSE, fc_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1242,7 +1242,7 @@ dissect_fc_wtap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     fc_data.sof_eof = 0;
 
     dissect_fc_helper (tvb, pinfo, tree, FALSE, &fc_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1254,7 +1254,7 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
        return 0;
 
     dissect_fc_helper (tvb, pinfo, tree, TRUE, fc_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void

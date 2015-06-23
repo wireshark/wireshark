@@ -400,7 +400,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
 static gboolean is_handshake(tvbuff_t *tvb, int offset) {
   guint32 len = tvb_get_ntohs(tvb, offset);
   guint8 tag = tvb_get_guint8(tvb, offset + 2);
-  return ((len > 0) && strchr("nras", tag) && (len == (guint32)tvb_length_remaining(tvb, offset + 2)));
+  return ((len > 0) && strchr("nras", tag) && (len == (guint32)tvb_captured_length_remaining(tvb, offset + 2)));
 }
 
 /*--- dissect_erldp_handshake -------------------------------------------------*/
@@ -435,7 +435,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree_add_item(tree, hf_erldp_challenge, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       }
-      str_len = tvb_length_remaining(tvb, offset);
+      str_len = tvb_captured_length_remaining(tvb, offset);
       str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, str_len, ENC_ASCII);
       proto_tree_add_item(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
@@ -456,7 +456,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       break;
 
     case 's' :
-      str_len = tvb_length_remaining(tvb, offset);
+      str_len = tvb_captured_length_remaining(tvb, offset);
       str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, str_len, ENC_ASCII);
       proto_tree_add_item(tree, hf_erldp_status, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "SEND_STATUS %s", str);
@@ -480,7 +480,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   if (is_handshake(tvb, 0)) {
     dissect_erldp_handshake(tvb, pinfo, erldp_tree);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
   }
 
   offset = 0;
@@ -509,7 +509,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str(ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
       }
       offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, erldp_tree);
-      if (tvb_length_remaining(tvb, offset) > 0)
+      if (tvb_reported_length_remaining(tvb, offset) > 0)
         dissect_etf_type("Message", pinfo, tvb, offset, erldp_tree);
       break;
 
@@ -519,7 +519,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       col_set_str(pinfo->cinfo, COL_INFO, "unknown header format");
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /*--- get_erldp_pdu_len -------------------------------------------------*/
@@ -540,7 +540,7 @@ dissect_erldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
                     4,               /* fixed-length part of the PDU */
                    get_erldp_pdu_len,  /* routine to get the length of the PDU */
                    dissect_erldp_pdu, data); /* routine to dissect a PDU */
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_erldp ----------------------------------------------*/

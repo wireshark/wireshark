@@ -86,7 +86,7 @@ is_esio_pdu(tvbuff_t *tvb)
        /* we need at least 8 bytes to determine whether this is
           Ether-S-I/O or not*/
        /* minimal length is 20 bytes*/
-       if (tvb_length(tvb) < 20) {
+       if (tvb_captured_length(tvb) < 20) {
               return FALSE;
        }
        /* First four bytes must be "ESIO"*/
@@ -268,7 +268,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               break;
        } /* switch() */
 
-       return tvb_length(tvb);
+       return tvb_captured_length(tvb);
 /*End of dissect_sbus*/
 }
 

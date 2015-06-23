@@ -989,7 +989,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * If we have the entire ESP packet available, check the checksum.
 	 */
-	if (tvb_length(tvb) >= data_length) {
+	if (tvb_captured_length(tvb) >= data_length) {
 		/* Checksum from version to null tlv */
 		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
 		computed_checksum = in_cksum(&cksum_vec[0], 1);

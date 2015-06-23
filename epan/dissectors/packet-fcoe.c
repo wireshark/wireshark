@@ -164,7 +164,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;
     eof_offset = crc_offset + 4;
-    bytes_remaining = tvb_length_remaining(tvb, header_len);
+    bytes_remaining = tvb_captured_length_remaining(tvb, header_len);
     if (bytes_remaining > frame_len)
         bytes_remaining = frame_len;        /* backing length */
     next_tvb = tvb_new_subset(tvb, header_len, bytes_remaining, frame_len);
@@ -228,7 +228,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    crc, crc_computed);
         }
         proto_tree_set_appendix(fcoe_tree, tvb, crc_offset,
-                                tvb_length_remaining (tvb, crc_offset));
+                                tvb_captured_length_remaining (tvb, crc_offset));
     } else {
         item = proto_tree_add_uint_format_value(fcoe_tree, hf_fcoe_crc, tvb, crc_offset, 0,
                                    0, "CRC: [missing]");

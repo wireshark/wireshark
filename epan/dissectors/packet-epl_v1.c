@@ -343,7 +343,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_tree *epl_v1_tree=NULL;
 
 
-	if(tvb_length(tvb) < 3){
+	if(tvb_captured_length(tvb) < 3){
 		/* Not enough data for an EPL_V1 header; don't try to interpret it */
 		return FALSE;
 	}

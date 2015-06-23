@@ -315,7 +315,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       }
    }
 
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 static guint
@@ -328,7 +328,7 @@ static int
 dissect_fcgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_fcgi_record_len, dissect_fcgi_record, data);
-   return tvb_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 void
