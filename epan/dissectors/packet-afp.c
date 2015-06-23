@@ -3949,32 +3949,35 @@ static gint
 dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree *sub_tree;
-	gint length = 0, orig_offset = offset;
-	int remain;
+	guint len_field = 0;
+	gint length;
+	gint remain;
 
 	offset = decode_attr_bitmap(tree, tvb, offset);
 
-	proto_tree_add_item_ret_uint(tree, hf_afp_extattr_reply_size, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
+	proto_tree_add_item_ret_uint(tree, hf_afp_extattr_reply_size,
+			tvb, offset, 4, ENC_BIG_ENDIAN, &len_field);
 	offset += 4;
+	if (len_field > G_MAXINT) {
+		/* XXX - add expert info */
+		return offset;
+	}
 
 	/* If reply_size was 0 on request, server only reports the size of
 	   the entries without actually adding any entries */
-	remain =  tvb_reported_length_remaining(tvb, offset);
-	if (remain >= length) {
+	remain = tvb_reported_length_remaining(tvb, offset);
+	if (remain < (gint)len_field)
+		return offset;
 
-		sub_tree = proto_tree_add_subtree(tree, tvb, offset, remain,
-								ett_afp_extattr_names, NULL, "Attributes");
-		while ( remain > 0) {
-			length = tvb_strsize(tvb, offset);
-			proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, ENC_UTF_8|ENC_NA);
-			offset += length;
-			remain -= length;
-		}
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, remain,
+			ett_afp_extattr_names, NULL, "Attributes");
+	while (remain > 0) {
+		length = (gint)tvb_strsize(tvb, offset);
 
+		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, ENC_UTF_8|ENC_NA);
+		offset += length;
+		remain -= length;
 	}
-
-	if (offset <= orig_offset)
-		THROW(ReportedBoundsError);
 
 	return offset;
 }
