@@ -1169,7 +1169,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Construct a tvbuff containing the PPP packet.
 	 */
-	length = tvb_length_remaining(tvb, 6);
+	length = tvb_captured_length_remaining(tvb, 6);
 	reported_length = tvb_reported_length_remaining(tvb, 6);
 	DISSECTOR_ASSERT(length >= 0);
 	DISSECTOR_ASSERT(reported_length >= 0);

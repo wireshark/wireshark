@@ -1098,7 +1098,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     guint16  command_code;
 
     /* Make sure we have enough actual data to do the heuristics checks */
-    if(tvb_length(tvb) < 12 ) {
+    if(tvb_captured_length(tvb) < 12 ) {
         return 0;
     }
     /* Check some bytes to see if it's OMRON */

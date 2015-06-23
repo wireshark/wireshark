@@ -376,11 +376,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * Validate if it is really a PNRP Packet
      *----------------------------------------*/
     /* Check that there's enough data */
-    /* XXX: ISTR that tvb_length should be used when     */
-    /*      initially checking for a valid packet for a  */
-    /*      new style dissector.                         */
-    /*      ToDo: confirm                                */
-    data_length = tvb_reported_length(tvb);
+    data_length = tvb_captured_length(tvb);
 
     /* Shortest Message is ACK -> 12 Bytes for Header plus 8 Bytes for Data */
     if (data_length <  12+8 )

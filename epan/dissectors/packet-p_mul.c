@@ -908,7 +908,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   /* Checksum */
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
-  len = tvb_length (tvb);
+  len = tvb_captured_length (tvb);
   value = (guint8 *)tvb_memdup (wmem_packet_scope(), tvb, 0, len);
   if (len >= offset+2) {
     value[offset] = 0;
@@ -1066,7 +1066,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   case Data_PDU:
     /* Fragment of Data (variable length) */
-    data_len = tvb_length_remaining (tvb, offset);
+    data_len = tvb_captured_length_remaining (tvb, offset);
     proto_tree_add_none_format (p_mul_tree, hf_data_fragment, tvb, offset,
                                 data_len, "Fragment %d of Data (%d byte%s)",
                                 seq_no, data_len,
@@ -1180,7 +1180,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
     proto_item_append_text (ti, ", Count of Ack: %u", count);
 
-    if (tvb_length_remaining (tvb, offset) >= 8) {
+    if (tvb_reported_length_remaining (tvb, offset) >= 8) {
       /* Timestamp Option (in units of 100ms) */
       guint64 timestamp;
 
@@ -1309,7 +1309,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_append_text (len_en, " (incorrect, should be: %d)",
                             offset + data_len);
     expert_add_info(pinfo, len_en, &ei_length);
-  } else if ((len = tvb_length_remaining (tvb, pdu_length)) > 0) {
+  } else if ((len = tvb_reported_length_remaining (tvb, pdu_length)) > 0) {
     proto_item_append_text (len_en, " (more data in packet: %d)", len);
     expert_add_info(pinfo, len_en, &ei_more_data);
   }

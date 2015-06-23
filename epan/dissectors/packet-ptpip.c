@@ -552,7 +552,7 @@ int dissect_ptpIP (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     guint32 pktType;
 
     /* Check that there's enough data */
-    if ( tvb_length_remaining(tvb, offset) < 8 )    /* ptp-photo smallest packet size is 8 */
+    if ( tvb_captured_length_remaining(tvb, offset) < 8 )    /* ptp-photo smallest packet size is 8 */
         return (0);
 
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "PTP/IP");

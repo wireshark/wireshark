@@ -63,7 +63,7 @@ dissect_pulse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     const char* magic_str;
     guint little_endian;
 
-    if (tvb_length(tvb) < 4)
+    if (tvb_captured_length(tvb) < 4)
         return 0;
 
     /* Try to read MAGIC in both endians */

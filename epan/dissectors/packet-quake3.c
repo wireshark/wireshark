@@ -251,7 +251,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 		\ with "<DATA>". */
 		if (text_item) {
 			/* first correct the length until the end of the packet */
-			proto_item_set_len(text_item, tvb_length_remaining(tvb, offset));
+			proto_item_set_len(text_item, tvb_captured_length_remaining(tvb, offset));
 			/* then replace the text */
 			proto_item_set_text(text_item, "Text: getserversResponse<DATA>");
 		}

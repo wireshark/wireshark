@@ -4465,7 +4465,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    length = tvb_length_remaining(tvb,offset);
+    length = tvb_captured_length_remaining(tvb,offset);
 
 try_again:
     /* create display subtree for the protocol */
@@ -4498,7 +4498,7 @@ try_again:
                 if (udvm_print_detail_level>2)
                     proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
                         "              Illegal escape code");
-                offset = offset + tvb_length_remaining(tvb,offset);
+                offset += tvb_captured_length_remaining(tvb,offset);
                 return offset;
             }
             if ( octet == 0xff) {
@@ -4818,7 +4818,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             if ( decomp_tvb ) {
                 proto_item *ti;
                 guint32 compression_ratio =
-                    (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+                    (guint32)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
 
                 /* Show compression ratio achieved */
                 ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
@@ -4951,7 +4951,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 if ( decomp_tvb ) {
                     proto_item *ti;
                     guint32 compression_ratio =
-                        (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+                        (guint32)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
 
                     /* Show compression ratio achieved */
                     ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,

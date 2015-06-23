@@ -252,7 +252,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
       proto_tree_add_item(openvpn_tree, hf_openvpn_hmac, tvb, offset, tls_auth_hmac_size, ENC_NA);
       offset += tls_auth_hmac_size;
 
-      if (tvb_length_remaining(tvb, offset) >= 8) {
+      if (tvb_reported_length_remaining(tvb, offset) >= 8) {
         proto_tree_add_item(openvpn_tree, hf_openvpn_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
@@ -263,7 +263,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
       }
     }
 
-    if (tvb_length_remaining(tvb, offset) >= 1) {
+    if (tvb_reported_length_remaining(tvb, offset) >= 1) {
       /* read P_ACK packet-id array length */
       gint pid_arraylength = tvb_get_guint8(tvb, offset);
       gint i;
@@ -278,7 +278,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
           offset += 4;
         }
 
-        if (tvb_length_remaining(tvb, offset) >= 8) {
+        if (tvb_reported_length_remaining(tvb, offset) >= 8) {
           proto_tree_add_item(openvpn_tree, hf_openvpn_rsessionid, tvb, offset, 8, ENC_BIG_ENDIAN);
           offset += 8;
         }
@@ -288,7 +288,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     /* if we have a P_CONTROL packet */
     if (openvpn_opcode != P_ACK_V1) {
       /* read Message Packet-ID */
-      if (tvb_length_remaining(tvb, offset) >= 4) {
+      if (tvb_reported_length_remaining(tvb, offset) >= 4) {
         msg_mpid = tvb_get_bits32(tvb, offset*8, 32, ENC_BIG_ENDIAN);
         proto_tree_add_item(openvpn_tree, hf_openvpn_mpid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
@@ -297,7 +297,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   }
 
   /* if we have more data left, determine what to do */
-  msg_length_remaining = tvb_length_remaining(tvb, offset);
+  msg_length_remaining = tvb_reported_length_remaining(tvb, offset);
 
   if (msg_length_remaining == 0) {
     return tvb_captured_length(tvb);
@@ -307,7 +307,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     proto_tree *data_tree;
     data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
                               ett_openvpn_data, NULL, "Data (%d bytes)",
-                              tvb_length_remaining(tvb, offset));
+                              tvb_captured_length_remaining(tvb, offset));
 
     proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, -1, ENC_NA);
     return tvb_captured_length(tvb);
@@ -346,7 +346,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     proto_tree *data_tree;
     data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
                               ett_openvpn_data, NULL, "Message fragment (%d bytes)",
-                              tvb_length_remaining(tvb, offset));
+                              tvb_captured_length_remaining(tvb, offset));
 
     proto_tree_add_item(data_tree, hf_openvpn_fragment_bytes, tvb, offset, -1, ENC_NA);
     }

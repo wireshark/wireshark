@@ -475,7 +475,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static gboolean
 dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	if (tvb_length(tvb) < 4) {
+	if (tvb_captured_length(tvb) < 4) {
 		return FALSE;
 	}
 	if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {

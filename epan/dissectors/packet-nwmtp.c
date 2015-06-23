@@ -104,7 +104,7 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		next_tvb = tvb_new_subset_length(tvb, offset + 12, len);
-		if (tvb_length(next_tvb) > 0)
+		if (tvb_reported_length(next_tvb) > 0)
 			call_dissector(mtp_handle, next_tvb, pinfo, tree);
 		/* Check for overflows, which probably can't happen, but better
 		 * safe than sorry. See

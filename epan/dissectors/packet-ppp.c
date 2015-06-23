@@ -1676,7 +1676,7 @@ static const ip_tcp_opt ipv6cp_opts[] = {
 static guint16
 fcs16(tvbuff_t *tvbuff)
 {
-    guint len = tvb_length(tvbuff) - 2;
+    guint len = tvb_reported_length(tvbuff) - 2;
 
     /* Check for Invalid Length */
     if (len == 0)
@@ -1692,7 +1692,7 @@ fcs16(tvbuff_t *tvbuff)
 static guint32
 fcs32(tvbuff_t *tvbuff)
 {
-    guint len = tvb_length(tvbuff) - 4;
+    guint len = tvb_reported_length(tvbuff) - 4;
 
     /* Check for invalid Length */
     if (len == 0)
@@ -1722,7 +1722,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
         /*
          * Do we have the entire packet, and does it include a 2-byte FCS?
          */
-        len = tvb_length_remaining(tvb, proto_offset);
+        len = tvb_captured_length_remaining(tvb, proto_offset);
         reported_len = tvb_reported_length_remaining(tvb, proto_offset);
         if (reported_len < 2 || len < 0) {
             /*
@@ -1774,7 +1774,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
         /*
          * Do we have the entire packet, and does it include a 4-byte FCS?
          */
-        len = tvb_length_remaining(tvb, proto_offset);
+        len = tvb_captured_length_remaining(tvb, proto_offset);
         reported_len = tvb_reported_length_remaining(tvb, proto_offset);
         if (reported_len < 4) {
             /*
@@ -4164,7 +4164,7 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (!(flags & BCP_IS_BCONTROL)) {
-        captured_length = tvb_length_remaining(tvb, offset);
+        captured_length = tvb_captured_length_remaining(tvb, offset);
         reported_length = tvb_reported_length_remaining(tvb, offset);
         pad_length = flags & BCP_PADS_MASK;
         if (reported_length >= pad_length) {
@@ -4935,7 +4935,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
         proto_tree_add_item(bs_tree, hf_ppp_hdlc_fragment, tvb, offset, -1, ENC_NA);
         offset++;
-        length = tvb_length_remaining(tvb,offset);
+        length = tvb_captured_length_remaining(tvb,offset);
         ppp_tvb = remove_escape_chars(tvb, pinfo, offset,length);
         if (ppp_tvb != NULL) {
             add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
@@ -4973,7 +4973,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
             proto_tree_add_item(bs_tree, hf_ppp_hdlc_fragment, tvb, offset, -1, ENC_NA);
             offset++;
-            length = tvb_length_remaining(tvb, offset);
+            length = tvb_captured_length_remaining(tvb, offset);
             ppp_tvb = remove_escape_chars(tvb, pinfo, offset, length);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");

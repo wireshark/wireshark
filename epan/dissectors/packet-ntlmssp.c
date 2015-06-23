@@ -1917,7 +1917,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   guint32               ntlm_signature_size = 8;
   guint32               ntlm_seq_size       = 4;
 
-  length = tvb_length (tvb);
+  length = tvb_captured_length (tvb);
   /* signature + seq + real payload */
   encrypted_block_length = length - ntlm_magic_size;
 
@@ -2349,7 +2349,7 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
 
   /* the magic ntlm is the identifier of a NTLMSSP packet that's 00 00 00 01
    */
-  encrypted_block_length = tvb_length (tvb);
+  encrypted_block_length = tvb_captured_length (tvb);
   /* signature + seq + real payload */
 
   /* Setup a new tree for the NTLMSSP payload */
@@ -2402,7 +2402,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   guint32               verifier_length;
   guint32               encrypted_block_length;
 
-  verifier_length = tvb_length (tvb);
+  verifier_length = tvb_captured_length (tvb);
   encrypted_block_length = verifier_length - 4;
 
   if (encrypted_block_length < 12) {
@@ -2616,7 +2616,7 @@ wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   dissect_ntlmssp(auth_tvb, pinfo, tree);
 
-  return tvb_length_remaining(tvb, offset);
+  return tvb_captured_length_remaining(tvb, offset);
 }
 
 static int

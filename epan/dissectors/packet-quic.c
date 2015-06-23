@@ -106,7 +106,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 puflags, len_cid, len_seq;
     guint64 cid, seq;
 
-    if (tvb_length(tvb) < QUIC_MIN_LENGTH)
+    if (tvb_captured_length(tvb) < QUIC_MIN_LENGTH)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
