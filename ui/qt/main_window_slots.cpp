@@ -686,6 +686,8 @@ void MainWindow::captureFileClosed() {
 
     main_ui_->statusBar->popFileStatus();
 
+    main_ui_->mainStack->setCurrentWidget(main_welcome_);
+
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
 }
