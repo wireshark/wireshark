@@ -46,7 +46,7 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_
 	}
 
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NAME_NameLength, &len);
-	bc = tvb_length_remaining(tvb, offset);
+	bc = tvb_captured_length_remaining(tvb, offset);
 	dn = get_unicode_or_ascii_string(tvb, &offset,
 			TRUE, &dn_len, TRUE, TRUE, &bc);
 	if (dn) {

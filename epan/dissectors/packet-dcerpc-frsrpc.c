@@ -5,7 +5,7 @@
 	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be
-	found at http://wiki.wireshark.org/Pidl
+	found at https://wiki.wireshark.org/Pidl
 */
 
 
@@ -707,7 +707,7 @@ static int
 frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
 	guint32 nb_chunk = 0;
-	guint32 remaining = tvb_length_remaining(tvb, offset);
+	guint32 remaining = tvb_reported_length_remaining(tvb, offset);
 	int align_status = di->no_align;
 	if (remaining > 0) {
 		proto_item *item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, TRUE);
@@ -715,7 +715,7 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 		di->no_align = 1;
 		for(nb_chunk = 0; remaining > 0; nb_chunk++) {
 			offset = frsrpc_dissect_struct_CommPktChunk(tvb, offset, pinfo, subtree, di, drep, hf_CommPktChunk, param);
-			remaining = tvb_length_remaining(tvb, offset);
+			remaining = tvb_reported_length_remaining(tvb, offset);
 		}
 		di->no_align = align_status;
 	}
