@@ -1527,7 +1527,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								case 2:
 									proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
 										       	tvb, tlv_data_offset, cfm_tlv_length-1, ENC_NA);
-									tlv_data_offset += cfm_tlv_length;
+									tlv_data_offset += cfm_tlv_length-1;
 									break;
 								case 1:
 								case 3:
