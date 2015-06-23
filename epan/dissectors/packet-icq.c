@@ -1071,7 +1071,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *decr_tvb;
 
     pktsize = tvb_reported_length(tvb);
-    capturedsize = tvb_length(tvb);
+    capturedsize = tvb_captured_length(tvb);
 
     /* Get the encryption key */
     code = tvb_get_letohl(tvb, ICQ5_CL_CHECKCODE);
@@ -1278,7 +1278,7 @@ dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item(icq_tree, hf_icq_version, tvb, ICQ_VERSION, 2, ENC_LITTLE_ENDIAN);
     }
 
-    return (tvb_length(tvb));
+    return (tvb_captured_length(tvb));
 }
 
 /* registration with the filtering engine */

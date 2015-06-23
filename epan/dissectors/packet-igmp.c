@@ -295,7 +295,7 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 	}
 
 	hdrcksum = tvb_get_ntohs(tvb, 2);
-	if (!pinfo->fragmented && tvb_length(tvb) >= len) {
+	if (!pinfo->fragmented && tvb_captured_length(tvb) >= len) {
 		/*
 		 * The packet isn't part of a fragmented datagram and isn't
 		 * truncated, so we can checksum it.
@@ -373,7 +373,7 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 1;
 
 	/* Just call the rest of it "data" */
-	len = tvb_length_remaining(tvb, offset);
+	len = tvb_captured_length_remaining(tvb, offset);
 	proto_tree_add_item(tree, hf_data, tvb, offset, -1, ENC_NA);
 	offset += len;
 

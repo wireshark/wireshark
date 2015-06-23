@@ -3793,7 +3793,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
       default:
          proto_tree_add_item(aem_tree, hf_aem_unknown_descriptor, tvb,
-               4, tvb_length(tvb) - 4, ENC_NA);
+               4, tvb_captured_length(tvb) - 4, ENC_NA);
          break;
    }
 }
