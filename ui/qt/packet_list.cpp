@@ -691,6 +691,8 @@ void PacketList::initHeaderContextMenu()
 
 // Redraw the packet list and detail. Called from many places, including
 // columnsChanged.
+// XXX We previously re-selected the packet here, but that seems to cause
+// automatic scrolling problems.
 void PacketList::redrawVisiblePackets() {
     if (!cap_file_) return;
 
@@ -698,17 +700,10 @@ void PacketList::redrawVisiblePackets() {
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
 
-    int row = currentIndex().row();
-
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
     setColumnVisibility();
-
-    packet_list_model_->resetColumns();
-    if (row >= 0) {
-        setCurrentIndex(packet_list_model_->index(row, 0));
-    }
 
     update();
     header()->update();
