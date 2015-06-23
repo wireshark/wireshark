@@ -53,8 +53,12 @@ extern "C" {
 #ifdef NGHTTP2_STATICLIB
 #define NGHTTP2_EXTERN
 #elif defined(WIN32)
+#ifdef BUILDING_NGHTTP2
 #define NGHTTP2_EXTERN __declspec(dllexport)
-#else /* !defined(WIN32) */
+#else /* !BUILDING_NGHTTP2 */
+#define NGHTTP2_EXTERN __declspec(dllimport)
+#endif /* !BUILDING_NGHTTP2 */
+#else  /* !defined(WIN32) */
 #define NGHTTP2_EXTERN
 #endif /* !defined(WIN32) */
 
@@ -1150,6 +1154,15 @@ typedef union {
  *
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_send_callback()`.
+ *
+ * .. note::
+ *
+ *   The |length| may be very small.  If that is the case, and
+ *   application disables Nagle algorithm (``TCP_NODELAY``), then just
+ *   writing |data| to the network stack leads to very small packet,
+ *   and it is very inefficient.  An application should be responsible
+ *   to buffer up small chunks of data as necessary to avoid this
+ *   situation.
  */
 typedef ssize_t (*nghttp2_send_callback)(nghttp2_session *session,
                                          const uint8_t *data, size_t length,
@@ -2258,6 +2271,15 @@ NGHTTP2_EXTERN int nghttp2_session_send(nghttp2_session *session);
  *
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
+ *
+ * .. note::
+ *
+ *   This function may produce very small byte string.  If that is the
+ *   case, and application disables Nagle algorithm (``TCP_NODELAY``),
+ *   then writing this small chunk leads to very small packet, and it
+ *   is very inefficient.  An application should be responsible to
+ *   buffer up small chunks of data as necessary to avoid this
+ *   situation.
  */
 NGHTTP2_EXTERN ssize_t nghttp2_session_mem_send(nghttp2_session *session,
                                                 const uint8_t **data_ptr);

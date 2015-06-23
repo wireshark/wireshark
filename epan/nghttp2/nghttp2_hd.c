@@ -544,7 +544,8 @@ int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags, uint8_t *name,
   return 0;
 
 fail2:
-  if (flags & NGHTTP2_HD_FLAG_NAME_ALLOC) {
+  if ((flags & NGHTTP2_HD_FLAG_NAME_ALLOC) &&
+      (flags & NGHTTP2_HD_FLAG_NAME_GIFT) == 0) {
     nghttp2_mem_free(mem, ent->nv.name);
   }
 fail:
@@ -1894,7 +1895,11 @@ static int hd_inflate_commit_indname(nghttp2_hd_inflater *inflater,
       return 0;
     }
 
-    nghttp2_mem_free(mem, nv.value);
+    if (inflater->index < NGHTTP2_STATIC_TABLE_LENGTH) {
+      nghttp2_mem_free(mem, nv.value);
+    } else {
+      nghttp2_mem_free(mem, nv.name);
+    }
 
     return NGHTTP2_ERR_NOMEM;
   }
