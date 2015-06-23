@@ -60,6 +60,7 @@
 #endif
 
 #define WINDOW_GEOM_KEY "window_geom"
+#define WINDOW_DECORATION_SIZE 50
 
 /* Set our window icon.  The GDK documentation doesn't provide any
    actual documentation for gdk_window_set_icon(), so we'll steal
@@ -422,6 +423,15 @@ window_adjust_if_obscured(window_geometry_t *geom)
 }
 #endif
 
+/* detect broken GNOME shell fullscreen described in #11303 */
+static gboolean
+broken_gnome_fullscreen(void) {
+    return (0 == g_strcmp0(g_getenv("XDG_CURRENT_DESKTOP"), "GNOME") &&
+            (0 == g_strcmp0(g_getenv("GDMSESSION"), "gnome-shell") ||
+             0 == g_strcmp0(g_getenv("GDMSESSION"), "gnome-classic") ||
+             0 == g_strcmp0(g_getenv("GDMSESSION"), "gnome")));
+}
+
 /* set the geometry of a window from window_new() */
 void
 window_set_geometry(GtkWidget         *widget,
@@ -430,6 +440,12 @@ window_set_geometry(GtkWidget         *widget,
     GdkScreen *default_screen;
     GdkRectangle viewable_area;
     gint monitor_num;
+
+    /* vertical offset to be set for fixing #11303, it makes room for window */
+    /*  titlebar */
+    const gint y_offset = (geom->set_maximized &&
+                           geom->maximized &&
+                           broken_gnome_fullscreen())?WINDOW_DECORATION_SIZE:0;
 
     /* as we now have the geometry from the recent file, set it */
     /* if the window was minimized, x and y are -32000 (at least on Win32) */
@@ -459,14 +475,14 @@ window_set_geometry(GtkWidget         *widget,
 
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,
-                        geom->y);
+                        geom->y + y_offset);
     }
 
     if (geom->set_size) {
         gtk_window_resize(GTK_WINDOW(widget),
         /*gtk_widget_set_size_request(widget,*/
                                 geom->width,
-                                geom->height);
+                                geom->height - y_offset);
     }
 
     if(geom->set_maximized) {
