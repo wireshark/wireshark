@@ -1506,7 +1506,7 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
     main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
     main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
-//    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
 
     main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
     main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
