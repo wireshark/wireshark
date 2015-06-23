@@ -65,7 +65,7 @@ static int hf_radiotap_channel_flags_half = -1;
 static int hf_radiotap_channel_flags_quarter = -1;
 static int hf_radiotap_rxflags = -1;
 static int hf_radiotap_rxflags_badplcp = -1;
-static int hf_radiotap_xchannel = -1;
+static int hf_radiotap_xchannel_channel = -1;
 static int hf_radiotap_xchannel_frequency = -1;
 static int hf_radiotap_xchannel_flags = -1;
 static int hf_radiotap_xchannel_flags_turbo = -1;
@@ -399,28 +399,6 @@ static const value_string vht_bandwidth[] = {
 	{ 0, NULL }
 };
 static value_string_ext vht_bandwidth_ext = VALUE_STRING_EXT_INIT(vht_bandwidth);
-
-/* In order by value */
-static const value_string phy_type[] = {
-	{0,                                       "Unknown"},                 /* 0x00000 */
-	{IEEE80211_CHAN_B,                        "802.11b"},                 /* 0x000a0 */
-	{IEEE80211_CHAN_PUREG,                    "802.11g (pure-g)"},        /* 0x000c0 */
-	{IEEE80211_CHAN_108PUREG,                 "802.11g (pure-g, turbo)"}, /* 0x000d0 */
-	{IEEE80211_CHAN_A,                        "802.11a"},                 /* 0x00140 */
-	{IEEE80211_CHAN_108A,                     "802.11a (turbo)"},         /* 0x00150 */
-	{IEEE80211_CHAN_G,                        "802.11g"},                 /* 0x00480 */
-	{IEEE80211_CHAN_108G,                     "802.11g (turbo)"},         /* 0x00490 */
-	{IEEE80211_CHAN_FHSS,                     "FHSS"},                    /* 0x00880 */
-	{IEEE80211_CHAN_ST,                       "802.11a (static turbo)"},  /* 0x02140 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT20,  "802.11n (ht20, 5 GHz)"},   /* 0x10140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT20,  "802.11n (ht20, 2.4 GHz)"}, /* 0x10480 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40U, "802.11n (ht40+, 5 GHz)"},  /* 0x20140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40U, "802.11n (ht40+, 2.4 GHz)"},/* 0x20480 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40D, "802.11n (ht40-, 5 GHz)"},  /* 0x40140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40D, "802.11n (ht40-, 2.4 GHz)"},/* 0x40480 */
-	{0, NULL}
-};
-static value_string_ext phy_type_ext = VALUE_STRING_EXT_INIT(phy_type);
 
 static const value_string mcs_bandwidth[] = {
 	{ IEEE80211_RADIOTAP_MCS_BW_20,  "20 MHz" },
@@ -1272,7 +1250,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				};
 
 				proto_tree_add_item(radiotap_tree,
-							hf_radiotap_xchannel,
+							hf_radiotap_xchannel_channel,
 							tvb, offset + 6, 1,
 							ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(radiotap_tree,
@@ -1963,66 +1941,66 @@ void proto_register_radiotap(void)
 		  "Channel frequency in megahertz that this frame was sent/received on", HFILL}},
 
 		{&hf_radiotap_channel_flags,
-		 {"Channel type", "radiotap.channel.type",
-		  FT_UINT16, BASE_HEX | BASE_EXT_STRING, &phy_type_ext, 0x0,
+		 {"Channel flags", "radiotap.channel.flags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_channel_flags_turbo,
-		 {"Turbo", "radiotap.channel.type.turbo",
-		  FT_BOOLEAN, 16, NULL, 0x0010, "Channel Type Turbo", HFILL}},
+		 {"Turbo", "radiotap.channel.flags.turbo",
+		  FT_BOOLEAN, 16, NULL, 0x0010, "Channel Flags Turbo", HFILL}},
 
 		{&hf_radiotap_channel_flags_cck,
-		 {"Complementary Code Keying (CCK)", "radiotap.channel.type.cck",
+		 {"Complementary Code Keying (CCK)", "radiotap.channel.flags.cck",
 		  FT_BOOLEAN, 16, NULL, 0x0020,
-		  "Channel Type Complementary Code Keying (CCK) Modulation", HFILL}},
+		  "Channel Flags Complementary Code Keying (CCK) Modulation", HFILL}},
 
 		{&hf_radiotap_channel_flags_ofdm,
-		 {"Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.channel.type.ofdm",
+		 {"Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.channel.flags.ofdm",
 		  FT_BOOLEAN, 16, NULL, 0x0040,
-		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL}},
+		  "Channel Flags Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL}},
 
 		{&hf_radiotap_channel_flags_2ghz,
-		 {"2 GHz spectrum", "radiotap.channel.type.2ghz",
-		  FT_BOOLEAN, 16, NULL, 0x0080, "Channel Type 2 GHz spectrum", HFILL}},
+		 {"2 GHz spectrum", "radiotap.channel.flags.2ghz",
+		  FT_BOOLEAN, 16, NULL, 0x0080, "Channel Flags 2 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_channel_flags_5ghz,
-		 {"5 GHz spectrum", "radiotap.channel.type.5ghz",
-		  FT_BOOLEAN, 16, NULL, 0x0100, "Channel Type 5 GHz spectrum", HFILL}},
+		 {"5 GHz spectrum", "radiotap.channel.flags.5ghz",
+		  FT_BOOLEAN, 16, NULL, 0x0100, "Channel Flags 5 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_channel_flags_passive,
-		 {"Passive", "radiotap.channel.type.passive",
+		 {"Passive", "radiotap.channel.flags.passive",
 		  FT_BOOLEAN, 16, NULL, 0x0200,
-		  "Channel Type Passive", HFILL}},
+		  "Channel Flags Passive", HFILL}},
 
 		{&hf_radiotap_channel_flags_dynamic,
-		 {"Dynamic CCK-OFDM", "radiotap.channel.type.dynamic",
+		 {"Dynamic CCK-OFDM", "radiotap.channel.flags.dynamic",
 		  FT_BOOLEAN, 16, NULL, 0x0400,
-		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
+		  "Channel Flags Dynamic CCK-OFDM Channel", HFILL}},
 
 		{&hf_radiotap_channel_flags_gfsk,
-		 {"Gaussian Frequency Shift Keying (GFSK)", "radiotap.channel.type.gfsk",
+		 {"Gaussian Frequency Shift Keying (GFSK)", "radiotap.channel.flags.gfsk",
 		  FT_BOOLEAN, 16, NULL, 0x0800,
-		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation", HFILL}},
+		  "Channel Flags Gaussian Frequency Shift Keying (GFSK) Modulation", HFILL}},
 
 		{&hf_radiotap_channel_flags_gsm,
-		 {"GSM (900MHz)", "radiotap.channel.type.gsm",
+		 {"GSM (900MHz)", "radiotap.channel.flags.gsm",
 		  FT_BOOLEAN, 16, NULL, 0x1000,
-		  "Channel Type GSM", HFILL}},
+		  "Channel Flags GSM", HFILL}},
 
 		{&hf_radiotap_channel_flags_sturbo,
-		 {"Static Turbo", "radiotap.channel.type.sturbo",
+		 {"Static Turbo", "radiotap.channel.flags.sturbo",
 		  FT_BOOLEAN, 16, NULL, 0x2000,
-		  "Channel Type Status Turbo", HFILL}},
+		  "Channel Flags Status Turbo", HFILL}},
 
 		{&hf_radiotap_channel_flags_half,
-		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.channel.type.half",
+		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.channel.flags.half",
 		  FT_BOOLEAN, 16, NULL, 0x4000,
-		  "Channel Type Half Rate", HFILL}},
+		  "Channel Flags Half Rate", HFILL}},
 
 		{&hf_radiotap_channel_flags_quarter,
-		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.channel.type.quarter",
+		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.channel.flags.quarter",
 		  FT_BOOLEAN, 16, NULL, 0x8000,
-		  "Channel Type Quarter Rate", HFILL}},
+		  "Channel Flags Quarter Rate", HFILL}},
 
 		{&hf_radiotap_rxflags,
 		 {"RX flags", "radiotap.rxflags",
@@ -2034,8 +2012,8 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_RX_BADPLCP,
 		  "Frame with bad PLCP", HFILL}},
 
-		{&hf_radiotap_xchannel,
-		 {"Channel number", "radiotap.xchannel",
+		{&hf_radiotap_xchannel_channel,
+		 {"Channel number", "radiotap.xchannel.channel",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
@@ -2045,86 +2023,86 @@ void proto_register_radiotap(void)
 		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_flags,
-		 {"Channel type", "radiotap.xchannel.flags",
-		  FT_UINT32, BASE_HEX | BASE_EXT_STRING, &phy_type_ext, 0x0,
+		 {"Channel flags", "radiotap.xchannel.flags",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_flags_turbo,
-		 {"Turbo", "radiotap.xchannel.type.turbo",
+		 {"Turbo", "radiotap.xchannel.flags.turbo",
 		  FT_BOOLEAN, 24, NULL, 0x0010,
-		  "Channel Type Turbo", HFILL}},
+		  "Channel Flags Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_cck,
-		 {"Complementary Code Keying (CCK)", "radiotap.xchannel.type.cck",
+		 {"Complementary Code Keying (CCK)", "radiotap.xchannel.flags.cck",
 		  FT_BOOLEAN, 24, NULL, 0x0020,
-		  "Channel Type Complementary Code Keying (CCK) Modulation", HFILL}},
+		  "Channel Flags Complementary Code Keying (CCK) Modulation", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ofdm,
-		 {"Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.xchannel.type.ofdm",
+		 {"Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.xchannel.flags.ofdm",
 		  FT_BOOLEAN, 24, NULL, 0x0040,
-		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL}},
+		  "Channel Flags Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_2ghz,
-		 {"2 GHz spectrum", "radiotap.xchannel.type.2ghz",
+		 {"2 GHz spectrum", "radiotap.xchannel.flags.2ghz",
 		  FT_BOOLEAN, 24, NULL, 0x0080,
-		  "Channel Type 2 GHz spectrum", HFILL}},
+		  "Channel Flags 2 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_5ghz,
-		 {"5 GHz spectrum", "radiotap.xchannel.type.5ghz",
+		 {"5 GHz spectrum", "radiotap.xchannel.flags.5ghz",
 		  FT_BOOLEAN, 24, NULL, 0x0100,
-		  "Channel Type 5 GHz spectrum", HFILL}},
+		  "Channel Flags 5 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_passive,
 		 {"Passive", "radiotap.channel.xtype.passive",
 		  FT_BOOLEAN, 24, NULL, 0x0200,
-		  "Channel Type Passive", HFILL}},
+		  "Channel Flags Passive", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_dynamic,
-		 {"Dynamic CCK-OFDM", "radiotap.xchannel.type.dynamic",
+		 {"Dynamic CCK-OFDM", "radiotap.xchannel.flags.dynamic",
 		  FT_BOOLEAN, 24, NULL, 0x0400,
-		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
+		  "Channel Flags Dynamic CCK-OFDM Channel", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_gfsk,
 		 {"Gaussian Frequency Shift Keying (GFSK)",
-		  "radiotap.xchannel.type.gfsk",
+		  "radiotap.xchannel.flags.gfsk",
 		  FT_BOOLEAN, 24, NULL, 0x0800,
-		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation",
+		  "Channel Flags Gaussian Frequency Shift Keying (GFSK) Modulation",
 		  HFILL}},
 
 		{&hf_radiotap_xchannel_flags_gsm,
-		 {"GSM (900MHz)", "radiotap.xchannel.type.gsm",
+		 {"GSM (900MHz)", "radiotap.xchannel.flags.gsm",
 		  FT_BOOLEAN, 24, NULL, 0x1000,
-		  "Channel Type GSM", HFILL}},
+		  "Channel Flags GSM", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_sturbo,
-		 {"Static Turbo", "radiotap.xchannel.type.sturbo",
+		 {"Static Turbo", "radiotap.xchannel.flags.sturbo",
 		  FT_BOOLEAN, 24, NULL, 0x2000,
-		  "Channel Type Status Turbo", HFILL}},
+		  "Channel Flags Status Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_half,
-		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.xchannel.type.half",
+		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.xchannel.flags.half",
 		  FT_BOOLEAN, 24, NULL, 0x4000,
-		  "Channel Type Half Rate", HFILL}},
+		  "Channel Flags Half Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_quarter,
-		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.xchannel.type.quarter",
+		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.xchannel.flags.quarter",
 		  FT_BOOLEAN, 24, NULL, 0x8000,
-		  "Channel Type Quarter Rate", HFILL}},
+		  "Channel Flags Quarter Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht20,
-		 {"HT Channel (20MHz Channel Width)", "radiotap.xchannel.type.ht20",
+		 {"HT Channel (20MHz Channel Width)", "radiotap.xchannel.flags.ht20",
 		  FT_BOOLEAN, 24, NULL, 0x10000,
-		  "Channel Type HT/20", HFILL}},
+		  "Channel Flags HT/20", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht40u,
-		 {"HT Channel (40MHz Channel Width with Extension channel above)", "radiotap.xchannel.type.ht40u",
+		 {"HT Channel (40MHz Channel Width with Extension channel above)", "radiotap.xchannel.flags.ht40u",
 		  FT_BOOLEAN, 24, NULL, 0x20000,
-		  "Channel Type HT/40+", HFILL}},
+		  "Channel Flags HT/40+", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht40d,
-		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.type.ht40d",
+		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.flags.ht40d",
 		  FT_BOOLEAN, 24, NULL, 0x40000,
-		  "Channel Type HT/40-", HFILL}},
+		  "Channel Flags HT/40-", HFILL}},
 #if 0
 		{&hf_radiotap_xchannel_maxpower,
 		 {"Max transmit power", "radiotap.xchannel.maxpower",
