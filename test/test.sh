@@ -143,7 +143,7 @@ test_step_prerequisites() {
 # Dump version information
 test_step_tshark_version() {
 	test_remark_add "Printing TShark version"
-	$TSHARK -v
+	$TESTS_DIR/run_and_catch_crashes $TSHARK -v
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to print version information"
