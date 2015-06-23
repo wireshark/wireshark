@@ -542,11 +542,6 @@ typedef struct openwire_conv_data {
 } openwire_conv_data;
 
 static void
-openwire_init(void)
-{
-}
-
-static void
 validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, proto_item *boolean_item)
 {
     /* Sanity check of boolean : must be 0x00 or 0x01 */
@@ -2005,7 +2000,6 @@ proto_register_openwire(void)
         "Show verbose type information",
         "Whether verbose type and length information are displayed in the protocol tree",
         &openwire_verbose_type);
-    register_init_routine(&openwire_init);
 }
 
 void
