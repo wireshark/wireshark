@@ -434,7 +434,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		highest_num_seen = pinfo->fd->num;
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Transfers happen in response to broadcasts, they are always TCP and are
@@ -777,7 +777,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		prepare_ldss_transfer_conv(transfer_info->broadcast);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean

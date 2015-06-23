@@ -269,7 +269,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       }
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Decode LSC over UDP */
@@ -333,7 +333,7 @@ dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, LSC_OPCODE_LEN, get_lsc_pdu_len,
                    dissect_lsc_common, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

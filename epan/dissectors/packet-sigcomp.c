@@ -4797,7 +4797,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 ti = proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
                                          val_to_str(result_code, result_code_vals,"Unknown (%u)"));
                 PROTO_ITEM_SET_GENERATED(ti);
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
 
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
@@ -4969,7 +4969,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
         }/*if len==0 */
 
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void

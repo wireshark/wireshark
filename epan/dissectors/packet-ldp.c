@@ -2885,7 +2885,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /*
      * XXX - return minimum of this and the length of the PDU?
      */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -3221,7 +3221,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          */
         offset += plen + 4;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Register all the bits needed with the filtering engine */

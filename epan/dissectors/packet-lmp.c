@@ -758,7 +758,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     } else {
         expert_add_info_format(pinfo, msg_item, &ei_lmp_invalid_msg_type,
                                "Invalid message type: %u", message_type);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     if (lmp_checksum_config) {
@@ -806,7 +806,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         } else {
             expert_add_info_format(pinfo, hidden_item, &ei_lmp_invalid_class,
                                    "Invalid class: %u", lmp_class);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
         lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(lmp_class));
 
@@ -1878,7 +1878,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     } /* while */
     } /* tree */
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 static void
 lmp_prefs_applied (void)

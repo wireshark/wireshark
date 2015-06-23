@@ -2697,7 +2697,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (try_val_to_str_ext(type, &message_types_ext))
         dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Determine length of LLRP message */
@@ -2714,7 +2714,7 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, LLRP_HEADER_LENGTH,
         get_llrp_message_len, dissect_llrp_packet, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

@@ -645,7 +645,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         /* Fall Thru if there are attributes */
         if (tvb_reported_length_remaining(tvb, offset) == 0)
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
     /* Messages */
     case ISNS_FUNC_DEVATTRREG:
@@ -668,7 +668,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         /* we can only look at the attributes for the first PDU */
         if(!(flags&ISNS_FLAGS_FIRST_PDU)){
             proto_tree_add_expert(tt, pinfo, &ei_isns_not_first_pdu, tvb, offset, -1);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         packet_len = tvb_reported_length(tvb);
@@ -678,7 +678,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint

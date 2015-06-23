@@ -675,7 +675,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset = message_end;
     } /* end while for message alive */
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 } /* end Dissecting */
 
 /*-----------Register the Dissector for OLSR--------------*/

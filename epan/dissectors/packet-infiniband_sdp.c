@@ -313,7 +313,7 @@ manual_override:
     col_append_fstr(pinfo->cinfo, COL_INFO, "(SDP %s)",
                     rval_to_str(mid, mid_meanings, "Unknown"));
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

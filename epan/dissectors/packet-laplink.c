@@ -102,7 +102,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 		proto_tree_add_item(laplink_tree, hf_laplink_udp_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
 	}
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Code to actually dissect the packets - TCP aspects*/
@@ -141,7 +141,7 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
 }
 
@@ -162,7 +162,7 @@ dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	tcp_dissect_pdus(tvb, pinfo, tree, laplink_desegment,
 			 6, get_laplink_pdu_len,
 			 dissect_laplink_tcp_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

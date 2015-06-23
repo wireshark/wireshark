@@ -3173,7 +3173,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			proto_tree_add_item(ndmp_tree, hf_ndmp_fragment_data, tvb, 4, -1, ENC_NA);
 
 			pinfo->fragmented = save_fragmented;
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 	}
 	else
@@ -3187,7 +3187,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	if (size < 24) {
 		/* too short to be NDMP */
 		pinfo->fragmented = save_fragmented;
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	/*
@@ -3197,7 +3197,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	if (!check_ndmp_hdr(new_tvb))
 	{
 		pinfo->fragmented = save_fragmented;
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	nh.seq = tvb_get_ntohl(new_tvb, offset);
@@ -3293,7 +3293,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	pinfo->fragmented = save_fragmented;
 	col_set_writable(pinfo->cinfo, save_writable);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -3390,7 +3390,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 4,
 			 get_ndmp_pdu_len, dissect_ndmp_message, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Called when doing a heuristic check;
@@ -3409,7 +3409,7 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
 			 get_ndmp_pdu_len, dissect_ndmp_message, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void

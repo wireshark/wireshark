@@ -468,7 +468,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

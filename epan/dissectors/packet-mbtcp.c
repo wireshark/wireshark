@@ -533,7 +533,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, p_save_proto_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP packets */
@@ -675,7 +675,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, p_save_proto_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -704,7 +704,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 {
 
     /* Modbus/TCP frames include a "length" word in each message; Modbus RTU over TCP does not, so don't attempt to get one */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -731,7 +731,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tcp_dissect_pdus(tvb, pinfo, tree, mbtcp_desegment, 6,
                      get_mbtcp_pdu_len, dissect_mbtcp_pdu, data);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP messages */
@@ -752,7 +752,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tcp_dissect_pdus(tvb, pinfo, tree, mbrtu_desegment, 6,
                      get_mbrtu_pdu_len, dissect_mbrtu_pdu, data);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1399,7 +1399,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

@@ -203,7 +203,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_scop() */
 
 /*FUNCTION:------------------------------------------------------
@@ -248,7 +248,7 @@ static int
 dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_scop_tcp */
 
 

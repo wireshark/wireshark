@@ -650,7 +650,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             }
         }
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* determine PDU length of protocol  */
@@ -680,7 +680,7 @@ dissect_hdfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfs_message_len, dissect_hdfs_message, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* registers the protcol with the given names */

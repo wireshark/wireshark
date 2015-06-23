@@ -2345,7 +2345,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset = dissect_sflow_245_samples(tvb, pinfo, sflow_245_tree, offset, version);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

@@ -109,7 +109,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 				pinfo->srcport, pinfo->destport, 0);
 		if (conversation == NULL) {
 			/* No, so just return the rest of the current packet */
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 		/*
 		 * Do we have a state structure for this conv
@@ -117,7 +117,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 		nbd_info = (nbd_conv_info_t *)conversation_get_proto_data(conversation, proto_nbd);
 		if (!nbd_info) {
 			/* No, so just return the rest of the current packet */
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 		if(!pinfo->fd->flags.visited){
 			/*
@@ -131,7 +131,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 			nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			}
 		} else {
 			/*
@@ -148,7 +148,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 			nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			}
 		}
 		/* If this is a read response we must add the datalen to
@@ -364,7 +364,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		break;
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean

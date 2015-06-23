@@ -647,7 +647,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       expert_add_info(pinfo, ti, &ei_mongo_unknown);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 static guint
 get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
@@ -666,7 +666,7 @@ static int
 dissect_mongo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_mongo_pdu_len, dissect_mongo_pdu, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 void

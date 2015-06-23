@@ -1255,7 +1255,7 @@ dissect_isis_l1_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_hello(tvb, pinfo, tree, 0,
         clv_l1_hello_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1264,7 +1264,7 @@ dissect_isis_l2_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_hello(tvb, pinfo, tree, 0,
         clv_l2_hello_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1273,7 +1273,7 @@ dissect_isis_ptp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_hello(tvb, pinfo, tree, 0,
         clv_ptp_hello_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /*

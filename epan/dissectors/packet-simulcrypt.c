@@ -701,7 +701,7 @@ dissect_simulcrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
 			 get_simulcrypt_message_len, dissect_simulcrypt_message, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Informative tree structure is shown here:
@@ -1284,7 +1284,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	} /* end tree */
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* this method is used to dissect TLV parameters */

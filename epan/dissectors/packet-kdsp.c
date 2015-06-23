@@ -538,7 +538,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     expert_add_info(pinfo, command_item, &ei_kdsp_cmdnum);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -546,7 +546,7 @@ dissect_kdsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
                    get_kdsp_message_len, dissect_kdsp_message, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 void

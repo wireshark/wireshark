@@ -1018,7 +1018,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
         break;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* entry point */

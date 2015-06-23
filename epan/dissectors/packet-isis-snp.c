@@ -369,7 +369,7 @@ dissect_isis_l1_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_csnp(tvb, pinfo, tree, 0,
         clv_l1_csnp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -378,7 +378,7 @@ dissect_isis_l2_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_csnp(tvb, pinfo, tree, 0,
         clv_l2_csnp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -422,7 +422,7 @@ dissect_isis_l1_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_psnp(tvb, pinfo, tree, 0,
         clv_l1_psnp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -431,7 +431,7 @@ dissect_isis_l2_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_psnp(tvb, pinfo, tree, 0,
         clv_l2_psnp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

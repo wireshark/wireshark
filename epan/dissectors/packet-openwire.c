@@ -1341,7 +1341,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         {
             proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             expert_add_info(pinfo, openwireroot_tree, &ei_openwire_tight_encoding_not_supported);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         caching = retrieve_caching(pinfo);
@@ -1358,7 +1358,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -1375,7 +1375,7 @@ static int
 dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, openwire_desegment, 5, get_openwire_pdu_len, dissect_openwire, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

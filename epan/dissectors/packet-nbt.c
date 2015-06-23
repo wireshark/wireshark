@@ -1513,7 +1513,7 @@ dissect_continuation_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(nbss_tree, hf_nbss_continuation_data, tvb, 0, -1, ENC_NA);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1736,7 +1736,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
         }
 
@@ -1786,7 +1786,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = plen - length_remaining;
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
         }
 
@@ -1804,7 +1804,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         offset += plen;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

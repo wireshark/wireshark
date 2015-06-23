@@ -300,7 +300,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   msg_length_remaining = tvb_length_remaining(tvb, offset);
 
   if (msg_length_remaining == 0) {
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
   }
 
   if (openvpn_opcode != P_CONTROL_V1) {
@@ -310,7 +310,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
                               tvb_length_remaining(tvb, offset));
 
     proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, -1, ENC_NA);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
   }
 
   /* Try to reassemble */
@@ -380,7 +380,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     call_dissector(ssl_handle, new_tvb, pinfo, parent_tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static guint
@@ -413,7 +413,7 @@ dissect_openvpn_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                          since the length is the first thing in an openvpn packet we choose 2 */
       get_msg_length, /* fptr for function to get the packetlength of current frame */
       dissect_openvpn_msg_tcp, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int

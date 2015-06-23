@@ -252,7 +252,7 @@ dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
          */
         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -262,7 +262,7 @@ dissect_kpasswd_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, kpasswd_desegment, 4, get_krb_pdu_len, dissect_kpasswd_tcp_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

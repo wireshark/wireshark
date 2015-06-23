@@ -1411,7 +1411,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			if (len < APDU_MIN_LEN) {
 				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
 				wmem_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			}
 
 			temp8 = tvb_get_guint8(tvb, Off + 2);
@@ -1472,7 +1472,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(it104tree, hf_apcidata, tvb, 0, Off, ENC_NA);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int dissect_iec104reas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -1482,7 +1482,7 @@ static int dissect_iec104reas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	 */
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, APCI_LEN,
 			get_iec104apdu_len, dissect_iec104apci, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* The protocol has two subprotocols: Register APCI */

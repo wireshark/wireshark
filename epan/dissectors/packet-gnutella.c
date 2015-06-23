@@ -507,7 +507,7 @@ static int dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -554,13 +554,13 @@ static int dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					-1,
 					ENC_NA);
 			}
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, GNUTELLA_HEADER_SIZE_OFFSET+4,
 	    get_gnutella_pdu_len, dissect_gnutella_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_gnutella(void) {

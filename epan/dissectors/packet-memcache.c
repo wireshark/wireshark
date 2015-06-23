@@ -606,7 +606,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                             val_to_str_const (status, status_vals, "Unknown"), status);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Obtain the content length by peeping into the header.
@@ -1916,7 +1916,7 @@ dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     dissect_memcache_text (tvb, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Dissect udp packets based on the type of protocol (text/binary) */
@@ -1934,7 +1934,7 @@ dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     dissect_memcache_message (tvb, 0, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Registration functions; register memcache protocol,

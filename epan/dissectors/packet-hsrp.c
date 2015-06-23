@@ -587,7 +587,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 }
         }
 
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
 }
 
 void proto_register_hsrp(void)
