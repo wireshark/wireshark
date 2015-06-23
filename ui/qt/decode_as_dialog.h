@@ -30,6 +30,7 @@
 
 #include <QDialog>
 #include <QMap>
+#include <QAbstractButton>
 
 class QTreeWidgetItem;
 class QComboBox;
@@ -85,8 +86,8 @@ private slots:
     void selectorEditTextChanged(const QString & text);
     void curProtoCurrentIndexChanged(const QString & text);
     void curProtoDestroyed();
-    void on_buttonBox_accepted();
-    void on_buttonBox_helpRequested();
+    void applyChanges();
+    void on_buttonBox_clicked(QAbstractButton *button);
 };
 
 #endif // DECODE_AS_DIALOG_H

@@ -537,7 +537,7 @@ void DecodeAsDialog::resetChangedList(const gchar *table_name,
     }
 }
 
-void DecodeAsDialog::on_buttonBox_accepted()
+void DecodeAsDialog::applyChanges()
 {
     /* Reset all dissector tables, then apply all rules from GUI */
 
@@ -592,13 +592,25 @@ void DecodeAsDialog::on_buttonBox_accepted()
         delete(dissector_info);
     }
 
-    save_decode_as_entries();
     wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
-void DecodeAsDialog::on_buttonBox_helpRequested()
+void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-    wsApp->helpTopicAction(HELP_DECODE_AS_SHOW_DIALOG);
+    switch (ui->buttonBox->standardButton(button)) {
+    case QDialogButtonBox::Ok:
+        applyChanges();
+        break;
+    case QDialogButtonBox::Save:
+        applyChanges();
+        save_decode_as_entries();
+        break;
+    case QDialogButtonBox::Help:
+        wsApp->helpTopicAction(HELP_DECODE_AS_SHOW_DIALOG);
+        break;
+    default:
+        break;
+    }
 }
 
 /*
