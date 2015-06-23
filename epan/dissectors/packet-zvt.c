@@ -504,22 +504,18 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(apdu_tree, hf_zvt_aprc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        /* XXX - can this ever be NULL? */
-        if (transactions) {
-            zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32_le(
-                    transactions, PINFO_FD_NUM(pinfo));
-           if (zvt_trans && zvt_trans->resp_frame==0) {
-               /* there's a pending request, this packet is the response */
-               zvt_trans->resp_frame = PINFO_FD_NUM(pinfo);
-           }
-
-           if (zvt_trans && zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
-               it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_to,
-                       NULL, 0, 0, zvt_trans->rqst_frame);
-               PROTO_ITEM_SET_GENERATED(it);
-           }
+        zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32_le(
+                transactions, PINFO_FD_NUM(pinfo));
+        if (zvt_trans && zvt_trans->resp_frame==0) {
+            /* there's a pending request, this packet is the response */
+            zvt_trans->resp_frame = PINFO_FD_NUM(pinfo);
         }
 
+        if (zvt_trans && zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+            it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_to,
+                    NULL, 0, 0, zvt_trans->rqst_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
     }
     else {
         ctrl = tvb_get_ntohs(tvb, offset);
@@ -539,15 +535,12 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
             }
         }
         else {
-            /* XXX - can this ever be NULL? */
-            if (transactions) {
-                zvt_trans = wmem_new(wmem_file_scope(), zvt_transaction_t);
-                zvt_trans->rqst_frame = PINFO_FD_NUM(pinfo);
-                zvt_trans->resp_frame = 0;
-                zvt_trans->ctrl = ctrl;
-                wmem_tree_insert32(transactions,
-                        zvt_trans->rqst_frame, (void *)zvt_trans);
-            }
+            zvt_trans = wmem_new(wmem_file_scope(), zvt_transaction_t);
+            zvt_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+            zvt_trans->resp_frame = 0;
+            zvt_trans->ctrl = ctrl;
+            wmem_tree_insert32(transactions,
+                    zvt_trans->rqst_frame, (void *)zvt_trans);
         }
     }
 

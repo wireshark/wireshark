@@ -37,7 +37,7 @@ void proto_register_hdcp(void);
 
 static int proto_hdcp  = -1;
 
-static wmem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions;
 
 static gint ett_hdcp = -1;
 
@@ -139,14 +139,12 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
             else {
                 /* we've not yet dissected the response */
-                if (transactions) {
-                    hdcp_trans = wmem_new(wmem_file_scope(), hdcp_transaction_t);
-                    hdcp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
-                    hdcp_trans->resp_frame = 0;
-                    hdcp_trans->rqst_type = reg;
-                    wmem_tree_insert32(transactions,
-                            hdcp_trans->rqst_frame, (void *)hdcp_trans);
-                }
+                hdcp_trans = wmem_new(wmem_file_scope(), hdcp_transaction_t);
+                hdcp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+                hdcp_trans->resp_frame = 0;
+                hdcp_trans->rqst_type = reg;
+                wmem_tree_insert32(transactions,
+                        hdcp_trans->rqst_frame, (void *)hdcp_trans);
             }
         }
         else {
@@ -173,79 +171,77 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     else {
         /* transmitter reads from receiver */
 
-       if (transactions) {
-           hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32_le(
-                   transactions, PINFO_FD_NUM(pinfo));
-           if (hdcp_trans) {
-               if (hdcp_trans->resp_frame==0) {
-                   /* there's a pending request, this packet is the response */
-                   hdcp_trans->resp_frame = PINFO_FD_NUM(pinfo);
-               }
+        hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32_le(
+                transactions, PINFO_FD_NUM(pinfo));
+        if (hdcp_trans) {
+            if (hdcp_trans->resp_frame==0) {
+                /* there's a pending request, this packet is the response */
+                hdcp_trans->resp_frame = PINFO_FD_NUM(pinfo);
+            }
 
-               if (hdcp_trans->resp_frame== PINFO_FD_NUM(pinfo)) {
-                   /* we found the request that corresponds to our response */
-                   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "send %s",
-                           val_to_str_const(hdcp_trans->rqst_type,
-                               hdcp_reg, "unknown (0x%x)"));
-                   it = proto_tree_add_uint_format(hdcp_tree, hf_hdcp_resp_to,
-                           NULL, 0, 0, hdcp_trans->rqst_frame,
-                           "Response to frame %d (content of register %s)",
-                           hdcp_trans->rqst_frame,
-                           val_to_str_const(hdcp_trans->rqst_type,
-                               hdcp_reg, "unknown (0x%x)"));
-                   PROTO_ITEM_SET_GENERATED(it);
-                   switch (hdcp_trans->rqst_type) {
-                       case REG_BKSV:
-                           b_ksv = tvb_get_letoh40(tvb,
-                                   ptvcursor_current_offset(cursor));
-                           proto_tree_add_uint64_format(hdcp_tree, hf_hdcp_b_ksv,
-                                   tvb, ptvcursor_current_offset(cursor), 5,
-                                   b_ksv, "B_ksv 0x%010" G_GINT64_MODIFIER "x",
-                                   b_ksv);
-                           ptvcursor_advance(cursor, 5);
-                           break;
-                       case REG_BCAPS:
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_hdmi_reserved, 1, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_repeater, 1, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_ksv_fifo, 1, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_fast_trans, 1, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_features, 1, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_fast_reauth, 1, ENC_LITTLE_ENDIAN);
-                           break;
-                       case REG_BSTATUS:
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_hdmi_mode, 2, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_max_casc_exc, 2, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_depth, 2, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_max_devs_exc, 2, ENC_LITTLE_ENDIAN);
-                           ptvcursor_add_no_advance(cursor,
-                                   hf_hdcp_downstream, 2, ENC_LITTLE_ENDIAN);
-                           break;
-                   }
-               }
-           }
+            if (hdcp_trans->resp_frame== PINFO_FD_NUM(pinfo)) {
+                /* we found the request that corresponds to our response */
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "send %s",
+                        val_to_str_const(hdcp_trans->rqst_type,
+                            hdcp_reg, "unknown (0x%x)"));
+                it = proto_tree_add_uint_format(hdcp_tree, hf_hdcp_resp_to,
+                        NULL, 0, 0, hdcp_trans->rqst_frame,
+                        "Response to frame %d (content of register %s)",
+                        hdcp_trans->rqst_frame,
+                        val_to_str_const(hdcp_trans->rqst_type,
+                            hdcp_reg, "unknown (0x%x)"));
+                PROTO_ITEM_SET_GENERATED(it);
+                switch (hdcp_trans->rqst_type) {
+                    case REG_BKSV:
+                        b_ksv = tvb_get_letoh40(tvb,
+                                ptvcursor_current_offset(cursor));
+                        proto_tree_add_uint64_format(hdcp_tree, hf_hdcp_b_ksv,
+                                tvb, ptvcursor_current_offset(cursor), 5,
+                                b_ksv, "B_ksv 0x%010" G_GINT64_MODIFIER "x",
+                                b_ksv);
+                        ptvcursor_advance(cursor, 5);
+                        break;
+                    case REG_BCAPS:
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_hdmi_reserved, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_repeater, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_ksv_fifo, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_fast_trans, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_features, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_fast_reauth, 1, ENC_LITTLE_ENDIAN);
+                        break;
+                    case REG_BSTATUS:
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_hdmi_mode, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_max_casc_exc, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_depth, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_max_devs_exc, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_no_advance(cursor,
+                                hf_hdcp_downstream, 2, ENC_LITTLE_ENDIAN);
+                        break;
+                }
+            }
+        }
 
-           if (!hdcp_trans || hdcp_trans->resp_frame!=PINFO_FD_NUM(pinfo)) {
-               /* the packet isn't a response to a request from the
-                * transmitter; it must be a link verification */
-               if (tvb_reported_length_remaining(
-                           tvb, ptvcursor_current_offset(cursor)) == 2) {
-                   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                           "send link verification Ri'");
-                   ptvcursor_add_no_advance(cursor,
-                           hf_hdcp_link_vfy, 2, ENC_LITTLE_ENDIAN);
-               }
-           }
-       }
+        if (!hdcp_trans || hdcp_trans->resp_frame!=PINFO_FD_NUM(pinfo)) {
+            /* the packet isn't a response to a request from the
+             * transmitter; it must be a link verification */
+            if (tvb_reported_length_remaining(
+                        tvb, ptvcursor_current_offset(cursor)) == 2) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                        "send link verification Ri'");
+                ptvcursor_add_no_advance(cursor,
+                        hf_hdcp_link_vfy, 2, ENC_LITTLE_ENDIAN);
+            }
+        }
     }
 
     ptvcursor_free(cursor);
