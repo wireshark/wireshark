@@ -183,7 +183,7 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
             break;
         }
     }
-    (dlg_data->cont.tap_init_cb)(params->str,NULL);
+    (dlg_data->cont.tap_init_cb)(params->str, dlg_data->cont.user_data);
     g_string_free(params, TRUE);
 }
 
@@ -222,6 +222,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
         end_dlg_list->cont.tap_init_cb = dlg_data->tap_init_cb;
         end_dlg_list->cont.nparams = dlg_data->nparams;
         end_dlg_list->cont.params = dlg_data->params;
+        end_dlg_list->cont.user_data = dlg_data->user_data;
         end_dlg_list->args.title = g_strdup_printf("%s Filter", dlg_data->win_title);
         end_dlg_list->args.wants_apply_button = TRUE;
         end_dlg_list->args.activate_on_ok = FALSE;
@@ -245,6 +246,13 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     /* if the window is already open, bring it to front */
     if(current_dlg->dlg){
         gdk_window_raise(gtk_widget_get_window(current_dlg->dlg));
+        return;
+    }
+
+    /* If we don't have any parameters, just launch the stat dialog */
+    if (current_dlg->cont.nparams == 0)
+    {
+        tap_param_dlg_start_button_clicked(NULL, current_dlg);
         return;
     }
 

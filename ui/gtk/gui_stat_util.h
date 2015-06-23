@@ -31,9 +31,6 @@
  *  Utilities for statistics.
  */
 
-#define LEFT 0
-#define RIGHT 1
-
 /** Columns definition
  */
 typedef struct {

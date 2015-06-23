@@ -24,8 +24,8 @@
 #include "config.h"
 
 
-
 #include "ui/gtk/gui_stat_util.h"
+#include <epan/stat_tap_ui.h>
 
 /* init a main window for stats, set title and display used filter in window */
 
@@ -80,12 +80,15 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 
 	/* create table */
 	tree  = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+
 	table = GTK_TREE_VIEW(tree);
 	g_object_unref (G_OBJECT (store));
 
+	gtk_tree_view_set_headers_clickable(table, FALSE);
+
 	for (i = 0; i < columns; i++) {
 		renderer = gtk_cell_renderer_text_new ();
-		if (headers[i].align == RIGHT) {
+		if (headers[i].align == TAP_ALIGN_RIGHT) {
 			/* right align */
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
 		}
@@ -94,13 +97,14 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 					i, NULL);
 		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_append_column (table, column);
+		gtk_tree_view_column_set_sort_column_id(column, i);
 	}
 	gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET (table));
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
 
 	/* configure TreeView */
-	gtk_tree_view_set_rules_hint(table, FALSE);
-	gtk_tree_view_set_headers_clickable(table, FALSE);
+	gtk_tree_view_set_rules_hint(table, TRUE);
+	gtk_tree_view_set_headers_clickable(table, TRUE);
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(table));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);

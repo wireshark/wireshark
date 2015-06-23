@@ -680,7 +680,8 @@ static tap_param_dlg sip_stat_dlg = {
     gtk_sipstat_init,
     -1,
     G_N_ELEMENTS(sip_stat_params),
-    sip_stat_params
+    sip_stat_params,
+    NULL
 };
 
 /* Register this tap listener and add menu item. */

@@ -856,6 +856,7 @@ void register_service_response_tables(gpointer data, gpointer user_data _U_)
 	srt_dlg->init_string = srt_table_get_tap_string(srt);
 	srt_dlg->tap_init_cb = gtk_srtstat_init;
 	srt_dlg->index = -1;
+	srt_dlg->user_data = srt; /* TODO: Actually use this */
 	if (get_srt_proto_id(srt) == proto_get_id_by_filter_name("scsi"))
 	{
 		srt_dlg->nparams = G_N_ELEMENTS(scsi_stat_params);

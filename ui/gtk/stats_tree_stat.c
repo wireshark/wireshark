@@ -557,6 +557,7 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	cfg->pr->stat_dlg->index = -1;
 	cfg->pr->stat_dlg->nparams = G_N_ELEMENTS(tree_stat_params);
 	cfg->pr->stat_dlg->params = tree_stat_params;
+	cfg->pr->stat_dlg->user_data = NULL;
 	g_free(display_name);
 }
 

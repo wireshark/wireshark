@@ -259,7 +259,8 @@ static tap_param_dlg dhcp_stat_dlg = {
 	dhcpstat_init,
 	-1,
 	G_N_ELEMENTS(bootp_stat_params),
-	bootp_stat_params
+	bootp_stat_params,
+	NULL
 };
 
 void

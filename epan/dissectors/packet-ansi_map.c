@@ -96,6 +96,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -883,7 +884,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 327 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 328 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1143,7 +1144,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 359 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 360 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 static expert_field ei_ansi_map_nr_not_used = EI_INIT;
 static expert_field ei_ansi_map_unknown_invokeData_blob = EI_INIT;
@@ -15279,7 +15280,7 @@ dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3634 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3635 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -16095,6 +16096,104 @@ static void range_add_callback(guint32 ssn)
     if (ssn) {
         add_ansi_tcap_subdissector(ssn , ansi_map_handle);
     }
+}
+
+/* TAP STAT INFO */
+typedef enum
+{
+    OPCODE_COLUMN = 0,
+    OPERATION_COLUMN,
+    COUNT_COLUMN,
+    TOTAL_BYTES_COLUMN,
+    AVG_BYTES_COLUMN
+} ansi_map_stat_columns;
+
+static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "OpCode", "0x%02x"}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Operation Name", "%-50s"},
+        {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "  %d  "}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Total Bytes", "  %d  "},
+        {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "  %8.2f  "}};
+
+void ansi_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+    int num_fields = sizeof(stat_fields)/sizeof(stat_tap_table_item);
+    new_stat_tap_table* table = new_stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code", gui_callback, gui_data);
+    int i = 0;
+    stat_tap_table_item_type items[sizeof(stat_fields)/sizeof(stat_tap_table_item)];
+
+    new_stat_tap_add_table(new_stat, table);
+
+    /* Add a fow for each value type */
+    while (ansi_map_opr_code_strings[i].strptr)
+    {
+        items[OPCODE_COLUMN].type = TABLE_ITEM_UINT;
+        items[OPCODE_COLUMN].value.uint_value = ansi_map_opr_code_strings[i].value;
+        items[OPERATION_COLUMN].type = TABLE_ITEM_STRING;
+        items[OPERATION_COLUMN].value.string_value = ansi_map_opr_code_strings[i].strptr;
+        items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+        items[COUNT_COLUMN].value.uint_value = 0;
+        items[TOTAL_BYTES_COLUMN].type = TABLE_ITEM_UINT;
+        items[TOTAL_BYTES_COLUMN].value.uint_value = 0;
+        items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
+        items[AVG_BYTES_COLUMN].value.float_value = 0.0;
+
+        new_stat_tap_init_table_row(table, ansi_map_opr_code_strings[i].value, num_fields, items);
+        i++;
+    }
+}
+
+
+static gboolean
+ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
+{
+    new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+    const ansi_map_tap_rec_t    *data_p = (const ansi_map_tap_rec_t *)data;
+    new_stat_tap_table* table;
+    stat_tap_table_item_type* item_data;
+    guint i = 0, count, total_bytes;
+
+    /* Only tracking field values we know */
+    if (try_val_to_str(data_p->message_type, ansi_map_opr_code_strings) == NULL)
+        return FALSE;
+
+    table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+
+    item_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+    item_data->value.uint_value++;
+    count = item_data->value.uint_value;
+    new_stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, item_data);
+
+    item_data = new_stat_tap_get_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN);
+    item_data->value.uint_value += data_p->size;
+    total_bytes = item_data->value.uint_value;
+    new_stat_tap_set_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN, item_data);
+
+    item_data = new_stat_tap_get_field_data(table, data_p->message_type, AVG_BYTES_COLUMN);
+    item_data->value.float_value = (float)total_bytes/(float)count;
+    new_stat_tap_set_field_data(table, data_p->message_type, AVG_BYTES_COLUMN, item_data);
+
+    return TRUE;
+}
+
+static void
+ansi_map_stat_reset(new_stat_tap_table* table)
+{
+    guint element;
+    stat_tap_table_item_type* item_data;
+
+    for (element = 0; element < table->num_elements; element++)
+    {
+        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, TOTAL_BYTES_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, TOTAL_BYTES_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
+        item_data->value.float_value = 0.0;
+        new_stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
+    }
+
 }
 
 void
@@ -19129,7 +19228,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5291 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5390 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19390,7 +19489,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5324 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5423 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -19406,6 +19505,22 @@ void proto_register_ansi_map(void) {
         {"Transaction ID and Source will be used in Invoke/response matching",                "Transaction ID and Source", 1},
         {"Transaction ID Source and Destination will be used in Invoke/response matching",    "Transaction ID Source and Destination", 2},
         {NULL, NULL, -1}
+    };
+
+    /* TAP STAT INFO */
+    static new_stat_tap_ui stat_table = {
+        REGISTER_STAT_GROUP_TELEPHONY,
+        "ANSI Map Operation Statistics",
+        "ansi_map",
+        "ansi_map",
+        ansi_map_stat_init,
+        ansi_map_stat_packet,
+        ansi_map_stat_reset,
+        NULL,
+        NULL,
+        sizeof(stat_fields)/sizeof(stat_tap_table_item), stat_fields,
+        0, NULL,
+        NULL
     };
 
     /* Register protocol */
@@ -19448,4 +19563,5 @@ void proto_register_ansi_map(void) {
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_map_init_protocol);
+    register_new_stat_tap_ui(&stat_table);
 }

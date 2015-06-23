@@ -54,7 +54,8 @@ static tap_param_dlg sctp_stat_dlg = {
 	sctpstat_init,
 	-1,
 	G_N_ELEMENTS(sctp_stat_params),
-	sctp_stat_params
+	sctp_stat_params,
+	NULL
 };
 
 typedef struct sctp_ep {
@@ -234,26 +235,26 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static const stat_column titles[]={
-	{G_TYPE_STRING, LEFT, "Source IP" },
-	{G_TYPE_UINT, RIGHT,  "Source Port" },
-	{G_TYPE_STRING, LEFT, "Dest IP" },
-	{G_TYPE_UINT, RIGHT,  "Dest Port" },
-	{G_TYPE_UINT, RIGHT,  "DATA" },
-	{G_TYPE_UINT, RIGHT,  "SACK" },
-	{G_TYPE_UINT, RIGHT,  "HBEAT" },
-	{G_TYPE_UINT, RIGHT,  "HBEAT-ACK" },
-	{G_TYPE_UINT, RIGHT,  "INIT" },
-	{G_TYPE_UINT, RIGHT,  "INIT-ACK" },
-	{G_TYPE_UINT, RIGHT,  "COOKIE" },
-	{G_TYPE_UINT, RIGHT,  "COOKIE-ACK" },
-	{G_TYPE_UINT, RIGHT,  "ABORT" },
-	{G_TYPE_UINT, RIGHT,  "ERROR" },
-	{G_TYPE_UINT, RIGHT,  "NR-SACK" },
-	{G_TYPE_UINT, RIGHT,  "ASCONF-ACK" },
-	{G_TYPE_UINT, RIGHT,  "PKTDROP" },
-	{G_TYPE_UINT, RIGHT,  "FORWARD-TSN" },
-	{G_TYPE_UINT, RIGHT,  "ASCONF" },
-	{G_TYPE_UINT, RIGHT,  "Others" }
+	{G_TYPE_STRING, TAP_ALIGN_LEFT, "Source IP" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Source Port" },
+	{G_TYPE_STRING, TAP_ALIGN_LEFT, "Dest IP" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Dest Port" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "DATA" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "SACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "HBEAT" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "HBEAT-ACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "INIT" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "INIT-ACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "COOKIE" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "COOKIE-ACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "ABORT" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "ERROR" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "NR-SACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "ASCONF-ACK" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "PKTDROP" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "FORWARD-TSN" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "ASCONF" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Others" }
 };
 
 static void

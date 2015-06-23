@@ -53,7 +53,8 @@ static tap_param_dlg h225_counter_dlg = {
 	gtk_h225counter_init,
 	-1,
 	G_N_ELEMENTS(h225_counter_params),
-	h225_counter_params
+	h225_counter_params,
+	NULL
 };
 
 /* following values represent the size of their valuestring arrays */
@@ -509,8 +510,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static const stat_column titles[]={
-	{G_TYPE_STRING, LEFT, "Message Type or Reason"},
-	{G_TYPE_UINT, RIGHT, "Count" }
+	{G_TYPE_STRING, TAP_ALIGN_LEFT, "Message Type or Reason"},
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT, "Count" }
 };
 
 static void

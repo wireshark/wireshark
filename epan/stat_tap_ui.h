@@ -35,6 +35,8 @@ extern "C" {
 
 #include <epan/params.h>
 #include <epan/stat_groups.h>
+#include <epan/packet_info.h>
+#include <epan/tap.h>
 
 typedef enum {
     PARAM_UINT,   /* Unused? */
@@ -64,12 +66,108 @@ typedef struct _stat_tap_ui {
     tap_param             *params;     /* pointer to table of parameter info */
 } stat_tap_ui;
 
+typedef enum {
+    TABLE_ITEM_NONE = 0,
+    TABLE_ITEM_UINT,
+    TABLE_ITEM_INT,
+    TABLE_ITEM_STRING,
+    TABLE_ITEM_FLOAT,
+    TABLE_ITEM_ENUM
+} stat_tap_table_item_enum;
+
+typedef struct _stat_tap_table_item_type
+{
+    stat_tap_table_item_enum type;
+    union
+    {
+        guint uint_value;
+        gint  int_value;
+        const char* string_value;
+        gfloat float_value;
+        gint enum_value;
+    } value;
+} stat_tap_table_item_type;
+
+/* Possible alignments */
+typedef enum {
+    TAP_ALIGN_LEFT = 0,
+    TAP_ALIGN_RIGHT
+} tap_alignment_type;
+
+typedef struct _stat_tap_table_item
+{
+    stat_tap_table_item_enum type;
+    tap_alignment_type align;
+    const char* column_name;
+    const char* field_format; /* printf style formating of field */
+
+} stat_tap_table_item;
+
+
+/* Description of a UI table */
+typedef struct _stat_tap_table
+{
+    const char* title;
+    const char *filter_string;        /**< append procedure number (%d) to this string to create a display filter */
+    guint num_fields;
+    guint num_elements;
+    stat_tap_table_item_type **elements;
+
+} new_stat_tap_table;
+
+typedef void (*new_stat_tap_gui_init_cb)(new_stat_tap_table* stat_table, void* gui_data);
+typedef void (*new_stat_tap_gui_reset_cb)(new_stat_tap_table* stat_table, void* gui_data);
+typedef void (*new_stat_tap_gui_free_cb)(new_stat_tap_table* stat_table, void* gui_data);
+
+/*
+ * UI information for a tap.
+ */
+typedef struct _new_stat_tap_ui {
+    register_stat_group_t  group;      /* group to which statistic belongs */
+    const char            *title;      /* title of statistic */
+    const char            *tap_name;
+    const char            *cli_string; /* initial part of the "-z" argument for statistic */
+    void (* stat_tap_init_cb)(struct _new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
+    tap_packet_cb packet_func;
+    void (* stat_tap_reset_table_cb)(new_stat_tap_table* table);
+    void (* stat_tap_free_table_item_cb)(new_stat_tap_table* table, guint row, guint column, stat_tap_table_item_type* field_data);
+    void (* new_stat_filter_check_cb)(const char *opt_arg, const char **filter, char** err); /* Dissector chance to reject filter */
+    size_t                 nfields;    /* number of fields */
+    stat_tap_table_item*   fields;
+    size_t                 nparams;    /* number of parameters */
+    tap_param             *params;     /* pointer to table of parameter info */
+    GArray                *tables;     /* An array of new_stat_tap_table* */
+} new_stat_tap_ui;
+
+
+/** tap data
+ */
+typedef struct _new_stat_data_t {
+    new_stat_tap_ui *new_stat_tap_data;
+    void        *user_data;       /**< "GUI" specifics (if necessary) */
+} new_stat_data_t;
+
+
 /** Register UI information for a tap.
  *
  * @param ui UI information for the tap.
  * @param userdata Additional data for the init routine.
  */
 WS_DLL_PUBLIC void register_stat_tap_ui(stat_tap_ui *ui, void *userdata);
+
+WS_DLL_PUBLIC void register_new_stat_tap_ui(new_stat_tap_ui *ui);
+WS_DLL_PUBLIC void new_stat_tap_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void new_stat_tap_get_filter(new_stat_tap_ui* new_stat, const char *opt_arg, const char **filter, char** err);
+WS_DLL_PUBLIC new_stat_tap_table* new_stat_tap_init_table(const char *name, int num_fields, int num_elements,
+                const char *filter_string, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
+WS_DLL_PUBLIC void new_stat_tap_add_table(new_stat_tap_ui* new_stat, new_stat_tap_table* table);
+
+WS_DLL_PUBLIC void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, stat_tap_table_item_type* fields);
+WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index);
+WS_DLL_PUBLIC void new_stat_tap_set_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
+WS_DLL_PUBLIC void reset_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void free_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data);
+
 
 WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
 

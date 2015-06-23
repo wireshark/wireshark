@@ -1,5 +1,6 @@
-/* tshark-tap.h
- * Registation tap hooks for TShark
+/* simple_stattable.h
+ *
+ * Based on response_time_delay_table.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,15 +20,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef __TSHARK_TAP_H__
-#define __TSHARK_TAP_H__
 
-#include <epan/conversation_table.h>
+#ifndef __SIMPLE_STAT_TABLE_H__
+#define __SIMPLE_STAT_TABLE_H__
 
-extern void init_iousers(struct register_ct* ct, const char *filter);
-extern void init_hostlists(struct register_ct* ct, const char *filter);
-extern void register_srt_tables(gpointer data, gpointer user_data);
-extern void register_rtd_tables(gpointer data, gpointer user_data);
-extern void register_simple_stat_tables(gpointer data, gpointer user_data);
+#include <gtk/gtk.h>
+#include "epan/stat_tap_ui.h"
 
-#endif /* __TSHARK_TAP_H__ */
+/** Register function to register dissectors that support a "simple" statistics table.
+ *
+ * @param data new_stat_tap_ui* representing dissetor stat table
+ * @param user_data is unused
+ */
+void register_simple_stat_tables(gpointer data, gpointer user_data);
+
+#endif /* __SIMPLE_STAT_TABLE_H__ */

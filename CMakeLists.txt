@@ -1140,7 +1140,6 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(TSHARK_TAP_SRC
-	ui/cli/tap-ansi_astat.c
 	ui/cli/tap-bootpstat.c
 	ui/cli/tap-camelcounter.c
 	ui/cli/tap-camelsrt.c
@@ -1167,6 +1166,7 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-rtp.c
 	ui/cli/tap-rtspstat.c
 	ui/cli/tap-sctpchunkstat.c
+	ui/cli/tap-simple_stattable.c
 	ui/cli/tap-sipstat.c
 	ui/cli/tap-smbsids.c
 	ui/cli/tap-srt.c

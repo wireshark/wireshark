@@ -195,6 +195,7 @@
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/service_response_time_table.h"
 #include "ui/gtk/response_time_delay_table.h"
+#include "ui/gtk/simple_stattable.h"
 #include "simple_dialog.h"
 
 #include "ui/gtk/old-gtk-compat.h"
@@ -2537,6 +2538,7 @@ DIAG_ON(cast-qual)
     hostlist_table_set_gui_info(init_hostlist_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);
     rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
+    new_stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 

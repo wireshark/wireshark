@@ -38,7 +38,6 @@ GENERATOR_FILES =
 
 # sources for TShark taps
 TSHARK_TAP_SRC = \
-	tap-ansi_astat.c	\
 	tap-bootpstat.c		\
 	tap-camelcounter.c	\
 	tap-camelsrt.c		\
@@ -65,6 +64,7 @@ TSHARK_TAP_SRC = \
 	tap-rtp.c		\
 	tap-rtspstat.c		\
 	tap-sctpchunkstat.c	\
+	tap-simple_stattable.c		\
 	tap-sipstat.c		\
 	tap-smbsids.c		\
 	tap-srt.c			\

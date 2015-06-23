@@ -1656,7 +1656,8 @@ static tap_param_dlg rlc_lte_stat_dlg = {
     gtk_rlc_lte_stat_init,
     -1,
     G_N_ELEMENTS(rlc_lte_stat_params),
-    rlc_lte_stat_params
+    rlc_lte_stat_params,
+    NULL
 };
 
 

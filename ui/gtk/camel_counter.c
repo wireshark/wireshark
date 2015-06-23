@@ -136,8 +136,8 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static const stat_column titles[]={
-  {G_TYPE_STRING, LEFT, "Message Type or Reason"},
-  {G_TYPE_UINT, RIGHT, "Count" }
+  {G_TYPE_STRING, TAP_ALIGN_LEFT, "Message Type or Reason"},
+  {G_TYPE_UINT, TAP_ALIGN_RIGHT, "Count" }
 };
 
 static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
@@ -214,7 +214,8 @@ static tap_param_dlg camel_counter_dlg = {
   gtk_camelcounter_init,
   -1,
   G_N_ELEMENTS(camel_counter_params),
-  camel_counter_params
+  camel_counter_params,
+  NULL
 };
 
 void  /* Next line mandatory */

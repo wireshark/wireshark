@@ -104,6 +104,7 @@ set(WIRESHARK_GTK_SRC
 	sctp_graph_dlg.c
 	service_response_time_table.c
 	simple_dialog.c
+	simple_stattable.c
 	stock_icons.c
 	summary_dlg.c
 	supported_protos_dlg.c
@@ -196,8 +197,6 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_TAP_SRC
-	ansi_a_stat.c
-	ansi_map_stat.c
 	bootp_stat.c
 	camel_counter.c
 	compare_stat.c

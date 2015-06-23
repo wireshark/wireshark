@@ -27,6 +27,7 @@
 
 #include "epan/packet_info.h"
 #include "epan/proto.h"
+#include <epan/stat_tap_ui.h>
 
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
@@ -55,27 +56,27 @@ enum
 };
 
 static const stat_column titles[]={
-	{G_TYPE_STRING, LEFT, "Type" },
-	{G_TYPE_UINT, RIGHT,   "Messages" },
-	{G_TYPE_STRING, RIGHT, "Min SRT" },
-	{G_TYPE_STRING, RIGHT, "Max SRT" },
-	{G_TYPE_STRING, RIGHT, "Avg SRT" },
-	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
-	{G_TYPE_UINT, RIGHT,  "Max in Frame" }
+	{G_TYPE_STRING, TAP_ALIGN_LEFT, "Type" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,   "Messages" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Min SRT" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Max SRT" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Avg SRT" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Min in Frame" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Max in Frame" }
 };
 
 static const stat_column titles_more[]={
-	{G_TYPE_STRING, LEFT, "Type" },
-	{G_TYPE_UINT, RIGHT,   "Messages" },
-	{G_TYPE_STRING, RIGHT, "Min SRT" },
-	{G_TYPE_STRING, RIGHT, "Max SRT" },
-	{G_TYPE_STRING, RIGHT, "Avg SRT" },
-	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
-	{G_TYPE_UINT, RIGHT,  "Max in Frame" },
-	{G_TYPE_UINT, RIGHT,   "Open Requests" },
-	{G_TYPE_UINT, RIGHT,   "Discarded Responses" },
-	{G_TYPE_STRING, RIGHT, "Repeated Requests" },
-	{G_TYPE_STRING, RIGHT, "Repeated Responses"}
+	{G_TYPE_STRING, TAP_ALIGN_LEFT, "Type" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,   "Messages" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Min SRT" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Max SRT" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Avg SRT" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Min in Frame" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,  "Max in Frame" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,   "Open Requests" },
+	{G_TYPE_UINT, TAP_ALIGN_RIGHT,   "Discarded Responses" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Repeated Requests" },
+	{G_TYPE_STRING, TAP_ALIGN_RIGHT, "Repeated Responses"}
 };
 
 typedef struct _gtk_rtd_t {
@@ -374,6 +375,7 @@ void register_response_time_delay_tables(gpointer data, gpointer user_data _U_)
 
 	rtd_dlg->nparams = G_N_ELEMENTS(rtd_stat_params);
 	rtd_dlg->params = rtd_stat_params;
+	rtd_dlg->user_data = rtd; /* TODO: Actually use this */
 
 	register_param_stat(rtd_dlg, short_name, REGISTER_STAT_GROUP_RESPONSE_TIME);
 }

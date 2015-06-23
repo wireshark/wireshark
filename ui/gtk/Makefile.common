@@ -125,6 +125,7 @@ WIRESHARK_GTK_SRC = \
 	sctp_graph_dlg.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
+	simple_stattable.c	\
 	stock_icons.c	\
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
@@ -146,8 +147,6 @@ prefs_layout.c: layouts.h
 stock_icons.c: stock_icons.h toolbar_icons.h wsicon.h
 
 WIRESHARK_TAP_SRC = \
-	ansi_a_stat.c	\
-	ansi_map_stat.c	\
 	bootp_stat.c	\
 	camel_counter.c	\
 	compare_stat.c	\
@@ -289,11 +288,12 @@ noinst_HEADERS = \
 	rtp_stream_dlg.h \
 	sctp_stat_gtk.h	\
 	service_response_time_table.h	\
+	simple_stattable.h	\
 	time_shift_dlg.h	\
 	simple_dialog.h	\
 	stock_icons.h	\
-	summary_dlg.h   \
-	supported_protos_dlg.h   \
+	summary_dlg.h	\
+	supported_protos_dlg.h	\
 	tap_param_dlg.h	\
 	text_page_utils.h	\
 	toolbar_icons.h	\

@@ -1075,11 +1075,6 @@ static const char *ui_desc_menubar =
 "      <separator/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
-"      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
-"        <menuitem name='BSMAP' action='/Telephony/ANSI/BSMAP'/>\n"
-"        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>\n"
-"        <menuitem name='MAP-OP' action='/Telephony/ANSI/MAP-OP'/>\n"
-"      </menu>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
 "        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
 "        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
@@ -1514,11 +1509,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/Endpoints",       WIRESHARK_STOCK_ENDPOINTS,      "Endpoints",                NULL,                       NULL,               G_CALLBACK(init_hostlist_notebook_cb) },
    { "/Statistics/IOGraphs",            WIRESHARK_STOCK_GRAPHS,     "_IO Graph",                NULL,                       NULL,               G_CALLBACK(gui_iostat_cb) },
    { "/Statistics/plen",                        NULL,               "Packet Lengths...",        NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
-
-   { "/Telephony/ANSI",                 NULL,                       "_ANSI",                    NULL, NULL, NULL },
-   { "/Telephony/ANSI/BSMAP",           NULL,                       "A-Interface BSMAP",        NULL,                       NULL,               G_CALLBACK(ansi_a_stat_gtk_bsmap_cb) },
-   { "/Telephony/ANSI/DTAP",            NULL,                       "A-Interface DTAP",         NULL,                       NULL,               G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
-   { "/Telephony/ANSI/MAP-OP",          NULL,                       "MAP Operation",            NULL,                       NULL,               G_CALLBACK(ansi_map_stat_gtk_cb) },
 
    { "/Telephony/GSM",                  NULL,                       "_GSM",                     NULL, NULL, NULL },
    { "/Telephony/GSM/BSSMAP",           NULL,                       "A-Interface BSSMAP",  NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },

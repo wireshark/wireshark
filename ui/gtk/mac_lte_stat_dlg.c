@@ -1411,7 +1411,8 @@ static tap_param_dlg mac_lte_stat_dlg = {
     gtk_mac_lte_stat_init,
     -1,
     G_N_ELEMENTS(mac_lte_stat_params),
-    mac_lte_stat_params
+    mac_lte_stat_params,
+    NULL
 };
 
 

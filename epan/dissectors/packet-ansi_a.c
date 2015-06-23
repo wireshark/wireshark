@@ -44,6 +44,7 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
@@ -10746,6 +10747,135 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+/* TAP STAT INFO */
+typedef enum
+{
+    IEI_COLUMN = 0,
+    MESSAGE_NAME_COLUMN,
+    COUNT_COLUMN
+} ansi_a_stat_columns;
+
+static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
+    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
+
+void ansi_a_dtap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+    int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
+    new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    int i = 0;
+    stat_tap_table_item_type items[sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item)];
+
+    new_stat_tap_add_table(new_stat, table);
+
+    /* Add a fow for each value type */
+    while (ansi_a_dtap_strings[i].strptr)
+    {
+        items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+        items[IEI_COLUMN].value.uint_value = ansi_a_dtap_strings[i].value;
+        items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
+        items[MESSAGE_NAME_COLUMN].value.string_value = ansi_a_dtap_strings[i].strptr;
+        items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+        items[COUNT_COLUMN].value.uint_value = 0;
+
+        new_stat_tap_init_table_row(table, i, num_fields, items);
+        i++;
+    }
+}
+
+static gboolean
+ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
+{
+    new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+    const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
+    stat_tap_table_item_type* dtap_data;
+    new_stat_tap_table* table;
+    guint i = 0, idx;
+
+    if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
+    {
+        if (my_try_val_to_str_idx(data_p->message_type, ansi_a_dtap_strings, &idx) == NULL)
+            return FALSE;
+
+        table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+
+        dtap_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+        dtap_data->value.uint_value++;
+        new_stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void
+ansi_a_stat_reset(new_stat_tap_table* table)
+{
+    guint element;
+    stat_tap_table_item_type* item_data;
+
+    for (element = 0; element < table->num_elements; element++)
+    {
+        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+    }
+
+}
+
+static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
+    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
+
+void ansi_a_bsmap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+    int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
+    new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    int i = 0;
+    stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
+
+    new_stat_tap_add_table(new_stat, table);
+
+    /* Add a fow for each value type */
+    while (ansi_a_bsmap_strings[i].strptr)
+    {
+        items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+        items[IEI_COLUMN].value.uint_value = ansi_a_bsmap_strings[i].value;
+        items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
+        items[MESSAGE_NAME_COLUMN].value.string_value = ansi_a_bsmap_strings[i].strptr;
+        items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+        items[COUNT_COLUMN].value.uint_value = 0;
+
+        new_stat_tap_init_table_row(table, i, num_fields, items);
+        i++;
+    }
+}
+
+static gboolean
+ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
+{
+    new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+    const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
+    stat_tap_table_item_type* dtap_data;
+    new_stat_tap_table* table;
+    guint i = 0, idx;
+
+    if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
+    {
+        if (my_try_val_to_str_idx(data_p->message_type, ansi_a_bsmap_strings, &idx) == NULL)
+            return FALSE;
+
+        table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+
+        dtap_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+        dtap_data->value.uint_value++;
+        new_stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 /* Register the protocol with Wireshark */
 void
 proto_register_ansi_a(void)
@@ -12729,6 +12859,36 @@ proto_register_ansi_a(void)
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
+    static new_stat_tap_ui dtap_stat_table = {
+        REGISTER_STAT_GROUP_TELEPHONY,
+        "ANSI A-I/F DTAP Statistics",
+        "ansi_a",
+        "ansi_a,dtap",
+        ansi_a_dtap_stat_init,
+        ansi_a_dtap_stat_packet,
+        ansi_a_stat_reset,
+        NULL,
+        NULL,
+        sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item), dtap_stat_fields,
+        0, NULL,
+        NULL
+    };
+
+    static new_stat_tap_ui bsmap_stat_table = {
+        REGISTER_STAT_GROUP_TELEPHONY,
+        "ANSI A-I/F BSMAP Statistics",
+        "ansi_a",
+        "ansi_a,bsmap",
+        ansi_a_bsmap_stat_init,
+        ansi_a_bsmap_stat_packet,
+        ansi_a_stat_reset,
+        NULL,
+        NULL,
+        sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item), bsmap_stat_fields,
+        0, NULL,
+        NULL
+    };
+
     /*
      * XXX - at least one version of the HP C compiler apparently doesn't
      * recognize constant expressions using the "?" operator as being
@@ -12845,6 +13005,9 @@ proto_register_ansi_a(void)
         &global_a_info_display);
 
     g_free(ett);
+
+    register_new_stat_tap_ui(&dtap_stat_table);
+    register_new_stat_tap_ui(&bsmap_stat_table);
 }
 
 

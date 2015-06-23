@@ -405,7 +405,8 @@ static tap_param_dlg wsp_stat_dlg = {
 	gtk_wspstat_init,
 	-1,
 	G_N_ELEMENTS(wsp_stat_params),
-	wsp_stat_params
+	wsp_stat_params,
+	NULL
 };
 
 void
