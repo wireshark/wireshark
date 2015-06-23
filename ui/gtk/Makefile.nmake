@@ -85,11 +85,11 @@ wsiconcap.h:
 	gdk-pixbuf-csource --raw --name=wsiconcap_%n_pb_data ../../image/wsiconcap%n.png >> $@
 
 # The first argument is the directory in which the source files live.
-# The second argument is "plugin", to indicate that we should build
-# a plugin.c file for a plugin.
+# The second argument is "taps", to indicate that we should build
+# a tap register file.
 # All subsequent arguments are the files to scan.
 #
-wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../../tools/make-tap-reg.py
+wireshark-tap-register.c: Makefile.common $(WIRESHARK_TAP_SRC) ../../tools/make-tap-reg.py
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) "../../tools/make-tap-reg.py" . taps $(WIRESHARK_TAP_SRC)
 

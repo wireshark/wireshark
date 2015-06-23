@@ -44,7 +44,7 @@ libcliui.lib	: ..\..\config.h $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj
 # routines must start in column zero, or must be preceded only by
 # "void " starting in column zero, and must not be inside #if.
 #
-tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tap-reg.py
+tshark-tap-register.c: Makefile.common $(TSHARK_TAP_SRC) ..\..\tools\make-tap-reg.py
 	@echo Making tshark-tap-register.c
 	@$(PYTHON) ..\..\tools\make-tap-reg.py . tshark-taps $(TSHARK_TAP_SRC)
 
