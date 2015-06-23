@@ -1760,7 +1760,7 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     proto_tree_add_item(conv_tree, hf_contact_hdr_local_eid, tvb, sdnv_length + offset, eid_length, ENC_NA|ENC_ASCII);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -1889,7 +1889,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             if (bundle_size == 0) {
                 /*Couldn't parse bundle, treat as raw data */
                 call_dissector(data_handle, new_tvb, pinfo, sub_tree);
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
         }
         else {
@@ -1946,7 +1946,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -2003,7 +2003,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_dtn_contact_header_len, dissect_dtn_contact_header, data);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         /* Not for us */
@@ -2011,7 +2011,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     };
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 1, get_tcpcl_pdu_len, dissect_tcpcl_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int

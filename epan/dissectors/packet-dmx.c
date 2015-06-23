@@ -103,7 +103,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(dmx_sip_handle, next_tvb, pinfo, tree);
 		break;
 	default:
-		if (offset < tvb_length(tvb))
+		if (offset < tvb_reported_length(tvb))
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
 	}

@@ -7704,7 +7704,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 int data_len;
                 guint64 copyconfounder = vars->confounder;
 
-                data_len = tvb_length_remaining(tvb,offset);
+                data_len = tvb_captured_length_remaining(tvb,offset);
                 if (data_len < 0) {
                     return NULL;
                 }

@@ -146,7 +146,7 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(egd_tree, hf_egd_resv, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    data_length = tvb_length_remaining(tvb, offset);
+    data_length = tvb_reported_length_remaining(tvb, offset);
     if (data_length > 0)
     {
       next_tvb = tvb_new_subset_remaining(tvb, offset);

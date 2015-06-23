@@ -1802,7 +1802,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (num_items < 0) {
     proto_item_append_text(range_item, " (bogus)");
     expert_add_info(pinfo, range_item, &ei_dnp_num_items_neg);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
   }
 
 
@@ -2839,7 +2839,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           default:             /* In case of unknown object */
 
             proto_tree_add_item(object_tree, hf_dnp3_unknown_data_chunk, tvb, offset, -1, ENC_NA);
-            offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
+            offset = tvb_captured_length(tvb); /* Finish decoding if unknown object is encountered... */
             break;
         }
 
@@ -2848,7 +2848,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       }
       if (start_offset > offset) {
         expert_add_info(pinfo, point_item, &ei_dnp_invalid_length);
-        offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
+        offset = tvb_captured_length(tvb); /* Finish decoding if unknown object is encountered... */
       }
     }
   }
@@ -2881,7 +2881,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   nstime_set_zero (&al_cto);
 
-  data_len = tvb_length(tvb);
+  data_len = tvb_captured_length(tvb);
 
   /* Handle the control byte and function code */
   al_ctl = tvb_get_guint8(tvb, offset);
@@ -3433,7 +3433,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean

@@ -1071,7 +1071,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Get remaining data in buffer as a string */
 
-	remaining = tvb_length_remaining(tvb, offset);
+	remaining = tvb_captured_length_remaining(tvb, offset);
 	if (remaining <= 0) {
 		if (data)
 			*data = g_strdup("");
@@ -3849,7 +3849,7 @@ dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Eek - we need to know whether this pointer was NULL or not.
 	   Currently there is not any way to do this. */
 
-	if (tvb_length_remaining(tvb, offset) <= 0)
+	if (tvb_reported_length_remaining(tvb, offset) <= 0)
 		goto done;
 
 	offset = dissect_ndr_uint32(
@@ -4189,7 +4189,7 @@ static int
 SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
 {
-	int len = tvb_length(tvb);
+	int len = tvb_reported_length(tvb);
 
 	proto_tree_add_text(tree, tvb, offset, 0,
 			    "[Unimplemented dissector: SPOOLSS]");

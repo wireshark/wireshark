@@ -758,7 +758,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
 
   /* Check that there's enough data */
-  length = tvb_length(tvb);
+  length = tvb_captured_length(tvb);
   if (length < 4 + 4 + 4 + 2 + 1 + 1)
     return 0;
 
@@ -837,7 +837,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
       dissect_dlm3_rcom(tvb, pinfo, sub_tree, length, offset);
     }
   }
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 

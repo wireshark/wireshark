@@ -91,7 +91,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_registrar_get_name(hf_index));
 
 	if (use_remaining_space) {
-		len = tvb_length_remaining (tvb, offset);
+		len = tvb_captured_length_remaining (tvb, offset);
 	} else {
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, subtree, di, drep,
 				    hf_nt_data_blob_len, &len);

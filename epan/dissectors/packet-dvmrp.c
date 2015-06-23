@@ -687,7 +687,7 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dvmrp);
 
-	if ((tvb_length_remaining(tvb, offset)>=8)
+	if ((tvb_captured_length_remaining(tvb, offset)>=8)
 	 && (((tvb_get_guint8(tvb, 6)==0xff)
 	 && (tvb_get_guint8(tvb, 7)==0x03))
 	     || !strict_v3)) {

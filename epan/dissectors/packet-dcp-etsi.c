@@ -178,7 +178,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
    * Don't accept this packet unless at least a full AF header present(10 bytes).
    * It should be possible to strengthen the heuristic further if need be.
    */
-  if(tvb_length(tvb) < 11)
+  if(tvb_captured_length(tvb) < 11)
     return FALSE;
 
   word = tvb_get_ntohs(tvb,0);
@@ -337,11 +337,11 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                             NULL, tree);
     }
   }
-  if(new_tvb && tvb_length(new_tvb) > 0) {
+  if(new_tvb && tvb_captured_length(new_tvb) > 0) {
     gboolean decoded;
     tvbuff_t *dtvb = NULL;
     const guint8 *input = tvb_get_ptr(new_tvb, 0, -1);
-    guint32 reassembled_size = tvb_length(new_tvb);
+    guint32 reassembled_size = tvb_captured_length(new_tvb);
     guint8 *deinterleaved = (guint8*) g_malloc (reassembled_size);
     guint8 *output = (guint8*) g_malloc (decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
@@ -501,7 +501,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   offset += 2;
   if (fcount > 1) {             /* fragmented*/
     gboolean save_fragmented = pinfo->fragmented;
-    guint16 real_len = tvb_length(tvb)-offset;
+    guint16 real_len = tvb_captured_length(tvb)-offset;
     proto_tree_add_item (pft_tree, hf_edcp_pft_payload, tvb, offset, real_len, ENC_NA);
     if(real_len != payload_len || real_len == 0) {
       proto_item_append_text(li, " (length error (%d))", real_len);
@@ -549,7 +549,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   offset += 2;
   payload_len = tvb_get_ntohl(tvb, offset);
   if (tree) {
-    guint32 real_payload_len = tvb_length(tvb)-12;
+    guint32 real_payload_len = tvb_captured_length(tvb)-12;
     li = proto_tree_add_item (af_tree, hf_edcp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
     if(real_payload_len < payload_len) {
       proto_item_append_text (li, " (wrong len claims %d is %d)",
@@ -612,7 +612,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_NA);
   tpl_tree = proto_item_add_subtree (ti, ett_tpl);
 
-  while(offset<tvb_length(tvb)) {
+  while(offset<tvb_reported_length(tvb)) {
     guint32 bits;
     guint32 bytes;
     char *tag = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII); offset += 4;

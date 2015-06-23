@@ -187,7 +187,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += 1;
 
-		if (offset < tvb_length(tvb))
+		if (offset < tvb_reported_length(tvb))
 			proto_tree_add_item(dmx_sip_tree, hf_dmx_sip_trailer, tvb,
 					offset, -1, ENC_NA);
 	}

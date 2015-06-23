@@ -440,7 +440,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
     /* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
     static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
-    if (tvb_length(tvb) < 20)
+    if (tvb_captured_length(tvb) < 20)
         return 0;
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
         return 0;
