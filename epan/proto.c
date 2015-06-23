@@ -2080,6 +2080,8 @@ gint32 *retval)
 	field_info	  *new_fi;
 	gint32		   value;
 
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
 	switch (hfinfo->type){
 	case FT_INT8:
 	case FT_INT16:
@@ -2090,7 +2092,6 @@ gint32 *retval)
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 	/* length validation for native number encoding caught by get_uint_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
@@ -2131,6 +2132,8 @@ guint32 *retval)
 	field_info	  *new_fi;
 	guint32		   value;
 
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
 	switch (hfinfo->type){
 	case FT_UINT8:
 	case FT_UINT16:
@@ -2141,7 +2144,6 @@ guint32 *retval)
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 	/* length validation for native number encoding caught by get_uint_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
