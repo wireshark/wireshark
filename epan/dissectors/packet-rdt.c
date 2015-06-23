@@ -311,7 +311,7 @@ static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Parse all RDT packets found in the frame */
-    while (offset != -1 && tvb_length_remaining(tvb, offset))
+    while (offset != -1 && tvb_reported_length_remaining(tvb, offset))
     {
         /* Every packet type should have at least 3 bytes */
         tvb_ensure_bytes_exist(tvb, offset, 3);
@@ -459,7 +459,7 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     /* More flags */
@@ -522,13 +522,13 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -587,7 +587,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     /* Stream ID expansion */
@@ -606,10 +606,10 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -658,7 +658,7 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     proto_tree_add_item(tree, hf_rdt_brpt_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -671,10 +671,10 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
     col_append_str(pinfo->cinfo, COL_INFO, "BANDWIDTH-REPORT:  ");
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -727,7 +727,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     /* XXX: The remaining data is unparsed. */
@@ -736,10 +736,10 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     col_append_fstr(pinfo->cinfo, COL_INFO, "ACK: lh=%u  ", lost_high_flag);
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -870,7 +870,7 @@ guint dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree_add_item(tree, hf_rdt_stre_reason_code, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         /* XXX: Remainder is reason_text */
-        offset += tvb_length_remaining(tvb, offset);
+        offset += tvb_captured_length_remaining(tvb, offset);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "STREAM-END: stream-id=%02u  ", stream_id);
@@ -921,7 +921,7 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     col_append_str(pinfo->cinfo, COL_INFO, "REPORT:  ");
@@ -930,10 +930,10 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -983,7 +983,7 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     server_out_time = tvb_get_ntohl(tvb, offset);
@@ -993,10 +993,10 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     col_append_fstr(pinfo->cinfo, COL_INFO, "LATENCY-REPORT: t=%u  ", server_out_time);
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -1131,7 +1131,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     }
 
     /* Report what is left */
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, "RESPONSE:  ");
 
@@ -1181,7 +1181,7 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     else
     {
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     proto_tree_add_item(tree, hf_rdt_bwpp_seqno, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1192,10 +1192,10 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     col_append_str(pinfo->cinfo, COL_INFO, "BW-PROBING:  ");
 
     if (packet_length < (offset - start_offset) ||
-        packet_length > tvb_length_remaining(tvb, start_offset))
+        packet_length > tvb_reported_length_remaining(tvb, start_offset))
     {
         proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
-        packet_length = tvb_length_remaining(tvb, start_offset);
+        packet_length = tvb_captured_length_remaining(tvb, start_offset);
     }
 
     return start_offset + packet_length;
@@ -1214,7 +1214,7 @@ guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     /* The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN-CTL:  ");
 

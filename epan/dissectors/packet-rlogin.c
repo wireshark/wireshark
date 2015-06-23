@@ -117,7 +117,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	}
 
 	/* exit if no data */
-	length = tvb_length(tvb);
+	length = tvb_captured_length(tvb);
 	if (length == 0)
 	{
 		return;
@@ -192,7 +192,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
 	/* Return if data empty */
-	length = tvb_length(tvb);
+	length = tvb_captured_length(tvb);
 	if (length == 0)
 	{
 		return;
@@ -256,7 +256,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 		/* First frame of conversation, assume user info... */
 
-		info_len = tvb_length_remaining(tvb, offset);
+		info_len = tvb_captured_length_remaining(tvb, offset);
 		if (info_len <= 0)
 			return;
 
@@ -416,7 +416,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	}
 
 	/* Work out packet content summary for display */
-	length = tvb_length(tvb);
+	length = tvb_reported_length(tvb);
 	if (length != 0)
 	{
 		/* Initial NULL byte represents part of connection handshake */
@@ -447,7 +447,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			else
 			{
 				/* Show any text data in the frame */
-				int bytes_to_copy = tvb_length(tvb);
+				int bytes_to_copy = tvb_captured_length(tvb);
 				if (bytes_to_copy > 128)
 				{
 					/* Truncate to 128 bytes for display */
@@ -468,7 +468,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	/* Dissect in detail */
 	rlogin_display(hash_info, tvb, pinfo, tree, tcpinfo);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

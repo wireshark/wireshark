@@ -1743,7 +1743,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 #if 0
     printf("offset=%d, type=%x, length=%d, remaining=%d\n",
-           offset, type, length, tvb_length_remaining(tvb, offset));
+           offset, type, length, tvb_captured_length_remaining(tvb, offset));
 #endif
 
     switch(type) {
@@ -1899,13 +1899,13 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    *  Note: If length is less than the header size (4 bytes) offset is advanced by 4 bytes
    *        to ensure that dissection eventually terminates.
    */
-  while (tvb_length_remaining(tvb, offset) > 0) {
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
     type   = tvb_get_letohs(tvb, offset);
     length = tvb_get_letohs(tvb, offset+2);
 
     /*    printf("offset=%d, type=%x, length=%d, remaining=%d\n",
-          offset, type, length, tvb_length_remaining(tvb, offset)); */
+          offset, type, length, tvb_captured_length_remaining(tvb, offset)); */
 
     switch(type) {
     case SC_CORE:

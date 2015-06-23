@@ -501,8 +501,8 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         offset++;
     } else {
         proto_tree_add_expert_format(tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1, "extension 3 [Not dissected yet]");
-        if (tvb_length_remaining(tvb, offset) > 0)
-            offset += tvb_length_remaining(tvb, offset);
+        if (tvb_captured_length_remaining(tvb, offset) > 0)
+            offset += tvb_captured_length_remaining(tvb, offset);
     }
     return offset;
 }
@@ -1898,17 +1898,17 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     switch(profile){
         case ROHC_PROFILE_UNCOMPRESSED:
-            if (tvb_length_remaining(tvb, offset) > 0) {
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 oct = tvb_get_guint8(tvb, offset);
                 if ( (oct&0xf0) == 0x60 ) {
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
                     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-                    offset += tvb_length_remaining(tvb, offset);
+                    offset += tvb_captured_length_remaining(tvb, offset);
                 }
                 else if ( (oct&0xf0) == 0x40 ) {
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
-                    offset += tvb_length_remaining(tvb, offset);
+                    offset += tvb_captured_length_remaining(tvb, offset);
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
                 col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
@@ -2065,7 +2065,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         memset(&g_rohc_info, 0, sizeof(rohc_info));
     }
 
-    length = tvb_length(tvb);
+    length = tvb_reported_length(tvb);
 
     /* If this is ROHC ethertype clear col */
     if ( pinfo->src.type == AT_ETHER ){
@@ -2153,7 +2153,7 @@ start_over:
             p_rohc_info->last_created_item = proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
             proto_tree_add_item(rohc_tree, hf_rohc_error_packet, tvb, offset, -1, ENC_NA);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }else{
             col_append_str(pinfo->cinfo, COL_INFO, "Feedback ");
             /* 4) If the first remaining octet starts with 11110, and an Add-CID
@@ -2206,7 +2206,7 @@ start_over:
                 goto start_over;
 
             proto_item_set_len(p_rohc_info->last_created_item, offset-feedback_start);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }/*feedback */
     /* 5) If the first remaining octet starts with 1111111, this is a segment:
@@ -2219,7 +2219,7 @@ start_over:
             PROTO_ITEM_SET_GENERATED(item);
         }
         proto_tree_add_expert(rohc_tree, pinfo, &ei_rohc_desegmentation_not_implemented, tvb, offset, -1);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     /* 6) Here, it is known that the rest is forward information (unless the
      *    header is damaged).
@@ -2229,24 +2229,24 @@ start_over:
         offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     if((oct&0xff) == 0xf8){
         col_append_str(pinfo->cinfo, COL_INFO, "IR-DYN packet");
         offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     if (!pinfo->fd->flags.visited){
@@ -2281,7 +2281,7 @@ start_over:
             guint8 *payload_data;
             gint len;
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
-            len = tvb_length_remaining(tvb, offset);
+            len = tvb_captured_length_remaining(tvb, offset);
             if (len >= val_len) {
                 len -= val_len;
                 payload_data = (guint8 *)wmem_alloc(pinfo->pool, len);
@@ -2305,7 +2305,7 @@ start_over:
         }
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     else if (((oct&0x80)==0x00) && (rohc_cid_context->profile==ROHC_PROFILE_RTP)) {
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
@@ -2339,7 +2339,7 @@ start_over:
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector_only(data_handle, payload_tvb, pinfo, tree, NULL);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Set up rohc_cid_hash which holds data for a CID

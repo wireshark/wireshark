@@ -79,7 +79,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     usb_conv_info = (usb_conv_info_t *)data;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_captured_length_remaining(tvb, offset);
     if (length < 6) return offset;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN532_HCI");
@@ -89,7 +89,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     main_tree = proto_item_add_subtree(main_item, ett_pn532_hci);
 
     length = 0;
-    while (tvb_length_remaining(tvb, length) >= 2 && tvb_get_ntohs(tvb, length) != 0x00FF) {
+    while (tvb_captured_length_remaining(tvb, length) >= 2 && tvb_get_ntohs(tvb, length) != 0x00FF) {
         length += 1;
     }
     if (length) {
@@ -177,9 +177,9 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     length = 0;
-    if (tvb_length_remaining(tvb, offset) == 1) {
+    if (tvb_captured_length_remaining(tvb, offset) == 1) {
         length = 1;
-    } else while (tvb_length_remaining(tvb, offset + length) >= 2 && tvb_get_ntohs(tvb, offset + length) != 0x00FF) {
+    } else while (tvb_captured_length_remaining(tvb, offset + length) >= 2 && tvb_get_ntohs(tvb, offset + length) != 0x00FF) {
         length += 1;
     }
     if (length) {
@@ -187,9 +187,9 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += length;
     }
 
-    if (tvb_length_remaining(tvb, offset)) {
-        proto_tree_add_item(main_tree, hf_ignored, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
-        offset += tvb_length_remaining(tvb, offset);
+    if (tvb_captured_length_remaining(tvb, offset)) {
+        proto_tree_add_item(main_tree, hf_ignored, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        offset += tvb_captured_length_remaining(tvb, offset);
     }
 
     return offset;

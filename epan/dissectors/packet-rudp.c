@@ -135,7 +135,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, hlen);
-	if (tvb_length(next_tvb) && sm_handle)
+	if (tvb_captured_length(next_tvb) && sm_handle)
 		call_dissector(sm_handle, next_tvb, pinfo, tree);
 }
 

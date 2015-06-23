@@ -378,7 +378,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	 * any sort of documentation other than "read the source of any of the
 	 * (compatible?) implementations.
 	 */
-	if (tvb_length_remaining(tvb, offset)>3) {
+	if (tvb_reported_length_remaining(tvb, offset)>3) {
 		offset += 3;	/* guess. some implementations add 3 bytes */
 
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
@@ -441,7 +441,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	guint16 serviceid;
 
 	/* Ensure we have enough data */
-	if (tvb_length(tvb) < 28)
+	if (tvb_captured_length(tvb) < 28)
 		return 0;
 
 	/* Make sure it's a known type */
@@ -561,7 +561,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 		break;
 	}
 
-	return(tvb_length(tvb));
+	return(tvb_captured_length(tvb));
 }
 
 void

@@ -229,7 +229,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_rtacser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_captured_length(tvb);
 
     /* Check for a RTAC Serial packet.  It should be at least 12 bytes */
     if(length < 12) {
@@ -239,7 +239,7 @@ dissect_rtacser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     dissect_rtacser_data(tvb, pinfo, tree);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /******************************************************************************************************/

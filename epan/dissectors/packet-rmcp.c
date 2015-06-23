@@ -143,13 +143,13 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		if (!dissector_try_uint(rmcp_dissector_table, rmcp_class, next_tvb, pinfo,
 			tree)) {
 			len = call_dissector(data_handle, next_tvb, pinfo, tree);
-			if (len < tvb_length(next_tvb)) {
+			if (len < tvb_reported_length(next_tvb)) {
 				proto_tree_add_item(tree, hf_rmcp_trailer, tvb, 4 + len, -1, ENC_NA);
 			}
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -178,7 +178,7 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	next_tvb = tvb_new_subset_remaining(tvb, 8);
 	dissect_rmcp(next_tvb, pinfo, tree, NULL);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

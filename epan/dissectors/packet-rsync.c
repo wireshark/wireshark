@@ -218,7 +218,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(rsync_tree, &hfi_rsync_module_list_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
                 /* we need to check the end of the buffer for magic string */
-                buff_length = tvb_length_remaining(tvb, offset);
+                buff_length = tvb_captured_length_remaining(tvb, offset);
                 if (buff_length > RSYNCD_EXIT_LEN &&
                     0 == tvb_strneql(tvb, buff_length-RSYNCD_EXIT_LEN-1, RSYNCD_EXIT, RSYNCD_EXIT_LEN)) {
             /* that's all, folks */
@@ -261,9 +261,9 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             conversation_data->client_state = RSYNC_COMMAND;
 
-            if (tvb_length(tvb) == RSYNC_MODULE_LIST_QUERY_LEN &&
+            if (tvb_captured_length(tvb) == RSYNC_MODULE_LIST_QUERY_LEN &&
                 0 == tvb_strneql(tvb, offset, RSYNC_MODULE_LIST_QUERY, RSYNC_MODULE_LIST_QUERY_LEN)) {
-        conversation_data->server_state = RSYNC_MODULE_LIST;
+                conversation_data->server_state = RSYNC_MODULE_LIST;
             } else {
                 conversation_data->server_state = RSYNC_DATA;
             }
@@ -295,7 +295,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
         }
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Packet dissection routine called by tcp (& udp) when port 873 detected */
