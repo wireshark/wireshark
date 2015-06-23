@@ -3,17 +3,21 @@
 # Run the command we're passed in a subshell, so that said subshell will
 # catch any signals from it and report it.
 #
-# This is done for commands that aren't the last command in the
+# This must be done for commands that aren't the last command in the
 # pipeline, as, given that the exit status of a pipeline is the exit
 # status of the last command in the pipeline, there's no guarantee that
 # the shell will bother to pick up the exit status of earlier commands
 # in the pipeline.
+#
+# It can also be done for other tests, to get more information than
+# "it crashed due to signal XXX" if the tests fail with a crash signal.
 #
 # XXX - on OS X, core dumps are in /cores/core.{PID}; would they appear
 # elsewhere on any other UN*X?
 #
 rm -f core
 "$@"
+exitstatus=$?
 if [ -r core ]
 then
 	#
@@ -112,3 +116,4 @@ EOF
 		fi
 	fi
 fi
+exit $exitstatus
