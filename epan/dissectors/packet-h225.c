@@ -49,6 +49,7 @@
 #include <epan/asn1.h>
 #include <epan/t35.h>
 #include <epan/tap.h>
+#include <epan/rtd_table.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
@@ -909,7 +910,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 130 "../../asn1/h225/packet-h225-template.c"
+#line 131 "../../asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1157,7 +1158,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 134 "../../asn1/h225/packet-h225-template.c"
+#line 135 "../../asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -1180,6 +1181,96 @@ static guint32 manufacturerCode;
 
 /* TunnelledProtocol */
 static const char *tpOID;
+
+static const value_string ras_message_category[] = {
+	{  0,	"Gatekeeper    "},
+	{  1,	"Registration  "},
+	{  2,	"UnRegistration"},
+	{  3,	"Admission     "},
+	{  4,	"Bandwidth     "},
+	{  5,	"Disengage     "},
+	{  6,	"Location      "},
+	{  0, NULL }
+};
+
+typedef enum _ras_type {
+	RAS_REQUEST,
+	RAS_CONFIRM,
+	RAS_REJECT,
+	RAS_OTHER
+}ras_type;
+
+typedef enum _ras_category {
+	RAS_GATEKEEPER,
+	RAS_REGISTRATION,
+	RAS_UNREGISTRATION,
+	RAS_ADMISSION,
+	RAS_BANDWIDTH,
+	RAS_DISENGAGE,
+	RAS_LOCATION,
+	RAS_OTHERS
+}ras_category;
+
+#define NUM_RAS_STATS 7
+
+static int
+h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
+{
+    rtd_data_t* rtd_data = (rtd_data_t*)phs;
+    rtd_stat_table* rs = &rtd_data->stat_table;
+	const h225_packet_info *pi=(const h225_packet_info *)phi;
+
+	ras_type rasmsg_type = RAS_OTHER;
+	ras_category rascategory = RAS_OTHERS;
+
+	if (pi->msg_type != H225_RAS || pi->msg_tag == -1) {
+		/* No RAS Message or uninitialized msg_tag -> return */
+		return 0;
+	}
+
+	if (pi->msg_tag < 21) {
+		/* */
+		rascategory = (ras_category)(pi->msg_tag / 3);
+		rasmsg_type = (ras_type)(pi->msg_tag % 3);
+	}
+	else {
+		/* No SRT yet (ToDo) */
+		return 0;
+	}
+
+	switch(rasmsg_type) {
+
+	case RAS_REQUEST:
+		if(pi->is_duplicate){
+			rs->time_stats[rascategory].req_dup_num++;
+		}
+		else {
+			rs->time_stats[rascategory].open_req_num++;
+		}
+		break;
+
+	case RAS_CONFIRM:
+		/* no break - delay stats are identical for Confirm and Reject  */
+	case RAS_REJECT:
+		if(pi->is_duplicate){
+			/* Duplicate is ignored */
+			rs->time_stats[rascategory].rsp_dup_num++;
+		}
+		else if (!pi->request_available) {
+			/* no request was seen, ignore response  */
+			rs->time_stats[rascategory].disc_rsp_num++;
+		}
+		else {
+			rs->time_stats[rascategory].open_req_num--;
+			time_stat_update(&(rs->time_stats[rascategory].rtd[0]),&(pi->delta_time), pinfo);
+		}
+		break;
+
+	default:
+		return 0;
+	}
+	return 1;
+}
 
 
 /*--- Included file: packet-h225-fn.c ---*/
@@ -7537,7 +7628,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 158 "../../asn1/h225/packet-h225-template.c"
+#line 249 "../../asn1/h225/packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10829,7 +10920,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 365 "../../asn1/h225/packet-h225-template.c"
+#line 456 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11079,55 +11170,61 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 371 "../../asn1/h225/packet-h225-template.c"
+#line 462 "../../asn1/h225/packet-h225-template.c"
   };
-  module_t *h225_module;
+	module_t *h225_module;
+	int proto_h225_ras;
 
-  /* Register protocol */
-  proto_h225 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_h225, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Register protocol */
+	proto_h225 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  h225_module = prefs_register_protocol(proto_h225, proto_reg_handoff_h225);
-  prefs_register_uint_preference(h225_module, "tls.port",
-                                 "H.225 TLS Port",
-                                 "H.225 Server TLS Port",
-                                 10, &h225_tls_port);
-  prefs_register_bool_preference(h225_module, "reassembly",
+	/* Create a "fake" protocol to get proper display strings for SRT dialogs */
+	proto_h225_ras = proto_register_protocol("H.225 RAS", "H.225 RAS", "h225_ras");
+
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_h225, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	h225_module = prefs_register_protocol(proto_h225, proto_reg_handoff_h225);
+	prefs_register_uint_preference(h225_module, "tls.port",
+		"H.225 TLS Port",
+		"H.225 Server TLS Port",
+		10, &h225_tls_port);
+	prefs_register_bool_preference(h225_module, "reassembly",
 		"Reassemble H.225 messages spanning multiple TCP segments",
 		"Whether the H.225 dissector should reassemble messages spanning multiple TCP segments."
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
-  prefs_register_bool_preference(h225_module, "h245_in_tree",
+	prefs_register_bool_preference(h225_module, "h245_in_tree",
 		"Display tunnelled H.245 inside H.225.0 tree",
 		"ON - display tunnelled H.245 inside H.225.0 tree, OFF - display tunnelled H.245 in root tree after H.225.0",
 		&h225_h245_in_tree);
-  prefs_register_bool_preference(h225_module, "tp_in_tree",
+	prefs_register_bool_preference(h225_module, "tp_in_tree",
 		"Display tunnelled protocols inside H.225.0 tree",
 		"ON - display tunnelled protocols inside H.225.0 tree, OFF - display tunnelled protocols in root tree after H.225.0",
 		&h225_tp_in_tree);
 
-  new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
-  new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
-  new_register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
+	new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
+	new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
+	new_register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
-  nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
-  nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
-  tp_dissector_table = register_dissector_table("h225.tp", "H.225 TunnelledProtocol", FT_STRING, BASE_NONE);
-  gef_name_dissector_table = register_dissector_table("h225.gef.name", "H.225 Generic Extensible Framework (names)", FT_STRING, BASE_NONE);
-  gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", FT_STRING, BASE_NONE);
+	nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
+	nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+	tp_dissector_table = register_dissector_table("h225.tp", "H.225 TunnelledProtocol", FT_STRING, BASE_NONE);
+	gef_name_dissector_table = register_dissector_table("h225.gef.name", "H.225 Generic Extensible Framework (names)", FT_STRING, BASE_NONE);
+	gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", FT_STRING, BASE_NONE);
 
-  register_init_routine(&h225_init_routine);
-  h225_tap = register_tap("h225");
+	register_init_routine(&h225_init_routine);
+	h225_tap = register_tap("h225");
 
-  oid_add_from_string("Version 1","0.0.8.2250.0.1");
-  oid_add_from_string("Version 2","0.0.8.2250.0.2");
-  oid_add_from_string("Version 3","0.0.8.2250.0.3");
-  oid_add_from_string("Version 4","0.0.8.2250.0.4");
-  oid_add_from_string("Version 5","0.0.8.2250.0.5");
-  oid_add_from_string("Version 6","0.0.8.2250.0.6");
+	register_rtd_table(proto_h225_ras, "h225", NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
 
+	oid_add_from_string("Version 1","0.0.8.2250.0.1");
+	oid_add_from_string("Version 2","0.0.8.2250.0.2");
+	oid_add_from_string("Version 3","0.0.8.2250.0.3");
+	oid_add_from_string("Version 4","0.0.8.2250.0.4");
+	oid_add_from_string("Version 5","0.0.8.2250.0.5");
+	oid_add_from_string("Version 6","0.0.8.2250.0.6");
 }
 
 

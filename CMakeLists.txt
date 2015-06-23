@@ -1152,7 +1152,6 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-funnel.c
 	ui/cli/tap-gsm_astat.c
 	ui/cli/tap-h225counter.c
-	ui/cli/tap-h225rassrt.c
 	ui/cli/tap-hosts.c
 	ui/cli/tap-httpstat.c
 	ui/cli/tap-icmpstat.c
