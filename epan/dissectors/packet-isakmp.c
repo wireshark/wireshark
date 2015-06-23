@@ -3931,18 +3931,18 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
                                       NULL,
                                       seq-1,                    /* fragment sequence number, starting from 0 */
                                       tvb_reported_length_remaining(tvb, offset), /* fragment length - to the end */
-                                      last);                    /* More fragments? */
+                                      !last);                   /* More fragments? */
     defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
                                                  "Reassembled ISAKMP", frag_msg,
                                                  &isakmp_frag_items,  /* groups and items, using same as Cisco */
                                                  NULL, ptree);
 
-    if (defrag_isakmp_tvb) { /* take it all */
+    if (last && defrag_isakmp_tvb) { /* take it all */
       dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree, NULL);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO,
                       " (%sMessage fragment %u%s)",
-                      (frag_msg ? "Reassembled + " : ""),
+                      (last && frag_msg ? "Reassembled + " : ""),
                       seq, (last ? " - last" : ""));
     pinfo->fragmented = save_fragmented;
   }
