@@ -64,7 +64,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 pd;
 
 	/* Scan init */
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 	offset = 0;
 
 	/* Protocol descriptor */

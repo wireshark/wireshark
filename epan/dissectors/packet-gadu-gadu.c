@@ -590,7 +590,7 @@ gadu_gadu_strsize(tvbuff_t *tvb, const gint abs_offset)
 
 	nul_offset = tvb_find_guint8(tvb, abs_offset, -1, 0);
 	if (nul_offset == -1)
-		nul_offset = tvb_length(tvb) - 1;
+		nul_offset = tvb_captured_length(tvb) - 1;
 
 	return (nul_offset - abs_offset) + 1;
 }
@@ -1971,7 +1971,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 		proto_tree_add_item(gadu_gadu_tree, &hfi_gadu_gadu_data, tvb, offset, -1, ENC_NA);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -1997,7 +1997,7 @@ dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, gadu_gadu_desegment, 8, get_gadu_gadu_pdu_len, dissect_gadu_gadu_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

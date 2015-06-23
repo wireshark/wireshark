@@ -1299,20 +1299,20 @@ dissect_usb_hid_boot_mouse_input_report(tvbuff_t *tvb, packet_info *pinfo, proto
     offset += 1;
 
     /* not really in HID Specification */
-    if (tvb_length_remaining(tvb, offset)) {
+    if (tvb_reported_length_remaining(tvb, offset)) {
         proto_tree_add_item(tree, hf_usbhid_boot_report_mouse_horizontal_scroll_wheel, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
     /* not really in HID Specification */
-    if (tvb_length_remaining(tvb, offset)) {
+    if (tvb_reported_length_remaining(tvb, offset)) {
         proto_tree_add_item(tree, hf_usbhid_boot_report_mouse_vertical_scroll_wheel, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
-    if (tvb_length_remaining(tvb, offset)) {
+    if (tvb_reported_length_remaining(tvb, offset)) {
         proto_tree_add_item(tree, hf_usbhid_data, tvb, offset, -1, ENC_NA);
-        offset += tvb_length_remaining(tvb, offset);
+        offset += tvb_captured_length_remaining(tvb, offset);
     }
 
     return offset;

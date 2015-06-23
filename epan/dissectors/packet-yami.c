@@ -522,7 +522,7 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 #define FRAME_HEADER_LEN 16
@@ -540,7 +540,7 @@ static int
 dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, yami_desegment, FRAME_HEADER_LEN, get_yami_message_len, dissect_yami_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

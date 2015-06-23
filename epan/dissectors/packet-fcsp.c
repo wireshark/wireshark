@@ -388,7 +388,7 @@ static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcsp, tvb, 0,
-                                             tvb_length(tvb), "FC-SP");
+                                             tvb_captured_length(tvb), "FC-SP");
         fcsp_tree = proto_item_add_subtree(ti, ett_fcsp);
 
         proto_tree_add_item(fcsp_tree, hf_auth_flags, tvb, offset+1, 1, ENC_BIG_ENDIAN);

@@ -814,7 +814,7 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
-        len = tvb_length_remaining(tvb, *offset);
+        len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
@@ -898,7 +898,7 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
-        len = tvb_length_remaining(tvb, *offset);
+        len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
@@ -924,7 +924,7 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
-        len = tvb_length_remaining(tvb, *offset);
+        len = tvb_captured_length_remaining(tvb, *offset);
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;

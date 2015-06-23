@@ -892,7 +892,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
         tvb_reported_length(tvb));
 
-    data_length = tvb_length(tvb);
+    data_length = tvb_captured_length(tvb);
 
     ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
 

@@ -398,7 +398,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     proto_tree_add_item(tree, hf_fcp_rddata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_fcp_wrdata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
 
-    tvb_len = tvb_length_remaining(tvb, offset+12);
+    tvb_len = tvb_captured_length_remaining(tvb, offset+12);
     if (tvb_len > (16 + add_len))
       tvb_len = 16 + add_len;
 
@@ -415,7 +415,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     }
 
     if ( ((rwflags & 0x03) == 0x03)
-    &&  tvb_length_remaining(tvb, offset+12+16+add_len+4) >= 4) {
+    &&  tvb_reported_length_remaining(tvb, offset+12+16+add_len+4) >= 4) {
         proto_tree_add_item(tree, hf_fcp_bidir_dl, tvb, offset+12+16+add_len+4,
                             4, ENC_BIG_ENDIAN);
         if (request_data->itlq) {
@@ -547,7 +547,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     if (rsplen) {
         tvbuff_t *rspinfo_tvb;
 
-        rspinfo_tvb = tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
+        rspinfo_tvb = tvb_new_subset(tvb, offset, MIN(rsplen, tvb_captured_length_remaining(tvb, offset)), rsplen);
         dissect_fcp_rspinfo(rspinfo_tvb, tree, 0);
 
         offset += rsplen;
@@ -557,7 +557,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     if (snslen) {
         tvbuff_t *sns_tvb;
 
-        sns_tvb = tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
+        sns_tvb = tvb_new_subset(tvb, offset, MIN(snslen, tvb_captured_length_remaining(tvb, offset)), snslen);
         dissect_scsi_snsinfo(sns_tvb, pinfo, parent_tree, 0,
                               snslen,
                               (request_data != NULL) ? request_data->itlq : &empty_itlq, &itl);
@@ -716,7 +716,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (els) {
         dissect_fcp_els(tvb, pinfo, fcp_tree, fchdr);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     switch (r_ctl) {
@@ -740,7 +740,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         break;
     }
 /*xxx once the subdissectors return bytes consumed:  proto_item_set_end(ti, tvb, offset);*/
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

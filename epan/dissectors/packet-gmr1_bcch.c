@@ -1039,7 +1039,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	);
 	bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch);
 
-	csnStreamInit(&ar, 0, tvb_length(tvb)*8);
+	csnStreamInit(&ar, 0, tvb_captured_length(tvb)*8);
 
 	/* SI1 or SI2 */
 	if (is_si1) {

@@ -1231,7 +1231,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 
 	case GED125_ROUTE_SELECT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CrossRefID, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1277,7 +1277,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	}
 
 	proto_item_set_len(message_item, offset-8);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1286,7 +1286,7 @@ dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	gint size;
 	guint32 message_type;
 
-	size = tvb_length(tvb);
+	size = tvb_captured_length(tvb);
 
 	if (size < 12)
 		return 0;

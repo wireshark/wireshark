@@ -560,7 +560,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
         tokenlen = -1; /* end of tvbuff */
         /* Save connection address */
         media_info->connection_address =
-            (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+            (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
     } else {
         tokenlen = next_offset - offset;
         /* Save connection address */
@@ -773,7 +773,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 
     offset = next_offset + 1;
 
-    len = tvb_length_remaining(tvb, offset);
+    len = tvb_captured_length_remaining(tvb, offset);
     if (len < 0)
         return;
 
@@ -1219,7 +1219,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                 proto_tree_add_expert_format(tree, pinfo, &ei_sdp_invalid_conversion, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes", format_specific_parameter);
                 return;
             }
-            length = tvb_length(data_tvb);
+            length = tvb_reported_length(data_tvb);
             if (length == 3) {
                 if (h264_handle && data_tvb) {
                     dissect_h264_profile(data_tvb, pinfo, tree);
@@ -1361,10 +1361,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Skip colon */
     offset = colon_offset + 1;
     /* skip leading wsp */
-    offset = tvb_skip_wsp(tvb, offset, tvb_length_remaining(tvb, offset));
+    offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
     /* Value is the remainder of the line */
-    attribute_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+    attribute_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
 
 
 
@@ -1453,7 +1453,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 guint8 media_format;
                 /* Reading the Format parameter(fmtp) */
                 /* Skip leading space, if any */
-                offset = tvb_skip_wsp(tvb, offset, tvb_length_remaining(tvb, offset));
+                offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
                 /* Media format extends to the next space */
                 next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 
@@ -1483,11 +1483,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
                 while (has_more_pars == TRUE) {
                     next_offset = tvb_find_guint8(tvb, offset, -1, ';');
-                    offset = tvb_skip_wsp(tvb, offset, tvb_length_remaining(tvb, offset));
+                    offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
                     if (next_offset == -1) {
                         has_more_pars = FALSE;
-                        next_offset= tvb_length(tvb);
+                        next_offset= tvb_captured_length(tvb);
                     }
 
                     /* There are at least 2 - add the first parameter */
@@ -1659,7 +1659,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 param_end_offset = tvb_find_guint8(tvb, offset, -1, ';');
                 if (param_end_offset == -1) {
                     has_more_pars = FALSE;
-                    param_end_offset = tvb_length(tvb);
+                    param_end_offset = tvb_captured_length(tvb);
                 }
                 /* key-method or key-method-ext */
                 next_offset = tvb_find_guint8(tvb, offset, -1, ':');
@@ -2629,7 +2629,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    datalen = tvb_length_remaining(tvb, offset);
+    datalen = tvb_captured_length_remaining(tvb, offset);
     if (datalen > 0) {
         proto_tree_add_item(sdp_tree, hf_sdp_data, tvb, offset, datalen, ENC_NA);
     }

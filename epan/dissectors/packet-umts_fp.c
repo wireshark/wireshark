@@ -985,7 +985,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                                 int offset, guint header_length)
 {
     int         crc_size = 0;
-    int         remain   = tvb_length_remaining(tvb, offset);
+    int         remain   = tvb_captured_length_remaining(tvb, offset);
 
     /* Payload CRC (optional) */
     if ((dch_crc_present == 1) || ((dch_crc_present == 2) && (remain >= 2))) {
@@ -1529,7 +1529,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Info introduced in R6 */
         /* only check if it looks as if they are present */
         if (((p_fp_info->release == 6) || (p_fp_info->release == 7)) &&
-            (tvb_length_remaining(tvb, offset) > 2))
+            (tvb_reported_length_remaining(tvb, offset) > 2))
         {
             int n;
             guint8 flags;
@@ -1753,7 +1753,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* New IE flags (if it looks as though they are present) */
         if ((p_fp_info->release == 7) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_reported_length_remaining(tvb, offset) > 2)) {
 
             guint8 flags = tvb_get_guint8(tvb, offset);
             guint8 aoa_present = flags & 0x01;
@@ -1915,7 +1915,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* New IEs */
         if ((p_fp_info->release == 7) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_reported_length_remaining(tvb, offset) > 2)) {
 
             guint8 flags = tvb_get_guint8(tvb, offset);
             guint8 bits_extended = flags & 0x01;
@@ -2166,7 +2166,7 @@ dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
 
     /* May be extended in R7, but in this case there are at least 2 bytes remaining */
     if ((p_fp_info->release == 7) &&
-        (tvb_length_remaining(tvb, offset) >= 2)) {
+        (tvb_reported_length_remaining(tvb, offset) >= 2)) {
 
         /* New IE flags */
         guint64 extended_bits_present;
@@ -2361,7 +2361,7 @@ dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
     offset++;
 
     if ((p_fp_info->release == 7) &&
-        (tvb_length_remaining(tvb, offset) > 0)) {
+        (tvb_reported_length_remaining(tvb, offset) > 0)) {
 
         /* New IE flags */
         guint8 flags = tvb_get_guint8(tvb, offset);
@@ -3213,7 +3213,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Extra IEs (if there is room for them) */
         if (((p_fp_info->release == 6) ||
              (p_fp_info->release == 7)) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_reported_length_remaining(tvb, offset) > 2)) {
 
             int n;
             guint8 flags;

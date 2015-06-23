@@ -330,7 +330,7 @@ static int get_content_item_length(tvbuff_t *tvb, int offset)
 	int origoffset = offset;
 
 	/* Keep reading until the magic delimiter (or end of tvb) is found */
-	while (tvb_length_remaining(tvb, offset) >= 2) {
+	while (tvb_captured_length_remaining(tvb, offset) >= 2) {
 		if (tvb_get_ntohs(tvb, offset) == 0xc080) {
 			break;
 		}
