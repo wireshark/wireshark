@@ -1960,7 +1960,7 @@ file_exists(const char *fname)
         return FALSE;
     }
 
-#if _MSC_VER < 1900
+#if defined(_MSC_VER) && _MSC_VER < 1900
 
     /*
      * This is a bit tricky on win32. The st_ino field is documented as:
