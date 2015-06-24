@@ -7977,9 +7977,18 @@ def eth_main():
         input_file = fn
         lexer.lineno = 1
         if (ectx.srcdir): fn = ectx.srcdir + '/' + fn
-        f = open (fn, "r")
-        ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
-        f.close ()
+        # Read ASN.1 definition, trying one of the common encodings.
+        data = open(fn, "rb").read()
+        for encoding in ('utf-8', 'windows-1252'):
+            try:
+                data = data.decode(encoding)
+                break
+            except:
+                warnings.warn_explicit("Decoding %s as %s failed, trying next." % (fn, encoding), UserWarning, '', 0)
+        # Py2 compat, name.translate in eth_output_hf_arr fails with unicode
+        if not isinstance(data, str):
+            data = data.encode('utf-8')
+        ast.extend(yacc.parse(data, lexer=lexer, debug=pd))
     ectx.eth_clean()
     if (ectx.merge_modules):  # common output for all module
         ectx.eth_clean()
