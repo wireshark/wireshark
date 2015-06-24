@@ -302,15 +302,72 @@ uninstall_libtool() {
 install_cmake() {
     if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
         echo "Downloading and installing CMake:"
-        cmake_dir=`expr $CMAKE_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+        CMAKE_MAJOR_VERSION="`expr $CMAKE_VERSION : '\([0-9][0-9]*\).*'`"
+        CMAKE_MINOR_VERSION="`expr $CMAKE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        CMAKE_DOTDOT_VERSION="`expr $CMAKE_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        CMAKE_MAJOR_MINOR_VERSION=$CMAKE_MAJOR_VERSION.$CMAKE_MINOR_VERSION
+
         #
         # NOTE: the "64" in "Darwin64" doesn't mean "64-bit-only"; the
         # package in question supports both 32-bit and 64-bit x86.
         #
-        [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
-        sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
-        sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
-        sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
+        case "$CMAKE_MAJOR_VERSION" in
+
+        0|1)
+            echo "CMake $CMAKE_VERSION" is too old 1>&2
+            ;;
+
+        2)
+            #
+            # Download the DMG, run the installer.
+            #
+            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O http://www.cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+            sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+            sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
+            sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
+            ;;
+
+        3)
+            #
+            # Download the DMG and do a drag install, where "drag" means
+            # "mv".
+            #
+            # 3.0.* and 3.1.0 have a Darwin64-universal DMG.
+            # 3.1.1 and later have a Darwin-x86_64 DMG.
+            # Probably not many people are still developing on 32-bit
+            # Macs, so we don't worry about them.
+            #
+            if [ "$CMAKE_MINOR_VERSION" = 0 -o \
+                 "$CMAKE_VERSION" = 3.1.0 ]; then
+                type="Darwin64-universal"
+            else
+                type="Darwin-x86_64"
+            fi
+            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -O http://www.cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
+            sudo hdiutil attach cmake-$CMAKE_VERSION-$type.dmg || exit 1
+            sudo ditto /Volumes/cmake-$CMAKE_VERSION-$type/CMake.app /Applications/CMake.app || exit 1
+
+            #
+            # Plant the appropriate symbolic links in /usr/local/bin.
+            # It's a drag-install, so there's no installer to make them,
+            # and the CMake code to put them in place is lame, as
+            #
+            #    1) it defaults to /usr/bin, not /usr/local/bin;
+            #    2) it doesn't request the necessary root privileges;
+            #    3) it can't be run from the command line;
+            #
+            # so we do it ourselves.
+	    #
+            for i in ccmake cmake cmake-gui cmakexbuild cpack ctest
+            do
+                sudo ln -s /Applications/CMake.app/Contents/bin/$i /usr/local/bin/$i
+            done
+            sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-$type
+            ;;
+
+        *)
+            ;;
+        esac
         touch cmake-$CMAKE_VERSION-done
     fi
 }
@@ -318,21 +375,40 @@ install_cmake() {
 uninstall_cmake() {
     if [ ! -z "$installed_cmake_version" ]; then
         echo "Uninstalling CMake:"
-        sudo rm -rf "/Applications/CMake "`echo "$installed_cmake_version" | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1.\2-\3/'`.app
-        sudo rm /usr/bin/ccmake
-        sudo rm /usr/bin/cmake
-        sudo rm /usr/bin/cmake-gui
-        sudo rm /usr/bin/cmakexbuild
-        sudo rm /usr/bin/cpack
-        sudo rm /usr/bin/ctest
-        sudo pkgutil --forget com.Kitware.CMake
-        rm cmake-$installed_cmake_version-done
+        installed_cmake_major_version="`expr $installed_cmake_version : '\([0-9][0-9]*\).*'`"
+        case "$installed_cmake_major_version" in
+
+        0|1)
+            echo "CMake $installed_cmake_version" is too old 1>&2
+            ;;
+
+        2)
+            sudo rm -rf "/Applications/CMake "`echo "$installed_cmake_version" | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1.\2-\3/'`.app
+            for i in ccmake cmake cmake-gui cmakexbuild cpack ctest
+            do
+                sudo rm -f /usr/bin/$i /usr/local/bin/$i
+            done
+            sudo pkgutil --forget com.Kitware.CMake
+            rm cmake-$installed_cmake_version-done
+            ;;
+
+        3)
+            sudo rm -rf /Applications/CMake.app
+            for i in ccmake cmake cmake-gui cmakexbuild cpack ctest
+            do
+                sudo rm -f /usr/local/bin/$i
+            done
+            rm cmake-$installed_cmake_version-done
+            ;;
+        esac
 
         if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
             #
-            # Get rid of the previously downloaded and unpacked version.
+            # Get rid of the previously downloaded and unpacked version,
+            # whatever it might happen to be called.
             #
             rm -f cmake-$installed_cmake_version-Darwin64-universal.dmg
+            rm -f cmake-$installed_cmake_version-Darwin-x86_64.dmg
         fi
 
         installed_cmake_version=""
