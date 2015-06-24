@@ -29,6 +29,8 @@ find . -name "nghttp2*" -type f -exec sed -i 's/"nghttp2_net.h"/<glib.h>/g'  {} 
 
 Fix c++-compat error and documentation (struct => typedef) error
 
+in nghttp2/nghttp2_helper.h remove check for CONFIG.H
+
 in nghttp2/nghttp2.h
 
 Add on the top
