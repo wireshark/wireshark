@@ -797,7 +797,7 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
         break;
         case DATA_MISSING :
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_long_packet, tvb, offset, -1,
-                    "Packet length %d went beyond packet", tvb_length(tvb) );
+                    "Packet length %d went beyond packet", tvb_captured_length(tvb) );
         break;
         case CKSUM_NOT_OK :
             proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,

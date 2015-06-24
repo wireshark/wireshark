@@ -626,7 +626,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
 
 static gint
 handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, guint offset, int headerLen) {
-    int available_bytes = tvb_length_remaining(tvb, offset);
+    int available_bytes = tvb_captured_length_remaining(tvb, offset);
 
     switch(iscsi_session->header_digest){
     case ISCSI_DIGEST_CRC32:
@@ -648,7 +648,7 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
 
 static gint
 handleDataDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, guint offset, int dataLen) {
-    int available_bytes = tvb_length_remaining(tvb, offset);
+    int available_bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (dataLen > 0) {
         switch (iscsi_session->data_digest){
@@ -723,7 +723,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     gboolean S_bit=FALSE;
     gboolean A_bit=FALSE;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
-    guint end_offset = offset + tvb_length_remaining(tvb, offset);
+    guint end_offset = offset + tvb_captured_length_remaining(tvb, offset);
     iscsi_conv_data_t *cdata = NULL;
     int paddedDataSegmentLength = data_segment_len;
     guint16 lun=0xffff;
@@ -1520,7 +1520,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 tvbuff_t *data_tvb;
                 int tvb_len, tvb_rlen;
 
-                tvb_len=tvb_length_remaining(tvb, offset);
+                tvb_len=tvb_captured_length_remaining(tvb, offset);
                 if(tvb_len>snsl)
                     tvb_len=snsl;
                 tvb_rlen=tvb_reported_length_remaining(tvb, offset);
@@ -1640,7 +1640,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         int tvb_len, tvb_rlen;
 
         /* SCSI Command */
-        tvb_len=tvb_length_remaining(tvb, cdb_offset);
+        tvb_len=tvb_captured_length_remaining(tvb, cdb_offset);
         tvb_rlen=tvb_reported_length_remaining(tvb, cdb_offset);
         if(ahs_cdb_length && ahs_cdb_length<1024){
             guint8 *cdb_buf;
@@ -1675,7 +1675,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         /* where there any ImmediateData ? */
         if(immediate_data_length){
             /* Immediate Data TVB */
-            tvb_len=tvb_length_remaining(tvb, immediate_data_offset);
+            tvb_len=tvb_captured_length_remaining(tvb, immediate_data_offset);
             if(tvb_len>(int)immediate_data_length)
                 tvb_len=immediate_data_length;
             tvb_rlen=tvb_reported_length_remaining(tvb, immediate_data_offset);
@@ -1701,7 +1701,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                     tvbuff_t *data_tvb;
                     int tvb_len, tvb_rlen;
 
-                    tvb_len=tvb_length_remaining(tvb, offset);
+                    tvb_len=tvb_captured_length_remaining(tvb, offset);
                     if(tvb_len>senseLen)
                         tvb_len=senseLen;
                     tvb_rlen=tvb_reported_length_remaining(tvb, offset);
@@ -1724,7 +1724,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         int tvb_len, tvb_rlen;
 
         /* offset is setup correctly by the iscsi code for response above */
-        tvb_len=tvb_length_remaining(tvb, offset);
+        tvb_len=tvb_captured_length_remaining(tvb, offset);
         if(tvb_len>(int)data_segment_len)
             tvb_len=data_segment_len;
         tvb_rlen=tvb_reported_length_remaining(tvb, offset);
@@ -1746,7 +1746,7 @@ static int
 dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_port) {
     /* Set up structures needed to add the protocol subtree and manage it */
     guint offset = 0;
-    guint32 available_bytes = tvb_length(tvb);
+    guint32 available_bytes = tvb_captured_length(tvb);
     int digestsActive = 1;
     conversation_t *conversation = NULL;
     iscsi_session_t *iscsi_session=NULL;
@@ -2533,7 +2533,7 @@ dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 */
 static gboolean
 dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    guint32 available_bytes = tvb_length(tvb);
+    guint32 available_bytes = tvb_captured_length(tvb);
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */

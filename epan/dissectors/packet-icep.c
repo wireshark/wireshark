@@ -887,7 +887,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
     DBG1("consumed --> %d\n", 5);
 
     /* check if I got all reply data */
-    tvb_data_remained = tvb_length_remaining(tvb, offset);
+    tvb_data_remained = tvb_reported_length_remaining(tvb, offset);
     messageSize = tvb_get_letohl(tvb, 10);
     reported_reply_data = messageSize - (ICEP_HEADER_SIZE + ICEP_MIN_REPLY_SIZE);
 
@@ -997,17 +997,17 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch(tvb_get_guint8(tvb, 8)) {
     case 0x0:
         DBG1("request message body: parsing %d bytes\n",
-            tvb_length_remaining(tvb, offset));
+            tvb_captured_length_remaining(tvb, offset));
         dissect_icep_request(tvb, offset, pinfo, icep_tree, ti);
         break;
     case 0x1:
         DBG1("batch request message body: parsing %d bytes\n",
-            tvb_length_remaining(tvb, offset));
+            tvb_captured_length_remaining(tvb, offset));
         dissect_icep_batch_request(tvb, offset, pinfo, icep_tree, ti);
         break;
     case 0x2:
         DBG1("reply message body: parsing %d bytes\n",
-            tvb_length_remaining(tvb, offset));
+            tvb_captured_length_remaining(tvb, offset));
         dissect_icep_reply(tvb, offset, pinfo, icep_tree, ti);
         break;
     case 0x3:

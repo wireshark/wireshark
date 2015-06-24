@@ -378,10 +378,10 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
     follow_record = g_new(follow_record_t,1);
 
-    follow_record->data = g_byte_array_sized_new(tvb_length(next_tvb));
+    follow_record->data = g_byte_array_sized_new(tvb_captured_length(next_tvb));
     follow_record->data = g_byte_array_append(follow_record->data,
                                               tvb_get_ptr(next_tvb, 0, -1),
-                                              tvb_length(next_tvb));
+                                              tvb_captured_length(next_tvb));
     follow_record->packet_num = pinfo->fd->num;
 
     if (follow_info->client_port == 0) {

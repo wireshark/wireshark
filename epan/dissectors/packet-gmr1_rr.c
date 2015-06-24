@@ -1801,7 +1801,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint ti = -1;
 
 	/* Scan init */
-	len = tvb_length(tvb);
+	len = tvb_reported_length(tvb);
 	offset = 0;
 
 	/* Safety */

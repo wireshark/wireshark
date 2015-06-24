@@ -148,7 +148,7 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
            break;
         case DATA_MISSING :
              expert_add_info_format(pinfo, ti, &ei_isis_csnp_long_packet,
-                                        "Packet length %d went beyond packet", tvb_length(tvb));
+                                        "Packet length %d went beyond packet", tvb_captured_length(tvb));
         break;
         case CKSUM_NOT_OK :
              proto_item_append_text(ti, " [incorrect, should be 0x%04x]", cacl_checksum);

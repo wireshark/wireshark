@@ -363,7 +363,7 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* ZZZ for now, 125 usec mode and I-TDM control protocol
    * need to add 1ms mode */
-  if (tvb_length(tvb) < 18)
+  if (tvb_captured_length(tvb) < 18)
     return;
 
   /* See if this packet is a data flow or the I-TDM control flow. */

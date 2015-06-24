@@ -60,21 +60,21 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPARS");
 
-    if (tvb_length_remaining(tvb, 0) >= 2 ) {
+    if (tvb_captured_length_remaining(tvb, 0) >= 2 ) {
         ia = tvb_get_guint8(tvb, 0) & 0x3f;
         ta = tvb_get_guint8(tvb, 1) & 0x3f;
         if (ia == S1 && ta == S2) { /* if the first two bytes are S1/S2 skip over them */
             offset = 2;
         }
     }
-    if (tvb_length_remaining(tvb, offset) >= 1) ia = tvb_get_guint8(tvb, offset + 0);
-    if (tvb_length_remaining(tvb, offset) >= 2) ta = tvb_get_guint8(tvb, offset + 1);
+    if (tvb_captured_length_remaining(tvb, offset) >= 1) ia = tvb_get_guint8(tvb, offset + 0);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) ta = tvb_get_guint8(tvb, offset + 1);
 
     if (ia == 0x83 || ia == 0x43 || ia == GA) { /* if it's an FPGA or 'corresponsdance code' 'go ahead'... */
-        if (tvb_length_remaining(tvb, offset) > 2) { /* if the msg is long, it must have been a 'poll' */
+        if (tvb_captured_length_remaining(tvb, offset) > 2) { /* if the msg is long, it must have been a 'poll' */
             col_add_fstr(pinfo->cinfo, COL_INFO, "Poll IA: %2.2X", ta);
         } else { /* if it's short, then it was a 'no traffic' response */
-            if (tvb_length_remaining(tvb, offset) >= 2 ) {
+            if (tvb_captured_length_remaining(tvb, offset) >= 2 ) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "GoAhead NextIA (0x%2.2X)", ta);
             } else {
                 col_set_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
@@ -86,8 +86,8 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
         if (ta == 0x20) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Reset IA: %2.2X", ia); /* the TA character was the 'reset' command */
         }
-        if (tvb_length_remaining(tvb, offset) >= 3) cmd = tvb_get_guint8(tvb, offset + 2) & 0x3f;   /* get the first two bytes of the data message */
-        if (tvb_length_remaining(tvb, offset) >= 4) la  = tvb_get_guint8(tvb, offset + 3) & 0x3f;
+        if (tvb_captured_length_remaining(tvb, offset) >= 3) cmd = tvb_get_guint8(tvb, offset + 2) & 0x3f;   /* get the first two bytes of the data message */
+        if (tvb_captured_length_remaining(tvb, offset) >= 4) la  = tvb_get_guint8(tvb, offset + 3) & 0x3f;
         if (cmd == 0x1f && la == 0x38) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Please Resend - IA: %2.2X TA: %2.2X", ia, ta); /* light the resend indicator */
         } else if (cmd == 0x2a && la == 0x05) {
@@ -98,7 +98,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
     }
 
     if (tree) {
-        bytes = tvb_length_remaining(tvb, 0);
+        bytes = tvb_captured_length_remaining(tvb, 0);
         if (bytes > 0) {
             proto_tree  *ipars_tree;
             proto_item  *ti;

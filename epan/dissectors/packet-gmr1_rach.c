@@ -883,7 +883,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char *desc;
 	int len, is_moc, is_pdt, ies;
 
-	len = tvb_length(tvb);
+	len = tvb_reported_length(tvb);
 
 	desc = "GMR-1 Channel Request (RACH)";
 	ies  = 0;

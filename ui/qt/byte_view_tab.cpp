@@ -93,7 +93,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 int f_start = -1, f_end = -1, f_len = -1;
                 int fa_start = -1, fa_end = -1, fa_len = -1;
                 int p_start = -1, p_end = -1, p_len = -1;
-                guint len = tvb_length(fi->ds_tvb);
+                guint len = tvb_captured_length(fi->ds_tvb);
 
                 // Find and highlight the protocol bytes
                 while (parent && parent->parent()) {

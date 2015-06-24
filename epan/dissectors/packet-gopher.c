@@ -96,7 +96,7 @@ static gboolean
 find_dir_tokens(tvbuff_t *tvb, gint name_start, gint *sel_start, gint *host_start, gint *port_start, gint *line_len, gint *next_offset) {
     gint remain;
 
-    if (tvb_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
+    if (tvb_captured_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
         return FALSE;
 
     if (! (sel_start && host_start && port_start && line_len && next_offset) )

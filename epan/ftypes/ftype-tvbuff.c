@@ -127,7 +127,7 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 	TRY {
 		/* 3 bytes for each byte of the byte "NN:" minus 1 byte
 		 * as there's no trailing ":". */
-		length = tvb_length(fv->value.tvb) * 3 - 1;
+		length = tvb_captured_length(fv->value.tvb) * 3 - 1;
 	}
 	CATCH_ALL {
 		/* nothing */
@@ -145,7 +145,7 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char * volatile
 	g_assert(rtype == FTREPR_DFILTER);
 
 	TRY {
-		length = tvb_length(fv->value.tvb);
+		length = tvb_captured_length(fv->value.tvb);
 
 		if (length)
 			buf = bytes_to_hexstr_punct(buf, tvb_get_ptr(fv->value.tvb, 0, length), length, ':');
@@ -170,7 +170,7 @@ len(fvalue_t *fv)
 
 	TRY {
 		if (fv->value.tvb)
-			length = tvb_length(fv->value.tvb);
+			length = tvb_captured_length(fv->value.tvb);
 	}
 	CATCH_ALL {
 		/* nothing */
@@ -206,9 +206,9 @@ cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	eq = FALSE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
+		guint	a_len = tvb_captured_length(a);
 
-		if (a_len == tvb_length(b))
+		if (a_len == tvb_captured_length(b))
 			eq = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) == 0);
 	}
 	CATCH_ALL {
@@ -227,9 +227,9 @@ cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	ne = TRUE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
+		guint	a_len = tvb_captured_length(a);
 
-		if (a_len == tvb_length(b)) {
+		if (a_len == tvb_captured_length(b)) {
 			ne = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) != 0);
 		}
 	}
@@ -249,8 +249,8 @@ cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	gt = FALSE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
-		guint	b_len = tvb_length(b);
+		guint	a_len = tvb_captured_length(a);
+		guint	b_len = tvb_captured_length(b);
 
 		if (a_len > b_len) {
 			gt = TRUE;
@@ -274,8 +274,8 @@ cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	ge = FALSE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
-		guint	b_len = tvb_length(b);
+		guint	a_len = tvb_captured_length(a);
+		guint	b_len = tvb_captured_length(b);
 
 		if (a_len > b_len) {
 			ge = TRUE;
@@ -299,8 +299,8 @@ cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	lt = FALSE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
-		guint	b_len = tvb_length(b);
+		guint	a_len = tvb_captured_length(a);
+		guint	b_len = tvb_captured_length(b);
 
 		if (a_len < b_len) {
 			lt = TRUE;
@@ -324,8 +324,8 @@ cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	volatile gboolean	le = FALSE;
 
 	TRY {
-		guint	a_len = tvb_length(a);
-		guint	b_len = tvb_length(b);
+		guint	a_len = tvb_captured_length(a);
+		guint	b_len = tvb_captured_length(b);
 
 		if (a_len < b_len) {
 			le = TRUE;
@@ -379,7 +379,7 @@ cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 		return FALSE;
 	}
 	TRY {
-		tvb_len = tvb_length(tvb);
+		tvb_len = tvb_captured_length(tvb);
 		data = (const char *)tvb_get_ptr(tvb, 0, tvb_len);
 		rc = g_regex_match_full(
 			regex,		/* Compiled PCRE */

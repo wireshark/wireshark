@@ -84,7 +84,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
   guint8 source;
 
   /* Need at least 15 bytes. */
-  tvblen = tvb_length(tvb);
+  tvblen = tvb_captured_length(tvb);
   if (tvblen < 15) {
     return 0;
   }

@@ -293,7 +293,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
         hcast_tree = proto_item_add_subtree(ti, ett_hazelcast);
     }
-    if (tvb_length_remaining(tvb, 0) < 13) {
+    if (tvb_captured_length_remaining(tvb, 0) < 13) {
         col_set_str(pinfo->cinfo, COL_INFO, "Hazelcast too short");
         return 0;
     }

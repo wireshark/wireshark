@@ -1689,7 +1689,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if (captured_length >= reported_length &&
 		    captured_length > fcs_len) {
 			calc_fcs =
-			    crc32_802_tvb(next_tvb, tvb_length(next_tvb) - fcs_len);
+			    crc32_802_tvb(next_tvb, tvb_captured_length(next_tvb) - fcs_len);
 
 			/* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,
 			 * so there's no need to check it here. */

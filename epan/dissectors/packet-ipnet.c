@@ -87,7 +87,7 @@ dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   pktlen = tvb_get_ntohl(tvb, 4);
-  next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - pktlen);
+  next_tvb = tvb_new_subset_remaining(tvb, tvb_captured_length(tvb) - pktlen);
 
   family = tvb_get_guint8(tvb, 1);
   switch (family) {

@@ -406,7 +406,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             it_checksum = proto_tree_add_item(gre_tree, hf_gre_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
             /* Checksum check !... */
             cksum = tvb_get_ntohs(tvb, offset);
-            length = tvb_length(tvb);
+            length = tvb_captured_length(tvb);
             reported_length = tvb_reported_length(tvb);
             /* The Checksum Present bit is set, and the packet isn't part of a
                fragmented datagram and isn't truncated, so we can checksum it. */

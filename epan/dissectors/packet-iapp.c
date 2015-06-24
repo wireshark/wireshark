@@ -382,7 +382,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ett_iapp_pdu, &pduitem, "Protocol data units");
 
         dissect_pdus(tvb, pinfo, 2, pdutree, pduitem,
-                tvb_length_remaining(tvb, 2));
+                tvb_captured_length_remaining(tvb, 2));
     }
 }
 
