@@ -1073,19 +1073,25 @@ success:
 	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
 	buffer_init(wth->frame_buffer, 1500);
 
-	if(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP){
+	if ((wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) ||
+		(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC)) {
 
 		wtapng_if_descr_t descr;
 
 		descr.wtap_encap = wth->file_encap;
-		descr.time_units_per_second = 1000000; /* default microsecond resolution */
+		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC) {
+			descr.time_units_per_second = 1000000000; /* nanosecond resolution */
+			descr.if_tsresol = 9;
+		} else {
+			descr.time_units_per_second = 1000000; /* default microsecond resolution */
+			descr.if_tsresol = 6;
+		}
 		descr.link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
 		descr.snap_len = wth->snapshot_length;
 		descr.opt_comment = NULL;
 		descr.if_name = NULL;
 		descr.if_description = NULL;
 		descr.if_speed = 0;
-		descr.if_tsresol = 6;
 		descr.if_filter_str= NULL;
 		descr.bpf_filter_len= 0;
 		descr.if_filter_bpf_bytes= NULL;
