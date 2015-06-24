@@ -121,7 +121,7 @@ get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
     if (byte_view_tvb == NULL)
         return NULL;
 
-    if ((*data_len = tvb_length(byte_view_tvb))) {
+    if ((*data_len = tvb_captured_length(byte_view_tvb))) {
         data_ptr = tvb_get_ptr(byte_view_tvb, 0, -1);
         return data_ptr;
     } else

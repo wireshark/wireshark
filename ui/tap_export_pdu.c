@@ -57,8 +57,8 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
         memcpy(packet_buf, exp_pdu_data->tlv_buffer, exp_pdu_data->tlv_buffer_len);
         g_free(exp_pdu_data->tlv_buffer);
     }
-    if(exp_pdu_data->tvb_length > 0){
-        tvb_memcpy(exp_pdu_data->pdu_tvb, packet_buf+exp_pdu_data->tlv_buffer_len, 0, exp_pdu_data->tvb_length);
+    if(exp_pdu_data->tvb_captured_length > 0){
+        tvb_memcpy(exp_pdu_data->pdu_tvb, packet_buf+exp_pdu_data->tlv_buffer_len, 0, exp_pdu_data->tvb_captured_length);
     }
     pkthdr.rec_type  = REC_TYPE_PACKET;
     pkthdr.ts.secs   = pinfo->fd->abs_ts.secs;

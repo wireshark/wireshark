@@ -143,7 +143,6 @@ my %APIs = (
         # have not been entirely removed from old code. These will become errors
         # once they've been removed from all existing code.
         'soft-deprecated' => { 'count_errors' => 0, 'functions' => [
-                'tvb_length', # replaced with tvb_captured_length
                 'tvb_length_remaining', # replaced with tvb_captured_length_remaining
                 'tvb_ensure_length_remaining', # replaced with tvb_ensure_captured_length_remaining
                 'tvb_get_string', # replaced with tvb_get_string_enc

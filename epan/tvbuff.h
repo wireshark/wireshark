@@ -225,17 +225,11 @@ WS_DLL_PUBLIC void tvb_composite_finalize(tvbuff_t *tvb);
  * length of the packet). You probably want tvb_reported_length instead. */
 WS_DLL_PUBLIC guint tvb_captured_length(const tvbuff_t *tvb);
 
-/* DEPRECATED, do not use in new code, call tvb_captured_length directly! */
-#define tvb_length tvb_captured_length
-
 /** Computes bytes to end of buffer, from offset (which can be negative,
  * to indicate bytes from end of buffer). Function returns 0 if offset is
  * either at the end of the buffer or out of bounds. No exception is thrown.
  * You probably want tvb_reported_length_remaining instead. */
 WS_DLL_PUBLIC gint tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
-
-/* DEPRECATED, do not use in new code, call tvb_captured_length_remaining directly! */
-#define tvb_length_remaining tvb_captured_length_remaining
 
 /** Same as above, but throws an exception if the offset is out of bounds. */
 WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
