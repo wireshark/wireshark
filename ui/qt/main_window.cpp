@@ -1827,6 +1827,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionCaptureStart->setChecked(capture_in_progress);
     main_ui_->actionCaptureStop->setEnabled(capture_in_progress);
     main_ui_->actionCaptureRestart->setEnabled(capture_in_progress);
+    main_ui_->actionCaptureRefreshInterfaces->setEnabled(!capture_in_progress);
 #endif /* HAVE_LIBPCAP */
 
 }
