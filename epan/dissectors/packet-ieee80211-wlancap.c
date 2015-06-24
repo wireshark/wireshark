@@ -33,7 +33,7 @@
 void proto_register_ieee80211_wlancap(void);
 void proto_reg_handoff_ieee80211_wlancap(void);
 
-static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_radio_handle;
 
 static int proto_wlancap = -1;
 
@@ -357,7 +357,15 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 channel;
     guint32 datarate;
     guint32 ssi_type;
+    gint32  dbm;
     guint32 antnoise;
+    struct ieee_802_11_phdr phdr;
+
+    /* We don't have any 802.11 metadata yet. */
+    phdr.fcs_len = -1;
+    phdr.decrypted = FALSE;
+    phdr.datapad = FALSE;
+    phdr.presence_flags = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -384,12 +392,57 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlan_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+    phdr.presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
+    phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
     if (tree)
       proto_tree_add_item(wlan_tree, hf_mactime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
     if (tree)
       proto_tree_add_item(wlan_tree, hf_hosttime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
+    switch (tvb_get_ntohl(tvb, offset)) {
+
+    case 1:
+        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+        break;
+
+    case 2:
+        /* Legacy 802.11 DHSS */
+        break;
+
+    case 3:
+        /* Legacy 802.11 IR */
+        break;
+
+    case 4:
+        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+        break;
+
+    case 5:
+        /* 11b PBCC? */
+        break;
+
+    case 6:
+        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+        break;
+
+    case 7:
+        /* 11a PBCC? */
+        break;
+
+    case 8:
+        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11A;
+        break;
+
+    case 9:
+        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
+        phdr.phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+        break;
+    }
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlan_phytype, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
@@ -398,10 +451,14 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     channel = tvb_get_ntohl(tvb, offset);
     if (channel < 256) {
       col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
+      phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+      phdr.channel = channel;
       if (tree)
         proto_tree_add_uint(wlan_tree, hf_channel, tvb, offset, 4, channel);
     } else if (channel < 10000) {
       col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
+      phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+      phdr.frequency = channel;
       if (tree)
         proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
                                    4, channel, "Frequency: %u MHz", channel);
@@ -421,6 +478,15 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
                    datarate / 1000000,
                    ((datarate % 1000000) > 500000) ? 5 : 0);
+    if (datarate != 0) {
+      /* 0 is obviously bogus; it may be used for "unknown" */
+      /* Can this be expressed in .5 MHz units? */
+      if ((datarate % 500000) == 0) {
+        /* Yes. */
+        phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+        phdr.data_rate = datarate / 500000;
+      }
+    }
     if (tree) {
       proto_tree_add_uint64_format_value(wlan_tree, hf_data_rate, tvb, offset, 4,
                                    datarate,
@@ -455,7 +521,10 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SSI_DBM:
       /* dBm */
-      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", tvb_get_ntohl(tvb, offset));
+      dbm = tvb_get_ntohl(tvb, offset);
+      phdr.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+      phdr.signal_dbm = dbm;
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
       if (tree)
         proto_tree_add_item(wlan_tree, hf_dbm_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
@@ -486,6 +555,11 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case SSI_DBM:
         /* dBm */
+        if (antnoise != 0) {
+          /* The spec says use 0xffffffff, but some drivers appear to use 0. */
+          phdr.presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+          phdr.noise_dbm = antnoise;
+        }
         if (tree)
           proto_tree_add_int(wlan_tree, hf_dbm_antnoise, tvb, offset, 4, antnoise);
         break;
@@ -525,7 +599,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* dissect the 802.11 header next */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+    call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, (void *)&phdr);
 }
 
 static const value_string phy_type[] = {
@@ -663,7 +737,7 @@ void proto_register_ieee80211_wlancap(void)
 
 void proto_reg_handoff_ieee80211_wlancap(void)
 {
-  ieee80211_handle = find_dissector("wlan");
+  ieee80211_radio_handle = find_dissector("wlan_radio");
 }
 
 /*
