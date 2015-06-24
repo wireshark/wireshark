@@ -1247,7 +1247,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, c
     guint      indx;
     GPtrArray* fv_p;
 
-    if ((NULL == value) || ('\0' == *value))
+    if (NULL == value)
         return;
 
     /* Unwrap change made to disambiguiate zero / null */
