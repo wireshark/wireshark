@@ -2301,12 +2301,12 @@ echo "You are now prepared to build Wireshark. To do so do:"
 echo "export PKG_CONFIG_PATH=$pkg_config_path"
 echo ""
 if [ -n "$CMAKE" ]; then
-    echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
-    echo "export PATH=$PATH:$qt_base_path/bin
+    echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
+    echo "export PATH=$PATH:$qt_base_path/bin"
     echo "mkdir build; cd build"
     echo "cmake .."
     echo "make $MAKE_BUILD_OPTS app_bundle"
-    echo "make install/strip
+    echo "make install/strip"
     echo
     echo "or"
     echo
