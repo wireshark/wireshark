@@ -436,6 +436,7 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
          * No.  Register Protocols subtree as well as any preferences
          * for non-dissector modules.
          */
+        pre_init_prefs();
         prefs_register_modules();
     }
     protocol = find_protocol_by_id(id);
@@ -463,6 +464,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
          * No.  Register Protocols subtree as well as any preferences
          * for non-dissector modules.
          */
+        pre_init_prefs();
         prefs_register_modules();
     }
 
@@ -522,6 +524,7 @@ prefs_register_protocol_obsolete(int id)
          * No.  Register Protocols subtree as well as any preferences
          * for non-dissector modules.
          */
+        pre_init_prefs();
         prefs_register_modules();
     }
     protocol = find_protocol_by_id(id);
@@ -557,7 +560,8 @@ prefs_register_stat(const char *name, const char *title,
          * No.  Register Statistics subtree as well as any preferences
          * for non-dissector modules.
          */
-         prefs_register_modules();
+        pre_init_prefs();
+        prefs_register_modules();
     }
 
     return prefs_register_module(stats_module, name, title, description,
