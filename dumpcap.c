@@ -3458,7 +3458,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
 
     if (capture_opts->multi_files_on) {
         if (cnd_autostop_files != NULL &&
-            cnd_eval(cnd_autostop_files, ++global_ld.autostop_files)) {
+            cnd_eval(cnd_autostop_files, (guint64)++global_ld.autostop_files)) {
             /* no files left: stop here */
             global_ld.go = FALSE;
             return FALSE;
@@ -3698,7 +3698,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
         if (capture_opts->has_autostop_files)
             cnd_autostop_files =
-                cnd_new(CND_CLASS_CAPTURESIZE, capture_opts->autostop_files);
+                cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_files);
     }
 
     /* init the time values */
