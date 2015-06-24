@@ -998,6 +998,7 @@ EXTRA_DIST = \
 	image/toolbar/16x16/x-capture-file-reload.png	\
 	image/toolbar/16x16/x-capture-file-reload.svg	\
 	image/toolbar/16x16/x-capture-file-reload@2x.png	\
+	image/toolbar/16x16/x-capture-file-reload@2x.svg	\
 	image/toolbar/16x16/x-capture-file-save.png	\
 	image/toolbar/16x16/x-capture-file-save.svg	\
 	image/toolbar/16x16/x-capture-file-save@2x.png	\
@@ -1066,6 +1067,7 @@ EXTRA_DIST = \
 	image/toolbar/24x24/x-capture-file-reload.png		\
 	image/toolbar/24x24/x-capture-file-reload.svg		\
 	image/toolbar/24x24/x-capture-file-reload@2x.png	\
+	image/toolbar/24x24/x-capture-file-reload@2x.svg	\
 	image/toolbar/24x24/x-capture-file-save.png		\
 	image/toolbar/24x24/x-capture-file-save.svg		\
 	image/toolbar/24x24/x-capture-file-save@2x.png		\
