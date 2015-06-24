@@ -478,6 +478,7 @@ proto_reg_handoff_aruba_erm(void)
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type1);
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type2);
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type3);
+    dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type4);
 }
 
 /*
