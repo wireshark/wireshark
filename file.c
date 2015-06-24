@@ -1246,7 +1246,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   gboolean         got_read_error     = FALSE, got_write_error = FALSE;
   gint64           data_offset;
   progdlg_t       *progbar            = NULL;
-  gboolean         stop_flag;
+  gboolean         stop_flag = FALSE;
   gint64           f_len, file_pos;
   float            progbar_val;
   GTimeVal         start_time;
