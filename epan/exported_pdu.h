@@ -83,11 +83,14 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
 #define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
-#define EXP_PDU_TAG_LINKTYPE          11 /**< The value part is the linktype value defined by tcpdump
-                                          * http://www.tcpdump.org/linktypes.html
-                                          */
+#define EXP_PDU_TAG_LINKTYPE          11 /**< Deprecated - do not use */
 #define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string
-                                          * of the short protocol name used by Wireshark e.g "sip"
+                                          * of the registered dissector used by Wireshark e.g "sip"
+                                          * Will be used to call the next dissector.
+                                          */
+#define EXP_PDU_TAG_HEUR_PROTO_NAME   13 /**< The value part should be an ASCII non NULL terminated string
+                                          * composed of the heuristic table name followed by "##" followed
+                                          * by protocol short name of the used heuristic dissector e.g "ssl##HTTP2"
                                           * Will be used to call the next dissector.
                                           */
 /* Add protocol type related tags here.
@@ -150,12 +153,13 @@ typedef struct _exp_pdu_data_t {
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
  * bit field of wanted_exp_tags_len bytes length
- * If proto_name is != NULL, wtap_encap must be -1 or vice-versa
+ * tag_type should be either EXP_PDU_TAG_PROTO_NAME or EXP_PDU_TAG_HEUR_PROTO_NAME
+ * proto_name interpretation depends on tag_type value
  *
  * The tags in the tag buffer SHOULD be added in numerical order.
  */
-WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, const char* proto_name,
-                                int wtap_encap, guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
+WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, guint tag_type, const char* proto_name,
+                                                   guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
 
 #ifdef __cplusplus
 }

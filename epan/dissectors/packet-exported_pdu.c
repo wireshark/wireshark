@@ -38,6 +38,7 @@ static int hf_exported_pdu_tag = -1;
 static int hf_exported_pdu_tag_len = -1;
 static int hf_exported_pdu_unknown_tag = -1;
 static int hf_exported_pdu_prot_name = -1;
+static int hf_exported_pdu_heur_prot_name = -1;
 static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
 static int hf_exported_pdu_ipv6_src = -1;
@@ -56,15 +57,17 @@ static int hf_exported_pdu_exported_pdu = -1;
 static gint ett_exported_pdu = -1;
 static gint ett_exported_pdu_tag = -1;
 
-#define EXPORTED_PDU_NEXT_PROTO_STR  0
+#define EXPORTED_PDU_NEXT_PROTO_STR      0
+#define EXPORTED_PDU_NEXT_HEUR_PROTO_STR 1
 static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_END_OF_OPT,       "End-of-options" },
 /* 1 - 9 reserved */
    { EXP_PDU_TAG_OPTIONS_LENGTH,   "Total length of the options excluding this TLV" },
    { EXP_PDU_TAG_LINKTYPE,         "Linktype value" },
    { EXP_PDU_TAG_PROTO_NAME,       "PDU content protocol name" },
+   { EXP_PDU_TAG_HEUR_PROTO_NAME,  "PDU content heuristic protocol name" },
    /* Add protocol type related tags here */
-/* 13 - 19 reserved */
+/* 14 - 19 reserved */
    { EXP_PDU_TAG_IPV4_SRC,         "IPv4 Source Address" },
    { EXP_PDU_TAG_IPV4_DST,         "IPv4 Destination Address" },
    { EXP_PDU_TAG_IPV6_SRC,         "IPv6 Source Address" },
@@ -120,6 +123,11 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
                 proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
                 proto_tree_add_item(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
+                break;
+            case EXP_PDU_TAG_HEUR_PROTO_NAME:
+                next_proto_type = EXPORTED_PDU_NEXT_HEUR_PROTO_STR;
+                proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_heur_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -201,6 +209,21 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(proto_handle, payload_tvb, pinfo, tree);
             }
             break;
+        case EXPORTED_PDU_NEXT_HEUR_PROTO_STR:
+        {
+            gchar **heur_proto_str = wmem_strsplit(wmem_packet_scope(), proto_name, "##", 2);
+            if (heur_proto_str && heur_proto_str[0] && heur_proto_str[1]) {
+                heur_dissector_list_t heur_list = find_heur_dissector_list(heur_proto_str[0]);
+                if (heur_list) {
+                    heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_short_name(heur_list, heur_proto_str[1]);
+                    if (heur_diss) {
+                        col_clear(pinfo->cinfo, COL_PROTOCOL);
+                        call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, NULL);
+                    }
+                }
+            }
+            break;
+        }
         default:
             break;
     }
@@ -234,6 +257,11 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_prot_name,
             { "Protocol Name", "exported_pdu.prot_name",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_heur_prot_name,
+            { "Heuristic Protocol Name", "exported_pdu.heur_prot_name",
                FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },

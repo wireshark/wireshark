@@ -1882,6 +1882,24 @@ has_heur_dissector_list(const gchar *name) {
 	return (find_heur_dissector_list(name) != NULL);
 }
 
+
+static int
+find_matching_heur_dissector_by_short_name(gconstpointer a, gconstpointer b) {
+    const gchar *str_a = proto_get_protocol_short_name(((const heur_dtbl_entry_t *)a)->protocol);
+    const gchar *str_b = (const gchar*)b;
+
+    return strcmp(str_a, str_b);
+}
+
+heur_dtbl_entry_t*
+find_heur_dissector_by_short_name(heur_dissector_list_t heur_list, const char *short_name)
+{
+    GSList *found_entry = g_slist_find_custom(heur_list->dissectors,
+                                              (gpointer) short_name,
+                                              find_matching_heur_dissector_by_short_name);
+    return found_entry ? (heur_dtbl_entry_t *)(found_entry->data) : NULL;
+}
+
 void
 heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
 {
@@ -2415,8 +2433,6 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	const char        *saved_heur_list_name;
 	guint16            saved_can_desegment;
 
-	int                proto_id;
-
 	g_assert(heur_dtbl_entry);
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
@@ -2435,13 +2451,18 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	saved_curr_proto = pinfo->current_proto;
 	saved_heur_list_name = pinfo->heur_list_name;
 
-	proto_id = proto_get_id(heur_dtbl_entry->protocol);
+	if (!heur_dtbl_entry->enabled ||
+		(heur_dtbl_entry->protocol != NULL && !proto_is_protocol_enabled(heur_dtbl_entry->protocol))) {
+		g_assert(data_handle->protocol != NULL);
+		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
+		return;
+	}
 
 	if (heur_dtbl_entry->protocol != NULL) {
 		/* do NOT change this behavior - wslua uses the protocol short name set here in order
 			to determine which Lua-based heurisitc dissector to call */
 		pinfo->current_proto = proto_get_protocol_short_name(heur_dtbl_entry->protocol);
-		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_id));
+		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(heur_dtbl_entry->protocol)));
 	}
 
 	pinfo->heur_list_name = heur_dtbl_entry->list_name;

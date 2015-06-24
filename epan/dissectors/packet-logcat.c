@@ -191,7 +191,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (have_tap_listener(exported_pdu_tap)) {
         exp_pdu_data_t *exp_pdu_data;
 
-        exp_pdu_data = load_export_pdu_tags(pinfo, "logcat", -1, NULL, 0);
+        exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, "logcat", NULL, 0);
         exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
         exp_pdu_data->pdu_tvb = tvb;

@@ -1284,6 +1284,22 @@ again:
 }
 
 static void
+export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint tag, const gchar *name)
+{
+    exp_pdu_data_t *exp_pdu_data;
+    guint8 tags = EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                  EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, tag, name, &tags, 1);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+}
+
+static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
                     proto_tree *tree, SslSession *session)
 {
@@ -1300,20 +1316,15 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
                                     pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL)) {
+            if (have_tap_listener(exported_pdu_tap)) {
+                gchar *name = wmem_strconcat(wmem_packet_scope(), hdtbl_entry->list_name, "##",
+                                             proto_get_protocol_short_name(hdtbl_entry->protocol), NULL);
+                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, name);
+            }
         } else {
             if (have_tap_listener(exported_pdu_tap)) {
-                exp_pdu_data_t *exp_pdu_data;
-                guint8 tags = EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
-                              EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT;
-
-                exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(session->app_handle), -1,
-                                                    &tags, 1);
-
-                exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
-                exp_pdu_data->tvb_reported_length = tvb_reported_length(next_tvb);
-                exp_pdu_data->pdu_tvb = next_tvb;
-
-                tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_PROTO_NAME,
+                                  dissector_handle_get_dissector_name(session->app_handle));
             }
             saved_match_port = pinfo->match_uint;
             if (ssl_packet_from_server(session, ssl_associations, pinfo)) {

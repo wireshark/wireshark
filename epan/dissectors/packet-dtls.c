@@ -636,8 +636,21 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   return ret;
 }
 
+static void
+export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint tag, const gchar *name)
+{
+  exp_pdu_data_t *exp_pdu_data;
+  guint8 tags = EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT;
 
+  exp_pdu_data = load_export_pdu_tags(pinfo, tag, name, &tags, 1);
 
+  exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+  exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+  exp_pdu_data->pdu_tvb = tvb;
+
+  tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+}
 
 
 /*********************************************************************
@@ -931,18 +944,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           ssl_print_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
 
           if (have_tap_listener(exported_pdu_tap)) {
-            exp_pdu_data_t *exp_pdu_data;
-            guint8 tags = EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
-                          EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT;
-
-            exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(session->app_handle), -1,
-                                                &tags, 1);
-
-            exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
-            exp_pdu_data->tvb_reported_length = tvb_reported_length(next_tvb);
-            exp_pdu_data->pdu_tvb = next_tvb;
-
-            tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_PROTO_NAME,
+                              dissector_handle_get_dissector_name(session->app_handle));
           }
 
           dissected = call_dissector_only(session->app_handle, next_tvb, pinfo, top_tree, NULL);
@@ -950,6 +953,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         else {
           /* try heuristic subdissectors */
           dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
+          if (dissected && have_tap_listener(exported_pdu_tap)) {
+            gchar *name = wmem_strconcat(wmem_packet_scope(), hdtbl_entry->list_name, "##",
+                                         proto_get_protocol_short_name(hdtbl_entry->protocol), NULL);
+            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, name);
+          }
         }
         pinfo->match_uint = saved_match_port;
         if (dissected)

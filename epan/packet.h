@@ -415,6 +415,15 @@ WS_DLL_PUBLIC gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissect
  */
 WS_DLL_PUBLIC heur_dissector_list_t find_heur_dissector_list(const char *name);
 
+/** Find a heuristic dissector by short protocol name in a heuristic table.
+ *
+ * @param heur_list heuristic dissector table
+ * @param short_name short name of the protocol to look at
+ * @return pointer to the heuristic dissector entry, NULL if not such dissector exists
+ */
+WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_short_name(heur_dissector_list_t heur_list,
+    const char *short_name);
+
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
  *

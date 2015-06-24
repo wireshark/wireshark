@@ -95,7 +95,7 @@ static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, char *proto_name)
         guint8 exp_pdu_data_tag;
 
         exp_pdu_data_tag = EXP_PDU_TAG_ORIG_FNO_BIT;
-        exp_pdu_data = load_export_pdu_tags(pinfo, proto_name, -1, &exp_pdu_data_tag, 1);
+        exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, proto_name, &exp_pdu_data_tag, 1);
         exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
         exp_pdu_data->pdu_tvb = tvb;
