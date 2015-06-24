@@ -1451,7 +1451,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	 * If this is a short frame, then we can't, and don't, do
 	 * reassembly on it.  We just give up.
 	 */
-	if (tvb_reported_length(tvb) > tvb_length(tvb))
+	if (tvb_reported_length(tvb) > tvb_captured_length(tvb))
 		return NULL;
 
 	if (fragment_add_work(fd_head, tvb, offset, pinfo, frag_offset,
@@ -2256,8 +2256,8 @@ show_fragment(fragment_item *fd, const int offset, const fragment_items *fit,
 		} else {
 			name = g_strdup(proto_registrar_get_name(*(fit->hf_fragments)));
 		}
-		proto_item_set_text(fi, "%u %s (%u byte%s): ", count, name, tvb_length(tvb),
-				    plurality(tvb_length(tvb), "", "s"));
+		proto_item_set_text(fi, "%u %s (%u byte%s): ", count, name, tvb_captured_length(tvb),
+				    plurality(tvb_captured_length(tvb), "", "s"));
 		g_free(name);
 	} else {
 		proto_item_append_text(fi, ", ");
@@ -2379,13 +2379,13 @@ show_fragment_tree(fragment_head *fd_head, const fragment_items *fit,
 
 	if (fit->hf_reassembled_length) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
-						      tvb, 0, 0, tvb_length (tvb));
+						      tvb, 0, 0, tvb_captured_length (tvb));
 		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
 	if (fit->hf_reassembled_data) {
 		proto_item *fli = proto_tree_add_item(ft, *(fit->hf_reassembled_data),
-						      tvb, 0, tvb_length(tvb), ENC_NA);
+						      tvb, 0, tvb_captured_length(tvb), ENC_NA);
 		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
@@ -2439,13 +2439,13 @@ show_fragment_seq_tree(fragment_head *fd_head, const fragment_items *fit,
 
 	if (fit->hf_reassembled_length) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
-						      tvb, 0, 0, tvb_length (tvb));
+						      tvb, 0, 0, tvb_captured_length (tvb));
 		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
 	if (fit->hf_reassembled_data) {
 		proto_item *fli = proto_tree_add_item(ft, *(fit->hf_reassembled_data),
-						      tvb, 0, tvb_length(tvb), ENC_NA);
+						      tvb, 0, tvb_captured_length(tvb), ENC_NA);
 		PROTO_ITEM_SET_GENERATED(fli);
 	}
 

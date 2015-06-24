@@ -164,7 +164,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 		 * then iterate across the other member tvb's, copying their portions
 		 * until we have copied all data.
 		 */
-		member_length = tvb_length_remaining(member_tvb, member_offset);
+		member_length = tvb_captured_length_remaining(member_tvb, member_offset);
 
 		/* composite_memcpy() can't handle a member_length of zero. */
 		DISSECTOR_ASSERT(member_length > 0);

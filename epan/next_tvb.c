@@ -104,7 +104,7 @@ void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, 
 
   item = list->first;
   while (item) {
-    if (item->tvb && tvb_length(item->tvb)) {
+    if (item->tvb && tvb_captured_length(item->tvb)) {
       switch (item->type) {
         case NTVB_HANDLE:
           call_dissector((item->handle) ? item->handle : ((handle) ? handle : data_handle), item->tvb, pinfo, (item->tree) ? item->tree : tree);

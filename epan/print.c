@@ -711,7 +711,7 @@ write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
         memset(ascii, 0, sizeof(ascii));
         src = (struct data_source *)src_le->data;
         tvb = get_data_source_tvb(src);
-        length = tvb_length(tvb);
+        length = tvb_captured_length(tvb);
         if (length == 0)
             continue;
 
@@ -790,7 +790,7 @@ get_field_data(GSList *src_list, field_info *fi)
              * that could be expensive.  Until we fix that,
              * we'll do the check here.
              */
-            tvbuff_length = tvb_length_remaining(src_tvb,
+            tvbuff_length = tvb_captured_length_remaining(src_tvb,
                                                  fi->start);
             if (tvbuff_length < 0) {
                 return NULL;
@@ -850,7 +850,7 @@ pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
     if (!fi->ds_tvb)
         return;
 
-    if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
+    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         fprintf(pdata->fh, "field length invalid!");
         return;
     }
@@ -896,7 +896,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
             print_line(stream, 0, line);
             g_free(line);
         }
-        length = tvb_length(tvb);
+        length = tvb_captured_length(tvb);
         if (length == 0)
             return TRUE;
         cp = tvb_get_ptr(tvb, 0, length);
@@ -1458,7 +1458,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
     if (!fi->ds_tvb)
         return NULL;
 
-    if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
+    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         return g_strdup("field length invalid!");
     }
 

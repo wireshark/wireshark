@@ -340,7 +340,7 @@ remove_last_data_source(packet_info *pinfo)
 char*
 get_data_source_name(const struct data_source *src)
 {
-	guint length = tvb_length(src->tvb);
+	guint length = tvb_captured_length(src->tvb);
 
 	return wmem_strdup_printf(NULL, "%s (%u byte%s)", src->name, length,
 				plurality(length, "", "s"));
@@ -613,7 +613,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 		len = (*handle->dissector.new_d)(tvb, pinfo, tree, data);
 	} else {
 		(*handle->dissector.old)(tvb, pinfo, tree);
-		len = tvb_length(tvb);
+		len = tvb_captured_length(tvb);
 		if (len == 0) {
 			/*
 			 * XXX - a tvbuff can have 0 bytes of data in
@@ -807,7 +807,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		* the data in some tvbuff, so we'll assume that
 		* the entire tvbuff was dissected.
 		*/
-		len = tvb_length(tvb);
+		len = tvb_captured_length(tvb);
 	}
 	ENDTRY;
 
@@ -2392,7 +2392,7 @@ call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 		g_assert(data_handle->protocol != NULL);
 		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 	return ret;
 }

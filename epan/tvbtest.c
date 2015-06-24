@@ -46,7 +46,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	guint32			expected32;
 	guint			incr, i;
 
-	length = tvb_length(tvb);
+	length = tvb_captured_length(tvb);
 
 	if (length != expected_length) {
 		printf("01: Failed TVB=%s Length of tvb=%u while expected length=%u\n",

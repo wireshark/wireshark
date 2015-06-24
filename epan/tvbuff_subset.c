@@ -181,7 +181,7 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint b
 	/*
 	 * Give the next dissector only captured_length bytes.
 	 */
-	captured_length = tvb_length_remaining(backing, backing_offset);
+	captured_length = tvb_captured_length_remaining(backing, backing_offset);
 	THROW_ON(captured_length < 0, BoundsError);
 	if (captured_length > backing_length)
 		captured_length = backing_length;
