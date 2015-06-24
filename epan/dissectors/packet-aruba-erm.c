@@ -133,6 +133,7 @@ static int  proto_aruba_erm_type1 = -1;
 static int  proto_aruba_erm_type2 = -1;
 static int  proto_aruba_erm_type3 = -1;
 static int  proto_aruba_erm_type4 = -1;
+static int  proto_aruba_erm_type5 = -1;
 
 static int  hf_aruba_erm_time             = -1;
 static int  hf_aruba_erm_incl_len         = -1;
@@ -153,6 +154,7 @@ static dissector_handle_t aruba_erm_handle_type1;
 static dissector_handle_t aruba_erm_handle_type2;
 static dissector_handle_t aruba_erm_handle_type3;
 static dissector_handle_t aruba_erm_handle_type4;
+static dissector_handle_t aruba_erm_handle_type5;
 static dissector_handle_t wlan_radio_handle;
 static dissector_handle_t wlan_withfcs_handle;
 static dissector_handle_t peek_handle;
@@ -328,6 +330,19 @@ dissect_aruba_erm_type4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+/* Type 5 is the same of type 1 but with Peek Header version = 2, named internaly Peekremote -ng */
+static void
+dissect_aruba_erm_type5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    dissect_aruba_erm_common(tvb, pinfo, tree, &offset);
+
+    /* Say to PEEK dissector, it is a Aruba PEEK  packet */
+    call_dissector_with_data(peek_handle, tvb, pinfo, tree, GUINT_TO_POINTER(IS_ARUBA));
+
+}
+
 static void
 aruba_erm_prompt(packet_info *pinfo _U_, gchar* result)
 {
@@ -413,6 +428,7 @@ proto_register_aruba_erm(void)
     proto_aruba_erm_type2 = proto_register_protocol("Aruba Networks encapsulated remote mirroring - AIRMAGNET (Type 2)", "ARUBA ERM AIRMAGNET (Type 2)", "aruba_erm_type2");
     proto_aruba_erm_type3 = proto_register_protocol("Aruba Networks encapsulated remote mirroring - PCAP+RADIO (Type 3)", "ARUBA ERM PCAP+RADIO (Type 3)", "aruba_erm_type3");
     proto_aruba_erm_type4 = proto_register_protocol("Aruba Networks encapsulated remote mirroring - PPI (Type 4)", "ARUBA ERM PPI (Type 4)", "aruba_erm_type4");
+    proto_aruba_erm_type5 = proto_register_protocol("Aruba Networks encapsulated remote mirroring - PEEK (Type 5)", "ARUBA ERM PEEK-NG (type 5)", "aruba_erm_type5");
 
     range_convert_str (&global_aruba_erm_port_range, "0", MAX_UDP_PORT);
 
@@ -464,6 +480,7 @@ proto_reg_handoff_aruba_erm(void)
         aruba_erm_handle_type2 = create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
         aruba_erm_handle_type3 = create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
         aruba_erm_handle_type4 = create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
+        aruba_erm_handle_type5 = create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
         initialized = TRUE;
     } else {
         dissector_delete_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);
@@ -479,6 +496,7 @@ proto_reg_handoff_aruba_erm(void)
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type2);
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type3);
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type4);
+    dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type5);
 }
 
 /*
