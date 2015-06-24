@@ -2287,11 +2287,13 @@ install_all
 echo ""
 
 #
-# Indicate what path to use for pkg-config.
+# Indicate what paths to use for pkg-config and cmake.
 #
 pkg_config_path=/usr/local/lib/pkgconfig
 if [ "$QT_VERSION" ]; then
-    pkg_config_path="$pkg_config_path":"$HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig"
+    qt_base_path=$HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64
+    pkg_config_path="$pkg_config_path":"$qt_base_path/clang_64/lib/pkgconfig"
+    CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
 fi
 pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
 
@@ -2299,8 +2301,12 @@ echo "You are now prepared to build Wireshark. To do so do:"
 echo "export PKG_CONFIG_PATH=$pkg_config_path"
 echo ""
 if [ -n "$CMAKE" ]; then
+    echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
+    echo "export PATH=$PATH:$qt_base_path/bin
     echo "mkdir build; cd build"
     echo "cmake .."
+    echo "make $MAKE_BUILD_OPTS app_bundle"
+    echo "make install/strip
     echo
     echo "or"
     echo
@@ -2308,7 +2314,6 @@ fi
 echo "./autogen.sh"
 echo "mkdir build; cd build"
 echo "../configure"
-echo ""
 echo "make $MAKE_BUILD_OPTS"
 echo "make install"
 
