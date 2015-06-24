@@ -3019,8 +3019,13 @@ void MainWindow::on_actionCaptureStart_triggered()
     }
 
     /* XXX - will closing this remove a temporary file? */
-    if (testCaptureFileClose(FALSE, *new QString(" before starting a new capture")))
+    if (testCaptureFileClose(FALSE, *new QString(" before starting a new capture"))) {
         startCapture();
+    } else {
+        // simply clicking the button sets it to 'checked' even though we've
+        // decided to do nothing, so undo that
+        main_ui_->actionCaptureStart->setChecked(false);
+    }
 #endif // HAVE_LIBPCAP
 }
 
