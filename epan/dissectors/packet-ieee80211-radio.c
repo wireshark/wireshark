@@ -596,11 +596,13 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
     }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_CHANNEL) {
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", phdr->channel);
       proto_tree_add_uint(radio_tree, hf_wlan_radio_channel, tvb, 0, 0,
               phdr->channel);
     }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_FREQUENCY) {
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", phdr->frequency);
       proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_frequency, tvb, 0, 0,
               phdr->frequency,
               "%u MHz",
@@ -608,6 +610,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
     }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
       proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0,
               phdr->signal_percent,
               "%u%%",
@@ -615,6 +618,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
     }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
       proto_tree_add_int_format_value(radio_tree, hf_wlan_radio_signal_dbm, tvb, 0, 0,
               phdr->signal_dbm,
               "%d dBm",
