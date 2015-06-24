@@ -1334,7 +1334,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
         return true; /* Already closed, nothing to do */
 
 #ifdef HAVE_LIBPCAP
-    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
+    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS && capture_file_.capFile()->count>0) {
         /* This is true if we're reading a capture file *or* if we're doing
          a live capture.  If we're reading a capture file, the main loop
          is busy reading packets, and only accepting input from the
@@ -1459,6 +1459,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 
         } else {
             /* Unchanged file, just close it */
+            capture_file_.capFile()->state = FILE_READ_ABORTED;
             cf_close(capture_file_.capFile());
         }
     } else {

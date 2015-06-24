@@ -4336,7 +4336,7 @@ cf_has_unsaved_data(capture_file *cf)
    * If this is a temporary file, or a file with unsaved changes, it
    * has unsaved data.
    */
-  return cf->is_tempfile || cf->unsaved_changes;
+  return (cf->is_tempfile && cf->count>0) || cf->unsaved_changes;
 }
 
 /*
