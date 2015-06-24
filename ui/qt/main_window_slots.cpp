@@ -741,6 +741,7 @@ void MainWindow::startCapture() {
     if(global_capture_opts.num_selected == 0) {
         QString msg = QString(tr("No interface selected"));
         main_ui_->statusBar->pushTemporaryStatus(msg);
+        main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
 
@@ -752,6 +753,7 @@ void MainWindow::startCapture() {
     if(!capture_filter_valid_) {
         QString msg = QString(tr("Invalid capture filter"));
         main_ui_->statusBar->pushTemporaryStatus(msg);
+        main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
 
@@ -3015,6 +3017,7 @@ void MainWindow::on_actionCaptureStart_triggered()
     if (global_capture_opts.num_selected == 0) {
         QString err_msg = tr("No Interface Selected");
         main_ui_->statusBar->pushTemporaryStatus(err_msg);
+        main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
 
