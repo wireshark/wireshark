@@ -50,6 +50,17 @@ extern "C" {
 
 #include "nghttp2ver.h"
 
+/*
+ * When we're building this as part of Wireshark, we want to treat
+ * all these routines as internal to libwireshark.
+ */
+#if 1
+#include "ws_symbol_export.h"
+
+#define NGHTTP2_EXTERN WS_DLL_LOCAL
+
+#else
+
 #ifdef NGHTTP2_STATICLIB
 #define NGHTTP2_EXTERN
 #elif defined(WIN32)
@@ -61,6 +72,8 @@ extern "C" {
 #else  /* !defined(WIN32) */
 #define NGHTTP2_EXTERN
 #endif /* !defined(WIN32) */
+
+#endif /* 1 */
 
 /**
  * @macro
