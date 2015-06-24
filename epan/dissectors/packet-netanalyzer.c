@@ -240,7 +240,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (packet_status & MSK_ALIGN_ERR)
         {
-          proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_alignment_error, tvb, tvb_length(tvb)-1, 1);
+          proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_alignment_error, tvb, tvb_captured_length(tvb)-1, 1);
         }
       }
     }
@@ -302,7 +302,7 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t                *next_tvb;
 
-  if (tvb_length(tvb) >= 4)
+  if (tvb_reported_length(tvb) >= 4)
   {
     /* generate tvb subset for Ethernet frame */
     if (dissect_netanalyzer_common(tvb, pinfo, tree))
@@ -328,7 +328,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_tree              *transparent_payload_tree = NULL;
   tvbuff_t                *next_tvb;
 
-  if (tvb_length(tvb) >= 4)
+  if (tvb_reported_length(tvb) >= 4)
   {
     /* generate tvb subset for Ethernet frame */
     if (dissect_netanalyzer_common(tvb, pinfo, tree))
@@ -337,7 +337,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        * as normally the transparent mode is used for low level analysis
        * where dissecting the frame's content wouldn't make much sense
        * use data dissector instead */
-      transparent_payload_tree = proto_tree_add_subtree(tree, tvb, 4, tvb_length(tvb)-4,
+      transparent_payload_tree = proto_tree_add_subtree(tree, tvb, 4, tvb_captured_length(tvb)-4,
                                     ett_netanalyzer_transparent, NULL, "Raw packet data");
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       call_dissector(data_dissector_handle, next_tvb, pinfo, transparent_payload_tree);

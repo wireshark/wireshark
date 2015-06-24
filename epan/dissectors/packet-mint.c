@@ -545,25 +545,19 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_mint_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 offset = 0;
-	guint32 packet_length = tvb_length_remaining(tvb, 0);
+	guint32 packet_length = tvb_captured_length(tvb);
 
-	offset += dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
+	return dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
 		PORT_MINT_CONTROL_TUNNEL);
-
-	return offset;
 }
 
 static int
 dissect_mint_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 offset = 0;
-	guint32 packet_length = tvb_length_remaining(tvb, 0);
+	guint32 packet_length = tvb_captured_length(tvb);
 
-	offset += dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
+	return dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
 		PORT_MINT_DATA_TUNNEL);
-
-	return offset;
 }
 
 static int

@@ -75,7 +75,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint32 pld_len, magic;
 
     /* check for min size */
-    if(tvb_length(tvb) < 28) {  /* Not a LANforge packet. */
+    if(tvb_captured_length(tvb) < 28) {  /* Not a LANforge packet. */
         return FALSE;
     }
 

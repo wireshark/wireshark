@@ -347,7 +347,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
         proto_tree_add_item(tlv_tree, hf_lltd_tlv_length, tvb, offset+1, 1, ENC_NA);
 
 
-    if ((type != 0) && (length > tvb_length_remaining(tvb, offset+2)))
+    if ((type != 0) && (length > tvb_reported_length_remaining(tvb, offset+2)))
     {
         expert_add_info_format(pinfo, tlv_item, &ei_lltd_tlv_length_invalid, "TLV Length field too big");
         *end = TRUE;
@@ -599,7 +599,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
         func_tree = proto_tree_add_subtree(tree, tvb, offset+28, 0, ett_tlv, &func_item, "TLVs");
         start_offset = loop_offset = offset+28;
-        while ((end_tlv == FALSE) && (tvb_length_remaining(tvb, loop_offset) >= 1))
+        while ((end_tlv == FALSE) && (tvb_reported_length_remaining(tvb, loop_offset) >= 1))
         {
             loop_offset += dissect_lltd_tlv(tvb, pinfo, func_tree, loop_offset, &end_tlv);
         }

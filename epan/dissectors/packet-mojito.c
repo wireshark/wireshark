@@ -698,7 +698,7 @@ static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, pro
 	  Test to make sure that the length field is there and correct
 	  (tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)
 	*/
-	if ((tvb_length(tvb) >= 60) &&
+	if ((tvb_captured_length(tvb) >= 60) &&
 	    (tvb_get_guint8(tvb, 16) == 68) &&
 	    ((tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
 	{

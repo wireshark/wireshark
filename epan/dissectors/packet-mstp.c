@@ -215,7 +215,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset+2, 1, ENC_LITTLE_ENDIAN);
 	item = proto_tree_add_item(subtree, hf_mstp_frame_pdu_len, tvb,
 			offset+3, 2, ENC_BIG_ENDIAN);
-	mstp_tvb_pdu_len = tvb_length_remaining(tvb, offset+6);
+	mstp_tvb_pdu_len = tvb_reported_length_remaining(tvb, offset+6);
 	/* check the length - which does not include the crc16 checksum */
 	if (mstp_tvb_pdu_len > 2) {
 		if (mstp_frame_pdu_len > (mstp_tvb_pdu_len-2)) {

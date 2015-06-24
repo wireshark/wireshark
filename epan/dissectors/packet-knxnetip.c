@@ -1524,7 +1524,7 @@ static gboolean dissect_knxnetip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gint idx;
     idx = 0;
 
-    if (tvb_length(tvb) < 8){
+    if (tvb_captured_length(tvb) < 8){
         return (FALSE);
     }
     if ( tvb_get_guint8(tvb, 0) != KNXNETIP_HEADER_LENGTH) {

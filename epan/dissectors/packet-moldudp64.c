@@ -72,7 +72,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16     msglen, real_msglen, whole_len;
     gint        remaining;
 
-    if (tvb_length_remaining(tvb, offset) < MOLDUDP64_MSGLEN_LEN)
+    if (tvb_captured_length_remaining(tvb, offset) < MOLDUDP64_MSGLEN_LEN)
         return 0;
 
     msglen = tvb_get_ntohs(tvb, offset);

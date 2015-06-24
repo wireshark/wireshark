@@ -227,7 +227,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
         }
 
-        if (tvb_length_remaining(tvb, offset) > 0)
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
                 proto_tree_add_item(msdp_tree, hf_msdp_trailing_junk, tvb, offset, -1, ENC_NA);
 
         return;
@@ -299,7 +299,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                                          ett_msdp_sa_enc_data, NULL, "Encapsulated IPv4 packet: %u bytes",
                                          length);
 
-                available_length = tvb_length_remaining(tvb, *offset);
+                available_length = tvb_captured_length_remaining(tvb, *offset);
                 reported_length = tvb_reported_length_remaining(tvb, *offset);
                 DISSECTOR_ASSERT(available_length >= 0);
                 DISSECTOR_ASSERT(reported_length >= 0);

@@ -528,7 +528,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
     /* Continue with dissection of Modbus data payload following Modbus/TCP frame */
-    if( tvb_length_remaining(tvb, offset) > 0 )
+    if( tvb_reported_length_remaining(tvb, offset) > 0 )
         call_dissector(modbus_handle, next_tvb, pinfo, tree);
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
@@ -557,7 +557,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus RTU");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     unit_id = tvb_get_guint8(tvb, 0);
     function_code = tvb_get_guint8(tvb, 1) & 0x7F;
@@ -670,7 +670,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
     /* Continue with dissection of Modbus data payload following Modbus RTU frame */
-    if( tvb_length_remaining(tvb, offset) > 0 )
+    if( tvb_reported_length_remaining(tvb, offset) > 0 )
         call_dissector(modbus_handle, next_tvb, pinfo, tree);
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
@@ -887,7 +887,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint16       diagnostic_code;
     modbus_request_info_t *request_info;
 
-    len = tvb_length_remaining(tvb, 0);
+    len = tvb_captured_length(tvb);
 
     /* If the packet is zero-length, we should not attempt to dissect any further */
     if (len == 0)

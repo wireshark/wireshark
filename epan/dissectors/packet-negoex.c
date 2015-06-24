@@ -358,7 +358,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   negoex_tree = NULL;
   tf = NULL;
   done = FALSE;
-  payload_len = tvb_length(tvb);
+  payload_len = tvb_reported_length(tvb);
 
   /* Set up the initial NEGOEX payload */
   if (tree) {
@@ -448,7 +448,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       msg_tvb = tvb_new_subset(tvb,
                                start_offset,
-                               MIN(message_len, tvb_length(tvb)),
+                               MIN(message_len, tvb_captured_length(tvb)),
                                message_len);
 
       switch (message_type) {

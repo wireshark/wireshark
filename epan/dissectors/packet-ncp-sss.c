@@ -419,7 +419,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
     } else {
         str_length = length;
     }
-    length_remaining = tvb_length_remaining(tvb, foffset);
+    length_remaining = tvb_captured_length_remaining(tvb, foffset);
     if (length_remaining <= 0) {
         return foffset;
     }
@@ -475,7 +475,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
     proto_item          *aitem;
 
 
-    if (tvb_length_remaining(tvb, foffset)<4) {
+    if (tvb_reported_length_remaining(tvb, foffset)<4) {
         return;
     }
     foffset = 6;
@@ -531,17 +531,17 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                    packets and then we will see these as malformed packets.
                    So check to make sure we still have data in the packet anytime
                    we read a secret. */
-                if (tvb_length_remaining(tvb, foffset) > 4) {
+                if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
             case 2:
                 foffset += 4;
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4) {
+                if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    if (tvb_length_remaining(tvb, foffset) < (gint) msg_length) {
+                    if (tvb_captured_length_remaining(tvb, foffset) < (gint) msg_length) {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, ENC_NA);
                     } else {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, ENC_NA);
@@ -551,7 +551,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             case 3:
             case 4:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4) {
+                if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
@@ -559,7 +559,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 break;
             case 6:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4) {
+                if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
@@ -580,7 +580,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             if (request_value) {
                 request_value->req_nds_flags=255;
             }
-            if (tvb_length_remaining(tvb, foffset) > 8) {
+            if (tvb_reported_length_remaining(tvb, foffset) > 8) {
                 foffset += 4;
                 proto_tree_add_item(ncp_tree, hf_enc_data, tvb, foffset, -1, ENC_NA);
             }
@@ -611,7 +611,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
 
     foffset = 8;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-    if (tvb_length_remaining(tvb, foffset)<4) {
+    if (tvb_captured_length_remaining(tvb, foffset)<4) {
         return;
     }
     atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_sss, NULL, "Function: %s", val_to_str_const(subfunc, sss_func_enum, "Unknown"));
@@ -647,7 +647,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                 /*foffset+=4;*/
             } else {
                 proto_tree_add_uint_format_value(atree, hf_return_code, tvb, foffset, 4, 0, "Success (0x00000000)");
-                if (tvb_length_remaining(tvb, foffset) > 8) {
+                if (tvb_reported_length_remaining(tvb, foffset) > 8) {
                     foffset += 4;
                     if (request_value && subverb == 6) {
                         foffset += 4;
@@ -655,25 +655,25 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                         foffset += 8;
                         for (i=0; i<number_of_items; i++) {
                             length_of_string = find_delimiter(tvb, foffset);
-                            if (length_of_string > tvb_length_remaining(tvb, foffset)) {
+                            if (length_of_string > tvb_reported_length_remaining(tvb, foffset)) {
                                 return;
                             }
                             foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, length_of_string);
-                            if (tvb_length_remaining(tvb, foffset) < 8) {
+                            if (tvb_reported_length_remaining(tvb, foffset) < 8) {
                                 return;
                             }
                             foffset++;
                         }
                     } else {
-                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_captured_length_remaining(tvb, foffset), ENC_NA);
                     }
                 }
             }
         } else {
             proto_tree_add_uint_format_value(atree, hf_return_code, tvb, foffset, 4, 0, "Success (0x00000000)");
-            if (tvb_length_remaining(tvb, foffset) > 8) {
+            if (tvb_reported_length_remaining(tvb, foffset) > 8) {
                 foffset += 4;
-                proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
+                proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_captured_length_remaining(tvb, foffset), ENC_NA);
             }
         }
         break;

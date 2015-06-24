@@ -431,7 +431,7 @@ dissect_mtp3mg_unknown_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     guint8 message_length;
 
-    message_length = tvb_length(tvb);
+    message_length = tvb_captured_length(tvb);
     proto_tree_add_expert_format(tree, pinfo, &ei_mtp3mg_unknown_message, tvb, 0, message_length,
                         "Unknown message (%u byte%s)", message_length,
                         plurality(message_length, "", "s"));

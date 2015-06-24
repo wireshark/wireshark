@@ -114,7 +114,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint16     type;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < 18)
+    if (tvb_captured_length(tvb) < 18)
         return 0;
 
     /*  Get the type byte */

@@ -1538,7 +1538,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    max_data = tvb_length(tvb);
+    max_data = tvb_captured_length(tvb);
 
     msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1594,7 +1594,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * So if it is a SESSION_MESSAGE and SMB1 or SMB2
          * mark it as is_cifs.
          */
-        if (tvb_length_remaining(tvb, offset) >= 8
+        if (tvb_captured_length_remaining(tvb, offset) >= 8
             && tvb_get_guint8(tvb,offset+0) == SESSION_MESSAGE
             && tvb_get_guint8(tvb,offset+5) == 'S'
             && tvb_get_guint8(tvb,offset+6) == 'M'
@@ -1762,7 +1762,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
              * there is an SMB header there ...
              */
             if( ((int)plen>tvb_reported_length_remaining(tvb, offset))
-                &&(tvb_length_remaining(tvb, offset) >= 8)
+                &&(tvb_captured_length_remaining(tvb, offset) >= 8)
                 &&(tvb_get_guint8(tvb,offset+5) == 'S')
                 &&(tvb_get_guint8(tvb,offset+6) == 'M')
                 &&(tvb_get_guint8(tvb,offset+7) == 'B') ){

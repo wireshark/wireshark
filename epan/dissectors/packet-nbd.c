@@ -373,7 +373,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	guint32 magic, type;
 
 	/* We need at least this much to tell whether this is NBD or not */
-	if(tvb_length(tvb)<4){
+	if(tvb_captured_length(tvb)<4){
 		return FALSE;
 	}
 
@@ -382,7 +382,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
 		/* requests are 28 bytes or more */
-		if(tvb_length(tvb)<28){
+		if(tvb_captured_length(tvb)<28){
 			return FALSE;
 		}
 		/* verify type */
@@ -400,7 +400,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		return TRUE;
 	case NBD_RESPONSE_MAGIC:
 		/* responses are 16 bytes or more */
-		if(tvb_length(tvb)<16){
+		if(tvb_captured_length(tvb)<16){
 			return FALSE;
 		}
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);

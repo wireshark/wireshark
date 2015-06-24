@@ -765,7 +765,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         cksum = tvb_get_ntohs(tvb, offset+6);
         ti = proto_tree_add_item(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb,
                                  offset+6, 2, ENC_BIG_ENDIAN);
-        if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
+        if (!pinfo->fragmented && (int) tvb_captured_length(tvb) >= msg_length) {
             /* The packet isn't part of a fragmented datagram and isn't truncated, so we can checksum it. */
             SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, msg_length);
             computed_cksum = in_cksum(cksum_vec, 1);

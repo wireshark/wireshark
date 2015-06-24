@@ -113,7 +113,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "No valid function found");
   }
 
-  if (tvb_length_remaining(tvb, offset) > 0)
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
   {
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);

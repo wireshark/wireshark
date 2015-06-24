@@ -449,7 +449,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset = 0;
     if (tree) {
-        tvb_len = tvb_length(tvb);
+        tvb_len = tvb_reported_length(tvb);
 
         ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
         mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
@@ -999,7 +999,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gint sp_offset;
     int value;
 
-    len = tvb_length(tvb);
+    len = tvb_captured_length(tvb);
     if (len < MRCPV2_MIN_LENGTH) /* too short, can't conclude if it's mrcp */
         return 0;
 

@@ -220,7 +220,7 @@ dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 
-	packet_length = tvb_length(tvb);
+	packet_length = tvb_reported_length(tvb);
 
 	/* Header dissection */
 	ti = proto_tree_add_item(tree, proto_mndp, tvb, offset, -1,
@@ -246,7 +246,7 @@ static gboolean
 test_mndp(tvbuff_t *tvb)
 {
 	/* Minimum of 8 bytes, 4 Bytes header + 1 TLV-header */
-	if ( tvb_length(tvb) < 8
+	if ( tvb_captured_length(tvb) < 8
 		    || tvb_get_guint8(tvb, 4) != 0
 		    || tvb_get_guint8(tvb, 6) != 0
 	) {

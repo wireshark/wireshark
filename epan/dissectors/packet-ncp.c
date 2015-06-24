@@ -945,7 +945,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
         if (length_remaining > 4) {
             testvar = tvb_get_ntohl(tvb, commhdr+4);
             if (testvar == 0x4c495020) {
@@ -973,7 +973,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (header.type) {
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
         if (length_remaining > 4) {
             testvar = tvb_get_ntohl(tvb, commhdr+4);
             if (testvar == 0x4c495020) {
@@ -1088,7 +1088,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * length of the packet, but that's arguably a
              * feature in this case.
              */
-            length_remaining = tvb_length_remaining(tvb, offset);
+            length_remaining = tvb_captured_length_remaining(tvb, offset);
             if (length_remaining > data_len)
                 length_remaining = data_len;
             if (data_len != 0) {
@@ -1132,7 +1132,7 @@ get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
      */
     signature = tvb_get_ntohl(tvb, offset);
     if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
-        return tvb_length_remaining(tvb, offset);
+        return tvb_captured_length_remaining(tvb, offset);
 
     /*
      * Get the length of the NCP-over-TCP packet.  Strip off the "has
