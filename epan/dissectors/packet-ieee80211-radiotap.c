@@ -1025,6 +1025,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
 			dbm = (gint8)tvb_get_guint8(tvb, offset);
+			phdr.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+			phdr.signal_dbm = dbm;
 			col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 			proto_tree_add_int_format_value(radiotap_tree,
 							  hf_radiotap_dbm_antsignal,
@@ -1036,6 +1038,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_DBM_ANTNOISE:
 			dbm = (gint8) tvb_get_guint8(tvb, offset);
+			phdr.presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+			phdr.noise_dbm = dbm;
 			if (tree) {
 				proto_tree_add_int_format_value(radiotap_tree,
 							  hf_radiotap_dbm_antnoise,
