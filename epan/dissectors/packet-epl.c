@@ -1240,6 +1240,7 @@ static gint hf_epl_mtyp          = -1;
 static gint hf_epl_node          = -1;
 static gint hf_epl_dest          = -1;
 static gint hf_epl_src           = -1;
+static gint hf_epl_payload_real  = -1;
 
 static gint hf_epl_soc           = -1;
 static gint hf_epl_soc_mc        = -1;
@@ -1502,6 +1503,7 @@ static expert_field ei_recvseq_value          = EI_INIT;
 static expert_field ei_sendseq_value          = EI_INIT;
 static expert_field ei_recvcon_value          = EI_INIT;
 static expert_field ei_sendcon_value          = EI_INIT;
+static expert_field ei_real_length_differs    = EI_INIT;
 
 static dissector_handle_t epl_handle;
 
@@ -1880,15 +1882,24 @@ decode_epl_address (guchar adr)
 static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
-	gint off = 0;
+	gint off = 0, rem_len = 0;
 	tvbuff_t * payload_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry = NULL;
+	proto_item * item = NULL;
 
 	off = offset;
 
 	if (len > 0)
 	{
-		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
+		payload_tvb = tvb_new_subset_remaining(tvb, off);
+		rem_len = tvb_captured_length_remaining(payload_tvb, 0);
+		if ( rem_len < len )
+		{
+			item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, off, rem_len, rem_len);
+			PROTO_ITEM_SET_GENERATED(item);
+			expert_add_info(pinfo, item, &ei_real_length_differs );
+		}
+
 		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
 			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
@@ -3468,6 +3479,10 @@ proto_register_epl(void)
 			{ "Source", "epl.src",
 				FT_UINT8, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_payload_real,
+			{ "Captured Size", "epl.payload.capture_size",
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
 
 		/* SoC data fields*/
 		{ &hf_epl_soc,
@@ -4247,6 +4262,10 @@ proto_register_epl(void)
 			{ "epl.error.send.connection", PI_PROTOCOL, PI_ERROR,
 				"Invalid Value for SendCon", EXPFILL }
 		},
+		{ &ei_real_length_differs,
+			{ "epl.error.payload.length.differs", PI_PROTOCOL, PI_ERROR,
+				"Captured length differs from header information", EXPFILL }
+		}
 	};
 
 	module_t *epl_module;
