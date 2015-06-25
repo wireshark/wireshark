@@ -209,6 +209,7 @@ packaging/nsis/gtk-dll-manifest.nsh
 
 # Misc #
 ########
+.vagrant
 *.swp
 *~
 .DS_Store
