@@ -478,7 +478,7 @@ findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLeng
     return i_wFrame1Position;
 }
 
-static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean b_frame2first,
+static gboolean findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean b_frame2first,
         guint *u_frameOffset, guint *u_frameLength, opensafety_packet_info *packet )
 {
     guint     ctr, rem_length;
@@ -488,11 +488,14 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
     guint     b_ID;
     gboolean  found;
 
-    found = 0;
+    found = FALSE;
     ctr = u_Offset;
     rem_length = tvb_reported_length_remaining (message_tvb, ctr);
 
-    while ( packet != NULL && rem_length >= OSS_MINIMUM_LENGTH)
+    /* Search will allways start at the second byte of the frame ( cause it determines )
+     * the type of package and therefore everything else. Therefore the mininmum length - 1
+     * is the correct minimum length */
+    while ( packet != NULL && rem_length >= ( OSS_MINIMUM_LENGTH - 1 ) )
     {
         /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid,
          * also, the byte we want to access, must at least exist, otherwise,
@@ -596,7 +599,7 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
                                                         f2crc = tvb_get_letohs ( message_tvb, ctr + 3 + 5 + b_Length );
                                                     if ( crc != f2crc )
                                                     {
-                                                        found = 1;
+                                                        found = TRUE;
                                                         break;
                                                     }
                                                 }
@@ -606,12 +609,31 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
                                                 *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
                                                 *u_frameOffset = ( ctr - 1 );
 
-                                                /* At this point frames had been checked for SoC and SoA types of
-                                                 * EPL. This is no longer necessary and leads to false-negatives.
-                                                 * SoC and SoA frames get filtered out at the EPL entry point, cause
-                                                 * EPL only provides payload, no longer complete frames. */
-                                                found = 1;
-                                                break;
+                                                /* If the first crc is zero, the second one must not be 0. The header
+                                                 * for each subfields differ, therefore it is impossible, that both
+                                                 * crcs are zero */
+                                                if ( crc == 0 )
+                                                {
+                                                    f2crc = tvb_get_guint8 ( message_tvb, ( ctr - 1 ) + 10 + ( 2 * b_Length ) );
+                                                    if ( b_Length > 8 )
+                                                        f2crc = tvb_get_letohs ( message_tvb, ( ctr - 1 ) + 11 + ( 2 * b_Length ) );
+
+                                                    /* The crc's differ, everything is ok */
+                                                    if ( crc != f2crc )
+                                                    {
+                                                        found = TRUE;
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    /* At this point frames had been checked for SoC and SoA types of
+                                                     * EPL. This is no longer necessary and leads to false-negatives.
+                                                     * SoC and SoA frames get filtered out at the EPL entry point, cause
+                                                     * EPL only provides payload, no longer complete frames. */
+                                                    found = TRUE;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
@@ -678,7 +700,7 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
     if ( b_frame2first && found )
         *u_frameOffset = u_Offset;
 
-    return (found ? 1 : 0);
+    return found;
 }
 
 static gint
@@ -1903,8 +1925,9 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         /* Reset the next_tvb buffer */
         next_tvb = NULL;
 
-        /* Smallest possible frame size is 11 */
-        if ( tvb_captured_length_remaining(message_tvb, frameOffset ) < OSS_MINIMUM_LENGTH )
+        /* Smallest possible frame size is 11, but this check must ensure, that even the last frame
+         * will get considered, which leads us with 10, as the first byte checked is the second one */
+        if ( tvb_captured_length_remaining(message_tvb, frameOffset ) < ( OSS_MINIMUM_LENGTH - 1 ) )
             break;
 
         /* Resetting packet, to ensure, that findSafetyFrame starts with a fresh frame.
