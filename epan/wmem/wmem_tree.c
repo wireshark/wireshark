@@ -42,8 +42,7 @@ struct _wmem_tree_node_t {
     struct _wmem_tree_node_t *left;
     struct _wmem_tree_node_t *right;
 
-    void    *data;
-    guint32  key32;
+    void *key, *data;
 
     wmem_node_color_t color;
     gboolean          is_subtree;
@@ -295,8 +294,8 @@ create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, guint32 key,
     node->right  = NULL;
     node->parent = parent;
 
-    node->key32 = key;
-    node->data  = data;
+    node->key  = GUINT_TO_POINTER(key);
+    node->data = data;
 
     node->color      = color;
     node->is_subtree = is_subtree;
@@ -325,13 +324,13 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key,
      */
     while (!new_node) {
         /* this node already exists, so just return the data pointer*/
-        if (key == node->key32) {
+        if (key == GPOINTER_TO_UINT(node->key)) {
             if (replace) {
                 node->data = CREATE_DATA(func, data);
             }
             return node->data;
         }
-        else if (key < node->key32) {
+        else if (key < GPOINTER_TO_UINT(node->key)) {
             if (node->left) {
                 node = node->left;
             }
@@ -343,7 +342,7 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key,
                 node->left = new_node;
             }
         }
-        else if (key > node->key32) {
+        else if (key > GPOINTER_TO_UINT(node->key)) {
             if (node->right) {
                 node = node->right;
             }
@@ -375,13 +374,13 @@ wmem_tree_lookup32(wmem_tree_t *tree, guint32 key)
     wmem_tree_node_t *node = tree->root;
 
     while (node) {
-        if (key == node->key32) {
+        if (key == GPOINTER_TO_UINT(node->key)) {
             return node->data;
         }
-        else if (key < node->key32) {
+        else if (key < GPOINTER_TO_UINT(node->key)) {
             node = node->left;
         }
-        else if (key > node->key32) {
+        else if (key > GPOINTER_TO_UINT(node->key)) {
             node = node->right;
         }
     }
@@ -395,16 +394,16 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
     wmem_tree_node_t *node = tree->root;
 
     while (node) {
-        if (key == node->key32) {
+        if (key == GPOINTER_TO_UINT(node->key)) {
             return node->data;
         }
-        else if (key < node->key32) {
+        else if (key < GPOINTER_TO_UINT(node->key)) {
             if (node->left == NULL) {
                 break;
             }
             node = node->left;
         }
-        else if (key > node->key32) {
+        else if (key > GPOINTER_TO_UINT(node->key)) {
             if (node->right == NULL) {
                 break;
             }
@@ -422,14 +421,14 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
      * we return NULL.
      */
     if (node->parent == NULL) {
-        if (key > node->key32) {
+        if (key > GPOINTER_TO_UINT(node->key)) {
             return node->data;
         } else {
             return NULL;
         }
     }
 
-    if (node->key32 <= key) {
+    if (GPOINTER_TO_UINT(node->key) <= key) {
         /* if our key is <= the search key, we have the right node */
         return node->data;
     }
@@ -437,7 +436,7 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
         /* our key is bigger than the search key and we're a left child,
          * we have to check if any of our ancestors are smaller. */
         while (node) {
-            if (key > node->key32) {
+            if (key > GPOINTER_TO_UINT(node->key)) {
                 return node->data;
             }
             node=node->parent;
@@ -684,7 +683,7 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, guint32 level)
             prefix,
             (void *)node, (void *)node->parent,
             (void *)node->left, (void *)node->right,
-            node->color?"Black":"Red", node->key32,
+            node->color?"Black":"Red", GPOINTER_TO_UINT(node->key),
             node->is_subtree?"tree":"data", node->data);
     if (node->left)
         wmem_tree_print_nodes("L-", node->left, level+1);
