@@ -58,6 +58,7 @@
 #include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
+#include <wiretap/pcap-encap.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -457,7 +458,7 @@ DIAG_ON(cast-qual)
       for (i = 0; i < in_file_count; i++) {
         idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
         for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
-        /* read the interface data from the in file to our combined interface data */
+          /* read the interface data from the in file to our combined interface data */
           file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
           int_data.wtap_encap            = file_int_data->wtap_encap;
           int_data.time_units_per_second = file_int_data->time_units_per_second;
@@ -467,7 +468,7 @@ DIAG_ON(cast-qual)
           int_data.opt_comment           = NULL;
           int_data.if_description        = NULL;
           int_data.if_speed              = 0;
-          int_data.if_tsresol            = 6;
+          int_data.if_tsresol            = file_int_data->if_tsresol;
           int_data.if_filter_str         = NULL;
           int_data.bpf_filter_len        = 0;
           int_data.if_filter_bpf_bytes   = NULL;
@@ -483,6 +484,42 @@ DIAG_ON(cast-qual)
         /* Set fake interface Id in per file data */
         in_files[i].interface_id = itf_id;
         itf_id += itf_count;
+      }
+    } else {
+      guint8 if_tsresol = 6;
+      guint64 time_units_per_second = 1000000;
+      for (i = 0; i < in_file_count; i++) {
+        idb_inf_merge_file = wtap_file_get_idb_info(in_files[i].wth);
+        for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
+          file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
+          if (file_int_data->time_units_per_second > time_units_per_second) {
+            time_units_per_second = file_int_data->time_units_per_second;
+            if_tsresol = file_int_data->if_tsresol;
+          }
+        }
+        g_free(idb_inf_merge_file);
+      }
+      if (time_units_per_second > 1000000) {
+        /* We are using a better than microsecond precision; let's create a fake IDB */
+        idb_inf = g_new(wtapng_iface_descriptions_t,1);
+        idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+        int_data.wtap_encap            = frame_type;
+        int_data.time_units_per_second = time_units_per_second;
+        int_data.link_type             = wtap_wtap_encap_to_pcap_encap(frame_type);
+        int_data.snap_len              = snaplen;
+        int_data.if_name               = g_strdup("Unknown/not available in original file format(libpcap)");
+        int_data.opt_comment           = NULL;
+        int_data.if_description        = NULL;
+        int_data.if_speed              = 0;
+        int_data.if_tsresol            = if_tsresol;
+        int_data.if_filter_str         = NULL;
+        int_data.bpf_filter_len        = 0;
+        int_data.if_filter_bpf_bytes   = NULL;
+        int_data.if_os                 = NULL;
+        int_data.if_fcslen             = -1;
+        int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+        int_data.interface_statistics  = NULL;
+        g_array_append_val(idb_inf->interface_data, int_data);
       }
     }
 
