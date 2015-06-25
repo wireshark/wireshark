@@ -15,9 +15,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.cpus = 2
   end
 
-  # Share the source directory into the VM as `/wireshark`
-  config.vm.synced_folder ".", "/wireshark"
-
   # Permit X11 forwarding so running the graphical Wireshark works
   config.ssh.forward_x11 = true
 
