@@ -1527,7 +1527,7 @@ static const range_string nas_eps_service_type_vals[] = {
     { 1,  1, "Mobile terminating CS fallback or 1xCS fallback"},
     { 2,  2, "Mobile originating CS fallback emergency call or 1xCS fallback emergency call"},
     { 3,  4, "Mobile originating CS fallback or 1xCS fallback"},
-    { 8, 11, "packet services via S1"},
+    { 8, 11, "Packet services via S1"},
     { 0, 0, NULL }
 };
 
