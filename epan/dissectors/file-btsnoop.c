@@ -122,7 +122,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     header_tree = proto_item_add_subtree(header_item, ett_btsnoop_header);
 
     proto_tree_add_item(header_tree, hf_btsnoop_magic_bytes, tvb, offset, sizeof(magic), ENC_ASCII | ENC_NA);
-    offset += sizeof(magic);
+    offset += (gint)sizeof(magic);
 
     proto_tree_add_item(header_tree, hf_btsnoop_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
