@@ -1,8 +1,16 @@
 #!/bin/sh
 # Copyright 2013, Alexis La Goutte (See AUTHORS file)
 #
-# For git user: copy pre-commit to .git/hook/ folder
-#   To not launch the script when committing, use --no-verify argument
+# For git user: copy tools/pre-commit to .git/hooks/ folder and make it
+# executable. To bypass it for a single commit, use the --no-verify argument.
+#
+# Alternatively, invoke it directly with the commit ID. Example for checking the
+# last commit:
+#
+#   tools/pre-commit HEAD~
+#
+# Relative paths are also supported. For instance, if you are in epan/, then you
+# could invoke `../tools/pre-commit HEAD` to check for changes to staged files.
 #
 # From
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
@@ -10,17 +18,18 @@
 
 unset GREP_OPTIONS
 
-if [ -z $GIT_DIR ]; then GIT_DIR=".git"; fi
+# If the commit identifier is not given, use HEAD instead.
+COMMIT_ID="${1:-HEAD}"
+# Path to hook script in the .git directory
+hook_script=${GIT_DIR:-.git}/hooks/pre-commit
 
-if [ -z $1 ]; then
-    COMMIT_ID="HEAD"
-else
-    COMMIT_ID=$1
-fi
+# Always start in the root directory of the source tree, this allows for
+# invocations via relative paths (such as ../tools/pre-commit):
+cd "$(git rev-parse --show-toplevel)"
 
-
-# Check for newer versions of the pre-commit script
-if [ ${GIT_DIR}/hooks/pre-commit -ot ./tools/pre-commit ]; then
+# Check for newer (actually, different) versions of the pre-commit script
+# (but only if invoked as hook, i.e. the commit ID is not given as argument).
+if [ -z "$1" ] && ! cmp -s "$hook_script" tools/pre-commit; then
     echo "Pre-commit hook script is outdated, please update!"
 fi
 
@@ -38,7 +47,7 @@ for FILE in `git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" |
     ./tools/fix-encoding-args.pl $FILE  || exit_status=1
 
     #Check if checkfiltername is good
-    ./tools/checkfiltername.pl $FILE  || exit_status=1
+    ./tools/checkfiltername.pl $FILE    || exit_status=1
 
 done
 
