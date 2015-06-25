@@ -513,6 +513,7 @@ static expert_field ei_bootp_option_classless_static_route = EI_INIT;
 static expert_field ei_bootp_option125_enterprise_malformed = EI_INIT;
 static expert_field ei_bootp_option_6RD_malformed = EI_INIT;
 static expert_field ei_bootp_option82_vi_cl_tag_unknown = EI_INIT;
+static expert_field ei_bootp_option_parse_err = EI_INIT;
 static expert_field ei_bootp_suboption_invalid = EI_INIT;
 static expert_field ei_bootp_secs_le = EI_INIT;
 static expert_field ei_bootp_end_option_missing = EI_INIT;
@@ -5170,6 +5171,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	eoff = tvb_reported_length(tvb);
 
+	bp_ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, ENC_NA);
+	bp_tree = proto_item_add_subtree(bp_ti, ett_bootp);
+
 	/*
 	 * In the first pass, we just look for the DHCP message type
 	 * and Vendor class identifier options.
@@ -5182,7 +5186,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset_delta = bootp_option(tvb, pinfo, NULL, NULL, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
-			THROW(ReportedBoundsError);
+			proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_option_parse_err,
+					tvb, tmpvoff, eoff);
+			return;
 		}
 		tmpvoff += offset_delta;
 	}
@@ -5204,11 +5210,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/*
-	 * OK, now build the protocol tree.
+	 * OK, now populate the protocol tree.
 	 */
-
-	bp_ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, ENC_NA);
-	bp_tree = proto_item_add_subtree(bp_ti, ett_bootp);
 
 	proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
 				   0, 1,
@@ -5324,7 +5327,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset_delta = bootp_option(tvb, pinfo, bp_tree, bp_ti, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
-			THROW(ReportedBoundsError);
+			proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_option_parse_err,
+					tvb, voff, eoff);
+			return;
 		}
 		voff += offset_delta;
 	}
@@ -7401,6 +7406,7 @@ proto_register_bootp(void)
 		{ &ei_bootp_option125_enterprise_malformed, { "bootp.option.enterprise.malformed", PI_PROTOCOL, PI_ERROR, "no room left in option for enterprise data", EXPFILL }},
 		{ &ei_bootp_option_6RD_malformed, { "bootp.option.6RD.malformed", PI_PROTOCOL, PI_ERROR, "6RD: malformed option", EXPFILL }},
 		{ &ei_bootp_option82_vi_cl_tag_unknown, { "bootp.option.option.vi.cl.tag_unknown", PI_PROTOCOL, PI_ERROR, "Unknown tag", EXPFILL }},
+		{ &ei_bootp_option_parse_err, { "bootp.option.parse_err", PI_PROTOCOL, PI_ERROR, "Parse error", EXPFILL }},
 		{ &ei_bootp_suboption_invalid, { "bootp.suboption_invalid", PI_PROTOCOL, PI_ERROR, "Invalid suboption", EXPFILL }},
 		{ &ei_bootp_secs_le, { "bootp.secs_le", PI_PROTOCOL, PI_NOTE, "Seconds elapsed appears to be encoded as little-endian", EXPFILL }},
 		{ &ei_bootp_end_option_missing, { "bootp.end_option_missing", PI_PROTOCOL, PI_ERROR, "End option missing", EXPFILL }},
