@@ -145,6 +145,10 @@ typedef struct _chop_t {
     int off_end_neg;
 } chop_t;
 
+
+/* Table of user comments */
+GTree *frames_user_comments = NULL;
+
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static int                    max_selected              = -1;
@@ -703,6 +707,7 @@ print_usage(FILE *output)
     fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
     fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
     fprintf(output, "                         (e.g. 0.000001).\n");
+    fprintf(output, "  -a <framenum>:<comment>  Add or replace comment for given frame number\n");
     fprintf(output, "\n");
     fprintf(output, "  -I <bytes to ignore>   ignore the specified bytes at the beginning of\n");
     fprintf(output, "                         the frame during MD5 hash calculation\n");
@@ -832,6 +837,15 @@ list_encap_types(void) {
     g_free(encaps);
 }
 
+/* TODO: is there the equivalent of g_direct_equal? */
+static int
+framenum_equal(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+{
+    return (a != b);
+}
+
+
+
 #ifdef HAVE_PLUGINS
 /*
  *  Don't report failures to load plugins because most (non-wiretap) plugins
@@ -909,7 +923,7 @@ DIAG_ON(cast-qual)
     gchar        *fsuffix            = NULL;
 
     const struct wtap_pkthdr    *phdr;
-    struct wtap_pkthdr           snap_phdr;
+    struct wtap_pkthdr           temp_phdr;
     wtapng_iface_descriptions_t *idb_inf;
     wtapng_section_t            *shb_hdr;
 
@@ -963,8 +977,29 @@ DIAG_ON(cast-qual)
 #endif
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, "A:B:c:C:dD:E:F:hi:I:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
+        case 'a':
+        {
+            guint frame_number;
+            gint string_start_index = 0;
+
+            if ((sscanf(optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
+                fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
+                        optarg);
+                exit(1);
+            }
+
+            /* Lazily create the table */
+            if (!frames_user_comments) {
+                frames_user_comments = g_tree_new_full(framenum_equal, NULL, NULL, g_free);
+            }
+
+            /* Insert this entry (framenum -> comment) */
+            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(optarg+string_start_index));
+            break;
+        }
+
         case 'A':
         {
             struct tm starttm;
@@ -1188,7 +1223,7 @@ DIAG_ON(cast-qual)
             exit(1);
             break;
         }
-    }
+    } /* processing commmand-line options */
 
 #ifdef DEBUG
     fprintf(stderr, "Optind = %i, argc = %i\n", optind, argc);
@@ -1265,12 +1300,14 @@ DIAG_ON(cast-qual)
             }
         }
 
+        /* Read all of the packets in turn */
         while (wtap_read(wth, &err, &err_info, &data_offset)) {
             read_count++;
 
             phdr = wtap_phdr(wth);
 
-            if (read_count == 1) {  /* the first packet */
+            /* Extra actions for the first packet */
+            if (read_count == 1) {
                 if (split_packet_count > 0 || secs_per_block > 0) {
                     if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
                         exit(2);
@@ -1295,7 +1332,8 @@ DIAG_ON(cast-qual)
                             filename, wtap_strerror(err));
                     exit(2);
                 }
-            }
+            } /* first packet only handling */
+
 
             buf = wtap_buf_ptr(wth);
 
@@ -1338,7 +1376,7 @@ DIAG_ON(cast-qual)
                         }
                     }
                 }
-            }
+            }  /* time stamp handling */
 
             if (split_packet_count > 0) {
                 /* time for the next file? */
@@ -1365,7 +1403,7 @@ DIAG_ON(cast-qual)
                         exit(2);
                     }
                 }
-            }
+            } /* split packet handling */
 
             if (check_startstop) {
                 /*
@@ -1399,23 +1437,23 @@ DIAG_ON(cast-qual)
                     /* Limit capture length to snaplen */
                     if (phdr->caplen > snaplen) {
                         /* Copy and change rather than modify returned phdr */
-                        snap_phdr = *phdr;
-                        snap_phdr.caplen = snaplen;
-                        phdr = &snap_phdr;
+                        temp_phdr = *phdr;
+                        temp_phdr.caplen = snaplen;
+                        phdr = &temp_phdr;
                     }
                     /* If -L, also set reported length to snaplen */
                     if (adjlen && phdr->len > snaplen) {
                         /* Copy and change rather than modify returned phdr */
-                        snap_phdr = *phdr;
-                        snap_phdr.len = snaplen;
-                        phdr = &snap_phdr;
+                        temp_phdr = *phdr;
+                        temp_phdr.len = snaplen;
+                        phdr = &temp_phdr;
                     }
                 }
 
                 /* CHOP */
-                snap_phdr = *phdr;
-                handle_chopping(chop, &snap_phdr, phdr, &buf, adjlen);
-                phdr = &snap_phdr;
+                temp_phdr = *phdr;
+                handle_chopping(chop, &temp_phdr, phdr, &buf, adjlen);
+                phdr = &temp_phdr;
 
                 if (phdr->presence_flags & WTAP_HAS_TS) {
                     /* Do we adjust timestamps to ensure strict chronological
@@ -1440,17 +1478,17 @@ DIAG_ON(cast-qual)
                                      * chronological order (oldest to newest).
                                      */
                                     /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
-                                    snap_phdr = *phdr;
-                                    snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                                    snap_phdr.ts.nsecs = previous_time.nsecs;
-                                    if (snap_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                    temp_phdr = *phdr;
+                                    temp_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                                    temp_phdr.ts.nsecs = previous_time.nsecs;
+                                    if (temp_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                         /* carry */
-                                        snap_phdr.ts.secs++;
-                                        snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                        temp_phdr.ts.secs++;
+                                        temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                     } else {
-                                        snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
+                                        temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
                                     }
-                                    phdr = &snap_phdr;
+                                    phdr = &temp_phdr;
                                 }
                             } else {
                                 /*
@@ -1458,17 +1496,17 @@ DIAG_ON(cast-qual)
                                  * Unconditionally set each timestamp to previous
                                  * packet's timestamp plus delta.
                                  */
-                                snap_phdr = *phdr;
-                                snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                                snap_phdr.ts.nsecs = previous_time.nsecs;
-                                if (snap_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                temp_phdr = *phdr;
+                                temp_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                                temp_phdr.ts.nsecs = previous_time.nsecs;
+                                if (temp_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                     /* carry */
-                                    snap_phdr.ts.secs++;
-                                    snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                    temp_phdr.ts.secs++;
+                                    temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                 } else {
-                                    snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
+                                    temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
                                 }
-                                phdr = &snap_phdr;
+                                phdr = &temp_phdr;
                             }
                         }
                         previous_time.secs = phdr->ts.secs;
@@ -1478,36 +1516,36 @@ DIAG_ON(cast-qual)
                     /* assume that if the frame's tv_sec is 0, then
                      * the timestamp isn't supported */
                     if (phdr->ts.secs > 0 && time_adj.tv.secs != 0) {
-                        snap_phdr = *phdr;
+                        temp_phdr = *phdr;
                         if (time_adj.is_negative)
-                            snap_phdr.ts.secs -= time_adj.tv.secs;
+                            temp_phdr.ts.secs -= time_adj.tv.secs;
                         else
-                            snap_phdr.ts.secs += time_adj.tv.secs;
-                        phdr = &snap_phdr;
+                            temp_phdr.ts.secs += time_adj.tv.secs;
+                        phdr = &temp_phdr;
                     }
 
                     /* assume that if the frame's tv_sec is 0, then
                      * the timestamp isn't supported */
                     if (phdr->ts.secs > 0 && time_adj.tv.nsecs != 0) {
-                        snap_phdr = *phdr;
+                        temp_phdr = *phdr;
                         if (time_adj.is_negative) { /* subtract */
-                            if (snap_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
-                                snap_phdr.ts.secs--;
-                                snap_phdr.ts.nsecs += ONE_BILLION;
+                            if (temp_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
+                                temp_phdr.ts.secs--;
+                                temp_phdr.ts.nsecs += ONE_BILLION;
                             }
-                            snap_phdr.ts.nsecs -= time_adj.tv.nsecs;
+                            temp_phdr.ts.nsecs -= time_adj.tv.nsecs;
                         } else {                  /* add */
-                            if (snap_phdr.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
+                            if (temp_phdr.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
                                 /* carry */
-                                snap_phdr.ts.secs++;
-                                snap_phdr.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
+                                temp_phdr.ts.secs++;
+                                temp_phdr.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
                             } else {
-                                snap_phdr.ts.nsecs += time_adj.tv.nsecs;
+                                temp_phdr.ts.nsecs += time_adj.tv.nsecs;
                             }
                         }
-                        phdr = &snap_phdr;
+                        phdr = &temp_phdr;
                     }
-                }
+                } /* time stamp adjustment */
 
                 /* suppress duplicates by packet window */
                 if (dup_detect) {
@@ -1533,7 +1571,7 @@ DIAG_ON(cast-qual)
                             fprintf(stderr, "\n");
                         }
                     }
-                }
+                } /* suppression of duplicates */
 
                 if (phdr->presence_flags & WTAP_HAS_TS) {
                     /* suppress duplicates by time window */
@@ -1566,7 +1604,7 @@ DIAG_ON(cast-qual)
                             }
                         }
                     }
-                }
+                } /* suppress duplicates by time window */
 
                 /* Random error mutation */
                 if (err_prob > 0.0) {
@@ -1616,8 +1654,21 @@ DIAG_ON(cast-qual)
                             }
                         }
                     }
+                } /* random error mutation */
+
+                /* Find a packet comment we may need to write */
+                if (frames_user_comments) {
+                    const char *comment =
+                        (const char*)g_tree_lookup(frames_user_comments, GUINT_TO_POINTER(read_count));
+                    if (comment != NULL) {
+                        /* Copy and change rather than modify returned phdr */
+                        temp_phdr = *phdr;
+                        temp_phdr.opt_comment = g_strdup(comment);
+                        phdr = &temp_phdr;
+                    }
                 }
 
+                /* Attempt to dump out current frame to the output file */
                 if (!wtap_dump(pdh, phdr, buf, &err, &err_info)) {
                     switch (err) {
                     case WTAP_ERR_UNWRITABLE_ENCAP:
@@ -1727,6 +1778,10 @@ DIAG_ON(cast-qual)
         }
         g_free(shb_hdr);
         g_free(filename);
+
+        if (frames_user_comments) {
+            g_tree_destroy(frames_user_comments);
+        }
     }
 
     if (dup_detect) {
