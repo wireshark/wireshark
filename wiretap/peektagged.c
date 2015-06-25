@@ -437,6 +437,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     timestamp.upper = 0;
     timestamp.lower = 0;
+    /* Shouldn't be necessary, but squelches a compiler warning. */
+    memset(&ieee_802_11, 0, sizeof ieee_802_11);
     ieee_802_11.fcs_len = -1; /* Unknown */
     ieee_802_11.decrypted = FALSE;
     ieee_802_11.datapad = FALSE;
