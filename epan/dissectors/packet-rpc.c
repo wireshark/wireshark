@@ -403,7 +403,7 @@ rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 	int program, version;
 	rpcstat_tap_data_t* tap_data;
 
-	if (sscanf(opt_arg, ",%d,%d,%n", &program, &version, &pos) == 2)
+	if (sscanf(opt_arg, ",%d,%d%n", &program, &version, &pos) == 2)
 	{
 		tap_data = g_new0(rpcstat_tap_data_t, 1);
 

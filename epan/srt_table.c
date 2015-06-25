@@ -182,14 +182,10 @@ void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char *
             if (pos > 0)
                 pos += len;
         }
-        else
-        {
-            pos++; /* Adjust for comma */
-        }
 
         if (opt_arg[pos] == ',')
         {
-           *filter = opt_arg + pos;
+           *filter = opt_arg + pos+1;
         }
     }
 

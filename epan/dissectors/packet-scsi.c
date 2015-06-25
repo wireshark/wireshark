@@ -999,7 +999,7 @@ scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
     int program;
     scsistat_tap_data_t* tap_data;
 
-    if (sscanf(opt_arg, ",%d,%n", &program, &pos) == 1)
+    if (sscanf(opt_arg, ",%d%n", &program, &pos) == 1)
     {
         tap_data = g_new0(scsistat_tap_data_t, 1);
         tap_data->cmdset = (guint8)program;

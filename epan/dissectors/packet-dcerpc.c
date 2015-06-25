@@ -1586,7 +1586,7 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
     guint16 ver;
     dcerpc_sub_dissector *procs;
 
-    if (sscanf(opt_arg, ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n",
+    if (sscanf(opt_arg, ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n",
            &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos) == 13)
     {
         if ((major < 0) || (major > 65535)) {
