@@ -49,6 +49,7 @@
 #include <wsutil/file_util.h>
 
 #include <wiretap/merge.h>
+#include <wiretap/pcap-encap.h>
 
 #include "version.h"
 
@@ -399,6 +400,10 @@ main(int argc, char *argv[])
   if(file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ){
     wtapng_section_t *shb_hdr;
     GString *comment_gstr;
+    wtapng_iface_descriptions_t *idb_inf = NULL, *idb_inf_merge_file;
+    wtapng_if_descr_t int_data, *file_int_data;
+    guint8 if_tsresol = 6;
+    guint64 time_units_per_second = 1000000;
 
     shb_hdr = g_new(wtapng_section_t,1);
     comment_gstr = g_string_new("File created by merging: \n");
@@ -413,8 +418,40 @@ main(int argc, char *argv[])
     shb_hdr->shb_os        = NULL;              /* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
     shb_hdr->shb_user_appl = "mergecap";        /* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 
+    for (i = 0; i < in_file_count; i++) {
+      idb_inf_merge_file = wtap_file_get_idb_info(in_files[i].wth);
+      file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, 0);
+      if (file_int_data->time_units_per_second > time_units_per_second) {
+        time_units_per_second = file_int_data->time_units_per_second;
+        if_tsresol = file_int_data->if_tsresol;
+      }
+      g_free(idb_inf_merge_file);
+    }
+    if (time_units_per_second > 1000000) {
+      /* We are using a better than microsecond precision; let's create a fake IDB */
+      idb_inf = g_new(wtapng_iface_descriptions_t,1);
+      idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+      int_data.wtap_encap            = frame_type;
+      int_data.time_units_per_second = time_units_per_second;
+      int_data.link_type             = wtap_wtap_encap_to_pcap_encap(frame_type);
+      int_data.snap_len              = snaplen;
+      int_data.if_name               = g_strdup("Unknown/not available in original file format(libpcap)");
+      int_data.opt_comment           = NULL;
+      int_data.if_description        = NULL;
+      int_data.if_speed              = 0;
+      int_data.if_tsresol            = if_tsresol;
+      int_data.if_filter_str         = NULL;
+      int_data.bpf_filter_len        = 0;
+      int_data.if_filter_bpf_bytes   = NULL;
+      int_data.if_os                 = NULL;
+      int_data.if_fcslen             = -1;
+      int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+      int_data.interface_statistics  = NULL;
+      g_array_append_val(idb_inf->interface_data, int_data);
+    }
+
     pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
-                              FALSE /* compressed */, shb_hdr, NULL /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
+                              FALSE /* compressed */, shb_hdr, idb_inf, &open_err);
     g_string_free(comment_gstr, TRUE);
   } else {
     pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);

@@ -1394,7 +1394,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       int_data.opt_comment           = NULL;
       int_data.if_description        = NULL;
       int_data.if_speed              = 0;
-      int_data.if_tsresol            = 6;
+      int_data.if_tsresol            = file_int_data->if_tsresol;
       int_data.if_filter_str         = NULL;
       int_data.bpf_filter_len        = 0;
       int_data.if_filter_bpf_bytes   = NULL;
