@@ -152,7 +152,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(this, SIGNAL(interfacesChanged()), ui->allFilterComboBox, SIGNAL(interfacesChanged()));
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
-    connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(on_browseButton_clicked()));
+    connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 }
 
 void CaptureInterfacesDialog::allFilterChanged()
@@ -262,7 +262,7 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
     }
 }
 
-void CaptureInterfacesDialog::on_browseButton_clicked()
+void CaptureInterfacesDialog::browseButtonClicked()
 {
     char *open_dir = NULL;
 
@@ -277,7 +277,7 @@ void CaptureInterfacesDialog::on_browseButton_clicked()
             open_dir = prefs.gui_fileopen_dir;
         break;
     }
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Specify a Capture File"), open_dir);
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
     ui->lineEdit->setText(file_name);
 }
 
@@ -432,6 +432,11 @@ void CaptureInterfacesDialog::updateInterfaces()
     if (global_capture_opts.has_autostop_packets) {
         ui->stopPktCheckBox->setChecked(true);
         ui->stopPktSpinBox->setValue(global_capture_opts.autostop_packets);
+    }
+
+    if (global_capture_opts.has_autostop_files) {
+        ui->stopFilesCheckBox->setChecked(true);
+        ui->stopFilesSpinBox->setValue(global_capture_opts.autostop_files);
     }
 
     ui->cbUpdatePacketsRT->setChecked(global_capture_opts.real_time_mode);
@@ -734,6 +739,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     global_capture_opts.has_autostop_packets = ui->stopPktCheckBox->isChecked();
     if (global_capture_opts.has_autostop_packets) {
         global_capture_opts.autostop_packets = ui->stopPktSpinBox->value();
+    }
+
+    global_capture_opts.has_autostop_files = ui->stopFilesCheckBox->isChecked();
+    if (global_capture_opts.has_autostop_files) {
+        global_capture_opts.autostop_files = ui->stopFilesSpinBox->value();
     }
 
     for (int col = col_link_; col <= col_filter_; col++){

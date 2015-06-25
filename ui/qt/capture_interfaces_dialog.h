@@ -98,7 +98,7 @@ private slots:
     void allFilterChanged();
     void refreshInterfaceList();
     void updateLocalInterfaces();
-    void on_browseButton_clicked();
+    void browseButtonClicked();
     void changeEvent(QEvent* event);
 
 signals:
