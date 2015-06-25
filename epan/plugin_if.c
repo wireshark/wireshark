@@ -189,9 +189,8 @@ static void plugin_if_call_gui_cb(plugin_if_callback_t actionType, GHashTable * 
 
     if ( g_hash_table_size(plugin_if_callback_functions) != 0 )
     {
-        if ( g_hash_table_contains(plugin_if_callback_functions, key) )
+        if ( g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, (gpointer*)&action) )
         {
-            action = (plugin_if_gui_cb)g_hash_table_lookup(plugin_if_callback_functions, key);
             if ( action != NULL )
                 action(dataSet);
         }
@@ -235,7 +234,7 @@ extern void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if
 
     plugin_if_init_hashtable();
 
-    if ( ! g_hash_table_contains(plugin_if_callback_functions, key ) )
+    if ( ! g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, NULL ) )
         g_hash_table_insert(plugin_if_callback_functions, key, callback);
 }
 
