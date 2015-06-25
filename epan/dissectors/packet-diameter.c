@@ -1835,6 +1835,8 @@ dictionary_load(void)
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
 	g_free(dir);
 	if (d == NULL) {
+		g_hash_table_destroy(vendors);
+		g_array_free(vnd_shrt_arr, TRUE);
 		return 0;
 	}
 
