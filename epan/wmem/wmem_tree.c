@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include "wmem_core.h"
+#include "wmem_strutl.h"
 #include "wmem_tree.h"
 #include "wmem_user_cb.h"
 
@@ -42,7 +43,8 @@ struct _wmem_tree_node_t {
     struct _wmem_tree_node_t *left;
     struct _wmem_tree_node_t *right;
 
-    void *key, *data;
+    const void *key;
+    void *data;
 
     wmem_node_color_t color;
     gboolean          is_subtree;
@@ -57,6 +59,8 @@ struct _wmem_tree_t {
     guint             master_cb_id;
     guint             slave_cb_id;
 };
+
+typedef int (*compare_func)(const void *a, const void *b);
 
 static wmem_tree_node_t *
 node_uncle(wmem_tree_node_t *node)
@@ -283,7 +287,7 @@ wmem_tree_is_empty(wmem_tree_t *tree)
 }
 
 static wmem_tree_node_t *
-create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, void *key,
+create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, const void *key,
         void *data, wmem_node_color_t color, gboolean is_subtree)
 {
     wmem_tree_node_t *node;
@@ -360,6 +364,76 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key,
     rb_insert_case1(tree, new_node);
 
     return new_node->data;
+}
+
+static void *
+wmem_tree_lookup(wmem_tree_t *tree, const void *key, compare_func cmp)
+{
+    wmem_tree_node_t *node = tree->root;
+
+    while (node) {
+        int result = cmp(key, node->key);
+        if (result == 0) {
+            return node->data;
+        }
+        else if (result < 0) {
+            node = node->left;
+        }
+        else if (result > 0) {
+            node = node->right;
+        }
+    }
+
+    return NULL;
+}
+
+static void
+wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cmp)
+{
+    wmem_tree_node_t *node = tree->root;
+    wmem_tree_node_t *new_node = NULL;
+
+    /* is this the first node ?*/
+    if (!node) {
+        tree->root = create_node(tree->allocator, node, key,
+                data, WMEM_NODE_COLOR_BLACK, FALSE);
+        return;
+    }
+
+    /* it was not the new root so walk the tree until we find where to
+     * insert this new leaf.
+     */
+    while (!new_node) {
+        int result = cmp(key, node->key);
+        if (result == 0) {
+            node->data = data;
+            return;
+        }
+        else if (result < 0) {
+            if (node->left) {
+                node = node->left;
+            }
+            else {
+                new_node = create_node(tree->allocator, node, key,
+                        data, WMEM_NODE_COLOR_RED, FALSE);
+                node->left = new_node;
+            }
+        }
+        else if (result > 0) {
+            if (node->right) {
+                node = node->right;
+            }
+            else {
+                /* new node to the right */
+                new_node = create_node(tree->allocator, node, key,
+                        data, WMEM_NODE_COLOR_RED, FALSE);
+                node->right = new_node;
+            }
+        }
+    }
+
+    /* node will now point to the newly created node */
+    rb_insert_case1(tree, new_node);
 }
 
 void
@@ -450,95 +524,35 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
     }
 }
 
-/* Strings are stored as an array of uint32 containing the string characters
-   with 4 characters in each uint32.
-   The first byte of the string is stored as the most significant byte.
-   If the string is not a multiple of 4 characters in length the last
-   uint32 containing the string bytes are padded with 0 bytes.
-   After the uint32's containing the string, there is one final terminator
-   uint32 with the value 0x00000001
-*/
-static guint32 *
-pack_string(const gchar *key, guint32 *divx, guint32 flags)
-{
-    guint32 *aligned = NULL;
-    guint32 len = (guint32) strlen(key);
-    guint32 i;
-    guint32 tmp;
-
-    *divx = (len+3)/4 + 1;
-
-    aligned = (guint32 *)wmem_alloc(NULL, *divx * sizeof (guint32));
-
-    /* pack the bytes one one by one into guint32s */
-    tmp = 0;
-    for (i = 0;i < len;i++) {
-        unsigned char ch;
-
-        ch = (unsigned char)key[i];
-        if (flags & WMEM_TREE_STRING_NOCASE) {
-            if (g_ascii_isupper(ch)) {
-                ch = g_ascii_tolower(ch);
-            }
-        }
-        tmp <<= 8;
-        tmp |= ch;
-        if (i%4 == 3) {
-            aligned[i/4] = tmp;
-            tmp = 0;
-        }
-    }
-    /* add required padding to the last uint32 */
-    if (i%4 != 0) {
-        while (i%4 != 0) {
-            i++;
-            tmp <<= 8;
-        }
-        aligned[i/4-1] = tmp;
-    }
-
-    /* add the terminator */
-    aligned[*divx-1] = 0x00000001;
-
-    return aligned;
-}
-
 void
 wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flags)
 {
-    wmem_tree_key_t key[2];
-    guint32 *aligned;
-    guint32 divx;
+    char *key;
+    compare_func cmp;
 
-    aligned = pack_string(k, &divx, flags);
+    key = wmem_strdup(tree->allocator, k);
 
-    key[0].length = divx;
-    key[0].key = aligned;
-    key[1].length = 0;
-    key[1].key = NULL;
+    if (flags & WMEM_TREE_STRING_NOCASE) {
+        cmp = (compare_func)g_ascii_strcasecmp;
+    } else {
+        cmp = (compare_func)strcmp;
+    }
 
-    wmem_tree_insert32_array(tree, key, v);
-    wmem_free(NULL, aligned);
+    wmem_tree_insert(tree, key, v, cmp);
 }
 
 void *
 wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
 {
-    wmem_tree_key_t key[2];
-    guint32 *aligned;
-    guint32 divx;
-    void *ret;
+    compare_func cmp;
 
-    aligned = pack_string(k, &divx, flags);
+    if (flags & WMEM_TREE_STRING_NOCASE) {
+        cmp = (compare_func)g_ascii_strcasecmp;
+    } else {
+        cmp = (compare_func)strcmp;
+    }
 
-    key[0].length = divx;
-    key[0].key = aligned;
-    key[1].length = 0;
-    key[1].key = NULL;
-
-    ret = wmem_tree_lookup32_array(tree, key);
-    wmem_free(NULL, aligned);
-    return ret;
+    return wmem_tree_lookup(tree, k, cmp);
 }
 
 static void *
