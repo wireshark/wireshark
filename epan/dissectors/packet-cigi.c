@@ -2716,12 +2716,10 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         packet_size = tvb_get_guint8(tvb, offset + 1);
         data_size = packet_size;
 
-        /* if the second byte of the packet carries a value that is less than
-         * then we know we have a malformed packet because every cigi packet
-         * at minimal must be a least 2 bytes ( 1 - packet_id; 2 - packet_size ). */
-        if ( packet_size < 2 ) {
-            THROW(ReportedBoundsError);
-        }
+        /* a cigi packet must be at least 2 bytes long
+           ( 1 - packet_id; 2 - packet_size ) */
+        if ( packet_size < 2 )
+            return;
 
         /* If we have the start of frame or IG Control packet set the version.
          * Since we have no cigi version we assume that packet id 1 is the
