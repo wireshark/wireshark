@@ -22,7 +22,7 @@
 #include "epan/to_str.h"
 
 #include "sctp_assoc_analyse_dialog.h"
-#include "ui_sctp_assoc_analyse_dialog.h"
+#include <ui_sctp_assoc_analyse_dialog.h>
 
 #include "qt_ui_utils.h"
 #include "sctp_graph_dialog.h"

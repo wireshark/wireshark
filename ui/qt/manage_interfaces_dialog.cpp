@@ -21,7 +21,7 @@
 
 #include <glib.h>
 #include "manage_interfaces_dialog.h"
-#include "ui_manage_interfaces_dialog.h"
+#include <ui_manage_interfaces_dialog.h>
 #include "epan/prefs.h"
 #include "epan/to_str.h"
 #include "ui/last_open_dir.h"

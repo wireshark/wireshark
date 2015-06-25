@@ -20,7 +20,7 @@
  */
 
 #include "uat_dialog.h"
-#include "ui_uat_dialog.h"
+#include <ui_uat_dialog.h>
 #include "wireshark_application.h"
 
 #include "epan/strutil.h"

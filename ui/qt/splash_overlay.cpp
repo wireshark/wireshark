@@ -20,7 +20,7 @@
  */
 
 #include "splash_overlay.h"
-#include "ui_splash_overlay.h"
+#include <ui_splash_overlay.h>
 #include "wireshark_application.h"
 
 #include <QPainter>

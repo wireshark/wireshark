@@ -20,7 +20,7 @@
  */
 
 #include "main_window.h"
-#include "ui_main_window.h"
+#include <ui_main_window.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>

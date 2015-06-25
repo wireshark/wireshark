@@ -20,7 +20,7 @@
  */
 
 #include "packet_dialog.h"
-#include "ui_packet_dialog.h"
+#include <ui_packet_dialog.h>
 
 #include "file.h"
 

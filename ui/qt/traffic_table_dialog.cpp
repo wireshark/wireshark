@@ -20,7 +20,7 @@
  */
 
 #include "traffic_table_dialog.h"
-#include "ui_traffic_table_dialog.h"
+#include <ui_traffic_table_dialog.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>

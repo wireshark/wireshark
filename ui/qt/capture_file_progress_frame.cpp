@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include "capture_file_progress_frame.h"
-#include "ui_capture_file_progress_frame.h"
+#include <ui_capture_file_progress_frame.h>
 
 #include "ui/progress_dlg.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "tcp_stream_dialog.h"
-#include "ui_tcp_stream_dialog.h"
+#include <ui_tcp_stream_dialog.h>
 
 #include "epan/to_str.h"
 

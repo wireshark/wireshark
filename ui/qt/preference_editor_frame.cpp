@@ -29,7 +29,7 @@
 #include <ui/preference_utils.h>
 
 #include "preference_editor_frame.h"
-#include "ui_preference_editor_frame.h"
+#include <ui_preference_editor_frame.h>
 
 #include "qt_ui_utils.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "packet_format_group_box.h"
-#include "ui_packet_format_group_box.h"
+#include <ui_packet_format_group_box.h>
 
 #include <QStyle>
 

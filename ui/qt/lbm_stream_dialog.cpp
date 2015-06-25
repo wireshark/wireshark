@@ -24,7 +24,7 @@
 // Adapted from stats_tree_packet.cpp
 
 #include "lbm_stream_dialog.h"
-#include "ui_lbm_stream_dialog.h"
+#include <ui_lbm_stream_dialog.h>
 
 #include "file.h"
 

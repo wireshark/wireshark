@@ -20,7 +20,7 @@
  */
 
 #include "sctp_all_assocs_dialog.h"
-#include "ui_sctp_all_assocs_dialog.h"
+#include <ui_sctp_all_assocs_dialog.h>
 #include "sctp_assoc_analyse_dialog.h"
 
 #include "qt_ui_utils.h"

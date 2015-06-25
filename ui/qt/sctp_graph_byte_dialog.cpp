@@ -20,7 +20,7 @@
  */
 
 #include "sctp_graph_byte_dialog.h"
-#include "ui_sctp_graph_byte_dialog.h"
+#include <ui_sctp_graph_byte_dialog.h>
 
 #include <file.h>
 #include <math.h>

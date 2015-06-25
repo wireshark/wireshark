@@ -20,7 +20,7 @@
  */
 
 #include "voip_calls_dialog.h"
-#include "ui_voip_calls_dialog.h"
+#include <ui_voip_calls_dialog.h>
 
 #include "file.h"
 

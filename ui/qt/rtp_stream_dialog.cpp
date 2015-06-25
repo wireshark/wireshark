@@ -20,7 +20,7 @@
  */
 
 #include "rtp_stream_dialog.h"
-#include "ui_rtp_stream_dialog.h"
+#include <ui_rtp_stream_dialog.h>
 
 #include "file.h"
 

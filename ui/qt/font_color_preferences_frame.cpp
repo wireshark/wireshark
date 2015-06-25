@@ -22,7 +22,7 @@
 #include "qt_ui_utils.h"
 
 #include "font_color_preferences_frame.h"
-#include "ui_font_color_preferences_frame.h"
+#include <ui_font_color_preferences_frame.h>
 #include "color_utils.h"
 #include "wireshark_application.h"
 

@@ -27,7 +27,7 @@
 #include "qt_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "remote_capture_dialog.h"
-#include "ui_remote_capture_dialog.h"
+#include <ui_remote_capture_dialog.h>
 #include "capture_opts.h"
 #include "caputils/capture-pcap-util.h"
 #include "ui/capture_ui_utils.h"

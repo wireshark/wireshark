@@ -24,7 +24,7 @@
 #include "config.h"
 #ifdef HAVE_PCAP_REMOTE
 #include "remote_settings_dialog.h"
-#include "ui_remote_settings_dialog.h"
+#include <ui_remote_settings_dialog.h>
 
 RemoteSettingsDialog::RemoteSettingsDialog(QWidget *parent, interface_t *iface) :
     QDialog(parent),

@@ -26,7 +26,7 @@
 #include <glib.h>
 
 #include "coloring_rules_dialog.h"
-#include "ui_coloring_rules_dialog.h"
+#include <ui_coloring_rules_dialog.h>
 
 #include "color.h"
 #include "color_filters.h"

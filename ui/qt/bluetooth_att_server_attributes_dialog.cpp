@@ -20,7 +20,7 @@
  */
 
 #include "bluetooth_att_server_attributes_dialog.h"
-#include "ui_bluetooth_att_server_attributes_dialog.h"
+#include <ui_bluetooth_att_server_attributes_dialog.h>
 
 #include "epan/epan.h"
 #include "epan/to_str.h"

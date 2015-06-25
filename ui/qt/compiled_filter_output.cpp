@@ -20,7 +20,7 @@
  */
 
 
-#include "ui_compiled_filter_output.h"
+#include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
 #include "capture_opts.h"

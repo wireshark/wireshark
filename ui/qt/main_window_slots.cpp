@@ -30,7 +30,7 @@
 #endif
 
 #include "main_window.h"
-#include "ui_main_window.h"
+#include <ui_main_window.h>
 
 #ifdef _WIN32
 #include <windows.h>

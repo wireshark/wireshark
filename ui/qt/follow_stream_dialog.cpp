@@ -20,7 +20,7 @@
  */
 
 #include "follow_stream_dialog.h"
-#include "ui_follow_stream_dialog.h"
+#include <ui_follow_stream_dialog.h>
 
 #include "main_window.h"
 #include "wireshark_application.h"

@@ -20,7 +20,7 @@
  */
 
 #include "search_frame.h"
-#include "ui_search_frame.h"
+#include <ui_search_frame.h>
 
 #include "file.h"
 

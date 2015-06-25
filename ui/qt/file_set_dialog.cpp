@@ -31,7 +31,7 @@
 #include <wsutil/str_util.h>
 
 #include "file_set_dialog.h"
-#include "ui_file_set_dialog.h"
+#include <ui_file_set_dialog.h>
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>

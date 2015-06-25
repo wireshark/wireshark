@@ -30,7 +30,7 @@
 #include "ui/profile.h"
 
 #include "profile_dialog.h"
-#include "ui_profile_dialog.h"
+#include <ui_profile_dialog.h>
 #include "wireshark_application.h"
 #include "color_utils.h"
 

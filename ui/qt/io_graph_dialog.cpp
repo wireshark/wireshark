@@ -20,7 +20,7 @@
  */
 
 #include "io_graph_dialog.h"
-#include "ui_io_graph_dialog.h"
+#include <ui_io_graph_dialog.h>
 
 #include "file.h"
 

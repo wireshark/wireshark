@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include "about_dialog.h"
-#include "ui_about_dialog.h"
+#include <ui_about_dialog.h>
 
 #include "wireshark_application.h"
 #include <wsutil/filesystem.h>

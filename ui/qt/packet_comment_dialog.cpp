@@ -20,7 +20,7 @@
  */
 
 #include "packet_comment_dialog.h"
-#include "ui_packet_comment_dialog.h"
+#include <ui_packet_comment_dialog.h>
 
 #include "wireshark_application.h"
 

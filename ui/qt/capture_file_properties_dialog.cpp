@@ -22,7 +22,7 @@
  */
 
 #include "capture_file_properties_dialog.h"
-#include "ui_capture_file_properties_dialog.h"
+#include <ui_capture_file_properties_dialog.h>
 
 #include "summary.h"
 

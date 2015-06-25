@@ -28,7 +28,7 @@
 #endif
 
 #include "capture_preferences_frame.h"
-#include "ui_capture_preferences_frame.h"
+#include <ui_capture_preferences_frame.h>
 #include "wireshark_application.h"
 
 #include <QSpacerItem>

@@ -20,7 +20,7 @@
  */
 
 #include "display_filter_expression_dialog.h"
-#include "ui_display_filter_expression_dialog.h"
+#include <ui_display_filter_expression_dialog.h>
 
 #include <epan/proto.h>
 #include <epan/range.h>

@@ -20,7 +20,7 @@
  */
 
 #include "time_shift_dialog.h"
-#include "ui_time_shift_dialog.h"
+#include <ui_time_shift_dialog.h>
 
 #include "wireshark_application.h"
 

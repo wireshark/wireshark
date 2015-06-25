@@ -20,7 +20,7 @@
  */
 
 #include "expert_info_dialog.h"
-#include "ui_expert_info_dialog.h"
+#include <ui_expert_info_dialog.h>
 
 #include "file.h"
 

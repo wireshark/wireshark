@@ -23,7 +23,7 @@
 #include "config.h"
 
 #include "export_pdu_dialog.h"
-#include "ui_export_pdu_dialog.h"
+#include <ui_export_pdu_dialog.h>
 
 #include "globals.h"
 #include "pcap-encap.h"

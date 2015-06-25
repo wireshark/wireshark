@@ -20,7 +20,7 @@
  */
 
 #include "preferences_dialog.h"
-#include "ui_preferences_dialog.h"
+#include <ui_preferences_dialog.h>
 
 #include "module_preferences_scroll_area.h"
 

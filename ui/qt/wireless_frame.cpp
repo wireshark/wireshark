@@ -20,7 +20,7 @@
  */
 
 #include "wireless_frame.h"
-#include "ui_wireless_frame.h"
+#include <ui_wireless_frame.h>
 
 #include "config.h"
 

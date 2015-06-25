@@ -20,7 +20,7 @@
  */
 
 #include "module_preferences_scroll_area.h"
-#include "ui_module_preferences_scroll_area.h"
+#include <ui_module_preferences_scroll_area.h>
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"

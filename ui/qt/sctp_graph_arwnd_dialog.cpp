@@ -20,7 +20,7 @@
  */
 
 #include "sctp_graph_arwnd_dialog.h"
-#include "ui_sctp_graph_arwnd_dialog.h"
+#include <ui_sctp_graph_arwnd_dialog.h>
 #include "sctp_assoc_analyse_dialog.h"
 
 #include <file.h>

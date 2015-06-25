@@ -20,7 +20,7 @@
  */
 
 #include "layout_preferences_frame.h"
-#include "ui_layout_preferences_frame.h"
+#include <ui_layout_preferences_frame.h>
 
 #include <QAbstractButton>
 #include <QToolButton>

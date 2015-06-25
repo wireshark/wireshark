@@ -20,7 +20,7 @@
  */
 
 #include "export_object_dialog.h"
-#include "ui_export_object_dialog.h"
+#include <ui_export_object_dialog.h>
 
 #include <ui/alert_box.h>
 #include <ui/utf8_entities.h>

@@ -27,7 +27,7 @@
 #include <epan/column.h>
 
 #include "column_editor_frame.h"
-#include "ui_column_editor_frame.h"
+#include <ui_column_editor_frame.h>
 
 #include <QComboBox>
 

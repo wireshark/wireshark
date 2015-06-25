@@ -20,7 +20,7 @@
  */
 
 #include "sequence_dialog.h"
-#include "ui_sequence_dialog.h"
+#include <ui_sequence_dialog.h>
 
 #include "epan/addr_resolv.h"
 

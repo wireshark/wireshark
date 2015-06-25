@@ -24,7 +24,7 @@
 // Adapted from sequence_dialog.cpp
 
 #include "lbm_uimflow_dialog.h"
-#include "ui_lbm_uimflow_dialog.h"
+#include <ui_lbm_uimflow_dialog.h>
 
 #include "file.h"
 

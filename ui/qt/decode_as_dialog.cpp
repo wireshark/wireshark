@@ -20,7 +20,7 @@
  */
 
 #include "decode_as_dialog.h"
-#include "ui_decode_as_dialog.h"
+#include <ui_decode_as_dialog.h>
 
 #include "epan/decode_as.h"
 #include "epan/dissectors/packet-dcerpc.h"

@@ -30,7 +30,7 @@
 #include <wsutil/filesystem.h>
 
 #include "filter_dialog.h"
-#include "ui_filter_dialog.h"
+#include <ui_filter_dialog.h>
 
 #include <QMessageBox>
 #include <QThread>

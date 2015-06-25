@@ -20,7 +20,7 @@
  */
 
 #include "print_dialog.h"
-#include "ui_print_dialog.h"
+#include <ui_print_dialog.h>
 
 #include <QPrintDialog>
 #include <QPageSetupDialog>

@@ -20,7 +20,7 @@
  */
 
 #include "sctp_chunk_statistics_dialog.h"
-#include "ui_sctp_chunk_statistics_dialog.h"
+#include <ui_sctp_chunk_statistics_dialog.h>
 #include "uat_dialog.h"
 
 #include <string>

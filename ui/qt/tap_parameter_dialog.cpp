@@ -30,7 +30,7 @@
  */
 
 #include "tap_parameter_dialog.h"
-#include "ui_tap_parameter_dialog.h"
+#include <ui_tap_parameter_dialog.h>
 
 #include <errno.h>
 

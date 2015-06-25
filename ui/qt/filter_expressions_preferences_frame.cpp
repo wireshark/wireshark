@@ -26,7 +26,7 @@
 #include <epan/filter_expressions.h>
 
 #include "filter_expressions_preferences_frame.h"
-#include "ui_filter_expressions_preferences_frame.h"
+#include <ui_filter_expressions_preferences_frame.h>
 #include "syntax_line_edit.h"
 #include "wireshark_application.h"
 

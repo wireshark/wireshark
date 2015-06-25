@@ -22,7 +22,7 @@
  */
 
 #include "lbm_lbtru_transport_dialog.h"
-#include "ui_lbm_lbtru_transport_dialog.h"
+#include <ui_lbm_lbtru_transport_dialog.h>
 
 #include "file.h"
 
