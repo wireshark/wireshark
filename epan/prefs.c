@@ -2013,6 +2013,7 @@ prefs_register_modules(void)
     module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
     struct pref_custom_cbs custom_cbs;
+    gchar *tmp;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
@@ -2112,11 +2113,15 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
+    tmp = prefs.gui_gtk2_font_name;
     prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
         "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", (const char **)&prefs.gui_gtk2_font_name);
+    g_free(tmp);
 
+    tmp = prefs.gui_qt_font_name;
     prefs_register_string_preference(gui_font_module, "qt.font_name", "Font name",
         "Font name for packet list, protocol tree, and hex dump panes. (Qt)", (const char **)&prefs.gui_qt_font_name);
+    g_free(tmp);
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -2152,8 +2157,10 @@ prefs_register_modules(void)
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
     custom_cbs.is_default_cb = colorized_frame_is_default_cb;
     custom_cbs.to_str_cb = colorized_frame_to_str_cb;
+    tmp = prefs.gui_colorized_fg;
     prefs_register_string_custom_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground",
         "Filter Colorized Foreground", &custom_cbs, (const char **)&prefs.gui_colorized_fg);
+    g_free(tmp);
 
     custom_cbs.free_cb = colorized_frame_free_cb;
     custom_cbs.reset_cb = colorized_frame_reset_cb;
@@ -2162,8 +2169,10 @@ prefs_register_modules(void)
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
     custom_cbs.is_default_cb = colorized_frame_is_default_cb;
     custom_cbs.to_str_cb = colorized_frame_to_str_cb;
+    tmp = prefs.gui_colorized_bg;
     prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background",
         "Filter Colorized Background", &custom_cbs, (const char **)&prefs.gui_colorized_bg);
+    g_free(tmp);
 
     prefs_register_color_preference(gui_color_module, "color_filter_bg.valid", "Valid color filter background",
         "Valid color filter background", &prefs.gui_text_valid);
@@ -2191,8 +2200,10 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_recent_df_entries_max);
 
+    tmp = prefs.gui_fileopen_dir;
     prefs_register_directory_preference(gui_module, "fileopen.dir", "Start Directory",
         "Directory to start in when opening File Open dialog.", (const char **)&prefs.gui_fileopen_dir);
+    g_free(tmp);
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
 
@@ -2253,8 +2264,10 @@ prefs_register_modules(void)
                        "Filter Toolbar style",
                        &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
 
+    tmp = prefs.gui_webbrowser;
     prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
         "The path to the webbrowser (Ex: mozilla)", (const char **)&prefs.gui_webbrowser);
+    g_free(tmp);
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
@@ -2272,11 +2285,15 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_update_interval);
 
+    tmp = prefs.gui_window_title;
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
         "Custom window title. (Appended to existing titles.)", (const char **)&prefs.gui_window_title);
+    g_free(tmp);
 
+    tmp = prefs.gui_start_title;
     prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
         "Custom start page title", (const char**)(&prefs.gui_start_title));
+    g_free(tmp);
 
     prefs_register_enum_preference(gui_module, "version_placement",
                        "Show version in the start page and/or main screen's title bar",
@@ -2436,13 +2453,16 @@ prefs_register_modules(void)
                                    &prefs.pr_dest, print_dest_vals, TRUE);
 
 #ifndef _WIN32
+    tmp = prefs.pr_cmd;
     prefs_register_string_preference(printing, "command", "Command",
         "Output gets piped to this command when the destination is set to \"command\"", (const char**)(&prefs.pr_cmd));
+    g_free(tmp);
 #endif
 
+    tmp = prefs.pr_file;
     prefs_register_filename_preference(printing, "file", "File",
         "This is the file that gets written to when the destination is set to \"file\"", (const char**)(&prefs.pr_file));
-
+    g_free(tmp);
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",
