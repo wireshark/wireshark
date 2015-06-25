@@ -1,0 +1,31 @@
+1. Introduction
+
+Vagrant is a virtual machine management program that makes it trivial to build
+and configure reproducible virtual machines. Wireshark comes with a Vagrantfile
+which will set up a complete Ubuntu development environment in a virtual
+machine, including all necessary compilers, dependent libraries, and tools like
+valgrind.
+
+Using vagrant can greatly simplify setup for new developers, at the cost of
+running your builds in a virtual machine, thus with reduced performance.
+
+2. Installation
+
+Vagrant requires VirtualBox to be installed, as that is the backing virtual
+machine technology it uses. Install it first from https://www.virtualbox.org/.
+
+Now install vagrant itself from https://www.vagrantup.com/.
+
+3. Setup
+
+With virtualbox and vagrant installed, setting up your VM is as simple as
+running `vagrant provision` in the wireshark source directory. This will
+download, install and configure a complete Ubuntu development environment. It
+will also mount the Wireshark source directory into the VM, and run an
+out-of-tree cmake build into the ~/build directory of the VM.
+
+4. Usage
+
+Running `vagrant ssh` from the wireshark source directory will put your shell
+into the VM. Running `make` inside the `~/build` directory of the VM will
+build wireshark based on whatever is in your source tree.
