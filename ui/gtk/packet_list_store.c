@@ -943,8 +943,8 @@ packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a,
 		    (hfi->type == FT_RELATIVE_TIME)))
 	  {
 		/* Attempt to convert to numbers */
-		double num_a = atof(a->col_text[text_sort_id]);
-		double num_b = atof(b->col_text[text_sort_id]);
+		double num_a = g_ascii_strtod(a->col_text[text_sort_id], NULL);
+		double num_b = g_ascii_strtod(b->col_text[text_sort_id], NULL);
 
 		if (num_a < num_b)
 			return -1;

@@ -182,12 +182,12 @@ hostlist_sort_column(GtkTreeModel *model,
             gtk_tree_model_get(model, b, data_column, &text2, -1);
 
             if (text1) {
-                loc1 = atof(text1);
+                loc1 = g_ascii_strtod(text1, NULL);
                 g_free(text1);
             }
 
             if (text2) {
-                loc2 = atof(text2);
+                loc2 = g_ascii_strtod(text2, NULL);
                 g_free(text2);
             }
             CMP_INT(loc1, loc2);

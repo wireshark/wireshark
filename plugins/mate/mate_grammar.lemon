@@ -602,11 +602,11 @@ pdu_name(A) ::= NAME(B). {
 
 
 time_value(A) ::= FLOATING(B). {
-	A = (float) strtod(B,NULL);
+	A = (float) g_ascii_strtod(B,NULL);
 }
 
 time_value(A) ::= INTEGER(B). {
-	A = (float) strtod(B,NULL);
+	A = (float) g_ascii_strtod(B,NULL);
 }
 
 /************* GOG

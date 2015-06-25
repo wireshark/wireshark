@@ -109,6 +109,7 @@ my %APIs = (
                 'isupper',
                 'isxdigit',
                 'tolower',
+                'atof',
                 'strtod',
                 'strcasecmp',
                 'strncasecmp',

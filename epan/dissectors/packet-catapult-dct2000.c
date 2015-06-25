@@ -2139,7 +2139,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  displayed as a custom column... */
         proto_tree_add_double(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
                               offset, timestamp_length,
-                              atof(timestamp_string));
+                              g_ascii_strtod(timestamp_string, NULL));
     }
     offset += timestamp_length;
 

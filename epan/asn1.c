@@ -278,7 +278,7 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
     }
   } else {  /* decimal encoding */
     buf = g_strndup(p, len);
-    val = atof(buf);
+    val = g_ascii_strtod(buf, NULL);
     g_free(buf);
   }
 
