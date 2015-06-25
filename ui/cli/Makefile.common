@@ -38,7 +38,6 @@ GENERATOR_FILES =
 
 # sources for TShark taps
 TSHARK_TAP_SRC = \
-	tap-bootpstat.c		\
 	tap-camelcounter.c	\
 	tap-camelsrt.c		\
 	tap-comparestat.c	\

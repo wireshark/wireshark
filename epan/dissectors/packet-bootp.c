@@ -115,6 +115,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
@@ -5372,6 +5373,73 @@ bootp_init_protocol(void)
 	}
 }
 
+/* TAP STAT INFO */
+typedef enum
+{
+	MESSAGE_TYPE_COLUMN = 0,
+	PACKET_COLUMN
+} bootp_stat_columns;
+
+static stat_tap_table_item bootp_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "DHCP Message Type", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Packets", "%d"}};
+
+void bootp_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+	int num_fields = sizeof(bootp_stat_fields)/sizeof(stat_tap_table_item);
+	new_stat_tap_table* table = new_stat_tap_init_table("DHCP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+	int i = 0;
+	stat_tap_table_item_type items[sizeof(bootp_stat_fields)/sizeof(stat_tap_table_item)];
+
+	new_stat_tap_add_table(new_stat, table);
+
+	/* Add a fow for each value type */
+	while (opt53_text[i].strptr)
+	{
+		items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+		items[MESSAGE_TYPE_COLUMN].value.string_value = opt53_text[i].strptr;
+		items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
+		items[PACKET_COLUMN].value.uint_value = 0;
+
+		new_stat_tap_init_table_row(table, i, num_fields, items);
+		i++;
+	}
+}
+
+static gboolean
+bootp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
+{
+	new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+	const char* value = (const char*)data;
+	new_stat_tap_table* table;
+	stat_tap_table_item_type* msg_data;
+	guint i = 0;
+	gint idx;
+
+	idx = str_to_val_idx(value, opt53_text);
+	if (idx < 0)
+		return FALSE;
+
+	table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+	msg_data = new_stat_tap_get_field_data(table, idx, PACKET_COLUMN);
+	msg_data->value.uint_value++;
+	new_stat_tap_set_field_data(table, idx, PACKET_COLUMN, msg_data);
+
+	return TRUE;
+}
+
+static void
+bootp_stat_reset(new_stat_tap_table* table)
+{
+	guint element;
+	stat_tap_table_item_type* item_data;
+
+	for (element = 0; element < table->num_elements; element++)
+	{
+		item_data = new_stat_tap_get_field_data(table, element, PACKET_COLUMN);
+		item_data->value.uint_value = 0;
+		new_stat_tap_set_field_data(table, element, PACKET_COLUMN, item_data);
+	}
+}
+
 void
 proto_register_bootp(void)
 {
@@ -7425,6 +7493,25 @@ proto_register_bootp(void)
 		{ &ei_bootp_boot_filename_overloaded_by_dhcp, { "bootp.boot_filename_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Boot file name option overloaded by DHCP", EXPFILL }},
 	};
 
+	static tap_param bootp_stat_params[] = {
+		{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+	};
+
+	static new_stat_tap_ui bootp_stat_table = {
+		REGISTER_STAT_GROUP_UNSORTED,
+		"BOOTP-DHCP Statistics",
+		"bootp",
+		"bootp,stat",
+		bootp_stat_init,
+		bootp_stat_packet,
+		bootp_stat_reset,
+		NULL,
+		NULL,
+		sizeof(bootp_stat_fields)/sizeof(stat_tap_table_item), bootp_stat_fields,
+		sizeof(bootp_stat_params)/sizeof(tap_param), bootp_stat_params,
+		NULL
+	};
+
 	module_t *bootp_module;
 	expert_module_t* expert_bootp;
 
@@ -7484,6 +7571,8 @@ proto_register_bootp(void)
 				      "Custom BootP/DHCP Options (Excl. suboptions)",
 				      "Custom BootP/DHCP Options (Excl. suboptions)",
 				      bootp_uat);
+
+	register_new_stat_tap_ui(&bootp_stat_table);
 }
 
 void

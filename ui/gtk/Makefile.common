@@ -147,7 +147,6 @@ prefs_layout.c: layouts.h
 stock_icons.c: stock_icons.h toolbar_icons.h wsicon.h
 
 WIRESHARK_TAP_SRC = \
-	bootp_stat.c	\
 	camel_counter.c	\
 	compare_stat.c	\
 	dcerpc_stat.c	\
