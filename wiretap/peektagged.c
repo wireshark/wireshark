@@ -37,6 +37,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "peektagged.h"
+#include <wsutil/frequency-utils.h>
 
 /* CREDITS
  *
@@ -431,6 +432,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     guint32 ext_flags = 0;
     gboolean saw_data_rate_or_mcs_index = FALSE;
     guint32 data_rate_or_mcs_index = 0;
+    gint channel;
+    guint frequency;
     struct ieee_802_11_phdr ieee_802_11;
     int skip_len = 0;
     guint64 t;
@@ -749,6 +752,48 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 ieee_802_11.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
                 ieee_802_11.data_rate = data_rate_or_mcs_index;
             }
+        }
+        switch (ieee_802_11.presence_flags & (PHDR_802_11_HAS_FREQUENCY|PHDR_802_11_HAS_CHANNEL)) {
+
+        case PHDR_802_11_HAS_FREQUENCY:
+            /* Frequency, but no channel; try to calculate the channel. */
+            channel = ieee80211_mhz_to_chan(ieee_802_11.frequency);
+            if (channel != -1) {
+                ieee_802_11.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+                ieee_802_11.channel = channel;
+            }
+            break;
+
+        case PHDR_802_11_HAS_CHANNEL:
+            /*
+             * If it's 11 legacy DHSS, 11b, or 11g, it's 2.4 GHz,
+             * so we can calculate the frequency.
+             *
+             * If it's 11a, it's 5 GHz, so we can calculate the
+             * frequency.
+             */
+            switch (ieee_802_11.phy) {
+
+	    case PHDR_802_11_PHY_11_DSSS:
+	    case PHDR_802_11_PHY_11B:
+	    case PHDR_802_11_PHY_11G:
+	        frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, TRUE);
+	        break;
+
+            case PHDR_802_11_PHY_11A:
+	        frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, FALSE);
+	        break;
+
+            default:
+                /* We don't know the band. */
+                frequency = 0;
+                break;
+            }
+            if (frequency != 0) {
+                ieee_802_11.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+                ieee_802_11.frequency = frequency;
+            }
+            break;
         }
         phdr->pseudo_header.ieee_802_11 = ieee_802_11;
         if (peektagged->has_fcs)
