@@ -1758,9 +1758,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			if(strcmp(oid, ACSE_APDU_OID) == 0){
 				proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset, -1,
 				    "Invalid OID: %s", ACSE_APDU_OID);
-				THROW(ReportedBoundsError);
 			}
-			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
+         else {
+            call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
+         }
 		} else {
 			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
                                     tvb, offset, -1);
@@ -2248,7 +2249,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 268 "../../asn1/acse/packet-acse-template.c"
+#line 269 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2294,7 +2295,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 274 "../../asn1/acse/packet-acse-template.c"
+#line 275 "../../asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {
