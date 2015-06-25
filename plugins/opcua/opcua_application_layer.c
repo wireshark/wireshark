@@ -92,8 +92,8 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        proto_tree_add_item(tree, hf_opcua_app_nsid, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
-        iOffset+=4;
+        proto_tree_add_item(tree, hf_opcua_app_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+        iOffset+=2;
         Numeric = tvb_get_letohl(tvb, iOffset);
         proto_tree_add_item(tree, hf_opcua_app_numeric, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
         iOffset+=4;
