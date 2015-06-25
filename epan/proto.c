@@ -2383,6 +2383,8 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		if (bytes)
 		    proto_tree_set_bytes_gbytearray(new_fi, bytes);
+		else
+		    proto_tree_set_bytes(new_fi, NULL, 0);
 
 		if (created_bytes)
 		    g_byte_array_free(created_bytes, TRUE);
