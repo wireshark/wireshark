@@ -89,7 +89,7 @@ wsiconcap.h:
 # a tap register file.
 # All subsequent arguments are the files to scan.
 #
-wireshark-tap-register.c: Makefile.common $(WIRESHARK_TAP_SRC) ../../tools/make-tap-reg.py
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC)  Makefile.common  Makefile_custom.common ../../tools/make-tap-reg.py
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) "../../tools/make-tap-reg.py" . taps $(WIRESHARK_TAP_SRC)
 
