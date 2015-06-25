@@ -63,6 +63,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		DEPENDS
 			portableapps_app_dir
 			${_portableapps_package}
+			nsis_uninstaller
 	)
 	set_target_properties(portableapps_package PROPERTIES FOLDER "Packaging")
 
