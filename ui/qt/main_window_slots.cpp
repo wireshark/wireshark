@@ -686,10 +686,11 @@ void MainWindow::captureFileClosed() {
 
     main_ui_->statusBar->popFileStatus();
 
-    main_ui_->mainStack->setCurrentWidget(main_welcome_);
-
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
+
+    if (!global_capture_opts.multi_files_on)
+        main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
 void MainWindow::captureFileSaveStarted(const QString &file_path)
