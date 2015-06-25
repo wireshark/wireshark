@@ -53,12 +53,13 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb, proto_tree *tree, QTre
 
 void ByteViewTab::clear()
 {
+    bool visible = isVisible();
     hide();
     while (currentWidget()) {
         delete currentWidget();
     }
     addTab();
-    show();
+    setVisible(visible);
 }
 
 void ByteViewTab::tabInserted(int index) {
