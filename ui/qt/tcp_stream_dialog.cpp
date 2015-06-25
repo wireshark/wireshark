@@ -80,7 +80,7 @@ const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
 const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
 
-TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
+TCPStreamDialog::TCPStreamDialog(QWidget *, capture_file *cf, tcp_graph_type graph_type) :
     QDialog(NULL, Qt::Window),
     ui(new Ui::TCPStreamDialog),
     cap_file_(cf),
@@ -94,8 +94,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 {
     struct segment current;
     int graph_idx = -1;
-
-    Q_UNUSED(parent);
 
     ui->setupUi(this);
 

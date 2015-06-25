@@ -115,7 +115,7 @@ const QString AboutDialog::plugins_scan()
     return plugin_table;
 }
 
-AboutDialog::AboutDialog(QWidget *parent) :
+AboutDialog::AboutDialog(QWidget *) :
     QDialog(NULL),
     ui(new Ui::AboutDialog)
 {
@@ -131,8 +131,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     gint i;
     gchar **resultArray;
 #endif
-
-    Q_UNUSED(parent);
 
     /* Wireshark tab */
 
