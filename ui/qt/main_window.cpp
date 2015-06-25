@@ -90,7 +90,7 @@ void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
     {
         GHashTable * dataSet = (GHashTable *) user_data;
 
-        if ( g_hash_table_contains(dataSet, "filter_string" ) )
+        if ( g_hash_table_lookup_extended(dataSet, "filter_string", NULL, NULL ) )
         {
             QString filter((const char *)g_hash_table_lookup(dataSet, "filter_string"));
             gbl_cur_main_window_->filterPackets(filter);
@@ -103,14 +103,13 @@ void plugin_if_mainwindow_preference(gconstpointer user_data)
     if ( gbl_cur_main_window_ != NULL && user_data != NULL )
     {
         GHashTable * dataSet = (GHashTable *) user_data;
-        if ( g_hash_table_contains(dataSet, "pref_module" ) &&
-                g_hash_table_contains(dataSet, "pref_value" ) &&
-                g_hash_table_contains(dataSet, "pref_value" ) )
+        const char * module_name;
+        const char * pref_name;
+        const char * pref_value;
+        if ( g_hash_table_lookup_extended(dataSet, "pref_module", NULL, (void**)&module_name ) &&
+                g_hash_table_lookup_extended(dataSet, "pref_key", NULL, (void**)&pref_name ) &&
+                g_hash_table_lookup_extended(dataSet, "pref_value", NULL, (void**)&pref_value ) )
         {
-            const char * module_name = (const char *)g_hash_table_lookup(dataSet, "pref_module");
-            const char * pref_name = (const char *)g_hash_table_lookup(dataSet, "pref_key");
-            const char * pref_value = (const char *)g_hash_table_lookup(dataSet, "pref_value");
-
             if ( prefs_store_ext(module_name, pref_name, pref_value) )
             {
                 wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
