@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
+#include <wsutil/frequency-utils.h>
 
 #include "packet-ieee80211.h"
 
@@ -38,33 +39,35 @@ static dissector_handle_t ieee80211_radio_handle;
 static int proto_wlancap = -1;
 
 /* AVS WLANCAP radio header */
-static int hf_wlan_magic = -1;
-static int hf_wlan_version = -1;
-static int hf_wlan_length = -1;
-static int hf_wlan_phytype = -1;
-static int hf_wlan_antenna = -1;
-static int hf_wlan_priority = -1;
-static int hf_wlan_ssi_type = -1;
-static int hf_wlan_preamble = -1;
-static int hf_wlan_encoding = -1;
-static int hf_wlan_sequence = -1;
-static int hf_wlan_drops = -1;
-static int hf_wlan_receiver_addr = -1;
-static int hf_wlan_padding = -1;
+static int hf_wlancap_magic = -1;
+static int hf_wlancap_version = -1;
+static int hf_wlancap_length = -1;
+static int hf_wlancap_mactime = -1;
+static int hf_wlancap_hosttime = -1;
+static int hf_wlancap_phytype = -1;
+static int hf_wlancap_hop_set = -1;
+static int hf_wlancap_hop_pattern = -1;
+static int hf_wlancap_hop_index = -1;
+static int hf_wlancap_channel = -1;
+static int hf_wlancap_channel_frequency = -1;
+static int hf_wlancap_data_rate = -1;
+static int hf_wlancap_antenna = -1;
+static int hf_wlancap_priority = -1;
+static int hf_wlancap_ssi_type = -1;
+static int hf_wlancap_normrssi_antsignal = -1;
+static int hf_wlancap_dbm_antsignal = -1;
+static int hf_wlancap_rawrssi_antsignal = -1;
+static int hf_wlancap_normrssi_antnoise = -1;
+static int hf_wlancap_dbm_antnoise = -1;
+static int hf_wlancap_rawrssi_antnoise = -1;
+static int hf_wlancap_preamble = -1;
+static int hf_wlancap_encoding = -1;
+static int hf_wlancap_sequence = -1;
+static int hf_wlancap_drops = -1;
+static int hf_wlancap_receiver_addr = -1;
+static int hf_wlancap_padding = -1;
 
-static int hf_mactime = -1;
-static int hf_hosttime = -1;
-static int hf_channel_frequency = -1;
-static int hf_data_rate = -1;
-static int hf_channel = -1;
-static int hf_dbm_antnoise = -1;
-static int hf_rawrssi_antnoise = -1;
-static int hf_normrssi_antnoise = -1;
-static int hf_rawrssi_antsignal = -1;
-static int hf_dbm_antsignal = -1;
-static int hf_normrssi_antsignal = -1;
-
-static gint ett_radio = -1;
+static gint ett_wlancap = -1;
 
 static dissector_handle_t wlancap_handle;
 
@@ -355,6 +358,8 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 version;
     guint32 length;
     guint32 channel;
+    guint   frequency;
+    gint    calc_channel;
     guint32 datarate;
     guint32 ssi_type;
     gint32  dbm;
@@ -365,6 +370,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr.presence_flags = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -384,89 +390,116 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Dissect the AVS header */
     if (tree) {
       ti = proto_tree_add_item(tree, proto_wlancap, tvb, 0, length, ENC_NA);
-      wlan_tree = proto_item_add_subtree(ti, ett_radio);
-      proto_tree_add_item(wlan_tree, hf_wlan_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(wlan_tree, hf_wlan_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+      wlan_tree = proto_item_add_subtree(ti, ett_wlancap);
+      proto_tree_add_item(wlan_tree, hf_wlancap_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset+=4;
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     phdr.presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
     phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_mactime, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_mactime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_hosttime, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_hosttime, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
     switch (tvb_get_ntohl(tvb, offset)) {
 
     case 1:
-        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+        phdr.phy = PHDR_802_11_PHY_11_FHSS;
+        phdr.phy_info.info_11_fhss.presence_flags = 0;
         break;
 
     case 2:
-        /* Legacy 802.11 DHSS */
+        phdr.phy = PHDR_802_11_PHY_11_DSSS;
         break;
 
     case 3:
-        /* Legacy 802.11 IR */
+        phdr.phy = PHDR_802_11_PHY_11_IR;
         break;
 
     case 4:
-        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+        phdr.phy = PHDR_802_11_PHY_11B;
         break;
 
     case 5:
         /* 11b PBCC? */
+        phdr.phy = PHDR_802_11_PHY_11B;
         break;
 
     case 6:
-        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+        phdr.phy = PHDR_802_11_PHY_11G; /* pure? */
+        phdr.phy_info.info_11g.presence_flags = 0;
         break;
 
     case 7:
         /* 11a PBCC? */
+        phdr.phy = PHDR_802_11_PHY_11A;
+        phdr.phy_info.info_11a.presence_flags = 0;
         break;
 
     case 8:
-        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11A;
+        phdr.phy = PHDR_802_11_PHY_11A;
+        phdr.phy_info.info_11a.presence_flags = 0;
         break;
 
     case 9:
-        phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+        phdr.phy = PHDR_802_11_PHY_11G; /* mixed? */
+        phdr.phy_info.info_11g.presence_flags = 0;
         break;
     }
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_phytype, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_phytype, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    /* XXX cook channel (fh uses different numbers) */
-    channel = tvb_get_ntohl(tvb, offset);
-    if (channel < 256) {
-      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
-      phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
-      phdr.channel = channel;
+    if (phdr.phy == PHDR_802_11_PHY_11_FHSS) {
+      phdr.phy_info.info_11_fhss.presence_flags =
+          PHDR_802_11_FHSS_HAS_HOP_SET |
+          PHDR_802_11_FHSS_HAS_HOP_PATTERN |
+          PHDR_802_11_FHSS_HAS_HOP_INDEX;
+      phdr.phy_info.info_11_fhss.hop_set = tvb_get_guint8(tvb, offset);
       if (tree)
-        proto_tree_add_uint(wlan_tree, hf_channel, tvb, offset, 4, channel);
-    } else if (channel < 10000) {
-      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
-      phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
-      phdr.frequency = channel;
+        proto_tree_add_item(wlan_tree, hf_wlancap_hop_set, tvb, offset, 1, ENC_NA);
+      phdr.phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(tvb, offset + 1);
       if (tree)
-        proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
-                                   4, channel, "Frequency: %u MHz", channel);
+        proto_tree_add_item(wlan_tree, hf_wlancap_hop_pattern, tvb, offset + 1, 1, ENC_NA);
+      phdr.phy_info.info_11_fhss.hop_index = tvb_get_guint8(tvb, offset + 2);
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_wlancap_hop_index, tvb, offset + 2, 1, ENC_NA);
     } else {
-      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u KHz", channel);
-      if (tree)
-        proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
-                                   4, channel, "Frequency: %u KHz", channel);
+      channel = tvb_get_ntohl(tvb, offset);
+      if (channel < 256) {
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
+        phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+        phdr.channel = channel;
+        if (tree)
+          proto_tree_add_uint(wlan_tree, hf_wlancap_channel, tvb, offset, 4, channel);
+        frequency = ieee80211_chan_to_mhz(channel, (phdr.phy != PHDR_802_11_PHY_11A));
+        if (frequency != 0) {
+          phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+          phdr.frequency = frequency;
+        }
+      } else if (channel < 10000) {
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
+        phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+        phdr.frequency = channel;
+        if (tree)
+          proto_tree_add_uint_format(wlan_tree, hf_wlancap_channel_frequency, tvb, offset,
+                                     4, channel, "Frequency: %u MHz", channel);
+        calc_channel = ieee80211_mhz_to_chan(channel);
+        if (calc_channel != -1) {
+          phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+          phdr.channel = calc_channel;
+        }
+      } else {
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u KHz", channel);
+        if (tree)
+          proto_tree_add_uint_format(wlan_tree, hf_wlancap_channel_frequency, tvb, offset,
+                                     4, channel, "Frequency: %u KHz", channel);
+      }
     }
     offset+=4;
     datarate = tvb_get_ntohl(tvb, offset);
@@ -488,7 +521,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
     if (tree) {
-      proto_tree_add_uint64_format_value(wlan_tree, hf_data_rate, tvb, offset, 4,
+      proto_tree_add_uint64_format_value(wlan_tree, hf_wlancap_data_rate, tvb, offset, 4,
                                    datarate,
                                    "%u.%u Mb/s",
                                    datarate/1000000,
@@ -496,14 +529,14 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset+=4;
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_antenna, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_antenna, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     ssi_type = tvb_get_ntohl(tvb, offset);
     if (tree)
-      proto_tree_add_uint(wlan_tree, hf_wlan_ssi_type, tvb, offset, 4, ssi_type);
+      proto_tree_add_uint(wlan_tree, hf_wlancap_ssi_type, tvb, offset, 4, ssi_type);
     offset+=4;
     switch (ssi_type) {
 
@@ -516,7 +549,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Normalized RSSI */
       col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (norm)", tvb_get_ntohl(tvb, offset));
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_normrssi_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlancap_normrssi_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
 
     case SSI_DBM:
@@ -526,14 +559,14 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       phdr.signal_dbm = dbm;
       col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_dbm_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlancap_dbm_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
 
     case SSI_RAW_RSSI:
       /* Raw RSSI */
       col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (raw)", tvb_get_ntohl(tvb, offset));
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_rawrssi_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlancap_rawrssi_antsignal, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
     }
     offset+=4;
@@ -550,7 +583,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case SSI_NORM_RSSI:
         /* Normalized RSSI */
         if (tree)
-          proto_tree_add_uint(wlan_tree, hf_normrssi_antnoise, tvb, offset, 4, antnoise);
+          proto_tree_add_uint(wlan_tree, hf_wlancap_normrssi_antnoise, tvb, offset, 4, antnoise);
         break;
 
       case SSI_DBM:
@@ -561,35 +594,65 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           phdr.noise_dbm = antnoise;
         }
         if (tree)
-          proto_tree_add_int(wlan_tree, hf_dbm_antnoise, tvb, offset, 4, antnoise);
+          proto_tree_add_int(wlan_tree, hf_wlancap_dbm_antnoise, tvb, offset, 4, antnoise);
         break;
 
       case SSI_RAW_RSSI:
         /* Raw RSSI */
         if (tree)
-          proto_tree_add_uint(wlan_tree, hf_rawrssi_antnoise, tvb, offset, 4, antnoise);
+          proto_tree_add_uint(wlan_tree, hf_wlancap_rawrssi_antnoise, tvb, offset, 4, antnoise);
         break;
       }
     }
     offset+=4;
+    switch (tvb_get_ntohl(tvb, offset)) {
+
+    case 0:
+      /* Undefined, so we don't know if there's a short preamble */
+      break;
+
+    case 1:
+      /*
+       * Short preamble.
+       * We assume this is present only for PHYs that support variable
+       * preamble lengths.
+       */
+      phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+      phdr.short_preamble = TRUE;
+      break;
+
+    case 2:
+      /*
+       * Long preamble.
+       * We assume this is present only for PHYs that support variable
+       * preamble lengths.
+       */
+      phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+      phdr.short_preamble = FALSE;
+      break;
+
+    default:
+      /* Invalid, so we don't know if there's a short preamble. */
+      break;
+    }
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_preamble, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_preamble, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_encoding, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(wlan_tree, hf_wlancap_encoding, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     if (version > 1) {
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_wlan_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlancap_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset+=4;
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_wlan_drops, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlancap_drops, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset+=4;
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_wlan_receiver_addr, tvb, offset, 6, ENC_NA);
+        proto_tree_add_item(wlan_tree, hf_wlancap_receiver_addr, tvb, offset, 6, ENC_NA);
       offset+=6;
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(wlan_tree, hf_wlancap_padding, tvb, offset, 2, ENC_NA);
       /*offset+=2;*/
     }
 
@@ -644,81 +707,117 @@ static const value_string preamble_type[] = {
 };
 
 static hf_register_info hf_wlancap[] = {
-    {&hf_mactime,
-     {"MAC timestamp", "wlan.mactime", FT_UINT64, BASE_DEC, NULL, 0x0,
-      "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC", HFILL }},
-
-    {&hf_hosttime,
-     {"Host timestamp", "wlan.hosttime", FT_UINT64, BASE_DEC, NULL, 0x0,
+    {&hf_wlancap_magic,
+     {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0,
       NULL, HFILL }},
 
-    {&hf_channel_frequency,
-     {"Channel frequency", "wlan.channel_frequency", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Channel frequency in megahertz that this frame was sent/received on", HFILL }},
+    {&hf_wlancap_version,
+     {"Header revision", "wlancap.version", FT_UINT32, BASE_DEC, NULL, 0xF,
+      NULL, HFILL }},
 
-    {&hf_data_rate,
-     {"Data Rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
-      "Data rate (b/s)", HFILL }},
-    {&hf_channel,
-     {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_wlancap_length,
+     {"Header length", "wlancap.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_mactime,
+     {"MAC timestamp", "wlancap.mactime", FT_UINT64, BASE_DEC, NULL, 0x0,
+      "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC", HFILL }},
+
+    {&hf_wlancap_hosttime,
+     {"Host timestamp", "wlancap.hosttime", FT_UINT64, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_phytype,
+     {"PHY type", "wlancap.phytype", FT_UINT32, BASE_DEC, VALS(phy_type), 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_hop_set,
+     {"Hop set", "wlancap.fhss.hop_set", FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_hop_pattern,
+     {"Hop pattern", "wlancap.fhss.hop_pattern", FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_hop_index,
+     {"Hop index", "wlancap.fhss.hop_index", FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_channel,
+     {"Channel", "wlancap.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
-    {&hf_wlan_antenna,
-     {"Antenna", "wlan.antenna", FT_UINT32, BASE_DEC, NULL, 0x0,
+    {&hf_wlancap_channel_frequency,
+     {"Channel frequency", "wlancap.channel_frequency", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Channel frequency in megahertz that this frame was sent/received on", HFILL }},
+
+    {&hf_wlancap_data_rate,
+     {"Data Rate", "wlancap.data_rate", FT_UINT64, BASE_DEC, NULL, 0x0,
+      "Data rate (b/s)", HFILL }},
+
+    {&hf_wlancap_antenna,
+     {"Antenna", "wlancap.antenna", FT_UINT32, BASE_DEC, NULL, 0x0,
       "Antenna number this frame was sent/received over (starting at 0)", HFILL } },
-    {&hf_rawrssi_antnoise,
-     {"Raw RSSI Noise", "wlan.rawrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "RF noise power at the antenna, reported as RSSI by the adapter", HFILL }},
-    {&hf_dbm_antnoise,
-     {"SSI Noise (dBm)", "wlan.dbm_antnoise", FT_INT32, BASE_DEC, NULL, 0x0,
-      "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt", HFILL }},
 
-    {&hf_normrssi_antnoise,
-     {"Normalized RSSI Noise", "wlan.normrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "RF noise power at the antenna, normalized to the range 0-1000", HFILL }},
-    {&hf_rawrssi_antsignal,
-     {"Raw RSSI Signal", "wlan.rawrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "RF signal power at the antenna, reported as RSSI by the adapter", HFILL }},
-    {&hf_dbm_antsignal,
-     {"SSI Signal (dBm)", "wlan.dbm_antsignal", FT_INT32, BASE_DEC, NULL, 0x0,
-      "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL }},
+    {&hf_wlancap_priority,
+     {"Priority", "wlancap.priority", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
 
-    {&hf_normrssi_antsignal,
-     {"Normalized RSSI Signal", "wlan.normrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
+    {&hf_wlancap_ssi_type,
+     {"SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC, VALS(ssi_type), 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_normrssi_antsignal,
+     {"Normalized RSSI Signal", "wlancap.normrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
       "RF signal power at the antenna, normalized to the range 0-1000", HFILL }},
 
-    /* AVS-specific header fields.
-       XXX - make as many of these generic as possible. */
-    {&hf_wlan_magic,
-     {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0, NULL, HFILL } },
-    { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32,
-                          BASE_DEC, NULL, 0xF, NULL, HFILL } },
-    { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32,
-                         BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    {&hf_wlan_phytype,
-     {"PHY type", "wlan.phytype", FT_UINT32, BASE_DEC, VALS(phy_type), 0x0,
-      NULL, HFILL } },
+    {&hf_wlancap_dbm_antsignal,
+     {"SSI Signal (dBm)", "wlancap.dbm_antsignal", FT_INT32, BASE_DEC, NULL, 0x0,
+      "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL }},
 
-    { &hf_wlan_priority, { "Priority", "wlancap.priority", FT_UINT32, BASE_DEC,
-                           NULL, 0x0, NULL, HFILL } },
-    { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
-                           VALS(ssi_type), 0x0, NULL, HFILL } },
-    { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
-                           BASE_DEC, VALS(preamble_type), 0x0, NULL, HFILL } },
-    { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
-                           BASE_DEC, VALS(encoding_type), 0x0, NULL, HFILL } },
-    { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32,
-                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
-                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
-                           BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
-    { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
-                           BASE_NONE, NULL, 0x0, NULL, HFILL } }
+    {&hf_wlancap_rawrssi_antsignal,
+     {"Raw RSSI Signal", "wlancap.rawrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF signal power at the antenna, reported as RSSI by the adapter", HFILL }},
+
+    {&hf_wlancap_normrssi_antnoise,
+     {"Normalized RSSI Noise", "wlancap.normrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna, normalized to the range 0-1000", HFILL }},
+
+    {&hf_wlancap_dbm_antnoise,
+     {"SSI Noise (dBm)", "wlancap.dbm_antnoise", FT_INT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt", HFILL }},
+
+    {&hf_wlancap_rawrssi_antnoise,
+     {"Raw RSSI Noise", "wlancap.rawrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna, reported as RSSI by the adapter", HFILL }},
+
+    {&hf_wlancap_preamble,
+     {"Preamble", "wlancap.preamble", FT_UINT32, BASE_DEC, VALS(preamble_type), 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_encoding,
+     {"Encoding Type", "wlancap.encoding", FT_UINT32, BASE_DEC, VALS(encoding_type), 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_sequence,
+     {"Receive sequence", "wlancap.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_drops,
+     {"Known Dropped Frames", "wlancap.drops", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlancap_receiver_addr,
+     {"Receiver Address", "wlancap.receiver_addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+      "Receiver Hardware Address", HFILL }},
+
+    {&hf_wlancap_padding,
+     {"Padding", "wlancap.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }}
 };
 
 static gint *tree_array[] = {
-  &ett_radio
+  &ett_wlancap
 };
 
 void proto_register_ieee80211_wlancap(void)

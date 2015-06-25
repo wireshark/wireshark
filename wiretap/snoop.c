@@ -741,6 +741,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	pseudo_header->ieee_802_11.fcs_len = 4;
 	pseudo_header->ieee_802_11.decrypted = FALSE;
 	pseudo_header->ieee_802_11.datapad = FALSE;
+	pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 	pseudo_header->ieee_802_11.presence_flags =
 	    PHDR_802_11_HAS_CHANNEL |
 	    PHDR_802_11_HAS_DATA_RATE |

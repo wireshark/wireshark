@@ -1252,6 +1252,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 			phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 			phdr->pseudo_header.ieee_802_11.datapad = FALSE;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 
 			/*
 			 * XXX - any other information, such as PHY

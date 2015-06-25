@@ -250,6 +250,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
  */
 #define	IEEE80211_CHAN_FHSS \
 	(IEEE80211_CHAN_2GHZ | IEEE80211_CHAN_GFSK)
+#define	IEEE80211_CHAN_DSSS \
+	(IEEE80211_CHAN_2GHZ)
 #define	IEEE80211_CHAN_A \
 	(IEEE80211_CHAN_5GHZ | IEEE80211_CHAN_OFDM)
 #define	IEEE80211_CHAN_B \
@@ -589,6 +591,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	phdr.fcs_len = -1;
 	phdr.decrypted = FALSE;
 	phdr.datapad = FALSE;
+	phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 	phdr.presence_flags = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -826,6 +829,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.fcs_len = 4;
 			else
 				phdr.fcs_len = 0;
+			phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 
 			if (tree) {
 				proto_tree *flags_tree;
@@ -944,38 +948,51 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			switch (cflags & IEEE80211_CHAN_ALLTURBO) {
 
 			case IEEE80211_CHAN_FHSS:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+				phdr.phy = PHDR_802_11_PHY_11_FHSS;
+				phdr.phy_info.info_11_fhss.presence_flags = 0;
+				break;
+
+			case IEEE80211_CHAN_DSSS:
+				phdr.phy = PHDR_802_11_PHY_11_DSSS;
 				break;
 
 			case IEEE80211_CHAN_A:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11A;
+				phdr.phy = PHDR_802_11_PHY_11A;
+				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_B:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+				phdr.phy = PHDR_802_11_PHY_11B;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
 				break;
 
 			case IEEE80211_CHAN_PUREG:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_G:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_108A:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11A_108;
+				phdr.phy = PHDR_802_11_PHY_11A;
+				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				/* We assume non-STURBO is dynamic turbo */
+				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
 				break;
 
 			case IEEE80211_CHAN_108PUREG:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE_108;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				break;
 			}
 			if (tree) {
@@ -1015,12 +1032,23 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 
 		case IEEE80211_RADIOTAP_FHSS:
+			/*
+			 * Just in case we didn't have a Channel field or
+			 * it said this was something other than 11 legacy
+			 * FHSS.
+			 */
+			phdr.phy = PHDR_802_11_PHY_11_FHSS;
+			phdr.phy_info.info_11_fhss.presence_flags =
+			    PHDR_802_11_FHSS_HAS_HOP_SET |
+			    PHDR_802_11_FHSS_HAS_HOP_PATTERN;
+			phdr.phy_info.info_11_fhss.hop_set = tvb_get_guint8(tvb, offset);
+			phdr.phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(tvb, offset + 1);
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_fhss_hopset, tvb,
 					    offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_fhss_pattern, tvb,
-					    offset, 1, ENC_BIG_ENDIAN);
+					    offset + 1, 1, ENC_BIG_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
@@ -1139,72 +1167,75 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			switch (xcflags & IEEE80211_CHAN_ALLTURBO) {
 
 			case IEEE80211_CHAN_FHSS:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+				/*
+				 * Don't overwrite any FHSS information
+				 * we've seen before this.
+				 */
+				if (phdr.phy != PHDR_802_11_PHY_11_FHSS) {
+					phdr.phy = PHDR_802_11_PHY_11_FHSS;
+					phdr.phy_info.info_11_fhss.presence_flags = 0;
+				}
+				break;
+
+			case IEEE80211_CHAN_DSSS:
+				phdr.phy = PHDR_802_11_PHY_11_DSSS;
 				break;
 
 			case IEEE80211_CHAN_A:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11A;
+				phdr.phy = PHDR_802_11_PHY_11A;
+				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_B:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+				phdr.phy = PHDR_802_11_PHY_11B;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
 				break;
 
 			case IEEE80211_CHAN_PUREG:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_G:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_108A:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11A_108;
+				phdr.phy = PHDR_802_11_PHY_11A;
+				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				/* We assume non-STURBO is dynamic turbo */
+				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
 				break;
 
 			case IEEE80211_CHAN_108PUREG:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_PURE_108;
+				phdr.phy = PHDR_802_11_PHY_11G;
+				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				break;
 
 			case IEEE80211_CHAN_ST:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11G_STURBO;
+				phdr.phy = PHDR_802_11_PHY_11A;
+				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_STATIC_TURBO;
 				break;
 
 			case IEEE80211_CHAN_A|IEEE80211_CHAN_HT20:
 			case IEEE80211_CHAN_A|IEEE80211_CHAN_HT40D:
 			case IEEE80211_CHAN_A|IEEE80211_CHAN_HT40U:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11N_5GHZ;
-
-				/*
-				 * This doesn't supply "short GI" information,
-				 * so use the 0x80 bit in the Flags field,
-				 * if we have it; it's "Currently unspecified
-				 * but used" for that purpose, according to
-				 * the radiotap.org page for that field.
-				 */
-				if (have_rflags) {
-					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-					if (rflags & 0x80)
-						phdr.short_gi = 1;
-					else
-						phdr.short_gi = 0;
-				}
-				break;
-
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT20:
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40U:
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40D:
-				phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-				phdr.phy_band = PHDR_802_11_PHY_BAND_11N_2_4GHZ;
+				phdr.phy = PHDR_802_11_PHY_11N;
+				/* 11n only has "short preamble" in 11b/11g mode */
+				phdr.presence_flags &= ~PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11n.presence_flags = 0;
 
 				/*
 				 * This doesn't supply "short GI" information,
@@ -1214,11 +1245,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				 * the radiotap.org page for that field.
 				 */
 				if (have_rflags) {
-					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+					phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
 					if (rflags & 0x80)
-						phdr.short_gi = 1;
+						phdr.phy_info.info_11n.short_gi = 1;
 					else
-						phdr.short_gi = 0;
+						phdr.phy_info.info_11n.short_gi = 0;
 				}
 				break;
 			}
@@ -1280,27 +1311,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			guint	    gi_length;
 			gboolean    can_calculate_rate;
 
-			/* This is for 802.11n */
-			if (phdr.presence_flags & PHDR_802_11_HAS_PHY_BAND) {
-				/*
-				 * If we have A or G, this means it's really
-				 * N in the 5 GHz band or N in the 2.4 GHz
-				 * band, respectively.
-				 */
-				switch (phdr.phy_band) {
-
-				case PHDR_802_11_PHY_BAND_11A:
-					phdr.phy_band = PHDR_802_11_PHY_BAND_11N_5GHZ;
-					break;
-
-				case PHDR_802_11_PHY_BAND_11G:
-				case PHDR_802_11_PHY_BAND_11G_PURE:
-				case PHDR_802_11_PHY_BAND_11G_MIXED:
-					phdr.phy_band = PHDR_802_11_PHY_BAND_11N_2_4GHZ;
-					break;
-				}
-			}
-
 			/*
 			 * Start out assuming that we can calculate the rate;
 			 * if we are missing any of the MCS index, channel
@@ -1309,44 +1319,55 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			can_calculate_rate = TRUE;
 
 			mcs_known = tvb_get_guint8(tvb, offset);
+			/*
+			 * If there's actually any data here, not an
+			 * empty field, this is 802.11n.
+			 */
+			if (mcs_known != 0) {
+				phdr.phy = PHDR_802_11_PHY_11N;
+				/* 11n only has "short preamble" in 11b/11g mode */
+				phdr.presence_flags &= ~PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11n.presence_flags = 0;
+			}
+
 			mcs_flags = tvb_get_guint8(tvb, offset + 1);
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
 				mcs = tvb_get_guint8(tvb, offset + 2);
-				phdr.presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
-				phdr.mcs_index = mcs;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+				phdr.phy_info.info_11n.mcs_index = mcs;
 			} else {
 				mcs = 0;
 				can_calculate_rate = FALSE;	/* no MCS index */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
-				phdr.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-				phdr.bandwidth = (mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK);
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_BANDWIDTH;
+				phdr.phy_info.info_11n.bandwidth = (mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
 				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
 				    1 : 0;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-				phdr.short_gi = (gi_length == 0);
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+				phdr.phy_info.info_11n.short_gi = (gi_length == 0);
 			} else {
 				gi_length = 0;
 				can_calculate_rate = FALSE;	/* no GI width */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
-				phdr.presence_flags |= PHDR_802_11_HAS_GREENFIELD;
-				phdr.greenfield = (mcs_flags & IEEE80211_RADIOTAP_MCS_FMT_GF) != 0;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_GREENFIELD;
+				phdr.phy_info.info_11n.greenfield = (mcs_flags & IEEE80211_RADIOTAP_MCS_FMT_GF) != 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
-				phdr.presence_flags |= PHDR_802_11_HAS_LDPC;
-				phdr.ldpc = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) != 0;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_LDPC;
+				phdr.phy_info.info_11n.ldpc = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) != 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
-				phdr.presence_flags |= PHDR_802_11_HAS_STBC_STREAMS;
-				phdr.stbc_streams = (mcs_flags & IEEE80211_RADIOTAP_MCS_STBC_MASK) >> IEEE80211_RADIOTAP_MCS_STBC_SHIFT;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_STBC_STREAMS;
+				phdr.phy_info.info_11n.stbc_streams = (mcs_flags & IEEE80211_RADIOTAP_MCS_STBC_MASK) >> IEEE80211_RADIOTAP_MCS_STBC_SHIFT;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_NESS) {
-				phdr.presence_flags |= PHDR_802_11_HAS_NESS;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_NESS;
 				/* This is stored a bit weirdly */
-				phdr.ness =
+				phdr.phy_info.info_11n.ness =
 				    ((mcs_known & IEEE80211_RADIOTAP_MCS_NESS_BIT1) >> 6) |
 				    ((mcs_flags & IEEE80211_RADIOTAP_MCS_NESS_BIT0) >> 7);
 			}
@@ -1490,10 +1511,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			gboolean    can_calculate_rate;
 			guint	    i;
 
-			/* This is for 802.11ac */
-			phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr.phy_band = PHDR_802_11_PHY_BAND_11AC;
-
 			/*
 			 * Start out assuming that we can calculate the rate;
 			 * if we are missing any of the MCS index, channel
@@ -1502,6 +1519,15 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			can_calculate_rate = TRUE;
 
 			known = tvb_get_letohs(tvb, offset);
+			/*
+			 * If there's actually any data here, not an
+			 * empty field, this is 802.11ac.
+			 */
+			if (known != 0) {
+				phdr.phy = PHDR_802_11_PHY_11AC;
+				phdr.presence_flags &= ~PHDR_802_11_HAS_SHORT_PREAMBLE;
+				phdr.phy_info.info_11ac.presence_flags = 0;
+			}
 			vht_flags = tvb_get_guint8(tvb, offset + 2);
 
 			if (tree) {
@@ -1546,8 +1572,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GI) {
 				gi_length = (vht_flags & IEEE80211_RADIOTAP_VHT_SGI) ? 1 : 0;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-				phdr.short_gi = (gi_length == 0);
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+				phdr.phy_info.info_11ac.short_gi = (gi_length == 0);
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gi,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1582,8 +1608,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_BW) {
 				bw = tvb_get_guint8(tvb, offset + 3) & IEEE80211_RADIOTAP_VHT_BW_MASK;
-				phdr.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-				phdr.bandwidth = bw;
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BANDWIDTH;
+				phdr.phy_info.info_11ac.bandwidth = bw;
 				if (bw < sizeof(ieee80211_vht_bw2rate_index)/sizeof(ieee80211_vht_bw2rate_index[0]))
 					bandwidth = ieee80211_vht_bw2rate_index[bw];
 				else

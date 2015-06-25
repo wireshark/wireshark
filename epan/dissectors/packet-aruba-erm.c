@@ -283,6 +283,8 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
 
     phdr.decrypted = FALSE;
+    phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr.presence_flags =
         PHDR_802_11_HAS_DATA_RATE|
         PHDR_802_11_HAS_CHANNEL|
@@ -314,8 +316,6 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
         phdr.fcs_len = 4; /* We have an FCS */
     }
-    phdr.decrypted = FALSE;
-    phdr.datapad = FALSE;
     call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
 

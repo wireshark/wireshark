@@ -38,6 +38,8 @@
 #include "file_wrappers.h"
 #include "commview.h"
 
+#include <wsutil/frequency-utils.h>
+
 typedef struct commview_header {
 	guint16		data_len;
 	guint16		source_data_len;
@@ -75,9 +77,9 @@ typedef struct commview_header {
 #define BAND_11G		0x04
 #define BAND_11A_TURBO		0x08
 #define BAND_SUPERG		0x10
-#define BAND_PUBLIC_SAFETY	0x20	/* 499 GHz public safety */
+#define BAND_PUBLIC_SAFETY	0x20	/* 4.99 GHz public safety */
 #define BAND_11N_5GHZ		0x40
-#define BAND_11N_2_4GHZ	0x80
+#define BAND_11N_2_4GHZ		0x80
 
 /* Capture mediums as defined by the commview file format */
 #define MEDIUM_ETHERNET		0
@@ -140,6 +142,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 {
 	commview_header_t cv_hdr;
 	struct tm tm;
+	guint frequency;
 
 	if(!commview_read_header(&cv_hdr, fh, err, err_info))
 		return FALSE;
@@ -156,6 +159,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		phdr->pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
+		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 		phdr->pseudo_header.ieee_802_11.presence_flags =
 		    PHDR_802_11_HAS_CHANNEL |
 		    PHDR_802_11_HAS_DATA_RATE |
@@ -163,40 +167,68 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		switch (cv_hdr.band) {
 
 		case BAND_11A:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11A;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11a.presence_flags =
+			    PHDR_802_11A_HAS_TURBO_TYPE;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type =
+			    PHDR_802_11A_TURBO_TYPE_NORMAL;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
 			break;
 
 		case BAND_11B:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11B;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
 		case BAND_11G:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11G;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11g.presence_flags =
+			    PHDR_802_11G_HAS_MODE;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11g.mode =
+			    PHDR_802_11G_MODE_NORMAL;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
 		case BAND_11A_TURBO:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11A_108;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11a.presence_flags =
+			    PHDR_802_11A_HAS_TURBO_TYPE;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type =
+			    PHDR_802_11A_TURBO_TYPE_TURBO;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
 			break;
 
 		case BAND_SUPERG:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			/* So what is "SuperG" here? */
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11G_STURBO;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11g.presence_flags =
+			    PHDR_802_11G_HAS_MODE;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11g.mode =
+			    PHDR_802_11G_MODE_SUPER_G;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
 		case BAND_11N_5GHZ:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11N_5GHZ;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11N;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11n.presence_flags =
+			    0;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
 			break;
 
 		case BAND_11N_2_4GHZ:
-			phdr->pseudo_header.ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-			phdr->pseudo_header.ieee_802_11.phy_band = PHDR_802_11_PHY_BAND_11N_2_4GHZ;
+			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11N;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11n.presence_flags =
+			    0;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
+
+		default:
+			frequency = 0;
+			break;
+		}
+		if (frequency != 0) {
+			phdr->pseudo_header.ieee_802_11.presence_flags |=
+			    PHDR_802_11_HAS_FREQUENCY;
+			phdr->pseudo_header.ieee_802_11.frequency = frequency;
 		}
 		phdr->pseudo_header.ieee_802_11.channel = cv_hdr.channel;
 		phdr->pseudo_header.ieee_802_11.data_rate =
@@ -407,6 +439,75 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO :
 		cv_hdr.flags |=  MEDIUM_WIFI;
 
+		switch (phdr->pseudo_header.ieee_802_11.phy) {
+
+		case PHDR_802_11_PHY_11A:
+			/*
+			 * If we don't know whether it's turbo, say it's
+			 * not.
+			 */
+			if (!(phdr->pseudo_header.ieee_802_11.phy_info.info_11a.presence_flags & PHDR_802_11A_HAS_TURBO_TYPE) ||
+			    phdr->pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type == PHDR_802_11A_TURBO_TYPE_NORMAL)
+				cv_hdr.band = BAND_11A;
+			else
+				cv_hdr.band = BAND_11A_TURBO;
+			break;
+
+		case PHDR_802_11_PHY_11B:
+			cv_hdr.band = BAND_11B;
+			break;
+
+		case PHDR_802_11_PHY_11G:
+			/*
+			 * If we don't know whether it's Super G, say it's
+			 * not.
+			 */
+			if (!(phdr->pseudo_header.ieee_802_11.phy_info.info_11g.presence_flags & PHDR_802_11G_HAS_MODE))
+				cv_hdr.band = BAND_11G;
+			else {
+				switch (phdr->pseudo_header.ieee_802_11.phy_info.info_11g.mode) {
+
+				case PHDR_802_11G_MODE_NORMAL:
+					cv_hdr.band = BAND_11G;
+					break;
+
+				case PHDR_802_11G_MODE_SUPER_G:
+					cv_hdr.band = BAND_SUPERG;
+					break;
+
+				default:
+					cv_hdr.band = BAND_11G;
+					break;
+				}
+			}
+			break;
+
+		case PHDR_802_11_PHY_11N:
+			/*
+			 * Pick the band based on the frequency.
+			 */
+			if (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_FREQUENCY) {
+				if (phdr->pseudo_header.ieee_802_11.frequency > 2484) {
+					/* 5 GHz band */
+					cv_hdr.band = BAND_11N_5GHZ;
+				} else {
+					/* 2.4 GHz band */
+					cv_hdr.band = BAND_11N_2_4GHZ;
+				}
+			} else {
+				/* Band is unknown. */
+				cv_hdr.band = 0;
+			}
+			break;
+
+		default:
+			/*
+			 * It's not documented how they handle 11ac,
+			 * and they don't support the older PHYs.
+			 */
+			cv_hdr.band = 0;
+			break;
+		}
 		cv_hdr.channel =
 		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) ?
 		     phdr->pseudo_header.ieee_802_11.channel :

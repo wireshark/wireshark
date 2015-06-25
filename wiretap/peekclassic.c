@@ -448,6 +448,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		phdr->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
+		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 		phdr->pseudo_header.ieee_802_11.presence_flags = 0;	/* not present */
 
 		/*

@@ -93,6 +93,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		phdr.fcs_len = 0;	/* no FCS */
 		phdr.decrypted = FALSE;
 		phdr.datapad = FALSE;
+		phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 		phdr.presence_flags = PHDR_802_11_HAS_CHANNEL;
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;

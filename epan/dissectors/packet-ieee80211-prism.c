@@ -335,6 +335,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr.presence_flags = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");

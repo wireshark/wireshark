@@ -406,6 +406,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   struct ieee_802_11_phdr phdr;
   guint32 extflags;
   guint16 frequency;
+  guint16 mcs_index;
   tvbuff_t *next_tvb;
 
   if (tvb_memeql(tvb, 0, magic, 4) == -1) {
@@ -420,6 +421,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   phdr.fcs_len = 4; /* has an FCS */
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");
@@ -445,8 +447,6 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         offset += (header_size - 9);
     } else {
       phdr.presence_flags |=
-          PHDR_802_11_HAS_PHY_BAND|
-          PHDR_802_11_HAS_MCS_INDEX|
           PHDR_802_11_HAS_CHANNEL|
           PHDR_802_11_HAS_SIGNAL_PERCENT|
           PHDR_802_11_HAS_NOISE_PERCENT|
@@ -455,7 +455,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           PHDR_802_11_HAS_TSF_TIMESTAMP;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      phdr.mcs_index = tvb_get_ntohs(tvb, offset);
+      mcs_index = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       phdr.channel = tvb_get_ntohs(tvb, offset);
@@ -470,15 +470,16 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
-      /*
-       * XXX - can the band field be used to distinguish between 2.4 GHz
-       * and 5 GHz 11n?
-       */
       extflags = tvb_get_ntohl(tvb, offset);
-      if (extflags & EXT_FLAG_802_11ac)
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11AC;
-      else
-        phdr.phy_band = PHDR_802_11_PHY_BAND_11N;
+      if (extflags & EXT_FLAG_802_11ac) {
+        phdr.phy = PHDR_802_11_PHY_11AC;
+        phdr.phy_info.info_11ac.presence_flags = PHDR_802_11AC_HAS_MCS_INDEX;
+        phdr.phy_info.info_11ac.mcs_index = mcs_index;
+      } else {
+        phdr.phy = PHDR_802_11_PHY_11N;
+        phdr.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_MCS_INDEX;
+        phdr.phy_info.info_11n.mcs_index = mcs_index;
+      }
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
       phdr.signal_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
@@ -580,6 +581,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     phdr.fcs_len = 4; /* We have an FCS */
   }
   phdr.decrypted = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags =
       PHDR_802_11_HAS_CHANNEL|
       PHDR_802_11_HAS_DATA_RATE|

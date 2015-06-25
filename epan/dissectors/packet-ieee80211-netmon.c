@@ -24,7 +24,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+
 #include <wiretap/wtap.h>
+
+#include <wsutil/frequency-utils.h>
 
 void proto_register_netmon_802_11(void);
 void proto_reg_handoff_netmon_802_11(void);
@@ -79,6 +82,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   guint32     phy_type;
   guint32     flags;
   guint32     channel;
+  gint        calc_channel;
   gint32      rssi;
   guint8      rate;
 
@@ -128,23 +132,26 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     switch (phy_type) {
 
     case PHY_TYPE_11B:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11B;
+        phdr->phy = PHDR_802_11_PHY_11B;
         break;
 
     case PHY_TYPE_11A:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11A;
+        phdr->phy = PHDR_802_11_PHY_11A;
+        phdr->phy_info.info_11a.presence_flags = 0;
         break;
 
     case PHY_TYPE_11G:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11G;
+        phdr->phy = PHDR_802_11_PHY_11G;
+        phdr->phy_info.info_11g.presence_flags = 0;
         break;
 
     case PHY_TYPE_11N:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11N;
+        phdr->phy = PHDR_802_11_PHY_11N;
+        phdr->phy_info.info_11n.presence_flags = 0;
+        break;
+
+    default:
+        phdr->phy = PHDR_802_11_PHY_UNKNOWN;
         break;
     }
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_phy_type, tvb, offset, 4,
@@ -157,10 +164,33 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                          tvb, offset, 4, channel,
                                          "Unknown");
       } else {
+        guint frequency;
+
         phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
         phdr->channel = channel;
         proto_tree_add_uint(wlan_tree, hf_netmon_802_11_channel,
                             tvb, offset, 4, channel);
+        switch (phdr->phy) {
+
+        case PHDR_802_11_PHY_11B:
+        case PHDR_802_11_PHY_11G:
+          /* 2.4 GHz channel */
+          frequency = ieee80211_chan_to_mhz(channel, TRUE);
+          break;
+
+        case PHDR_802_11_PHY_11A:
+          /* 5 GHz channel */
+          frequency = ieee80211_chan_to_mhz(channel, FALSE);
+          break;
+
+        default:
+          frequency = 0;
+          break;
+        }
+        if (frequency != 0) {
+          phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+          phdr->frequency = frequency;
+        }
       }
     } else {
       phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
@@ -168,6 +198,11 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_frequency,
                                        tvb, offset, 4, channel,
                                        "%u Mhz", channel);
+      calc_channel = ieee80211_mhz_to_chan(channel);
+      if (calc_channel != -1) {
+        phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
+        phdr->channel = calc_channel;
+      }
     }
     offset += 4;
     rssi = tvb_get_letohl(tvb, offset);

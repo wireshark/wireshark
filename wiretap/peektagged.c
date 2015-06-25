@@ -437,7 +437,11 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     timestamp.upper = 0;
     timestamp.lower = 0;
-    memset(&ieee_802_11, 0, sizeof ieee_802_11);
+    ieee_802_11.fcs_len = -1; /* Unknown */
+    ieee_802_11.decrypted = FALSE;
+    ieee_802_11.datapad = FALSE;
+    ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
+    ieee_802_11.presence_flags = 0;
 
     /* Extract the fields from the packet header */
     do {
@@ -601,52 +605,72 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
              * for other frames.
              */
             ext_flags = pletoh32(&tag_value[2]);
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-            /* XXX - any way to determine the band? */
-            ieee_802_11.phy_band = (ext_flags & EXT_FLAG_802_11ac) ? PHDR_802_11_PHY_BAND_11AC : PHDR_802_11_PHY_BAND_11N;
+            if (ext_flags & EXT_FLAG_802_11ac) {
+                ieee_802_11.phy = PHDR_802_11_PHY_11AC;
+                ieee_802_11.phy_info.info_11ac.presence_flags = 0;
 
-            switch (ext_flags & EXT_FLAGS_BANDWIDTH) {
+                switch (ext_flags & EXT_FLAGS_GI) {
 
-            case 0:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-                ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
-                break;
+                case EXT_FLAG_HALF_GI:
+                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11ac.short_gi = 1;
+                    break;
 
-            case EXT_FLAG_20_MHZ_LOWER:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-                ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_20L;
-                break;
+                case EXT_FLAG_FULL_GI:
+                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11ac.short_gi = 0;
+                    break;
 
-            case EXT_FLAG_20_MHZ_UPPER:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-                ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_20U;
-                break;
+                default:
+                    /* Mutually exclusive flags set or nothing set */
+                    break;
+                }
+            } else {
+                ieee_802_11.phy = PHDR_802_11_PHY_11N;
+                switch (ext_flags & EXT_FLAGS_BANDWIDTH) {
 
-            case EXT_FLAG_40_MHZ:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
-                ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
-                break;
+                case 0:
+                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
+                    break;
 
-            default:
-                /* Mutually exclusive flags set */
-                break;
-            }
+                case EXT_FLAG_20_MHZ_LOWER:
+                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_20L;
+                    break;
 
-            switch (ext_flags & EXT_FLAGS_GI) {
+                case EXT_FLAG_20_MHZ_UPPER:
+                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_20U;
+                    break;
 
-            case EXT_FLAG_HALF_GI:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-                ieee_802_11.short_gi = 1;
-                break;
+                case EXT_FLAG_40_MHZ:
+                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+                    break;
 
-            case EXT_FLAG_FULL_GI:
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-                ieee_802_11.short_gi = 0;
-                break;
+                default:
+                    /* Mutually exclusive flags set */
+                    ieee_802_11.phy_info.info_11n.presence_flags = 0;
+                    break;
+                }
 
-            default:
-                /* Mutually exclusive flags set or nothing set */
-                break;
+                switch (ext_flags & EXT_FLAGS_GI) {
+
+                case EXT_FLAG_HALF_GI:
+                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11n.short_gi = 1;
+                    break;
+
+                case EXT_FLAG_FULL_GI:
+                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11n.short_gi = 0;
+                    break;
+
+                default:
+                    /* Mutually exclusive flags set or nothing set */
+                    break;
+                }
             }
             break;
 
@@ -711,8 +735,13 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         if (saw_data_rate_or_mcs_index) {
             if (ext_flags & EXT_FLAG_MCS_INDEX_USED) {
                 /* It's an MCS index. */
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
-                ieee_802_11.mcs_index = data_rate_or_mcs_index;
+                if (ext_flags & EXT_FLAG_802_11ac) {
+                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_MCS_INDEX;
+                    ieee_802_11.phy_info.info_11ac.mcs_index = data_rate_or_mcs_index;
+                } else {
+                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+                    ieee_802_11.phy_info.info_11n.mcs_index = data_rate_or_mcs_index;
+                }
             } else {
                 /* It's a data rate. */
                 ieee_802_11.presence_flags |= PHDR_802_11_HAS_DATA_RATE;

@@ -62,6 +62,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.fcs_len = 0;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags =
       PHDR_802_11_HAS_CHANNEL|
       PHDR_802_11_HAS_DATA_RATE|

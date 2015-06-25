@@ -666,6 +666,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     phdr.fcs_len = 0; /* no FCS */
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr.presence_flags = 0;
 
     /* First add the IFG information, need to grab the info bit field here */
@@ -685,10 +686,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      += 2;
 
     vw_rflags = tvb_get_letohs(tvb, offset);
-    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
-        phdr.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
-        phdr.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
-    }
     if (tree) {
         ft = proto_tree_add_uint(tap_tree, hf_radiotap_flags, tvb, offset, 2, vw_rflags);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
@@ -727,11 +724,24 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset++;
     offset++;
 
-    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT) ) {
-        phdr.presence_flags |= (PHDR_802_11_HAS_PHY_BAND|PHDR_802_11_HAS_MCS_INDEX|PHDR_802_11_HAS_NESS);
-        phdr.phy_band = (vw_rflags & FLAGS_CHAN_VHT) ? PHDR_802_11_PHY_BAND_11AC : PHDR_802_11_PHY_BAND_11N;
-        phdr.mcs_index = mcs_index;
-        phdr.ness = ness;
+    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
+        if (vw_rflags & FLAGS_CHAN_VHT) {
+            phdr.phy = PHDR_802_11_PHY_11AC;
+            phdr.phy_info.info_11ac.presence_flags =
+                PHDR_802_11AC_HAS_MCS_INDEX |
+                PHDR_802_11AC_HAS_SHORT_GI;
+            phdr.phy_info.info_11ac.mcs_index = mcs_index;
+            phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+        } else {
+            phdr.phy = PHDR_802_11_PHY_11N;
+            phdr.phy_info.info_11ac.presence_flags =
+                PHDR_802_11N_HAS_MCS_INDEX |
+                PHDR_802_11N_HAS_SHORT_GI |
+                PHDR_802_11N_HAS_NESS;
+            phdr.phy_info.info_11n.mcs_index = mcs_index;
+            phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+            phdr.phy_info.info_11n.ness = ness;
+        }
         if (tree) {
             proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
                                 tvb, offset - 2, 1, ENC_BIG_ENDIAN);
@@ -744,11 +754,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                                        "%.1f (MCS %d)", phyRate, mcs_index);
         }
     } else {
+        /* XXX - CHAN_OFDM could be 11a or 11g */
         if (vw_chanflags & CHAN_CCK) {
-            phdr.presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-            phdr.phy_band = PHDR_802_11_PHY_BAND_11B;
+            phdr.phy = PHDR_802_11_PHY_11B;
         }
-        /* XXX - 11A vs. 11G */
         phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
         phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
         if (tree) {

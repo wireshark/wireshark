@@ -377,6 +377,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
         pseudo_header->ieee_802_11.fcs_len = 0;
         pseudo_header->ieee_802_11.decrypted = FALSE;
         pseudo_header->ieee_802_11.datapad = FALSE;
+        pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
         pseudo_header->ieee_802_11.presence_flags = 0;
         /* Updated below */
         break;

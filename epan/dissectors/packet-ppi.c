@@ -157,6 +157,8 @@
  */
 #define IEEE80211_CHAN_FHSS \
         (IEEE80211_CHAN_2GHZ | IEEE80211_CHAN_GFSK)
+#define	IEEE80211_CHAN_DSSS \
+	(IEEE80211_CHAN_2GHZ)
 #define IEEE80211_CHAN_A \
         (IEEE80211_CHAN_5GHZ | IEEE80211_CHAN_OFDM)
 #define IEEE80211_CHAN_B \
@@ -555,38 +557,49 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     switch (chan_flags & IEEE80211_CHAN_ALLTURBO) {
 
     case IEEE80211_CHAN_FHSS:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11_FHSS;
+        phdr->phy = PHDR_802_11_PHY_11_FHSS;
+        phdr->phy_info.info_11_fhss.presence_flags =
+            PHDR_802_11_FHSS_HAS_HOP_SET |
+            PHDR_802_11_FHSS_HAS_HOP_PATTERN;
+        break;
+
+    case IEEE80211_CHAN_DSSS:
+        phdr->phy = PHDR_802_11_PHY_11_DSSS;
         break;
 
     case IEEE80211_CHAN_A:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11A;
+        phdr->phy = PHDR_802_11_PHY_11A;
+        phdr->phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+        phdr->phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
         break;
 
     case IEEE80211_CHAN_B:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11B;
+        phdr->phy = PHDR_802_11_PHY_11B;
         break;
 
     case IEEE80211_CHAN_PUREG:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_PURE;
+        phdr->phy = PHDR_802_11_PHY_11G;
+        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
         break;
 
     case IEEE80211_CHAN_G:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_MIXED;
+        phdr->phy = PHDR_802_11_PHY_11G;
+        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
         break;
 
     case IEEE80211_CHAN_108A:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11A_108;
+        phdr->phy = PHDR_802_11_PHY_11A;
+        phdr->phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+        /* We assume non-STURBO is dynamic turbo */
+        phdr->phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
         break;
 
     case IEEE80211_CHAN_108PUREG:
-        phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-        phdr->phy_band = PHDR_802_11_PHY_BAND_11G_PURE_108;
+        phdr->phy = PHDR_802_11_PHY_11G;
+        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
         break;
     }
     ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, ENC_LITTLE_ENDIAN,
@@ -602,7 +615,11 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_pop_subtree(csr);
 
 
+    if (phdr->phy == PHDR_802_11_PHY_11_FHSS)
+        phdr->phy_info.info_11_fhss.hop_set = tvb_get_guint8(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, ENC_LITTLE_ENDIAN);
+    if (phdr->phy == PHDR_802_11_PHY_11_FHSS)
+        phdr->phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
     dbm_value = (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
@@ -643,8 +660,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     int          subtree_off = add_subtree ? 4 : 0;
     guint32      flags;
 
-    phdr->presence_flags |= PHDR_802_11_HAS_PHY_BAND;
-    phdr->phy_band = PHDR_802_11_PHY_BAND_11N;
+    phdr->phy = PHDR_802_11_PHY_11N;
 
     *n_mac_flags = tvb_get_letohl(tvb, offset + subtree_off);
     *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
@@ -663,9 +679,9 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     csr = ptvcursor_new(ftree, tvb, offset);
 
     flags = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
-    phdr->presence_flags |= PHDR_802_11_HAS_SHORT_GI|PHDR_802_11_HAS_GREENFIELD;
-    phdr->short_gi = ((flags & DOT11N_FLAG_SHORT_GI) != 0);
-    phdr->greenfield = ((flags & DOT11N_FLAG_GREENFIELD) != 0);
+    phdr->phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_SHORT_GI|PHDR_802_11N_HAS_GREENFIELD;
+    phdr->phy_info.info_11n.short_gi = ((flags & DOT11N_FLAG_SHORT_GI) != 0);
+    phdr->phy_info.info_11n.greenfield = ((flags & DOT11N_FLAG_GREENFIELD) != 0);
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, ENC_LITTLE_ENDIAN,
                                ett_dot11n_mac_flags);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_greenfield, 4, ENC_LITTLE_ENDIAN);
@@ -715,14 +731,14 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     mcs = tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
     if (mcs != 255) {
-        phdr->presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
-        phdr->mcs_index = mcs;
+        phdr->phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+        phdr->phy_info.info_11n.mcs_index = mcs;
     }
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_mcs, 1, 255);
 
     ness = tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
-    phdr->presence_flags |= PHDR_802_11_HAS_NESS;
-    phdr->ness = ness;
+    phdr->phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_NESS;
+    phdr->phy_info.info_11n.ness = ness;
     ti = ptvcursor_add(csr, hf_80211n_mac_phy_num_streams, 1, ENC_LITTLE_ENDIAN);
     if (tvb_get_guint8(tvb, ptvcursor_current_offset(csr) - 1) == 0)
         proto_item_append_text(ti, " (unknown)");
@@ -894,6 +910,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr.presence_flags = 0;
 
     while (tot_len > 0) {
