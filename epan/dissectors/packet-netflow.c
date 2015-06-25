@@ -3508,7 +3508,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                         proto_item_append_text(timeitem, " (milliseconds)");
                         break;
                     case duration_type_microseconds:
-                        proto_item_append_text(timeitem, " (milliseconds)");
+                        proto_item_append_text(timeitem, " (microseconds)");
                         break;
                     case duration_type_nanoseconds:
                         proto_item_append_text(timeitem, " (nanoseconds)");
