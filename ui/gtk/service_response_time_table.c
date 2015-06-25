@@ -700,7 +700,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	srt_t *ss;
 	gchar *str;
 	GtkWidget *label;
-	char *filter_string;
+	char *filter_string, *tmp_filter_string;
 	GString *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
@@ -724,9 +724,20 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), label, FALSE, FALSE, 0);
 	g_free(str);
 
-	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
+	if ((filter != NULL) && (strlen(filter) > MAX_FILTER_STRING_LENGTH))
+	{
+		tmp_filter_string = g_strndup(filter, MAX_FILTER_STRING_LENGTH);
+		filter_string = g_strdup_printf("Filter: %s...", tmp_filter_string);
+		g_free(tmp_filter_string);
+	}
+	else
+	{
+		filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
+	}
+
 	label=gtk_label_new(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_widget_set_tooltip_text (label, filter ? filter : "");
 	g_free(filter_string);
 	gtk_box_pack_start(GTK_BOX(ss->gtk_data.vbox), label, FALSE, FALSE, 0);
 

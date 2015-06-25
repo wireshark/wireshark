@@ -35,6 +35,9 @@
 /** Suggested height of SRT window */
 #define SRT_PREFERRED_HEIGHT 400
 
+/** Limit filter string length for sanity */
+#define MAX_FILTER_STRING_LENGTH 1000
+
 /** @file
  *  Helper routines common to all service response time statistics tap.
  */
