@@ -132,6 +132,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     gchar **resultArray;
 #endif
 
+    Q_UNUSED(parent);
 
     /* Wireshark tab */
 

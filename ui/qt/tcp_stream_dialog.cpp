@@ -95,6 +95,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     struct segment current;
     int graph_idx = -1;
 
+    Q_UNUSED(parent);
+
     ui->setupUi(this);
 
     struct tcpheader *header = select_tcpip_session(cap_file_, &current);
