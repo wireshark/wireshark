@@ -3587,22 +3587,23 @@ dissect_reply_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static gint
 dissect_query_afp_disconnect_old_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	int len, orig_offset = offset;
+	guint32 token_len;
 
 	PAD(1);
 
 	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	len = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_afp_session_token_len,
+			tvb, offset, 4, ENC_BIG_ENDIAN, &token_len);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len, ENC_NA);
-	offset += len;
+	if ((guint32)offset + token_len > G_MAXINT)
+		return offset;
 
-	if (offset <= orig_offset)
-		THROW(ReportedBoundsError);
+	proto_tree_add_item(tree, hf_afp_session_token,
+			tvb, offset, (gint)token_len, ENC_NA);
+	offset += (gint)token_len;
 
 	return offset;
 }
@@ -3612,31 +3613,32 @@ static gint
 dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint16	token;
-	int len, orig_offset = offset;
+	guint32	token_len;
 
 	PAD(1);
+
 	token = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	if (token == kLoginWithoutID || token == kGetKerberosSessionKey) /* 0 || 8 */
 		return offset;
 
-	len = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_afp_session_token_len,
+			tvb, offset, 4, ENC_BIG_ENDIAN, &token_len);
 	offset += 4;
 
-	switch (token) {
-	case kLoginWithTimeAndID:
-	case kReconnWithTimeAndID:
-		proto_tree_add_item(tree, hf_afp_session_token_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+	if (token==kLoginWithTimeAndID || token==kReconnWithTimeAndID) {
+		proto_tree_add_item(tree, hf_afp_session_token_timestamp,
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
-	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len, ENC_NA);
-	offset += len;
+	if ((guint32)offset + token_len > G_MAXINT)
+		return offset;
 
-	if (offset <= orig_offset)
-		THROW(ReportedBoundsError);
+	proto_tree_add_item(tree, hf_afp_session_token,
+			tvb, offset, (gint)token_len, ENC_NA);
+	offset += (gint)token_len;
 
 	return offset;
 }
@@ -3645,8 +3647,8 @@ dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static gint
 dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	int len, orig_offset = offset;
 	int size;
+	guint32 token_len;
 
 	/* FIXME spec and capture disagree : or it's 4 bytes with no token type, or it's 2 bytes */
 	size = 4;
@@ -3656,15 +3658,16 @@ dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 		offset += 2;
 	}
 	*/
-	len = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, size, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_afp_session_token_len,
+			tvb, offset, size, ENC_BIG_ENDIAN, &token_len);
 	offset += size;
 
-	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len, ENC_NA);
-	offset += len;
+	if ((guint32)offset + token_len > G_MAXINT)
+		return offset;
 
-	if (offset <= orig_offset)
-		THROW(ReportedBoundsError);
+	proto_tree_add_item(tree, hf_afp_session_token,
+			tvb, offset, (gint)token_len, ENC_NA);
+	offset += (gint)token_len;
 
 	return offset;
 }
@@ -3870,24 +3873,20 @@ dissect_query_afp_get_ext_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static gint
 dissect_reply_afp_get_ext_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	guint32	 len;
-	guint	 remain;
-	int	 orig_offset = offset;
+	guint32	 extattr_len;
 
 	offset = decode_attr_bitmap(tree, tvb, offset);
 
-	len = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_extattr_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_afp_extattr_len,
+			tvb, offset, 4, ENC_BIG_ENDIAN, &extattr_len);
 	offset += 4;
 
-	remain =  tvb_reported_length_remaining(tvb, offset);
-	if (len && remain >= len ) {
-		proto_tree_add_item(tree, hf_afp_extattr_data, tvb, offset, len, ENC_NA);
-		offset += len;
-	}
+	if ((guint32)offset + extattr_len > G_MAXINT)
+		return offset;
 
-	if (offset <= orig_offset)
-		THROW(ReportedBoundsError);
+	proto_tree_add_item(tree, hf_afp_extattr_data,
+			tvb, offset, (gint)extattr_len, ENC_NA);
+	offset += (gint)extattr_len;
 
 	return offset;
 }
@@ -4654,30 +4653,27 @@ decode_kauth_ace(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	int         entries;
-	int         i;
-	proto_tree *sub_tree;
-	proto_tree *ace_tree;
+	guint32     num_entries, i;
+	proto_tree *sub_tree, *ace_tree;
 	proto_item *item;
 
-	/* FIXME: preliminary decoding... */
-	entries = tvb_get_ntohl(tvb, offset);
-
-	item = proto_tree_add_item(tree, hf_afp_acl_entrycount, tvb, offset, 4, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item_ret_uint(tree, hf_afp_acl_entrycount,
+			tvb, offset, 4, ENC_BIG_ENDIAN, &num_entries);
 	sub_tree = proto_item_add_subtree(item, ett_afp_ace_entries);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_acl_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	if (entries > AFP_MAX_ACL_ENTRIES) {
-		expert_add_info_format(pinfo, item, &ei_afp_too_many_acl_entries, "Too many ACL entries (%u). Stopping dissection.", entries);
-		THROW(ReportedBoundsError);
+	if (num_entries > AFP_MAX_ACL_ENTRIES) {
+		expert_add_info_format(pinfo, item, &ei_afp_too_many_acl_entries,
+				"Too many ACL entries (%u). Stopping dissection.",
+				num_entries);
+		return offset;
 	}
 
-	for (i = 0; i < entries; i++) {
+	for (i = 0; i < num_entries; i++) {
 		ace_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 24, ett_afp_ace_entry, NULL, "ACE: %u", i);
-
 		offset = decode_kauth_ace(tvb, ace_tree, offset);
 	}
 
