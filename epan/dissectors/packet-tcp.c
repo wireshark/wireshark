@@ -317,6 +317,7 @@ static expert_field ei_tcp_analysis_duplicate_ack = EI_INIT;
 static expert_field ei_tcp_analysis_zero_window_probe = EI_INIT;
 static expert_field ei_tcp_analysis_zero_window = EI_INIT;
 static expert_field ei_tcp_analysis_zero_window_probe_ack = EI_INIT;
+static expert_field ei_tcp_analysis_tfo_syn = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
@@ -2518,9 +2519,10 @@ tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 
 static void
 dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, guint optlen,
-    packet_info *pinfo, proto_tree *exp_tree)
+    packet_info *pinfo, proto_tree *exp_tree, void *data)
 {
-    proto_item *hidden_item;
+    proto_item *hidden_item, *ti;
+    struct tcpheader *tcph = (struct tcpheader*)data;
 
     hidden_item = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open,
                                       tvb, offset, 2, ENC_NA);
@@ -2532,15 +2534,20 @@ dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, guint optlen,
         col_append_str(pinfo->cinfo, COL_INFO, " TFO=R");
     } else if (optlen > 2) {
         /* Fast Open Cookie */
-        proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
+        ti = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
                             tvb, offset + 2, optlen - 2, ENC_NA);
         col_append_str(pinfo->cinfo, COL_INFO, " TFO=C");
+        if(tcph->th_flags & TH_SYN) {
+            if((tcph->th_flags & TH_ACK) == 0) {
+                expert_add_info(pinfo, ti, &ei_tcp_analysis_tfo_syn);
+            }
+        }
     }
 }
 
 static void
 dissect_tcpopt_tfo(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data)
 {
     proto_item *item;
     proto_tree *exp_tree;
@@ -2551,11 +2558,11 @@ dissect_tcpopt_tfo(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
-    dissect_tcpopt_tfo_payload(tvb, offset, optlen, pinfo, exp_tree);
+    dissect_tcpopt_tfo_payload(tvb, offset, optlen, pinfo, exp_tree, data);
 }
 static void
 dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data )
 {
     proto_item *item;
     proto_tree *exp_tree;
@@ -2572,7 +2579,7 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                             offset + 2, 2, ENC_BIG_ENDIAN);
         switch (magic) {
         case 0xf989:  /* RFC7413, TCP Fast Open */
-            dissect_tcpopt_tfo_payload(tvb, offset+2, optlen-2, pinfo, exp_tree);
+            dissect_tcpopt_tfo_payload(tvb, offset+2, optlen-2, pinfo, exp_tree, data);
             break;
         default:
             /* Unknown magic number */
@@ -5936,6 +5943,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_zero_window_probe, { "tcp.analysis.zero_window_probe", PI_SEQUENCE, PI_NOTE, "TCP Zero Window Probe", EXPFILL }},
         { &ei_tcp_analysis_zero_window, { "tcp.analysis.zero_window", PI_SEQUENCE, PI_WARN, "TCP Zero Window segment", EXPFILL }},
         { &ei_tcp_analysis_zero_window_probe_ack, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "ACK to a TCP Zero Window Probe", EXPFILL }},
+        { &ei_tcp_analysis_tfo_syn, { "tcp.analysis.tfo_syn", PI_SEQUENCE, PI_NOTE, "TCP SYN with TFO Cookie", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
@@ -5952,6 +5960,7 @@ proto_register_tcp(void)
         { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
         { &ei_tcp_suboption_malformed, { "tcp.suboption_malformed", PI_MALFORMED, PI_ERROR, "suboption would go past end of option", EXPFILL }},
+
     };
 
     static build_valid_func tcp_da_src_values[1] = {tcp_src_value};
