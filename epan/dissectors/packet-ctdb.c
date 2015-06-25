@@ -293,7 +293,7 @@ static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tre
 
 	if (num_nodes > CTDB_MAX_NODES) {
 		expert_add_info_format(pinfo, item, &ei_ctdb_too_many_nodes, "Too many nodes (%u). Stopping dissection.", num_nodes);
-		THROW(ReportedBoundsError);
+		return offset;
 	}
 
 	while(num_nodes--){
