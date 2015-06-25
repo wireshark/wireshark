@@ -52,14 +52,14 @@ MAINTAINERCLEANFILES = \
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tap-reg.py
+wireshark-tap-register.c:  $(WIRESHARK_TAP_SRC) Makefile.common Makefile_custom.common $(top_srcdir)/tools/make-tap-reg.py
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC)
 
 WIRESHARK_CLEAN_LIBGTKUI_SRC = \
- 	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
- 	$(GENERATED_C_FILES)
+	$(GENERATED_C_FILES)
 
 libgtkui_a_SOURCES = \
 	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \

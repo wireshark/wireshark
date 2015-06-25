@@ -52,7 +52,7 @@ MAINTAINERCLEANFILES = \
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tshark-tap-register.c: $(TSHARK_TAP_SRC) $(top_srcdir)/tools/make-tap-reg.py
+tshark-tap-register.c: $(TSHARK_TAP_SRC) Makefile.common $(top_srcdir)/tools/make-tap-reg.py
 	@echo Making tshark-tap-register.c
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) tshark-taps $(TSHARK_TAP_SRC)
 
