@@ -26,6 +26,10 @@
 #
 CMAKE=1
 #
+# To install autotools
+#
+AUTOTOOLS=1
+#
 # To build all libraries as 32-bit libraries uncomment the following three lines.
 #
 # export CFLAGS="$CFLAGS -arch i386"
@@ -73,7 +77,7 @@ PKG_CONFIG_VERSION=0.28
 # If you don't want to build with GTK+ at all, comment out both lines.
 #
 QT_VERSION=5.3.2
-GTK_VERSION=2.24.17
+#GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
     #
@@ -138,7 +142,7 @@ DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 # GNU autotools; they're provided with releases up to Snow Leopard, but
 # not in later releases.
 #
-if [[ $DARWIN_MAJOR_VERSION -gt 10 ]]; then
+if [ -n "$AUTOTOOLS" -a $DARWIN_MAJOR_VERSION -gt 10 ]; then
     AUTOCONF_VERSION=2.69
     AUTOMAKE_VERSION=1.13.3
     LIBTOOL_VERSION=2.4.2
@@ -2297,31 +2301,35 @@ if [ "$QT_VERSION" ]; then
 fi
 pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
 
-echo "You are now prepared to build Wireshark. To do so do:"
-echo "export PKG_CONFIG_PATH=$pkg_config_path"
-echo ""
-if [ -n "$CMAKE" ]; then
+echo "You are now prepared to build Wireshark."
+echo
+if [[ $CMAKE ]]; then
+    echo "To build with CMAKE:"
+    echo
+    echo "export PKG_CONFIG_PATH=$pkg_config_path"
     echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
     echo "export PATH=$PATH:$qt_base_path/bin"
+    echo
     echo "mkdir build; cd build"
     echo "cmake .."
     echo "make $MAKE_BUILD_OPTS app_bundle"
     echo "make install/strip"
     echo
-    echo "or"
+fi
+if [[ $AUTOTOOLS ]]; then
+    echo "To build with AUTOTOOLS:"
+    echo
+    echo "export PKG_CONFIG_PATH=$pkg_config_path"
+    echo
+    echo "./autogen.sh"
+    echo "mkdir build; cd build"
+    echo "../configure"
+    echo "make $MAKE_BUILD_OPTS"
+    echo "make install"
     echo
 fi
-echo "./autogen.sh"
-echo "mkdir build; cd build"
-echo "../configure"
-echo "make $MAKE_BUILD_OPTS"
-echo "make install"
-
-echo ""
-
 echo "Make sure you are allowed capture access to the network devices"
 echo "See: https://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
-
-echo ""
+echo
 
 exit 0
