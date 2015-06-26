@@ -145,14 +145,14 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     /* create the fake interface data */
     int_data.wtap_encap            = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    int_data.time_units_per_second = 1000000; /* default microsecond resolution */
+    int_data.time_units_per_second = 1000000000; /* default nanosecond resolution */
     int_data.link_type             = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
     int_data.snap_len              = WTAP_MAX_PACKET_SIZE;
     int_data.if_name               = g_strdup("Fake IF, PDU->Export");
     int_data.opt_comment           = NULL;
     int_data.if_description        = NULL;
     int_data.if_speed              = 0;
-    int_data.if_tsresol            = 6;
+    int_data.if_tsresol            = 9;
     int_data.if_filter_str         = NULL;
     int_data.bpf_filter_len        = 0;
     int_data.if_filter_bpf_bytes   = NULL;
