@@ -36,7 +36,7 @@ VALID=0
 PCAP=""
 TOOL="memcheck"
 
-while getopts ":2b:C:lmnpP:rtTYwcevWdQ" OPTCHAR ; do
+while getopts ":2b:C:lmnpP:rtTYwcevWdG" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
@@ -64,7 +64,7 @@ while getopts ":2b:C:lmnpP:rtTYwcevWdQ" OPTCHAR ; do
         W) COMMAND=wireshark
            COMMAND_ARGS=""
            VALID=1 ;;
-        Q) COMMAND=wireshark-qt
+        G) COMMAND=wireshark-gtk
            COMMAND_ARGS=""
            VALID=1 ;;
         d) COMMAND=dumpcap
