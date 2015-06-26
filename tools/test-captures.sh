@@ -32,7 +32,7 @@ TEST_TYPE="manual"
 
 while getopts ":b:" OPTCHAR ; do
     case $OPTCHAR in
-        b) BIN_DIR=$OPTARG ;;
+        b) WIRESHARK_BIN_DIR=$OPTARG ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -60,11 +60,11 @@ do
 	then
 		echo "OK"
 		echo -n " - without tree... "
-		if $BIN_DIR/tshark -nr $file > /dev/null
+		if $WIRESHARK_BIN_DIR/tshark -nr $file > /dev/null
 		then
 			echo "OK"
 			echo -n " - without tree but with a read filter... "
-			if $BIN_DIR/tshark -Yframe -nr $file > /dev/null
+			if $WIRESHARK_BIN_DIR/tshark -Yframe -nr $file > /dev/null
 			then
 				echo "OK"
 			else

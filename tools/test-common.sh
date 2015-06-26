@@ -32,7 +32,9 @@ DATE=/bin/date
 BASE_NAME=$TEST_TYPE-`$DATE +%Y-%m-%d`-$$
 
 # Directory containing binaries.  Default current directory.
-BIN_DIR=.
+if [ -z "$WIRESHARK_BIN_DIR" ]; then
+    WIRESHARK_BIN_DIR=.
+fi
 
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
@@ -61,15 +63,15 @@ MAX_STACK=2033
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
 
-# Call *after* any changes to BIN_DIR (e.g., via command-line options)
+# Call *after* any changes to WIRESHARK_BIN_DIR (e.g., via command-line options)
 function ws_bind_exec_paths() {
 # Tweak the following to your liking.  Editcap must support "-E".
-TSHARK="$BIN_DIR/tshark"
-EDITCAP="$BIN_DIR/editcap"
-CAPINFOS="$BIN_DIR/capinfos"
-RANDPKT="$BIN_DIR/randpkt"
+TSHARK="$WIRESHARK_BIN_DIR/tshark"
+EDITCAP="$WIRESHARK_BIN_DIR/editcap"
+CAPINFOS="$WIRESHARK_BIN_DIR/capinfos"
+RANDPKT="$WIRESHARK_BIN_DIR/randpkt"
 
-if [ "$BIN_DIR" = "." ]; then
+if [ "$WIRESHARK_BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
 fi
 }

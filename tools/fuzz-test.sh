@@ -58,7 +58,7 @@ while getopts "2b:C:d:e:agp:P:" OPTCHAR ; do
     case $OPTCHAR in
         a) ASAN=1 ;;
         2) TWO_PASS="-2 " ;;
-        b) BIN_DIR=$OPTARG ;;
+        b) WIRESHARK_BIN_DIR=$OPTARG ;;
         C) CONFIG_PROFILE="-C $OPTARG " ;;
         d) TMP_DIR=$OPTARG ;;
         e) ERR_PROB=$OPTARG ;;
@@ -77,7 +77,7 @@ ws_check_exec "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR"
 COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
 if [ $VALGRIND -eq 1 ]; then
     RUNNER="`dirname $0`/valgrind-wireshark.sh"
-    COMMON_ARGS="-b $BIN_DIR $COMMON_ARGS"
+    COMMON_ARGS="-b $WIRESHARK_BIN_DIR $COMMON_ARGS"
     declare -a RUNNER_ARGS=("" "-T")
     # Valgrind requires more resources, so permit 1.5x memory and 3x time
     # (1.5x time is too small for a few large captures in the menagerie)

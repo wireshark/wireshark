@@ -24,7 +24,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # Directory containing tshark or wireshark.  Default current directory.
-BIN_DIR=.
+if [ -z "$WIRESHARK_BIN_DIR" ]; then
+    WIRESHARK_BIN_DIR=.
+fi
 
 # Use tshark by default
 COMMAND=tshark
@@ -37,7 +39,7 @@ TOOL="memcheck"
 while getopts ":2b:C:lmnpP:rtTYwcevWdQ" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
-        b) BIN_DIR=$OPTARG ;;
+        b) WIRESHARK_BIN_DIR=$OPTARG ;;
         C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
         m) TOOL="massif" ;;
@@ -86,7 +88,7 @@ then
     exit 1
 fi
 
-if [ "$BIN_DIR" = "." ]; then
+if [ "$WIRESHARK_BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=
 fi
 
@@ -95,7 +97,7 @@ if [ "$TOOL" != "callgrind" ]; then
     export G_SLICE=always-malloc # or debug-blocks
 fi
 
-COMMAND="$BIN_DIR/$COMMAND"
+COMMAND="$WIRESHARK_BIN_DIR/$COMMAND"
 
 if file $COMMAND | grep -q "ASCII text"; then
     if [ -x "`dirname $0`/../libtool" ]; then

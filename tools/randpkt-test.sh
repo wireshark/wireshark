@@ -16,7 +16,7 @@ WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 # To do: add options for file names and limits
 while getopts ":b:d:p:t:" OPTCHAR ; do
     case $OPTCHAR in
-        b) BIN_DIR=$OPTARG ;;
+        b) WIRESHARK_BIN_DIR=$OPTARG ;;
         d) TMP_DIR=$OPTARG ;;
         p) MAX_PASSES=$OPTARG ;;
         t) PKT_TYPES=$OPTARG ;;
