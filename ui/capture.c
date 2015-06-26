@@ -686,6 +686,8 @@ capture_stat_start(capture_options *capture_opts) {
         sc->cache_list = g_list_append(sc->cache_list, sc_item);
       }
     }
+  } else {
+    g_free(msg); /* XXX: should we display this to the user ? */
   }
   return sc;
 }
