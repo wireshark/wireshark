@@ -473,8 +473,6 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       extflags = tvb_get_ntohl(tvb, offset);
       if (extflags & EXT_FLAG_802_11ac) {
         phdr.phy = PHDR_802_11_PHY_11AC;
-        phdr.phy_info.info_11ac.presence_flags = PHDR_802_11AC_HAS_MCS_INDEX;
-        phdr.phy_info.info_11ac.mcs_index = mcs_index;
       } else {
         phdr.phy = PHDR_802_11_PHY_11N;
         phdr.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_MCS_INDEX;

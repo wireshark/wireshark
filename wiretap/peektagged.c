@@ -739,11 +739,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
         if (saw_data_rate_or_mcs_index) {
             if (ext_flags & EXT_FLAG_MCS_INDEX_USED) {
-                /* It's an MCS index. */
-                if (ext_flags & EXT_FLAG_802_11ac) {
-                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_MCS_INDEX;
-                    ieee_802_11.phy_info.info_11ac.mcs_index = data_rate_or_mcs_index;
-                } else {
+                /*
+                 * It's an MCS index.
+                 *
+                 * XXX - what about 11ac?
+                 */
+                if (!(ext_flags & EXT_FLAG_802_11ac)) {
                     ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
                     ieee_802_11.phy_info.info_11n.mcs_index = data_rate_or_mcs_index;
                 }

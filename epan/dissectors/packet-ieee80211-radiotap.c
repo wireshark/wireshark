@@ -1357,8 +1357,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.phy_info.info_11n.greenfield = (mcs_flags & IEEE80211_RADIOTAP_MCS_FMT_GF) != 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_LDPC;
-				phdr.phy_info.info_11n.ldpc = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) != 0;
+				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_FEC;
+				phdr.phy_info.info_11n.fec = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) ? 1 : 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
 				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_STBC_STREAMS;
@@ -1529,7 +1529,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.phy_info.info_11ac.presence_flags = 0;
 			}
 			vht_flags = tvb_get_guint8(tvb, offset + 2);
-
 			if (tree) {
 				it_root = proto_tree_add_item(radiotap_tree, hf_radiotap_vht,
 						tvb, offset, 12, ENC_NA);
@@ -1559,12 +1558,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_STBC;
+				phdr.phy_info.info_11ac.stbc = (vht_flags & IEEE80211_RADIOTAP_VHT_STBC) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_stbc,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_TXOP_PS) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED;
+				phdr.phy_info.info_11ac.txop_ps_not_allowed = (vht_flags & IEEE80211_RADIOTAP_VHT_TXOP_PS) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_txop_ps,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1573,7 +1576,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GI) {
 				gi_length = (vht_flags & IEEE80211_RADIOTAP_VHT_SGI) ? 1 : 0;
 				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
-				phdr.phy_info.info_11ac.short_gi = (gi_length == 0);
+				phdr.phy_info.info_11ac.short_gi = gi_length;
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gi,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1583,6 +1586,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_SGI_NSYM_DA) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI_NSYM_DISAMBIG;
+				phdr.phy_info.info_11ac.short_gi_nsym_disambig = (vht_flags & IEEE80211_RADIOTAP_VHT_SGI_NSYM_DA) != 0;
 				if (vht_tree) {
 					it = proto_tree_add_item(vht_tree, hf_radiotap_vht_sgi_nsym_da,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1594,6 +1599,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_LDPC_EXTRA) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL;
+				phdr.phy_info.info_11ac.ldpc_extra_ofdm_symbol = (vht_flags & IEEE80211_RADIOTAP_VHT_LDPC_EXTRA) != 0;
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_ldpc_extra,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1601,6 +1608,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_BF) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BEAMFORMED;
+				phdr.phy_info.info_11ac.beamformed = (vht_flags & IEEE80211_RADIOTAP_VHT_BF) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_bf,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1626,6 +1635,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				mcs_nss = tvb_get_guint8(tvb, offset + 4 + i);
 				nss = (mcs_nss & IEEE80211_RADIOTAP_VHT_NSS);
 				mcs = (mcs_nss & IEEE80211_RADIOTAP_VHT_MCS) >> 4;
+				phdr.phy_info.info_11ac.mcs[i] = mcs;
+				phdr.phy_info.info_11ac.nss[i] = nss;
 
 				if ((known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) && (vht_flags & IEEE80211_RADIOTAP_VHT_STBC))
 					nsts = 2 * nss;
@@ -1670,14 +1681,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					}
 				}
 			}
+			phdr.phy_info.info_11ac.fec = tvb_get_guint8(tvb, offset + 8);
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GID) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_GROUP_ID;
+				phdr.phy_info.info_11ac.group_id = tvb_get_guint8(tvb, offset + 9);
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gid,
 							tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_PAID) {
+				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_PARTIAL_AID;
+				phdr.phy_info.info_11ac.partial_aid = tvb_get_letohs(tvb, offset + 10);
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_p_aid,
 							tvb, offset+10, 2, ENC_LITTLE_ENDIAN);

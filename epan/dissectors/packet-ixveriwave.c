@@ -728,9 +728,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         if (vw_rflags & FLAGS_CHAN_VHT) {
             phdr.phy = PHDR_802_11_PHY_11AC;
             phdr.phy_info.info_11ac.presence_flags =
-                PHDR_802_11AC_HAS_MCS_INDEX |
                 PHDR_802_11AC_HAS_SHORT_GI;
-            phdr.phy_info.info_11ac.mcs_index = mcs_index;
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
         } else {
             phdr.phy = PHDR_802_11_PHY_11N;

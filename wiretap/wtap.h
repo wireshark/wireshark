@@ -633,7 +633,7 @@ struct ieee_802_11n {        /* 802.11n */
     guint    bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
     guint    short_gi:1;     /* True for short guard interval */
     guint    greenfield:1;   /* True for greenfield, short for mixed */
-    guint    ldpc:1;         /* True for LDPC FEC */
+    guint    fec:1;          /* FEC: 0 = BCC, 1 = LDPC */
     guint    stbc_streams:2; /* Number of STBC streams */
     guint    ness;           /* Number of extension spatial streams */
 };
@@ -645,7 +645,7 @@ struct ieee_802_11n {        /* 802.11n */
 #define PHDR_802_11N_HAS_BANDWIDTH      0x00000002 /* bandwidth */
 #define PHDR_802_11N_HAS_SHORT_GI       0x00000004 /* short_gi */
 #define PHDR_802_11N_HAS_GREENFIELD     0x00000008 /* greenfield */
-#define PHDR_802_11N_HAS_LDPC           0x00000010 /* ldpc */
+#define PHDR_802_11N_HAS_FEC            0x00000010 /* fec */
 #define PHDR_802_11N_HAS_STBC_STREAMS   0x00000020 /* stbc_streams */
 #define PHDR_802_11N_HAS_NESS           0x00000040 /* ness */
 
@@ -679,17 +679,32 @@ struct ieee_802_11n {        /* 802.11n */
 
 struct ieee_802_11ac {       /* 802.11ac */
     guint32  presence_flags; /* Which of this information is present? */
-    guint16  mcs_index;      /* MCS index */
-    guint    bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
+    guint    stbc:1;         /* 1 if all spatial streams have STBC */
+    guint    txop_ps_not_allowed:1;
     guint    short_gi:1;     /* True for short guard interval */
+    guint    short_gi_nsym_disambig:1;
+    guint    ldpc_extra_ofdm_symbol:1;
+    guint    beamformed:1;
+    guint8   bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
+    guint8   mcs[4];         /* MCS index per user */
+    guint8   nss[4];         /* NSS per user */
+    guint8   fec;            /* Bit array of FEC per user: 0 = BCC, 1 = LDPC */
+    guint8   group_id;
+    guint8   partial_aid;
 };
 
 /*
  * Presence flags for 802.11ac.
  */
-#define PHDR_802_11AC_HAS_MCS_INDEX      0x00000001 /* mcs */
-#define PHDR_802_11AC_HAS_BANDWIDTH      0x00000002 /* bandwidth */
-#define PHDR_802_11AC_HAS_SHORT_GI       0x00000004 /* short_gi */
+#define PHDR_802_11AC_HAS_STBC                    0x00000001 /* stbc */
+#define PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED     0x00000002 /* txop_ps_not_allowed */
+#define PHDR_802_11AC_HAS_SHORT_GI                0x00000004 /* short_gi */
+#define PHDR_802_11AC_HAS_SHORT_GI_NSYM_DISAMBIG  0x00000008 /* short_gi_nsym_disambig */
+#define PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL  0x00000010 /* ldpc_extra_ofdm_symbol */
+#define PHDR_802_11AC_HAS_BEAMFORMED              0x00000020 /* beamformed */
+#define PHDR_802_11AC_HAS_BANDWIDTH               0x00000040 /* bandwidth */
+#define PHDR_802_11AC_HAS_GROUP_ID                0x00000080 /* group_id */
+#define PHDR_802_11AC_HAS_PARTIAL_AID             0x00000100 /* partial_aid */
 
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */

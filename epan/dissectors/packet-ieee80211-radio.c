@@ -51,12 +51,23 @@ static int hf_wlan_radio_11n_mcs_index = -1;
 static int hf_wlan_radio_11n_bandwidth = -1;
 static int hf_wlan_radio_11n_short_gi = -1;
 static int hf_wlan_radio_11n_greenfield = -1;
-static int hf_wlan_radio_11n_ldpc = -1;
+static int hf_wlan_radio_11n_fec = -1;
 static int hf_wlan_radio_11n_stbc_streams = -1;
 static int hf_wlan_radio_11n_ness = -1;
-static int hf_wlan_radio_11ac_mcs_index = -1;
-static int hf_wlan_radio_11ac_bandwidth = -1;
+static int hf_wlan_radio_11ac_stbc = -1;
+static int hf_wlan_radio_11ac_txop_ps_not_allowed = -1;
 static int hf_wlan_radio_11ac_short_gi = -1;
+static int hf_wlan_radio_11ac_short_gi_nsym_disambig = -1;
+static int hf_wlan_radio_11ac_ldpc_extra_ofdm_symbol = -1;
+static int hf_wlan_radio_11ac_beamformed = -1;
+static int hf_wlan_radio_11ac_bandwidth = -1;
+static int hf_wlan_radio_11ac_user = -1;
+static int hf_wlan_radio_11ac_nsts = -1;
+static int hf_wlan_radio_11ac_mcs = -1;
+static int hf_wlan_radio_11ac_nss = -1;
+static int hf_wlan_radio_11ac_fec = -1;
+static int hf_wlan_radio_11ac_gid = -1;
+static int hf_wlan_radio_11ac_p_aid = -1;
 static int hf_wlan_radio_data_rate = -1;
 static int hf_wlan_radio_channel = -1;
 static int hf_wlan_radio_frequency = -1;
@@ -108,25 +119,31 @@ static const value_string bandwidth_vals[] = {
     { PHDR_802_11_BANDWIDTH_80_MHZ,  "80 MHz" },
     { PHDR_802_11_BANDWIDTH_40_40L,  "40 MHz + 40 MHz lower" },
     { PHDR_802_11_BANDWIDTH_40_40U,  "40 MHz + 40 MHz upper" },
-    { PHDR_802_11_BANDWIDTH_20LL,    "20LL" },
-    { PHDR_802_11_BANDWIDTH_20LU,    "20LU" },
-    { PHDR_802_11_BANDWIDTH_20UL,    "20UL" },
-    { PHDR_802_11_BANDWIDTH_20UU,    "20UU" },
+    { PHDR_802_11_BANDWIDTH_20LL,    "20 MHz, channel 1/4" },
+    { PHDR_802_11_BANDWIDTH_20LU,    "20 MHz, channel 2/4" },
+    { PHDR_802_11_BANDWIDTH_20UL,    "20 MHz, channel 3/4" },
+    { PHDR_802_11_BANDWIDTH_20UU,    "20 MHz, channel 4/4" },
     { PHDR_802_11_BANDWIDTH_160_MHZ, "160 MHz" },
     { PHDR_802_11_BANDWIDTH_80_80L,  "80 MHz + 80 MHz lower" },
     { PHDR_802_11_BANDWIDTH_80_80U,  "80 MHz + 80 MHz upper" },
-    { PHDR_802_11_BANDWIDTH_40LL,    "40LL" },
-    { PHDR_802_11_BANDWIDTH_40LU,    "40LU" },
-    { PHDR_802_11_BANDWIDTH_40UL,    "40UL" },
-    { PHDR_802_11_BANDWIDTH_40UU,    "40UU" },
-    { PHDR_802_11_BANDWIDTH_20LLL,   "20LLL" },
-    { PHDR_802_11_BANDWIDTH_20LLU,   "20LLU" },
-    { PHDR_802_11_BANDWIDTH_20LUL,   "20LUL" },
-    { PHDR_802_11_BANDWIDTH_20LUU,   "20LUU" },
-    { PHDR_802_11_BANDWIDTH_20ULL,   "20ULL" },
-    { PHDR_802_11_BANDWIDTH_20ULU,   "20ULU" },
-    { PHDR_802_11_BANDWIDTH_20UUL,   "20UUL" },
-    { PHDR_802_11_BANDWIDTH_20UUU,   "20UUU" },
+    { PHDR_802_11_BANDWIDTH_40LL,    "40 MHz, channel 1/4" },
+    { PHDR_802_11_BANDWIDTH_40LU,    "40 MHz, channel 2/4" },
+    { PHDR_802_11_BANDWIDTH_40UL,    "40 MHz, channel 3/4" },
+    { PHDR_802_11_BANDWIDTH_40UU,    "40 MHz, channel 4/4" },
+    { PHDR_802_11_BANDWIDTH_20LLL,   "20 MHz, channel 1/8" },
+    { PHDR_802_11_BANDWIDTH_20LLU,   "20 MHz, channel 2/8" },
+    { PHDR_802_11_BANDWIDTH_20LUL,   "20 MHz, channel 3/8" },
+    { PHDR_802_11_BANDWIDTH_20LUU,   "20 MHz, channel 4/8" },
+    { PHDR_802_11_BANDWIDTH_20ULL,   "20 MHz, channel 5/8" },
+    { PHDR_802_11_BANDWIDTH_20ULU,   "20 MHz, channel 6/8" },
+    { PHDR_802_11_BANDWIDTH_20UUL,   "20 MHz, channel 7/8" },
+    { PHDR_802_11_BANDWIDTH_20UUU,   "20 MHz, channel 8/8" },
+    { 0, NULL }
+};
+
+static const value_string fec_vals[] = {
+    { 0, "BEC" },
+    { 1, "LDPC" },
     { 0, NULL }
 };
 
@@ -530,7 +547,109 @@ const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
   },
 };
 
+#define MAX_MCS_VHT_INDEX	9
+
+/*
+ * Maps a VHT bandwidth index to ieee80211_vhtinfo.rates index.
+ */
+static const int ieee80211_vht_bw2rate_index[] = {
+  /*  20Mhz total */ 0,
+  /*  40Mhz total */ 1, 0, 0,
+  /*  80Mhz total */ 2, 1, 1, 0, 0, 0, 0,
+  /* 160Mhz total */ 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+struct mcs_vht_info {
+  const char *modulation;
+  const char *coding_rate;
+  float       rates[4][2];
+};
+
+static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
+  /* MCS  0  */
+  { "BPSK",  "1/2",
+    { /* 20 Mhz */  {    6.5f,  /* SGI */    7.2f, },
+      /* 40 Mhz */  {   13.5f,  /* SGI */   15.0f, },
+      /* 80 Mhz */  {   29.3f,  /* SGI */   32.5f, },
+      /* 160 Mhz */ {   58.5f,  /* SGI */   65.0f, }
+    }
+  },
+  /* MCS  1  */
+  { "QPSK",  "1/2",
+    { /* 20 Mhz */  {   13.0f,  /* SGI */   14.4f, },
+      /* 40 Mhz */  {   27.0f,  /* SGI */   30.0f, },
+      /* 80 Mhz */  {   58.5f,  /* SGI */   65.0f, },
+      /* 160 Mhz */ {  117.0f,  /* SGI */  130.0f, }
+    }
+  },
+  /* MCS  2  */
+  { "QPSK",  "3/4",
+    { /* 20 Mhz */  {   19.5f,  /* SGI */   21.7f, },
+      /* 40 Mhz */  {   40.5f,  /* SGI */   45.0f, },
+      /* 80 Mhz */  {   87.8f,  /* SGI */   97.5f, },
+      /* 160 Mhz */ {  175.5f,  /* SGI */  195.0f, }
+    }
+  },
+  /* MCS  3  */
+  { "16-QAM", "1/2",
+    { /* 20 Mhz */  {   26.0f,  /* SGI */   28.9f, },
+      /* 40 Mhz */  {   54.0f,  /* SGI */   60.0f, },
+      /* 80 Mhz */  {  117.0f,  /* SGI */  130.0f, },
+      /* 160 Mhz */ {  234.0f,  /* SGI */  260.0f, }
+    }
+  },
+  /* MCS  4  */
+  { "16-QAM", "3/4",
+    { /* 20 Mhz */  {   39.0f,  /* SGI */   43.3f, },
+      /* 40 Mhz */  {   81.0f,  /* SGI */   90.0f, },
+      /* 80 Mhz */  {  175.5f,  /* SGI */  195.0f, },
+      /* 160 Mhz */ {  351.0f,  /* SGI */  390.0f, }
+    }
+  },
+  /* MCS  5  */
+  { "64-QAM", "2/3",
+    { /* 20 Mhz */  {   52.0f,  /* SGI */   57.8f, },
+      /* 40 Mhz */  {  108.0f,  /* SGI */  120.0f, },
+      /* 80 Mhz */  {  234.0f,  /* SGI */  260.0f, },
+      /* 160 Mhz */ {  468.0f,  /* SGI */  520.0f, }
+    }
+  },
+  /* MCS  6  */
+  { "64-QAM", "3/4",
+    { /* 20 Mhz */  {   58.5f,  /* SGI */   65.0f, },
+      /* 40 Mhz */  {  121.5f,  /* SGI */  135.0f, },
+      /* 80 Mhz */  {  263.3f,  /* SGI */  292.5f, },
+      /* 160 Mhz */ {  526.5f,  /* SGI */  585.0f, }
+    }
+  },
+  /* MCS  7  */
+  { "64-QAM", "5/6",
+    { /* 20 Mhz */  {   65.0f,  /* SGI */   72.2f, },
+      /* 40 Mhz */  {  135.0f,  /* SGI */  150.0f, },
+      /* 80 Mhz */  {  292.5f,  /* SGI */  325.0f, },
+      /* 160 Mhz */ {  585.0f,  /* SGI */  650.0f, }
+    }
+  },
+  /* MCS  8  */
+  { "256-QAM", "3/4",
+    { /* 20 Mhz */  {   78.0f,  /* SGI */   86.7f, },
+      /* 40 Mhz */  {  162.0f,  /* SGI */  180.0f, },
+      /* 80 Mhz */  {  351.0f,  /* SGI */  390.0f, },
+      /* 160 Mhz */ {  702.0f,  /* SGI */  780.0f, }
+    }
+  },
+  /* MCS  9  */
+  { "256-QAM", "5/6",
+    { /* 20 Mhz */  {    0.0f,  /* SGI */    0.0f, },
+      /* 40 Mhz */  {  180.0f,  /* SGI */  200.0f, },
+      /* 80 Mhz */  {  390.0f,  /* SGI */  433.3f, },
+      /* 160 Mhz */ {  780.0f,  /* SGI */  866.7f, }
+    }
+  }
+};
+
 static gint ett_wlan_radio = -1;
+static gint ett_wlan_radio_11ac_user = -1;
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and a pseudo-
@@ -552,37 +671,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   if (phdr->presence_flags & PHDR_802_11_HAS_DATA_RATE) {
     data_rate = phdr->data_rate * 0.5f;
     have_data_rate = TRUE;
-  } else {
-    /* This applies only to 802.11n and 802.11ac */
-    switch (phdr->phy) {
-
-    case PHDR_802_11_PHY_11N:
-      /* Do we have all the fields we need to look it up? */
-      {
-#define PHDR_802_11N_ALL_MCS_FIELDS \
-        (PHDR_802_11N_HAS_MCS_INDEX | \
-         PHDR_802_11N_HAS_BANDWIDTH | \
-         PHDR_802_11N_HAS_SHORT_GI)
-
-        guint bandwidth_40;
-
-        if ((phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_ALL_MCS_FIELDS) == PHDR_802_11N_ALL_MCS_FIELDS) {
-          bandwidth_40 =
-            (phdr->phy_info.info_11n.bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
-             1 : 0;
-          if (phdr->phy_info.info_11n.mcs_index < MAX_MCS_INDEX) {
-            data_rate = ieee80211_float_htrates[phdr->phy_info.info_11n.mcs_index][bandwidth_40][phdr->phy_info.info_11n.short_gi];
-            have_data_rate = TRUE;
-          }
-        }
-      }
-      break;
-    }
   }
-
-  /* Add the radio information to the column information */
-  if (have_data_rate)
-    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", data_rate);
 
   if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", phdr->signal_dbm);
@@ -634,62 +723,180 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
         break;
 
       case PHDR_802_11_PHY_11N:
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_MCS_INDEX) {
-          proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_mcs_index, tvb, 0, 0,
-                   phdr->phy_info.info_11n.mcs_index);
-        }
+        {
+          guint bandwidth_40;
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_BANDWIDTH) {
-          proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_bandwidth, tvb, 0, 0,
-                   phdr->phy_info.info_11n.bandwidth);
-        }
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_MCS_INDEX) {
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_mcs_index, tvb, 0, 0,
+                     phdr->phy_info.info_11n.mcs_index);
+          }
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_SHORT_GI) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_short_gi, tvb, 0, 0,
-                   phdr->phy_info.info_11n.short_gi);
-        }
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_BANDWIDTH) {
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_bandwidth, tvb, 0, 0,
+                     phdr->phy_info.info_11n.bandwidth);
+          }
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_GREENFIELD) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_greenfield, tvb, 0, 0,
-                   phdr->phy_info.info_11n.greenfield);
-        }
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_SHORT_GI) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_short_gi, tvb, 0, 0,
+                     phdr->phy_info.info_11n.short_gi);
+          }
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_LDPC) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_ldpc, tvb, 0, 0,
-                   phdr->phy_info.info_11n.ldpc);
-        }
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_GREENFIELD) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_greenfield, tvb, 0, 0,
+                     phdr->phy_info.info_11n.greenfield);
+          }
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_STBC_STREAMS) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_stbc_streams, tvb, 0, 0,
-                   phdr->phy_info.info_11n.stbc_streams);
-        }
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_FEC) {
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_fec, tvb, 0, 0,
+                     phdr->phy_info.info_11n.fec);
+          }
 
-        if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_NESS) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_ness, tvb, 0, 0,
-                   phdr->phy_info.info_11n.ness);
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_STBC_STREAMS) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_stbc_streams, tvb, 0, 0,
+                     phdr->phy_info.info_11n.stbc_streams);
+          }
+
+          if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_NESS) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_ness, tvb, 0, 0,
+                     phdr->phy_info.info_11n.ness);
+          }
+
+          /*
+           * If we have all the fields needed to look up the data rate,
+           * do so.
+           */
+#define PHDR_802_11N_ALL_FIELDS_FOR_DATARATE \
+          (PHDR_802_11N_HAS_MCS_INDEX | \
+           PHDR_802_11N_HAS_BANDWIDTH | \
+           PHDR_802_11N_HAS_SHORT_GI)
+
+          if ((phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_ALL_FIELDS_FOR_DATARATE) == PHDR_802_11N_ALL_FIELDS_FOR_DATARATE) {
+            bandwidth_40 =
+              (phdr->phy_info.info_11n.bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
+               1 : 0;
+            if (phdr->phy_info.info_11n.mcs_index < MAX_MCS_INDEX) {
+              data_rate = ieee80211_float_htrates[phdr->phy_info.info_11n.mcs_index][bandwidth_40][phdr->phy_info.info_11n.short_gi];
+              have_data_rate = TRUE;
+            }
+          }
         }
         break;
 
       case PHDR_802_11_PHY_11AC:
-        if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_MCS_INDEX) {
-          proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_mcs_index, tvb, 0, 0,
-                   phdr->phy_info.info_11ac.mcs_index);
-        }
+        {
+          gboolean can_calculate_rate;
+          guint bandwidth;
+          guint i;
 
-        if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_BANDWIDTH) {
-          proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_bandwidth, tvb, 0, 0,
-                   phdr->phy_info.info_11ac.bandwidth);
-        }
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_STBC) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_stbc, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.stbc);
+          }
 
-        if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_SHORT_GI) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_short_gi, tvb, 0, 0,
-                   phdr->phy_info.info_11ac.short_gi);
-        }
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_txop_ps_not_allowed, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.txop_ps_not_allowed);
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_SHORT_GI) {
+            can_calculate_rate = TRUE;  /* well, if we also have the bandwidth */
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_short_gi, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.short_gi);
+          } else {
+            can_calculate_rate = FALSE; /* unknown GI length */
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_SHORT_GI_NSYM_DISAMBIG) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_short_gi_nsym_disambig, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.short_gi_nsym_disambig);
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_ldpc_extra_ofdm_symbol, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.ldpc_extra_ofdm_symbol);
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_BEAMFORMED) {
+            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ac_beamformed, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.beamformed);
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_BANDWIDTH) {
+            if (phdr->phy_info.info_11ac.bandwidth < G_N_ELEMENTS(ieee80211_vht_bw2rate_index))
+              bandwidth = ieee80211_vht_bw2rate_index[phdr->phy_info.info_11ac.bandwidth];
+            else
+              can_calculate_rate = FALSE; /* unknown bandwidth */
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_bandwidth, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.bandwidth);
+          } else {
+            can_calculate_rate = FALSE;   /* no bandwidth */
+          }
+
+          for (i = 0; i < 4; i++) {
+            guint nsts;
+
+            if ((phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_STBC) &&
+                phdr->phy_info.info_11ac.stbc)
+              nsts = 2 * phdr->phy_info.info_11ac.nss[i];
+            else
+              nsts = phdr->phy_info.info_11ac.nss[i];
+
+            if (phdr->phy_info.info_11ac.nss[i] != 0) {
+              proto_item *it;
+              proto_tree *user_tree;
+
+              it = proto_tree_add_item(radio_tree, hf_wlan_radio_11ac_user, tvb, 0, 0, ENC_NA);
+              proto_item_append_text(it, " %d: MCS %u", i, phdr->phy_info.info_11ac.mcs[i]);
+              user_tree = proto_item_add_subtree(it, ett_wlan_radio_11ac_user);
+
+              it = proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_mcs, tvb, 0, 0,
+                      phdr->phy_info.info_11ac.mcs[i]);
+              if (phdr->phy_info.info_11ac.mcs[i] > MAX_MCS_VHT_INDEX) {
+                proto_item_append_text(it, " (invalid)");
+              } else {
+                proto_item_append_text(it, " (%s %s)",
+                  ieee80211_vhtinfo[phdr->phy_info.info_11ac.mcs[i]].modulation,
+                  ieee80211_vhtinfo[phdr->phy_info.info_11ac.mcs[i]].coding_rate);
+              }
+
+              proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nss, tvb, 0, 0,
+                       phdr->phy_info.info_11ac.nss[i]);
+              proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nsts, tvb, 0, 0,
+                       nsts);
+              proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_fec, tvb, 0, 0,
+                       (phdr->phy_info.info_11ac.fec >> i) & 0x01);
+
+              /*
+               * If we can calculate the data rate for this user, do so.
+               */
+              if (can_calculate_rate && phdr->phy_info.info_11ac.mcs[i] <= MAX_MCS_VHT_INDEX) {
+                data_rate = ieee80211_vhtinfo[phdr->phy_info.info_11ac.mcs[i]].rates[bandwidth][phdr->phy_info.info_11ac.short_gi] * phdr->phy_info.info_11ac.nss[i];
+                if (data_rate != 0.0f) {
+                  proto_tree_add_float_format_value(user_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
+                        data_rate,
+                        "%.1f Mb/s",
+                       data_rate);
+                }
+              }
+            }
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_GROUP_ID) {
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_gid, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.group_id);
+          }
+
+          if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_PARTIAL_AID) {
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_p_aid, tvb, 0, 0,
+                     phdr->phy_info.info_11ac.partial_aid);
+          }
+	}
         break;
       }
     }
 
     if (have_data_rate) {
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", data_rate);
       proto_tree_add_float_format_value(radio_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
                data_rate,
                "%.1f Mb/s",
@@ -801,8 +1008,8 @@ static hf_register_info hf_wlan_radio[] = {
      {"Greenfield", "wlan_radio.11n.greenfield", FT_BOOLEAN, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_wlan_radio_11n_ldpc,
-     {"FEC is LDPC", "wlan_radio.11n.ldpc", FT_BOOLEAN, BASE_NONE, NULL, 0,
+    {&hf_wlan_radio_11n_fec,
+     {"FEC", "wlan_radio.11n.fec", FT_UINT32, BASE_DEC, VALS(fec_vals), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11n_stbc_streams,
@@ -813,24 +1020,68 @@ static hf_register_info hf_wlan_radio[] = {
      {"Number of extension spatial streams", "wlan_radio.11n.ness", FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_wlan_radio_11ac_mcs_index,
-     {"MCS index", "wlan_radio.11ac.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
+    {&hf_wlan_radio_11ac_stbc,
+     {"STBC", "wlan_radio.11ac.stbc", FT_BOOLEAN, 0, TFS(&tfs_on_off), 0x0,
+      "Space Time Block Coding flag", HFILL }},
+
+    {&hf_wlan_radio_11ac_txop_ps_not_allowed,
+     {"TXOP_PS_NOT_ALLOWED", "wlan_radio_11ac.txop_ps_not_allowed", FT_BOOLEAN, 0, NULL, 0x0,
+      "Flag indicating whether STAs may doze during TXOP", HFILL }},
+
+    {&hf_wlan_radio_11ac_short_gi,
+     {"Short GI", "wlan_radio.11ac.short_gi", FT_BOOLEAN, 0, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_11ac_short_gi_nsym_disambig,
+     {"Short GI Nsym disambiguation", "wlan_radio.11ac.short_gi_nsym_disambig", FT_BOOLEAN, 0, NULL, 0x0,
+      "Short Guard Interval Nsym disambiguation", HFILL }},
+
+    {&hf_wlan_radio_11ac_ldpc_extra_ofdm_symbol,
+     {"LDPC extra OFDM symbol", "wlan_radio.11ac.ldpc_extra_ofdm_symbol", FT_BOOLEAN, 0, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_11ac_beamformed,
+     {"Beamformed", "wlan_radio.11ac.beamformed", FT_BOOLEAN, 0, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11ac_bandwidth,
      {"Bandwidth", "wlan_radio.11ac.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
       NULL, HFILL }},
 
-    {&hf_wlan_radio_11ac_short_gi,
-     {"Short GI", "wlan_radio.11ac.short_gi", FT_BOOLEAN, 0, NULL, 0,
+    {&hf_wlan_radio_11ac_user,
+     {"User", "wlan_radio.11ac.user", FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_11ac_nsts,
+     {"Space-time streams", "wlan_radio.11ac.nsts", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Number of Space-time streams", HFILL }},
+
+    {&hf_wlan_radio_11ac_mcs,
+     {"MCS index", "wlan_radio.11ac.mcs", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "MCS index", HFILL }},
+
+    {&hf_wlan_radio_11ac_nss,
+     {"Spatial streams", "wlan_radio.11ac.nss", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Number of spatial streams", HFILL }},
+
+    {&hf_wlan_radio_11ac_fec,
+     {"FEC", "wlan_radio.11ac.fec", FT_UINT32, BASE_DEC, VALS(fec_vals), 0x0,
+      "Type of FEC", HFILL }},
+
+    {&hf_wlan_radio_11ac_gid,
+     {"Group Id", "wlan_radio.11ac.gid", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_11ac_p_aid,
+     {"Partial AID", "wlan_radio.11ac.paid", FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_data_rate,
      {"Data rate", "wlan_radio.data_rate", FT_FLOAT, BASE_NONE, NULL, 0,
-      "Data rate (bits/s)", HFILL }},
+      "Speed at which this frame was sent/received", HFILL }},
 
     {&hf_wlan_radio_channel,
-     {"Channel", "wlan_radio.channel", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Channel", "wlan_radio.channel", FT_UINT32, BASE_DEC, NULL, 0,
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
     {&hf_wlan_radio_frequency,
@@ -842,7 +1093,7 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_percent,
-     {"Signal strength (percentage)", "wlan_radio.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Signal strength (percentage)", "wlan_radio.signal_dbm", FT_UINT32, BASE_DEC, NULL, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_wlan_radio_signal_dbm,
@@ -850,7 +1101,7 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_percent,
-     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_dbm,
@@ -863,7 +1114,8 @@ static hf_register_info hf_wlan_radio[] = {
 };
 
 static gint *tree_array[] = {
-  &ett_wlan_radio
+  &ett_wlan_radio,
+  &ett_wlan_radio_11ac_user
 };
 
 void proto_register_ieee80211_radio(void)
