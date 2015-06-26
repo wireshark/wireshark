@@ -2489,7 +2489,7 @@ So add the following items to the struct that is used for the protocol data:
   nstime_t ts_prev;
 
 The ts_prev value should only be set during the first run through the
-packets (ie pinfo->fd->flags.visited is false).
+packets (ie PINFO_FD_VISITED(pinfo) is false).
 
 Next step is to use the per-packet information (described in section 2.5)
 to keep the calculated delta timestamp, as it can only be calculated
