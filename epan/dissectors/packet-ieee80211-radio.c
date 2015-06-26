@@ -785,7 +785,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
       case PHDR_802_11_PHY_11AC:
         {
           gboolean can_calculate_rate;
-          guint bandwidth;
+          guint bandwidth = 0;
           guint i;
 
           if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_STBC) {
