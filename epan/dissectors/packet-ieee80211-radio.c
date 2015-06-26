@@ -752,12 +752,12 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           }
 
           if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_STBC_STREAMS) {
-            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_stbc_streams, tvb, 0, 0,
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_stbc_streams, tvb, 0, 0,
                      phdr->phy_info.info_11n.stbc_streams);
           }
 
           if (phdr->phy_info.info_11n.presence_flags & PHDR_802_11N_HAS_NESS) {
-            proto_tree_add_boolean(radio_tree, hf_wlan_radio_11n_ness, tvb, 0, 0,
+            proto_tree_add_uint(radio_tree, hf_wlan_radio_11n_ness, tvb, 0, 0,
                      phdr->phy_info.info_11n.ness);
           }
 
