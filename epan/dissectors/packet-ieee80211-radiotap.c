@@ -2362,47 +2362,47 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_vht_have_stbc,
 		 {"STBC", "radiotap.vht.have_stbc",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_STBC,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_STBC,
 		  "Space Time Block Coding information present", HFILL}},
 
 		{&hf_radiotap_vht_have_txop_ps,
 		 {"TXOP_PS_NOT_ALLOWED", "radiotap.vht.have_txop_ps",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_TXOP_PS,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_TXOP_PS,
 		  "TXOP_PS_NOT_ALLOWED information present", HFILL}},
 
 		{&hf_radiotap_vht_have_gi,
 		 {"Guard interval", "radiotap.vht.have_gi",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_GI,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_GI,
 		  "Short/Long guard interval information present", HFILL}},
 
 		{&hf_radiotap_vht_have_sgi_nsym_da,
 		 {"SGI Nsym disambiguation", "radiotap.vht.have_sgi_nsym_da",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_SGI_NSYM_DA,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_SGI_NSYM_DA,
 		  "Short guard interval Nsym disambiguation information present", HFILL}},
 
 		{&hf_radiotap_vht_have_ldpc_extra,
 		 {"LDPC extra OFDM symbol", "radiotap.vht.ldpc_extra",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_LDPC_EXTRA,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_LDPC_EXTRA,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_have_bf,
 		 {"Beamformed", "radiotap.vht.have_beamformed",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_BF,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_BF,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_have_bw,
 		 {"Bandwidth", "radiotap.mcs.have_bw",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_BW,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_BW,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_have_gid,
 		 {"Group ID", "radiotap.mcs.have_gid",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_GID,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_GID,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_have_p_aid,
 		 {"Partial AID", "radiotap.mcs.have_paid",
-		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_VHT_HAVE_PAID,
+		  FT_BOOLEAN, 16, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_VHT_HAVE_PAID,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_stbc,
