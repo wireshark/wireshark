@@ -71,6 +71,13 @@ static const guint8 gif87a_magic[] = { 'G', 'I', 'F', '8', '7', 'a'};
 static const guint8 gif89a_magic[] = { 'G', 'I', 'F', '8', '9', 'a'};
 static const guint8 elf_magic[]    = { 0x7F, 'E', 'L', 'F'};
 static const guint8 btsnoop_magic[]    = { 'b', 't', 's', 'n', 'o', 'o', 'p', 0};
+static const guint8 pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
+static const guint8 pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
+static const guint8 pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
+
+/* File does not start with it */
+static const guint8 pcapng_xmagic[]         = { 0x1A, 0x2B, 0x3C, 0x4D };
+static const guint8 pcapng_swapped_xmagic[] = { 0x4D, 0x3C, 0x2B, 0x1A };
 
 static const mime_files_t magic_files[] = {
 	{ jpeg_jfif_magic, sizeof(jpeg_jfif_magic) },
@@ -79,7 +86,10 @@ static const mime_files_t magic_files[] = {
 	{ gif87a_magic, sizeof(gif87a_magic) },
 	{ gif89a_magic, sizeof(gif89a_magic) },
 	{ elf_magic, sizeof(elf_magic) },
-	{ btsnoop_magic, sizeof(btsnoop_magic) }
+	{ btsnoop_magic, sizeof(btsnoop_magic) },
+	{ pcap_magic, sizeof(pcap_magic) },
+	{ pcap_swapped_magic, sizeof(pcap_swapped_magic) },
+	{ pcapng_premagic, sizeof(pcapng_premagic) }
 };
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
@@ -170,7 +180,7 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	/* guint file_ok; */
 	guint i;
 
-	guint read_bytes = 0;
+	guint read_bytes = 12;
 
 	for (i = 0; i < N_MAGIC_TYPES; i++)
 		read_bytes = MAX(read_bytes, magic_files[i].magic_len);
@@ -189,8 +199,12 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	for (i = 0; i < N_MAGIC_TYPES; i++) {
 		if ((guint) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (guint) bytes_read))) {
 			if (!found_file) {
+				if (magic_files[i].magic == pcapng_premagic) {
+					if (memcmp(magic_buf + 8, pcapng_xmagic, sizeof(pcapng_xmagic)) &&
+							memcmp(magic_buf + 8, pcapng_swapped_xmagic, sizeof(pcapng_swapped_xmagic)))
+						continue;
+				}
 				found_file = TRUE;
-				/* file_ok = i; */
 			} else
 				return WTAP_OPEN_NOT_MINE;	/* many files matched, bad file */
 		}

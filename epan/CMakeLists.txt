@@ -317,6 +317,8 @@ set(DISSECTOR_SRC
 	dissectors/file-gif.c
 	dissectors/file-jpeg.c
 	dissectors/file-mp4.c
+	dissectors/file-pcap.c
+	dissectors/file-pcapng.c
 	dissectors/file-png.c
 	dissectors/packet-2dparityfec.c
 	dissectors/packet-3com-njack.c

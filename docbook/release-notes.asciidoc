@@ -167,6 +167,13 @@ available in the Qt UI yet.
 
 //=== Removed Dissectors
 
+=== New File Format Support
+
+--sort-and-group--
+BTSNOOP
+PCAP
+PCAPNG
+--sort-and-group--
 
 === New Protocol Support
 
