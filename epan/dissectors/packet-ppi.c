@@ -919,42 +919,43 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tot_len -= data_len;
 
         switch (data_type) {
-            case PPI_80211_COMMON:
-                dissect_80211_common(tvb, pinfo, ppi_tree, offset, data_len,
-                    &phdr);
-                break;
 
-            case PPI_80211N_MAC:
-                dissect_80211n_mac(tvb, pinfo, ppi_tree, offset, data_len,
-                    TRUE, &n_ext_flags, &ampdu_id, &phdr);
-                is_ht = TRUE;
-                break;
+        case PPI_80211_COMMON:
+            dissect_80211_common(tvb, pinfo, ppi_tree, offset, data_len, &phdr);
+            break;
 
-            case PPI_80211N_MAC_PHY:
-                dissect_80211n_mac_phy(tvb, pinfo, ppi_tree, offset,
-                    data_len, &n_ext_flags, &ampdu_id, &phdr);
-                is_ht = TRUE;
-                break;
+        case PPI_80211N_MAC:
+            dissect_80211n_mac(tvb, pinfo, ppi_tree, offset, data_len,
+                TRUE, &n_ext_flags, &ampdu_id, &phdr);
+            is_ht = TRUE;
+            break;
 
-            case PPI_SPECTRUM_MAP:
-                ADD_BASIC_TAG(hf_spectrum_map);
-                break;
+        case PPI_80211N_MAC_PHY:
+            dissect_80211n_mac_phy(tvb, pinfo, ppi_tree, offset,
+                data_len, &n_ext_flags, &ampdu_id, &phdr);
+            is_ht = TRUE;
+            break;
 
-            case PPI_PROCESS_INFO:
-                ADD_BASIC_TAG(hf_process_info);
-                break;
+        case PPI_SPECTRUM_MAP:
+            ADD_BASIC_TAG(hf_spectrum_map);
+            break;
 
-            case PPI_CAPTURE_INFO:
-                ADD_BASIC_TAG(hf_capture_info);
-                break;
+        case PPI_PROCESS_INFO:
+            ADD_BASIC_TAG(hf_process_info);
+            break;
 
-            case PPI_AGGREGATION_EXTENSION:
-                dissect_aggregation_extension(tvb, pinfo, ppi_tree, offset, data_len);
-                break;
+        case PPI_CAPTURE_INFO:
+            ADD_BASIC_TAG(hf_capture_info);
+            break;
+
+        case PPI_AGGREGATION_EXTENSION:
+            dissect_aggregation_extension(tvb, pinfo, ppi_tree, offset, data_len);
+            break;
 
         case PPI_8023_EXTENSION:
             dissect_8023_extension(tvb, pinfo, ppi_tree, offset, data_len);
             break;
+
         case PPI_GPS_INFO:
             if (ppi_gps_handle == NULL)
             {
@@ -967,6 +968,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_gps_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
+
         case PPI_VECTOR_INFO:
             if (ppi_vector_handle == NULL)
             {
@@ -979,6 +981,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
+
         case PPI_SENSOR_INFO:
             if (ppi_sensor_handle == NULL)
             {
@@ -991,6 +994,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_sensor_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
+
         case PPI_ANTENNA_INFO:
             if (ppi_antenna_handle == NULL)
             {
@@ -1003,6 +1007,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
+
         case FNET_PRIVATE:
             if (ppi_fnet_handle == NULL)
             {
