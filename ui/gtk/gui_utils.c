@@ -783,6 +783,9 @@ setup_scrolled_window(GtkWidget *scrollw)
 {
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#if GTK_CHECK_VERSION(3,16,0)
+        gtk_scrolled_window_set_overlay_scrolling(GTK_SCROLLED_WINDOW(scrollw), FALSE);
+#endif /* OVERLAY_SCROLLING */
 
     scrolled_windows = g_list_append(scrolled_windows, scrollw);
 
