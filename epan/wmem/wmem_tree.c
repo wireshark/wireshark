@@ -369,7 +369,13 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key,
 static void *
 wmem_tree_lookup(wmem_tree_t *tree, const void *key, compare_func cmp)
 {
-    wmem_tree_node_t *node = tree->root;
+    wmem_tree_node_t *node;
+
+    if (tree == NULL || key == NULL) {
+        return NULL;
+    }
+
+    node = tree->root;
 
     while (node) {
         int result = cmp(key, node->key);
