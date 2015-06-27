@@ -1437,26 +1437,36 @@ free_ue_cache(snmp_ue_assoc_t **cache)
 #define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
 
 static void
-renew_ue_cache(void)
+init_ue_cache(void)
+{
+	guint i;
+
+	for (i = 0; i < num_ueas; i++) {
+		snmp_ue_assoc_t* a = ue_dup(&(ueas[i]));
+
+		if (a->engine.len) {
+			CACHE_INSERT(localized_ues,a);
+
+		} else {
+			CACHE_INSERT(unlocalized_ues,a);
+		}
+
+	}
+}
+
+static void
+cleanup_ue_cache(void)
 {
 	free_ue_cache(&localized_ues);
 	free_ue_cache(&unlocalized_ues);
+}
 
-	if (num_ueas) {
-		guint i;
-
-		for(i = 0; i < num_ueas; i++) {
-			snmp_ue_assoc_t* a = ue_dup(&(ueas[i]));
-
-			if (a->engine.len) {
-				CACHE_INSERT(localized_ues,a);
-
-			} else {
-				CACHE_INSERT(unlocalized_ues,a);
-			}
-
-		}
-	}
+/* Called when the user applies changes to UAT preferences. */
+static void
+renew_ue_cache(void)
+{
+	cleanup_ue_cache();
+	init_ue_cache();
 }
 
 
@@ -2569,7 +2579,8 @@ void proto_register_snmp(void) {
 
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
 
-	register_init_routine(renew_ue_cache);
+	register_init_routine(init_ue_cache);
+	register_cleanup_routine(cleanup_ue_cache);
 
 	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 }

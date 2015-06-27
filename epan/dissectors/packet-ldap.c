@@ -4813,7 +4813,7 @@ dissect_mscldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static void
-ldap_reinit(void)
+ldap_cleanup(void)
 {
   ldap_conv_info_t *ldap_info;
 
@@ -5845,7 +5845,7 @@ void proto_register_ldap(void) {
 	  "Connectionless Lightweight Directory Access Protocol",
 	  "CLDAP", "cldap");
 
-  register_init_routine(ldap_reinit);
+  register_cleanup_routine(ldap_cleanup);
   ldap_tap=register_tap("ldap");
 
   ldap_name_dissector_table = register_dissector_table("ldap.name", "LDAP Attribute Type Dissectors", FT_STRING, BASE_NONE);

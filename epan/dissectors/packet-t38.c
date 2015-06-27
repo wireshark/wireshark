@@ -251,6 +251,11 @@ static void t38_defragment_init(void)
                               &addresses_reassembly_table_functions);
 }
 
+static void t38_defragment_cleanup(void)
+{
+    reassembly_table_destroy(&data_reassembly_table);
+}
+
 
 /* Set up an T38 conversation */
 void t38_add_address(packet_info *pinfo,
@@ -977,7 +982,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 392 "../../asn1/t38/packet-t38-template.c"
+#line 397 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1316,7 +1321,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 654 "../../asn1/t38/packet-t38-template.c"
+#line 659 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1377,7 +1382,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 701 "../../asn1/t38/packet-t38-template.c"
+#line 706 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
@@ -1399,6 +1404,7 @@ proto_register_t38(void)
 
 	/* Init reassemble tables for HDLC */
 	register_init_routine(t38_defragment_init);
+	register_cleanup_routine(t38_defragment_cleanup);
 
 	t38_tap = register_tap("t38");
 

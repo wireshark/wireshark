@@ -249,13 +249,15 @@ pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 static void
 pres_init(void)
 {
-	if( pres_ctx_oid_table ){
-		g_hash_table_destroy(pres_ctx_oid_table);
-		pres_ctx_oid_table = NULL;
-	}
 	pres_ctx_oid_table = g_hash_table_new(pres_ctx_oid_hash,
 			pres_ctx_oid_equal);
 
+}
+
+static void
+pres_cleanup(void)
+{
+	g_hash_table_destroy(pres_ctx_oid_table);
 }
 
 static void
@@ -1358,7 +1360,7 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 223 "../../asn1/pres/packet-pres-template.c"
+#line 225 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1842,7 +1844,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 394 "../../asn1/pres/packet-pres-template.c"
+#line 396 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1889,7 +1891,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 400 "../../asn1/pres/packet-pres-template.c"
+#line 402 "../../asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1934,6 +1936,7 @@ void proto_register_pres(void) {
   expert_pres = expert_register_protocol(proto_pres);
   expert_register_field_array(expert_pres, ei, array_length(ei));
   register_init_routine(pres_init);
+  register_cleanup_routine(pres_cleanup);
 
   pres_module = prefs_register_protocol(proto_pres, NULL);
 

@@ -261,22 +261,17 @@ struct ansi_tcap_invokedata_t {
 static GHashTable *TransactionId_table=NULL;
 
 static void
-ansi_tcap_init_transaction_table(void){
-
-        /* Destroy any existing memory chunks / hashes. */
-        if (TransactionId_table){
-                g_hash_table_destroy(TransactionId_table);
-                TransactionId_table = NULL;
-        }
-
+ansi_tcap_init(void)
+{
         TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-
 }
 
 static void
-ansi_tcap_init_protocol(void)
+ansi_tcap_cleanup(void)
 {
-        ansi_tcap_init_transaction_table();
+        /* Destroy any existing memory chunks / hashes. */
+        g_hash_table_destroy(TransactionId_table);
+        TransactionId_table = NULL;
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -1413,7 +1408,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 356 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 351 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1757,7 +1752,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 491 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 486 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1795,7 +1790,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 502 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 497 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -1830,5 +1825,6 @@ proto_register_ansi_tcap(void)
                                    "Type of matching invoke/response, risk of missmatch if loose matching choosen",
                                    &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_tcap_init_protocol);
+    register_init_routine(&ansi_tcap_init);
+    register_cleanup_routine(&ansi_tcap_cleanup);
 }

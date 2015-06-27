@@ -308,11 +308,14 @@ static void h223_lc_init( void )
 
 static void h245_init(void)
 {
-	if ( h245_pending_olc_reqs)
-		g_hash_table_destroy(h245_pending_olc_reqs);
 	h245_pending_olc_reqs = g_hash_table_new(g_str_hash, g_str_equal);
 
 	h223_lc_init();
+}
+
+static void h245_cleanup(void)
+{
+	g_hash_table_destroy(h245_pending_olc_reqs);
 }
 
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
@@ -512,6 +515,7 @@ void proto_register_h245(void) {
   /* Register protocol */
   proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_init_routine(h245_init);
+  register_cleanup_routine(h245_cleanup);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h245, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

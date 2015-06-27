@@ -7402,23 +7402,11 @@ new_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
  * Routine called when the TAP is initialized.
  * so hash table are (re)created
  */
-void
+static void
 camelsrt_init_routine(void)
 {
-
-  /* free hash-table for SRT */
-  if (srt_calls != NULL) {
-#ifdef DEBUG_CAMELSRT
-    dbg(16,"Destroy hash ");
-#endif
-    g_hash_table_destroy(srt_calls);
-  }
-
   /* create new hash-table for SRT */
   srt_calls = g_hash_table_new(camelsrt_call_hash, camelsrt_call_equal);
-#ifdef DEBUG_CAMELSRT
-  dbg(16,"Create hash ");
-#endif
   /* Reset the session counter */
   camelsrt_global_SessionId=1;
 
@@ -7427,6 +7415,13 @@ camelsrt_init_routine(void)
    * 2) For Tshark, if the SRT handling is enable
    */
   gcamel_DisplaySRT=gcamel_PersistentSRT || gcamel_HandleSRT&gcamel_StatSRT;
+}
+
+static void
+camelsrt_cleanup_routine(void)
+{
+  /* free hash-table for SRT */
+  g_hash_table_destroy(srt_calls);
 }
 
 
@@ -8170,7 +8165,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1260 "../../asn1/camel/packet-camel-template.c"
+#line 1255 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10284,7 +10279,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1433 "../../asn1/camel/packet-camel-template.c"
+#line 1428 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10500,7 +10495,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1450 "../../asn1/camel/packet-camel-template.c"
+#line 1445 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10564,6 +10559,7 @@ void proto_register_camel(void) {
 
   /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
+  register_cleanup_routine(&camelsrt_cleanup_routine);
   camel_tap=register_tap(PSNAME);
 
   register_srt_table(proto_camel, "CAMEL", 1, camelstat_packet, camelstat_init, NULL);

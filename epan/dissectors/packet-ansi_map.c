@@ -1177,20 +1177,16 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 static GHashTable *TransactionId_table=NULL;
 
 static void
-ansi_map_init_transaction_table(void){
-
-    /* Destroy any existing memory chunks / hashes. */
-    if (TransactionId_table){
-        g_hash_table_destroy(TransactionId_table);
-    }
-
+ansi_map_init(void)
+{
     TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 static void
-ansi_map_init_protocol(void)
+ansi_map_cleanup(void)
 {
-    ansi_map_init_transaction_table();
+    /* Destroy any existing memory chunks / hashes. */
+    g_hash_table_destroy(TransactionId_table);
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -15280,7 +15276,7 @@ dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3635 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3631 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19228,7 +19224,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5390 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5386 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19489,7 +19485,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5423 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5419 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -19562,6 +19558,7 @@ void proto_register_ansi_map(void) {
                                   "Type of matching invoke/response, risk of missmatch if loose matching choosen",
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_map_init_protocol);
+    register_init_routine(&ansi_map_init);
+    register_cleanup_routine(&ansi_map_cleanup);
     register_new_stat_tap_ui(&stat_table);
 }

@@ -7720,25 +7720,28 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
    is (re-)dissecting a trace file from beginning.
    We need to discard and init any state we've saved */
 
-void
+static void
 h225_init_routine(void)
 {
 	int i;
-
-	/* free hash-tables for RAS SRT */
-	for(i=0;i<7;i++) {
-		if (ras_calls[i] != NULL) {
-			g_hash_table_destroy(ras_calls[i]);
-			ras_calls[i] = NULL;
-		}
-	}
-
 	/* create new hash-tables for RAS SRT */
 
 	for(i=0;i<7;i++) {
 		ras_calls[i] = g_hash_table_new(h225ras_call_hash, h225ras_call_equal);
 	}
 
+}
+
+static void
+h225_cleanup_routine(void)
+{
+	int i;
+
+	/* free hash-tables for RAS SRT */
+	for(i=0;i<7;i++) {
+		g_hash_table_destroy(ras_calls[i]);
+		ras_calls[i] = NULL;
+	}
 }
 
 static int
@@ -10920,7 +10923,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 456 "../../asn1/h225/packet-h225-template.c"
+#line 459 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11170,7 +11173,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 462 "../../asn1/h225/packet-h225-template.c"
+#line 465 "../../asn1/h225/packet-h225-template.c"
   };
 	module_t *h225_module;
 	int proto_h225_ras;
@@ -11215,6 +11218,7 @@ void proto_register_h225(void) {
 	gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", FT_STRING, BASE_NONE);
 
 	register_init_routine(&h225_init_routine);
+	register_cleanup_routine(&h225_cleanup_routine);
 	h225_tap = register_tap("h225");
 
 	register_rtd_table(proto_h225_ras, "h225", NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);

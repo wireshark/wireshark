@@ -735,7 +735,11 @@ static void idmp_reassemble_init (void)
 {
     reassembly_table_init (&idmp_reassembly_table,
                            &addresses_reassembly_table_functions);
+}
 
+static void idmp_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&idmp_reassembly_table);
     saved_protocolID = NULL;
 }
 
@@ -930,7 +934,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 315 "../../asn1/idmp/packet-idmp-template.c"
+#line 319 "../../asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -953,7 +957,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 323 "../../asn1/idmp/packet-idmp-template.c"
+#line 327 "../../asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 
@@ -967,6 +971,7 @@ void proto_register_idmp(void)
     new_register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
 
     register_init_routine (&idmp_reassemble_init);
+    register_cleanup_routine (&idmp_reassemble_cleanup);
 
     /* Register our configuration options for IDMP, particularly our port */
 

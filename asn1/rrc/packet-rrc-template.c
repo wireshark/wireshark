@@ -242,14 +242,8 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static void rrc_init(void){
-    /*Cleanup*/
-    if(hsdsch_muxed_flows){
-        g_tree_destroy(hsdsch_muxed_flows);
-    }
-    if(rrc_ciph_inf){
-        g_tree_destroy(rrc_ciph_inf);
-    }
+static void
+rrc_init(void) {
     /*Initialize structure for muxed flow indication*/
     hsdsch_muxed_flows = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
@@ -262,6 +256,14 @@ static void rrc_init(void){
                        NULL,
                        rrc_free_value);
 }
+
+static void
+rrc_cleanup(void) {
+    /*Cleanup*/
+    g_tree_destroy(hsdsch_muxed_flows);
+    g_tree_destroy(rrc_ciph_inf);
+}
+
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_rrc(void) {
 
@@ -338,6 +340,7 @@ void proto_register_rrc(void) {
 
 
     register_init_routine(rrc_init);
+    register_cleanup_routine(rrc_cleanup);
 }
 
 

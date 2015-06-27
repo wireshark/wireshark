@@ -1076,7 +1076,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 }
 
 static void
-ros_reinit(void)
+ros_cleanup(void)
 {
   ros_conv_info_t *ros_info;
 
@@ -1285,7 +1285,7 @@ void proto_register_ros(void) {
 
   ros_handle = find_dissector("ros");
 
-  register_init_routine(ros_reinit);
+  register_cleanup_routine(ros_cleanup);
 }
 
 

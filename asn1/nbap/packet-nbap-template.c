@@ -419,16 +419,9 @@ static gint nbap_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer igno
 	}*/
 
 static void nbap_init(void){
-	guint8 i;
-	/*Cleanup*/
-	if(com_context_map){
-		g_tree_destroy(com_context_map);
-	}
-	if(edch_flow_port_map){
-		g_tree_destroy(edch_flow_port_map);
-	}
-	/*Initialize*/
-	com_context_map = g_tree_new_full(nbap_key_cmp,
+    guint8 i;
+    /*Initialize*/
+    com_context_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,      /* function to free the memory allocated for the key used when removing the entry */
                        g_free);
@@ -441,9 +434,16 @@ static void nbap_init(void){
                        g_free);
 
     for (i = 0; i < 15; i++) {
-		lchId_type_table[i+1] = *lch_contents[i];
-	}
+        lchId_type_table[i+1] = *lch_contents[i];
+    }
 }
+
+static void nbap_cleanup(void){
+    /*Cleanup*/
+    g_tree_destroy(com_context_map);
+    g_tree_destroy(edch_flow_port_map);
+}
+
 static int
 dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -532,6 +532,7 @@ void proto_register_nbap(void)
 	nbap_proc_uout_dissector_table = register_dissector_table("nbap.proc.uout", "NBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
 
 	register_init_routine(nbap_init);
+	register_cleanup_routine(nbap_cleanup);
 }
 
 /*

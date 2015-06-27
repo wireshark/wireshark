@@ -44256,15 +44256,15 @@ dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, pro
 static void
 lte_rrc_init_protocol(void)
 {
-  if (lte_rrc_etws_cmas_dcs_hash) {
-    g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
-  }
-  if (lte_rrc_system_info_value_changed_hash) {
-    g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
-  }
-
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
   lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+static void
+lte_rrc_cleanup_protocol(void)
+{
+  g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
+  g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -57569,6 +57569,7 @@ void proto_register_lte_rrc(void) {
 #line 3410 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
+  register_cleanup_routine(&lte_rrc_cleanup_protocol);
 }
 
 

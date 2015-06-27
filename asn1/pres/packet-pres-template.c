@@ -117,13 +117,15 @@ pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 static void
 pres_init(void)
 {
-	if( pres_ctx_oid_table ){
-		g_hash_table_destroy(pres_ctx_oid_table);
-		pres_ctx_oid_table = NULL;
-	}
 	pres_ctx_oid_table = g_hash_table_new(pres_ctx_oid_hash,
 			pres_ctx_oid_equal);
 
+}
+
+static void
+pres_cleanup(void)
+{
+	g_hash_table_destroy(pres_ctx_oid_table);
 }
 
 static void
@@ -441,6 +443,7 @@ void proto_register_pres(void) {
   expert_pres = expert_register_protocol(proto_pres);
   expert_register_field_array(expert_pres, ei, array_length(ei));
   register_init_routine(pres_init);
+  register_cleanup_routine(pres_cleanup);
 
   pres_module = prefs_register_protocol(proto_pres, NULL);
 

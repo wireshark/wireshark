@@ -2071,6 +2071,7 @@ proto_reg_handoff_tcap(void)
 }
 
 static void init_tcap(void);
+static void cleanup_tcap(void);
 
 void
 proto_register_tcap(void)
@@ -2187,7 +2188,6 @@ proto_register_tcap(void)
 
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "", MAX_SSN);
-  ssn_range = range_empty();
 
   prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
                                   "SCCP (and SUA) SSNs to decode as TCAP",
@@ -2222,6 +2222,7 @@ proto_register_tcap(void)
   tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
 
   register_init_routine(&init_tcap);
+  register_cleanup_routine(&cleanup_tcap);
 }
 
 
@@ -2242,14 +2243,15 @@ static void range_add_callback(guint32 ssn)
 
 static void init_tcap(void)
 {
-  if (ssn_range) {
-    range_foreach(ssn_range, range_delete_callback);
-    g_free(ssn_range);
-  }
-
   ssn_range = range_copy(global_ssn_range);
   range_foreach(ssn_range, range_add_callback);
   tcapsrt_init_routine();
+}
+
+static void cleanup_tcap(void)
+{
+  range_foreach(ssn_range, range_delete_callback);
+  g_free(ssn_range);
 }
 
 static int

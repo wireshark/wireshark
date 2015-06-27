@@ -206,6 +206,11 @@ static void t38_defragment_init(void)
                               &addresses_reassembly_table_functions);
 }
 
+static void t38_defragment_cleanup(void)
+{
+    reassembly_table_destroy(&data_reassembly_table);
+}
+
 
 /* Set up an T38 conversation */
 void t38_add_address(packet_info *pinfo,
@@ -719,6 +724,7 @@ proto_register_t38(void)
 
 	/* Init reassemble tables for HDLC */
 	register_init_routine(t38_defragment_init);
+	register_cleanup_routine(t38_defragment_cleanup);
 
 	t38_tap = register_tap("t38");
 

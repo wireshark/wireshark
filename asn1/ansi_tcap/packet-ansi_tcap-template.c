@@ -170,22 +170,16 @@ struct ansi_tcap_invokedata_t {
 static GHashTable *TransactionId_table=NULL;
 
 static void
-ansi_tcap_init_transaction_table(void){
-
-        /* Destroy any existing memory chunks / hashes. */
-        if (TransactionId_table){
-                g_hash_table_destroy(TransactionId_table);
-                TransactionId_table = NULL;
-        }
-
+ansi_tcap_init(void)
+{
         TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-
 }
 
 static void
-ansi_tcap_init_protocol(void)
+ansi_tcap_cleanup(void)
 {
-        ansi_tcap_init_transaction_table();
+        /* Destroy any existing memory chunks / hashes. */
+        g_hash_table_destroy(TransactionId_table);
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -533,5 +527,6 @@ proto_register_ansi_tcap(void)
                                    "Type of matching invoke/response, risk of missmatch if loose matching choosen",
                                    &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_tcap_init_protocol);
+    register_init_routine(&ansi_tcap_init);
+    register_cleanup_routine(&ansi_tcap_cleanup);
 }

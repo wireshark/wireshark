@@ -389,20 +389,16 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 static GHashTable *TransactionId_table=NULL;
 
 static void
-ansi_map_init_transaction_table(void){
-
-    /* Destroy any existing memory chunks / hashes. */
-    if (TransactionId_table){
-        g_hash_table_destroy(TransactionId_table);
-    }
-
+ansi_map_init(void)
+{
     TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 static void
-ansi_map_init_protocol(void)
+ansi_map_cleanup(void)
 {
-    ansi_map_init_transaction_table();
+    /* Destroy any existing memory chunks / hashes. */
+    g_hash_table_destroy(TransactionId_table);
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -5492,6 +5488,7 @@ void proto_register_ansi_map(void) {
                                   "Type of matching invoke/response, risk of missmatch if loose matching choosen",
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_map_init_protocol);
+    register_init_routine(&ansi_map_init);
+    register_cleanup_routine(&ansi_map_cleanup);
     register_new_stat_tap_ui(&stat_table);
 }
