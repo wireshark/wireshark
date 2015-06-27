@@ -1546,25 +1546,46 @@ sub check_value_string_arrays($$$)
         return $cnt;
 }
 
+
 sub check_included_files($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @incFiles;
 
-        # wsutils/wsgcrypt.h is our wrapper around gcrypt.h, it must be excluded from the tests
-        if ($filename =~ /wsgcrypt\.h/) {
-                return;
+        @incFiles = (${$fileContentsRef} =~ m/\#include \s* ([<"].+[>"])/gox);
+
+        # only our wrapper file wsutils/wsgcrypt.h may include gcrypt.h
+        # all other files should include the wrapper
+        if ($filename !~ /wsgcrypt\.h/) {
+                foreach (@incFiles) {
+                        if ( m#([<"]|/+)gcrypt\.h[>"]$# ) {
+                                print STDERR "Warning: ".$filename.
+                                        " includes gcrypt.h directly. ".
+                                        "Include wsutil/wsgrypt.h instead.\n";
+                                last;
+                        }
+                }
         }
 
-        @incFiles = (${$fileContentsRef} =~ m/\#include \s* [<"](.+)[>"]/gox);
-        foreach (@incFiles) {
-                if ( m#(^|/+)gcrypt\.h$# ) {
-                        print STDERR "Warning: ".$filename." includes gcrypt.h directly. ".
-                                "Include wsutil/wsgrypt.h instead.\n";
-                        last;
+        # files in the ui/qt directory should include the ui class includes
+        # by using #include <>
+        # this ensures that Visual Studio picks up these files from the
+        # build directory if we're compiling with cmake
+        if ($filename =~ m#ui/qt/# ) {
+                foreach (@incFiles) {
+                        if ( m#"ui_.*\.h"$# ) {
+                                # strip the quotes to get the base name
+                                # for the error message
+                                s/\"//g;
+
+                                print STDERR "$filename: ".
+                                        "Please use #include <$_> ".
+                                        "instead of #include \"$_\".\n";
+                        }
                 }
         }
 }
+
 
 sub check_proto_tree_add_XXX_encoding($$)
 {
@@ -1905,7 +1926,7 @@ my $debug = 0;
             (defined $_[1]) && print "  >$_[1]<\n";
         }
 
-        # #if/#if 0/#else/#ndif processing
+        # #if/#if 0/#else/#endif processing
         if (defined $_[1]) {
             my ($if) = $_[1];
             if ($if eq 'if') {
