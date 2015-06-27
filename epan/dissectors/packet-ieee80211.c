@@ -432,10 +432,17 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
 #define QOS_PS_QAP_BUF_LOAD(x)         (((x) & 0xF0) >> 4)
 
 /*
- * Extract subfields from the HT Control field.
- * .11n D-1.10 & D-2.0, 7.1.3.5a, 32 bits.
+ * Bits from the HT Control field.
+ * 802.11-2012 and 802.11ac-2013 8.2.4.6, 32 bits.
  */
-#define HTC_LAC(htc)           ((htc) & 0xFF)
+#define HTC_VHT              0x00000001
+#define HTC_MRQ              0x00000004
+#define HTC_UNSOLICITED_MFB  0x20000000
+
+/*
+ * Extract subfields from the HT Control field.
+ */
+#define HTC_LAC(htc)           ((htc) & 0xFE)
 #define HTC_LAC_MAI(htc)       (((htc) >> 2) & 0xF)
 #define HTC_IS_ASELI(htc)      (HTC_LAC_MAI(htc) == 0xE)
 #define HTC_LAC_MAI_MRQ(htc)   ((HTC_LAC_MAI(htc))  & 0x1)
@@ -450,6 +457,11 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
 #define HTC_NDP_ANN(htc)       (((htc) >> 24) & 0x1)
 #define HTC_AC_CONSTRAINT(htc) (((htc) >> 30) & 0x1)
 #define HTC_RDG_MORE_PPDU(htc) (((htc) >> 31) & 0x1)
+
+#define HTC_MFB(htc)           (((htc) >> 9) & 0x7FFF)
+
+/* VHT-MCS = 15, NUM_STS = 7 */
+#define HTC_NO_FEEDBACK_PRESENT(mfb) (((mfb) & 0x7F) == 0x7F)
 
 /*
  * Extract subfields from the key octet in WEP-encrypted frames.
@@ -2999,17 +3011,37 @@ static const value_string ieee80211_htc_cal_pos_flags[] = {
   {0x00, NULL}
 };
 
-static const true_false_string ieee80211_htc_ndp_announcement_flag = {
-  "NDP will follow",
-  "No NDP will follow"
-};
-
 static const value_string ieee80211_htc_csi_steering_flags[] = {
   {0x00, "No feedback required"},
   {0x01, "CSI"},
   {0x02, "Non-compressed Beamforming Feedback Matrix"},
   {0x03, "Compressed Beamforming Feedback Matrix"},
   {0x00, NULL}
+};
+
+static const true_false_string ieee80211_htc_ndp_announcement_flag = {
+  "NDP will follow",
+  "No NDP will follow"
+};
+
+static const value_string ieee80211_htc_bw_recommended_vht_mcs_vals[] = {
+  {0, "20 MHz"},
+  {1, "40 MHz"},
+  {2, "80 MHz"},
+  {3, "160 MHz and 80+80 MHz"},
+  {0, NULL}
+};
+
+static const value_string ieee80211_htc_coding_type_vals[] = {
+  {0, "BCC"},
+  {1, "LDPC"},
+  {0, NULL}
+};
+
+static const value_string ieee80211_htc_fb_tx_type_vals[] = {
+  {0, "Not beamformed"},
+  {1, "Beamformed"},
+  {0, NULL}
 };
 
 static const value_string ieee80211_tag_secondary_channel_offset_flags[] = {
@@ -3262,10 +3294,10 @@ static int hf_ieee80211_qos_queue_size = -1;
 /* ************************************************************************* */
 /*                Header values for HT control field (+HTC)                  */
 /* ************************************************************************* */
-/* 802.11nD-1.10 & 802.11nD-2.0 7.1.3.5a */
+/* 802.11-2012 and 802.11ac-2013 8.2.4.6 */
 static int hf_ieee80211_htc = -1;
+static int hf_ieee80211_htc_vht = -1;
 static int hf_ieee80211_htc_lac = -1;
-static int hf_ieee80211_htc_lac_reserved = -1;
 static int hf_ieee80211_htc_lac_trq = -1;
 static int hf_ieee80211_htc_lac_mai_aseli = -1;
 static int hf_ieee80211_htc_lac_mai_mrq = -1;
@@ -3281,6 +3313,23 @@ static int hf_ieee80211_htc_reserved1 = -1;
 static int hf_ieee80211_htc_csi_steering = -1;
 static int hf_ieee80211_htc_ndp_announcement = -1;
 static int hf_ieee80211_htc_reserved2 = -1;
+static int hf_ieee80211_htc_mrq = -1;
+static int hf_ieee80211_htc_msi = -1;
+static int hf_ieee80211_htc_msi_stbc_reserved = -1;
+static int hf_ieee80211_htc_compressed_msi = -1;
+static int hf_ieee80211_htc_ppdu_stbc_encoded = -1;
+static int hf_ieee80211_htc_mfsi = -1;
+static int hf_ieee80211_htc_gid_l = -1;
+static int hf_ieee80211_htc_mfb = -1;
+static int hf_ieee80211_htc_num_sts = -1;
+static int hf_ieee80211_htc_vht_mcs = -1;
+static int hf_ieee80211_htc_bw = -1;
+static int hf_ieee80211_htc_snr = -1;
+static int hf_ieee80211_htc_reserved3 = -1;
+static int hf_ieee80211_htc_gid_h = -1;
+static int hf_ieee80211_htc_coding_type = -1;
+static int hf_ieee80211_htc_fb_tx_type = -1;
+static int hf_ieee80211_htc_unsolicited_mfb = -1;
 static int hf_ieee80211_htc_ac_constraint = -1;
 static int hf_ieee80211_htc_rdg_more_ppdu = -1;
 
@@ -5144,7 +5193,10 @@ static gint ett_antsel_tree = -1;
 static gint ett_hta_cap_tree = -1;
 static gint ett_hta_cap1_tree = -1;
 static gint ett_hta_cap2_tree = -1;
+
 static gint ett_htc_tree = -1;
+static gint ett_mfb_subtree = -1;
+static gint ett_lac_subtree = -1;
 
 static gint ett_vht_cap_tree = -1;
 static gint ett_vht_mcsset_tree = -1;
@@ -13039,57 +13091,126 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  *
  * At any rate, it doesn't look like any equipment we have produces
  * +HTC frames, so the code is completely untested.
+ *
+ * 2015-06-26 G. Harris:
+ *
+ *  At least as I read the 802.11 spec, yes, you *do* need the PHY:
+ *
+ *  8.2.4.1.10 Order field
+ *
+ *  The Order field is 1 bit in length. It is used for two purposes:
+ *
+ *    -- It is set to 1 in a non-QoS data frame transmitted by a non-QoS
+ *       STA to indicate that the frame contains an MSDU, or fragment
+ *       thereof, that is being transferred using the StrictlyOrdered
+ *       service class.
+ *
+ *    -- It is set to 1 in a QoS data or management frame transmitted
+ *       with a value of HT_GF or HT_MF for the FORMAT parameter of the
+ *       TXVECTOR to indicate that the frame contains an HT Control field.
+ *
+ * so it sounds as if you need to know whether the frame was "transmitted
+ * with a value of HT_GF or HT_MF for the FORMAT parameter of the TXVECTOR",
+ * i.e., the frame was transmitted as a Greenfield or Mixed HT frame.
+ *
+ * Fortunately, we *do* know that if the frame was saved with a radiotap
+ * header with MCS or with XChannel with the appropriate flags set, or
+ * in with a PPI header with MCS information, or in some other capture
+ * file format with a "this is HT" flag, or in a captured access point
+ * snooping protocol with a "this is HT" flag, and we use it.
+ *
+ * 802.11ac changes the second of those clauses to say "HT_GF, HT_MF,
+ * or VHT", indicates that bit B0 of the field is 0 for HT and 1 for
+ * VHT (stealing a reserved bit from the Link Adaptation Control field),
+ * and that everything except for "AC Constraint" and "RDG/More Cowbell^W
+ * PPDU" is different for the VHT version.
  */
 
 static void
 dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
-  proto_tree *htc_tree, *lac_subtree;
-  guint16 htc;
+  proto_tree *htc_tree, *lac_subtree, *mfb_subtree;
+  guint32 htc;
 
-  htc = tvb_get_letohs(tvb, offset);
+  htc = tvb_get_letohl(tvb, offset);
 
   ti = proto_tree_add_item(tree, hf_ieee80211_htc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   htc_tree = proto_item_add_subtree(ti, ett_htc_tree);
 
-  /* Start: Link Adaptation Control */
-  ti = proto_tree_add_item(htc_tree, hf_ieee80211_htc_lac, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  lac_subtree = proto_item_add_subtree(ti, ett_htc_tree);
-  proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_trq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-  if (HTC_IS_ASELI(htc)) {
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_aseli, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  } else {
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_mrq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    if (HTC_LAC_MAI_MRQ(htc)) {
-      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_msi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  /* Check the HT vs. VHT bit. */
+  proto_tree_add_item(htc_tree, hf_ieee80211_htc_vht, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  if (htc & HTC_VHT) {
+    /* VHT */
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_mrq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    if (!(htc & HTC_UNSOLICITED_MFB)) {
+      if (htc & HTC_MRQ) {
+        proto_tree_add_item(htc_tree, hf_ieee80211_htc_msi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      } else {
+        proto_tree_add_item(htc_tree, hf_ieee80211_htc_msi_stbc_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      }
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_mfsi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     } else {
-      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      if (!HTC_NO_FEEDBACK_PRESENT(HTC_MFB(htc))) {
+        proto_tree_add_item(htc_tree, hf_ieee80211_htc_compressed_msi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(htc_tree, hf_ieee80211_htc_ppdu_stbc_encoded, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      } else {
+        proto_tree_add_item(htc_tree, hf_ieee80211_htc_msi_stbc_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      }
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_gid_l, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     }
-  }
-
-  proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mfsi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-  if (HTC_IS_ASELI(htc)) {
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_asel_command, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_asel_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(htc_tree, hf_ieee80211_htc_mfb, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    mfb_subtree = proto_item_add_subtree(ti, ett_mfb_subtree);
+    proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_num_sts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_vht_mcs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    /* This should be converted to dB by adding 22  */
+    proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_snr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    if (!HTC_NO_FEEDBACK_PRESENT(HTC_MFB(htc))) {
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_gid_h, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_coding_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_fb_tx_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    } else {
+      proto_tree_add_item(htc_tree, hf_ieee80211_htc_reserved3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_unsolicited_mfb, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   } else {
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mfb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    /* Start: Link Adaptation Control */
+    ti = proto_tree_add_item(htc_tree, hf_ieee80211_htc_lac, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    lac_subtree = proto_item_add_subtree(ti, ett_lac_subtree);
+    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_trq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    if (HTC_IS_ASELI(htc)) {
+      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_aseli, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    } else {
+      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_mrq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      if (HTC_LAC_MAI_MRQ(htc)) {
+        proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_msi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      } else {
+        proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      }
+    }
+
+    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mfsi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    if (HTC_IS_ASELI(htc)) {
+      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_asel_command, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_asel_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    } else {
+      proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mfb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    }
+    /* End: Link Adaptation Control */
+
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_cal_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_cal_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_reserved1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_csi_steering, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_ndp_announcement, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(htc_tree, hf_ieee80211_htc_reserved2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   }
-  offset += 2;
-  /* End: Link Adaptation Control */
-
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_cal_pos, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_cal_seq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_reserved1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_csi_steering, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_ndp_announcement, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_reserved2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_ac_constraint, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(htc_tree, hf_ieee80211_htc_rdg_more_ppdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(htc_tree, hf_ieee80211_htc_ac_constraint, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(htc_tree, hf_ieee80211_htc_rdg_more_ppdu, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   /* offset += 2; */
 }
@@ -16652,7 +16773,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     break;
 
   case PHDR_802_11_PHY_11AC:
-    is_ht = TRUE;   /* VHT XXX */
+    is_ht = TRUE;
     break;
 
   default:
@@ -26003,15 +26124,15 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_HEX, NULL, 0,
       "High Throughput Control (+HTC)", HFILL }},
 
+    {&hf_ieee80211_htc_vht,
+     {"VHT", "wlan_mgt.htc.lac.vht",
+      FT_BOOLEAN, 32, NULL, HTC_VHT,
+      "High Throughput Control HT/VHT flag", HFILL }},
+
     {&hf_ieee80211_htc_lac,
      {"Link Adaptation Control (LAC)", "wlan_mgt.htc.lac",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT32, BASE_HEX, NULL, 0x0000FFFE,
       "High Throughput Control Link Adaptation Control (LAC)", HFILL }},
-
-    {&hf_ieee80211_htc_lac_reserved,
-     {"Reserved", "wlan_mgt.htc.lac.reserved",
-      FT_BOOLEAN, 16, NULL, 0x0001,
-      "High Throughput Control Link Adaptation Control Reserved", HFILL }},
 
     {&hf_ieee80211_htc_lac_trq,
      {"Training Request (TRQ)", "wlan_mgt.htc.lac.trq",
@@ -26060,42 +26181,127 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_htc_cal_pos,
      {"Calibration Position", "wlan_mgt.htc.cal.pos",
-      FT_UINT16, BASE_DEC, VALS(ieee80211_htc_cal_pos_flags), 0x0003,
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_cal_pos_flags), 0x00030000,
       "High Throughput Control Calibration Position", HFILL }},
 
     {&hf_ieee80211_htc_cal_seq,
      {"Calibration Sequence Identifier", "wlan_mgt.htc.cal.seq",
-      FT_UINT16, BASE_DEC, NULL, 0x000C,
+      FT_UINT32, BASE_DEC, NULL, 0x000C0000,
       "High Throughput Control Calibration Sequence Identifier", HFILL }},
 
     {&hf_ieee80211_htc_reserved1,
      {"Reserved", "wlan_mgt.htc.reserved1",
-      FT_UINT16, BASE_DEC, NULL, 0x0030,
+      FT_UINT32, BASE_HEX, NULL, 0x00300000,
       "High Throughput Control Reserved", HFILL }},
 
     {&hf_ieee80211_htc_csi_steering,
      {"CSI/Steering", "wlan_mgt.htc.csi_steering",
-      FT_UINT16, BASE_DEC, VALS(ieee80211_htc_csi_steering_flags), 0x00C0,
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_csi_steering_flags), 0x00C00000,
       "High Throughput Control CSI/Steering", HFILL }},
 
     {&hf_ieee80211_htc_ndp_announcement,
      {"NDP Announcement", "wlan_mgt.htc.ndp_announcement",
-      FT_BOOLEAN, 16, TFS(&ieee80211_htc_ndp_announcement_flag), 0x0100,
+      FT_BOOLEAN, 32, TFS(&ieee80211_htc_ndp_announcement_flag), 0x01000000,
       "High Throughput Control NDP Announcement", HFILL }},
 
     {&hf_ieee80211_htc_reserved2,
      {"Reserved", "wlan_mgt.htc.reserved2",
-      FT_UINT16, BASE_HEX, NULL, 0x3E00,
+      FT_UINT32, BASE_HEX, NULL, 0x3E000000,
       "High Throughput Control Reserved", HFILL }},
+
+    {&hf_ieee80211_htc_mrq,
+     {"MRQ", "wlan_mgt.htc.mrq",
+      FT_BOOLEAN, 32, NULL, HTC_MRQ,
+      "VHT-MCS feedback request", HFILL }},
+
+    {&hf_ieee80211_htc_msi,
+     {"MSI", "wlan_mgt.htc.msi",
+      FT_UINT32, BASE_DEC, NULL, 0x00000038,
+      "MRQ sequence number", HFILL }},
+
+    {&hf_ieee80211_htc_msi_stbc_reserved,
+     {"Reserved", "wlan_mgt.htc.msi_stbc_reserved",
+      FT_UINT32, BASE_HEX, NULL, 0x00000038,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_compressed_msi,
+     {"Compressed MSI", "wlan_mgt.htc.compressed_msi",
+      FT_UINT32, BASE_DEC, NULL, 0x00000018,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_ppdu_stbc_encoded,
+     {"PPDU was STBC encoded", "wlan_mgt.htc.ppdu_stbc_encoded",
+      FT_BOOLEAN, 32, NULL, 0x00000020,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_mfsi,
+     {"MFSI", "wlan_mgt.htc.mfsi",
+      FT_BOOLEAN, 32, NULL, 0x000001C0,
+      "MFB sequence identifier", HFILL }},
+
+    {&hf_ieee80211_htc_gid_l,
+     {"GID-L", "wlan_mgt.htc.gid_l",
+      FT_BOOLEAN, 32, NULL, 0x000001C0,
+      "LSBs of group ID", HFILL }},
+
+    {&hf_ieee80211_htc_mfb,
+     {"MFB", "wlan_mgt.htc.mfb",
+      FT_UINT32, BASE_HEX, NULL, 0x00FFFE00,
+      "Recommended MFB", HFILL }},
+
+    {&hf_ieee80211_htc_num_sts,
+     {"NUM_STS", "wlan_mgt.htc.num_sts",
+      FT_UINT32, BASE_DEC, NULL, 0x00000E00,
+      "Recommended NUM_STS", HFILL }},
+
+    {&hf_ieee80211_htc_vht_mcs,
+     {"VHT-MCS", "wlan_mgt.htc.vht_mcs",
+      FT_UINT32, BASE_DEC, NULL, 0x0000F000,
+      "Recommended VHT-MCS", HFILL }},
+
+    {&hf_ieee80211_htc_bw,
+     {"BW", "wlan_mgt.htc.bw",
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_bw_recommended_vht_mcs_vals), 0x00030000,
+      "Bandwidth for recommended VHT-MCS", HFILL }},
+
+    {&hf_ieee80211_htc_snr,
+     {"SNR", "wlan_mgt.htc.snr",
+      FT_INT32, BASE_DEC, NULL, 0x00FC0000,
+      "Average SNR + 22", HFILL }},
+
+    {&hf_ieee80211_htc_reserved3,
+     {"Reserved", "wlan_mgt.htc.reserved3",
+      FT_UINT32, BASE_HEX, NULL, 0x1F000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_gid_h,
+     {"GID-H", "wlan_mgt.htc.gid_h",
+      FT_UINT32, BASE_DEC, NULL, 0x07000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_coding_type,
+     {"Coding type", "wlan_mgt.htc.coding_type",
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_coding_type_vals), 0x08000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_fb_tx_type,
+     {"FB Tx type", "wlan_mgt.htc.fb_tx_type",
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_fb_tx_type_vals), 0x10000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htc_unsolicited_mfb,
+     {"Unsolicited MFB", "wlan_mgt.htc.unsolicited_mfb",
+      FT_BOOLEAN, 32, NULL, HTC_UNSOLICITED_MFB,
+      "High Throughput Control Unsolicited MFB", HFILL }},
 
     {&hf_ieee80211_htc_ac_constraint,
      {"AC Constraint", "wlan_mgt.htc.ac_constraint",
-      FT_BOOLEAN, 16, NULL, 0x4000,
+      FT_BOOLEAN, 32, NULL, 0x40000000,
       "High Throughput Control AC Constraint", HFILL }},
 
     {&hf_ieee80211_htc_rdg_more_ppdu,
      {"RDG/More PPDU", "wlan_mgt.htc.rdg_more_ppdu",
-      FT_BOOLEAN, 16, NULL, 0x8000,
+      FT_BOOLEAN, 32, NULL, 0x80000000,
       "High Throughput Control RDG/More PPDU", HFILL }},
     /* End: HT Control (+HTC) */
 
@@ -26767,7 +26973,10 @@ proto_register_ieee80211 (void)
     &ett_hta_cap_tree,
     &ett_hta_cap1_tree,
     &ett_hta_cap2_tree,
+
     &ett_htc_tree,
+    &ett_mfb_subtree,
+    &ett_lac_subtree,
 
     &ett_vht_cap_tree,
     &ett_vht_mcsset_tree,
