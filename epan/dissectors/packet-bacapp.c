@@ -38,11 +38,6 @@ static int bacapp_tap = -1;
 
 /* formerly bacapp.h  contains definitions and forward declarations */
 
-#ifndef FAULT
-#define FAULT           proto_tree_add_text(subtree, tvb, offset, tvb_reported_length(tvb) - offset, "something is going wrong here !!"); \
-    offset = tvb_reported_length(tvb);
-#endif
-
 /* BACnet PDU Types */
 #define BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST                   0
 #define BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST                 1
@@ -4838,6 +4833,7 @@ static int hf_BACnetExtendedTagNumber = -1;
 static int hf_BACnetNamedTag = -1;
 static int hf_BACnetTagClass = -1;
 static int hf_BACnetCharacterSet = -1;
+static int hf_BACnetCodePage = -1;
 static int hf_bacapp_tag_lvt = -1;
 static int hf_bacapp_tag_ProcessId = -1;
 static int hf_bacapp_uservice = -1;
@@ -4869,6 +4865,7 @@ static gint ett_bacapp_list = -1;
 static gint ett_bacapp_value = -1;
 
 static expert_field ei_bacapp_bad_length = EI_INIT;
+static expert_field ei_bacapp_bad_tag = EI_INIT;
 
 static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
@@ -5347,24 +5344,26 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tree) {
         proto_tree *subtree;
-        if (tag_is_opening(tag))
-            ti = proto_tree_add_text(tree, tvb, offset, tag_len, "{[%u]", *tag_no );
-        else if (tag_is_closing(tag))
-            ti = proto_tree_add_text(tree, tvb, offset, tag_len, "}[%u]", *tag_no );
-        else if (tag_is_context_specific(tag)) {
-            ti = proto_tree_add_text(tree, tvb, offset, tag_len,
-                                     "Context Tag: %u, Length/Value/Type: %u",
-                                     *tag_no, *lvt);
-        } else
-            ti = proto_tree_add_text(tree, tvb, offset, tag_len,
-                                     "Application Tag: %s, Length/Value/Type: %u",
-                                     val_to_str(*tag_no,
-                                                BACnetApplicationTagNumber,
-                                                ASHRAE_Reserved_Fmt),
-                                     *lvt);
+        if (tag_is_opening(tag)) {
+            subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
+                    ett_bacapp_tag, &ti, "{[%u]", *tag_no );
+        } else if (tag_is_closing(tag)) {
+            subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
+                    ett_bacapp_tag, &ti, "}[%u]", *tag_no );
+        } else if (tag_is_context_specific(tag)) {
+            subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
+                    ett_bacapp_tag, &ti,
+                    "Context Tag: %u, Length/Value/Type: %u", *tag_no, *lvt);
+        } else {
+            subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
+                    ett_bacapp_tag, &ti,
+                    "Application Tag: %s, Length/Value/Type: %u",
+                    val_to_str(*tag_no, BACnetApplicationTagNumber,
+                        ASHRAE_Reserved_Fmt),
+                    *lvt);
+        }
 
         /* details if needed */
-        subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
         proto_tree_add_item(subtree, hf_BACnetTagClass, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (tag_is_extended_tag_number(tag)) {
             proto_tree_add_uint_format(subtree,
@@ -5917,27 +5916,20 @@ fMacAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, c
 
     offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
 
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_bacapp_tag, NULL, label); /* just add the label, with the tagHeader information in its subtree */
+    /* just add the label, with the tagHeader information in its subtree */
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_bacapp_tag, NULL, label);
 
-    if (lvt > 0) {
-        if (lvt == 6) { /* we have 6 Byte IP Address with 4 Octets IPv4 and 2 Octets Port Information */
-
-            proto_tree_add_item(tree, hf_bacapp_tag_IPV4, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_bacapp_tag_PORT, tvb, offset+4, 2, ENC_BIG_ENDIAN);
-
-        } else {
-            if (lvt == 18) { /* we have 18 Byte IP Address with 16 Octets IPv6 and 2 Octets Port Information */
-
-            proto_tree_add_item(tree, hf_bacapp_tag_IPV6, tvb, offset, 16, ENC_NA);
-            proto_tree_add_item(tree, hf_bacapp_tag_PORT, tvb, offset+16, 2, ENC_BIG_ENDIAN);
-
-            } else { /* we have 1 Byte MS/TP Address or anything else interpreted as an address */
-                subtree = proto_tree_add_subtree(tree, tvb, offset, lvt,
-                    ett_bacapp_tag, NULL, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt));
-            }
-        }
-        offset += lvt;
+    if (lvt == 6) { /* we have 6 Byte IP Address with 4 Octets IPv4 and 2 Octets Port Information */
+        proto_tree_add_item(tree, hf_bacapp_tag_IPV4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_bacapp_tag_PORT, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+    } else if (lvt == 18) { /* we have 18 Byte IP Address with 16 Octets IPv6 and 2 Octets Port Information */
+        proto_tree_add_item(tree, hf_bacapp_tag_IPV6, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(tree, hf_bacapp_tag_PORT, tvb, offset+16, 2, ENC_BIG_ENDIAN);
+    } else { /* we have 1 Byte MS/TP Address or anything else interpreted as an address */
+        subtree = proto_tree_add_subtree(tree, tvb, offset, lvt,
+                ett_bacapp_tag, NULL, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt));
     }
+    offset += lvt;
 
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
 
@@ -6297,7 +6289,7 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 {
     guint8      tag_no, tag_info, character_set;
     guint32     lvt, l;
-    guint       offs, extra = 1;
+    guint       offs;
     const char *coding;
     guint8     *out;
     proto_tree *subtree;
@@ -6306,14 +6298,17 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
 
         offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        offset += offs;
 
-        character_set = tvb_get_guint8(tvb, offset+offs);
+        character_set = tvb_get_guint8(tvb, offset);
+        offset++;
+        lvt--;
+
         /* Account for code page if DBCS */
-        if (character_set == 1) {
-            extra = 3;
+        if (character_set == IBM_MS_DBCS) {
+            offset += 2;
+            lvt -= 2;
         }
-        offset += (offs+extra);
-        lvt -= (extra);
 
         do {
             l = MIN(lvt, 256);
@@ -6374,8 +6369,8 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
         fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
         proto_tree_add_item(subtree, hf_BACnetCharacterSet, tvb, start+offs, 1, ENC_BIG_ENDIAN);
 
-        if (character_set == 1) {
-            proto_tree_add_text(subtree, tvb, start+offs+1, 2, "Code Page: %d", tvb_get_ntohs(tvb, start+offs+1));
+        if (character_set == IBM_MS_DBCS) {
+            proto_tree_add_item(subtree, hf_BACnetCodePage, tvb, start+offs+1, 2, ENC_BIG_ENDIAN);
         }
         /* XXX - put the string value here */
     }
@@ -7127,9 +7122,9 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "monitoredPropertyIdentifier");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetPropertyReference(tvb, pinfo, subtree, offset, 1);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         case 5: /* covIncrement */
             offset = fRealTag(tvb, pinfo, tree, offset, "COV Increment: ");
@@ -7436,9 +7431,9 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                         ett_bacapp_value, NULL, "service Parameters");
                 propertyIdentifier = -1;
                 offset = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -8878,9 +8873,9 @@ fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list of Values");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetPropertyValue(tvb, pinfo, subtree, offset);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -9164,9 +9159,9 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
                 subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "listOfElements");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -9457,9 +9452,9 @@ fWriteAccessSpecification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree
             if (tag_is_opening(tag_info)) {
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetPropertyValue(tvb, pinfo, subtree, offset);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -9675,9 +9670,9 @@ fSpecialEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offs
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fTimeValue(tvb, pinfo, subtree, offset);
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         case 3: /* eventPriority */
             offset = fUnsignedTag(tvb, pinfo, subtree, offset, "event priority: ");
@@ -9755,9 +9750,9 @@ fObjectSelectionCriteria(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree,
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fSelectionCriteria(tvb, pinfo, subtree, offset);
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -9862,9 +9857,9 @@ fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             if (tag_is_opening(tag_info)) {
                 subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "listOfResults");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         case 2: /* propertyIdentifier */
             offset = fPropertyIdentifierValue(tvb, pinfo, subtree, offset, 2);
@@ -9875,9 +9870,9 @@ fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 /* Error Code follows */
                 offset  = fError(tvb, pinfo, subtree, offset);
-                break;
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
-            FAULT;
             break;
         default:
             return offset;
@@ -9925,9 +9920,9 @@ fCreateObjectRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gui
             case 1: /* propertyValue */
                 if (tag_is_opening(tag_info)) {
                     offset = fBACnetPropertyValue(tvb, pinfo, subtree, offset);
-                    break;
+                } else {
+                    expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
                 }
-                FAULT;
                 break;
             default:
                 break;
@@ -11207,6 +11202,12 @@ proto_register_bacapp(void)
             FT_UINT8, BASE_DEC, VALS(BACnetCharacterSet), 0,
             NULL, HFILL }
         },
+        { &hf_BACnetCodePage,
+          { "Code Page",
+            "bacapp.code_page",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_BACnetTagClass,
           { "Tag Class",           "bacapp.tag_class",
             FT_BOOLEAN, 8, TFS(&BACnetTagClass), 0x08, NULL, HFILL }
@@ -11279,6 +11280,7 @@ proto_register_bacapp(void)
 
     static ei_register_info ei[] = {
         { &ei_bacapp_bad_length, { "bacapp.bad_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated", EXPFILL }},
+        { &ei_bacapp_bad_tag, { "bacapp.bad_tag", PI_MALFORMED, PI_ERROR, "Wrong tag found", EXPFILL }},
     };
 
     expert_module_t* expert_bacapp;
