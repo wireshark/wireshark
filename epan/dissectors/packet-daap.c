@@ -378,6 +378,16 @@ static value_string_ext vals_tag_code_ext = VALUE_STRING_EXT_INIT(vals_tag_code)
 static int proto_daap = -1;
 static int hf_daap_name = -1;
 static int hf_daap_size = -1;
+static int hf_daap_data_string = -1;
+static int hf_daap_persistent_id = -1;
+static int hf_daap_status = -1;
+static int hf_daap_rev = -1;
+static int hf_daap_id = -1;
+static int hf_daap_cnt = -1;
+static int hf_daap_timeout = -1;
+static int hf_daap_data = -1;
+static int hf_daap_playlist_id = -1;
+static int hf_daap_track_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_daap = -1;
@@ -391,7 +401,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti;
    proto_tree *daap_tree;
-   guint first_tag = 0;
+   guint first_tag;
 
    first_tag = tvb_get_ntohl(tvb, 0);
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
@@ -423,276 +433,266 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
 {
-   gint        offset = 0;
-   gint        reported_length;
-   guint32     tagname;
-   guint32     tagsize;
-   gint        len;
-   proto_item *ti;
-   proto_item *ti2;
-   proto_tree *new_tree;
+   guint       offset = 0;
+   guint32     tagname, tagsize;
+   proto_item *tag_ti;
+   proto_tree *tag_tree;
    tvbuff_t   *new_tvb;
 
-   reported_length = tvb_reported_length(tvb);
-
-   while ((offset >= 0) &&  (offset < reported_length)) {
+   while (offset < tvb_reported_length(tvb)) {
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
-      new_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_daap_sub, &ti,
-                               "Tag: %-40s %3u byte%c",
-                               val_to_str_ext(tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
-                               tagsize,
-                               plurality(tagsize, ' ', 's'));
 
-      ti2 = proto_tree_add_item(new_tree, hf_daap_name, tvb, offset, 4, ENC_ASCII|ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti2);
-      ti2 = proto_tree_add_item(new_tree, hf_daap_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_HIDDEN(ti2);
+      tag_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+            ett_daap_sub, &tag_ti, "Tag: ");
 
-      offset += 8;
+      proto_tree_add_item_ret_uint(tag_tree, hf_daap_name,
+            tvb, offset, 4, ENC_ASCII|ENC_NA, &tagname);
+      offset += 4;
+      proto_tree_add_item_ret_uint(tag_tree, hf_daap_size,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &tagsize);
+      offset += 4;
 
-      len = reported_length - offset; /* should be >= 0 since no exception above */
-      DISSECTOR_ASSERT(len >= 0);
-      if (tagsize <= (unsigned)len) {
-         len = tagsize;
-      }
-      proto_item_set_len(ti, 8+len);              /* *Now* it's Ok to set the length.               */
-                                                  /*  (Done here so that the proto_tree_add_subtree */
-                                                  /*   above will show tag and tagsize even if      */
-                                                  /*   tagsize is very large).                      */
+      proto_item_append_text(tag_ti, "%s, %u byte%c",
+            val_to_str_ext(tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
+            tagsize, plurality(tagsize, ' ', 's'));
+      proto_item_set_len(tag_ti, 8+tagsize);
+
+      if (tagsize > G_MAXINT)
+         break;
+
       switch (tagname) {
-      case daap_mcon:
-      case daap_msrv:
-      case daap_mccr:
-      case daap_mdcl:
-      case daap_mlog:
-      case daap_mupd:
-      case daap_avdb:
-      case daap_mlcl:
-      case daap_mlit:
-      case daap_mbcl:
-      case daap_adbs:
-      case daap_aply:
-      case daap_apso:
-      case daap_mudl:
-      case daap_abro:
-      case daap_abar:
-      case daap_arsv:
-      case daap_abal:
-      case daap_abcp:
-      case daap_abgn:
-      case daap_prsv:
-      case daap_arif:
-      case dacp_casp:
-      case dacp_cmgt:
-      case dacp_cmst:
-         /* Container tags */
-         new_tvb  = tvb_new_subset_length(tvb, offset, len);  /* Use a new tvb so bounds checking        */
-                                                              /*  works Ok when dissecting container.    */
-                                                              /* Note: len is within tvb; checked above. */
-                                                              /* len (see above) is used so that we'll   */
-                                                              /* at least try to dissect what we have    */
-                                                              /* before throwing an exception.           */
-         dissect_daap_one_tag(new_tree, new_tvb);
-         break;
-      case daap_minm:
-      case daap_msts:
-      case daap_mcnm:
-      case daap_mcna:
-      case daap_asal:
-      case daap_asar:
-      case daap_ascm:
-      case daap_asfm:
-      case daap_aseq:
-      case daap_asgn:
-      case daap_asdt:
-      case daap_asul:
-      case daap_ascp:
-      case daap_asct:
-      case daap_ascn:
-      case daap_aslc:
-      case daap_asky:
-      case daap_aeSN:
-      case daap_aeNN:
-      case daap_aeEN:
-      case daap_assn:
-      case daap_assa:
-      case daap_assl:
-      case daap_assc:
-      case daap_asss:
-      case daap_asaa:
-      case daap_aspu:
-      case daap_aeCR:
-      case dacp_cana:
-      case dacp_cang:
-      case dacp_canl:
-      case dacp_cann:
-         /* Tags contain strings */
-         proto_item_append_text(ti, "; Data: %s",
-                                tvb_format_text(tvb, offset, tagsize));
-         break;
-      case daap_mper:
-      case daap_aeGR:
-      case daap_aeGU:
-      case daap_asai:
-      case daap_asls:
-         /* Tags conain uint64 */
-         proto_item_append_text(ti, "; Persistent Id: %" G_GINT64_MODIFIER "u",
-                                tvb_get_ntoh64(tvb, offset));
-         break;
-      case daap_mstt:
-         proto_item_append_text(ti, "; Status: %d",
-                                tvb_get_ntohl(tvb, offset));
-         break;
-      case daap_musr:
-      case daap_msur:
-         proto_item_append_text(ti, "; Revision: %d",
-                                tvb_get_ntohl(tvb, offset));
-         break;
-      case daap_miid:
-      case daap_mcti:
-      case daap_mpco:
-      case daap_mlid:
-         proto_item_append_text(ti, "; Id: %d",
-                                tvb_get_ntohl(tvb, offset));
-         break;
-      case daap_mrco:
-      case daap_mtco:
-      case daap_mimc:
-      case daap_msdc:
-      case daap_mctc:
-         proto_item_append_text(ti, "; Count: %d",
-                                tvb_get_ntohl(tvb, offset));
-         break;
-      case daap_mstm:
-         proto_item_append_text(ti, "; Timeout: %d seconds",
-                                tvb_get_ntohl(tvb, offset));
-         break;
-      case daap_asda:
-      case daap_asdm:
-      case daap_assr:
-      case daap_assz:
-      case daap_asst:
-      case daap_assp:
-      case daap_astm:
-      case daap_aeNV:
-      case daap_ascd:
-      case daap_ascs:
-      case daap_aeSV:
-      case daap_aePI:
-      case daap_aeCI:
-      case daap_aeGI:
-      case daap_aeAI:
-      case daap_aeSI:
-      case daap_aeES:
-      case daap_asbo:
-      case daap_aeGH:
-      case daap_aeGD:
-      case daap_aeGE:
-      case dacp_cant:
-      case dacp_cast:
-      case dacp_cmsr:
-      case dacp_cmvo:
-      case daap_meds:
-         /* Tags conain uint32 */
-         proto_item_append_text(ti, "; Data: %d",
-                                tvb_get_ntohl(tvb, offset));
-         break;
+         case daap_mcon:
+         case daap_msrv:
+         case daap_mccr:
+         case daap_mdcl:
+         case daap_mlog:
+         case daap_mupd:
+         case daap_avdb:
+         case daap_mlcl:
+         case daap_mlit:
+         case daap_mbcl:
+         case daap_adbs:
+         case daap_aply:
+         case daap_apso:
+         case daap_mudl:
+         case daap_abro:
+         case daap_abar:
+         case daap_arsv:
+         case daap_abal:
+         case daap_abcp:
+         case daap_abgn:
+         case daap_prsv:
+         case daap_arif:
+         case dacp_casp:
+         case dacp_cmgt:
+         case dacp_cmst:
+            /* Container tags */
+            new_tvb  = tvb_new_subset_length(tvb, offset, (gint)tagsize);
+            dissect_daap_one_tag(tag_tree, new_tvb);
+            break;
 
-      case daap_mcty:
-      case daap_asbt:
-      case daap_asbr:
-      case daap_asdc:
-      case daap_asdn:
-      case daap_astc:
-      case daap_astn:
-      case daap_asyr:
-      case daap_ased:
-         /* Tags conain uint16 */
-         proto_item_append_text(ti, "; Data: %d",
-                                tvb_get_ntohs(tvb, offset));
-         break;
+         case daap_minm:
+         case daap_msts:
+         case daap_mcnm:
+         case daap_mcna:
+         case daap_asal:
+         case daap_asar:
+         case daap_ascm:
+         case daap_asfm:
+         case daap_aseq:
+         case daap_asgn:
+         case daap_asdt:
+         case daap_asul:
+         case daap_ascp:
+         case daap_asct:
+         case daap_ascn:
+         case daap_aslc:
+         case daap_asky:
+         case daap_aeSN:
+         case daap_aeNN:
+         case daap_aeEN:
+         case daap_assn:
+         case daap_assa:
+         case daap_assl:
+         case daap_assc:
+         case daap_asss:
+         case daap_asaa:
+         case daap_aspu:
+         case daap_aeCR:
+         case dacp_cana:
+         case dacp_cang:
+         case dacp_canl:
+         case dacp_cann:
+            /* Tags contain strings
+               XXX - verify that they're really 7bit ASCII */
+            proto_tree_add_item(tag_tree, hf_daap_data_string,
+                  tvb, offset, tagsize, ENC_ASCII|ENC_NA);
+            break;
 
-      case daap_mikd:
-      case daap_msau:
-      case daap_msty:
-      case daap_asrv:
-      case daap_asur:
-      case daap_asdk:
-      case daap_muty:
-      case daap_msas:
-      case daap_aeHV:
-      case daap_aeHD:
-      case daap_aePC:
-      case daap_aePP:
-      case daap_aeMK:
-      case daap_aeSG:
-      case daap_apsm:
-      case daap_aprm:
-      case daap_asgp:
-      case daap_aePS:
-      case dacp_cafs:
-      case dacp_caps:
-      case dacp_carp:
-      case dacp_cash:
-      case dacp_cavs:
-         /* Tags conain uint8 */
-         proto_item_append_text(ti, "; Data: %d",
-                                tvb_get_guint8(tvb, offset));
+         case daap_mper:
+         case daap_aeGR:
+         case daap_aeGU:
+         case daap_asai:
+         case daap_asls:
+            proto_tree_add_item(tag_tree, hf_daap_persistent_id,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
 
-         break;
+         case daap_mstt:
+            proto_tree_add_item(tag_tree, hf_daap_status,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
 
-      case daap_mslr:
-      case daap_msal:
-      case daap_msup:
-      case daap_mspi:
-      case daap_msex:
-      case daap_msbr:
-      case daap_msqy:
-      case daap_msix:
-      case daap_msrs:
-      case daap_asco:
-      case daap_asdb:
-      case daap_abpl:
-      case daap_aeSP:
-      case daap_asbk:
-         /* Tags ARE boolean. Data is (uint8), but it seems
-          * the value is always zero. So, if the tag is present
-          * the "bool" is true.
-          */
-         proto_item_append_text(ti, "; Data: True");
-         break;
+         case daap_musr:
+         case daap_msur:
+            proto_tree_add_item(tag_tree, hf_daap_rev,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
 
-      case daap_mpro:
-      case daap_apro:
-         /* Tags conain version (uint32) */
-         proto_item_append_text(ti, "; Version: %d.%d.%d.%d",
-                                tvb_get_guint8(tvb, offset),
-                                tvb_get_guint8(tvb, offset+1),
-                                tvb_get_guint8(tvb, offset+2),
-                                tvb_get_guint8(tvb, offset+3));
-         break;
+         case daap_miid:
+         case daap_mcti:
+         case daap_mpco:
+         case daap_mlid:
+            proto_tree_add_item(tag_tree, hf_daap_id,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
 
-      case dacp_canp:
-         /* now playing */
-         /* bytes  4-7  contain uint32 playlist id */
-         /* bytes 12-15 contain uint32 track id */
-         proto_item_append_text(ti,
-                                "; unknown: %d, playlist id: %d, unknown: %d, track id: %d",
-                                tvb_get_ntohl(tvb, offset),
-                                tvb_get_ntohl(tvb, offset+4),
-                                tvb_get_ntohl(tvb, offset+8),
-                                tvb_get_ntohl(tvb, offset+12));
+         case daap_mrco:
+         case daap_mtco:
+         case daap_mimc:
+         case daap_msdc:
+         case daap_mctc:
+            proto_tree_add_item(tag_tree, hf_daap_cnt,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
 
-      default:
-         break;
+         case daap_mstm:
+            proto_tree_add_item(tag_tree, hf_daap_timeout,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
+
+         case daap_asda:
+         case daap_asdm:
+         case daap_assr:
+         case daap_assz:
+         case daap_asst:
+         case daap_assp:
+         case daap_astm:
+         case daap_aeNV:
+         case daap_ascd:
+         case daap_ascs:
+         case daap_aeSV:
+         case daap_aePI:
+         case daap_aeCI:
+         case daap_aeGI:
+         case daap_aeAI:
+         case daap_aeSI:
+         case daap_aeES:
+         case daap_asbo:
+         case daap_aeGH:
+         case daap_aeGD:
+         case daap_aeGE:
+         case dacp_cant:
+         case dacp_cast:
+         case dacp_cmsr:
+         case dacp_cmvo:
+         case daap_meds:
+            /* Tags contain uint32
+               XXX - check tagsize here and below */
+            proto_tree_add_item(tag_tree, hf_daap_data,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
+
+         case daap_mcty:
+         case daap_asbt:
+         case daap_asbr:
+         case daap_asdc:
+         case daap_asdn:
+         case daap_astc:
+         case daap_astn:
+         case daap_asyr:
+         case daap_ased:
+            /* Tags contain uint16 */
+            proto_tree_add_item(tag_tree, hf_daap_data,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
+
+         case daap_mikd:
+         case daap_msau:
+         case daap_msty:
+         case daap_asrv:
+         case daap_asur:
+         case daap_asdk:
+         case daap_muty:
+         case daap_msas:
+         case daap_aeHV:
+         case daap_aeHD:
+         case daap_aePC:
+         case daap_aePP:
+         case daap_aeMK:
+         case daap_aeSG:
+         case daap_apsm:
+         case daap_aprm:
+         case daap_asgp:
+         case daap_aePS:
+         case dacp_cafs:
+         case dacp_caps:
+         case dacp_carp:
+         case dacp_cash:
+         case dacp_cavs:
+            /* Tags contain uint8 */
+            proto_tree_add_item(tag_tree, hf_daap_data,
+                  tvb, offset, tagsize, ENC_BIG_ENDIAN);
+            break;
+
+         case daap_mslr:
+         case daap_msal:
+         case daap_msup:
+         case daap_mspi:
+         case daap_msex:
+         case daap_msbr:
+         case daap_msqy:
+         case daap_msix:
+         case daap_msrs:
+         case daap_asco:
+         case daap_asdb:
+         case daap_abpl:
+         case daap_aeSP:
+         case daap_asbk:
+            /* Tags ARE boolean. Data is (uint8), but it seems
+             * the value is always zero. So, if the tag is present
+             * the "bool" is true.
+             */
+            proto_item_append_text(tag_ti, "; Data: True");
+            break;
+
+         case daap_mpro:
+         case daap_apro:
+            /* Tags contain version (uint32) */
+            proto_item_append_text(tag_ti, "; Version: %d.%d.%d.%d",
+                  tvb_get_guint8(tvb, offset),
+                  tvb_get_guint8(tvb, offset+1),
+                  tvb_get_guint8(tvb, offset+2),
+                  tvb_get_guint8(tvb, offset+3));
+            break;
+
+         case dacp_canp:
+            /* now playing */
+            /* bytes  4-7  contain uint32 playlist id */
+            /* bytes 12-15 contain uint32 track id */
+
+            proto_tree_add_item(tag_tree, hf_daap_playlist_id,
+                  tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tag_tree, hf_daap_track_id,
+                  tvb, offset+12, 4, ENC_BIG_ENDIAN);
+            break;
+
+         default:
+            break;
       }
-      if ((signed)tagsize < 0)   /* we'll consider a tagsize >= 0x80000000 invalid */
-          break;
+
       offset += tagsize;
-   }
-   if ((offset < 0) || ((reported_length - offset) != 0)) {
-       THROW(ReportedBoundsError);
    }
 }
 
@@ -704,12 +704,54 @@ proto_register_daap(void)
 
    static hf_register_info hf[] = {
       { &hf_daap_name,
-        { "Name", "daap.name", FT_STRING, BASE_NONE, NULL, 0x0,
-          "Tag Name", HFILL}
+        { "Tag name", "daap.name", FT_UINT32,
+           BASE_HEX|BASE_EXT_STRING, &vals_tag_code_ext, 0, NULL, HFILL }
       },
       { &hf_daap_size,
-        { "Size", "daap.size", FT_UINT32, BASE_DEC, NULL, 0x0,
-          "Tag Size", HFILL }
+        { "Tag size", "daap.size",
+           FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_data_string,
+        { "Data string", "daap.data_string",
+           FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_persistent_id,
+        { "Persistent Id", "daap.persistent_id",
+           FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_status,
+        { "Staus", "daap.status",
+           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_rev,
+        { "Revision", "daap.revision",
+           FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_id,
+        { "Id", "daap.id",
+           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_cnt,
+        { "Count", "daap.count",
+           FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_timeout,
+        { "Timeout (seconds)", "daap.timeout",
+           FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+      },
+      /* this will hold data for the tags that contain
+         32, 16 or 8 bits of payload */
+      { &hf_daap_data,
+        { "Data", "daap.data",
+           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_playlist_id,
+        { "Playlist Id", "daap.playlist_id",
+           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_daap_track_id,
+        { "Track Id", "daap.track_id",
+           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       }
    };
 
