@@ -415,11 +415,9 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    tvb_format_text(tvb, 0, 4),
                    tvb_get_ntohl(tvb, 4));
 
-   if (tree) {
-      ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
-      daap_tree = proto_item_add_subtree(ti, ett_daap);
-      dissect_daap_one_tag(daap_tree, tvb);
-   }
+   ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
+   daap_tree = proto_item_add_subtree(ti, ett_daap);
+   dissect_daap_one_tag(daap_tree, tvb);
 }
 
 static void
@@ -696,7 +694,6 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
    if ((offset < 0) || ((reported_length - offset) != 0)) {
        THROW(ReportedBoundsError);
    }
-   return;
 }
 
 
