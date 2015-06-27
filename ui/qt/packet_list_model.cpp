@@ -181,15 +181,15 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);
     } else if (text_sort_column_ < 0) {
         // Column comes directly from frame data
-        cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.col_fmt[sort_column_]);
+        cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.columns[sort_column_].col_fmt);
     } else  {
         if (r1->columnString(sort_cap_file_, sort_column_).toByteArray().data() == r2->columnString(sort_cap_file_, sort_column_).toByteArray().data()) {
             cmp_val = 0;
-        } else if (sort_cap_file_->cinfo.col_fmt[sort_column_] == COL_CUSTOM) {
+        } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
             header_field_info *hfi;
 
             // Column comes from custom data
-            hfi = proto_registrar_get_byname(sort_cap_file_->cinfo.col_custom_field[sort_column_]);
+            hfi = proto_registrar_get_byname(sort_cap_file_->cinfo.columns[sort_column_].col_custom_field);
 
             if (hfi == NULL) {
                 cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);

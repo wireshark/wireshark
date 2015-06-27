@@ -398,7 +398,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 		text_column = packet_list->col_to_text[column];
 		if (text_column == -1) { /* column based on frame_data */
 			col_fill_in_frame_data(record->fdata, &cfile.cinfo, column, FALSE);
-			g_value_set_string(value, cfile.cinfo.col_data[column]);
+			g_value_set_string(value, cfile.cinfo.columns[column].col_data);
 		} else {
 			g_return_if_fail(record->col_text);
 			g_value_set_string(value, record->col_text[text_column]);
@@ -652,6 +652,7 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 	gchar *str;
 	size_t col_text_len;
 	int text_col;
+	col_item_t* col_item;
 
 	text_col = packet_list->col_to_text[col];
 
@@ -659,7 +660,8 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 	if (text_col == -1 || record->col_text[text_col] != NULL)
 		return;
 
-	switch (cfile.cinfo.col_fmt[col]) {
+	col_item = &cfile.cinfo.columns[col];
+	switch (col_item->col_fmt) {
 		case COL_DEF_SRC:
 		case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
 		case COL_UNRES_SRC:
@@ -685,13 +687,13 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 		case COL_8021Q_VLAN_ID:
 		case COL_EXPERT:
 		case COL_FREQ_CHAN:
-			if (cinfo->col_data[col] && cinfo->col_data[col] != cinfo->col_buf[col]) {
-				col_text_len = strlen(cinfo->col_data[col]);
+			if (col_item->col_data && col_item->col_data != col_item->col_buf) {
+				col_text_len = strlen(col_item->col_data);
 				if (col_text_len > G_MAXUSHORT)
 					col_text_len = G_MAXUSHORT;
 
 				/* This is a constant string, so we don't have to copy it */
-				record->col_text[text_col] = (gchar *) cinfo->col_data[col];
+				record->col_text[text_col] = (gchar *) col_item->col_data;
 				record->col_text_len[text_col] = (gushort) col_text_len;
 #ifdef PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
@@ -701,8 +703,8 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 		/* !! FALL-THROUGH!! */
 
 		default:
-			if(cinfo->col_data[col]){
-				col_text_len = strlen(cinfo->col_data[col]);
+			if(col_item->col_data){
+				col_text_len = strlen(col_item->col_data);
 				if (col_text_len > G_MAXUSHORT)
 					col_text_len = G_MAXUSHORT;
 
@@ -722,7 +724,7 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 				/* Use the unresolved value in col_expr_val */
 				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)cinfo->col_expr.col_expr_val[col]);
 			} else {
-				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)cinfo->col_data[col]);
+				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)col_item->col_data);
 			}
 			record->col_text[text_col] = str;
 			break;
@@ -930,7 +932,7 @@ packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a,
 {
 	header_field_info *hfi;
 
-	hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[sort_id]);
+	hfi = proto_registrar_get_byname(cfile.cinfo.columns[sort_id].col_custom_field);
 
 	if (hfi == NULL) {
 		return frame_data_compare(cfile.epan, a->fdata, b->fdata, COL_NUMBER);
@@ -968,7 +970,7 @@ _packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *
 	if(a->col_text[text_sort_id] == b->col_text[text_sort_id])
 		return 0; /* no need to call strcmp() */
 
-	if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM)
+	if (cfile.cinfo.columns[sort_id].col_fmt == COL_CUSTOM)
 		return packet_list_compare_custom(sort_id, text_sort_id, a, b);
 
 	return strcmp(a->col_text[text_sort_id], b->col_text[text_sort_id]);
@@ -980,7 +982,7 @@ packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *a
 	gint ret;
 
 	if (text_sort_id == -1)	/* based on frame_data ? */
-		return frame_data_compare(cfile.epan, a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
+		return frame_data_compare(cfile.epan, a->fdata, b->fdata, cfile.cinfo.columns[sort_id].col_fmt);
 
 	ret = _packet_list_compare_records(sort_id, text_sort_id, a, b);
 	if (ret == 0)
@@ -1216,7 +1218,7 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);
 
 			col_fill_in_frame_data(record->fdata, &cfile.cinfo, col, FALSE);
-			column_len = (gint) strlen(cfile.cinfo.col_buf[col]);
+			column_len = (gint) strlen(cfile.cinfo.columns[col].col_buf);
 			if (column_len > widest_column_len) {
 				widest_column_len = column_len;
 				widest_packet = vis_idx;
@@ -1227,7 +1229,7 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, widest_packet);
 			col_fill_in_frame_data(record->fdata, &cfile.cinfo, col, FALSE);
 
-			return cfile.cinfo.col_buf[col];
+			return cfile.cinfo.columns[col].col_buf;
 		} else
 			return "";
 	}

@@ -75,6 +75,7 @@ static gboolean
 seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
+    col_item_t* col_item;
 
     if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1)){
         int i;
@@ -108,8 +109,9 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
             if (pinfo->cinfo->col_first[COL_INFO]>=0){
 
                 for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
-                    if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
-                        colinfo = g_strdup(pinfo->cinfo->col_data[i]);
+                    col_item = &pinfo->cinfo->columns[i];
+                    if (col_item->fmt_matx[COL_INFO]) {
+                        colinfo = g_strdup(col_item->col_data);
                         /* break; ? or g_free(colinfo); before g_strdup() */
                     }
                 }
@@ -118,8 +120,9 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
             if (pinfo->cinfo->col_first[COL_PROTOCOL]>=0){
 
                 for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
-                    if (pinfo->cinfo->fmt_matx[i][COL_PROTOCOL]) {
-                        protocol = g_strdup(pinfo->cinfo->col_data[i]);
+                    col_item = &pinfo->cinfo->columns[i];
+                    if (col_item->fmt_matx[COL_PROTOCOL]) {
+                        protocol = g_strdup(col_item->col_data);
                         /* break; ? or g_free(protocol); before g_strdup() */
                     }
                 }

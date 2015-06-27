@@ -614,7 +614,7 @@ write_psml_preamble(column_info *cinfo, FILE *fh)
 
     for (i = 0; i < cinfo->num_cols; i++) {
         fprintf(fh, "<section>");
-        print_escaped_xml(fh, cinfo->col_title[i]);
+        print_escaped_xml(fh, cinfo->columns[i].col_title);
         fprintf(fh, "</section>\n");
     }
 
@@ -630,7 +630,7 @@ write_psml_columns(epan_dissect_t *edt, FILE *fh)
 
     for (i = 0; i < edt->pi.cinfo->num_cols; i++) {
         fprintf(fh, "<section>");
-        print_escaped_xml(fh, edt->pi.cinfo->col_data[i]);
+        print_escaped_xml(fh, edt->pi.cinfo->columns[i].col_data);
         fprintf(fh, "</section>\n");
     }
 
@@ -681,8 +681,8 @@ write_csv_column_titles(column_info *cinfo, FILE *fh)
     gint i;
 
     for (i = 0; i < cinfo->num_cols - 1; i++)
-        csv_write_str(cinfo->col_title[i], ',', fh);
-    csv_write_str(cinfo->col_title[i], '\n', fh);
+        csv_write_str(cinfo->columns[i].col_title, ',', fh);
+    csv_write_str(cinfo->columns[i].col_title, '\n', fh);
 }
 
 void
@@ -691,8 +691,8 @@ write_csv_columns(epan_dissect_t *edt, FILE *fh)
     gint i;
 
     for (i = 0; i < edt->pi.cinfo->num_cols - 1; i++)
-        csv_write_str(edt->pi.cinfo->col_data[i], ',', fh);
-    csv_write_str(edt->pi.cinfo->col_data[i], '\n', fh);
+        csv_write_str(edt->pi.cinfo->columns[i].col_data, ',', fh);
+    csv_write_str(edt->pi.cinfo->columns[i].col_data, '\n', fh);
 }
 
 void
@@ -1360,12 +1360,12 @@ void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, colum
     if (fields->includes_col_fields) {
         for (col = 0; col < cinfo->num_cols; col++) {
             /* Prepend COLUMN_FIELD_FILTER as the field name */
-            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->col_title[col]);
+            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
             field_index = g_hash_table_lookup(fields->field_indicies, col_name);
             g_free(col_name);
 
             if (NULL != field_index) {
-                format_field_values(fields, field_index, g_strdup(cinfo->col_data[col]));
+                format_field_values(fields, field_index, g_strdup(cinfo->columns[col].col_data));
             }
         }
     }

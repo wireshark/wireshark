@@ -856,7 +856,7 @@ QString &PacketList::getFilterFromRowAndColumn()
         epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->phdr, frame_tvbuff_new_buffer(fdata, &cap_file_->buf), fdata, &cap_file_->cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if ((cap_file_->cinfo.col_custom_occurrence[ctx_column_]) ||
+        if ((cap_file_->cinfo.columns[ctx_column_].col_custom_occurrence) ||
             (strchr (cap_file_->cinfo.col_expr.col_expr_val[ctx_column_], ',') == NULL))
         {
             /* Only construct the filter when a single occurrence is displayed
@@ -868,8 +868,8 @@ QString &PacketList::getFilterFromRowAndColumn()
              */
             if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
-                if (cap_file_->cinfo.col_fmt[ctx_column_] == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_custom_field[ctx_column_]);
+                if (cap_file_->cinfo.columns[ctx_column_].col_fmt == COL_CUSTOM) {
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_field);
                     if (hfi->parent == -1) {
                         /* Protocol only */
                         filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);

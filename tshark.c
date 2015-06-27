@@ -3748,21 +3748,23 @@ print_columns(capture_file *cf)
   size_t  buf_offset;
   size_t  column_len;
   size_t  col_len;
+  col_item_t* col_item;
 
   line_bufp = get_line_buf(256);
   buf_offset = 0;
   *line_bufp = '\0';
   for (i = 0; i < cf->cinfo.num_cols; i++) {
+    col_item = &cf->cinfo.columns[i];
     /* Skip columns not marked as visible. */
     if (!get_column_visible(i))
       continue;
-    switch (cf->cinfo.col_fmt[i]) {
+    switch (col_item->col_fmt) {
     case COL_NUMBER:
-      column_len = col_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(col_item->col_data);
       if (column_len < 3)
         column_len = 3;
       line_bufp = get_line_buf(buf_offset + column_len);
-      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
+      put_spaces_string(line_bufp + buf_offset, col_item->col_data, col_len, column_len);
       break;
 
     case COL_CLS_TIME:
@@ -3773,11 +3775,11 @@ print_columns(capture_file *cf)
     case COL_UTC_TIME:
     case COL_UTC_YMD_TIME:  /* XXX - wider */
     case COL_UTC_YDOY_TIME: /* XXX - wider */
-      column_len = col_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(col_item->col_data);
       if (column_len < 10)
         column_len = 10;
       line_bufp = get_line_buf(buf_offset + column_len);
-      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
+      put_spaces_string(line_bufp + buf_offset, col_item->col_data, col_len, column_len);
       break;
 
     case COL_DEF_SRC:
@@ -3789,11 +3791,11 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
     case COL_UNRES_NET_SRC:
-      column_len = col_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(col_item->col_data);
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
+      put_spaces_string(line_bufp + buf_offset, col_item->col_data, col_len, column_len);
       break;
 
     case COL_DEF_DST:
@@ -3805,17 +3807,17 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
-      column_len = col_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(col_item->col_data);
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      put_string_spaces(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
+      put_string_spaces(line_bufp + buf_offset, col_item->col_data, col_len, column_len);
       break;
 
     default:
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = strlen(col_item->col_data);
       line_bufp = get_line_buf(buf_offset + column_len);
-      put_string(line_bufp + buf_offset, cf->cinfo.col_data[i], column_len);
+      put_string(line_bufp + buf_offset, col_item->col_data, column_len);
       break;
     }
     buf_offset += column_len;
@@ -3835,12 +3837,12 @@ print_columns(capture_file *cf)
        * even if we're only adding " ".
        */
       line_bufp = get_line_buf(buf_offset + 4);
-      switch (cf->cinfo.col_fmt[i]) {
+      switch (col_item->col_fmt) {
 
       case COL_DEF_SRC:
       case COL_RES_SRC:
       case COL_UNRES_SRC:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_DST:
         case COL_RES_DST:
@@ -3859,7 +3861,7 @@ print_columns(capture_file *cf)
       case COL_DEF_DL_SRC:
       case COL_RES_DL_SRC:
       case COL_UNRES_DL_SRC:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
@@ -3878,7 +3880,7 @@ print_columns(capture_file *cf)
       case COL_DEF_NET_SRC:
       case COL_RES_NET_SRC:
       case COL_UNRES_NET_SRC:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
@@ -3897,7 +3899,7 @@ print_columns(capture_file *cf)
       case COL_DEF_DST:
       case COL_RES_DST:
       case COL_UNRES_DST:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_SRC:
         case COL_RES_SRC:
@@ -3916,7 +3918,7 @@ print_columns(capture_file *cf)
       case COL_DEF_DL_DST:
       case COL_RES_DL_DST:
       case COL_UNRES_DL_DST:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
@@ -3935,7 +3937,7 @@ print_columns(capture_file *cf)
       case COL_DEF_NET_DST:
       case COL_RES_NET_DST:
       case COL_UNRES_NET_DST:
-        switch (cf->cinfo.col_fmt[i + 1]) {
+        switch (cf->cinfo.columns[i+1].col_fmt) {
 
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:

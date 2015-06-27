@@ -172,7 +172,7 @@ create_packet_window_title(void)
 	 * frame was dissected.
 	 */
 	for (i = 0; i < cfile.cinfo.num_cols; ++i) {
-		g_string_append(title, cfile.cinfo.col_data[i]);
+		g_string_append(title, cfile.cinfo.columns[i].col_data);
 		g_string_append_c(title, ' ');
 	}
 

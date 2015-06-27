@@ -2430,6 +2430,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             cp_off;
   char            bookmark_name[9+10+1];  /* "__frameNNNNNNNNNN__\0" */
   char            bookmark_title[6+10+1]; /* "Frame NNNNNNNNNN__\0"  */
+  col_item_t*     col_item;
 
   /* Fill in the column information if we're printing the summary
      information. */
@@ -2467,8 +2468,9 @@ print_packet(capture_file *cf, frame_data *fdata,
     cp = &args->line_buf[0];
     line_len = 0;
     for (i = 0; i < args->num_visible_cols; i++) {
+      col_item = &cf->cinfo.columns[args->visible_cols[i]];
       /* Find the length of the string for this column. */
-      column_len = (int) strlen(cf->cinfo.col_data[args->visible_cols[i]]);
+      column_len = (int) strlen(col_item->col_data);
       if (args->col_widths[i] > column_len)
          column_len = args->col_widths[i];
 
@@ -2483,10 +2485,10 @@ print_packet(capture_file *cf, frame_data *fdata,
       }
 
       /* Right-justify the packet number column. */
-      if (cf->cinfo.col_fmt[args->visible_cols[i]] == COL_NUMBER)
-        g_snprintf(cp, column_len+1, "%*s", args->col_widths[i], cf->cinfo.col_data[args->visible_cols[i]]);
+      if (col_item->col_fmt == COL_NUMBER)
+        g_snprintf(cp, column_len+1, "%*s", args->col_widths[i], col_item->col_data);
       else
-        g_snprintf(cp, column_len+1, "%-*s", args->col_widths[i], cf->cinfo.col_data[args->visible_cols[i]]);
+        g_snprintf(cp, column_len+1, "%-*s", args->col_widths[i], col_item->col_data);
       cp += column_len;
       if (i != args->num_visible_cols - 1)
         *cp++ = ' ';
@@ -2638,14 +2640,14 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
       if (i == last_visible_col)
         callback_args.col_widths[visible_col_count] = 0;
       else {
-        callback_args.col_widths[visible_col_count] = (gint) strlen(cf->cinfo.col_title[i]);
+        callback_args.col_widths[visible_col_count] = (gint) strlen(cf->cinfo.columns[i].col_title);
         data_width = get_column_char_width(get_column_format(i));
         if (data_width > callback_args.col_widths[visible_col_count])
           callback_args.col_widths[visible_col_count] = data_width;
       }
 
       /* Find the length of the string for this column. */
-      column_len = (int) strlen(cf->cinfo.col_title[i]);
+      column_len = (int) strlen(cf->cinfo.columns[i].col_title);
       if (callback_args.col_widths[i] > column_len)
         column_len = callback_args.col_widths[visible_col_count];
 
@@ -2662,9 +2664,9 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
 
       /* Right-justify the packet number column. */
 /*      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        g_snprintf(cp, column_len+1, "%*s", callback_args.col_widths[visible_col_count], cf->cinfo.col_title[i]);
+        g_snprintf(cp, column_len+1, "%*s", callback_args.col_widths[visible_col_count], cf->cinfo.columns[i].col_title);
       else*/
-      g_snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[visible_col_count], cf->cinfo.col_title[i]);
+      g_snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[visible_col_count], cf->cinfo.columns[i].col_title);
       cp += column_len;
       if (i != cf->cinfo.num_cols - 1)
         *cp++ = ' ';
@@ -3178,9 +3180,9 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
 
   /* Find the Info column */
   for (colx = 0; colx < cf->cinfo.num_cols; colx++) {
-    if (cf->cinfo.fmt_matx[colx][COL_INFO]) {
+    if (cf->cinfo.columns[colx].fmt_matx[COL_INFO]) {
       /* Found it.  See if we match. */
-      info_column = edt.pi.cinfo->col_data[colx];
+      info_column = edt.pi.cinfo->columns[colx].col_data;
       info_column_len = strlen(info_column);
       for (i = 0; i < info_column_len; i++) {
         c_char = info_column[i];

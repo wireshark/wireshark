@@ -37,7 +37,7 @@ right_justify_column (gint col, capture_file *cf)
 
     if (!cf) return FALSE;
 
-    switch (cf->cinfo.col_fmt[col]) {
+    switch (cf->cinfo.columns[col].col_fmt) {
 
         case COL_NUMBER:
         case COL_PACKET_LENGTH:
@@ -54,7 +54,7 @@ right_justify_column (gint col, capture_file *cf)
             break;
 
         case COL_CUSTOM:
-            hfi = proto_registrar_get_byname(cf->cinfo.col_custom_field[col]);
+            hfi = proto_registrar_get_byname(cf->cinfo.columns[col].col_custom_field);
             /* Check if this is a valid field and we have no strings lookup table */
             if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
                 /* Check for bool, framenum and decimal/octal integer types */
@@ -81,10 +81,10 @@ resolve_column (gint col, capture_file *cf)
 
     if (!cf) return FALSE;
 
-    switch (cf->cinfo.col_fmt[col]) {
+    switch (cf->cinfo.columns[col].col_fmt) {
 
         case COL_CUSTOM:
-            hfi = proto_registrar_get_byname(cf->cinfo.col_custom_field[col]);
+            hfi = proto_registrar_get_byname(cf->cinfo.columns[col].col_custom_field);
             /* Check if this is a valid field */
             if (hfi != NULL) {
                 /* Check if we have an OID or a strings table with integer values */

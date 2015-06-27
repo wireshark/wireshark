@@ -531,10 +531,10 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 static gboolean
 is_address_column (gint column)
 {
-    if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
-         (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
-         (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
-         (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
+    if (((cfile.cinfo.columns[column].col_fmt == COL_DEF_SRC) ||
+         (cfile.cinfo.columns[column].col_fmt == COL_RES_SRC) ||
+         (cfile.cinfo.columns[column].col_fmt == COL_DEF_DST) ||
+         (cfile.cinfo.columns[column].col_fmt == COL_RES_DST)) &&
         strlen(cfile.cinfo.col_expr.col_expr_val[column]))
     {
         return TRUE;
@@ -609,7 +609,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                          fdata, &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if ((cfile.cinfo.col_custom_occurrence[column]) ||
+        if ((cfile.cinfo.columns[column].col_custom_occurrence) ||
             (strchr (cfile.cinfo.col_expr.col_expr_val[column], ',') == NULL))
         {
             /* Only construct the filter when a single occurrence is displayed
@@ -622,8 +622,8 @@ get_filter_from_packet_list_row_and_column(gpointer data)
             if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
                 strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
                 /* leak a little; is there a safe wmem_ scope here? */
-                if (cfile.cinfo.col_fmt[column] == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
+                if (cfile.cinfo.columns[column].col_fmt == COL_CUSTOM) {
+                    header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.columns[column].col_custom_field);
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
                         buf = g_strdup(cfile.cinfo.col_expr.col_expr[column]);

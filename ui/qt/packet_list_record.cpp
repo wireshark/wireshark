@@ -192,7 +192,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         /* Column based on frame_data or it already contains a value */
         if (text_col < 0) {
             col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
-            col_text_.append(cinfo->col_data[column]);
+            col_text_.append(cinfo->columns[column].col_data);
             continue;
         }
 
@@ -222,12 +222,12 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         case COL_8021Q_VLAN_ID:
         case COL_EXPERT:
         case COL_FREQ_CHAN:
-            if (cinfo->col_data[column] && cinfo->col_data[column] != cinfo->col_buf[column]) {
+            if (cinfo->columns[column].col_data && cinfo->columns[column].col_data != cinfo->columns[column].col_buf) {
                 /* This is a constant string, so we don't have to copy it */
                 // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
                 // truncation in either case.
                 int col_text_len = MIN(qstrlen(cinfo->col_data[column]) + 1, COL_MAX_INFO_LEN);
-                col_text_.append(QByteArray::fromRawData(cinfo->col_data[column], col_text_len));
+                col_text_.append(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
                 break;
             }
             /* !! FALL-THROUGH!! */
@@ -238,7 +238,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
                 // XXX Use QContiguousCache?
                 col_text_.append(cinfo->col_expr.col_expr_val[column]);
             } else {
-                col_text_.append(cinfo->col_data[column]);
+                col_text_.append(cinfo->columns[column].col_data);
             }
             break;
         }
@@ -254,7 +254,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
             if (text_col < 0) {
                 col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
             }
-            col_text = cinfo->col_data[column];
+            col_text = cinfo->columns[column].col_data;
         }
         col_text_.append(col_text);
         col_lines += col_text.count('\n');

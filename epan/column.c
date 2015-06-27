@@ -788,41 +788,43 @@ void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
 {
   int i;
+  col_item_t* col_item;
 
   /* Build the column format array */
   col_setup(cinfo, num_cols);
 
   for (i = 0; i < cinfo->num_cols; i++) {
-    cinfo->col_fmt[i] = get_column_format(i);
-    cinfo->col_title[i] = g_strdup(get_column_title(i));
+    col_item = &cinfo->columns[i];
+    col_item->col_fmt = get_column_format(i);
+    col_item->col_title = g_strdup(get_column_title(i));
 
-    if (cinfo->col_fmt[i] == COL_CUSTOM) {
-      cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
-      cinfo->col_custom_occurrence[i] = get_column_custom_occurrence(i);
-      if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i], NULL)) {
+    if (col_item->col_fmt == COL_CUSTOM) {
+      col_item->col_custom_field = g_strdup(get_column_custom_field(i));
+      col_item->col_custom_occurrence = get_column_custom_occurrence(i);
+      if(!dfilter_compile(col_item->col_custom_field, &col_item->col_custom_dfilter, NULL)) {
         /* XXX: Should we issue a warning? */
-        g_free(cinfo->col_custom_field[i]);
-        cinfo->col_custom_field[i] = NULL;
-        cinfo->col_custom_occurrence[i] = 0;
-        cinfo->col_custom_dfilter[i] = NULL;
+        g_free(col_item->col_custom_field);
+        col_item->col_custom_field = NULL;
+        col_item->col_custom_occurrence = 0;
+        col_item->col_custom_dfilter = NULL;
       }
     } else {
-      cinfo->col_custom_field[i] = NULL;
-      cinfo->col_custom_occurrence[i] = 0;
-      cinfo->col_custom_dfilter[i] = NULL;
+      col_item->col_custom_field = NULL;
+      col_item->col_custom_occurrence = 0;
+      col_item->col_custom_dfilter = NULL;
     }
 
-    cinfo->fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) * NUM_COL_FMTS);
-    get_column_format_matches(cinfo->fmt_matx[i], cinfo->col_fmt[i]);
-    cinfo->col_data[i] = NULL;
+    col_item->fmt_matx = (gboolean *) g_malloc0(sizeof(gboolean) * NUM_COL_FMTS);
+    get_column_format_matches(col_item->fmt_matx, col_item->col_fmt);
+    col_item->col_data = NULL;
 
-    if (cinfo->col_fmt[i] == COL_INFO)
-      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+    if (col_item->col_fmt == COL_INFO)
+      col_item->col_buf = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
-      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      col_item->col_buf = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
 
     if(reset_fences)
-      cinfo->col_fence[i] = 0;
+      col_item->col_fence = 0;
 
     cinfo->col_expr.col_expr[i] = "";
     cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
@@ -835,7 +837,7 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     int j;
 
     for (j = 0; j < NUM_COL_FMTS; j++) {
-      if (!cinfo->fmt_matx[i][j])
+      if (!cinfo->columns[i].fmt_matx[j])
           continue;
 
       if (cinfo->col_first[j] == -1)
