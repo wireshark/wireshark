@@ -64,7 +64,7 @@ draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer)
 		sum = (td + 500) / 1000;
 		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
-		printf("%5u  %-22s %6u %3d.%06d %3d.%06d %3d.%06d %3d.%06d\n",
+		printf("%5d  %-22s %6u %3d.%06d %3d.%06d %3d.%06d %3d.%06d\n",
 		       i, rst->procedures[i].procedure,
 		       rst->procedures[i].stats.num,
 		       (int)rst->procedures[i].stats.min.secs, (rst->procedures[i].stats.min.nsecs+500)/1000,

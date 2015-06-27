@@ -319,7 +319,7 @@ raw_pipe_open(const char *pipe_name)
             if (err != ERROR_PIPE_BUSY) {
                 FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
-                fprintf(stderr, "rawshark: \"%s\" could not be opened: %s (error %d)\n",
+                fprintf(stderr, "rawshark: \"%s\" could not be opened: %s (error %lu)\n",
                         pipe_name, utf_16to8(err_str), err);
                 LocalFree(err_str);
                 return -1;
@@ -329,7 +329,7 @@ raw_pipe_open(const char *pipe_name)
                 err = GetLastError();
                 FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
-                fprintf(stderr, "rawshark: \"%s\" could not be waited for: %s (error %d)\n",
+                fprintf(stderr, "rawshark: \"%s\" could not be waited for: %s (error %lu)\n",
                         pipe_name, utf_16to8(err_str), err);
                 LocalFree(err_str);
                 return -1;
@@ -1391,13 +1391,13 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                 }
             }
         }
-        printf(" %u=\"%s\"", cmd_line_index, label_s->str);
+        printf(" %d=\"%s\"", cmd_line_index, label_s->str);
         return TRUE;
     }
 
     if(finfo->value.ftype->val_to_string_repr)
     {
-        printf(" %u=\"%s\"", cmd_line_index, fs_ptr);
+        printf(" %d=\"%s\"", cmd_line_index, fs_ptr);
         return TRUE;
     }
 
@@ -1406,7 +1406,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
      * e.g. http
      * We return n.a.
      */
-    printf(" %u=\"n.a.\"", cmd_line_index);
+    printf(" %d=\"n.a.\"", cmd_line_index);
     return TRUE;
 }
 
@@ -1454,14 +1454,14 @@ protocolinfo_init(char *field)
     switch (hfi->type) {
 
         case FT_ABSOLUTE_TIME:
-            printf("%u %s %s - ",
+            printf("%d %s %s - ",
                    g_cmd_line_index,
                    ftenum_to_string(hfi),
                    absolute_time_display_e_to_string((absolute_time_display_e)hfi->display));
             break;
 
         default:
-            printf("%u %s %s - ",
+            printf("%d %s %s - ",
                    g_cmd_line_index,
                    ftenum_to_string(hfi),
                    field_display_e_to_string((field_display_e)hfi->display));

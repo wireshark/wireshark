@@ -352,7 +352,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
 			/* Don't tap the packet if it's an "error" unless the listener tells us to */
-			if ((!tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
+			if (!(tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
 			{
 				if(tp->tap_id==tl->tap_id){
 					gboolean passed=TRUE;

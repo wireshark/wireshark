@@ -50,8 +50,8 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 	DWORD uuid_max_size = MAX_PATH;
 	TCHAR *reg_uuid_str;
 
-	reg_uuid_name=wmem_alloc(wmem_packet_scope(), MAX_PATH*sizeof(TCHAR));
-	reg_uuid_str=wmem_alloc(wmem_packet_scope(), MAX_PATH*sizeof(TCHAR));
+	reg_uuid_name=wmem_alloc(wmem_packet_scope(), (MAX_PATH*sizeof(TCHAR))+1);
+	reg_uuid_str=wmem_alloc(wmem_packet_scope(), (MAX_PATH*sizeof(TCHAR))+1);
 
 	if(uuid_name_max_len < 2){
 		return 0;
