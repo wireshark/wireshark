@@ -16654,6 +16654,10 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   case PHDR_802_11_PHY_11AC:
     is_ht = TRUE;   /* VHT XXX */
     break;
+
+  default:
+    is_ht = FALSE;  /* "should not happen" */
+    break;
   }
 
   if (fixed_length_header)
