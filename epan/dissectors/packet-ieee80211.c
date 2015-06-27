@@ -16571,10 +16571,11 @@ typedef enum {
 static int
 dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                           proto_tree *tree, gboolean fixed_length_header,
-                          gboolean wlan_broken_fc, gboolean is_ht,
-                          gboolean is_centrino, struct ieee_802_11_phdr *phdr)
+                          gboolean wlan_broken_fc, gboolean is_centrino,
+                          struct ieee_802_11_phdr *phdr)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
+  gboolean         is_ht;
   guint16          seq_control;
   guint32          seq_number, frag_number;
   gboolean         more_frags;
@@ -16630,6 +16631,30 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     ctrl_fcf = FETCH_FCF(10);
   else
     ctrl_fcf = 0;
+
+  switch (phdr->phy) {
+
+  case PHDR_802_11_PHY_UNKNOWN:
+    is_ht = FALSE;  /* don't know, pick false */
+    break;
+
+  case PHDR_802_11_PHY_11_FHSS:
+  case PHDR_802_11_PHY_11_IR:
+  case PHDR_802_11_PHY_11_DSSS:
+  case PHDR_802_11_PHY_11B:
+  case PHDR_802_11_PHY_11A:
+  case PHDR_802_11_PHY_11G:
+    is_ht = FALSE;  /* not HT */
+    break;
+
+  case PHDR_802_11_PHY_11N:
+    is_ht = TRUE;   /* HT */
+    break;
+
+  case PHDR_802_11_PHY_11AC:
+    is_ht = TRUE;   /* VHT XXX */
+    break;
+  }
 
   if (fixed_length_header)
     hdr_len = DATA_LONG_HDR_LEN;
@@ -17783,7 +17808,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
      * decrypted; dissect the protections parameters and decrypt the data,
      * if we have a matching key. Otherwise display it as data.
      */
-
     gboolean    can_decrypt = FALSE;
     proto_tree *wep_tree    = NULL;
     guint32     iv;
@@ -18297,7 +18321,7 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     ourphdr.presence_flags = 0;
     phdr = &ourphdr;
   }
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, phdr);
+  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, phdr);
 }
 
 /*
@@ -18314,7 +18338,7 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.presence_flags = 0;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, &phdr);
 }
 
 /*
@@ -18331,7 +18355,7 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.presence_flags = 0;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, &phdr);
 }
 
 /*
@@ -18347,7 +18371,7 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.presence_flags = 0;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, TRUE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, TRUE, &phdr);
 }
 
 /*
@@ -18365,7 +18389,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.presence_flags = 0;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, FALSE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, FALSE, &phdr);
 }
 
 /*
@@ -18382,20 +18406,7 @@ dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.presence_flags = 0;
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, FALSE, &phdr);
-}
-
-/*
- * Dissect an HT 802.11 frame with a variable-length link-layer header.
- * XXX - Can we tell if a frame is +HTC just by looking at the MAC header?
- * If so, we can dispense with this.
- */
-static int
-dissect_ieee80211_ht (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
-
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, TRUE, FALSE, phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, &phdr);
 }
 
 static void
@@ -26948,7 +26959,6 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
   register_dissector("wlan_fixed",              dissect_ieee80211_fixed,              proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
-  new_register_dissector("wlan_ht",             dissect_ieee80211_ht,                 proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);

@@ -349,7 +349,6 @@ static dissector_handle_t ppi_handle;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_radio_handle;
-static dissector_handle_t ieee80211_ht_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
 
@@ -865,7 +864,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar         *mpdu_str;
     gboolean       first_mpdu  = TRUE;
     guint          last_frame  = 0;
-    gboolean       is_ht       = FALSE;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
     struct ieee_802_11_phdr phdr;
 
@@ -927,13 +925,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case PPI_80211N_MAC:
             dissect_80211n_mac(tvb, pinfo, ppi_tree, offset, data_len,
                 TRUE, &n_ext_flags, &ampdu_id, &phdr);
-            is_ht = TRUE;
             break;
 
         case PPI_80211N_MAC_PHY:
             dissect_80211n_mac_phy(tvb, pinfo, ppi_tree, offset,
                 data_len, &n_ext_flags, &ampdu_id, &phdr);
-            is_ht = TRUE;
             break;
 
         case PPI_SPECTRUM_MAP:
@@ -1117,7 +1113,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
                     ampdu_tree = proto_tree_add_subtree(agg_tree, next_tvb, 0, -1, ett_ampdu_segment, NULL, mpdu_str);
-                    call_dissector_with_data(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree, &phdr);
+                    call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, ampdu_tree, &phdr);
                 }
                 fd_head = fd_head->next;
             }
@@ -1146,11 +1142,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (dlt == 105) {
         /* LINKTYPE_IEEE802_11 */
-        if (is_ht) { /* We didn't hit the reassembly code */
-            call_dissector_with_data(ieee80211_ht_handle, next_tvb, pinfo, tree, &phdr);
-        } else {
-            call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
-        }
+        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
     } else {
         /* Everything else.  This will pass a NULL data argument. */
         dissector_try_uint(wtap_encap_dissector_table,
@@ -1523,7 +1515,6 @@ proto_reg_handoff_ppi(void)
 {
     data_handle = find_dissector("data");
     ieee80211_radio_handle = find_dissector("wlan_radio");
-    ieee80211_ht_handle = find_dissector("wlan_ht");
     ppi_gps_handle = find_dissector("ppi_gps");
     ppi_vector_handle = find_dissector("ppi_vector");
     ppi_sensor_handle = find_dissector("ppi_sensor");
