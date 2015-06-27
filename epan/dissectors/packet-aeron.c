@@ -32,6 +32,7 @@
 #include <epan/uat.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #ifndef HAVE_INET_ATON
     #include <wsutil/inet_aton.h>
@@ -124,9 +125,18 @@ static guint32 aeron_pos_delta(const aeron_pos_t * pos1, const aeron_pos_t * pos
     return ((guint32) (delta & G_GUINT64_CONSTANT(0x00000000ffffffff)));
 }
 
-static void aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 term_length)
+static gboolean aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 term_length)
 {
-    guint32 next_term_offset = aeron_pos_roundup(pos->term_offset + length);
+    guint32 next_term_offset;
+    guint32 rounded_next_term_offset;
+
+    next_term_offset = pos->term_offset + length;
+    if (next_term_offset < pos->term_offset)
+        return FALSE;  /* overflow */
+    rounded_next_term_offset = aeron_pos_roundup(next_term_offset);
+    if (rounded_next_term_offset < next_term_offset)
+        return FALSE;  /* overflow */
+    next_term_offset = rounded_next_term_offset;
 
     if (next_term_offset >= term_length)
     {
@@ -137,6 +147,7 @@ static void aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 term
     {
         pos->term_offset = next_term_offset;
     }
+    return TRUE;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1249,7 +1260,8 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
         case HDR_TYPE_PAD:
             dp.term_id = info->term_id;
             dp.term_offset = info->term_offset;
-            aeron_pos_add_length(&dp, info->length, stream->term_length);
+            if (!aeron_pos_add_length(&dp, info->length, stream->term_length))
+                THROW(ReportedBoundsError);
             if (pdpv)
             {
                 if (dp.term_id > stream->high.term_id)
@@ -1377,7 +1389,8 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
 
                         expected_dp.term_id = pdp.term_id;
                         expected_dp.term_offset = pdp.term_offset;
-                        aeron_pos_add_length(&expected_dp, info->length, stream->term_length);
+                        if (!aeron_pos_add_length(&expected_dp, info->length, stream->term_length))
+                            THROW(ReportedBoundsError);
                         erc = aeron_pos_compare(&expected_dp, &dp);
                         if (erc > 0)
                         {
@@ -2186,6 +2199,8 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_PAD_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
+    if (rounded_length < 0)
+        THROW(ReportedBoundsError);
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_PAD_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
@@ -2325,6 +2340,8 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     {
         offset_increment = aeron_pos_roundup(frame_length);
         rounded_length = (int) offset_increment;
+        if (rounded_length < 0)
+            THROW(ReportedBoundsError);
         data_length = frame_length - O_AERON_DATA_DATA;
     }
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_DATA_TERM_OFFSET);
@@ -2429,6 +2446,8 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_NAK_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
+    if (rounded_length < 0)
+        THROW(ReportedBoundsError);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_STREAM_ID);
@@ -2511,6 +2530,8 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_SM_FRAME_LENGTH);
     feedback_length = frame_length - O_AERON_SM_FEEDBACK;
     rounded_length = (int) aeron_pos_roundup(frame_length);
+    if (rounded_length < 0)
+        THROW(ReportedBoundsError);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SM_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_SM_STREAM_ID);
@@ -2603,6 +2624,8 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         proto_tree_add_item(subtree, hf_aeron_err_string, tvb, offset + ofs, string_length, ENC_ASCII|ENC_NA);
     }
     rounded_length = (int) aeron_pos_roundup(frame_length);
+    if (rounded_length < 0)
+        THROW(ReportedBoundsError);
     proto_item_set_len(err_item, rounded_length);
     if (frame_length < L_AERON_ERR_MIN)
     {
@@ -2648,6 +2671,8 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_SETUP_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
+    if (rounded_length < 0)
+        THROW(ReportedBoundsError);
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
