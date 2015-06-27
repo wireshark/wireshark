@@ -440,7 +440,7 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    }
    else {
       /* No room left!! */
-      fprintf(stderr, "<IPsec/ESP Dissector> Failed to add UE as already have max (%u) configured\n",
+      fprintf(stderr, "<IPsec/ESP Dissector> Failed to add UE as already have max (%d) configured\n",
               MAX_EXTRA_SA_RECORDS);
       return;
    }
@@ -1691,7 +1691,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
             {
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %lu)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %u Bits, need %lu)\n",
                        esp_crypt_key_len * 8,
                        (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
               decrypt_ok = FALSE;
@@ -1742,7 +1742,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               break;
 
             default:
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%u Bits)\n",
                        esp_crypt_key_len * 8);
               decrypt_ok = FALSE;
             }
@@ -1779,7 +1779,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               decrypt_using_libgcrypt = TRUE;
               break;
             default:
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm CAST5-CBC : Bad Keylen (%i Bits)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm CAST5-CBC : Bad Keylen (%u Bits)\n",
                        esp_crypt_key_len * 8);
               decrypt_ok = FALSE;
             }
@@ -1811,7 +1811,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
             {
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %lu)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%u Bits, need %lu)\n",
                        esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
               decrypt_ok = FALSE;
             }
@@ -1863,7 +1863,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               break;
 
             default:
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR / AES-GCM : Bad Keylen (%i Bits)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR / AES-GCM : Bad Keylen (%u Bits)\n",
                        esp_crypt_key_len * 8);
               decrypt_ok = FALSE;
             }
@@ -1905,7 +1905,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               break;
 
             default:
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%i Bits)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%u Bits)\n",
                        esp_crypt_key_len * 8);
               decrypt_ok = FALSE;
             }
@@ -1940,7 +1940,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
             {
-              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %lu)\n",
+              fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%u Bits, need %lu)\n",
                        esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
               decrypt_ok = FALSE;
             }
@@ -2000,7 +2000,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 if (err)
                 {
-                  fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
+                  fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%u) failed: %s\n",
                           gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
                   gcry_cipher_close(*cipher_hd);
                   g_free(decrypted_data);
