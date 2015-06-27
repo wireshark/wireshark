@@ -73,8 +73,6 @@ import traceback
 import lex
 import yacc
 
-from functools import partial
-
 if sys.version_info[0] < 3:
     from string import maketrans
 
@@ -1937,19 +1935,6 @@ class EthCtx:
 
     #--- eth_output_table -----------------------------------------------------
     def eth_output_table(self, fx, rep):
-        def cmp_fn(a, b, cmp_flds, objs):
-            if not cmp_flds: return 0
-            obja = objs[a]
-            objb = objs[b]
-            res = 0
-            for f in cmp_flds:
-                if f[0] == '#':
-                    f = f[1:]
-                    res = int(obja[f]) - int(objb[f])
-                else:
-                    res = cmp(obja[f], objb[f])
-                if res: break
-            return res
         if rep['type'] == 'HDR':
             fx.write('\n')
         if rep['var']:
@@ -1985,7 +1970,16 @@ class EthCtx:
                     objs[ident] = obj
                     objs_ord.append(ident)
                 if (sort_flds):
-                    objs_ord.sort(cmp=partial(cmp_fn, cmp_flds=sort_flds, objs=objs))
+                    # Sort identifiers according to the matching object in objs.
+                    # The order is determined by sort_flds, keys prefixed by a
+                    # '#' are compared numerically.
+                    def obj_key_fn(name):
+                        obj = objs[name]
+                        return list(
+                            int(obj[f[1:]]) if f[0] == '#' else obj[f]
+                            for f in sort_flds
+                        )
+                    objs_ord.sort(key=obj_key_fn)
                 for ident in objs_ord:
                     obj = objs[ident]
                     try:
