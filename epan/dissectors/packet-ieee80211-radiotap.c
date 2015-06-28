@@ -829,7 +829,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.fcs_len = 4;
 			else
 				phdr.fcs_len = 0;
-			phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 
 			if (tree) {
 				proto_tree *flags_tree;
@@ -964,19 +963,28 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			case IEEE80211_CHAN_B:
 				phdr.phy = PHDR_802_11_PHY_11B;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				break;
 
 			case IEEE80211_CHAN_PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_G:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
@@ -990,7 +998,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			case IEEE80211_CHAN_108PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				break;
@@ -1189,19 +1200,28 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			case IEEE80211_CHAN_B:
 				phdr.phy = PHDR_802_11_PHY_11B;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				break;
 
 			case IEEE80211_CHAN_PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_G:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				break;
@@ -1215,7 +1235,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			case IEEE80211_CHAN_108PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+				if (have_rflags) {
+					phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
+					phdr.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
+				}
 				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				break;
