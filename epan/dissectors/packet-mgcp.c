@@ -670,13 +670,12 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 /* Discard and init any state we've saved */
 static void mgcp_init_protocol(void)
 {
-	if (mgcp_calls != NULL)
-	{
-		g_hash_table_destroy(mgcp_calls);
-		mgcp_calls = NULL;
-	}
-
 	mgcp_calls = g_hash_table_new(mgcp_call_hash, mgcp_call_equal);
+}
+
+static void mgcp_cleanup_protocol(void)
+{
+	g_hash_table_destroy(mgcp_calls);
 }
 
 
@@ -2307,6 +2306,7 @@ void proto_register_mgcp(void)
 	proto_register_field_array(proto_mgcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&mgcp_init_protocol);
+	register_cleanup_routine(&mgcp_cleanup_protocol);
 
 	new_register_dissector("mgcp", dissect_mgcp, proto_mgcp);
 

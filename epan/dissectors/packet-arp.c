@@ -744,19 +744,16 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 static void
 arp_init_protocol(void)
 {
-  /* Destroy any existing hashes. */
-  if (address_hash_table) {
-    g_hash_table_destroy(address_hash_table);
-  }
-  if (duplicate_result_hash_table) {
-    g_hash_table_destroy(duplicate_result_hash_table);
-  }
-
-
-  /* Now create it over */
   address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
   duplicate_result_hash_table = g_hash_table_new(duplicate_result_hash_func,
                                                  duplicate_result_equal_func);
+}
+
+static void
+arp_cleanup_protocol(void)
+{
+  g_hash_table_destroy(address_hash_table);
+  g_hash_table_destroy(duplicate_result_hash_table);
 }
 
 
@@ -2000,6 +1997,7 @@ proto_register_arp(void)
   /* TODO: define a minimum time between sightings that is worth reporting? */
 
   register_init_routine(&arp_init_protocol);
+  register_cleanup_routine(&arp_cleanup_protocol);
 }
 
 void

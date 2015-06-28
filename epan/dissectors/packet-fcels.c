@@ -652,10 +652,13 @@ fcels_hash (gconstpointer v)
 static void
 fcels_init_protocol(void)
 {
-    if (fcels_req_hash)
-        g_hash_table_destroy(fcels_req_hash);
-
     fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
+}
+
+static void
+fcels_cleanup_protocol(void)
+{
+    g_hash_table_destroy(fcels_req_hash);
 }
 
 static const true_false_string tfs_fc_fcels_cmn_b2b = {
@@ -2613,6 +2616,7 @@ proto_register_fcels (void)
     expert_fcels = expert_register_protocol(proto_fcels);
     expert_register_field_array(expert_fcels, ei, array_length(ei));
     register_init_routine (&fcels_init_protocol);
+    register_cleanup_routine (&fcels_cleanup_protocol);
 }
 
 void

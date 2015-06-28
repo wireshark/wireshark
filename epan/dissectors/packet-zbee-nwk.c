@@ -60,6 +60,7 @@ static guint       dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree,
 static guint       dissect_zbee_nwk_report     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint       dissect_zbee_nwk_update     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static void        proto_init_zbee_nwk         (void);
+static void        proto_cleanup_zbee_nwk(void);
 void               proto_register_zbee_nwk(void);
 void               proto_reg_handoff_zbee_nwk(void);
 
@@ -1942,6 +1943,7 @@ void proto_register_zbee_nwk(void)
     expert_register_field_array(expert_zbee_nwk, ei, array_length(ei));
 
     register_init_routine(proto_init_zbee_nwk);
+    register_cleanup_routine(proto_cleanup_zbee_nwk);
 
     /* Register the protocol with Wireshark. */
     proto_zbee_nwk = proto_register_protocol("ZigBee Network Layer", "ZigBee", ZBEE_PROTOABBREV_NWK);
@@ -2011,16 +2013,18 @@ static void free_keyring_val(gpointer a)
 static void
 proto_init_zbee_nwk(void)
 {
-    /* Destroy the hash tables, if they exist. */
-    if (zbee_nwk_map.short_table) g_hash_table_destroy(zbee_nwk_map.short_table);
-    if (zbee_nwk_map.long_table) g_hash_table_destroy(zbee_nwk_map.long_table);
-    if (zbee_table_nwk_keyring) g_hash_table_destroy(zbee_table_nwk_keyring);
-
-    /* (Re)create the hash tables. */
     zbee_nwk_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
     zbee_nwk_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
     zbee_table_nwk_keyring  = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, free_keyring_val);
 } /* proto_init_zbee_nwk */
+
+static void
+proto_cleanup_zbee_nwk(void)
+{
+    g_hash_table_destroy(zbee_nwk_map.short_table);
+    g_hash_table_destroy(zbee_nwk_map.long_table);
+    g_hash_table_destroy(zbee_table_nwk_keyring);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

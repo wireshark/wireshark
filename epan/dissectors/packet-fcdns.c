@@ -383,10 +383,13 @@ fcdns_hash (gconstpointer v)
 static void
 fcdns_init_protocol(void)
 {
-    if (fcdns_req_hash)
-        g_hash_table_destroy(fcdns_req_hash);
-
     fcdns_req_hash = g_hash_table_new(fcdns_hash, fcdns_equal);
+}
+
+static void
+fcdns_cleanup_protocol(void)
+{
+    g_hash_table_destroy(fcdns_req_hash);
 }
 
 
@@ -1854,6 +1857,7 @@ proto_register_fcdns (void)
     expert_fcdns = expert_register_protocol(proto_fcdns);
     expert_register_field_array(expert_fcdns, ei, array_length(ei));
     register_init_routine (&fcdns_init_protocol);
+    register_cleanup_routine (&fcdns_cleanup_protocol);
 
     dns_handle = new_create_dissector_handle (dissect_fcdns, proto_fcdns);
 }

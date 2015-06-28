@@ -1945,10 +1945,13 @@ rsvp_hash(gconstpointer k)
 static void
 rsvp_init_protocol(void)
 {
-    if (rsvp_request_hash)
-        g_hash_table_destroy(rsvp_request_hash);
-
     rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
+}
+
+static void
+rsvp_cleanup_protocol(void)
+{
+    g_hash_table_destroy(rsvp_request_hash);
 }
 
 static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter _U_)
@@ -9577,6 +9580,7 @@ proto_register_rsvp(void)
 
     /* Initialization routine for RSVP conversations */
     register_init_routine(&rsvp_init_protocol);
+    register_cleanup_routine(&rsvp_cleanup_protocol);
 
     register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet, rsvp_hostlist_packet);
 }

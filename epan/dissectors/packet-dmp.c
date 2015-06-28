@@ -4087,15 +4087,14 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 
 static void dmp_init_routine (void)
 {
-  if (dmp_id_hash_table) {
-    g_hash_table_destroy (dmp_id_hash_table);
-  }
-  if (dmp_long_id_hash_table) {
-    g_hash_table_destroy (dmp_long_id_hash_table);
-  }
-
   dmp_id_hash_table = g_hash_table_new (dmp_id_hash, dmp_id_hash_equal);
   dmp_long_id_hash_table = g_hash_table_new (g_str_hash, g_str_equal);
+}
+
+static void dmp_cleanup_routine (void)
+{
+  g_hash_table_destroy(dmp_id_hash_table);
+  g_hash_table_destroy(dmp_long_id_hash_table);
 }
 
 void proto_register_dmp (void)
@@ -4989,6 +4988,7 @@ void proto_register_dmp (void)
   expert_dmp = expert_register_protocol(proto_dmp);
   expert_register_field_array(expert_dmp, ei, array_length(ei));
   register_init_routine (&dmp_init_routine);
+  register_cleanup_routine (&dmp_cleanup_routine);
 
   /* Set default UDP ports */
   range_convert_str (&global_dmp_port_range, DEFAULT_DMP_PORT_RANGE,

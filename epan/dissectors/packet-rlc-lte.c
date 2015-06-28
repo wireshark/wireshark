@@ -2983,30 +2983,20 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * file is loaded or re-loaded in wireshark */
 static void rlc_lte_init_protocol(void)
 {
-    /* Destroy any existing hashes. */
-    if (sequence_analysis_channel_hash) {
-        g_hash_table_destroy(sequence_analysis_channel_hash);
-    }
-    if (sequence_analysis_report_hash) {
-        g_hash_table_destroy(sequence_analysis_report_hash);
-    }
-    if (repeated_nack_channel_hash) {
-        g_hash_table_destroy(repeated_nack_channel_hash);
-    }
-    if (repeated_nack_report_hash) {
-        g_hash_table_destroy(repeated_nack_report_hash);
-    }
-    if (reassembly_report_hash) {
-        g_hash_table_destroy(reassembly_report_hash);
-    }
-
-    /* Now create them over */
     sequence_analysis_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
     sequence_analysis_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
-
     repeated_nack_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
     repeated_nack_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
     reassembly_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
+}
+
+static void rlc_lte_cleanup_protocol(void)
+{
+    g_hash_table_destroy(sequence_analysis_channel_hash);
+    g_hash_table_destroy(sequence_analysis_report_hash);
+    g_hash_table_destroy(repeated_nack_channel_hash);
+    g_hash_table_destroy(repeated_nack_report_hash);
+    g_hash_table_destroy(reassembly_report_hash);
 }
 
 /* Configure number of PDCP SN bits to use for DRB channels */
@@ -3610,6 +3600,7 @@ void proto_register_rlc_lte(void)
     ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_init_routine(&rlc_lte_init_protocol);
+    register_cleanup_routine(&rlc_lte_cleanup_protocol);
 }
 
 void proto_reg_handoff_rlc_lte(void)

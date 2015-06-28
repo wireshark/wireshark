@@ -7442,21 +7442,17 @@ getprefix(const guint32 *addr, int prefix)
 static void
 netflow_init(void)
 {
-    /* keys & values are allocated using 'wmem_file_scope()' as thus freed as part of the init sequence */
-    if (v9_v10_tmplt_table != NULL) {
-        g_hash_table_destroy(v9_v10_tmplt_table);
-    }
     v9_v10_tmplt_table = g_hash_table_new(v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
-
-    if (netflow_sequence_analysis_domain_hash != NULL) {
-        g_hash_table_destroy(netflow_sequence_analysis_domain_hash);
-    }
     netflow_sequence_analysis_domain_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
-    if (netflow_sequence_analysis_result_hash != NULL) {
-        g_hash_table_destroy(netflow_sequence_analysis_result_hash);
-    }
     netflow_sequence_analysis_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+static void
+netflow_cleanup(void)
+{
+    g_hash_table_destroy(v9_v10_tmplt_table);
+    g_hash_table_destroy(netflow_sequence_analysis_domain_hash);
+    g_hash_table_destroy(netflow_sequence_analysis_result_hash);
 }
 
 void
@@ -11531,6 +11527,7 @@ proto_register_netflow(void)
                                    10, &v9_tmplt_max_fields);
 
     register_init_routine(&netflow_init);
+    register_cleanup_routine(&netflow_cleanup);
 }
 
 

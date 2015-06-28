@@ -870,16 +870,12 @@ gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
 
 static void init_pol_hash(void)
 {
-	/* Initialise hash table */
-
-	if (pol_hash) {
-		/*  Everything in the table is allocated with wmem file
-		 *  scope so there's no need to go through and free it all.
-		 */
-		g_hash_table_destroy(pol_hash);
-	}
-
 	pol_hash = g_hash_table_new(pol_hash_fn, pol_hash_compare);
+}
+
+static void cleanup_pol_hash(void)
+{
+	g_hash_table_destroy(pol_hash);
 }
 
 /* Dissect a NT status code */
@@ -2025,6 +2021,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 	expert_dcerpc_nt = expert_register_protocol(proto_dcerpc);
 	expert_register_field_array(expert_dcerpc_nt, ei, array_length(ei));
 	register_init_routine(&init_pol_hash);
+	register_cleanup_routine(&cleanup_pol_hash);
 }
 
 /*

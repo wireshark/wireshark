@@ -1618,15 +1618,16 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 atp_init(void)
 {
-  /* fragment */
   reassembly_table_init(&atp_reassembly_table,
                         &addresses_reassembly_table_functions);
-  /* bitmap */
-  if (atp_request_hash)
-    g_hash_table_destroy(atp_request_hash);
-
   atp_request_hash = g_hash_table_new(asp_hash, asp_equal);
+}
 
+static void
+atp_cleanup(void)
+{
+  reassembly_table_destroy(&atp_reassembly_table);
+  g_hash_table_destroy(atp_request_hash);
 }
 
 static void
@@ -2110,6 +2111,7 @@ proto_reg_handoff_atalk(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
 
   register_init_routine( atp_init);
+  register_cleanup_routine( atp_cleanup);
   register_init_routine( &asp_reinit);
 
   afp_handle  = find_dissector("afp");

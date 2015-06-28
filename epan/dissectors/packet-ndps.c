@@ -4079,14 +4079,16 @@ ndps_hash(gconstpointer v)
 static void
 ndps_init_protocol(void)
 {
-    /* fragment */
     reassembly_table_init(&ndps_reassembly_table,
                           &addresses_reassembly_table_functions);
-
-    if (ndps_req_hash)
-        g_hash_table_destroy(ndps_req_hash);
-
     ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
+}
+
+static void
+ndps_cleanup_protocol(void)
+{
+    reassembly_table_destroy(&ndps_reassembly_table);
+    /* ndps_req_hash is already destroyed by ndps_postseq_cleanup */
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -4100,7 +4102,7 @@ ndps_postseq_cleanup(void)
         g_hash_table_destroy(ndps_req_hash);
         ndps_req_hash = NULL;
     }
-    /* Don't free the ncp_req_hash_values, as they're
+    /* Don't free the ndps_req_hash_value values of ndps_req_hash, as they're
      * needed during random-access processing of the proto_tree.*/
 }
 
@@ -9513,6 +9515,7 @@ proto_register_ndps(void)
                                    &ndps_show_oids);
 
     register_init_routine(&ndps_init_protocol);
+    register_cleanup_routine(&ndps_cleanup_protocol);
     register_postseq_cleanup_routine(&ndps_postseq_cleanup);
 }
 

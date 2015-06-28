@@ -130,10 +130,13 @@ fcfcs_hash (gconstpointer v)
 static void
 fcfcs_init_protocol(void)
 {
-    if (fcfcs_req_hash)
-        g_hash_table_destroy (fcfcs_req_hash);
-
     fcfcs_req_hash = g_hash_table_new(fcfcs_hash, fcfcs_equal);
+}
+
+static void
+fcfcs_cleanup_protocol(void)
+{
+    g_hash_table_destroy(fcfcs_req_hash);
 }
 
 /* Code to actually dissect the packets */
@@ -1042,6 +1045,7 @@ proto_register_fcfcs (void)
     expert_register_field_array(expert_fcfcs, ei, array_length(ei));
 
     register_init_routine (&fcfcs_init_protocol);
+    register_cleanup_routine (&fcfcs_cleanup_protocol);
 }
 
 void

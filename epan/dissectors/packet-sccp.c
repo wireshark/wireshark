@@ -3495,6 +3495,12 @@ init_sccp(void)
                          &addresses_reassembly_table_functions);
 }
 
+static void
+cleanup_sccp(void)
+{
+  reassembly_table_destroy(&sccp_xudt_msg_reassembly_table);
+}
+
 /* Register the protocol with Wireshark */
 void
 proto_register_sccp(void)
@@ -4123,6 +4129,7 @@ proto_register_sccp(void)
                                    &default_payload);
 
   register_init_routine(&init_sccp);
+  register_cleanup_routine(&cleanup_sccp);
 
   assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 

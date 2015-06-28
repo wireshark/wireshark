@@ -5527,14 +5527,14 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	return tvb_captured_length(tvb);
 }
 
-static void afp_reinit( void)
+static void afp_init(void)
 {
-
-	if (afp_request_hash)
-		g_hash_table_destroy(afp_request_hash);
-
 	afp_request_hash = g_hash_table_new(afp_hash, afp_equal);
+}
 
+static void afp_cleanup(void)
+{
+	g_hash_table_destroy(afp_request_hash);
 }
 
 void
@@ -7263,7 +7263,8 @@ proto_register_afp(void)
 	expert_afp = expert_register_protocol(proto_afp);
 	expert_register_field_array(expert_afp, ei, array_length(ei));
 
-	register_init_routine(afp_reinit);
+	register_init_routine(afp_init);
+	register_cleanup_routine(afp_cleanup);
 
 	new_register_dissector("afp", dissect_afp, proto_afp);
 	new_register_dissector("afp_server_status", dissect_afp_server_status,

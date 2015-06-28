@@ -7845,15 +7845,15 @@ static const value_string sec_chan_type_vals[] = {
 static void
 netlogon_reassemble_init(void)
 {
-    if (netlogon_auths){
-        g_hash_table_destroy (netlogon_auths);
-    }
     netlogon_auths = g_hash_table_new (netlogon_auth_hash, netlogon_auth_equal);
-    if (schannel_auths){
-        g_hash_table_destroy (schannel_auths);
-    }
     schannel_auths = g_hash_table_new (netlogon_auth_hash, netlogon_auth_equal);
+}
 
+static void
+netlogon_reassemble_cleanup(void)
+{
+    g_hash_table_destroy(netlogon_auths);
+    g_hash_table_destroy(schannel_auths);
 }
 
 void
@@ -9265,6 +9265,7 @@ proto_register_dcerpc_netlogon(void)
                                array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(netlogon_reassemble_init);
+    register_cleanup_routine(netlogon_reassemble_cleanup);
 
 }
 

@@ -1753,13 +1753,15 @@ attribute_info_t enip_attribute_vals[45] = {
 static void
 enip_init_protocol(void)
 {
-   if (enip_request_hashtable)
-      g_hash_table_destroy(enip_request_hashtable);
    enip_request_hashtable = g_hash_table_new(enip_request_hash, enip_request_equal);
-
-   if (enip_conn_hashtable)
-      g_hash_table_destroy(enip_conn_hashtable);
    enip_conn_hashtable = g_hash_table_new(enip_conn_hash, enip_conn_equal);
+}
+
+static void
+enip_cleanup_protocol(void)
+{
+   g_hash_table_destroy(enip_request_hashtable);
+   g_hash_table_destroy(enip_conn_hashtable);
 }
 
 /* Disssect Common Packet Format */
@@ -3726,6 +3728,7 @@ proto_register_enip(void)
    subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", FT_UINT32, BASE_DEC);
 
    register_init_routine(&enip_init_protocol);
+   register_cleanup_routine(&enip_cleanup_protocol);
 
    /* Register the protocol name and description */
    proto_dlr = proto_register_protocol("Device Level Ring", "DLR", "dlr");

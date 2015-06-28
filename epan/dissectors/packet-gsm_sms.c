@@ -334,10 +334,14 @@ gsm_sms_defragment_init (void)
 {
     reassembly_table_init(&g_sm_reassembly_table,
                           &addresses_reassembly_table_functions);
-    if (g_sm_fragment_params_table) {
-        g_hash_table_destroy(g_sm_fragment_params_table);
-    }
     g_sm_fragment_params_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+static void
+gsm_sms_defragment_cleanup (void)
+{
+    reassembly_table_destroy(&g_sm_reassembly_table);
+    g_hash_table_destroy(g_sm_fragment_params_table);
 }
 
 /*
@@ -3285,6 +3289,7 @@ proto_register_gsm_sms(void)
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);
+    register_cleanup_routine (gsm_sms_defragment_cleanup);
 }
 
 /*

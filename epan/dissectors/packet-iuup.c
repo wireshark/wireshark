@@ -838,9 +838,11 @@ static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 static void init_iuup(void) {
-    if (circuits)
-        g_hash_table_destroy(circuits);
     circuits = g_hash_table_new(g_direct_hash,g_direct_equal);
+}
+
+static void cleanup_iuup(void) {
+    g_hash_table_destroy(circuits);
 }
 
 
@@ -1002,6 +1004,7 @@ void proto_register_iuup(void) {
     register_dissector("find_iuup", find_iuup, proto_iuup);
 
     register_init_routine(&init_iuup);
+    register_cleanup_routine(&cleanup_iuup);
 
     iuup_module = prefs_register_protocol(proto_iuup, proto_reg_handoff_iuup);
 

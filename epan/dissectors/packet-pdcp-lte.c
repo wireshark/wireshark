@@ -2227,30 +2227,20 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * file is loaded or re-loaded in wireshark */
 static void pdcp_lte_init_protocol(void)
 {
-    /* Destroy any existing hashes. */
-    if (pdcp_sequence_analysis_channel_hash) {
-        g_hash_table_destroy(pdcp_sequence_analysis_channel_hash);
-    }
-    if (pdcp_lte_sequence_analysis_report_hash) {
-        g_hash_table_destroy(pdcp_lte_sequence_analysis_report_hash);
-    }
-    if (pdcp_security_hash) {
-        g_hash_table_destroy(pdcp_security_hash);
-    }
-    if (pdcp_security_result_hash) {
-        g_hash_table_destroy(pdcp_security_result_hash);
-    }
-    if (pdcp_security_key_hash) {
-        g_hash_table_destroy(pdcp_security_key_hash);
-    }
-
-
-    /* Now create them over */
     pdcp_sequence_analysis_channel_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
     pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
     pdcp_security_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
     pdcp_security_result_hash = g_hash_table_new(pdcp_lte_ueid_frame_hash_func, pdcp_lte_ueid_frame_hash_equal);
     pdcp_security_key_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
+}
+
+static void pdcp_lte_cleanup_protocol(void)
+{
+    g_hash_table_destroy(pdcp_sequence_analysis_channel_hash);
+    g_hash_table_destroy(pdcp_lte_sequence_analysis_report_hash);
+    g_hash_table_destroy(pdcp_security_hash);
+    g_hash_table_destroy(pdcp_security_result_hash);
+    g_hash_table_destroy(pdcp_security_key_hash);
 }
 
 
@@ -2703,6 +2693,7 @@ void proto_register_pdcp(void)
         &global_pdcp_check_integrity);
 
     register_init_routine(&pdcp_lte_init_protocol);
+    register_cleanup_routine(&pdcp_lte_cleanup_protocol);
 }
 
 void proto_reg_handoff_pdcp_lte(void)

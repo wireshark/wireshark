@@ -2364,12 +2364,13 @@ static guint cid_hash_func(gconstpointer v)
 static void
 rohc_init_protocol(void)
 {
-    /* Destroy any existing hashes. */
-    if (rohc_cid_hash)
-        g_hash_table_destroy(rohc_cid_hash);
-
-    /* Now create them again */
     rohc_cid_hash = g_hash_table_new(cid_hash_func, cid_hash_equal);
+}
+
+static void
+rohc_cleanup_protocol(void)
+{
+    g_hash_table_destroy(rohc_cid_hash);
 }
 
 void
@@ -2979,6 +2980,7 @@ proto_register_rohc(void)
     rohc_handle = new_register_dissector("rohc", dissect_rohc, proto_rohc);
 
     register_init_routine(&rohc_init_protocol);
+    register_cleanup_routine(&rohc_cleanup_protocol);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rohc, hf, array_length(hf));

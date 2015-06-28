@@ -5114,6 +5114,12 @@ tcp_init(void)
                           &addresses_ports_reassembly_table_functions);
 }
 
+static void
+tcp_cleanup(void)
+{
+    reassembly_table_destroy(&tcp_reassembly_table);
+}
+
 void
 proto_register_tcp(void)
 {
@@ -6070,6 +6076,7 @@ proto_register_tcp(void)
         &tcp_exp_options_with_magic);
 
     register_init_routine(tcp_init);
+    register_cleanup_routine(tcp_cleanup);
 
     register_decode_as(&tcp_da);
 

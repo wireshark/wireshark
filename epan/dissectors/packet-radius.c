@@ -2066,13 +2066,13 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 static void
 radius_init_protocol(void)
 {
-	if (radius_calls != NULL)
-	{
-		g_hash_table_destroy(radius_calls);
-		radius_calls = NULL;
-	}
-
 	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
+}
+
+static void
+radius_cleanup_protocol(void)
+{
+	g_hash_table_destroy(radius_calls);
 }
 
 static void register_radius_fields(const char* unused _U_) {
@@ -2255,6 +2255,7 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
 	new_register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
+	register_cleanup_routine(&radius_cleanup_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
 					 "Shared secret used to decode User Passwords",

@@ -2231,6 +2231,12 @@ cotp_reassemble_init(void)
   cotp_dst_ref = 0;
 }
 
+static void
+cotp_reassemble_cleanup(void)
+{
+  reassembly_table_destroy(&cotp_reassembly_table);
+}
+
 void proto_register_cotp(void)
 {
   static hf_register_info hf[] = {
@@ -2428,6 +2434,7 @@ void proto_register_cotp(void)
   new_register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
 
   register_init_routine(cotp_reassemble_init);
+  register_cleanup_routine(cotp_reassemble_cleanup);
 }
 
 void proto_register_cltp(void)

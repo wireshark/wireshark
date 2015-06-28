@@ -593,10 +593,11 @@ static guint sbus_hash(gconstpointer v)
 
 /*Protocol initialisation*/
 static void sbus_init_protocol(void){
-       if (sbus_request_hash){
-              g_hash_table_destroy(sbus_request_hash);
-       }
        sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
+}
+
+static void sbus_cleanup_protocol(void){
+       g_hash_table_destroy(sbus_request_hash);
 }
 
 /* check whether the packet looks like SBUS or not */
@@ -2321,6 +2322,7 @@ proto_register_sbus(void)
        expert_sbus = expert_register_protocol(proto_sbus);
        expert_register_field_array(expert_sbus, ei, array_length(ei));
        register_init_routine(&sbus_init_protocol);
+       register_cleanup_routine(&sbus_cleanup_protocol);
 }
 
 void

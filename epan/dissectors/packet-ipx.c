@@ -510,10 +510,8 @@ spx_hash_func(gconstpointer v)
 static void
 spx_init_protocol(void)
 {
-
-	if (spx_hash)
-		g_hash_table_destroy(spx_hash);
-
+	/* no need for register_cleanup_routine that destroys spx_hash,
+	 * spx_postseq_cleanup should clear this. */
 	spx_hash = g_hash_table_new(spx_hash_func, spx_equal);
 }
 

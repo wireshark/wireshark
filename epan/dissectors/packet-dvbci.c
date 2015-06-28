@@ -1700,11 +1700,17 @@ dvbci_init(void)
 {
     buf_size_cam  = 0;
     buf_size_host = 0;
-
     reassembly_table_init(&tpdu_reassembly_table,
                           &addresses_reassembly_table_functions);
     reassembly_table_init(&spdu_reassembly_table,
                           &addresses_reassembly_table_functions);
+}
+
+static void
+dvbci_cleanup(void)
+{
+    reassembly_table_destroy(&tpdu_reassembly_table);
+    reassembly_table_destroy(&spdu_reassembly_table);
 }
 
 
@@ -6328,6 +6334,7 @@ proto_register_dvbci(void)
                 "SAS application id", FT_STRING, STR_ASCII);
 
     register_init_routine(dvbci_init);
+    register_cleanup_routine(dvbci_cleanup);
 
     /* the dissector for decrypted CI+ SAC messages which we can export */
     new_register_dissector(EXPORTED_SAC_MSG_PROTO,

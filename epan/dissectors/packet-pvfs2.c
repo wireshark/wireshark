@@ -2916,11 +2916,14 @@ pvfs2_io_tracking_hash(gconstpointer k)
 static void
 pvfs2_io_tracking_init(void)
 {
-	if (pvfs2_io_tracking_value_table != NULL)
-		g_hash_table_destroy(pvfs2_io_tracking_value_table);
-
 	pvfs2_io_tracking_value_table = g_hash_table_new(pvfs2_io_tracking_hash,
 			pvfs2_io_tracking_equal);
+}
+
+static void
+pvfs2_io_tracking_cleanup(void)
+{
+	g_hash_table_destroy(pvfs2_io_tracking_value_table);
 }
 
 static pvfs2_io_tracking_value_t *
@@ -3611,6 +3614,7 @@ proto_register_pvfs(void)
 	expert_register_field_array(expert_pvfs, ei, array_length(ei));
 
 	register_init_routine(pvfs2_io_tracking_init);
+	register_cleanup_routine(pvfs2_io_tracking_cleanup);
 
 	pvfs_module = prefs_register_protocol(proto_pvfs, NULL);
 	prefs_register_bool_preference(pvfs_module, "desegment",

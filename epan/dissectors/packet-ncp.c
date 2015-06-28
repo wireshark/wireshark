@@ -484,18 +484,13 @@ mncp_hash(gconstpointer v)
 static void
 mncp_init_protocol(void)
 {
-    if (mncp_rhash)
-        g_hash_table_destroy(mncp_rhash);
-
     mncp_rhash = g_hash_table_new(mncp_hash, mncp_equal);
 }
 
-/* After the sequential run, we don't need the ncp_request hash and keys
- * anymore; the lookups have already been done and the vital info
- * saved in the reply-packets' private_data in the frame_data struct. */
 static void
-mncp_postseq_cleanup(void)
+mncp_cleanup_protocol(void)
 {
+    g_hash_table_destroy(mncp_rhash);
 }
 
 static mncp_rhash_value*
@@ -1381,9 +1376,9 @@ proto_register_ncp(void)
                                    "Whether the NCP dissector should echo file open/close/oplock information to the expert table.",
                                    &ncp_echo_file);
     register_init_routine(&mncp_init_protocol);
+    register_cleanup_routine(&mncp_cleanup_protocol);
     ncp_tap.stat=register_tap("ncp_srt");
     ncp_tap.hdr=register_tap("ncp");
-    register_postseq_cleanup_routine(&mncp_postseq_cleanup);
 
     register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_hostlist_packet);
     register_srt_table(proto_ncp, "ncp_srt", 24, ncpstat_packet, ncpstat_init, NULL);

@@ -114,10 +114,13 @@ fcfzs_hash(gconstpointer v)
 static void
 fcfzs_init_protocol(void)
 {
-    if (fcfzs_req_hash)
-        g_hash_table_destroy(fcfzs_req_hash);
-
     fcfzs_req_hash = g_hash_table_new(fcfzs_hash, fcfzs_equal);
+}
+
+static void
+fcfzs_cleanup_protocol(void)
+{
+    g_hash_table_destroy(fcfzs_req_hash);
 }
 
 /* Code to actually dissect the packets */
@@ -867,6 +870,7 @@ proto_register_fcfzs(void)
     expert_fcfzs = expert_register_protocol(proto_fcfzs);
     expert_register_field_array(expert_fcfzs, ei, array_length(ei));
     register_init_routine(&fcfzs_init_protocol);
+    register_cleanup_routine(&fcfzs_cleanup_protocol);
 
 }
 

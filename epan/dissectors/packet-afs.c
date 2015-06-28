@@ -1415,15 +1415,16 @@ afs_hash (gconstpointer v)
 static void
 afs_init_protocol(void)
 {
-	if (afs_request_hash)
-		g_hash_table_destroy(afs_request_hash);
-
 	afs_request_hash = g_hash_table_new(afs_hash, afs_equal);
-
-	/* fragment_table_init(&afs_fragment_table); */
-	/* reassembled_table_init(&afs_reassembled_table); */
 	reassembly_table_init(&afs_reassembly_table,
 			      &addresses_reassembly_table_functions);
+}
+
+static void
+afs_cleanup_protocol(void)
+{
+	reassembly_table_destroy(&afs_reassembly_table);
+	g_hash_table_destroy(afs_request_hash);
 }
 
 /*
@@ -3631,6 +3632,7 @@ proto_register_afs(void)
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&afs_init_protocol);
+	register_cleanup_routine(&afs_cleanup_protocol);
 
 	new_register_dissector("afs", dissect_afs, proto_afs);
 }

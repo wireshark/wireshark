@@ -195,11 +195,14 @@ fc_exchange_init_protocol(void)
 {
     reassembly_table_init(&fc_reassembly_table,
                           &addresses_reassembly_table_functions);
-
-    if (fcseq_req_hash)
-        g_hash_table_destroy(fcseq_req_hash);
-
     fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
+}
+
+static void
+fc_exchange_cleanup_protocol(void)
+{
+    reassembly_table_destroy(&fc_reassembly_table);
+    g_hash_table_destroy(fcseq_req_hash);
 }
 
 static const char* fc_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
@@ -1575,6 +1578,7 @@ proto_register_fc(void)
                                     &fc_max_frame_size);
 
     register_init_routine (fc_exchange_init_protocol);
+    register_cleanup_routine (fc_exchange_cleanup_protocol);
 
 
     /* Register FC SOF/EOF */
