@@ -6,6 +6,7 @@ editcap - Edit and/or translate the format of capture files
 =head1 SYNOPSIS
 
 B<editcap>
+S<[ B<-a> E<lt>frame:commentE<gt> ]>
 S<[ B<-A> E<lt>start timeE<gt> ]>
 S<[ B<-B> E<lt>stop timeE<gt> ]>
 S<[ B<-c> E<lt>packets per fileE<gt> ]>
@@ -58,6 +59,8 @@ B<Editcap> can also be used to remove duplicate packets.  Several different
 options (B<-d>, B<-D> and B<-w>) are used to control the packet window
 or relative time window to be used for duplicate comparison.
 
+B<Editcap> can be used to assign comment strings to frame numbers.
+
 B<Editcap> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension; the file
@@ -74,6 +77,12 @@ file; B<editcap -F> provides a list of the available output formats.
 =head1 OPTIONS
 
 =over 4
+
+=item -a  E<lt>framenum:commentE<gt>
+
+For the specificed frame number, assign the given comment string.
+Can be repeated for multiple frames.  Quotes should be used with comment
+strings that include spaces.
 
 =item -A  E<lt>start timeE<gt>
 
@@ -391,6 +400,10 @@ in a single pass, use any of the 8 possible methods provided below:
     6) editcap -C 30:20 -C 15:-10 capture.pcap chopped.pcap
     7) editcap -C -45:20 -C -60:-10 capture.pcap chopped.pcap
     8) editcap -C -45:20 -C 15:-10 capture.pcap chopped.pcap
+
+To add comment strings to the first 2 input frames, use:
+
+    editcap -a "1:1st frame" -a 2:Second capture.pcap capture-comments.pcap
 
 =head1 SEE ALSO
 
