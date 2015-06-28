@@ -1593,58 +1593,21 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
  */
 
 static void giop_init(void) {
-
-
-  /*
-   * Create objkey/repoid  hash, use my "equal" and "hash" functions.
-   *  Note: keys and values are wmem_file_scoped so they don't need to be freed.
-   *
-   */
-
-  if (giop_objkey_hash)
-    g_hash_table_destroy(giop_objkey_hash);
-
-  /*
-   * Create hash, use my "equal" and "hash" functions.
-   *
-   */
-
   giop_objkey_hash = g_hash_table_new(giop_hash_objkey_hash, giop_hash_objkey_equal);
-
-
-  /*
-   * Create complete_reply_hash, use my "equal" and "hash" functions.
-   *  Note: keys and values are wmem_file_scoped so they don't need to be freed.
-   *
-   */
-
-  if (giop_complete_reply_hash)
-    g_hash_table_destroy(giop_complete_reply_hash);
-
-  /*
-   * Create hash, use my "equal" and "hash" functions.
-   *
-   */
-
   giop_complete_reply_hash = g_hash_table_new(complete_reply_hash_fn, complete_reply_equal_fn);
 
-
-  /*
-   * Free giop_complete_request_list (if necessary)
-   * Note: The data elements are wmem_file_scoped so only the
-   *       actual list elements need to be freed.
-   */
-
-  if (giop_complete_request_list) {
-    g_list_free(giop_complete_request_list);
-    giop_complete_request_list = NULL;
-  }
-
+  giop_complete_request_list = NULL;
   read_IOR_strings_from_file(giop_ior_file, 600);
 
   reassembly_table_init(&giop_reassembly_table,
                         &addresses_reassembly_table_functions);
+}
 
+static void giop_cleanup(void) {
+  reassembly_table_destroy(&giop_reassembly_table);
+  g_hash_table_destroy(giop_objkey_hash);
+  g_hash_table_destroy(giop_complete_reply_hash);
+  g_list_free(giop_complete_request_list);
 }
 
 
@@ -5560,6 +5523,7 @@ proto_register_giop (void)
   /* register init routine */
 
   register_init_routine( &giop_init); /* any init stuff */
+  register_cleanup_routine( &giop_cleanup);
 
   /* Register for tapping */
   giop_tap = register_tap(GIOP_TAP_NAME); /* GIOP statistics tap */

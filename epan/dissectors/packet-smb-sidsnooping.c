@@ -259,20 +259,13 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 	return 0;
 }
 
-static gboolean
-free_all_sid_names(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
+static void
+sid_name_key_destroy(gpointer key_arg)
 {
 	sid_name *sn = (sid_name *)key_arg;
 
-	if(sn->sid){
-		g_free((gpointer)sn->sid);
-		sn->sid=NULL;
-	}
-	if(sn->name){
-		g_free((gpointer)sn->name);
-		sn->name=NULL;
-	}
-	return TRUE;
+	g_free((gpointer)sn->sid);
+	g_free((gpointer)sn->name);
 }
 
 static gint
@@ -298,11 +291,6 @@ sid_name_hash(gconstpointer k)
 }
 
 
-static gboolean
-free_all_ctx_handle(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
 static gint
 ctx_handle_equal(gconstpointer k1, gconstpointer k2)
 {
@@ -335,17 +323,10 @@ sid_snooping_init(void)
 		samr_query_dispinfo_tap_installed=FALSE;
 	}
 
-	if(sid_name_table){
-		g_hash_table_foreach_remove(sid_name_table, free_all_sid_names, NULL);
-		sid_name_table=NULL;
-	}
-	if(ctx_handle_table){
-		g_hash_table_foreach_remove(ctx_handle_table, free_all_ctx_handle, NULL);
-		ctx_handle_table=NULL;
-	}
-
-
-/* this code needs to be rewritten from scratch
+	sid_name_table = g_hash_table_new_full(sid_name_hash, sid_name_equal,
+		sid_name_key_destroy, NULL);
+	ctx_handle_table = g_hash_table_new(ctx_handle_hash, ctx_handle_equal);
+/* TODO this code needs to be rewritten from scratch
    disabling it now so that it won't cause wireshark to abort due to
    unknown hf fields
  */
@@ -355,10 +336,6 @@ sid_name_snooping=FALSE;
 		return;
 	}
 
-	sid_name_table=g_hash_table_new(sid_name_hash, sid_name_equal);
-
-
-	ctx_handle_table=g_hash_table_new(ctx_handle_hash, ctx_handle_equal);
 
 
 #if 0
@@ -403,10 +380,18 @@ sid_name_snooping=FALSE;
 	samr_query_dispinfo_tap_installed=TRUE;
 }
 
+static void
+sid_snooping_cleanup(void)
+{
+	g_hash_table_destroy(sid_name_table);
+	g_hash_table_destroy(ctx_handle_table);
+}
+
 void
 proto_register_smb_sidsnooping(void)
 {
 	register_init_routine(sid_snooping_init);
+	register_cleanup_routine(sid_snooping_cleanup);
 }
 
 /*

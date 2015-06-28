@@ -557,24 +557,6 @@ static void
 fragment_table_init(void)
 {
     int i;
-    if (fragment_table) {
-        g_hash_table_destroy(fragment_table);
-    }
-    if (endpoints) {
-        g_hash_table_destroy(endpoints);
-    }
-    if (reassembled_table) {
-        g_hash_table_destroy(reassembled_table);
-    }
-    if (sequence_table) {
-        g_hash_table_destroy(sequence_table);
-    }
-    if (duplicate_table) {
-        g_hash_table_destroy(duplicate_table);
-    }
-    if(counter_map){
-        g_tree_destroy(counter_map);
-    }
     fragment_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, rlc_channel_delete, NULL);
     endpoints = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, rlc_channel_delete, NULL);
     reassembled_table = g_hash_table_new_full(rlc_frag_hash, rlc_frag_equal,
@@ -592,6 +574,17 @@ fragment_table_init(void)
         counter_init[i][1] = 0;
     }
     max_counter = 0;
+}
+
+static void
+fragment_table_cleanup(void)
+{
+    g_tree_destroy(counter_map);
+    g_hash_table_destroy(fragment_table);
+    g_hash_table_destroy(endpoints);
+    g_hash_table_destroy(reassembled_table);
+    g_hash_table_destroy(sequence_table);
+    g_hash_table_destroy(duplicate_table);
 }
 
 /* add the list of fragments for this sdu to 'tree' */
@@ -3000,6 +2993,7 @@ proto_register_rlc(void)
 #endif /* HAVE_UMTS_KASUMI */
 
     register_init_routine(fragment_table_init);
+    register_cleanup_routine(fragment_table_cleanup);
 }
 
 void
