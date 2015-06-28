@@ -1525,7 +1525,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		case IEEE80211_RADIOTAP_VHT: {
 			proto_item *it, *it_root = NULL;
 			proto_tree *vht_tree	 = NULL, *vht_known_tree = NULL, *user_tree = NULL;
-			guint16	    known, nsts;
+			guint16	    known;
 			guint8	    vht_flags, bw, mcs_nss;
 			guint	    bandwidth	 = 0;
 			guint	    gi_length	 = 0;
@@ -1661,11 +1661,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.phy_info.info_11ac.mcs[i] = mcs;
 				phdr.phy_info.info_11ac.nss[i] = nss;
 
-				if ((known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) && (vht_flags & IEEE80211_RADIOTAP_VHT_STBC))
-					nsts = 2 * nss;
-				else
-					nsts = nss;
-
 				if (nss) {
 					if (vht_tree) {
 						it = proto_tree_add_item(vht_tree, hf_radiotap_vht_user,
@@ -1686,8 +1681,18 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 						proto_tree_add_item(user_tree, hf_radiotap_vht_nss[i],
 							tvb, offset + 4 + i, 1, ENC_LITTLE_ENDIAN);
-						proto_tree_add_uint(user_tree, hf_radiotap_vht_nsts[i],
-							tvb, offset + 4 + i, 1, nsts);
+						if (known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) {
+							guint nsts;
+							proto_item *nsts_ti;
+
+							if (vht_flags & IEEE80211_RADIOTAP_VHT_STBC)
+								nsts = 2 * nss;
+							else
+								nsts = nss;
+							nsts_ti = proto_tree_add_uint(user_tree, hf_radiotap_vht_nsts[i],
+								tvb, offset + 4 + i, 1, nsts);
+							PROTO_ITEM_SET_GENERATED(nsts_ti);
+						}
 						proto_tree_add_item(user_tree, hf_radiotap_vht_coding[i],
 							tvb, offset + 8, 1,ENC_LITTLE_ENDIAN);
 					}
