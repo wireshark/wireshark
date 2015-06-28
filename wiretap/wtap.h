@@ -690,7 +690,7 @@ struct ieee_802_11ac {       /* 802.11ac */
     guint8   nss[4];         /* NSS per user */
     guint8   fec;            /* Bit array of FEC per user: 0 = BCC, 1 = LDPC */
     guint8   group_id;
-    guint8   partial_aid;
+    guint16  partial_aid;
 };
 
 /*
