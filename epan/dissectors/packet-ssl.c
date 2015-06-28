@@ -333,12 +333,6 @@ void proto_reg_handoff_ssl(void);
 /* Desegmentation of SSL streams */
 /* table to hold defragmented SSL streams */
 static reassembly_table ssl_reassembly_table;
-static void
-ssl_fragment_init(void)
-{
-    reassembly_table_init(&ssl_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
-}
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
@@ -347,9 +341,10 @@ ssl_init(void)
     module_t *ssl_module = prefs_find_module("ssl");
     pref_t   *keys_list_pref;
 
-    ssl_common_init(&ssl_master_key_map, &ssl_keylog_file,
+    ssl_common_init(&ssl_master_key_map,
                     &ssl_decrypted_data, &ssl_compressed_data);
-    ssl_fragment_init();
+    reassembly_table_init(&ssl_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
     ssl_debug_flush();
 
     /* for "Export SSL Session Keys" */
@@ -363,6 +358,19 @@ ssl_init(void)
             prefs_set_preference_obsolete(keys_list_pref);
         }
     }
+}
+
+static void
+ssl_cleanup(void)
+{
+    reassembly_table_destroy(&ssl_reassembly_table);
+    ssl_common_cleanup(&ssl_master_key_map, &ssl_keylog_file,
+                       &ssl_decrypted_data, &ssl_compressed_data);
+
+    /* should not be needed since the UI code prevents this from being accessed
+     * when no file is open. Clear it anyway just to be sure. */
+    ssl_session_hash = NULL;
+    ssl_crandom_hash = NULL;
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -4208,6 +4216,7 @@ proto_register_ssl(void)
     ssl_associations = g_tree_new(ssl_association_cmp);
 
     register_init_routine(ssl_init);
+    register_cleanup_routine(ssl_cleanup);
     ssl_lib_init();
     ssl_tap = register_tap("ssl");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",

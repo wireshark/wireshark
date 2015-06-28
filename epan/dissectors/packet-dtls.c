@@ -184,7 +184,7 @@ dtls_init(void)
   module_t *dtls_module = prefs_find_module("dtls");
   pref_t   *keys_list_pref;
 
-  ssl_common_init(&dtls_master_key_map, &dtls_keylog_file,
+  ssl_common_init(&dtls_master_key_map,
                   &dtls_decrypted_data, &dtls_compressed_data);
   reassembly_table_init (&dtls_reassembly_table, &addresses_ports_reassembly_table_functions);
 
@@ -195,6 +195,14 @@ dtls_init(void)
       prefs_set_preference_obsolete(keys_list_pref);
     }
   }
+}
+
+static void
+dtls_cleanup(void)
+{
+  reassembly_table_destroy(&dtls_reassembly_table);
+  ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
+                     &dtls_decrypted_data, &dtls_compressed_data);
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -1934,6 +1942,7 @@ proto_register_dtls(void)
   dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
+  register_cleanup_routine(dtls_cleanup);
   ssl_lib_init();
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",

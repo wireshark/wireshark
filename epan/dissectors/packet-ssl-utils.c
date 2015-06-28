@@ -4367,34 +4367,28 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 void
-ssl_common_init(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
+ssl_common_init(ssl_master_key_map_t *mk_map,
                 StringInfo *decrypted_data, StringInfo *compressed_data)
 {
-    if (mk_map->session)
-        g_hash_table_remove_all(mk_map->session);
-    else
-        mk_map->session = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->session = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
+    ssl_data_alloc(decrypted_data, 32);
+    ssl_data_alloc(compressed_data, 32);
+}
 
-    if (mk_map->crandom)
-        g_hash_table_remove_all(mk_map->crandom);
-    else
-        mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
-
-    if (mk_map->pre_master)
-        g_hash_table_remove_all(mk_map->pre_master);
-    else
-        mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
-
-    if (mk_map->pms)
-        g_hash_table_remove_all(mk_map->pms);
-    else
-        mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
+void
+ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
+                   StringInfo *decrypted_data, StringInfo *compressed_data)
+{
+    g_hash_table_destroy(mk_map->session);
+    g_hash_table_destroy(mk_map->crandom);
+    g_hash_table_destroy(mk_map->pre_master);
+    g_hash_table_destroy(mk_map->pms);
 
     g_free(decrypted_data->data);
-    ssl_data_alloc(decrypted_data, 32);
-
     g_free(compressed_data->data);
-    ssl_data_alloc(compressed_data, 32);
 
     /* close the previous keylog file now that the cache are cleared, this
      * allows the cache to be filled with the full keylog file contents. */
