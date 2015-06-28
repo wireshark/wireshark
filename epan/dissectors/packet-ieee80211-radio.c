@@ -704,6 +704,13 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
         }
         break;
 
+      case PHDR_802_11_PHY_11B:
+        if (phdr->phy_info.info_11b.presence_flags & PHDR_802_11B_HAS_SHORT_PREAMBLE) {
+          proto_tree_add_boolean(radio_tree, hf_wlan_radio_short_preamble, tvb, 0, 0,
+                   phdr->phy_info.info_11b.short_preamble);
+        }
+        break;
+
       case PHDR_802_11_PHY_11A:
         if (phdr->phy_info.info_11a.presence_flags & PHDR_802_11A_HAS_CHANNEL_TYPE) {
           proto_tree_add_uint(radio_tree, hf_wlan_radio_11a_channel_type, tvb, 0, 0,
@@ -716,6 +723,10 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
         break;
 
       case PHDR_802_11_PHY_11G:
+        if (phdr->phy_info.info_11g.presence_flags & PHDR_802_11G_HAS_SHORT_PREAMBLE) {
+          proto_tree_add_boolean(radio_tree, hf_wlan_radio_short_preamble, tvb, 0, 0,
+                   phdr->phy_info.info_11g.short_preamble);
+        }
         if (phdr->phy_info.info_11g.presence_flags & PHDR_802_11G_HAS_MODE) {
           proto_tree_add_uint(radio_tree, hf_wlan_radio_11g_mode, tvb, 0, 0,
                    phdr->phy_info.info_11g.mode);
@@ -920,11 +931,6 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               phdr->frequency,
               "%u MHz",
               phdr->frequency);
-    }
-
-    if (phdr->presence_flags & PHDR_802_11_HAS_SHORT_PREAMBLE) {
-      proto_tree_add_boolean(radio_tree, hf_wlan_radio_short_preamble, tvb, 0, 0,
-               phdr->short_preamble);
     }
 
     if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {

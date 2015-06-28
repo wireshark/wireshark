@@ -614,11 +614,19 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 1:
       /*
        * Short preamble.
-       * We assume this is present only for PHYs that support variable
-       * preamble lengths.
        */
-      phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
-      phdr.short_preamble = TRUE;
+      switch (phdr.phy) {
+
+      case PHDR_802_11_PHY_11B:
+        phdr.phy_info.info_11b.presence_flags |= PHDR_802_11B_HAS_SHORT_PREAMBLE;
+        phdr.phy_info.info_11b.short_preamble = TRUE;
+        break;
+
+      case PHDR_802_11_PHY_11G:
+        phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+        phdr.phy_info.info_11g.short_preamble = TRUE;
+        break;
+      }
       break;
 
     case 2:
@@ -627,8 +635,18 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * We assume this is present only for PHYs that support variable
        * preamble lengths.
        */
-      phdr.presence_flags |= PHDR_802_11_HAS_SHORT_PREAMBLE;
-      phdr.short_preamble = FALSE;
+      switch (phdr.phy) {
+
+      case PHDR_802_11_PHY_11B:
+        phdr.phy_info.info_11b.presence_flags |= PHDR_802_11B_HAS_SHORT_PREAMBLE;
+        phdr.phy_info.info_11b.short_preamble = FALSE;
+        break;
+
+      case PHDR_802_11_PHY_11G:
+        phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+        phdr.phy_info.info_11g.short_preamble = FALSE;
+        break;
+      }
       break;
 
     default:
