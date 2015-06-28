@@ -16885,13 +16885,8 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 }
 
 static void
-smb_init_protocol(void)
+smb_cleanup(void)
 {
-	/*
-	 * Free the hash tables attached to the conversation table
-	 * structures, and then free the list of conversation table
-	 * data structures.
-	 */
 	if (conv_tables) {
 		g_slist_foreach(conv_tables, free_hash_tables, NULL);
 		g_slist_free(conv_tables);
@@ -20489,7 +20484,7 @@ proto_register_smb(void)
 
 	proto_do_register_windows_common(proto_smb);
 
-	register_init_routine(&smb_init_protocol);
+	register_cleanup_routine(&smb_cleanup);
 	smb_module = prefs_register_protocol(proto_smb, NULL);
 	prefs_register_bool_preference(smb_module, "trans_reassembly",
 		"Reassemble SMB Transaction payload",

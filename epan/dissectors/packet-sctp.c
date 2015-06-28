@@ -2630,36 +2630,19 @@ frag_free_msgs(sctp_frag_msg *msg)
   g_free(msg);
 }
 
-static gboolean
-free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
-{
-  sctp_frag_msg *msg = (sctp_frag_msg *)value;
-  frag_key *fkey = (frag_key *)key;
-
-  frag_free_msgs(msg);
-  g_free(fkey);
-  return TRUE;
-}
-
-static void
-frag_table_init(void)
-{
-  /* destroy an existing hash table and create a new one */
-  if (frag_table) {
-    g_hash_table_foreach_remove(frag_table, free_table_entry, NULL);
-    g_hash_table_destroy(frag_table);
-    frag_table=NULL;
-  }
-
-  frag_table = g_hash_table_new(frag_hash, frag_equal);
-}
-
 static void
 sctp_init(void)
 {
-  frag_table_init();
+  frag_table = g_hash_table_new_full(frag_hash, frag_equal,
+      (GDestroyNotify)g_free, (GDestroyNotify)frag_free_msgs);
   num_assocs = 0;
   assoc_info_list = NULL;
+}
+
+static void
+sctp_cleanup(void)
+{
+  g_hash_table_destroy(frag_table);
 }
 
 
@@ -4953,6 +4936,7 @@ proto_register_sctp(void)
   sctp_heur_subdissector_list = register_heur_dissector_list("sctp");
 
   register_init_routine(sctp_init);
+  register_cleanup_routine(sctp_cleanup);
 
   dirs_by_ptvtag = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
   dirs_by_ptaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

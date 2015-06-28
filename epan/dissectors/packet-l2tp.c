@@ -2659,7 +2659,7 @@ static int dissect_atm_oam_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 }
 
-static void init_l2tp_dissection(void)
+static void l2tp_cleanup(void)
 {
     GSList *iterator = list_heads;
 
@@ -3029,7 +3029,7 @@ proto_register_l2tp(void)
                                    "Shared secret used for control message digest authentication",
                                    &shared_secret);
 
-    register_init_routine(init_l2tp_dissection);
+    register_cleanup_routine(l2tp_cleanup);
     register_decode_as(&l2tp_da);
 }
 

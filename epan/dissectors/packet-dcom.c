@@ -2172,8 +2172,7 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-static void dcom_reinit( void) {
-
+static void dcom_cleanup(void) {
 	if (dcom_machines != NULL) {
 		GList *machines;
 
@@ -2217,8 +2216,6 @@ static void dcom_reinit( void) {
 		g_list_free(dcom_interfaces);
 		dcom_interfaces = NULL;
 	}
-
-	return;
 }
 
 void
@@ -2505,7 +2502,7 @@ proto_register_dcom (void)
 		"usually hidden",
 		&dcom_prefs_display_unmarshalling_details);
 
-	register_init_routine(dcom_reinit);
+	register_cleanup_routine(dcom_cleanup);
 }
 
 

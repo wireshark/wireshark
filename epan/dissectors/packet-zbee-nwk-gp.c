@@ -1453,15 +1453,20 @@ gp_init_zbee_security(void)
     guint i;
     key_record_t key_record;
 
-    if (zbee_gp_keyring) {
-       g_slist_free(zbee_gp_keyring);
-       zbee_gp_keyring = NULL;
-    }
     for (i = 0; gp_uat_key_records && (i < num_uat_key_records); i++) {
         key_record.frame_num = 0;
         key_record.label = g_strdup(gp_uat_key_records[i].label);
         memcpy(&key_record.key, &gp_uat_key_records[i].key, ZBEE_SEC_CONST_KEYSIZE);
         zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+    }
+}
+
+static void
+gp_cleanup_zbee_security(void)
+{
+    if (zbee_gp_keyring) {
+       g_slist_free(zbee_gp_keyring);
+       zbee_gp_keyring = NULL;
     }
 }
 
@@ -1755,6 +1760,7 @@ proto_register_zbee_nwk_gp(void)
         "Pre-configured GP Security Keys.", zbee_gp_sec_key_table_uat);
 
     register_init_routine(gp_init_zbee_security);
+    register_cleanup_routine(gp_cleanup_zbee_security);
 
     /* Register the Wireshark protocol. */
     proto_register_field_array(proto_zbee_nwk_gp, hf, array_length(hf));

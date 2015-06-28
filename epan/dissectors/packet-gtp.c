@@ -8609,7 +8609,7 @@ dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 }
 
 static void
-gtp_reinit(void)
+gtp_cleanup(void)
 {
     gtp_conv_info_t *gtp_info;
 
@@ -9787,7 +9787,7 @@ proto_register_gtp(void)
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);
 
-    register_init_routine(gtp_reinit);
+    register_cleanup_routine(gtp_cleanup);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");
 

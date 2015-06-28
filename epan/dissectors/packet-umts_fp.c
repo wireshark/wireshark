@@ -4492,7 +4492,6 @@ umts_fp_init_protocol(void)
 {
     guint32 hosta_addr[4];
     guint32 hostb_addr[4];
-    /*struct e_in6_addr ip6_addr;*/
     address     src_addr, dst_addr;
     conversation_t *conversation;
     umts_fp_conversation_info_t *umts_fp_conversation_info;

@@ -2587,21 +2587,18 @@ header_equal(gconstpointer pointer1, gconstpointer pointer2)
 static void
 ntlmssp_init_protocol(void)
 {
-  /*
-   * Free the decrypted payloads, and then free the list of decrypted
-   * payloads.
-   */
+  hash_packet = g_hash_table_new(header_hash, header_equal);
+}
+
+static void
+ntlmssp_cleanup_protocol(void)
+{
   if (decrypted_payloads != NULL) {
     g_slist_foreach(decrypted_payloads, free_payload, NULL);
     g_slist_free(decrypted_payloads);
     decrypted_payloads = NULL;
   }
-
-  if (hash_packet != NULL) {
-    g_hash_table_remove_all(hash_packet);
-  } else {
-    hash_packet = g_hash_table_new(header_hash, header_equal);
-  }
+  g_hash_table_destroy(hash_packet);
 }
 
 
@@ -3267,6 +3264,7 @@ proto_register_ntlmssp(void)
   expert_ntlmssp = expert_register_protocol(proto_ntlmssp);
   expert_register_field_array(expert_ntlmssp, ei, array_length(ei));
   register_init_routine(&ntlmssp_init_protocol);
+  register_cleanup_routine(&ntlmssp_cleanup_protocol);
 
   ntlmssp_module = prefs_register_protocol(proto_ntlmssp, NULL);
 

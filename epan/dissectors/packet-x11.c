@@ -2691,7 +2691,7 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       ENDBITMASK;
 }
 
-static void x11_init_protocol(void)
+static void x11_cleanup(void)
 {
       x11_conv_data_t *state;
 
@@ -5856,7 +5856,7 @@ void proto_register_x11(void)
       expert_x11 = expert_register_protocol(proto_x11);
       expert_register_field_array(expert_x11, ei, array_length(ei));
 
-      register_init_routine(x11_init_protocol);
+      register_cleanup_routine(x11_cleanup);
 
       extension_table = g_hash_table_new(g_str_hash, g_str_equal);
       error_table = g_hash_table_new(g_str_hash, g_str_equal);

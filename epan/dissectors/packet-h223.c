@@ -217,10 +217,14 @@ circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
 static void
 circuit_chain_init(void)
 {
-    if (circuit_chain_hashtable)
-        g_hash_table_destroy(circuit_chain_hashtable);
     circuit_chain_hashtable = g_hash_table_new(circuit_chain_hash, circuit_chain_equal);
     circuit_chain_count = 1;
+}
+
+static void
+circuit_chain_destroy(void)
+{
+    g_hash_table_destroy(circuit_chain_hashtable);
 }
 
 
@@ -1433,12 +1437,6 @@ dissect_h223_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /******************************************************************************/
 
-static void
-h223_init_protocol (void)
-{
-    circuit_chain_init();
-}
-
 
 void proto_register_h223 (void)
 {
@@ -1653,7 +1651,8 @@ void proto_register_h223 (void)
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
-    register_init_routine(&h223_init_protocol);
+    register_init_routine(&circuit_chain_init);
+    register_cleanup_routine(&circuit_chain_destroy);
 
     h245_set_h223_set_mc_handle( &h223_set_mc );
     h245_set_h223_add_lc_handle( &h223_add_lc );
