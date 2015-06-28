@@ -833,13 +833,6 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           }
 
           for (i = 0; i < 4; i++) {
-            guint nsts;
-
-            if ((phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_STBC) &&
-                phdr->phy_info.info_11ac.stbc)
-              nsts = 2 * phdr->phy_info.info_11ac.nss[i];
-            else
-              nsts = phdr->phy_info.info_11ac.nss[i];
 
             if (phdr->phy_info.info_11ac.nss[i] != 0) {
               proto_item *it;
@@ -861,8 +854,20 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 
               proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nss, tvb, 0, 0,
                        phdr->phy_info.info_11ac.nss[i]);
-              proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nsts, tvb, 0, 0,
+              /*
+               * If we don't know whether space-time block coding is being
+               * used, we don't know the number of space-time streams.
+               */
+              if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_STBC) {
+                guint nsts;
+
+                if (phdr->phy_info.info_11ac.stbc)
+                  nsts = 2 * phdr->phy_info.info_11ac.nss[i];
+                else
+                  nsts = phdr->phy_info.info_11ac.nss[i];
+                proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nsts, tvb, 0, 0,
                        nsts);
+              }
               proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_fec, tvb, 0, 0,
                        (phdr->phy_info.info_11ac.fec >> i) & 0x01);
 
