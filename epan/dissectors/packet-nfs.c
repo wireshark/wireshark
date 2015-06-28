@@ -949,55 +949,37 @@ nfs_name_snoop_unmatched_hash(gconstpointer k)
 }
 
 
-static gboolean
-nfs_name_snoop_unmatched_free_all(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
+static void
+nfs_name_snoop_value_destroy(gpointer value)
 {
 	nfs_name_snoop_t *nns = (nfs_name_snoop_t *)value;
 
-	if (nns->name) {
-		g_free((gpointer)nns->name);
-		nns->name = NULL;
-		nns->name_len = 0;
-	}
-	if (nns->full_name) {
-		g_free((gpointer)nns->full_name);
-		nns->full_name = NULL;
-		nns->full_name_len = 0;
-	}
-	if (nns->parent) {
-		g_free((gpointer)nns->parent);
-		nns->parent = NULL;
-		nns->parent_len = 0;
-	}
-	if (nns->fh) {
-		g_free((gpointer)nns->fh);
-		nns->fh = NULL;
-		nns->fh_length = 0;
-	}
+	g_free((gpointer)nns->name);
+	g_free((gpointer)nns->full_name);
+	g_free((gpointer)nns->parent);
+	g_free((gpointer)nns->fh);
 	g_free(nns);
-	return TRUE;
 }
 
 
 static void
 nfs_name_snoop_init(void)
 {
-	if (nfs_name_snoop_unmatched != NULL) {
-		g_hash_table_foreach_remove(nfs_name_snoop_unmatched,
-				nfs_name_snoop_unmatched_free_all, NULL);
-	} else {
-		/* The fragment table does not exist. Create it */
-		nfs_name_snoop_unmatched = g_hash_table_new(nfs_name_snoop_unmatched_hash,
-			nfs_name_snoop_unmatched_equal);
-	}
-	if (nfs_name_snoop_matched != NULL) {
-		g_hash_table_foreach_remove(nfs_name_snoop_matched,
-				nfs_name_snoop_unmatched_free_all, NULL);
-	} else {
-		/* The fragment table does not exist. Create it */
-		nfs_name_snoop_matched = g_hash_table_new(nfs_name_snoop_matched_hash,
-			nfs_name_snoop_matched_equal);
-	}
+	nfs_name_snoop_unmatched =
+		g_hash_table_new_full(nfs_name_snoop_unmatched_hash,
+		nfs_name_snoop_unmatched_equal,
+		NULL, nfs_name_snoop_value_destroy);
+	nfs_name_snoop_matched =
+		g_hash_table_new_full(nfs_name_snoop_matched_hash,
+		nfs_name_snoop_matched_equal,
+		NULL, nfs_name_snoop_value_destroy);
+}
+
+static void
+nfs_name_snoop_cleanup(void)
+{
+	g_hash_table_destroy(nfs_name_snoop_unmatched);
+	g_hash_table_destroy(nfs_name_snoop_matched);
 }
 
 
@@ -12629,6 +12611,7 @@ proto_register_nfs(void)
 	nfs_file_handles        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	nfs_fhandle_frame_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	register_init_routine(nfs_name_snoop_init);
+	register_cleanup_routine(nfs_name_snoop_cleanup);
 
 	register_decode_as(&nfs_da);
 }

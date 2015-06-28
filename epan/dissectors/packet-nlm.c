@@ -112,24 +112,13 @@ typedef struct _nlm_msg_res_matched_data {
 	nstime_t ns;
 } nlm_msg_res_matched_data;
 
-static gboolean
-nlm_msg_res_unmatched_free_all(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
+static void
+nlm_msg_res_unmatched_value_destroy(gpointer value)
 {
 	nlm_msg_res_unmatched_data *umd = (nlm_msg_res_unmatched_data *)value;
 
 	g_free((gpointer)umd->cookie);
 	g_free(umd);
-
-	return TRUE;
-}
-static gboolean
-nlm_msg_res_matched_free_all(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
-{
-	nlm_msg_res_matched_data *md = (nlm_msg_res_matched_data *)value;
-
-	g_free(md);
-
-	return TRUE;
 }
 
 static guint
@@ -177,21 +166,19 @@ nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
 static void
 nlm_msg_res_match_init(void)
 {
-	if(nlm_msg_res_unmatched != NULL){
-		g_hash_table_foreach_remove(nlm_msg_res_unmatched,
-				nlm_msg_res_unmatched_free_all, NULL);
-	} else {
-		nlm_msg_res_unmatched=g_hash_table_new(nlm_msg_res_unmatched_hash,
-			nlm_msg_res_unmatched_equal);
-	}
+	nlm_msg_res_unmatched =
+		g_hash_table_new_full(nlm_msg_res_unmatched_hash,
+		nlm_msg_res_unmatched_equal,
+		NULL, nlm_msg_res_unmatched_value_destroy);
+	nlm_msg_res_matched = g_hash_table_new_full(nlm_msg_res_matched_hash,
+		nlm_msg_res_matched_equal, NULL, (GDestroyNotify)g_free);
+}
 
-	if(nlm_msg_res_matched != NULL){
-		g_hash_table_foreach_remove(nlm_msg_res_matched,
-				nlm_msg_res_matched_free_all, NULL);
-	} else {
-		nlm_msg_res_matched=g_hash_table_new(nlm_msg_res_matched_hash,
-			nlm_msg_res_matched_equal);
-	}
+static void
+nlm_msg_res_match_cleanup(void)
+{
+	g_hash_table_destroy(nlm_msg_res_unmatched);
+	g_hash_table_destroy(nlm_msg_res_matched);
 }
 
 static void
@@ -1221,6 +1208,7 @@ proto_register_nlm(void)
 		"Whether the dissector will track and match MSG and RES calls for asynchronous NLM",
 		&nlm_match_msgres);
 	register_init_routine(nlm_msg_res_match_init);
+	register_cleanup_routine(nlm_msg_res_match_cleanup);
 }
 
 void

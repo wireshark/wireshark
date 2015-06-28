@@ -1013,11 +1013,6 @@ static guint _9p_hash_hash(gconstpointer k)
 	return (key->conv_index ^ key->tag ^ key->fid);
 }
 
-static gboolean _9p_hash_free_all(gpointer key _U_, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
-
 static void _9p_hash_free_val(gpointer value)
 {
 	struct _9p_hashval *val = (struct _9p_hashval *)value;
@@ -1043,11 +1038,12 @@ static struct _9p_hashval *_9p_hash_new_val(gsize len)
 
 static void _9p_hash_init(void)
 {
-	if (_9p_hashtable != NULL) {
-		g_hash_table_foreach_remove(_9p_hashtable, _9p_hash_free_all, NULL);
-	} else {
-		_9p_hashtable = g_hash_table_new_full(_9p_hash_hash, _9p_hash_equal, g_free, _9p_hash_free_val);
-	}
+	_9p_hashtable = g_hash_table_new_full(_9p_hash_hash, _9p_hash_equal, g_free, _9p_hash_free_val);
+}
+
+static void _9p_hash_cleanup(void)
+{
+	g_hash_table_destroy(_9p_hashtable);
 }
 
 static void _9p_hash_set(packet_info *pinfo, guint16 tag, guint32 fid, struct _9p_hashval *val)
@@ -2757,6 +2753,7 @@ void proto_register_9P(void)
 	expert_register_field_array(expert_9P, ei, array_length(ei));
 
 	register_init_routine(_9p_hash_init);
+	register_cleanup_routine(_9p_hash_cleanup);
 }
 
 void proto_reg_handoff_9P(void)
