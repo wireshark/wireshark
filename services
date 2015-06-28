@@ -9308,7 +9308,7 @@ mgcs-mfp-port    6509/udp # MGCS-MFP Port [Minoru_Ozaki] [Minoru_Ozaki]
 mcer-port        6510/tcp # MCER Port [Portnoy_Boxman] [Portnoy_Boxman]
 mcer-port        6510/udp # MCER Port [Portnoy_Boxman] [Portnoy_Boxman]
 dccp-udp         6511/udp # Datagram Congestion Control Protocol Encapsulation for NAT Traversal [IESG] [IETF_Chair] [RFC6773]
-netconf-tls      6513/tcp # NETCONF over TLS [IESG] [IETF_Chair] 2015-04-15 [RFC-ietf-netconf-rfc5539bis-10]
+netconf-tls      6513/tcp # NETCONF over TLS [IESG] [IETF_Chair] 2015-04-15 [RFC7589]
 syslog-tls       6514/tcp # Syslog over TLS [RFC5425]
 syslog-tls       6514/udp # syslog over DTLS [RFC6012]
 syslog-tls       6514/dccp # syslog over DTLS [RFC6012]
@@ -10563,6 +10563,7 @@ rsms            10201/tcp # Remote Server Management Service [Patrick_H_Piper] [
 rscs            10201/udp # Remote Server Control and Test Service [Patrick_H_Piper] [Patrick_H_Piper] 2009-03-06
 apollo-relay    10252/tcp # Apollo Relay Port [Anthony_Carrabino] [Anthony_Carrabino] 2003-08
 apollo-relay    10252/udp # Apollo Relay Port [Anthony_Carrabino] [Anthony_Carrabino] 2003-08
+eapol-relay     10253/udp # Relay of EAPOL frames [Wi-SUN_Alliance] [Phil_Beecher] 2015-06-26
 axis-wimp-port  10260/tcp # Axis WIMP Port [Stefan_Eriksson] [Stefan_Eriksson]
 axis-wimp-port  10260/udp # Axis WIMP Port [Stefan_Eriksson] [Stefan_Eriksson]
 blocks          10288/tcp # Blocks [Carl_Malamud] [Carl_Malamud]
@@ -11343,6 +11344,8 @@ ortec-disc      40853/udp # ORTEC Service Discovery [Jesse_Ursery] [Jesse_Ursery
 fs-qos          41111/tcp # Foursticks QoS Protocol [Chee_Kent_Lam] [Chee_Kent_Lam] 2002-04
 fs-qos          41111/udp # Foursticks QoS Protocol [Chee_Kent_Lam] [Chee_Kent_Lam] 2002-04
 tentacle        41121/tcp # Tentacle Server [Sancho_Lerena] [Sancho_Lerena] 2009-06-02
+z-wave-s        41230/tcp # Z-Wave Protocol over SSL/TLS [Sigma_Designs_3] [Anders_Brandt_4] 2015-06-26
+z-wave-s        41230/udp # Z-Wave Protocol over DTLS [Sigma_Designs_3] [Anders_Brandt_4] 2015-06-26
 crestron-cip    41794/tcp # Crestron Control Port [Ed_Ranney] [Ed_Ranney] 2003-01
 crestron-cip    41794/udp # Crestron Control Port [Ed_Ranney] [Ed_Ranney] 2003-01
 crestron-ctp    41795/tcp # Crestron Terminal Port [Ed_Ranney] [Ed_Ranney] 2003-01
@@ -11372,7 +11375,7 @@ ew-mgmt         43440/tcp # Cisco EnergyWise Management
 ew-disc-cmd     43440/udp # Cisco EnergyWise Discovery and Command Flooding [John_Parello] [John_Parello] 2009-05-19
 ciscocsdb       43441/tcp # Cisco NetMgmt DB Ports [Cisco_Systems] [Cisco_Systems] 2005-11
 ciscocsdb       43441/udp # Cisco NetMgmt DB Ports [Cisco_Systems] [Cisco_Systems] 2005-11
-z-wave-s        44123/tcp # Z-Wave Secure Tunnel [Sigma_Designs_Inc] [Anders_Brandt_3] 2012-10-12
+z-wave-tunnel   44123/tcp # Z-Wave Secure Tunnel [Sigma_Designs_Inc] [Anders_Brandt_3] 2012-10-12 2015-06-26
 pmcd            44321/tcp # PCP server (pmcd) [Ken_McDonell] [Ken_McDonell] 2010-12-20
 pmcd            44321/udp # PCP server (pmcd) [Ken_McDonell] [Ken_McDonell] 2010-12-20
 pmcdproxy       44322/tcp # PCP server (pmcd) proxy [Ken_McDonell] [Ken_McDonell] 2003-07 2010-12-20
