@@ -986,24 +986,38 @@ void PacketList::setMonospaceFont(const QFont &mono_font)
 }
 
 void PacketList::goNextPacket(void) {
-    if (!selectionModel()->hasSelection()) return;
-    setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
+    if (selectionModel()->hasSelection()) {
+        setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
+    } else {
+        // First visible packet.
+        setCurrentIndex(indexAt(viewport()->rect().topLeft()));
+    }
 }
 
 void PacketList::goPreviousPacket(void) {
-    if (!selectionModel()->hasSelection()) return;
-    setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
+    if (selectionModel()->hasSelection()) {
+        setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
+    } else {
+        // Last visible packet.
+        QModelIndex last_idx = indexAt(viewport()->rect().bottomLeft());
+        if (last_idx.isValid()) {
+            setCurrentIndex(last_idx);
+        } else {
+            goLastPacket();
+        }
+    }
 }
 
 void PacketList::goFirstPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
     setCurrentIndex(packet_list_model_->index(0, 0));
+    scrollTo(currentIndex());
 }
 
 void PacketList::goLastPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
-    setCurrentIndex(packet_list_model_->index(0, 0));
-    setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
+    setCurrentIndex(packet_list_model_->index(packet_list_model_->rowCount() - 1, 0));
+    scrollTo(currentIndex());
 }
 
 // XXX We can jump to the wrong packet if a display filter is applied
