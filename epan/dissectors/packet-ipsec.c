@@ -2307,6 +2307,12 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void ipsec_init_protocol(void)
 {
+  esp_sequence_analysis_hash = g_hash_table_new(word_hash_func, word_equal);
+  esp_sequence_analysis_report_hash = g_hash_table_new(word_hash_func, word_equal);
+}
+
+static void ipsec_cleanup_protocol(void)
+{
 #ifdef HAVE_LIBGCRYPT
   /* Free any SA records added by other dissectors */
   guint n;
@@ -2315,25 +2321,13 @@ static void ipsec_init_protocol(void)
   }
 
   /* Free overall block of records */
-  if (extra_esp_sa_records.num_records > 0) {
-    g_free(extra_esp_sa_records.records);
-    extra_esp_sa_records.records = NULL;
-  }
+  g_free(extra_esp_sa_records.records);
+  extra_esp_sa_records.records = NULL;
   extra_esp_sa_records.num_records = 0;
-
-  /* Destroy any existing hashes. */
-  if (esp_sequence_analysis_hash) {
-      g_hash_table_destroy(esp_sequence_analysis_hash);
-  }
-  if (esp_sequence_analysis_report_hash) {
-      g_hash_table_destroy(esp_sequence_analysis_report_hash);
-  }
 #endif
 
-  /* Now create them over */
-  esp_sequence_analysis_hash = g_hash_table_new(word_hash_func, word_equal);
-  esp_sequence_analysis_report_hash = g_hash_table_new(word_hash_func, word_equal);
-
+  g_hash_table_destroy(esp_sequence_analysis_hash);
+  g_hash_table_destroy(esp_sequence_analysis_report_hash);
 }
 
 void
@@ -2543,6 +2537,7 @@ proto_register_ipsec(void)
 #endif
 
   register_init_routine(&ipsec_init_protocol);
+  register_cleanup_routine(&ipsec_cleanup_protocol);
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);

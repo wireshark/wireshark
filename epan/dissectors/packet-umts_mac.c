@@ -1273,15 +1273,8 @@ static void mac_is_sdus_hash_destroy(gpointer data)
 
 static void mac_init(void)
 {
-    if (mac_is_sdus != NULL) {
-        g_hash_table_destroy(mac_is_sdus);
-    }
-    if (mac_is_fragments != NULL) {
-        g_hash_table_destroy(mac_is_fragments);
-    }
     mac_is_sdus = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, mac_is_sdus_hash_destroy);
     mac_is_fragments = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, NULL);
-
     if (global_mac_tsn_size == MAC_TSN_6BITS) {
         MAX_TSN = 64;
         mac_tsn_size = 6;
@@ -1289,6 +1282,12 @@ static void mac_init(void)
         MAX_TSN = 16384;
         mac_tsn_size = 14;
     }
+}
+
+static void mac_cleanup(void)
+{
+    g_hash_table_destroy(mac_is_sdus);
+    g_hash_table_destroy(mac_is_fragments);
 }
 
 void
@@ -1471,6 +1470,7 @@ proto_register_umts_mac(void)
     register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
 
     register_init_routine(mac_init);
+    register_cleanup_routine(mac_cleanup);
 
     /* Preferences */
     mac_module = prefs_register_protocol(proto_umts_mac, NULL);

@@ -6097,31 +6097,24 @@ static void
 dcerpc_init_protocol(void)
 {
     /* structures and data for BIND */
-    if (dcerpc_binds) {
-        g_hash_table_destroy(dcerpc_binds);
-        dcerpc_binds = NULL;
-    }
-    if (!dcerpc_binds) {
-        dcerpc_binds = g_hash_table_new(dcerpc_bind_hash, dcerpc_bind_equal);
-    }
+    dcerpc_binds = g_hash_table_new(dcerpc_bind_hash, dcerpc_bind_equal);
 
     /* structures and data for CALL */
-    if (dcerpc_cn_calls) {
-        g_hash_table_destroy(dcerpc_cn_calls);
-    }
     dcerpc_cn_calls = g_hash_table_new(dcerpc_cn_call_hash, dcerpc_cn_call_equal);
-    if (dcerpc_dg_calls) {
-        g_hash_table_destroy(dcerpc_dg_calls);
-    }
     dcerpc_dg_calls = g_hash_table_new(dcerpc_dg_call_hash, dcerpc_dg_call_equal);
 
     /* structure and data for MATCHED */
-    if (dcerpc_matched) {
-        g_hash_table_destroy(dcerpc_matched);
-    }
     dcerpc_matched = g_hash_table_new(dcerpc_matched_hash, dcerpc_matched_equal);
-
     decode_dcerpc_inject_bindings();
+}
+
+static void
+dcerpc_cleanup_protocol(void)
+{
+    g_hash_table_destroy(dcerpc_binds);
+    g_hash_table_destroy(dcerpc_cn_calls);
+    g_hash_table_destroy(dcerpc_dg_calls);
+    g_hash_table_destroy(dcerpc_matched);
 }
 
 void
@@ -6521,6 +6514,7 @@ proto_register_dcerpc(void)
     expert_register_field_array(expert_dcerpc, ei, array_length(ei));
 
     register_init_routine(dcerpc_init_protocol);
+    register_cleanup_routine(dcerpc_cleanup_protocol);
     dcerpc_module = prefs_register_protocol(proto_dcerpc, NULL);
     prefs_register_bool_preference(dcerpc_module,
                                    "desegment_dcerpc",

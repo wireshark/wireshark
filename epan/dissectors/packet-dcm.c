@@ -3957,41 +3957,44 @@ static void dcm_set_syntax              (dcm_state_pctx_t *pctx, gchar *xfer_uid
 static void dcm_export_create_object    (packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state_pdv_t *pdv);
 
 static void
-
 dcm_init(void)
 {
     guint   i;
 
+    /* Create three hash tables for quick lookups */
     /* Add UID objects to hash table */
-    if (dcm_uid_table == NULL) {
-        dcm_uid_table = g_hash_table_new(g_str_hash, g_str_equal);
-        for (i = 0; i < array_length(dcm_uid_data); i++) {
-            g_hash_table_insert(dcm_uid_table, (gpointer) dcm_uid_data[i].value,
-            (gpointer) &dcm_uid_data[i]);
-        }
+    dcm_uid_table = g_hash_table_new(g_str_hash, g_str_equal);
+    for (i = 0; i < array_length(dcm_uid_data); i++) {
+        g_hash_table_insert(dcm_uid_table, (gpointer) dcm_uid_data[i].value,
+        (gpointer) &dcm_uid_data[i]);
     }
 
     /* Add Tag objects to hash table */
-    if (dcm_tag_table == NULL) {
-        dcm_tag_table = g_hash_table_new(NULL, NULL);
-        for (i = 0; i < array_length(dcm_tag_data); i++) {
-            g_hash_table_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
-            (gpointer) &dcm_tag_data[i]);
-        }
+    dcm_tag_table = g_hash_table_new(NULL, NULL);
+    for (i = 0; i < array_length(dcm_tag_data); i++) {
+        g_hash_table_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
+        (gpointer) &dcm_tag_data[i]);
     }
 
    /* Add Status Values to hash table */
-    if (dcm_status_table == NULL) {
-        dcm_status_table = g_hash_table_new(NULL, NULL);
-        for (i = 0; i < array_length(dcm_status_data); i++) {
-            g_hash_table_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
-            (gpointer)&dcm_status_data[i]);
-        }
+    dcm_status_table = g_hash_table_new(NULL, NULL);
+    for (i = 0; i < array_length(dcm_status_data); i++) {
+        g_hash_table_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
+        (gpointer)&dcm_status_data[i]);
     }
 
     /* Register processing of fragmented DICOM PDVs */
     reassembly_table_init(&dcm_pdv_reassembly_table,
                           &addresses_reassembly_table_functions);
+}
+
+static void
+dcm_cleanup(void)
+{
+    reassembly_table_destroy(&dcm_pdv_reassembly_table);
+    g_hash_table_destroy(dcm_uid_table);
+    g_hash_table_destroy(dcm_tag_table);
+    g_hash_table_destroy(dcm_status_table);
 }
 
 static dcm_state_t *
@@ -7340,6 +7343,7 @@ proto_register_dcm(void)
     dicom_eo_tap = register_tap("dicom_eo"); /* DICOM Export Object tap */
 
     register_init_routine(&dcm_init);
+    register_cleanup_routine(&dcm_cleanup);
 }
 
 void

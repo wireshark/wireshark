@@ -292,10 +292,14 @@ reset_dissector(void)
 static void
 setup_dissector(void)
 {
-    if ( local_scm_udid != NULL )
-        local_scm_udid = NULL;
-
     reassembly_table_init(&os_reassembly_table, &addresses_reassembly_table_functions);
+}
+
+static void
+cleanup_dissector(void)
+{
+    local_scm_udid = NULL;
+    reassembly_table_destroy(&os_reassembly_table);
 }
 
 void proto_register_opensafety(void);
@@ -2832,6 +2836,7 @@ proto_reg_handoff_opensafety(void)
     apply_prefs();
 
     register_init_routine ( setup_dissector );
+    register_cleanup_routine ( cleanup_dissector );
 
     /* registering frame end routine, to prevent a malformed dissection preventing
      * further dissector calls (see bug #6950) */

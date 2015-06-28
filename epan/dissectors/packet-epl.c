@@ -1651,6 +1651,12 @@ setup_dissector(void)
 	reassembly_table_init(&epl_reassembly_table, &addresses_reassembly_table_functions);
 }
 
+static void
+cleanup_dissector(void)
+{
+	reassembly_table_destroy(&epl_reassembly_table);
+}
+
 /* preference whether or not display the SoC flags in info column */
 gboolean show_soc_flags = FALSE;
 
@@ -4320,6 +4326,7 @@ proto_reg_handoff_epl(void)
 
 	/* register frame init routine */
 	register_init_routine( setup_dissector );
+	register_cleanup_routine( cleanup_dissector );
 }
 
 /*

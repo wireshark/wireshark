@@ -5965,74 +5965,43 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  * file is loaded or re-loaded in wireshark */
 static void mac_lte_init_protocol(void)
 {
-    /* Destroy any existing tables. */
-    if (mac_lte_msg3_hash) {
-        g_hash_table_destroy(mac_lte_msg3_hash);
-    }
-    if (mac_lte_cr_result_hash) {
-        g_hash_table_destroy(mac_lte_cr_result_hash);
-    }
-
-    if (mac_lte_dl_harq_hash) {
-        g_hash_table_destroy(mac_lte_dl_harq_hash);
-    }
-    if (mac_lte_dl_harq_result_hash) {
-        g_hash_table_destroy(mac_lte_dl_harq_result_hash);
-    }
-    if (mac_lte_ul_harq_hash) {
-        g_hash_table_destroy(mac_lte_ul_harq_hash);
-    }
-    if (mac_lte_ul_harq_result_hash) {
-        g_hash_table_destroy(mac_lte_ul_harq_result_hash);
-    }
-    if (mac_lte_ue_sr_state) {
-        g_hash_table_destroy(mac_lte_ue_sr_state);
-    }
-    if (mac_lte_sr_request_hash) {
-        g_hash_table_destroy(mac_lte_sr_request_hash);
-    }
-    if (mac_lte_tti_info_result_hash) {
-        g_hash_table_destroy(mac_lte_tti_info_result_hash);
-    }
-    if (mac_lte_ue_channels_hash) {
-        g_hash_table_destroy(mac_lte_ue_channels_hash);
-    }
-    if (mac_lte_ue_parameters) {
-        g_hash_table_destroy(mac_lte_ue_parameters);
-    }
-    if (mac_lte_drx_frame_result) {
-        g_hash_table_destroy(mac_lte_drx_frame_result);
-    }
-
     /* Reset structs */
     memset(&UL_tti_info, 0, sizeof(UL_tti_info));
     UL_tti_info.subframe = 0xff;  /* Invalid value */
     memset(&DL_tti_info, 0, sizeof(DL_tti_info));
     DL_tti_info.subframe = 0xff;  /* Invalid value */
 
-    /* Now create them over */
     mac_lte_msg3_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
     mac_lte_cr_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_dl_harq_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
     mac_lte_dl_harq_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_ul_harq_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
     mac_lte_ul_harq_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_ue_sr_state = g_hash_table_new(g_direct_hash, g_direct_equal);
     mac_lte_sr_request_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_tti_info_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_ue_channels_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_ue_parameters = g_hash_table_new(g_direct_hash, g_direct_equal);
-
     mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
 
     /* Forget this setting */
     s_rapid_ranges_configured = FALSE;
+}
+
+static void mac_lte_cleanup_protocol(void)
+{
+    g_hash_table_destroy(mac_lte_msg3_hash);
+    g_hash_table_destroy(mac_lte_cr_result_hash);
+    g_hash_table_destroy(mac_lte_dl_harq_hash);
+    g_hash_table_destroy(mac_lte_dl_harq_result_hash);
+    g_hash_table_destroy(mac_lte_ul_harq_hash);
+    g_hash_table_destroy(mac_lte_ul_harq_result_hash);
+    g_hash_table_destroy(mac_lte_ue_sr_state);
+    g_hash_table_destroy(mac_lte_sr_request_hash);
+    g_hash_table_destroy(mac_lte_tti_info_result_hash);
+    g_hash_table_destroy(mac_lte_ue_channels_hash);
+    g_hash_table_destroy(mac_lte_ue_parameters);
+    g_hash_table_destroy(mac_lte_drx_frame_result);
 }
 
 /* Callback used as part of configuring a channel mapping using UAT */
@@ -7636,6 +7605,7 @@ void proto_register_mac_lte(void)
         &global_mac_lte_show_BSR_median);
 
     register_init_routine(&mac_lte_init_protocol);
+    register_cleanup_routine(&mac_lte_cleanup_protocol);
 }
 
 void proto_reg_handoff_mac_lte(void)

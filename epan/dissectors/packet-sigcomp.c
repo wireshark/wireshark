@@ -865,16 +865,8 @@ static GHashTable *state_buffer_table=NULL;
 
 static void
 sigcomp_init_udvm(void) {
-
     gchar  *partial_state_str;
     guint8 *sip_sdp_buff, *presence_buff;
-
-    /* Destroy any existing memory chunks / hashes. */
-    if (state_buffer_table) {
-        g_hash_table_destroy(state_buffer_table);
-    }
-
-
     state_buffer_table = g_hash_table_new_full(g_str_hash,
                                                g_str_equal,
                                                g_free, /* key_destroy_func */
@@ -885,10 +877,6 @@ sigcomp_init_udvm(void) {
     sip_sdp_buff = (guint8 *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
     partial_state_str = bytes_to_str(NULL, sip_sdp_state_identifier, 6);
-
-    /*
-     * Debug  g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
-     */
     memset(sip_sdp_buff, 0, 8);
     sip_sdp_buff[0] = SIP_SDP_STATE_LENGTH >> 8;
     sip_sdp_buff[1] = SIP_SDP_STATE_LENGTH & 0xff;
@@ -896,10 +884,6 @@ sigcomp_init_udvm(void) {
 
     g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
     wmem_free(NULL, partial_state_str);
-    /* Debug
-     *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
-     *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
-     */
 
     presence_buff = (guint8 *)g_malloc(PRESENCE_STATE_LENGTH + 8);
 
@@ -912,6 +896,11 @@ sigcomp_init_udvm(void) {
 
     g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), presence_buff);
     wmem_free(NULL, partial_state_str);
+}
+
+static void
+sigcomp_cleanup_udvm(void) {
+    g_hash_table_destroy(state_buffer_table);
 }
 
 
@@ -6676,6 +6665,7 @@ proto_register_sigcomp(void)
                                    &udvm_print_detail_level, udvm_detail_vals, FALSE);
 
     register_init_routine(&sigcomp_init_udvm);
+    register_cleanup_routine(&sigcomp_cleanup_udvm);
 
 
 

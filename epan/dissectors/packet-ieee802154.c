@@ -2381,21 +2381,21 @@ proto_init_ieee802154(void)
 {
     guint       i;
 
-    /* Destroy hash tables, if they exist. */
-    if (ieee802154_map.short_table)
-        g_hash_table_destroy(ieee802154_map.short_table);
-    if (ieee802154_map.long_table)
-        g_hash_table_destroy(ieee802154_map.long_table);
-
-    /* Create the hash tables. */
     ieee802154_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
     ieee802154_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
-    /* Re-load the hash table from the static address UAT. */
+    /* Reload the hash table from the static address UAT. */
     for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
         ieee802154_addr_update(&ieee802154_map,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
                pntoh64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
     } /* for */
 } /* proto_init_ieee802154 */
+
+static void
+proto_cleanup_ieee802154(void)
+{
+    g_hash_table_destroy(ieee802154_map.short_table);
+    g_hash_table_destroy(ieee802154_map.long_table);
+}
 
 /* Returns the prompt string for the Decode-As dialog. */
 static void ieee802154_da_prompt(packet_info *pinfo _U_, gchar* result)
@@ -2765,6 +2765,7 @@ void proto_register_ieee802154(void)
 
     /* Register the init routine. */
     register_init_routine(proto_init_ieee802154);
+    register_cleanup_routine(proto_cleanup_ieee802154);
 
     /*  Register Protocol name and description. */
     proto_ieee802154 = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN", "IEEE 802.15.4",

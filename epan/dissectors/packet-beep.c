@@ -193,14 +193,13 @@ beep_hash(gconstpointer v)
 static void
 beep_init_protocol(void)
 {
-#if defined(DEBUG_BEEP_HASH)
-  fprintf(stderr, "Initializing BEEP hashtable area\n");
-#endif
-
-  if (beep_request_hash)
-    g_hash_table_destroy(beep_request_hash);
-
   beep_request_hash = g_hash_table_new(beep_hash, beep_equal);
+}
+
+static void
+beep_cleanup_protocol(void)
+{
+  g_hash_table_destroy(beep_request_hash);
 }
 
 
@@ -989,6 +988,7 @@ proto_register_beep(void)
   expert_beep = expert_register_protocol(proto_beep);
   expert_register_field_array(expert_beep, ei, array_length(ei));
   register_init_routine(&beep_init_protocol);
+  register_cleanup_routine(&beep_cleanup_protocol);
 
   /* Register our configuration options for BEEP, particularly our port */
 

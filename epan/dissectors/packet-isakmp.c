@@ -5152,15 +5152,20 @@ static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
 #endif /* HAVE_LIBGCRYPT */
 
 #ifdef HAVE_LIBGCRYPT
-static gboolean
-free_cookie(gpointer key_arg, gpointer value, gpointer user_data _U_)
+static void
+free_cookie_key(gpointer key_arg)
 {
   guint8 *ic_key = (guint8 *)key_arg;
-  decrypt_data_t *decr = (decrypt_data_t *)value;
 
   g_slice_free1(COOKIE_SIZE, ic_key);
+}
+
+static void
+free_cookie_value(gpointer value)
+{
+  decrypt_data_t *decr = (decrypt_data_t *)value;
+
   g_slice_free1(sizeof(decrypt_data_t), decr);
-  return TRUE;
 }
 #endif
 
@@ -5177,11 +5182,8 @@ isakmp_init_protocol(void) {
                         &addresses_reassembly_table_functions);
 
 #ifdef HAVE_LIBGCRYPT
-  if (isakmp_hash) {
-    g_hash_table_foreach_remove(isakmp_hash, free_cookie, NULL);
-    g_hash_table_destroy(isakmp_hash);
-  }
-  isakmp_hash = g_hash_table_new(isakmp_hash_func, isakmp_equal_func);
+  isakmp_hash = g_hash_table_new_full(isakmp_hash_func, isakmp_equal_func,
+      free_cookie_key, free_cookie_value);
 
   for (i = 0; i < num_ikev1_uat_data; i++) {
     ic_key = (guint8 *)g_slice_alloc(COOKIE_SIZE);
@@ -5194,20 +5196,22 @@ isakmp_init_protocol(void) {
 
     g_hash_table_insert(isakmp_hash, ic_key, decr);
   }
-
-  if (ikev2_key_hash) {
-    g_hash_table_destroy(ikev2_key_hash);
-  }
-
   ikev2_key_hash = g_hash_table_new(ikev2_key_hash_func, ikev2_key_equal_func);
   for (i = 0; i < num_ikev2_uat_data; i++) {
     g_hash_table_insert(ikev2_key_hash, &(ikev2_uat_data[i].key), &(ikev2_uat_data[i]));
   }
-
-  if (defrag_next_payload_hash) {
-    g_hash_table_destroy(defrag_next_payload_hash);
-  }
   defrag_next_payload_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+#endif /* HAVE_LIBGCRYPT */
+}
+
+static void
+isakmp_cleanup_protocol(void) {
+  reassembly_table_destroy(&isakmp_cisco_reassembly_table);
+  reassembly_table_destroy(&isakmp_ike2_reassembly_table);
+#ifdef HAVE_LIBGCRYPT
+  g_hash_table_destroy(isakmp_hash);
+  g_hash_table_destroy(ikev2_key_hash);
+  g_hash_table_destroy(defrag_next_payload_hash);
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -6455,6 +6459,7 @@ proto_register_isakmp(void)
   expert_isakmp = expert_register_protocol(proto_isakmp);
   expert_register_field_array(expert_isakmp, ei, array_length(ei));
   register_init_routine(&isakmp_init_protocol);
+  register_cleanup_routine(&isakmp_cleanup_protocol);
 
   new_register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 

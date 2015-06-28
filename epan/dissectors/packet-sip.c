@@ -1017,26 +1017,22 @@ sip_init_protocol(void)
 {
      guint i;
      gchar *value_copy;
-
-    /* Destroy any existing hashes. */
-    if (sip_hash)
-        g_hash_table_destroy(sip_hash);
-
-    /* Now create them again */
     sip_hash = g_hash_table_new(g_str_hash , sip_equal);
-    /* Create a hashtable with the SIP headers; it will be used to find the related hf entry (POS_x).
-     * This is faster than the previously used for loop.
-     * There is no g_hash_table_destroy as the lifetime is the same as the lifetime of Wireshark.
-     */
-    if(!sip_headers_hash){
-        sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
-        for (i = 1; i < array_length(sip_headers); i++){
-            value_copy = g_strdup (sip_headers[i].name);
-            /* Store (and compare) the string in lower case) */
-            ascii_strdown_inplace(value_copy);
-            g_hash_table_insert(sip_headers_hash, (gpointer)value_copy, GINT_TO_POINTER(i));
-        }
+
+    /* Hash table for quick lookup of SIP headers names to hf entry (POS_x) */
+    sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
+    for (i = 1; i < array_length(sip_headers); i++){
+        value_copy = wmem_strdup(wmem_file_scope(), sip_headers[i].name);
+        ascii_strdown_inplace(value_copy);
+        g_hash_table_insert(sip_headers_hash, (gpointer)value_copy, GINT_TO_POINTER(i));
     }
+}
+
+static void
+sip_cleanup_protocol(void)
+{
+     g_hash_table_destroy(sip_hash);
+     g_hash_table_destroy(sip_headers_hash);
 }
 /* Call the export PDU tap with relevant data */
 static void
@@ -6094,6 +6090,7 @@ void proto_register_sip(void)
     prefs_register_obsolete_preference(sip_module, "tcp.port");
 
     register_init_routine(&sip_init_protocol);
+    register_cleanup_routine(&sip_cleanup_protocol);
     heur_subdissector_list = register_heur_dissector_list("sip");
     /* Register for tapping */
     sip_tap = register_tap("sip");
