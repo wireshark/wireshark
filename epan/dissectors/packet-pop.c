@@ -367,6 +367,11 @@ static void pop_data_reassemble_init (void)
                          &addresses_ports_reassembly_table_functions);
 }
 
+static void pop_data_reassemble_cleanup (void)
+{
+  reassembly_table_destroy(&pop_data_reassembly_table);
+}
+
 void
 proto_register_pop(void)
 {
@@ -445,6 +450,7 @@ proto_register_pop(void)
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine (&pop_data_reassemble_init);
+  register_cleanup_routine (&pop_data_reassemble_cleanup);
 
   /* Preferences */
   pop_module = prefs_register_protocol(proto_pop, NULL);

@@ -4195,6 +4195,11 @@ static void batadv_init_routine(void)
 			      &addresses_reassembly_table_functions);
 }
 
+static void batadv_cleanup_routine(void)
+{
+	reassembly_table_destroy(&msg_reassembly_table);
+}
+
 void proto_register_batadv(void)
 {
 	module_t *batadv_module;
@@ -5031,6 +5036,7 @@ void proto_register_batadv(void)
 	expert_register_field_array(expert_batadv, ei, array_length(ei));
 
 	register_init_routine(&batadv_init_routine);
+	register_cleanup_routine(&batadv_cleanup_routine);
 }
 
 void proto_reg_handoff_batadv(void)

@@ -1146,6 +1146,12 @@ smtp_data_reassemble_init (void)
                         &addresses_ports_reassembly_table_functions);
 }
 
+static void
+smtp_data_reassemble_cleanup (void)
+{
+  reassembly_table_destroy(&smtp_data_reassembly_table);
+}
+
 
 /* Register all the bits needed by the filtering engine */
 
@@ -1258,6 +1264,7 @@ proto_register_smtp(void)
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine (&smtp_data_reassemble_init);
+  register_cleanup_routine (&smtp_data_reassemble_cleanup);
 
   /* Allow dissector to find be found by name. */
   register_dissector("smtp", dissect_smtp, proto_smtp);

@@ -2035,6 +2035,12 @@ x25_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+x25_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&x25_reassembly_table);
+}
+
 void
 proto_register_x25(void)
 {
@@ -2388,6 +2394,7 @@ proto_register_x25(void)
                                    "Reassemble fragmented X.25 packets",
                                    &reassemble_x25);
     register_init_routine(&x25_reassemble_init);
+    register_cleanup_routine(&x25_reassemble_cleanup);
 }
 
 void

@@ -136,6 +136,12 @@ dcp_init_protocol(void)
                          &addresses_reassembly_table_functions);
 }
 
+static void
+dcp_cleanup_protocol(void)
+{
+  reassembly_table_destroy(&dcp_reassembly_table);
+}
+
 
 /** Dissect a DCP packet. Details follow
  *  here.
@@ -897,6 +903,7 @@ proto_register_dcp_etsi (void)
             "DCP-TPL Protocol Type & Revision", FT_STRING, BASE_NONE);
 
   register_init_routine(dcp_init_protocol);
+  register_cleanup_routine(dcp_cleanup_protocol);
 
 }
 

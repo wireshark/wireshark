@@ -915,6 +915,12 @@ rtp_fragment_init(void)
                   &addresses_reassembly_table_functions);
 }
 
+static void
+rtp_fragment_cleanup(void)
+{
+    reassembly_table_destroy(&rtp_reassembly_table);
+}
+
 /* A single hash table to hold pointers to all the rtp_dyn_payload_t's we create/destroy.
    This is necessary because we need to g_hash_table_destroy() them, either individually or
    all at once at the end of the wmem file scope. Since rtp_dyn_payload_free() removes them
@@ -3719,6 +3725,7 @@ proto_register_rtp(void)
                                     &rtp_rfc2198_pt);
 
     register_init_routine(rtp_fragment_init);
+    register_cleanup_routine(rtp_fragment_cleanup);
     register_init_routine(rtp_dyn_payloads_init);
 }
 

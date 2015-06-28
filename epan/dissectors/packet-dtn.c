@@ -2087,6 +2087,11 @@ bundle_defragment_init(void) {
                           &addresses_reassembly_table_functions);
 }
 
+static void
+bundle_defragment_cleanup(void) {
+    reassembly_table_destroy(&msg_reassembly_table);
+}
+
 
 void proto_reg_handoff_bundle(void);
 void proto_register_bundle(void);
@@ -2756,6 +2761,7 @@ proto_register_bundle(void)
     expert_register_field_array(expert_tcpcl, ei_tcpcl, array_length(ei_tcpcl));
 
     register_init_routine(bundle_defragment_init);
+    register_cleanup_routine(bundle_defragment_cleanup);
 }
 
 void

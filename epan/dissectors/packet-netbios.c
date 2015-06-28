@@ -1242,11 +1242,14 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 netbios_init(void)
 {
-	/*
-	 * Initialize the reassembly table.
-	 */
 	reassembly_table_init(&netbios_reassembly_table,
 	    &addresses_reassembly_table_functions);
+}
+
+static void
+netbios_cleanup(void)
+{
+	reassembly_table_destroy(&netbios_reassembly_table);
 }
 
 void
@@ -1472,6 +1475,7 @@ proto_register_netbios(void)
 	    &netbios_defragment);
 
 	register_init_routine(netbios_init);
+	register_cleanup_routine(netbios_cleanup);
 }
 
 void

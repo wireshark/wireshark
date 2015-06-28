@@ -845,6 +845,11 @@ static void ts2_init(void)
             &addresses_reassembly_table_functions);
 }
 
+static void ts2_cleanup(void)
+{
+    reassembly_table_destroy(&msg_reassembly_table);
+}
+
 /*
  * proto_register_ts2()
  * */
@@ -1216,6 +1221,7 @@ void proto_register_ts2(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_init_routine(ts2_init);
+    register_cleanup_routine(ts2_cleanup);
 }
 
 /*

@@ -3252,6 +3252,12 @@ smb_dcerpc_reassembly_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+smb_dcerpc_reassembly_cleanup(void)
+{
+	reassembly_table_destroy(&dcerpc_reassembly_table);
+}
+
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid)
@@ -3440,6 +3446,7 @@ proto_register_pipe_dcerpc(void)
 {
 	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact");
 	register_init_routine(smb_dcerpc_reassembly_init);
+	register_cleanup_routine(smb_dcerpc_reassembly_cleanup);
 }
 
 #define CALL_NAMED_PIPE		0x54

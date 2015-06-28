@@ -1159,6 +1159,12 @@ ampdu_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+ampdu_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&ampdu_reassembly_table);
+}
+
 void
 proto_register_ppi(void)
 {
@@ -1501,6 +1507,7 @@ proto_register_ppi(void)
     ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
+    register_cleanup_routine(ampdu_reassemble_cleanup);
 
     /* Configuration options */
     ppi_module = prefs_register_protocol(proto_ppi, NULL);

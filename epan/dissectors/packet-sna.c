@@ -2511,6 +2511,12 @@ sna_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+sna_cleanup(void)
+{
+	reassembly_table_destroy(&sna_reassembly_table);
+}
+
 
 void
 proto_register_sna(void)
@@ -3492,6 +3498,7 @@ proto_register_sna(void)
 		&sna_defragment);
 
 	register_init_routine(sna_init);
+	register_cleanup_routine(sna_cleanup);
 }
 
 void

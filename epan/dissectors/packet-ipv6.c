@@ -757,6 +757,12 @@ ipv6_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+ipv6_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&ipv6_reassembly_table);
+}
+
 enum {
     IPv6_RT_HEADER_SOURCE_ROUTING=0,
     IPv6_RT_HEADER_NIMROD,
@@ -3093,6 +3099,7 @@ proto_register_ipv6(void)
 
     register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);
+    register_cleanup_routine(ipv6_reassemble_cleanup);
     ipv6_tap = register_tap("ipv6");
 
     register_decode_as(&ipv6_da);

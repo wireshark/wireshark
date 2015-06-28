@@ -794,6 +794,12 @@ scsi_defragment_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+scsi_defragment_cleanup(void)
+{
+    reassembly_table_destroy(&scsi_reassembly_table);
+}
+
 static const fragment_items scsi_frag_items = {
     &ett_scsi_fragment,
     &ett_scsi_fragments,
@@ -7673,6 +7679,7 @@ proto_register_scsi(void)
                                    "Whether fragmented SCSI DATA IN/OUT transfers should be reassembled",
                                    &scsi_defragment);
     register_init_routine(scsi_defragment_init);
+    register_cleanup_routine(scsi_defragment_cleanup);
 
     register_srt_table(proto_scsi, NULL, 1, scsistat_packet, scsistat_init, scsistat_param);
 }

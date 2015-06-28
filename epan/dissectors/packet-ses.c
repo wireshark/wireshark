@@ -1088,6 +1088,11 @@ static void ses_reassemble_init (void)
 		&addresses_reassembly_table_functions);
 }
 
+static void ses_reassemble_cleanup (void)
+{
+	reassembly_table_destroy(&ses_reassembly_table);
+}
+
 static gboolean
 dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -1882,6 +1887,7 @@ proto_register_ses(void)
 	expert_register_field_array(expert_ses, ei, array_length(ei));
 
 	register_init_routine (&ses_reassemble_init);
+	register_cleanup_routine (&ses_reassemble_cleanup);
 
 	ses_module = prefs_register_protocol(proto_ses, NULL);
 

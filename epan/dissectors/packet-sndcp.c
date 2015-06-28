@@ -109,6 +109,12 @@ sndcp_defragment_init(void)
   reassembly_table_init(&npdu_reassembly_table, &addresses_reassembly_table_functions);
 }
 
+static void
+sndcp_defragment_cleanup(void)
+{
+  reassembly_table_destroy(&npdu_reassembly_table);
+}
+
 /* value strings
  */
 static const value_string nsapi_t[] = {
@@ -555,6 +561,7 @@ proto_register_sndcp(void)
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("sndcp", dissect_sndcp, proto_sndcp);
   register_init_routine(sndcp_defragment_init);
+  register_cleanup_routine(sndcp_defragment_cleanup);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

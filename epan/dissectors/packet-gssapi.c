@@ -109,6 +109,12 @@ gssapi_reassembly_init(void)
 	                      &addresses_reassembly_table_functions);
 }
 
+static void
+gssapi_reassembly_cleanup(void)
+{
+	reassembly_table_destroy(&gssapi_reassembly_table);
+}
+
 /*
  * Subdissectors
  */
@@ -609,6 +615,7 @@ proto_register_gssapi(void)
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
 	register_init_routine(gssapi_reassembly_init);
+	register_cleanup_routine(gssapi_reassembly_cleanup);
 }
 
 static int

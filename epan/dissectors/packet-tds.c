@@ -2676,6 +2676,12 @@ tds_init(void)
                           &addresses_ports_reassembly_table_functions);
 }
 
+static void
+tds_cleanup(void)
+{
+    reassembly_table_destroy(&tds_reassembly_table);
+}
+
 /* Register the protocol with Wireshark */
 
 /* this format is required because a script is used to build the C function
@@ -3250,6 +3256,7 @@ proto_register_tds(void)
                                     &tds_tcp_ports, 0xFFFF);
 
     register_init_routine(tds_init);
+    register_cleanup_routine(tds_cleanup);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

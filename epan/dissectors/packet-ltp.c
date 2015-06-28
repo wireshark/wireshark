@@ -772,6 +772,11 @@ ltp_defragment_init(void) {
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+ltp_defragment_cleanup(void) {
+	reassembly_table_destroy(&ltp_reassembly_table);
+}
+
 /* Register the protocol with Wireshark */
 void
 proto_register_ltp(void)
@@ -976,6 +981,7 @@ proto_register_ltp(void)
 		"The UDP or DCCP port to accept LTP Connections",
 		10, &ltp_port);
 	register_init_routine(ltp_defragment_init);
+	register_cleanup_routine(ltp_defragment_cleanup);
 }
 
 void

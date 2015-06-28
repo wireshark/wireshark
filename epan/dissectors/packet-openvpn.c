@@ -154,6 +154,12 @@ openvpn_reassemble_init(void)
                         &addresses_reassembly_table_functions);
 }
 
+static void
+openvpn_reassemble_cleanup(void)
+{
+  reassembly_table_destroy(&msg_reassembly_table);
+}
+
 /* we check the leading 4 byte of a suspected hmac for 0x00 bytes,
    if more than 1 byte out of the 4 provided contains 0x00, the
    hmac is considered not valid, which suggests that no tls auth is used.
@@ -608,6 +614,7 @@ proto_register_openvpn(void)
   openvpn_tcp_handle = new_register_dissector("openvpn.tcp", dissect_openvpn_tcp, proto_openvpn);
 
   register_init_routine(&openvpn_reassemble_init);
+  register_cleanup_routine(&openvpn_reassemble_cleanup);
 
   openvpn_module = prefs_register_protocol(proto_openvpn, proto_reg_handoff_openvpn);
 

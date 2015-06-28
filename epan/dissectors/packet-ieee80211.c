@@ -18387,6 +18387,12 @@ wlan_defragment_init(void)
                         &addresses_reassembly_table_functions);
 }
 
+static void
+wlan_defragment_cleanup(void)
+{
+  reassembly_table_destroy(&wlan_reassembly_table);
+}
+
 /* ------------- */
 static guint
 retransmit_hash(gconstpointer k)
@@ -27020,6 +27026,7 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
 
   register_init_routine(wlan_defragment_init);
+  register_cleanup_routine(wlan_defragment_cleanup);
   register_init_routine(wlan_retransmit_init);
   register_init_routine(ieee80211_gas_reassembly_init);
 

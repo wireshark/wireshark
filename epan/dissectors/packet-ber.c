@@ -1435,6 +1435,10 @@ static void ber_defragment_init(void) {
                           &addresses_reassembly_table_functions);
 }
 
+static void ber_defragment_cleanup(void) {
+    reassembly_table_destroy(&octet_segment_reassembly_table);
+}
+
 static int
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
 {
@@ -4517,6 +4521,7 @@ proto_register_ber(void)
     register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
+    register_cleanup_routine(ber_defragment_cleanup);
 
     register_decode_as(&ber_da);
 }

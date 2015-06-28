@@ -5101,6 +5101,12 @@ mbim_reassembly_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+mbim_reassembly_cleanup(void)
+{
+    reassembly_table_destroy(&mbim_reassembly_table);
+}
+
 static guint
 mbim_uuid_hash(gconstpointer key)
 {
@@ -7989,6 +7995,7 @@ proto_register_mbim(void)
     expert_register_field_array(expert_mbim, ei, array_length(ei));
 
     register_init_routine(mbim_reassembly_init);
+    register_cleanup_routine(mbim_reassembly_cleanup);
 
     new_register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
     new_register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);

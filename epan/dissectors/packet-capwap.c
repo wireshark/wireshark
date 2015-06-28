@@ -1261,6 +1261,11 @@ static void capwap_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void capwap_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&capwap_reassembly_table);
+}
+
 static void
 dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_message_binding_tree, guint offset, packet_info *pinfo)
 {
@@ -5759,6 +5764,7 @@ proto_register_capwap_control(void)
     expert_register_field_array(expert_capwap, ei, array_length(ei));
 
     register_init_routine(&capwap_reassemble_init);
+    register_cleanup_routine(&capwap_reassemble_cleanup);
 
     capwap_module = prefs_register_protocol(proto_capwap_control, proto_reg_handoff_capwap);
 

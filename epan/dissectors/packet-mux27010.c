@@ -1002,11 +1002,14 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 mux27010_init(void)
 {
-    /*
-     * Initialize the fragment and reassembly tables.
-     */
     reassembly_table_init(&msg_reassembly_table,
                           &addresses_reassembly_table_functions);
+}
+
+static void
+mux27010_cleanup(void)
+{
+    reassembly_table_destroy(&msg_reassembly_table);
 }
 
 /*Register the protocol*/
@@ -1426,6 +1429,7 @@ proto_register_mux27010 (void)
     expert_register_field_array(expert_mux27010, ei, array_length(ei));
 
     register_init_routine(mux27010_init);
+    register_cleanup_routine(mux27010_cleanup);
 }
 
 /*Initialize dissector*/

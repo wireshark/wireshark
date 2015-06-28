@@ -114,6 +114,12 @@ smb_direct_reassemble_init(void)
 }
 
 static void
+smb_direct_reassemble_cleanup(void)
+{
+	reassembly_table_destroy(&smb_direct_reassembly_table);
+}
+
+static void
 dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 			   proto_tree *tree, guint32 remaining_length)
 {
@@ -687,6 +693,7 @@ void proto_register_smb_direct(void)
 				       "Whether the SMB Direct dissector should reassemble fragmented payloads",
 				       &smb_direct_reassemble);
 	register_init_routine(smb_direct_reassemble_init);
+	register_cleanup_routine(smb_direct_reassemble_cleanup);
 }
 
 void

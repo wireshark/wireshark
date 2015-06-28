@@ -234,6 +234,12 @@ wtp_defragment_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+wtp_defragment_cleanup(void)
+{
+    reassembly_table_destroy(&wtp_reassembly_table);
+}
+
 /*
  * Extract some bitfields
  */
@@ -1055,6 +1061,7 @@ proto_register_wtp(void)
     register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
     register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
+    register_cleanup_routine(wtp_defragment_cleanup);
 }
 
 void

@@ -3419,6 +3419,12 @@ ndmp_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+ndmp_cleanup(void)
+{
+	reassembly_table_destroy(&ndmp_reassembly_table);
+}
+
 
 void
 proto_register_ndmp(void)
@@ -4250,6 +4256,7 @@ proto_register_ndmp(void)
 	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
 	&ndmp_defragment);
 	register_init_routine(ndmp_init);
+	register_cleanup_routine(ndmp_cleanup);
 }
 
 void

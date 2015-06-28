@@ -124,6 +124,12 @@ cbch_defragment_init(void)
 }
 
 static void
+cbch_defragment_cleanup(void)
+{
+    reassembly_table_destroy(&cbch_block_reassembly_table);
+}
+
+static void
 dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 {
     guint       len, offset  = 0;
@@ -609,6 +615,7 @@ proto_register_gsm_cbch(void)
     /* subdissector code */
     register_dissector("gsm_cbch", dissect_cbch, proto_cbch);
     register_init_routine(cbch_defragment_init);
+    register_cleanup_routine(cbch_defragment_cleanup);
 
     /* subtree array */
     proto_register_subtree_array(ett, array_length(ett));

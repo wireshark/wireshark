@@ -167,6 +167,11 @@ static void gsm_cbs_message_reassembly_init(void)
                         &addresses_reassembly_table_functions);
 }
 
+static void gsm_cbs_message_reassembly_cleanup(void)
+{
+  reassembly_table_destroy(&gsm_cbs_reassembly_table);
+}
+
 guint dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
    guint16 serial_number = tvb_get_ntohs(tvb, offset) ;
@@ -566,6 +571,7 @@ proto_register_cbs(void)
 
    proto_register_field_array(proto_cell_broadcast, hf_cbs, array_length(hf_cbs));
    register_init_routine(gsm_cbs_message_reassembly_init);
+   register_cleanup_routine(gsm_cbs_message_reassembly_cleanup);
 
    /* subdissector code */
    register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);

@@ -209,6 +209,12 @@ lapdm_defragment_init (void)
                            &addresses_reassembly_table_functions);
 }
 
+static void
+lapdm_defragment_cleanup (void)
+{
+    reassembly_table_destroy(&lapdm_reassembly_table);
+}
+
 
 static void
 dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -493,6 +499,7 @@ proto_register_lapdm(void)
                                    "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
                                    &reassemble_lapdm);
     register_init_routine (lapdm_defragment_init);
+    register_cleanup_routine (lapdm_defragment_cleanup);
 }
 
 void

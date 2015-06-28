@@ -565,6 +565,12 @@ ip_defragment_init(void)
                         &addresses_reassembly_table_functions);
 }
 
+static void
+ip_defragment_cleanup(void)
+{
+  reassembly_table_destroy(&ip_reassembly_table);
+}
+
 void
 capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN)) {
@@ -3100,6 +3106,7 @@ proto_register_ip(void)
 
   register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
+  register_cleanup_routine(ip_defragment_cleanup);
   ip_tap = register_tap("ip");
 
   register_decode_as(&ip_da);

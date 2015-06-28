@@ -4090,6 +4090,11 @@ static void mq_init(void)
         &addresses_reassembly_table_functions);
 }
 
+static void mq_cleanup(void)
+{
+    reassembly_table_destroy(&mq_reassembly_table);
+}
+
 void proto_register_mq(void)
 {
     static hf_register_info hf[] =
@@ -4754,6 +4759,7 @@ void proto_register_mq(void)
 
     mq_heur_subdissector_list = register_heur_dissector_list("mq");
     register_init_routine(mq_init);
+    register_cleanup_routine(mq_cleanup);
 
     mq_module = prefs_register_protocol(proto_mq, NULL);
     prefs_register_bool_preference(mq_module, "desegment",

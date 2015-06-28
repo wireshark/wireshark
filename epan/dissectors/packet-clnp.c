@@ -606,6 +606,12 @@ clnp_reassemble_init(void)
             &addresses_reassembly_table_functions);
 }
 
+static void
+clnp_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&clnp_reassembly_table);
+}
+
 void
 proto_register_clnp(void)
 {
@@ -734,6 +740,7 @@ proto_register_clnp(void)
     register_dissector("clnp", dissect_clnp, proto_clnp);
     clnp_heur_subdissector_list = register_heur_dissector_list("clnp");
     register_init_routine(clnp_reassemble_init);
+    register_cleanup_routine(clnp_reassemble_cleanup);
 
     register_osi_address_type();
 

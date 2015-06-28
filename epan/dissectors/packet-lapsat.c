@@ -253,6 +253,12 @@ lapsat_defragment_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+lapsat_defragment_cleanup(void)
+{
+	reassembly_table_destroy(&lapsat_reassembly_table);
+}
+
 
 /*
  * Main dissection functions
@@ -761,6 +767,7 @@ proto_register_lapsat(void)
 	lapsat_sapi_dissector_table = register_dissector_table("lapsat.sapi", "LAPSat SAPI", FT_UINT8, BASE_DEC);
 
 	register_init_routine (lapsat_defragment_init);
+	register_cleanup_routine (lapsat_defragment_cleanup);
 }
 
 void

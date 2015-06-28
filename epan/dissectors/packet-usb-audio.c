@@ -529,6 +529,12 @@ midi_data_reassemble_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+midi_data_reassemble_cleanup(void)
+{
+    reassembly_table_destroy(&midi_data_reassembly_table);
+}
+
 void
 proto_register_usb_audio(void)
 {
@@ -630,6 +636,7 @@ proto_register_usb_audio(void)
     expert_usb_audio = expert_register_protocol(proto_usb_audio);
     expert_register_field_array(expert_usb_audio, ei, array_length(ei));
     register_init_routine(&midi_data_reassemble_init);
+    register_cleanup_routine(&midi_data_reassemble_cleanup);
 
     new_register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
 }

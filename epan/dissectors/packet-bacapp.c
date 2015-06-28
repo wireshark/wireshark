@@ -11076,6 +11076,12 @@ bacapp_init_routine(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+bacapp_cleanup_routine(void)
+{
+    reassembly_table_destroy(&msg_reassembly_table);
+}
+
 void
 proto_register_bacapp(void)
 {
@@ -11294,6 +11300,7 @@ proto_register_bacapp(void)
     expert_register_field_array(expert_bacapp, ei, array_length(ei));
     register_dissector("bacapp", dissect_bacapp, proto_bacapp);
     register_init_routine(&bacapp_init_routine);
+    register_cleanup_routine(&bacapp_cleanup_routine);
 
     bacapp_dissector_table = register_dissector_table("bacapp.vendor_identifier",
                                                       "BACapp Vendor Identifier",

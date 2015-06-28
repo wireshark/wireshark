@@ -1138,6 +1138,12 @@ defragment_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+defragment_cleanup(void)
+{
+    reassembly_table_destroy(&btobex_reassembly_table);
+}
+
 static int
 is_ascii_str(const guint8 *str, int length)
 {
@@ -3927,6 +3933,7 @@ proto_register_btobex(void)
     expert_register_field_array(expert_btobex, ei, array_length(ei));
 
     register_init_routine(&defragment_init);
+    register_cleanup_routine(&defragment_cleanup);
 
     register_decode_as(&btobex_profile_da);
 
