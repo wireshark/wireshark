@@ -1785,8 +1785,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
 }
 
-static const true_false_string tfs_1_0 = { "1", "0" };
-
 void proto_register_radiotap(void)
 {
 
@@ -2285,7 +2283,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_mcs_ness_bit1,
 		 {"Number of extension spatial streams bit 1", "radiotap.mcs.ness_bit1",
-		  FT_BOOLEAN, 8, TFS(&tfs_1_0), IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT1,
 		  "Bit 1 of number of extension spatial streams information", HFILL}},
 
 		{&hf_radiotap_mcs_bw,
@@ -2315,7 +2313,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_mcs_ness_bit0,
 		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit1",
-		  FT_BOOLEAN, 8, TFS(&tfs_1_0), IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT1,
 		  "Bit 0 of number of extension spatial streams information", HFILL}},
 
 		{&hf_radiotap_mcs_index,
