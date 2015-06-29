@@ -179,6 +179,7 @@ static const value_string fip_desc_types[] = {
     { FIP_DT_FC4F,      "FC-4 features" },
     { 0,    NULL }
 };
+value_string_ext fip_desc_types_ext = VALUE_STRING_EXT_INIT(fip_desc_types);
 
 /*
  * flags in header fip_flags.
@@ -280,7 +281,7 @@ fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, guint8 dtype, int ett, proto_
     proto_tree* ret_tree;
 
     ret_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett, item,
-            "Descriptor: %s ", val_to_str(dtype, fip_desc_types, "Unknown 0x%x"));
+            "Descriptor: %s ", val_to_str_ext_const(dtype, &fip_desc_types_ext, "Unknown 0x%x"));
     proto_tree_add_item(ret_tree, hf_fip_desc_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ret_tree, hf_fip_desc_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 
@@ -645,7 +646,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_type,
           { "Descriptor Type", "fip.desc_type",
-            FT_UINT8, BASE_HEX, VALS(fip_desc_types), 0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &fip_desc_types_ext, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_len,
