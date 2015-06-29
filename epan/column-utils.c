@@ -95,7 +95,7 @@ col_cleanup(column_info *cinfo)
     g_free(col_item->col_title);
     g_free(col_item->col_custom_field);
     dfilter_free(col_item->col_custom_dfilter);
-    g_free((gchar*)col_item->col_data);
+    /* col_item->col_data points to col_buf or static memory */
     g_free(col_item->col_buf);
     g_free(cinfo->col_expr.col_expr_val[i]);
     col_custom_field_ids_free(&col_item->col_custom_field_ids);
