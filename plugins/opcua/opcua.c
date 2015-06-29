@@ -385,6 +385,12 @@ init_opcua(void)
                           &addresses_reassembly_table_functions);
 }
 
+static void
+cleanup_opcua(void)
+{
+    reassembly_table_destroy(&opcua_reassembly_table);
+}
+
 /** plugin entry functions.
  * This registers the OpcUa protocol.
  */
@@ -443,6 +449,7 @@ void proto_register_opcua(void)
     proto_register_field_array(proto_opcua, hf, array_length(hf));
 
     register_init_routine(&init_opcua);
+    register_cleanup_routine(&cleanup_opcua);
 
     /* register user preferences */
     opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);

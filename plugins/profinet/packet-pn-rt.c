@@ -342,21 +342,18 @@ static void
 pnio_defragment_init(void)
 {
     guint32 i;
-
-    if ( reasembled_frag_table != NULL ) {
-        g_hash_table_destroy( reasembled_frag_table );
-        reasembled_frag_table = NULL;
-    }
-
     for (i=0; i < 16; i++)    /* init  the reasemble help array */
         start_frag_OR_ID[i] = 0;
-
     reassembly_table_init(&pdu_reassembly_table,
                           &addresses_reassembly_table_functions);
-    if (reasembled_frag_table == NULL)
-    {
-        reasembled_frag_table =  g_hash_table_new(NULL, NULL);
-    }
+    reasembled_frag_table = g_hash_table_new(NULL, NULL);
+}
+
+static void
+pnio_defragment_cleanup(void)
+{
+    g_hash_table_destroy(reasembled_frag_table);
+    reassembly_table_destroy(&pdu_reassembly_table);
 }
 
 /* possibly dissect a FRAG_PDU related PN-RT packet */
@@ -988,6 +985,7 @@ proto_register_pn_rt(void)
 
     init_pn (proto_pn_rt);
     register_init_routine(pnio_defragment_init);
+    register_cleanup_routine(pnio_defragment_cleanup);
 }
 
 

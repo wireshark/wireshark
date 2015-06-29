@@ -163,6 +163,12 @@ m2m_defragment_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
+static void
+m2m_defragment_cleanup(void)
+{
+	reassembly_table_destroy(&pdu_reassembly_table);
+}
+
 
 /* WiMax MAC to MAC protocol dissector */
 static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -794,6 +800,7 @@ void proto_register_m2m(void)
 
 	/* Register the PDU fragment table init routine */
 	register_init_routine(m2m_defragment_init);
+	register_cleanup_routine(m2m_defragment_cleanup);
 }
 
 /* Register Wimax Mac to Mac Protocol handler */

@@ -610,16 +610,6 @@ static void wimax_defragment_init(void)
 		cid_vernier[i] = 0;
 	}
 	cid_adj_array_size = 0;
-	/* Free the array memory. */
-	if (cid_adj_array) {
-		g_free(cid_adj_array);
-	}
-	cid_adj_array = NULL;
-	if (frag_num_array) {
-		g_free(frag_num_array);
-	}
-	frag_num_array = NULL;
-
 	/* Initialize to make sure bs_address gets set in FCH decoder. */
 	bs_address.len = 0;
 
@@ -630,6 +620,15 @@ static void wimax_defragment_init(void)
 
 	/* Initialize UL_MAP globals. */
 	init_wimax_globals();
+}
+
+static void wimax_defragment_cleanup(void)
+{
+	reassembly_table_destroy(&payload_reassembly_table);
+	g_free(cid_adj_array);
+	cid_adj_array = NULL;
+	g_free(frag_num_array);
+	frag_num_array = NULL;
 }
 
 static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint payload_length _U_, guint payload_offset, proto_item *parent_item)
@@ -2271,6 +2270,7 @@ void proto_register_mac_header_generic(void)
 
 	/* Register the payload fragment table init routine */
 	register_init_routine(wimax_defragment_init);
+	register_cleanup_routine(wimax_defragment_cleanup);
 }
 
 void

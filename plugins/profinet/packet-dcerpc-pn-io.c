@@ -2642,7 +2642,7 @@ dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return(offset);
 }
 
-GList *pnio_ars;
+static GList *pnio_ars;
 
 typedef struct pnio_ar_s {
     /* generic */
@@ -9759,7 +9759,8 @@ static dcerpc_sub_dissector pn_io_dissectors[] = {
 
 
 static void
-pnio_reinit( void) {
+pnio_cleanup(void) {
+    g_list_free(pnio_ars);
     pnio_ars = NULL;
 }
 
@@ -12251,7 +12252,7 @@ proto_register_pn_io (void)
     new_register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
     heur_pn_subdissector_list = register_heur_dissector_list("pn_io");
 
-    register_init_routine(pnio_reinit);
+    register_cleanup_routine(pnio_cleanup);
 
     register_dissector_filter("PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
     register_dissector_filter("PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);

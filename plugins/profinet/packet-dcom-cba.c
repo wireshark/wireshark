@@ -1366,7 +1366,8 @@ static dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
 };
 
 
-static void cba_reinit( void) {
+static void cba_cleanup(void) {
+    g_list_free(cba_pdevs);
     cba_pdevs = NULL;
 }
 
@@ -1642,7 +1643,7 @@ proto_register_dcom_cba (void)
 
     proto_ICBASystemProperties = proto_register_protocol ("ICBASystemProperties", "ICBASysProp", "cba_sysprop");
 
-    register_init_routine(cba_reinit);
+    register_cleanup_routine(cba_cleanup);
 }
 
 
