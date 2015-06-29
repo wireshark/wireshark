@@ -1135,11 +1135,19 @@ based systems; instructions how to install it can be found in <<ChToolsNSIS>>.
 NSIS is script based, you will find the Wireshark installer
 generation script at: 'packaging/nsis/wireshark.nsi'.
 
-You will probably have to modify the MAKENSIS setting in the
-'config.nmake' file to specify where the NSIS binaries
-are installed.
+When building with CMake you must first build the 'nsis_package_prep' target,
+followed by the 'nsis_package' target, e.g.
 
-In the top-level source directory type:
+----
+> msbuild nsis_package_prep.vcxproj
+> msbuild nsis_package.vcxproj
+----
+
+Splitting the packaging projects in this way allows for code signing.
+
+For Nmake you will probably have to modify the MAKENSIS setting in the
+'config.nmake' file to specify where the NSIS binaries are installed. In the
+top-level source directory type:
 
 ----
 > nmake -f makefile.nmake packaging
@@ -1173,7 +1181,16 @@ will place it in `C:\PortableApps`. Add the following apps:
 - PortableApps.com Launcher
 - PortableApps.com AppCompactor
 
-In the top-level source directory type:
+When building with CMake you must first build the 'nsis_package_prep' target
+(which takes care of general packaging dependencies), followed by the
+'portableapps_package' target, e.g.
+
+----
+> msbuild nsis_package_prep.vcxproj
+> msbuild portableapps_package.vcxproj
+----
+
+For Nmake, type the following in the top-level source directory
 
 ----
 > nmake -f makefile.nmake packaging_papps

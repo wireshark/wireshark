@@ -187,10 +187,6 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 	set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
 	set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
 
-	add_custom_target(nsis_uninstaller
-		DEPENDS ${DATAFILE_DIR}/uninstall.exe
-	)
-	set_target_properties(nsis_uninstaller PROPERTIES FOLDER "Packaging")
 	add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
 		DEPENDS ${_nsis_source_dir}/uninstall.nsi
 			${_nsis_source_dir}/common.nsh
@@ -203,13 +199,8 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 endmacro( ADD_NSIS_UNINSTALLER_TARGET )
 
 macro( ADD_NSIS_PACKAGE_TARGET )
-	set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
+	#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
 
-	add_custom_target(nsis_package
-		DEPENDS
-			${_nsis_package}
-	)
-	set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
 	# qt-dll-manifest.nsh. Created using Wireshark.exe.
 	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
 		COMMAND set "PATH=%PATH%;${QT_BIN_PATH}"
@@ -217,24 +208,28 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 			-Executable $<TARGET_FILE:wireshark>
 			-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
 	)
-	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis to match
-	# the NMake environment for now.
-	add_custom_command(OUTPUT ${_nsis_package}
+
+	# Build NSIS package dependencies. We build the package in two stages
+	# so that nsis_package below doesn't trigger any dependencies that
+	# might clobber any signed executables.
+	add_custom_target(nsis_package_prep
 		DEPENDS
 			${NSIS_FILES}
-			${PROGLIST}
-			plugins
 			copy_data_files
 			user_guides
 			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
-			# We depend on the uninstaller target and not the
-			# file itself, otherwise uninstall.exe will get
-			# clobbered.
-			nsis_uninstaller
+			${DATAFILE_DIR}/uninstall.exe
+	)
+
+	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis to match
+	# the NMake environment for now.
+	# Note that executables and DLLs *must* be built separately
+	add_custom_target(nsis_package
 		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
 			wireshark.nsi
 		WORKING_DIRECTORY ${_nsis_source_dir}
 	)
+	set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
 endmacro( ADD_NSIS_PACKAGE_TARGET )
 
 set(CLEAN_FILES
