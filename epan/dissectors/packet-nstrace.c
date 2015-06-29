@@ -257,6 +257,11 @@ static gint ett_ns_clu_clflags  = -1;
 static gint ett_ns_unknownrec = -1;
 static gint ett_ns_capflags = -1;
 
+static int hf_ns_snd_cwnd = -1;
+static int hf_ns_realtime_rtt = -1;
+static int hf_ns_ts_recent = -1;
+static int hf_ns_http_abort_tracking_reason = -1;
+
 static const value_string ns_errorcode_vals[] = {
   { ERR_NONE,  "No Error" },
   { ERR_DROP_PERX_LONGPKT,  "Long packet" },
@@ -451,6 +456,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(flagtree, hf_ns_activity_natpcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(flagtree, hf_ns_activity_lbstats_sync, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(flagtree, hf_ns_activity_stats_req, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ns_tree, hf_ns_snd_cwnd, tvb, (flagoffset + 4), 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ns_tree, hf_ns_realtime_rtt, tvb, (flagoffset + 8), 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ns_tree, hf_ns_ts_recent, tvb, (flagoffset + 12), 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ns_tree, hf_ns_http_abort_tracking_reason, tvb, (pnstr->dst_vmname_len_offset + 1), 1, ENC_LITTLE_ENDIAN);
+
 		/* fall through to next case */
 
 	case NSPR_HEADER_VERSION205:
@@ -882,6 +892,31 @@ proto_register_ns(void)
 		    FT_BOOLEAN, 32, NULL, NS_PE_STATE_STATS_REQ_IN_PROG,
 		    NULL, HFILL}
 		},
+
+		{ &hf_ns_snd_cwnd,
+			{ "SendCwnd", "nstrace.sndcwnd",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
+		},
+
+		{ &hf_ns_realtime_rtt,
+			{ "RTT", "nstrace.rtt",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
+		},
+
+		{ &hf_ns_ts_recent,
+			{ "tsRecent", "nstrace.tsrecent",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
+		},
+
+		{ &hf_ns_http_abort_tracking_reason,
+			{ "httpAbortTrackCode", "nstrace.httpabort",
+				FT_UINT8, BASE_DEC, VALS(ns_httpabortcode_vals), 0x0,
+				NULL, HFILL }
+		},
+
 
 		{ &hf_ns_capflags,
 		  { "Capture Flags", "nstrace.capflags",
