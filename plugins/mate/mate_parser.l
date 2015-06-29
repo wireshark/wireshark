@@ -86,6 +86,11 @@
 #define YY_NO_UNISTD_H
 #endif
 
+static void free_config_frame(mate_config_frame *frame) {
+	g_free(frame->filename);
+	g_free(frame);
+}
+
 %}
 
 pdu_kw				Pdu
@@ -211,8 +216,7 @@ blk_cmnt_stop  "*/"
 		yy_delete_buffer( YY_CURRENT_BUFFER );
 		yy_switch_to_buffer( include_stack[include_stack_ptr] );
 
-		g_free(current_frame->filename);
-		g_free(current_frame);
+		free_config_frame(current_frame);
 		current_frame = (mate_config_frame *)g_ptr_array_remove_index(mc->config_stack,mc->config_stack->len-1);
 	}
 }
@@ -318,16 +322,12 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 
 		yylex();
 
+		/* Inform parser that end of input has reached. */
 		MateParser(pParser, 0, NULL,mc);
 
 		yyrestart(NULL);
 
 		MateParserFree(pParser, g_free );
-
-		g_free(current_frame->filename);
-		g_free(current_frame);
-
-		g_ptr_array_free(mc->config_stack,FALSE);
 	} CATCH(MateConfigError) {
 		state = FALSE;
 	} CATCH_ALL {
@@ -335,6 +335,9 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 		g_string_append_printf(mc->config_error,"An unexpected error occurred");
 	}
 	ENDTRY;
+
+	g_ptr_array_foreach(mc->config_stack, (GFunc)free_config_frame, NULL);
+	g_ptr_array_free(mc->config_stack, FALSE);
 
 	return state;
 }

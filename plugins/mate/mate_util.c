@@ -317,6 +317,7 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 
 	if (repr) {
 		value = scs_subscribe(avp_strings, repr);
+		g_free(repr);
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
 #endif
