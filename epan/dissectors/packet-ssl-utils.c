@@ -39,6 +39,7 @@
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
@@ -4405,6 +4406,12 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
     int                addr_len, at;
     address_type addr_type[2] = { AT_IPv4, AT_IPv6 };
     gchar*             address_string;
+
+    /* ftell() open open directory is undefined, catch it earlier. */
+    if (test_for_directory(uats->keyfile) == EISDIR) {
+        report_open_failure(uats->keyfile, EISDIR, FALSE);
+        return;
+    }
 
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
