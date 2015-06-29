@@ -1079,6 +1079,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
             }
         }
         *secondary_msg = NULL;
+        *data = NULL;
 
         return -1;
     }
