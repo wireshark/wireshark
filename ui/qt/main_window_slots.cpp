@@ -2360,6 +2360,19 @@ void MainWindow::on_actionViewReload_triggered()
     cf_reload(CaptureFile::globalCapFile());
 }
 
+void MainWindow::on_actionViewReload_as_File_Format_or_Capture_triggered()
+{
+    capture_file *cf = CaptureFile::globalCapFile();
+
+    if (cf->open_type == WTAP_TYPE_AUTO)
+        cf->open_type = open_info_name_to_type("MIME Files Format");
+    else /* TODO: This should be latest format chosen by user */
+        cf->open_type = WTAP_TYPE_AUTO;
+
+    cf_reload(cf);
+}
+
+
 // Expand / collapse slots in proto_tree
 
 // Go Menu

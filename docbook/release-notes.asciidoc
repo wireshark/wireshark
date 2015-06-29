@@ -23,6 +23,10 @@ _Non-empty section placeholder._
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated)
+since version 2.0.0:
+** Add ability to switch between Capture and File Format of current capture
+
 _Non-empty section placeholder._
 //=== Removed Dissectors
 

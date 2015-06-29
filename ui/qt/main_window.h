@@ -400,6 +400,7 @@ private slots:
     void on_actionViewShowPacketInNewWindow_triggered();
     void on_actionContextShowLinkedPacketInNewWindow_triggered();
     void on_actionViewReload_triggered();
+    void on_actionViewReload_as_File_Format_or_Capture_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void on_actionGoGoToLinkedPacket_triggered();

@@ -338,6 +338,7 @@
     <addaction name="menuInternals"/>
     <addaction name="separator"/>
     <addaction name="actionViewShowPacketInNewWindow"/>
+    <addaction name="actionViewReload_as_File_Format_or_Capture"/>
     <addaction name="actionViewReload"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
@@ -1096,6 +1097,14 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionViewReload_as_File_Format_or_Capture">
+   <property name="text">
+    <string>Reload as File Format/Capture</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+F</string>
    </property>
   </action>
   <action name="actionCaptureOptions">

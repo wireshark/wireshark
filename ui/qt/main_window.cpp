@@ -1852,6 +1852,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
 {
     if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* We have no capture file or we're currently reading a file */
+        main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(false);
         main_ui_->actionFileMerge->setEnabled(false);
         main_ui_->actionFileClose->setEnabled(false);
         main_ui_->actionFileSave->setEnabled(false);
@@ -1865,6 +1866,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->menuFileExportObjects->setEnabled(false);
         main_ui_->actionViewReload->setEnabled(false);
     } else {
+        main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(true);
         main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(capture_file_.capFile()));
 
         main_ui_->actionFileClose->setEnabled(true);
