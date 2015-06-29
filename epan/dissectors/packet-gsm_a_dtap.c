@@ -6985,8 +6985,9 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      *  5 = Mobility Management messages
      *  3 = Call Control; call related SS messages
      * 10 = GPRS session management messages
+	 * 11 = Non call related SS messages
      */
-    if ((pd == 5) || (pd == 3) || (pd == 10)) {
+    if ((pd == 5) || (pd == 3) || (pd == 10) || (pd == 11)) {
         proto_tree_add_item(dtap_tree, hf_gsm_a_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     /*
