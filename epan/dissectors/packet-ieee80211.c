@@ -18443,6 +18443,7 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     ourphdr.fcs_len = -1;
     ourphdr.decrypted = FALSE;
     ourphdr.datapad = FALSE;
+    ourphdr.phy = PHDR_802_11_PHY_UNKNOWN;
     ourphdr.presence_flags = 0;
     phdr = &ourphdr;
   }
@@ -18462,6 +18463,7 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.fcs_len = 4;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, &phdr);
 }
@@ -18479,6 +18481,7 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   phdr.fcs_len = 0;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, &phdr);
 }
@@ -18495,6 +18498,7 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.fcs_len = 0;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, TRUE, &phdr);
 }
@@ -18513,6 +18517,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.fcs_len = 0;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, FALSE, &phdr);
 }
@@ -18530,6 +18535,7 @@ dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.fcs_len = 0;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, &phdr);
 }
