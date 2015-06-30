@@ -345,24 +345,13 @@ void MainWindow::layoutPanes()
     parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
     parents[2]->addWidget(getLayoutWidget(prefs.gui_layout_content_3));
 
-    QList<QWidget *>split_widgets;
-    for (int i = 0; i < master_split_.count(); i++) {
-        split_widgets << master_split_.widget(i);
-    }
-    for (int i = 0; i < extra_split_.count(); i++) {
-        split_widgets << master_split_.widget(i);
-    }
-    foreach (QWidget *widget, split_widgets) {
-        bool show = true;
-        if (widget == packet_list_ && !recent.packet_list_show) {
-            show = false;
-        } else if (widget == proto_tree_ && !recent.tree_view_show) {
-            show = false;
-        } else if (widget == byte_view_tab_ && !recent.byte_view_show) {
-            show = false;
-        }
-        widget->setVisible(show);
-    }
+    const QList<QWidget *> ms_children = master_split_.findChildren<QWidget *>();
+
+    extra_split_.setVisible(ms_children.contains(&extra_split_));
+    packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
+    proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
+    byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
+
     packet_list_->thaw();
     cf_select_packet(capture_file_.capFile(), current_row);  // XXX Doesn't work for row 0?
     cur_layout_ = new_layout;
