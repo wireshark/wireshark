@@ -5471,7 +5471,7 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 		protos = wmem_list_frame_next(protos);
 	}
 
-    return FALSE;
+	return FALSE;
 }
 
 
