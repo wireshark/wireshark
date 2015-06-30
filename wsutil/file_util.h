@@ -40,6 +40,24 @@ extern "C" {
 #include <sys/stat.h>
 #endif
 
+/*
+ * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
+ * define them either.)
+ *
+ * Visual C++ on Win32 systems doesn't define S_IFIFO, it defines _S_IFIFO.
+ */
+#ifndef S_ISREG
+#define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
+#endif
+#ifndef S_IFIFO
+#define S_IFIFO _S_IFIFO
+#endif
+#ifndef S_ISFIFO
+#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
+#endif
+#ifndef S_ISDIR
+#define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
+#endif
 
 #ifdef _WIN32
 

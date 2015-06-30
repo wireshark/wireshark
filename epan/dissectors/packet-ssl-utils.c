@@ -3536,7 +3536,7 @@ ssl_load_key(FILE* fp)
      */
     gnutls_x509_privkey_t priv_key;
     gnutls_datum_t        key;
-    long                  size;
+    ws_statb64            statbuf;
     gint                  ret;
     guint                 bytes;
 
@@ -3545,24 +3545,33 @@ ssl_load_key(FILE* fp)
     /* init private key data*/
     gnutls_x509_privkey_init(&priv_key);
 
-    /* compute file size and load all file contents into a datum buffer*/
-    if (fseek(fp, 0, SEEK_END) < 0) {
-        ssl_debug_printf("ssl_load_key: can't fseek file\n");
+    if (ws_fstat64(fileno(fp), &statbuf) == -1) {
+        ssl_debug_printf("ssl_load_key: can't ws_fstat64 file\n");
         g_free(private_key);
         return NULL;
     }
-    if ((size = ftell(fp)) < 0) {
-        ssl_debug_printf("ssl_load_key: can't ftell file\n");
+    if (S_ISDIR(statbuf.st_mode)) {
+        ssl_debug_printf("ssl_load_key: file is a directory\n");
         g_free(private_key);
+        errno = EISDIR;
         return NULL;
     }
-    if (fseek(fp, 0, SEEK_SET) < 0) {
-        ssl_debug_printf("ssl_load_key: can't re-fseek file\n");
+    if (S_ISFIFO(statbuf.st_mode)) {
+        ssl_debug_printf("ssl_load_key: file is a named pipe\n");
         g_free(private_key);
+        errno = EINVAL;
         return NULL;
     }
-    key.data = (unsigned char *)g_malloc(size);
-    key.size = (int)size;
+    if (!S_ISREG(statbuf.st_mode)) {
+        ssl_debug_printf("ssl_load_key: file is not a regular file\n");
+        g_free(private_key);
+        errno = EINVAL;
+        return NULL;
+    }
+    /* XXX - check for a too-big size */
+    /* load all file contents into a datum buffer*/
+    key.data = (unsigned char *)g_malloc((size_t)statbuf.st_size);
+    key.size = (int)statbuf.st_size;
     bytes = (guint) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
         ssl_debug_printf("ssl_load_key: can't read from file %d bytes, got %d\n",
@@ -4406,12 +4415,6 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
     int                addr_len, at;
     address_type addr_type[2] = { AT_IPv4, AT_IPv6 };
     gchar*             address_string;
-
-    /* ftell() open open directory is undefined, catch it earlier. */
-    if (test_for_directory(uats->keyfile) == EISDIR) {
-        report_open_failure(uats->keyfile, EISDIR, FALSE);
-        return;
-    }
 
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
