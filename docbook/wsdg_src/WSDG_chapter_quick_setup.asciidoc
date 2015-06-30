@@ -102,10 +102,12 @@ For VS2013 (and later) Microsoft has left out a required file from the
 include files to build with nmake. To fix this copy Win32.Mak from the Win 7 SDK
 into an appropriate path for use with VS2013, e.g.
 ----
-C:\> xcopy C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\Win32.Mak ^
-           C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
+C:\> xcopy "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\Win32.Mak" ^
+           "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include"
 ----
 ====
+
+You may have to do this as Administrator.
 
 Compiling with gcc or Clang is not recommended and will
 certainly not work (at least not without a lot of advanced
