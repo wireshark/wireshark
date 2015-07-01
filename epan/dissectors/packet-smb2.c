@@ -1328,8 +1328,8 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
 	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},
-	{0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},			      /* dissector implemented */
 	{0x00110018, "FSCTL_PIPE_WAIT"},
+	{0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},			      /* dissector implemented */
 	{0x00140078, "FSCTL_SRV_REQUEST_RESUME_KEY"},
 	{0x001401D4, "FSCTL_LMR_REQUEST_RESILIENCY"},		      /* dissector implemented */
 	{0x001401FC, "FSCTL_QUERY_NETWORK_INTERFACE_INFO"},	      /* dissector implemented */
