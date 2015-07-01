@@ -146,7 +146,7 @@ int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseStatusCode(tree, tvb, pOffset, hf_opcua_transport_error);
     parseString(tree, tvb, pOffset, hf_opcua_transport_reason);
     return -1;
 }
