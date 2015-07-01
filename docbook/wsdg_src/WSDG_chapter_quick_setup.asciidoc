@@ -63,7 +63,7 @@ https://www.microsoft.com/powershell[]
 https://chocolatey.org/[Chocolatey] is a native package manager for Windows.
 There are https://chocolatey.org/packages[packages] for most of the software
 listed below. Along with traditional Windows packages it supports Cygwin and
-and the Python Package Index.
+the Python Package Index.
 
 // ...such as:
 // - Active Perl and/or StrawberryPerl
@@ -241,6 +241,13 @@ PS$>choco install sed asciidoc [...] -source cygwin
 ----
 
 Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
+
+You can use Chocolatey's Win flex-bison packages rather than the Cygwin
+Bison and Flex package:
+
+----
+PS$>choco install winflexbison
+----
 
 [[ChSetupPython]]
 
