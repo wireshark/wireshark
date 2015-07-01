@@ -678,7 +678,7 @@ static const value_string response_codes[] = {
     { 0x0504, "Max relay nodes (2) was exceeded" },
     { 0x1001, "The command is longer than the max permissible length" },
     { 0x1002, "The command is shorter than the min permissible length" },
-    { 0x1003, "The designated number od data items differs from the actual number" },
+    { 0x1003, "The designated number of data items differs from the actual number" },
     { 0x1004, "An incorrect command format has been used" },
     { 0x1005, "An incorrect header has been used" },
     { 0x1101, "Memory area code invalid or DM is not available" },
@@ -787,7 +787,7 @@ static const value_string omron_file_parameter_codes[] = {
     { 0x0000, "Write new file, do not overwrite" },
     { 0x0001, "Write new file, overwrite" },
     { 0x0002, "Append to file " },
-    { 0x0003, "Overwite file" },
+    { 0x0003, "Overwrite file" },
     { 0,      NULL  } };
 
 static const value_string omron_volume_parameter_codes[] = {
@@ -798,7 +798,7 @@ static const value_string omron_volume_parameter_codes[] = {
 
 static const value_string omron_transfer_parameter_codes[] = {
     { 0x0000, "Data transfer from the PC memory area to the file device" },
-    { 0x0001, "Data transfer from the file device to the PC emory area" },
+    { 0x0001, "Data transfer from the file device to the PC memory area" },
     { 0x0002, "Data compared" },
     { 0,         NULL } };
 
