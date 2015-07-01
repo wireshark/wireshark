@@ -89,14 +89,15 @@ static int dissect_proxy_to_host(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         host_and_port = wmem_strsplit(wmem_packet_scope(), pmproxy_host_and_port_string, " ", -1);
         if(host_and_port != NULL) {
             host = host_and_port[0];
-            port = host_and_port[1];
             if (host) {
                 proto_tree_add_string(tree, hf_pmproxy_host, tvb, offset, (guint32)strlen(host), host);
-                offset += (int)strlen(host);
-            }
-            offset += PMPROXY_HOST_AND_PORT_DELIMETER_LENGTH;
-            if (port) {
-                proto_tree_add_string(tree, hf_pmproxy_port, tvb, offset, (guint32)strlen(port), port);
+                offset += (int)strlen(host) + PMPROXY_HOST_AND_PORT_DELIMETER_LENGTH;
+                port = host_and_port[1];
+                if (port) {
+                    proto_tree_add_string(tree, hf_pmproxy_port, tvb, offset, (guint32)strlen(port), port);
+                }
+            } else {
+                port = NULL;
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, " Host=%s, Port=%s", host ? host : "", port ? port : "");
         }
