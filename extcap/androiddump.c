@@ -127,9 +127,9 @@
 #define INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER     "android-bluetooth-external-parser"
 #define INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET         "android-bluetooth-btsnoop-net"
 
-#define ANDROIDDUMP_VERSION_MAJOR    1
-#define ANDROIDDUMP_VERSION_MINOR    0
-#define ANDROIDDUMP_VERSION_RELEASE  0
+#define ANDROIDDUMP_VERSION_MAJOR    1U
+#define ANDROIDDUMP_VERSION_MINOR    0U
+#define ANDROIDDUMP_VERSION_RELEASE  0U
 
 #define PACKET_LENGTH 65535
 
@@ -407,7 +407,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             return INVALID_SOCKET;
         }
 
-        fprintf(stderr, "VERBOSE: Client port %u\n", GINT16_FROM_BE(client.sin_port));
+        fprintf(stderr, "VERBOSE: Client port %u\n", GUINT16_FROM_BE(client.sin_port));
     }
 
     return sock;
@@ -599,7 +599,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
         response[data_length] = '\0';
         api_level = (int) strtol(response, NULL, 10);
         if (verbose)
-            fprintf(stderr, "VERBOSE: Android API Level for %s is %u\n", serial_number, api_level);
+            fprintf(stderr, "VERBOSE: Android API Level for %s is %i\n", serial_number, api_level);
 
         if (api_level < 21) {
             interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1 + strlen(serial_number) + 1);
