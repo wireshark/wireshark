@@ -604,6 +604,13 @@ gluster_dissect_common_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
+gluster_local_dissect_common_reply(tvbuff_t *tvb,
+				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	return gluster_dissect_common_reply(tvb, 0, pinfo, tree, data);
+}
+
+static int
 _glusterfs_gfs3_common_readdir_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *errno_item;
@@ -628,9 +635,11 @@ _glusterfs_gfs3_common_readdir_reply(tvbuff_t *tvb, proto_tree *tree, int offset
 }
 
 static int
-glusterfs_gfs3_op_unlink_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_unlink_reply(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
 					hf_glusterfs_preparent_iatt, offset);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
@@ -640,9 +649,11 @@ glusterfs_gfs3_op_unlink_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_unlink_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_unlink_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_path, offset, NULL);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
@@ -650,18 +661,22 @@ glusterfs_gfs3_op_unlink_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_statfs_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_statfs(tree, tvb, offset);
 	return offset;
 }
 
 static int
-glusterfs_gfs3_op_statfs_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_statfs_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_path, offset, NULL);
 
@@ -669,18 +684,22 @@ glusterfs_gfs3_op_statfs_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_flush_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_flush_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	return offset;
 }
 
 static int
-glusterfs_gfs3_op_setxattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_setxattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -690,18 +709,22 @@ glusterfs_gfs3_op_setxattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_opendir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_opendir_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	return offset;
 }
 
 static int
-glusterfs_gfs3_op_opendir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_opendir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_path, offset, NULL);
 
@@ -710,9 +733,11 @@ glusterfs_gfs3_op_opendir_call(tvbuff_t *tvb, int offset,
 
 /* rpc/xdr/src/glusterfs3-xdr.c:xdr_gfs3_create_rsp */
 static int
-glusterfs_gfs3_op_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_create_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -727,9 +752,10 @@ glusterfs_gfs3_op_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* rpc/xdr/src/glusterfs3-xdr.c:xdr_gfs3_create_req */
 static int
-glusterfs_gfs3_op_create_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_create_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
@@ -741,9 +767,10 @@ glusterfs_gfs3_op_create_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_lookup_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -755,9 +782,10 @@ glusterfs_gfs3_op_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_op_lookup_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_lookup_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
@@ -769,12 +797,13 @@ glusterfs_gfs3_op_lookup_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_inodelk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_inodelk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *flock_item;
 	proto_tree *flock_tree;
 	int start_offset;
+	int offset = 0;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
@@ -845,9 +874,10 @@ glusterfs_gfs3_3_op_readdirp_entry(tvbuff_t *tvb, int offset,
 
 /* details in xlators/storage/posix/src/posix.c:posix_fill_readdir() */
 static int
-glusterfs_gfs3_op_readdirp_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_readdirp_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				  glusterfs_gfs3_op_readdirp_entry, NULL);
@@ -856,9 +886,10 @@ glusterfs_gfs3_op_readdirp_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_op_readdirp_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_op_readdirp_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -868,9 +899,11 @@ glusterfs_gfs3_op_readdirp_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_op_setattr_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
 					hf_glusterfs_preop_iatt, offset);
@@ -904,8 +937,10 @@ glusterfs_rpc_dissect_setattr(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-glusterfs_gfs3_op_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+glusterfs_gfs3_op_setattr_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid,
 								offset);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
@@ -919,9 +954,11 @@ glusterfs_gfs3_op_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 /*GlusterFS 3_3 fops */
 
 static int
-glusterfs_gfs3_3_op_stat_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_stat_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 	return offset;
@@ -929,9 +966,11 @@ glusterfs_gfs3_3_op_stat_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_stat_reply(tvbuff_t *tvb, packet_info *pinfo,
 							 proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -943,9 +982,11 @@ glusterfs_gfs3_3_op_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* glusterfs_gfs3_3_op_mknod_reply() is also used as a ..mkdir_reply() */
 static int
-glusterfs_gfs3_3_op_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_mknod_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -960,9 +1001,11 @@ glusterfs_gfs3_3_op_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_mknod_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_mknod_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
@@ -974,10 +1017,12 @@ glusterfs_gfs3_3_op_mknod_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_mkdir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_mkdir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	const char *name = NULL;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_umask, offset);
@@ -989,9 +1034,10 @@ glusterfs_gfs3_3_op_mkdir_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_readlink_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readlink_reply(tvbuff_t *tvb,
 					packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -1003,9 +1049,10 @@ glusterfs_gfs3_3_op_readlink_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_readlink_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readlink_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_size, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1015,9 +1062,11 @@ glusterfs_gfs3_3_op_readlink_call(tvbuff_t *tvb, int offset,
 
 /* glusterfs_gfs3_3_op_unlink_reply() is also used for ...rmdir_reply() */
 static int
-glusterfs_gfs3_3_op_unlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_unlink_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
 					hf_glusterfs_preparent_iatt, offset);
@@ -1029,10 +1078,11 @@ glusterfs_gfs3_3_op_unlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_unlink_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_unlink_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint xflags;
+	int offset = 0;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
@@ -1045,10 +1095,11 @@ glusterfs_gfs3_3_op_unlink_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_rmdir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_rmdir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint xflags;
+	int offset = 0;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	xflags = tvb_get_ntohl(tvb, offset);
@@ -1061,9 +1112,11 @@ glusterfs_gfs3_3_op_rmdir_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_symlink_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_symlink_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_umask, offset);
@@ -1075,9 +1128,11 @@ glusterfs_gfs3_3_op_symlink_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_rename_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_rename_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_oldgfid, offset);
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_newgfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_oldbname, offset, NULL);
@@ -1088,12 +1143,13 @@ glusterfs_gfs3_3_op_rename_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_rename_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
 	proto_tree *old_tree, *new_tree;
 	proto_item *old_item, *new_item;
 	int start_offset;
+	int offset = 0;
 
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
@@ -1122,9 +1178,11 @@ glusterfs_gfs3_3_op_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_link_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_link_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_oldgfid, offset);
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_newgfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_newbname, offset, NULL);
@@ -1134,9 +1192,11 @@ glusterfs_gfs3_3_op_link_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_truncate_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_truncate_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1145,9 +1205,11 @@ glusterfs_gfs3_3_op_truncate_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_open_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_open_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1155,9 +1217,10 @@ glusterfs_gfs3_3_op_open_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_open_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_open_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1166,9 +1229,11 @@ glusterfs_gfs3_3_op_open_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_read_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -1180,9 +1245,11 @@ glusterfs_gfs3_3_op_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_read_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_read_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1194,9 +1261,11 @@ glusterfs_gfs3_3_op_read_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_write_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_write_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1208,9 +1277,11 @@ glusterfs_gfs3_3_op_write_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_statfs_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_statfs(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1219,9 +1290,11 @@ glusterfs_gfs3_3_op_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_statfs_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_statfs_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
@@ -1229,9 +1302,11 @@ glusterfs_gfs3_3_op_statfs_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_flush_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_flush_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1240,9 +1315,11 @@ glusterfs_gfs3_3_op_flush_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_setxattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_setxattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1252,9 +1329,11 @@ glusterfs_gfs3_3_op_setxattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_getxattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_getxattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_namelen, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_name, offset, NULL);
@@ -1265,9 +1344,11 @@ glusterfs_gfs3_3_op_getxattr_call(tvbuff_t *tvb, int offset,
 
 
 static int
-glusterfs_gfs3_3_op_getxattr_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_getxattr_reply(tvbuff_t *tvb,
 					packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1276,9 +1357,11 @@ glusterfs_gfs3_3_op_getxattr_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_removexattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_removexattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_name, offset, NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1287,7 +1370,7 @@ glusterfs_gfs3_3_op_removexattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	static const int *flag_bits[] = {
@@ -1295,12 +1378,12 @@ glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb, int offset,
 		&hf_glusterfs_fsync_flag_unknown,
 		NULL
 	};
+	int offset = 0;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 
-	if (tree)
-		proto_tree_add_bitmask(tree, tvb, offset,
+	proto_tree_add_bitmask(tree, tvb, offset,
 			hf_glusterfs_fsync_flags,
 			ett_glusterfs_fsync_flags, flag_bits, ENC_NA);
 	offset += 4;
@@ -1311,9 +1394,11 @@ glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_opendir_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_opendir_reply(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1322,9 +1407,10 @@ glusterfs_gfs3_3_op_opendir_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_opendir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_opendir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
@@ -1332,9 +1418,11 @@ glusterfs_gfs3_3_op_opendir_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_create_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -1350,10 +1438,12 @@ glusterfs_gfs3_3_op_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-glusterfs_gfs3_3_op_create_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_create_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	const char *name = NULL;
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
@@ -1366,9 +1456,11 @@ glusterfs_gfs3_3_op_create_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_ftruncate_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_ftruncate_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1378,9 +1470,11 @@ glusterfs_gfs3_3_op_ftruncate_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fstat_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fstat_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1389,9 +1483,11 @@ glusterfs_gfs3_3_op_fstat_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_fstat_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
@@ -1402,9 +1498,11 @@ glusterfs_gfs3_3_op_fstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_lk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_lk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
@@ -1416,9 +1514,11 @@ glusterfs_gfs3_3_op_lk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_lk_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_lk_reply(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_2_flock(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1427,9 +1527,11 @@ glusterfs_gfs3_3_op_lk_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_access_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_access_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_mask, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1437,11 +1539,13 @@ glusterfs_gfs3_3_op_access_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_lookup_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_lookup_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	const char *name = NULL;
 	int length;
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
@@ -1457,9 +1561,11 @@ glusterfs_gfs3_3_op_lookup_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				  glusterfs_gfs3_3_op_readdir_entry, NULL);
@@ -1469,9 +1575,11 @@ glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_readdir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readdir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1482,9 +1590,11 @@ glusterfs_gfs3_3_op_readdir_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_inodelk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_inodelk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_type, offset);
@@ -1496,9 +1606,11 @@ glusterfs_gfs3_3_op_inodelk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_finodelk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_finodelk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 
@@ -1513,9 +1625,11 @@ glusterfs_gfs3_3_op_finodelk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_entrylk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_entrylk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_type, offset);
@@ -1528,9 +1642,11 @@ glusterfs_gfs3_3_op_entrylk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fentrylk_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fentrylk_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
@@ -1544,9 +1660,11 @@ glusterfs_gfs3_3_op_fentrylk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_xattrop_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_xattrop_reply(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1555,9 +1673,11 @@ glusterfs_gfs3_3_op_xattrop_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_xattrop_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_xattrop_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1567,9 +1687,11 @@ glusterfs_gfs3_3_op_xattrop_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fxattrop_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fxattrop_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
@@ -1580,9 +1702,11 @@ glusterfs_gfs3_3_op_fxattrop_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fgetxattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fgetxattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_namelen, offset);
@@ -1593,9 +1717,11 @@ glusterfs_gfs3_3_op_fgetxattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-gluter_gfs3_3_op_fsetxattr_call(tvbuff_t *tvb, int offset,
+gluter_gfs3_3_op_fsetxattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
@@ -1606,9 +1732,11 @@ gluter_gfs3_3_op_fsetxattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_setattr_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
 					hf_glusterfs_preop_iatt, offset);
@@ -1620,9 +1748,11 @@ glusterfs_gfs3_3_op_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-glusterfs_gfs3_3_op_setattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_setattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid,
 								offset);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
@@ -1634,9 +1764,11 @@ glusterfs_gfs3_3_op_setattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				  glusterfs_gfs3_3_op_readdirp_entry, NULL);
@@ -1647,9 +1779,11 @@ glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
 
 /* READDIRP and DISCARD both use this */
 static int
-glusterfs_gfs3_3_op_readdirp_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_readdirp_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1660,9 +1794,11 @@ glusterfs_gfs3_3_op_readdirp_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_release_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_release_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1671,9 +1807,11 @@ glusterfs_gfs3_3_op_release_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_releasedir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_releasedir_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -1682,9 +1820,11 @@ glusterfs_gfs3_3_op_releasedir_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fremovexattr_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fremovexattr_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_name, offset, NULL);
@@ -1694,9 +1834,11 @@ glusterfs_gfs3_3_op_fremovexattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fallocate_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fallocate_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
@@ -1708,9 +1850,11 @@ glusterfs_gfs3_3_op_fallocate_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_zerofill_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_zerofill_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
@@ -1722,9 +1866,11 @@ glusterfs_gfs3_3_op_zerofill_call(tvbuff_t *tvb, int offset,
 /* This function is for common replay. RELEASE , RELEASEDIR and some other function use this method */
 
 int
-glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
@@ -1760,12 +1906,12 @@ static const vsff glusterfs3_1_fop_proc[] = {
 	},
 	{
 		GFS3_OP_FLUSH, "FLUSH",
-		glusterfs_gfs3_op_flush_call, gluster_dissect_common_reply
+		glusterfs_gfs3_op_flush_call, gluster_local_dissect_common_reply
 	},
 	{ GFS3_OP_FSYNC, "FSYNC", NULL, NULL },
 	{
 		GFS3_OP_SETXATTR, "SETXATTR",
-		glusterfs_gfs3_op_setxattr_call, gluster_dissect_common_reply
+		glusterfs_gfs3_op_setxattr_call, gluster_local_dissect_common_reply
 	},
 	{ GFS3_OP_GETXATTR,    "GETXATTR",    NULL, NULL },
 	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR", NULL, NULL },
@@ -1789,7 +1935,7 @@ static const vsff glusterfs3_1_fop_proc[] = {
 	{ GFS3_OP_READDIR, "READDIR", NULL, NULL },
 	{
 		GFS3_OP_INODELK, "INODELK",
-		glusterfs_gfs3_op_inodelk_call, gluster_dissect_common_reply
+		glusterfs_gfs3_op_inodelk_call, gluster_local_dissect_common_reply
 	},
 	{ GFS3_OP_FINODELK,  "FINODELK",  NULL, NULL },
 	{ GFS3_OP_ENTRYLK,   "ENTRYLK",   NULL, NULL },

@@ -1534,12 +1534,12 @@ dissect_auth_gssapi_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissect_function_t* dissect_function, const char *progname,
+	int offset, new_dissector_t dissect_function, const char *progname,
 	rpc_call_info_value *rpc_call)
 {
 	const char *saved_proto;
+	tvbuff_t *next_tvb;
 
-	tvb_ensure_captured_length_remaining(tvb, offset);
 	if (dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
@@ -1547,7 +1547,8 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			pinfo->current_proto = progname;
 
 		/* call the dissector for the next level */
-		offset = dissect_function(tvb, offset, pinfo, tree, rpc_call);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		offset += dissect_function(next_tvb, pinfo, tree, rpc_call);
 
 		/* restore the protocol name */
 		pinfo->current_proto = saved_proto;
@@ -1560,7 +1561,7 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
-	dissect_function_t* dissect_function,
+	new_dissector_t dissect_function,
 	const char *progname, rpc_call_info_value *rpc_call)
 {
 	guint32 length, rounded_length, seq;
@@ -1644,7 +1645,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
 	rpc_call_info_value *rpc_call;
-	dissect_function_t *dissect_function = NULL;
+	new_dissector_t dissect_function = NULL;
 	rpc_conv_info_t *rpc_conv_info=NULL;
 	guint32 xid;
 
@@ -1791,7 +1792,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	static address null_address = { AT_NONE, 0, NULL };
 	rpc_call_info_value *rpc_call;
 	const char *procname=NULL;
-	dissect_function_t *dissect_function = NULL;
+	new_dissector_t dissect_function = NULL;
 	rpc_conv_info_t *rpc_conv_info=NULL;
 	guint32 xid;
 
@@ -2018,7 +2019,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	static address null_address = { AT_NONE, 0, NULL };
 	nstime_t ns;
 
-	dissect_function_t *dissect_function = NULL;
+	new_dissector_t dissect_function = NULL;
 	gboolean dissect_rpc_flag = TRUE;
 
 	rpc_conv_info_t *rpc_conv_info=NULL;

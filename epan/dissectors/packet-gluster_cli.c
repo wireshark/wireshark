@@ -63,18 +63,18 @@ static gint ett_gluster_cli = -1;
 
 /* CLI Operations */
 static int
-gluster_cli_2_common_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_common_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_dict, offset);
-
-	return offset;
+	return gluster_rpc_dissect_dict(tree, tvb, hf_gluster_dict, 0);
 }
 
 static int
-gluster_cli_2_common_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+gluster_cli_2_common_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_op_errstr, offset,
 								NULL);
@@ -84,9 +84,11 @@ gluster_cli_2_common_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_cli_2_probe_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+gluster_cli_2_probe_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_port, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hostname, offset,
@@ -98,9 +100,11 @@ gluster_cli_2_probe_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_cli_2_probe_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_probe_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hostname, offset,
 								NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_port, offset);
@@ -109,9 +113,10 @@ gluster_cli_2_probe_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-gluster_cli_2_deprobe_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+gluster_cli_2_deprobe_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hostname, offset,
 								NULL);
@@ -120,9 +125,10 @@ gluster_cli_2_deprobe_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_cli_2_deprobe_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_deprobe_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hostname, offset,
 								NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_port, offset);
@@ -132,18 +138,18 @@ gluster_cli_2_deprobe_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-gluster_cli_2_fsm_log_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_fsm_log_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_wd, offset, NULL);
-
-	return offset;
+	return dissect_rpc_string(tvb, tree, hf_gluster_wd, 0, NULL);
 }
 
 static int
-gluster_cli_2_getwd_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+gluster_cli_2_getwd_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_wd, offset, NULL);
 
@@ -151,18 +157,18 @@ gluster_cli_2_getwd_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_cli_2_getwd_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_getwd_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_unused, offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb, tree, hf_gluster_unused, 0);
 }
 
 static int
-gluster_cli_2_mount_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_mount_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_label, offset,
 								NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_dict, offset);
@@ -171,9 +177,11 @@ gluster_cli_2_mount_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-gluster_cli_2_mount_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+gluster_cli_2_mount_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_path, offset, NULL);
 
@@ -181,13 +189,22 @@ gluster_cli_2_mount_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-gluster_cli_2_umount_call(tvbuff_t *tvb, int offset,
+gluster_cli_2_umount_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_lazy, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_path, offset, NULL);
 
 	return offset;
+}
+
+static int
+gluster_cli_dissect_common_reply(tvbuff_t *tvb,
+				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	return gluster_dissect_common_reply(tvb, 0, pinfo, tree, data);
 }
 
 /* procedures for GLUSTER_CLI_PROGRAM */
@@ -354,7 +371,7 @@ static const vsff gluster_cli_2_proc[] = {
 	},
 	{
 		GLUSTER_CLI_2_UMOUNT, "UMOUNT",
-		gluster_cli_2_umount_call, gluster_dissect_common_reply
+		gluster_cli_2_umount_call, gluster_cli_dissect_common_reply
 	},
 	{
 		GLUSTER_CLI_2_HEAL_VOLUME, "HEAL_VOLUME",

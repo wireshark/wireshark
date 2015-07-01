@@ -152,10 +152,11 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 
 static int
-dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree, void* data)
 {
 	const char *mountpoint=NULL;
+	int offset = 0;
 
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=(rpc_call_info_value *)data;
@@ -193,11 +194,9 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* RFC 1094, Page 25,26 */
 static int
-dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_mount1_mnt_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	offset = dissect_fhstatus(tvb,offset,pinfo,tree,(rpc_call_info_value*)data);
-
-	return offset;
+	return dissect_fhstatus(tvb,0,pinfo,tree,(rpc_call_info_value*)data);
 }
 
 
@@ -237,12 +236,10 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mount_dump_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+	return dissect_rpc_list(tvb, pinfo, tree, 0,
 		dissect_mountlist, NULL);
-
-	return offset;
 }
 
 
@@ -329,12 +326,10 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 113 */
 static int
-dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mount_export_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+	return dissect_rpc_list(tvb, pinfo, tree, 0,
 		dissect_exportlist, NULL);
-
-	return offset;
 }
 
 
@@ -403,7 +398,7 @@ static const true_false_string tos_error_vdisable = {
 
 
 static int
-dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_mount_pathconf_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 pc_mask;
 	static const int * flags[] = {
@@ -419,6 +414,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 		&hf_mount_pathconf_error_vdisable,
 		NULL
 	};
+	int offset = 0;
 
 	/*
 	 * Extract the mask first, so we know which other fields the
@@ -502,12 +498,13 @@ dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offs
 
 /* RFC 1831, Page 109 */
 static int
-dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_mount3_mnt_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 status;
 	guint32 auth_flavors;
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
+	int offset = 0;
 
 	offset = dissect_mountstat3(pinfo,tvb,tree,offset,hf_mount3_status,&status);
 
@@ -572,12 +569,10 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_mount_exportlist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mount_exportlist_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+	return dissect_rpc_list(tvb, pinfo, tree, 0,
 		dissect_sgi_exportlist, NULL);
-
-	return offset;
 }
 
 #define ST_RDONLY	0x00000001
@@ -618,7 +613,7 @@ static const true_false_string tos_st_local = {
 };
 
 static int
-dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_mount_statvfs_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	static const int * flags[] = {
 		&hf_mount_statvfs_flag_rdonly,
@@ -629,6 +624,7 @@ dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 		&hf_mount_statvfs_flag_local,
 		NULL
 	};
+	int offset = 0;
 
 	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bsize, offset);
 	offset += 4;

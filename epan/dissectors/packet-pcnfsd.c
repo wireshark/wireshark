@@ -98,9 +98,10 @@ dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data _U_)
 {
+    int offset = 0;
     offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
     offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -139,9 +140,10 @@ dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data _U_)
 {
+    int offset = 0;
     offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
     offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -168,7 +170,7 @@ pcnfsd_decode_obscure(const char* data, int len)
 
 /* "NFS Illustrated" 14.7.13 */
 static int
-dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *tree, void* data _U_)
 {
     int         newoffset;
@@ -179,6 +181,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     const char *password      = NULL;
     proto_item *password_item = NULL;
     proto_tree *password_tree = NULL;
+    int offset = 0;
 
     offset = dissect_rpc_string(tvb, tree,
         hf_pcnfsd_auth_client, offset, NULL);
@@ -244,12 +247,13 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 /* "NFS Illustrated" 14.7.13 */
 static int
-dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *tree, void* data _U_)
 {
     int         gids_count;
     proto_tree *gtree;
     int         gids_i;
+    int offset = 0;
 
     offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_status, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);

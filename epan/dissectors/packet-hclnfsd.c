@@ -137,8 +137,9 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+	int offset = 0;
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 
 	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "spool filehandle", NULL, (rpc_call_info_value*)data);
@@ -148,8 +149,10 @@ dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
-dissect_hclnfsd_spool_file_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_spool_file_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_printername, offset, NULL);
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_filename, offset, NULL);
@@ -190,7 +193,7 @@ hclnfsd_decode_obscure(const char *ident, int ident_len)
 
 
 static int
-dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 request_type;
 	const char *ident = NULL;
@@ -201,6 +204,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	int newoffset;
 	proto_item *ident_item = NULL;
 	proto_tree *ident_tree = NULL;
+	int offset = 0;
 
 	proto_tree_add_item(tree, hf_hclnfsd_server_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -244,9 +248,10 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 
 static int
-dissect_hclnfsd_authorize_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_authorize_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 status;
+	int offset = 0;
 
 	status = tvb_get_ntohl(tvb, offset);
 	if (!tree)
@@ -268,43 +273,36 @@ dissect_hclnfsd_authorize_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 static int
-dissect_hclnfsd_grp_name_to_numb_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_grp_name_to_numb_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, offset, NULL);
-
-	return offset;
+	return dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, 0, NULL);
 }
 
 static int
-dissect_hclnfsd_grp_name_to_numb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_grp_name_to_numb_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_gid, offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb, tree, hf_hclnfsd_gid, 0);
 }
 
 
 static int
-dissect_hclnfsd_grp_to_number_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_grp_to_number_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
-	offset = dissect_hclnfsd_gids(tvb, offset, pinfo, tree);
-
-	return offset;
+	return dissect_hclnfsd_gids(tvb, 0, pinfo, tree);
 }
 
 
 static int
-dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, offset,
-		NULL);
+	return dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, 0, NULL);
 }
 
 
 static int
-dissect_hclnfsd_return_host_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_return_host_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	proto_tree_add_item(tree, hf_hclnfsd_host_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
@@ -313,20 +311,19 @@ dissect_hclnfsd_return_host_call(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
 
 static int
-dissect_hclnfsd_return_host_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_return_host_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_hostname, offset, NULL);
-
-	return offset;
+	return dissect_rpc_string(tvb, tree, hf_hclnfsd_hostname, 0, NULL);
 }
 
 
 static int
-dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 nuids, nuids_i;
 	proto_tree *uidtree = NULL;
 	proto_item *uiditem = NULL;
+	int offset = 0;
 
 	nuids = tvb_get_ntohl(tvb, offset);
 	if (tree)
@@ -346,11 +343,12 @@ dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
 
 static int
-dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 nusers, nusers_i;
 	proto_tree *usertree = NULL;
 	proto_item *useritem = NULL;
+	int offset = 0;
 
 	nusers = tvb_get_ntohl(tvb, offset);
 	if (tree)
@@ -374,32 +372,27 @@ dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, int offset, packet_info *pinfo 
 
 
 static int
-dissect_hclnfsd_name_to_uid_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_name_to_uid_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_username, offset, NULL);
-
-	return offset;
+	return dissect_rpc_string(tvb, tree, hf_hclnfsd_username, 0, NULL);
 }
 
 
 static int
-dissect_hclnfsd_name_to_uid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_name_to_uid_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_uid, offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb, tree, hf_hclnfsd_uid, 0);
 }
 
 
 static int
-dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_hclnfsd_share_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 request_type;
+	int offset = 0;
 
-	request_type = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_hclnfsd_request_type, tvb, offset,
-			4, request_type);
+	proto_tree_add_item_ret_uint(tree, hf_hclnfsd_request_type, tvb, offset,
+			4, ENC_BIG_ENDIAN, &request_type);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_cookie, offset);
@@ -421,9 +414,10 @@ dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static int
-dissect_hclnfsd_share_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_share_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 request_type;
+	int offset = 0;
 
 	request_type = tvb_get_ntohl(tvb, offset);
 	if (tree)
@@ -440,22 +434,24 @@ dissect_hclnfsd_share_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 
 static int
-dissect_hclnfsd_unshare_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_unshare_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_hclnfsd_share_call(tvb, offset, pinfo, tree, data);
+	return dissect_hclnfsd_share_call(tvb, pinfo, tree, data);
 }
 
 
 static int
-dissect_hclnfsd_unshare_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_unshare_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_hclnfsd_share_reply(tvb, offset, pinfo, tree, data);
+	return dissect_hclnfsd_share_reply(tvb, pinfo, tree, data);
 }
 
 
 static int
-dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_hclnfsd_lock_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_cookie, offset);
 	offset += 4; /* skip unused uint */
@@ -479,14 +475,13 @@ dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static int
-dissect_hclnfsd_lock_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_lock_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint request_type;
+	guint32 request_type;
+	int offset = 0;
 
-	request_type = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_hclnfsd_request_type, tvb, offset,
-			4, request_type);
+	proto_tree_add_item_ret_uint(tree, hf_hclnfsd_request_type, tvb, offset,
+			4, ENC_BIG_ENDIAN, &request_type);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_cookie, offset);
@@ -497,8 +492,9 @@ dissect_hclnfsd_lock_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 
 
 static int
-dissect_hclnfsd_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_remove_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
 	offset += 4;  /* skip unused */
@@ -508,8 +504,9 @@ dissect_hclnfsd_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 
 static int
-dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_hclnfsd_unlock_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+	int offset = 0;
 	offset += 4;  /* skip unused */
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_cookie, offset);
@@ -530,27 +527,25 @@ dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static int
-dissect_hclnfsd_unlock_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_unlock_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_hclnfsd_lock_reply(tvb, offset, pinfo, tree, data);
+	return dissect_hclnfsd_lock_reply(tvb, pinfo, tree, data);
 }
 
 
 static int
-dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint nqueues, nqueues_i;
 	proto_item *queuesitem = NULL;
 	proto_tree *queuestree = NULL;
+	int offset = 0;
 
 	nqueues = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
 		queuesitem = proto_tree_add_item(tree, hf_hclnfsd_print_queues, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-		if (queuesitem)
-			queuestree = proto_item_add_subtree(queuesitem,
-				ett_hclnfsd_printqueues);
+		queuestree = proto_item_add_subtree(queuesitem, ett_hclnfsd_printqueues);
 	}
 	offset += 4;
 
@@ -573,8 +568,10 @@ dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
-dissect_hclnfsd_get_printq_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_get_printq_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_queuename, offset, NULL);
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_username, offset, NULL);
@@ -584,13 +581,14 @@ dissect_hclnfsd_get_printq_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 
 
 static int
-dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint datafollows;
 	proto_item *queueitem = NULL;
 	proto_tree *queuetree = NULL;
 	proto_item *jobitem;
 	proto_tree *jobtree;
+	int offset = 0;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_printqueuenumber, offset);
 

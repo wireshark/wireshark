@@ -45,10 +45,11 @@ static gint ett_yppasswd = -1;
 static gint ett_yppasswd_newpw = -1;
 
 static int
-dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_yppasswd_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *lock_item = NULL;
 	proto_tree *lock_tree = NULL;
+	int offset = 0;
 
 	offset = dissect_rpc_string(tvb, tree, hf_yppasswd_oldpass,
 			offset, NULL);
@@ -77,11 +78,9 @@ dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 }
 
 static int
-dissect_yppasswd_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_yppasswd_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_uint32(tvb, tree, hf_yppasswd_status, offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb, tree, hf_yppasswd_status, 0);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */

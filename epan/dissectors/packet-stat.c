@@ -165,22 +165,18 @@ mon_id_len(tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_stat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	if (tree)
-	{
-		offset = dissect_rpc_string(tvb,tree,hfi_stat_mon_name.id,offset,NULL);
-	}
-
-	return offset;
+	return dissect_rpc_string(tvb,tree,hfi_stat_mon_name.id,0,NULL);
 }
 
 static int
-dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_stat_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	gint32 res;
+	int offset = 0;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_res, tvb,
 				offset, -1, ENC_NA);
@@ -217,10 +213,11 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_mon_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
+	int offset = 0;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_mon, tvb,
 				offset, mon_id_len(tvb,offset), ENC_NA);
@@ -243,28 +240,26 @@ dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stat_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-
-	offset = dissect_stat_mon_id(tvb,offset,pinfo,tree,data);
+	int offset = dissect_stat_mon_id(tvb,pinfo,tree,data);
 
 	offset = dissect_stat_priv(tvb,offset,tree);
 	return offset;
 }
 
 static int
-dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	offset = dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,0);
 }
 
 static int
-dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_notify(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
+	int offset = 0;
 	int start_offset = offset;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_chge, tvb,
@@ -282,11 +277,9 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_stat_umon_all(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	offset = dissect_stat_my_id(tvb,offset,tree);
-
-	return offset;
+	return dissect_stat_my_id(tvb,0,tree);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */

@@ -705,8 +705,9 @@ dissect_nisplus_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static int
-dissect_ns_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ns_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
 	offset = dissect_rpc_string(tvb, tree,
 			hf_nisplus_object_name, offset, NULL);
 
@@ -717,8 +718,10 @@ dissect_ns_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_ib_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ib_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree,
 			hf_nisplus_object_name, offset, NULL);
 
@@ -744,8 +747,10 @@ dissect_ib_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_fd_args(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_fd_args(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree,
 			hf_nisplus_fd_dirname, offset, NULL);
 
@@ -778,17 +783,17 @@ dissect_nisplus_tag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_nisplus_taglist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_nisplus_taglist(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+	return dissect_rpc_array(tvb, pinfo, tree, 0,
 			dissect_nisplus_tag, hf_nisplus_taglist);
-
-	return offset;
 }
 
 static int
-dissect_dump_args(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_dump_args(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree,
 			hf_nisplus_dump_dir, offset, NULL);
 
@@ -802,26 +807,23 @@ dissect_dump_args(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 }
 
 static int
-dissect_netobj(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_netobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_data(tvb, tree,
-			hf_nisplus_dummy, offset);
-
-	return offset;
+	return dissect_rpc_data(tvb, tree, hf_nisplus_dummy, 0);
 }
 
 static int
-dissect_nisname(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_nisname(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_string(tvb, tree,
-			hf_nisplus_object_name, offset, NULL);
-
-	return offset;
+	return dissect_rpc_string(tvb, tree,
+			hf_nisplus_object_name, 0, NULL);
 }
 
 static int
-dissect_ping_args(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_ping_args(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_string(tvb, tree,
 			hf_nisplus_ping_dir, offset, NULL);
 
@@ -933,8 +935,10 @@ static const value_string nis_error[] = {
 };
 
 static int
-dissect_nisplus_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_nisplus_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_nisplus_error, offset);
 
@@ -960,8 +964,10 @@ dissect_nisplus_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_fd_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_fd_result(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_nisplus_error, offset);
 
@@ -1032,8 +1038,10 @@ dissect_log_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 }
 
 static int
-dissect_log_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_log_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_nisplus_error, offset);
 
@@ -1047,26 +1055,22 @@ dissect_log_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_callback_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_callback_result(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_bool(tvb, tree, hf_nisplus_callback_status,
-			offset);
-
-	return offset;
+	return dissect_rpc_bool(tvb, tree, hf_nisplus_callback_status, 0);
 }
 
 static int
-dissect_change_time(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_change_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_nisplus_time(tvb, offset, tree,
-			hf_nisplus_log_time);
-
-	return offset;
+	return dissect_nisplus_time(tvb, 0, tree, hf_nisplus_log_time);
 }
 
 static int
-dissect_cp_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_cp_result(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	int offset = 0;
+
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_nisplus_cp_status, offset);
 
@@ -1080,12 +1084,9 @@ dissect_cp_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_nisplus_error(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_nisplus_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_uint32(tvb, tree,
-			hf_nisplus_error, offset);
-
-	return offset;
+	return dissect_rpc_uint32(tvb, tree, hf_nisplus_error, 0);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -1872,12 +1873,10 @@ dissect_cb_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 }
 
 static int
-dissect_cback_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cback_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+	return dissect_rpc_array(tvb, pinfo, tree, 0,
 			dissect_cb_entry, hf_nispluscb_entries);
-
-	return offset;
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */

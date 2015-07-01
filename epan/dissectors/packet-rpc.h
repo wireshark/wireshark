@@ -136,8 +136,8 @@ typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 typedef struct _vsff {
 	guint32	value;
 	const gchar   *strptr;
-	dissect_function_t *dissect_call;
-	dissect_function_t *dissect_reply;
+	new_dissector_t dissect_call;
+	new_dissector_t dissect_reply;
 } vsff;
 
 extern const value_string rpc_auth_flavor[];
@@ -213,8 +213,8 @@ typedef struct _rpc_proc_info_key {
 
 typedef struct _rpc_proc_info_value {
 	const gchar	*name;
-	dissect_function_t *dissect_call;
-	dissect_function_t *dissect_reply;
+	new_dissector_t dissect_call;
+	new_dissector_t dissect_reply;
 } rpc_proc_info_value;
 
 /* rpc_procs is also used in tap. With MSVC and a

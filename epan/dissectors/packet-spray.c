@@ -41,10 +41,11 @@ static gint ett_spray_clock = -1;
 
 
 static int
-dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_get_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
+	int offset = 0;
 
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_spray_counter, offset);
@@ -64,12 +65,9 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_spray_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_data(tvb, tree,
-			hf_spray_sprayarr, offset);
-
-	return offset;
+	return dissect_rpc_data(tvb, tree, hf_spray_sprayarr, 0);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
