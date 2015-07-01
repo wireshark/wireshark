@@ -51,7 +51,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 12.9.0 Release 12)
+ *   (3GPP TS 24.008 version 12.10.0 Release 12)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -449,6 +449,7 @@ static int hf_gsm_a_gm_rac_dlmc_max_bandwidth = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers = -1;
 static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
+static int hf_gsm_a_gm_rac_ext_earfcn_value_range = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -3111,6 +3112,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_in_oct -= bits_needed;
 
 		 /*
+		 * Extended EARFCN value range
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_earfcn_value_range, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
 		 * we are too long ... so jump over it
 		 */
 		while (curr_bits_length > 0)
@@ -4852,8 +4864,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
  * [12] 10.5.6.5a Re-attempt indicator
  */
 const true_false_string gsm_a_gm_ratc_value = {
-	"MS is not allowed to repeat the request after inter-system change to S1 mode",
-	"MS is allowed to repeat the request after inter-system change to S1 mode"
+	"MS is not allowed to re-attempt the procedure in S1 mode",
+	"MS is allowed to re-attempt the procedure in S1 mode"
 };
 
 static guint16
@@ -8403,6 +8415,11 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_rac_ext_tsc_set_cap_support,
 		  { "Extended TSC Set Capability support", "gsm_a.gm.gmm.rac.ext_tsc_set_cap_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ext_earfcn_value_range,
+		  { "Extended EARFCN value range", "gsm_a.gm.gmm.rac.ext_earfcn_value_range",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
