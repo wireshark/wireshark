@@ -187,11 +187,6 @@ WS_DLL_PUBLIC int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
 WS_DLL_PUBLIC int dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree,
 	int offset, packet_info *pinfo);
 
-
-typedef struct _rpc_prog_info_key {
-	guint32 prog;
-} rpc_prog_info_key;
-
 typedef struct _rpc_prog_info_value {
 	protocol_t *proto;
 	int proto_id;

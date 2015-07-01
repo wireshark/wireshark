@@ -324,7 +324,7 @@ rpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 static void
 rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 {
-	rpc_prog_info_key *k;
+	guint32 *k;
 	GtkWidget *vers_combo_box;
 	int i;
 
@@ -333,7 +333,7 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer *)&k)) {
 		g_assert_not_reached();  /* Programming error: somehow no active item */
 	}
-	rpc_program=k->prog;
+	rpc_program=*k;
 
 	/* re-create version menu */
 	rpc_version=0;
@@ -357,14 +357,14 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 static void
 rpcstat_list_programs(gpointer *key, gpointer *value, gpointer user_data)
 {
-	rpc_prog_info_key *k=(rpc_prog_info_key *)key;
+	guint32 *k=(guint32*)key;
 	rpc_prog_info_value *v=(rpc_prog_info_value *)value;
 	GtkComboBox *prog_combo_box = (GtkComboBox *)user_data;
 
 	ws_combo_box_append_text_and_pointer(prog_combo_box, v->progname, k);
 
 	if(!rpc_program){
-		rpc_program=k->prog;
+		rpc_program=*k;
 	}
 }
 

@@ -468,7 +468,6 @@ void
 rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 		    int procedure_hf)
 {
-	rpc_prog_info_key rpc_prog_key;
 	rpc_prog_info_value *rpc_prog;
 	const vsff *proc;
 
@@ -476,8 +475,7 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 	 * Add the operation number hfinfo value for this version of the
 	 * program.
 	 */
-	rpc_prog_key.prog = prog;
-	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, &rpc_prog_key);
+	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, &prog);
 	DISSECTOR_ASSERT(rpc_prog != NULL);
 	rpc_prog->procedure_hfs = g_array_set_size(rpc_prog->procedure_hfs,
 	    vers);
@@ -533,27 +531,6 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 /* Hash array with program names */
 /*********************************/
 
-/* compare 2 keys */
-static gint
-rpc_prog_equal(gconstpointer k1, gconstpointer k2)
-{
-	const rpc_prog_info_key* key1 = (const rpc_prog_info_key*) k1;
-	const rpc_prog_info_key* key2 = (const rpc_prog_info_key*) k2;
-
-	return ((key1->prog == key2->prog) ?
-	TRUE : FALSE);
-}
-
-
-/* calculate a hash key */
-static guint
-rpc_prog_hash(gconstpointer k)
-{
-	const rpc_prog_info_key* key = (const rpc_prog_info_key*) k;
-
-	return (key->prog);
-}
-
 static void
 rpc_prog_free_val(gpointer v)
 {
@@ -566,11 +543,11 @@ rpc_prog_free_val(gpointer v)
 void
 rpc_init_prog(int proto, guint32 prog, int ett)
 {
-	rpc_prog_info_key *key;
+	guint32 *key;
 	rpc_prog_info_value *value;
 
-	key = (rpc_prog_info_key *) g_malloc(sizeof(rpc_prog_info_key));
-	key->prog = prog;
+	key = g_new(guint32, 1);
+	*key = prog;
 
 	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
 	value->proto = find_protocol_by_id(proto);
@@ -589,11 +566,9 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 int
 rpc_prog_hf(guint32 prog, guint32 vers)
 {
-	rpc_prog_info_key       rpc_prog_key;
 	rpc_prog_info_value     *rpc_prog;
 
-	rpc_prog_key.prog = prog;
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&rpc_prog_key))) {
+	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&prog))) {
 		return g_array_index(rpc_prog->procedure_hfs, int, vers);
 	}
 	return -1;
@@ -606,11 +581,9 @@ const char *
 rpc_prog_name(guint32 prog)
 {
 	const char *progname = NULL;
-	rpc_prog_info_key       rpc_prog_key;
 	rpc_prog_info_value     *rpc_prog;
 
-	rpc_prog_key.prog = prog;
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
+	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&prog)) == NULL) {
 		progname = "Unknown";
 	}
 	else {
@@ -1941,7 +1914,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 
 static void
-make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
+make_fake_rpc_prog_if_needed (guint32 *prpc_prog_key, guint prog_ver)
 {
 	/* sanity check: no one uses versions > 10 */
 	if(prog_ver>10){
@@ -1959,13 +1932,13 @@ make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 			{ 0,NULL,NULL,NULL }
 		};
 
-		NAME = g_strdup_printf("Unknown RPC Program:%d",prpc_prog_key->prog);
-		Name = g_strdup_printf("RPC:%d",prpc_prog_key->prog);
-		name = g_strdup_printf("rpc%d",prpc_prog_key->prog);
+		NAME = g_strdup_printf("Unknown RPC Program:%d", *prpc_prog_key);
+		Name = g_strdup_printf("RPC:%d", *prpc_prog_key);
+		name = g_strdup_printf("rpc%d", *prpc_prog_key);
 		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
 
-		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key->prog, ett_rpc_unknown_program);
-		rpc_init_proc_table(prpc_prog_key->prog, prog_ver, unknown_proc, hf_rpc_procedure);
+		rpc_init_prog(proto_rpc_unknown_program, *prpc_prog_key, ett_rpc_unknown_program);
+		rpc_init_proc_table(*prpc_prog_key, prog_ver, unknown_proc, hf_rpc_procedure);
 
 	}
 }
@@ -1978,7 +1951,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32	msg_type;
 	rpc_call_info_value *rpc_call = NULL;
 	rpc_prog_info_value *rpc_prog = NULL;
-	rpc_prog_info_key rpc_prog_key;
+	guint32 rpc_prog_key;
 
 	unsigned int xid;
 	unsigned int rpcvers;
@@ -2065,7 +2038,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		   and report it as RPC (but not dissect the payload if
 		   we don't have a subdissector) if it matches. */
-		rpc_prog_key.prog = tvb_get_ntohl(tvb, offset + 12);
+		rpc_prog_key = tvb_get_ntohl(tvb, offset + 12);
 
 		/* we only dissect version 2 */
 		if (tvb_get_ntohl(tvb, offset + 8) != 2 ){
@@ -2084,7 +2057,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * In this case we only check that the program number
 			 * is neither 0 nor -1 which is better than nothing.
 			 */
-			if(rpc_prog_key.prog==0 || rpc_prog_key.prog==0xffffffff){
+			if(rpc_prog_key==0 || rpc_prog_key==0xffffffff){
 				return FALSE;
 			}
 			version=tvb_get_ntohl(tvb, offset+16);
@@ -2175,7 +2148,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 
 			/* and fake up a matching program */
-			rpc_prog_key.prog = rpc_call->prog;
+			rpc_prog_key = rpc_call->prog;
 		}
 
 		/* pass rpc_info to subdissectors */
@@ -2530,7 +2503,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = val_to_str_const(gss_proc, rpc_authgssapi_proc, "(null)");
 		}
 
-		rpc_prog_key.prog = prog;
+		rpc_prog_key = prog;
 		if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
 			proto = NULL;
 			proto_id = 0;
@@ -4168,7 +4141,7 @@ proto_register_rpc(void)
 	 * will be called before any handoff registration routines
 	 * are called.
 	 */
-	rpc_progs = g_hash_table_new_full(rpc_prog_hash, rpc_prog_equal,
+	rpc_progs = g_hash_table_new_full(g_int_hash, g_int_equal,
 			g_free, rpc_prog_free_val);
 	rpc_procs = g_hash_table_new_full(rpc_proc_hash, rpc_proc_equal,
 			g_free, g_free);
