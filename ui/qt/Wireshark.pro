@@ -158,16 +158,16 @@ win32 {
 }
 
 SOURCES_TAP = \
-    "$$PWD/stats_tree_dialog.cpp"
+    "stats_tree_dialog.cpp"
 
 tap_register.name = Generate wireshark-tap-register.c
 tap_register.input = SOURCES_TAP
 tap_register.output = wireshark-tap-register.c
 tap_register.variable_out = SOURCES
 win32 {
-    tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
+    tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" "\"""$$PWD""\"" taps $$SOURCES_TAP
 } else {
-    tap_register.commands = python ../../tools/make-tap-reg.py . taps $$SOURCES_TAP
+    tap_register.commands = python ../../tools/make-tap-reg.py "\"""$$PWD""\"" taps $$SOURCES_TAP
 }
 #tap_register.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += tap_register
