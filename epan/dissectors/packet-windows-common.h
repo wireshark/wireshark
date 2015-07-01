@@ -78,6 +78,7 @@
     XXX( WERR_INVALID_SECURITY_DESCRIPTOR,       1338) \
     XXX( WERR_NO_SUCH_DOMAIN,                    1355) \
     XXX( WERR_NO_SYSTEM_RESOURCES,               1450) \
+    XXX( WERR_TIMEOUT,                           1460) \
     XXX( WERR_SERVER_UNAVAILABLE,                1722) \
     XXX( WERR_PRINTER_DRIVER_ALREADY_INSTALLED,  1795) \
     XXX( WERR_UNKNOWN_PORT,                      1796) \
@@ -117,6 +118,7 @@
     XXX( WERR_PRINT_MONITOR_IN_USE,              3008) \
     XXX( WERR_PRINTER_HAS_JOBS_QUEUED,           3009) \
     XXX( WERR_DEVICE_NOT_AVAILABLE,              4319) \
+    XXX( WERR_INVALID_STATE,                     5023) \
     XXX( WERR_DS_SERVICE_BUSY,                   8206) /* 0x0000200e */ \
     XXX( WERR_DS_SERVICE_UNAVAILABLE,            8207) /* 0x0000200f */ \
     XXX( WERR_DS_NO_SUCH_OBJECT,                 8240) /* 0x00002030 */ \
