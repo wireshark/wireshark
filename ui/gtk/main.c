@@ -2234,9 +2234,9 @@ DIAG_ON(cast-qual)
     switch (airpcap_dll_ret_val) {
         case AIRPCAP_DLL_OK:
             /* load the airpcap interfaces */
-            airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+            g_airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-            if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
+            if (g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0){
                 if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
                     g_free(err_str);
@@ -2246,7 +2246,7 @@ DIAG_ON(cast-qual)
             } else {
 
                 /* select the first ad default (THIS SHOULD BE CHANGED) */
-                airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+                airpcap_if_active = airpcap_get_default_if(g_airpcap_if_list);
             }
         break;
 #if 0

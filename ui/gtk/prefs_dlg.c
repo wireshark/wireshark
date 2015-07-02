@@ -1446,7 +1446,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
    * Load the Wireshark decryption keys (just set) and save
    * the changes to the adapters' registry
    */
-  airpcap_load_decryption_keys(airpcap_if_list);
+  airpcap_load_decryption_keys(g_airpcap_if_list);
 #endif
 
   prefs_main_apply_all((GtkWidget *)parent_w, must_redissect);

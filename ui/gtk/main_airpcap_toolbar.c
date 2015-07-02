@@ -118,13 +118,13 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
         return;
     }
 
-    if (!(airpcap_if_list == NULL)) {
-        n = g_list_length(airpcap_if_list);
+    if (!(g_airpcap_if_list == NULL)) {
+        n = g_list_length(g_airpcap_if_list);
 
         /* The same kind of settings should be propagated to all the adapters */
         /* Apply this change to all the adapters !!! */
         for(i = 0; i < n; i++) {
-            curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+            curr_if = (airpcap_if_info_t*)g_list_nth_data(g_airpcap_if_list,i);
 
             if( (curr_if != NULL) && (curr_if != airpcap_if_selected) ) {
                 ad = airpcap_if_open(curr_if->name, ebuf);
@@ -343,7 +343,7 @@ GtkWidget *airpcap_toolbar_new(void)
 
     /* If no airpcap interface is present, gray everything */
     if(airpcap_if_active == NULL) {
-        if(airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0) {
+        if(g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0) {
             /* No airpcap device found */
             airpcap_enable_toolbar_widgets(lcl_wireless_tb, FALSE);
             /* recent.airpcap_toolbar_show = TRUE; */
@@ -376,13 +376,13 @@ void airpcap_toolbar_show(GtkWidget *lcl_wireless_tb _U_)
      * This will read the decryption keys from the preferences file, and will
      * store them into the registry...
      */
-    if(airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0){
-        if (!airpcap_check_decryption_keys(airpcap_if_list)) {
+    if(g_airpcap_if_list != NULL && g_list_length(g_airpcap_if_list) > 0){
+        if (!airpcap_check_decryption_keys(g_airpcap_if_list)) {
             /* Ask the user what to do ...*/
             airpcap_keys_check_w(NULL,NULL);
         } else {
             /* Keys from lists are equals, or Wireshark has got no keys */
-            airpcap_load_decryption_keys(airpcap_if_list);
+            airpcap_load_decryption_keys(g_airpcap_if_list);
         }
     }
 

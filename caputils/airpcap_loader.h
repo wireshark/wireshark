@@ -135,7 +135,7 @@ typedef struct {
 } keys_cb_data_t;
 
 /* Airpcap interface list */
-extern GList *airpcap_if_list;
+extern GList *g_airpcap_if_list;
 
 /* Airpcap current selected interface */
 extern airpcap_if_info_t *airpcap_if_selected;

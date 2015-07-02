@@ -222,7 +222,7 @@ capture_do_cb(GtkWidget *capture_bt_arg _U_, gpointer if_data _U_)
     if_array = g_array_remove_index(if_array, ifs);
     g_array_insert_val(if_array, ifs, data);
 #ifdef HAVE_AIRPCAP
-    airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, gtk_label_get_text(GTK_LABEL(data.device_lb)));
+    airpcap_if_active = get_airpcap_if_from_name(g_airpcap_if_list, gtk_label_get_text(GTK_LABEL(data.device_lb)));
     airpcap_if_selected = airpcap_if_active;
 #endif
   }
@@ -876,7 +876,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* If no airpcap interface is present, gray everything */
   if (airpcap_if_active == NULL) {
-    if (airpcap_if_list == NULL) {
+    if (g_airpcap_if_list == NULL) {
       /*No airpcap device found */
       airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
     } else {

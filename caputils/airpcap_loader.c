@@ -98,7 +98,7 @@ static AirpcapGetDeviceChannelExHandler g_PAirpcapGetDeviceChannelEx;
 static AirpcapGetDeviceSupportedChannelsHandler g_PAirpcapGetDeviceSupportedChannels;
 
 /* Airpcap interface list */
-GList *airpcap_if_list = NULL;
+GList *g_airpcap_if_list = NULL;
 
 /* Airpcap current selected interface */
 airpcap_if_info_t *airpcap_if_selected = NULL;
@@ -601,14 +601,14 @@ airpcap_driver_fake_if_info_new(void)
     airpcap_if_info_t *fake_if_info = NULL;
 
     /* Maybe for some reason no airpcap adapter is found */
-    if (airpcap_if_list == NULL)
+    if (g_airpcap_if_list == NULL)
         return NULL;
 
     /*
      * Retrieve the first AirPcap adapter available. If no interface is found,
      * it is not possible to retrieve the driver's settings, so return NULL.
      */
-    if_info = (airpcap_if_info_t *)g_list_nth_data(airpcap_if_list,0);
+    if_info = (airpcap_if_info_t *)g_list_nth_data(g_airpcap_if_list,0);
     if (if_info == NULL)
         return NULL;
 

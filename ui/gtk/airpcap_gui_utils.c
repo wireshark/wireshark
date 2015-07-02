@@ -1529,13 +1529,13 @@ set_airpcap_decryption(gboolean on_off)
 
     airpcap_if_info_free(fake_if_info);
 
-    n = g_list_length(airpcap_if_list);
+    n = g_list_length(g_airpcap_if_list);
 
     /* Set to FALSE the decryption for all the adapters */
     /* Apply this change to all the adapters !!! */
     for(i = 0; i < n; i++)
     {
-        curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+        curr_if = (airpcap_if_info_t*)g_list_nth_data(g_airpcap_if_list,i);
 
         if (curr_if != NULL)
         {

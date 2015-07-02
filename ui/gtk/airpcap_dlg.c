@@ -526,7 +526,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     g_free(decryption_mode_string);
 
     /* Save the configuration */
-    airpcap_read_and_save_decryption_keys_from_list_store(key_list_store,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
+    airpcap_read_and_save_decryption_keys_from_list_store(key_list_store,airpcap_if_selected,g_airpcap_if_list); /* This will save the keys for every adapter */
 
     /* The update will make redissect al the packets... no need to do it here again */
     update_decryption_mode(toolbar_cb);
@@ -1412,7 +1412,7 @@ update_decryption_mode_list(GtkWidget *cb)
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(cb), AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(cb), AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
 
-    if (airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0)
+    if (g_airpcap_if_list != NULL && g_list_length(g_airpcap_if_list) > 0)
     {
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(cb), AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
     }
@@ -1537,7 +1537,7 @@ on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* Retrieve the GUI object pointers */
     airpcap_advanced_w  = GTK_WIDGET(data);
 
-    /* Stop blinking ALL leds (go through the airpcap_if_list) */
+    /* Stop blinking ALL leds (go through the g_airpcap_if_list) */
     if (airpcap_if_selected != NULL)
     {
         ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
@@ -2250,14 +2250,14 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
      * This will read the decryption keys from the preferences file, and will store
      * them into the registry...
      */
-    if (!airpcap_check_decryption_keys(airpcap_if_list))
+    if (!airpcap_check_decryption_keys(g_airpcap_if_list))
     {
         /* Ask the user what to do ...*/
         airpcap_keys_check_w(key_management_w,NULL);
     }
     else /* Keys from lists are equals, or Wireshark has got no keys */
     {
-        airpcap_load_decryption_keys(airpcap_if_list);
+        airpcap_load_decryption_keys(g_airpcap_if_list);
         airpcap_fill_key_list(key_list_store);
         /* At the end, so that it appears completely all together ... */
         gtk_widget_show (key_management_w);
@@ -2316,7 +2316,7 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 
     key_management_w = (GtkWidget *)g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
 
-    n_adapters = g_list_length(airpcap_if_list);
+    n_adapters = g_list_length(g_airpcap_if_list);
 
     /* Retrieve Wireshark keys */
     wireshark_keys = get_wireshark_keys();
@@ -2331,7 +2331,7 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     /* NOW wireshark_keys and driver_keys ARE no more needed... at the end, we will have to free them! */
     for (i = 0; i<n_adapters; i++)
     {
-        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(g_airpcap_if_list,i);
         current_adapter_keys = get_airpcap_device_keys(curr_adapter);
 
         merged_list_tmp = merged_list;
@@ -2341,7 +2341,7 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     }
 
     /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
+    airpcap_save_decryption_keys(merged_list,g_airpcap_if_list);
 
     free_key_list(wireshark_keys);
     free_key_list(driver_keys);
@@ -2380,7 +2380,7 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
     merged_keys = merge_key_list(wireshark_keys,NULL);
 
     /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_keys,airpcap_if_list);
+    airpcap_save_decryption_keys(merged_keys,g_airpcap_if_list);
 
     /* Free the memory */
     free_key_list(wireshark_keys);
@@ -2421,7 +2421,7 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 
     key_management_w = (GtkWidget *)g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
 
-    n_adapters = g_list_length(airpcap_if_list);
+    n_adapters = g_list_length(g_airpcap_if_list);
 
     wireshark_keys = get_wireshark_keys();
 
@@ -2433,7 +2433,7 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     /* NOW wireshark_keys IS no more needed... at the end, we will have to free it! */
     for (i = 0; i<n_adapters; i++)
     {
-        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(g_airpcap_if_list,i);
         current_adapter_keys = get_airpcap_device_keys(curr_adapter);
 
         merged_list_tmp = merged_list;
@@ -2443,7 +2443,7 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     }
 
     /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
+    airpcap_save_decryption_keys(merged_list,g_airpcap_if_list);
 
     free_key_list(wireshark_keys);
     free_key_list(driver_keys);

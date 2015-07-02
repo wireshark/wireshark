@@ -2985,7 +2985,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
    * confuse users, so that they ask why this is grayed out on
    * their non-Windows machine and ask how to enable it.
    */
-  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, device.name);
+  airpcap_if_selected = get_airpcap_if_from_name(g_airpcap_if_list, device.name);
   if (airpcap_if_selected != NULL) {
     advanced_bt = gtk_button_new_with_label("Wireless Settings");
 
@@ -4604,13 +4604,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* update airpcap interface list */
 
   /* load the airpcap interfaces */
-  airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+  g_airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
   /* If we don't get a list don't do any thing.
    * If the error is AIRPCAP_NOT_LOADED it avoids an unnecessary rescan of the packet list
    * ( see airpcap_loader.h for error codes).
    */
-  if (airpcap_if_list == NULL) {
+  if (g_airpcap_if_list == NULL) {
     if (err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
       g_free(err_str);
@@ -4620,7 +4620,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     /* XXXX update_decryption_mode_list() triggers a rescan, should only be done if the mode is changed */
     update_decryption_mode_list(decryption_cb);
     /* select the first as default (THIS SHOULD BE CHANGED) */
-    airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+    airpcap_if_active = airpcap_get_default_if(g_airpcap_if_list);
   }
 #endif
 
