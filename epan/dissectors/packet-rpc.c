@@ -495,7 +495,7 @@ rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
 						new_create_dissector_handle_with_name(proc->dissect_call, proto, proc->strptr));
 		}
 
-		if (proc->dissect_reply == NULL)
+		if (proc->dissect_reply != NULL)
 		{
 			dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
 						new_create_dissector_handle_with_name(proc->dissect_reply, proto, proc->strptr));
