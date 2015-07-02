@@ -4157,20 +4157,15 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             guint8  status;
 
             switch(opcode) {
-                case 0x0c13: /* Change Local Name */
+            case 0x0c13: /* Change Local Name */
                 status = tvb_get_guint8(tvb, 5);
 
                 if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) {
                     bluetooth_device_tap_t  *tap_device;
 
                     tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
-                    if (bluetooth_data) {
-                        tap_device->interface_id  = bluetooth_data->interface_id;
-                        tap_device->adapter_id    = bluetooth_data->adapter_id;
-                    } else {
-                        tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
-                        tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
-                    }
+                    tap_device->interface_id  = bluetooth_data->interface_id;
+                    tap_device->adapter_id    = bluetooth_data->adapter_id;
                     tap_device->has_bd_addr = FALSE;
                     tap_device->is_local = TRUE;
                     tap_device->type = BLUETOOTH_DEVICE_NAME;
