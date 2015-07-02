@@ -91,6 +91,7 @@ struct dissector_table {
 	const char	*ui_name;
 	ftenum_t	type;
 	int		param;
+	GHashFunc hash_func;
 };
 
 static GHashTable *dissector_tables = NULL;
@@ -1474,6 +1475,53 @@ dissector_get_default_string_handle(const char *name, const gchar *string)
 	return NULL;
 }
 
+/* Add an entry to a "custom" dissector table. */
+void dissector_add_custom_table_handle(const char *name, void *pattern, dissector_handle_t handle)
+{
+	dissector_table_t  sub_dissectors = find_dissector_table( name);
+	dtbl_entry_t      *dtbl_entry;
+
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
+
+	g_assert(sub_dissectors->type == FT_BYTES);
+
+	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry->current = handle;
+	dtbl_entry->initial = dtbl_entry->current;
+
+	/* do the table insertion */
+	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
+			     (gpointer)dtbl_entry);
+
+	/*
+	 * Now add it to the list of handles that could be used for
+	 * "Decode As" with this table, because it *is* being used
+	 * with this table.
+	 */
+	dissector_add_for_decode_as(name, handle);
+}
+
+dissector_handle_t dissector_get_custom_table_handle(dissector_table_t sub_dissectors, void *key)
+{
+	dtbl_entry_t *dtbl_entry = (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, key);
+
+	if (dtbl_entry != NULL)
+		return dtbl_entry->current;
+
+	return NULL;
+}
+
 dissector_handle_t
 dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 {
@@ -1817,6 +1865,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 		 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
 		 * so we use "g_direct_hash()" and "g_direct_equal()".
 		 */
+		sub_dissectors->hash_func = g_direct_hash;
 		sub_dissectors->hash_table = g_hash_table_new_full( g_direct_hash,
 							       g_direct_equal,
 							       NULL,
@@ -1826,6 +1875,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	case FT_STRING:
 	case FT_STRINGZ:
 	case FT_STRINGZPAD:
+		sub_dissectors->hash_func = g_str_hash;
 		sub_dissectors->hash_table = g_hash_table_new_full( g_str_hash,
 							       g_str_equal,
 							       &g_free,
@@ -1839,6 +1889,33 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
+	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
+	return sub_dissectors;
+}
+
+dissector_table_t register_custom_dissector_table(const char *name,
+    const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func)
+{
+	dissector_table_t	sub_dissectors;
+
+	/* Make sure the registration is unique */
+	if(g_hash_table_lookup( dissector_tables, name )) {
+		g_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
+	}
+
+	/* Create and register the dissector table for this name; returns */
+	/* a pointer to the dissector table. */
+	sub_dissectors = g_slice_new(struct dissector_table);
+	sub_dissectors->hash_func = hash_func;
+	sub_dissectors->hash_table = g_hash_table_new_full(hash_func,
+							       key_equal_func,
+							       &g_free,
+							       &g_free );
+
+	sub_dissectors->dissector_handles = NULL;
+	sub_dissectors->ui_name = ui_name;
+	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
+	sub_dissectors->param   = BASE_NONE;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }
@@ -2331,6 +2408,20 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= NULL;
+	handle->is_new		= TRUE;
+	handle->dissector.new_d = dissector;
+	handle->protocol	= find_protocol_by_id(proto);
+
+	return handle;
+}
+
+dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissector,
+    const int proto, const char* name)
+{
+	struct dissector_handle *handle;
+
+	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
+	handle->name		= name;
 	handle->is_new		= TRUE;
 	handle->dissector.new_d = dissector;
 	handle->protocol	= find_protocol_by_id(proto);

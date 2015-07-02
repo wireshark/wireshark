@@ -201,6 +201,13 @@ WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
 WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
     const char *ui_name, const ftenum_t type, const int param);
 
+/*
+ * Similar to register_dissector_table, but with a "custom" hash function
+ * to store subdissectors.
+ */
+WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
+    const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func);
+
 /* Find a dissector table by table name. */
 WS_DLL_PUBLIC dissector_table_t find_dissector_table(const char *name);
 
@@ -321,6 +328,21 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_string_handle(
  */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_default_string_handle(
     const char *name, const gchar *string);
+
+/* Add an entry to a "custom" dissector table. */
+WS_DLL_PUBLIC void dissector_add_custom_table_handle(const char *name, void *pattern,
+    dissector_handle_t handle);
+
+/** Look for a given key in a given "custom" dissector table and, if found,
+ * return the current dissector handle for that key.
+ *
+ * @param[in] sub_dissectors Dissector table to search.
+ * @param[in] key Value to match, e.g. RPC key for its subdissectors
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_custom_table_handle(
+    dissector_table_t sub_dissectors, void *key);
+
 
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
@@ -482,6 +504,8 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
 WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
     const int proto);
+WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissector,
+    const int proto, const char* name);
 
 /** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.
