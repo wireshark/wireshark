@@ -1091,6 +1091,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_count@Base 1.9.1
  register_custom_dissector_table@Base 1.99.8
  register_color_conversation_filter@Base 1.99.1
+ register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
  register_dissector@Base 1.9.1
  register_dissector_filter@Base 1.9.1
