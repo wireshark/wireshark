@@ -361,14 +361,14 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 static void
 rpcstat_list_programs(gpointer *key, gpointer *value, gpointer user_data)
 {
-	guint32 *k=(guint32*)key;
+	guint32 k=GPOINTER_TO_INT(key);
 	rpc_prog_info_value *v=(rpc_prog_info_value *)value;
 	GtkComboBox *prog_combo_box = (GtkComboBox *)user_data;
 
-	ws_combo_box_append_text_and_pointer(prog_combo_box, v->progname, k);
+	ws_combo_box_append_text_and_pointer(prog_combo_box, v->progname, &k);
 
 	if(!rpc_program){
-		rpc_program=*k;
+		rpc_program=k;
 	}
 }
 

@@ -476,7 +476,7 @@ rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
 	 * Add the operation number hfinfo value for this version of the
 	 * program.
 	 */
-	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, &prog);
+	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(prog));
 	DISSECTOR_ASSERT(rpc_prog != NULL);
 	rpc_prog->procedure_hfs = g_array_set_size(rpc_prog->procedure_hfs,
 	    vers);
@@ -551,11 +551,7 @@ rpc_prog_free_val(gpointer v)
 void
 rpc_init_prog(int proto, guint32 prog, int ett)
 {
-	guint32 *key;
 	rpc_prog_info_value *value;
-
-	key = g_new(guint32, 1);
-	*key = prog;
 
 	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
 	value->proto = find_protocol_by_id(proto);
@@ -564,7 +560,7 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	value->progname = proto_get_protocol_short_name(value->proto);
 	value->procedure_hfs = g_array_new(FALSE, TRUE, sizeof (int));
 
-	g_hash_table_insert(rpc_progs,key,value);
+	g_hash_table_insert(rpc_progs,GUINT_TO_POINTER(prog),value);
 }
 
 
@@ -576,7 +572,7 @@ rpc_prog_hf(guint32 prog, guint32 vers)
 {
 	rpc_prog_info_value     *rpc_prog;
 
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&prog))) {
+	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(prog)))) {
 		return g_array_index(rpc_prog->procedure_hfs, int, vers);
 	}
 	return -1;
@@ -591,7 +587,7 @@ rpc_prog_name(guint32 prog)
 	const char *progname = NULL;
 	rpc_prog_info_value     *rpc_prog;
 
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&prog)) == NULL) {
+	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(prog))) == NULL) {
 		progname = "Unknown";
 	}
 	else {
@@ -1916,14 +1912,14 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 
 static void
-make_fake_rpc_prog_if_needed (guint32 *prpc_prog_key, guint prog_ver)
+make_fake_rpc_prog_if_needed (guint32 prpc_prog_key, guint prog_ver)
 {
 	/* sanity check: no one uses versions > 10 */
 	if(prog_ver>10){
 		return;
 	}
 
-	if(g_hash_table_lookup(rpc_progs, prpc_prog_key) == NULL) {
+	if(g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(prpc_prog_key)) == NULL) {
 		/* ok this is not a known rpc program so we
 		 * will have to fake it.
 		 */
@@ -1934,13 +1930,13 @@ make_fake_rpc_prog_if_needed (guint32 *prpc_prog_key, guint prog_ver)
 			{ 0,NULL,NULL,NULL }
 		};
 
-		NAME = g_strdup_printf("Unknown RPC Program:%d", *prpc_prog_key);
-		Name = g_strdup_printf("RPC:%d", *prpc_prog_key);
-		name = g_strdup_printf("rpc%d", *prpc_prog_key);
+		NAME = g_strdup_printf("Unknown RPC Program:%d", prpc_prog_key);
+		Name = g_strdup_printf("RPC:%d", prpc_prog_key);
+		name = g_strdup_printf("rpc%d", prpc_prog_key);
 		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
 
-		rpc_init_prog(proto_rpc_unknown_program, *prpc_prog_key, ett_rpc_unknown_program);
-		rpc_init_proc_table(proto_rpc, *prpc_prog_key, prog_ver, unknown_proc, hf_rpc_procedure);
+		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key, ett_rpc_unknown_program);
+		rpc_init_proc_table(proto_rpc, prpc_prog_key, prog_ver, unknown_proc, hf_rpc_procedure);
 
 	}
 }
@@ -2062,9 +2058,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				return FALSE;
 			}
 			version=tvb_get_ntohl(tvb, offset+16);
-			make_fake_rpc_prog_if_needed (&rpc_prog_key, version);
+			make_fake_rpc_prog_if_needed (rpc_prog_key, version);
 		}
-		if( (rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
+		if( (rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
 			/* They're not, so it's probably not an RPC call. */
 			return FALSE;
 		}
@@ -2492,7 +2488,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		rpc_prog_key = prog;
-		if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
+		if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
 			proto = NULL;
 			proto_id = 0;
 			ett = 0;
@@ -4132,8 +4128,8 @@ proto_register_rpc(void)
 	 * will be called before any handoff registration routines
 	 * are called.
 	 */
-	rpc_progs = g_hash_table_new_full(g_int_hash, g_int_equal,
-			g_free, rpc_prog_free_val);
+	rpc_progs = g_hash_table_new_full(g_direct_hash, g_direct_equal,
+			NULL, rpc_prog_free_val);
 
 	authgss_contexts=wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
