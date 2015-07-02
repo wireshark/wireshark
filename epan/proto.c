@@ -4555,7 +4555,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 							offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
 
-						} else if (hfinfo->strings) {
+						} else if (hfinfo->strings && hfinfo->type != FT_FRAMENUM) {
 							number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
 
 							if (!number_out)

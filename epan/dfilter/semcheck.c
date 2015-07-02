@@ -222,10 +222,10 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, char *s)
 		case FT_OID:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
+		case FT_FRAMENUM: /* hfinfo->strings contains ft_framenum_type_t, not strings */
 			return NULL;
 
 		case FT_BOOLEAN:
-		case FT_FRAMENUM:
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
