@@ -1478,7 +1478,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 return 4;
             }
 
-            printf("VERBOSE: Client port %u\n", GINT16_FROM_BE(client.sin_port));
+            printf("VERBOSE: Client port %u\n", GUINT16_FROM_BE(client.sin_port));
         }
     } else {
         int  result;
