@@ -1195,13 +1195,8 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
         bluetooth_device_tap_t  *tap_device;
 
         tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
-        if (bluetooth_data) {
-            tap_device->interface_id  = bluetooth_data->interface_id;
-            tap_device->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+        tap_device->interface_id  = bluetooth_data->interface_id;
+        tap_device->adapter_id    = bluetooth_data->adapter_id;
         memcpy(tap_device->bd_addr, bd_addr, 6);
         tap_device->has_bd_addr = TRUE;
         tap_device->is_local = FALSE;
@@ -1267,13 +1262,8 @@ dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int of
 
         tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
         tap_device->type = BLUETOOTH_DEVICE_REMOTE_VERSION;
-        if (bluetooth_data) {
-            tap_device->interface_id  = bluetooth_data->interface_id;
-            tap_device->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_device->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_device->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+        tap_device->interface_id  = bluetooth_data->interface_id;
+        tap_device->adapter_id    = bluetooth_data->adapter_id;
 
         if (remote_bdaddr) {
             tap_device->has_bd_addr = TRUE;
