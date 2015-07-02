@@ -653,6 +653,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     guint8      mcs_index;
     guint8      ness;
     float       phyRate;
+    guint       i;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwift,*vw_infoFlags_tree = NULL;
     guint16     vw_flags, vw_chanflags, vw_info, vw_ht_length, vw_rflags;
@@ -730,6 +731,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             phdr.phy_info.info_11ac.presence_flags =
                 PHDR_802_11AC_HAS_SHORT_GI;
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+            for (i = 0; i < 4; i++)
+                phdr.phy_info.info_11ac.nss[i] = 0;
         } else {
             phdr.phy = PHDR_802_11_PHY_11N;
             phdr.phy_info.info_11n.presence_flags =
