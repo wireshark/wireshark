@@ -611,7 +611,7 @@ proto_reg_handoff_fmp_notify(void)
 	rpc_init_prog(proto_fmp_notify, FMP_NOTIFY_PROG, ett_fmp_notify);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(FMP_NOTIFY_PROG, FMP_NOTIFY_VERSION_2,
+	rpc_init_proc_table(proto_fmp_notify, FMP_NOTIFY_PROG, FMP_NOTIFY_VERSION_2,
 			    fmp_notify2_proc,hf_fmp_notify_procedure);
 }
 

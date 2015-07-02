@@ -1834,7 +1834,7 @@ proto_reg_handoff_nis(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nisplus, NIS_PROGRAM, ett_nisplus);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NIS_PROGRAM, 3, nisplus3_proc, hf_nisplus_procedure_v3);
+	rpc_init_proc_table(proto_nisplus, NIS_PROGRAM, 3, nisplus3_proc, hf_nisplus_procedure_v3);
 }
 
 
@@ -1934,7 +1934,7 @@ proto_reg_handoff_niscb(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nispluscb, CB_PROGRAM, ett_nispluscb);
 	/* Register the procedure tables */
-	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc, hf_nispluscb_procedure_v1);
+	rpc_init_proc_table(proto_nispluscb, CB_PROGRAM, 1, cb1_proc, hf_nispluscb_procedure_v1);
 }
 
 /*

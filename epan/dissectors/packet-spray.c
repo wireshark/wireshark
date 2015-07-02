@@ -136,7 +136,7 @@ proto_reg_handoff_spray(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_spray, SPRAY_PROGRAM, ett_spray);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SPRAY_PROGRAM, 1, spray1_proc, hf_spray_procedure_v1);
+	rpc_init_proc_table(proto_spray, SPRAY_PROGRAM, 1, spray1_proc, hf_spray_procedure_v1);
 }
 
 /*

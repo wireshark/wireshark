@@ -926,7 +926,7 @@ proto_reg_handoff_vxi11_core(void)
     };
 
     rpc_init_prog(proto_vxi11_core, VXI11_CORE_PROGRAM, ett_vxi11_core);
-    rpc_init_proc_table(VXI11_CORE_PROGRAM,
+    rpc_init_proc_table(proto_vxi11_core, VXI11_CORE_PROGRAM,
                         VXI11_CORE_VERSION,
                         vxi111_core_proc,
                         hf_vxi11_core_procedure_v1);
@@ -973,7 +973,7 @@ proto_reg_handoff_vxi11_async(void)
     };
 
     rpc_init_prog(proto_vxi11_async, VXI11_ASYNC_PROGRAM, ett_vxi11_async);
-    rpc_init_proc_table(VXI11_ASYNC_PROGRAM,
+    rpc_init_proc_table(proto_vxi11_async, VXI11_ASYNC_PROGRAM,
                         VXI11_ASYNC_VERSION,
                         vxi111_async_proc,
                         hf_vxi11_async_procedure_v1);
@@ -1026,7 +1026,7 @@ proto_reg_handoff_vxi11_intr(void)
     };
 
     rpc_init_prog(proto_vxi11_intr, VXI11_INTR_PROGRAM, ett_vxi11_intr);
-    rpc_init_proc_table(VXI11_INTR_PROGRAM,
+    rpc_init_proc_table(proto_vxi11_intr, VXI11_INTR_PROGRAM,
                         VXI11_INTR_VERSION,
                         vxi111_intr_proc,
                         hf_vxi11_intr_procedure_v1);

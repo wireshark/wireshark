@@ -576,7 +576,7 @@ proto_reg_handoff_teklink(void)
 	rpc_init_prog(proto_teklink, PROGRAM_TEKLINK, ett_teklink);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(PROGRAM_TEKLINK, 1, teklink_proc, hf_teklink_procedure);
+	rpc_init_proc_table(proto_teklink, PROGRAM_TEKLINK, 1, teklink_proc, hf_teklink_procedure);
 }
 
 /*

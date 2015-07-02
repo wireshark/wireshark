@@ -634,10 +634,10 @@ proto_reg_handoff_portmap(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc, hf_portmap_procedure_v1);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc, hf_portmap_procedure_v2);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc, hf_portmap_procedure_v3);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc, hf_portmap_procedure_v4);
+	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 1, portmap1_proc, hf_portmap_procedure_v1);
+	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 2, portmap2_proc, hf_portmap_procedure_v2);
+	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 3, portmap3_proc, hf_portmap_procedure_v3);
+	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 4, portmap4_proc, hf_portmap_procedure_v4);
 	rpc_handle = find_dissector("rpc");
 }
 

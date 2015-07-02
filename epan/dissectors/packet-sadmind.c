@@ -102,9 +102,9 @@ proto_reg_handoff_sadmind(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_sadmind, SADMIND_PROGRAM, ett_sadmind);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SADMIND_PROGRAM, 1, sadmind1_proc, hf_sadmind_procedure_v1);
-	rpc_init_proc_table(SADMIND_PROGRAM, 2, sadmind2_proc, hf_sadmind_procedure_v2);
-	rpc_init_proc_table(SADMIND_PROGRAM, 3, sadmind3_proc, hf_sadmind_procedure_v3);
+	rpc_init_proc_table(proto_sadmind, SADMIND_PROGRAM, 1, sadmind1_proc, hf_sadmind_procedure_v1);
+	rpc_init_proc_table(proto_sadmind, SADMIND_PROGRAM, 2, sadmind2_proc, hf_sadmind_procedure_v2);
+	rpc_init_proc_table(proto_sadmind, SADMIND_PROGRAM, 3, sadmind3_proc, hf_sadmind_procedure_v3);
 }
 
 /*

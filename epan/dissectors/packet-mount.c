@@ -1028,10 +1028,10 @@ proto_reg_handoff_mount(void)
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
 	rpc_init_prog(proto_sgi_mount, SGI_MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */
-	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc, hf_mount_procedure_v1);
-	rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc, hf_mount_procedure_v2);
-	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc, hf_mount_procedure_v3);
-	rpc_init_proc_table(SGI_MOUNT_PROGRAM, 1, sgi_mount1_proc, hf_sgi_mount_procedure_v1);
+	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 1, mount1_proc, hf_mount_procedure_v1);
+	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 2, mount2_proc, hf_mount_procedure_v2);
+	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 3, mount3_proc, hf_mount_procedure_v3);
+	rpc_init_proc_table(proto_sgi_mount, SGI_MOUNT_PROGRAM, 1, sgi_mount1_proc, hf_sgi_mount_procedure_v1);
 }
 
 /*

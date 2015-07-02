@@ -120,7 +120,7 @@ static gint32 rpc_min_proc=-1;
 static gint32 rpc_max_proc=-1;
 
 static void
-rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
+rpcstat_find_procs(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value _U_, gpointer user_data _U_)
 {
 	rpc_proc_info_key *k=(rpc_proc_info_key *)key;
 
@@ -145,7 +145,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 }
 
 static void
-rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
+rpcstat_find_vers(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value _U_, gpointer user_data _U_)
 {
 	rpc_proc_info_key *k=(rpc_proc_info_key *)key;
 
@@ -235,7 +235,10 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 
 	rpc_min_proc=-1;
 	rpc_max_proc=-1;
-	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
+
+	/* Need to run over both dissector tables */
+	dissector_table_foreach ("rpc.call", rpcstat_find_procs, NULL);
+	dissector_table_foreach ("rpc.reply", rpcstat_find_procs, NULL);
 
 	/* We must display TOP LEVEL Widget before calling init_gtk_srt_table() */
 	gtk_widget_show_all(rs->gtk_data.win);
@@ -341,7 +344,8 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(vers_combo_box));
 	rpc_min_vers=-1;
 	rpc_max_vers=-1;
-	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_vers, NULL);
+	dissector_table_foreach ("rpc.call", rpcstat_find_vers, NULL);
+	dissector_table_foreach ("rpc.reply", rpcstat_find_vers, NULL);
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		char vs[5];
 		g_snprintf(vs, sizeof(vs), "%d",i);

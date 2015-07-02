@@ -906,7 +906,7 @@ proto_reg_handoff_hclnfsd(void)
 	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc, hf_hclnfsd_procedure_v1);
+	rpc_init_proc_table(proto_hclnfsd, HCLNFSD_PROGRAM, 1, hclnfsd1_proc, hf_hclnfsd_procedure_v1);
 }
 
 /*

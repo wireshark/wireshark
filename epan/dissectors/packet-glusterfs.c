@@ -2855,9 +2855,9 @@ void
 proto_reg_handoff_glusterfs(void)
 {
 	rpc_init_prog(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, ett_glusterfs);
-	rpc_init_proc_table(GLUSTER3_1_FOP_PROGRAM, 310, glusterfs3_1_fop_proc,
+	rpc_init_proc_table(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, 310, glusterfs3_1_fop_proc,
 							hf_glusterfs_proc);
-	rpc_init_proc_table(GLUSTER3_1_FOP_PROGRAM, 330, glusterfs3_3_fop_proc,
+	rpc_init_proc_table(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, 330, glusterfs3_3_fop_proc,
 							hf_glusterfs_proc);
 
 }

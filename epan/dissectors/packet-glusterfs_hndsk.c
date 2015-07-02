@@ -290,9 +290,9 @@ proto_reg_handoff_gluster_hndsk(void)
 {
 	rpc_init_prog(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM,
 							ett_gluster_hndsk);
-	rpc_init_proc_table(GLUSTER_HNDSK_PROGRAM, 1, gluster_hndsk_proc,
+	rpc_init_proc_table(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM, 1, gluster_hndsk_proc,
 							hf_gluster_hndsk_proc);
-	rpc_init_proc_table(GLUSTER_HNDSK_PROGRAM, 2, gluster_hndsk_2_proc,
+	rpc_init_proc_table(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM, 2, gluster_hndsk_2_proc,
 							hf_gluster_hndsk_proc);
 }
 
@@ -339,7 +339,7 @@ void
 proto_reg_handoff_gluster_cbk(void)
 {
 	rpc_init_prog(proto_gluster_cbk, GLUSTER_CBK_PROGRAM, ett_gluster_cbk);
-	rpc_init_proc_table(GLUSTER_CBK_PROGRAM, 1, gluster_cbk_proc,
+	rpc_init_proc_table(proto_gluster_cbk, GLUSTER_CBK_PROGRAM, 1, gluster_cbk_proc,
 							hf_gluster_cbk_proc);
 }
 

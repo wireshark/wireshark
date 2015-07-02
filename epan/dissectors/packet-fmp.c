@@ -2296,7 +2296,7 @@ proto_reg_handoff_fmp(void)
     rpc_init_prog(proto_fmp, FMP_PROGRAM, ett_fmp);
 
     /* Register the procedure tables */
-    rpc_init_proc_table(FMP_PROGRAM, FMP_VERSION_3, fmp3_proc, hf_fmp_procedure);
+    rpc_init_proc_table(proto_fmp, FMP_PROGRAM, FMP_VERSION_3, fmp3_proc, hf_fmp_procedure);
 }
 
 /*

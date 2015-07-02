@@ -214,7 +214,7 @@ proto_reg_handoff_gluster_pmap(void)
 {
 	rpc_init_prog(proto_gluster_pmap, GLUSTER_PMAP_PROGRAM,
 							ett_gluster_pmap);
-	rpc_init_proc_table(GLUSTER_PMAP_PROGRAM, 1, gluster_pmap_proc,
+	rpc_init_proc_table(proto_gluster_pmap, GLUSTER_PMAP_PROGRAM, 1, gluster_pmap_proc,
 							hf_gluster_pmap_proc);
 }
 
@@ -264,7 +264,7 @@ proto_reg_handoff_gluster_dump(void)
 {
 	rpc_init_prog(proto_gluster_dump, GLUSTER_DUMP_PROGRAM,
 							ett_gluster_dump);
-	rpc_init_proc_table(GLUSTER_DUMP_PROGRAM, 1, gluster_dump_proc,
+	rpc_init_proc_table(proto_gluster_dump, GLUSTER_DUMP_PROGRAM, 1, gluster_dump_proc,
 							hf_gluster_dump_proc);
 }
 

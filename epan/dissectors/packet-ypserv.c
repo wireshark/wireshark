@@ -644,9 +644,9 @@ proto_reg_handoff_ypserv(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc,
+	rpc_init_proc_table(proto_ypserv, YPSERV_PROGRAM, 1, ypserv1_proc,
 	    hf_ypserv_procedure_v1);
-	rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc,
+	rpc_init_proc_table(proto_ypserv, YPSERV_PROGRAM, 2, ypserv2_proc,
 	    hf_ypserv_procedure_v2);
 }
 

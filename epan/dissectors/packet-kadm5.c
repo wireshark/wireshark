@@ -140,7 +140,7 @@ proto_reg_handoff_kadm5(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_kadm5, KADM5_PROGRAM, ett_kadm5);
 	/* Register the procedure tables */
-	rpc_init_proc_table(KADM5_PROGRAM, 2, kadm5_v2_proc,
+	rpc_init_proc_table(proto_kadm5, KADM5_PROGRAM, 2, kadm5_v2_proc,
 	    hf_kadm5_procedure_v2);
 }
 

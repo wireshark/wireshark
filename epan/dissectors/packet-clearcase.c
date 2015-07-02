@@ -74,7 +74,7 @@ proto_reg_handoff_clearcase(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_clearcase, CLEARCASE_PROGRAM, ett_clearcase);
 	/* Register the procedure tables */
-	rpc_init_proc_table(CLEARCASE_PROGRAM, 3, clearcase3_proc, hf_clearcase_procedure_v3);
+	rpc_init_proc_table(proto_clearcase, CLEARCASE_PROGRAM, 3, clearcase3_proc, hf_clearcase_procedure_v3);
 }
 
 /*

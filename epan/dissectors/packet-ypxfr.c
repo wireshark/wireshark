@@ -74,7 +74,7 @@ proto_reg_handoff_ypxfr(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc, hf_ypxfr_procedure_v1);
+	rpc_init_proc_table(proto_ypxfr, YPXFR_PROGRAM, 1, ypxfr1_proc, hf_ypxfr_procedure_v1);
 }
 
 /*

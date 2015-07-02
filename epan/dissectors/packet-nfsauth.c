@@ -78,7 +78,7 @@ proto_reg_handoff_nfsauth(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfsauth, NFSAUTH_PROGRAM, ett_nfsauth);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFSAUTH_PROGRAM, 1, nfsauth1_proc, hf_nfsauth_procedure_v1);
+	rpc_init_proc_table(proto_nfsauth, NFSAUTH_PROGRAM, 1, nfsauth1_proc, hf_nfsauth_procedure_v1);
 }
 
 /*

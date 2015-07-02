@@ -874,17 +874,17 @@ void
 proto_reg_handoff_gluster_gd_mgmt(void)
 {
 	rpc_init_prog(proto_gd_mgmt, GD_MGMT_PROGRAM, ett_gd_mgmt);
-	rpc_init_proc_table(GD_MGMT_PROGRAM, 1, gd_mgmt_proc, hf_gd_mgmt_proc);
-	rpc_init_proc_table(GD_MGMT_PROGRAM, 2, gd_mgmt_2_proc,
+	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 1, gd_mgmt_proc, hf_gd_mgmt_proc);
+	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 2, gd_mgmt_2_proc,
 							hf_gd_mgmt_2_proc);
-	rpc_init_proc_table(GD_MGMT_PROGRAM, 3, gd_mgmt_3_proc,
+	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 3, gd_mgmt_3_proc,
 							hf_gd_mgmt_3_proc);
 
 	rpc_init_prog(proto_gd_brick, GD_BRICK_PROGRAM, ett_gd_brick);
-	rpc_init_proc_table(GD_BRICK_PROGRAM, 2, gd_mgmt_brick_2_proc,
+	rpc_init_proc_table(proto_gd_brick, GD_BRICK_PROGRAM, 2, gd_mgmt_brick_2_proc,
 						hf_gd_mgmt_brick_2_proc);
 	rpc_init_prog(proto_gd_friend, GD_FRIEND_PROGRAM, ett_gd_friend);
-	rpc_init_proc_table(GD_FRIEND_PROGRAM, 2,glusterd_friend_proc,
+	rpc_init_proc_table(proto_gd_friend, GD_FRIEND_PROGRAM, 2,glusterd_friend_proc,
 						hf_glusterd_friend_proc);
 }
 

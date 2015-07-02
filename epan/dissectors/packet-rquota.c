@@ -299,8 +299,8 @@ proto_reg_handoff_rquota(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc, hf_rquota_procedure_v1);
-	rpc_init_proc_table(RQUOTA_PROGRAM, 2, rquota2_proc, hf_rquota_procedure_v2);
+	rpc_init_proc_table(proto_rquota, RQUOTA_PROGRAM, 1, rquota1_proc, hf_rquota_procedure_v1);
+	rpc_init_proc_table(proto_rquota, RQUOTA_PROGRAM, 2, rquota2_proc, hf_rquota_procedure_v2);
 }
 
 /*

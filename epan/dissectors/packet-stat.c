@@ -350,7 +350,7 @@ proto_reg_handoff_stat(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(hfi_stat->id, STAT_PROGRAM, ett_stat);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STAT_PROGRAM, 1, stat1_proc, hfi_stat_procedure_v1.id);
+	rpc_init_proc_table(hfi_stat->id, STAT_PROGRAM, 1, stat1_proc, hfi_stat_procedure_v1.id);
 }
 
 /*

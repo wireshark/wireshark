@@ -103,7 +103,7 @@ proto_reg_handoff_statnotify(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_statnotify, STATNOTIFY_PROGRAM, ett_statnotify);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify1_proc, hf_statnotify_procedure_v1);
+	rpc_init_proc_table(proto_statnotify, STATNOTIFY_PROGRAM, 1, statnotify1_proc, hf_statnotify_procedure_v1);
 }
 
 /*

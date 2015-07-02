@@ -164,7 +164,7 @@ proto_reg_handoff_yppasswd(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_yppasswd, YPPASSWD_PROGRAM, ett_yppasswd);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPPASSWD_PROGRAM, 1, yppasswd1_proc, hf_yppasswd_procedure_v1);
+	rpc_init_proc_table(proto_yppasswd, YPPASSWD_PROGRAM, 1, yppasswd1_proc, hf_yppasswd_procedure_v1);
 }
 
 /*

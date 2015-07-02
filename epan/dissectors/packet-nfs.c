@@ -10300,8 +10300,8 @@ void reg_callback(int cbprog)
 	 * but some Linux kernels set this field to 1.  "Temporarily",
 	 * accommodate these servers.
 	 */
-	rpc_init_proc_table(cbprog, 1, nfs_cb_proc, hf_nfs4_cb_procedure);
-	rpc_init_proc_table(cbprog, 4, nfs_cb_proc, hf_nfs4_cb_procedure);
+	rpc_init_proc_table(proto_nfs, cbprog, 1, nfs_cb_proc, hf_nfs4_cb_procedure);
+	rpc_init_proc_table(proto_nfs, cbprog, 4, nfs_cb_proc, hf_nfs4_cb_procedure);
 }
 
 void
@@ -12661,9 +12661,9 @@ proto_reg_handoff_nfs(void)
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, hf_nfs2_procedure);
-	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, hf_nfs3_procedure);
-	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, hf_nfs4_procedure);
+	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 2, nfs2_proc, hf_nfs2_procedure);
+	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 3, nfs3_proc, hf_nfs3_procedure);
+	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 4, nfs4_proc, hf_nfs4_procedure);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_SVR4, fhandle_handle);

@@ -124,7 +124,6 @@ typedef struct _rpc_call_info_value {
 	flavor_t flavor;
 	guint32 gss_proc;
 	guint32 gss_svc;
-	struct _rpc_proc_info_value*	proc_info;
 	gboolean request;	/* Is this a request or not ?*/
 	nstime_t req_time;
 	void *private_data;
@@ -142,7 +141,7 @@ typedef struct _vsff {
 
 extern const value_string rpc_auth_flavor[];
 
-WS_DLL_PUBLIC void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
+WS_DLL_PUBLIC void rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
     int procedure_hf);
 WS_DLL_PUBLIC void rpc_init_prog(int proto, guint32 prog, int ett);
 WS_DLL_PUBLIC const char *rpc_prog_name(guint32 prog);
@@ -205,17 +204,6 @@ typedef struct _rpc_proc_info_key {
 	guint32	vers;
 	guint32	proc;
 } rpc_proc_info_key;
-
-typedef struct _rpc_proc_info_value {
-	const gchar	*name;
-	new_dissector_t dissect_call;
-	new_dissector_t dissect_reply;
-} rpc_proc_info_value;
-
-/* rpc_procs is also used in tap. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-WS_DLL_PUBLIC GHashTable *rpc_procs;
 
 typedef struct rpcstat_tap_data
 {
