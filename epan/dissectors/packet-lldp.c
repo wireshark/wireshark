@@ -627,6 +627,16 @@ static const value_string cisco_subtypes[] = {
 	{ 0, NULL }
 };
 
+/* 802.3 Power Class */
+static const value_string power_class_802_3[] = {
+	{ 1,	"0" },
+	{ 2,	"1" },
+	{ 3,	"2" },
+	{ 4,	"3" },
+	{ 5,	"4" },
+	{ 0, NULL }
+};
+
 /* 802.3 Power Type */
 static const value_string power_type_802_3[] = {
 	{ 0,	"Type 2 PSE Device" },
@@ -4420,7 +4430,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_mdi_power_class,
 			{ "Power Class", "lldp.ieee.802_3.mdi_power_class", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }
+			VALS(power_class_802_3), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_power_type,
 			{ "Power Type", "lldp.ieee.802_3.mdi_power_type", FT_UINT8, BASE_DEC,
