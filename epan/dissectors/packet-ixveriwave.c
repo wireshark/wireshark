@@ -732,7 +732,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
         } else {
             phdr.phy = PHDR_802_11_PHY_11N;
-            phdr.phy_info.info_11ac.presence_flags =
+            phdr.phy_info.info_11n.presence_flags =
                 PHDR_802_11N_HAS_MCS_INDEX |
                 PHDR_802_11N_HAS_SHORT_GI |
                 PHDR_802_11N_HAS_NESS;
