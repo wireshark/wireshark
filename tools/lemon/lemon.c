@@ -1781,13 +1781,13 @@ PRIVATE char *msort(
     list = NEXT(list);
     NEXT(ep) = 0;
     for(i=0; i<LISTSIZE-1 && set[i]!=0; i++){
-      ep = merge(ep,set[i],cmp,offset);
+      ep = merge(ep,set[i],cmp,(int)offset);
       set[i] = 0;
     }
     set[i] = ep;
   }
   ep = 0;
-  for(i=0; i<LISTSIZE; i++) if( set[i] ) ep = merge(set[i],ep,cmp,offset);
+  for(i=0; i<LISTSIZE; i++) if( set[i] ) ep = merge(set[i],ep,cmp,(int)offset);
   return ep;
 }
 /************************ From the file "option.c" **************************/
@@ -1925,7 +1925,7 @@ static int handleswitch(int i, FILE *err)
         break;
       case OPT_INT:
       case OPT_FINT:
-        lv = strtol(cp,&end,0);
+        lv = (int)strtol(cp,&end,0);
         if( *end ){
           if( err ){
             fprintf(err,"%sillegal character in integer argument.\n",emsg);
@@ -2684,7 +2684,7 @@ void Parse(struct lemon *gp)
   struct pstate ps;
   FILE *fp;
   char *filebuf;
-  unsigned int filesize;
+  unsigned long int filesize;
   int lineno;
   int c;
   char *cp, *nextcp;
