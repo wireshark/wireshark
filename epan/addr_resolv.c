@@ -1037,34 +1037,6 @@ try_resolv:
 
 } /* host_lookup6 */
 
-static const gchar *
-solve_address_to_name(const address *addr)
-{
-    switch (addr->type) {
-
-        case AT_ETHER:
-            return get_ether_name((const guint8 *)addr->data);
-
-        case AT_IPv4: {
-                          guint32 ip4_addr;
-                          memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
-                          return get_hostname(ip4_addr);
-                      }
-
-        case AT_IPv6: {
-                          struct e_in6_addr ip6_addr;
-                          memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
-                          return get_hostname6(&ip6_addr);
-                      }
-
-        case AT_STRINGZ:
-                      return (const gchar *)addr->data;
-
-        default:
-                      return NULL;
-    }
-}
-
 /*
  * Ethernet / manufacturer resolution
  *
@@ -3005,32 +2977,6 @@ sctp_port_to_display(wmem_allocator_t *allocator, guint port)
     return wmem_strdup(allocator, serv_name_lookup(port, PT_SCTP));
 
 } /* sctp_port_to_display */
-
-const gchar *
-address_to_display(wmem_allocator_t *allocator, const address *addr)
-{
-    gchar *str = NULL;
-    const gchar *result = solve_address_to_name(addr);
-
-    if (result != NULL) {
-        str = wmem_strdup(allocator, result);
-    }
-    else if (addr->type == AT_NONE) {
-        str = wmem_strdup(allocator, "NONE");
-    }
-    else {
-        str = (gchar *) wmem_alloc(allocator, MAX_ADDR_STR_LEN);
-        address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
-    }
-
-    return str;
-}
-
-const gchar *
-get_addr_name(const address *addr)
-{
-    return solve_address_to_name(addr);
-}
 
 gchar *
 get_ether_name(const guint8 *addr)

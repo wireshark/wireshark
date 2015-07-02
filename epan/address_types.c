@@ -929,6 +929,58 @@ void address_to_str_buf(const address* addr, gchar *buf, int buf_len)
     at->addr_to_str(addr, buf, buf_len);
 }
 
+const gchar *
+address_to_name(const address *addr)
+{
+    address_type_t *at;
+
+    ADDR_TYPE_LOOKUP(addr->type, at);
+
+    if (at == NULL)
+    {
+        return NULL;
+    }
+
+    /*
+     * XXX - addr_name_res_str is expected to return a string from
+     * a persistent database, so that it lives a long time, past
+     * the lifetime of addr itself.
+     *
+     * We'd like to avoid copying, so this is what we do here.
+     */
+    switch (addr->type) {
+
+    case AT_STRINGZ:
+        return (const gchar *)addr->data;
+
+    default:
+        if (at->addr_name_res_str != NULL)
+            return at->addr_name_res_str(addr);
+        else
+            return NULL;
+    }
+}
+
+const gchar *
+address_to_display(wmem_allocator_t *allocator, const address *addr)
+{
+    gchar *str = NULL;
+    const gchar *result = address_to_name(addr);
+
+    if (result != NULL) {
+        str = wmem_strdup(allocator, result);
+    }
+    else if (addr->type == AT_NONE) {
+        str = wmem_strdup(allocator, "NONE");
+    }
+    else {
+        str = (gchar *) wmem_alloc(allocator, MAX_ADDR_STR_LEN);
+        address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
+    }
+
+    return str;
+}
+
 static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, int buf_len)
 {
     address_type_t *at;

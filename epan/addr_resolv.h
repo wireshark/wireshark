@@ -131,20 +131,6 @@ extern gchar *dccp_port_to_display(wmem_allocator_t *allocator, guint port);
 WS_DLL_PUBLIC gchar *sctp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
- * address_to_display takes as input an "address", as defined in address.h */
-/* it returns a string that contains: */
-/*  - if the address is of a type that can be translated into a name, and the user */
-/*    has activated name resolution, the translated name */
-/*  - if the address is of type AT_NONE, a pointer to the string "NONE" */
-/*  - if the address is of any other type, the result of address_to_str on the argument, */
-/*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
-/*    address 10.10.10.10 */
-WS_DLL_PUBLIC
-const gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
-
-const gchar *get_addr_name(const address *addr);
-
-/*
  * Asynchronous host name lookup initialization, processing, and cleanup
  */
 

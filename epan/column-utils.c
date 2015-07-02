@@ -1853,7 +1853,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
     return;
   }
 
-  if (res && (name = get_addr_name(addr)) != NULL)
+  if (res && (name = address_to_name(addr)) != NULL)
     col_item->col_data = name;
   else {
     col_item->col_data = col_item->col_buf;
