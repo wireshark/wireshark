@@ -3665,8 +3665,8 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 			else if (o125_tr111_opt[subopt].ftype == oui) {
 				/* Get hex string.  Expecting 6 characters. */
 				gchar   *oui_string =  tvb_get_string_enc(wmem_packet_scope(), tvb, suboptoff, subopt_len, ENC_ASCII);
-				/* Convert to OUI number */
-				long oui_number = strtol(oui_string, NULL, 16);
+				/* Convert to OUI number.  Only 3 bytes so no data lost in downcast. */
+				guint32 oui_number = (guint32)strtol(oui_string, NULL, 16);
 				/* Add item using oui_vals */
 				proto_tree_add_uint(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, oui_number);
 			} else if (o125_tr111_opt[subopt].phf == NULL)
