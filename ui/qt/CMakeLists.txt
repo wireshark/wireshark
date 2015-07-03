@@ -63,6 +63,9 @@ set(WIRESHARK_QT_HEADERS
 	follow_stream_dialog.h
 	follow_stream_text.h
 	font_color_preferences_frame.h
+	funnel_string_dialog.h
+	funnel_text_dialog.h
+	funnel_statistics.h
 	import_text_dialog.h
 	interface_tree.h
 	io_graph_dialog.h
@@ -182,6 +185,8 @@ set(WIRESHARK_QT_SRC
 	follow_stream_dialog.cpp
 	follow_stream_text.cpp
 	font_color_preferences_frame.cpp
+	funnel_string_dialog.cpp
+	funnel_text_dialog.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
 	label_stack.cpp
@@ -262,6 +267,7 @@ endif()
 set(WIRESHARK_QT_TAP_SRC
 	conversation_dialog.cpp
 	endpoint_dialog.cpp
+	funnel_statistics.cpp
 	io_graph_dialog.cpp
 	stats_tree_dialog.cpp
 )
@@ -293,6 +299,8 @@ set(WIRESHARK_QT_UI
 	filter_expressions_preferences_frame.ui
 	follow_stream_dialog.ui
 	font_color_preferences_frame.ui
+	funnel_string_dialog.ui
+	funnel_text_dialog.ui
 	import_text_dialog.ui
 	io_graph_dialog.ui
 	layout_preferences_frame.ui

@@ -77,6 +77,8 @@ public:
     // Map a register_stat_group_t to a list of stat_tap_ui.title
     void addStatisticsGroupItem(int group, QAction *sg_action);
     QList<QAction *>statisticsGroupItems(int group);
+    void addFunnelGroupItem(int group, QAction *fg_action);
+    QList<QAction *> funnelGroupItems(int group);
 
     void allSystemsGo();
     void refreshLocalInterfaces();

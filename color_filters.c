@@ -139,7 +139,7 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
 
 /* Set the filter off a temporary colorfilters and enable it */
 void
-color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
+color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
 {
     gchar          *name = NULL;
     const gchar    *tmpfilter = NULL;

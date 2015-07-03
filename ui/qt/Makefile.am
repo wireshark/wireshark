@@ -164,6 +164,10 @@ follow_stream_dialog.cpp: ui_follow_stream_dialog.h
 
 font_color_preferences_frame.cpp font_color_preferences_frame.h: ui_font_color_preferences_frame.h
 
+funnel_string_dialog.cpp funnel_string_dialog.h: ui_funnel_string_dialog.h
+
+funnel_text_dialog.cpp funnel_text_dialog.h: ui_funnel_text_dialog.h
+
 import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
 
 io_graph_dialog.cpp io_graph_dialog.h: ui_io_graph_dialog.h

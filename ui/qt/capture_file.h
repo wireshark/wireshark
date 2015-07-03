@@ -72,6 +72,9 @@ public:
      */
     void retapPackets();
 
+    /** Re;load the capture file
+     */
+    void reload();
 
     // XXX This shouldn't be needed.
     static capture_file *globalCapFile();

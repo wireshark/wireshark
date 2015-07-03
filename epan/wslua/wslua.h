@@ -295,7 +295,7 @@ struct _wslua_dir {
 };
 
 struct _wslua_progdlg {
-    funnel_progress_window_t* pw;
+    struct progdlg* pw;
     char* title;
     char* task;
     gboolean stopped;

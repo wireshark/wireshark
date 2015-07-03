@@ -85,6 +85,7 @@ static void funnel_logger(const gchar *log_domain _U_,
 
 
 static const funnel_ops_t funnel_ops = {
+    NULL,
     new_text_window,
     text_window_set_text,
     text_window_append,

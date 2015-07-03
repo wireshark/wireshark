@@ -38,14 +38,10 @@
 // - Start adding the progress bar to dialogs.
 // - Don't complain so loudly when the user stops a capture.
 
-progdlg_t *
-delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-                            gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *start_time, gfloat progress)
-{
+progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+                               gboolean terminate_is_stop, gboolean *stop_flag) {
     Q_UNUSED(task_title);
     Q_UNUSED(item_title);
-    Q_UNUSED(start_time);
 
     CaptureFileProgressFrame *cfpf;
     QWidget *main_window;
@@ -65,7 +61,18 @@ delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_t
     if (!cfpf) {
         return NULL;
     }
-    return cfpf->show(true, terminate_is_stop, stop_flag, progress * 100);
+    return cfpf->show(true, terminate_is_stop, stop_flag, 0);
+}
+
+progdlg_t *
+delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+                            gboolean terminate_is_stop, gboolean *stop_flag,
+                            const GTimeVal *start_time, gfloat progress)
+{
+    Q_UNUSED(start_time);
+    progdlg_t *progress_dialog = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop, stop_flag);
+    update_progress_dlg(progress_dialog, progress, item_title);
+    return progress_dialog;
 }
 
 /*

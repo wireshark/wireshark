@@ -61,6 +61,7 @@
 
 class AccordionFrame;
 class ByteViewTab;
+class FunnelStatistics;
 class MainWelcome;
 class PacketList;
 class ProtoTree;
@@ -136,6 +137,7 @@ private:
     QActionGroup *show_hide_actions_;
     QActionGroup *time_display_actions_;
     QActionGroup *time_precision_actions_;
+    FunnelStatistics *funnel_statistics_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -207,7 +209,8 @@ public slots:
      * @return True on success, false on failure.
      */
     // XXX We might want to return a cf_read_status_t or a CaptureFile.
-    bool openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString(), unsigned int type = WTAP_TYPE_AUTO);
+    bool openCaptureFile(QString& cf_path, QString& display_filter, unsigned int type);
+    bool openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
     void updateForUnsavedChanges();
     void layoutPanes();
@@ -261,6 +264,7 @@ private slots:
     void addStatsPluginsToMenu();
     void addStatisticsMenus();
     void addExternalMenus();
+    void addFunnelMenus();
 
     void startInterfaceCapture(bool valid);
 

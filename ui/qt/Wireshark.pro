@@ -227,6 +227,8 @@ FORMS += \
     filter_expressions_preferences_frame.ui \
     follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
+    funnel_string_dialog.ui \
+    funnel_text_dialog.ui \
     import_text_dialog.ui \
     io_graph_dialog.ui \
     layout_preferences_frame.ui \
@@ -299,6 +301,9 @@ HEADERS += $$HEADERS_WS_C \
     follow_stream_dialog.h \
     follow_stream_text.h \
     font_color_preferences_frame.h \
+    funnel_string_dialog.h \
+    funnel_text_dialog.h \
+    funnel_statistics.h \
     layout_preferences_frame.h \
     lbm_lbtrm_transport_dialog.h \
     lbm_lbtru_transport_dialog.h \
@@ -662,6 +667,9 @@ SOURCES += \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \
     font_color_preferences_frame.cpp \
+    funnel_string_dialog.cpp \
+    funnel_text_dialog.cpp \
+    funnel_statistics.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \
     io_graph_dialog.cpp \

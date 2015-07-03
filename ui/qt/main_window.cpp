@@ -47,6 +47,7 @@
 #include "byte_view_tab.h"
 #include "display_filter_edit.h"
 #include "export_dissection_dialog.h"
+#include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "packet_list.h"
 #include "proto_tree.h"
@@ -202,6 +203,7 @@ MainWindow::MainWindow(QWidget *parent) :
     show_hide_actions_(NULL),
     time_display_actions_(NULL),
     time_precision_actions_(NULL),
+    funnel_statistics_(new FunnelStatistics(this, capture_file_)),
     capture_stopping_(false),
     capture_filter_valid_(false),
 #ifdef _WIN32
@@ -239,6 +241,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatisticsMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addFunnelMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -262,6 +265,11 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
+    connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));
+    connect(funnel_statistics_, SIGNAL(setDisplayFilter(QString)), df_edit, SLOT(setText(QString)));
+    connect(funnel_statistics_, SIGNAL(applyDisplayFilter()), df_combo_box_, SLOT(applyDisplayFilter()));
+    connect(funnel_statistics_, SIGNAL(openCaptureFile(QString&,QString&)),
+            this, SLOT(openCaptureFile(QString&,QString&)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     initMainToolbarIcons();
@@ -1971,8 +1979,6 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 
 void MainWindow::addStatisticsMenus()
 {
-
-    // Unsorted
     // actionStatistics_REGISTER_STAT_GROUP_UNSORTED should exist and be.
     // invisible.
     QList<QAction *>unsorted_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_UNSORTED);
@@ -2063,6 +2069,43 @@ void MainWindow::addExternalMenus()
 
         /* Iterate Loop */
         user_menu = g_list_next (user_menu);
+    }
+}
+
+void MainWindow::addFunnelMenus()
+{
+    // XXX Add support for MENU_STAT_UNSORTED, MENU_STAT_GENERIC, etc. We
+    // should probably add a common routine that we can use in
+    // addStatisticsMenus as well.
+    QList<QAction *>funnel_actions = wsApp->funnelGroupItems(REGISTER_TOOLS_GROUP_UNSORTED);
+
+    // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
+    // We've added a placeholder in order to make sure the "Tools" menu is
+    // visible. Hide it as needed.
+    if (funnel_actions.length() > 0) {
+        main_ui_->actionToolsPlaceholder->setVisible(false);
+    }
+
+    foreach (QAction *tools_action, funnel_actions) {
+        QStringList menu_path = tools_action->text().split('/');
+        QMenu *cur_menu = main_ui_->menuTools;
+        while (menu_path.length() > 1) {
+            QString menu_title = menu_path.takeFirst();
+#if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
+            QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+#else
+            QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower());
+            if (submenu && submenu->parent() != cur_menu) submenu = NULL;
+#endif
+            if (!submenu) {
+                submenu = cur_menu->addMenu(menu_title);
+                submenu->setObjectName(menu_title.toLower());
+            }
+            cur_menu = submenu;
+        }
+        tools_action->setText(menu_path.last());
+        cur_menu->addAction(tools_action);
+        connect(tools_action, SIGNAL(triggered(bool)), funnel_statistics_, SLOT(funnelActionTriggered()));
     }
 }
 

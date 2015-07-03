@@ -85,7 +85,7 @@ color_filters_enable(gboolean enable);
  * @param disabled whether the filter-rule should be disabled
  */
 void
-color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled);
+color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled);
 
 /** Reset the temporary color filters
  *

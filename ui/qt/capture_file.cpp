@@ -96,6 +96,13 @@ void CaptureFile::retapPackets()
     }
 }
 
+void CaptureFile::reload()
+{
+    if (cap_file_ && cap_file_->state == FILE_READ_DONE) {
+        cf_reload(cap_file_);
+    }
+}
+
 void CaptureFile::stopLoading()
 {
     setCaptureStopFlag(true);

@@ -539,6 +539,12 @@
     <addaction name="actionATT_Server_Attributes"/>
     <addaction name="actionDevices"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionToolsPlaceholder"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -547,6 +553,7 @@
    <addaction name="menuAnalyze"/>
    <addaction name="menuStatistics"/>
    <addaction name="menuTelephony"/>
+   <addaction name="menuTools"/>
    <addaction name="menuBluetooth"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -2364,6 +2371,20 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionToolsPlaceholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No tools registered</string>
+   </property>
+   <property name="toolTip">
+    <string>No tools have been registered.</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

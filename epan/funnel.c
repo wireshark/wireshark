@@ -37,6 +37,7 @@ typedef struct _funnel_menu_t {
     struct _funnel_menu_t* next;
 } funnel_menu_t;
 
+/* XXX This assumes one main window and one capture file. */
 static const funnel_ops_t* ops = NULL;
 static funnel_menu_t* menus = NULL;
 

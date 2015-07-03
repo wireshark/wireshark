@@ -292,7 +292,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progres
     pd->stopped = FALSE;
 
     if (ops->new_progress_window) {
-        pd->pw = ops->new_progress_window(pd->title,pd->task,TRUE,&(pd->stopped));
+        pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, TRUE, &(pd->stopped));
     } else {
         WSLUA_ERROR(ProgDlg_new, "GUI not available");
         return 0;
@@ -697,7 +697,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
      Rescan all packets and just run taps - don't reconstruct the display.
      */
     if ( ops->retap_packets ) {
-        ops->retap_packets();
+        ops->retap_packets(ops->ops_id);
     } else {
         WSLUA_ERROR(wslua_retap_packets, "GUI not available");
     }
@@ -737,7 +737,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
         return 0;
     }
 
-    if (! ops->open_file(fname,filter,&error) ) {
+    if (! ops->open_file(ops->ops_id, fname, filter, &error) ) {
         lua_pushboolean(L,FALSE);
 
         if (error) {
@@ -761,7 +761,7 @@ WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text. */
         return 0;
     }
 
-    filter_str = ops->get_filter();
+    filter_str = ops->get_filter(ops->ops_id);
     lua_pushstring(L,filter_str);
 
     return 1;
@@ -776,7 +776,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
         return 0;
     }
 
-    ops->set_filter(filter_str);
+    ops->set_filter(ops->ops_id, filter_str);
 
     return 0;
 }
@@ -803,7 +803,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the mai
         return 0;
     }
 
-    ops->apply_filter();
+    ops->apply_filter(ops->ops_id);
 
     return 0;
 }
@@ -816,7 +816,7 @@ WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file. 
         return 0;
     }
 
-    ops->reload();
+    ops->reload(ops->ops_id);
 
     return 0;
 }
