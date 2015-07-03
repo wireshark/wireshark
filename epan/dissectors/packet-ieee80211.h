@@ -65,6 +65,166 @@ WS_DLL_PUBLIC const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2];
 
 WS_DLL_PUBLIC value_string_ext ieee80211_supported_rates_vals_ext;
 
+/*
+ * Extract the protocol version from the frame control field
+ */
+#define FCF_PROT_VERSION(x)  ((x) & 0x3)
+
+/*
+ * Extract the frame type from the frame control field.
+ */
+#define FCF_FRAME_TYPE(x)    (((x) & 0xC) >> 2)
+
+/*
+ * Extract the frame subtype from the frame control field.
+ */
+#define FCF_FRAME_SUBTYPE(x) (((x) & 0xF0) >> 4)
+
+/*
+ * Extract the control frame extension from the frame control field.
+ */
+#define FCF_FRAME_EXTENSION(x) (((x) & 0xF00) >> 8)
+
+/*
+ * Checks if the frame is control frame extension.
+ */
+#define IS_FRAME_EXTENSION(x) ((FCF_FRAME_TYPE(x) == 0x1 && FCF_FRAME_SUBTYPE(x) == 0x6) ? 1 : 0)
+
+/*
+ * Convert the frame type and subtype from the frame control field into
+ * one of the MGT_, CTRL_, or DATA_ values.
+ * Now includes extension subtype in case present.
+ */
+#define COMPOSE_FRAME_TYPE(x) ((FCF_FRAME_TYPE(x) == 0x1 && FCF_FRAME_SUBTYPE(x) == 0x6) ? (((x & 0x0C)<< 6) + ((x) & 0xF0) + FCF_FRAME_EXTENSION(x)) : (((x & 0x0C)<< 2)+FCF_FRAME_SUBTYPE(x)))  /* Create key to (sub)type */
+
+/*
+ * The subtype field of a data frame is, in effect, composed of 4 flag
+ * bits - CF-Ack, CF-Poll, Null (means the frame doesn't actually have
+ * any data), and QoS.
+ */
+#define DATA_FRAME_IS_CF_ACK(x)  ((x) & 0x01)
+#define DATA_FRAME_IS_CF_POLL(x) ((x) & 0x02)
+#define DATA_FRAME_IS_NULL(x)    ((x) & 0x04)
+#define DATA_FRAME_IS_QOS(x)     ((x) & 0x08)
+
+/*
+ * Extract the flags from the frame control field.
+ * Now includes subset of flags when the subtype is control frame extension.
+ */
+#define FCF_FLAGS(x)           ((FCF_FRAME_TYPE(x) == 0x1 && FCF_FRAME_SUBTYPE(x) == 0x6) ? (((x) & 0xF000) >> 12) : (((x) & 0xFF00) >> 8))
+
+/*
+ * Bits from the flags field.
+ */
+#define FLAG_TO_DS            0x01
+#define FLAG_FROM_DS          0x02
+#define FLAG_MORE_FRAGMENTS   0x04
+#define FLAG_RETRY            0x08
+#define FLAG_POWER_MGT        0x10
+#define FLAG_MORE_DATA        0x20
+#define FLAG_PROTECTED        0x40
+#define FLAG_ORDER            0x80
+
+/*
+ * Test bits in the flags field.
+ */
+/*
+ * XXX - Only HAVE_FRAGMENTS, IS_PROTECTED, and IS_STRICTLY_ORDERED
+ * are in use.  Should the rest be removed?
+ */
+#define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
+#define IS_FROM_DS(x)          ((x) & FLAG_FROM_DS)
+#define HAVE_FRAGMENTS(x)      ((x) & FLAG_MORE_FRAGMENTS)
+#define IS_RETRY(x)            ((x) & FLAG_RETRY)
+#define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
+#define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
+#define IS_PROTECTED(x)        ((x) & FLAG_PROTECTED)
+#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
+
+/*
+ * Extract subfields from the flags field.
+ */
+#define FLAGS_DS_STATUS(x)          ((x) & (FLAG_FROM_DS|FLAG_TO_DS))
+
+/*
+ * Extract an indication of the types of addresses in a data frame from
+ * the frame control field.
+ */
+#define FCF_ADDR_SELECTOR(x) ((x) & ((FLAG_TO_DS|FLAG_FROM_DS) << 8))
+
+#define DATA_ADDR_T1         0
+#define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
+#define DATA_ADDR_T3         (FLAG_TO_DS << 8)
+#define DATA_ADDR_T4         ((FLAG_TO_DS|FLAG_FROM_DS) << 8)
+
+/*
+ * COMPOSE_FRAME_TYPE() values for management frames.
+ */
+#define MGT_ASSOC_REQ          0x00  /* association request        */
+#define MGT_ASSOC_RESP         0x01  /* association response       */
+#define MGT_REASSOC_REQ        0x02  /* reassociation request      */
+#define MGT_REASSOC_RESP       0x03  /* reassociation response     */
+#define MGT_PROBE_REQ          0x04  /* Probe request              */
+#define MGT_PROBE_RESP         0x05  /* Probe response             */
+#define MGT_MEASUREMENT_PILOT  0x06  /* Measurement Pilot          */
+#define MGT_BEACON             0x08  /* Beacon frame               */
+#define MGT_ATIM               0x09  /* ATIM                       */
+#define MGT_DISASS             0x0A  /* Disassociation             */
+#define MGT_AUTHENTICATION     0x0B  /* Authentication             */
+#define MGT_DEAUTHENTICATION   0x0C  /* Deauthentication           */
+#define MGT_ACTION             0x0D  /* Action                     */
+#define MGT_ACTION_NO_ACK      0x0E  /* Action No Ack              */
+#define MGT_ARUBA_WLAN         0x0F  /* Aruba WLAN Specific        */
+
+/*
+ * COMPOSE_FRAME_TYPE() values for control frames.
+ * 0x160 - 0x16A are for control frame extension where type = 1 and subtype =6.
+ */
+#define CTRL_VHT_NDP_ANNC      0x15  /* VHT NDP Announcement           */
+#define CTRL_POLL              0x162  /* Poll                          */
+#define CTRL_SPR               0x163  /* Service Period Request        */
+#define CTRL_GRANT             0x164  /* Grant                         */
+#define CTRL_DMG_CTS           0x165  /* DMG Clear to Send             */
+#define CTRL_DMG_DTS           0x166  /* DMG Denial to Send            */
+#define CTRL_GRANT_ACK         0x167  /* Grant Acknowledgment          */
+#define CTRL_SSW               0x168  /* Sector Sweep                  */
+#define CTRL_SSW_FEEDBACK      0x169  /* Sector Sweep Feedback         */
+#define CTRL_SSW_ACK           0x16A  /* Sector Sweep Acknowledgment   */
+#define CTRL_CONTROL_WRAPPER   0x17  /* Control Wrapper                */
+#define CTRL_BLOCK_ACK_REQ     0x18  /* Block ack Request              */
+#define CTRL_BLOCK_ACK         0x19  /* Block ack                      */
+#define CTRL_PS_POLL           0x1A  /* power-save poll                */
+#define CTRL_RTS               0x1B  /* request to send                */
+#define CTRL_CTS               0x1C  /* clear to send                  */
+#define CTRL_ACKNOWLEDGEMENT   0x1D  /* acknowledgement                */
+#define CTRL_CFP_END           0x1E  /* contention-free period end     */
+#define CTRL_CFP_ENDACK        0x1F  /* contention-free period end/ack */
+
+/*
+ * COMPOSE_FRAME_TYPE() values for data frames.
+ */
+#define DATA                        0x20  /* Data                       */
+#define DATA_CF_ACK                 0x21  /* Data + CF-Ack              */
+#define DATA_CF_POLL                0x22  /* Data + CF-Poll             */
+#define DATA_CF_ACK_POLL            0x23  /* Data + CF-Ack + CF-Poll    */
+#define DATA_NULL_FUNCTION          0x24  /* Null function (no data)    */
+#define DATA_CF_ACK_NOD             0x25  /* CF-Ack (no data)           */
+#define DATA_CF_POLL_NOD            0x26  /* CF-Poll (No data)          */
+#define DATA_CF_ACK_POLL_NOD        0x27  /* CF-Ack + CF-Poll (no data) */
+
+#define DATA_QOS_DATA               0x28  /* QoS Data                   */
+#define DATA_QOS_DATA_CF_ACK        0x29  /* QoS Data + CF-Ack        */
+#define DATA_QOS_DATA_CF_POLL       0x2A  /* QoS Data + CF-Poll      */
+#define DATA_QOS_DATA_CF_ACK_POLL   0x2B  /* QoS Data + CF-Ack + CF-Poll    */
+#define DATA_QOS_NULL               0x2C  /* QoS Null        */
+#define DATA_QOS_CF_POLL_NOD        0x2E  /* QoS CF-Poll (No Data)      */
+#define DATA_QOS_CF_ACK_POLL_NOD    0x2F  /* QoS CF-Ack + CF-Poll (No Data) */
+
+/*
+ * COMPOSE_FRAME_TYPE() values for extension frames.
+ */
+#define EXTENSION_DMG_BEACON         0x30  /* Extension DMG beacon */
+
 struct _wlan_stats {
   guint8 channel;
   guint8 ssid_len;
