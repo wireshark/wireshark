@@ -1303,8 +1303,8 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
 	{0x0009027C, "FSCTL_GET_INTEGRITY_INFORMATION"},
 	{0x00090284, "FSCTL_QUERY_FILE_REGIONS"},
-	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},
-	{0x00090304, "FSCTL_SVHDX_SYNC_TUNNEL_REQUEST"},
+	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},      /* dissector implemented */
+	{0x00090304, "FSCTL_SVHDX_SYNC_TUNNEL_REQUEST"},              /* dissector implemented */
 	{0x00090308, "FSCTL_SVHDX_SET_INITIATOR_INFORMATION"},
 	{0x0009030C, "FSCTL_SET_EXTERNAL_BACKING"},
 	{0x00090310, "FSCTL_GET_EXTERNAL_BACKING"},
@@ -1319,7 +1319,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
 	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
 	{0x00098098, "FSCTL_SET_OBJECT_ID"},			      /* dissector implemented */
-	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"}, /* no data in/out */  /* dissector implemented */
+	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"}, /* no data in/out */
 	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
 	{0x000980AC, "FSCTL_DELETE_REPARSE_POINT"},
 	{0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},		      /* dissector implemented */
@@ -1327,8 +1327,8 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
-	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},
-	{0x00110018, "FSCTL_PIPE_WAIT"},
+	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},	      /* dissector implemented */
+	{0x00110018, "FSCTL_PIPE_WAIT"},			      /* dissector implemented */
 	{0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},			      /* dissector implemented */
 	{0x00140078, "FSCTL_SRV_REQUEST_RESUME_KEY"},
 	{0x001401D4, "FSCTL_LMR_REQUEST_RESILIENCY"},		      /* dissector implemented */
@@ -5016,10 +5016,10 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, TRUE);
 		}
 		break;
-	case 0x0011c017:
+	case 0x0011c017: /* FSCTL_PIPE_TRANSCEIVE */
 		dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvb, pinfo, tree, 0, top_tree, data_in);
 		break;
-	case 0x00110018:
+	case 0x00110018: /* FSCTL_PIPE_WAIT */
 		dissect_smb2_FSCTL_PIPE_WAIT(tvb, pinfo, tree, 0, top_tree, data_in);
 		break;
 	case 0x001401D4: /* FSCTL_LMR_REQUEST_RESILIENCY */
@@ -8100,13 +8100,13 @@ proto_register_smb2(void)
 		  { "Method", "smb2.ioctl.function.method", FT_UINT32, BASE_HEX,
 		    VALS(smb2_ioctl_method_vals), 0x00000003, "Method for Ioctl", HFILL }},
 
-	{ &hf_smb2_fsctl_pipe_wait_timeout,
-		{ "Timeout", "smb2.fsctl.wait.timeout", FT_INT64, BASE_DEC,
-		NULL, 0, "Wait timeout", HFILL }},
+		{ &hf_smb2_fsctl_pipe_wait_timeout,
+		  { "Timeout", "smb2.fsctl.wait.timeout", FT_INT64, BASE_DEC,
+		    NULL, 0, "Wait timeout", HFILL }},
 
-	{ &hf_smb2_fsctl_pipe_wait_name,
-		{ "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
-		NULL, 0, "Pipe name", HFILL }},
+		{ &hf_smb2_fsctl_pipe_wait_name,
+		  { "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
+		    NULL, 0, "Pipe name", HFILL }},
 
 		{ &hf_smb2_ioctl_resiliency_timeout,
 		  { "Timeout", "smb2.ioctl.resiliency.timeout", FT_UINT32, BASE_DEC,
