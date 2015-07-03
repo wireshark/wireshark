@@ -3830,6 +3830,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                 &response_time);
     }
 
+    /* Report this packet to the tap */
+    if (!pinfo->flags.in_error_pkt)
+    {
+        tap_queue_packet(sip_tap, pinfo, stat_info);
+        if(have_tap_listener(exported_pdu_tap)){
+            export_sip_pdu(pinfo,tvb);
+        }
+    }
+
     if (datalen > 0) {
         /*
          * There's a message body starting at "offset".
@@ -3987,15 +3996,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     if (global_sip_raw_text)
         tvb_raw_text_add(tvb, orig_offset, offset - orig_offset, tree);
-
-    /* Report this packet to the tap */
-    if (!pinfo->flags.in_error_pkt)
-    {
-        tap_queue_packet(sip_tap, pinfo, stat_info);
-        if(have_tap_listener(exported_pdu_tap)){
-            export_sip_pdu(pinfo,tvb);
-        }
-    }
 
     /* Append a brief summary to the SIP root item */
     if (stat_info->request_method) {

@@ -219,6 +219,7 @@ typedef struct _voip_calls_tapinfo {
     guint16               h225_call_num;
     int                   h225_cstype; /* XXX actually an enum */
     gboolean              h225_is_faststart;
+    guint32               sip_frame_num;
     guint32               actrace_frame_num;
     gint32                actrace_trunk;
     gint32                actrace_direction;

@@ -1051,6 +1051,8 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
 
     const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
 
+    tapinfo->sip_frame_num = pinfo->fd->num;
+
     /* do not consider packets without call_id */
     if (pi->tap_call_id ==NULL) {
         return FALSE;
@@ -1666,8 +1668,10 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             }
             list = g_list_next (list);
         }
-
-        /* add stuff to ACTRACE */
+    /* SIP-Q */
+    } else if (tapinfo->sip_frame_num == tapinfo->q931_frame_num) {
+         /* Do nothing for now */
+    /* add stuff to ACTRACE */
     } else {
         address pstn_add;
 
