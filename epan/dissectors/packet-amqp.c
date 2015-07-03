@@ -269,6 +269,7 @@ typedef struct {
 
 #define AMQP_1_0_TYPE_DESCRIPTOR_CONSTRUCTOR 0x00
 
+#define AMQP_1_0_TYPE_NULL   0x40
 #define AMQP_1_0_TYPE_LIST0   0x45
 #define AMQP_1_0_TYPE_LIST8   0xc0
 #define AMQP_1_0_TYPE_LIST32   0xd0
@@ -424,7 +425,7 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
                       int bound,
                       proto_item *item,
                       int hf_amqp_type,
-                      int hf_amqp_subtype_count,
+                      guint32 hf_amqp_subtype_count,
                       const int **hf_amqp_subtypes,
                       const char *name);
 
@@ -444,7 +445,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                        int bound,
                        proto_item *item,
                        int hf_amqp_type,
-                       int hf_amqp_subtype_count,
+                       guint32 hf_amqp_subtype_count,
                        const int **hf_amqp_subtypes,
                        const char *name);
 
@@ -978,6 +979,31 @@ struct amqp_typeinfo {
 
 /*  AMQP 1-0 type decoding information  */
 
+typedef int (*type_dissector)(tvbuff_t *tvb,
+                              packet_info *pinfo,
+                              guint offset,        /* In tvb where data starts */
+                              guint bound,         /* Last byte in tvb */
+                              guint length,        /* Length of data, if known */
+                              proto_item *item,
+                              int hf_amqp_type);
+
+struct amqp1_typeinfo {
+    guint8          typecode;   /* From AMQP 0-10 spec */
+    const char     *amqp_typename;
+    const int       ftype;
+    guint           known_size;
+    type_dissector  dissector;
+    type_formatter  formatter;
+};
+
+struct amqp_synonym_types_t {
+    const int *hf_none; /* Must be of type FT_NONE */
+    const int *hf_uint; /* FT_UINT */
+    const int *hf_str;  /* FT_STRING */
+    const int *hf_bin;  /* FT_BYTES */
+    const int *hf_guid; /* FT_GUID */
+};
+
 /*  struct for field interpreting format code (i.e. 0x70 for msg.header) to relevant hf_* variable
  *  (here hf_amqp_1_0_messageHeader). If the type is list, next 2 struct items specify how to
  *  interpret list items (in terms of hf_* variable)
@@ -985,28 +1011,14 @@ struct amqp_typeinfo {
 struct amqp_defined_types_t {
     const int format_code;
     int       *hf_amqp_type;
-    int       hf_amqp_subtype_count;
+    guint32   hf_amqp_subtype_count;
     const int **hf_amqp_subtypes;
 };
 
 /* functions for decoding 1.0 type and/or value */
 
-static gboolean decode_fixed_type(tvbuff_t *tvb,
-                                  guint8 code,
-                                  int offset,
-                                  int bound,
-                                  guint8 *type_width_size,
-                                  guint *length_size,
-                                  const char **type_name,
-                                  const char **value);
 
-static proto_item*
-add_1_0_proto_item(proto_item *item,
-             tvbuff_t *tvb,
-             int offset,
-             int length,
-             int hf_amqp_type,
-             const char *no_format_value);
+static struct amqp1_typeinfo* decode_fixed_type(guint8 code);
 
 static void
 get_amqp_1_0_value_formatter(tvbuff_t *tvb,
@@ -1016,7 +1028,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                              int bound,
                              int hf_amqp_type,
                              const char *name,
-                             int hf_amqp_subtype_count,
+                             guint32 hf_amqp_subtype_count,
                              const int **hf_amqp_subtypes,
                              guint *length_size,
                              proto_item *item);
@@ -1027,7 +1039,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
                             int bound,
                             int *hf_amqp_type,
                             const char **name,
-                            int *hf_amqp_subtype_count,
+                            guint32 *hf_amqp_subtype_count,
                             const int ***hf_amqp_subtypes,
                             guint *length_size);
 
@@ -1042,6 +1054,41 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
                                   proto_item *item);
 
 /* functions for decoding particular primitive types */
+
+static int
+dissect_amqp_1_0_fixed(tvbuff_t *tvb, packet_info *pinfo,
+                       guint offset, guint bound _U_, guint length,
+                       proto_item *item, int hf_amqp_type);
+
+static int
+dissect_amqp_1_0_variable(tvbuff_t *tvb, packet_info *pinfo,
+                          guint offset, guint bound, guint length,
+                          proto_item *item, int hf_amqp_type);
+
+static int
+dissect_amqp_1_0_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           guint offset, guint bound _U_, guint length,
+                           proto_item *item, int hf_amqp_type);
+
+static int
+dissect_amqp_1_0_skip(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+                      guint offset _U_, guint bound _U_, guint length _U_,
+                      proto_item *item _U_, int hf_amqp_type _U_);
+
+static int
+dissect_amqp_1_0_zero(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+                      guint offset _U_, guint bound _U_, guint length _U_,
+                      proto_item *item _U_, int hf_amqp_type _U_);
+
+static int
+dissect_amqp_1_0_true(tvbuff_t *tvb, packet_info *pinfo,
+                      guint offset, guint bound _U_, guint length _U_,
+                      proto_item *item, int hf_amqp_type);
+
+static int
+dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo,
+                               guint offset, guint bound _U_, guint length _U_,
+                               proto_item *item, int hf_amqp_type);
 
 static int
 format_amqp_1_0_null(tvbuff_t *tvb _U_,
@@ -1291,277 +1338,53 @@ static int hf_amqp_1_0_saslCode = -1;
 static int hf_amqp_1_0_saslAdditionalData = -1;
 static int hf_amqp_1_0_list = -1;
 static int hf_amqp_1_0_map = -1;
-static int hf_amqp_1_0_array = -1;
-/* sub-hf_* variables for variant sub-types */
-static int hf_amqp_1_0_hostname_str = -1;
-static int hf_amqp_1_0_maxFrameSize_1 = -1;
-static int hf_amqp_1_0_maxFrameSize_4 = -1;
-static int hf_amqp_1_0_incomingWindow_1 = -1;
-static int hf_amqp_1_0_incomingWindow_4 = -1;
-static int hf_amqp_1_0_outgoingWindow_1 = -1;
-static int hf_amqp_1_0_outgoingWindow_4 = -1;
-static int hf_amqp_1_0_linkCredit_1 = -1;
-static int hf_amqp_1_0_linkCredit_4 = -1;
-static int hf_amqp_1_0_available_1 = -1;
-static int hf_amqp_1_0_available_4 = -1;
-static int hf_amqp_1_0_deliveryCount_1 = -1;
-static int hf_amqp_1_0_deliveryCount_4 = -1;
-static int hf_amqp_1_0_sectionNumber_1 = -1;
-static int hf_amqp_1_0_sectionNumber_4 = -1;
-static int hf_amqp_1_0_idleTimeOut_1 = -1;
-static int hf_amqp_1_0_idleTimeOut_4 = -1;
+/* variables for variant sub-types (see amqp_synonym_types)
+ * - fields of type="*" can be of any type
+ * - fields with multiple="true" may contain the type or an array */
 static int hf_amqp_1_0_outgoingLocales_sym = -1;
 static int hf_amqp_1_0_incomingLocales_sym = -1;
 static int hf_amqp_1_0_offeredCapabilities_sym = -1;
 static int hf_amqp_1_0_desiredCapabilities_sym = -1;
-static int hf_amqp_1_0_nextIncomingId_1 = -1;
-static int hf_amqp_1_0_nextIncomingId_4 = -1;
-static int hf_amqp_1_0_sectionOffset_1 = -1;
-static int hf_amqp_1_0_sectionOffset_8 = -1;
-static int hf_amqp_1_0_maxMessageSize_1 = -1;
-static int hf_amqp_1_0_maxMessageSize_8 = -1;
-static int hf_amqp_1_0_nextOutgoingId_1 = -1;
-static int hf_amqp_1_0_nextOutgoingId_4 = -1;
-static int hf_amqp_1_0_deliveryId_1 = -1;
-static int hf_amqp_1_0_deliveryId_4 = -1;
-static int hf_amqp_1_0_deliveryTag_bin = -1;
-static int hf_amqp_1_0_messageFormat_1 = -1;
-static int hf_amqp_1_0_messageFormat_4 = -1;
-static int hf_amqp_1_0_first_1 = -1;
-static int hf_amqp_1_0_first_4 = -1;
-static int hf_amqp_1_0_last_1 = -1;
-static int hf_amqp_1_0_last_4 = -1;
-static int hf_amqp_1_0_remoteChannel_2 = -1;
-static int hf_amqp_1_0_handleMax_1 = -1;
-static int hf_amqp_1_0_handleMax_4 = -1;
-static int hf_amqp_1_0_handle_1 = -1;
-static int hf_amqp_1_0_handle_4 = -1;
-static int hf_amqp_1_0_sndSettleMode_1 = -1;
-static int hf_amqp_1_0_rcvSettleMode_1 = -1;
-static int hf_amqp_1_0_initialDeliveryCount_1 = -1;
-static int hf_amqp_1_0_initialDeliveryCount_4 = -1;
-static int hf_amqp_1_0_description_str = -1;
 static int hf_amqp_1_0_address_str = -1;
-static int hf_amqp_1_0_terminusDurable_1 = -1;
-static int hf_amqp_1_0_terminusDurable_4 = -1;
-static int hf_amqp_1_0_priority_1 = -1;
-static int hf_amqp_1_0_ttl_1 = -1;
-static int hf_amqp_1_0_ttl_4 = -1;
-static int hf_amqp_1_0_expiryPolicy_sym = -1;
-static int hf_amqp_1_0_timeout_1 = -1;
-static int hf_amqp_1_0_timeout_4 = -1;
-static int hf_amqp_1_0_distributionMode_sym = -1;
+static int hf_amqp_1_0_source_str = -1;
+static int hf_amqp_1_0_target_str = -1;
 static int hf_amqp_1_0_outcomes_sym = -1;
 static int hf_amqp_1_0_capabilities_sym = -1;
-static int hf_amqp_1_0_messageId_1 = -1;
+static int hf_amqp_1_0_messageId_uint = -1;
 static int hf_amqp_1_0_messageId_str = -1;
 static int hf_amqp_1_0_messageId_bin = -1;
 static int hf_amqp_1_0_messageId_uuid = -1;
-static int hf_amqp_1_0_messageId_8 = -1;
-static int hf_amqp_1_0_correlationId_1 = -1;
+static int hf_amqp_1_0_correlationId_uint = -1;
 static int hf_amqp_1_0_correlationId_str = -1;
 static int hf_amqp_1_0_correlationId_bin = -1;
 static int hf_amqp_1_0_correlationId_uuid = -1;
-static int hf_amqp_1_0_correlationId_8 = -1;
-static int hf_amqp_1_0_userId_bin = -1;
 static int hf_amqp_1_0_to_str = -1;
-static int hf_amqp_1_0_subject_str = -1;
 static int hf_amqp_1_0_replyTo_str = -1;
-static int hf_amqp_1_0_contentType_sym = -1;
-static int hf_amqp_1_0_contentEncoding_sym = -1;
-static int hf_amqp_1_0_absoluteExpiryTime_timestamp = -1;
-static int hf_amqp_1_0_creationTime_timestamp = -1;
-static int hf_amqp_1_0_groupId_str = -1;
-static int hf_amqp_1_0_groupSequence_1 = -1;
-static int hf_amqp_1_0_groupSequence_4 = -1;
-static int hf_amqp_1_0_replyToGroupId_str = -1;
 static int hf_amqp_1_0_mechanisms_sym = -1;
-static int hf_amqp_1_0_initResponse_bin = -1;
-static int hf_amqp_1_0_saslAdditionalData_bin = -1;
 
-/* Many AMQP variables can have value in either 0,1,2,4,8 or 16 bytes, depending on particular type.
- * To distinguish it among hf_amqp_1_0_* variables, table below "translates" original hf_amqp_1_0_*
- * variable to the proper one based on format code subcategory
+/* Several field can be of multiple types. To distinguish it among hf_amqp_1_0_* variables,
+ * table below "translates" original hf_amqp_1_0_* variable to the type-speficic one.
+ * Each row contains synonym fields for {FT_NONE, FT_UINT, FT_STRING, FT_BYTES, FT_GUID}
+ * NULL indicates no synonym of a given type
+ * FT_NONE field must be always present
  */
-
-const int* hf_amqp_1_0_hostname_[] = { &hf_amqp_1_0_hostname, &hf_amqp_1_0_hostname_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_maxFrameSize_[] = { &hf_amqp_1_0_maxFrameSize, &hf_amqp_1_0_maxFrameSize_1, NULL, &hf_amqp_1_0_maxFrameSize_4, NULL, NULL };
-const int* hf_amqp_1_0_incomingWindow_[] = { &hf_amqp_1_0_incomingWindow, &hf_amqp_1_0_incomingWindow_1, NULL, &hf_amqp_1_0_incomingWindow_4, NULL, NULL };
-const int* hf_amqp_1_0_outgoingWindow_[] = { &hf_amqp_1_0_outgoingWindow, &hf_amqp_1_0_outgoingWindow_1, NULL, &hf_amqp_1_0_outgoingWindow_4, NULL, NULL };
-const int* hf_amqp_1_0_linkCredit_[] = { &hf_amqp_1_0_linkCredit, &hf_amqp_1_0_linkCredit_1, NULL, &hf_amqp_1_0_linkCredit_4, NULL, NULL };
-const int* hf_amqp_1_0_available_[] = { &hf_amqp_1_0_available, &hf_amqp_1_0_available_1, NULL, &hf_amqp_1_0_available_4, NULL, NULL };
-const int* hf_amqp_1_0_deliveryCount_[] = { &hf_amqp_1_0_deliveryCount, &hf_amqp_1_0_deliveryCount_1, NULL, &hf_amqp_1_0_deliveryCount_4, NULL, NULL };
-const int* hf_amqp_1_0_sectionNumber_[] = { &hf_amqp_1_0_sectionNumber, &hf_amqp_1_0_sectionNumber_1, NULL, &hf_amqp_1_0_sectionNumber_4, NULL, NULL };
-const int* hf_amqp_1_0_idleTimeOut_[] = { &hf_amqp_1_0_idleTimeOut, &hf_amqp_1_0_idleTimeOut_1, NULL, &hf_amqp_1_0_idleTimeOut_4, NULL, NULL };
-const int* hf_amqp_1_0_outgoingLocales_[] = { &hf_amqp_1_0_outgoingLocales, &hf_amqp_1_0_outgoingLocales_sym, NULL, &hf_amqp_1_0_outgoingLocales_sym, NULL, NULL };
-const int* hf_amqp_1_0_incomingLocales_[] = { &hf_amqp_1_0_incomingLocales, &hf_amqp_1_0_incomingLocales_sym, NULL, &hf_amqp_1_0_incomingLocales_sym, NULL, NULL };
-const int* hf_amqp_1_0_offeredCapabilities_[] = { &hf_amqp_1_0_offeredCapabilities, &hf_amqp_1_0_offeredCapabilities_sym, NULL, &hf_amqp_1_0_offeredCapabilities_sym, NULL, NULL };
-const int* hf_amqp_1_0_desiredCapabilities_[] = { &hf_amqp_1_0_desiredCapabilities, &hf_amqp_1_0_desiredCapabilities_sym, NULL, &hf_amqp_1_0_desiredCapabilities_sym, NULL, NULL };
-const int* hf_amqp_1_0_nextIncomingId_[] = { &hf_amqp_1_0_nextIncomingId, &hf_amqp_1_0_nextIncomingId_1, NULL, &hf_amqp_1_0_nextIncomingId_4, NULL, NULL };
-const int* hf_amqp_1_0_sectionOffset_[] = { &hf_amqp_1_0_sectionOffset, &hf_amqp_1_0_sectionOffset_1, NULL, NULL, &hf_amqp_1_0_sectionOffset_8, NULL };
-const int* hf_amqp_1_0_maxMessageSize_[] = { &hf_amqp_1_0_maxMessageSize, &hf_amqp_1_0_maxMessageSize_1, NULL, NULL, &hf_amqp_1_0_maxMessageSize_8, NULL };
-const int* hf_amqp_1_0_nextOutgoingId_[] = { &hf_amqp_1_0_nextOutgoingId, &hf_amqp_1_0_nextOutgoingId_1, NULL, &hf_amqp_1_0_nextOutgoingId_4, NULL, NULL };
-const int* hf_amqp_1_0_deliveryId_[] = { &hf_amqp_1_0_deliveryId, &hf_amqp_1_0_deliveryId_1, NULL, &hf_amqp_1_0_deliveryId_4, NULL, NULL };
-const int* hf_amqp_1_0_deliveryTag_[] = { &hf_amqp_1_0_deliveryTag, &hf_amqp_1_0_deliveryTag_bin, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_messageFormat_[] = { &hf_amqp_1_0_messageFormat, &hf_amqp_1_0_messageFormat_1, NULL, &hf_amqp_1_0_messageFormat_4, NULL, NULL };
-const int* hf_amqp_1_0_first_[] = { &hf_amqp_1_0_first, &hf_amqp_1_0_first_1, NULL, &hf_amqp_1_0_first_4, NULL, NULL };
-const int* hf_amqp_1_0_last_[] = { &hf_amqp_1_0_last, &hf_amqp_1_0_last_1, NULL, &hf_amqp_1_0_last_4, NULL, NULL };
-const int* hf_amqp_1_0_remoteChannel_[] = { &hf_amqp_1_0_remoteChannel, NULL, &hf_amqp_1_0_remoteChannel_2, NULL, NULL, NULL };
-const int* hf_amqp_1_0_handleMax_[] = { &hf_amqp_1_0_handleMax, &hf_amqp_1_0_handleMax_1, NULL, &hf_amqp_1_0_handleMax_4, NULL, NULL };
-const int* hf_amqp_1_0_handle_[] = { &hf_amqp_1_0_handle, &hf_amqp_1_0_handle_1, NULL, &hf_amqp_1_0_handle_4, NULL, NULL };
-const int* hf_amqp_1_0_sndSettleMode_[] = { &hf_amqp_1_0_sndSettleMode, &hf_amqp_1_0_sndSettleMode_1, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_rcvSettleMode_[] = { &hf_amqp_1_0_rcvSettleMode, &hf_amqp_1_0_rcvSettleMode_1, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_initialDeliveryCount_[] = { &hf_amqp_1_0_initialDeliveryCount, &hf_amqp_1_0_initialDeliveryCount_1, NULL, &hf_amqp_1_0_initialDeliveryCount_4, NULL, NULL };
-const int* hf_amqp_1_0_description_[] = { &hf_amqp_1_0_description, &hf_amqp_1_0_description_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_address_[] = { &hf_amqp_1_0_address, &hf_amqp_1_0_address_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_terminusDurable_[] = { &hf_amqp_1_0_terminusDurable, &hf_amqp_1_0_terminusDurable_1, NULL, &hf_amqp_1_0_terminusDurable_4, NULL, NULL };
-const int* hf_amqp_1_0_priority_[] = { &hf_amqp_1_0_priority, &hf_amqp_1_0_priority_1, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_ttl_[] = { &hf_amqp_1_0_ttl, &hf_amqp_1_0_ttl_1, NULL, &hf_amqp_1_0_ttl_4, NULL, NULL };
-const int* hf_amqp_1_0_expiryPolicy_[] = { &hf_amqp_1_0_expiryPolicy, &hf_amqp_1_0_expiryPolicy_sym, NULL, &hf_amqp_1_0_expiryPolicy_sym, NULL, NULL };
-const int* hf_amqp_1_0_timeout_[] = { &hf_amqp_1_0_timeout, &hf_amqp_1_0_timeout_1, NULL, &hf_amqp_1_0_timeout_4, NULL, NULL };
-const int* hf_amqp_1_0_distributionMode_[] = { &hf_amqp_1_0_distributionMode, &hf_amqp_1_0_distributionMode_sym, NULL, &hf_amqp_1_0_distributionMode_sym, NULL, NULL };
-const int* hf_amqp_1_0_outcomes_[] = { &hf_amqp_1_0_outcomes, &hf_amqp_1_0_outcomes_sym, NULL, &hf_amqp_1_0_outcomes_sym, NULL, NULL };
-const int* hf_amqp_1_0_capabilities_[] = { &hf_amqp_1_0_capabilities, &hf_amqp_1_0_capabilities_sym, NULL, &hf_amqp_1_0_capabilities_sym, NULL, NULL };
-const int* hf_amqp_1_0_messageId_[] = { &hf_amqp_1_0_messageId, &hf_amqp_1_0_messageId_1, &hf_amqp_1_0_messageId_str, &hf_amqp_1_0_messageId_bin, &hf_amqp_1_0_messageId_8, &hf_amqp_1_0_messageId_uuid };
-const int* hf_amqp_1_0_correlationId_[] = { &hf_amqp_1_0_correlationId, &hf_amqp_1_0_correlationId_1, &hf_amqp_1_0_correlationId_str, &hf_amqp_1_0_correlationId_bin, &hf_amqp_1_0_correlationId_8, &hf_amqp_1_0_correlationId_uuid };
-const int* hf_amqp_1_0_userId_[] = { &hf_amqp_1_0_userId, &hf_amqp_1_0_userId_bin, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_to_[] = { &hf_amqp_1_0_to, &hf_amqp_1_0_to_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_subject_[] = { &hf_amqp_1_0_subject, &hf_amqp_1_0_subject_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_replyTo_[] = { &hf_amqp_1_0_replyTo, &hf_amqp_1_0_replyTo_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_contentType_[] = { &hf_amqp_1_0_contentType, &hf_amqp_1_0_contentType_sym, NULL, &hf_amqp_1_0_contentType_sym, NULL, NULL };
-const int* hf_amqp_1_0_contentEncoding_[] = { &hf_amqp_1_0_contentEncoding, &hf_amqp_1_0_contentEncoding_sym, NULL, &hf_amqp_1_0_contentEncoding_sym, NULL, NULL };
-const int* hf_amqp_1_0_absoluteExpiryTime_[] = { &hf_amqp_1_0_absoluteExpiryTime, NULL, NULL, NULL, &hf_amqp_1_0_absoluteExpiryTime_timestamp, NULL };
-const int* hf_amqp_1_0_creationTime_[] = { &hf_amqp_1_0_creationTime, NULL, NULL, NULL, &hf_amqp_1_0_creationTime_timestamp, NULL };
-const int* hf_amqp_1_0_groupId_[] = { &hf_amqp_1_0_groupId, &hf_amqp_1_0_groupId_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_groupSequence_[] = { &hf_amqp_1_0_groupSequence, &hf_amqp_1_0_groupSequence_1, NULL, &hf_amqp_1_0_groupSequence_4, NULL, NULL };
-const int* hf_amqp_1_0_replyToGroupId_[] = { &hf_amqp_1_0_replyToGroupId, &hf_amqp_1_0_replyToGroupId_str, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_mechanisms_[] = { &hf_amqp_1_0_mechanisms, &hf_amqp_1_0_mechanisms_sym, NULL, &hf_amqp_1_0_mechanisms_sym, NULL, NULL };
-const int* hf_amqp_1_0_initResponse_[] = { &hf_amqp_1_0_initResponse, &hf_amqp_1_0_initResponse_bin, NULL, NULL, NULL, NULL };
-const int* hf_amqp_1_0_saslAdditionalData_[] = { &hf_amqp_1_0_saslAdditionalData, &hf_amqp_1_0_saslAdditionalData_bin, NULL, NULL, NULL, NULL };
-
-const int** subtypes_for_hf_amqp_1_0[] = {
-  NULL, /* hf_amqp_1_0_size */
-  NULL, /* hf_amqp_1_0_doff */
-  NULL, /* hf_amqp_1_0_type */
-  NULL, /* hf_amqp_1_0_amqp_performative */
-  NULL, /* hf_amqp_1_0_sasl_method */
-  NULL, /* hf_amqp_1_0_list */
-  NULL, /* hf_amqp_1_0_map */
-  NULL, /* hf_amqp_1_0_array */
-  NULL, /* hf_amqp_1_0_containerId - mandatory string */
-  hf_amqp_1_0_hostname_,
-  hf_amqp_1_0_maxFrameSize_,
-  NULL, /* hf_amqp_1_0_channelMax_,*/
-  hf_amqp_1_0_idleTimeOut_,
-  hf_amqp_1_0_outgoingLocales_,
-  hf_amqp_1_0_incomingLocales_,
-  hf_amqp_1_0_offeredCapabilities_,
-  hf_amqp_1_0_desiredCapabilities_,
-  NULL, /* hf_amqp_1_0_properties */
-  hf_amqp_1_0_nextIncomingId_,
-  hf_amqp_1_0_deliveryCount_,
-  hf_amqp_1_0_sectionNumber_,
-  hf_amqp_1_0_sectionOffset_,
-  NULL, /* hf_amqp_1_0_deliveryFailed */
-  NULL, /* hf_amqp_1_0_undeliverableHere */
-  hf_amqp_1_0_linkCredit_,
-  hf_amqp_1_0_available_,
-  NULL, /* hf_amqp_1_0_drain */
-  NULL, /* hf_amqp_1_0_echo */
-  hf_amqp_1_0_deliveryId_,
-  hf_amqp_1_0_deliveryTag_,
-  hf_amqp_1_0_messageFormat_,
-  NULL, /* hf_amqp_1_0_settled */
-  NULL, /* hf_amqp_1_0_more */
-  NULL, /* hf_amqp_1_0_state */
-  NULL, /* hf_amqp_1_0_resume */
-  NULL, /* hf_amqp_1_0_aborted */
-  NULL, /* hf_amqp_1_0_batchable */
-  hf_amqp_1_0_first_,
-  hf_amqp_1_0_last_,
-  NULL, /* hf_amqp_1_0_closed */
-  hf_amqp_1_0_remoteChannel_,
-  hf_amqp_1_0_nextOutgoingId_,
-  hf_amqp_1_0_incomingWindow_,
-  hf_amqp_1_0_outgoingWindow_,
-  hf_amqp_1_0_handleMax_,
-  NULL, /* hf_amqp_1_0_name */
-  hf_amqp_1_0_handle_,
-  NULL, /* hf_amqp_1_0_role */
-  hf_amqp_1_0_sndSettleMode_,
-  hf_amqp_1_0_rcvSettleMode_,
-  NULL, /* hf_amqp_1_0_source */
-  NULL, /* hf_amqp_1_0_target */
-  NULL, /* hf_amqp_1_0_deleteOnClose */
-  NULL, /* hf_amqp_1_0_deleteOnNoLinks */
-  NULL, /* hf_amqp_1_0_deleteOnNoMessages */
-  NULL, /* hf_amqp_1_0_deleteOnNoLinksOrMessages */
-  NULL, /* hf_amqp_1_0_coordinator */
-  NULL, /* hf_amqp_1_0_declare */
-  NULL, /* hf_amqp_1_0_globalId */
-  NULL, /* hf_amqp_1_0_discharge */
-  NULL, /* hf_amqp_1_0_txnId */
-  NULL, /* hf_amqp_1_0_fail */
-  NULL, /* hf_amqp_1_0_declared */
-  NULL, /* hf_amqp_1_0_transactionalState */
-  NULL, /* hf_amqp_1_0_outcome */
-  NULL, /* hf_amqp_1_0_unsettled */
-  NULL, /* hf_amqp_1_0_incompleteUnsettled */
-  hf_amqp_1_0_initialDeliveryCount_,
-  hf_amqp_1_0_maxMessageSize_,
-  NULL, /* hf_amqp_1_0_error */
-  NULL, /* hf_amqp_1_0_messageHeader */
-  NULL, /* hf_amqp_1_0_messageProperties */
-  NULL, /* hf_amqp_1_0_deliveryAnnotations */
-  NULL, /* hf_amqp_1_0_messageAnnotations */
-  NULL, /* hf_amqp_1_0_applicationProperties */
-  NULL, /* hf_amqp_1_0_data */
-  NULL, /* hf_amqp_1_0_amqp_sequence */
-  NULL, /* hf_amqp_1_0_amqp_value */
-  NULL, /* hf_amqp_1_0_footer */
-  NULL, /* hf_amqp_1_0_received */
-  NULL, /* hf_amqp_1_0_accepted */
-  NULL, /* hf_amqp_1_0_rejected */
-  NULL, /* hf_amqp_1_0_released */
-  NULL, /* hf_amqp_1_0_modified */
-  NULL, /* hf_amqp_1_0_condition */
-  hf_amqp_1_0_description_,
-  NULL, /* hf_amqp_1_0_info */
-  hf_amqp_1_0_address_,
-  NULL, /* hf_amqp_1_0_durable */
-  hf_amqp_1_0_terminusDurable_,
-  hf_amqp_1_0_priority_,
-  hf_amqp_1_0_ttl_,
-  NULL, /* hf_amqp_1_0_firstAcquirer */
-  hf_amqp_1_0_expiryPolicy_,
-  hf_amqp_1_0_timeout_,
-  NULL, /* hf_amqp_1_0_dynamic */
-  NULL, /* hf_amqp_1_0_dynamicNodeProperties */
-  hf_amqp_1_0_distributionMode_,
-  NULL, /* hf_amqp_1_0_filter */
-  NULL, /* hf_amqp_1_0_defaultOutcome */
-  hf_amqp_1_0_outcomes_,
-  hf_amqp_1_0_capabilities_,
-  hf_amqp_1_0_messageId_,
-  hf_amqp_1_0_userId_,
-  hf_amqp_1_0_to_,
-  hf_amqp_1_0_subject_,
-  hf_amqp_1_0_replyTo_,
-  hf_amqp_1_0_correlationId_,
-  hf_amqp_1_0_contentType_,
-  hf_amqp_1_0_contentEncoding_,
-  hf_amqp_1_0_absoluteExpiryTime_,
-  hf_amqp_1_0_creationTime_,
-  hf_amqp_1_0_groupId_,
-  hf_amqp_1_0_groupSequence_,
-  hf_amqp_1_0_replyToGroupId_,
-  hf_amqp_1_0_mechanisms_,
-  NULL, /* hf_amqp_1_0_mechanism */
-  hf_amqp_1_0_initResponse_,
-  NULL, /* hf_amqp_1_0_saslChallenge */
-  NULL, /* hf_amqp_1_0_saslResponse */
-  NULL, /* hf_amqp_1_0_saslCode */
-  hf_amqp_1_0_saslAdditionalData_
+static struct amqp_synonym_types_t amqp_synonym_types[] = {
+    {&hf_amqp_1_0_outgoingLocales, NULL, &hf_amqp_1_0_outgoingLocales_sym, NULL, NULL},
+    {&hf_amqp_1_0_incomingLocales, NULL, &hf_amqp_1_0_incomingLocales_sym, NULL, NULL},
+    {&hf_amqp_1_0_offeredCapabilities, NULL, &hf_amqp_1_0_offeredCapabilities_sym, NULL, NULL},
+    {&hf_amqp_1_0_desiredCapabilities, NULL, &hf_amqp_1_0_desiredCapabilities_sym, NULL, NULL},
+    {&hf_amqp_1_0_address, NULL, &hf_amqp_1_0_address_str, NULL, NULL},
+    {&hf_amqp_1_0_source, NULL, &hf_amqp_1_0_source_str, NULL, NULL},
+    {&hf_amqp_1_0_target, NULL, &hf_amqp_1_0_target_str, NULL, NULL},
+    {&hf_amqp_1_0_outcomes, NULL, &hf_amqp_1_0_outcomes_sym, NULL, NULL},
+    {&hf_amqp_1_0_capabilities, NULL, &hf_amqp_1_0_capabilities_sym, NULL, NULL},
+    {&hf_amqp_1_0_messageId, &hf_amqp_1_0_messageId_uint, &hf_amqp_1_0_messageId_str, &hf_amqp_1_0_messageId_bin, &hf_amqp_1_0_messageId_uuid},
+    {&hf_amqp_1_0_messageId, &hf_amqp_1_0_messageId_uint, &hf_amqp_1_0_messageId_str, &hf_amqp_1_0_messageId_bin, &hf_amqp_1_0_messageId_uuid},
+    {&hf_amqp_1_0_correlationId, &hf_amqp_1_0_correlationId_uint, &hf_amqp_1_0_correlationId_str, &hf_amqp_1_0_correlationId_bin, &hf_amqp_1_0_correlationId_uuid},
+    {&hf_amqp_1_0_to, NULL, &hf_amqp_1_0_to_str, NULL, NULL},
+    {&hf_amqp_1_0_replyTo, NULL, &hf_amqp_1_0_replyTo_str, NULL, NULL},
+    {&hf_amqp_1_0_mechanisms, NULL, &hf_amqp_1_0_mechanisms_sym, NULL, NULL},
+    {NULL, NULL, NULL, NULL, NULL}
 };
 
 /* fields with hf_* types for list items;
@@ -2218,11 +2041,9 @@ static const value_string amqp_1_0_SASL_code_value [] = {
     {0, NULL}
 };
 
-static const value_string amqp_1_0_role_value [] = {
-    {0x40, "null"},
-    {0x41, "receiver"},
-    {0x42, "sender"},
-    {0, NULL}
+static const true_false_string amqp_1_0_role_value = {
+    "receiver",
+    "sender"
 };
 
 static const value_string amqp_1_0_sndSettleMode_value[] = {
@@ -2238,7 +2059,7 @@ static const value_string amqp_1_0_rcvSettleMode_value[] = {
     {0, NULL}
 };
 
-static const value_string amqp_1_0_durable_value[] = {
+static const value_string amqp_1_0_terminus_durable_value[] = {
     {0, "none"},
     {1, "configuration"},
     {2, "unsettled-state"},
@@ -2271,16 +2092,6 @@ static const value_string amqp_1_0_type [] = {
     {AMQP_1_0_AMQP_FRAME, "AMQP"},
     {AMQP_1_0_SASL_FRAME, "SASL"},
     {AMQP_1_0_TLS_FRAME,  "TLS"},
-    {0, NULL}
-};
-
-static const value_string amqp_1_0_encoding_width0 [] = {
-    {0x40, "null"},
-    {0x41, "true"},
-    {0x42, "false"},
-    {0x43, "0"},
-    {0x44, "0"},
-    {0x45, "empty list"},
     {0, NULL}
 };
 
@@ -2769,40 +2580,40 @@ static struct amqp_typeinfo amqp_0_10_var_types[] = {
 };
 
 /*  AMQP 1.0 Type Info  */
-static struct amqp_typeinfo amqp_1_0_fixed_types[] = {
-    { 0x40, "null",       format_amqp_1_0_null,         0 },
-    { 0x41, "bool",       format_amqp_1_0_boolean_true, 0 },
-    { 0x42, "bool",       format_amqp_1_0_boolean_false,0 },
-    { 0x56, "bool",       format_amqp_1_0_boolean,      1 },
-    { 0x50, "ubyte",      format_amqp_1_0_uint,         1 },
-    { 0x60, "ushort",     format_amqp_1_0_uint,         2 },
-    { 0x70, "uint",       format_amqp_1_0_uint,         4 },
-    { 0x52, "smalluint",  format_amqp_1_0_uint,         1 },
-    { 0x43, "uint0",      format_amqp_1_0_uint,         0 },
-    { 0x80, "ulong",      format_amqp_1_0_uint,         8 },
-    { 0x53, "smallulong", format_amqp_1_0_uint,         1 },
-    { 0x44, "ulong0",     format_amqp_1_0_uint,         0 },
-    { 0x51, "byte",       format_amqp_1_0_int,          1 },
-    { 0x61, "short",      format_amqp_1_0_int,          2 },
-    { 0x71, "int",        format_amqp_1_0_int,          4 },
-    { 0x54, "smallint",   format_amqp_1_0_int,          1 },
-    { 0x81, "long",       format_amqp_1_0_int,          8 },
-    { 0x55, "smalllong",  format_amqp_1_0_int,          1 },
-    { 0x72, "float",      format_amqp_1_0_float,        4 },
-    { 0x82, "double",     format_amqp_1_0_double,       8 },
-    { 0x74, "decimal32",  format_amqp_1_0_decimal,      4 },
-    { 0x84, "decimal64",  format_amqp_1_0_decimal,      8 },
-    { 0x94, "decimal128", format_amqp_1_0_decimal,      16 },
-    { 0x73, "char",       format_amqp_1_0_char,         4 },
-    { 0x83, "timestamp",  format_amqp_1_0_timestamp,    8 },
-    { 0x98, "uuid",       format_amqp_1_0_uuid,         16 },
-    { 0xa0, "vbin8",      format_amqp_1_0_bin,          1 },
-    { 0xb0, "vbin32",     format_amqp_1_0_bin,          4 },
-    { 0xa1, "str8-utf8",  format_amqp_1_0_str,          1 },
-    { 0xb1, "str32-utf8", format_amqp_1_0_str,          4 },
-    { 0xa3, "sym8",       format_amqp_1_0_symbol,       1 },
-    { 0xb3, "sym32",      format_amqp_1_0_symbol,       4 },
-    { 0xff, "end", 0, 0 }
+static struct amqp1_typeinfo amqp_1_0_fixed_types[] = {
+    { 0x40, "null",       FT_NONE,          0,  dissect_amqp_1_0_skip,      format_amqp_1_0_null },
+    { 0x41, "bool",       FT_BOOLEAN,       0,  dissect_amqp_1_0_true,      format_amqp_1_0_boolean_true },
+    { 0x42, "bool",       FT_BOOLEAN,       0,  dissect_amqp_1_0_false,     format_amqp_1_0_boolean_false },
+    { 0x56, "bool",       FT_BOOLEAN,       1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_boolean },
+    { 0x50, "ubyte",      FT_UINT8,         1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x60, "ushort",     FT_UINT16,        2,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x70, "uint",       FT_UINT32,        4,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x52, "smalluint",  FT_UINT8,         1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x43, "uint0",      FT_UINT8,         0,  dissect_amqp_1_0_zero,      format_amqp_1_0_uint },
+    { 0x80, "ulong",      FT_UINT64,        8,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x53, "smallulong", FT_UINT8,         1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_uint },
+    { 0x44, "ulong0",     FT_UINT8,         0,  dissect_amqp_1_0_zero,      format_amqp_1_0_uint },
+    { 0x51, "byte",       FT_INT8,          1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x61, "short",      FT_INT16,         2,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x71, "int",        FT_INT32,         4,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x54, "smallint",   FT_INT8,          1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x81, "long",       FT_INT64,         8,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x55, "smalllong",  FT_INT8,          1,  dissect_amqp_1_0_fixed,     format_amqp_1_0_int },
+    { 0x72, "float",      FT_FLOAT,         4,  dissect_amqp_1_0_fixed,     format_amqp_1_0_float },
+    { 0x82, "double",     FT_DOUBLE,        8,  dissect_amqp_1_0_fixed,     format_amqp_1_0_double },
+    { 0x74, "decimal32",  FT_BYTES,         4,  dissect_amqp_1_0_fixed,     format_amqp_1_0_decimal },
+    { 0x84, "decimal64",  FT_BYTES,         8,  dissect_amqp_1_0_fixed,     format_amqp_1_0_decimal },
+    { 0x94, "decimal128", FT_BYTES,         16, dissect_amqp_1_0_fixed,     format_amqp_1_0_decimal },
+    { 0x73, "char",       FT_STRING,        4,  dissect_amqp_1_0_fixed,     format_amqp_1_0_char },
+    { 0x83, "timestamp",  FT_ABSOLUTE_TIME, 8,  dissect_amqp_1_0_timestamp, format_amqp_1_0_timestamp },
+    { 0x98, "uuid",       FT_GUID,          16, dissect_amqp_1_0_fixed,     format_amqp_1_0_uuid },
+    { 0xa0, "vbin8",      FT_BYTES,         1,  dissect_amqp_1_0_variable,  format_amqp_1_0_bin },
+    { 0xb0, "vbin32",     FT_BYTES,         4,  dissect_amqp_1_0_variable,  format_amqp_1_0_bin },
+    { 0xa1, "str8-utf8",  FT_STRING,        1,  dissect_amqp_1_0_variable,  format_amqp_1_0_str },
+    { 0xb1, "str32-utf8", FT_STRING,        4,  dissect_amqp_1_0_variable,  format_amqp_1_0_str },
+    { 0xa3, "sym8",       FT_STRING,        1,  dissect_amqp_1_0_variable,  format_amqp_1_0_symbol },
+    { 0xb3, "sym32",      FT_STRING,        4,  dissect_amqp_1_0_variable,  format_amqp_1_0_symbol },
+    { 0xff, "end", 0, 0, 0, 0 }
 };
 
 /* see explanation at declaration of amqp_defined_types_t */
@@ -6727,7 +6538,7 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
                       int bound,
                       proto_item *item,
                       int hf_amqp_type,
-                      int hf_amqp_subtype_count,
+                      guint32 hf_amqp_subtype_count,
                       const int **hf_amqp_subtypes,
                       const char *name)
 {
@@ -6738,12 +6549,22 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
     guint32     element_size;
     guint32     decoded_element_size;
     guint32     orig_offset;
-    int         decoded_elements;
+    guint32     decoded_elements;
     int         hf_amqp_item;
 
     list_tree = 0;
     decoded_elements = 0;
     orig_offset = offset;
+
+    if (proto_registrar_get_ftype(hf_amqp_type) != FT_NONE)
+    {
+        expert_add_info_format(pinfo, item, &ei_amqp_unknown_amqp_type,
+                               "Unexpected list type at frame position %d of field \"%s\"",
+                               offset,
+                               name ? name : proto_registrar_get_name(hf_amqp_type));
+        return bound-orig_offset;
+    }
+
     type = tvb_get_guint8(tvb, offset);
     AMQP_INCREMENT(offset, 1, bound);
     switch (type) {
@@ -6775,16 +6596,22 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
                                type);
         return bound-orig_offset;
     }
+
+    list_tree = proto_tree_add_none_format(item,
+                                           hf_amqp_type,
+                                           tvb,
+                                           offset-1,
+                                           element_size+1+count_len,
+                                           "%s",
+                                           name ? name : proto_registrar_get_name(hf_amqp_type));
     AMQP_INCREMENT(offset, count_len*2, bound);
-    list_tree = add_1_0_proto_item(item,
-                                   tvb,
-                                   offset-1-count_len*2,
-                                   element_size+1+count_len,
-                                   hf_amqp_type,
-                                   name);
+
     if (element_count > 0)
         list_tree = proto_item_add_subtree(list_tree, ett_amqp_1_0_list);
-    proto_item_append_text(list_tree, " (list of %d element%s)", element_count, element_suffix[element_count!=1]);
+    /* display the item count for custom lists only
+     * standard structures contain NULL items, so the real element count is different */
+    if (hf_amqp_subtype_count == 0)
+        proto_item_append_text(list_tree, " (list of %d element%s)", element_count, element_suffix[element_count!=1]);
 
     if (element_count > element_size)
     {
@@ -6801,7 +6628,7 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
         if (decoded_elements<hf_amqp_subtype_count)
             hf_amqp_item = *(hf_amqp_subtypes[decoded_elements]);
         else
-            hf_amqp_item = hf_amqp_1_0_list;
+            hf_amqp_item = hf_amqp_1_0_list; /* dynamic item */
         get_amqp_1_0_type_value_formatter(tvb,
                                           pinfo,
                                           offset,
@@ -6840,14 +6667,23 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
     guint8      count_len;
     guint32     element_count;
     guint32     element_size;
+    struct amqp1_typeinfo* element_type;
     guint32     decoded_element_size;
-    guint8      decoded_width_size;
     guint32     orig_offset;
-    const char *type_name = NULL;
     const char *value = NULL;
 
     map_tree = 0;
     orig_offset = offset;
+
+    if (proto_registrar_get_ftype(hf_amqp_type) != FT_NONE)
+    {
+        expert_add_info_format(pinfo, item, &ei_amqp_unknown_amqp_type,
+                               "Unexpected map type at frame position %d of field \"%s\"",
+                               offset,
+                               name ? name : proto_registrar_get_name(hf_amqp_type));
+        return bound-orig_offset;
+    }
+
     type = tvb_get_guint8(tvb, offset);
     AMQP_INCREMENT(offset, 1, bound);
     switch (type) {
@@ -6874,13 +6710,16 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
                                type);
         return bound-orig_offset;
     }
+
+    map_tree = proto_tree_add_none_format(item,
+                                          hf_amqp_type,
+                                          tvb,
+                                          offset-1,
+                                          element_size+1+count_len,
+                                          "%s",
+                                          name ? name : proto_registrar_get_name(hf_amqp_type));
     AMQP_INCREMENT(offset, count_len*2, bound);
-    map_tree = add_1_0_proto_item(item,
-                                  tvb,
-                                  offset-1-count_len*2,
-                                  element_size+1+count_len,
-                                  hf_amqp_type,
-                                  name);
+
     if (element_count > 0)
         map_tree = proto_item_add_subtree(map_tree, ett_amqp_1_0_map);
     if (element_count%2==1) {
@@ -6909,14 +6748,14 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
 
     while (element_count > 0) {
         if (element_count%2 == 0) { /* decode key */
-            if (!decode_fixed_type(tvb,
-                                   tvb_get_guint8(tvb, offset),
-                                   offset+1,
-                                   bound,
-                                   &decoded_width_size,
-                                   &decoded_element_size,
-                                   &type_name,
-                                   &value)) { /* can't decode key type */
+            element_type = decode_fixed_type(tvb_get_guint8(tvb, offset));
+            if (element_type)
+            {
+                decoded_element_size=element_type->formatter(tvb, offset+1, bound, element_type->known_size, &value);
+                AMQP_INCREMENT(offset, decoded_element_size+1, bound);
+            }
+            else
+            { /* can't decode key type */
                 proto_tree_add_none_format(map_tree, hf_amqp_1_0_map, tvb,
                                            offset,
                                            1,
@@ -6927,16 +6766,15 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
                                        &ei_amqp_unknown_amqp_type,
                                        "Unknown AMQP map key type %d",
                                        tvb_get_guint8(tvb, offset));
-                decoded_element_size=0;
+                AMQP_INCREMENT(offset, 1, bound);
             }
-            AMQP_INCREMENT(offset, decoded_element_size+1, bound);
         }
         else { /* decode value */
             get_amqp_1_0_type_value_formatter(tvb,
                                               pinfo,
                                               offset,
                                               bound,
-                                              hf_amqp_1_0_map,
+                                              hf_amqp_1_0_list, /* dynamic item */
                                               value,
                                               &decoded_element_size,
                                               map_tree);
@@ -6957,7 +6795,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                        int bound,
                        proto_item *item,
                        int hf_amqp_type,
-                       int hf_amqp_subtype_count,
+                       guint32 hf_amqp_subtype_count,
                        const int **hf_amqp_subtypes,
                        const char *name)
 {
@@ -6969,15 +6807,25 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
     guint32     element_type;
     guint32     decoded_element_size;
     guint32     orig_offset;
-    int         decoded_elements;
+    guint32     decoded_elements;
     int         hf_amqp_item;
-    int         hf_amqp_subtype_count_array = 0;
+    guint32     hf_amqp_subtype_count_array = 0;
     const int   **hf_amqp_subtypes_array = NULL;
     const char  *type_name_array = NULL;
 
     array_tree = 0;
     decoded_elements = 0;
     orig_offset = offset;
+
+    if (proto_registrar_get_ftype(hf_amqp_type) != FT_NONE)
+    {
+        expert_add_info_format(pinfo, item, &ei_amqp_unknown_amqp_type,
+                               "Unexpected array type at frame position %d of field \"%s\"",
+                               offset,
+                               name ? name : proto_registrar_get_name(hf_amqp_type));
+        return bound-orig_offset;
+    }
+
     type = tvb_get_guint8(tvb, offset);
     AMQP_INCREMENT(offset, 1, bound);
     switch (type) {
@@ -7004,6 +6852,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                                type);
         return bound-orig_offset;
     }
+
     element_type = get_amqp_1_0_type_formatter(tvb,
                                                offset+count_len*2,
                                                bound,
@@ -7012,17 +6861,22 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                                                &hf_amqp_subtype_count_array,
                                                &hf_amqp_subtypes_array,
                                                &decoded_element_size);
+
+    array_tree = proto_tree_add_none_format(item,
+                                            hf_amqp_type,
+                                            tvb,
+                                            offset-1,
+                                            element_size+1+count_len,
+                                            "%s",
+                                            name ? name : proto_registrar_get_name(hf_amqp_type));
     AMQP_INCREMENT(offset, count_len*2+decoded_element_size, bound);
-    array_tree = add_1_0_proto_item(item,
-                                    tvb,
-                                    offset-1-count_len*2-decoded_element_size,
-                                    element_size+1+count_len,
-                                    hf_amqp_type,
-                                    name);
 
     if (element_count > 0)
         array_tree = proto_item_add_subtree(array_tree, ett_amqp_1_0_array);
-    proto_item_append_text(array_tree, " (array of %d element%s)", element_count, element_suffix[element_count!=1]);
+    /* display the item count for custom arrays only
+     * standard structures contain NULL items, so the real element count is different */
+    if (hf_amqp_subtype_count == 0)
+        proto_item_append_text(array_tree, " (array of %d element%s)", element_count, element_suffix[element_count!=1]);
 
     if (element_count > element_size)
     {
@@ -7039,7 +6893,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
         if (decoded_elements<hf_amqp_subtype_count)
             hf_amqp_item = *(hf_amqp_subtypes[decoded_elements]);
         else
-            hf_amqp_item = hf_amqp_1_0_array;
+            hf_amqp_item = hf_amqp_1_0_list; /* dynamic item */
         get_amqp_1_0_value_formatter(tvb,
                                      pinfo,
                                      element_type, /* code */
@@ -7146,7 +7000,7 @@ dissect_amqp_1_0_AMQP_frame(tvbuff_t *tvb,
                                                   pinfo,
                                                   offset,
                                                   bound,
-                                                  hf_amqp_method_arguments, /* should be re-written */
+                                                  hf_amqp_1_0_list, /* dynamic item */
                                                   NULL,
                                                   &arg_length,
                                                   args_tree);
@@ -10510,75 +10364,15 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
 
 /*  AMQP 1.0 Type Decoders  */
 
-/* knowing the primitive type (code), this routine decodes its value (using
- * amqp_1_0_fixed_types)
- * arguments:
- *   tvb, code, offset, bound: obvious
- *   type_length_size: number of bytes of value length for types with variable width
- *   length_size: number of bytes decoded by the routine
- *   type_name: string with code type
- *   value: string with type value
- * return value: true iff code found in fixed sized codes
- *               false iff code is list, array or map (or unknown)
- */
-static gboolean decode_fixed_type(tvbuff_t *tvb,
-                                  guint8 code,
-                                  int offset,
-                                  int bound,
-                                  guint8 *type_width_size,
-                                  guint *length_size,
-                                  const char **type_name,
-                                  const char **value)
+static struct amqp1_typeinfo* decode_fixed_type(guint8 code)
 {
     int i;
-    type_formatter formatter;
 
     for (i = 0; amqp_1_0_fixed_types[i].typecode != 0xff; ++i) {
-        if (amqp_1_0_fixed_types[i].typecode == code) {
-            *type_name = wmem_strdup(wmem_packet_scope(), amqp_1_0_fixed_types[i].amqp_typename);
-            formatter   = amqp_1_0_fixed_types[i].formatter;
-            if (code/16 > 0x9) /* variable width code is 0xa[0-9] or 0xb[0-9] */
-                *type_width_size = amqp_1_0_fixed_types[i].known_size;
-            else
-                *type_width_size = 0;
-            *length_size = formatter(tvb, offset, bound, amqp_1_0_fixed_types[i].known_size, value);
-            return TRUE;
-        }
+        if (amqp_1_0_fixed_types[i].typecode == code)
+            return &amqp_1_0_fixed_types[i];
     }
-    return FALSE;
-}
-
-static proto_item*
-add_1_0_proto_item(proto_item *item,
-             tvbuff_t *tvb,
-             int offset,
-             int length,
-             int hf_amqp_type,
-             const char *no_format_value)
-{
-    proto_item *return_item;
-    if (length==0) /* show type constructor rather */
-    {
-        length=1;
-        offset--;
-    }
-
-    if (no_format_value!=NULL)
-        return_item = proto_tree_add_none_format(item,
-                                                 hf_amqp_type,
-                                                 tvb,
-                                                 offset,
-                                                 length,
-                                                 "%s",
-                                                 no_format_value);
-    else
-        return_item = proto_tree_add_item(item,
-                                          hf_amqp_type,
-                                          tvb,
-                                          offset,
-                                          length,
-                                          ENC_NA);
-    return return_item;
+    return NULL;
 }
 
 /* For given code, the routine decodes its value, format & print output.
@@ -10600,70 +10394,85 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                              int bound,
                              int hf_amqp_type,
                              const char *name,
-                             int hf_amqp_subtype_count,
+                             guint32 hf_amqp_subtype_count,
                              const int **hf_amqp_subtypes,
                              guint *length_size,
                              proto_item *item)
 {
-    char *no_format_value = NULL;
-    const char *type_name = NULL;
+    struct amqp1_typeinfo* element_type;
     const char *value = NULL;
-    guint8 width_size;
-    const int *hf_amqp_type_ptr;
 
-    if (decode_fixed_type(tvb, code, offset, bound, &width_size, length_size, &type_name, &value))
+    element_type = decode_fixed_type(code);
+    if (element_type)
     {
-        /* if AMQP variable can be of potentialy multiple length, modify hf_amqp_type to proper subtype
-         * according to code; code=0x4[0-e] means 0 octet length, 0x5[0-e] means 1, 6 means 2, 7 means 4,
-         * 8 means 8 and 9 means 16 octet length; variable width types decoded with meaning 1  */
-        if ((hf_amqp_type<=hf_amqp_1_0_saslAdditionalData) &&
-            (subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size] != NULL))
+        struct amqp_synonym_types_t *synonyms;
+        int shift_view = 0;
+
+        /* some AMQP fields can be of several types; by default we use FT_NONE,
+         * but to enable filtering we try to find a field corresponding to
+         * the actual type */
+        if (proto_registrar_get_ftype(hf_amqp_type) == FT_NONE)
         {
-          /* message-id and correlation-id can be of so many so different types,
-           * that the subtypes_for_hf_amqp_1_0 table is different for them */
-            if ((hf_amqp_type==hf_amqp_1_0_messageId)||(hf_amqp_type==hf_amqp_1_0_correlationId))
+            for (synonyms = amqp_synonym_types; synonyms->hf_none != NULL; synonyms++)
             {
-              switch (code) {
-                case 0xa1:
-                case 0xb1: /* string */
-                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][2];
-                  break;
-                case 0xa0:
-                case 0xb0: /* binary */
-                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][3];
-                  break;
-                default: /* ulong and uuid */
-                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][code/16-4];
-                  break;
-              }
+                if (*(synonyms->hf_none) == hf_amqp_type)
+                {
+                    if (IS_FT_UINT(element_type->ftype) && synonyms->hf_uint != NULL)
+                        hf_amqp_type = *(synonyms->hf_uint);
+                    else if (IS_FT_STRING(element_type->ftype) && synonyms->hf_str != NULL)
+                        hf_amqp_type = *(synonyms->hf_str);
+                    else if (element_type->ftype == FT_BYTES && synonyms->hf_bin != NULL)
+                        hf_amqp_type = *(synonyms->hf_bin);
+                    else if (element_type->ftype == FT_GUID && synonyms->hf_guid != NULL)
+                        hf_amqp_type = *(synonyms->hf_guid);
+                    break;
+                }
             }
-            else
+        }
+
+        if (proto_registrar_get_ftype(hf_amqp_type) != FT_NONE)
+        {
+            /* we know the field as well its type, use native dissectors */
+            *length_size = element_type->dissector(tvb, pinfo,
+                                                   offset, bound,
+                                                   element_type->known_size,
+                                                   item, hf_amqp_type);
+        }
+        else if(code == AMQP_1_0_TYPE_NULL)
+        {
+            /* null value says that a particular field was optional and is omited
+             * the omited fields of standard structutes are not shown
+             * however, we still display null values of custom lists, maps and arrays */
+            if(hf_amqp_type == hf_amqp_1_0_list)
             {
-                hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][(code<0xa0)?(code/16-4):(1)];
+                proto_tree_add_none_format(item, hf_amqp_type,
+                                           tvb,
+                                           offset-1,
+                                           1,
+                                           "%s: (null)",
+                                           name ? name : proto_registrar_get_name(hf_amqp_type));
             }
-            if (hf_amqp_type_ptr==NULL) {
-                expert_add_info_format(pinfo,
-                                       item,
-                                       &ei_amqp_unknown_amqp_type,
-                                       "Can't match AMQP type %d(hex=%x, frame position: %d) to list field \"%s\"",
-                                       code, code,
-                                       offset,
-                                       (proto_registrar_get_nth(hf_amqp_type))->name);
-                *length_size = bound-offset; /* to stop dissecting */
-                return;
-            }
-            hf_amqp_type = *hf_amqp_type_ptr;
         }
-        if (name != NULL)
+        else
         {
-            no_format_value = (char*) wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
-            g_snprintf(no_format_value, MAX_BUFFER, "%s (%s): %s", name, type_name, value);
+            /* multi-type and custom fileds must be converted to a string */
+            *length_size = element_type->formatter(tvb, offset, bound, element_type->known_size, &value);
+
+            if (code/16 > 0x9) /* variable width code is 0xa[0-9] or 0xb[0-9] */
+               /* shift to right to skip the variable length indicator */
+               shift_view = element_type->known_size;
+            else if(*length_size == 0)
+                /* shift to left to show at least the type code */
+                shift_view = -1;
+
+            proto_tree_add_none_format(item, hf_amqp_type,
+                                       tvb,
+                                       offset+shift_view,
+                                       (*length_size)-shift_view,
+                                       "%s (%s): %s",
+                                       name ? name : proto_registrar_get_name(hf_amqp_type),
+                                       element_type->amqp_typename, value);
         }
-        else if (hf_amqp_type==hf_amqp_1_0_list)
-        {
-            no_format_value = (char*) value;
-        }
-        add_1_0_proto_item(item, tvb, offset+width_size, (*length_size)-width_size, hf_amqp_type, no_format_value);
     }
     else { /* no fixed code, i.e. compound (list, map, array) */
         switch (code) {
@@ -10699,8 +10508,9 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                 expert_add_info_format(pinfo,
                                        item,
                                        &ei_amqp_unknown_amqp_type,
-                                       "Unknown AMQP type %d(hex=%x)",
-                                       code, code);
+                                       "Unknown AMQP type %d (0x%x) of field \"%s\"",
+                                       code, code,
+                                       name ? name : proto_registrar_get_name(hf_amqp_type));
                 *length_size = bound-offset; /* to stop dissecting */
                 break;
         }
@@ -10717,7 +10527,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
                             int bound,
                             int *hf_amqp_type,
                             const char **name,
-                            int *hf_amqp_subtype_count,
+                            guint32 *hf_amqp_subtype_count,
                             const int ***hf_amqp_subtypes,
                             guint *length_size)
 {
@@ -10800,7 +10610,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
                                   proto_item *item)
 {
     int        code;
-    int        hf_amqp_subtype_count = 0;
+    guint32    hf_amqp_subtype_count = 0;
     const int  **hf_amqp_subtypes = NULL;
     const char *type_name = NULL;
     char       *format_name = NULL;
@@ -10841,12 +10651,133 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
     *length_size += type_length_size;
 }
 
+static void
+get_amqp_timestamp(nstime_t *nstime, tvbuff_t *tvb, guint offset)
+{
+    gint64 msec;
+
+    msec = tvb_get_ntoh64(tvb, offset);
+    nstime->secs = msec / 1000;
+    nstime->nsecs = (msec % 1000)*1000;
+}
+
+static int
+dissect_amqp_1_0_fixed(tvbuff_t *tvb, packet_info *pinfo _U_,
+                       guint offset, guint bound _U_, guint length,
+                       proto_item *item, int hf_amqp_type)
+{
+    proto_tree_add_item(item, hf_amqp_type, tvb, offset, length, ENC_BIG_ENDIAN);
+    return length;
+}
+
+static int
+dissect_amqp_1_0_variable(tvbuff_t *tvb, packet_info *pinfo,
+                          guint offset, guint bound, guint length,
+                          proto_item *item, int hf_amqp_type)
+{
+    guint bin_length;
+
+    if (length == 1)
+        bin_length = tvb_get_guint8(tvb, offset);
+    else if (length == 4)
+        bin_length = tvb_get_ntohl(tvb, offset);
+    else {
+        expert_add_info_format(pinfo, item, &ei_amqp_unknown_amqp_type,
+                               "Invalid size of length indicator %d!", length);
+        return length;
+    }
+    AMQP_INCREMENT(offset, length, bound);
+
+    proto_tree_add_item(item, hf_amqp_type, tvb, offset, bin_length, ENC_NA);
+    return length+bin_length;
+}
+
+static int
+dissect_amqp_1_0_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           guint offset, guint bound _U_, guint length,
+                           proto_item *item, int hf_amqp_type)
+{
+    nstime_t nstime;
+    get_amqp_timestamp(&nstime, tvb, offset);
+
+    proto_tree_add_time(item, hf_amqp_type, tvb, offset, length, &nstime);
+    return length;
+}
+
+static int
+dissect_amqp_1_0_skip(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+                      guint offset _U_, guint bound _U_, guint length _U_,
+                      proto_item *item _U_, int hf_amqp_type _U_)
+{
+    /* null value means the respective field is omitted */
+    return 0;
+}
+
+static int
+dissect_amqp_1_0_zero(tvbuff_t *tvb, packet_info *pinfo,
+                      guint offset, guint bound _U_, guint length _U_,
+                      proto_item *item, int hf_amqp_type)
+{
+    switch(proto_registrar_get_ftype(hf_amqp_type))
+    {
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+        proto_tree_add_uint(item, hf_amqp_type, tvb, offset-1, 1, 0);
+        break;
+    case FT_UINT40:
+    case FT_UINT48:
+    case FT_UINT56:
+    case FT_UINT64:
+        proto_tree_add_uint64(item, hf_amqp_type, tvb, offset-1, 1, 0L);
+        break;
+    case FT_INT8:
+    case FT_INT16:
+    case FT_INT24:
+    case FT_INT32:
+        proto_tree_add_int(item, hf_amqp_type, tvb, offset-1, 1, 0);
+        break;
+    case FT_INT40:
+    case FT_INT48:
+    case FT_INT56:
+    case FT_INT64:
+        proto_tree_add_int64(item, hf_amqp_type, tvb, offset-1, 1, 0L);
+        break;
+    default:
+        expert_add_info_format(pinfo, item, &ei_amqp_unknown_amqp_type,
+                               "Unexpected integer at frame position %d to list field \"%s\"",
+                               offset,
+                               proto_registrar_get_name(hf_amqp_type));
+    }
+
+    return 0;
+}
+
+static int
+dissect_amqp_1_0_true(tvbuff_t *tvb, packet_info *pinfo _U_,
+                      guint offset, guint bound _U_, guint length _U_,
+                      proto_item *item, int hf_amqp_type)
+{
+    proto_tree_add_boolean(item, hf_amqp_type, tvb, offset-1, 1, TRUE);
+    return 0;
+}
+
+static int
+dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo _U_,
+                       guint offset, guint bound _U_, guint length _U_,
+                       proto_item *item, int hf_amqp_type)
+{
+    proto_tree_add_boolean(item, hf_amqp_type, tvb, offset-1, 1, FALSE);
+    return 0;
+}
+
 static int
 format_amqp_1_0_null(tvbuff_t *tvb _U_,
                       guint offset _U_, guint bound _U_, guint length _U_,
                       const char **value _U_)
 {
-    *value = "null";
+    *value = "(null)";
     return 0;
 }
 
@@ -10979,7 +10910,10 @@ format_amqp_1_0_timestamp(tvbuff_t *tvb,
                           guint offset, guint bound _U_, guint length _U_,
                           const char **value)
 {
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "d", tvb_get_ntoh64(tvb, offset));
+    nstime_t nstime;
+    get_amqp_timestamp(&nstime, tvb, offset);
+
+    *value = abs_time_to_str(wmem_packet_scope(), &nstime, ABSOLUTE_TIME_UTC, FALSE);
     return 8;
 }
 
@@ -11240,8 +11174,6 @@ proto_register_amqp(void)
      * in 0-10, but there are many separate.
      */
     static hf_register_info hf[] = {
-        /* DO NOT CHANGE BELOW hf_amqp_1_0_* VARIABLES ORDERING!
-         * It is crucial for subtypes_for_hf_amqp_1_0 */
         {&hf_amqp_1_0_size, {
             "Length", "amqp.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -11270,45 +11202,41 @@ proto_register_amqp(void)
             "map-item", "amqp.map",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
-        {&hf_amqp_1_0_array, {
-            "array-item", "amqp.array",
-            FT_NONE, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
         {&hf_amqp_1_0_containerId, {
             "Container-Id", "amqp.performative.arguments.containerId",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_hostname, {
             "Hostname", "amqp.performative.arguments.hostname",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_maxFrameSize, {
             "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_channelMax, {
             "Channel-Max", "amqp.performative.arguments.channelMax",
-            FT_UINT16, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_idleTimeOut, {
             "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_outgoingLocales, {
             "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_incomingLocales, {
             "Incoming-Locales", "amqp.performative.arguments.incomingLocales",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_offeredCapabilities, {
             "Offered-Capabilities", "amqp.arguments.offeredCapabilities",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_desiredCapabilities, {
             "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_properties, {
             "Properties", "amqp.performative.arguments.properties",
@@ -11316,63 +11244,63 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_1_0_nextIncomingId, {
             "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_deliveryCount, {
             "Delivery-Count", "amqp.performative.arguments.deliveryCount",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_sectionNumber, {
             "Section-Number", "amqp.received.sectionNumber",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             "Section number of received message", HFILL}},
         {&hf_amqp_1_0_sectionOffset, {
             "Section-Offset", "amqp.received.sectionOffset",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             "Section offset of received message", HFILL}},
         {&hf_amqp_1_0_deliveryFailed, {
             "Delivery-Failed", "amqp.modified.deliveryFailed",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_undeliverableHere, {
             "Undeliverable-Here", "amqp.modified.undeliverableHere",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_linkCredit, {
             "Link-Credit", "amqp.performative.arguments.linkCredit",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_available, {
             "Available", "amqp.performative.arguments.available",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "The number of available messages", HFILL}},
         {&hf_amqp_1_0_drain, {
             "Drain", "amqp.performative.arguments.drain",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Drain mode", HFILL}},
         {&hf_amqp_1_0_echo, {
             "Echo", "amqp.performative.arguments.echo",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Request state from partner", HFILL}},
         {&hf_amqp_1_0_deliveryId, {
             "Delivery-Id", "amqp.performative.arguments.deliveryId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_deliveryTag, {
             "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_messageFormat, {
             "Message-Format", "amqp.performative.arguments.messageFormat",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_settled, {
             "Settled", "amqp.performative.arguments.settled",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_more, {
             "More", "amqp.performative.arguments.more",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "The message has more content", HFILL}},
         {&hf_amqp_1_0_state, {
             "State", "amqp.performative.arguments.state",
@@ -11380,47 +11308,47 @@ proto_register_amqp(void)
             "State of the delivery at sender", HFILL}},
         {&hf_amqp_1_0_resume, {
             "Resume", "amqp.performative.arguments.resume",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Resumed delivery", HFILL}},
         {&hf_amqp_1_0_aborted, {
             "Aborted", "amqp.performative.arguments.aborted",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Message is aborted", HFILL}},
         {&hf_amqp_1_0_batchable, {
             "Batchable", "amqp.performative.arguments.batchable",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Batchable hint", HFILL}},
         {&hf_amqp_1_0_first, {
             "First", "amqp.performative.arguments.first",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "Lower bound of deliveries", HFILL}},
         {&hf_amqp_1_0_last, {
             "Last", "amqp.performative.arguments.last",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "Upper bound of deliveries", HFILL}},
         {&hf_amqp_1_0_closed, {
             "Closed", "amqp.performative.arguments.closed",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Sender closed the link", HFILL}},
         {&hf_amqp_1_0_remoteChannel, {
             "Remote-Channel", "amqp.performative.arguments.remoteChannel",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_nextOutgoingId, {
             "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_incomingWindow, {
             "Incoming-Window", "amqp.performative.arguments.incomingWindow",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_outgoingWindow, {
             "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_handleMax, {
             "Handle-Max", "amqp.performative.arguments.handleMax",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_name, {
             "Name", "amqp.performative.arguments.name",
@@ -11428,19 +11356,19 @@ proto_register_amqp(void)
             "Name of the link", HFILL}},
         {&hf_amqp_1_0_handle, {
             "Handle", "amqp.performative.arguments.handle",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "Handle for the link while attached", HFILL}},
         {&hf_amqp_1_0_role, {
             "Role", "amqp.performative.arguments.role",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_role_value), 0,
+            FT_BOOLEAN, BASE_NONE, TFS(&amqp_1_0_role_value), 0,
             "Role of the link endpoint", HFILL}},
         {&hf_amqp_1_0_sndSettleMode, {
             "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_sndSettleMode_value), 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_rcvSettleMode, {
             "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_rcvSettleMode_value), 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_source, {
             "Source", "amqp.performative.arguments.source",
@@ -11488,7 +11416,7 @@ proto_register_amqp(void)
             "Transaction id", HFILL}},
         {&hf_amqp_1_0_fail, {
             "Fail", "amqp.tx.arguments.fail",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Fail flag of transaction", HFILL}},
         {&hf_amqp_1_0_declared, {
             "Declared", "amqp.tx.declared",
@@ -11508,15 +11436,15 @@ proto_register_amqp(void)
             "Unsettled delivery state", HFILL}},
         {&hf_amqp_1_0_incompleteUnsettled, {
             "Incomplete-Unsettled", "amqp.performative.arguments.incompleteUnsettled",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_initialDeliveryCount, {
             "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_maxMessageSize, {
             "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT64, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_error, {
             "Error", "amqp.performative.arguments.error",
@@ -11584,7 +11512,7 @@ proto_register_amqp(void)
             "Error condition", HFILL}},
         {&hf_amqp_1_0_description, {
             "Description", "amqp.error.description",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             "Error description", HFILL}},
         {&hf_amqp_1_0_info, {
             "Info", "amqp.error.info",
@@ -11592,39 +11520,39 @@ proto_register_amqp(void)
             "Error info", HFILL}},
         {&hf_amqp_1_0_address, {
             "Address", "amqp.performative.arguments.address",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             "Address of a node", HFILL}},
         {&hf_amqp_1_0_durable, {
             "Durable", "amqp.message.durable",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Message durability", HFILL}},
         {&hf_amqp_1_0_terminusDurable, {
             "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_terminus_durable_value), 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_priority, {
             "Priority", "amqp.message.priority",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             "Message priority", HFILL}},
         {&hf_amqp_1_0_ttl, {
             "Ttl", "amqp.message.ttl",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             "Time to live", HFILL}},
         {&hf_amqp_1_0_firstAcquirer, {
             "First-Acquirer", "amqp.message.firstAcquirer",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_expiryPolicy, {
             "Expiry-Policy", "amqp.properties.expiryPolicy",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_timeout, {
             "Timeout", "amqp.properties.timeout",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             "Duration that an expiring target will be retained", HFILL}},
         {&hf_amqp_1_0_dynamic, {
             "Dynamic", "amqp.properties.dynamic",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             "Dynamic creation of a remote node", HFILL}},
         {&hf_amqp_1_0_dynamicNodeProperties, {
             "Dynamic-Node-Properties", "amqp.properties.dynamicNodeProperties",
@@ -11632,7 +11560,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_1_0_distributionMode, {
             "Distribution-Mode", "amqp.properties.distributionMode",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_filter, {
             "Filter", "amqp.properties.filter",
@@ -11640,11 +11568,11 @@ proto_register_amqp(void)
             "Predicates to filter messages admitted to the link", HFILL}},
         {&hf_amqp_1_0_defaultOutcome, {
             "Default-Outcome", "amqp.properties.defaultOutcome",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_outcomes, {
             "Outcomes", "amqp.properties.outcomes",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             "Outcomes descriptors for the link", HFILL}},
         {&hf_amqp_1_0_capabilities, {
             "Capabilities", "amqp.properties.capabilities",
@@ -11652,11 +11580,11 @@ proto_register_amqp(void)
             "Extension capabilities of the sender", HFILL}},
         {&hf_amqp_1_0_messageId, {
             "Message-Id", "amqp.message.messageId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_userId, {
             "User-Id", "amqp.message.userId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_to, {
             "To", "amqp.message.to",
@@ -11664,43 +11592,43 @@ proto_register_amqp(void)
             "Destination address of the message", HFILL}},
         {&hf_amqp_1_0_subject, {
             "Subject", "amqp.message.subject",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             "Message subject", HFILL}},
         {&hf_amqp_1_0_replyTo, {
             "Reply-To", "amqp.message.replyTo",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_correlationId, {
             "Correlation-Id", "amqp.message.correlationId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_contentType, {
             "Content-Type", "amqp.message.contentType",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_contentEncoding, {
             "Content-Encoding", "amqp.message.contentEncoding",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_absoluteExpiryTime, {
             "Expiry-Time", "amqp.message.expiryTime",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
             "Absolute expiry time", HFILL}},
         {&hf_amqp_1_0_creationTime, {
             "Creation-Time", "amqp.message.creationTime",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_groupId, {
             "Group-Id", "amqp.message.groupId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_groupSequence, {
             "Group-Sequence", "amqp.message.groupSequence",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_replyToGroupId, {
             "Reply-To-Group-Id", "amqp.message.replyToGroupId",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_mechanisms, {
             "Mechanisms", "amqp.sasl.mechanisms",
@@ -11712,7 +11640,7 @@ proto_register_amqp(void)
             "Chosen security mechanism", HFILL}},
         {&hf_amqp_1_0_initResponse, {
             "Init-Response", "amqp.sasl.initResponse",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_saslChallenge, {
             "Challenge", "amqp.sasl.challenge",
@@ -11728,77 +11656,8 @@ proto_register_amqp(void)
             "SASL outcome code", HFILL}},
         {&hf_amqp_1_0_saslAdditionalData, {
             "Additional-Data", "amqp.sasl.addData",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            FT_BYTES, BASE_NONE, NULL, 0,
             "SASL outcome additional data", HFILL}},
-        /* further hf_amqp_1_0_* can be re-ordered if required; */
-        {&hf_amqp_1_0_hostname_str, {
-            "Hostname", "amqp.performative.arguments.hostname",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_maxFrameSize_1, {
-            "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_maxFrameSize_4, {
-            "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_incomingWindow_1, {
-            "Incoming-Window", "amqp.performative.arguments.incomingWindow",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_incomingWindow_4, {
-            "Incoming-Window", "amqp.performative.arguments.incomingWindow",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_outgoingWindow_1, {
-            "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_outgoingWindow_4, {
-            "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_linkCredit_1, {
-            "Link-Credit", "amqp.performative.arguments.linkCredit",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_linkCredit_4, {
-            "Link-Credit", "amqp.performative.arguments.linkCredit",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_available_1, {
-            "Available", "amqp.performative.arguments.available",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "The number of available messages", HFILL}},
-        {&hf_amqp_1_0_available_4, {
-            "Available", "amqp.performative.arguments.available",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            "The number of available messages", HFILL}},
-        {&hf_amqp_1_0_deliveryCount_1, {
-            "Delivery-Count", "amqp.performative.arguments.deliveryCount",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_deliveryCount_4, {
-            "Delivery-Count", "amqp.performative.arguments.deliveryCount",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_sectionNumber_1, {
-            "Section-Number", "amqp.received.sectionNumber",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Section number of received message", HFILL}},
-        {&hf_amqp_1_0_sectionNumber_4, {
-            "Section-Number", "amqp.received.sectionNumber",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            "Section number of received message", HFILL}},
-        {&hf_amqp_1_0_idleTimeOut_1, {
-            "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_idleTimeOut_4, {
-            "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingLocales_sym, {
             "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11815,154 +11674,18 @@ proto_register_amqp(void)
             "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
-        {&hf_amqp_1_0_nextIncomingId_1, {
-            "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_nextIncomingId_4, {
-            "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_sectionOffset_1, {
-            "Section-Offset", "amqp.received.sectionOffset",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Section offset of received message", HFILL}},
-        {&hf_amqp_1_0_sectionOffset_8, {
-            "Section-Offset", "amqp.received.sectionOffset",
-            FT_UINT64, BASE_DEC, NULL, 0,
-            "Section offset of received message", HFILL}},
-        {&hf_amqp_1_0_maxMessageSize_1, {
-            "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_maxMessageSize_8, {
-            "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
-            FT_UINT64, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_nextOutgoingId_1, {
-            "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_nextOutgoingId_4, {
-            "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
-            FT_UINT16, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_deliveryId_1, {
-            "Delivery-Id", "amqp.performative.arguments.deliveryId",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_deliveryId_4, {
-            "Delivery-Id", "amqp.performative.arguments.deliveryId",
-            FT_UINT16, BASE_DEC, 0, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_deliveryTag_bin, {
-            "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_messageFormat_1, {
-            "Message-Format", "amqp.performative.arguments.messageFormat",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_messageFormat_4, {
-            "Message-Format", "amqp.performative.arguments.messageFormat",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_first_1, {
-            "First", "amqp.performative.arguments.first",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Lower bound of deliveries", HFILL}},
-        {&hf_amqp_1_0_first_4, {
-            "First", "amqp.performative.arguments.first",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Lower bound of deliveries", HFILL}},
-        {&hf_amqp_1_0_last_1, {
-            "Last", "amqp.performative.arguments.last",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Upper bound of deliveries", HFILL}},
-        {&hf_amqp_1_0_last_4, {
-            "Last", "amqp.performative.arguments.last",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Upper bound of deliveries", HFILL}},
-        {&hf_amqp_1_0_remoteChannel_2, {
-            "Remote-Channel", "amqp.performative.arguments.remoteChannel",
-            FT_UINT16, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_handleMax_1, {
-            "Handle-Max", "amqp.performative.arguments.handleMax",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_handleMax_4, {
-            "Handle-Max", "amqp.performative.arguments.handleMax",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_handle_1, {
-            "Handle", "amqp.performative.arguments.handle",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Handle for the link while attached", HFILL}},
-        {&hf_amqp_1_0_handle_4, {
-            "Handle", "amqp.performative.arguments.handle",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            "Handle for the link while attached", HFILL}},
-        {&hf_amqp_1_0_sndSettleMode_1, {
-            "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_sndSettleMode_value), 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_rcvSettleMode_1, {
-            "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_rcvSettleMode_value), 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_initialDeliveryCount_1, {
-            "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_initialDeliveryCount_4, {
-            "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_description_str, {
-            "Description", "amqp.error.description",
-            FT_STRING, BASE_NONE, NULL, 0,
-            "Error description", HFILL}},
         {&hf_amqp_1_0_address_str, {
-            "Address", "amqp.performative.arguments.address",
+            "Address", "amqp.performative.arguments.address.string",
             FT_STRING, BASE_NONE, NULL, 0,
             "Address of a node", HFILL}},
-        {&hf_amqp_1_0_terminusDurable_1, {
-            "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
-            FT_UINT8, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_terminusDurable_4, {
-            "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
-            FT_UINT32, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_priority_1, {
-            "Priority", "amqp.message.priority",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Message priority", HFILL}},
-        {&hf_amqp_1_0_ttl_1, {
-            "Ttl", "amqp.message.ttl",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Time to live", HFILL}},
-        {&hf_amqp_1_0_ttl_4, {
-            "Ttl", "amqp.message.ttl",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_expiryPolicy_sym, {
-            "Expiry-Policy", "amqp.properties.expiryPolicy",
+        {&hf_amqp_1_0_source_str, {
+            "Source", "amqp.performative.arguments.source.string",
             FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_timeout_1, {
-            "Timeout", "amqp.properties.timeout",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Duration that an expiring target will be retained", HFILL}},
-        {&hf_amqp_1_0_timeout_4, {
-            "Timeout", "amqp.properties.timeout",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            "Duration that an expiring target will be retained", HFILL}},
-        {&hf_amqp_1_0_distributionMode_sym, {
-            "Distribution-Mode", "amqp.properties.distributionMode",
+            "Source for messages", HFILL}},
+        {&hf_amqp_1_0_target_str, {
+            "Target", "amqp.performative.arguments.target.string",
             FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
+            "Target for messages", HFILL}},
         {&hf_amqp_1_0_outcomes_sym, {
             "Outcomes", "amqp.properties.outcomes",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11971,7 +11694,7 @@ proto_register_amqp(void)
             "Capabilities", "amqp.properties.capabilities",
             FT_STRING, BASE_NONE, NULL, 0,
             "Extension capabilities of the sender", HFILL}},
-        {&hf_amqp_1_0_messageId_1, {
+        {&hf_amqp_1_0_messageId_uint, {
             "Message-Id", "amqp.message.messageId.uint",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL}},
@@ -11987,11 +11710,7 @@ proto_register_amqp(void)
             "Message-Id", "amqp.message.messageId.guid",
             FT_GUID, BASE_NONE, NULL, 0,
             NULL, HFILL}},
-        {&hf_amqp_1_0_messageId_8, {
-            "Message-Id", "amqp.message.messageId.uint",
-            FT_UINT64, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_correlationId_1, {
+        {&hf_amqp_1_0_correlationId_uint, {
             "Correlation-Id", "amqp.message.correlationId.uint",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL}},
@@ -12007,70 +11726,18 @@ proto_register_amqp(void)
             "Correlation-Id", "amqp.message.correlationId.guid",
             FT_GUID, BASE_NONE, NULL, 0,
             NULL, HFILL}},
-        {&hf_amqp_1_0_correlationId_8, {
-            "Correlation-Id", "amqp.message.correlationId.uint",
-            FT_UINT64, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_userId_bin, {
-            "User-Id", "amqp.message.userId",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
         {&hf_amqp_1_0_to_str, {
-            "To", "amqp.message.to",
+            "To", "amqp.message.to.string",
             FT_STRING, BASE_NONE, NULL, 0,
             "Destination address of the message", HFILL}},
-        {&hf_amqp_1_0_subject_str, {
-            "Subject", "amqp.message.subject",
-            FT_STRING, BASE_NONE, NULL, 0,
-            "Message subject", HFILL}},
         {&hf_amqp_1_0_replyTo_str, {
-            "Reply-To", "amqp.message.replyTo",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_contentType_sym, {
-            "Content-Type", "amqp.message.contentType",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_contentEncoding_sym, {
-            "Content-Encoding", "amqp.message.contentEncoding",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_absoluteExpiryTime_timestamp, {
-            "Expiry-Time", "amqp.message.expiryTime",
-            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
-            "Absolute expiry time", HFILL}},
-        {&hf_amqp_1_0_creationTime_timestamp, {
-            "Creation-Time", "amqp.message.creationTime",
-            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_groupId_str, {
-            "Group-Id", "amqp.message.groupId",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_groupSequence_1, {
-            "Group-Sequence", "amqp.message.groupSequence",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_groupSequence_4, {
-            "Group-Sequence", "amqp.message.groupSequence",
-            FT_UINT32, BASE_DEC, NULL, 0,
-            NULL, HFILL}},
-        {&hf_amqp_1_0_replyToGroupId_str, {
-            "Reply-To-Group-Id", "amqp.message.replyToGroupId",
+            "Reply-To", "amqp.message.replyTo.string",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_mechanisms_sym, {
             "Mechanisms", "amqp.sasl.mechanisms",
             FT_STRING, BASE_NONE, NULL, 0,
             "Supported security mechanisms", HFILL}},
-        {&hf_amqp_1_0_initResponse_bin, {
-            "Init-Response", "amqp.sasl.initResponse",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Initial response", HFILL}},
-        {&hf_amqp_1_0_saslAdditionalData_bin, {
-            "Additional-Data", "amqp.sasl.addData",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "SASL outcome additional data", HFILL}},
         {&hf_amqp_0_10_format, {
             "Format", "amqp.format",
             FT_UINT8, BASE_DEC, NULL, 0xc0,
