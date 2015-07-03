@@ -119,6 +119,7 @@
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/oui.h>
 void proto_register_bootp(void);
 void proto_reg_handoff_bootp(void);
 
@@ -780,7 +781,8 @@ enum field_type {
 	time_in_s_secs,		/* Signed */
 	time_in_u_secs,		/* Unsigned (not micro) */
 	fqdn,
-	ipv4_or_fqdn
+	ipv4_or_fqdn,
+	oui
 };
 
 struct opt_info {
@@ -3616,12 +3618,12 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 
 	static struct opt_info o125_tr111_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
-		/* 1 */ {"DeviceManufacturerOUI", string, &hf_bootp_option125_tr111_device_manufacturer_oui},
-		/* 2 */ {"DeviceSerialNumber", string, &hf_bootp_option125_tr111_device_serial_number},
-		/* 3 */ {"DeviceProductClass", string, &hf_bootp_option125_tr111_device_product_class},
+		/* 1 */ {"DeviceManufacturerOUI",  oui,    &hf_bootp_option125_tr111_device_manufacturer_oui},
+		/* 2 */ {"DeviceSerialNumber",     string, &hf_bootp_option125_tr111_device_serial_number},
+		/* 3 */ {"DeviceProductClass",     string, &hf_bootp_option125_tr111_device_product_class},
 		/* 4 */ {"GatewayManufacturerOUI", string, &hf_bootp_option125_tr111_gateway_manufacturer_oui},
-		/* 5 */ {"GatewaySerialNumber", string, &hf_bootp_option125_tr111_gateway_serial_number},
-		/* 6 */ {"GatewayProductClass", string, &hf_bootp_option125_tr111_gateway_product_class},
+		/* 5 */ {"GatewaySerialNumber",    string, &hf_bootp_option125_tr111_gateway_serial_number},
+		/* 6 */ {"GatewayProductClass",    string, &hf_bootp_option125_tr111_gateway_product_class},
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
@@ -3629,7 +3631,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 
 	if (suboptoff >= optend) {
 		expert_add_info_format(pinfo, v_ti, &ei_bootp_missing_subopt_length,
-									"Suboption %d: no room left in option for suboption length", subopt);
+		                       "Suboption %d: no room left in option for suboption length", subopt);
 		return (optend);
 	}
 
@@ -3653,12 +3655,20 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 
 	if (subopt < array_length(o125_tr111_opt)) {
 		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype,
-							suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
+		                             suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
 			if (o125_tr111_opt[subopt].ftype == special) {
 				if (o125_tr111_opt[subopt].phf != NULL)
 				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
 				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
+			}
+			else if (o125_tr111_opt[subopt].ftype == oui) {
+				/* Get hex string.  Expecting 6 characters. */
+				gchar   *oui_string =  tvb_get_string_enc(wmem_packet_scope(), tvb, suboptoff, subopt_len, ENC_ASCII);
+				/* Convert to OUI number */
+				long oui_number = strtol(oui_string, NULL, 16);
+				/* Add item using oui_vals */
+				proto_tree_add_uint(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, oui_number);
 			} else if (o125_tr111_opt[subopt].phf == NULL)
 				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
 		}
@@ -7190,7 +7200,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option125_tr111_device_manufacturer_oui,
 		  { "DeviceManufacturerOUI", "bootp.option.vi.tr111.device_manufacturer_oui",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
 		    "Option 125:TR 111 1 DeviceManufacturerOUI", HFILL }},
 
 		{ &hf_bootp_option125_tr111_device_serial_number,

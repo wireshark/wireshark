@@ -64,6 +64,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
     { OUI_IEEE_802_1QBG,    "IEEE 802.1Qbg" },
     { OUI_TURBOCELL,        "Karlnet (Turbocell)" },
     { OUI_CISCOWL,          "Cisco Wireless (Aironet) L2" },
+    { OUI_CISCO_UBI,        "Cisco (Ubiquisys)"},
     { OUI_MARVELL,          "Marvell Semiconductor" },
     /* Used for RFC 2427 bridged Frame Relay and RFC 2684 bridged ATM */
     { OUI_IEEE_802_1,       "IEEE 802.1" },
