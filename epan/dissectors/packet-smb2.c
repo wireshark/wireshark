@@ -307,6 +307,9 @@ static int hf_smb2_close_pq_attrib = -1;
 static int hf_smb2_notify_watch_tree = -1;
 static int hf_smb2_output_buffer_len = -1;
 static int hf_smb2_notify_out_data = -1;
+static int hf_smb2_notify_info = -1;
+static int hf_smb2_notify_next_offset = -1;
+static int hf_smb2_notify_action = -1;
 static int hf_smb2_find_flags = -1;
 static int hf_smb2_find_flags_restart_scans = -1;
 static int hf_smb2_find_flags_single_entry = -1;
@@ -418,6 +421,7 @@ static gint ett_smb2_ioctl_flags = -1;
 static gint ett_smb2_ioctl_network_interface = -1;
 static gint ett_windows_sockaddr = -1;
 static gint ett_smb2_close_flags = -1;
+static gint ett_smb2_notify_info = -1;
 static gint ett_smb2_notify_flags = -1;
 static gint ett_smb2_write_flags = -1;
 static gint ett_smb2_rdma_v1 = -1;
@@ -2912,10 +2916,70 @@ dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+static const value_string notify_action_vals[] = {
+	{0x01, "FILE_ACTION_ADDED"},
+	{0x02, "FILE_ACTION_REMOVED"},
+	{0x03, "FILE_ACTION_MODIFIED"},
+	{0x04, "FILE_ACTION_RENAMED_OLD_NAME"},
+	{0x05, "FILE_ACTION_RENAMED_NEW_NAME"},
+	{0x06, "FILE_ACTION_ADDED_STREAM"},
+	{0x07, "FILE_ACTION_REMOVED_STREAM"},
+	{0x08, "FILE_ACTION_MODIFIED_STREAM"},
+	{0x09, "FILE_ACTION_REMOVED_BY_DELETE"},
+	{0, NULL}
+};
+
 static void
-dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+	proto_tree *tree = NULL;
+	proto_item *item = NULL;
+	int offset = 0;
+
+	while (tvb_reported_length_remaining(tvb, offset) > 4) {
+		guint32 start_offset = offset;
+		guint32 next_offset;
+		guint32 length;
+
+		if (parent_tree) {
+			item = proto_tree_add_item(parent_tree, hf_smb2_notify_info, tvb, offset, -1, ENC_NA);
+			tree = proto_item_add_subtree(item, ett_smb2_notify_info);
+		}
+
+		/* next offset */
+		proto_tree_add_item_ret_uint(tree, hf_smb2_notify_next_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &next_offset);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_notify_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		/* file name length */
+		proto_tree_add_item_ret_uint(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
+		offset += 4;
+
+		/* file name */
+		if (length) {
+			const guchar *name = "";
+			guint16     bc;
+
+			bc = tvb_reported_length_remaining(tvb, offset);
+			name = get_unicode_or_ascii_string(tvb, &offset,
+					TRUE, &length, TRUE, TRUE, &bc);
+			if (name) {
+				proto_tree_add_string(tree, hf_smb2_filename,
+						      tvb, offset, length,
+						      name);
+			}
+
+			offset += length;
+		}
+
+		if (!next_offset) {
+			break;
+		}
+
+		offset = start_offset+next_offset;
+	}
 }
 
 static int
@@ -8499,6 +8563,19 @@ proto_register_smb2(void)
 		  { "Out Data", "smb2.notify.out", FT_NONE, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_notify_info,
+		  { "Notify Info", "smb2.notify.info", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_notify_next_offset,
+		  { "Next Offset", "smb2.notify.next_offset", FT_UINT32, BASE_HEX,
+		    NULL, 0, "Offset to next entry in chain or 0", HFILL }},
+
+		{ &hf_smb2_notify_action,
+		  { "Action", "smb2.notify.action", FT_UINT32, BASE_HEX,
+		    VALS(notify_action_vals), 0, "Notify Action", HFILL }},
+
+
 		{ &hf_smb2_find_flags_restart_scans,
 		  { "Restart Scans", "smb2.find.restart_scans", FT_BOOLEAN, 8,
 		    NULL, SMB2_FIND_FLAG_RESTART_SCANS, NULL, HFILL }},
@@ -8767,6 +8844,7 @@ proto_register_smb2(void)
 		&ett_smb2_ioctl_network_interface,
 		&ett_windows_sockaddr,
 		&ett_smb2_close_flags,
+		&ett_smb2_notify_info,
 		&ett_smb2_notify_flags,
 		&ett_smb2_rdma_v1,
 		&ett_smb2_write_flags,
