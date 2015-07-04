@@ -49,7 +49,7 @@ WS_DLL_PUBLIC void init_report_err(
 /*
  * Report a general error.
  */
-WS_DLL_PUBLIC void report_failure(const char *msg_format, ...);
+WS_DLL_PUBLIC void report_failure(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
 /*
  * Report an error when trying to open a file.
