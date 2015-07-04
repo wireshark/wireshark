@@ -3368,11 +3368,8 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if ((!pinfo->fd->flags.visited) || (!cdata->itlq->extra_data)) {
                 scsi_osd_extra_data_t *extra_data;
 
-                extra_data = wmem_new(wmem_file_scope(), scsi_osd_extra_data_t);
+                extra_data = wmem_new0(wmem_file_scope(), scsi_osd_extra_data_t);
                 extra_data->svcaction = svcaction;
-                extra_data->gsatype = 0;
-                extra_data->osd2 = 0;
-                extra_data->continuation_length = 0;
                 cdata->itlq->extra_data = extra_data;
             }
         }
