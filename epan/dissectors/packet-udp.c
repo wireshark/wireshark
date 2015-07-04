@@ -959,7 +959,7 @@ proto_register_udp(void)
 
   gbl_resolv_flags.transport_name = TRUE;
   for (i = 0, j = 0; i <= 65535; i++) {
-    const char *serv = udp_port_to_display(NULL, i);
+    const char *serv = udp_port_to_display(wmem_epan_scope(), i);
 
     if (serv) {
         value_string *p = &udp_ports[j++];
