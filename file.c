@@ -5026,7 +5026,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       simple_error_message_box(
-            "The file \"%s\" contains record data that Wireshark doesn't support.\n",
+            "The file \"%s\" contains record data that Wireshark doesn't support.\n"
             "(%s)",
             display_basename, err_info);
       g_free(err_info);
