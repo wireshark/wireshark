@@ -93,6 +93,7 @@ ui_sort_func(GtkTreeModel *model,
 struct dissector_tables_trees {
     GtkWidget       *str_tree_wgt;
     GtkWidget       *uint_tree_wgt;
+    GtkWidget       *custom_tree_wgt;
     GtkWidget       *heuristic_tree_wgt;
 };
 
@@ -148,6 +149,10 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
         case FT_STRINGZPAD:
             str = (gchar*) key;
             proto_add_to_list(tree_info, store, str, proto_name);
+            break;
+
+        case FT_BYTES:
+            proto_add_to_list(tree_info, store, (gchar*)dissector_handle_get_dissector_name(handle), proto_name);
             break;
 
         default:
@@ -232,6 +237,9 @@ display_dissector_table_names(const char *table_name, const char *ui_name, gpoin
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
             table_name_add_to_list(tree_info, dis_tbl_trees->str_tree_wgt, table_name, ui_name);
+            break;
+        case FT_BYTES:
+            table_name_add_to_list(tree_info, dis_tbl_trees->custom_tree_wgt, table_name, ui_name);
             break;
         default:
             break;
@@ -350,6 +358,21 @@ dissector_tables_dlg_init(void)
     gtk_box_pack_start(GTK_BOX(temp_page), scrolled_window, TRUE, TRUE, 0);
     gtk_widget_show(scrolled_window);
 
+    /* custom tables */
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+    tmp = gtk_label_new("Custom tables");
+    gtk_widget_show(tmp);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
+
+    scrolled_window = scrolled_window_new(NULL, NULL);
+    dis_tbl_trees.custom_tree_wgt = init_table();
+    gtk_widget_show(dis_tbl_trees.custom_tree_wgt);
+    gtk_container_add(GTK_CONTAINER(scrolled_window), dis_tbl_trees.custom_tree_wgt);
+    gtk_box_pack_start(GTK_BOX(temp_page), scrolled_window, TRUE, TRUE, 0);
+    gtk_widget_show(scrolled_window);
+
     /* heuristic tables */
     temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     tmp = gtk_label_new("Heuristic tables");
@@ -378,6 +401,9 @@ dissector_tables_dlg_init(void)
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
 
     sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.uint_tree_wgt)));
+    gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
+
+    sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.custom_tree_wgt)));
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
 
     sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.heuristic_tree_wgt)));
