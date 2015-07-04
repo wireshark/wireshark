@@ -25,12 +25,12 @@
 #include "service_response_time.h"
 
 extern const char*
-service_response_time_get_column_name (int index)
+service_response_time_get_column_name (int idx)
 {
     static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT (s)", "Max SRT (s)", "Avg SRT (s)", "Sum SRT (s)" };
 
-    if (index < 0 || index >= NUM_SRT_COLUMNS) return "(Unknown)";
-    return default_titles[index];
+    if (idx < 0 || idx >= NUM_SRT_COLUMNS) return "(Unknown)";
+    return default_titles[idx];
 }
 
 /*
