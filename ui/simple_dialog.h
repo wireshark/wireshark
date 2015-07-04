@@ -125,7 +125,7 @@ extern void vsimple_error_message_box(const char *msg_format, va_list ap);
 /*
  * Error alert box, taking a format and a list of arguments.
  */
-extern void simple_error_message_box(const char *msg_format, ...);
+extern void simple_error_message_box(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
 #ifdef __cplusplus
 }
