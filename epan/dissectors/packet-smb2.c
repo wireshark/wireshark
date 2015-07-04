@@ -120,6 +120,7 @@ static int hf_smb2_infolevel = -1;
 static int hf_smb2_infolevel_file_info = -1;
 static int hf_smb2_infolevel_fs_info = -1;
 static int hf_smb2_infolevel_sec_info = -1;
+static int hf_smb2_infolevel_posix_info = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
@@ -347,6 +348,17 @@ static int hf_smb2_svhdx_open_device_context_originator_flags = -1;
 static int hf_smb2_svhdx_open_device_context_open_request_id = -1;
 static int hf_smb2_svhdx_open_device_context_initiator_host_name_len = -1;
 static int hf_smb2_svhdx_open_device_context_initiator_host_name = -1;
+static int hf_smb2_posix_v1_version = -1;
+static int hf_smb2_posix_v1_request = -1;
+static int hf_smb2_posix_v1_supported_features = -1;
+static int hf_smb2_posix_v1_posix_lock = -1;
+static int hf_smb2_posix_v1_posix_file_semantics = -1;
+static int hf_smb2_posix_v1_posix_utf8_paths = -1;
+static int hf_smb2_posix_v1_case_sensitive = -1;
+static int hf_smb2_posix_v1_posix_will_convert_nt_acls = -1;
+static int hf_smb2_posix_v1_posix_fileinfo = -1;
+static int hf_smb2_posix_v1_posix_acls = -1;
+static int hf_smb2_posix_v1_rich_acls = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
@@ -430,6 +442,9 @@ static gint ett_smb2_DH2C_buffer = -1;
 static gint ett_smb2_dh2x_flags = -1;
 static gint ett_smb2_APP_INSTANCE_buffer = -1;
 static gint ett_smb2_svhdx_open_device_context = -1;
+static gint ett_smb2_posix_v1_request = -1;
+static gint ett_smb2_posix_v1_response = -1;
+static gint ett_smb2_posix_v1_supported_features = -1;
 static gint ett_smb2_integrity_flags = -1;
 static gint ett_smb2_find_flags = -1;
 static gint ett_smb2_file_directory_info = -1;
@@ -458,10 +473,12 @@ static heur_dissector_list_t smb2_heur_subdissector_list;
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
 #define SMB2_CLASS_SEC_INFO	0x03
+#define SMB2_CLASS_POSIX_INFO	0x80
 static const value_string smb2_class_vals[] = {
 	{ SMB2_CLASS_FILE_INFO,	"FILE_INFO"},
 	{ SMB2_CLASS_FS_INFO,	"FS_INFO"},
 	{ SMB2_CLASS_SEC_INFO,	"SEC_INFO"},
+	{ SMB2_CLASS_POSIX_INFO, "POSIX_INFO"},
 	{ 0, NULL }
 };
 
@@ -558,6 +575,17 @@ static const value_string smb2_sec_info_levels[] = {
 	{ 0, NULL }
 };
 static value_string_ext smb2_sec_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_sec_info_levels);
+
+static const value_string smb2_posix_info_levels[] = {
+	{ 0,    "QueryFileUnixBasic" },
+	{ 1,    "QueryFileUnixLink" },
+	{ 3,    "QueryFileUnixHLink" },
+	{ 5,    "QueryFileUnixXAttr" },
+	{ 0x0B, "QueryFileUnixInfo2" },
+	{ 0, NULL }
+};
+
+static value_string_ext smb2_posix_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_posix_info_levels);
 
 #define SMB2_FIND_DIRECTORY_INFO         0x01
 #define SMB2_FIND_FULL_DIRECTORY_INFO    0x02
@@ -1245,6 +1273,46 @@ static const true_false_string tfs_smb2_ioctl_network_interface_capability_rdma 
 static const value_string originator_flags_vals[] = {
 	{ 1, "SVHDX_ORIGINATOR_PVHDPARSER" },
 	{ 4, "SVHDX_ORIGINATOR_VHDMP" },
+	{ 0, NULL }
+};
+
+static const value_string posix_locks_vals[] = {
+	{ 1, "POSIX_V1_POSIX_LOCK" },
+	{ 0, NULL }
+};
+
+static const value_string posix_utf8_paths_vals[] = {
+	{ 1, "POSIX_V1_UTF8_PATHS" },
+	{ 0, NULL }
+};
+
+static const value_string posix_file_semantics_vals[] = {
+	{ 1, "POSIX_V1_POSIX_FILE_SEMANTICS" },
+	{ 0, NULL }
+};
+
+static const value_string posix_case_sensitive_vals[] = {
+	{ 1, "POSIX_V1_CASE_SENSITIVE" },
+	{ 0, NULL }
+};
+
+static const value_string posix_will_convert_ntacls_vals[] = {
+	{ 1, "POSIX_V1_WILL_CONVERT_NT_ACLS" },
+	{ 0, NULL }
+};
+
+static const value_string posix_fileinfo_vals[] = {
+	{ 1, "POSIX_V1_POSIX_FILEINFO" },
+	{ 0, NULL }
+};
+
+static const value_string posix_acls_vals[] = {
+	{ 1, "POSIX_V1_POSIX_ACLS" },
+	{ 0, NULL }
+};
+
+static const value_string posix_rich_acls_vals[] = {
+	{ 1, "POSIX_V1_RICH_ACLS" },
 	{ 0, NULL }
 };
 
@@ -3857,7 +3925,7 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
 {
-	char		  cl, il;
+	guint8		  cl, il;
 	proto_item	 *item;
 	int		  hfindex;
 	value_string_ext *vsx;
@@ -3890,6 +3958,10 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	case SMB2_CLASS_SEC_INFO:
 		hfindex = hf_smb2_infolevel_sec_info;
 		vsx = &smb2_sec_info_levels_ext;
+		break;
+	case SMB2_CLASS_POSIX_INFO:
+		hfindex = hf_smb2_infolevel_posix_info;
+		vsx = &smb2_posix_info_levels_ext;
 		break;
 	default:
 		hfindex = hf_smb2_infolevel;
@@ -5882,6 +5954,69 @@ dissect_smb2_svhdx_open_device_context_response(tvbuff_t *tvb, packet_info *pinf
 	report_create_context_malformed_buffer(tvb, pinfo, tree, "SHVXD OPEN DEVICE CONTEXT Response");
 }
 
+static const int *posix_flags_fields[] = {
+	&hf_smb2_posix_v1_case_sensitive,
+	&hf_smb2_posix_v1_posix_lock,
+	&hf_smb2_posix_v1_posix_file_semantics,
+	&hf_smb2_posix_v1_posix_utf8_paths,
+	&hf_smb2_posix_v1_posix_will_convert_nt_acls,
+	&hf_smb2_posix_v1_posix_fileinfo,
+	&hf_smb2_posix_v1_posix_acls,
+	&hf_smb2_posix_v1_rich_acls,
+	NULL
+};
+
+static void
+dissect_smb2_posix_v1_caps_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": POSIX V1 CAPS request");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_posix_v1_request, NULL, "POSIX_V1_REQUEST");
+
+	/* Version */
+	proto_tree_add_item(sub_tree, hf_smb2_posix_v1_version,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* Request */
+	proto_tree_add_item(sub_tree, hf_smb2_posix_v1_request,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+}
+
+static void
+dissect_smb2_posix_v1_caps_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": POSIX V1 CAPS response");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_posix_v1_response, NULL, "POSIX_V1_RESPONSE");
+
+	/* Version */
+	proto_tree_add_item(sub_tree, hf_smb2_posix_v1_version,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* Supported Features */
+	proto_tree_add_bitmask(sub_tree, tvb, offset,
+			       hf_smb2_posix_v1_supported_features,
+			       ett_smb2_posix_v1_supported_features,
+			       posix_flags_fields, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+}
+
+typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
+
 typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
 
 typedef struct create_context_data_dissectors {
@@ -5926,7 +6061,10 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 		  dissect_smb2_APP_INSTANCE_buffer_response } },
 	{ "9ecfcb9c-c104-43e6-980e-158da1f6ec83", "SVHDX_OPEN_DEVICE_CONTEXT",
 		{ dissect_smb2_svhdx_open_device_context_request,
-		  dissect_smb2_svhdx_open_device_context_response} }
+		  dissect_smb2_svhdx_open_device_context_response} },
+	{ "34263501-2921-4912-2586-447794114531", "SMB2_POSIX_V1_CAPS",
+		{ dissect_smb2_posix_v1_caps_request,
+		  dissect_smb2_posix_v1_caps_response } }
 };
 
 static struct create_context_data_tag_dissectors*
@@ -7739,6 +7877,10 @@ proto_register_smb2(void)
 		  { "InfoLevel", "smb2.sec_info.infolevel", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
 		    &smb2_sec_info_levels_ext, 0, "Sec_Info Infolevel", HFILL }},
 
+		{ &hf_smb2_infolevel_posix_info,
+		  { "InfoLevel", "smb2.posix_info.infolevel", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+		    &smb2_posix_info_levels_ext, 0, "Posix_Info Infolevel", HFILL }},
+
 		{ &hf_smb2_write_length,
 		  { "Write Length", "smb2.write_length", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Amount of data to write", HFILL }},
@@ -8744,6 +8886,50 @@ proto_register_smb2(void)
 		  { "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, BASE_NONE,
 		     NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_posix_v1_version,
+		  { "Version", "smb2.posix_v1_version", FT_UINT32, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_request,
+		  { "Request", "smb2.posix_request", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_case_sensitive,
+		  { "Posix Case Sensitive File Names", "smb2.posix_case_sensitive", FT_UINT32, BASE_HEX,
+		    VALS(posix_case_sensitive_vals), 0x01, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_lock,
+		  { "Posix Byte-Range Locks", "smb2.posix_locks", FT_UINT32, BASE_HEX,
+		    VALS(posix_locks_vals), 0x02, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_file_semantics,
+		  { "Posix File Semantics", "smb2.posix_file_semantics", FT_UINT32, BASE_HEX,
+		    VALS(posix_file_semantics_vals), 0x04, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_utf8_paths,
+		  { "Posix UTF8 Paths", "smb2.posix_utf8_paths", FT_UINT32, BASE_HEX,
+		    VALS(posix_utf8_paths_vals), 0x08, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_will_convert_nt_acls,
+		  { "Posix Will Convert NT ACLs", "smb2.will_convert_NTACLs", FT_UINT32, BASE_HEX,
+		    VALS(posix_will_convert_ntacls_vals), 0x10, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_fileinfo,
+		  { "Posix Fileinfo", "smb2.posix_fileinfo", FT_UINT32, BASE_HEX,
+		    VALS(posix_fileinfo_vals), 0x20, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_posix_acls,
+		  { "Posix ACLs", "smb2.posix_acls", FT_UINT32, BASE_HEX,
+		    VALS(posix_acls_vals), 0x40, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_rich_acls,
+		  { "Rich ACLs", "smb2.rich_acls", FT_UINT32, BASE_HEX,
+		    VALS(posix_rich_acls_vals), 0x80, NULL, HFILL }},
+
+		{ &hf_smb2_posix_v1_supported_features,
+		  { "Supported Features", "smb2.posix_supported_features", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
 		{ &hf_smb2_transform_signature,
 		  { "Signature", "smb2.header.transform.signature", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
@@ -8861,6 +9047,9 @@ proto_register_smb2(void)
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
 		&ett_smb2_svhdx_open_device_context,
+		&ett_smb2_posix_v1_request,
+		&ett_smb2_posix_v1_response,
+		&ett_smb2_posix_v1_supported_features,
 		&ett_smb2_integrity_flags,
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
