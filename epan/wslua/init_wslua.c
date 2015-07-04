@@ -357,6 +357,16 @@ static void wslua_init_routine(void) {
     static gboolean initialized = FALSE;
 
     if ( ! initialized ) {
+        /*
+         * This must be done only once during the entire life of
+         * tshark/wireshark, because it must be done only once per the life of
+         * the Lua state/engine, so we guard this with the boolean above;
+         * otherwise it would occur every time a file is opened (every time
+         * epan_new() is called).
+         *
+         * If we ever allow the Lua state to be restarted, or to have multiple
+         * Lua states, we'll need to change this.
+         */
         lua_prime_all_fields(NULL);
         initialized = TRUE;
     }
@@ -365,6 +375,12 @@ static void wslua_init_routine(void) {
         iter_table_and_call(L, WSLUA_INIT_ROUTINES,init_error_handler);
     }
 
+}
+
+static void wslua_cleanup_routine(void) {
+    if (L) {
+        iter_table_and_call(L, WSLUA_INIT_ROUTINES,init_error_handler);
+    }
 }
 
 static int prefs_changed_error_handler(lua_State* LS) {
@@ -886,8 +902,9 @@ int wslua_init(register_cb cb, gpointer client_data) {
         }
     }
 
-    /* at this point we're set up so register the init routine */
+    /* at this point we're set up so register the init and cleanup routines */
     register_init_routine(wslua_init_routine);
+    register_cleanup_routine(wslua_cleanup_routine);
 
     /*
      * after this point it is too late to register a menu
