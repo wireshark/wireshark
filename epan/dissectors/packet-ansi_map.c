@@ -16129,7 +16129,7 @@ void ansi_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_
         items[TOTAL_BYTES_COLUMN].type = TABLE_ITEM_UINT;
         items[TOTAL_BYTES_COLUMN].value.uint_value = 0;
         items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
-        items[AVG_BYTES_COLUMN].value.float_value = 0.0;
+        items[AVG_BYTES_COLUMN].value.float_value = 0.0f;
 
         new_stat_tap_init_table_row(table, ansi_map_opr_code_strings[i].value, num_fields, items);
         i++;
@@ -16186,7 +16186,7 @@ ansi_map_stat_reset(new_stat_tap_table* table)
         new_stat_tap_set_field_data(table, element, TOTAL_BYTES_COLUMN, item_data);
 
         item_data = new_stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
-        item_data->value.float_value = 0.0;
+        item_data->value.float_value = 0.0f;
         new_stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
     }
 
