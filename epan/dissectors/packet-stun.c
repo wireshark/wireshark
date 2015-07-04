@@ -51,8 +51,10 @@ void proto_reg_handoff_stun(void);
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
 
-/* data dissector handle */
+/* stun dissector handles */
 static dissector_handle_t data_handle;
+static dissector_handle_t stun_tcp_handle;
+static dissector_handle_t stun_udp_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_stun = -1;
@@ -460,12 +462,17 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     }
 }
 
+/*
+ * XXX: why is this done in this file by the STUN dissector? Why don't we
+ * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
+ */
 static int
 dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type _U_, guint msg_length _U_)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
 
+    /* XXX: a TURN ChannelData message is not actually a STUN message. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
     col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
 
@@ -519,6 +526,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     guint32             transaction_id[3];
     heur_dtbl_entry_t  *hdtbl_entry;
     guint               reported_length;
+    gboolean            is_turn = FALSE;
 
     /*
      * Check if the frame is really meant for us.
@@ -533,10 +541,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     msg_type     = tvb_get_ntohs(tvb, 0);
     msg_length   = tvb_get_ntohs(tvb, 2);
 
-    /* STUN Channel Data message ? */
+    /* TURN ChannelData message ? */
     if (msg_type & 0xC000) {
-
         /* two first bits not NULL => should be a channel-data message */
+
+        /*
+         * If the packet is being dissected through heuristics, we never match
+         * TURN ChannelData because the heuristics are otherwise rather weak.
+         * Instead we have to have seen another TURN message type on the same
+         * 5-tuple, and then set that conversation for non-heuristic STUN dissection.
+         */
+        if (heur_check)
+            return 0;
+
         if (msg_type == 0xFFFF)
             return 0;
 
@@ -550,17 +567,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 return 0;
         }
 
-        if (heur_check) {
-            /* If the packet is being dissected through heuristics, ensure there
-             * is already a STUN conversation because the heuristics are otherwise
-             * rather weak
-             */
-            if (find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                  pinfo->ptype, pinfo->srcport,
-                                  pinfo->destport, 0) == NULL)
-                return 0;
-        }
-
+        /* XXX: why don't we invoke the turnchannel dissector instead? */
         return dissect_stun_message_channel_data(tvb, pinfo, tree, msg_type, msg_length);
     }
 
@@ -593,6 +600,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     msg_type_class = ((msg_type & 0x0010) >> 4) | ((msg_type & 0x0100) >> 7) ;
     msg_type_method = (msg_type & 0x000F) | ((msg_type & 0x00E0) >> 1) | ((msg_type & 0x3E00) >> 2);
+
+    switch (msg_type_method) {
+        /* if it's a TURN method, remember that */
+        case ALLOCATE:
+        case REFRESH:
+        case SEND:
+        case DATA_IND:
+        case CREATE_PERMISSION:
+        case CHANNELBIND:
+            is_turn = TRUE;
+            break;
+    }
 
     conversation = find_or_create_conversation(pinfo);
 
@@ -1259,6 +1278,22 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
+    if (heur_check && is_turn && conversation) {
+        /*
+         * When in heuristic dissector mode, if this is a TURN message, set
+         * the 5-tuple conversation to always decode as non-heuristic. The
+         * odds of incorrectly identifying a random packet as a TURN message
+         * (other than ChannelData) is incredibly small. A ChannelData message
+         * won't be matched when in heuristic mode, so heur_check can't be true
+         * in that case and get to this part of the code.
+         */
+        if (pinfo->ptype == PT_TCP) {
+            conversation_set_dissector(conversation, stun_tcp_handle);
+        } else if (pinfo->ptype == PT_UDP) {
+            conversation_set_dissector(conversation, stun_udp_handle);
+        }
+    }
+
     return reported_length;
 }
 
@@ -1636,9 +1671,6 @@ proto_register_stun(void)
 void
 proto_reg_handoff_stun(void)
 {
-    dissector_handle_t stun_tcp_handle;
-    dissector_handle_t stun_udp_handle;
-
     stun_tcp_handle = new_create_dissector_handle(dissect_stun_tcp, proto_stun);
     stun_udp_handle = new_create_dissector_handle(dissect_stun_udp, proto_stun);
 
