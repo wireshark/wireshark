@@ -94,6 +94,9 @@ void proto_reg_handoff_tftp (void);
 /* User definable values */
 static range_t *global_tftp_port_range;
 
+/* minimum length is an ACK message of 4 bytes */
+#define MIN_HDR_LEN  4
+
 #define TFTP_RRQ        1
 #define TFTP_WRQ        2
 #define TFTP_DATA       3
@@ -113,16 +116,26 @@ static const value_string tftp_opcode_vals[] = {
   { 0,          NULL }
 };
 
+#define TFTP_ERR_NOT_DEF      0
+#define TFTP_ERR_NOT_FOUND    1
+#define TFTP_ERR_NOT_ALLOWED  2
+#define TFTP_ERR_DISK_FULL    3
+#define TFTP_ERR_BAD_OP       4
+#define TFTP_ERR_BAD_ID       5
+#define TFTP_ERR_EXISTS       6
+#define TFTP_ERR_NO_USER      7
+#define TFTP_ERR_OPT_FAIL     8
+
 static const value_string tftp_error_code_vals[] = {
-  { 0, "Not defined" },
-  { 1, "File not found" },
-  { 2, "Access violation" },
-  { 3, "Disk full or allocation exceeded" },
-  { 4, "Illegal TFTP Operation" },
-  { 5, "Unknown transfer ID" },       /* Does not cause termination */
-  { 6, "File already exists" },
-  { 7, "No such user" },
-  { 8, "Option negotiation failed" },
+  { TFTP_ERR_NOT_DEF,     "Not defined" },
+  { TFTP_ERR_NOT_FOUND,   "File not found" },
+  { TFTP_ERR_NOT_ALLOWED, "Access violation" },
+  { TFTP_ERR_DISK_FULL,   "Disk full or allocation exceeded" },
+  { TFTP_ERR_BAD_OP,      "Illegal TFTP Operation" },
+  { TFTP_ERR_BAD_ID,      "Unknown transfer ID" }, /* Does not cause termination */
+  { TFTP_ERR_EXISTS,      "File already exists" },
+  { TFTP_ERR_NO_USER,     "No such user" },
+  { TFTP_ERR_OPT_FAIL,    "Option negotiation failed" },
   { 0, NULL }
 };
 
@@ -447,6 +460,44 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   guint16           opcode;
   tftp_conv_info_t *tftp_info;
 
+  /*
+   * We need to verify it could be a TFTP message before creating a conversation
+   */
+
+  if (tvb_captured_length(tvb) < MIN_HDR_LEN)
+    return FALSE;
+
+  opcode = tvb_get_ntohs(tvb, 0);
+
+  switch (opcode) {
+    case TFTP_RRQ:
+    case TFTP_WRQ:
+    case TFTP_DATA:
+    case TFTP_ACK:
+    case TFTP_OACK:
+    case TFTP_INFO:
+      break;
+    case TFTP_ERROR:
+      /* for an error, we can verify the error code is legit */
+      switch (tvb_get_ntohs(tvb, 2)) {
+        case TFTP_ERR_NOT_DEF:
+        case TFTP_ERR_NOT_FOUND:
+        case TFTP_ERR_NOT_ALLOWED:
+        case TFTP_ERR_DISK_FULL:
+        case TFTP_ERR_BAD_OP:
+        case TFTP_ERR_BAD_ID:
+        case TFTP_ERR_EXISTS:
+        case TFTP_ERR_NO_USER:
+        case TFTP_ERR_OPT_FAIL:
+          break;
+        default:
+          return FALSE;
+      }
+      break;
+    default:
+      return FALSE;
+  }
+
   conversation = find_or_create_conversation(pinfo);
 
   tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
@@ -464,21 +515,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     conversation_add_proto_data(conversation, proto_tftp, tftp_info);
   }
 
-  opcode = tvb_get_ntohs(tvb, 0);
-
-  if ((opcode == TFTP_RRQ) ||
-      (opcode == TFTP_WRQ) ||
-      (opcode == TFTP_DATA) ||
-      (opcode == TFTP_ACK) ||
-      (opcode == TFTP_ERROR) ||
-      (opcode == TFTP_INFO) ||
-      (opcode == TFTP_OACK)) {
-    dissect_tftp_message(tftp_info, tvb, pinfo, tree);
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
+  dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  return TRUE;
 }
 
 static void
