@@ -115,7 +115,7 @@ WS_DLL_PUBLIC register_rtd_t* get_rtd_table_by_name(const char* name);
 /** Free the RTD table data.
  *
  * @param rtd Registered RTD
- * @param rtd_stat_table RTD table array
+ * @param table RTD stat table array
  * @param gui_callback optional callback from GUI
  * @param callback_data callback data needed for GUI
  */
