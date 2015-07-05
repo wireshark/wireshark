@@ -1371,6 +1371,8 @@ if(WIN32)
 		)
 	endif(LUA_FOUND)
 	if (SMI_FOUND)
+		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
+		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
 				"${SMI_DLL_DIR}/${SMI_DLL}"
