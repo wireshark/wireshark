@@ -1291,6 +1291,7 @@ DIAG_ON(cast-qual)
     /* disabled protocols as per configuration file */
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_disabled_heur_dissector_list();
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, TRUE);

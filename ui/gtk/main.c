@@ -2054,6 +2054,8 @@ read_configuration_files(char **gdp_path, char **dp_path)
     /* Read the disabled protocols file. */
     read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
                               dp_path, &dp_open_errno, &dp_read_errno);
+    read_disabled_heur_dissector_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
+                              dp_path, &dp_open_errno, &dp_read_errno);
     if (*gdp_path != NULL) {
         if (gdp_open_errno != 0) {
             simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -3002,6 +3004,7 @@ DIAG_ON(cast-qual)
     /* disabled protocols as per configuration file */
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_disabled_heur_dissector_list();
     }
 
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
@@ -3844,6 +3847,7 @@ void change_configuration_profile (const gchar *profile_name)
     proto_enable_all();
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_disabled_heur_dissector_list();
     }
 
     /* Reload color filters */

@@ -250,6 +250,9 @@ topic_action_url(topic_action_e action)
     case(HELP_ENABLED_PROTOCOLS_DIALOG):
         url = user_guide_url("ChCustProtocolDissectionSection.html");
         break;
+    case(HELP_ENABLED_HEURISTICS_DIALOG):
+        url = user_guide_url("ChCustProtocolDissectionSection.html");
+        break;
     case(HELP_DECODE_AS_DIALOG):
         url = user_guide_url("ChCustProtocolDissectionSection.html");
         break;

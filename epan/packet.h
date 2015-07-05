@@ -448,6 +448,13 @@ WS_DLL_PUBLIC heur_dissector_list_t find_heur_dissector_list(const char *name);
 WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_short_name(heur_dissector_list_t heur_list,
     const char *short_name);
 
+/** Find a heuristic dissector by the unique short protocol name provided during registration.
+ *
+ * @param short_name short name of the protocol to look at
+ * @return pointer to the heuristic dissector entry, NULL if not such dissector exists
+ */
+WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_name);
+
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
  *

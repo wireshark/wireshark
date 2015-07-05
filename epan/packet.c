@@ -1981,6 +1981,11 @@ find_heur_dissector_by_short_name(heur_dissector_list_t heur_list, const char *s
     return found_entry ? (heur_dtbl_entry_t *)(found_entry->data) : NULL;
 }
 
+heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_name)
+{
+	return (heur_dtbl_entry_t*)g_hash_table_lookup(heuristic_short_names, (gpointer)short_name);
+}
+
 void
 heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *short_name, const int proto)
 {
@@ -2041,7 +2046,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	hdtbl_entry->enabled   = TRUE;
 
 	/* do the table insertion */
-	g_hash_table_insert(heuristic_short_names, (gpointer)short_name, hdtbl_entry);  /* Just a copy */
+	g_hash_table_insert(heuristic_short_names, (gpointer)short_name, hdtbl_entry);
 
 	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors,
 	    (gpointer)hdtbl_entry);

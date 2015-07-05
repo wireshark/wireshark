@@ -527,6 +527,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_dissector@Base 1.9.1
  find_dissector_table@Base 1.9.1
  find_heur_dissector_by_short_name@Base 1.99.8
+ find_heur_dissector_by_unique_short_name@Base 1.99.8
  find_heur_dissector_list@Base 1.99.2
  find_or_create_conversation@Base 1.9.1
  find_protocol_by_id@Base 1.9.1
