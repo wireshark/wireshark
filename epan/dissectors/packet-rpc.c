@@ -2143,9 +2143,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* store it */
 			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
-
-			/* and fake up a matching program */
-			rpc_prog_key = rpc_call->prog;
 		}
 
 		/* pass rpc_info to subdissectors */
