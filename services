@@ -6015,6 +6015,7 @@ deskview         3298/tcp # DeskView [Manfred_Randelzofer] [Manfred_Randelzofer]
 deskview         3298/udp # DeskView [Manfred_Randelzofer] [Manfred_Randelzofer]
 pdrncs           3299/tcp # pdrncs [Paul_Wissenbach] [Paul_Wissenbach]
 pdrncs           3299/udp # pdrncs [Paul_Wissenbach] [Paul_Wissenbach]
+ceph             3300/tcp # Ceph monitor [Sage_Weil] [Sage_Weil] 2015-06-29 Knwon Unauthorized Use on 3300-3301
 mcs-fastmail     3302/tcp # MCS Fastmail [Patti_Jo_Newsom] [Patti_Jo_Newsom]
 mcs-fastmail     3302/udp # MCS Fastmail [Patti_Jo_Newsom] [Patti_Jo_Newsom]
 opsession-clnt   3303/tcp # OP Session Client
