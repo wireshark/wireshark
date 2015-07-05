@@ -1822,9 +1822,9 @@ capture_column_reset_cb(pref_t* pref)
 static prefs_set_pref_e
 capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
-    GList   *col_l  = prefs_get_string_list(value);
-    GList    *col_l_elt;
-    gchar   *col_name;
+    GList *col_l  = prefs_get_string_list(value);
+    GList *col_l_elt;
+    gchar *col_name;
     int i;
 
     if (col_l == NULL)
@@ -1861,6 +1861,7 @@ capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
           prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
         }
         pref->varp.list = &prefs.capture_columns;
+        prefs_clear_string_list(col_l);
         return PREFS_SET_SYNTAX_ERR;
       }
       col_l_elt = col_l_elt->next;
@@ -1873,6 +1874,7 @@ capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
       col_l_elt = col_l_elt->next;
     }
     pref->varp.list = &prefs.capture_columns;
+    g_list_free(col_l);
     return PREFS_SET_OK;
 }
 
