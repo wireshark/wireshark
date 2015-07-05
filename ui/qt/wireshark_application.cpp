@@ -21,6 +21,7 @@
 
 #include "wireshark_application.h"
 
+#include <algorithm>
 #include <errno.h>
 
 #include "wsutil/filesystem.h"
