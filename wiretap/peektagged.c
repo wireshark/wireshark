@@ -778,15 +778,15 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
              */
             switch (ieee_802_11.phy) {
 
-	    case PHDR_802_11_PHY_11_DSSS:
-	    case PHDR_802_11_PHY_11B:
-	    case PHDR_802_11_PHY_11G:
-	        frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, TRUE);
-	        break;
+            case PHDR_802_11_PHY_11_DSSS:
+            case PHDR_802_11_PHY_11B:
+            case PHDR_802_11_PHY_11G:
+                frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, TRUE);
+                break;
 
             case PHDR_802_11_PHY_11A:
-	        frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, FALSE);
-	        break;
+                frequency = ieee80211_chan_to_mhz(ieee_802_11.channel, FALSE);
+                break;
 
             default:
                 /* We don't know the band. */
