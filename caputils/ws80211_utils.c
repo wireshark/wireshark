@@ -228,6 +228,7 @@ static int ws80211_get_protocol_features(int* features)
 {
 	struct nl_msg *msg;
 	struct nl_cb *cb;
+	int ret;
 
 	msg = nlmsg_alloc();
 	if (!msg) {
@@ -242,7 +243,9 @@ static int ws80211_get_protocol_features(int* features)
 
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_features_handler, features);
 
-	return nl80211_do_cmd(msg, cb);
+	ret = nl80211_do_cmd(msg, cb);
+	nlmsg_free(msg);
+	return ret;
 }
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
@@ -402,6 +405,7 @@ static int ws80211_get_phys(GArray *interfaces)
 	struct nliface_cookie cookie;
 	struct nl_msg *msg;
 	struct nl_cb *cb;
+	int ret;
 	msg = nlmsg_alloc();
 	if (!msg) {
 		fprintf(stderr, "failed to allocate netlink message\n");
@@ -422,10 +426,13 @@ static int ws80211_get_phys(GArray *interfaces)
 #endif /* #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP */
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_phys_handler, &cookie);
 
-	return nl80211_do_cmd(msg, cb);
+	ret = nl80211_do_cmd(msg, cb);
+	nlmsg_free(msg);
+	return ret;
 
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 nla_put_failure:
+	nlmsg_free(msg);
 	fprintf(stderr, "building message failed\n");
 	return -1;
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
@@ -532,15 +539,19 @@ static int __ws80211_get_iface_info(const char *name, struct __iface_info *iface
 
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_iface_info_handler, iface_info);
 
-	if (nl80211_do_cmd(msg, cb))
+	if (nl80211_do_cmd(msg, cb)) {
+		nlmsg_free(msg);
 		return -1;
+	}
 
 	/* Old kernels can't get the current freq via netlink. Try WEXT too :( */
 	if (iface_info->pub->current_freq == -1)
 		iface_info->pub->current_freq = get_freq_wext(name);
+	nlmsg_free(msg);
 	return 0;
 
 nla_put_failure:
+	nlmsg_free(msg);
 	fprintf(stderr, "building message failed\n");
 	return -1;
 }
