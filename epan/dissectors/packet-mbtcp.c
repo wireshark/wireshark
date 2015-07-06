@@ -148,7 +148,9 @@ static int hf_modbus_next_object_id = -1;
 static int hf_modbus_object_str_value = -1;
 static int hf_modbus_object_value = -1;
 static int hf_modbus_reg_uint16 = -1;
+static int hf_modbus_reg_int16 = -1;
 static int hf_modbus_reg_uint32 = -1;
+static int hf_modbus_reg_int32 = -1;
 static int hf_modbus_reg_ieee_float = -1;
 static int hf_modbus_reg_modicon_float = -1;
 static int hf_mbrtu_unitid = -1;
@@ -389,7 +391,9 @@ static const value_string conformity_level_vals[] = {
 
 static const enum_val_t mbus_register_format[] = {
   { "UINT16     ", "UINT16     ",  MBTCP_PREF_REGISTER_FORMAT_UINT16  },
+  { "INT16      ", "INT16      ",  MBTCP_PREF_REGISTER_FORMAT_INT16   },
   { "UINT32     ", "UINT32     ",  MBTCP_PREF_REGISTER_FORMAT_UINT32  },
+  { "INT32      ", "INT32      ",  MBTCP_PREF_REGISTER_FORMAT_INT32  },
   { "IEEE FLT   ", "IEEE FLT   ",  MBTCP_PREF_REGISTER_FORMAT_IEEE_FLOAT  },
   { "MODICON FLT", "MODICON FLT",  MBTCP_PREF_REGISTER_FORMAT_MODICON_FLOAT  },
   { NULL, NULL, 0 }
@@ -763,6 +767,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                     gint payload_start, gint payload_len, guint8 register_format)
 {
     gint reported_len, data_offset, reg_num = 0;
+    gint16  data16s;
+    gint32  data32s;
     guint16 data16, modflt_lo, modflt_hi;
     guint32 data32, modflt_comb;
     gfloat data_float, modfloat;
@@ -815,10 +821,26 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         data_offset += 2;
                         reg_num += 1;
                         break;
+                    case MBTCP_PREF_REGISTER_FORMAT_INT16: /* Standard-size signed integer 16-bit register */
+                        data16s = tvb_get_ntohs(next_tvb, data_offset);
+                        register_item = proto_tree_add_int(tree, hf_modbus_reg_int16, next_tvb, data_offset, 2, data16s);
+                        proto_item_set_text(register_item, "Register %u (INT16): %d", reg_num, data16s);
+
+                        data_offset += 2;
+                        reg_num += 1;
+                        break;
                     case MBTCP_PREF_REGISTER_FORMAT_UINT32: /* Double-size unsigned integer 2 x 16-bit registers */
                         data32 = tvb_get_ntohl(next_tvb, data_offset);
                         register_item = proto_tree_add_uint(tree, hf_modbus_reg_uint32, next_tvb, data_offset, 4, data32);
                         proto_item_set_text(register_item, "Register %u (UINT32): %u", reg_num, data32);
+
+                        data_offset += 4;
+                        reg_num += 2;
+                        break;
+                    case MBTCP_PREF_REGISTER_FORMAT_INT32: /* Double-size signed integer 2 x 16-bit registers */
+                        data32s = tvb_get_ntohl(next_tvb, data_offset);
+                        register_item = proto_tree_add_int(tree, hf_modbus_reg_int32, next_tvb, data_offset, 4, data32s);
+                        proto_item_set_text(register_item, "Register %u (INT32): %d", reg_num, data32s);
 
                         data_offset += 4;
                         reg_num += 2;
@@ -1733,9 +1755,19 @@ proto_register_modbus(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_modbus_reg_int16,
+            { "Register (INT16)", "modbus.register.int16",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_modbus_reg_uint32,
             { "Register (UINT32)", "modbus.register.uint32",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_reg_int32,
+            { "Register (INT32)", "modbus.register.int32",
+            FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_ieee_float,
