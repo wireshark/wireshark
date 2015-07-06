@@ -221,6 +221,15 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
+		case BAND_PUBLIC_SAFETY:
+			/*
+			 * XXX - what do we do here?  What are the channel
+			 * numbers?  How do we distinguish the several
+			 * different flavors of 4.9 GHz frequencies?
+			 */
+			frequency = 0;
+			break;
+
 		default:
 			frequency = 0;
 			break;
