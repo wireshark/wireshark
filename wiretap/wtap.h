@@ -538,7 +538,10 @@ struct p2p_phdr {
  * Radio information is only present in this form for
  * WTAP_ENCAP_IEEE_802_11_WITH_RADIO.  This is used for file formats in
  * which the radio information isn't provided as a pseudo-header in the
- * packet data.
+ * packet data.  It is also used by the dissectors for the pseudo-headers
+ * in the packet data to supply radio information, in a form independent
+ * of the file format and pseudo-header format, to the "802.11 radio"
+ * dissector.
  *
  * Signal strength, etc. information:
  *
