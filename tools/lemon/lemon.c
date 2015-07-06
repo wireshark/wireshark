@@ -1019,8 +1019,10 @@ void FindLinks(struct lemon *lemp)
   ** which the link is attached. */
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
-    for(cfp=stp->cfp; cfp; cfp=cfp->next){
-      cfp->stp = stp;
+    if(stp){
+      for(cfp=stp->cfp; cfp; cfp=cfp->next){
+        cfp->stp = stp;
+      }
     }
   }
 
@@ -1028,10 +1030,12 @@ void FindLinks(struct lemon *lemp)
   ** links are used in the follow-set computation. */
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
-    for(cfp=stp->cfp; cfp; cfp=cfp->next){
-      for(plp=cfp->bplp; plp; plp=plp->next){
-        other = plp->cfp;
-        Plink_add(&other->fplp,cfp);
+    if(stp){
+      for(cfp=stp->cfp; cfp; cfp=cfp->next){
+        for(plp=cfp->bplp; plp; plp=plp->next){
+          other = plp->cfp;
+          Plink_add(&other->fplp,cfp);
+        }
       }
     }
   }
@@ -1051,24 +1055,28 @@ void FindFollowSets(struct lemon *lemp)
   int change;
 
   for(i=0; i<lemp->nstate; i++){
-    for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
-      cfp->status = INCOMPLETE;
+    if(lemp->sorted[i]){
+      for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
+        cfp->status = INCOMPLETE;
+      }
     }
   }
 
   do{
     progress = 0;
     for(i=0; i<lemp->nstate; i++){
-      for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
-        if( cfp->status==COMPLETE ) continue;
-        for(plp=cfp->fplp; plp; plp=plp->next){
-          change = SetUnion(plp->cfp->fws,cfp->fws);
-          if( change ){
-            plp->cfp->status = INCOMPLETE;
-            progress = 1;
+      if(lemp->sorted[i]){
+        for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
+          if( cfp->status==COMPLETE ) continue;
+          for(plp=cfp->fplp; plp; plp=plp->next){
+            change = SetUnion(plp->cfp->fws,cfp->fws);
+            if( change ){
+              plp->cfp->status = INCOMPLETE;
+              progress = 1;
+            }
           }
+          cfp->status = COMPLETE;
         }
-        cfp->status = COMPLETE;
       }
     }
   }while( progress );
@@ -1092,13 +1100,15 @@ void FindActions(struct lemon *lemp)
   */
   for(i=0; i<lemp->nstate; i++){   /* Loop over all states */
     stp = lemp->sorted[i];
-    for(cfp=stp->cfp; cfp; cfp=cfp->next){  /* Loop over all configurations */
-      if( cfp->rp->nrhs==cfp->dot ){        /* Is dot at extreme right? */
-        for(j=0; j<lemp->nterminal; j++){
-          if( SetFind(cfp->fws,j) ){
-            /* Add a reduce action to the state "stp" which will reduce by the
-            ** rule "cfp->rp" if the lookahead symbol is "lemp->symbols[j]" */
-            Action_add(&stp->ap,REDUCE,lemp->symbols[j],(char *)cfp->rp);
+    if(stp){
+      for(cfp=stp->cfp; cfp; cfp=cfp->next){  /* Loop over all configurations */
+        if( cfp->rp->nrhs==cfp->dot ){        /* Is dot at extreme right? */
+          for(j=0; j<lemp->nterminal; j++){
+            if( SetFind(cfp->fws,j) ){
+              /* Add a reduce action to the state "stp" which will reduce by the
+              ** rule "cfp->rp" if the lookahead symbol is "lemp->symbols[j]" */
+              Action_add(&stp->ap,REDUCE,lemp->symbols[j],(char *)cfp->rp);
+            }
           }
         }
       }
