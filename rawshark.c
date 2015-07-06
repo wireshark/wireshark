@@ -504,11 +504,6 @@ DIAG_ON(cast-qual)
                 init_progfile_dir_error);
     }
 
-    /*
-     * Get credential information for later use.
-     */
-    init_process_policies();
-
     /* nothing more than the standard GLib handler, but without a warning */
     log_flags =
         G_LOG_LEVEL_WARNING |
