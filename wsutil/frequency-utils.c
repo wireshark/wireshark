@@ -35,7 +35,17 @@ typedef struct freq_cvt_s {
 
 #define FREQ_STEP 5     /* MHz. This seems to be consistent, thankfully */
 
-/* From "802.11 Wireless Networks: The Definitive Guide", 2nd Ed. by Matthew Gast */
+/*
+ * From "802.11 Wireless Networks: The Definitive Guide", 2nd Ed. by
+ * Matthew Gast.
+ *
+ * XXX - what about Japanese channels 182 through 196, also in the 4.9 GHz
+ * band, with frequencies of 4910 + (chan - 182)*5 MHz?
+ *
+ * XXX - what about the U.S. public safety 4.9 GHz band?
+ *
+ * XXX - what about 802.11ad?
+ */
 static freq_cvt_t freq_cvt[] = {
     { 2412, 2472,   1, TRUE },   /* Table 12-1, p 257 */
     { 2484, 2484,  14, TRUE },   /* Table 12-1, p 257 */
