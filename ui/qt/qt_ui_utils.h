@@ -36,6 +36,7 @@
 #include <QString>
 
 class QFont;
+class QAction;
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,7 +156,6 @@ void smooth_font_size(QFont &font);
  * @param a2 Second action
  * @return
  */
-class QAction;
 bool qActionLessThan(const QAction * a1, const QAction * a2);
 
 #endif /* __QT_UI_UTILS__H__ */
