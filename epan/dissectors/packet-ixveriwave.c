@@ -731,6 +731,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             phdr.phy_info.info_11ac.presence_flags =
                 PHDR_802_11AC_HAS_SHORT_GI;
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+            /*
+             * XXX - this probably has only one user, so only one MCS index
+             * and only one NSS, but where's the NSS?
+             */
             for (i = 0; i < 4; i++)
                 phdr.phy_info.info_11ac.nss[i] = 0;
         } else {

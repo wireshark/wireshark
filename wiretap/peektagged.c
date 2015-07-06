@@ -614,6 +614,11 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             if (ext_flags & EXT_FLAG_802_11ac) {
                 ieee_802_11.phy = PHDR_802_11_PHY_11AC;
                 ieee_802_11.phy_info.info_11ac.presence_flags = 0;
+                /*
+                 * XXX - this probably has only one user, so only
+                 * one MCS index and only one NSS, but where's the
+                 * NSS?
+                 */
                 for (i = 0; i < 4; i++)
                     ieee_802_11.phy_info.info_11ac.nss[i] = 0;
 

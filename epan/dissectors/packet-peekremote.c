@@ -475,6 +475,10 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         guint i;
         phdr.phy = PHDR_802_11_PHY_11AC;
         phdr.phy_info.info_11ac.presence_flags = 0;
+        /*
+         * XXX - this probably has only one user, so only one MCS index
+         * and only one NSS, but where's the NSS?
+         */
         for (i = 0; i < 4; i++) {
           phdr.phy_info.info_11ac.nss[i] = 0;
         }
