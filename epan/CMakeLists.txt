@@ -1324,6 +1324,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-tapa.c
 	dissectors/packet-tcp.c
 	dissectors/packet-tdmoe.c
+	dissectors/packet-tdmop.c
 	dissectors/packet-tds.c
 	dissectors/packet-teamspeak2.c
 	dissectors/packet-teimanagement.c

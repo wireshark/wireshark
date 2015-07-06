@@ -1150,6 +1150,7 @@ port_type_to_str (port_type type)
 		case PT_I2C:		return "I2C";
 		case PT_IBQP:		return "IBQP";
 		case PT_BLUETOOTH:	return "BLUETOOTH";
+		case PT_TDMOP:		return "TDMOP";
 		default:		return "[Unknown]";
 	}
 }
