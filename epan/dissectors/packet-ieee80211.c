@@ -13133,7 +13133,7 @@ dissect_durid(proto_tree *hdr_tree, tvbuff_t *tvb, guint16 fts, gint offset)
   } else if (((durid & 0xC000) == 0xC000) &&
              ((durid & 0x3FFF) > 0) && ((durid & 0x3FFF) <= 2007) &&
              (fts == CTRL_PS_POLL)) {
-    proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, offset,
+    proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, offset, 2,
       ENC_LITTLE_ENDIAN);
   } else if (durid == 0x8000) {
     proto_tree_add_uint_format(hdr_tree, hf_ieee80211_did_duration, tvb,
