@@ -545,22 +545,27 @@ for (@control) {
 $anymatch .= ')';
 
 # for each file given in the command line args
-my $file;
-while ( $file =  shift) {
+my $file = shift;
+my $docfile = 0;
 
+while ( $file ) {
+
+	# continue to next loop if the file is not plain text
 	next unless -f $file;
 
-	%module = ();
-
-	my $docfile = $file;
-	$docfile =~ s#.*/##;
-	$docfile =~ s/\.c$/.$out_extension/;
+	if (!$docfile) {
+		$docfile = $file;
+		$docfile =~ s#.*/##;
+		$docfile =~ s/\.c$/.$out_extension/;
+	}
 
 	open C, "< $file" or die "Can't open input file $file: $!";
 	open D, "> wsluarm_src/$docfile" or die "Can't open output file wsluarm_src/$docfile: $!";
 
 	my $b = '';
 	$b .= $_ while (<C>);
+
+	close C;
 
 	while ($b =~ /$anymatch/ms ) {
 		my $match = $1;
@@ -574,6 +579,34 @@ while ( $file =  shift) {
 			}
 		}
 	}
+
+	# peek at next file to see if it's continuing this module
+	$file = shift;
+	# make sure we get the next plain text file
+	while ($file and !(-f $file)) {
+		$file = shift;
+	}
+
+	if ($file) {
+		# we have another file - check it out
+
+		open C, "< $file" or die "Can't open input file $file: $!";
+
+		my $peek_for_continue = '';
+		$peek_for_continue .= $_ while (<C>);
+
+		close C;
+
+		if ($peek_for_continue =~ /WSLUA_CONTINUE_MODULE\s*([A-Z][a-zA-Z0-9]+)/) {
+			if ($module{name} ne $1) {
+				die "Input file $file continues a different module: $1 (previous module is $module{name})!";
+			}
+			# ok, we're continuing the same module
+			next;
+		}
+	}
+
+	# if we got here, we're not continuing the module
 
 	$modules{$module{name}} = $docfile;
 
@@ -640,15 +673,17 @@ while ( $file =  shift) {
 		print D ${$template_ref}{global_functions_footer};
 	}
 
+	printf D ${$template_ref}{module_footer}, $module{name};
+
+	close D;
+
+	%module = ();
 	%classes = ();
 	$class = undef;
 	$function = undef;
 	@functions = ();
-	close C;
+	$docfile = 0;
 
-	printf D ${$template_ref}{module_footer}, $module{name};
-
-	close D;
 }
 
 sub function_descr {

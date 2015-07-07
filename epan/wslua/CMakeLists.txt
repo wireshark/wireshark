@@ -20,24 +20,36 @@
 #
 
 set(WSLUA_MODULES
-	${CMAKE_CURRENT_SOURCE_DIR}/lua_bitop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib_f.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_int64.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tree.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_pinfo.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_listener.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_gui.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lua_bitop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_address.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_byte_array.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_capture_info.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_column.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dir.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dissector.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dumper.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_field.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_file.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_struct.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dumper.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_file_common.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_file_handler.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_frame_info.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_gui.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_int64.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_internals.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_listener.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_nstime.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_pinfo.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_pref.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto_expert.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto_field.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_struct.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tree.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_util.c
 )
 set (WSLUA_MODULES ${WSLUA_MODULES} PARENT_SCOPE)
 

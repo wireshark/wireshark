@@ -289,6 +289,14 @@ to make new wslua files generate documentation, it is not sufficient to just
 add this macro to a new file and add the file to the CMakeLists.txt; you also
 have to add the module name into docbook/user-guide.xml, and docbook/wsluarm.xml.
 
+
+WSLUA_CONTINUE_MODULE - like WSLUA_MODULE, except used at the top of a .c file
+to continue defining classes/functions/etc. within a previously declared module
+in a previous file (i.e., one that used WSLUA_MODULE). The module name must match
+the original one, and the .c file must be listed after the original one in the
+CMakeLists.txt/Makefile.common lists in the docbook directory.
+
+
 WSLUA_ATTRIBUTE - this is another documentation-only "macro", only used within
 comments.  It makes the API docs generate documentation for a member variable
 of a class, i.e. a key of a Lua table that is not called as a function in Lua,
@@ -327,6 +335,7 @@ Example:
         WSLUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
     }
 
+
 WSLUA_CLASS_DEFINE - this is used to define/create a new Lua class type (i.e.,
 table with methods).  A Class name must begin with an uppercase letter,
 followed by any upper or lower case letters but not underscores; in other
@@ -337,6 +346,7 @@ automatically generated, as it is for the other macros.
 Example:
 
     WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
+
 
 WSLUA_CONSTRUCTOR - this is used to define a function of a class that is a
 static function rather than a per-object method; i.e., from a Lua perspective

@@ -696,6 +696,7 @@ extern void UInt64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittl
 extern int UInt64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
 
 extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
+extern int push_wsluaTvb(lua_State* L, Tvb t);
 extern gboolean push_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len);
 extern void clear_outstanding_Tvb(void);
 extern void clear_outstanding_TvbRange(void);

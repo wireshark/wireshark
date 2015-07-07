@@ -255,6 +255,9 @@ set(WSDG_SOURCE
 	${WSDG_GRAPHICS}
 )
 
+# Note: file order here MATTERS!
+# new WSLUA_MODULE files must come right before any WSLUA_CONTINUE_MODULE
+# files for the same module
 set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dumper.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_field.c
@@ -262,10 +265,21 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_int64.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_listener.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_pinfo.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_address.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_column.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_nstime.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dissector.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_pref.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto_expert.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto_field.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tree.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tvb.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_byte_array.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_file.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_file_handler.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_frame_info.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_capture_info.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dir.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c

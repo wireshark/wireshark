@@ -253,18 +253,32 @@ CLEANDIRS =	\
 	wsug_html_chunked	\
 	wsluarm_src
 
+# Note: file order here MATTERS!
+# new WSLUA_MODULE files must come right before any WSLUA_CONTINUE_MODULE
+# files for the same module
 WSLUA_MODULES = \
 	$(top_srcdir)/epan/wslua/wslua_dumper.c \
 	$(top_srcdir)/epan/wslua/wslua_field.c \
 	$(top_srcdir)/epan/wslua/wslua_gui.c \
 	$(top_srcdir)/epan/wslua/wslua_listener.c \
 	$(top_srcdir)/epan/wslua/wslua_pinfo.c \
+	$(top_srcdir)/epan/wslua/wslua_address.c \
+	$(top_srcdir)/epan/wslua/wslua_column.c \
+	$(top_srcdir)/epan/wslua/wslua_nstime.c \
 	$(top_srcdir)/epan/wslua/wslua_proto.c \
+	$(top_srcdir)/epan/wslua/wslua_dissector.c \
+	$(top_srcdir)/epan/wslua/wslua_pref.c \
+	$(top_srcdir)/epan/wslua/wslua_proto_expert.c \
+	$(top_srcdir)/epan/wslua/wslua_proto_field.c \
 	$(top_srcdir)/epan/wslua/wslua_int64.c \
 	$(top_srcdir)/epan/wslua/wslua_struct.c \
 	$(top_srcdir)/epan/wslua/wslua_tree.c \
 	$(top_srcdir)/epan/wslua/wslua_tvb.c \
+	$(top_srcdir)/epan/wslua/wslua_byte_array.c \
 	$(top_srcdir)/epan/wslua/wslua_file.c \
+	$(top_srcdir)/epan/wslua/wslua_file_handler.c \
+	$(top_srcdir)/epan/wslua/wslua_frame_info.c \
+	$(top_srcdir)/epan/wslua/wslua_capture_info.c \
 	$(top_srcdir)/epan/wslua/wslua_dir.c \
 	$(top_srcdir)/epan/wslua/wslua_util.c
 

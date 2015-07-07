@@ -27,25 +27,37 @@ AM_CPPFLAGS = -I$(top_srcdir) @LUA_CFLAGS@
 
 noinst_LTLIBRARIES = libwslua.la
 
-wslua_modules = 	\
-	lua_bitop.c \
-	lrexlib.c \
-	lrexlib_glib.c \
-	lrexlib_glib_f.c \
-	wslua_tvb.c \
-	wslua_proto.c \
-	wslua_int64.c \
-	wslua_tree.c \
-	wslua_pinfo.c \
-	wslua_listener.c \
-	wslua_gui.c \
-	wslua_dir.c \
-	wslua_util.c \
-	wslua_field.c \
-	wslua_file.c \
-	wslua_struct.c \
-	wslua_dumper.c \
-	wslua_internals.c
+wslua_modules = 		\
+	lrexlib.c		\
+	lrexlib_glib.c		\
+	lrexlib_glib_f.c	\
+	lua_bitop.c		\
+	wslua_address.c		\
+	wslua_byte_array.c	\
+	wslua_capture_info.c	\
+	wslua_column.c		\
+	wslua_dir.c		\
+	wslua_dissector.c	\
+	wslua_dumper.c		\
+	wslua_field.c		\
+	wslua_file.c		\
+	wslua_file_common.c	\
+	wslua_file_handler.c	\
+	wslua_frame_info.c	\
+	wslua_gui.c		\
+	wslua_int64.c		\
+	wslua_internals.c	\
+	wslua_listener.c	\
+	wslua_nstime.c		\
+	wslua_pinfo.c		\
+	wslua_pref.c		\
+	wslua_proto.c		\
+	wslua_proto_expert.c	\
+	wslua_proto_field.c	\
+	wslua_struct.c		\
+	wslua_tree.c		\
+	wslua_tvb.c		\
+	wslua_util.c
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \
@@ -86,7 +98,10 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	declare_wslua.h		\
 	lua_bitop.h		\
-	lrexlib.h 			\
+	lrexlib.h 		\
+	lrexlib_algo.h 		\
+	wslua_file_common.h 	\
+	wslua_pinfo_common.h 	\
 	lrexlib_algo.h 		\
 	register_wslua.c	\
 	taps			\

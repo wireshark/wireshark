@@ -13,47 +13,71 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 MODULES = 	\
-	lua_bitop.c \
 	lrexlib.c \
 	lrexlib_glib.c \
 	lrexlib_glib_f.c \
-	wslua_tvb.c \
-	wslua_proto.c \
-	wslua_int64.c \
-	wslua_tree.c \
-	wslua_pinfo.c \
-	wslua_listener.c \
-	wslua_gui.c \
+	lua_bitop.c \
+	wslua_address.c \
+	wslua_byte_array.c \
+	wslua_capture_info.c \
+	wslua_column.c \
 	wslua_dir.c \
-	wslua_util.c \
+	wslua_dissector.c \
+	wslua_dumper.c \
 	wslua_field.c \
 	wslua_file.c \
+	wslua_file_common.c \
+	wslua_file_handler.c \
+	wslua_frame_info.c \
+	wslua_gui.c \
+	wslua_int64.c \
+	wslua_internals.c \
+	wslua_listener.c \
+	wslua_nstime.c \
+	wslua_pinfo.c \
+	wslua_pref.c \
+	wslua_proto.c \
+	wslua_proto_expert.c \
+	wslua_proto_field.c \
 	wslua_struct.c \
-	wslua_dumper.c \
-	wslua_internals.c
+	wslua_tree.c \
+	wslua_tvb.c \
+	wslua_util.c
 
 OBJECTS= \
 	init_wslua.obj \
 	register_wslua.obj \
 	taps_wslua.obj \
-	lua_bitop.obj \
 	lrexlib.obj \
 	lrexlib_glib.obj \
 	lrexlib_glib_f.obj \
-	wslua_tvb.obj \
-	wslua_proto.obj \
-	wslua_int64.obj \
-	wslua_tree.obj \
-	wslua_pinfo.obj \
-	wslua_listener.obj \
-	wslua_gui.obj \
+	lua_bitop.obj \
+	wslua_address.obj \
+	wslua_byte_array.obj \
+	wslua_capture_info.obj \
+	wslua_column.obj \
 	wslua_dir.obj \
-	wslua_util.obj \
+	wslua_dissector.obj \
+	wslua_dumper.obj \
 	wslua_field.obj \
 	wslua_file.obj \
+	wslua_file_common.obj \
+	wslua_file_handler.obj \
+	wslua_frame_info.obj \
+	wslua_gui.obj \
+	wslua_int64.obj \
+	wslua_internals.obj \
+	wslua_listener.obj \
+	wslua_nstime.obj \
+	wslua_pinfo.obj \
+	wslua_pref.obj \
+	wslua_proto.obj \
+	wslua_proto_expert.obj \
+	wslua_proto_field.obj \
 	wslua_struct.obj \
-	wslua_dumper.obj \
-	wslua_internals.obj
+	wslua_tree.obj \
+	wslua_tvb.obj \
+	wslua_util.obj
 
 wslua.lib	: $(OBJECTS) init.lua
 	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
