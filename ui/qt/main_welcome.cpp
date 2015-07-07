@@ -208,10 +208,8 @@ void MainWelcome::appInitialized()
     splash_overlay_ = NULL;
 }
 
-void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int column)
+void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int)
 {
-    Q_UNUSED(column);
-
     if (item) {
         emit startCapture();
     }

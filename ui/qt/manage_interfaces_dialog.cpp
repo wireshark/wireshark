@@ -298,10 +298,8 @@ void ManageInterfacesDialog::on_delPipe_clicked()
     delete ui->pipeList->currentItem();
 }
 
-void ManageInterfacesDialog::on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void ManageInterfacesDialog::on_pipeList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)
 {
-    Q_UNUSED(current)
-    Q_UNUSED(previous)
     updateWidgets();
 }
 
@@ -467,10 +465,8 @@ void ManageInterfacesDialog::on_buttonBox_helpRequested()
 }
 
 #ifdef HAVE_PCAP_REMOTE
-void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem* item, int col)
+void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem*, int)
 {
-    Q_UNUSED(item)
-    Q_UNUSED(col)
     updateWidgets();
 }
 
@@ -660,10 +656,8 @@ void ManageInterfacesDialog::remoteAccepted()
     }
 }
 
-void ManageInterfacesDialog::on_remoteList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void ManageInterfacesDialog::on_remoteList_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)
 {
-    Q_UNUSED(current)
-    Q_UNUSED(previous)
     updateWidgets();
 }
 
@@ -782,10 +776,8 @@ PathChooserDelegate::~PathChooserDelegate()
 {
 }
 
-QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &) const
 {
-    Q_UNUSED(index)
-
     QTreeWidgetItem *item = tree_->currentItem();
     if (!item) {
         return NULL;
@@ -821,9 +813,8 @@ QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     return path_editor_;
 }
 
-void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
 {
-    Q_UNUSED(index)
     QRect rect = option.rect;
 
     // Make sure the editor doesn't get squashed.

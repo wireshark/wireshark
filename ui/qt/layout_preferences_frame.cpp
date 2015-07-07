@@ -54,9 +54,8 @@ LayoutPreferencesFrame::~LayoutPreferencesFrame()
     delete ui;
 }
 
-void LayoutPreferencesFrame::showEvent(QShowEvent *evt)
+void LayoutPreferencesFrame::showEvent(QShowEvent *)
 {
-    Q_UNUSED(evt);
     updateWidgets();
 }
 
@@ -274,9 +273,8 @@ void LayoutPreferencesFrame::on_pane3NoneRadioButton_toggled(bool checked)
 }
 
 
-void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *button)
+void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
 {
-    Q_UNUSED(button);
     pref_layout_type_->stashed_val.uint = pref_layout_type_->default_val.uint;
     pref_layout_content_1_->stashed_val.enumval = pref_layout_content_1_->default_val.enumval;
     updateWidgets();

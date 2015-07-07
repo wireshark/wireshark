@@ -412,10 +412,8 @@ void LBMStreamDialog::resetTap(void * tap_data)
     dialog->m_ui->lbm_stream_TreeWidget->clear();
 }
 
-gboolean LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info)
+gboolean LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * stream_info)
 {
-    Q_UNUSED(edt)
-
     if (pinfo->fd->flags.passed_dfilter == 1)
     {
         const lbm_uim_stream_tap_info_t * tapinfo = (const lbm_uim_stream_tap_info_t *)stream_info;
@@ -426,9 +424,8 @@ gboolean LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_d
     return (TRUE);
 }
 
-void LBMStreamDialog::drawTreeItems(void * tap_data)
+void LBMStreamDialog::drawTreeItems(void *)
 {
-    Q_UNUSED(tap_data)
 }
 
 void LBMStreamDialog::on_applyFilterButton_clicked(void)

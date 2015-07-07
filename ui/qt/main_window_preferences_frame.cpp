@@ -113,9 +113,8 @@ MainWindowPreferencesFrame::~MainWindowPreferencesFrame()
     delete ui;
 }
 
-void MainWindowPreferencesFrame::showEvent(QShowEvent *evt)
+void MainWindowPreferencesFrame::showEvent(QShowEvent *)
 {
-    Q_UNUSED(evt);
     updateWidgets();
 }
 

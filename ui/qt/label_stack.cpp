@@ -117,19 +117,16 @@ void LabelStack::mousePressEvent(QMouseEvent *event)
         emit mousePressedAt(QPoint(event->globalPos()), Qt::LeftButton);
 }
 
-void LabelStack::mouseReleaseEvent(QMouseEvent *event)
+void LabelStack::mouseReleaseEvent(QMouseEvent *)
 {
-    Q_UNUSED(event);
 }
 
-void LabelStack::mouseDoubleClickEvent(QMouseEvent *event)
+void LabelStack::mouseDoubleClickEvent(QMouseEvent *)
 {
-    Q_UNUSED(event);
 }
 
-void LabelStack::mouseMoveEvent(QMouseEvent *event)
+void LabelStack::mouseMoveEvent(QMouseEvent *)
 {
-    Q_UNUSED(event);
 }
 
 void LabelStack::contextMenuEvent(QContextMenuEvent *event)
