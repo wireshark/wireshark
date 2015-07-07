@@ -284,7 +284,7 @@ private slots:
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
 
     /** Pass tap parameter arguments to a slot.
-     * @param menu_path slot Partial slot name, e.g. "StatisticsAFPSrt".
+     * @param cfg_str slot Partial slot name, e.g. "StatisticsAFPSrt".
      * @param arg "-z" argument, e.g. "afp,srt".
      * @param userdata Optional user data.
      */
