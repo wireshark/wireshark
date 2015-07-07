@@ -86,6 +86,13 @@ static frame_end_data previous_frame_data = {0,0};
 #define FLAGS_CHAN_80MHZ                    0x0400  /* 80 Mhz channel bandwidth */
 #define FLAGS_CHAN_160MHZ                   0x0800  /* 160 Mhz channel bandwidth */
 
+#define INFO_MPDU_OF_A_MPDU                 0x0400  /* MPDU of A-MPDU */
+#define INFO_FIRST_MPDU_OF_A_MPDU           0x0800  /* first MPDU of A-MPDU */
+#define INFO_LAST_MPDU_OF_A_MPDU            0x1000  /* last MPDU of A-MPDU */
+#define INFO_MSDU_OF_A_MSDU                 0x2000  /* MSDU of A-MSDU */
+#define INFO_FIRST_MSDU_OF_A_MSDU           0x4000  /* first MSDU of A-MSDU */
+#define INFO_LAST_MSDU_OF_A_MSDU            0x8000  /* last MSDU of A-MSDU */
+
 #define ETHERNET_PORT           1
 #define WLAN_PORT               0
 
@@ -675,7 +682,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     vw_info = tvb_get_letohs(tvb, 20);
     p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
     if (tree) {
-        if ((vw_info & 0x0400) && !(vw_info & 0x0800))  /* If the packet is part of an A-MPDU but not the first MPDU */
+        if ((vw_info & INFO_MPDU_OF_A_MPDU) && !(vw_info & INFO_FIRST_MPDU_OF_A_MPDU))  /* If the packet is part of an A-MPDU but not the first MPDU */
             ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, 0);
         else
             ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg);
@@ -1318,27 +1325,27 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     /* tx info decodes for VW510021 and previous versions */
     { &hf_radiotap_vw_info_tx_bit10,
         { "MPDU of A-MPDU", "ixveriwave.info.bit10",
-        FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_tx_bit11,
         { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_tx_bit12,
         { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_tx_bit13,
         { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_tx_bit14,
         { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_tx_bit15,
         { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
     /*v510006 uses bits */
 
     /* rx info decodes for fpga ver VW510021 */
@@ -1352,27 +1359,27 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 
     { &hf_radiotap_vw_info_rx_2_bit10,
         { "MPDU of an A-MPDU", "ixveriwave.info.bit10",
-        FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_rx_2_bit11,
         { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_rx_2_bit12,
         { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_rx_2_bit13,
         { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_rx_2_bit14,
         { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_info_rx_2_bit15,
         { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
     };
 
     static gint *ett[] = {
