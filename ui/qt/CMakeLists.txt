@@ -112,6 +112,7 @@ set(WIRESHARK_QT_HEADERS
 	splash_overlay.h
 	stats_tree_dialog.h
 	service_response_time_dialog.h
+	simple_statistics_dialog.h
 	syntax_line_edit.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
@@ -234,6 +235,7 @@ set(WIRESHARK_QT_SRC
 	sequence_dialog.cpp
 	service_response_time_dialog.cpp
 	simple_dialog.cpp
+	simple_statistics_dialog.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp
 	stock_icon.cpp

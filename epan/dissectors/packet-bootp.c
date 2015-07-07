@@ -7499,7 +7499,7 @@ proto_register_bootp(void)
 
 	static new_stat_tap_ui bootp_stat_table = {
 		REGISTER_STAT_GROUP_UNSORTED,
-		"BOOTP-DHCP Statistics",
+		"DHCP (BOOTP) Statistics",
 		"bootp",
 		"bootp,stat",
 		bootp_stat_init,

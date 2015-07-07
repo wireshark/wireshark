@@ -94,6 +94,7 @@
 #include "ui/qt/response_time_delay_dialog.h"
 #include "ui/qt/service_response_time_dialog.h"
 #include "ui/qt/simple_dialog.h"
+#include "ui/qt/simple_statistics_dialog.h"
 #include "ui/qt/splash_overlay.h"
 #include "ui/qt/wireshark_application.h"
 
@@ -843,6 +844,7 @@ DIAG_ON(cast-qual)
     hostlist_table_set_gui_info(init_endpoint_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);
     rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
+    new_stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));

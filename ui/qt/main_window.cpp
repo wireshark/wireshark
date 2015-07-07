@@ -1997,6 +1997,14 @@ void MainWindow::addStatisticsMenus()
         main_ui_->menuServiceResponseTime->addAction(sg_action);
         connect(sg_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
     }
+
+    // Telephony
+    sg_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_TELEPHONY);
+
+    foreach (QAction *sg_action, sg_actions) {
+        main_ui_->menuTelephony->addAction(sg_action);
+        connect(sg_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    }
 }
 
 void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)

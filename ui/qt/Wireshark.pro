@@ -332,6 +332,7 @@ HEADERS += $$HEADERS_WS_C \
     sctp_graph_byte_dialog.h  \
     search_frame.h \
     service_response_time_dialog.h \
+    simple_statistics_dialog.h \
     splash_overlay.h \
     stats_tree_dialog.h \
     tango_colors.h \
@@ -720,6 +721,7 @@ SOURCES += \
     sequence_dialog.cpp \
     service_response_time_dialog.cpp \
     simple_dialog.cpp \
+    simple_statistics_dialog.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \

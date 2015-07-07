@@ -100,7 +100,7 @@ typedef struct _stat_tap_table_item
     stat_tap_table_item_enum type;
     tap_alignment_type align;
     const char* column_name;
-    const char* field_format; /* printf style formating of field */
+    const char* field_format; /* printf style formating of field. Currently unused? */
 
 } stat_tap_table_item;
 
@@ -116,9 +116,9 @@ typedef struct _stat_tap_table
 
 } new_stat_tap_table;
 
-typedef void (*new_stat_tap_gui_init_cb)(new_stat_tap_table* stat_table, void* gui_data);
-typedef void (*new_stat_tap_gui_reset_cb)(new_stat_tap_table* stat_table, void* gui_data);
-typedef void (*new_stat_tap_gui_free_cb)(new_stat_tap_table* stat_table, void* gui_data);
+typedef void (*new_stat_tap_gui_init_cb)(new_stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
+typedef void (*new_stat_tap_gui_reset_cb)(new_stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
+typedef void (*new_stat_tap_gui_free_cb)(new_stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
 
 /*
  * UI information for a tap.
@@ -164,7 +164,7 @@ WS_DLL_PUBLIC new_stat_tap_table* new_stat_tap_init_table(const char *name, int 
 WS_DLL_PUBLIC void new_stat_tap_add_table(new_stat_tap_ui* new_stat, new_stat_tap_table* table);
 
 WS_DLL_PUBLIC void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, stat_tap_table_item_type* fields);
-WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index);
+WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(const new_stat_tap_table *stat_table, guint table_index, guint field_index);
 WS_DLL_PUBLIC void new_stat_tap_set_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
 WS_DLL_PUBLIC void reset_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);
 WS_DLL_PUBLIC void free_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data);

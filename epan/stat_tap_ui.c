@@ -209,7 +209,7 @@ void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_ind
 
 }
 
-stat_tap_table_item_type* new_stat_tap_get_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index)
+stat_tap_table_item_type* new_stat_tap_get_field_data(const new_stat_tap_table *stat_table, guint table_index, guint field_index)
 {
     stat_tap_table_item_type* field_value;
     g_assert(table_index < stat_table->num_elements);
