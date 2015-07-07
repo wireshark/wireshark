@@ -121,9 +121,9 @@ typedef const char *(*diam_avp_dissector_t)(diam_ctx_t *, diam_avp_t *, tvbuff_t
 
 typedef struct _diam_vnd_t {
 	guint32  code;
-	wmem_array_t *vs_avps;
+	GArray *vs_avps;
 	value_string_ext *vs_avps_ext;
-	wmem_array_t *vs_cmds;
+	GArray *vs_cmds;
 } diam_vnd_t;
 
 struct _diam_avp_t {
@@ -137,9 +137,9 @@ struct _diam_avp_t {
 	void *type_data;
 };
 
-#define VND_AVP_VS(v)      ((value_string *)wmem_array_get_raw((v)->vs_avps))
-#define VND_AVP_VS_LEN(v)  (wmem_array_get_count((v)->vs_avps))
-#define VND_CMD_VS(v)      ((value_string *)wmem_array_get_raw((v)->vs_cmds))
+#define VND_AVP_VS(v)      ((value_string *)(void *)((v)->vs_avps->data))
+#define VND_AVP_VS_LEN(v)  ((v)->vs_avps->len)
+#define VND_CMD_VS(v)      ((value_string *)(void *)((v)->vs_cmds->data))
 
 typedef struct _diam_dictionary_t {
 	wmem_tree_t *avps;
@@ -663,7 +663,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	}
 
 	if (vendor->vs_avps_ext == NULL) {
-		wmem_array_sort(vendor->vs_avps, compare_avps);
+		g_array_sort(vendor->vs_avps, compare_avps);
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor),
 							   VND_AVP_VS_LEN(vendor)+1,
 							   g_strdup_printf("diameter_vendor_%s",
@@ -1804,13 +1804,8 @@ dictionary_load(void)
 	const avp_type_t *octetstring = &basic_types[0];
 	diam_avp_t *avp;
 	GHashTable *vendors = g_hash_table_new(strcase_hash,strcase_equal);
-	GHashTableIter iter;
 	diam_vnd_t *vnd;
 	GArray *vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
-	value_string term[1];
-
-	term[0].value =  0;
-	term[0].strptr = NULL;
 
 	build_dict.hf = wmem_array_new(wmem_epan_scope(),sizeof(hf_register_info));
 	build_dict.ett = g_ptr_array_new();
@@ -1820,10 +1815,10 @@ dictionary_load(void)
 	dictionary.vnds = wmem_tree_new(wmem_epan_scope());
 	dictionary.avps = wmem_tree_new(wmem_epan_scope());
 
-	unknown_vendor.vs_cmds = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
-	unknown_vendor.vs_avps = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
-	no_vnd.vs_cmds = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
-	no_vnd.vs_avps = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
+	unknown_vendor.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
+	unknown_vendor.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
+	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
+	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
@@ -1875,6 +1870,10 @@ dictionary_load(void)
 	/* populate the applications */
 	if ((p = d->applications)) {
 		wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+		value_string term[1];
+
+		term[0].value =  0;
+		term[0].strptr = NULL;
 
 		for (; p; p = p->next) {
 			value_string item[1];
@@ -1918,8 +1917,8 @@ dictionary_load(void)
 
 			vnd = wmem_new(wmem_epan_scope(), diam_vnd_t);
 			vnd->code = v->code;
-			vnd->vs_cmds = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
-			vnd->vs_avps = wmem_array_new(wmem_epan_scope(),sizeof(value_string));
+			vnd->vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
+			vnd->vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps_ext = NULL;
 			wmem_tree_insert32(dictionary.vnds,vnd->code,vnd);
 			g_hash_table_insert(vendors,v->name,vnd);
@@ -1943,7 +1942,7 @@ dictionary_load(void)
 				item[0].value =  c->code;
 				item[0].strptr = c->name;
 
-				wmem_array_append_one(vnd->vs_cmds,item);
+				g_array_append_val(vnd->vs_cmds,item);
 				/* Also add to all_cmds as used by RFC version */
 				g_array_append_val(all_cmds,item);
 			} else {
@@ -1971,7 +1970,8 @@ dictionary_load(void)
 			vndvs[0].value =  a->code;
 			vndvs[0].strptr = a->name;
 
-			wmem_array_append_one(vnd->vs_avps,vndvs);
+
+			g_array_append_val(vnd->vs_avps,vndvs);
 		} else {
 			report_failure("Diameter Dictionary: No Vendor: %s\n",vend);
 			vnd = &unknown_vendor;
@@ -1979,6 +1979,10 @@ dictionary_load(void)
 
 		if ((e = a->enums)) {
 			wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+			value_string term[1];
+
+			term[0].value =  0;
+			term[0].strptr = NULL;
 
 			for (; e; e = e->next) {
 				value_string item[1];
@@ -2029,15 +2033,6 @@ dictionary_load(void)
 			}
 		}
 	}
-
-	g_hash_table_iter_init(&iter, vendors);
-	while (g_hash_table_iter_next(&iter, NULL, (gpointer*)&vnd)) {
-		wmem_array_append_one(vnd->vs_cmds, term);
-		wmem_array_append_one(vnd->vs_avps, term);
-	}
-	wmem_array_append_one(unknown_vendor.vs_cmds, term);
-	wmem_array_append_one(unknown_vendor.vs_avps, term);
-
 	g_hash_table_destroy(build_dict.types);
 	g_hash_table_destroy(build_dict.avps);
 	g_hash_table_destroy(vendors);
