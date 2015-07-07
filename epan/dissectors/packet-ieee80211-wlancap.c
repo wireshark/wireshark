@@ -423,11 +423,13 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 4:
         phdr.phy = PHDR_802_11_PHY_11B;
+        phdr.phy_info.info_11b.presence_flags = 0;
         break;
 
     case 5:
         /* 11b PBCC? */
         phdr.phy = PHDR_802_11_PHY_11B;
+        phdr.phy_info.info_11b.presence_flags = 0;
         break;
 
     case 6:

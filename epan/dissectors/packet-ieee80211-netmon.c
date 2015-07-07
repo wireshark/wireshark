@@ -133,6 +133,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     case PHY_TYPE_11B:
         phdr->phy = PHDR_802_11_PHY_11B;
+        phdr->phy_info.info_11b.presence_flags = 0;
         break;
 
     case PHY_TYPE_11A:

@@ -772,6 +772,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
          */
         if (vw_chanflags & CHAN_CCK) {
             phdr.phy = PHDR_802_11_PHY_11B;
+            phdr.phy_info.info_11b.presence_flags = 0;
         }
         phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
         phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;

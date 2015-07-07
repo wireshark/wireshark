@@ -177,6 +177,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 		case BAND_11B:
 			phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+			phdr->pseudo_header.ieee_802_11.phy_info.info_11b.presence_flags = 0;
 			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
