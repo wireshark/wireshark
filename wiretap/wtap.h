@@ -745,8 +745,9 @@ struct ieee_802_11ac {
 #define PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL  0x00000010 /* ldpc_extra_ofdm_symbol */
 #define PHDR_802_11AC_HAS_BEAMFORMED              0x00000020 /* beamformed */
 #define PHDR_802_11AC_HAS_BANDWIDTH               0x00000040 /* bandwidth */
-#define PHDR_802_11AC_HAS_GROUP_ID                0x00000080 /* group_id */
-#define PHDR_802_11AC_HAS_PARTIAL_AID             0x00000100 /* partial_aid */
+#define PHDR_802_11AC_HAS_FEC                     0x00000080 /* fec */
+#define PHDR_802_11AC_HAS_GROUP_ID                0x00000100 /* group_id */
+#define PHDR_802_11AC_HAS_PARTIAL_AID             0x00000200 /* partial_aid */
 
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */

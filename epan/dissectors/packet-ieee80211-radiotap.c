@@ -1659,6 +1659,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				phdr.phy_info.info_11ac.nss[i] = nss;
 
 				if (nss) {
+					/*
+					 * OK, there's some data here.
+					 * If we haven't already flagged this
+					 * as VHT, do so.
+					 */
+					if (phdr.phy != PHDR_802_11_PHY_11AC) {
+						phdr.phy = PHDR_802_11_PHY_11AC;
+						phdr.phy_info.info_11ac.presence_flags = 0;
+					}
+					phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_FEC;
 					if (vht_tree) {
 						it = proto_tree_add_item(vht_tree, hf_radiotap_vht_user,
 							tvb, offset + 4, 5, ENC_NA);

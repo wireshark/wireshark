@@ -879,8 +879,10 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
                 proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nsts, tvb, 0, 0,
                        nsts);
               }
-              proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_fec, tvb, 0, 0,
-                       (phdr->phy_info.info_11ac.fec >> i) & 0x01);
+              if (phdr->phy_info.info_11ac.presence_flags & PHDR_802_11AC_HAS_FEC) {
+                  proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_fec, tvb, 0, 0,
+                           (phdr->phy_info.info_11ac.fec >> i) & 0x01);
+              }
 
               /*
                * If we can calculate the data rate for this user, do so.

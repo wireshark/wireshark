@@ -650,8 +650,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
+    guint8      plcp_type;
     guint8      mcs_index;
-    guint8      ness;
+    guint8      nss;
     float       phyRate;
     guint       i;
 
@@ -719,10 +720,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      +=2;
     phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
     offset      +=2;
-    ness = tvb_get_guint8(tvb, offset);
+    plcp_type = tvb_get_guint8(tvb, offset);
     offset++;
     mcs_index = tvb_get_guint8(tvb, offset);
     offset++;
+    nss = tvb_get_guint8(tvb, offset);
     offset++;
 
     if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
@@ -733,19 +735,23 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
             /*
              * XXX - this probably has only one user, so only one MCS index
-             * and only one NSS, but where's the NSS?
+             * and only one NSS.
              */
-            for (i = 0; i < 4; i++)
+            phdr.phy_info.info_11ac.nss[0] = nss;
+            phdr.phy_info.info_11ac.mcs[0] = mcs_index;
+            for (i = 1; i < 4; i++)
                 phdr.phy_info.info_11ac.nss[i] = 0;
         } else {
+            /*
+             * XXX - where's the number of extension spatial streams?
+             * The code in wiretap/vwr.c doesn't seem to provide it.
+             */
             phdr.phy = PHDR_802_11_PHY_11N;
             phdr.phy_info.info_11n.presence_flags =
                 PHDR_802_11N_HAS_MCS_INDEX |
-                PHDR_802_11N_HAS_SHORT_GI |
-                PHDR_802_11N_HAS_NESS;
+                PHDR_802_11N_HAS_SHORT_GI;
             phdr.phy_info.info_11n.mcs_index = mcs_index;
             phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
-            phdr.phy_info.info_11n.ness = ness;
         }
         if (tree) {
             proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
@@ -759,7 +765,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                                        "%.1f (MCS %d)", phyRate, mcs_index);
         }
     } else {
-        /* XXX - CHAN_OFDM could be 11a or 11g */
+        /*
+         * XXX - CHAN_OFDM could be 11a or 11g.
+         *
+         * XXX - use the PLCP type?
+         */
         if (vw_chanflags & CHAN_CCK) {
             phdr.phy = PHDR_802_11_PHY_11B;
         }
