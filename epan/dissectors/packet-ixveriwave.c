@@ -1,4 +1,4 @@
-/* packet-ixveriwave-common.c
+/* packet-ixveriwave.c
  * Routines for calling the right protocol for the ethertype.
  *
  * Tom Cook <tcook@ixiacom.com>
@@ -650,7 +650,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      plcp_type;
+    /*guint8      plcp_type;*/
     guint8      mcs_index;
     guint8      nss;
     float       phyRate;
@@ -720,7 +720,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      +=2;
     phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
     offset      +=2;
-    plcp_type = tvb_get_guint8(tvb, offset);
+    /*plcp_type = tvb_get_guint8(tvb, offset);*/
     offset++;
     mcs_index = tvb_get_guint8(tvb, offset);
     offset++;
