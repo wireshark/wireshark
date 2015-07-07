@@ -294,7 +294,10 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     // Data
     while (*it) {
         QList<QVariant> tid = treeItemData((*it));
-        if (tid.length() < 1) continue;
+        if (tid.length() < 1) {
+            ++it;
+            continue;
+        }
 
         if (tid.length() < ui->statsTreeWidget->columnCount()) {
             // Assume we have a header

@@ -74,8 +74,10 @@
 #include "file.h"
 #include "color.h"
 #include "color_filters.h"
-#include "ui/util.h"
 #include "log.h"
+
+#include "epan/rtd_table.h"
+#include "epan/srt_table.h"
 
 #include "ui/alert_box.h"
 #include "ui/console.h"
@@ -84,9 +86,14 @@
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/util.h"
 
-#include "ui/qt/simple_dialog.h"
+#include "ui/qt/conversation_dialog.h"
+#include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/main_window.h"
+#include "ui/qt/response_time_delay_dialog.h"
+#include "ui/qt/service_response_time_dialog.h"
+#include "ui/qt/simple_dialog.h"
 #include "ui/qt/splash_overlay.h"
 #include "ui/qt/wireshark_application.h"
 
@@ -112,12 +119,6 @@
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
 #endif
-
-#include "ui/qt/conversation_dialog.h"
-#include "ui/qt/endpoint_dialog.h"
-
-#include "epan/srt_table.h"
-#include "ui/qt/service_response_time_dialog.h"
 
 #if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 capture_options global_capture_opts;
@@ -841,6 +842,7 @@ DIAG_ON(cast-qual)
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_endpoint_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);
+    rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
 
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));

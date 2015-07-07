@@ -97,6 +97,7 @@ set(WIRESHARK_QT_HEADERS
 	qcustomplot.h
 	recent_file_status.h
 	related_packet_delegate.h
+	response_time_delay_dialog.h
 	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
@@ -220,6 +221,7 @@ set(WIRESHARK_QT_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
+	response_time_delay_dialog.cpp
 	rtp_stream_dialog.cpp
 	sctp_all_assocs_dialog.cpp
 	sctp_assoc_analyse_dialog.cpp

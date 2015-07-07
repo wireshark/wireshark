@@ -116,7 +116,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	remove_tap_listener(&rr->data);
 
-	free_rtd_table(rr->rtd, &rr->data.stat_table, NULL, NULL);
+	free_rtd_table(&rr->data.stat_table, NULL, NULL);
 
 	g_free(rr);
 }
@@ -306,7 +306,7 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		free_rtd_table(rr->rtd, &rr->data.stat_table, NULL, NULL);
+		free_rtd_table(&rr->data.stat_table, NULL, NULL);
 		g_free(rr);
 		return;
 	}

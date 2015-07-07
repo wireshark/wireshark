@@ -23,7 +23,6 @@
 
 #include "file.h"
 
-#include <epan/timestats.h>
 #include <epan/tap.h>
 
 #include <ui/service_response_time.h>
@@ -34,12 +33,9 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 
-// To do:
-
 static QHash<const QString, register_srt_t *> cfg_str_to_srt_;
 
 extern "C" {
-// XXX Need to handle filters.
 static void
 srt_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
@@ -96,11 +92,7 @@ public:
         setText(SRT_COLUMN_CALLS, QString::number(procedure_->stats.num));
         setText(SRT_COLUMN_MIN, QString::number(nstime_to_sec(&procedure_->stats.min), 'f', 6));
         setText(SRT_COLUMN_MAX, QString::number(nstime_to_sec(&procedure_->stats.max), 'f', 6));
-        double avg_time = 0.0;
-        if (procedure_->stats.num) {
-            avg_time = nstime_to_sec(&procedure_->stats.min) / procedure_->stats.num;
-        }
-        setText(SRT_COLUMN_AVG, QString::number(avg_time, 'f', 6));
+        setText(SRT_COLUMN_AVG, QString::number(get_average(&procedure_->stats.tot, procedure_->stats.num) / 1000.0, 'f', 6));
         setText(SRT_COLUMN_SUM, QString::number(nstime_to_sec(&procedure_->stats.tot), 'f', 6));
 
         for (int col = 0; col < columnCount(); col++) {
@@ -127,8 +119,8 @@ public:
             return nstime_cmp(&procedure_->stats.max, &other_row->procedure_->stats.max) < 0;
         case SRT_COLUMN_AVG:
         {
-            double our_avg = nstime_to_msec(&procedure_->stats.tot) / procedure_->stats.num;
-            double other_avg = nstime_to_msec(&other_row->procedure_->stats.tot) / other_row->procedure_->stats.num;
+            double our_avg = get_average(&procedure_->stats.tot, procedure_->stats.num);
+            double other_avg = get_average(&other_row->procedure_->stats.tot, other_row->procedure_->stats.num);
             return our_avg < other_avg;
         }
         case SRT_COLUMN_SUM:
@@ -140,13 +132,10 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
     QList<QVariant> rowData() {
-        double avg_time = 0.0;
-        if (procedure_->stats.num) {
-            avg_time = nstime_to_sec(&procedure_->stats.min) / procedure_->stats.num;
-        }
         return QList<QVariant>() << QString(procedure_->procedure) << procedure_->index << procedure_->stats.num
                                  << nstime_to_sec(&procedure_->stats.min) << nstime_to_sec(&procedure_->stats.max)
-                                 << avg_time << nstime_to_sec(&procedure_->stats.tot);
+                                 << get_average(&procedure_->stats.tot, procedure_->stats.num) / 1000.0
+                                 << nstime_to_sec(&procedure_->stats.tot);
     }
 private:
     const srt_procedure_t *procedure_;
@@ -264,10 +253,9 @@ TapParameterDialog *ServiceResponseTimeDialog::createSrtDialog(QWidget &parent, 
     return new ServiceResponseTimeDialog(parent, cf, srt, filter);
 }
 
-QTreeWidgetItem *ServiceResponseTimeDialog::addSrtTable(const struct _srt_stat_table *srt_table)
+void ServiceResponseTimeDialog::addSrtTable(const struct _srt_stat_table *srt_table)
 {
-    SrtTableTreeWidgetItem *srtt_ti = new SrtTableTreeWidgetItem(statsTreeWidget(), srt_table);
-    return srtt_ti;
+    new SrtTableTreeWidgetItem(statsTreeWidget(), srt_table);
 }
 
 void ServiceResponseTimeDialog::tapReset(void *srtd_ptr)

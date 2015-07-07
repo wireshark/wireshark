@@ -206,6 +206,7 @@ MOC_HDRS =	\
 	related_packet_delegate.h	\
 	remote_capture_dialog.h	\
 	remote_settings_dialog.h	\
+	response_time_delay_dialog.h	\
 	search_frame.h	\
 	rtp_stream_dialog.h	\
 	sctp_all_assocs_dialog.h	\
@@ -433,6 +434,7 @@ WIRESHARK_QT_SRC =	\
 	related_packet_delegate.cpp	\
 	remote_capture_dialog.cpp	\
 	remote_settings_dialog.cpp	\
+	response_time_delay_dialog.cpp	\
 	rtp_stream_dialog.cpp	\
 	sctp_all_assocs_dialog.cpp	\
 	sctp_assoc_analyse_dialog.cpp	\

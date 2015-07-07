@@ -35,20 +35,19 @@ class ServiceResponseTimeDialog : public TapParameterDialog
 
 public:
     ServiceResponseTimeDialog(QWidget &parent, CaptureFile &cf, struct register_srt *srt, const QString filter, int help_topic = 0);
-    static TapParameterDialog *createSrtDialog(QWidget &parent, const QString cfg_str, const QString arg, CaptureFile &cf);
+    static TapParameterDialog *createSrtDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
 
 protected:
-    /** Add service response time table.
+    /** Add a service response time table.
      *
      * In the GTK+ UI "tables" are separate, tabbed widgets. In the Qt UI they are
      * separate groups of QTreeWidgetItems.
      *
-     * @param title The table title (not shown if only one table).
-     * @param num_procs Number of procedures.
-     * @param filter_string filter string or QString().
+     * @param srt_table The table to add.
+     * @return A
      */
     // gtk:service_response_table.h:init_srt_table
-    QTreeWidgetItem *addSrtTable(const struct _srt_stat_table *srt_table);
+    void addSrtTable(const struct _srt_stat_table *srt_table);
 
 private:
     struct register_srt *srt_;
@@ -65,7 +64,7 @@ private slots:
     void statsTreeWidgetItemChanged();
 };
 
-/** Register function to register dissectors that support SRT for GTK.
+/** Register function to register dissectors that support SRT.
  *
  * @param data register_srt_t* representing dissetor SRT table
  * @param user_data is unused

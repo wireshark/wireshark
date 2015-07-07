@@ -613,6 +613,7 @@ HEADERS += \
     qcustomplot.h \
     recent_file_status.h \
     related_packet_delegate.h \
+    response_time_delay_dialog.h \
     sequence_diagram.h \
     sequence_dialog.h \
     simple_dialog.h \
@@ -706,6 +707,7 @@ SOURCES += \
     related_packet_delegate.cpp \
     remote_capture_dialog.cpp  \
     remote_settings_dialog.cpp \
+    response_time_delay_dialog.cpp \
     rtp_stream_dialog.cpp  \
     sctp_all_assocs_dialog.cpp  \
     sctp_assoc_analyse_dialog.cpp \

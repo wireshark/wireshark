@@ -57,6 +57,10 @@ tap_packet_cb get_rtd_packet_func(register_rtd_t* rtd)
     return rtd->rtd_func;
 }
 
+guint get_rtd_num_tables(register_rtd_t* rtd) {
+    return rtd->num_tables;
+}
+
 const value_string* get_rtd_value_string(register_rtd_t* rtd)
 {
     return rtd->vs_type;
@@ -96,7 +100,7 @@ register_rtd_table(const int proto_id, const char* tap_listener, guint num_table
     registered_rtd_tables = g_slist_insert_sorted(registered_rtd_tables, table, insert_sorted_by_table_name);
 }
 
-void free_rtd_table(register_rtd_t* rtd _U_, rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data)
+void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data)
 {
     guint i;
 
