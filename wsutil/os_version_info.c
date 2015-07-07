@@ -369,7 +369,7 @@ get_os_version_info(GString *str)
 			is_nt_workstation = (info.wProductType == VER_NT_WORKSTATION);
 			switch (info.dwMinorVersion) {
 			case 0:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 10");
+				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
