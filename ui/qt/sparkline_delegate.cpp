@@ -101,11 +101,8 @@ QSize SparkLineDelegate::sizeHint(const QStyleOptionViewItem &option,
     return QSize(option.fontMetrics.height() * SPARKLINE_MIN_EM_WIDTH, QStyledItemDelegate::sizeHint(option, index).height());
 }
 
-QWidget *SparkLineDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *SparkLineDelegate::createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const
 {
-    Q_UNUSED(parent)
-    Q_UNUSED(option)
-    Q_UNUSED(index)
     return NULL;
 }
 

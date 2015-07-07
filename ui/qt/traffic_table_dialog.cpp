@@ -144,9 +144,8 @@ QPushButton *TrafficTableDialog::enabledTypesPushButton() const
     return ui->enabledTypesPushButton;
 }
 
-void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool checked)
+void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool)
 {
-    Q_UNUSED(checked);
     updateWidgets();
 }
 

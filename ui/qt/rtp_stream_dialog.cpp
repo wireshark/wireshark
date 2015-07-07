@@ -283,9 +283,8 @@ RtpStreamDialog::~RtpStreamDialog()
     remove_tap_listener_rtp_stream(&tapinfo_);
 }
 
-bool RtpStreamDialog::eventFilter(QObject *obj, QEvent *event)
+bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
 {
-    Q_UNUSED(obj)
     if (ui->streamTreeWidget->hasFocus() && event->type() == QEvent::KeyPress) {
         QKeyEvent &keyEvent = static_cast<QKeyEvent&>(*event);
         switch(keyEvent.key()) {

@@ -77,10 +77,8 @@ const int max_comments_to_fetch_ = 20000000; // Arbitrary
 const int tail_update_interval_ = 100; // Milliseconds.
 
 guint
-packet_list_append(column_info *cinfo, frame_data *fdata)
+packet_list_append(column_info *, frame_data *fdata)
 {
-    Q_UNUSED(cinfo);
-
     if (!gbl_cur_packet_list)
         return 0;
 
@@ -150,9 +148,8 @@ packet_list_clear(void)
 }
 
 void
-packet_list_enable_color(gboolean enable)
+packet_list_enable_color(gboolean)
 {
-    Q_UNUSED(enable);
     if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
         gbl_cur_packet_list->packetListModel()->resetColorized();
         gbl_cur_packet_list->update();

@@ -129,7 +129,7 @@ protected:
     const QList<int> defaultProtos() const;
     void fillTypeMenu(QList<int> &enabled_protos);
     // Adds a conversation tree. Returns true if the tree was freshly created, false if it was cached.
-    virtual bool addTrafficTable(register_ct_t* table) { Q_UNUSED(table) return false; }
+    virtual bool addTrafficTable(register_ct_t*) { return false; }
 
     // UI getters
     QDialogButtonBox *buttonBox() const;

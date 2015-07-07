@@ -495,9 +495,7 @@ void ProtoTree::collapseAll()
     QTreeWidget::collapseAll();
 }
 
-void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
-    Q_UNUSED(column);
-
+void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     field_info *fi;
 
     fi = item->data(0, Qt::UserRole).value<field_info *>();

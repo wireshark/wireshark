@@ -279,9 +279,8 @@ void PacketRangeGroupBox::updateCounts() {
 
 // Slots
 
-void PacketRangeGroupBox::on_rangeLineEdit_textChanged(const QString &range_str)
+void PacketRangeGroupBox::on_rangeLineEdit_textChanged(const QString &)
 {
-    Q_UNUSED(range_str)
     if (!pr_ui_->rangeButton->isChecked()) {
         pr_ui_->rangeButton->setChecked(true);
     } else {

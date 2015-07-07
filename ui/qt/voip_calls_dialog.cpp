@@ -231,17 +231,13 @@ void VoipCallsDialog::changeEvent(QEvent *event)
     QDialog::changeEvent(event);
 }
 
-//void VoipCallsDialog::tapReset(void *tapinfo_ptr)
+//void VoipCallsDialog::tapReset(void *)
 //{
-//    Q_UNUSED(tapinfo_ptr)
 //    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
 //}
 
-gboolean VoipCallsDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+gboolean VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect_t *, const void *)
 {
-    Q_UNUSED(tapinfo_ptr)
-    Q_UNUSED(pinfo)
-    Q_UNUSED(data)
 #ifdef QT_MULTIMEDIAWIDGETS_LIB
 //    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
     // add_rtp_packet for voip player.

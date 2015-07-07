@@ -76,11 +76,8 @@ void RemoteCaptureDialog::hostChanged(QString host)
 
 }
 
-static void fillBox(gpointer key, gpointer value, gpointer user_data)
+static void fillBox(gpointer key, gpointer, gpointer)
 {
-    Q_UNUSED(value);
-    Q_UNUSED(user_data);
-
     QComboBox *cb = (QComboBox *)user_data;
     cb->addItem(QString((gchar*)key));
 }

@@ -234,8 +234,6 @@ void UatDialog::activateLastItem()
 
 void UatDialog::on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-    Q_UNUSED(current)
-
     for (int col = 0; col < ui->uatTreeWidget->columnCount(); col++) {
         if (previous && ui->uatTreeWidget->itemWidget(previous, col)) {
             ui->uatTreeWidget->removeItemWidget(previous, col);

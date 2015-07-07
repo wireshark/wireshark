@@ -37,9 +37,7 @@
  */
 int info_update_freq_ = 100;
 
-void splash_update(register_action_e action, const char *message, void *dummy) {
-    Q_UNUSED(dummy);
-
+void splash_update(register_action_e action, const char *message, void *) {
     emit wsApp->registerUpdate(action, message);
 }
 
@@ -176,10 +174,8 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     time_.restart();
 }
 
-void SplashOverlay::paintEvent(QPaintEvent *event)
+void SplashOverlay::paintEvent(QPaintEvent *)
 {
-    Q_UNUSED(event);
-
     QPainter painter(this);
 
     painter.setRenderHint(QPainter::Antialiasing);

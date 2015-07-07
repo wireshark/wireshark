@@ -123,10 +123,8 @@ extern "C" {
 // Callbacks prefs routines
 
 static guint
-pref_exists(pref_t *pref, gpointer user_data)
+pref_exists(pref_t *, gpointer)
 {
-    Q_UNUSED(pref)
-    Q_UNUSED(user_data)
     return 1;
 }
 
@@ -231,10 +229,8 @@ module_prefs_unstash(module_t *module, gpointer data)
 }
 
 static guint
-module_prefs_clean_stash(module_t *module, gpointer unused)
+module_prefs_clean_stash(module_t *module, gpointer)
 {
-    Q_UNUSED(unused);
-
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
 
@@ -354,9 +350,8 @@ void PreferencesDialog::setPane(const QString module_name)
     }
 }
 
-void PreferencesDialog::showEvent(QShowEvent *evt)
+void PreferencesDialog::showEvent(QShowEvent *)
 {
-    Q_UNUSED(evt);
     QStyleOption style_opt;
     int new_prefs_tree_width =  pd_ui_->prefsTree->style()->subElementRect(QStyle::SE_TreeViewDisclosureItem, &style_opt).left();
     QList<int> sizes = pd_ui_->splitter->sizes();
@@ -511,10 +506,8 @@ void PreferencesDialog::updateItem(QTreeWidgetItem &item)
     item.setText(3, cur_value);
 }
 
-void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
-    Q_UNUSED(previous)
-
     if (!current) return;
     QWidget *new_item = current->data(0, Qt::UserRole).value<QWidget *>();
     if (new_item) {
@@ -566,10 +559,8 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &sear
     }
 }
 
-void PreferencesDialog::on_advancedTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void PreferencesDialog::on_advancedTree_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *previous)
 {
-    Q_UNUSED(current);
-
     if (previous && pd_ui_->advancedTree->itemWidget(previous, 3)) {
         pd_ui_->advancedTree->removeItemWidget(previous, 3);
     }

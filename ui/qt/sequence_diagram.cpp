@@ -167,11 +167,8 @@ _seq_analysis_item *SequenceDiagram::itemForPosY(int ypos)
     return NULL;
 }
 
-double SequenceDiagram::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+double SequenceDiagram::selectTest(const QPointF &pos, bool, QVariant *) const
 {
-    Q_UNUSED(details);
-    Q_UNUSED(onlySelectable);
-
     double key_pos = qRound(key_axis_->pixelToCoord(pos.y()));
 
     if (key_pos >= 0 && key_pos < data_->size()) {
@@ -292,15 +289,12 @@ void SequenceDiagram::draw(QCPPainter *painter)
     }
 }
 
-void SequenceDiagram::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
+void SequenceDiagram::drawLegendIcon(QCPPainter *, const QRectF &) const
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(rect);
 }
 
-QCPRange SequenceDiagram::getKeyRange(bool &validRange, QCPAbstractPlottable::SignDomain inSignDomain) const
+QCPRange SequenceDiagram::getKeyRange(bool &validRange, QCPAbstractPlottable::SignDomain) const
 {
-    Q_UNUSED(inSignDomain);
     QCPRange range;
     bool valid = false;
 
@@ -321,9 +315,8 @@ QCPRange SequenceDiagram::getKeyRange(bool &validRange, QCPAbstractPlottable::Si
     return range;
 }
 
-QCPRange SequenceDiagram::getValueRange(bool &validRange, QCPAbstractPlottable::SignDomain inSignDomain) const
+QCPRange SequenceDiagram::getValueRange(bool &validRange, QCPAbstractPlottable::SignDomain) const
 {
-    Q_UNUSED(inSignDomain);
     QCPRange range;
     bool valid = false;
 

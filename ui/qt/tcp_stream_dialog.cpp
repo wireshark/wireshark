@@ -224,9 +224,8 @@ TCPStreamDialog::~TCPStreamDialog()
     delete ui;
 }
 
-void TCPStreamDialog::showEvent(QShowEvent *event)
+void TCPStreamDialog::showEvent(QShowEvent *)
 {
-    Q_UNUSED(event);
     resetAxes();
 }
 
@@ -815,10 +814,8 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
     }
 }
 
-void TCPStreamDialog::axisClicked(QCPAxis *axis, QCPAxis::SelectablePart part, QMouseEvent *event)
+void TCPStreamDialog::axisClicked(QCPAxis *axis, QCPAxis::SelectablePart, QMouseEvent *)
 {
-    Q_UNUSED(part)
-    Q_UNUSED(event)
     QCustomPlot *sp = ui->streamPlot;
 
     if (axis == sp->xAxis) {

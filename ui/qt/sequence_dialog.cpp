@@ -152,15 +152,13 @@ void SequenceDialog::updateWidgets()
 {
 }
 
-void SequenceDialog::showEvent(QShowEvent *event)
+void SequenceDialog::showEvent(QShowEvent *)
 {
-    Q_UNUSED(event);
     resetAxes();
 }
 
-void SequenceDialog::resizeEvent(QResizeEvent *event)
+void SequenceDialog::resizeEvent(QResizeEvent *)
 {
-    Q_UNUSED(event);
     resetAxes(true);
 }
 
@@ -288,9 +286,8 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     ui->hintLabel->setText(hint);
 }
 
-void SequenceDialog::mouseReleased(QMouseEvent *event)
+void SequenceDialog::mouseReleased(QMouseEvent *)
 {
-    Q_UNUSED(event);
     if (ui->sequencePlot->cursor().shape() == Qt::ClosedHandCursor) {
         ui->sequencePlot->setCursor(QCursor(Qt::OpenHandCursor));
     }

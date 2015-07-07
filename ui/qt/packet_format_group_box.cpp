@@ -75,9 +75,8 @@ bool PacketFormatGroupBox::allExpandedEnabled()
     return pf_ui_->allExpandedButton->isChecked();
 }
 
-void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool checked)
+void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool)
 {
-    Q_UNUSED(checked);
     emit formatChanged();
 }
 
@@ -89,9 +88,8 @@ void PacketFormatGroupBox::on_detailsCheckBox_toggled(bool checked)
     emit formatChanged();
 }
 
-void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool checked)
+void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool)
 {
-    Q_UNUSED(checked);
     emit formatChanged();
 }
 
