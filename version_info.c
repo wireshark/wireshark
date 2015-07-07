@@ -494,6 +494,27 @@ void get_os_version_info(GString *str)
 			}
 			break;
 		}  /* case 6 */
+
+		case 10: {
+			gboolean is_nt_workstation;
+
+			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+				g_string_append(str, "64-bit ");
+			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+				g_string_append(str, "32-bit ");
+			is_nt_workstation = (info.wProductType == VER_NT_WORKSTATION);
+			switch (info.dwMinorVersion) {
+			case 0:
+				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
+				break;
+			default:
+				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
+						       info.dwMajorVersion, info.dwMinorVersion);
+				break;
+			}
+			break;
+		}  /* case 10 */
+
 		default:
 			g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
