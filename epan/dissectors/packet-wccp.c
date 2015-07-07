@@ -28,6 +28,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include "packet-wccp.h"
+ #include <epan/tfs.h>
 
 void proto_register_wccp(void);
 void proto_reg_handoff_wccp(void);
@@ -290,7 +291,6 @@ static const value_string wccp_version_val[] = {
   { 0, NULL}
 };
 
-const true_false_string tfs_defined_not_defined = { "Defined", "Not defined" };
 const true_false_string tfs_src_dest_port = { "Source port", "Destination port" };
 const true_false_string tfs_redirect_protocol0 = { "Redirect only protocol 0 (IP)", "Redirect all traffic" };
 const true_false_string tfs_historical_current = { "Historical", "Current" };
