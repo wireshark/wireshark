@@ -195,9 +195,8 @@ void DecodeAsDialog::on_decodeAsTreeWidget_currentItemChanged(QTreeWidgetItem *c
     }
 }
 
-void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, int column)
+void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
-    Q_UNUSED(column);
     GList *cur;
 
     table_names_combo_box_ = new QComboBox();
@@ -286,10 +285,8 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemSelectionChanged()
     }
 }
 
-void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t selector_type, gpointer key, gpointer value, gpointer user_data)
+void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t, gpointer key, gpointer value, gpointer user_data)
 {
-    Q_UNUSED(selector_type);
-
     DecodeAsDialog *da_dlg = (DecodeAsDialog *)user_data;
     if (!da_dlg) return;
 
@@ -321,10 +318,8 @@ void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t selector
     da_dlg->ui->decodeAsTreeWidget->addTopLevelItem(item);
 }
 
-void DecodeAsDialog::buildDceRpcChangedList(gpointer data, gpointer user_data)
+void DecodeAsDialog::buildDceRpcChangedList(gpointer, gpointer)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(user_data);
     //    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)data;
 }
 
@@ -401,11 +396,8 @@ void DecodeAsDialog::tableNamesDestroyed()
     table_names_combo_box_ = NULL;
 }
 
-void DecodeAsDialog::decodeAddProtocol(const gchar *table_name, const gchar *proto_name, gpointer value, gpointer user_data)
+void DecodeAsDialog::decodeAddProtocol(const gchar *, const gchar *proto_name, gpointer value, gpointer user_data)
 {
-    Q_UNUSED(table_name);
-    Q_UNUSED(value);
-
     QSet<dissector_info_t *> *dissector_info_set = (QSet<dissector_info_t *> *)user_data;
     if (!dissector_info_set) return;
 

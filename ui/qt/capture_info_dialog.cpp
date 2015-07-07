@@ -31,11 +31,9 @@
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
-capture_info    *cinfo,
-capture_session *cap_session)
+capture_info    *,
+capture_session *)
 {
-    Q_UNUSED(cinfo);
-    Q_UNUSED(cap_session);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_create");
 }
 
@@ -43,17 +41,15 @@ capture_session *cap_session)
 /* As this function is a bit time critical while capturing, */
 /* prepare everything possible in the capture_info_ui_create() function above! */
 void capture_info_ui_update(
-capture_info    *cinfo)
+capture_info    *)
 {
-    Q_UNUSED(cinfo);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_update");
 }
 
 /* destroy the capture info dialog again */
 void capture_info_ui_destroy(
-capture_info    *cinfo)
+capture_info    *)
 {
-    Q_UNUSED(cinfo);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_destroy");
 }
 

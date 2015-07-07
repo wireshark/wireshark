@@ -567,9 +567,8 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
     return label;
 }
 
-QWidget * ExtcapArgument::createEditor(QWidget * parent)
+QWidget * ExtcapArgument::createEditor(QWidget *)
 {
-    Q_UNUSED(parent);
     return 0;
 }
 

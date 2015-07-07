@@ -207,7 +207,6 @@ void EndpointDialog::on_buttonBox_helpRequested()
 
 void init_endpoint_table(struct register_ct* ct, const char *filter)
 {
-    Q_UNUSED(ct)
     wsApp->emitStatCommandSignal("Endpoints", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
 }
 

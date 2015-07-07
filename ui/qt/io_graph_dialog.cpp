@@ -155,8 +155,7 @@ static uat_field_t io_graph_fields[] = {
     UAT_END_FIELDS
 };
 
-static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t len) {
-    Q_UNUSED(len);
+static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t) {
     io_graph_settings_t* dst = (io_graph_settings_t *)dst_ptr;
     const io_graph_settings_t* src = (const io_graph_settings_t *)src_ptr;
 
@@ -884,9 +883,8 @@ void IOGraphDialog::mouseReleased(QMouseEvent *event)
     }
 }
 
-void IOGraphDialog::focusChanged(QWidget *previous, QWidget *current)
+void IOGraphDialog::focusChanged(QWidget *, QWidget *current)
 {
-    Q_UNUSED(previous);
     QTreeWidgetItem *item = ui->graphTreeWidget->currentItem();
     if (!item) {
         return;
@@ -1119,10 +1117,8 @@ void IOGraphDialog::comboDestroyed()
     }
 }
 
-void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int index)
+void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 {
-    Q_UNUSED(index);
-
     int interval = ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt();
     bool need_retap = false;
 
@@ -1158,10 +1154,8 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     ui->ioPlot->xAxis->moveRange(start_time_ - orig_start);
 }
 
-void IOGraphDialog::on_graphTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void IOGraphDialog::on_graphTreeWidget_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *previous)
 {
-    Q_UNUSED(current);
-
     if (previous && ui->graphTreeWidget->itemWidget(previous, name_col_)) {
         itemEditingFinished(previous);
     }
@@ -2106,9 +2100,8 @@ void IOGraph::tapReset(void *iog_ptr)
 }
 
 // "tap_packet" callback for register_tap_listener
-gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *)
 {
-    Q_UNUSED(data);
     IOGraph *iog = static_cast<IOGraph *>(iog_ptr);
     if (!pinfo || !iog) {
         return FALSE;

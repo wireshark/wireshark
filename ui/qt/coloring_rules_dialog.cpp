@@ -374,9 +374,8 @@ void ColoringRulesDialog::on_buttonBox_helpRequested()
 // Delegate for editing coloring rule names and filters.
 //
 
-QWidget *ColoringRulesTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *ColoringRulesTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
-    Q_UNUSED(option);
     QWidget *w = NULL;
 
     QTreeWidgetItem *ti = tree_->topLevelItem(index.row());

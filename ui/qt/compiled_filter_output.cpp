@@ -109,10 +109,8 @@ void CompiledFilterOutput::compileFilter()
     }
 }
 
-void CompiledFilterOutput::on_interfaceList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void CompiledFilterOutput::on_interfaceList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *)
 {
-    Q_UNUSED(previous);
-
     QString interface = current->text();
     QHash<QString, QString>::const_iterator iter = compile_results.find(interface);
     ui->filterList->clear();

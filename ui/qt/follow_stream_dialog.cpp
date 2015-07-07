@@ -368,10 +368,8 @@ FollowStreamDialog::readStream()
 //Copy from ui/gtk/follow_udp.c
 static int
 udp_queue_packet_data(void *tapdata, packet_info *pinfo,
-                      epan_dissect_t *edt, const void *data)
+                      epan_dissect_t *, const void *data)
 {
-    Q_UNUSED(edt);
-
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     tvbuff_t *next_tvb = (tvbuff_t *)data;
@@ -403,10 +401,8 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
 //Copy from ui/gtk/follow_ssl.c
 static int
-ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *ssl)
+ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *, const void *ssl)
 {
-    Q_UNUSED(edt);
-
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
     SslDecryptedRecord * rec = NULL;
     SslDataInfo *        appl_data = NULL;
@@ -597,9 +593,8 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
 // / (slash), Ctrl-F - Focus and highlight the search box
 // Ctrl-G, Ctrl-N, F3 - Find next
 // Should we make it so that typing any text starts searching?
-bool FollowStreamDialog::eventFilter(QObject *obj, QEvent *event)
+bool FollowStreamDialog::eventFilter(QObject *, QEvent *event)
 {
-    Q_UNUSED(obj);
     if (ui->teStreamContent->hasFocus() && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->matches(QKeySequence::SelectAll) || keyEvent->matches(QKeySequence::Copy)

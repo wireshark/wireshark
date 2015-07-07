@@ -167,10 +167,8 @@ void FileSetDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_FILESET_DIALOG);
 }
 
-void FileSetDialog::on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void FileSetDialog::on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
-    Q_UNUSED(previous);
-
     fileset_entry *entry;
 
     if (!current)

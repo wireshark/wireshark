@@ -107,9 +107,7 @@ void InterfaceTree::resetColumnCount()
     setColumnCount(IFTREE_COL_MAX);
 }
 
-void InterfaceTree::hideEvent(QHideEvent *evt) {
-    Q_UNUSED(evt);
-
+void InterfaceTree::hideEvent(QHideEvent *) {
 #ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->stop();
     if (stat_cache_) {
@@ -119,17 +117,15 @@ void InterfaceTree::hideEvent(QHideEvent *evt) {
 #endif // HAVE_LIBPCAP
 }
 
-void InterfaceTree::showEvent(QShowEvent *evt) {
-    Q_UNUSED(evt);
-
+void InterfaceTree::showEvent(QShowEvent *) {
 #ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
 #endif // HAVE_LIBPCAP
 }
+
 #include <QDebug>
-void InterfaceTree::resizeEvent(QResizeEvent *evt)
+void InterfaceTree::resizeEvent(QResizeEvent *)
 {
-    Q_UNUSED(evt);
     int max_if_width = width() * 2 / 3; // Arbitrary
 
     setUpdatesEnabled(false);

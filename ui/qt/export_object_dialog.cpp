@@ -214,10 +214,8 @@ void ExportObjectDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_EXPORT_OBJECT_LIST);
 }
 
-void ExportObjectDialog::on_objectTree_currentItemChanged(QTreeWidgetItem *item, QTreeWidgetItem *previous)
+void ExportObjectDialog::on_objectTree_currentItemChanged(QTreeWidgetItem *item, QTreeWidgetItem *)
 {
-    Q_UNUSED(previous);
-
     if (!item) {
         if (save_bt_) save_bt_->setEnabled(false);
         return;

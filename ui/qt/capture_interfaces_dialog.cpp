@@ -202,10 +202,8 @@ void CaptureInterfacesDialog::updateWidgets()
     start_bt_->setEnabled(can_capture);
 }
 
-void CaptureInterfacesDialog::interfaceClicked(QTreeWidgetItem *item, int column)
+void CaptureInterfacesDialog::interfaceClicked(QTreeWidgetItem *, int)
 {
-    Q_UNUSED(item)
-    Q_UNUSED(column)
     guint i;
     QString filter = ui->allFilterComboBox->currentText();
 
@@ -916,9 +914,8 @@ InterfaceTreeDelegate::~InterfaceTreeDelegate()
 }
 
 
-QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const
+QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index ) const
 {
-    Q_UNUSED(option);
     QWidget *w = NULL;
 #ifdef SHOW_BUFFER_COLUMN
     gint buffer = DEFAULT_CAPTURE_BUFFER_SIZE;

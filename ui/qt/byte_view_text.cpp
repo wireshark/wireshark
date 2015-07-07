@@ -99,10 +99,8 @@ void ByteViewText::setProtocolHighlight(int start, int end)
     viewport()->update();
 }
 
-void ByteViewText::setFieldHighlight(int start, int end, guint32 mask, int mask_le)
+void ByteViewText::setFieldHighlight(int start, int end, guint32, int)
 {
-    Q_UNUSED(mask);
-    Q_UNUSED(mask_le);
     f_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
     f_bound_save_ = f_bound_;
     scrollToByte(start);

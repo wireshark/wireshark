@@ -65,9 +65,8 @@ CapturePreferencesFrame::~CapturePreferencesFrame()
     delete ui;
 }
 
-void CapturePreferencesFrame::showEvent(QShowEvent *evt)
+void CapturePreferencesFrame::showEvent(QShowEvent *)
 {
-    Q_UNUSED(evt);
     updateWidgets();
 }
 

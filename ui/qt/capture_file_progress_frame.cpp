@@ -38,11 +38,8 @@
 // - Start adding the progress bar to dialogs.
 // - Don't complain so loudly when the user stops a capture.
 
-progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *, const gchar *,
                                gboolean terminate_is_stop, gboolean *stop_flag) {
-    Q_UNUSED(task_title);
-    Q_UNUSED(item_title);
-
     CaptureFileProgressFrame *cfpf;
     QWidget *main_window;
 
@@ -67,9 +64,8 @@ progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *tas
 progdlg_t *
 delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
                             gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *start_time, gfloat progress)
+                            const GTimeVal *, gfloat progress)
 {
-    Q_UNUSED(start_time);
     progdlg_t *progress_dialog = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop, stop_flag);
     update_progress_dlg(progress_dialog, progress, item_title);
     return progress_dialog;
@@ -79,9 +75,8 @@ delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_t
  * Update the progress information of the progress bar box.
  */
 void
-update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
+update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
 {
-    Q_UNUSED(status);
     if (!dlg) return;
 
     dlg->progress_frame->setValue(percentage * 100);

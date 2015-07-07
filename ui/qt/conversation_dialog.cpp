@@ -279,9 +279,8 @@ void ConversationDialog::itemSelectionChanged()
     graph_bt_->setEnabled(graph_enable);
 }
 
-void ConversationDialog::on_nameResolutionCheckBox_toggled(bool checked)
+void ConversationDialog::on_nameResolutionCheckBox_toggled(bool)
 {
-    Q_UNUSED(checked);
     updateWidgets();
 }
 
@@ -314,7 +313,6 @@ void ConversationDialog::on_buttonBox_helpRequested()
 
 void init_conversation_table(struct register_ct* ct, const char *filter)
 {
-    Q_UNUSED(ct)
     wsApp->emitStatCommandSignal("Conversations", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
 }
 
