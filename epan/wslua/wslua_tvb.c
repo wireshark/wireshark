@@ -563,6 +563,42 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
     WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
 }
 
+WSLUA_METHOD Tvb_bytes(lua_State* L) {
+    /* Obtain a `ByteArray` from a `Tvb`.
+
+       @since 1.99.9
+     */
+#define WSLUA_OPTARG_Tvb_bytes_OFFSET 2 /* The offset (in octets) from the beginning of the `Tvb`. Defaults to 0. */
+#define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `Tvb`. */
+    Tvb tvb = checkTvb(L,1);
+    GByteArray* ba;
+    int offset = luaL_optint(L, WSLUA_OPTARG_Tvb_bytes_OFFSET, 0);
+    int len = luaL_optint(L,WSLUA_OPTARG_Tvb_bytes_LENGTH,-1);
+
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    ba = g_byte_array_new();
+
+    if (len < 0) {
+        len = tvb_captured_length_remaining(tvb->ws_tvb,offset);
+        if (len < 0) {
+            luaL_error(L,"out of bounds");
+            return 0;
+        }
+    } else if ( (guint)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
+        luaL_error(L,"Range is out of bounds");
+        return 0;
+    }
+
+    g_byte_array_append(ba, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
+    pushByteArray(L,ba);
+
+    WSLUA_RETURN(1); /* The `ByteArray` object or nil. */
+}
+
 WSLUA_METHOD Tvb_offset(lua_State* L) {
     /* Returns the raw offset (from the beginning of the source `Tvb`) of a sub `Tvb`. */
     Tvb tvb = checkTvb(L,1);
@@ -674,7 +710,40 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the `Tvb`. */
 }
 
+WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
+    /* Checks whether the two `Tvb` contents are equal.
+
+       @since 1.99.9
+     */
+    Tvb tvb_l = checkTvb(L,1);
+    Tvb tvb_r = checkTvb(L,2);
+
+    int len_l = tvb_captured_length(tvb_l->ws_tvb);
+    int len_r = tvb_captured_length(tvb_r->ws_tvb);
+
+    /* it is not an error if their ds_tvb are different... they're just not equal */
+    if (len_l == len_r)
+    {
+        const gchar* lp = tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
+        const gchar* rp = tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
+        int i = 0;
+
+        for (; i < len_l; ++i) {
+            if (lp[i] != rp[i]) {
+                lua_pushboolean(L,0);
+                return 1;
+            }
+        }
+        lua_pushboolean(L,1);
+    } else {
+        lua_pushboolean(L,0);
+    }
+
+    return 1;
+}
+
 WSLUA_METHODS Tvb_methods[] = {
+    WSLUA_CLASS_FNREG(Tvb,bytes),
     WSLUA_CLASS_FNREG(Tvb,range),
     WSLUA_CLASS_FNREG(Tvb,len),
     WSLUA_CLASS_FNREG(Tvb,offset),
@@ -685,6 +754,7 @@ WSLUA_METHODS Tvb_methods[] = {
 };
 
 WSLUA_META Tvb_meta[] = {
+    WSLUA_CLASS_MTREG(Tvb,eq),
     WSLUA_CLASS_MTREG(Tvb,tostring),
     {"__call", Tvb_range},
     { NULL, NULL }
@@ -722,13 +792,6 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
         case 4:
             lua_pushnumber(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The unsigned integer value. */
-            /*
-             * XXX:
-             *    lua uses double so we have 52 bits to play with
-             *    we are missing 5 and 6 byte integers within lua's range
-             *    and 64 bit integers are not supported (there's a lib for
-             *    lua that does).
-             */
         default:
             luaL_error(L,"TvbRange:uint() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -1576,6 +1639,36 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the `TvbRange`. */
 }
 
+WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
+    /* Checks whether the two `TvbRange` contents are equal.
+
+       @since 1.99.9
+     */
+    TvbRange tvb_l = checkTvbRange(L,1);
+    TvbRange tvb_r = checkTvbRange(L,2);
+
+    /* it is not an error if their ds_tvb are different... they're just not equal */
+    if (tvb_l->len == tvb_r->len &&
+        tvb_l->len <= tvb_captured_length_remaining(tvb_l->tvb->ws_tvb, tvb_l->offset) &&
+        tvb_r->len <= tvb_captured_length_remaining(tvb_r->tvb->ws_tvb, tvb_r->offset))
+    {
+        const gchar* lp = tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
+        const gchar* rp = tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
+        int i = 0;
+
+        for (; i < tvb_r->len; ++i) {
+            if (lp[i] != rp[i]) {
+                lua_pushboolean(L,0);
+                return 1;
+            }
+        }
+        lua_pushboolean(L,1);
+    } else {
+        lua_pushboolean(L,0);
+    }
+
+    return 1;
+}
 
 WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
     /* Converts the `TvbRange` into a string. Since the string gets truncated,
@@ -1635,6 +1728,7 @@ WSLUA_METHODS TvbRange_methods[] = {
 WSLUA_META TvbRange_meta[] = {
     WSLUA_CLASS_MTREG(TvbRange,tostring),
     WSLUA_CLASS_MTREG(wslua,concat),
+    WSLUA_CLASS_MTREG(TvbRange,eq),
     {"__call", TvbRange_range},
     { NULL, NULL }
 };

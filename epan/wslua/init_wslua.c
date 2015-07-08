@@ -163,9 +163,6 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
-    lua_tree = create_TreeItem(tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
-    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
-
     /*
      * almost equivalent to Lua:
      * dissectors[current_proto](tvb,pinfo,tree)
@@ -185,7 +182,8 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
         push_Tvb(L,tvb);
         push_Pinfo(L,pinfo);
-        push_TreeItem(L,lua_tree);
+        lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+        PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
         if  ( lua_pcall(L,3,1,0) ) {
             proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0, "Lua Error: %s", lua_tostring(L,-1));
@@ -278,12 +276,10 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
         return FALSE;
     }
 
-    lua_tree = create_TreeItem(tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
-    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
-
     push_Tvb(L,tvb);
     push_Pinfo(L,pinfo);
-    push_TreeItem(L,lua_tree);
+    lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
     if  ( lua_pcall(L,3,1,0) ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,

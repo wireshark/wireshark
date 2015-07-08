@@ -54,9 +54,6 @@ THE SOFTWARE.
 #include "lauxlib.h"
 #include "lrexlib.h"
 
-extern int Gregex_get_flags (lua_State *L);
-extern int Gregex_get_compile_flags (lua_State *L);
-extern int Gregex_get_match_flags (lua_State *L);
 extern flag_pair gregex_error_flags[];
 
 /* These 2 settings may be redefined from the command-line or the makefile.

@@ -37,13 +37,21 @@ static gint wslua_ett = -1;
 
 static GPtrArray* outstanding_TreeItem = NULL;
 
-#define PUSH_TREEITEM(L,i) {g_ptr_array_add(outstanding_TreeItem,i);pushTreeItem(L,i);}
 
-TreeItem* push_TreeItem(lua_State*L, TreeItem t) {
-    g_ptr_array_add(outstanding_TreeItem,t);
-    return pushTreeItem(L,t);
+/* pushing a TreeItem with a NULL item or subtree is completely valid for this function */
+TreeItem push_TreeItem(lua_State *L, proto_tree *tree, proto_item *item) {
+    TreeItem ti = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
+
+    ti->tree = tree;
+    ti->item = item;
+    ti->expired = FALSE;
+
+    g_ptr_array_add(outstanding_TreeItem, ti);
+
+    return *(pushTreeItem(L,ti));
 }
 
+/* creates the TreeItem but does NOT push it into Lua */
 TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
 {
     TreeItem tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
@@ -57,8 +65,25 @@ TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
-/* ++TreeItem++s represent information in the packet-details pane.
-   A root +TreeItem+ is passed to dissectors as the third argument. */
+/* ++TreeItem++s represent information in the packet-details pane of
+   Wireshark, and the packet details view of Tshark. A `TreeItem` represents
+   a node in the tree, which might also be a subtree and have a list of
+   children. The children of a subtree have zero or more siblings: other children
+   of the same `TreeItem` subtree.
+
+   During dissection, heuristic-dissection, and post-dissection, a root
+   +TreeItem+ is passed to dissectors as the third argument of the function
+   callback (e.g., `myproto.dissector(tvbuf,pktinfo,root)`).
+
+   In some cases the tree is not truly added to, in order to improve performance.
+   For example for packets not currently displayed/selected in Wireshark's visible
+   window pane, or if Tshark isn't invoked with the `-V` switch. However the
+   "add" type `TreeItem` functions can still be called, and still return `TreeItem`
+   objects - but the info isn't really added to the tree. Therefore you do not
+   typically need to worry about whether there's a real tree or not. If, for some
+   reason, you need to know it, you can use the `tree.visible` attribute getter
+   to retrieve the state.
+ */
 
 /* the following is used by TreeItem_add_packet_field() - this can THROW errors */
 static proto_item *
@@ -264,9 +289,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         nargs--;
     }
 
-    tree_item = create_TreeItem(proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
-
-    PUSH_TREEITEM(L,tree_item);
+    tree_item = push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     /* move the tree object before the field value */
     lua_insert(L, 1);
@@ -315,7 +338,11 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     }
 
     if (hfid > 0 ) {
+        /* hfid is > 0 when the first arg was a ProtoField or Proto */
+
         if (lua_gettop(L)) {
+            /* if we got here, the (L,1) index is the value to add, instead of decoding from the Tvb */
+
             switch(type) {
                 case FT_PROTOCOL:
                     item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
@@ -388,17 +415,20 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             lua_remove(L,1);
 
         } else {
+            /* the Lua stack is empty - no value was given - so decode the value from the tvb */
             if (type == FT_STRINGZ) tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
             item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
         }
 
         if ( lua_gettop(L) ) {
+            /* if there was a value, it was removed earlier, so what's left is the display string to set */
             const gchar* s = lua_tostring(L,1);
             if (s) proto_item_set_text(item,"%s",s);
             lua_remove(L,1);
         }
 
     } else {
+        /* no ProtoField or Proto was given */
         if (lua_gettop(L)) {
             const gchar* s = lua_tostring(L,1);
             const int hf = get_hf_wslua_text();
@@ -416,14 +446,13 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     }
 
     while(lua_gettop(L)) {
+        /* keep appending more text */
         const gchar* s = lua_tostring(L,1);
         if (s) proto_item_append_text(item, " %s", s);
         lua_remove(L,1);
     }
 
-    tree_item = create_TreeItem(proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
-
-    PUSH_TREEITEM(L,tree_item);
+    tree_item = push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     return 1;
 }
@@ -467,6 +496,38 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
     WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The new child TreeItem. */
 }
 
+/* WSLUA_ATTRIBUTE TreeItem_text RW Set/get the `TreeItem`'s display string (string).
+
+    For the getter, if the TreeItem has no display string, then nil is returned.
+
+    @since 1.99.3
+ */
+static int TreeItem_get_text(lua_State* L) {
+    TreeItem ti = checkTreeItem(L,1);
+    gchar label_str[ITEM_LABEL_LENGTH+1];
+    gchar *label_ptr;
+    field_info *fi = PITEM_FINFO(ti->item);
+
+    if(fi) {
+        if (!fi->rep) {
+            label_ptr = label_str;
+            proto_item_fill_label(fi, label_str);
+        } else
+            label_ptr = fi->rep->representation;
+
+        if (label_ptr) {
+            lua_pushstring(L, label_ptr);
+        } else {
+            lua_pushnil(L);
+        }
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/* the following is used as both a method and attribute */
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
     /* Sets the text of the label.
 
@@ -636,14 +697,55 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
+
+/* WSLUA_ATTRIBUTE TreeItem_visible RO Get the `TreeItem`'s subtree visibility status (boolean).
+
+    @since 1.99.9
+ */
+static int TreeItem_get_visible(lua_State* L) {
+    TreeItem ti = checkTreeItem(L,1);
+
+    if (ti->tree) {
+        lua_pushboolean(L, PTREE_DATA(ti->tree)->visible);
+    }
+    else {
+        lua_pushboolean(L, FALSE);
+    }
+
+    return 1;
+}
+
+
+/* WSLUA_ATTRIBUTE TreeItem_generated RW Set/get the `TreeItem`'s generated state (boolean).
+
+    @since 1.99.9
+ */
+static int TreeItem_get_generated(lua_State* L) {
+    TreeItem ti = checkTreeItem(L,1);
+
+    lua_pushboolean(L, PROTO_ITEM_IS_GENERATED(ti->item));
+
+    return 1;
+}
+
+/* the following is used as both a method and attribute. As a method it defaults
+   to setting the value, because that's what it used to do before. */
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     /* Marks the `TreeItem` as a generated field (with data inferred but not contained in the packet).
 
        This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
     */
+#define WSLUA_OPTARG_TreeItem_set_generated_BOOL 2 /* A Lua boolean, which if `true` sets the `TreeItem`
+                                                      generated flag, else clears it (default=true) */
     TreeItem ti = checkTreeItem(L,1);
+    gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_generated_BOOL, TRUE);
 
-    PROTO_ITEM_SET_GENERATED(ti->item);
+    if (set) {
+        PROTO_ITEM_SET_GENERATED(ti->item);
+    } else {
+        if (ti->item)
+            FI_RESET_FLAG(PITEM_FINFO(ti->item), FI_GENERATED);
+    }
 
     /* copy the TreeItem userdata so we give it back */
     lua_pushvalue(L, 1);
@@ -651,17 +753,55 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
+/* WSLUA_ATTRIBUTE TreeItem_hidden RW Set/get `TreeItem`'s hidden state (boolean).
 
-WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
-    /* This function should not be used, and is provided for backwards-compatibility only. */
+    @since 1.99.9
+ */
+static int TreeItem_get_hidden(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
-    PROTO_ITEM_SET_HIDDEN(ti->item);
+    lua_pushboolean(L, PROTO_ITEM_IS_HIDDEN(ti->item));
+
+    return 1;
+}
+
+/* the following is used as both a method and attribute. As a method it defaults
+   to setting the value, because that's what it used to do before. */
+WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
+    /* Marks the `TreeItem` as a hidden field (neither displayed nor used in filters).
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
+#define WSLUA_OPTARG_TreeItem_set_hidden_BOOL 2 /* A Lua boolean, which if `true` sets the `TreeItem`
+                                                      hidden flag, else clears it (default=true) */
+    TreeItem ti = checkTreeItem(L,1);
+    gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_hidden_BOOL, TRUE);
+
+    if (set) {
+        PROTO_ITEM_SET_HIDDEN(ti->item);
+    } else {
+        PROTO_ITEM_SET_VISIBLE(ti->item);
+    }
 
     /* copy the TreeItem userdata so we give it back */
     lua_pushvalue(L, 1);
 
     WSLUA_RETURN(1); /* The same TreeItem. */
+}
+
+/* WSLUA_ATTRIBUTE TreeItem_len RW Set/get `TreeItem`'s length inside tvb, after it has already been created.
+
+    @since 1.99.9
+ */
+static int TreeItem_get_len(lua_State* L) {
+    TreeItem ti = checkTreeItem(L,1);
+    int len = 0;
+
+    len = proto_item_get_len(ti->item);
+
+    lua_pushinteger(L, len > 0 ? len : 0);
+
+    return 1;
 }
 
 WSLUA_METHOD TreeItem_set_len(lua_State *L) {
@@ -681,6 +821,28 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
+WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
+    /* Returns string debug information about the `TreeItem`.
+
+       @since 1.99.9
+     */
+    TreeItem ti = toTreeItem(L,1);
+
+    if (ti) {
+        lua_pushfstring(L,
+            "TreeItem: expired=%s, has item=%s, has subtree=%s, they are %sthe same",
+            ti->expired ? "true" : "false",
+            ti->item ? "true" : "false",
+            ti->tree ? "true" : "false",
+            (ti->tree == ti->item) ? "" : "not ");
+    }
+    else {
+        lua_pushstring(L, "No TreeItem object!");
+    }
+
+    return 1;
+}
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TreeItem__gc(lua_State* L) {
     TreeItem ti = toTreeItem(L,1);
@@ -691,6 +853,15 @@ static int TreeItem__gc(lua_State* L) {
         g_free(ti);
     return 0;
 }
+
+WSLUA_ATTRIBUTES TreeItem_attributes[] = {
+    WSLUA_ATTRIBUTE_RWREG(TreeItem,generated),
+    WSLUA_ATTRIBUTE_RWREG(TreeItem,hidden),
+    WSLUA_ATTRIBUTE_RWREG(TreeItem,len),
+    WSLUA_ATTRIBUTE_RWREG(TreeItem,text),
+    WSLUA_ATTRIBUTE_ROREG(TreeItem,visible),
+    { NULL, NULL, NULL }
+};
 
 WSLUA_METHODS TreeItem_methods[] = {
     WSLUA_CLASS_FNREG(TreeItem,add_packet_field),
@@ -709,12 +880,14 @@ WSLUA_METHODS TreeItem_methods[] = {
 };
 
 WSLUA_META TreeItem_meta[] = {
+    WSLUA_CLASS_MTREG(TreeItem,tostring),
     { NULL, NULL }
 };
 
 int TreeItem_register(lua_State *L) {
     gint* etts[] = { &wslua_ett };
     WSLUA_REGISTER_CLASS(TreeItem);
+    WSLUA_REGISTER_ATTRIBUTES(TreeItem);
     outstanding_TreeItem = g_ptr_array_new();
     proto_register_subtree_array(etts,1);
     return 0;

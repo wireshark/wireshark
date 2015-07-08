@@ -876,7 +876,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbrev = g_strdup(abbr);
     f->type = type;
     f->base = base;
     if (tfs) {
@@ -940,7 +940,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbrev = g_strdup(abbr);
     f->type = type;
     f->base = base;
     if (vs64) {
@@ -1104,7 +1104,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbrev = g_strdup(abbr);
     f->type = type;
     f->vs = TFS(tfs);
     f->base = base;
@@ -1157,7 +1157,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbrev = g_strdup(abbr);
     f->type = type;
     f->vs = NULL;
     f->base = base;
@@ -1201,7 +1201,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbrev = g_strdup(abbr);
     f->type = type;
     f->vs = NULL;
     f->base = BASE_NONE;
@@ -1330,7 +1330,7 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
     gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
-                                         f->hfid,f->name,f->abbr,
+                                         f->hfid,f->name,f->abbrev,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),
                                          f->vs,f->mask,f->blob);
@@ -1355,7 +1355,7 @@ static int ProtoField__gc(lua_State* L) {
         /* g_assert() ?? */
     } else if (f->hfid == -2) {
         g_free(f->name);
-        g_free(f->abbr);
+        g_free(f->abbrev);
         g_free(f->blob);
         g_free(f);
     }
@@ -1443,7 +1443,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
 
     pe->ids.ei   = EI_INIT_EI;
     pe->ids.hf   = EI_INIT_HF;
-    pe->abbr     = g_strdup(abbr);
+    pe->abbrev     = g_strdup(abbr);
     pe->text     = g_strdup(text);
     pe->group    = group;
     pe->severity = severity;
@@ -1464,7 +1464,7 @@ WSLUA_METAMETHOD ProtoExpert__tostring(lua_State* L) {
         lua_pushstring(L,"ProtoExpert pointer is NULL!");
     } else {
         lua_pushfstring(L, "ProtoExpert: ei=%d, hf=%d, abbr=%s, text=%s, group=%d, severity=%d",
-                        pe->ids.ei, pe->ids.hf, pe->abbr, pe->text, pe->group, pe->severity);
+                        pe->ids.ei, pe->ids.hf, pe->abbrev, pe->text, pe->group, pe->severity);
     }
     return 1;
 }
@@ -1953,7 +1953,7 @@ int Proto_register(lua_State* L) {
  * Query field abbr that is defined and bound to a Proto in lua.
  * They are not registered until the end of the initialization.
  */
-int wslua_is_field_available(lua_State* L, const char* field_abbr) {
+ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
     lua_pushnil(L);
     while (lua_next(L, -2)) {
@@ -1965,10 +1965,10 @@ int wslua_is_field_available(lua_State* L, const char* field_abbr) {
         lua_pushnil(L);
         while (lua_next(L, -2)) {
             ProtoField f = checkProtoField(L, -1);
-            if (strcmp(field_abbr, f->abbr) == 0) {
+            if (strcmp(field_abbr, f->abbrev) == 0) {
                 /* found! */
                 lua_pop(L, 6);
-                return 1;
+                return f;
             }
             lua_pop(L, 1); /* table value */
         }
@@ -1976,7 +1976,7 @@ int wslua_is_field_available(lua_State* L, const char* field_abbr) {
     }
     lua_pop(L, 1); /* protocols_table_ref */
 
-    return 0;
+    return NULL;
 }
 
 int Proto_commit(lua_State* L) {
@@ -2010,7 +2010,7 @@ int Proto_commit(lua_State* L) {
 
             hfri.p_id = &(f->hfid);
             hfri.hfinfo.name = f->name;
-            hfri.hfinfo.abbrev = f->abbr;
+            hfri.hfinfo.abbrev = f->abbrev;
             hfri.hfinfo.type = f->type;
             hfri.hfinfo.display = f->base;
             hfri.hfinfo.strings = VALS(f->vs);
@@ -2043,7 +2043,7 @@ int Proto_commit(lua_State* L) {
             ei_register_info eiri = { NULL, { NULL, 0, 0, NULL, EXPFILL } };
 
             eiri.ids             = &(e->ids);
-            eiri.eiinfo.name     = e->abbr;
+            eiri.eiinfo.name     = e->abbrev;
             eiri.eiinfo.group    = e->group;
             eiri.eiinfo.severity = e->severity;
             eiri.eiinfo.summary  = e->text;
@@ -2143,12 +2143,11 @@ wslua_dissect_tcp_dissector(tvbuff_t *tvb, packet_info *pinfo,
     lua_rawgeti(L, LUA_REGISTRYINDEX, fs->dissect_ref);
 
     if (lua_isfunction(L,1)) {
-        /* XXX: not sure if it's kosher to just use the tree as the item */
-        TreeItem ti = create_TreeItem(tree, (proto_item*)tree);
 
         push_Tvb(L,tvb);
         push_Pinfo(L,pinfo);
-        push_TreeItem(L,ti);
+        /* XXX: not sure if it's kosher to just use the tree as the item */
+        push_TreeItem(L, tree, (proto_item*)tree);
 
         if  ( lua_pcall(L,3,1,0) ) {
             luaL_error(L, "Lua Error dissect_tcp_pdus dissect_func: %s", lua_tostring(L,-1));

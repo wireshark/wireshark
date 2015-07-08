@@ -118,7 +118,7 @@ typedef struct _wslua_field_t {
     int hfid;
     int ett;
     char* name;
-    char* abbr;
+    char* abbrev;
     char* blob;
     enum ftenum type;
     unsigned base;
@@ -128,7 +128,7 @@ typedef struct _wslua_field_t {
 
 typedef struct _wslua_expert_field_t {
     expert_field ids;
-    const gchar *abbr;
+    const gchar *abbrev;
     const gchar *text;
     int group;
     int severity;
@@ -707,9 +707,10 @@ extern void clear_outstanding_Columns(void);
 extern void clear_outstanding_PrivateTable(void);
 
 extern int get_hf_wslua_text(void);
-extern TreeItem* push_TreeItem(lua_State* L, TreeItem ti);
+extern TreeItem push_TreeItem(lua_State *L, proto_tree *tree, proto_item *item);
 extern void clear_outstanding_TreeItem(void);
 
+extern FieldInfo* push_FieldInfo(lua_State *L, field_info* f);
 extern void clear_outstanding_FieldInfo(void);
 
 extern void wslua_print_stack(char* s, lua_State* L);
@@ -720,7 +721,7 @@ extern int wslua_cleanup(void);
 extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);
 extern int wslua_set_tap_enums(lua_State* L);
 
-extern int wslua_is_field_available(lua_State* L, const char* field_abbr);
+extern ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr);
 
 extern char* wslua_get_actual_filename(const char* fname);
 

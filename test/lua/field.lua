@@ -72,6 +72,18 @@ local f_bootp_opt   = Field.new("bootp.option.type")
 
 test("Field__tostring-1", tostring(f_frame_proto) == "frame.protocols")
 
+test("Field.name-1", f_frame_proto.name == "frame.protocols")
+test("Field.name-2", f_eth_src.name == "eth.src")
+
+test("Field.display-1", f_frame_proto.display == "Protocols in frame")
+test("Field.display-2", f_eth_src.display == "Source")
+
+test("Field.type-1", f_frame_proto.type == ftypes.STRING)
+test("Field.type-2", f_eth_src.type == ftypes.ETHER)
+test("Field.type-3", f_ip_src.type == ftypes.IPv4)
+test("Field.type-4", f_udp_srcport.type == ftypes.UINT16)
+test("Field.type-5", f_bootp_opt.type == ftypes.UINT8)
+
 -- make sure can't create a FieldInfo outside tap
 test("Field__call-1",not pcall(makeFieldInfo,f_eth_src))
 
@@ -90,11 +102,33 @@ function tap.packet(pinfo,tvb)
 
     test("Field__call-2",pcall(makeFieldInfo,f_eth_src))
 
+    test("Field.name-3", f_frame_proto.name == "frame.protocols")
+    test("Field.name-4", f_eth_src.name == "eth.src")
+
+    test("Field.display-3", f_frame_proto.display == "Protocols in frame")
+    test("Field.display-4", f_eth_src.display == "Source")
+
+    test("Field.type-6", f_frame_proto.type == ftypes.STRING)
+    test("Field.type-7", f_eth_src.type == ftypes.ETHER)
+    test("Field.type-8", f_ip_src.type == ftypes.IPv4)
+    test("Field.type-9", f_udp_srcport.type == ftypes.UINT16)
+    test("Field.type-10", f_bootp_opt.type == ftypes.UINT8)
 
     testing("FieldInfo")
 
+    local finfo_udp_srcport = f_udp_srcport()
+    test("FieldInfo.name-1", finfo_udp_srcport.name == "udp.srcport")
+    test("FieldInfo.type-1", finfo_udp_srcport.type == ftypes.UINT16)
+    test("FieldInfo.little_endian-1", finfo_udp_srcport.little_endian == false)
+    -- the following should be true, but UDP doesn't set it right?
+    -- test("FieldInfo.big_endian-1", finfo_udp_srcport.big_endian == true)
+    test("FieldInfo.is_url-1", finfo_udp_srcport.is_url == false)
+    test("FieldInfo.offset-1", finfo_udp_srcport.offset == 34)
+    test("FieldInfo.source-1", finfo_udp_srcport.source == tvb)
+
     -- check ether addr
     local fi_eth_src = f_eth_src()
+    test("FieldInfo.type-2", fi_eth_src.type == ftypes.ETHER)
     test("FieldInfo.range-0",pcall(getFieldInfo,fi_eth_src,"range"))
     local eth_macs = { f_eth_mac() }
     local eth_src1 = tostring(f_eth_src().range)
