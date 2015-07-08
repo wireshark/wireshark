@@ -68,6 +68,8 @@ extern void capture_start_confirmed(void) {
  * @param cf_names_freeme the selection data reported from GTK
  */
 extern void dnd_open_file_cmd(gchar *) {
+}
+
 // From gtk/menus.h & main_menubar.c
 /** User pushed a recent file submenu item.
  *
