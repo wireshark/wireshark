@@ -56,7 +56,7 @@ extern "C" {
 /** The group this stat should be registered in. */
 typedef enum {
     REGISTER_ANALYZE_GROUP_UNSORTED,            /* unsorted analyze stuff */
-    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /* conversation filters */
+    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /* conversation filters. Unused? */
     REGISTER_STAT_GROUP_UNSORTED,               /* unsorted statistic function */
     REGISTER_STAT_GROUP_GENERIC,                /* generic statistic function, not specific to a protocol */
     REGISTER_STAT_GROUP_CONVERSATION_LIST,      /* member of the conversation list */

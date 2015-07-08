@@ -74,11 +74,8 @@ public:
     void emitAppSignal(AppSignal signal);
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
-    // Map a register_stat_group_t to a list of stat_tap_ui.title
-    void addStatisticsGroupItem(int group, QAction *sg_action);
-    QList<QAction *>statisticsGroupItems(int group);
-    void addFunnelGroupItem(int group, QAction *fg_action);
-    QList<QAction *> funnelGroupItems(int group);
+    void addDynamicMenuGroupItem(int group, QAction *sg_action);
+    QList<QAction *> dynamicMenuGroupItems(int group);
 
     void allSystemsGo();
     void refreshLocalInterfaces();

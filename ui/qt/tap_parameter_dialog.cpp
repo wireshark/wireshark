@@ -70,6 +70,7 @@
 const int expand_all_threshold_ = 100; // Arbitrary
 
 static QHash<const QString, tpdCreator> cfg_str_to_creator_;
+const QString TapParameterDialog::action_name_ = "TapParameterAction";
 
 TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic) :
     WiresharkDialog(parent, cf),
@@ -117,8 +118,9 @@ void TapParameterDialog::registerDialog(const QString title, const char *cfg_abb
     cfg_str_to_creator_[cfg_str] = creator;
 
     QAction *tpd_action = new QAction(title, NULL);
+    tpd_action->setObjectName(action_name_);
     tpd_action->setData(cfg_str);
-    wsApp->addStatisticsGroupItem(group, tpd_action);
+    wsApp->addDynamicMenuGroupItem(group, tpd_action);
 }
 
 TapParameterDialog *TapParameterDialog::showTapParameterStatistics(QWidget &parent, CaptureFile &cf, const QString cfg_str, const QString arg, void *)

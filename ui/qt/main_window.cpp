@@ -53,6 +53,7 @@
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "stock_icon.h"
+#include "tap_parameter_dialog.h"
 #include "wireless_frame.h"
 #include "wireshark_application.h"
 
@@ -239,9 +240,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatisticsMenus()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addFunnelMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -1977,33 +1977,93 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 #endif
 }
 
-void MainWindow::addStatisticsMenus()
+void MainWindow::addDynamicMenus()
 {
-    // actionStatistics_REGISTER_STAT_GROUP_UNSORTED should exist and be.
-    // invisible.
-    QList<QAction *>unsorted_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_UNSORTED);
+    QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
+            << REGISTER_ANALYZE_GROUP_UNSORTED
+            << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER
+            << REGISTER_STAT_GROUP_UNSORTED
+            << REGISTER_STAT_GROUP_GENERIC
+            << REGISTER_STAT_GROUP_CONVERSATION_LIST
+            << REGISTER_STAT_GROUP_ENDPOINT_LIST
+            << REGISTER_STAT_GROUP_RESPONSE_TIME
+            << REGISTER_STAT_GROUP_TELEPHONY
+            << REGISTER_STAT_GROUP_TELEPHONY_ANSI
+            << REGISTER_STAT_GROUP_TELEPHONY_GSM
+            << REGISTER_STAT_GROUP_TELEPHONY_LTE
+            << REGISTER_STAT_GROUP_TELEPHONY_SCTP
+            << REGISTER_TOOLS_GROUP_UNSORTED;
 
-    foreach (QAction *unsorted_action, unsorted_actions) {
-        main_ui_->menuStatistics->insertAction(
-                    main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
-                    unsorted_action);
-        connect(unsorted_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    foreach (register_stat_group_t menu_group, menu_groups) {
+        QList<QAction *>actions = wsApp->dynamicMenuGroupItems(menu_group);
+        foreach (QAction *action, actions) {
+            switch (menu_group) {
+            case REGISTER_ANALYZE_GROUP_UNSORTED:
+            case REGISTER_STAT_GROUP_UNSORTED:
+                main_ui_->menuStatistics->insertAction(
+                            main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
+                            action);
+                break;
+            case REGISTER_STAT_GROUP_RESPONSE_TIME:
+                main_ui_->menuServiceResponseTime->addAction(action);
+                break;
+            case REGISTER_STAT_GROUP_TELEPHONY:
+                main_ui_->menuTelephony->addAction(action);
+                break;
+            case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
+                main_ui_->menuANSI->addAction(action);
+                break;
+            case REGISTER_TOOLS_GROUP_UNSORTED:
+            {
+                // Allow the creation of submenus. Mimics the behavor of
+                // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
+                // and GtkUIManager.
+                //
+                // For now we limit the insanity to the "Tools" menu.
+                QStringList menu_path = action->text().split('/');
+                QMenu *cur_menu = main_ui_->menuTools;
+                while (menu_path.length() > 1) {
+                    QString menu_title = menu_path.takeFirst();
+        #if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
+                    QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+        #else
+                    QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower());
+                    if (submenu && submenu->parent() != cur_menu) submenu = NULL;
+        #endif
+                    if (!submenu) {
+                        submenu = cur_menu->addMenu(menu_title);
+                        submenu->setObjectName(menu_title.toLower());
+                    }
+                    cur_menu = submenu;
+                }
+                action->setText(menu_path.last());
+                cur_menu->addAction(action);
+                break;
+            }
+            default:
+//                qDebug() << "FIX: Add" << action->text() << "to the menu";
+                break;
+            }
+
+            // Connect each action type to its corresponding slot. We to
+            // distinguish various types of actions. Setting their objectName
+            // seems to work OK.
+            if (action->objectName() == TapParameterDialog::actionName()) {
+                connect(action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+            } else if (action->objectName() == FunnelStatistics::actionName()) {
+                connect(action, SIGNAL(triggered(bool)), funnel_statistics_, SLOT(funnelActionTriggered()));
+            }
+        }
     }
 
-    // Response time
-    QList<QAction *>sg_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_RESPONSE_TIME);
-
-    foreach (QAction *sg_action, sg_actions) {
-        main_ui_->menuServiceResponseTime->addAction(sg_action);
-        connect(sg_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
+    // We've added a placeholder in order to make sure the "Tools" menu is
+    // visible. Hide it as needed.
+    if (wsApp->dynamicMenuGroupItems(REGISTER_TOOLS_GROUP_UNSORTED).length() > 0) {
+        main_ui_->actionToolsPlaceholder->setVisible(false);
     }
-
-    // Telephony
-    sg_actions = wsApp->statisticsGroupItems(REGISTER_STAT_GROUP_TELEPHONY);
-
-    foreach (QAction *sg_action, sg_actions) {
-        main_ui_->menuTelephony->addAction(sg_action);
-        connect(sg_action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
+        main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
     }
 }
 
@@ -2077,43 +2137,6 @@ void MainWindow::addExternalMenus()
 
         /* Iterate Loop */
         user_menu = g_list_next (user_menu);
-    }
-}
-
-void MainWindow::addFunnelMenus()
-{
-    // XXX Add support for MENU_STAT_UNSORTED, MENU_STAT_GENERIC, etc. We
-    // should probably add a common routine that we can use in
-    // addStatisticsMenus as well.
-    QList<QAction *>funnel_actions = wsApp->funnelGroupItems(REGISTER_TOOLS_GROUP_UNSORTED);
-
-    // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
-    // We've added a placeholder in order to make sure the "Tools" menu is
-    // visible. Hide it as needed.
-    if (funnel_actions.length() > 0) {
-        main_ui_->actionToolsPlaceholder->setVisible(false);
-    }
-
-    foreach (QAction *tools_action, funnel_actions) {
-        QStringList menu_path = tools_action->text().split('/');
-        QMenu *cur_menu = main_ui_->menuTools;
-        while (menu_path.length() > 1) {
-            QString menu_title = menu_path.takeFirst();
-#if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
-            QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-#else
-            QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower());
-            if (submenu && submenu->parent() != cur_menu) submenu = NULL;
-#endif
-            if (!submenu) {
-                submenu = cur_menu->addMenu(menu_title);
-                submenu->setObjectName(menu_title.toLower());
-            }
-            cur_menu = submenu;
-        }
-        tools_action->setText(menu_path.last());
-        cur_menu->addAction(tools_action);
-        connect(tools_action, SIGNAL(triggered(bool)), funnel_statistics_, SLOT(funnelActionTriggered()));
     }
 }
 

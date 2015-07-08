@@ -89,7 +89,7 @@ WiresharkApplication *wsApp = NULL;
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
-static QHash<int, QList<QAction *> > statistics_groups_;
+static QHash<int, QList<QAction *> > dynamic_menu_groups_;
 static QHash<int, QList<QAction *> > funnel_groups_;
 
 QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
@@ -573,42 +573,23 @@ void WiresharkApplication::emitTapParameterSignal(const QString cfg_abbr, const 
 }
 
 // XXX Combine statistics and funnel routines into addGroupItem + groupItems?
-void WiresharkApplication::addStatisticsGroupItem(int group, QAction *sg_action)
+void WiresharkApplication::addDynamicMenuGroupItem(int group, QAction *sg_action)
 {
-    if (!statistics_groups_.contains(group)) {
-        statistics_groups_[group] = QList<QAction *>();
+    if (!dynamic_menu_groups_.contains(group)) {
+        dynamic_menu_groups_[group] = QList<QAction *>();
     }
-    statistics_groups_[group] << sg_action;
+    dynamic_menu_groups_[group] << sg_action;
 }
 
-QList<QAction *> WiresharkApplication::statisticsGroupItems(int group)
+QList<QAction *> WiresharkApplication::dynamicMenuGroupItems(int group)
 {
-    if (!statistics_groups_.contains(group)) {
+    if (!dynamic_menu_groups_.contains(group)) {
         return QList<QAction *>();
     }
 
-    QList<QAction *> sgi_list = statistics_groups_[group];
+    QList<QAction *> sgi_list = dynamic_menu_groups_[group];
     std::sort(sgi_list.begin(), sgi_list.end(), qActionLessThan);
     return sgi_list;
-}
-
-void WiresharkApplication::addFunnelGroupItem(int group, QAction *fg_action)
-{
-    if (!funnel_groups_.contains(group)) {
-        funnel_groups_[group] = QList<QAction *>();
-    }
-    funnel_groups_[group] << fg_action;
-}
-
-QList<QAction *> WiresharkApplication::funnelGroupItems(int group)
-{
-    if (!funnel_groups_.contains(group)) {
-        return QList<QAction *>();
-    }
-
-    QList<QAction *> fgi_list = funnel_groups_[group];
-    std::sort(fgi_list.begin(), fgi_list.end(), qActionLessThan);
-    return fgi_list;
 }
 
 #ifdef HAVE_LIBPCAP

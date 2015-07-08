@@ -52,6 +52,7 @@ public:
     explicit TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic = 0);
     ~TapParameterDialog();
 
+    static const QString &actionName() { return action_name_; }
     static void registerDialog(const QString title, const char *cfg_abbr, register_stat_group_t group, stat_tap_init_cb tap_init_cb, tpdCreator creator);
 
     static TapParameterDialog *showTapParameterStatistics(QWidget &parent, CaptureFile &cf, const QString cfg_str, const QString arg, void *);
@@ -81,6 +82,7 @@ protected slots:
 private:
     Ui::TapParameterDialog *ui;
     int help_topic_;
+    static const QString action_name_;
 
     // Called by the constructor. The subclass should tap packets here.
     virtual void fillTree() = 0;

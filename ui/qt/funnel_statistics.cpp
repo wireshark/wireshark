@@ -74,6 +74,7 @@ public:
         retap_(retap)
     {
         setText(title);
+        setObjectName(FunnelStatistics::actionName());
     }
 
     void triggerCallback() {
@@ -94,6 +95,7 @@ private:
 };
 
 static QList<FunnelAction *> funnel_actions_;
+const QString FunnelStatistics::action_name_ = "FunnelStatisticsAction";
 
 FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     QObject(parent),
@@ -276,7 +278,7 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap) {
     FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap);
-    wsApp->addFunnelGroupItem(group, funnel_action);
+    wsApp->addDynamicMenuGroupItem(group, funnel_action);
     funnel_actions_ << funnel_action;
 }
 

@@ -262,9 +262,8 @@ private slots:
     void showColumnEditor(int column);
     void showPreferenceEditor(); // module_t *, pref *
     void addStatsPluginsToMenu();
-    void addStatisticsMenus();
+    void addDynamicMenus();
     void addExternalMenus();
-    void addFunnelMenus();
 
     void startInterfaceCapture(bool valid);
 

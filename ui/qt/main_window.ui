@@ -481,7 +481,14 @@
      </property>
      <addaction name="actionTelephonyRTPStreams"/>
     </widget>
+    <widget class="QMenu" name="menuANSI">
+     <property name="title">
+      <string>ANSI</string>
+     </property>
+     <addaction name="actionTelephonyANSIPlaceholder"/>
+    </widget>
     <addaction name="actionTelephonyVoipCalls"/>
+    <addaction name="menuANSI"/>
     <addaction name="actionTelephonyISUPMessages"/>
     <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
@@ -2388,6 +2395,14 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionTelephonyANSIPlaceholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No ANSI statistics registered</string>
    </property>
   </action>
  </widget>

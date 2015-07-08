@@ -44,6 +44,7 @@ public:
     void reloadPackets();
     void emitApplyDisplayFilter();
     void emitOpenCaptureFile(QString &cf_path, QString &filter);
+    static const QString &actionName() { return action_name_; }
 
 signals:
     void setDisplayFilter(const QString &filter);
@@ -55,6 +56,7 @@ public slots:
     void displayFilterTextChanged(const QString &filter);
 
 private:
+    static const QString action_name_;
     struct _funnel_ops_t *funnel_ops_;
     CaptureFile &capture_file_;
     QByteArray display_filter_;
