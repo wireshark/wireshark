@@ -355,8 +355,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(setTitlebarForCaptureFile()));
 
-    connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
-    updateRecentFiles();
+    connect(wsApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
+    updateRecentCaptures();
 
     df_combo_box_ = new DisplayFilterCombo();
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
@@ -555,9 +555,9 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(columnsChanged()));
     connect(wsApp, SIGNAL(preferencesChanged()),
             packet_list_, SLOT(preferencesChanged()));
-    connect(wsApp, SIGNAL(recentFilesRead()),
+    connect(wsApp, SIGNAL(recentPreferencesRead()),
             this, SLOT(applyRecentPaneGeometry()));
-    connect(wsApp, SIGNAL(recentFilesRead()),
+    connect(wsApp, SIGNAL(recentPreferencesRead()),
             this, SLOT(updateRecentActions()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()), Qt::QueuedConnection);
@@ -2183,7 +2183,7 @@ void MainWindow::changeEvent(QEvent* event)
         case QEvent::LanguageChange:
             main_ui_->retranslateUi(this);
             // make sure that the "Clear Menu" item is retranslated
-            updateRecentFiles();
+            wsApp->emitAppSignal(WiresharkApplication::RecentCapturesChanged);
             break;
         case QEvent::LocaleChange:{
             QString locale = QLocale::system().name();

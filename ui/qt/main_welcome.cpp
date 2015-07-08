@@ -62,6 +62,12 @@
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
     welcome_ui_(new Ui::MainWelcome),
+    flavor_(tr(VERSION_FLAVOR)),
+    #ifdef Q_OS_MAC
+    show_in_str_(tr("Show in Finder")),
+    #else
+    show_in_str_(tr("Show in Folder")),
+    #endif
     splash_overlay_(NULL)
 
 {
@@ -115,8 +121,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     // Release_source?
     // Typical use cases are automated builds from wireshark.org and private,
     // not-for-redistribution packages.
-    QString flavor = VERSION_FLAVOR;
-    if (flavor.isEmpty()) {
+    if (flavor_.isEmpty()) {
         welcome_ui_->flavorBanner->hide();
     } else {
         // If needed there are a couple of ways we can make this customizable.
@@ -135,7 +140,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                 .arg("#2c4bc4"); // Background color. Matches capture start button.
         //            .arg(tango_butter_5, 6, 16, QChar('0'));      // "Warning" background
 
-        welcome_ui_->flavorBanner->setText(flavor);
+        welcome_ui_->flavorBanner->setText(flavor_);
         welcome_ui_->flavorBanner->setStyleSheet(flavor_ss);
     }
     welcome_ui_->captureLabel->setStyleSheet(title_button_ss);
@@ -166,7 +171,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(recent_files_, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showRecentContextMenu(QPoint)));
 
-    connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
+    connect(wsApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),
@@ -185,7 +190,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(startCapture()),
             this, SIGNAL(startCapture()));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
-    updateRecentFiles();
+    updateRecentCaptures();
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     // This crashes with Qt 4.8.3 on OS X.
@@ -336,7 +341,7 @@ void MainWelcome::on_interfaceFrame_startCapture()
     emit startCapture();
 }
 
-void MainWelcome::updateRecentFiles() {
+void MainWelcome::updateRecentCaptures() {
     QString itemLabel;
     QListWidgetItem *rfItem;
     QFont rfFont;
@@ -430,6 +435,8 @@ void MainWelcome::changeEvent(QEvent* event)
         {
         case QEvent::LanguageChange:
             welcome_ui_->retranslateUi(this);
+            welcome_ui_->flavorBanner->setText(flavor_);
+            interfaceListChanged();
             break;
         default:
             break;
@@ -438,11 +445,6 @@ void MainWelcome::changeEvent(QEvent* event)
     QFrame::changeEvent(event);
 }
 
-#ifdef Q_OS_MAC
-static const QString show_in_str_ = QObject::tr("Show in Finder");
-#else
-static const QString show_in_str_ = QObject::tr("Show in Folder");
-#endif
 void MainWelcome::showRecentContextMenu(QPoint pos)
 {
     QListWidgetItem *li = recent_files_->itemAt(pos);

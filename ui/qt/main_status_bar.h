@@ -49,6 +49,9 @@ public:
     void expertUpdate();
     void setFileName(CaptureFile &cf);
 
+protected:
+    virtual void changeEvent(QEvent* event);
+
 private:
     QToolButton *expert_button_;
     QToolButton *comment_button_;
@@ -61,6 +64,13 @@ private:
     QMenu ctx_menu_;
     QAction *edit_action_;
     QAction *delete_action_;
+    QString ready_msg_;
+
+    // Capture statistics
+    bool cs_fixed_;
+    guint32 cs_count_;
+
+    void showCaptureStatistics();
 
 signals:
     void showExpertInfo();

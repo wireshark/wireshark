@@ -99,7 +99,7 @@ WiresharkApplication *wsApp = NULL;
 
 // MUST be UTF-8
 static char *last_open_dir = NULL;
-static QList<recent_item_status *> recent_items_;
+static QList<recent_item_status *> recent_captures_;
 static QHash<int, QList<QAction *> > dynamic_menu_groups_;
 static QHash<int, QList<QAction *> > added_menu_groups_;
 static QHash<int, QList<QAction *> > removed_menu_groups_;
@@ -146,7 +146,7 @@ add_menu_recent_capture_file(const gchar *cf_name) {
      * item above count_max
      */
     unsigned int cnt = 1;
-    QMutableListIterator<recent_item_status *> rii(recent_items_);
+    QMutableListIterator<recent_item_status *> rii(recent_captures_);
     while (rii.hasNext()) {
         recent_item_status *ri = rii.next();
         /* if this element string is one of our special items (separator, ...) or
@@ -184,7 +184,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
      */
-    QListIterator<recent_item_status *> rii(recent_items_);
+    QListIterator<recent_item_status *> rii(recent_captures_);
     rii.toBack();
     while (rii.hasPrevious()) {
         QString cf_name;
@@ -199,14 +199,14 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
 // Check each recent item in a separate thread so that we don't hang while
 // calling stat(). This is called periodically because files and entire
 // volumes can disappear and reappear at any time.
-void WiresharkApplication::refreshRecentFiles(void) {
+void WiresharkApplication::refreshRecentCaptures(void) {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
 
     // We're in the middle of a capture. Don't create traffic.
     if (active_captures_ > 0) return;
 
-    foreach (ri, recent_items_) {
+    foreach (ri, recent_captures_) {
         if (ri->in_thread) {
             continue;
         }
@@ -386,7 +386,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     emit columnsChanged();
     emit preferencesChanged();
-    emit recentFilesRead();
+    emit recentPreferencesRead();
     emit filterExpressionsChanged();
     emit checkDisplayFilter();
     emit captureFilterListChanged();
@@ -497,10 +497,10 @@ bool WiresharkApplication::event(QEvent *event)
     return QApplication::event(event);
 }
 
-void WiresharkApplication::clearRecentItems() {
-    qDeleteAll(recent_items_);
-    recent_items_.clear();
-    emit updateRecentItemStatus(NULL, 0, false);
+void WiresharkApplication::clearRecentCaptures() {
+    qDeleteAll(recent_captures_);
+    recent_captures_.clear();
+    emit updateRecentCaptureStatus(NULL, 0, false);
 }
 
 void WiresharkApplication::captureFileReadStarted()
@@ -518,20 +518,20 @@ void WiresharkApplication::cleanup()
     write_profile_recent();
     write_recent();
 
-    qDeleteAll(recent_items_);
-    recent_items_.clear();
+    qDeleteAll(recent_captures_);
+    recent_captures_.clear();
 }
 
 void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
     recent_item_status *ri;
 
-    foreach (ri, recent_items_) {
+    foreach (ri, recent_captures_) {
         if (filename == ri->filename && (size != ri->size || accessible != ri->accessible)) {
             ri->size = size;
             ri->accessible = accessible;
             ri->in_thread = false;
 
-            emit updateRecentItemStatus(filename, size, accessible);
+            emit updateRecentCaptureStatus(filename, size, accessible);
         }
     }
 }
@@ -657,7 +657,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // I'm not sure what can be done on Linux.
     //
     recent_timer_.setParent(this);
-    connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
+    connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentCaptures()));
     recent_timer_.start(2000);
 
     addr_resolv_timer_.setParent(this);
@@ -717,8 +717,11 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
-    case RecentFilesRead:
-        emit recentFilesRead();
+    case RecentCapturesChanged:
+        emit updateRecentCaptureStatus(NULL, 0, false);
+        break;
+    case RecentPreferencesRead:
+        emit recentPreferencesRead();
         break;
     case FieldsChanged:
         emit fieldsChanged();
@@ -1043,7 +1046,7 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
 }
 
 QList<recent_item_status *> WiresharkApplication::recentItems() const {
-    return recent_items_;
+    return recent_captures_;
 }
 
 void WiresharkApplication::addRecentItem(const QString filename, qint64 size, bool accessible) {
@@ -1053,14 +1056,14 @@ void WiresharkApplication::addRecentItem(const QString filename, qint64 size, bo
     ri->size = size;
     ri->accessible = accessible;
     ri->in_thread = false;
-    recent_items_.prepend(ri);
+    recent_captures_.prepend(ri);
 
     itemStatusFinished(filename, size, accessible);
 }
 
 void WiresharkApplication::removeRecentItem(const QString &filename)
 {
-    QMutableListIterator<recent_item_status *> rii(recent_items_);
+    QMutableListIterator<recent_item_status *> rii(recent_captures_);
 
     while (rii.hasNext()) {
         recent_item_status *ri = rii.next();
@@ -1082,7 +1085,7 @@ void WiresharkApplication::removeRecentItem(const QString &filename)
         }
     }
 
-    emit updateRecentItemStatus(NULL, 0, false);
+    emit updateRecentCaptureStatus(NULL, 0, false);
 }
 
 static void switchTranslator(QTranslator& myTranslator, const QString& filename,

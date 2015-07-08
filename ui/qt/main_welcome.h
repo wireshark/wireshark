@@ -50,7 +50,8 @@ public slots:
     void interfaceSelected();
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
+    virtual void changeEvent(QEvent* event);
 
 protected slots:
     void on_recentLabel_clicked();
@@ -59,6 +60,8 @@ protected slots:
 
 private:
     Ui::MainWelcome *welcome_ui_;
+    QString flavor_;
+    QString show_in_str_;
 
     SplashOverlay *splash_overlay_;
     // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
@@ -85,9 +88,8 @@ private slots:
     void appInitialized();
     void interfaceListChanged();
     void captureFilterTextEdited(const QString capture_filter);
-    void updateRecentFiles();
+    void updateRecentCaptures();
     void openRecentItem(QListWidgetItem *item);
-    void changeEvent(QEvent* event);
     void showRecentContextMenu(QPoint pos);
     void showRecentFolder();
     void copyRecentPath();

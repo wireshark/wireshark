@@ -94,18 +94,21 @@ packets_bar_update(void)
 }
 
 static const int icon_size = 14; // px
+
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
     edit_action_(NULL),
-    delete_action_(NULL)
+    delete_action_(NULL),
+    #ifdef HAVE_LIBPCAP
+    ready_msg_(tr("Ready to load or capture")),
+    #else
+    ready_msg_(tr("Ready to load file")),
+    #endif
+    cs_fixed_(false),
+    cs_count_(0)
 {
     QSplitter *splitter = new QSplitter(this);
-    #ifdef HAVE_LIBPCAP
-    QString ready_msg(tr("Ready to load or capture"));
-    #else
-    QString ready_msg(tr("Ready to load file"));
-    #endif
     QWidget *info_progress = new QWidget(this);
     QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
     QAction *action;
@@ -171,7 +174,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     cur_main_status_bar_ = this;
 
     splitter->hide();
-    info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
+    info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
     packets_bar_update();
 
     action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
@@ -266,6 +269,17 @@ void MainStatusBar::setFileName(CaptureFile &cf)
                 .arg(file_size_to_qstring(cf.capFile()->f_datalen));
         pushFileStatus(cf.fileName(), msgtip);
     }
+}
+
+void MainStatusBar::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        info_status_.popText(STATUS_CTX_MAIN);
+        info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
+        showCaptureStatistics();
+        pushProfileName();
+    }
+    QStatusBar::changeEvent(event);
 }
 
 void MainStatusBar::setCaptureFile(capture_file *cf)
@@ -400,7 +414,7 @@ void MainStatusBar::popProgressStatus()
     progress_frame_.hide();
 }
 
-void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
+void MainStatusBar::showCaptureStatistics()
 {
     QString packets_str;
 
@@ -408,8 +422,11 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
     Q_UNUSED(cap_session)
 #else
     /* Do we have any packets? */
-    if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
-        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
+    if (cs_fixed_ && cs_count_ > 0) {
+        packets_str.append(QString(tr("Packets: %1"))
+                          .arg(cs_count_));
+    } else if (cap_file_ && cs_count_ > 0) {
+        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)
                           .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
@@ -441,37 +458,44 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
                                         .arg(computed_elapsed%60000/1000)
                                         .arg(computed_elapsed%1000));
         }
-    } else {
+    } else
 #endif // HAVE_LIBPCAP
+    {
         packets_str = tr("No Packets");
-#ifdef HAVE_LIBPCAP
     }
-#endif // HAVE_LIBPCAP
 
     popPacketStatus();
     pushPacketStatus(packets_str);
 }
 
-void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
+void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 {
-    QString packets_str;
+    cs_fixed_ = false;
 
-#ifndef HAVE_LIBPCAP
-    Q_UNUSED(cap_session)
-#else
-    /* Do we have any packets? */
-    if (cap_session->count) {
-        packets_str.append(QString(tr("Packets: %1"))
-                          .arg(cap_session->count));
-    } else {
-#endif // HAVE_LIBPCAP
-        packets_str = tr("No Packets");
 #ifdef HAVE_LIBPCAP
+    if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
+        cs_count_ = cap_file_->count;
+    } else {
+        cs_count_ = 0;
     }
 #endif // HAVE_LIBPCAP
 
-    popPacketStatus();
-    pushPacketStatus(packets_str);
+    showCaptureStatistics();
+}
+
+void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
+{
+    cs_fixed_ = true;
+
+#ifdef HAVE_LIBPCAP
+    if (cap_session && cap_session->count) {
+        cs_count_ = cap_session->count;
+    } else {
+        cs_count_ = 0;
+    }
+#endif // HAVE_LIBPCAP
+
+    showCaptureStatistics();
 }
 
 void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton button)

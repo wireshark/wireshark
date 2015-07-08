@@ -96,11 +96,14 @@ public:
     CaptureFile *captureFile() { return &capture_file_; }
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void closeEvent(QCloseEvent *event);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dropEvent(QDropEvent *event);
+    virtual void changeEvent(QEvent* event);
+    virtual void resizeEvent(QResizeEvent *event);
+
 
 private:
     // XXX Move to FilterUtils
@@ -305,7 +308,7 @@ private slots:
     void loadWindowGeometry();
     void saveWindowGeometry();
     void mainStackChanged(int);
-    void updateRecentFiles();
+    void updateRecentCaptures();
     void recentActionTriggered();
     void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
@@ -624,9 +627,6 @@ private slots:
 
     void on_actionContextWikiProtocolPage_triggered();
     void on_actionContextFilterFieldReference_triggered();
-
-    virtual void changeEvent(QEvent* event);
-    virtual void resizeEvent(QResizeEvent *event);
 
 #ifdef HAVE_EXTCAP
     void extcap_options_finished(int result);

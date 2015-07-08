@@ -62,16 +62,17 @@ public:
     explicit WiresharkApplication(int &argc,  char **argv);
 
     enum AppSignal {
-        ColumnsChanged,
         CaptureFilterListChanged,
+        ColumnsChanged,
         DisplayFilterListChanged,
+        FieldsChanged,
         FilterExpressionsChanged,
         LocalInterfacesChanged,
         NameResolutionChanged,
         PacketDissectionChanged,
         PreferencesChanged,
-        RecentFilesRead,
-        FieldsChanged
+        RecentCapturesChanged,
+        RecentPreferencesRead
     };
 
     enum MainMenuItem {
@@ -154,8 +155,8 @@ signals:
     void localInterfaceListChanged();
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();
-    void recentFilesRead();
-    void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
+    void recentPreferencesRead();
+    void updateRecentCaptureStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
     void profileChanging();
     void profileNameChanged(const gchar *profile_name);
@@ -175,7 +176,7 @@ signals:
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
 
 public slots:
-    void clearRecentItems();
+    void clearRecentCaptures();
     void captureFileReadStarted();
     void captureStarted() { active_captures_++; }
     void captureFinished() { active_captures_--; }
@@ -185,7 +186,7 @@ private slots:
     void cleanup();
     void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
-    void refreshRecentFiles(void);
+    void refreshRecentCaptures(void);
     void refreshAddressResolution(void);
 };
 

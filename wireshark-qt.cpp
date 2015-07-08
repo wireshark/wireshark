@@ -742,7 +742,7 @@ int main(int argc, char *qt_argv[])
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
-    wsApp->emitAppSignal(WiresharkApplication::RecentFilesRead); // Must be emitted after PreferencesChanged.
+    wsApp->emitAppSignal(WiresharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 

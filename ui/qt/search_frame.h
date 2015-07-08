@@ -53,6 +53,7 @@ signals:
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
+    void changeEvent(QEvent* event);
 
 private:
     bool regexCompile();
@@ -69,7 +70,6 @@ private slots:
     void on_searchLineEdit_textChanged(const QString &);
     void on_findButton_clicked();
     void on_cancelButton_clicked();
-    void changeEvent(QEvent* event);
 };
 
 #endif // SEARCH_FRAME_H
