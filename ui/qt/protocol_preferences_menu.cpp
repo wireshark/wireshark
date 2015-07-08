@@ -184,12 +184,9 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
     module_name_.clear();
     module_ = NULL;
 
-    if (module_name) {
-        proto_id = proto_get_id_by_filter_name(module_name);
-        protocol = find_protocol_by_id(proto_id);
-    }
-
-    if (proto_id < 0 || !protocol) {
+    if (!module_name ||
+        (proto_id = proto_get_id_by_filter_name(module_name)) < 0 ||
+        !(protocol = find_protocol_by_id(proto_id))) {
         action = addAction(tr("No protocol preferences available"));
         action->setDisabled(true);
         return;
