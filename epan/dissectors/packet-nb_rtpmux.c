@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 void proto_register_nb_rtpmux(void);
 void proto_reg_handoff_nb_rtpmux(void);
@@ -46,6 +47,13 @@ static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
 
 static dissector_handle_t rtpdissector;
 
+/* There appears not to be a standard port or range of ports that can be used here. */
+/* For 3G, could potentially get it from HNB Register Accept... */
+#define UDP_PORT_NB_RTPMUX_RANGE    "0"
+
+/* Preference settings */
+static range_t *global_nb_rtpmux_port_range;
+
 static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -53,6 +61,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item *ti;
     proto_tree *nb_rtpmux_tree, *nb_rtpmux_cmp_rtp_tree;
     unsigned int offset = 0;
+    gboolean first_rtp_payload_seen = FALSE;
 
     /*  First, if at all possible, do some heuristics to check if the packet cannot
      *  possibly belong to your protocol.  This is especially important for
@@ -103,7 +112,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset, length+5, ENC_NA);
         nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
 
-        /* XXX - what if the T bit is set? */
+        /* T bit */
         proto_tree_add_item(nb_rtpmux_tree, hf_nb_rtpmux_compressed, tvb, offset, 2, ENC_BIG_ENDIAN);
         tbit = tvb_get_guint8(tvb,offset)>>7;
         if(tbit == 1){
@@ -122,6 +131,11 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if (length != 0)
                 proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
 
+            /* Not trying to decompress... */
+
+            /* Add summary to protocol root */
+            proto_item_append_text(ti, ", Src Port: %u, Dst Port: %u Length: %u", srcport, dstport, length);
+
         }else{
             /* 6.4.2.3 Transport Format for multiplexing without RTP Header Compression */
             dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
@@ -131,6 +145,9 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+
+            /* Add summary to protocol root */
+            proto_item_append_text(ti, ", Src Port: %u, Dst Port: %u Length: %u", srcport, dstport, length);
 
             if (length != 0)
             {
@@ -143,7 +160,17 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
                                               length);
 
+                    if (first_rtp_payload_seen)
+                    {
+                        /* Don't want to clear the column, instead show where multiple
+                           RTP frames are being carried */
+                        col_append_str(pinfo->cinfo, COL_INFO, "  | ");
+                        col_set_fence(pinfo->cinfo, COL_INFO);
+                    }
+
                     call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
+
+                    first_rtp_payload_seen = TRUE;
                 }
                 else
                 {
@@ -221,6 +248,8 @@ proto_register_nb_rtpmux(void)
         &ett_nb_rtpmux_cmp_rtp_hdr
     };
 
+    module_t *nb_rtpmux_module;
+
     /* Register the protocol name and description */
     proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
         "NB_RTPMUX", "nb_rtpmux");
@@ -229,11 +258,22 @@ proto_register_nb_rtpmux(void)
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Set default UDP ports */
+    range_convert_str(&global_nb_rtpmux_port_range, UDP_PORT_NB_RTPMUX_RANGE, MAX_UDP_PORT);
+
+    nb_rtpmux_module = prefs_register_protocol(proto_nb_rtpmux, proto_reg_handoff_nb_rtpmux);
+    prefs_register_range_preference(nb_rtpmux_module, "udp_ports",
+                                    "NB RTPMUX server port numbers",
+                                    "UDP port numbers used for NB RTPMUX traffic "
+                                    "(default " UDP_PORT_NB_RTPMUX_RANGE ")",
+                                    &global_nb_rtpmux_port_range, MAX_UDP_PORT);
 }
 
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
+    static range_t *nb_rtpmux_port_range;
+    static gboolean nb_rtpmux_initialized = FALSE;
     dissector_handle_t nb_rtpmux_handle;
 
     /*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
@@ -243,6 +283,21 @@ proto_reg_handoff_nb_rtpmux(void)
     nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
                                                    proto_nb_rtpmux);
 
+    if (!nb_rtpmux_initialized)
+    {
+        nb_rtpmux_initialized = TRUE;
+    }
+    else {
+        /* Remove and delete previous UDP port range */
+        dissector_delete_uint_range("udp.port", nb_rtpmux_port_range, nb_rtpmux_handle);
+        g_free(nb_rtpmux_port_range);
+    }
+
+    /* Set range of ports from preference to use this dissector */
+    nb_rtpmux_port_range = range_copy(global_nb_rtpmux_port_range);
+    dissector_add_uint_range("udp.port", nb_rtpmux_port_range, nb_rtpmux_handle);
+
+    /* Allow 'decode-as' for UDP ports */
     dissector_add_for_decode_as("udp.port", nb_rtpmux_handle);
     rtpdissector = find_dissector("rtp");
 }
