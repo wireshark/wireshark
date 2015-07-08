@@ -244,7 +244,11 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 # "if" statement, it's safer to call PKG_PROG_PKG_CONFIG directly, see
 # the comments in acolocal.m4
 #
-PKG_PROG_PKG_CONFIG
+# We want version 0.7 or better.  (XXX - explain why. Is that just
+# because our Qt tests were originally based on AM_PATH_GTK, and *it*
+# requires 0.7 or better?)
+#
+PKG_PROG_PKG_CONFIG(0.7)
 if test -z "$PKG_CONFIG"; then
 	AC_MSG_ERROR(I couldn't find pkg-config; make sure it's installed and in your path)
 fi
@@ -1820,75 +1824,30 @@ else
 fi
 
 #
-# "make dist" requires that we have the Qt build tools.
+# If we're building with Qt, we need the Qt build tools in order to
+# build the Wireshark GUI.  We've already found Qt, and found a
+# particular major version, and we want that version's build tools;
+# for example, the Qt 4 version of uic produces files that include
+# Qt headers with paths that work with Qt 4 but not Qt 5, so we can't
+# use the Qt 4 version of uic if we're building with Qt 5.
 #
-# Annoyingly, on some Linux distros (e.g. Debian) the Qt 5 tools have no
-# suffix and the Qt 4 tools have suffix -qt4. On other distros (e.g. openSUSE)
-# the Qt 5 tools have suffix -qt5 and the Qt 4 tools have no suffix. Hence
-# check for Qt tools in the following suffix order: "-qt5", "", "-qt4".
+# If we're *not* building with Qt, "make dist" requires that we have
+# the Qt build tools, so we *still* need to look for them.  We didn't
+# look for Qt, so we don't know what version(s) we have; we look for
+# whatever version we can find.
 #
-AC_PATH_PROGS(UIC, [uic-qt5 uic uic-qt4])
-if test "x$UIC" = x; then
-	if test "x$have_qt" != "xno"; then
-		#
-		# If you want to build with Qt, you'd better
-		# have uic.
-		#
-		AC_MSG_ERROR(I couldn't find uic or uic-qt5 or uic-qt4; make sure it's installed and in your path)
-	else
-		#
-		# We shouldn't fail here, as the user's not
-		# building with Qt, and we shouldn't force them
-		# to have Qt installed if they're not doing so.
-		# "make dist" will fail if they do that, but
-		# we don't know whether they'll be doing that,
-		# so this is the best we can do.
-		#
-		UIC=uic
-	fi
-fi
+# XXX - but the above comment about Qt 4 vs. Qt 5 means that if we
+# ship files built with the uic from one version of Qt, they won't
+# compile with another major version of Qt, so should we be shipping
+# those files?  If we don't, that means somebody building from a
+# source tarball would need to have the Qt tools installed, but
+# they'll need other developer packages of Qt *anyway*.
+#
+AC_WIRESHARK_QT_TOOL_CHECK(UIC, uic, "$qt_version")
 AC_SUBST(UIC)
-AC_PATH_PROGS(MOC, [moc-qt5 moc moc-qt4])
-if test "x$MOC" = x; then
-	if test "x$have_qt" != "xno"; then
-		#
-		# If you want to build with Qt, you'd better
-		# have moc.
-		#
-		AC_MSG_ERROR(I couldn't find moc or moc-qt5 or moc-qt4; make sure it's installed and in your path)
-	else
-		#
-		# We shouldn't fail here, as the user's not
-		# building with Qt, and we shouldn't force them
-		# to have Qt installed if they're not doing so.
-		# "make dist" will fail if they do that, but
-		# we don't know whether they'll be doing that,
-		# so this is the best we can do.
-		#
-		MOC=moc
-	fi
-fi
+AC_WIRESHARK_QT_TOOL_CHECK(MOC, moc, "$qt_version")
 AC_SUBST(MOC)
-AC_PATH_PROGS(RCC, [rcc-qt5 rcc rcc-qt4])
-if test "x$RCC" = x; then
-	if test "x$have_qt" != "xno"; then
-		#
-		# If you want to build with Qt, you'd better
-		# have moc.
-		#
-		AC_MSG_ERROR(I couldn't find rcc or rcc-qt5; make sure it's installed and in your path)
-	else
-		#
-		# We shouldn't fail here, as the user's not
-		# building with Qt, and we shouldn't force them
-		# to have Qt installed if they're not doing so.
-		# "make dist" will fail if they do that, but
-		# we don't know whether they'll be doing that,
-		# so this is the best we can do.
-		#
-		RCC=rcc
-	fi
-fi
+AC_WIRESHARK_QT_TOOL_CHECK(RCC, rcc, "$qt_version")
 AC_SUBST(RCC)
 
 # Error out if a glib header other than a "top level" header
@@ -3381,7 +3340,7 @@ fi
 
 echo ""
 echo "The Wireshark package has been configured with the following options."
-echo "                    Build wireshark : $enable_wireshark_qt"
+echo "                    Build wireshark : $enable_wireshark_qt (with Qt $qt_version)"
 echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
 echo "                      Build tfshark : $enable_tfshark"

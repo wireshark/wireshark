@@ -1948,41 +1948,21 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 
 # Based on AM_PATH_GTK in gtk-2.0.m4.
 
-dnl AC_WIRESHARK_QT_MODULE_CHECK([MODULE, MINIMUM-VERSION,
+dnl AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION([MODULE, MINIMUM-VERSION,
 dnl     REQUESTED-MAJOR_VERSION, [ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]]])
-dnl Test for a particular Qt module and add the flags and libraries
-dnl for it to Qt_CFLAGS and Qt_LIBS.
+dnl Test for a particular Qt module, for a particular Qt major version,
+dnl and, if we find it add the flags and libraries for it to Qt_CFLAGS
+dnl and Qt_LIBS.
 dnl
-AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
+AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION],
 [
-	#
-	# Prior to Qt 5, modules were named QtXXX.
-	# In Qt 5, they're named Qt5XXX.
-	#
-	# Try the Qt 5 version first.
-	# (And be prepared to add Qt6 at some point....)
-	#
 	case "$3" in
-
-	yes|unspecified)
-		#
-		# Check for all versions of Qt we support.
-		#
-		modprefixes="Qt5 Qt"
-		major_version=""
-		#
-		# Version of the module we're checking for.
-		# Default to 4.0.0.
-		#
-		min_qt_version=ifelse([$2], ,4.0.0,$2)
-		;;
 
 	4)
 		#
 		# Check for Qt 4.
 		#
-		modprefixes="Qt"
-		major_version=" version 4"
+		modprefix="Qt"
 		#
 		# Version of the module we're checking for.
 		# Default to 4.0.0.
@@ -1994,8 +1974,7 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 		#
 		# Check for Qt 5.
 		#
-		modprefixes="Qt5"
-		major_version=" version 5"
+		modprefix="Qt5"
 		#
 		# Version of the module we're checking for.
 		# Default to 5.0.0.
@@ -2008,23 +1987,75 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 		;;
 	esac
 
-	for modprefix in $modprefixes
+	pkg_config_module="${modprefix}$1"
+	AC_MSG_CHECKING(for $pkg_config_module - version >= $min_qt_version)
+	if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
+		mod_version=`$PKG_CONFIG --modversion $pkg_config_module`
+		AC_MSG_RESULT(yes (version $mod_version))
+		Qt_CFLAGS="$Qt_CFLAGS `$PKG_CONFIG --cflags $pkg_config_module`"
+		Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs $pkg_config_module`"
+		# Run Action-If-Found
+		ifelse([$4], , :, [$4])
+	else
+		AC_MSG_RESULT(no)
+		# Run Action-If-Not-Found
+		ifelse([$5], , :, [$5])
+	fi
+])
+
+dnl AC_WIRESHARK_QT_MODULE_CHECK([MODULE, MINIMUM-VERSION,
+dnl     REQUESTED-MAJOR_VERSION, [ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]]])
+dnl Test for a particular Qt module and add the flags and libraries
+dnl for it to Qt_CFLAGS and Qt_LIBS.
+dnl
+AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
+[
+	#
+	# Prior to Qt 5, modules were named QtXXX.
+	# In Qt 5, they're named Qt5XXX.
+	# This will need to change to handle future major Qt releases.
+	#
+	case "$3" in
+
+	yes|unspecified)
+		#
+		# Check for all versions of Qt we support.
+		# Try the Qt 5 version first.
+		#
+		versions="5 4"
+		;;
+
+	4)
+		#
+		# Check for Qt 4.
+		#
+		versions="4"
+		;;
+
+	5)
+		#
+		# Check for Qt 5.
+		#
+		versions="5"
+		;;
+
+	*)
+		AC_MSG_ERROR([Qt version $3 is not a known Qt version])
+		;;
+	esac
+
+	for version in $versions
 	do
-		pkg_config_module="${modprefix}$1"
-		AC_MSG_CHECKING(for $pkg_config_module$major_version - version >= $min_qt_version)
-		if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
-			mod_version=`$PKG_CONFIG --modversion $pkg_config_module`
-			AC_MSG_RESULT(yes (version $mod_version))
-			Qt_CFLAGS="$Qt_CFLAGS `$PKG_CONFIG --cflags $pkg_config_module`"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs $pkg_config_module`"
-			found_$1=yes
-			break
-		else
-			AC_MSG_RESULT(no)
+		AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION($1, $2,
+		    $version, [foundit=yes], [foundit=no])
+		if test "x$foundit" = "xyes"; then
+                        break
 		fi
 	done
 
-	if test "x$found_$1" = "xyes"; then
+	if test "x$foundit" = "xyes"; then
+		# Remember which version of Qt we found
+		qt_version=$version
 		# Run Action-If-Found
 		ifelse([$4], , :, [$4])
 	else
@@ -2039,37 +2070,24 @@ dnl Test for Qt and define Qt_CFLAGS and Qt_LIBS.
 dnl
 AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 [
-	no_qt=""
+	qt_version_to_check="$2"
 
-	AC_PATH_TOOL(PKG_CONFIG, pkg-config, no)
-
-	if test x$PKG_CONFIG != xno ; then
-		if pkg-config --atleast-pkgconfig-version 0.7 ; then
-			:
-		else
-			echo *** pkg-config too old; version 0.7 or better required.
-			no_qt=yes
-			PKG_CONFIG=no
-		fi
-	else
-		no_qt=yes
-	fi
-
-	if test x"$no_qt" = x ; then
-		#
-		# OK, we have an adequate version of pkg-config.
-		#
-		# Check for the Core module; if we don't have that,
-		# we don't have Qt.
-		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, $2, , [no_qt=yes])
-	fi
+	#
+	# Check for the Core module; if we don't have that,
+	# we don't have Qt.  If we *do* have it, we know what
+	# version it is, so only check for that version of
+	# other modules.
+	#
+	AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, $qt_version_to_check,
+	    [qt_version_to_check=$qt_version],
+	    [no_qt=yes])
 
 	if test x"$no_qt" = x ; then
 		#
 		# We need the Gui module as well.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Gui, $1, $2, , [no_qt=yes])
+		AC_WIRESHARK_QT_MODULE_CHECK(Gui, $1, $qt_version_to_check, ,
+		    [no_qt=yes])
 	fi
 
 	if test x"$no_qt" = x ; then
@@ -2078,19 +2096,19 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# to Qt Widgets; look for the Widgets module, but
 		# don't fail if we don't have it.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Widgets, $1, $2)
+		AC_WIRESHARK_QT_MODULE_CHECK(Widgets, $1, $qt_version_to_check)
 
 		#
 		# Qt 5.0 also appears to move the printing support into
 		# the Qt PrintSupport module.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1, $2)
+		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1, $qt_version_to_check)
 
 		#
 		# Qt 5.0 added multimedia widgets in the Qt
 		# MultimediaWidgets module.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1, $2,
+		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1, $qt_version_to_check,
 			AC_DEFINE(QT_MULTIMEDIAWIDGETS_LIB, 1, [Define if we have QtMultimediaWidgets]))
 
 		#
@@ -2100,7 +2118,7 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# XXX - is there anything in QtX11Extras or QtWinExtras
 		# that we should be using?
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1, $2,
+		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1, $qt_version_to_check,
 			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras]))
 
 		AC_SUBST(Qt_LIBS)
@@ -2112,4 +2130,102 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		ifelse([$4], , :, [$4])
 	fi
 
+])
+
+dnl AC_WIRESHARK_QT_TOOL_CHECK([TOOLPATHVAR, TOOL, REQUESTED-MAJOR_VERSION])
+dnl Test for a particular Qt tool, either for any version of Qt or for
+dnl some specific version of Qt
+dnl
+AC_DEFUN([AC_WIRESHARK_QT_TOOL_CHECK],
+[
+	if test ! -z "$3"; then
+		#
+		# We're building with Qt, so we're looking for a particular
+		# major version of Qt's flavor of that tool.
+		#
+		# If we don't find the tool, we can't build, so we fail.
+		#
+		# At least in some versions of Debian/Ubuntu, and perhaps
+		# other OSes, the Qt build tools are just links to a
+		# program called "qtchooser", and even if you want to
+		# build with Qt 5, running the tool might give you the
+		# Qt 4 version of the tool unless you run the tool with
+		# a -qt=5 argument.
+		#
+		# So we look for qtchooser and, if we find it, use the
+		# -qt={version} argument, otherwise we look for particular
+		# tool versions using tool name suffixes.
+		#
+		AC_PATH_PROG(QTCHOOSER, qtchooser)
+		if test ! -z "$QTCHOOSER"; then
+			#
+			# We found qtchooser; we assume that means that
+			# the tool is linked to qtchooser, so that we
+			# can run it with the -qt={version} flag to get
+			# the appropriate version of the tool.
+			#
+			AC_PATH_PROG($1, $2)
+			if test "x$$1" = x; then
+				#
+				# We can't build Qt Wireshark without that
+				# tool..
+				#
+				AC_MSG_ERROR(I couldn't find $2; make sure it's installed and in your path)
+			fi
+
+			#
+			# Add the -qt={version} argument to it.
+			#
+			$1="$$1 -qt=$qt_version"
+		else
+			#
+			# Annoyingly, on some Linux distros (e.g. Debian)
+			# the Qt 5 tools have no suffix and the Qt 4 tools
+			# have suffix -qt4. On other distros (e.g. openSUSE)
+			# the Qt 5 tools have suffix -qt5 and the Qt 4 tools
+			# have no suffix.
+			#
+			# So we check for the tool first with the -qtN suffix
+			# and then with no suffix.
+			#
+			AC_PATH_PROGS($1, [$2-qt$qt_version $2])
+			if test "x$$1" = x; then
+				#
+				# We can't build Qt Wireshark without that
+				# tool..
+				#
+				AC_MSG_ERROR(I couldn't find $2-qt$qt_version or $2; make sure it's installed and in your path)
+			fi
+		fi
+	else
+		#
+		# We're not building with Qt, so we just want some version
+		# of the tool.
+		#
+		# If we don't find the tool, we shouldn't fail, as the
+		# user's not building with Qt, and we shouldn't force them
+		# to have Qt installed if they're not doing so.
+		#
+		# "make dist" will fail if they do that, but
+		# we don't know whether they'll be doing that,
+		# so this is the best we can do.
+		#
+		# For the annoying suffix reasons listed above, we check
+		# for the tool first with the -qt5 suffix, then with no
+		# suffix, then with the -qt4 suffix.
+		#
+		AC_PATH_PROGS($1, [$2-qt5 $2 $2-qt4])
+		if test "x$$1" = x; then
+			#
+			# We shouldn't fail here, as the user's not
+			# building with Qt, and we shouldn't force them
+			# to have Qt installed if they're not doing so.
+			#
+			# "make dist" will fail if they do that, but
+			# we don't know whether they'll be doing that,
+			# so this is the best we can do.
+			#
+			$1=$$2
+		fi
+	fi
 ])
