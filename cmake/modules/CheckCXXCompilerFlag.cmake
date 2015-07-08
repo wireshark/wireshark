@@ -1,9 +1,9 @@
-# - Check whether the C compiler supports a given flag.
-# CHECK_C_COMPILER_FLAG(<flag> <var>)
+# - Check whether the CXX compiler supports a given flag.
+# CHECK_CXX_COMPILER_FLAG(<flag> <var>)
 #  <flag> - the compiler flag
 #  <var>  - variable to store the result
-# This internally calls the check_c_source_compiles macro.
-# See help for CheckCSourceCompiles for a listing of variables
+# This internally calls the check_cxx_source_compiles macro.
+# See help for CheckCXXSourceCompiles for a listing of variables
 # that can modify the build.
 
 #=============================================================================
@@ -21,20 +21,20 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
 
-macro (CHECK_C_COMPILER_FLAG _FLAG _RESULT)
+macro (CHECK_CXX_COMPILER_FLAG _FLAG _RESULT)
    set(SAFE_CMAKE_REQUIRED_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS}")
    set(CMAKE_REQUIRED_DEFINITIONS "${_FLAG}" ${CMAKE_REQUIRED_DEFINITIONS})
    # Normalize locale during test compilation.
-   set(_CheckCCompilerFlag_LOCALE_VARS LC_ALL LC_MESSAGES LANG)
-   foreach(v ${_CheckCCompilerFlag_LOCALE_VARS})
-     set(_CheckCCompilerFlag_SAVED_${v} "$ENV{${v}}")
+   set(_CheckCXXCompilerFlag_LOCALE_VARS LC_ALL LC_MESSAGES LANG)
+   foreach(v ${_CheckCXXCompilerFlag_LOCALE_VARS})
+     set(_CheckCXXCompilerFlag_SAVED_${v} "$ENV{${v}}")
      set(ENV{${v}} C)
    endforeach()
-   CHECK_C_SOURCE_COMPILES("int main(void) { return 0; }" ${_RESULT}
+   CHECK_CXX_SOURCE_COMPILES("int main() { return 0; }" ${_RESULT}
      # Some compilers do not fail with a bad flag
-     FAIL_REGEX "command line option .* is valid for .* but not for C" # GNU
+     FAIL_REGEX "command line option .* is valid for .* but not for C\\\\+\\\\+" # GNU
      FAIL_REGEX "unrecognized .*option"                     # GNU
      FAIL_REGEX "unknown .*option"                          # Clang
      FAIL_REGEX "argument unused during compilation: "      # Clang
@@ -49,11 +49,11 @@ macro (CHECK_C_COMPILER_FLAG _FLAG _RESULT)
      FAIL_REGEX "command option .* is not recognized"       # XL
      FAIL_REGEX "WARNING: unknown flag:"                    # Open64
      )
-   foreach(v ${_CheckCCompilerFlag_LOCALE_VARS})
-     set(ENV{${v}} ${_CheckCCompilerFlag_SAVED_${v}})
-     unset(_CheckCCompilerFlag_SAVED_${v})
+   foreach(v ${_CheckCXXCompilerFlag_LOCALE_VARS})
+     set(ENV{${v}} ${_CheckCXXCompilerFlag_SAVED_${v}})
+     unset(_CheckCXXCompilerFlag_SAVED_${v})
    endforeach()
-   unset(_CheckCCompilerFlag_LOCALE_VARS)
+   unset(_CheckCXXCompilerFlag_LOCALE_VARS)
 
    set (CMAKE_REQUIRED_DEFINITIONS "${SAFE_CMAKE_REQUIRED_DEFINITIONS}")
 endmacro ()
