@@ -948,7 +948,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ar_op) {
   case ARPOP_REQUEST:
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
                  tpa_str, spa_str);
     break;
   case ARPOP_REPLY:
@@ -957,7 +957,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  ((ssa_str != NULL) ? ssa_str : ""));
     break;
   case ARPOP_IREQUEST:
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s? Tell %s%s%s",
                  tha_str,
                  ((tsa_str != NULL) ? "," : ""),
                  ((tsa_str != NULL) ? tsa_str : ""),
@@ -1281,7 +1281,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (is_gratuitous)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)", tpa_str);
       else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s", tpa_str, spa_str);
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
@@ -1293,7 +1293,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case ARPOP_RREQUEST:
     case ARPOP_IREQUEST:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s? Tell %s",
                    tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
       break;
@@ -1542,7 +1542,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
                      tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
       else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
                      tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
                      tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
@@ -1558,7 +1558,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_RREQUEST:
     case ARPOP_IREQUEST:
     case ARPOP_DRARPREQUEST:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s? Tell %s",
                    tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
       break;
