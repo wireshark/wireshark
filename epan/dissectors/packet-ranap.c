@@ -3155,8 +3155,20 @@ dissect_ranap_AuthorisedPLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ranap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 374 "../../asn1/ranap/ranap.cnf"
+  tvbuff_t *value_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, NULL);
+                                       4, 4, FALSE, &value_tvb);
+
+  /* N.B. value_tvb is 4 bytes of OCTET STRING */
+  if (tvb_get_ntohs(value_tvb, 2) == 0) {
+    /* Will show first 2 bytes as an integer, as very likely to be a UDP port number */
+    guint16 port_number = tvb_get_ntohs(value_tvb, 0);
+    proto_item_append_text(actx->created_item, " (%u)", port_number);
+  }
+
+
+
 
   return offset;
 }
@@ -7754,6 +7766,7 @@ dissect_ranap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset
 #line 369 "../../asn1/ranap/ranap.cnf"
 
 dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
+
 
 
 
