@@ -1227,6 +1227,8 @@ static gboolean gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, guint trunca
 {
     guint8 bit_mask        = 0x80 >> (bit_offset % 8);
     guint8 value           = PADDING_BYTE;
+    char   bits_str[]      = {".... .... = "};
+    guint8 offset_in_octet = bit_offset % 8;
     proto_item* ti;
 
     if (truncation_length)
@@ -1250,8 +1252,20 @@ static gboolean gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, guint trunca
        value = tvb_get_guint8(tvb, bit_offset >> 3)^PADDING_BYTE;
     }
 
-    proto_tree_add_bits_item(tree, hf_bit, tvb, bit_offset, 1, ENC_NA);
-    return ((value & bit_mask) != 0);
+    if (value & bit_mask)
+    {
+        bits_str[offset_in_octet + (offset_in_octet / 4)] = 'H';
+        ti = proto_tree_add_boolean(tree, hf_bit, tvb, bit_offset>>3, 1, TRUE);
+        proto_item_prepend_text(ti, "%s", bits_str);
+        return TRUE;
+    }
+    else
+    {
+        bits_str[offset_in_octet + (offset_in_octet / 4)] = 'L';
+        ti = proto_tree_add_boolean(tree, hf_bit, tvb, bit_offset>>3, 1, FALSE);
+        proto_item_prepend_text(ti, "%s", bits_str);
+        return FALSE;
+    }
 }
 
 /*
