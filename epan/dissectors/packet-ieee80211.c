@@ -396,6 +396,131 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
 #define DATA_LONG_HDR_LEN      30
 #define MGT_FRAME_HDR_LEN      24  /* Length of Management frame-headers */
 
+
+/* ************************************************************************* */
+/*        Logical field codes (dissector's encoding of fixed fields)         */
+/* ************************************************************************* */
+enum fixed_field {
+  FIELD_TIMESTAMP,                            /* 64-bit timestamp */
+  FIELD_BEACON_INTERVAL,                      /* 16-bit beacon interval */
+  FIELD_CAP_INFO,                             /* Add capability information tree */
+  FIELD_AUTH_ALG,                             /* Authentication algorithm used */
+  FIELD_AUTH_TRANS_SEQ,                       /* Authentication sequence number */
+  FIELD_CURRENT_AP_ADDR,
+  FIELD_LISTEN_IVAL,
+  FIELD_REASON_CODE,
+  FIELD_ASSOC_ID,
+  FIELD_STATUS_CODE,
+  FIELD_CATEGORY_CODE,                        /* Management action category */
+  FIELD_ACTION_CODE,                          /* Management action code */
+  FIELD_DIALOG_TOKEN,                         /* Management action dialog token */
+  FIELD_FOLLOWUP_DIALOG_TOKEN,
+  FIELD_WME_ACTION_CODE,                      /* Management notification action code */
+  FIELD_WME_DIALOG_TOKEN,                     /* Management notification dialog token */
+  FIELD_WME_STATUS_CODE,                      /* Management notification setup response status code */
+  FIELD_QOS_ACTION_CODE,
+  FIELD_QOS_TS_INFO,
+  FIELD_DLS_ACTION_CODE,
+  FIELD_DST_MAC_ADDR,                         /* DLS destination MAC address */
+  FIELD_SRC_MAC_ADDR,                         /* DLS source MAC address */
+  FIELD_DLS_TIMEOUT,                          /* DLS timeout value */
+  FIELD_SCHEDULE_INFO,                        /* Schedule Info field */
+  FIELD_ACTION,                               /* Action field */
+  FIELD_BLOCK_ACK_ACTION_CODE,
+  FIELD_QOS_INFO_AP,
+  FIELD_QOS_INFO_STA,
+  FIELD_BLOCK_ACK_PARAM,
+  FIELD_BLOCK_ACK_TIMEOUT,
+  FIELD_BLOCK_ACK_SSC,
+  FIELD_DELBA_PARAM_SET,
+  FIELD_MAX_REG_PWR,
+  FIELD_MEASUREMENT_PILOT_INT,
+  FIELD_COUNTRY_STR,
+  FIELD_MAX_TX_PWR,
+  FIELD_TX_PWR_USED,
+  FIELD_TRANSCEIVER_NOISE_FLOOR,
+  FIELD_DS_PARAM_SET,
+  FIELD_CHANNEL_WIDTH,
+  FIELD_SM_PWR_CNTRL,
+  FIELD_PCO_PHASE_CNTRL,
+  FIELD_PSMP_PARAM_SET,
+  FIELD_PSMP_STA_INFO,
+  FIELD_MIMO_CNTRL,
+  FIELD_ANT_SELECTION,
+  FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT,
+  FIELD_HT_INFORMATION,
+  FIELD_HT_ACTION_CODE,
+  FIELD_PA_ACTION_CODE,
+  FIELD_PPA_ACTION_CODE,
+  FIELD_FT_ACTION_CODE,
+  FIELD_STA_ADDRESS,
+  FIELD_TARGET_AP_ADDRESS,
+  FIELD_GAS_COMEBACK_DELAY,
+  FIELD_GAS_FRAGMENT_ID,
+  FIELD_SA_QUERY_ACTION_CODE,
+  FIELD_TRANSACTION_ID,
+  FIELD_TDLS_ACTION_CODE,
+  FIELD_TARGET_CHANNEL,
+  FIELD_OPERATING_CLASS,
+  FIELD_MESH_ACTION,
+  FIELD_MULTIHOP_ACTION,
+  FIELD_MESH_CONTROL,
+  FIELD_SELFPROT_ACTION,
+  FIELD_WNM_ACTION_CODE,
+  FIELD_UNPROTECTED_WNM_ACTION_CODE,
+  FIELD_RELAY_CAPABLE_STA_INFO,
+  FIELD_BAND_ID,
+  FIELD_DMG_PARAMETERS,
+  FIELD_SECTOR_SWEEP,
+  FIELD_DYNAMIC_ALLOCATION,
+  FIELD_SECTOR_SWEEP_FB,
+  FIELD_BRP_REQ,
+  FIELD_BEAMFORMING_CTRL,
+  FIELD_BEAMFORMED_LINK_MAINTAINCE,
+  FIELD_BEACON_INTERVAL_CTRL,
+  FIELD_KEY_DATA_LENGTH,
+  FIELD_WNM_NOTIFICATION_TYPE,
+  FIELD_RM_ACTION_CODE,
+  FIELD_RM_DIALOG_TOKEN,
+  FIELD_RM_REPETITIONS,
+  FIELD_RM_TX_POWER,
+  FIELD_RM_MAX_TX_POWER,
+  FIELD_RM_TPC_REPORT,
+  FIELD_RM_RX_ANTENNA_ID,
+  FIELD_RM_TX_ANTENNA_ID,
+  FIELD_RM_RCPI,
+  FIELD_RM_RSNI,
+  FIELD_DMG_ACTION_CODE,
+  FIELD_DMG_PWR_MGMT,
+  FIELD_REQ_AP_ADDR,
+  FIELD_RES_AP_ADDR,
+  FIELD_CHECK_BEACON,
+  FIELD_TOD,
+  FIELD_TOA,
+  FIELD_MAX_TOD_ERR,
+  FIELD_MAX_TOA_ERR,
+  FIELD_SUBJECT_ADDRESS,
+  FIELD_HANDOVER_REASON,
+  FIELD_HANDOVER_REMAINING_BI,
+  FIELD_HANDOVER_RESULT,
+  FIELD_HANDOVER_REJECT_REASON,
+  FIELD_DESTINATION_REDS_AID,
+  FIELD_DESTINATION_AID,
+  FIELD_REALY_AID,
+  FIELD_SOURCE_AID,
+  FIELD_TIMING_OFFSET,
+  FIELD_SAMPLING_FREQUENCY_OFFSET,
+  FIELD_RELAY_OPERATION_TYPE,
+  FIELD_UNPROTECTED_DMG_ACTION_CODE,
+  FIELD_FST_ACTION_CODE,
+  FIELD_LLT,
+  FIELD_FSTS_ID,
+  FIELD_OCT_MMPDU,
+  FIELD_VHT_ACTION,
+                                              /* add any new fixed field value above this line */
+  MAX_FIELD_NUM
+};
+
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
 /* ************************************************************************* */
@@ -549,7 +674,7 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
 #define TAG_CLUSTER_REP              166  /* IEEE Std 802.11ad */
 #define TAG_RELAY_CAPABILITIES       167  /* IEEE Std 802.11ad */
 #define TAG_RELAY_TRANSFER_PARAM     168  /* IEEE Std 802.11ad */
-#define TAG_BEAMLINK_MAINTENANCE     169  /* IEEE Std 802.11ad */
+#define TAG_BEAMLINK_MAINTAINCE      169  /* IEEE Std 802.11ad */
 #define TAG_MULTIPLE_MAC_SUBLAYERS   170  /* IEEE Std 802.11ad */
 #define TAG_U_PID                    171  /* IEEE Std 802.11ad */
 #define TAG_DMG_LINK_ADAPTION_ACK    172  /* IEEE Std 802.11ad */
@@ -716,7 +841,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CLUSTER_REP,                          "Cluster Report" },
   { TAG_RELAY_CAPABILITIES,                   "Relay Capabilities" },
   { TAG_RELAY_TRANSFER_PARAM,                 "Relay Transfer Parameter" },
-  { TAG_BEAMLINK_MAINTENANCE,                 "Beamlink Maintenance" },
+  { TAG_BEAMLINK_MAINTAINCE,                  "Beamlink Maintenance" },
   { TAG_MULTIPLE_MAC_SUBLAYERS,               "Multiple MAC Sublayers" },
   { TAG_U_PID,                                "U-PID" },
   { TAG_DMG_LINK_ADAPTION_ACK,                "DMG Link Adaption Acknowledgment" },
@@ -1092,77 +1217,77 @@ static const value_string aruba_mgt_typevals[] = {
 static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt_typevals);
 
 /*** Begin: Action Fixed Parameter ***/
-#define CAT_SPECTRUM_MGMT                0
-#define CAT_QOS                          1
-#define CAT_DLS                          2
-#define CAT_BLOCK_ACK                    3
-#define CAT_PUBLIC                       4
-#define CAT_RADIO_MEASUREMENT            5
-#define CAT_FAST_BSS_TRANSITION          6
-#define CAT_HT                           7
-#define CAT_SA_QUERY                     8
-#define CAT_PUBLIC_PROTECTED             9
-#define CAT_WNM                         10
-#define CAT_UNPROTECTED_WNM             11
-#define CAT_TDLS                        12
-#define CAT_MESH                        13
-#define CAT_MULTIHOP                    14
-#define CAT_SELF_PROTECTED              15
-#define CAT_DMG                         16
-#define CAT_MGMT_NOTIFICATION           17
-#define CAT_FAST_SESSION_TRANSFER       18
-#define CAT_ROBUST_AV_STREAMING         19
-#define CAT_UNPROTECTED_DMG             20
-#define CAT_VHT                         21
-#define CAT_VENDOR_SPECIFIC_PROTECTED  126
-#define CAT_VENDOR_SPECIFIC            127
+#define CAT_SPECTRUM_MGMT          0
+#define CAT_QOS                    1
+#define CAT_DLS                    2
+#define CAT_BLOCK_ACK              3
+#define CAT_PUBLIC                 4
+#define CAT_RADIO_MEASUREMENT      5
+#define CAT_FAST_BSS_TRANSITION    6
+#define CAT_HT                     7
+#define CAT_SA_QUERY               8
+#define CAT_PUBLIC_PROTECTED       9
+#define CAT_WNM                   10
+#define CAT_UNPROTECTED_WNM       11
+#define CAT_TDLS                  12
+#define CAT_MESH                  13
+#define CAT_MULTIHOP              14
+#define CAT_SELF_PROTECTED        15
+#define CAT_DMG                   16
+#define CAT_MGMT_NOTIFICATION     17
+#define CAT_FAST_SESSION_TRANSFER 18
+#define CAT_ROBUST_AV_STREAMING   19
+#define CAT_UNPROTECTED_DMG       20
+#define CAT_VHT                   21
+#define CAT_VENDOR_SPECIFIC_PROTECTED 126
+#define CAT_VENDOR_SPECIFIC     127
 
-#define CAT_MESH_LINK_METRIC            31
-#define CAT_MESH_PATH_SELECTION         32
-#define CAT_MESH_INTERWORKING           33
-#define CAT_MESH_RESOURCE_COORDINATION  34
-#define CAT_MESH_SECURITY_ARCHITECTURE  35
+#define CAT_MESH_LINK_METRIC               31
+#define CAT_MESH_PATH_SELECTION            32
+#define CAT_MESH_INTERWORKING              33
+#define CAT_MESH_RESOURCE_COORDINATION     34
+#define CAT_MESH_SECURITY_ARCHITECTURE     35
 
-#define SM_ACTION_MEASUREMENT_REQUEST    0
-#define SM_ACTION_MEASUREMENT_REPORT     1
-#define SM_ACTION_TPC_REQUEST            2
-#define SM_ACTION_TPC_REPORT             3
-#define SM_ACTION_CHAN_SWITCH_ANNC       4
-#define SM_ACTION_EXT_CHAN_SWITCH_ANNC   5
+#define SM_ACTION_MEASUREMENT_REQUEST   0
+#define SM_ACTION_MEASUREMENT_REPORT    1
+#define SM_ACTION_TPC_REQUEST           2
+#define SM_ACTION_TPC_REPORT            3
+#define SM_ACTION_CHAN_SWITCH_ANNC      4
+#define SM_ACTION_EXT_CHAN_SWITCH_ANNC  5
 
-#define QOS_ACTION_ADDTS_REQUEST         0
-#define QOS_ACTION_ADDTS_RESPONSE        1
-#define QOS_ACTION_DELTS                 2
-#define QOS_ACTION_SCHEDULE              3
-#define QOS_ACTION_MAP_CONFIGURE         4
+#define QOS_ACTION_ADDTS_REQUEST     0
+#define QOS_ACTION_ADDTS_RESPONSE    1
+#define QOS_ACTION_DELTS             2
+#define QOS_ACTION_SCHEDULE      3
+#define QOS_ACTION_MAP_CONFIGURE 4
 
-#define DLS_ACTION_REQUEST               0
-#define DLS_ACTION_RESPONSE              1
-#define DLS_ACTION_TEARDOWN              2
+#define DLS_ACTION_REQUEST       0
+#define DLS_ACTION_RESPONSE      1
+#define DLS_ACTION_TEARDOWN      2
 
-#define BA_ADD_BLOCK_ACK_REQUEST         0
-#define BA_ADD_BLOCK_ACK_RESPONSE        1
-#define BA_DELETE_BLOCK_ACK              2
+#define BA_ADD_BLOCK_ACK_REQUEST    0
+#define BA_ADD_BLOCK_ACK_RESPONSE   1
+#define BA_DELETE_BLOCK_ACK         2
 
 /* Keep in sync with PPA_* defines */
-#define PA_20_40_BSS_COEXISTENCE_MANAGEMENT  0
-#define PA_DSE_ENABLEMENT                    1
-#define PA_DSE_DEENABLEMENT                  2
-#define PA_DSE_REG_LOC_ANNOUNCEMENT          3
-#define PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT   4
-#define PA_DSE_MEASUREMENT_REQUEST           5
-#define PA_DSE_MEASUREMENT_REPORT            6
-#define PA_MEASUREMENT_PILOT                 7
-#define PA_DSE_POWER_CONSTRAINT              8
-#define PA_VENDOR_SPECIFIC                   9
-#define PA_GAS_INITIAL_REQUEST              10
-#define PA_GAS_INITIAL_RESPONSE             11
-#define PA_GAS_COMEBACK_REQUEST             12
-#define PA_GAS_COMEBACK_RESPONSE            13
-#define PA_TDLS_DISCOVERY_RESPONSE          14
-#define PA_LOCATION_TRACK_NOTIFICATION      15
-#define PA_QAB_REQUEST                      16
-#define PA_QAB_RESPONSE                     17
+#define PA_20_40_BSS_COEXISTENCE_MANAGEMENT 0
+#define PA_DSE_ENABLEMENT                   1
+#define PA_DSE_DEENABLEMENT                 2
+#define PA_DSE_REG_LOC_ANNOUNCEMENT         3
+#define PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT  4
+#define PA_DSE_MEASUREMENT_REQUEST          5
+#define PA_DSE_MEASUREMENT_REPORT           6
+#define PA_MEASUREMENT_PILOT                7
+#define PA_DSE_POWER_CONSTRAINT             8
+#define PA_VENDOR_SPECIFIC                  9
+#define PA_GAS_INITIAL_REQUEST             10
+#define PA_GAS_INITIAL_RESPONSE            11
+#define PA_GAS_COMEBACK_REQUEST            12
+#define PA_GAS_COMEBACK_RESPONSE           13
+#define PA_TDLS_DISCOVERY_RESPONSE         14
+#define PA_LOCATION_TRACK_NOTIFICATION     15
+#define PA_QAB_REQUEST                     16
+#define PA_QAB_RESPONSE                    17
 
 /* Keep in sync with PA_* defines */
 #define PPA_DSE_ENABLEMENT                   1
@@ -1189,16 +1314,16 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define HT_ACTION_ANT_SEL_FEEDBACK            7
 #define HT_ACTION_HT_INFO_EXCHANGE            8
 
-#define DMG_ACTION_PWR_SAVE_CONFIG_REQ            0
-#define DMG_ACTION_PWR_SAVE_CONFIG_RES            1
-#define DMG_ACTION_INFO_REQ                       2
-#define DMG_ACTION_INFO_RES                       3
-#define DMG_ACTION_HANDOVER_REQ                   4
-#define DMG_ACTION_HANDOVER_RES                   5
-#define DMG_ACTION_DTP_REQ                        6
-#define DMG_ACTION_DTP_RES                        7
-#define DMG_ACTION_RELAY_SEARCH_REQ               8
-#define DMG_ACTION_RELAY_SEARCH_RES               9
+#define DMG_ACTION_PWR_SAVE_CONFIG_REQ           0
+#define DMG_ACTION_PWR_SAVE_CONFIG_RES           1
+#define DMG_ACTION_INFO_REQ                      2
+#define DMG_ACTION_INFO_RES                      3
+#define DMG_ACTION_HANDOVER_REQ                  4
+#define DMG_ACTION_HANDOVER_RES                  5
+#define DMG_ACTION_DTP_REQ                       6
+#define DMG_ACTION_DTP_RES                       7
+#define DMG_ACTION_RELAY_SEARCH_REQ              8
+#define DMG_ACTION_RELAY_SEARCH_RES              9
 #define DMG_ACTION_MUL_RELAY_CHANNEL_MEASURE_REQ 10
 #define DMG_ACTION_MUL_RELAY_CHANNEL_MEASURE_RES 11
 #define DMG_ACTION_RLS_REQ                       12
@@ -1213,37 +1338,37 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define DMG_ACTION_ROC_REQ                       21
 #define DMG_ACTION_ROC_RES                       22
 
-#define UNPROTECTED_DMG_ANNOUNCE                  0
-#define UNPROTECTED_DMG_BRP                       1
+#define UNPROTECTED_DMG_ANNOUNCE                 0
+#define UNPROTECTED_DMG_BRP                      1
 
-#define FST_SETUP_REQUEST                         0
-#define FST_SETUP_RESPONSE                        1
-#define FST_TEAR_DOWN                             2
-#define FST_ACK_REQUEST                           3
-#define FST_ACK_RESPONSE                          4
-#define FST_ON_CHANNEL_TUNNEL_REQUEST             5
+#define FST_SETUP_REQUEST                        0
+#define FST_SETUP_RESPONSE                       1
+#define FST_TEAR_DOWN                            2
+#define FST_ACK_REQUEST                          3
+#define FST_ACK_RESPONSE                         4
+#define FST_ON_CHANNEL_TUNNEL_REQUEST            5
 
 /* IEEE Std 802.11r-2008, 7.4.8, Table 7-57g */
-#define FT_ACTION_REQUEST                1
-#define FT_ACTION_RESPONSE               2
-#define FT_ACTION_CONFIRM                3
-#define FT_ACTION_ACK                    4
+#define FT_ACTION_REQUEST               1
+#define FT_ACTION_RESPONSE              2
+#define FT_ACTION_CONFIRM               3
+#define FT_ACTION_ACK                   4
 
 /* SA Query Action frame codes (IEEE 802.11w-2009, 7.4.9) */
-#define SA_QUERY_REQUEST                 0
-#define SA_QUERY_RESPONSE                1
+#define SA_QUERY_REQUEST                0
+#define SA_QUERY_RESPONSE               1
 
 /* IEEE Std 802.11z-2010, 7.4.11, Table 7-57v1 */
-#define TDLS_SETUP_REQUEST               0
-#define TDLS_SETUP_RESPONSE              1
-#define TDLS_SETUP_CONFIRM               2
-#define TDLS_TEARDOWN                    3
-#define TDLS_PEER_TRAFFIC_INDICATION     4
-#define TDLS_CHANNEL_SWITCH_REQUEST      5
-#define TDLS_CHANNEL_SWITCH_RESPONSE     6
-#define TDLS_PEER_PSM_REQUEST            7
-#define TDLS_PEER_PSM_RESPONSE           8
-#define TDLS_PEER_TRAFFIC_RESPONSE       9
+#define TDLS_SETUP_REQUEST              0
+#define TDLS_SETUP_RESPONSE             1
+#define TDLS_SETUP_CONFIRM              2
+#define TDLS_TEARDOWN                   3
+#define TDLS_PEER_TRAFFIC_INDICATION    4
+#define TDLS_CHANNEL_SWITCH_REQUEST     5
+#define TDLS_CHANNEL_SWITCH_RESPONSE    6
+#define TDLS_PEER_PSM_REQUEST           7
+#define TDLS_PEER_PSM_RESPONSE          8
+#define TDLS_PEER_TRAFFIC_RESPONSE      9
 #define TDLS_DISCOVERY_REQUEST          10
 
 /* IEEE Std 802.11-2012, 8.5.7.1, Table 8-206 */
@@ -1292,43 +1417,45 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define MRVL_MESH_MGMT_ACTION_RERR      2
 #define MRVL_MESH_MGMT_ACTION_PLDM      3
 
-#define ANQP_INFO_ANQP_QUERY_LIST                 256
-#define ANQP_INFO_ANQP_CAPAB_LIST                 257
-#define ANQP_INFO_VENUE_NAME_INFO                 258
-#define ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO      259
-#define ANQP_INFO_NETWORK_AUTH_TYPE_INFO          260
-#define ANQP_INFO_ROAMING_CONSORTIUM_LIST         261
-#define ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO  262
-#define ANQP_INFO_NAI_REALM_LIST                  263
-#define ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO      264
-#define ANQP_INFO_AP_GEOSPATIAL_LOCATION          265
-#define ANQP_INFO_AP_CIVIC_LOCATION               266
-#define ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI       267
-#define ANQP_INFO_DOMAIN_NAME_LIST                268
-#define ANQP_INFO_EMERGENCY_ALERT_ID_URI          269
-#define ANQP_INFO_TDLS_CAPAB_INFO                 270
-#define ANQP_INFO_EMERGENCY_NAI                   271
-#define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST     56797
+#define ANQP_INFO_ANQP_QUERY_LIST 256
+#define ANQP_INFO_ANQP_CAPAB_LIST 257
+#define ANQP_INFO_VENUE_NAME_INFO 258
+#define ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO 259
+#define ANQP_INFO_NETWORK_AUTH_TYPE_INFO 260
+#define ANQP_INFO_ROAMING_CONSORTIUM_LIST 261
+#define ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO 262
+#define ANQP_INFO_NAI_REALM_LIST 263
+#define ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO 264
+#define ANQP_INFO_AP_GEOSPATIAL_LOCATION 265
+#define ANQP_INFO_AP_CIVIC_LOCATION 266
+#define ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI 267
+#define ANQP_INFO_DOMAIN_NAME_LIST 268
+#define ANQP_INFO_EMERGENCY_ALERT_ID_URI 269
+#define ANQP_INFO_TDLS_CAPAB_INFO 270
+#define ANQP_INFO_EMERGENCY_NAI 271
+#define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST 56797
 
 /* ANQP information ID - IEEE Std 802.11u-2011 - Table 7-43bk */
 static const value_string anqp_info_id_vals[] = {
-  {ANQP_INFO_ANQP_QUERY_LIST,                "ANQP Query list"},
-  {ANQP_INFO_ANQP_CAPAB_LIST,                "ANQP Capability list"},
-  {ANQP_INFO_VENUE_NAME_INFO,                "Venue Name information"},
-  {ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO,     "Emergency Call Number information"},
-  {ANQP_INFO_NETWORK_AUTH_TYPE_INFO,         "Network Authentication Type information"},
-  {ANQP_INFO_ROAMING_CONSORTIUM_LIST,        "Roaming Consortium list"},
-  {ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO, "IP Address Type Availability information"},
-  {ANQP_INFO_NAI_REALM_LIST,                 "NAI Realm list"},
-  {ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO,     "3GPP Cellular Network information"},
-  {ANQP_INFO_AP_GEOSPATIAL_LOCATION,         "AP Geospatial Location"},
-  {ANQP_INFO_AP_CIVIC_LOCATION,              "AP Civic Location"},
-  {ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI,      "AP Location Public Identifier URI"},
-  {ANQP_INFO_DOMAIN_NAME_LIST,               "Domain Name list"},
-  {ANQP_INFO_EMERGENCY_ALERT_ID_URI,         "Emergency Alert Identifier URI"},
-  {ANQP_INFO_TDLS_CAPAB_INFO,                "TDLS Capability information"},
-  {ANQP_INFO_EMERGENCY_NAI,                  "Emergency NAI"},
-  {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST,      "ANQP vendor-specific list"},
+  {ANQP_INFO_ANQP_QUERY_LIST, "ANQP Query list"},
+  {ANQP_INFO_ANQP_CAPAB_LIST, "ANQP Capability list"},
+  {ANQP_INFO_VENUE_NAME_INFO, "Venue Name information"},
+  {ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO, "Emergency Call Number information"},
+  {ANQP_INFO_NETWORK_AUTH_TYPE_INFO,
+   "Network Authentication Type information"},
+  {ANQP_INFO_ROAMING_CONSORTIUM_LIST, "Roaming Consortium list"},
+  {ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO,
+   "IP Address Type Availability information"},
+  {ANQP_INFO_NAI_REALM_LIST, "NAI Realm list"},
+  {ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO, "3GPP Cellular Network information"},
+  {ANQP_INFO_AP_GEOSPATIAL_LOCATION, "AP Geospatial Location"},
+  {ANQP_INFO_AP_CIVIC_LOCATION, "AP Civic Location"},
+  {ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI, "AP Location Public Identifier URI"},
+  {ANQP_INFO_DOMAIN_NAME_LIST, "Domain Name list"},
+  {ANQP_INFO_EMERGENCY_ALERT_ID_URI, "Emergency Alert Identifier URI"},
+  {ANQP_INFO_TDLS_CAPAB_INFO, "TDLS Capability information"},
+  {ANQP_INFO_EMERGENCY_NAI, "Emergency NAI"},
+  {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST, "ANQP vendor-specific list"},
   {0, NULL}
 };
 static value_string_ext anqp_info_id_vals_ext = VALUE_STRING_EXT_INIT(anqp_info_id_vals);
@@ -1366,34 +1493,34 @@ enum wnm_action {
 };
 
 static const value_string wnm_action_codes[] = {
-  { WNM_EVENT_REQ,                      "Event Request" },
-  { WNM_EVENT_REPORT,                   "Event Report" },
-  { WNM_DIAGNOSTIC_REQ,                 "Diagnostic Request" },
-  { WNM_DIAGNOSTIC_REPORT,              "Diagnostic Report" },
-  { WNM_LOCATION_CFG_REQ,               "Location Configuration Request" },
-  { WNM_LOCATION_CFG_RESP,              "Location Configuration Response" },
-  { WNM_BSS_TRANS_MGMT_QUERY,           "BSS Transition Management Query" },
-  { WNM_BSS_TRANS_MGMT_REQ,             "BSS Transition Management Request" },
-  { WNM_BSS_TRANS_MGMT_RESP,            "BSS Transition Management Response" },
-  { WNM_FMS_REQ,                        "FMS Request" },
-  { WNM_FMS_RESP,                       "FMS Response" },
-  { WNM_COLLOCATED_INTERFERENCE_REQ,    "Collocated Interference Request" },
+  { WNM_EVENT_REQ, "Event Request" },
+  { WNM_EVENT_REPORT, "Event Report" },
+  { WNM_DIAGNOSTIC_REQ, "Diagnostic Request" },
+  { WNM_DIAGNOSTIC_REPORT, "Diagnostic Report" },
+  { WNM_LOCATION_CFG_REQ, "Location Configuration Request" },
+  { WNM_LOCATION_CFG_RESP, "Location Configuration Response" },
+  { WNM_BSS_TRANS_MGMT_QUERY, "BSS Transition Management Query" },
+  { WNM_BSS_TRANS_MGMT_REQ, "BSS Transition Management Request" },
+  { WNM_BSS_TRANS_MGMT_RESP, "BSS Transition Management Response" },
+  { WNM_FMS_REQ, "FMS Request" },
+  { WNM_FMS_RESP, "FMS Response" },
+  { WNM_COLLOCATED_INTERFERENCE_REQ, "Collocated Interference Request" },
   { WNM_COLLOCATED_INTERFERENCE_REPORT, "Collocated Interference Report" },
-  { WNM_TFS_REQ,                        "TFS Request" },
-  { WNM_TFS_RESP,                       "TFS Response" },
-  { WNM_TFS_NOTIFY,                     "TFS Notify" },
-  { WNM_SLEEP_MODE_REQ,                 "WNM-Sleep Mode Request" },
-  { WNM_SLEEP_MODE_RESP,                "WNM-Sleep Mode Response" },
-  { WNM_TIM_BROADCAST_REQ,              "TIM Broadcast Request" },
-  { WNM_TIM_BROADCAST_RESP,             "TIM Broadcast Response" },
-  { WNM_QOS_TRAFFIC_CAPAB_UPDATE,       "QoS Traffic Capability Update" },
-  { WNM_CHANNEL_USAGE_REQ,              "Channel Usage Request" },
-  { WNM_CHANNEL_USAGE_RESP,             "Channel Usage Response" },
-  { WNM_DMS_REQ,                        "DMS Request" },
-  { WNM_DMS_RESP,                       "DMS Response" },
-  { WNM_TIMING_MEASUREMENT_REQ,         "Timing Measurement Request" },
-  { WNM_NOTIFICATION_REQ,               "WNM-Notification Request" },
-  { WNM_NOTIFICATION_RESP,              "WNM-Notification Response" },
+  { WNM_TFS_REQ, "TFS Request" },
+  { WNM_TFS_RESP, "TFS Response" },
+  { WNM_TFS_NOTIFY, "TFS Notify" },
+  { WNM_SLEEP_MODE_REQ, "WNM-Sleep Mode Request" },
+  { WNM_SLEEP_MODE_RESP, "WNM-Sleep Mode Response" },
+  { WNM_TIM_BROADCAST_REQ, "TIM Broadcast Request" },
+  { WNM_TIM_BROADCAST_RESP, "TIM Broadcast Response" },
+  { WNM_QOS_TRAFFIC_CAPAB_UPDATE, "QoS Traffic Capability Update" },
+  { WNM_CHANNEL_USAGE_REQ, "Channel Usage Request" },
+  { WNM_CHANNEL_USAGE_RESP, "Channel Usage Response" },
+  { WNM_DMS_REQ, "DMS Request" },
+  { WNM_DMS_RESP, "DMS Response" },
+  { WNM_TIMING_MEASUREMENT_REQ, "Timing Measurement Request" },
+  { WNM_NOTIFICATION_REQ, "WNM-Notification Request" },
+  { WNM_NOTIFICATION_RESP, "WNM-Notification Response" },
   { 0, NULL }
 };
 static value_string_ext wnm_action_codes_ext = VALUE_STRING_EXT_INIT(wnm_action_codes);
@@ -1404,15 +1531,15 @@ enum unprotected_wnm_action {
 };
 
 static const value_string unprotected_wnm_action_codes[] = {
-  { UNPROTECTED_WNM_TIM,                "TIM" },
+  { UNPROTECTED_WNM_TIM, "TIM" },
   { UNPROTECTED_WNM_TIMING_MEASUREMENT, "Timing Measurement" },
   { 0, NULL }
 };
 static value_string_ext unprotected_wnm_action_codes_ext = VALUE_STRING_EXT_INIT(unprotected_wnm_action_codes);
 
 static const value_string wnm_notification_types[] = {
-  {   0, "Firmware Update Notification" },
-  {   1, "Reserved for use by WFA" },
+  { 0, "Firmware Update Notification" },
+  { 1, "Reserved for use by WFA" },
   { 221, "Vendor Specific" },
   { 0, NULL }
 };
@@ -1480,12 +1607,12 @@ static const value_string ieee80211_tag_measure_request_measurement_mode_flags[]
 #define MEASURE_REQ_BEACON_SUB_VS 221
 
 static const value_string ieee80211_tag_measure_request_beacon_sub_id_flags[] = {
-  { MEASURE_REQ_BEACON_SUB_SSID,    "SSID" },
-  { MEASURE_REQ_BEACON_SUB_BRI,     "Beacon Reporting Information" },
-  { MEASURE_REQ_BEACON_SUB_RD,      "Reporting Detail" },
+  { MEASURE_REQ_BEACON_SUB_SSID, "SSID" },
+  { MEASURE_REQ_BEACON_SUB_BRI, "Beacon Reporting Information" },
+  { MEASURE_REQ_BEACON_SUB_RD, "Reporting Detail" },
   { MEASURE_REQ_BEACON_SUB_REQUEST, "Request" },
-  { MEASURE_REQ_BEACON_SUB_APCP,    "AP Channel Report" },
-  { MEASURE_REQ_BEACON_SUB_VS,      "Vendor Specific" },
+  { MEASURE_REQ_BEACON_SUB_APCP, "AP Channel Report" },
+  { MEASURE_REQ_BEACON_SUB_VS, "Vendor Specific" },
   { 0x00, NULL}
 };
 
@@ -1589,14 +1716,14 @@ static const value_string frame_type[] = {
 };
 
 static const value_string tofrom_ds[] = {
-  {0,                       "Not leaving DS or network is operating "
-                             "in AD-HOC mode (To DS: 0 From DS: 0)"},
-  {FLAG_TO_DS,              "Frame from STA to DS via an AP (To DS: 1 "
-                             "From DS: 0)"},
-  {FLAG_FROM_DS,            "Frame from DS to a STA via AP(To DS: 0 "
-                             "From DS: 1)"},
+  {0,                     "Not leaving DS or network is operating "
+    "in AD-HOC mode (To DS: 0 From DS: 0)"},
+  {FLAG_TO_DS,            "Frame from STA to DS via an AP (To DS: 1 "
+    "From DS: 0)"},
+  {FLAG_FROM_DS,          "Frame from DS to a STA via AP(To DS: 0 "
+    "From DS: 1)"},
   {FLAG_TO_DS|FLAG_FROM_DS, "WDS (AP to AP) or Mesh (MP to MP) Frame "
-                             "(To DS: 1 From DS: 1)"},
+    "(To DS: 1 From DS: 1)"},
   {0, NULL}
 };
 
@@ -1999,11 +2126,11 @@ static const value_string category_codes[] = {
 };
 static value_string_ext category_codes_ext = VALUE_STRING_EXT_INIT(category_codes);
 
-#define NR_SUB_ID_TSF_INFO                  1
-#define NR_SUB_ID_CON_COU_STR               2
-#define NR_SUB_ID_BSS_TRN_CAN_PREF          3
-#define NR_SUB_ID_BSS_TER_DUR               4
-#define NR_SUB_ID_BEARING                   5
+#define NR_SUB_ID_TSF_INFO                 1
+#define NR_SUB_ID_CON_COU_STR              2
+#define NR_SUB_ID_BSS_TRN_CAN_PREF         3
+#define NR_SUB_ID_BSS_TER_DUR              4
+#define NR_SUB_ID_BEARING                  5
 
 #define NR_SUB_ID_HT_CAPABILITIES          45
 #define NR_SUB_ID_HT_OPERATION             61
@@ -2012,21 +2139,21 @@ static value_string_ext category_codes_ext = VALUE_STRING_EXT_INIT(category_code
 #define NR_SUB_ID_RM_ENABLE_CAP            70
 #define NR_SUB_ID_HT_MULTIPLE_BSSID        71
 
-#define NR_SUB_ID_VENDOR_SPECIFIC         221
+#define NR_SUB_ID_VENDOR_SPECIFIC          221
 
 static const value_string ieee80211_neighbor_report_subelement_id_vals[] = {
-  {NR_SUB_ID_TSF_INFO,               "TSF Information"},
-  {NR_SUB_ID_CON_COU_STR,            "Condensed Country String"},
-  {NR_SUB_ID_BSS_TRN_CAN_PREF,       "BSS Transition Candidate Preference"},
-  {NR_SUB_ID_BSS_TER_DUR,            "BSS Termination Duration"},
-  {NR_SUB_ID_BEARING,                "Bearing"},
-  {NR_SUB_ID_HT_CAPABILITIES,        "HT Capabilities"},
-  {NR_SUB_ID_HT_OPERATION,           "HT Operation"},
-  {NR_SUB_ID_SEC_CHANNEL_OFFSET,     "Secondary Channel Offset"},
+  {NR_SUB_ID_TSF_INFO, "TSF Information"},
+  {NR_SUB_ID_CON_COU_STR, "Condensed Country String"},
+  {NR_SUB_ID_BSS_TRN_CAN_PREF, "BSS Transition Candidate Preference"},
+  {NR_SUB_ID_BSS_TER_DUR, "BSS Termination Duration"},
+  {NR_SUB_ID_BEARING, "Bearing"},
+  {NR_SUB_ID_HT_CAPABILITIES, "HT Capabilities"},
+  {NR_SUB_ID_HT_OPERATION, "HT Operation"},
+  {NR_SUB_ID_SEC_CHANNEL_OFFSET, "Secondary Channel Offset"},
   {NR_SUB_ID_MEASUREMENT_PILOT_INFO, "Measurement Pilot Transmission"},
-  {NR_SUB_ID_RM_ENABLE_CAP,          "RM Enabled Capabilities"},
-  {NR_SUB_ID_HT_MULTIPLE_BSSID,      "Multiple BSSID"},
-  {NR_SUB_ID_VENDOR_SPECIFIC,        "Vendor Specific"},
+  {NR_SUB_ID_RM_ENABLE_CAP, "RM Enabled Capabilities"},
+  {NR_SUB_ID_HT_MULTIPLE_BSSID, "Multiple BSSID"},
+  {NR_SUB_ID_VENDOR_SPECIFIC, "Vendor Specific"},
   {0, NULL}
 };
 
@@ -2144,8 +2271,8 @@ static const value_string qos_action_codes[] = {
   {QOS_ACTION_ADDTS_REQUEST,  "ADDTS Request"},
   {QOS_ACTION_ADDTS_RESPONSE, "ADDTS Response"},
   {QOS_ACTION_DELTS,          "DELTS"},
-  {QOS_ACTION_SCHEDULE,       "Schedule"},
-  {QOS_ACTION_MAP_CONFIGURE,  "QoS Map Configure"},
+  {QOS_ACTION_SCHEDULE,   "Schedule"},
+  {QOS_ACTION_MAP_CONFIGURE, "QoS Map Configure"},
   {0, NULL}
 };
 
@@ -2226,15 +2353,15 @@ static const value_string ieee80211_block_ack_type_flags[] = {
 };
 
 static const value_string ft_action_codes[] = {
-  {FT_ACTION_REQUEST,  "FT Request"},
+  {FT_ACTION_REQUEST, "FT Request"},
   {FT_ACTION_RESPONSE, "FT Response"},
-  {FT_ACTION_CONFIRM,  "FT Confirm"},
-  {FT_ACTION_ACK,      "FT Ack"},
+  {FT_ACTION_CONFIRM, "FT Confirm"},
+  {FT_ACTION_ACK, "FT Ack"},
   {0, NULL}
 };
 
 static const value_string sa_query_action_codes[] = {
-  {SA_QUERY_REQUEST,  "SA Query Request"},
+  {SA_QUERY_REQUEST, "SA Query Request"},
   {SA_QUERY_RESPONSE, "SA Query Response"},
   {0, NULL}
 };
@@ -2798,7 +2925,7 @@ static const value_string service_interval_granularity_vals[] = {
 };
 
 static const value_string wep_type_vals[] = {
-  { AIRPDCAP_KEY_TYPE_WEP,     STRING_KEY_TYPE_WEP },
+  { AIRPDCAP_KEY_TYPE_WEP, STRING_KEY_TYPE_WEP },
   { AIRPDCAP_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
   { AIRPDCAP_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
   { 0x00, NULL }
@@ -2871,8 +2998,8 @@ static const value_string operat_mode_field_rxnss[] = {
 #define VHT_ACT_OPERATION_MODE_NOTIFICATION 2
 
 static const value_string vht_action_vals[] = {
-  {VHT_ACT_VHT_COMPRESSED_BEAMFORMING,  "VHT Compressed Beamforming"},
-  {VHT_ACT_GROUP_ID_MANAGEMENT,         "Group ID Management"},
+  {VHT_ACT_VHT_COMPRESSED_BEAMFORMING, "VHT Compressed Beamforming"},
+  {VHT_ACT_GROUP_ID_MANAGEMENT, "Group ID Management"},
   {VHT_ACT_OPERATION_MODE_NOTIFICATION, "Operating Mode Notification"},
   {0,   NULL}
 };
@@ -2972,19 +3099,19 @@ static int hf_ieee80211_assoc_id = -1;
 /* ************************************************************************* */
 /*         Header values for different address-fields (all 4 of them)        */
 /* ************************************************************************* */
-static int hf_ieee80211_addr_da = -1;             /* Destination address subfield */
-static int hf_ieee80211_addr_da_resolved = -1;    /* Dst addr subfield resolved*/
-static int hf_ieee80211_addr_sa = -1;             /* Source address subfield */
-static int hf_ieee80211_addr_sa_resolved = -1;    /* Src addr subfield resolved*/
-static int hf_ieee80211_addr_ra = -1;             /* Receiver address subfield */
-static int hf_ieee80211_addr_ra_resolved = -1;    /* Rcv addr subfield resolved*/
-static int hf_ieee80211_addr_ta = -1;             /* Transmitter address subfield */
-static int hf_ieee80211_addr_ta_resolved = -1;    /* Txm addr subfield resolved*/
-static int hf_ieee80211_addr_bssid = -1;          /* address is bssid */
-static int hf_ieee80211_addr_bssid_resolved = -1; /* bssid resolved*/
+static int hf_ieee80211_addr_da = -1;  /* Destination address subfield */
+static int hf_ieee80211_addr_da_resolved = -1;  /* Dst addr subfield resolved*/
+static int hf_ieee80211_addr_sa = -1;  /* Source address subfield */
+static int hf_ieee80211_addr_sa_resolved = -1;  /* Src addr subfield resolved*/
+static int hf_ieee80211_addr_ra = -1;  /* Receiver address subfield */
+static int hf_ieee80211_addr_ra_resolved = -1;  /* Rcv addr subfield resolved*/
+static int hf_ieee80211_addr_ta = -1;  /* Transmitter address subfield */
+static int hf_ieee80211_addr_ta_resolved = -1;  /* Txm addr subfield resolved*/
+static int hf_ieee80211_addr_bssid = -1;  /* address is bssid */
+static int hf_ieee80211_addr_bssid_resolved = -1;  /* bssid resolved*/
 
-static int hf_ieee80211_addr = -1;                /* Source or destination address subfield */
-static int hf_ieee80211_addr_resolved = -1;       /*Src/dst address subfield resolved*/
+static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
+static int hf_ieee80211_addr_resolved = -1;/*Src/dst address subfield resolved*/
 
 /* ************************************************************************* */
 /*                Header values for QoS control field                        */
@@ -6901,128 +7028,9 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 /*              Dissect and add fixed mgmt fields to protocol tree           */
 /* ************************************************************************* */
 
-/* Fixed Field list */
-
-#if 0
-  TIMESTAMP                            /* 64-bit timestamp */
-  BEACON_INTERVAL                      /* 16-bit beacon interval */
-  CAP_INFO                             /* Add capability information tree */
-  AUTH_ALG                             /* Authentication algorithm used */
-  AUTH_TRANS_SEQ                       /* Authentication sequence number */
-  CURRENT_AP_ADDR
-  LISTEN_IVAL
-  REASON_CODE
-  ASSOC_ID
-  STATUS_CODE
-  CATEGORY_CODE                        /* Management action category */
-  ACTION_CODE                          /* Management action code */
-  DIALOG_TOKEN                         /* Management action dialog token */
-  FOLLOWUP_DIALOG_TOKEN
-  WME_ACTION_CODE                      /* Management notification action code */
-  WME_DIALOG_TOKEN/* not implemented *//* Management notification dialog token */
-  WME_STATUS_CODE                      /* Management notification setup response status code */
-  QOS_ACTION_CODE
-  QOS_TS_INFO
-  DLS_ACTION_CODE
-  DST_MAC_ADDR                         /* DLS destination MAC address */
-  SRC_MAC_ADDR                         /* DLS source MAC address */
-  DLS_TIMEOUT                          /* DLS timeout value */
-  SCHEDULE_INFO                        /* Schedule Info field */
-  ACTION                               /* Action field */
-  BLOCK_ACK_ACTION_CODE
-  QOS_INFO_AP
-  QOS_INFO_STA
-  BLOCK_ACK_PARAM
-  BLOCK_ACK_TIMEOUT
-  BLOCK_ACK_SSC
-  DELBA_PARAM_SET
-  MAX_REG_PWR
-  MEASUREMENT_PILOT_INT
-  COUNTRY_STR
-  MAX_TX_PWR
-  TX_PWR_USED
-  TRANSCEIVER_NOISE_FLOOR
-  DS_PARAM_SET/* not implemented */
-  CHANNEL_WIDTH
-  SM_PWR_CNTRL
-  PCO_PHASE_CNTRL
-  PSMP_PARAM_SET
-  PSMP_STA_INFO
-  MIMO_CNTRL
-  ANT_SELECTION
-  EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT
-  HT_INFORMATION
-  HT_ACTION_CODE
-  PA_ACTION_CODE
-  PPA_ACTION_CODE
-  FT_ACTION_CODE
-  STA_ADDRESS
-  TARGET_AP_ADDRESS
-  GAS_COMEBACK_DELAY
-  GAS_FRAGMENT_ID
-  SA_QUERY_ACTION_CODE
-  TRANSACTION_ID
-  TDLS_ACTION_CODE
-  TARGET_CHANNEL
-  OPERATING_CLASS
-  MESH_ACTION
-  MULTIHOP_ACTION
-  MESH_CONTROL
-  SELFPROT_ACTION
-  WNM_ACTION_CODE
-  UNPROTECTED_WNM_ACTION_CODE
-  RELAY_CAPABLE_STA_INFO
-  BAND_ID
-  DMG_PARAMETERS
-  SECTOR_SWEEP
-  DYNAMIC_ALLOCATION
-  SECTOR_SWEEP_FEEDBACK
-  BRP_REQ
-  BEAMFORMING_CTRL
-  BEAMFORMED_LINK_MAINTENANCE
-  BEACON_INTERVAL_CTRL
-  KEY_DATA_LENGTH
-  WNM_NOTIFICATION_TYPE
-  RM_ACTION_CODE
-  RM_DIALOG_TOKEN
-  RM_REPETITIONS
-  RM_TX_POWER
-  RM_MAX_TX_POWER
-  RM_TPC_REPORT
-  RM_RX_ANTENNA_ID
-  RM_TX_ANTENNA_ID
-  RM_RCPI
-  RM_RSNI
-  DMG_ACTION_CODE
-  DMG_PWR_MGMT
-  REQ_AP_ADDR
-  RES_AP_ADDR
-  CHECK_BEACON
-  TOD
-  TOA
-  MAX_TOD_ERR
-  MAX_TOA_ERR
-  SUBJECT_ADDRESS
-  HANDOVER_REASON
-  HANDOVER_REMAINING_BI
-  HANDOVER_RESULT
-  HANDOVER_REJECT_REASON
-  DESTINATION_REDS_AID
-  DESTINATION_AID
-  REALY_AID
-  SOURCE_AID
-  TIMING_OFFSET
-  SAMPLING_FREQUENCY_OFFSET
-  RELAY_OPERATION_TYPE
-  UNPROTECTED_DMG_ACTION_CODE
-  FST_ACTION_CODE
-  LLT
-  FSTS_ID
-  OCT_MMPDU
-  VHT_ACTION
-#endif
-
-#define add_fixed_field(tree, tvb, pinfo, offset, ff_fcn) ff_fcn(tree, tvb, pinfo, offset)
+static guint
+add_fixed_field(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
+                enum fixed_field lfcode);
 
 static guint64 last_timestamp;
 
@@ -7150,7 +7158,6 @@ add_ff_status_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
   return 2;
 }
 
-/* Management action category */
 static guint
 add_ff_category_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7159,7 +7166,6 @@ add_ff_category_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   return 1;
 }
 
-/* Management action code */
 static guint
 add_ff_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7168,7 +7174,6 @@ add_ff_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
   return 1;
 }
 
-/* Management action dialog taken */
 static guint
 add_ff_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7185,7 +7190,6 @@ add_ff_followup_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   return 1;
 }
 
-/* Management notification action code */
 static guint
 add_ff_wme_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7194,7 +7198,6 @@ add_ff_wme_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
   return 1;
 }
 
-/* Management notification setup response status code */
 static guint
 add_ff_wme_status_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7329,7 +7332,6 @@ add_ff_dls_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
   return 1;
 }
 
-/* DLS destination MAC address */
 static guint
 add_ff_dst_mac_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7338,7 +7340,6 @@ add_ff_dst_mac_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int
   return 6;
 }
 
-/* DLS source MAC address */
 static guint
 add_ff_src_mac_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -7714,11 +7715,743 @@ add_ff_ppa_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
 }
 
 static guint
+add_ff_action_spectrum_mgmt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+    switch (tvb_get_guint8(tvb, offset + 1)) {
+    case SM_ACTION_MEASUREMENT_REQUEST:
+    case SM_ACTION_MEASUREMENT_REPORT:
+    case SM_ACTION_TPC_REQUEST:
+    case SM_ACTION_TPC_REPORT:
+      add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+      add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_ACTION_CODE);
+      add_fixed_field(tree, tvb, pinfo, offset + 2, FIELD_DIALOG_TOKEN);
+      return 3;
+    case SM_ACTION_CHAN_SWITCH_ANNC:
+    case SM_ACTION_EXT_CHAN_SWITCH_ANNC:
+      add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+      add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_ACTION_CODE);
+      return 2;
+    default:
+      add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+      add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_ACTION_CODE);
+      return 2;
+    }
+}
+
+static guint
+add_ff_action_qos(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  switch (tvb_get_guint8(tvb, offset + 1)) {
+  case QOS_ACTION_ADDTS_REQUEST:
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 2, FIELD_DIALOG_TOKEN);
+    return 3;
+  case QOS_ACTION_ADDTS_RESPONSE:
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 2, FIELD_DIALOG_TOKEN);
+    add_fixed_field(tree, tvb, pinfo, offset + 3, FIELD_STATUS_CODE);
+    return 5;
+  case QOS_ACTION_DELTS:
+    add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 2, FIELD_QOS_TS_INFO);
+    add_fixed_field(tree, tvb, pinfo, offset + 5, FIELD_REASON_CODE);
+    return 7;
+  case QOS_ACTION_SCHEDULE:
+    add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    return 2;
+  case QOS_ACTION_MAP_CONFIGURE:
+    add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    return 2;
+  default:
+    add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+    return 2;
+  }
+}
+
+static guint
+add_ff_action_dls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  switch (tvb_get_guint8(tvb, offset + 1)) {
+  case DLS_ACTION_REQUEST:
+    add_fixed_field(tree, tvb, pinfo, offset,      FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  1, FIELD_DLS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  2, FIELD_DST_MAC_ADDR);
+    add_fixed_field(tree, tvb, pinfo, offset +  8, FIELD_SRC_MAC_ADDR);
+    add_fixed_field(tree, tvb, pinfo, offset + 14, FIELD_CAP_INFO);
+    add_fixed_field(tree, tvb, pinfo, offset + 16, FIELD_DLS_TIMEOUT);
+    return 18;
+  case DLS_ACTION_RESPONSE:
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  1, FIELD_DLS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  2, FIELD_STATUS_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  4, FIELD_DST_MAC_ADDR);
+    add_fixed_field(tree, tvb, pinfo, offset + 10, FIELD_SRC_MAC_ADDR);
+    if (!hf_ieee80211_ff_status_code) {
+      add_fixed_field(tree, tvb, pinfo, offset + 16, FIELD_CAP_INFO);
+    }
+    return 16;
+  case DLS_ACTION_TEARDOWN:
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  1, FIELD_DLS_ACTION_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset +  2, FIELD_DST_MAC_ADDR);
+    add_fixed_field(tree, tvb, pinfo, offset +  8, FIELD_SRC_MAC_ADDR);
+    add_fixed_field(tree, tvb, pinfo, offset + 14, FIELD_REASON_CODE);
+    return 16;
+  default:
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    return 2;
+  }
+}
+
+static guint
+add_ff_action_block_ack(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+
+  switch (tvb_get_guint8(tvb, offset + 1)) {
+  case BA_ADD_BLOCK_ACK_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_PARAM);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_TIMEOUT);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
+    break;
+  case BA_ADD_BLOCK_ACK_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_PARAM);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_TIMEOUT);
+    break;
+  case BA_DELETE_BLOCK_ACK:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DELBA_PARAM_SET);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REASON_CODE);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code)
+{
+  guint32  oui;
+  guint8   subtype;
+  gboolean anqp;
+  guint8   dialog_token;
+  guint8   frag;
+  gboolean more;
+
+  guint start = offset;
+
+  switch (code) {
+  case PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT:
+    offset += add_ff_extended_channel_switch_announcement(tree, tvb, pinfo, offset);
+    break;
+  case PA_VENDOR_SPECIFIC:
+    oui = tvb_get_ntoh24(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+    offset += 3;
+    switch (oui) {
+    case OUI_WFA:
+      subtype = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      if (subtype == WFA_SUBTYPE_P2P) {
+        offset = dissect_wifi_p2p_public_action(pinfo, tree, tvb, offset);
+      }
+      break;
+    default:
+      /* Don't know how to handle this vendor */
+      break;
+    }
+    break;
+  case PA_GAS_INITIAL_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
+                                             &anqp);
+    offset += dissect_gas_initial_request(tree, tvb, pinfo, offset, anqp);
+    break;
+  case PA_GAS_INITIAL_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_GAS_COMEBACK_DELAY);
+    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
+                                             &anqp);
+    offset += dissect_gas_initial_response(tree, tvb, pinfo, offset, anqp);
+    break;
+  case PA_GAS_COMEBACK_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  case PA_GAS_COMEBACK_RESPONSE:
+    dialog_token = tvb_get_guint8(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    frag = tvb_get_guint8(tvb, offset) & 0x7f;
+    more = (tvb_get_guint8(tvb, offset) & 0x80) != 0;
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_GAS_FRAGMENT_ID);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_GAS_COMEBACK_DELAY);
+    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
+                                             &anqp);
+    offset += dissect_gas_comeback_response(tree, tvb, pinfo, offset, anqp, frag,
+                                            more, dialog_token);
+    break;
+  case PA_TDLS_DISCOVERY_RESPONSE:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
+    col_set_str(pinfo->cinfo, COL_INFO, "TDLS Discovery Response");
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+    break;
+  case PA_QAB_REQUEST:
+  case PA_QAB_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REQ_AP_ADDR);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RES_AP_ADDR);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 code;
+  guint start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PA_ACTION_CODE);
+  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
+  return offset - start;
+}
+
+static guint
+add_ff_action_protected_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 code;
+  guint start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PPA_ACTION_CODE);
+  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
+  return offset - start;
+}
+
+static guint
+add_ff_action_radio_measurement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint  start = offset;
+  guint8 code;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_ACTION_CODE);
+
+  switch (code) {
+  case RM_ACTION_RADIO_MEASUREMENT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_REPETITIONS);
+    /* Followed by Measurement Request Elements */
+    break;
+  case RM_ACTION_RADIO_MEASUREMENT_REPORT:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Measurement Report Elements */
+    break;
+  case RM_ACTION_LINK_MEASUREMENT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TX_POWER);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_MAX_TX_POWER);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_LINK_MEASUREMENT_REPORT:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TPC_REPORT);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RX_ANTENNA_ID);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TX_ANTENNA_ID);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RCPI);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RSNI);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_NEIGHBOR_REPORT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_NEIGHBOR_REPORT_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Neighbor Report Elements */
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint  start = offset;
+  guint8 code;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FT_ACTION_CODE);
+
+  switch (code) {
+  case FT_ACTION_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STA_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_AP_ADDRESS);
+    /* Followed by FT Request frame body (IEs) */
+    break;
+  case FT_ACTION_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STA_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_AP_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    /* Followed by FT Response frame body (IEs) */
+    break;
+  case FT_ACTION_CONFIRM:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STA_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_AP_ADDRESS);
+    /* Followed by FT Confirm frame body (IEs) */
+    break;
+  case FT_ACTION_ACK:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STA_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_AP_ADDRESS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    /* Followed by FT Ack frame body (IEs) */
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_sa_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint  start = offset;
+  guint8 code;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SA_QUERY_ACTION_CODE);
+
+  switch (code) {
+  case SA_QUERY_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TRANSACTION_ID);
+    break;
+  case SA_QUERY_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TRANSACTION_ID);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_mesh(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint length;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MESH_ACTION);
+  /* The only fixed fields are the category and mesh action.  The rest are IEs.
+   */
+  length = 2;
+  if (tvb_get_guint8(tvb, 1) == MESH_ACTION_TBTT_ADJ_RESPONSE) {
+    /* ..except for the TBTT Adjustment Response, which has a status code field
+     */
+    length += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+  }
+  return length;
+}
+
+static guint
+add_ff_action_multihop(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MULTIHOP_ACTION);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MESH_CONTROL);
+  return offset - start;
+}
+
+static guint
+add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SELFPROT_ACTION);
+
+  switch (tvb_get_guint8(tvb, start + 1)) {
+  case SELFPROT_ACTION_MESH_PEERING_OPEN:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+    break;
+  case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_ASSOC_ID);
+    break;
+  }
+
+  return offset - start;
+}
+
+static guint
 add_ff_vht_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_vht_action, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   return 1;
+}
+
+
+static guint
+wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int    start = offset;
+  guint8 mode;
+  gint   left;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+
+  mode = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_pref_cand,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_abridged,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_disassoc_imminent,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_bss_term_included,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_ess_disassoc_imminent,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_disassoc_timer, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_validity_interval, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  if (mode & 0x08) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_termination_duration,
+                        tvb, offset, 8, ENC_NA);
+    offset += 8;
+  }
+
+  if (mode & 0x10) {
+    guint8 url_len;
+    url_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_ff_url_len, tvb, offset, 1,
+                        ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ieee80211_ff_url, tvb, offset, url_len,
+                        ENC_ASCII|ENC_NA);
+    offset += url_len;
+  }
+
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
+                        tvb, offset, left, ENC_NA);
+    offset += left;
+  }
+
+  return offset - start;
+}
+
+static guint
+wnm_sleep_mode_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+  guint16 key_data_len;
+  gint left;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  key_data_len = tvb_get_letohs(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_KEY_DATA_LENGTH);
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left < key_data_len) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_tag_wnm_sleep_mode_no_key_data);
+    return offset - start;
+  }
+  proto_tree_add_item(tree, hf_ieee80211_ff_key_data, tvb, offset,
+                      key_data_len, ENC_NA);
+  offset += key_data_len;
+  return offset - start;
+}
+
+static guint
+wnm_tfs_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_tfs_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_WNM_NOTIFICATION_TYPE);
+  return offset - start;
+}
+
+static guint
+add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 code;
+  guint  start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_WNM_ACTION_CODE);
+  switch (code) {
+  case WNM_BSS_TRANS_MGMT_REQ:
+    offset += wnm_bss_trans_mgmt_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_TFS_REQ:
+    offset += wnm_tfs_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_TFS_RESP:
+    offset += wnm_tfs_resp(tree, tvb, pinfo, offset);
+    break;
+  case WNM_SLEEP_MODE_REQ:
+    offset += wnm_sleep_mode_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_SLEEP_MODE_RESP:
+    offset += wnm_sleep_mode_resp(tree, tvb, pinfo, offset);
+    break;
+  case WNM_NOTIFICATION_REQ:
+    offset += wnm_notification_req(tree, tvb, pinfo, offset);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_unprotected_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 code;
+  guint  start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_UNPROTECTED_WNM_ACTION_CODE);
+
+  switch (code) {
+  case UNPROTECTED_WNM_TIM:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CHECK_BEACON);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TIMESTAMP);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TOD);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TOA);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MAX_TOD_ERR);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MAX_TOA_ERR);
+    break;
+  case UNPROTECTED_WNM_TIMING_MEASUREMENT:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FOLLOWUP_DIALOG_TOKEN);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8  code;
+  guint16 status;
+  guint   start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TDLS_ACTION_CODE);
+  switch (code) {
+  case TDLS_SETUP_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+    break;
+  case TDLS_SETUP_RESPONSE:
+    status = tvb_get_letohs(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+      if (status == 0) {
+        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_response_malformed);
+      }
+      break;
+    }
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+    break;
+  case TDLS_SETUP_CONFIRM:
+    status = tvb_get_letohs(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    if (tvb_reported_length_remaining(tvb, offset) < 1) {
+      if (status == 0) {
+        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_confirm_malformed);
+      }
+      break;
+    }
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  case TDLS_TEARDOWN:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REASON_CODE);
+    break;
+  case TDLS_PEER_TRAFFIC_INDICATION:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  case TDLS_CHANNEL_SWITCH_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_CHANNEL);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_OPERATING_CLASS);
+    break;
+  case TDLS_CHANNEL_SWITCH_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    break;
+  case TDLS_PEER_PSM_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  case TDLS_PEER_PSM_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+    break;
+  case TDLS_PEER_TRAFFIC_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  case TDLS_DISCOVERY_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_mgmt_notification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_WME_ACTION_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_WME_STATUS_CODE);
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint   start = offset;
+  guint32 oui;
+  guint8  subtype;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  oui = tvb_get_ntoh24(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+  offset += 3;
+  switch (oui) {
+  case OUI_MARVELL:
+    offset = dissect_vendor_action_marvell(tree, tvb, offset);
+    break;
+  case OUI_WFA:
+    subtype = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    if (subtype == WFA_SUBTYPE_P2P) {
+      offset = dissect_wifi_p2p_action(tree, tvb, offset);
+    }
+    break;
+  default:
+    /* Don't know how to handle this vendor */
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
+add_ff_action_ht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint  start = offset;
+  guint8 n_sta, i;
+  mimo_control_t mimo_cntrl;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HT_ACTION_CODE);
+
+  switch (tvb_get_guint8(tvb, offset - 1)) {
+  case HT_ACTION_NOTIFY_CHAN_WIDTH:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CHANNEL_WIDTH);
+    break;
+  case HT_ACTION_SM_PWR_SAVE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SM_PWR_CNTRL);
+    break;
+  case HT_ACTION_PSMP_ACTION:
+    n_sta = tvb_get_guint8(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PSMP_PARAM_SET);
+    for (i = 0; i < (n_sta & 0x0F); i++) {
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PSMP_STA_INFO);
+    }
+    break;
+  case HT_ACTION_SET_PCO_PHASE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PCO_PHASE_CNTRL);
+    break;
+  case HT_ACTION_MIMO_CSI:
+    mimo_cntrl = get_mimo_control(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MIMO_CNTRL);
+    offset += add_mimo_csi_matrices_report(tree, tvb, offset, mimo_cntrl);
+    break;
+  case HT_ACTION_MIMO_BEAMFORMING:
+    mimo_cntrl = get_mimo_control(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MIMO_CNTRL);
+    offset += add_mimo_beamforming_feedback_report(tree, tvb, offset,
+                                                   mimo_cntrl);
+    break;
+  case HT_ACTION_MIMO_COMPRESSED_BEAMFORMING:
+    mimo_cntrl = get_mimo_control(tvb, offset);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_MIMO_CNTRL);
+    offset += add_mimo_compressed_beamforming_feedback_report(tree, tvb,
+                                                              offset,
+                                                              mimo_cntrl);
+    break;
+  case HT_ACTION_ANT_SEL_FEEDBACK:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_ANT_SELECTION);
+    break;
+  case HT_ACTION_HT_INFO_EXCHANGE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HT_INFORMATION);
+    break;
+  }
+
+  return offset - start;
 }
 
 static guint
@@ -7846,6 +8579,11 @@ add_ff_key_data_length(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
                       ENC_LITTLE_ENDIAN);
   return 2;
 }
+
+struct ieee80211_fixed_field_dissector {
+  enum fixed_field lfcode;
+  guint (*dissector)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset);
+};
 
 static guint
 add_ff_wnm_notification_type(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
@@ -8006,7 +8744,7 @@ add_ff_dynamic_allocation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 static guint
-add_ff_beamformed_link_maintenance(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_beamformed_link(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_item *blm_item = proto_tree_add_item(tree, hf_ieee80211_ff_blm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree *blm_tree = proto_item_add_subtree(blm_item, ett_blm_tree);
@@ -8017,7 +8755,7 @@ add_ff_beamformed_link_maintenance(proto_tree *tree, tvbuff_t *tvb, packet_info 
 }
 
 static guint
-add_ff_brp_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_BRP_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_item *brp_req_item = proto_tree_add_item(tree, hf_ieee80211_ff_brp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree *brp_req_tree = proto_item_add_subtree(brp_req_item, ett_brp_tree);
@@ -8062,7 +8800,7 @@ add_ff_sector_sweep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int
 }
 
 static guint
-add_ff_dmg_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_item *dmg_params_item = proto_tree_add_item(tree, hf_ieee80211_ff_dmg_params, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree *dmg_params_tree = proto_item_add_subtree(dmg_params_item, ett_dmg_params_tree);
@@ -8221,7 +8959,6 @@ add_ff_oct_mmpdu(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int of
   return offset - start;
 }
 
-
 static void
 add_tag_relay_capabilities(packet_info *pinfo, proto_item *item, gint32 tag_len, proto_tree *tree, tvbuff_t *tvb, gint32 *offset) {
 
@@ -8254,751 +8991,6 @@ add_ff_relay_capable_sta_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   return 3;
 }
 
-#if 0 /* (Not implemented ??) */
-/* Management notification dialog token */
-static guint
-add_ff_wme_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset) {
-  return 0;
-}
-#endif
-
-#if 0 /* (Not implemented ??) */
-static guint
-add_ff_ds_param_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset) {
-  return 0;
-}
-#endif
-
-static guint
-add_ff_action_spectrum_mgmt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-    switch (tvb_get_guint8(tvb, offset + 1)) {
-    case SM_ACTION_MEASUREMENT_REQUEST:
-    case SM_ACTION_MEASUREMENT_REPORT:
-    case SM_ACTION_TPC_REQUEST:
-    case SM_ACTION_TPC_REPORT:
-      add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-      add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_action_code);
-      add_fixed_field(tree, tvb, pinfo, offset + 2, add_ff_dialog_token);
-      return 3;
-    case SM_ACTION_CHAN_SWITCH_ANNC:
-    case SM_ACTION_EXT_CHAN_SWITCH_ANNC:
-      add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-      add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_action_code);
-      return 2;
-    default:
-      add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-      add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_action_code);
-      return 2;
-    }
-}
-
-static guint
-add_ff_action_qos(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  switch (tvb_get_guint8(tvb, offset + 1)) {
-  case QOS_ACTION_ADDTS_REQUEST:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_qos_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 2, add_ff_dialog_token);
-    return 3;
-  case QOS_ACTION_ADDTS_RESPONSE:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_qos_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 2, add_ff_dialog_token);
-    add_fixed_field(tree, tvb, pinfo, offset + 3, add_ff_status_code);
-    return 5;
-  case QOS_ACTION_DELTS:
-    add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_qos_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 2, add_ff_qos_ts_info);
-    add_fixed_field(tree, tvb, pinfo, offset + 5, add_ff_reason_code);
-    return 7;
-  case QOS_ACTION_SCHEDULE:
-    add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_qos_action_code);
-    return 2;
-  case QOS_ACTION_MAP_CONFIGURE:
-    add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset + 1, add_ff_qos_action_code);
-    return 2;
-  default:
-    add_fixed_field(tree, tvb, pinfo, offset,     add_ff_category_code);
-    return 2;
-  }
-}
-
-static guint
-add_ff_action_dls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  switch (tvb_get_guint8(tvb, offset + 1)) {
-  case DLS_ACTION_REQUEST:
-    add_fixed_field(tree, tvb, pinfo, offset,      add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  1, add_ff_dls_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  2, add_ff_dst_mac_addr);
-    add_fixed_field(tree, tvb, pinfo, offset +  8, add_ff_src_mac_addr);
-    add_fixed_field(tree, tvb, pinfo, offset + 14, add_ff_cap_info);
-    add_fixed_field(tree, tvb, pinfo, offset + 16, add_ff_dls_timeout);
-    return 18;
-  case DLS_ACTION_RESPONSE:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  1, add_ff_dls_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  2, add_ff_status_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  4, add_ff_dst_mac_addr);
-    add_fixed_field(tree, tvb, pinfo, offset + 10, add_ff_src_mac_addr);
-    if (!hf_ieee80211_ff_status_code) {
-      add_fixed_field(tree, tvb, pinfo, offset + 16, add_ff_cap_info);
-    }
-    return 16;
-  case DLS_ACTION_TEARDOWN:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  1, add_ff_dls_action_code);
-    add_fixed_field(tree, tvb, pinfo, offset +  2, add_ff_dst_mac_addr);
-    add_fixed_field(tree, tvb, pinfo, offset +  8, add_ff_src_mac_addr);
-    add_fixed_field(tree, tvb, pinfo, offset + 14, add_ff_reason_code);
-    return 16;
-  default:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    return 2;
-  }
-}
-
-static guint
-add_ff_action_block_ack(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint start = offset;
-
-  switch (tvb_get_guint8(tvb, offset + 1)) {
-  case BA_ADD_BLOCK_ACK_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_action_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_param);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_timeout);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
-    break;
-  case BA_ADD_BLOCK_ACK_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_action_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_param);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_timeout);
-    break;
-  case BA_DELETE_BLOCK_ACK:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_block_ack_action_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_delba_param_set);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_reason_code);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code)
-{
-  guint32  oui;
-  guint8   subtype;
-  gboolean anqp;
-  guint8   dialog_token;
-  guint8   frag;
-  gboolean more;
-
-  guint start = offset;
-
-  switch (code) {
-  case PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT:
-    offset += add_ff_extended_channel_switch_announcement(tree, tvb, pinfo, offset);
-    break;
-  case PA_VENDOR_SPECIFIC:
-    oui = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
-    offset += 3;
-    switch (oui) {
-    case OUI_WFA:
-      subtype = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
-      offset += 1;
-      if (subtype == WFA_SUBTYPE_P2P) {
-        offset = dissect_wifi_p2p_public_action(pinfo, tree, tvb, offset);
-      }
-      break;
-    default:
-      /* Don't know how to handle this vendor */
-      break;
-    }
-    break;
-  case PA_GAS_INITIAL_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_initial_request(tree, tvb, pinfo, offset, anqp);
-    break;
-  case PA_GAS_INITIAL_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_gas_comeback_delay);
-    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_initial_response(tree, tvb, pinfo, offset, anqp);
-    break;
-  case PA_GAS_COMEBACK_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  case PA_GAS_COMEBACK_RESPONSE:
-    dialog_token = tvb_get_guint8(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    frag = tvb_get_guint8(tvb, offset) & 0x7f;
-    more = (tvb_get_guint8(tvb, offset) & 0x80) != 0;
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_gas_fragment_id);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_gas_comeback_delay);
-    offset += dissect_advertisement_protocol(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_comeback_response(tree, tvb, pinfo, offset, anqp, frag,
-                                            more, dialog_token);
-    break;
-  case PA_TDLS_DISCOVERY_RESPONSE:
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
-    col_set_str(pinfo->cinfo, COL_INFO, "TDLS Discovery Response");
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_cap_info);
-    break;
-  case PA_QAB_REQUEST:
-  case PA_QAB_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_req_ap_addr);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_res_ap_addr);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint8 code;
-  guint start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_pa_action_code);
-  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
-  return offset - start;
-}
-
-static guint
-add_ff_action_protected_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint8 code;
-  guint start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_ppa_action_code);
-  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
-  return offset - start;
-}
-
-static guint
-add_ff_action_radio_measurement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint  start = offset;
-  guint8 code;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_action_code);
-
-  switch (code) {
-  case RM_ACTION_RADIO_MEASUREMENT_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_repetitions);
-    /* Followed by Measurement Request Elements */
-    break;
-  case RM_ACTION_RADIO_MEASUREMENT_REPORT:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    /* Followed by Measurement Report Elements */
-    break;
-  case RM_ACTION_LINK_MEASUREMENT_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_tx_power);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_max_tx_power);
-    /* Followed by Optional Subelements */
-    break;
-  case RM_ACTION_LINK_MEASUREMENT_REPORT:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_tpc_report);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_rx_antenna_id);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_tx_antenna_id);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_rcpi);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_rsni);
-    /* Followed by Optional Subelements */
-    break;
-  case RM_ACTION_NEIGHBOR_REPORT_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    /* Followed by Optional Subelements */
-    break;
-  case RM_ACTION_NEIGHBOR_REPORT_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_rm_dialog_token);
-    /* Followed by Neighbor Report Elements */
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint  start = offset;
-  guint8 code;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_ft_action_code);
-
-  switch (code) {
-  case FT_ACTION_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sta_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_target_ap_address);
-    /* Followed by FT Request frame body (IEs) */
-    break;
-  case FT_ACTION_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sta_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_target_ap_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    /* Followed by FT Response frame body (IEs) */
-    break;
-  case FT_ACTION_CONFIRM:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sta_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_target_ap_address);
-    /* Followed by FT Confirm frame body (IEs) */
-    break;
-  case FT_ACTION_ACK:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sta_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_target_ap_address);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    /* Followed by FT Ack frame body (IEs) */
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_sa_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint  start = offset;
-  guint8 code;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sa_query_action_code);
-
-  switch (code) {
-  case SA_QUERY_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_transaction_id);
-    break;
-  case SA_QUERY_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_transaction_id);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_mesh(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint length;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_mesh_action);
-  /* The only fixed fields are the category and mesh action.  The rest are IEs.
-   */
-  length = 2;
-  if (tvb_get_guint8(tvb, 1) == MESH_ACTION_TBTT_ADJ_RESPONSE) {
-    /* ..except for the TBTT Adjustment Response, which has a status code field
-     */
-    length += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-  }
-  return length;
-}
-
-static guint
-add_ff_action_multihop(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_multihop_action);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_mesh_control);
-  return offset - start;
-}
-
-static guint
-add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_selfprot_action);
-
-  switch (tvb_get_guint8(tvb, start + 1)) {
-  case SELFPROT_ACTION_MESH_PEERING_OPEN:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_cap_info);
-    break;
-  case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_cap_info);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_assoc_id);
-    break;
-  }
-
-  return offset - start;
-}
-
-static guint
-wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int    start = offset;
-  guint8 mode;
-  gint   left;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-
-  mode = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_pref_cand,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_abridged,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_disassoc_imminent,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_bss_term_included,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_ess_disassoc_imminent,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
-
-  proto_tree_add_item(tree, hf_ieee80211_ff_disassoc_timer, tvb, offset, 2,
-                      ENC_LITTLE_ENDIAN);
-  offset += 2;
-
-  proto_tree_add_item(tree, hf_ieee80211_ff_validity_interval, tvb, offset, 1,
-                      ENC_LITTLE_ENDIAN);
-  offset += 1;
-
-  if (mode & 0x08) {
-    proto_tree_add_item(tree, hf_ieee80211_ff_bss_termination_duration,
-                        tvb, offset, 8, ENC_NA);
-    offset += 8;
-  }
-
-  if (mode & 0x10) {
-    guint8 url_len;
-    url_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_ff_url_len, tvb, offset, 1,
-                        ENC_LITTLE_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(tree, hf_ieee80211_ff_url, tvb, offset, url_len,
-                        ENC_ASCII|ENC_NA);
-    offset += url_len;
-  }
-
-  left = tvb_reported_length_remaining(tvb, offset);
-  if (left > 0) {
-    proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
-                        tvb, offset, left, ENC_NA);
-    offset += left;
-  }
-
-  return offset - start;
-}
-
-static guint
-wnm_sleep_mode_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  return offset - start;
-}
-
-static guint
-wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int start = offset;
-  guint16 key_data_len;
-  gint left;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  key_data_len = tvb_get_letohs(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_key_data_length);
-  left = tvb_reported_length_remaining(tvb, offset);
-  if (left < key_data_len) {
-    expert_add_info(pinfo, tree, &ei_ieee80211_tag_wnm_sleep_mode_no_key_data);
-    return offset - start;
-  }
-  proto_tree_add_item(tree, hf_ieee80211_ff_key_data, tvb, offset,
-                      key_data_len, ENC_NA);
-  offset += key_data_len;
-  return offset - start;
-}
-
-static guint
-wnm_tfs_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  return offset - start;
-}
-
-static guint
-wnm_tfs_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  return offset - start;
-}
-
-static guint
-wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  int start = offset;
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_wnm_notification_type);
-  return offset - start;
-}
-
-static guint
-add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint8 code;
-  guint  start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_wnm_action_code);
-  switch (code) {
-  case WNM_BSS_TRANS_MGMT_REQ:
-    offset += wnm_bss_trans_mgmt_req(tree, tvb, pinfo, offset);
-    break;
-  case WNM_TFS_REQ:
-    offset += wnm_tfs_req(tree, tvb, pinfo, offset);
-    break;
-  case WNM_TFS_RESP:
-    offset += wnm_tfs_resp(tree, tvb, pinfo, offset);
-    break;
-  case WNM_SLEEP_MODE_REQ:
-    offset += wnm_sleep_mode_req(tree, tvb, pinfo, offset);
-    break;
-  case WNM_SLEEP_MODE_RESP:
-    offset += wnm_sleep_mode_resp(tree, tvb, pinfo, offset);
-    break;
-  case WNM_NOTIFICATION_REQ:
-    offset += wnm_notification_req(tree, tvb, pinfo, offset);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_unprotected_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint8 code;
-  guint  start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_unprotected_wnm_action_code);
-
-  switch (code) {
-  case UNPROTECTED_WNM_TIM:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_check_beacon);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_timestamp);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_tod);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_toa);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_max_tod_err);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_max_toa_err);
-    break;
-  case UNPROTECTED_WNM_TIMING_MEASUREMENT:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_followup_dialog_token);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint8  code;
-  guint16 status;
-  guint   start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  code = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_tdls_action_code);
-  switch (code) {
-  case TDLS_SETUP_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_cap_info);
-    break;
-  case TDLS_SETUP_RESPONSE:
-    status = tvb_get_letohs(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    if (tvb_reported_length_remaining(tvb, offset) < 2) {
-      if (status == 0) {
-        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_response_malformed);
-      }
-      break;
-    }
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_cap_info);
-    break;
-  case TDLS_SETUP_CONFIRM:
-    status = tvb_get_letohs(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    if (tvb_reported_length_remaining(tvb, offset) < 1) {
-      if (status == 0) {
-        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_confirm_malformed);
-      }
-      break;
-    }
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  case TDLS_TEARDOWN:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_reason_code);
-    break;
-  case TDLS_PEER_TRAFFIC_INDICATION:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  case TDLS_CHANNEL_SWITCH_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_target_channel);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_operating_class);
-    break;
-  case TDLS_CHANNEL_SWITCH_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    break;
-  case TDLS_PEER_PSM_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  case TDLS_PEER_PSM_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-    break;
-  case TDLS_PEER_TRAFFIC_RESPONSE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  case TDLS_DISCOVERY_REQUEST:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_mgmt_notification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint start = offset;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_wme_action_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_wme_status_code);
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint   start = offset;
-  guint32 oui;
-  guint8  subtype;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  oui = tvb_get_ntoh24(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
-  offset += 3;
-  switch (oui) {
-  case OUI_MARVELL:
-    offset = dissect_vendor_action_marvell(tree, tvb, offset);
-    break;
-  case OUI_WFA:
-    subtype = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    if (subtype == WFA_SUBTYPE_P2P) {
-      offset = dissect_wifi_p2p_action(tree, tvb, offset);
-    }
-    break;
-  default:
-    /* Don't know how to handle this vendor */
-    break;
-  }
-
-  return offset - start;  /* Size of fixed fields */
-}
-
-static guint
-add_ff_action_ht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
-{
-  guint  start = offset;
-  guint8 n_sta, i;
-  mimo_control_t mimo_cntrl;
-
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_ht_action_code);
-
-  switch (tvb_get_guint8(tvb, offset - 1)) {
-  case HT_ACTION_NOTIFY_CHAN_WIDTH:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_channel_width);
-    break;
-  case HT_ACTION_SM_PWR_SAVE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sm_pwr_cntrl);
-    break;
-  case HT_ACTION_PSMP_ACTION:
-    n_sta = tvb_get_guint8(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_psmp_param_set);
-    for (i = 0; i < (n_sta & 0x0F); i++) {
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_psmp_sta_info);
-    }
-    break;
-  case HT_ACTION_SET_PCO_PHASE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_pco_phase_cntrl);
-    break;
-  case HT_ACTION_MIMO_CSI:
-    mimo_cntrl = get_mimo_control(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_mimo_cntrl);
-    offset += add_mimo_csi_matrices_report(tree, tvb, offset, mimo_cntrl);
-    break;
-  case HT_ACTION_MIMO_BEAMFORMING:
-    mimo_cntrl = get_mimo_control(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_mimo_cntrl);
-    offset += add_mimo_beamforming_feedback_report(tree, tvb, offset,
-                                                   mimo_cntrl);
-    break;
-  case HT_ACTION_MIMO_COMPRESSED_BEAMFORMING:
-    mimo_cntrl = get_mimo_control(tvb, offset);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_mimo_cntrl);
-    offset += add_mimo_compressed_beamforming_feedback_report(tree, tvb,
-                                                              offset,
-                                                              mimo_cntrl);
-    break;
-  case HT_ACTION_ANT_SEL_FEEDBACK:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_ant_selection);
-    break;
-  case HT_ACTION_HT_INFO_EXCHANGE:
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_ht_information);
-    break;
-  }
-
-  return offset - start;
-}
 
 static void
 dissect_ieee80211_extension(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -9021,14 +9013,14 @@ dissect_ieee80211_extension(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, prot
       gboolean cc, dis;
       guint16 bic_field;
       fixed_tree = get_fixed_parameter_tree (ext_tree, tvb, offset, 20);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_timestamp);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_sector_sweep);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_beacon_interval);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_TIMESTAMP);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_SECTOR_SWEEP);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_BEACON_INTERVAL);
       bic_field = tvb_get_letohs(tvb, offset);
       cc = (bic_field & 0x1);
       dis  = (bic_field & 0x2) >> 1;
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_beacon_interval_ctrl);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_dmg_parameters);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_BEACON_INTERVAL_CTRL);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_DMG_PARAMETERS);
       if(cc) {
         offset += add_ff_cc_field(fixed_tree,tvb, offset, dis);
       }
@@ -9046,17 +9038,17 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   guint8 code;
   guint  start = offset;
 
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
   code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_unprotected_dmg_action_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_UNPROTECTED_DMG_ACTION_CODE);
   switch (code) {
     case UNPROTECTED_DMG_ANNOUNCE:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_timestamp);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_beacon_interval);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TIMESTAMP);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BEACON_INTERVAL);
       break;
     case UNPROTECTED_DMG_BRP:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_brp_req);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BRP_REQ);
       break;
   }
   return offset - start;
@@ -9298,10 +9290,10 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint8 vht_action;
   proto_item *ti;
 
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
 
   vht_action = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_vht_action);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_VHT_ACTION);
 
   switch(vht_action){
     case VHT_ACT_VHT_COMPRESSED_BEAMFORMING:{
@@ -9337,31 +9329,31 @@ add_ff_action_fst(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint8 code;
   guint  start = offset;
 
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
   code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_fst_action_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FST_ACTION_CODE);
   switch (code) {
     case FST_SETUP_REQUEST:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_llt);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_LLT);
       break;
     case FST_SETUP_RESPONSE:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
       break;
     case FST_TEAR_DOWN:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_fsts_id);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FSTS_ID);
       break;
     case FST_ACK_REQUEST:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_fsts_id);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FSTS_ID);
       break;
     case FST_ACK_RESPONSE:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_fsts_id);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_FSTS_ID);
       break;
     case FST_ON_CHANNEL_TUNNEL_REQUEST:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_oct_mmpdu);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_OCT_MMPDU);
       break;
   }
   return offset - start;
@@ -9374,51 +9366,51 @@ add_ff_action_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint  start = offset;
   int left_offset;
 
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
   code    = tvb_get_guint8(tvb, offset);
-  offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dmg_action_code);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DMG_ACTION_CODE);
   switch (code) {
     case DMG_ACTION_PWR_SAVE_CONFIG_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dmg_pwr_mgmt);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DMG_PWR_MGMT);
       break;
     case DMG_ACTION_PWR_SAVE_CONFIG_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
       break;
     case DMG_ACTION_INFO_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_subject_address);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SUBJECT_ADDRESS);
       break;
     case DMG_ACTION_INFO_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_subject_address);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SUBJECT_ADDRESS);
       break;
     case DMG_ACTION_HANDOVER_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_handover_reason);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_handover_remaining_bi);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HANDOVER_REASON);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HANDOVER_REMAINING_BI);
       break;
     case DMG_ACTION_HANDOVER_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_handover_result);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_handover_reject_reason);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HANDOVER_RESULT);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_HANDOVER_REJECT_REASON);
       break;
     case DMG_ACTION_DTP_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       break;
     case DMG_ACTION_DTP_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       break;
     case DMG_ACTION_RELAY_SEARCH_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_destination_reds_aid);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DESTINATION_REDS_AID);
       break;
     case DMG_ACTION_RELAY_SEARCH_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
       break;
     case DMG_ACTION_MUL_RELAY_CHANNEL_MEASURE_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       break;
     case DMG_ACTION_MUL_RELAY_CHANNEL_MEASURE_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       left_offset =
           tvb_reported_length_remaining(tvb, offset);
       while(left_offset > 0) {
@@ -9432,47 +9424,47 @@ add_ff_action_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
       }
       break;
     case DMG_ACTION_RLS_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_destination_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_realy_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_source_aid);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DESTINATION_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REALY_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SOURCE_AID);
       break;
     case DMG_ACTION_RLS_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       break;
     case DMG_ACTION_RLS_ANNOUNCE:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_destination_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_realy_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_source_aid);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DESTINATION_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REALY_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SOURCE_AID);
       break;
     case DMG_ACTION_RLS_TEARDOWN:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_destination_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_realy_aid);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_source_aid);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DESTINATION_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REALY_AID);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SOURCE_AID);
       break;
     case DMG_ACTION_RELAY_ACK_REQ:
     case DMG_ACTION_RELAY_ACK_RES:
       break;
     case DMG_ACTION_TPA_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_timing_offset);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_sampling_frequency_offset);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TIMING_OFFSET);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_SAMPLING_FREQUENCY_OFFSET);
       break;
     case DMG_ACTION_TPA_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
       break;
     case DMG_ACTION_TPA_REP:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
       break;
     case DMG_ACTION_ROC_REQ:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_relay_operation_type);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RELAY_OPERATION_TYPE);
       break;
     case DMG_ACTION_ROC_RES:
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_dialog_token);
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_status_code);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
       break;
   }
   return offset - start;
@@ -9531,9 +9523,144 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
   case CAT_VENDOR_SPECIFIC:  /* Vendor Specific Protected Category - 127 */
     return add_ff_action_vendor_specific(tree, tvb, pinfo, offset);
   default:
-    add_fixed_field(tree, tvb, pinfo, offset, add_ff_category_code);
+    add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
     return 1;
   }
+}
+
+#define FF_FIELD(f, func) { FIELD_ ## f, add_ff_ ## func }
+
+static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
+  FF_FIELD(TIMESTAMP                             , timestamp),
+  FF_FIELD(BEACON_INTERVAL                       , beacon_interval),
+  FF_FIELD(CAP_INFO                              , cap_info),
+  FF_FIELD(AUTH_ALG                              , auth_alg),
+  FF_FIELD(AUTH_TRANS_SEQ                        , auth_trans_seq),
+  FF_FIELD(CURRENT_AP_ADDR                       , current_ap_addr),
+  FF_FIELD(LISTEN_IVAL                           , listen_ival),
+  FF_FIELD(REASON_CODE                           , reason_code),
+  FF_FIELD(ASSOC_ID                              , assoc_id),
+  FF_FIELD(STATUS_CODE                           , status_code),
+  FF_FIELD(CATEGORY_CODE                         , category_code),
+  FF_FIELD(ACTION_CODE                           , action_code),
+  FF_FIELD(DIALOG_TOKEN                          , dialog_token),
+  FF_FIELD(FOLLOWUP_DIALOG_TOKEN                 , followup_dialog_token),
+  FF_FIELD(WME_ACTION_CODE                       , wme_action_code),
+  FF_FIELD(WME_STATUS_CODE                       , wme_status_code),
+  FF_FIELD(QOS_ACTION_CODE                       , qos_action_code),
+  FF_FIELD(BLOCK_ACK_ACTION_CODE                 , block_ack_action_code),
+  FF_FIELD(BLOCK_ACK_PARAM                       , block_ack_param),
+  FF_FIELD(BLOCK_ACK_TIMEOUT                     , block_ack_timeout),
+  FF_FIELD(BLOCK_ACK_SSC                         , block_ack_ssc),
+  FF_FIELD(QOS_TS_INFO                           , qos_ts_info),
+  FF_FIELD(MESH_ACTION                           , mesh_action),
+  FF_FIELD(MULTIHOP_ACTION                       , multihop_action),
+  FF_FIELD(MESH_CONTROL                          , mesh_control),
+  FF_FIELD(SELFPROT_ACTION                       , selfprot_action),
+  FF_FIELD(DLS_ACTION_CODE                       , dls_action_code),
+  FF_FIELD(DST_MAC_ADDR                          , dst_mac_addr),
+  FF_FIELD(SRC_MAC_ADDR                          , src_mac_addr),
+  FF_FIELD(DLS_TIMEOUT                           , dls_timeout),
+  FF_FIELD(DELBA_PARAM_SET                       , delba_param_set),
+  FF_FIELD(MAX_REG_PWR                           , max_reg_pwr),
+  FF_FIELD(MEASUREMENT_PILOT_INT                 , measurement_pilot_int),
+  FF_FIELD(COUNTRY_STR                           , country_str),
+  FF_FIELD(MAX_TX_PWR                            , max_tx_pwr),
+  FF_FIELD(TX_PWR_USED                           , tx_pwr_used),
+  FF_FIELD(TRANSCEIVER_NOISE_FLOOR               , transceiver_noise_floor),
+  FF_FIELD(CHANNEL_WIDTH                         , channel_width),
+  FF_FIELD(QOS_INFO_AP                           , qos_info_ap),
+  FF_FIELD(QOS_INFO_STA                          , qos_info_sta),
+  FF_FIELD(SM_PWR_CNTRL                          , sm_pwr_cntrl),
+  FF_FIELD(PCO_PHASE_CNTRL                       , pco_phase_cntrl),
+  FF_FIELD(PSMP_PARAM_SET                        , psmp_param_set),
+  FF_FIELD(MIMO_CNTRL                            , mimo_cntrl),
+  FF_FIELD(ANT_SELECTION                         , ant_selection),
+  FF_FIELD(EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT  , extended_channel_switch_announcement) ,
+  FF_FIELD(HT_INFORMATION                        , ht_information),
+  FF_FIELD(HT_ACTION_CODE                        , ht_action_code),
+  FF_FIELD(PSMP_STA_INFO                         , psmp_sta_info),
+  FF_FIELD(SCHEDULE_INFO                         , schedule_info),
+  FF_FIELD(PA_ACTION_CODE                        , pa_action_code),
+  FF_FIELD(PPA_ACTION_CODE                       , ppa_action_code),
+  FF_FIELD(ACTION                                , action),
+  FF_FIELD(FT_ACTION_CODE                        , ft_action_code),
+  FF_FIELD(STA_ADDRESS                           , sta_address),
+  FF_FIELD(TARGET_AP_ADDRESS                     , target_ap_address),
+  FF_FIELD(GAS_COMEBACK_DELAY                    , gas_comeback_delay),
+  FF_FIELD(GAS_FRAGMENT_ID                       , gas_fragment_id),
+  FF_FIELD(SA_QUERY_ACTION_CODE                  , sa_query_action_code),
+  FF_FIELD(TRANSACTION_ID                        , transaction_id),
+  FF_FIELD(TDLS_ACTION_CODE                      , tdls_action_code),
+  FF_FIELD(TARGET_CHANNEL                        , target_channel),
+  FF_FIELD(OPERATING_CLASS                       , operating_class),
+  FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
+  FF_FIELD(UNPROTECTED_WNM_ACTION_CODE           , unprotected_wnm_action_code),
+  FF_FIELD(KEY_DATA_LENGTH                       , key_data_length),
+  FF_FIELD(WNM_NOTIFICATION_TYPE                 , wnm_notification_type),
+  FF_FIELD(RM_ACTION_CODE                        , rm_action_code),
+  FF_FIELD(RM_DIALOG_TOKEN                       , rm_dialog_token),
+  FF_FIELD(RM_REPETITIONS                        , rm_repetitions),
+  FF_FIELD(RM_TX_POWER                           , rm_tx_power),
+  FF_FIELD(RM_MAX_TX_POWER                       , rm_max_tx_power),
+  FF_FIELD(RM_TPC_REPORT                         , rm_tpc_report),
+  FF_FIELD(RM_RX_ANTENNA_ID                      , rm_rx_antenna_id),
+  FF_FIELD(RM_TX_ANTENNA_ID                      , rm_tx_antenna_id),
+  FF_FIELD(RM_RCPI                               , rm_rcpi),
+  FF_FIELD(RM_RSNI                               , rm_rsni),
+  FF_FIELD(RELAY_CAPABLE_STA_INFO                , relay_capable_sta_info),
+  FF_FIELD(BAND_ID                               , band_id),
+  FF_FIELD(DMG_PARAMETERS                        , dmg_params),
+  FF_FIELD(SECTOR_SWEEP                          , sector_sweep),
+  FF_FIELD(DYNAMIC_ALLOCATION                    , dynamic_allocation),
+  FF_FIELD(SECTOR_SWEEP_FB                       , sector_sweep_feedback),
+  FF_FIELD(BRP_REQ                               , BRP_request),
+  FF_FIELD(BEAMFORMED_LINK_MAINTAINCE            , beamformed_link),
+  FF_FIELD(BEAMFORMING_CTRL                      , beamforming_ctrl),
+  FF_FIELD(BEACON_INTERVAL_CTRL                  , beacon_interval_ctrl),
+  FF_FIELD(DMG_ACTION_CODE                       , dmg_action_code),
+  FF_FIELD(DMG_PWR_MGMT                          , dmg_pwr_mgmt),
+  FF_FIELD(REQ_AP_ADDR                           , req_ap_addr),
+  FF_FIELD(RES_AP_ADDR                           , res_ap_addr),
+  FF_FIELD(CHECK_BEACON                          , check_beacon),
+  FF_FIELD(TOD                                   , tod),
+  FF_FIELD(TOA                                   , toa),
+  FF_FIELD(MAX_TOD_ERR                           , max_tod_err),
+  FF_FIELD(MAX_TOA_ERR                           , max_toa_err),
+  FF_FIELD(SUBJECT_ADDRESS                       , subject_address),
+  FF_FIELD(HANDOVER_REASON                       , handover_reason),
+  FF_FIELD(HANDOVER_REMAINING_BI                 , handover_remaining_bi),
+  FF_FIELD(HANDOVER_RESULT                       , handover_result),
+  FF_FIELD(HANDOVER_REJECT_REASON                , handover_reject_reason),
+  FF_FIELD(DESTINATION_REDS_AID                  , destination_reds_aid),
+  FF_FIELD(DESTINATION_AID                       , destination_aid),
+  FF_FIELD(REALY_AID                             , realy_aid),
+  FF_FIELD(SOURCE_AID                            , source_aid),
+  FF_FIELD(TIMING_OFFSET                         , timing_offset),
+  FF_FIELD(SAMPLING_FREQUENCY_OFFSET             , sampling_frequency_offset),
+  FF_FIELD(RELAY_OPERATION_TYPE                  , relay_operation_type),
+  FF_FIELD(UNPROTECTED_DMG_ACTION_CODE           , unprotected_dmg_action_code),
+  FF_FIELD(FST_ACTION_CODE                       , fst_action_code),
+  FF_FIELD(LLT                                   , llt),
+  FF_FIELD(FSTS_ID                               , fsts_id),
+  FF_FIELD(OCT_MMPDU                             , oct_mmpdu),
+  FF_FIELD(VHT_ACTION                            , vht_action),
+  { (enum fixed_field)-1                         , NULL }
+};
+
+#undef FF_FIELD
+
+static guint
+add_fixed_field(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
+                enum fixed_field lfcode)
+{
+  int i;
+  for (i = 0; ff_dissectors[i].dissector; i++) {
+    if (ff_dissectors[i].lfcode == lfcode) {
+      return ff_dissectors[i].dissector(tree, tvb, pinfo, offset);
+    }
+  }
+  return 0;
 }
 
 static const value_string ieee80211_rsn_cipher_vals[] = {
@@ -13911,7 +14038,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       offset += 2;
 
-      add_fixed_field(tree, tvb, pinfo, offset, add_ff_qos_ts_info);
+      add_fixed_field(tree, tvb, pinfo, offset, FIELD_QOS_TS_INFO);
       offset += 3;
 
       proto_tree_add_item(tree, hf_ieee80211_tspec_nor_msdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -14111,7 +14238,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       offset += 2;
 
-      add_fixed_field(tree, tvb, pinfo, offset, add_ff_schedule_info);
+      add_fixed_field(tree, tvb, pinfo, offset, FIELD_SCHEDULE_INFO);
       offset += 2;
 
       proto_tree_add_item(tree, hf_ieee80211_sched_srv_start, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -14748,9 +14875,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
                     rep_tree = proto_tree_add_subtree(sub_tree, tvb, offset, sub_length, ett_tag_measure_reported_frame_tree, NULL, "Reported Frame Body");
 
-                    add_fixed_field(rep_tree, tvb, pinfo, 0, add_ff_timestamp);
-                    add_fixed_field(rep_tree, tvb, pinfo, 8, add_ff_beacon_interval);
-                    add_fixed_field(rep_tree, tvb, pinfo, 10, add_ff_cap_info);
+                    add_fixed_field(rep_tree, tvb, pinfo, 0, FIELD_TIMESTAMP);
+                    add_fixed_field(rep_tree, tvb, pinfo, 8, FIELD_BEACON_INTERVAL);
+                    add_fixed_field(rep_tree, tvb, pinfo, 10, FIELD_CAP_INFO);
                     offset += 12;
 
                     ieee_80211_add_tagged_parameters (tvb, offset, pinfo, rep_tree, sub_length - 12, MGT_PROBE_RESP);
@@ -15220,7 +15347,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                 proto_tree_add_item (tree, hf_ieee80211_mesh_peering_peer_link_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
               }
-            offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_reason_code);
+            offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REASON_CODE);
             break;
 
           /* unexpected values */
@@ -15376,7 +15503,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, ENC_NA);
             offset += 6;
           }
-          offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_reason_code);
+          offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REASON_CODE);
         }
         break;
       }
@@ -15461,7 +15588,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
       offset += 2;
 
-      offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_extended_channel_switch_announcement);
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT);
 
       break;
     }
@@ -15641,7 +15768,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_pcp_active, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_lp_sc_used, tvb, offset, 2, ENC_NA);
         offset += 2;
-        offset += add_fixed_field(alloc_tree, tvb, pinfo, offset, add_ff_beamforming_ctrl);
+        offset += add_fixed_field(alloc_tree, tvb, pinfo, offset, FIELD_BEAMFORMING_CTRL);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_src_aid, tvb, offset, 1, ENC_NA);
         offset += 1;
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_dest_aid, tvb, offset, 1, ENC_NA);
@@ -15723,7 +15850,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 1;
       break;
     }
-    case TAG_BEAMLINK_MAINTENANCE:
+    case TAG_BEAMLINK_MAINTAINCE:
     {
       if (tag_len != 1)
       {
@@ -15731,7 +15858,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         break;
       }
       offset += 2;
-      offset += add_ff_beamformed_link_maintenance(tree, tvb, pinfo, offset);
+      offset += add_ff_beamformed_link(tree, tvb, pinfo, offset);
       break;
     }
     case TAG_QUIET_PERIOD_RES:
@@ -15837,7 +15964,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 3;
       isGrant = ((ftype==CTRL_GRANT)||(ftype==CTRL_GRANT_ACK));
       p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
-      offset += add_fixed_field(tree, tvb, pinfo, 2, add_ff_beamforming_ctrl);
+      offset += add_fixed_field(tree, tvb, pinfo, 2, FIELD_BEAMFORMING_CTRL);
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_allocation_period, tvb, offset, 2, ENC_NA);
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_min_allocation, tvb, offset, 2, ENC_NA);
@@ -15927,14 +16054,14 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_ctrl_addr_present, tvb, offset, 1, ENC_NA);
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_ctrl_cipher_present, tvb, offset, 1, ENC_NA);
       offset += 1;
-      offset += add_fixed_field(tree, tvb, pinfo, 1, add_ff_band_id);
+      offset += add_fixed_field(tree, tvb, pinfo, 1, FIELD_BAND_ID);
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_oper_class, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_channel_number, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_tag_bssid, tvb, offset, 6, ENC_NA);
       offset += 6;
-      offset += add_fixed_field(tree, tvb, pinfo, 2, add_ff_beacon_interval);
+      offset += add_fixed_field(tree, tvb, pinfo, 2, FIELD_BEACON_INTERVAL);
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_tsf_offset, tvb, offset, 8, ENC_NA);
       offset += 8;
       proto_tree_add_item(tree, hf_ieee80211_tag_multi_band_conn_ap, tvb, offset, 1, ENC_NA);
@@ -16031,8 +16158,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         break;
       }
       offset += 2;
-      offset += add_fixed_field(tree, tvb, pinfo, 1, add_ff_band_id);
-      offset += add_fixed_field(tree, tvb, pinfo, 1, add_ff_band_id);
+      offset += add_fixed_field(tree, tvb, pinfo, 1, FIELD_BAND_ID);
+      offset += add_fixed_field(tree, tvb, pinfo, 1, FIELD_BAND_ID);
       proto_tree_add_item(tree, hf_ieee80211_tag_switching_stream_non_qos, tvb, offset, 1, ENC_NA);
       offset += 1;
       param_num = tvb_get_letohs(tvb, offset);
@@ -16115,8 +16242,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_ASSOC_REQ:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_cap_info);
-      add_fixed_field(fixed_tree, tvb, pinfo, 2, add_ff_listen_ival);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_CAP_INFO);
+      add_fixed_field(fixed_tree, tvb, pinfo, 2, FIELD_LISTEN_IVAL);
       offset = 4;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16130,9 +16257,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_ASSOC_RESP:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_cap_info);
-      add_fixed_field(fixed_tree, tvb, pinfo, 2, add_ff_status_code);
-      add_fixed_field(fixed_tree, tvb, pinfo, 4, add_ff_assoc_id);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_CAP_INFO);
+      add_fixed_field(fixed_tree, tvb, pinfo, 2, FIELD_STATUS_CODE);
+      add_fixed_field(fixed_tree, tvb, pinfo, 4, FIELD_ASSOC_ID);
       offset = 6;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16146,9 +16273,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_REASSOC_REQ:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 10);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_cap_info);
-      add_fixed_field(fixed_tree, tvb, pinfo, 2, add_ff_listen_ival);
-      add_fixed_field(fixed_tree, tvb, pinfo, 4, add_ff_current_ap_addr);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_CAP_INFO);
+      add_fixed_field(fixed_tree, tvb, pinfo, 2, FIELD_LISTEN_IVAL);
+      add_fixed_field(fixed_tree, tvb, pinfo, 4, FIELD_CURRENT_AP_ADDR);
       offset = 10;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16161,9 +16288,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_REASSOC_RESP:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_cap_info);
-      add_fixed_field(fixed_tree, tvb, pinfo, 2, add_ff_status_code);
-      add_fixed_field(fixed_tree, tvb, pinfo, 4, add_ff_assoc_id);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_CAP_INFO);
+      add_fixed_field(fixed_tree, tvb, pinfo, 2, FIELD_STATUS_CODE);
+      add_fixed_field(fixed_tree, tvb, pinfo, 4, FIELD_ASSOC_ID);
       offset = 6;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16188,9 +16315,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case MGT_PROBE_RESP:
     {
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_timestamp);
-      add_fixed_field(fixed_tree, tvb, pinfo, 8, add_ff_beacon_interval);
-      add_fixed_field(fixed_tree, tvb, pinfo, 10, add_ff_cap_info);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_TIMESTAMP);
+      add_fixed_field(fixed_tree, tvb, pinfo, 8, FIELD_BEACON_INTERVAL);
+      add_fixed_field(fixed_tree, tvb, pinfo, 10, FIELD_CAP_INFO);
       offset = 12;  /* Size of fixed fields */
 
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
@@ -16201,15 +16328,15 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case MGT_MEASUREMENT_PILOT:
     {
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_timestamp);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_measurement_pilot_int);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_beacon_interval);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_cap_info);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_country_str);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_max_reg_pwr);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_max_tx_pwr);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_tx_pwr_used);
-      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, add_ff_transceiver_noise_floor);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_TIMESTAMP);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_MEASUREMENT_PILOT_INT);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_BEACON_INTERVAL);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_CAP_INFO);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_COUNTRY_STR);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_MAX_REG_PWR);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_MAX_TX_PWR);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_TX_PWR_USED);
+      offset += add_fixed_field(fixed_tree, tvb, pinfo, offset, FIELD_TRANSCEIVER_NOISE_FLOOR);
       /* TODO DS Parameter Set ??? */
 
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
@@ -16219,9 +16346,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     case MGT_BEACON:    /* Dissect protocol payload fields  */
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_timestamp);
-      add_fixed_field(fixed_tree, tvb, pinfo, 8, add_ff_beacon_interval);
-      add_fixed_field(fixed_tree, tvb, pinfo, 10, add_ff_cap_info);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_TIMESTAMP);
+      add_fixed_field(fixed_tree, tvb, pinfo, 8, FIELD_BEACON_INTERVAL);
+      add_fixed_field(fixed_tree, tvb, pinfo, 10, FIELD_CAP_INFO);
       offset = 12;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16237,7 +16364,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_DISASS:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_reason_code);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_REASON_CODE);
       offset = 2; /* Size of fixed fields */
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len > 0) {
@@ -16250,9 +16377,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_AUTHENTICATION:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_auth_alg);
-      add_fixed_field(fixed_tree, tvb, pinfo, 2, add_ff_auth_trans_seq);
-      add_fixed_field(fixed_tree, tvb, pinfo, 4, add_ff_status_code);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_AUTH_ALG);
+      add_fixed_field(fixed_tree, tvb, pinfo, 2, FIELD_AUTH_TRANS_SEQ);
+      add_fixed_field(fixed_tree, tvb, pinfo, 4, FIELD_STATUS_CODE);
       offset = 6;  /* Size of fixed fields */
 
       tagged_parameter_tree_len =
@@ -16270,7 +16397,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case MGT_DEAUTHENTICATION:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-      add_fixed_field(fixed_tree, tvb, pinfo, 0, add_ff_reason_code);
+      add_fixed_field(fixed_tree, tvb, pinfo, 0, FIELD_REASON_CODE);
       offset = 2; /* Size of fixed fields */
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len > 0) {
@@ -16286,7 +16413,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
       proto_item *lcl_fixed_hdr;
       proto_tree *lcl_fixed_tree;
       lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
-      offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, add_ff_action);
+      offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, FIELD_ACTION);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       if (ieee80211_tvb_invalid)
@@ -16307,7 +16434,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
       proto_tree *lcl_fixed_tree;
       lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
 
-      offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, add_ff_action);
+      offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, FIELD_ACTION);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       if (ieee80211_tvb_invalid)
@@ -16932,7 +17059,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 offset += 2;
 
                 /*offset +=*/ add_fixed_field(hdr_tree, tvb, pinfo, offset,
-                  add_ff_block_ack_ssc);
+                  FIELD_BLOCK_ACK_SSC);
                 break;
               }
               case 1: /* Extended Compressesd BlockAckReq */
@@ -16948,7 +17075,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 offset += 2;
 
                 /*offset +=*/ add_fixed_field(hdr_tree, tvb, pinfo, offset,
-                  add_ff_block_ack_ssc);
+                  FIELD_BLOCK_ACK_SSC);
                 break;
               }
               case 3: /* Multi-TID BlockAckReq */
@@ -16976,7 +17103,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                   proto_tree_add_item(bar_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                   offset += 2;
 
-                  offset += add_fixed_field(bar_mtid_sub_tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
+                  offset += add_fixed_field(bar_mtid_sub_tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
                 }
                 break;
               }
@@ -17030,7 +17157,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
+                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
                 proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 128, ENC_NA);
                 /*offset += 128;*/
                 break;
@@ -17053,7 +17180,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
                 ssn = tvb_get_letohs(tvb, offset);
                 ssn >>= 4;
-                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
+                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
                 bmap = tvb_get_letoh64(tvb, offset);
                 ba_bitmap_item = proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
                 ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item, ett_block_ack_bitmap);
@@ -17081,7 +17208,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
                 ssn = tvb_get_letohs(tvb, offset);
                 ssn >>= 4;
-                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
+                offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
                 bmap = tvb_get_letoh64(tvb, offset);
                 ba_bitmap_item = proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
                 ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item, ett_block_ack_bitmap);
@@ -17114,7 +17241,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                   proto_tree_add_item(ba_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                   offset += 2;
 
-                  offset += add_fixed_field(ba_mtid_sub_tree, tvb, pinfo, offset, add_ff_block_ack_ssc);
+                  offset += add_fixed_field(ba_mtid_sub_tree, tvb, pinfo, offset, FIELD_BLOCK_ACK_SSC);
                   proto_tree_add_item(ba_mtid_sub_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
                   offset += 8;
                 }
@@ -17140,28 +17267,28 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_SPR: {
           gboolean isGrant;
           if(ctrl_type_subtype != CTRL_GRANT_ACK) {
-            offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_dynamic_allocation);
+            offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_DYNAMIC_ALLOCATION);
           } else { /* CTRL_GRANT_ACK have 5 octets that are reserved thus not shown.*/
             offset += 5;
           }
           /* offset += commented to avoid Clang warnings*/
           isGrant = ((ctrl_type_subtype==CTRL_GRANT)||(ctrl_type_subtype==CTRL_GRANT_ACK));
           p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
-          add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_beamforming_ctrl);
+          add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BEAMFORMING_CTRL);
           break;
         }
         case CTRL_SSW: {
-          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_sector_sweep);
+          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_SECTOR_SWEEP);
           /* offset += commented to avoid Clang warnings*/
-          add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_sector_sweep_feedback);
+          add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_SECTOR_SWEEP_FB);
           break;
         }
         case CTRL_SSW_ACK:
         case CTRL_SSW_FEEDBACK: {
-          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_sector_sweep_feedback);
-          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_brp_req);
+          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_SECTOR_SWEEP_FB);
+          offset += add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BRP_REQ);
           /* offset += commented to avoid Clang warnings*/
-          add_fixed_field(hdr_tree, tvb, pinfo, offset, add_ff_beamformed_link_maintenance);
+          add_fixed_field(hdr_tree, tvb, pinfo, offset, FIELD_BEAMFORMED_LINK_MAINTAINCE);
           break;
         }
         case CTRL_DMG_DTS: {
@@ -17554,7 +17681,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
           msh_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_mesh_control_field, tvb, meshoff, meshctl_len, ENC_NA);
           msh_tree = proto_item_add_subtree (msh_fields, ett_msh_control);
-          add_fixed_field(msh_tree, tvb, pinfo, meshoff, add_ff_mesh_control);
+          add_fixed_field(msh_tree, tvb, pinfo, meshoff, FIELD_MESH_CONTROL);
         }
 
       } /* end of qos control field */
@@ -18747,7 +18874,7 @@ dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case 2:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
     col_clear(pinfo->cinfo, COL_INFO);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, add_ff_action);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_ACTION);
     tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
     if (tagged_parameter_tree_len > 0) {
       tagged_tree = get_tagged_parameter_tree(tree, tvb, offset,
