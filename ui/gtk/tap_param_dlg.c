@@ -62,15 +62,27 @@ void
 register_param_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group)
 {
+    gchar *action_name;
     gchar *full_name;
     const gchar *stock_id = NULL;
     stat_tap_ui ui_info;
+    size_t i;
 
+    /* XXX We appear to leak memory here. */
     /*
      * This menu item will pop up a dialog box, so append "..."
      * to it.
      */
     full_name = g_strdup_printf("%s...", name);
+    /*
+     * Escape path separators for add_menu_item_to_main_menubar.
+     */
+    action_name = g_strdup(name);
+    for (i = 0; i < strlen(action_name); i++) {
+        if (action_name[i] == '/') {
+            action_name[i] = '#';
+        }
+    }
 
     ui_info.group = group;
     ui_info.title = full_name;
@@ -101,6 +113,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
         break;
 
     case REGISTER_STAT_GROUP_TELEPHONY:
+    case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
     case REGISTER_STAT_GROUP_TELEPHONY_GSM:
     case REGISTER_STAT_GROUP_TELEPHONY_LTE:
     case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
@@ -112,7 +125,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
 
     register_menu_bar_menu_items(
         stat_group_name(group), /* GUI path to the place holder in the menu */
-        name,                   /* Action name */
+        action_name,            /* Action name */
         stock_id,               /* Stock id */
         full_name,              /* label */
         NULL,                   /* Accelerator */

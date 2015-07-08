@@ -1075,6 +1075,8 @@ static const char *ui_desc_menubar =
 "      <separator/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
+"      <menu name= 'ANSImenu' action='/Telephony/ANSI'>\n"
+"      </menu>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
 "        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
 "        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
@@ -1510,6 +1512,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/IOGraphs",            WIRESHARK_STOCK_GRAPHS,     "_IO Graph",                NULL,                       NULL,               G_CALLBACK(gui_iostat_cb) },
    { "/Statistics/plen",                        NULL,               "Packet Lengths...",        NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
 
+   { "/Telephony/ANSI",                 NULL,                       "_ANSI",                    NULL, NULL, NULL },
    { "/Telephony/GSM",                  NULL,                       "_GSM",                     NULL, NULL, NULL },
    { "/Telephony/GSM/BSSMAP",           NULL,                       "A-Interface BSSMAP",  NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
 
@@ -3563,9 +3566,10 @@ stat_group_name(register_stat_group_t group)
         {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|Statistics#EndpointList"},               /* member of the endpoint list */
         {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Statistics#ServiceResponseTime"}, /* member of the service response time list */
         {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},                                                          /* telephony specific */
-        {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                                          /* GSM-specific */
-        {REGISTER_STAT_GROUP_TELEPHONY_LTE,          "/Menubar/TelephonyMenu|Telephony/LTEmenu|Telephony#LTE"},                                                          /* LTE-specific */
-        {REGISTER_STAT_GROUP_TELEPHONY_SCTP,         "/Menubar/TelephonyMenu|Telephony/SCTPmenu|Telephony#SCTP"},                                                          /* SCTP-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_ANSI,         "/Menubar/TelephonyMenu|Telephony/ANSI|Telephony#ANSI"},                                      /* ANSI-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                        /* GSM-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_LTE,          "/Menubar/TelephonyMenu|Telephony/LTEmenu|Telephony#LTE"},                                    /* LTE-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_SCTP,         "/Menubar/TelephonyMenu|Telephony/SCTPmenu|Telephony#SCTP"},                                  /* SCTP-specific */
         {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
         {0, NULL}
     };

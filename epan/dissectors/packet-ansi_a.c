@@ -12860,8 +12860,8 @@ proto_register_ansi_a(void)
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
     static new_stat_tap_ui dtap_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY,
-        "ANSI A-I/F DTAP Statistics",
+        REGISTER_STAT_GROUP_TELEPHONY_ANSI,
+        "A-I/F DTAP Statistics",
         "ansi_a",
         "ansi_a,dtap",
         ansi_a_dtap_stat_init,
@@ -12875,8 +12875,8 @@ proto_register_ansi_a(void)
     };
 
     static new_stat_tap_ui bsmap_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY,
-        "ANSI A-I/F BSMAP Statistics",
+        REGISTER_STAT_GROUP_TELEPHONY_ANSI,
+        "A-I/F BSMAP Statistics",
         "ansi_a",
         "ansi_a,bsmap",
         ansi_a_bsmap_stat_init,

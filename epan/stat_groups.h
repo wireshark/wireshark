@@ -63,6 +63,7 @@ typedef enum {
     REGISTER_STAT_GROUP_ENDPOINT_LIST,          /* member of the endpoint list */
     REGISTER_STAT_GROUP_RESPONSE_TIME,          /* member of the service response time list */
     REGISTER_STAT_GROUP_TELEPHONY,              /* telephony specific */
+    REGISTER_STAT_GROUP_TELEPHONY_ANSI,         /* name says it all */
     REGISTER_STAT_GROUP_TELEPHONY_GSM,          /* GSM (and UMTS?) */
     REGISTER_STAT_GROUP_TELEPHONY_LTE,          /* name says it all */
     REGISTER_STAT_GROUP_TELEPHONY_SCTP,         /* name says it all */
