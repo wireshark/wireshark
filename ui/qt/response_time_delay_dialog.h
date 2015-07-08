@@ -38,7 +38,6 @@ protected:
     /** Add a response time delay table.
      *
      * @param rtd_table The table to add.
-     * @return A
      */
     // gtk:service_response_table.h:init_srt_table
     void addRtdTable(const struct _rtd_stat_table *rtd_table);

@@ -44,7 +44,6 @@ protected:
      * separate groups of QTreeWidgetItems.
      *
      * @param srt_table The table to add.
-     * @return A
      */
     // gtk:service_response_table.h:init_srt_table
     void addSrtTable(const struct _srt_stat_table *srt_table);
