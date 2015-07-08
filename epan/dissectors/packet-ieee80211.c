@@ -16583,6 +16583,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
   fcf = FETCH_FCF(0);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
+  whdr->type = frame_type_subtype;
   if (frame_type_subtype == CTRL_CONTROL_WRAPPER)
     ctrl_fcf = FETCH_FCF(10);
   else
@@ -16725,7 +16726,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, 16, 6);
       COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
       COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
-      whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
@@ -17362,7 +17362,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
       COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
       COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
-      whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
@@ -17693,7 +17692,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
        * No-data frames don't have a body.
        */
       if (DATA_FRAME_IS_NULL(frame_type_subtype))
-        return tvb_captured_length(tvb);
+        goto end_of_wlan;
 
       if (!wlan_subdissector) {
         guint fnum = 0;
@@ -17751,13 +17750,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       break;
 
     case CONTROL_FRAME:
-      return tvb_captured_length(tvb);
+      goto end_of_wlan;
 
     case EXTENSION_FRAME:
       break;
 
     default:
-      return tvb_captured_length(tvb);
+      goto end_of_wlan;
     }
 
   if (IS_PROTECTED(FCF_FLAGS(fcf))

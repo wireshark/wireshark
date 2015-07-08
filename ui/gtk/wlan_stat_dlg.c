@@ -386,9 +386,16 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
     wlanstat_t       *hs  = (wlanstat_t *)phs;
     wlan_ep_t        *tmp, *te = NULL;
     const struct _wlan_hdr *si  = (const struct _wlan_hdr *) phi;
+    guint16 frame_type = si->type & 0xff0;
 
     if (!hs)
         return (0);
+
+    if (!((frame_type == 0x0) || (frame_type == 0x20) || (frame_type == 0x30))
+        || ((frame_type == 0x20) && DATA_FRAME_IS_NULL(si->type))) {
+        /* Not a management or non null data or extension frame; let's skip it */
+        return (0);
+    }
 
     hs->number_of_packets++;
     if (!hs->ep_list) {
