@@ -910,6 +910,9 @@
    </property>
   </action>
   <action name="actionGoGoToPacket">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Go to Packet...</string>
    </property>

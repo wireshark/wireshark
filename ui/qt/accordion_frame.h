@@ -35,6 +35,11 @@ public:
     void animatedHide();
 
 signals:
+    void visibilityChanged(bool visible);
+
+protected:
+    virtual void hideEvent(QHideEvent *) { emit visibilityChanged(false); }
+    virtual void showEvent(QShowEvent *) { emit visibilityChanged(true); }
 
 private:
     int frame_height_;

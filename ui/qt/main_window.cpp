@@ -288,12 +288,17 @@ MainWindow::MainWindow(QWidget *parent) :
              this, SLOT(showPreferencesDialog(QString)));
 
     main_ui_->goToFrame->hide();
+    connect(main_ui_->goToFrame, SIGNAL(visibilityChanged(bool)),
+            main_ui_->actionGoGoToPacket, SLOT(setChecked(bool)));
+
     // XXX For some reason the cursor is drawn funny with an input mask set
     // https://bugreports.qt-project.org/browse/QTBUG-7174
 
     main_ui_->searchFrame->hide();
     connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
+    connect(main_ui_->searchFrame, SIGNAL(visibilityChanged(bool)),
+            main_ui_->actionEditFindPacket, SLOT(setChecked(bool)));
 
     main_ui_->columnEditorFrame->hide();
     main_ui_->preferenceEditorFrame->hide();

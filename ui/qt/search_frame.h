@@ -51,7 +51,7 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private:
     void updateWidgets();
