@@ -65,7 +65,6 @@
 #include <QTreeWidget>
 
 // To do:
-// - Catch column reordering and rebuild the column list accoringly.
 // - Use a timer to trigger automatic scrolling.
 
 // If we ever add the ability to open multiple capture files we might be
@@ -416,6 +415,8 @@ PacketList::PacketList(QWidget *parent) :
             this, SLOT(showHeaderMenu(QPoint)));
     connect(header(), SIGNAL(sectionResized(int,int,int)),
             this, SLOT(sectionResized(int,int,int)));
+    connect(header(), SIGNAL(sectionMoved(int,int,int)),
+            this, SLOT(sectionMoved(int,int,int)));
 
     connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
 
@@ -685,8 +686,7 @@ void PacketList::initHeaderContextMenu()
     }
 }
 
-// Redraw the packet list and detail. Called from many places, including
-// columnsChanged.
+// Redraw the packet list and detail. Called from many places.
 // XXX We previously re-selected the packet here, but that seems to cause
 // automatic scrolling problems.
 void PacketList::redrawVisiblePackets() {
@@ -696,13 +696,21 @@ void PacketList::redrawVisiblePackets() {
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
 
+    update();
+    header()->update();
+}
+
+// prefs.col_list has changed.
+void PacketList::columnsChanged()
+{
+    if (!cap_file_) return;
+
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+    packet_list_model_->recreateVisibleRows(); // Calls PacketListRecord::resetColumns
     setColumnVisibility();
-
-    update();
-    header()->update();
+    redrawVisiblePackets();
 }
 
 // Column widths should
@@ -1157,6 +1165,8 @@ void PacketList::showHeaderMenu(QPoint pos)
     header_actions_[caResolveNames]->setChecked(can_resolve && get_column_resolved(header_ctx_column_));
     header_actions_[caResolveNames]->setEnabled(can_resolve);
 
+    header_actions_[caRemoveColumn]->setEnabled(header_ctx_column_ >= 0 && header()->count() > 2);
+
     foreach (QAction *action, show_hide_actions_) {
         header_ctx_menu_.removeAction(action);
         delete action;
@@ -1214,13 +1224,16 @@ void PacketList::headerMenuTriggered()
         hideColumn(header_ctx_column_);
         break;
     case caRemoveColumn:
-        column_prefs_remove_nth(header_ctx_column_);
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
+    {
+        if (header()->count() > 2) {
+            column_prefs_remove_nth(header_ctx_column_);
+            columnsChanged();
+            if (!prefs.gui_use_pref_save) {
+                prefs_main_write();
+            }
         }
-        setColumnVisibility();
-        redraw = true;
         break;
+    }
     default:
         break;
     }
@@ -1248,6 +1261,46 @@ void PacketList::sectionResized(int col, int, int new_width)
         // visible.
         recent_set_column_width(col, new_width);
     }
+}
+
+// The user moved a column. Make sure prefs.col_list, the column format
+// array, and the header's visual and logical indices all agree.
+// gtk/packet_list.c:column_dnd_changed_cb
+void PacketList::sectionMoved(int, int, int)
+{
+    GList *new_col_list = NULL;
+    QList<int> saved_sizes;
+
+    // Build a new column list based on the header's logical order.
+    for (int vis_idx = 0; vis_idx < header()->count(); vis_idx++) {
+        int log_idx = header()->logicalIndex(vis_idx);
+        saved_sizes << header()->sectionSize(log_idx);
+
+        void *pref_data = g_list_nth_data(prefs.col_list, log_idx);
+        if (!pref_data) continue;
+
+        new_col_list = g_list_append(new_col_list, pref_data);
+    }
+
+    // Clear and rebuild our (and the header's) model. There doesn't appear
+    // to be another way to reset the logical index.
+    freeze();
+
+    g_list_free(prefs.col_list);
+    prefs.col_list = new_col_list;
+
+    thaw();
+
+    for (int i = 0; i < saved_sizes.length(); i++) {
+        if (saved_sizes[i] < 1) continue;
+        header()->resizeSection(i, saved_sizes[i]);
+    }
+
+    if (!prefs.gui_use_pref_save) {
+        prefs_main_write();
+    }
+
+    wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
 }
 
 // We need to tell when the user has scrolled the packet list, either to

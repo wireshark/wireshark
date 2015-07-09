@@ -135,6 +135,7 @@ public slots:
     void setTimeReference();
     void unsetAllTimeReferences();
     void redrawVisiblePackets();
+    void columnsChanged();
     void applyRecentColumnWidths();
 
 private slots:
@@ -142,6 +143,7 @@ private slots:
     void headerMenuTriggered();
     void columnVisibilityTriggered();
     void sectionResized(int col, int, int new_width);
+    void sectionMoved(int, int, int);
     void vScrollBarActionTriggered(int);
 };
 

@@ -2402,7 +2402,7 @@ void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
         colnr = column_prefs_add_custom(COL_CUSTOM, capture_file_.capFile()->finfo_selected->hfinfo->name,
                     capture_file_.capFile()->finfo_selected->hfinfo->abbrev,0);
 
-        packet_list_->redrawVisiblePackets();
+        packet_list_->columnsChanged();
         packet_list_->resizeColumnToContents(colnr);
 
         prefs_main_write();

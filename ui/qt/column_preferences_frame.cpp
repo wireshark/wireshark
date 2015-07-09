@@ -70,6 +70,17 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeWidget->setDropIndicatorShown(true);
     ui->columnTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
+    for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
+        fmt_data *cfmt = (fmt_data *) cur->data;
+        addColumn(cfmt->visible, cfmt->title, cfmt->fmt, cfmt->custom_field, cfmt->custom_occurrence);
+    }
+
+    connect(ui->columnTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateWidgets()));
+
+    if (prefs.num_cols > 0) {
+        ui->columnTreeWidget->topLevelItem(0)->setSelected(true);
+    }
+
     updateWidgets();
 }
 
@@ -194,27 +205,22 @@ void ColumnPreferencesFrame::addColumn(bool visible, const char *title, int fmt,
         item->setText(custom_field_col_, custom_field);
         item->setText(custom_occurrence_col_, QString::number(custom_occurrence));
     }
+
+    updateWidgets();
 }
 
 void ColumnPreferencesFrame::updateWidgets()
 {
-    ui->columnTreeWidget->clear();
-
-    for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
-        fmt_data *cfmt = (fmt_data *) cur->data;
-        addColumn(cfmt->visible, cfmt->title, cfmt->fmt, cfmt->custom_field, cfmt->custom_occurrence);
-    }
-
     ui->columnTreeWidget->resizeColumnToContents(visible_col_);
     ui->columnTreeWidget->resizeColumnToContents(title_col_);
     ui->columnTreeWidget->resizeColumnToContents(type_col_);
+
+    ui->deleteToolButton->setEnabled(ui->columnTreeWidget->selectedItems().count() > 0 && ui->columnTreeWidget->topLevelItemCount() > 1);
 }
 
 
-void ColumnPreferencesFrame::on_columnTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void ColumnPreferencesFrame::on_columnTreeWidget_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *previous)
 {
-    ui->deleteToolButton->setEnabled(current ? true : false);
-
     if (previous && ui->columnTreeWidget->itemWidget(previous, title_col_)) {
         ui->columnTreeWidget->removeItemWidget(previous, title_col_);
     }
@@ -228,6 +234,8 @@ void ColumnPreferencesFrame::on_columnTreeWidget_currentItemChanged(QTreeWidgetI
     if (previous && ui->columnTreeWidget->itemWidget(previous, custom_occurrence_col_)) {
         ui->columnTreeWidget->removeItemWidget(previous, custom_occurrence_col_);
     }
+
+    updateWidgets();
 }
 
 void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *item, int column)
@@ -380,10 +388,14 @@ void ColumnPreferencesFrame::on_newToolButton_clicked()
 
 void ColumnPreferencesFrame::on_deleteToolButton_clicked()
 {
+    if (ui->columnTreeWidget->topLevelItemCount() < 2) return;
+
     QTreeWidgetItem *item = ui->columnTreeWidget->currentItem();
     if (item) {
         ui->columnTreeWidget->invisibleRootItem()->removeChild(item);
     }
+
+    updateWidgets();
 }
 
 /*

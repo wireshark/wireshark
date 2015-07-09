@@ -408,7 +408,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(recentFilesRead()),
             packet_list_, SLOT(applyRecentColumnWidths()));
     connect(wsApp, SIGNAL(columnsChanged()),
-            packet_list_, SLOT(redrawVisiblePackets()));
+            packet_list_, SLOT(columnsChanged()));
     connect(wsApp, SIGNAL(recentFilesRead()),
             this, SLOT(applyRecentPaneGeometry()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
