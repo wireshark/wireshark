@@ -35,8 +35,7 @@ public:
 protected:
     /** Add a simple statistics table.
      *
-     * @param rtd_table The table to add.
-     * @return A
+     * @param st_table The table to add.
      */
     // gtk:service_response_table.h:init_srt_table
     void addSimpleStatisticsTable(const struct _stat_tap_table *st_table);
@@ -55,7 +54,6 @@ private:
 /** Register function to register dissectors that support a "simple" statistics table.
  *
  * @param data new_stat_tap_ui* representing dissetor stat table
- * @param user_data is unused
  */
 void register_simple_stat_tables(gpointer data, gpointer);
 
