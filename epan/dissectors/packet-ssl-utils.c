@@ -1710,7 +1710,7 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
 static int
-ssl_private_decrypt(const guint len, guchar* data, SSL_PRIVATE_KEY* pk)
+ssl_private_decrypt(const guint len, guchar* data, gcry_sexp_t pk)
 {
     gint        rc = 0;
     size_t      decr_len = 0, i = 0;
@@ -1725,7 +1725,6 @@ ssl_private_decrypt(const guint len, guchar* data, SSL_PRIVATE_KEY* pk)
         return 0;
     }
 
-#ifndef SSL_FAST
     /* put the data into a simple list */
     rc = gcry_sexp_build(&s_data, NULL, "(enc-val(rsa(a%m)))", encr_mpi);
     if (rc != 0) {
@@ -1761,11 +1760,6 @@ ssl_private_decrypt(const guint len, guchar* data, SSL_PRIVATE_KEY* pk)
         decr_len = 0;
         goto out;
     }
-
-#else /* SSL_FAST */
-    rc = _gcry_rsa_decrypt(0, &text,  &encr_mpi, pk,0);
-    gcry_mpi_print( GCRYMPI_FMT_USG, 0, 0, &decr_len, text);
-#endif /* SSL_FAST */
 
     /* sanity check on out buffer */
     if (decr_len > len) {
@@ -2531,7 +2525,7 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
 static int
 ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
                               StringInfo *encrypted_pre_master,
-                              SSL_PRIVATE_KEY *pk);
+                              gcry_sexp_t pk);
 static gboolean
 ssl_restore_master_key(SslDecryptSession *ssl, const char *label,
                        gboolean is_pre_master, GHashTable *ht, StringInfo *key);
@@ -2958,7 +2952,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 
 static gboolean
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
-    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk)
+    StringInfo* encrypted_pre_master, gcry_sexp_t pk)
 {
     gint i;
 
@@ -3441,7 +3435,7 @@ skip_mac:
 }
 
 #define RSA_PARS 6
-static SSL_PRIVATE_KEY*
+static gcry_sexp_t
 ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 {
     gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
@@ -3453,11 +3447,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     size_t         buf_len;
     unsigned char  buf_keyid[32];
 
-#ifdef SSL_FAST
-    gcry_mpi_t* rsa_params = g_malloc(sizeof(gcry_mpi_t)*RSA_PARS);
-#else
     gcry_mpi_t rsa_params[RSA_PARS];
-#endif
 
     buf_len = sizeof(buf_keyid);
     ret = gnutls_x509_privkey_get_key_id(priv_key, 0, buf_keyid, &buf_len);
@@ -3478,9 +3468,6 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
                                            &rsa_datum[4],
                                            &rsa_datum[5])  != 0) {
         ssl_debug_printf("ssl_load_key: can't export rsa param (is a rsa private key file ?!?)\n");
-#ifdef SSL_FAST
-        g_free(rsa_params);
-#endif
         return NULL;
     }
 
@@ -3491,9 +3478,6 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
       g_free(rsa_datum[i].data);
       if (gret != 0) {
         ssl_debug_printf("ssl_load_key: can't convert m rsa param to int (size %d)\n", rsa_datum[i].size);
-#ifdef SSL_FAST
-        g_free(rsa_params);
-#endif
         return NULL;
       }
     }
@@ -3511,20 +3495,12 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
             rsa_params[1], rsa_params[2], rsa_params[3], rsa_params[4],
             rsa_params[5]) != 0) {
         ssl_debug_printf("ssl_load_key: can't build rsa private key s-exp\n");
-#ifdef SSL_FAST
-        g_free(rsa_params);
-#endif
         return NULL;
     }
 
-#ifdef SSL_FAST
-    return rsa_params;
-#else
     for (i=0; i< 6; i++)
         gcry_mpi_release(rsa_params[i]);
     return rsa_priv_key;
-#endif
-
 }
 
 Ssl_private_key_t *
@@ -3817,13 +3793,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
 
 void ssl_free_key(Ssl_private_key_t* key)
 {
-#ifdef SSL_FAST
-    gint i;
-    for (i=0; i< 6; i++)
-        gcry_mpi_release(key->sexp_pkey[i]);
-#else
     gcry_sexp_release(key->sexp_pkey);
-#endif
 
     if (!key->x509_cert)
         gnutls_x509_crt_deinit (key->x509_cert);
