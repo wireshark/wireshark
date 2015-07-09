@@ -3258,6 +3258,7 @@ fi
 
 if test "x$have_qt" = "xyes" ; then
 	enable_wireshark_qt="yes"
+	qt_lib_message=" (with Qt $qt_version)"
 else
 	enable_wireshark_qt="no"
 fi
@@ -3340,7 +3341,7 @@ fi
 
 echo ""
 echo "The Wireshark package has been configured with the following options."
-echo "                    Build wireshark : $enable_wireshark_qt (with Qt $qt_version)"
+echo "                    Build wireshark : $enable_wireshark_qt$qt_lib_message"
 echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
 echo "                      Build tfshark : $enable_tfshark"
