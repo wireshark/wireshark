@@ -22,9 +22,20 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
-since version 1.99.6:
+since version 1.99.7:
 
-// Quick! Do something! Check in some code!
+* Qt port:
+
+** Many statistics dialogs have been added, including Service response time,
+   DHCP/BOOTP, and  ANSI.
+** Lua dialog support has been added.
+** The capture interfaces dialog has been updated.
+** Welcome screen behavior has been improved.
+** Plugin support has been improved.
+** Many dialogs should now more correctly minimize and maximize.
+** The reload button has been added back to the toolbar.
+** The "Decode As" dialog no longer saves decoding behavior.
+** You can now stop loading large capture files.
 
 The following features are new (or have been significantly updated)
 since version 1.99.6:
