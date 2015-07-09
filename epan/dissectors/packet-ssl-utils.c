@@ -3486,7 +3486,12 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     if (gcry_mpi_cmp(rsa_params[3], rsa_params[4]) > 0)
     {
         ssl_debug_printf("ssl_load_key: swapping p and q parameters and recomputing u\n");
+        /* p, q = q, p */
         gcry_mpi_swap(rsa_params[3], rsa_params[4]);
+        /* due to swapping p and q, u = p^-1 mod p which happens to be needed. */
+    } else {
+        /* libgcrypt expects u = p^-1 mod q (for OpenPGP), but the u parameter
+         * says u = q^-1 mod p. Recompute u = p^-1 mod q. */
         gcry_mpi_invm(rsa_params[5], rsa_params[3], rsa_params[4]);
     }
 
