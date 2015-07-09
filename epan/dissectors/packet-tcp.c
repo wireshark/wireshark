@@ -400,7 +400,7 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOLEN_CORREXP        2
 #define TCPOLEN_QS             8
 #define TCPOLEN_USER_TO        4
-#define TCPOLEN_MPTCP_MIN      8
+#define TCPOLEN_MPTCP_MIN      3
 #define TCPOLEN_TFO_MIN        2
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
