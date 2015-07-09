@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.5.0 (2015-03)
+-- 3GPP TS 36.331 V12.6.0 (2015-06)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -794,7 +794,7 @@ RRCConnectionReconfiguration-v1250-IEs ::= SEQUENCE {
 		setup									SEQUENCE {
 			wlan-OffloadConfigDedicated-r12		WLAN-OffloadConfig-r12,
 			t350-r12								ENUMERATED {min5, min10, min20, min30, min60,
-												 min120, min180, spare1}			OPTIONAL-- Need OR
+												 min120, min180, spare1}	OPTIONAL	-- Need OR
 		}
 	}																	OPTIONAL,		-- Need ON
 	scg-Configuration-r12				SCG-Configuration-r12		OPTIONAL, 	-- Cond nonFullConfig
@@ -2513,7 +2513,7 @@ SystemInformationBlockType11 ::=	SEQUENCE {
 	warningMessageSegmentType			ENUMERATED {notLastSegment, lastSegment},
 	warningMessageSegmentNumber			INTEGER (0..63),
 	warningMessageSegment				OCTET STRING,
-	dataCodingScheme					OCTET STRING (SIZE (1))			OPTIONAL,	-- Cond Segment1
+	dataCodingScheme					OCTET STRING (SIZE (1)) 		OPTIONAL, 	-- Cond Segment1
 	...,
 	lateNonCriticalExtension				OCTET STRING				OPTIONAL
 }
@@ -2525,7 +2525,7 @@ SystemInformationBlockType12-r9 ::=	SEQUENCE {
 	warningMessageSegmentType-r9		ENUMERATED {notLastSegment, lastSegment},
 	warningMessageSegmentNumber-r9		INTEGER (0..63),
 	warningMessageSegment-r9			OCTET STRING,
-	dataCodingScheme-r9					OCTET STRING (SIZE (1))			OPTIONAL,	-- Cond Segment1
+	dataCodingScheme-r9					OCTET STRING (SIZE (1)) 		OPTIONAL, 	-- Cond Segment1
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
 	...
 }
@@ -2606,7 +2606,7 @@ SystemInformationBlockType17-r12 ::=	SEQUENCE {
 }
 
 WLAN-OffloadInfoPerPLMN-r12 ::= 			SEQUENCE {
-		wlan-OffloadConfigCommon-r12		WLAN-OffloadConfig-r12		OPTIONAL, 	-- Need OR
+		wlan-OffloadConfigCommon-r12		WLAN-OffloadConfig-r12		OPTIONAL,	-- Need OR
 		wlan-Id-List-r12					WLAN-Id-List-r12			OPTIONAL,	-- Need OR
 		...
 }
@@ -3889,7 +3889,7 @@ DRB-ToAddMod ::=	SEQUENCE {
 	drb-Identity						DRB-Identity,
 	pdcp-Config							PDCP-Config				OPTIONAL,		-- Cond PDCP
 	rlc-Config							RLC-Config				OPTIONAL,		-- Cond SetupM
-	logicalChannelIdentity				INTEGER (3..10)			OPTIONAL,		-- Cond DRB-Setup
+	logicalChannelIdentity				INTEGER (3..10)			OPTIONAL,		-- Cond DRB-SetupM
 	logicalChannelConfig				LogicalChannelConfig	OPTIONAL,		-- Cond SetupM
 	...,
 	[[	drb-TypeChange-r12						ENUMERATED {toMCG}	OPTIONAL,		-- Need OP
@@ -3908,7 +3908,7 @@ DRB-ToAddModSCG-r12 ::=	SEQUENCE {
 	}															OPTIONAL,	-- Cond SetupS2
 	rlc-ConfigSCG-r12					RLC-Config				OPTIONAL,	-- Cond SetupS
 	rlc-Config-v1250						RLC-Config-v1250			OPTIONAL,	-- Need ON
-	logicalChannelIdentitySCG-r12		INTEGER (3..10)			OPTIONAL,	-- Cond SetupS
+	logicalChannelIdentitySCG-r12		INTEGER (3..10)			OPTIONAL,	-- Cond DRB-SetupS
 	logicalChannelConfigSCG-r12			LogicalChannelConfig	OPTIONAL,	-- Cond SetupS
 	...
 }
@@ -5698,6 +5698,11 @@ UE-EUTRA-Capability-v1250-IEs ::=	SEQUENCE {
 	fdd-Add-UE-EUTRA-Capabilities-v1250	UE-EUTRA-CapabilityAddXDD-Mode-v1250	OPTIONAL,
 	tdd-Add-UE-EUTRA-Capabilities-v1250	UE-EUTRA-CapabilityAddXDD-Mode-v1250	OPTIONAL,
 	sl-Parameters-r12				SL-Parameters-r12					OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v1260-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1260-IEs ::=	SEQUENCE {
+	ue-CategoryDL-v1260					INTEGER (15..16)						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
@@ -6428,7 +6433,7 @@ SL-CommConfig-r12 ::= 				SEQUENCE	{
 			scheduled-r12					SEQUENCE {
 				sl-RNTI-r12						C-RNTI,
 				mac-MainConfig-r12				MAC-MainConfigSL-r12,
-				commTxConfig-r12				SL-CommResourcePool-r12,
+				sc-CommTxConfig-r12				SL-CommResourcePool-r12,
 				mcs-r12							INTEGER (0..28) 				OPTIONAL	-- Need OP
 			},
 			ue-Selected-r12					SEQUENCE {
@@ -6505,7 +6510,14 @@ SL-DiscConfig-r12 ::=					SEQUENCE {
 			}
 		}
 	}																OPTIONAL,	-- Need ON
-	...
+	...,
+	[[	discTF-IndexList-v1260				CHOICE {
+			release								NULL,
+			setup								SEQUENCE {
+				discTF-IndexList-r12b				SL-TF-IndexPairList-r12b
+			}
+		}															OPTIONAL	-- Need ON
+	]]
 }
 
 SL-DiscTxPoolToAddModList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-DiscTxPoolToAddMod-r12
@@ -6520,6 +6532,13 @@ SL-TF-IndexPairList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TF-IndexPair-r12)) OF SL-T
 SL-TF-IndexPair-r12 ::=		SEQUENCE	{
 	discSF-Index-r12					INTEGER (1.. 200)		OPTIONAL,	-- Need ON
 	discPRB-Index-r12					INTEGER (1.. 50)		OPTIONAL	-- Need ON
+}
+
+SL-TF-IndexPairList-r12b ::=		SEQUENCE (SIZE (1..maxSL-TF-IndexPair-r12)) OF SL-TF-IndexPair-r12b
+
+SL-TF-IndexPair-r12b ::=		SEQUENCE	{
+	discSF-Index-r12b					INTEGER (0..209)		OPTIONAL,	 -- Need ON
+	discPRB-Index-r12b					INTEGER (0..49)			OPTIONAL	 -- Need ON
 }
 
 
@@ -6665,7 +6684,7 @@ maxCSI-IM-r11				INTEGER ::= 3	-- Maximum number of CSI-IM configurations
 											-- (per carrier frequency)
 maxCSI-IM-r12				INTEGER ::= 4	-- Maximum number of CSI-IM configurations
 											-- (per carrier frequency)
-maxCSI-Proc-r11				INTEGER ::= 4	-- Maximum number of CSI RS processes (per carrier
+maxCSI-Proc-r11				INTEGER ::= 4	-- Maximum number of CSI processes (per carrier
 											--  frequency)
 maxCSI-RS-NZP-r11			INTEGER ::= 3	-- Maximum number of CSI RS resource
 											--  configurations using non-zero Tx power

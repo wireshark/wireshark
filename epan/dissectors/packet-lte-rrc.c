@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V12.5.0 Release 12) packet dissection
+ * (3GPP TS 36.331 V12.6.0 Release 12) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2015, Pascal Quantin
  *
@@ -2615,7 +2615,9 @@ static int hf_lte_rrc_mac_Parameters_r12 = -1;    /* MAC_Parameters_r12 */
 static int hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1250 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1250 */
 static int hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1250 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1250 */
 static int hf_lte_rrc_sl_Parameters_r12 = -1;     /* SL_Parameters_r12 */
-static int hf_lte_rrc_nonCriticalExtension_149 = -1;  /* T_nonCriticalExtension_54 */
+static int hf_lte_rrc_nonCriticalExtension_149 = -1;  /* UE_EUTRA_Capability_v1260_IEs */
+static int hf_lte_rrc_ue_CategoryDL_v1260 = -1;   /* INTEGER_15_16 */
+static int hf_lte_rrc_nonCriticalExtension_150 = -1;  /* T_nonCriticalExtension_54 */
 static int hf_lte_rrc_phyLayerParameters_r9 = -1;  /* PhyLayerParameters */
 static int hf_lte_rrc_featureGroupIndicators_r9 = -1;  /* T_featureGroupIndicators_r9 */
 static int hf_lte_rrc_featureGroupIndRel9Add_r9_01 = -1;  /* T_featureGroupIndRel9Add_r9_01 */
@@ -2908,7 +2910,7 @@ static int hf_lte_rrc_setup_64 = -1;              /* T_setup_55 */
 static int hf_lte_rrc_scheduled_r12 = -1;         /* T_scheduled_r12 */
 static int hf_lte_rrc_sl_RNTI_r12 = -1;           /* C_RNTI */
 static int hf_lte_rrc_mac_MainConfig_r12 = -1;    /* MAC_MainConfigSL_r12 */
-static int hf_lte_rrc_commTxConfig_r12 = -1;      /* SL_CommResourcePool_r12 */
+static int hf_lte_rrc_sc_CommTxConfig_r12 = -1;   /* SL_CommResourcePool_r12 */
 static int hf_lte_rrc_mcs_r12 = -1;               /* INTEGER_0_28 */
 static int hf_lte_rrc_ue_Selected_r12 = -1;       /* T_ue_Selected_r12 */
 static int hf_lte_rrc_commTxPoolNormalDedicated_r12 = -1;  /* T_commTxPoolNormalDedicated_r12 */
@@ -2944,11 +2946,17 @@ static int hf_lte_rrc_discHoppingConfig_r12 = -1;  /* SL_HoppingConfigDisc_r12 *
 static int hf_lte_rrc_ue_Selected_r12_01 = -1;    /* T_ue_Selected_r12_01 */
 static int hf_lte_rrc_discTxPoolDedicated_r12 = -1;  /* T_discTxPoolDedicated_r12 */
 static int hf_lte_rrc_poolToAddModList_r12_01 = -1;  /* SL_DiscTxPoolToAddModList_r12 */
+static int hf_lte_rrc_discTF_IndexList_v1260 = -1;  /* T_discTF_IndexList_v1260 */
+static int hf_lte_rrc_setup_66 = -1;              /* T_setup_57 */
+static int hf_lte_rrc_discTF_IndexList_r12b = -1;  /* SL_TF_IndexPairList_r12b */
 static int hf_lte_rrc_SL_DiscTxPoolToAddModList_r12_item = -1;  /* SL_DiscTxPoolToAddMod_r12 */
 static int hf_lte_rrc_pool_r12_01 = -1;           /* SL_DiscResourcePool_r12 */
 static int hf_lte_rrc_SL_TF_IndexPairList_r12_item = -1;  /* SL_TF_IndexPair_r12 */
 static int hf_lte_rrc_discSF_Index_r12 = -1;      /* INTEGER_1_200 */
 static int hf_lte_rrc_discPRB_Index_r12 = -1;     /* INTEGER_1_50 */
+static int hf_lte_rrc_SL_TF_IndexPairList_r12b_item = -1;  /* SL_TF_IndexPair_r12b */
+static int hf_lte_rrc_discSF_Index_r12b = -1;     /* INTEGER_0_209 */
+static int hf_lte_rrc_discPRB_Index_r12b = -1;    /* INTEGER_0_49 */
 static int hf_lte_rrc_SL_DiscTxPoolList_r12_item = -1;  /* SL_DiscResourcePool_r12 */
 static int hf_lte_rrc_SL_DiscRxPoolList_r12_item = -1;  /* SL_DiscResourcePool_r12 */
 static int hf_lte_rrc_cp_Len_r12 = -1;            /* SL_CP_Len_r12 */
@@ -4348,6 +4356,7 @@ static gint ett_lte_rrc_UE_EUTRA_Capability_v1170_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1180_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v11a0_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1250_IEs = -1;
+static gint ett_lte_rrc_UE_EUTRA_Capability_v1260_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_54 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060 = -1;
@@ -4513,10 +4522,14 @@ static gint ett_lte_rrc_T_setup_56 = -1;
 static gint ett_lte_rrc_T_scheduled_r12_01 = -1;
 static gint ett_lte_rrc_T_ue_Selected_r12_01 = -1;
 static gint ett_lte_rrc_T_discTxPoolDedicated_r12 = -1;
+static gint ett_lte_rrc_T_discTF_IndexList_v1260 = -1;
+static gint ett_lte_rrc_T_setup_57 = -1;
 static gint ett_lte_rrc_SL_DiscTxPoolToAddModList_r12 = -1;
 static gint ett_lte_rrc_SL_DiscTxPoolToAddMod_r12 = -1;
 static gint ett_lte_rrc_SL_TF_IndexPairList_r12 = -1;
 static gint ett_lte_rrc_SL_TF_IndexPair_r12 = -1;
+static gint ett_lte_rrc_SL_TF_IndexPairList_r12b = -1;
+static gint ett_lte_rrc_SL_TF_IndexPair_r12b = -1;
 static gint ett_lte_rrc_SL_DiscTxPoolList_r12 = -1;
 static gint ett_lte_rrc_SL_DiscRxPoolList_r12 = -1;
 static gint ett_lte_rrc_SL_DiscResourcePool_r12 = -1;
@@ -23223,7 +23236,7 @@ dissect_lte_rrc_INTEGER_0_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static const per_sequence_t T_scheduled_r12_sequence[] = {
   { &hf_lte_rrc_sl_RNTI_r12 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_C_RNTI },
   { &hf_lte_rrc_mac_MainConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MAC_MainConfigSL_r12 },
-  { &hf_lte_rrc_commTxConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SL_CommResourcePool_r12 },
+  { &hf_lte_rrc_sc_CommTxConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SL_CommResourcePool_r12 },
   { &hf_lte_rrc_mcs_r12     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_28 },
   { NULL, 0, 0, NULL }
 };
@@ -23738,8 +23751,107 @@ dissect_lte_rrc_T_discTxResources_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+
+static int
+dissect_lte_rrc_INTEGER_0_209(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 209U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_0_49(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 49U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SL_TF_IndexPair_r12b_sequence[] = {
+  { &hf_lte_rrc_discSF_Index_r12b, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_209 },
+  { &hf_lte_rrc_discPRB_Index_r12b, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_49 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SL_TF_IndexPair_r12b(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_SL_TF_IndexPair_r12b, SL_TF_IndexPair_r12b_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SL_TF_IndexPairList_r12b_sequence_of[1] = {
+  { &hf_lte_rrc_SL_TF_IndexPairList_r12b_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SL_TF_IndexPair_r12b },
+};
+
+static int
+dissect_lte_rrc_SL_TF_IndexPairList_r12b(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_SL_TF_IndexPairList_r12b, SL_TF_IndexPairList_r12b_sequence_of,
+                                                  1, maxSL_TF_IndexPair_r12, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_57_sequence[] = {
+  { &hf_lte_rrc_discTF_IndexList_r12b, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SL_TF_IndexPairList_r12b },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_57(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_57, T_setup_57_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_discTF_IndexList_v1260_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_discTF_IndexList_v1260_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_66    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_57 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_discTF_IndexList_v1260(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_discTF_IndexList_v1260, T_discTF_IndexList_v1260_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SL_DiscConfig_r12_eag_1_sequence[] = {
+  { &hf_lte_rrc_discTF_IndexList_v1260, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_discTF_IndexList_v1260 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SL_DiscConfig_r12_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, SL_DiscConfig_r12_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t SL_DiscConfig_r12_sequence[] = {
   { &hf_lte_rrc_discTxResources_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_discTxResources_r12 },
+  { &dummy_hf_lte_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_SL_DiscConfig_r12_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -33948,16 +34060,6 @@ dissect_lte_rrc_INTEGER_M5_91(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-
-static int
-dissect_lte_rrc_INTEGER_0_49(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 49U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t T_eag_1_03_sequence[] = {
   { &hf_lte_rrc_additionalSI_Info_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AdditionalSI_Info_r9 },
   { NULL, 0, 0, NULL }
@@ -43102,6 +43204,16 @@ dissect_lte_rrc_SL_Parameters_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_lte_rrc_INTEGER_15_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            15U, 16U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_54_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -43110,6 +43222,21 @@ static int
 dissect_lte_rrc_T_nonCriticalExtension_54(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_T_nonCriticalExtension_54, T_nonCriticalExtension_54_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_EUTRA_Capability_v1260_IEs_sequence[] = {
+  { &hf_lte_rrc_ue_CategoryDL_v1260, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_15_16 },
+  { &hf_lte_rrc_nonCriticalExtension_150, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_54 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UE_EUTRA_Capability_v1260_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UE_EUTRA_Capability_v1260_IEs, UE_EUTRA_Capability_v1260_IEs_sequence);
 
   return offset;
 }
@@ -43130,7 +43257,7 @@ static const per_sequence_t UE_EUTRA_Capability_v1250_IEs_sequence[] = {
   { &hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1250, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1250 },
   { &hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1250, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1250 },
   { &hf_lte_rrc_sl_Parameters_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SL_Parameters_r12 },
-  { &hf_lte_rrc_nonCriticalExtension_149, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_54 },
+  { &hf_lte_rrc_nonCriticalExtension_149, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1260_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -53927,6 +54054,14 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_nonCriticalExtension_149,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        "UE_EUTRA_Capability_v1260_IEs", HFILL }},
+    { &hf_lte_rrc_ue_CategoryDL_v1260,
+      { "ue-CategoryDL-v1260", "lte-rrc.ue_CategoryDL_v1260",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_15_16", HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_150,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_54", HFILL }},
     { &hf_lte_rrc_phyLayerParameters_r9,
       { "phyLayerParameters-r9", "lte-rrc.phyLayerParameters_r9_element",
@@ -55096,8 +55231,8 @@ void proto_register_lte_rrc(void) {
       { "mac-MainConfig-r12", "lte-rrc.mac_MainConfig_r12_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MAC_MainConfigSL_r12", HFILL }},
-    { &hf_lte_rrc_commTxConfig_r12,
-      { "commTxConfig-r12", "lte-rrc.commTxConfig_r12_element",
+    { &hf_lte_rrc_sc_CommTxConfig_r12,
+      { "sc-CommTxConfig-r12", "lte-rrc.sc_CommTxConfig_r12_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SL_CommResourcePool_r12", HFILL }},
     { &hf_lte_rrc_mcs_r12,
@@ -55240,6 +55375,18 @@ void proto_register_lte_rrc(void) {
       { "poolToAddModList-r12", "lte-rrc.poolToAddModList_r12",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SL_DiscTxPoolToAddModList_r12", HFILL }},
+    { &hf_lte_rrc_discTF_IndexList_v1260,
+      { "discTF-IndexList-v1260", "lte-rrc.discTF_IndexList_v1260",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_discTF_IndexList_v1260_vals), 0,
+        "T_discTF_IndexList_v1260", HFILL }},
+    { &hf_lte_rrc_setup_66,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_57", HFILL }},
+    { &hf_lte_rrc_discTF_IndexList_r12b,
+      { "discTF-IndexList-r12b", "lte-rrc.discTF_IndexList_r12b",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SL_TF_IndexPairList_r12b", HFILL }},
     { &hf_lte_rrc_SL_DiscTxPoolToAddModList_r12_item,
       { "SL-DiscTxPoolToAddMod-r12", "lte-rrc.SL_DiscTxPoolToAddMod_r12_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -55260,6 +55407,18 @@ void proto_register_lte_rrc(void) {
       { "discPRB-Index-r12", "lte-rrc.discPRB_Index_r12",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_50", HFILL }},
+    { &hf_lte_rrc_SL_TF_IndexPairList_r12b_item,
+      { "SL-TF-IndexPair-r12b", "lte-rrc.SL_TF_IndexPair_r12b_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_discSF_Index_r12b,
+      { "discSF-Index-r12b", "lte-rrc.discSF_Index_r12b",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_209", HFILL }},
+    { &hf_lte_rrc_discPRB_Index_r12b,
+      { "discPRB-Index-r12b", "lte-rrc.discPRB_Index_r12b",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_49", HFILL }},
     { &hf_lte_rrc_SL_DiscTxPoolList_r12_item,
       { "SL-DiscResourcePool-r12", "lte-rrc.SL_DiscResourcePool_r12_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -57298,6 +57457,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_EUTRA_Capability_v1180_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v11a0_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v1250_IEs,
+    &ett_lte_rrc_UE_EUTRA_Capability_v1260_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_54,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060,
@@ -57463,10 +57623,14 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_scheduled_r12_01,
     &ett_lte_rrc_T_ue_Selected_r12_01,
     &ett_lte_rrc_T_discTxPoolDedicated_r12,
+    &ett_lte_rrc_T_discTF_IndexList_v1260,
+    &ett_lte_rrc_T_setup_57,
     &ett_lte_rrc_SL_DiscTxPoolToAddModList_r12,
     &ett_lte_rrc_SL_DiscTxPoolToAddMod_r12,
     &ett_lte_rrc_SL_TF_IndexPairList_r12,
     &ett_lte_rrc_SL_TF_IndexPair_r12,
+    &ett_lte_rrc_SL_TF_IndexPairList_r12b,
+    &ett_lte_rrc_SL_TF_IndexPair_r12b,
     &ett_lte_rrc_SL_DiscTxPoolList_r12,
     &ett_lte_rrc_SL_DiscRxPoolList_r12,
     &ett_lte_rrc_SL_DiscResourcePool_r12,
