@@ -104,6 +104,7 @@
 #include "profile_dialog.h"
 #include "protocol_hierarchy_dialog.h"
 #include "qt_ui_utils.h"
+#include "resolved_addresses_dialog.h"
 #include "rtp_stream_dialog.h"
 #include "sctp_all_assocs_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
@@ -3075,6 +3076,12 @@ void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
     connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
             this, SLOT(updateForUnsavedChanges()));
     capture_file_properties_dialog->show();
+}
+
+void MainWindow::on_actionStatisticsResolvedAddresses_triggered()
+{
+    ResolvedAddressesDialog *resolved_addresses_dialog = new ResolvedAddressesDialog(this, &capture_file_);
+    resolved_addresses_dialog->show();
 }
 
 void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()

@@ -214,6 +214,8 @@ remote_capture_dialog.cpp remote_capture_dialog.h: ui_remote_capture_dialog.h
 
 remote_settings_dialog.cpp remote_settings_dialog.h: ui_remote_settings_dialog.h
 
+resolved_addresses_dialog.cpp resolved_addresses_dialog.h: ui_resolved_addresses_dialog.h
+
 rtp_stream_dialog.cpp rtp_stream_dialog.h: ui_rtp_stream_dialog.h
 
 search_frame.cpp search_frame.h: ui_search_frame.h

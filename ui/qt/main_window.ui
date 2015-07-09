@@ -444,6 +444,7 @@
      </property>
     </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
+    <addaction name="actionStatisticsResolvedAddresses"/>
     <addaction name="actionStatisticsProtocolHierarchy"/>
     <addaction name="actionStatisticsConversations"/>
     <addaction name="actionStatisticsEndpoints"/>
@@ -2406,6 +2407,14 @@
    </property>
    <property name="text">
     <string>No ANSI statistics registered</string>
+   </property>
+  </action>
+  <action name="actionStatisticsResolvedAddresses">
+   <property name="text">
+    <string>Resolved Addresses</string>
+   </property>
+   <property name="toolTip">
+    <string>Show each table of resolved addresses as copyable text.</string>
    </property>
   </action>
  </widget>

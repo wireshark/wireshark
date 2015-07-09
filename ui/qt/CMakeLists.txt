@@ -97,6 +97,7 @@ set(WIRESHARK_QT_HEADERS
 	qcustomplot.h
 	recent_file_status.h
 	related_packet_delegate.h
+	resolved_addresses_dialog.h
 	response_time_delay_dialog.h
 	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
@@ -222,6 +223,7 @@ set(WIRESHARK_QT_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
+	resolved_addresses_dialog.cpp
 	response_time_delay_dialog.cpp
 	rtp_stream_dialog.cpp
 	sctp_all_assocs_dialog.cpp
@@ -326,6 +328,7 @@ set(WIRESHARK_QT_UI
 	print_dialog.ui
 	profile_dialog.ui
 	protocol_hierarchy_dialog.ui
+	resolved_addresses_dialog.ui
 	rtp_stream_dialog.ui
 	sctp_all_assocs_dialog.ui
 	sctp_assoc_analyse_dialog.ui
