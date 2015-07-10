@@ -893,7 +893,7 @@ public:
                      ,esLineArrow    ///< A non-filled arrow head with open back
                      ,esDisc         ///< A filled circle
                      ,esSquare       ///< A filled square
-                     ,esDiamond      ///< A filled diamond (45degre rotated square)
+                     ,esDiamond      ///< A filled diamond (45 degrees rotated square)
                      ,esBar          ///< A bar perpendicular to the line
                      ,esHalfBar      ///< A bar perpendicular to the line, pointing out to only one side (to which side can be changed with \ref setInverted)
                      ,esSkewedBar    ///< A bar that is skewed (skew controllable via \ref setLength)
