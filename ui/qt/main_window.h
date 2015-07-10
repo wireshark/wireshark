@@ -240,6 +240,8 @@ public slots:
 private slots:
     // Manually connected slots (no "on_<object>_<signal>").
 
+    void initViewColorizeMenu();
+
     // in main_window_slots.cpp
     void startCapture();
     void pipeTimeout();
@@ -374,6 +376,9 @@ private slots:
     void on_actionViewNormalSize_triggered();
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
+    void colorizeConversation(bool create_rule = false);
+    void on_actionViewColorizeResetColorization_triggered();
+    void on_actionViewColorizeNewConversationRule_triggered();
     void on_actionViewResizeColumns_triggered();
 
     void openPacketDialog(bool from_reference = false);

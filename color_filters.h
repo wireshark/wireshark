@@ -87,6 +87,14 @@ color_filters_enable(gboolean enable);
 void
 color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled);
 
+/** Get a temporary color filter.
+ *
+ * @param filter_num A number from 1 to 10 specifying the color to fetch.
+ * @return The corresponding color or NULL.
+ */
+const color_filter_t *
+color_filters_tmp_color(guint8 filter_num);
+
 /** Reset the temporary color filters
  *
  */

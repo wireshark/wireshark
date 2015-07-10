@@ -34,6 +34,7 @@
 #include "tango_colors.h"
 
 #include "qcustomplot.h"
+#include "stock_icon.h"
 #include "syntax_line_edit.h"
 #include "wireshark_application.h"
 
@@ -618,10 +619,7 @@ void IOGraphDialog::panAxes(int x_pixels, int y_pixels)
 
 QIcon IOGraphDialog::graphColorIcon(int color_idx)
 {
-    int h = fontMetrics().height() * 3 / 4;
-    QPixmap pm(h * 2, h);
-    pm.fill(colors_[color_idx % colors_.size()]);
-    return QIcon(pm);
+    return StockIcon::colorIcon(colors_[color_idx % colors_.size()], QColor(QPalette::Mid).rgb());
 }
 
 void IOGraphDialog::toggleTracerStyle(bool force_default)

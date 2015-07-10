@@ -53,6 +53,8 @@
 #include "wireshark_application.h"
 
 #include <QFile>
+#include <QFontMetrics>
+#include <QPainter>
 #include <QStyle>
 
 QString path_pfx_ = ":/icons/toolbar/";
@@ -90,6 +92,32 @@ StockIcon::StockIcon(const char *icon_name) :
             }
         }
     }
+}
+
+// Create a square icon filled with the specified color.
+QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QString glyph)
+{
+    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QIcon color_icon;
+
+    foreach (int size, sizes) {
+        QPixmap pm(size, size);
+        QPainter painter(&pm);
+        QRect border(0, 0, size - 1, size - 1);
+        painter.setPen(fg_color);
+        painter.setBrush(QColor(bg_color));
+        painter.drawRect(border);
+
+        if (!glyph.isEmpty()) {
+            QFont font(wsApp->font());
+            font.setPointSizeF(size * 2.0 / 3.0);
+            QRectF bounding = painter.boundingRect(pm.rect(), glyph, Qt::AlignHCenter | Qt::AlignVCenter);
+            painter.drawText(bounding, glyph);
+        }
+
+        color_icon.addPixmap(pm);
+    }
+    return color_icon;
 }
 
 /*

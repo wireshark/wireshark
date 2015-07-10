@@ -279,6 +279,24 @@
      <addaction name="actionViewNameResolutionNetwork"/>
      <addaction name="actionViewNameResolutionTransport"/>
     </widget>
+    <widget class="QMenu" name="menuColorize_Conversation">
+     <property name="title">
+      <string>Colorize Conversation</string>
+     </property>
+     <addaction name="actionViewColorizeConversation1"/>
+     <addaction name="actionViewColorizeConversation2"/>
+     <addaction name="actionViewColorizeConversation3"/>
+     <addaction name="actionViewColorizeConversation4"/>
+     <addaction name="actionViewColorizeConversation5"/>
+     <addaction name="actionViewColorizeConversation6"/>
+     <addaction name="actionViewColorizeConversation7"/>
+     <addaction name="actionViewColorizeConversation8"/>
+     <addaction name="actionViewColorizeConversation9"/>
+     <addaction name="actionViewColorizeConversation10"/>
+     <addaction name="separator"/>
+     <addaction name="actionViewColorizeResetColorization"/>
+     <addaction name="actionViewColorizeNewConversationRule"/>
+    </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
@@ -299,6 +317,7 @@
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
     <addaction name="actionViewColoringRules"/>
+    <addaction name="menuColorize_Conversation"/>
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
@@ -2415,6 +2434,105 @@
    </property>
    <property name="toolTip">
     <string>Show each table of resolved addresses as copyable text.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation1">
+   <property name="text">
+    <string>Color &amp;1</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation2">
+   <property name="text">
+    <string>Color &amp;2</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation3">
+   <property name="text">
+    <string>Color &amp;3</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation4">
+   <property name="text">
+    <string>Color &amp;4</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation5">
+   <property name="text">
+    <string>Color &amp;5</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation6">
+   <property name="text">
+    <string>Color &amp;6</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation7">
+   <property name="text">
+    <string>Color &amp;7</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation8">
+   <property name="text">
+    <string>Color &amp;8</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation9">
+   <property name="text">
+    <string>Color &amp;9</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeConversation10">
+   <property name="text">
+    <string>Color 1&amp;0</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark the current coversation with its own color.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeNewConversationRule">
+   <property name="text">
+    <string>New Conversation Rule...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new coloring rule based on this conversation.</string>
+   </property>
+  </action>
+  <action name="actionViewColorizeResetColorization">
+   <property name="text">
+    <string>Reset Colorization</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset colorized conversations.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Space</string>
    </property>
   </action>
  </widget>

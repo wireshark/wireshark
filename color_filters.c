@@ -149,7 +149,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
     gchar          *err_msg;
     guint8         i;
 
-    /* Go through the tomporary filters and look for the same filter string.
+    /* Go through the temporary filters and look for the same filter string.
      * If found, clear it so that a filter can be "moved" up and down the list
      */
     for ( i=1 ; i<=10 ; i++ ) {
@@ -192,6 +192,22 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
         g_free(name);
     }
     return;
+}
+
+const color_filter_t *
+color_filters_tmp_color(guint8 filter_num) {
+    gchar          *name;
+    color_filter_t *colorf = NULL;
+    GSList         *cfl;
+
+    name = g_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filter_num);
+    cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
+    if (cfl) {
+        colorf = (color_filter_t *)cfl->data;
+    }
+    g_free(name);
+
+    return colorf;
 }
 
 /* Reset the temporary colorfilters */

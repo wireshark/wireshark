@@ -78,6 +78,7 @@
 #include "bluetooth_devices_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
+#include "color_utils.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
@@ -111,6 +112,7 @@
 #include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
 #include "stats_tree_dialog.h"
+#include "stock_icon.h"
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
@@ -1052,18 +1054,21 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);
     main_ui_->actionEditTimeShift->setEnabled(have_frames);
 
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResizeAllColumns",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseAll",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseAll",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandAll",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandAll",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizeConversation",
-//                         frame_selected);
+    main_ui_->actionViewColorizeConversation1->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation2->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation3->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation4->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation5->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation6->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation7->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation8->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation9->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeConversation10->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
+
+    main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
+
+    main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResetColoring1-10",
 //                         tmp_color_filters_used());
 
@@ -1420,6 +1425,36 @@ void MainWindow::showColumnEditor(int column)
 void MainWindow::showPreferenceEditor()
 {
     showAccordionFrame(main_ui_->preferenceEditorFrame);
+}
+
+void MainWindow::initViewColorizeMenu()
+{
+    QList<QAction *> cc_actions = QList<QAction *>()
+            << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
+            << main_ui_->actionViewColorizeConversation3 << main_ui_->actionViewColorizeConversation4
+            << main_ui_->actionViewColorizeConversation5 << main_ui_->actionViewColorizeConversation6
+            << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
+            << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
+
+    guint8 color_num = 1;
+
+    foreach (QAction *cc_action, cc_actions) {
+        cc_action->setData(color_num);
+        connect(cc_action, SIGNAL(triggered()), this, SLOT(colorizeConversation()));
+
+        const color_filter_t *colorf = color_filters_tmp_color(color_num);
+        if (colorf) {
+            QColor bg = ColorUtils::fromColorT(colorf->bg_color);
+            QColor fg = ColorUtils::fromColorT(colorf->fg_color);
+            cc_action->setIcon(StockIcon::colorIcon(bg.rgb(), fg.rgb(), QString::number(color_num)));
+        }
+        color_num++;
+    }
+
+#ifdef Q_OS_MAC
+    // Spotlight uses Cmd+Space
+    main_ui_->actionViewColorizeResetColorization->setShortcut(QKeySequence("Meta+Space"));
+#endif
 }
 
 void MainWindow::addStatsPluginsToMenu() {
@@ -2198,6 +2233,67 @@ void MainWindow::on_actionViewColoringRules_triggered()
     ColoringRulesDialog coloring_rules_dialog(this);
 
     coloring_rules_dialog.exec();
+}
+
+// actionViewColorizeConversation1 - 10
+void MainWindow::colorizeConversation(bool create_rule)
+{
+    QAction *cc_action = qobject_cast<QAction *>(sender());
+    if (!cc_action) return;
+
+    if (capture_file_.capFile() && capture_file_.capFile()->current_frame) {
+        packet_info *pi = &capture_file_.capFile()->edt->pi;
+        guint8 cc_num = cc_action->data().toUInt();
+        gchar *filter = NULL;
+
+        const color_conversation_filter_t *color_filter = find_color_conversation_filter("tcp");
+        if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+            filter = color_filter->build_filter_string(pi);
+        if (filter == NULL) {
+            color_filter = find_color_conversation_filter("udp");
+            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                filter = color_filter->build_filter_string(pi);
+        }
+        if (filter == NULL) {
+            color_filter = find_color_conversation_filter("ip");
+            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                filter = color_filter->build_filter_string(pi);
+        }
+        if (filter == NULL) {
+            color_filter = find_color_conversation_filter("ipv6");
+            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                filter = color_filter->build_filter_string(pi);
+        }
+        if (filter == NULL) {
+            color_filter = find_color_conversation_filter("eth");
+            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                filter = color_filter->build_filter_string(pi);
+        }
+        if( filter == NULL ) {
+            main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
+            return;
+        }
+
+        if (create_rule) {
+            ColoringRulesDialog coloring_rules_dialog(this, filter);
+            coloring_rules_dialog.exec();
+        } else {
+            color_filters_set_tmp(cc_num, filter, FALSE);
+            packet_list_->recolorPackets();
+            main_ui_->actionViewColorizeResetColorization->setEnabled(true);
+        }
+    }
+}
+
+void MainWindow::on_actionViewColorizeResetColorization_triggered()
+{
+    color_filters_reset_tmp();
+    packet_list_->recolorPackets();
+}
+
+void MainWindow::on_actionViewColorizeNewConversationRule_triggered()
+{
+    colorizeConversation(true);
 }
 
 void MainWindow::on_actionViewResizeColumns_triggered()

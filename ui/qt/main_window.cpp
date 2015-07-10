@@ -239,6 +239,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setFeaturesEnabled(false);
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
