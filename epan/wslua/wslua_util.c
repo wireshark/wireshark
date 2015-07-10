@@ -37,6 +37,70 @@ WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets a string of the Wiresha
     WSLUA_RETURN(1); /* version string */
 }
 
+
+static gchar* current_plugin_version = NULL;
+
+const gchar* get_current_plugin_version(void) {
+    return current_plugin_version ? current_plugin_version : "";
+}
+
+void clear_current_plugin_version(void) {
+    if (current_plugin_version != NULL) {
+        g_free(current_plugin_version);
+        current_plugin_version = NULL;
+    }
+}
+
+WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
+    /*  Set a Lua table with meta-data about the plugin, such as version.
+
+        The passed-in Lua table entries need to be keyed/indexed by the following:
+         * "version" with a string value identifying the plugin version (required)
+         * "description" with a string value describing the plugin (optional)
+         * "author" with a string value of the author's name(s) (optional)
+         * "repository" with a string value of a URL to a repository (optional)
+
+        Not all of the above key entries need to be in the table. The 'version'
+        entry is required, however. The others are not currently used for anything, but
+        might be in the future and thus using them might be useful. Table entries keyed
+        by other strings are ignored, and do not cause an error.
+
+        Example:
+        @code
+        local my_info = {
+            version = "1.0.1",
+            author = "Jane Doe",
+            repository = "https://github.com/octocat/Spoon-Knife"
+        }
+
+        set_plugin_info(my_info)
+        @endcode
+
+        @since 1.99.9
+     */
+#define WSLUA_ARG_set_plugin_info_TABLE 1 /* The Lua table of information. */
+
+    if ( lua_istable(L,WSLUA_ARG_set_plugin_info_TABLE) ) {
+        int top;
+        lua_getfield(L, WSLUA_ARG_set_plugin_info_TABLE, "version");
+        top = lua_gettop(L);
+        if (lua_isstring(L, top)) {
+            clear_current_plugin_version();
+            current_plugin_version = g_strdup( luaL_checkstring(L, top) );
+            /* pop the string */
+            lua_pop(L, 1);
+        }
+        else {
+            return luaL_error(L,"the Lua table must have a 'version' key entry with a string value");
+        }
+    } else {
+        return luaL_error(L,"a Lua table with at least a 'version' string entry");
+    }
+
+    return 0;
+}
+
+
 WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timestamp into a human readable date. */
 #define WSLUA_ARG_format_date_TIMESTAMP 1 /* A timestamp value to convert. */
     lua_Number timestamp = luaL_checknumber(LS,WSLUA_ARG_format_date_TIMESTAMP);

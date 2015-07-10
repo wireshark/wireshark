@@ -492,6 +492,7 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
     g_free(personal);
 }
 
+
 /* If file_count > 0 then it's a command-line-added user script, and the count
  * represents which user script it is (first=1, second=2, etc.).
  * If dirname != NULL, then it's a user script and the dirname will get put in a file environment
@@ -544,6 +545,32 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
             return FALSE;
     }
 }
+
+/* This one is used to load the init.lua scripts, or anything else
+ * that shouldn't really be considered a real plugin.
+ */
+static gboolean lua_load_internal_script(const gchar* filename) {
+    return lua_load_script(filename, NULL, 0);
+}
+
+/* This one is used to load plugins: either from the plugin directories,
+ *   or from the command line.
+ */
+static gboolean lua_load_plugin_script(const gchar* name,
+                                       const gchar* filename,
+                                       const gchar* dirname,
+                                       const int file_count)
+{
+    if (lua_load_script(filename, dirname, file_count)) {
+        wslua_add_plugin(g_strdup(name),
+                         g_strdup(get_current_plugin_version()),
+                         g_strdup(filename));
+        clear_current_plugin_version();
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 static void basic_logger(const gchar *log_domain _U_,
                           GLogLevelFlags log_level _U_,
@@ -598,9 +625,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                 if (!count_only) {
                     if (cb)
                         (*cb)(RA_LUA_PLUGINS, name, client_data);
-                    if (lua_load_script(filename, is_user ? dirname : NULL, 0)) {
-                        wslua_add_plugin(g_strdup(name), g_strdup(""), g_strdup(filename));
-                    }
+                    lua_load_plugin_script(name, filename, is_user ? dirname : NULL, 0);
                 }
                 plugins_counter++;
             }
@@ -840,7 +865,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     }
 
     if (( file_exists(filename))) {
-        lua_load_script(filename, NULL, 0);
+        lua_load_internal_script(filename);
     }
 
     g_free(filename);
@@ -875,7 +900,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
         if ((file_exists(filename))) {
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(filename), client_data);
-            lua_load_script(filename, NULL, 0);
+            lua_load_internal_script(filename);
         }
         g_free(filename);
 
@@ -892,7 +917,10 @@ int wslua_init(register_cb cb, gpointer client_data) {
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);
 
-            lua_load_script(script_filename, dname ? dname : "", file_count);
+            lua_load_plugin_script(ws_dir_get_name(script_filename),
+                                   script_filename,
+                                   dname ? dname : "",
+                                   file_count);
             file_count++;
             g_free(dirname);
         }
