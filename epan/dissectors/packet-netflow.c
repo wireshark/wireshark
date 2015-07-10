@@ -320,6 +320,8 @@ typedef struct _v9_v10_tmplt {
 } v9_v10_tmplt_t;
 
 
+/* Map from (converstion+obs-domain-id+flowset-id) -> v9_v10_tmplt_entry_t*    */
+/* Confusingly, for key, fill in only relevant parts of v9_v10_tmplt_entry_t... */
 GHashTable *v9_v10_tmplt_table = NULL;
 
 
@@ -2202,9 +2204,9 @@ static GHashTable *netflow_sequence_analysis_domain_hash = NULL;
 /* Frame number -> domain state */
 static GHashTable *netflow_sequence_analysis_result_hash = NULL;
 
-/* On first pass, check ongoing sequence for observation domain, and only store a result
+/* On first pass, check ongoing sequence of observation domain, and only store a result
    if the sequence number is not as expected */
-static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guint32 new_flows,
+static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsigned int version, guint32 new_flows,
                                          packet_info *pinfo)
 {
     /* Find current domain info */
@@ -2215,9 +2217,11 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guin
         return;
     }
 
-    /* Store result if not expected sequence */
+    /* Store result if not expected sequence.
+       SequenceNumber represents SN of first flow in current packet, i.e. flows/data-records for previous
+       frame have now been added (apart from V9, which just counts netflow frames). */
     if (domain_state->sequence_number_set &&
-        ((seqnum-new_flows) != domain_state->current_sequence_number)) {
+        (seqnum != domain_state->current_sequence_number)) {
 
         /* Allocate state to remember - a deep copy of current domain */
         netflow_domain_state_t *result_state = wmem_new0(wmem_file_scope(), netflow_domain_state_t);
@@ -2227,14 +2231,15 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guin
         g_hash_table_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result_state);
     }
 
-    /* Update domain info */
-    domain_state->current_sequence_number = seqnum;
+    /* Update domain info for the next frame to consult.
+       Add flows(data records) for all protocol versions except for 9, which just counts exported frames */
+    domain_state->current_sequence_number = seqnum + ((version == 9) ? 1 : new_flows);
     domain_state->sequence_number_set = TRUE;
     domain_state->current_frame_number = pinfo->fd->num;
 }
 
 /* Check for result stored indicating that sequence number wasn't as expected, and show in tree */
-static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guint32 new_flows,
+static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
                                         packet_info *pinfo, tvbuff_t *tvb,
                                         proto_item *flow_sequence_ti, proto_tree *tree)
 {
@@ -2244,13 +2249,16 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guint
     if (state != NULL) {
         proto_item *ti;
 
-        /* Expected sequence number */
+        /* Expected sequence number, i.e. what we stored in state when checking previous frame */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_expected_sn, tvb,
-                                 0, 0, state->current_sequence_number+new_flows);
+                                 0, 0, state->current_sequence_number);
         PROTO_ITEM_SET_GENERATED(ti);
         expert_add_info_format(pinfo, flow_sequence_ti, &ei_unexpected_sequence_number,
                                "Unexpected flow sequence for domain ID %u (expected %u, got %u)",
-                               domain_id, state->current_sequence_number+new_flows, seqnum);
+                               domain_id, state->current_sequence_number, seqnum);
+
+        /* Avoid needing to open item to see what expected sequence number was... */
+        proto_item_append_text(flow_sequence_ti, " (expected %u)", state->current_sequence_number);
 
         /* Previous frame for this observation domain ID */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_previous_frame, tvb,
@@ -2576,14 +2584,19 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
 
     /* Can only check sequence analysis once have seen how many flows were reported across
-       all data sets (flows are not dissected if no template for set is present). */
-    if ((ver == 9) || (ver == 10)) {
+       all data sets (flows are not dissected if no template for set is present).
+       N.B. will currently only work for v9 and v10 as earlier versions don't fill in src_id from
+       observation domain id. */
+    if ((ver == 5) || (ver == 7) || (ver == 8)  || (ver == 9) || (ver == 10)) {
         /* On first pass check sequence analysis */
         if (!pinfo->fd->flags.visited) {
-            store_sequence_analysis_info(hdrinfo.src_id, flow_sequence, flows_seen, pinfo);
+            if (ver != 10) {
+                flows_seen = pdus;  /* i.e. use value from header rather than counted value */
+            }
+            store_sequence_analysis_info(hdrinfo.src_id, flow_sequence, ver, flows_seen, pinfo);
         }
         /* Show any stored sequence analysis results */
-        show_sequence_analysis_info(hdrinfo.src_id, flow_sequence, flows_seen, pinfo, tvb, flow_sequence_ti, netflow_tree);
+        show_sequence_analysis_info(hdrinfo.src_id, flow_sequence, pinfo, tvb, flow_sequence_ti, netflow_tree);
     }
 
     return tvb_reported_length(tvb);
