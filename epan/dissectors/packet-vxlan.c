@@ -65,8 +65,8 @@ static dissector_handle_t eth_handle;
 static void
 dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *vxlan_tree, *flg_tree;
-    proto_item *ti, *flg_item;
+    proto_tree *vxlan_tree;
+    proto_item *ti;
     tvbuff_t *next_tvb;
     int offset = 0;
 
@@ -92,10 +92,7 @@ dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *    VXLAN Network ID (VNI).  The remaining 12 bits (designated "R") are
      *    reserved fields and MUST be set to zero.
      */
-    flg_item = proto_tree_add_item(vxlan_tree, hf_vxlan_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-    flg_tree = proto_item_add_subtree(flg_item, ett_vxlan_flgs);
-
-    proto_tree_add_bitmask(flg_tree, tvb, offset, hf_vxlan_flags,
+    proto_tree_add_bitmask(vxlan_tree, tvb, offset, hf_vxlan_flags,
         ett_vxlan_flgs, flags_fields, ENC_BIG_ENDIAN);
     offset+=2;
 
