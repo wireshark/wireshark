@@ -2582,11 +2582,6 @@ static const value_string ampduparam_mpdu_start_spacing_flags[] = {
   {0x00, NULL}
 };
 
-static const true_false_string mcsset_tx_mcs_set_defined_flag = {
-  "Defined",
-  "Not Defined",
-};
-
 static const true_false_string mcsset_tx_rx_mcs_set_not_equal_flag = {
   "Not Equal",
   "Equal",
@@ -23115,7 +23110,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_mcsset_tx_mcs_set_defined,
      {"Tx Supported MCS Set", "wlan_mgt.ht.mcsset.txsetdefined",
-      FT_BOOLEAN, 16, TFS (&mcsset_tx_mcs_set_defined_flag), 0x0001,
+      FT_BOOLEAN, 16, TFS (&tfs_defined_not_defined), 0x0001,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_rx_mcs_set_not_equal,
