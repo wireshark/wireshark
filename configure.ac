@@ -1650,6 +1650,22 @@ if test "x$enable_wireshark" = "xyes"; then
 			# compile.
 			#
 			CPPFLAGS="-DQT_GUI_LIB"
+
+			#
+			# We're building with Qt, so we need the Qt build
+			# tools in order to build the Wireshark GUI.
+			# We've found a particular major version of Qt,
+			# and we want that version's build tools; for
+			# example, the Qt 4 version of uic produces files
+			# that include Qt headers with paths that work
+			# with Qt 4 but not Qt 5, so we can't use the
+			# Qt 4 version of uic if we're building with Qt 5.
+			AC_WIRESHARK_QT_TOOL_CHECK(UIC, uic, "$qt_version")
+			AC_SUBST(UIC)
+			AC_WIRESHARK_QT_TOOL_CHECK(MOC, moc, "$qt_version")
+			AC_SUBST(MOC)
+			AC_WIRESHARK_QT_TOOL_CHECK(RCC, rcc, "$qt_version")
+			AC_SUBST(RCC)
 		],
 		[
 			case "$with_qt" in
@@ -1822,33 +1838,6 @@ else
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION, , AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
 fi
-
-#
-# If we're building with Qt, we need the Qt build tools in order to
-# build the Wireshark GUI.  We've already found Qt, and found a
-# particular major version, and we want that version's build tools;
-# for example, the Qt 4 version of uic produces files that include
-# Qt headers with paths that work with Qt 4 but not Qt 5, so we can't
-# use the Qt 4 version of uic if we're building with Qt 5.
-#
-# If we're *not* building with Qt, "make dist" requires that we have
-# the Qt build tools, so we *still* need to look for them.  We didn't
-# look for Qt, so we don't know what version(s) we have; we look for
-# whatever version we can find.
-#
-# XXX - but the above comment about Qt 4 vs. Qt 5 means that if we
-# ship files built with the uic from one version of Qt, they won't
-# compile with another major version of Qt, so should we be shipping
-# those files?  If we don't, that means somebody building from a
-# source tarball would need to have the Qt tools installed, but
-# they'll need other developer packages of Qt *anyway*.
-#
-AC_WIRESHARK_QT_TOOL_CHECK(UIC, uic, "$qt_version")
-AC_SUBST(UIC)
-AC_WIRESHARK_QT_TOOL_CHECK(MOC, moc, "$qt_version")
-AC_SUBST(MOC)
-AC_WIRESHARK_QT_TOOL_CHECK(RCC, rcc, "$qt_version")
-AC_SUBST(RCC)
 
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)

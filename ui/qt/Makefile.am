@@ -101,8 +101,9 @@ am__v_UIC_ = $(am__v_UIC_@AM_DEFAULT_V@)
 am__v_UIC_0 = @echo "  UIC     " $@;
 
 #
-# For building .moc.cpp files from .h files by running moc
-# and building .rcc.cpp files from .qrc files by running rcc
+# For building .moc.cpp files from .h files by running moc,
+# building .rcc.cpp files from .qrc files by running rcc,
+# and building ui_XXX.h files from .ui files by running uic.
 #
 SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
@@ -120,135 +121,144 @@ ui_%.h: %.ui
 #moc_%.cpp: %.h
 #	$(MOC) $< -o $@
 
-about_dialog.cpp about_dialog.h: ui_about_dialog.h
+#
+# Explicit dependencies to force the ui_ headers to be built.
+# See "Recording Dependencies manually" in the "Built Sources"
+# section of the automake documentation:
+#
+#    https://www.gnu.org/software/automake/manual/automake.html#Sources
+#
+about_dialog.$(OBJEXT): ui_about_dialog.h
 
-bluetooth_att_server_attributes_dialog.cpp bluetooth_att_server_attributes_dialog.h: ui_bluetooth_att_server_attributes_dialog.h
+bluetooth_att_server_attributes_dialog.$(OBJEXT): ui_bluetooth_att_server_attributes_dialog.h
 
-bluetooth_devices_dialog.cpp bluetooth_devices_dialog.h: ui_bluetooth_devices_dialog.h
+bluetooth_devices_dialog.$(OBJEXT): ui_bluetooth_devices_dialog.h
 
-capture_file_progress_frame.cpp capture_file_progress_frame.h: ui_capture_file_progress_frame.h
+capture_file_progress_frame.$(OBJEXT): ui_capture_file_progress_frame.h
 
-capture_file_properties_dialog.cpp capture_file_properties_dialog.h: ui_capture_file_properties_dialog.h
+capture_file_properties_dialog.$(OBJEXT): ui_capture_file_properties_dialog.h
 
-capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces_dialog.h
+capture_interfaces_dialog.$(OBJEXT): ui_capture_interfaces_dialog.h
 
-capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preferences_frame.h
+capture_preferences_frame.$(OBJEXT): ui_capture_preferences_frame.h
 
-coloring_rules_dialog.cpp coloring_rules_dialog.h: ui_coloring_rules_dialog.h
+coloring_rules_dialog.$(OBJEXT): ui_coloring_rules_dialog.h
 
-column_editor_frame.cpp column_editor_frame.h: ui_column_editor_frame.h
+column_editor_frame.$(OBJEXT): ui_column_editor_frame.h
 
-column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_frame.h
+column_preferences_frame.$(OBJEXT): ui_column_preferences_frame.h
 
-compiled_filter_output.cpp compiled_filter_output.h: ui_compiled_filter_output.h
+compiled_filter_output.$(OBJEXT): ui_compiled_filter_output.h
 
-decode_as_dialog.cpp decode_as_dialog.h: ui_decode_as_dialog.h
+decode_as_dialog.$(OBJEXT): ui_decode_as_dialog.h
 
-display_filter_expression_dialog.cpp display_filter_expression_dialog.h: ui_display_filter_expression_dialog.h
+display_filter_expression_dialog.$(OBJEXT): ui_display_filter_expression_dialog.h
 
-expert_info_dialog.cpp expert_info_dialog.h: ui_expert_info_dialog.h
+expert_info_dialog.$(OBJEXT): ui_expert_info_dialog.h
 
-export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
+export_object_dialog.$(OBJEXT): ui_export_object_dialog.h
 
-export_pdu_dialog.cpp export_pdu_dialog.h: ui_export_pdu_dialog.h
+export_pdu_dialog.$(OBJEXT): ui_export_pdu_dialog.h
 
-extcap_options_dialog.cpp extcap_options_dialog.h: ui_extcap_options_dialog.h
+extcap_options_dialog.$(OBJEXT): ui_extcap_options_dialog.h
 
-file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h
+file_set_dialog.$(OBJEXT): ui_file_set_dialog.h
 
-filter_dialog.cpp filter_dialog.h: ui_filter_dialog.h
+filter_dialog.$(OBJEXT): ui_filter_dialog.h
 
-filter_expressions_preferences_frame.cpp filter_expressions_preferences_frame.h: ui_filter_expressions_preferences_frame.h
+filter_expressions_preferences_frame.$(OBJEXT): ui_filter_expressions_preferences_frame.h
 
-follow_stream_dialog.cpp: ui_follow_stream_dialog.h
+follow_stream_dialog.$(OBJEXT): ui_follow_stream_dialog.h
 
-font_color_preferences_frame.cpp font_color_preferences_frame.h: ui_font_color_preferences_frame.h
+font_color_preferences_frame.$(OBJEXT): ui_font_color_preferences_frame.h
 
-funnel_string_dialog.cpp funnel_string_dialog.h: ui_funnel_string_dialog.h
+funnel_string_dialog.$(OBJEXT): ui_funnel_string_dialog.h
 
-funnel_text_dialog.cpp funnel_text_dialog.h: ui_funnel_text_dialog.h
+funnel_text_dialog.$(OBJEXT): ui_funnel_text_dialog.h
 
-import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
+import_text_dialog.$(OBJEXT): ui_import_text_dialog.h
 
-io_graph_dialog.cpp io_graph_dialog.h: ui_io_graph_dialog.h
+io_graph_dialog.$(OBJEXT): ui_io_graph_dialog.h
 
-layout_preferences_frame.cpp layout_preferences_frame.h: ui_layout_preferences_frame.h
+layout_preferences_frame.$(OBJEXT): ui_layout_preferences_frame.h
 
-lbm_lbtrm_transport_dialog.cpp lbm_lbtrm_transport_dialog.h: ui_lbm_lbtrm_transport_dialog.h
+lbm_lbtrm_transport_dialog.$(OBJEXT): ui_lbm_lbtrm_transport_dialog.h
 
-lbm_lbtru_transport_dialog.cpp lbm_lbtru_transport_dialog.h: ui_lbm_lbtru_transport_dialog.h
+lbm_lbtru_transport_dialog.$(OBJEXT): ui_lbm_lbtru_transport_dialog.h
 
-lbm_stream_dialog.cpp lbm_stream_dialog.h: ui_lbm_stream_dialog.h
+lbm_stream_dialog.$(OBJEXT): ui_lbm_stream_dialog.h
 
-lbm_uimflow_dialog.cpp lbm_uimflow_dialog.h: ui_lbm_uimflow_dialog.h
+lbm_uimflow_dialog.$(OBJEXT): ui_lbm_uimflow_dialog.h
 
-main_welcome.cpp main_welcome.h: ui_main_welcome.h
+main_welcome.$(OBJEXT): ui_main_welcome.h
 
-main_window.cpp main_window_slots.cpp main_window.h: ui_main_window.h
+main_window.$(OBJEXT): ui_main_window.h
 
-main_window_preferences_frame.cpp main_window_preferences_frame.h: ui_main_window_preferences_frame.h
+main_window_preferences_frame.$(OBJEXT): ui_main_window_preferences_frame.h
 
-manage_interfaces_dialog.cpp manage_interfaces_dialog.h: ui_manage_interfaces_dialog.h
+main_window_slots.$(OBJEXT): ui_main_window.h
 
-module_preferences_scroll_area.cpp module_preferences_scroll_area.h: ui_module_preferences_scroll_area.h
+manage_interfaces_dialog.$(OBJEXT): ui_manage_interfaces_dialog.h
 
-packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h
+module_preferences_scroll_area.$(OBJEXT): ui_module_preferences_scroll_area.h
 
-packet_dialog.cpp packet_dialog.h: ui_packet_dialog.h
+packet_comment_dialog.$(OBJEXT): ui_packet_comment_dialog.h
 
-packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_box.h
+packet_dialog.$(OBJEXT): ui_packet_dialog.h
 
-packet_range_group_box.cpp packet_range_group_box.h: ui_packet_range_group_box.h
+packet_format_group_box.$(OBJEXT): ui_packet_format_group_box.h
 
-preference_editor_frame.cpp preference_editor_frame.h: ui_preference_editor_frame.h
+packet_range_group_box.$(OBJEXT): ui_packet_range_group_box.h
 
-preferences_dialog.cpp preferences_dialog.h: ui_preferences_dialog.h
+preference_editor_frame.$(OBJEXT): ui_preference_editor_frame.h
 
-print_dialog.cpp print_dialog.h: ui_print_dialog.h
+preferences_dialog.$(OBJEXT): ui_preferences_dialog.h
 
-profile_dialog.cpp profile_dialog.h: ui_profile_dialog.h
+print_dialog.$(OBJEXT): ui_print_dialog.h
 
-protocol_hierarchy_dialog.cpp protocol_hierarchy_dialog.h: ui_protocol_hierarchy_dialog.h
+profile_dialog.$(OBJEXT): ui_profile_dialog.h
 
-remote_capture_dialog.cpp remote_capture_dialog.h: ui_remote_capture_dialog.h
+protocol_hierarchy_dialog.$(OBJEXT): ui_protocol_hierarchy_dialog.h
 
-remote_settings_dialog.cpp remote_settings_dialog.h: ui_remote_settings_dialog.h
+remote_capture_dialog.$(OBJEXT): ui_remote_capture_dialog.h
 
-resolved_addresses_dialog.cpp resolved_addresses_dialog.h: ui_resolved_addresses_dialog.h
+remote_settings_dialog.$(OBJEXT): ui_remote_settings_dialog.h
 
-rtp_stream_dialog.cpp rtp_stream_dialog.h: ui_rtp_stream_dialog.h
+resolved_addresses_dialog.$(OBJEXT): ui_resolved_addresses_dialog.h
 
-search_frame.cpp search_frame.h: ui_search_frame.h
+rtp_stream_dialog.$(OBJEXT): ui_rtp_stream_dialog.h
 
-sequence_dialog.cpp sequence_dialog.h: ui_sequence_dialog.h
+search_frame.$(OBJEXT): ui_search_frame.h
 
-sctp_all_assocs_dialog.cpp sctp_all_assocs_dialog.h: ui_sctp_all_assocs_dialog.h
+sequence_dialog.$(OBJEXT): ui_sequence_dialog.h
 
-sctp_assoc_analyse_dialog.cpp sctp_assoc_analyse_dialog.h: ui_sctp_assoc_analyse_dialog.h
+sctp_all_assocs_dialog.$(OBJEXT): ui_sctp_all_assocs_dialog.h
 
-sctp_chunk_statistics_dialog.cpp sctp_chunk_statistics_dialog.h: ui_sctp_chunk_statistics_dialog.h
+sctp_assoc_analyse_dialog.$(OBJEXT): ui_sctp_assoc_analyse_dialog.h
 
-sctp_graph_dialog.cpp sctp_graph_dialog.h: ui_sctp_graph_dialog.h
+sctp_chunk_statistics_dialog.$(OBJEXT): ui_sctp_chunk_statistics_dialog.h
 
-sctp_graph_arwnd_dialog.cpp sctp_graph_arwnd_dialog.h: ui_sctp_graph_arwnd_dialog.h
+sctp_graph_dialog.$(OBJEXT): ui_sctp_graph_dialog.h
 
-sctp_graph_byte_dialog.cpp sctp_graph_byte_dialog.h: ui_sctp_graph_byte_dialog.h
+sctp_graph_arwnd_dialog.$(OBJEXT): ui_sctp_graph_arwnd_dialog.h
 
-splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
+sctp_graph_byte_dialog.$(OBJEXT): ui_sctp_graph_byte_dialog.h
 
-tap_parameter_dialog.cpp tap_parameter_dialog.h: ui_tap_parameter_dialog.h
+splash_overlay.$(OBJEXT): ui_splash_overlay.h
 
-tcp_stream_dialog.cpp: ui_tcp_stream_dialog.h
+tap_parameter_dialog.$(OBJEXT): ui_tap_parameter_dialog.h
 
-time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
+tcp_stream_dialog.$(OBJEXT): ui_tcp_stream_dialog.h
 
-traffic_table_dialog.cpp traffic_table_dialog.h: ui_traffic_table_dialog.h
+time_shift_dialog.$(OBJEXT): ui_time_shift_dialog.h
 
-uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
+traffic_table_dialog.$(OBJEXT): ui_traffic_table_dialog.h
 
-voip_calls_dialog.cpp voip_calls_dialog.h: ui_voip_calls_dialog.h
+uat_dialog.$(OBJEXT): ui_uat_dialog.h
 
-wireless_frame.cpp wireless_frame.h: ui_wireless_frame.h
+voip_calls_dialog.$(OBJEXT): ui_voip_calls_dialog.h
+
+wireless_frame.$(OBJEXT): ui_wireless_frame.h
 
 doxygen:
 if HAVE_DOXYGEN
