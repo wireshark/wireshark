@@ -26,7 +26,8 @@ IMPORTS
 	LMSI,
 	ProtocolId,
 	SignalInfo,
-	TeleserviceCode
+	TeleserviceCode,
+    SubscriberIdentity
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -43,7 +44,9 @@ FROM MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CH-DataTypes (13) version11 (11)}
 
-   CUG-Interlock
+   CUG-Interlock,
+    SubscriberData,
+    AuthenticationSetList
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
@@ -679,6 +682,48 @@ RoutingInfoForSM-ArgV1 ::= SEQUENCE {
     --correlationID   [15] CorrelationID  OPTIONAL
     }
 
+Ki ::= OCTET STRING (SIZE (16))
+
+SendParametersArg	::= SEQUENCE {
+	subscriberId SubscriberIdentity,
+	requestParameterList RequestParameterList}
+
+RequestParameter	::= ENUMERATED {
+	requestIMSI (0),
+	requestAuthenticationSet (1),
+	requestSubscriberData (2),
+	requestKi (4)}
+
+RequestParameterList	::= SEQUENCE SIZE (1..2) OF
+					RequestParameter
+
+SentParameter	::= CHOICE {
+	imsi			[0] IMSI,
+	authenticationSet	[1] AuthenticationSetList,
+	subscriberData		[2] SubscriberData,
+	ki			[4] Ki}
+
+maxNumOfSentParameter	INTEGER ::= 6
+	-- This NamedValue corresponds to the maximum number of
+	-- authentication set which may be returned by a HLR plus 1
+
+SentParameterList	::= SEQUENCE SIZE (1..maxNumOfSentParameter) OF
+					SentParameter
+
+
+sendParameters	OPERATION ::= {
+	ARGUMENT
+		SendParametersArg
+	RESULT
+		SentParameterList
+		-- optional
+		-- nothing is returned, if no requested parameter is
+		-- available or exists
+	ERRORS {
+		UnexpectedDataValue,
+		UnknownSubscriber,
+		UnidentifiedSubscriber}
+	CODE	local:9 }
 
 END
 

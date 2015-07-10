@@ -159,8 +159,9 @@ NoteMM-EventArg,
 	-- VGCS / VBS types types
 GroupId, 
 Long-GroupId,
-AdditionalSubscriptions
-
+AdditionalSubscriptions,
+-- WS adittion
+AuthenticationSetList
 ;
 
 IMPORTS

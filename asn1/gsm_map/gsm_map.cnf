@@ -39,8 +39,6 @@ DummyMAP						gsm_old
 EricssonMAP                     gsm_map.ericsson
 
 Remote-Operations-Information-Objects ROS
-#.NO_EMIT
-SubscriberData
 
 #.NO_EMIT ONLY_VALS
 CallBarredParam
