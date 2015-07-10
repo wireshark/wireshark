@@ -289,7 +289,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         nargs--;
     }
 
-    tree_item = push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
+    push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     /* move the tree object before the field value */
     lua_insert(L, 1);
@@ -452,7 +452,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
         lua_remove(L,1);
     }
 
-    tree_item = push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
+    push_TreeItem(L, proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     return 1;
 }
