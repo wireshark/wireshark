@@ -155,7 +155,6 @@ void smooth_font_size(QFont &font);
  *
  * @param a1 First action
  * @param a2 Second action
- * @return bool True or False
  */
 bool qActionLessThan(const QAction * a1, const QAction * a2);
 
