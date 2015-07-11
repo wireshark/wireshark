@@ -30,23 +30,10 @@ PARAM_VALUE eventlog_dissect_element_OpenBackupEventLogW_handle_ PIDL_POLHND_OPE
 # Policyhandles are closed in these functions
 PARAM_VALUE eventlog_dissect_element_CloseEventLog_handle_       PIDL_POLHND_CLOSE
 
+TYPE lsa_String "offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_STRING BASE_NONE 0 NULL 4
 
 
 CODE START
-/* Add this one manually until we can compile LSA */
-static int
-eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index,int notused _U_)
-{
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
-			hf_index, 0);
-	return offset;
-}
-
 
 static int
 eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)

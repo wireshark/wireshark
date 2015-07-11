@@ -276,18 +276,6 @@ static int eventlog_dissect_element_GetLogIntormation_cbBytesNeeded(tvbuff_t *tv
 static int eventlog_dissect_element_GetLogIntormation_cbBytesNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_FlushEventLog_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-/* Add this one manually until we can compile LSA */
-static int
-eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index,int notused _U_)
-{
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
-			hf_index, 0);
-	return offset;
-}
 static int
 eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
@@ -867,7 +855,7 @@ eventlog_dissect_element_ClearEventLogW_backupfilename(tvbuff_t *tvb _U_, int of
 static int
 eventlog_dissect_element_ClearEventLogW_backupfilename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_ClearEventLogW_backupfilename,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_ClearEventLogW_backupfilename, 0);
 
 	return offset;
 }
@@ -929,7 +917,7 @@ eventlog_dissect_element_BackupEventLogW_backupfilename(tvbuff_t *tvb _U_, int o
 static int
 eventlog_dissect_element_BackupEventLogW_backupfilename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_BackupEventLogW_backupfilename,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_BackupEventLogW_backupfilename, 0);
 
 	return offset;
 }
@@ -1274,7 +1262,7 @@ eventlog_dissect_element_OpenEventLogW_unknown0_(tvbuff_t *tvb _U_, int offset _
 static int
 eventlog_dissect_element_OpenEventLogW_Module(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_OpenEventLogW_Module,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_OpenEventLogW_Module, 0);
 
 	return offset;
 }
@@ -1282,7 +1270,7 @@ eventlog_dissect_element_OpenEventLogW_Module(tvbuff_t *tvb _U_, int offset _U_,
 static int
 eventlog_dissect_element_OpenEventLogW_RegModuleName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_OpenEventLogW_RegModuleName,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_OpenEventLogW_RegModuleName, 0);
 
 	return offset;
 }
@@ -1381,7 +1369,7 @@ eventlog_dissect_element_RegisterEventSourceW_unknown0_(tvbuff_t *tvb _U_, int o
 static int
 eventlog_dissect_element_RegisterEventSourceW_logname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_RegisterEventSourceW_logname,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_RegisterEventSourceW_logname, 0);
 
 	return offset;
 }
@@ -1389,7 +1377,7 @@ eventlog_dissect_element_RegisterEventSourceW_logname(tvbuff_t *tvb _U_, int off
 static int
 eventlog_dissect_element_RegisterEventSourceW_servername(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_RegisterEventSourceW_servername,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_RegisterEventSourceW_servername, 0);
 
 	return offset;
 }
@@ -1488,7 +1476,7 @@ eventlog_dissect_element_OpenBackupEventLogW_unknown0_(tvbuff_t *tvb _U_, int of
 static int
 eventlog_dissect_element_OpenBackupEventLogW_logname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_OpenBackupEventLogW_logname,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_OpenBackupEventLogW_logname, 0);
 
 	return offset;
 }
@@ -1760,7 +1748,7 @@ eventlog_dissect_element_ReportEventW_data_length(tvbuff_t *tvb _U_, int offset 
 static int
 eventlog_dissect_element_ReportEventW_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = eventlog_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_eventlog_eventlog_ReportEventW_computer_name,0);
+	offset=dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_ReportEventW_computer_name, 0);
 
 	return offset;
 }
@@ -2298,7 +2286,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
 		{ "Eventlog Sequential Read", "eventlog.eventlogReadFlags.EVENTLOG_SEQUENTIAL_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ_tfs), ( 0x0001 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlog_BackupEventLogW_backupfilename,
-		{ "Backupfilename", "eventlog.eventlog_BackupEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Backupfilename", "eventlog.eventlog_BackupEventLogW.backupfilename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_BackupEventLogW_handle,
 		{ "Handle", "eventlog.eventlog_BackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ChangeNotify_handle,
@@ -2312,7 +2300,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_ChangeUnknown0_unknown1,
 		{ "Unknown1", "eventlog.eventlog_ChangeUnknown0.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ClearEventLogW_backupfilename,
-		{ "Backupfilename", "eventlog.eventlog_ClearEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Backupfilename", "eventlog.eventlog_ClearEventLogW.backupfilename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ClearEventLogW_handle,
 		{ "Handle", "eventlog.eventlog_ClearEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_CloseEventLog_handle,
@@ -2342,7 +2330,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_handle,
 		{ "Handle", "eventlog.eventlog_OpenBackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_logname,
-		{ "Logname", "eventlog.eventlog_OpenBackupEventLogW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Logname", "eventlog.eventlog_OpenBackupEventLogW.logname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown0,
 		{ "Unknown0", "eventlog.eventlog_OpenBackupEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown2,
@@ -2354,9 +2342,9 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_OpenEventLogW_MinorVersion,
 		{ "Minorversion", "eventlog.eventlog_OpenEventLogW.MinorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_Module,
-		{ "Module", "eventlog.eventlog_OpenEventLogW.Module", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Module", "eventlog.eventlog_OpenEventLogW.Module", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_RegModuleName,
-		{ "Regmodulename", "eventlog.eventlog_OpenEventLogW.RegModuleName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Regmodulename", "eventlog.eventlog_OpenEventLogW.RegModuleName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_handle,
 		{ "Handle", "eventlog.eventlog_OpenEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_unknown0,
@@ -2422,9 +2410,9 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_handle,
 		{ "Handle", "eventlog.eventlog_RegisterEventSourceW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_logname,
-		{ "Logname", "eventlog.eventlog_RegisterEventSourceW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Logname", "eventlog.eventlog_RegisterEventSourceW.logname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_servername,
-		{ "Servername", "eventlog.eventlog_RegisterEventSourceW.servername", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Servername", "eventlog.eventlog_RegisterEventSourceW.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown0,
 		{ "Unknown0", "eventlog.eventlog_RegisterEventSourceW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown2,
@@ -2434,7 +2422,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_ReportEventW_Type,
 		{ "Type", "eventlog.eventlog_ReportEventW.Type", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReportEventW_computer_name,
-		{ "Computer Name", "eventlog.eventlog_ReportEventW.computer_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Computer Name", "eventlog.eventlog_ReportEventW.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReportEventW_data_length,
 		{ "Data Length", "eventlog.eventlog_ReportEventW.data_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReportEventW_event_category,
