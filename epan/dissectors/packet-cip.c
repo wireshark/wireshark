@@ -6951,7 +6951,7 @@ proto_reg_handoff_cip(void)
    /* Create and register dissector handle for Connection Configuration Object */
    cip_class_cco_handle = new_create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
    dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
-   heur_dissector_add("cip.sc", dissect_class_cco_heur, proto_cip_class_cco);
+   heur_dissector_add("cip.sc", dissect_class_cco_heur, "CIP Connection Configuration Object", "cco_cip", proto_cip_class_cco);
 
    proto_enip = proto_get_id_by_filter_name( "enip" );
    proto_modbus = proto_get_id_by_filter_name( "modbus" );

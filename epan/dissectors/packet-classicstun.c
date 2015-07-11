@@ -709,8 +709,8 @@ proto_reg_handoff_classicstun(void)
     dissector_add_uint("tcp.port", TCP_PORT_STUN, classicstun_handle);
     dissector_add_uint("udp.port", UDP_PORT_STUN, classicstun_handle);
 #endif
-    heur_dissector_add("udp", dissect_classicstun_heur, proto_classicstun);
-    heur_dissector_add("tcp", dissect_classicstun_heur, proto_classicstun);
+    heur_dissector_add("udp", dissect_classicstun_heur, "Classic STUN over UDP", "classicstun_udp", proto_classicstun);
+    heur_dissector_add("tcp", dissect_classicstun_heur, "Classic STUN over TCP", "classicstun_tcp", proto_classicstun);
 }
 
 /*

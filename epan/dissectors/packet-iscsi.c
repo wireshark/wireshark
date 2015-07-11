@@ -3167,7 +3167,7 @@ proto_register_iscsi(void)
 void
 proto_reg_handoff_iscsi(void)
 {
-    heur_dissector_add("tcp", dissect_iscsi_heur, proto_iscsi);
+    heur_dissector_add("tcp", dissect_iscsi_heur, "iSCSI over TCP", "iscsi_tcp", proto_iscsi);
 
     iscsi_handle = new_create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
     dissector_add_for_decode_as("tcp.port", iscsi_handle);

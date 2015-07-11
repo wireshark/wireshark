@@ -1967,7 +1967,7 @@ proto_reg_handoff_dtls(void)
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
   if (initialized == FALSE) {
-    heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
+    heur_dissector_add("udp", dissect_dtls_heur, "DTLS over UDP", "dtls_udp", proto_dtls);
     dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
   }
 

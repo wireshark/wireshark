@@ -309,7 +309,7 @@ proto_reg_handoff_yhoo(void)
 	 * Just register as a heuristic TCP dissector, and reject stuff
 	 * not to or from that port.
 	 */
-	heur_dissector_add("tcp", dissect_yhoo, proto_yhoo);
+	heur_dissector_add("tcp", dissect_yhoo, "Yahoo Messenger over TCP", "yhoo_tcp", proto_yhoo);
 }
 
 /*

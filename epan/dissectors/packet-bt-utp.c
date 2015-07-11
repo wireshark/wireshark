@@ -489,7 +489,7 @@ proto_reg_handoff_bt_utp(void)
   static gboolean prefs_initialized = FALSE;
 
   if (!prefs_initialized) {
-    heur_dissector_add("udp", dissect_bt_utp, proto_bt_utp);
+    heur_dissector_add("udp", dissect_bt_utp, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp);
 
     bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
     dissector_add_for_decode_as("udp.port", bt_utp_handle);

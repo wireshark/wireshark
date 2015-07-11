@@ -6531,8 +6531,8 @@ proto_reg_handoff_rtcp(void)
     dissector_add_for_decode_as("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
-    heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp);
-        heur_dissector_add("stun", dissect_rtcp_heur, proto_rtcp);
+    heur_dissector_add( "udp", dissect_rtcp_heur, "RTCP over UDP", "rtcp_udp", proto_rtcp);
+    heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp);
 }
 
 /*

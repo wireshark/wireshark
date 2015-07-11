@@ -656,7 +656,7 @@ proto_reg_handoff_dcp_etsi (void)
   af_handle = create_dissector_handle(dissect_af, proto_af);
   pft_handle = create_dissector_handle(dissect_pft, proto_pft);
   tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
-  heur_dissector_add("udp", dissect_dcp_etsi, proto_dcp_etsi);
+  heur_dissector_add("udp", dissect_dcp_etsi, "DCP (ETSI) over UDP", "dcp_etsi_udp", proto_dcp_etsi);
   dissector_add_string("dcp-etsi.sync", "AF", af_handle);
   dissector_add_string("dcp-etsi.sync", "PF", pft_handle);
   /* if there are ever other payload types ...*/

@@ -4149,8 +4149,8 @@ proto_reg_handoff_rpc(void)
 	rpc_handle = find_dissector("rpc");
 	dissector_add_uint("udp.port", 111, rpc_handle);
 
-	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
-	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
+	heur_dissector_add("tcp", dissect_rpc_tcp_heur, "RPC over TCP", "rpc_tcp", proto_rpc);
+	heur_dissector_add("udp", dissect_rpc_heur, "RPC over UDP", "rpc_udp", proto_rpc);
 	gssapi_handle = find_dissector("gssapi");
 	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
 	data_handle = find_dissector("data");

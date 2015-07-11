@@ -2489,7 +2489,7 @@ proto_reg_handoff_elf(void)
     /* XXX - TEMPORARY HACK */
     dissector_add_uint("ftap_encap", 1234, elf_handle);
 
-    heur_dissector_add("wtap_file", dissect_elf_heur, proto_elf);
+    heur_dissector_add("wtap_file", dissect_elf_heur, "ELF file", "elf_wtap", proto_elf);
 }
 
 /*

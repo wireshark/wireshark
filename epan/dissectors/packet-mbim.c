@@ -8034,7 +8034,7 @@ proto_reg_handoff_mbim(void)
         eth_fcs_handle = find_dissector("eth_withfcs");
         ip_handle = find_dissector("ip");
         data_handle = find_dissector("data");
-        heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, proto_mbim);
+        heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim);
         dissector_add_for_decode_as("usb.device", mbim_decode_as_handle);
         dissector_add_for_decode_as("usb.product", mbim_decode_as_handle);
         dissector_add_for_decode_as("usb.protocol", mbim_decode_as_handle);

@@ -55375,7 +55375,7 @@ proto_reg_handoff_rnsap(void)
 	 * Perhaps we want a preference whether the heuristic dissector
 	 * is or isn't enabled
 	 */
-	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, proto_rnsap); */
+	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "ranap_sccp", proto_rnsap); */
 
 
 /*--- Included file: packet-rnsap-dis-tab.c ---*/

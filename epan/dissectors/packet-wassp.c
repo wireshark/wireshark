@@ -2103,7 +2103,7 @@ proto_reg_handoff_wassp(void)
 	dissector_add_uint("udp.port", PORT_WASSP_TUNNEL, wassp_handle);
 	/* dissector_add_uint("udp.port", PORT_WASSP_PEER, wassp_handle); */
 #if 0
-	heur_dissector_add("udp", dissect_wassp_heur, proto_wassp);
+	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp);
 #endif
 
 	snmp_handle = find_dissector("snmp");

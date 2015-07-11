@@ -242,7 +242,7 @@ proto_reg_handoff_pn_mrrt (void)
 {
 
     /* register ourself as an heuristic pn-rt payload dissector */
-    heur_dissector_add("pn_rt", dissect_PNMRRT_Data_heur, proto_pn_mrrt);
+    heur_dissector_add("pn_rt", dissect_PNMRRT_Data_heur, "PROFINET MRRT IO", "pn_mrrt_pn_rt", proto_pn_mrrt);
 }
 
 /*

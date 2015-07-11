@@ -202,7 +202,7 @@ proto_reg_handoff_openflow(void)
 
     if (!initialized) {
         openflow_handle = new_create_dissector_handle(dissect_openflow, proto_openflow);
-        heur_dissector_add("tcp", dissect_openflow_heur, proto_openflow);
+        heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow);
         initialized = TRUE;
     } else {
         dissector_delete_uint("tcp.port", currentPort, openflow_handle);

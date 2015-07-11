@@ -16867,8 +16867,8 @@ proto_reg_handoff_ranap(void)
 	* Perhaps we want a preference whether the heuristic dissector
 	* is or isn't enabled
 	*/
-	heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap);
-	heur_dissector_add("sua", dissect_sccp_ranap_heur, proto_ranap);
+	heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap);
+	heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap);
 }
 
 

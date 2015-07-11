@@ -3431,7 +3431,7 @@ proto_reg_handoff_sprt(void)
     sprt_handle = find_dissector("sprt");
     dissector_add_for_decode_as("udp.port", sprt_handle);
 
-    heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
+    heur_dissector_add( "udp", dissect_sprt_heur, "SPRT over UDP", "sprt_udp", proto_sprt);
 }
 
 /*

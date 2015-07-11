@@ -1045,7 +1045,7 @@ proto_reg_handoff_mojito(void)
 
 	if (!initialized) {
 		mojito_handle = new_create_dissector_handle(dissect_mojito, proto_mojito);
-		heur_dissector_add("udp", dissect_mojito_heuristic, proto_mojito);
+		heur_dissector_add("udp", dissect_mojito_heuristic, "Mojito over UDP", "mojito_udp", proto_mojito);
 		initialized = TRUE;
 	}
 

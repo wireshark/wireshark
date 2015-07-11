@@ -3525,7 +3525,7 @@ proto_reg_handoff_message_http(void)
 
 	dissector_add_string("media_type", "message/http", message_http_handle);
 
-	heur_dissector_add("tcp", dissect_http_heur_tcp, proto_http);
+	heur_dissector_add("tcp", dissect_http_heur_tcp, "HTTP over TCP", "http_tcp", proto_http);
 
 	proto_http2 = proto_get_id_by_filter_name("http2");
 

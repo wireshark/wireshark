@@ -473,7 +473,7 @@ void proto_register_nbd(void)
 void
 proto_reg_handoff_nbd(void)
 {
-	heur_dissector_add("tcp", dissect_nbd_tcp_heur, proto_nbd);
+	heur_dissector_add("tcp", dissect_nbd_tcp_heur, "NBD over TCP", "nbd_tcp", proto_nbd);
 }
 
 /*

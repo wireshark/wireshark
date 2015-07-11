@@ -243,7 +243,7 @@ proto_register_vssmonitoring(void)
 void
 proto_reg_handoff_vssmonitoring(void)
 {
-  heur_dissector_add("eth.trailer", dissect_vssmonitoring, proto_vssmonitoring);
+  heur_dissector_add("eth.trailer", dissect_vssmonitoring, "VSS-Monitoring ethernet trailer", "vssmonitoring_eth", proto_vssmonitoring);
 }
 
 /*

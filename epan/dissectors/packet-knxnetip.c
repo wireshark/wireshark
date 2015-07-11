@@ -1865,8 +1865,8 @@ void proto_register_knxnetip (void) {
 
 void proto_reg_handoff_knxnetip(void) {
     /* register as heuristic dissector for both TCP and UDP */
-    heur_dissector_add("tcp", dissect_knxnetip_heur, proto_knxnetip);
-    heur_dissector_add("udp", dissect_knxnetip_heur, proto_knxnetip);
+    heur_dissector_add("tcp", dissect_knxnetip_heur, "KNXnet/IP over TCP", "knxnetip_tcp", proto_knxnetip);
+    heur_dissector_add("udp", dissect_knxnetip_heur, "KNXnet/IP over UDP", "knxnetip_udp", proto_knxnetip);
 }
 
 /*

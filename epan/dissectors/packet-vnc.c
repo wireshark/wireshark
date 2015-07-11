@@ -4788,7 +4788,7 @@ proto_reg_handoff_vnc(void)
 		dissector_add_uint("tcp.port", 5900, vnc_handle);
 		dissector_add_uint("tcp.port", 5901, vnc_handle);
 
-		heur_dissector_add("tcp", test_vnc_protocol, proto_vnc);
+		heur_dissector_add("tcp", test_vnc_protocol, "VNC over TCP", "vnc_tcp", proto_vnc);
 		/* We don't register a port for the VNC HTTP server because
 		 * that simply provides a java program for download via the
 		 * HTTP protocol.  The java program then connects to a standard

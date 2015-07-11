@@ -1079,7 +1079,7 @@ void
 proto_reg_handoff_pn_ptcp (void)
 {
     /* register ourself as an heuristic pn-rt payload dissector */
-    heur_dissector_add("pn_rt", dissect_PNPTCP_Data_heur, proto_pn_ptcp);
+    heur_dissector_add("pn_rt", dissect_PNPTCP_Data_heur, "PROFINET PTCP IO", "pn_ptcp_pn_rt", proto_pn_ptcp);
 }
 
 /*

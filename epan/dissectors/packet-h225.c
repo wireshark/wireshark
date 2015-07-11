@@ -7740,7 +7740,6 @@ h225_cleanup_routine(void)
 	/* free hash-tables for RAS SRT */
 	for(i=0;i<7;i++) {
 		g_hash_table_destroy(ras_calls[i]);
-		ras_calls[i] = NULL;
 	}
 }
 
@@ -10923,7 +10922,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 459 "../../asn1/h225/packet-h225-template.c"
+#line 458 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11173,7 +11172,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 465 "../../asn1/h225/packet-h225-template.c"
+#line 464 "../../asn1/h225/packet-h225-template.c"
   };
 	module_t *h225_module;
 	int proto_h225_ras;

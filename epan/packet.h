@@ -374,6 +374,8 @@ typedef struct {
 	heur_dissector_t dissector;
 	protocol_t *protocol; /* this entry's protocol */
 	gchar *list_name;     /* the list name this entry is in the list of */
+	const gchar *display_name;     /* the string used to present heuristic to user */
+	const gchar *short_name;     /* string used for "internal" use to uniquely identify heuristic */
 	gboolean enabled;
 } heur_dtbl_entry_t;
 
@@ -451,10 +453,12 @@ WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_short_name(heur_dissecto
  *
  * @param name the name of the "parent" protocol, e.g. "tcp"
  * @param dissector the sub-dissector to be registered
+ * @param display_name the string used to present heuristic to user, e.g. "HTTP over TCP"
+ * @param short_name the string used for "internal" use to identify heuristic, e.g. "http_tcp"
  * @param proto the protocol id of the sub-dissector
  */
 WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissector,
-    const int proto);
+    const char *display_name, const char *short_name, const int proto);
 
 /** Remove a sub-dissector from a heuristic dissector list.
  *  Call this in the prefs_reinit function of the sub-dissector.

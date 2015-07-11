@@ -990,7 +990,7 @@ proto_reg_handoff_stt(void)
     eth_handle = find_dissector("eth");
     data_handle = find_dissector("data");
 
-    heur_dissector_add("ip", dissect_stt_heur, proto_stt);
+    heur_dissector_add("ip", dissect_stt_heur, "Stateless Transport Tunneling over IP", "stt_ip", proto_stt);
 }
 
 /*

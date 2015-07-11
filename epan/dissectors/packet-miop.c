@@ -314,7 +314,7 @@ void proto_reg_handoff_miop (void) {
   miop_handle = find_dissector("miop");
   dissector_add_for_decode_as("udp.port", miop_handle);
 
-  heur_dissector_add("udp", dissect_miop_heur, proto_miop);
+  heur_dissector_add("udp", dissect_miop_heur, "MIOP over UDP", "miop_udp", proto_miop);
 
 }
 

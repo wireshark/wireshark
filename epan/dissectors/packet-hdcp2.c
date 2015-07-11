@@ -318,7 +318,7 @@ proto_reg_handoff_hdcp2(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add ("tcp", dissect_hdcp2, proto_hdcp2);
+        heur_dissector_add ("tcp", dissect_hdcp2, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2);
 
         prefs_initialized = TRUE;
     }

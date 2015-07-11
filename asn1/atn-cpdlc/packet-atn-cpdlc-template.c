@@ -340,6 +340,8 @@ void proto_reg_handoff_atn_cpdlc(void)
 		heur_dissector_add(
 				"atn-ulcs",
 				dissect_atn_cpdlc_heur,
+				"ATN-CPDLC over ATN-ULCS",
+				"atn-cpdlc-ulcs",
 				proto_atn_cpdlc);
 }
 

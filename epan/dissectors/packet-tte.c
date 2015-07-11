@@ -191,7 +191,7 @@ proto_register_tte(void)
 void
 proto_reg_handoff_tte(void)
 {
-    heur_dissector_add("eth", dissect_tte, proto_tte);
+    heur_dissector_add("eth", dissect_tte, "TTEthernet", "tte_eth", proto_tte);
 
     hf_eth_dst  = proto_registrar_get_id_byname ("eth.dst");
     hf_eth_src  = proto_registrar_get_id_byname ("eth.src");

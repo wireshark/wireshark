@@ -48,6 +48,7 @@
 #include <epan/stream.h>
 #include <epan/expert.h>
 #include <epan/range.h>
+#include <epan/asm_utils.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -110,6 +111,9 @@ struct heur_dissector_list {
 
 static GHashTable *heur_dissector_lists = NULL;
 
+/* Name hashtables for fast detection of duplicate names */
+static GHashTable* heuristic_short_names  = NULL;
+
 static void
 destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
 {
@@ -149,6 +153,8 @@ packet_init(void)
 
 	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_heuristic_dissector_list);
+
+	heuristic_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
 }
 
 void
@@ -173,6 +179,7 @@ packet_cleanup(void)
 	g_hash_table_destroy(dissector_tables);
 	g_hash_table_destroy(registered_dissectors);
 	g_hash_table_destroy(heur_dissector_lists);
+	g_hash_table_destroy(heuristic_short_names);
 }
 
 /*
@@ -1975,11 +1982,13 @@ find_heur_dissector_by_short_name(heur_dissector_list_t heur_list, const char *s
 }
 
 void
-heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
+heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *short_name, const int proto)
 {
 	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
 	const char            *proto_name;
 	heur_dtbl_entry_t     *hdtbl_entry;
+	guint	               i, list_size;
+	GSList	              *list_entry;
 
 	/*
 	 * Make sure the dissector table exists.
@@ -1997,15 +2006,43 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 		return;
 	}
 
-	/* XXX: Should verify that sub-dissector is not already in the list ? */
+	/* Verify that sub-dissector is not already in the list */
+	list_size = g_slist_length(sub_dissectors->dissectors);
+	for (i = 0; i < list_size; i++)
+	{
+		list_entry = g_slist_nth(sub_dissectors->dissectors, i);
+		hdtbl_entry = (heur_dtbl_entry_t *)list_entry->data;
+		if ((hdtbl_entry->dissector == dissector) &&
+			(hdtbl_entry->protocol == find_protocol_by_id(proto)))
+		{
+			proto_name = proto_get_protocol_name(proto);
+			if (proto_name != NULL) {
+				fprintf(stderr, "Protocol %s is already registered in \"%s\" table\n",
+				    proto_name, name);
+			}
+			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				abort();
+			return;
+		}
+	}
+
+	/* Ensure short_name is unique */
+	if (g_hash_table_lookup(heuristic_short_names, (gpointer)short_name) != NULL) {
+		g_error("Duplicate heuristic short_name \"%s\"!"
+			" This might be caused by an inappropriate plugin or a development error.", short_name);
+	}
 
 	hdtbl_entry = g_slice_new(heur_dtbl_entry_t);
 	hdtbl_entry->dissector = dissector;
 	hdtbl_entry->protocol  = find_protocol_by_id(proto);
+	hdtbl_entry->display_name = display_name;
+	hdtbl_entry->short_name = short_name;
 	hdtbl_entry->list_name = g_strdup(name);
 	hdtbl_entry->enabled   = TRUE;
 
 	/* do the table insertion */
+	g_hash_table_insert(heuristic_short_names, (gpointer)short_name, hdtbl_entry);  /* Just a copy */
+
 	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors,
 	    (gpointer)hdtbl_entry);
 }

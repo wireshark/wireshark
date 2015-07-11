@@ -1348,9 +1348,9 @@ static void apply_prefs(void)
 {
     if (pref_heuristic_media_save != pref_heuristic_media) {
         if (pref_heuristic_media) {
-            heur_dissector_add("http",  dissect_xml_heur, xml_ns.hf_tag);
-            heur_dissector_add("sip",   dissect_xml_heur, xml_ns.hf_tag);
-            heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);
+            heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag);
+            heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag);
+            heur_dissector_add("media", dissect_xml_heur, "XML in media", "xml_media", xml_ns.hf_tag);
             pref_heuristic_media_save = TRUE;
         } else {
             heur_dissector_delete("http",  dissect_xml_heur, xml_ns.hf_tag);
@@ -1362,7 +1362,7 @@ static void apply_prefs(void)
 
     if (pref_heuristic_tcp_save != pref_heuristic_tcp ) {
         if (pref_heuristic_tcp) {
-            heur_dissector_add("tcp", dissect_xml_heur, xml_ns.hf_tag);
+            heur_dissector_add("tcp", dissect_xml_heur, "XML over TCP", "xml_tcp", xml_ns.hf_tag);
             pref_heuristic_tcp_save = TRUE;
         } else {
             heur_dissector_delete("tcp", dissect_xml_heur, xml_ns.hf_tag);
@@ -1372,7 +1372,7 @@ static void apply_prefs(void)
 
     if (pref_heuristic_udp_save != pref_heuristic_udp ) {
         if (pref_heuristic_udp) {
-            heur_dissector_add("udp", dissect_xml_heur, xml_ns.hf_tag);
+            heur_dissector_add("udp", dissect_xml_heur, "XML over UDP", "xml_udp", xml_ns.hf_tag);
             pref_heuristic_udp_save = TRUE;
         } else {
             heur_dissector_delete("udp", dissect_xml_heur, xml_ns.hf_tag);
@@ -1494,7 +1494,7 @@ proto_reg_handoff_xml(void)
     xml_handle = find_dissector("xml");
 
     g_hash_table_foreach(media_types, add_dissector_media, NULL);
-    heur_dissector_add("wtap_file", dissect_xml_heur, xml_ns.hf_tag);
+    heur_dissector_add("wtap_file", dissect_xml_heur, "XML file", "xml_wtap", xml_ns.hf_tag);
 
 }
 

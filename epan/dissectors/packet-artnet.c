@@ -5265,7 +5265,7 @@ proto_reg_handoff_artnet(void) {
   rdm_handle      = find_dissector("rdm");
   dmx_chan_handle = find_dissector("dmx-chan");
 
-  heur_dissector_add("udp", dissect_artnet_heur, proto_artnet);
+  heur_dissector_add("udp", dissect_artnet_heur, "ARTNET over UDP", "artnet_udp", proto_artnet);
 }
 
 /*

@@ -9035,8 +9035,8 @@ void proto_register_rtps(void) {
 
 
 void proto_reg_handoff_rtps(void) {
-  heur_dissector_add("udp", dissect_rtps_udp, proto_rtps);
-  heur_dissector_add("tcp", dissect_rtps_tcp, proto_rtps);
+  heur_dissector_add("udp", dissect_rtps_udp, "RTPS over UDP", "rtps_udp", proto_rtps);
+  heur_dissector_add("tcp", dissect_rtps_tcp, "RTPS over TCP", "rtps_tcp", proto_rtps);
 }
 
 /*

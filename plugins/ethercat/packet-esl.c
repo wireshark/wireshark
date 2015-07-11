@@ -365,7 +365,7 @@ proto_reg_handoff_esl(void) {
 
     if (!initialized) {
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        heur_dissector_add("eth", dissect_esl_heur, proto_esl);
+        heur_dissector_add("eth", dissect_esl_heur, "EtherCAT over Ethernet", "esl_eth", proto_esl);
         initialized = TRUE;
     }
     proto_set_decoding(proto_esl, esl_enable_dissector);

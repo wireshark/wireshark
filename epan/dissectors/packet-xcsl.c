@@ -348,7 +348,7 @@ void proto_register_xcsl(void) {
 
 /* In case it concerns TCP, try to match on the xcsl header */
 void proto_reg_handoff_xcsl(void) {
-    heur_dissector_add("tcp", dissect_xcsl_tcp_heur, hfi_xcsl->id);
+    heur_dissector_add("tcp", dissect_xcsl_tcp_heur, "XCSL over TCP", "xcsl_tcp", hfi_xcsl->id);
 }
 
 /*

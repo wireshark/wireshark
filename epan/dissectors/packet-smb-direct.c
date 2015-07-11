@@ -702,9 +702,11 @@ proto_reg_handoff_smb_direct(void)
 	data_handle = find_dissector("data");
 	heur_dissector_add("iwarp_ddp_rdmap",
 			   dissect_smb_direct_iwarp_heur,
+               "SMB Direct over iWARP", "smb_direct_iwarp",
 			   proto_smb_direct);
 	heur_dissector_add("infiniband.payload",
 			   dissect_smb_direct_infiniband_heur,
+			   "SMB Direct Infiniband", "smb_direct_infiniband",
 			   proto_smb_direct);
 
 }

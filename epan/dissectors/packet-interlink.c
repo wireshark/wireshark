@@ -231,7 +231,7 @@ proto_reg_handoff_interlink(void)
 	dissector_add_for_decode_as("udp.port", interlink_handle);
 
 	/* Add our heuristic packet finder. */
-	heur_dissector_add("udp", dissect_interlink_heur, proto_interlink);
+	heur_dissector_add("udp", dissect_interlink_heur, "Interlink over UDP", "interlink_udp", proto_interlink);
 
 	data_handle = find_dissector("data");
 }

@@ -4564,8 +4564,8 @@ proto_reg_handoff_dnp3(void)
 
   /* register as heuristic dissector for both TCP and UDP */
   if (dnp3_heuristics) {
-    heur_dissector_add("tcp", dissect_dnp3_tcp, proto_dnp3);
-    heur_dissector_add("udp", dissect_dnp3_udp, proto_dnp3);
+    heur_dissector_add("tcp", dissect_dnp3_tcp, "DNP 3.0 over TCP", "dnp3_tcp", proto_dnp3);
+    heur_dissector_add("udp", dissect_dnp3_udp, "DNP 3.0 over UDP", "dnp3_udp", proto_dnp3);
   } else {
     heur_dissector_delete("tcp", dissect_dnp3_tcp, proto_dnp3);
     heur_dissector_delete("udp", dissect_dnp3_udp, proto_dnp3);

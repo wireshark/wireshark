@@ -5147,7 +5147,7 @@ proto_reg_handoff_dcom_cba_acco (void)
         &uuid_ICBAAccoSync, ver_ICBAAccoSync, ICBAAccoSync_dissectors, hf_cba_acco_opnum);
 
 
-    heur_dissector_add("pn_rt", dissect_CBA_Connection_Data_heur, proto_ICBAAccoServer);
+    heur_dissector_add("pn_rt", dissect_CBA_Connection_Data_heur, "PROFINET CBA IO", "pn_cba_pn_rt", proto_ICBAAccoServer);
 }
 
 /*

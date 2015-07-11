@@ -1906,7 +1906,7 @@ void proto_register_waveagent(void)
 
 void proto_reg_handoff_waveagent(void)
 {
-    heur_dissector_add("udp", dissect_waveagent_heur, proto_waveagent);
+    heur_dissector_add("udp", dissect_waveagent_heur, "WaveAgent over UDP", "waveagent_udp", proto_waveagent);
 }
 
 

@@ -3797,8 +3797,8 @@ proto_reg_handoff_smpp(void)
      */
     smpp_handle = find_dissector("smpp");
     dissector_add_for_decode_as("tcp.port", smpp_handle);
-    heur_dissector_add("tcp", dissect_smpp_heur, proto_smpp);
-    heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
+    heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP", "smpp_tcp", proto_smpp);
+    heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25", "smpp_x25", proto_smpp);
 
     /* Required for call_dissector() */
     DebugLog(("Finding gsm_sms_ud subdissector\n"));

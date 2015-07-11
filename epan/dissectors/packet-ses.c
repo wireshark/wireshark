@@ -1916,8 +1916,8 @@ proto_reg_handoff_ses(void)
 
 	/* add our session dissector to cotp dissector list
 	 * and cotp_is dissector list*/
-	heur_dissector_add("cotp", dissect_ses_heur, proto_ses);
-	heur_dissector_add("cotp_is", dissect_ses_heur, proto_ses);
+	heur_dissector_add("cotp", dissect_ses_heur, "SES over COTP", "ses_cotp", proto_ses);
+	heur_dissector_add("cotp_is", dissect_ses_heur, "SES over COTP (inactive subset)", "ses_cotp_is", proto_ses);
 }
 
 
@@ -1931,7 +1931,7 @@ void
 proto_reg_handoff_clses(void)
 {
 	/* add our session dissector to cltp dissector list */
-	heur_dissector_add("cltp", dissect_ses_heur, proto_clses);
+	heur_dissector_add("cltp", dissect_ses_heur, "CLSP over COTP", "clses_cotp", proto_clses);
 }
 
 /*

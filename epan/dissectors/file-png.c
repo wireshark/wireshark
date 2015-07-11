@@ -614,8 +614,8 @@ void
 proto_reg_handoff_png(void)
 {
     dissector_add_string("media_type", "image/png", png_handle);
-    heur_dissector_add("http", dissect_png_heur, hfi_png->id);
-    heur_dissector_add("wtap_file", dissect_png_heur, hfi_png->id);
+    heur_dissector_add("http", dissect_png_heur, "PNG file in HTTP", "png_http", hfi_png->id);
+    heur_dissector_add("wtap_file", dissect_png_heur, "PNG file in HTTP", "png_wtap", hfi_png->id);
 }
 
 /*

@@ -6131,10 +6131,10 @@ proto_reg_handoff_sip(void)
         dissector_add_uint("udp.port", UDP_PORT_SIP, sip_handle);
         dissector_add_string("media_type", "message/sip", sip_handle);
 
-        heur_dissector_add("udp", dissect_sip_heur, proto_sip);
-        heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
-        heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
-        heur_dissector_add("stun", dissect_sip_heur, proto_sip);
+        heur_dissector_add("udp", dissect_sip_heur, "SIP over UDP", "sip_udp", proto_sip);
+        heur_dissector_add("tcp", dissect_sip_tcp_heur, "SIP over TCP", "sip_tcp", proto_sip);
+        heur_dissector_add("sctp", dissect_sip_heur, "SIP over SCTP", "sip_sctp", proto_sip);
+        heur_dissector_add("stun", dissect_sip_heur, "SIP over TURN", "sip_stun", proto_sip);
         sip_prefs_initialized = TRUE;
     } else {
         dissector_delete_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);

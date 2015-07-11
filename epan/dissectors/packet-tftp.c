@@ -645,7 +645,7 @@ proto_reg_handoff_tftp(void)
   if (!tftp_initialized) {
     tftp_handle = find_dissector("tftp");
     data_handle = find_dissector("data");
-    heur_dissector_add("stun", dissect_embeddedtftp_heur, proto_tftp);
+    heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp);
     tftp_initialized = TRUE;
   } else {
     dissector_delete_uint_range("udp.port", tftp_port_range, tftp_handle);

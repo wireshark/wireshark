@@ -1425,8 +1425,8 @@ proto_register_smcr(void)
 void
 proto_reg_handoff_smcr(void)
 {
-	heur_dissector_add("tcp", dissect_smcr_tcp_heur, proto_smcr);
-	heur_dissector_add("infiniband.payload", dissect_smcr_infiniband_heur, proto_smcr);
+	heur_dissector_add("tcp", dissect_smcr_tcp_heur, "Shared Memory Communications over TCP", "smcr_tcp", proto_smcr);
+	heur_dissector_add("infiniband.payload", dissect_smcr_infiniband_heur, "Shared Memory Communications Infiniband", "smcr_infiniband", proto_smcr);
 }
 
 /*

@@ -466,7 +466,7 @@ proto_reg_handoff_usb_ms(void)
     usb_ms_control_handle = new_create_dissector_handle(dissect_usb_ms_control, proto_usb_ms);
     dissector_add_uint("usb.control", IF_CLASS_MASS_STORAGE, usb_ms_control_handle);
 
-    heur_dissector_add("usb.bulk", dissect_usb_ms_bulk_heur, proto_usb_ms);
+    heur_dissector_add("usb.bulk", dissect_usb_ms_bulk_heur, "Mass Storage USB bulk endpoint", "ms_usb_bulk", proto_usb_ms);
 }
 
 /*

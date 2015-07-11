@@ -1950,7 +1950,7 @@ void proto_reg_handoff_spdy(void) {
   media_type_subdissector_table = find_dissector_table("media_type");
 
 #if 0 /* heuristic too weak */
-  heur_dissector_add("tcp", dissect_spdy_heur, proto_spdy);
+  heur_dissector_add("tcp", dissect_spdy_heur, "SPDY over TCP", "spdy_tcp", proto_spdy);
 #endif
 }
 

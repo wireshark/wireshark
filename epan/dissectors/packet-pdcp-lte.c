@@ -2699,7 +2699,7 @@ void proto_register_pdcp(void)
 void proto_reg_handoff_pdcp_lte(void)
 {
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
+    heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte);
 
     ip_handle   = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");

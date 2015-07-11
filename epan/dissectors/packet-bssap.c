@@ -2557,8 +2557,8 @@ proto_reg_handoff_bssap(void)
     static guint old_bssap_ssn;
 
     if (!initialized) {
-        heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
-        heur_dissector_add("sua", dissect_bssap_heur, proto_bssap);
+        heur_dissector_add("sccp", dissect_bssap_heur, "BSSAP over SCCP", "bssap_sccp", proto_bssap);
+        heur_dissector_add("sua", dissect_bssap_heur, "BSSAP over SUA", "bssap_sua", proto_bssap);
         /* BSSAP+ */
         bssap_plus_handle = new_create_dissector_handle(dissect_bssap_plus, proto_bssap);
 

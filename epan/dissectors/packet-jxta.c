@@ -2439,7 +2439,7 @@ void proto_reg_handoff_jxta(void)
     if( gUDP_HEUR ) {
         if( !udp_register_done ) {
             /* g_message( "Registering UDP Heuristic dissector" ); */
-            heur_dissector_add("udp", dissect_jxta_UDP_heur, proto_jxta);
+            heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta);
             udp_register_done = TRUE;
             }
     } else {
@@ -2453,7 +2453,7 @@ void proto_reg_handoff_jxta(void)
     if( gTCP_HEUR ) {
         if( !tcp_register_done ) {
             /* g_message( "Registering TCP Heuristic dissector" ); */
-            heur_dissector_add("tcp", dissect_jxta_TCP_heur, proto_jxta);
+            heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta);
             tcp_register_done = TRUE;
             }
     } else {
@@ -2467,7 +2467,7 @@ void proto_reg_handoff_jxta(void)
     if( gSCTP_HEUR ) {
         if( !sctp_register_done ) {
             /* g_message( "Registering SCTP Heuristic dissector" ); */
-            heur_dissector_add("sctp", dissect_jxta_SCTP_heur, proto_jxta);
+            heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta);
             sctp_register_done = TRUE;
             }
     } else {

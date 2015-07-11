@@ -1468,8 +1468,8 @@ proto_reg_handoff_rpcap (void)
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
 
-    heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, proto_rpcap);
-    heur_dissector_add ("udp", dissect_rpcap_heur_udp, proto_rpcap);
+    heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, "RPCAP over TCP", "rpcap_tcp", proto_rpcap);
+    heur_dissector_add ("udp", dissect_rpcap_heur_udp, "RPCAP over UDP", "rpcap_udp", proto_rpcap);
   }
 
   info_added = FALSE;

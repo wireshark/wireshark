@@ -187,7 +187,7 @@ void proto_register_pktgen(void)
 void proto_reg_handoff_pktgen(void)
 {
     /* Register as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_pktgen, proto_pktgen);
+    heur_dissector_add("udp", dissect_pktgen, "Linux Kernel Packet Generator over UDP", "pktgen_udp", proto_pktgen);
 
     /* Find data dissector handle */
     data_handle = find_dissector("data");

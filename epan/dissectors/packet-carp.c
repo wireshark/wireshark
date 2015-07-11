@@ -248,7 +248,7 @@ proto_reg_handoff_carp(void)
 
     carp_handle = new_create_dissector_handle(dissect_carp, proto_carp);
     dissector_add_uint("ip.proto", IP_PROTO_VRRP, carp_handle);
-    heur_dissector_add( "ip", dissect_carp_heur, proto_carp);
+    heur_dissector_add( "ip", dissect_carp_heur, "CARP over IP", "carp_ip", proto_carp);
 }
 
 /*

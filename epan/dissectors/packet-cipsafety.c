@@ -2619,7 +2619,7 @@ proto_reg_handoff_cipsafety(void)
    /* Create and register dissector handle for Safety Validator */
    cip_class_s_validator_handle = new_create_dissector_handle( dissect_cip_class_s_validator, proto_cip_class_s_validator );
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_VALIDATOR, cip_class_s_validator_handle );
-   heur_dissector_add("cip.sc", dissect_class_svalidator_heur, proto_cip_class_s_validator);
+   heur_dissector_add("cip.sc", dissect_class_svalidator_heur, "CIP Safety Validator", "s_validator_cip", proto_cip_class_s_validator);
 
    /* Create and register dissector for I/O data handling */
    cipsafety_handle = create_dissector_handle( dissect_cipsafety, proto_cipsafety );

@@ -707,7 +707,7 @@ proto_register_starteam(void)
 void
 proto_reg_handoff_starteam(void)
 {
-  heur_dissector_add("tcp", dissect_starteam_heur, proto_starteam);
+  heur_dissector_add("tcp", dissect_starteam_heur, "StarTeam over TCP", "starteam_tcp", proto_starteam);
   starteam_tcp_handle = new_create_dissector_handle(dissect_starteam_tcp, proto_starteam);
 }
 

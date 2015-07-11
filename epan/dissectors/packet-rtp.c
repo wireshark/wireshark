@@ -3745,8 +3745,8 @@ proto_reg_handoff_rtp(void)
 
         dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
-        heur_dissector_add( "udp", dissect_rtp_heur_udp,  proto_rtp);
-        heur_dissector_add("stun", dissect_rtp_heur_stun, proto_rtp);
+        heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp);
+        heur_dissector_add("stun", dissect_rtp_heur_stun, "RTP over TURN", "rtp_stun", proto_rtp);
 
         rtp_hdr_ext_ed137_handle = find_dissector("rtp.ext.ed137");
         rtp_hdr_ext_ed137a_handle = find_dissector("rtp.ext.ed137a");

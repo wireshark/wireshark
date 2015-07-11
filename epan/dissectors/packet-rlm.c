@@ -48,7 +48,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/xdlc.h>
 
 void proto_register_rlm(void);
 void proto_reg_handoff_rlm(void);
@@ -75,39 +74,6 @@ static gint ett_rlm = -1;
 #define RLM_ECHO_REQUEST	5
 #define RLM_ECHO_REPLY		6
 /* #define ???	?? */
-
-
-/*
-  Maybe this isn't the best place for it, but RLM goes hand in hand
-  with Q.931 traffic on a higher port.
-*/
-static dissector_handle_t lapd_handle;
-
-static gboolean
-dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void *data _U_)
-{
-	if (pinfo->srcport < 3001 || pinfo->srcport > 3015
-		|| pinfo->destport < 3001 || pinfo->destport > 3015
-		|| pinfo->destport != pinfo->srcport)
-			return FALSE;
-
-	/*
-	 * XXX - check for a valid LAPD address field.
-	 */
-
-	/*
-	 * OK, check whether the control field looks valid.
-	 */
-	if (!check_xdlc_control(tvb, 2, NULL, NULL, FALSE, FALSE))
-		return FALSE;
-
-	/*
-	 * Loooks OK - call the LAPD dissector.
-	 */
-	call_dissector(lapd_handle, tvb, pinfo, tree);
-	return TRUE;
-}
-
 
 /* Code to actually dissect the packets */
 static gboolean
@@ -185,13 +151,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 void
 proto_reg_handoff_rlm(void)
 {
-	/*
-	 * Find a handle for the LAPD dissector.
-	 */
-	lapd_handle = find_dissector("lapd");
-
-	heur_dissector_add("udp", dissect_rlm, proto_rlm);
-	heur_dissector_add("udp", dissect_udp_lapd, proto_get_id_by_filter_name("lapd"));
+	heur_dissector_add("udp", dissect_rlm, "Redundant Link Management over UDP", "rlm_udp", proto_rlm);
 }
 
 void

@@ -1161,7 +1161,7 @@ proto_reg_handoff_cimd(void)
    * CIMD can be spoken on any port so, when not on a specific port, try this
    * one whenever TCP is spoken.
    */
-  heur_dissector_add("tcp", dissect_cimd_heur, proto_cimd);
+  heur_dissector_add("tcp", dissect_cimd_heur, "CIMD over TCP", "cimd_tcp", proto_cimd);
 
   /**
    * Also register as one that can be selected by a TCP port number.

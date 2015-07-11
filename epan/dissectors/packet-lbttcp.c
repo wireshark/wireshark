@@ -803,7 +803,7 @@ void proto_reg_handoff_lbttcp(void)
     {
         lbttcp_dissector_handle = new_create_dissector_handle(dissect_lbttcp, proto_lbttcp);
         dissector_add_for_decode_as("tcp.port", lbttcp_dissector_handle);
-        heur_dissector_add("tcp", test_lbttcp_packet, proto_lbttcp);
+        heur_dissector_add("tcp", test_lbttcp_packet, "LBT over TCP", "lbttcp_tcp", proto_lbttcp);
     }
 
     /* Make sure the source port low is <= the source port high. If not, don't change them. */

@@ -1039,7 +1039,7 @@ proto_reg_handoff_hislip(void)
     if (!initialized)
     {
         hislip_handle = new_create_dissector_handle(dissect_hislip, proto_hislip);
-        heur_dissector_add("tcp", dissect_hislip_heur, proto_hislip);
+        heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip);
         initialized = TRUE;
     }
     else

@@ -3003,7 +3003,7 @@ proto_reg_handoff_rlc(void)
     ip_handle  = find_dissector("ip");
     bmc_handle = find_dissector("bmc");
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_rlc_heur, proto_rlc);
+    heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_rlc);
 }
 
 /*

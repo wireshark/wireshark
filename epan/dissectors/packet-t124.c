@@ -4034,6 +4034,6 @@ proto_reg_handoff_t124(void) {
 
   register_ber_oid_dissector("0.0.20.124.0.1", dissect_t124, proto_t124, "Generic Conference Control");
 
-  heur_dissector_add("t125", dissect_t124_heur, proto_t124);
+  heur_dissector_add("t125", dissect_t124_heur, "T.124 over T.125", "t124_t125", proto_t124);
 
 }

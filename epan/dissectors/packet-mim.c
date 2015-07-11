@@ -391,7 +391,7 @@ proto_reg_handoff_fabricpath(void)
      * get outer source and destination MAC
      * before the standard ethernet dissector
      */
-    heur_dissector_add ("eth", dissect_fp_heur, proto_fp);
+    heur_dissector_add ("eth", dissect_fp_heur, "Cisco FabricPath over Ethernet", "fp_eth", proto_fp);
     eth_dissector = find_dissector( "eth" );
     prefs_initialized = TRUE;
   }

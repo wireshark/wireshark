@@ -48,6 +48,7 @@
 #include "packet-l2tp.h"
 
 void proto_register_lapd(void);
+void proto_reg_handoff_lapd(void);
 
 static int proto_lapd = -1;
 static int hf_lapd_direction = -1;
@@ -582,8 +583,27 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
-void
-proto_reg_handoff_lapd(void);
+static gboolean
+dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void *data _U_)
+{
+	if (pinfo->srcport < 3001 || pinfo->srcport > 3015
+		|| pinfo->destport < 3001 || pinfo->destport > 3015
+		|| pinfo->destport != pinfo->srcport)
+			return FALSE;
+
+	/*
+	 * XXX - check for a valid LAPD address field.
+	 */
+
+	/*
+	 * OK, check whether the control field looks valid.
+	 */
+	if (!check_xdlc_control(tvb, 2, NULL, NULL, FALSE, FALSE))
+		return FALSE;
+
+    dissect_lapd(tvb, pinfo, tree);
+	return TRUE;
+}
 
 void
 proto_register_lapd(void)
@@ -743,6 +763,7 @@ proto_reg_handoff_lapd(void)
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
+		heur_dissector_add("udp", dissect_udp_lapd, "LAPD over UDP", "lapd_udp", proto_lapd);
 
 		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");

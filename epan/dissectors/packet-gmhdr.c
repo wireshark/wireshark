@@ -522,9 +522,9 @@ proto_reg_handoff_gmhdr(void)
 
   gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
-  heur_dissector_add("eth.trailer", dissect_gmtrailer, proto_gmhdr);
+  heur_dissector_add("eth.trailer", dissect_gmtrailer, "Gigamon Ethernet header", "gmhdr_eth", proto_gmhdr);
 
-  heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer, proto_gmtrailer);
+  heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer, "Gigamon Ethernet trailer", "gmtrailer_eth", proto_gmtrailer);
 }
 
 /*

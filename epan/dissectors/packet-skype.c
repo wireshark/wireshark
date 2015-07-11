@@ -449,8 +449,8 @@ proto_reg_handoff_skype(void)
 	dissector_add_for_decode_as("tcp.port", skype_handle);
 	dissector_add_for_decode_as("udp.port", skype_handle);
 #if SKYPE_HEUR
-	heur_dissector_add("tcp", dissect_skype_heur, proto_skype);
-	heur_dissector_add("udp", dissect_skype_heur, proto_skype);
+	heur_dissector_add("tcp", dissect_skype_heur, "Skype over TCP", "sip_tcp", proto_skype);
+	heur_dissector_add("udp", dissect_skype_heur, "Skype over UDP", "sip_udp", proto_skype);
 #endif
 
 }

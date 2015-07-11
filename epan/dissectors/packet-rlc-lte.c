@@ -3606,7 +3606,7 @@ void proto_register_rlc_lte(void)
 void proto_reg_handoff_rlc_lte(void)
 {
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
+    heur_dissector_add("udp", dissect_rlc_lte_heur, "RLC-LTE over UDP", "rlc_lte_udp", proto_rlc_lte);
 
     pdcp_lte_handle = find_dissector("pdcp-lte");
     ip_handle       = find_dissector("ip");

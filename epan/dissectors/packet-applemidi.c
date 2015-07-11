@@ -524,8 +524,7 @@ proto_reg_handoff_applemidi( void ) {
 	 * packets, it will be most likely RTP-MIDI...
 	 */
 	rtp_handle = find_dissector( "rtp" );
-	heur_dissector_add( "udp", dissect_applemidi_heur, proto_applemidi );
-
+	heur_dissector_add( "udp", dissect_applemidi_heur, "Apple MIDI over UDP", "applemidi_udp", proto_applemidi );
 }
 
 /*

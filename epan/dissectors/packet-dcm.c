@@ -7078,7 +7078,7 @@ static void dcm_apply_settings(void) {
     /*  Add heuristic search, if user selected it */
 
     if (global_dcm_heuristic)
-            heur_dissector_add("tcp", dissect_dcm_heuristic, proto_dcm);
+            heur_dissector_add("tcp", dissect_dcm_heuristic, "DICOM over TCP", "dicom_tcp", proto_dcm);
 
 }
 

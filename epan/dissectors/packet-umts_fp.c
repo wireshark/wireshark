@@ -5653,7 +5653,7 @@ void proto_reg_handoff_fp(void)
     mac_fdd_hsdsch_handle     = find_dissector("mac.fdd.hsdsch");
     fp_handle                 = find_dissector("fp");
 
-    heur_dissector_add("udp", heur_dissect_fp, proto_fp);
+    heur_dissector_add("udp", heur_dissect_fp, "FP over UDP", "fp_udp", proto_fp);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_handle);
 }
 

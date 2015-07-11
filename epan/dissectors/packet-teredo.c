@@ -415,7 +415,7 @@ proto_reg_handoff_teredo(void)
 	teredo_tap    = register_tap("teredo");
 
 	dissector_add_uint("udp.port", UDP_PORT_TEREDO, teredo_handle);
-	heur_dissector_add("udp", dissect_teredo_heur, proto_teredo);
+	heur_dissector_add("udp", dissect_teredo_heur, "Teredo over UDP", "teredo_udp", proto_teredo);
 }
 
 /*

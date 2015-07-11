@@ -709,8 +709,8 @@ void proto_reg_handoff_bfcp(void)
 	 */
 	if (!prefs_initialized)
 	{
-		heur_dissector_add("tcp", dissect_bfcp_heur, proto_bfcp);
-		heur_dissector_add("udp", dissect_bfcp_heur, proto_bfcp);
+		heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp);
+		heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp);
 		dissector_add_for_decode_as("tcp.port", bfcp_handle);
 		dissector_add_for_decode_as("udp.port", bfcp_handle);
 		prefs_initialized = TRUE;

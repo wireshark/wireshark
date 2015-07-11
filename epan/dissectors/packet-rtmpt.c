@@ -2933,7 +2933,7 @@ proto_reg_handoff_rtmpt(void)
 {
         dissector_handle_t amf_handle;
 
-/*      heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
+/*      heur_dissector_add("tcp", dissect_rtmpt_heur, "RTMPT over TCP", "rtmpt_tcp", proto_rtmpt); */
         rtmpt_tcp_handle = new_create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
 /*      dissector_add_for_decode_as("tcp.port", rtmpt_tcp_handle); */
         dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);

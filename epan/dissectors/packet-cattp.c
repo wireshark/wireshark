@@ -585,7 +585,7 @@ proto_reg_handoff_cattp(void)
         /* find data handle */
         data_handle = find_dissector("data");
 
-        heur_dissector_add("udp", dissect_cattp_heur, proto_cattp);
+        heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp);
         dissector_add_for_decode_as("udp.port", cattp_handle);
         initialized = TRUE;
     }

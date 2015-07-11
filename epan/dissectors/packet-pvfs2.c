@@ -3632,7 +3632,7 @@ proto_reg_handoff_pvfs(void)
 	pvfs_handle = new_create_dissector_handle(dissect_pvfs_heur, proto_pvfs);
 	dissector_add_uint("tcp.port", TCP_PORT_PVFS2, pvfs_handle);
 
-	heur_dissector_add("tcp", dissect_pvfs_heur, proto_pvfs);
+	heur_dissector_add("tcp", dissect_pvfs_heur, "PVFS over TCP", "pvfs_tcp", proto_pvfs);
 }
 
 /*

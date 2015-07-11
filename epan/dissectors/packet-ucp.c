@@ -2822,7 +2822,7 @@ proto_reg_handoff_ucp(void)
      * UCP can be spoken on any port so, when not on a specific port, try heuristic
      * whenever TCP is spoken.
      */
-    heur_dissector_add("tcp", dissect_ucp_heur, proto_ucp);
+    heur_dissector_add("tcp", dissect_ucp_heur, "UCP over TCP", "ucp_tcp", proto_ucp);
 
     /*
      * Also register as a dissector that can be selected by a TCP port number via "decode as".

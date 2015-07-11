@@ -1104,7 +1104,7 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
+        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt);
         ip_handle   = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
         prefs_initialized = TRUE;

@@ -223,7 +223,7 @@ proto_register_tali(void)
 void
 proto_reg_handoff_tali(void)
 {
-  heur_dissector_add("tcp", dissect_tali_heur, hfi_tali->id);
+  heur_dissector_add("tcp", dissect_tali_heur, "Tali over TCP", "tali_tcp", hfi_tali->id);
 
   data_handle = find_dissector("data");
 }

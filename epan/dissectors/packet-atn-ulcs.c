@@ -2615,6 +2615,8 @@ void proto_reg_handoff_atn_ulcs(void)
 		heur_dissector_add(
 				"cotp",
 				dissect_atn_ulcs_heur,
+				"ATN-ULCS over COTP",
+				"atn-ucls_cotp",
 				proto_atn_ulcs);
 }
 
