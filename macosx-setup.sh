@@ -619,7 +619,9 @@ install_qt() {
 
         #
         # Versions 5.3.x through 5.5.0, at least, have bogus .pc files.
-        # Fix them.
+        # See bugs QTBUG-35256 and QTBUG-47162.
+        #
+        # Fix the files.
         #
         for i in $HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig/*.pc
         do
