@@ -906,7 +906,8 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
-    unsigned base = (unsigned)luaL_optinteger(L, 3, BASE_DEC);
+    unsigned default_base = (type == FT_FRAMENUM) ? BASE_NONE : BASE_DEC;
+    unsigned base = (unsigned)luaL_optinteger(L, 3, default_base);
     value_string* vs32 = NULL;
     val64_string* vs64 = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
@@ -1056,9 +1057,9 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_framenum Creates a `ProtoField` for a frame number (for hyperlinks between frames). */
 /* WSLUA_ARG_Protofield_framenum_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_framenum_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_framenum_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_framenum_BASE Only `base.NONE` is supported for framenum. */
 /* WSLUA_OPTARG_Protofield_framenum_VALUESTRING A table containing the text that corresponds to the values. */
-/* WSLUA_OPTARG_Protofield_framenum_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_Protofield_framenum_MASK Integer mask of this field, which must be 0 for framenum. */
 /* WSLUA_OPTARG_Protofield_framenum_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
