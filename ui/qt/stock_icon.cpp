@@ -110,7 +110,8 @@ QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QStri
 
         if (!glyph.isEmpty()) {
             QFont font(wsApp->font());
-            font.setPointSizeF(size * 2.0 / 3.0);
+            font.setPointSizeF(size / 2.0);
+            painter.setFont(font);
             QRectF bounding = painter.boundingRect(pm.rect(), glyph, Qt::AlignHCenter | Qt::AlignVCenter);
             painter.drawText(bounding, glyph);
         }
