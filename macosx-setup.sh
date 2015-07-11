@@ -70,13 +70,17 @@ PKG_CONFIG_VERSION=0.28
 # One or more of the following libraries are required to build Wireshark.
 #
 # If you don't want to build with Qt, comment out the QT_VERSION= line.
+# Note that Qt 5, prior to 5.5.0, mishandles context menus in ways that,
+# for example, cause them not to work reliably in the packet detail or
+# packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
+# and QTBUG-43464, all of which seem to be the same bug.
 #
 # If you want to build with GTK+ 2, comment out the GTK_VERSION=3.* line
 # and un-comment the GTK_VERSION=2.* line.
 #
 # If you don't want to build with GTK+ at all, comment out both lines.
 #
-QT_VERSION=5.3.2
+QT_VERSION=5.5.0
 GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
@@ -614,7 +618,7 @@ install_qt() {
         sudo hdiutil detach /Volumes/qt-opensource-mac-x64-clang-$QT_VERSION
 
         #
-        # The 5.3.x versions, at least, have bogus .pc files.
+        # Versions 5.3.x through 5.5.0, at least, have bogus .pc files.
         # Fix them.
         #
         for i in $HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig/*.pc
@@ -623,6 +627,7 @@ install_qt() {
 H
 g/Cflags: /s;;Cflags: -F\${libdir} ;
 g/Cflags: /s;-I\${includedir}/Qt\([a-zA-Z0-9_]*\);-I\${libdir}/Qt\1.framework/Versions/5/Headers;
+g/Libs: /s;';;g
 w
 q
 EOF
