@@ -9415,7 +9415,7 @@ ibprotocol       6714/tcp # Internet Backplane Protocol [Alessandro_Bassi] [Ales
 ibprotocol       6714/udp # Internet Backplane Protocol [Alessandro_Bassi] [Alessandro_Bassi]
 fibotrader-com   6715/tcp # Fibotrader Communications [Robert_Wetzold] [Robert_Wetzold] 2006-01
 fibotrader-com   6715/udp # Fibotrader Communications [Robert_Wetzold] [Robert_Wetzold] 2006-01
-printercare-cc   6716/tcp # PrinterCare cloud service [E-FISH_sp._z.o.o.] [Tomasz_Krakowiak] 2014-07-07
+princity-agent   6716/tcp # Princity Agent [ENSTEAM_Sp_z.o.o.] [Tomasz_Krakowiak] 2014-07-07 2015-07-08
 bmc-perf-agent   6767/tcp # BMC PERFORM AGENT [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-perf-agent   6767/udp # BMC PERFORM AGENT [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-perf-mgrd    6768/tcp # BMC PERFORM MGRD [Portnoy_Boxman] [Portnoy_Boxman]
