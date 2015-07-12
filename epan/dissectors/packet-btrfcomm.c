@@ -281,9 +281,14 @@ static void btrfcomm_serv_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btrfcomm_serv_value(packet_info *pinfo)
 {
+    gulong *value_data;
 
-    return (gpointer)p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV);
 
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static void btrfcomm_chan_prompt(packet_info *pinfo, gchar* result)
@@ -299,9 +304,14 @@ static void btrfcomm_chan_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btrfcomm_chan_value(packet_info *pinfo)
 {
+    gulong *value_data;
 
-    return (gpointer) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV);
 
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static dissector_handle_t
