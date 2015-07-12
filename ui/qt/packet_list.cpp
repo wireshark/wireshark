@@ -150,9 +150,8 @@ packet_list_clear(void)
 void
 packet_list_enable_color(gboolean)
 {
-    if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
-        gbl_cur_packet_list->packetListModel()->resetColorized();
-        gbl_cur_packet_list->update();
+    if (gbl_cur_packet_list) {
+        gbl_cur_packet_list->recolorPackets();
     }
 }
 

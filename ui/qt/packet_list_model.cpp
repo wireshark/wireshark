@@ -110,22 +110,21 @@ void PacketListModel::clear() {
 
 void PacketListModel::resetColumns()
 {
-    beginResetModel();
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
     }
-    endResetModel();
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColorized()
 {
     PacketListRecord *record;
 
-    beginResetModel();
     foreach (record, physical_rows_) {
         record->resetColorized();
     }
-    endResetModel();
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)

@@ -2280,15 +2280,16 @@ void MainWindow::colorizeConversation(bool create_rule)
         } else {
             color_filters_set_tmp(cc_num, filter, FALSE);
             packet_list_->recolorPackets();
-            main_ui_->actionViewColorizeResetColorization->setEnabled(true);
         }
     }
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionViewColorizeResetColorization_triggered()
 {
     color_filters_reset_tmp();
     packet_list_->recolorPackets();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionViewColorizeNewConversationRule_triggered()
