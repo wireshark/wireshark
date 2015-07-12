@@ -1338,7 +1338,8 @@ darwin*)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	# Also add -Wl,-rpath,@executable_path/../lib and
+	# Also add -Wl,-rpath,@executable_path/../lib,
+	# -Wl,-rpath,@executable_path/../Frameworks, and
 	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
 	# bundle, we can tweak all the executable images, shared
 	# libraries, and plugins in the bundle to look for non-system
