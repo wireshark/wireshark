@@ -3101,8 +3101,10 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
         token_index = find_megaco_localParam_names(tvb, tvb_current_offset, token_name_len);
         /* Find start of parameter value */
         tvb_offset = tvb_find_guint8(tvb, tvb_offset , tvb_next_offset, '=');
-        if (tvb_offset == -1)
-            THROW(ReportedBoundsError);
+        if (tvb_offset == -1) {
+            expert_add_info(pinfo, megaco_LocalControl_item, &ei_megaco_parse_error);
+            return;
+        }
         /* Start search after '=' in case there is no SP*/
         tvb_offset++;
         tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
