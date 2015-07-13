@@ -178,28 +178,12 @@ elif [ ! -d "$bundle" ] ; then
 	exit 1
 fi
 
-if [ "$ui_toolkit" = "qt" ] ; then
-	for i in 5 ""
-	do
-		qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
-		if [ ! -z "$qt_frameworks_dir" ] ; then
-			# found it
-			break;
-		fi
-	done
-	if [ -z "$qt_frameworks_dir" ] ; then
-		echo "Can't find the Qt frameworks directory" >&2
-		exit 1
-	fi
-fi
-
 # Package paths
 pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgexec"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugins="$bundle/Contents/PlugIns"
-pkgpluginswireshark="$bundle/Contents/PlugIns/wireshark"
+pkgplugin="$bundle/Contents/PlugIns/wireshark"
 
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`
@@ -258,7 +242,7 @@ create_bundle() {
 
 	mkdir -p "$pkgexec"
 	mkdir -p "$pkgbin"
-	mkdir -p "$pkgpluginswireshark"
+	mkdir -p "$pkgplugin"
 
 	if [ "$ui_toolkit" = "qt" ] ; then
 		cp -v "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
@@ -315,7 +299,7 @@ create_bundle() {
 	find "$binary_path/../lib/wireshark/plugins" \
 		-type f \
 		\( -name "*.so" -o -name "*.dylib" \) \
-		-exec cp -fv "{}" "$pkgpluginswireshark/" \;
+		-exec cp -fv "{}" "$pkgplugin/" \;
 
 	cp "$plist" "$bundle/Contents/Info.plist"
 
@@ -413,27 +397,6 @@ END_PANGO
 			fi
 			cp -r $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/* $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
 		fi
-	elif [ "$ui_toolkit" = "qt" ] ; then
-		#
-		# Copy over Qt plugins.
-		#
-		# macdeployqt doesn't seem to do this, for some unknown
-		# reason.
-		#
-		# XXX - can we automatically determine *which* plugins we
-		# need?  We don't want to just blindly copy them; for
-		# example, the sqldrivers plugins require libmysqlclient
-		# in /opt/local, and we don't need them.
-		#
-		pluginsdir=`echo $qt_frameworks_dir | sed 's;/lib;/plugins;'`
-		for plugin in accessible audio bearer iconengines \
-		    imageformats mediaservice platforms printsupport
-		do
-			if [ -d "$pluginsdir/$plugin" ] ; then
-				echo "$pluginsdir/$plugin -> $pkgplugins"
-				cp -nR "$pluginsdir/$plugin" "$pkgplugins"
-			fi
-		done
 	fi # GTK+ / Qt
 } # create_bundle
 
@@ -451,7 +414,6 @@ endl=true
 lib_dep_search_list="
 	$pkglib/*
 	$pkgbin/*-bin
-	$pkgplugins/*/*.dylib
 	"
 if [ "$ui_toolkit" = "gtk" ] ; then
 	lib_dep_search_list="
@@ -475,47 +437,11 @@ while $endl; do
 		otool -L $lib_dep_search_list 2>/dev/null \
 		| fgrep compatibility \
 		| cut -d\( -f1 \
-		| egrep -v "$exclude_prefixes|$qt_frameworks_dir" \
+		| egrep -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
 		`"
 	cp -vn $libs "$pkglib"
-
-	if [ "$ui_toolkit" = "qt" ] ; then
-		#
-		# Forcibly copy over Qt frameworks, as macdeployqt fails
-		# to do so for some unknown reason.
-		#
-		qt_frameworks="`\
-			otool -L $lib_dep_search_list 2>/dev/null \
-			| fgrep compatibility \
-			| cut -d\( -f1 \
-			| egrep "(@rpath|$qt_frameworks_dir)/Qt[a-zA-Z0-9_]*\.framework/" \
-			| sort \
-			| uniq \
-			`"
-		for framework in $qt_frameworks
-		do
-			if [ ! -d "$pkglib/$framework" ] ; then
-				frameworkname=`echo "$framework" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;"`
-				echo "$qt_frameworks_dir/$frameworkname.framework -> $pkglib"
-				cp -nR "$qt_frameworks_dir/$frameworkname.framework" "$pkglib"
-				#
-				# Get rid of the headers and debug stuff.
-				#
-				rm -rf "$pkglib/$frameworkname.framework/Headers"
-				rm -rf "$pkglib/$frameworkname.framework/"*.prl
-				rm -rf "$pkglib/$frameworkname.framework/"*_debug
-				rm -rf "$pkglib/$frameworkname.framework/"*_debug.prl
-				rm -rf "$pkglib/$frameworkname.framework/Versions"/*/Headers
-				rm -rf "$pkglib/$frameworkname.framework/Versions"/*/*_debug
-				lib_dep_search_list="
-					$lib_dep_search_list
-					$pkglib/$frameworkname.framework/Versions/Current/*"
-			fi
-		done
-	fi
-
 	let "a+=1"
 	nnfiles=`ls "$pkglib" | wc -l`
 	if [ $nnfiles = $nfiles ]; then
@@ -538,6 +464,10 @@ if [ "$strip" = "true" ]; then
 	echo -e "\nStripping debugging symbols...\n"
 	strip -x "$pkglib"/*.dylib
 	strip -ur "$binpath"
+fi
+
+if [ "$ui_toolkit" = "qt" ] ; then
+	macdeployqt "$bundle" -verbose=3 || exit 1
 fi
 
 # NOTE: we must rpathify *all* files, *including* plugins for GTK+ etc.,
@@ -606,7 +536,7 @@ rpathify_file () {
 				otool -L $1 \
 				| fgrep compatibility \
 				| cut -d\( -f1 \
-				| egrep -v "$exclude_prefixes|$qt_frameworks_dir" \
+				| egrep -v "$exclude_prefixes" \
 				| sort \
 				| uniq \
 				`"
@@ -628,42 +558,6 @@ rpathify_file () {
 				echo "Changing reference to $lib to $to in $1"
 				/usr/bin/install_name_tool -change $lib $to $1
 			done
-
-			if [ "$ui_toolkit" = "qt" ] ; then
-				#
-				# Rpathify the references to the Qt frameworks
-				# as necessary.
-				#
-				qt_frameworks="`\
-					otool -L $lib_dep_search_list 2>/dev/null \
-					| fgrep compatibility \
-					| cut -d\( -f1 \
-					| egrep "$qt_frameworks_dir/Qt[a-zA-Z0-9_]*\.framework/" \
-					| sort \
-					| uniq \
-					`"
-				for framework in $qt_frameworks
-				do
-					#
-					# Get the pathname of the framework,
-					# with everything leading up to it
-					# stripped.
-					#
-					base=`echo $framework | sed 's;$qt_frameworks_dir/;;'`
-					#
-					# The framework will end up in a
-					# directory under the rpath; this
-					# is what we should change its file
-					# name to.
-					#
-					to=@rpath/$base
-					#
-					# Change the reference to that framework.
-					#
-					echo "Changing reference to $framework to $to in $1"
-					/usr/bin/install_name_tool -change $lib $to $1
-				done
-			fi
 			;;
 		esac
 	fi
@@ -706,11 +600,6 @@ rpathify_files () {
 	rpathify_dir "$pkgbin/extcap" "*"
 }
 
-if [ "$ui_toolkit" = "qt" ] ; then
-#	macdeployqt "$bundle" -verbose=2 || exit 1
-	:
-fi
-
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
 if [ "$PATHLENGTH" -ge "6" ]; then
 	# If the LIBPREFIX path is long enough to allow
@@ -750,7 +639,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$library"
 	done
 	echo "Signing plugins"
-	for plugin in $pkgplugin/*/*.so ; do
+	for plugin in $pkgplugin/*.so ; do
 		codesign_file "$plugin"
 	done
 	echo "Signing $bundle"
