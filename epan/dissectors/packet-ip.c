@@ -2397,25 +2397,27 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     return;
   }
 
-    /* Hand off to the next protocol.
+  if (tvb_reported_length(next_tvb) > 0) {
+     /* Hand off to the next protocol.
 
      XXX - setting the columns only after trying various dissectors means
      that if one of those dissectors throws an exception, the frame won't
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-  if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
-    /* We're good */
-  } else if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo,
+     if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
+       /* We're good */
+      } else if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo,
                                  parent_tree, TRUE, iph)) {
-    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
-      /* Unknown protocol */
-      if (update_col_info) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
-                   ipprotostr(iph->ip_p), iph->ip_p);
-      }
-      call_dissector(data_handle,next_tvb, pinfo, parent_tree);
-    }
+        if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
+          /* Unknown protocol */
+          if (update_col_info) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
+                     ipprotostr(iph->ip_p), iph->ip_p);
+          }
+          call_dissector(data_handle,next_tvb, pinfo, parent_tree);
+        }
+     }
   }
   pinfo->fragmented = save_fragmented;
 }
