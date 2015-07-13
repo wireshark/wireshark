@@ -179,7 +179,14 @@ elif [ ! -d "$bundle" ] ; then
 fi
 
 if [ "$ui_toolkit" = "qt" ] ; then
-	qt_frameworks_dir=`pkg-config --libs Qt5Core | sed -e 's/-F//' -e 's/ -framework.*//'`
+	for i in 5 ""
+	do
+		qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
+		if [ ! -z "$qt_frameworks_dir" ] ; then
+			# found it
+			break;
+		fi
+	done
 	if [ -z "$qt_frameworks_dir" ] ; then
 		echo "Can't find the Qt frameworks directory" >&2
 		exit 1
