@@ -1338,16 +1338,8 @@ darwin*)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	# Also add -Wl,-rpath,@executable_path/../lib,
-	# -Wl,-rpath,@executable_path/../Frameworks, and
-	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
-	# bundle, we can tweak all the executable images, shared
-	# libraries, and plugins in the bundle to look for non-system
-	# libraries in the rpath, rather than having a script tweak
-	# DYLD_LIBRARY_PATH.
-	#
-	LDFLAGS="-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/usr/local/lib $LDFLAGS"
-	AC_MSG_RESULT([Apple linker - added -Wl,-single_module to shared library linker flags and -Wl,-headerpad_max_install_names -Wl,-search_paths_first and rpaths to all linker flags])
+	LDFLAGS="-Wl,-headerpad_max_install_names -Wl,-search_paths_first $LDFLAGS"
+	AC_MSG_RESULT([Apple linker - added -Wl,-single_module to shared library linker flags and -Wl,-headerpad_max_install_names -Wl,-search_paths_first and -Wl,-headerpad_max_install_names to all linker flags])
 	;;
 cygwin*)
 	#
