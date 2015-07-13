@@ -1623,17 +1623,9 @@ if(ENABLE_APPLICATION_BUNDLE)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	# Also add -Wl,-rpath,@executable_path/../Frameworks,
-	# -Wl,-rpath,@executable_path/../lib and
-	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
-	# bundle, we can tweak all the executable images, shared
-	# libraries, and plugins in the bundle to look for non-system
-	# libraries in the rpath, rather than having a script tweak
-	# DYLD_LIBRARY_PATH.
-	#
 
 	set(CMAKE_EXE_LINKER_FLAGS
-	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,@executable_path/../lib -Wl,-rpath,/usr/local/lib ${CMAKE_EXE_LINKER_FLAGS}"
+	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first ${CMAKE_EXE_LINKER_FLAGS}"
 	)
 
 	# Add files to the app bundle
