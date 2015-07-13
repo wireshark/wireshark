@@ -191,6 +191,11 @@ if [ "$ui_toolkit" = "qt" ] ; then
 		echo "Can't find the Qt frameworks directory" >&2
 		exit 1
 	fi
+
+	#
+	# Leave the Qt frameworks out of the special processing.
+	#
+	exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
 fi
 
 # Package paths
