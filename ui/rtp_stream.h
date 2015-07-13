@@ -44,23 +44,6 @@ extern "C" {
 #include <epan/address.h>
 #include <epan/tap.h>
 
-
-/****************************************************************************/
-/* type for storing rtp frame information */
-typedef struct st_rtp_sample_header {
-    double rec_time;        /**< milliseconds since start of recording */
-    guint16 frame_length;   /**< number of bytes in *frame */
-} rtp_sample_header_t;
-
-/** type for storing rtp frame information */
-typedef struct st_rtp_sample {
-    rtp_sample_header_t header;          /**< date and size */
-    const guint8 *frame;                 /**< data bytes */
-} rtp_sample_t;
-
-typedef rtp_sample_t* rtp_sample_p;
-
-
 /** Defines an rtp stream */
 typedef struct _rtp_stream_info {
     address         src_addr;

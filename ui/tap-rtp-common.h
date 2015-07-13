@@ -32,7 +32,6 @@
 
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtp_stream_info_t*, FILE*);
-void rtp_write_sample(rtp_sample_t*, FILE*);
 int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
 
 #endif /*TAP_RTP_COMMON_H_INCLUDED*/

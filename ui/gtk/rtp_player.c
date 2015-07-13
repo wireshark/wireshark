@@ -159,7 +159,7 @@ static PaStream *pa_stream;
 typedef struct _rtp_channel_info {
 	nstime_t start_time_abs;
 	nstime_t stop_time_abs;
-	GArray *samples;			/* the array with decoded audio */
+	GArray *samples;			/* Array of sample_t (decoded audio) */
 	guint16 call_num;
 	gboolean selected;
 	unsigned long frame_index;
