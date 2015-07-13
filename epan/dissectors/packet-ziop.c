@@ -332,7 +332,7 @@ proto_reg_handoff_ziop (void)
   ziop_tcp_handle = new_create_dissector_handle(dissect_ziop_tcp, proto_ziop);
   dissector_add_for_decode_as("udp.port", ziop_tcp_handle);
 
-  heur_dissector_add("tcp", dissect_ziop_heur, "ZIOP over TCP", "ziop_tcp", proto_ziop);
+  heur_dissector_add("tcp", dissect_ziop_heur, "ZIOP over TCP", "ziop_tcp", proto_ziop, HEURISTIC_ENABLE);
 
   data_handle = find_dissector("data");
 }

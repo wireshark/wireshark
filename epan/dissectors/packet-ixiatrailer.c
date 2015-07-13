@@ -200,7 +200,7 @@ void
 proto_reg_handoff_ixiatrailer(void)
 {
   /* Check for Ixia format in the ethernet trailer */
-  heur_dissector_add("eth.trailer", dissect_ixiatrailer, "Ixia Trailer", "ixiatrailer_eth", proto_ixiatrailer);
+  heur_dissector_add("eth.trailer", dissect_ixiatrailer, "Ixia Trailer", "ixiatrailer_eth", proto_ixiatrailer, HEURISTIC_ENABLE);
 }
 
 /*

@@ -1688,7 +1688,7 @@ proto_reg_handoff_stun(void)
     dissector_add_for_decode_as("tcp.port", stun_tcp_handle);
     dissector_add_for_decode_as("udp.port", stun_udp_handle);
 
-    heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun);
+    heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
 
     data_handle = find_dissector("data");
 }

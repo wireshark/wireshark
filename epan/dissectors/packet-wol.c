@@ -333,7 +333,7 @@ proto_reg_handoff_wol(void)
      * we'll miss some, but how else to do this ... add a thousand of
      * these dissector_add_uint()'s and heur_dissector_add()'s??? */
     dissector_add_uint("ethertype", ETHERTYPE_WOL, wol_handle);
-    heur_dissector_add("udp", dissect_wolheur, "Wake On LAN over UDP", "wol_udp", proto_wol);
+    heur_dissector_add("udp", dissect_wolheur, "Wake On LAN over UDP", "wol_udp", proto_wol, HEURISTIC_ENABLE);
 }
 
 /*

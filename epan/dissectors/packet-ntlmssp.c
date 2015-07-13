@@ -3319,7 +3319,7 @@ proto_reg_handoff_ntlmssp(void)
                                     &ntlmssp_seal_fns);
   ntlmssp_tap = register_tap("ntlmssp");
 
-  heur_dissector_add("credssp", dissect_ntlmssp_heur, "NTLMSSP over CredSSP", "ntlmssp_credssp", proto_ntlmssp);
+  heur_dissector_add("credssp", dissect_ntlmssp_heur, "NTLMSSP over CredSSP", "ntlmssp_credssp", proto_ntlmssp, HEURISTIC_ENABLE);
 
 }
 

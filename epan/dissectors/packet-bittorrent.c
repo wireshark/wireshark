@@ -708,7 +708,7 @@ proto_reg_handoff_bittorrent(void)
    dissector_add_uint("tcp.port", 6888, dissector_handle);
    dissector_add_uint("tcp.port", 6889, dissector_handle);
 #endif
-   heur_dissector_add("tcp", test_bittorrent_packet, "BitTorrent over TCP", "bittorrent_tcp", proto_bittorrent);
+   heur_dissector_add("tcp", test_bittorrent_packet, "BitTorrent over TCP", "bittorrent_tcp", proto_bittorrent, HEURISTIC_ENABLE);
 }
 
 /*

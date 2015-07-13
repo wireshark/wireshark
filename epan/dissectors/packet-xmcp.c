@@ -1370,7 +1370,7 @@ proto_reg_handoff_xmcp(void)
 
   if (!xmcp_prefs_initialized) {
     xmcp_tcp_handle = new_create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
-    heur_dissector_add("tcp", dissect_xmcp_heur, "XMCP over TCP", "xmcp_tcp", proto_xmcp);
+    heur_dissector_add("tcp", dissect_xmcp_heur, "XMCP over TCP", "xmcp_tcp", proto_xmcp, HEURISTIC_ENABLE);
     media_type_dissector_table = find_dissector_table("media_type");
     xmcp_prefs_initialized = TRUE;
   } else {

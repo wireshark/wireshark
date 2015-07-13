@@ -301,7 +301,6 @@ static int hf_acn_dmx_data = -1;
 /* static int hf_acn_dmx_dmp_vector = -1; */
 
 /* Try heuristic ACN decode */
-static gboolean global_acn_heur = FALSE;
 static gboolean global_acn_dmx_enable = FALSE;
 static gint     global_acn_dmx_display_view = 0;
 static gint     global_acn_dmx_display_line_format = 0;
@@ -479,9 +478,6 @@ dissect_acn_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * traffic not sent to a known dissector and not claimed by
    * a heuristic dissector called before us!
    */
-
-  /* abort if not enabled! */
-  if (!global_acn_heur) return FALSE;
 
   /* abort if it is NOT an ACN packet */
   if (!is_acn(tvb)) return FALSE;
@@ -3222,10 +3218,7 @@ proto_register_acn(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   acn_module = prefs_register_protocol(proto_acn, NULL);
-  prefs_register_bool_preference(acn_module, "heuristic_acn",
-                                 "Decode ACN",
-                                 "Enable Architecture for Control Networks dissector (ANSI BSR E1.17)",
-                                 &global_acn_heur);
+  prefs_register_obsolete_preference(acn_module, "heuristic_acn");
 
   prefs_register_bool_preference(acn_module, "dmx_enable",
                                  "Streaming DMX",
@@ -3266,7 +3259,7 @@ proto_reg_handoff_acn(void)
   /* dissector_handle_t acn_handle; */
   /* acn_handle = new_create_dissector_handle(dissect_acn, proto_acn); */
   /* dissector_add_for_decode_as("udp.port", acn_handle);                         */
-  heur_dissector_add("udp", dissect_acn_heur, "ACN over UDP", "acn_udp", proto_acn);
+  heur_dissector_add("udp", dissect_acn_heur, "ACN over UDP", "acn_udp", proto_acn, HEURISTIC_DISABLE);
 }
 
 /*

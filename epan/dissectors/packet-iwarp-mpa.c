@@ -979,7 +979,7 @@ proto_reg_handoff_mpa(void)
 	 * MPA does not use any specific TCP port so, when not on a specific
 	 * port, try this dissector whenever there is TCP traffic.
 	 */
-	heur_dissector_add("tcp", dissect_iwarp_mpa, "IWARP_MPA over TCP", "iwarp_mpa_tcp", proto_iwarp_mpa);
+	heur_dissector_add("tcp", dissect_iwarp_mpa, "IWARP_MPA over TCP", "iwarp_mpa_tcp", proto_iwarp_mpa, HEURISTIC_ENABLE);
 	ddp_rdmap_handle = find_dissector("iwarp_ddp_rdmap");
 }
 

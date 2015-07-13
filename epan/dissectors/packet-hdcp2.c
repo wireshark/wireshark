@@ -41,8 +41,6 @@ void proto_reg_handoff_hdcp2(void);
 
 static int proto_hdcp2 = -1;
 
-static gboolean  hdcp2_enable_dissector = FALSE;
-
 static gint ett_hdcp2 = -1;
 static gint ett_hdcp2_cert = -1;
 
@@ -300,9 +298,7 @@ proto_register_hdcp2(void)
             "HDCP2", "hdcp2");
 
     hdcp2_module = prefs_register_protocol(proto_hdcp2, proto_reg_handoff_hdcp2);
-    prefs_register_bool_preference(hdcp2_module, "enable", "Enable dissector",
-                        "Enable heuristic HDCP2 dissector (default is false)",
-                        &hdcp2_enable_dissector);
+    prefs_register_obsolete_preference(hdcp2_module, "enable");
 
     proto_register_field_array(proto_hdcp2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -318,12 +314,10 @@ proto_reg_handoff_hdcp2(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add ("tcp", dissect_hdcp2, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2);
+        heur_dissector_add ("tcp", dissect_hdcp2, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2, HEURISTIC_DISABLE);
 
         prefs_initialized = TRUE;
     }
-
-    proto_set_decoding(proto_hdcp2, hdcp2_enable_dissector);
 }
 
 /*

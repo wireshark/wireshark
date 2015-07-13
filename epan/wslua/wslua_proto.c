@@ -301,7 +301,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
 
         /* now register the single/common heur_dissect_lua function */
         /* XXX - ADD PARAMETERS FOR NEW heur_dissector_add PARAMETERS!!! */
-        heur_dissector_add(listname, heur_dissect_lua, proto_name, proto->loname, proto->hfid);
+        heur_dissector_add(listname, heur_dissect_lua, proto_name, proto->loname, proto->hfid, HEURISTIC_ENABLE);
 
     } else {
         luaL_argerror(L,3,"The heuristic dissector must be a function");

@@ -233,7 +233,7 @@ void proto_reg_handoff_atn_cm(void)
 				dissect_atn_cm_heur,
 				"ATN-CM over ATN-ULCS",
 				"atn-cm-ulcs",
-				proto_atn_cm);
+				proto_atn_cm, HEURISTIC_ENABLE);
 }
 
 /*

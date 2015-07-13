@@ -3149,7 +3149,7 @@ proto_reg_handoff_ip(void)
   dissector_add_for_decode_as("udp.port", ip_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
 
-  heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip);
+  heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
 }
 
 /*

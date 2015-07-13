@@ -2431,7 +2431,6 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 }
 
-#if 0
 static gboolean
 dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -2456,13 +2455,12 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         conversation_set_dissector(conversation, rtmpt_tcp_handle);
 
                         /* Dissect the packet */
-                        dissect_rtmpt_tcp(tvb, pinfo, tree);
+                        dissect_rtmpt_tcp(tvb, pinfo, tree, data);
                         return TRUE;
                 }
         }
         return FALSE;
 }
-#endif
 
 static void
 dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -2933,7 +2931,7 @@ proto_reg_handoff_rtmpt(void)
 {
         dissector_handle_t amf_handle;
 
-/*      heur_dissector_add("tcp", dissect_rtmpt_heur, "RTMPT over TCP", "rtmpt_tcp", proto_rtmpt); */
+        heur_dissector_add("tcp", dissect_rtmpt_heur, "RTMPT over TCP", "rtmpt_tcp", proto_rtmpt, HEURISTIC_DISABLE);
         rtmpt_tcp_handle = new_create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
 /*      dissector_add_for_decode_as("tcp.port", rtmpt_tcp_handle); */
         dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);

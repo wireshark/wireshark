@@ -248,7 +248,7 @@ proto_reg_handoff_tcpencap(void)
 		esp_handle = find_dissector("esp");
 		udp_handle = find_dissector("udp");
 
-		heur_dissector_add("tcp", dissect_tcpencap_heur, "TCP Encapsulation of IPsec Packets", "ipsec_tcp", proto_tcpencap);
+		heur_dissector_add("tcp", dissect_tcpencap_heur, "TCP Encapsulation of IPsec Packets", "ipsec_tcp", proto_tcpencap, HEURISTIC_ENABLE);
 
 		initialized = TRUE;
 	}

@@ -242,7 +242,6 @@ void proto_reg_handoff_dcm(void);
 static range_t *global_dcm_tcp_range = NULL;
 static range_t *global_dcm_tcp_range_backup = NULL;         /* needed to deregister */
 
-static gboolean global_dcm_heuristic = FALSE;
 static gboolean global_dcm_export_header = TRUE;
 static guint    global_dcm_export_minsize = 4096;           /* Filter small objects in export */
 
@@ -7062,8 +7061,6 @@ static void dcm_apply_settings(void) {
     dissector_delete_uint_range("tcp.port", global_dcm_tcp_range_backup, dcm_handle);
     g_free(global_dcm_tcp_range_backup);
 
-    heur_dissector_delete("tcp", dissect_dcm_heuristic, proto_dcm);
-
     /*  Register 'static' tcp port range specified in properties
         Statically defined ports take precedence over a heuristic one,
         I.e., if an foreign protocol claims a port, where dicom is running on
@@ -7074,12 +7071,6 @@ static void dcm_apply_settings(void) {
 
     /* remember settings for next time */
     global_dcm_tcp_range_backup = range_copy(global_dcm_tcp_range);
-
-    /*  Add heuristic search, if user selected it */
-
-    if (global_dcm_heuristic)
-            heur_dissector_add("tcp", dissect_dcm_heuristic, "DICOM over TCP", "dicom_tcp", proto_dcm);
-
 }
 
 /* Register the protocol with Wireshark */
@@ -7294,12 +7285,7 @@ proto_register_dcm(void)
     prefs_register_range_preference(dcm_module, "tcp.port",
         "DICOM Ports", "DICOM Ports range", &global_dcm_tcp_range, 65535);
 
-    prefs_register_bool_preference(dcm_module, "heuristic",
-            "Search on any TCP Port (heuristic mode)",
-            "When enabled, the DICOM dissector will parse all TCP packets "
-            "not handled by any other dissector and look for an association request. "
-            "Disabled by default, to preserve resources for the non DICOM community.",
-            &global_dcm_heuristic);
+    prefs_register_obsolete_preference(dcm_module, "heuristic");
 
     prefs_register_bool_preference(dcm_module, "export_header",
             "Create Meta Header on Export",
@@ -7352,8 +7338,9 @@ proto_reg_handoff_dcm(void)
 
     dcm_handle = new_create_dissector_handle(dissect_dcm_static, proto_dcm);
 
-    dcm_apply_settings();       /* Register static and heuristic ports */
+    dcm_apply_settings();       /* Register static ports */
 
+    heur_dissector_add("tcp", dissect_dcm_heuristic, "DICOM over TCP", "dicom_tcp", proto_dcm, HEURISTIC_DISABLE);
 }
 
 

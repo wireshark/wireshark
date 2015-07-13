@@ -1377,8 +1377,6 @@ typedef struct {
 /* The conversation sequence number */
 static guint seq_number = 0;
 
-/* Heuristically detect DNP3 over TCP/UDP */
-static gboolean dnp3_heuristics = FALSE;
 /* desegmentation of DNP3 over TCP */
 static gboolean dnp3_desegment = TRUE;
 
@@ -3437,7 +3435,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static gboolean
-check_dnp3_header(tvbuff_t *tvb)
+check_dnp3_header(tvbuff_t *tvb, gboolean dnp3_heuristics)
 {
   /* Assume the CRC will be bad */
   gboolean goodCRC = FALSE;
@@ -3494,10 +3492,23 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
   return message_len;
 }
 
-static gboolean
+static int
 dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb)) {
+  if (!check_dnp3_header(tvb, FALSE)) {
+    return 0;
+  }
+
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
+                   get_dnp3_message_len, dissect_dnp3_message, data);
+
+  return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_dnp3_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  if (!check_dnp3_header(tvb, TRUE)) {
     return FALSE;
   }
 
@@ -3507,10 +3518,21 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   return TRUE;
 }
 
-static gboolean
+static int
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb)) {
+  if (!check_dnp3_header(tvb, FALSE)) {
+    return 0;
+  }
+
+  dissect_dnp3_message(tvb, pinfo, tree, data);
+  return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  if (!check_dnp3_header(tvb, TRUE)) {
     return FALSE;
   }
 
@@ -4544,10 +4566,7 @@ proto_register_dnp3(void)
   expert_register_field_array(expert_dnp3, ei, array_length(ei));
 
   dnp3_module = prefs_register_protocol(proto_dnp3, NULL);
-  prefs_register_bool_preference(dnp3_module, "heuristics",
-    "Try to detect DNP 3 heuristically",
-    "Whether the DNP3 dissector should try to find DNP 3 packets heuristically.",
-    &dnp3_heuristics);
+  prefs_register_obsolete_preference(dnp3_module, "heuristics");
   prefs_register_bool_preference(dnp3_module, "desegment",
     "Reassemble DNP3 messages spanning multiple TCP segments",
     "Whether the DNP3 dissector should reassemble messages spanning multiple TCP segments."
@@ -4563,13 +4582,8 @@ proto_reg_handoff_dnp3(void)
   dissector_handle_t dnp3_udp_handle;
 
   /* register as heuristic dissector for both TCP and UDP */
-  if (dnp3_heuristics) {
-    heur_dissector_add("tcp", dissect_dnp3_tcp, "DNP 3.0 over TCP", "dnp3_tcp", proto_dnp3);
-    heur_dissector_add("udp", dissect_dnp3_udp, "DNP 3.0 over UDP", "dnp3_udp", proto_dnp3);
-  } else {
-    heur_dissector_delete("tcp", dissect_dnp3_tcp, proto_dnp3);
-    heur_dissector_delete("udp", dissect_dnp3_udp, proto_dnp3);
-  }
+  heur_dissector_add("tcp", dissect_dnp3_tcp_heur, "DNP 3.0 over TCP", "dnp3_tcp", proto_dnp3, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_dnp3_udp_heur, "DNP 3.0 over UDP", "dnp3_udp", proto_dnp3, HEURISTIC_DISABLE);
 
   dnp3_tcp_handle = new_create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
   dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);

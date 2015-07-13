@@ -3916,7 +3916,7 @@ proto_reg_handoff_q931(void)
     /*
      * For H.323.
      */
-    heur_dissector_add("tcp", dissect_q931_tpkt_heur, "Q.931 over TPKT over TCP", "q931_tcp", proto_q931);
+    heur_dissector_add("tcp", dissect_q931_tpkt_heur, "Q.931 over TPKT over TCP", "q931_tcp", proto_q931, HEURISTIC_ENABLE);
 }
 
 static void reset_q931_packet_info(q931_packet_info *pi)

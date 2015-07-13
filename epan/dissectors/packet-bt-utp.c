@@ -65,8 +65,6 @@ static const value_string bt_utp_extension_type_vals[] = {
 
 static int proto_bt_utp = -1;
 
-static gboolean bt_utp_enable_heuristic_dissection = FALSE; /* disabled by default since heuristic is weak */
-
 /* ---  "Original" uTP Header ("version 0" ?) --------------
 
 See utp.cpp source code @ https://github.com/bittorrent/libutp
@@ -475,9 +473,7 @@ proto_register_bt_utp(void)
                         );
 
   bt_utp_module = prefs_register_protocol(proto_bt_utp, proto_reg_handoff_bt_utp);
-  prefs_register_bool_preference(bt_utp_module, "enable", "Enable BT-uTP heuristic dissection",
-                                 "Enable BT-uTP heuristic dissection (default is disabled)",
-                                 &bt_utp_enable_heuristic_dissection);
+  prefs_register_obsolete_preference(bt_utp_module, "enable");
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -489,15 +485,14 @@ proto_reg_handoff_bt_utp(void)
   static gboolean prefs_initialized = FALSE;
 
   if (!prefs_initialized) {
-    heur_dissector_add("udp", dissect_bt_utp, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp);
+    /* disabled by default since heuristic is weak */
+    heur_dissector_add("udp", dissect_bt_utp, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp, HEURISTIC_DISABLE);
 
     bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
     dissector_add_for_decode_as("udp.port", bt_utp_handle);
 
     prefs_initialized = TRUE;
   }
-
-  heur_dissector_set_enabled("udp", dissect_bt_utp, proto_bt_utp, bt_utp_enable_heuristic_dissection);
 }
 
 /*

@@ -92,7 +92,6 @@ typedef struct _EslHeader
 #define SIZEOF_ESLHEADER 16
 
 static dissector_handle_t eth_withoutfcs_handle;
-static int esl_enable_dissector = FALSE;
 
 void proto_reg_handoff_esl(void);
 
@@ -349,9 +348,7 @@ proto_register_esl(void) {
 
     esl_module = prefs_register_protocol(proto_esl, proto_reg_handoff_esl);
 
-    prefs_register_bool_preference(esl_module, "enable", "Enable dissector",
-                                   "Enable this dissector (default is false)",
-                                   &esl_enable_dissector);
+    prefs_register_obsolete_preference(esl_module, "enable");
 
     proto_register_field_array(proto_esl,hf,array_length(hf));
     proto_register_subtree_array(ett,array_length(ett));
@@ -365,10 +362,9 @@ proto_reg_handoff_esl(void) {
 
     if (!initialized) {
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        heur_dissector_add("eth", dissect_esl_heur, "EtherCAT over Ethernet", "esl_eth", proto_esl);
+        heur_dissector_add("eth", dissect_esl_heur, "EtherCAT over Ethernet", "esl_eth", proto_esl, HEURISTIC_DISABLE);
         initialized = TRUE;
     }
-    proto_set_decoding(proto_esl, esl_enable_dissector);
 }
 
 /*

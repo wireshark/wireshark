@@ -121,6 +121,11 @@ typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
 typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, void *);
 
+typedef enum {
+    HEURISTIC_DISABLE,
+    HEURISTIC_ENABLE
+} heuristic_enable_e;
+
 typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
@@ -454,9 +459,10 @@ WS_DLL_PUBLIC heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const 
  * @param display_name the string used to present heuristic to user, e.g. "HTTP over TCP"
  * @param short_name the string used for "internal" use to identify heuristic, e.g. "http_tcp"
  * @param proto the protocol id of the sub-dissector
+ * @param enable initially enabled or not
  */
 WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissector,
-    const char *display_name, const char *short_name, const int proto);
+    const char *display_name, const char *short_name, const int proto, heuristic_enable_e enable);
 
 /** Remove a sub-dissector from a heuristic dissector list.
  *  Call this in the prefs_reinit function of the sub-dissector.

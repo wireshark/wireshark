@@ -413,7 +413,7 @@ proto_reg_handoff_tfp(void) {
 	tfp_handle_tcp = create_dissector_handle(dissect_tfp_tcp, proto_tfp);
 
 	dissector_add_uint("tcp.port", tfp_PORT, tfp_handle_tcp);
-	heur_dissector_add("usb.bulk", dissect_tfp_bulk_heur, "Tinkerforge USB bulk endpoint", "tfp_usb_bulk", proto_tfp);
+	heur_dissector_add("usb.bulk", dissect_tfp_bulk_heur, "Tinkerforge USB bulk endpoint", "tfp_usb_bulk", proto_tfp, HEURISTIC_ENABLE);
 }
 
 /*

@@ -151,10 +151,6 @@ static const guint8* st_str_http2_type = "Type";
 static int st_node_http2 = -1;
 static int st_node_http2_type = -1;
 
-/* Heuristic dissection */
-static gboolean global_http2_heur = FALSE;
-
-
 /* Packet Header */
 static int proto_http2 = -1;
 static int hf_http2 = -1;
@@ -1438,8 +1434,7 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
            see if there's a valid frame type (0-11 are defined at the moment).
            This is weak heuristics, so it is disabled by default. */
-        if (!global_http2_heur ||
-            tvb_captured_length(tvb)<4 || tvb_get_guint8(tvb, 3)>HTTP2_BLOCKED)
+        if (tvb_captured_length(tvb)<4 || tvb_get_guint8(tvb, 3)>HTTP2_BLOCKED)
             return FALSE;
     }
 
@@ -1861,11 +1856,7 @@ proto_register_http2(void)
 
     http2_module = prefs_register_protocol(proto_http2, NULL);
 
-    prefs_register_bool_preference(http2_module, "heuristic_http2",
-        "Enable weak HTTP2 detection heuristic",
-        "The weak HTTP2 heuristic has some false positives and is disabled by "
-        "default. The stronger HTTP2 Magic Hello heuristic is always enabled.",
-        &global_http2_heur);
+    prefs_register_obsolete_preference(http2_module, "heuristic_http2");
 
     new_register_dissector("http2", dissect_http2, proto_http2);
 
@@ -1897,8 +1888,8 @@ proto_reg_handoff_http2(void)
     http2_handle = new_create_dissector_handle(dissect_http2, proto_http2);
     dissector_add_for_decode_as("tcp.port", http2_handle);
 
-    heur_dissector_add("ssl", dissect_http2_heur, "HTTP2 over SSL", "http2_ssl", proto_http2);
-    heur_dissector_add("http", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2);
+    heur_dissector_add("ssl", dissect_http2_heur, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);
+    heur_dissector_add("http", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);
 
     stats_tree_register("http2", "http2", "HTTP2", 0, http2_stats_tree_packet, http2_stats_tree_init, NULL);
 }

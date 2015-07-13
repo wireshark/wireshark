@@ -213,7 +213,7 @@ proto_reg_handoff_turnchannel(void)
 
 	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
 	   so only it should be able to determine if a packet is a TURN packet */
-	heur_dissector_add("stun", dissect_turnchannel_heur, "TURN Channel over STUN", "turnchannel_stun", proto_turnchannel);
+	heur_dissector_add("stun", dissect_turnchannel_heur, "TURN Channel over STUN", "turnchannel_stun", proto_turnchannel, HEURISTIC_ENABLE);
 
 	data_handle = find_dissector("data");
 }

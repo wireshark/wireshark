@@ -203,7 +203,7 @@ void
 proto_reg_handoff_fmtp(void)
 {
     /* Register as heuristic dissector for TCP */
-    heur_dissector_add("tcp", dissect_fmtp, "FMTP over TCP", "fmtp_tcp", proto_fmtp);
+    heur_dissector_add("tcp", dissect_fmtp, "FMTP over TCP", "fmtp_tcp", proto_fmtp, HEURISTIC_ENABLE);
     data_handle = find_dissector("data");
 }
 

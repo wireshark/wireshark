@@ -4264,7 +4264,7 @@ proto_reg_handoff_ndmp(void)
 {
 	ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
 	dissector_add_uint("tcp.port",TCP_PORT_NDMP, ndmp_handle);
-	heur_dissector_add("tcp", dissect_ndmp_heur, "NDMP over TCP", "ndmp_tcp", proto_ndmp);
+	heur_dissector_add("tcp", dissect_ndmp_heur, "NDMP over TCP", "ndmp_tcp", proto_ndmp, HEURISTIC_ENABLE);
 }
 
 /*

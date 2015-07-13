@@ -703,11 +703,11 @@ proto_reg_handoff_smb_direct(void)
 	heur_dissector_add("iwarp_ddp_rdmap",
 			   dissect_smb_direct_iwarp_heur,
                "SMB Direct over iWARP", "smb_direct_iwarp",
-			   proto_smb_direct);
+			   proto_smb_direct, HEURISTIC_ENABLE);
 	heur_dissector_add("infiniband.payload",
 			   dissect_smb_direct_infiniband_heur,
 			   "SMB Direct Infiniband", "smb_direct_infiniband",
-			   proto_smb_direct);
+			   proto_smb_direct, HEURISTIC_ENABLE);
 
 }
 

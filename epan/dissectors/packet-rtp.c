@@ -306,9 +306,6 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info);
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
 
-/* Try heuristic RTP decode */
-static gboolean global_rtp_heur = FALSE;
-
 /* desegment RTP streams */
 static gboolean desegment_rtp = TRUE;
 
@@ -1334,14 +1331,6 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     guint8       octet1;
     unsigned int version;
     unsigned int offset = 0;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (! global_rtp_heur)
-        return FALSE;
 
     /* Get the fields in the first octet */
     octet1 = tvb_get_guint8( tvb, offset );
@@ -3701,11 +3690,7 @@ proto_register_rtp(void)
                                     "this RTP stream to be created",
                                     &global_rtp_show_setup_info);
 
-    prefs_register_bool_preference(rtp_module, "heuristic_rtp",
-                                    "Try to decode RTP outside of conversations",
-                                    "If call control SIP/H323/RTSP/.. messages are missing in the trace, "
-                                    "RTP isn't decoded without this",
-                                    &global_rtp_heur);
+    prefs_register_obsolete_preference(rtp_module, "heuristic_rtp");
 
     prefs_register_bool_preference(rtp_module, "desegment_rtp_streams",
                                     "Allow subdissector to reassemble RTP streams",
@@ -3745,8 +3730,8 @@ proto_reg_handoff_rtp(void)
 
         dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
-        heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp);
-        heur_dissector_add("stun", dissect_rtp_heur_stun, "RTP over TURN", "rtp_stun", proto_rtp);
+        heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add("stun", dissect_rtp_heur_stun, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
 
         rtp_hdr_ext_ed137_handle = find_dissector("rtp.ext.ed137");
         rtp_hdr_ext_ed137a_handle = find_dissector("rtp.ext.ed137a");

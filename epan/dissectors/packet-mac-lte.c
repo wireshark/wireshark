@@ -2015,9 +2015,6 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
                                            guint8 direction);
 
 
-/* Heuristic dissection */
-static gboolean global_mac_lte_heur = FALSE;
-
 static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Call it (catch exceptions so that stats will be updated) */
@@ -2218,15 +2215,6 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     struct mac_lte_info  *p_mac_lte_info;
     tvbuff_t             *mac_tvb;
     gboolean             infoAlreadySet = FALSE;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (!global_mac_lte_heur) {
-        return FALSE;
-    }
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
@@ -7527,11 +7515,7 @@ void proto_register_mac_lte(void)
         "Attempt to dissect frames that have failed CRC check",
         &global_mac_lte_dissect_crc_failures);
 
-    prefs_register_bool_preference(mac_lte_module, "heuristic_mac_lte_over_udp",
-        "Try Heuristic LTE-MAC over UDP framing",
-        "When enabled, use heuristic dissector to find MAC-LTE frames sent with "
-        "UDP framing",
-        &global_mac_lte_heur);
+    prefs_register_obsolete_preference(mac_lte_module, "heuristic_mac_lte_over_udp");
 
     prefs_register_bool_preference(mac_lte_module, "attempt_to_dissect_srb_sdus",
         "Attempt to dissect LCID 1&2 as srb1&2",
@@ -7611,7 +7595,7 @@ void proto_register_mac_lte(void)
 void proto_reg_handoff_mac_lte(void)
 {
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_mac_lte_heur, "MAC-LTE over UDP", "mac_lte_udp", proto_mac_lte);
+    heur_dissector_add("udp", dissect_mac_lte_heur, "MAC-LTE over UDP", "mac_lte_udp", proto_mac_lte, HEURISTIC_DISABLE);
 
     /* Look up RLC dissector handle once and for all */
     rlc_lte_handle = find_dissector("rlc-lte");

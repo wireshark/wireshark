@@ -6693,7 +6693,7 @@ void proto_reg_handoff_lbmr(void)
     {
         lbmr_dissector_handle = new_create_dissector_handle(dissect_lbmr, proto_lbmr);
         dissector_add_for_decode_as("udp.port", lbmr_dissector_handle);
-        heur_dissector_add("udp", test_lbmr_packet, "LBM Topic Resolution over UDP", "lbmr_udp", proto_lbmr);
+        heur_dissector_add("udp", test_lbmr_packet, "LBM Topic Resolution over UDP", "lbmr_udp", proto_lbmr, HEURISTIC_ENABLE);
     }
 
     lbmr_mc_incoming_udp_port = global_lbmr_mc_incoming_udp_port;

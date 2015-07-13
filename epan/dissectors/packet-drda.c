@@ -942,7 +942,7 @@ proto_register_drda(void)
 void
 proto_reg_handoff_drda(void)
 {
-    heur_dissector_add("tcp", dissect_drda_heur, "DRDA over TCP", "drda_tcp", proto_drda);
+    heur_dissector_add("tcp", dissect_drda_heur, "DRDA over TCP", "drda_tcp", proto_drda, HEURISTIC_ENABLE);
     drda_tcp_handle = new_create_dissector_handle(dissect_drda_tcp, proto_drda);
 }
 

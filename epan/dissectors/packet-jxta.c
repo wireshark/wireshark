@@ -168,9 +168,6 @@ static int uri_address_type = -1;
 *   global preferences
 **/
 static gboolean gDESEGMENT = TRUE;
-static gboolean gUDP_HEUR  = TRUE;
-static gboolean gTCP_HEUR  = TRUE;
-static gboolean gSCTP_HEUR = TRUE;
 static gboolean gMSG_MEDIA = TRUE;
 
 /**
@@ -2384,14 +2381,9 @@ void proto_register_jxta(void)
                                    " and enable \"Reassemble fragmented IP datagrams\" in the IP protocol settings.",
                                    &gDESEGMENT);
 
-    prefs_register_bool_preference(jxta_module, "udp.heuristic", "Try to discover JXTA in UDP datagrams",
-                                   "Enable to inspect UDP datagrams for JXTA messages.", &gUDP_HEUR);
-
-    prefs_register_bool_preference(jxta_module, "tcp.heuristic", "Try to discover JXTA in TCP connections",
-                                   "Enable to inspect TCP connections for JXTA conversations.", &gTCP_HEUR);
-
-    prefs_register_bool_preference(jxta_module, "sctp.heuristic", "Try to discover JXTA in SCTP connections",
-                                   "Enable to inspect SCTP connections for JXTA conversations.", &gSCTP_HEUR);
+    prefs_register_obsolete_preference(jxta_module, "udp.heuristic");
+    prefs_register_obsolete_preference(jxta_module, "tcp.heuristic");
+    prefs_register_obsolete_preference(jxta_module, "sctp.heuristic");
 
     register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet, jxta_hostlist_packet);
 }
@@ -2406,9 +2398,6 @@ void proto_reg_handoff_jxta(void)
     static dissector_handle_t message_jxta_handle;
 
     static gboolean msg_media_register_done = FALSE;
-    static gboolean udp_register_done       = FALSE;
-    static gboolean tcp_register_done       = FALSE;
-    static gboolean sctp_register_done      = FALSE;
 
     if(!init_done) {
         message_jxta_handle = new_create_dissector_handle(dissect_jxta_message, proto_message_jxta);
@@ -2436,47 +2425,14 @@ void proto_reg_handoff_jxta(void)
             }
     }
 
-    if( gUDP_HEUR ) {
-        if( !udp_register_done ) {
-            /* g_message( "Registering UDP Heuristic dissector" ); */
-            heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta);
-            udp_register_done = TRUE;
-            }
-    } else {
-        if( udp_register_done ) {
-            /* g_message( "Deregistering UDP Heuristic dissector" ); */
-            heur_dissector_delete("udp", dissect_jxta_UDP_heur, proto_jxta);
-            udp_register_done = FALSE;
-            }
-    }
+    /* g_message( "Registering UDP Heuristic dissector" ); */
+    heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta, HEURISTIC_ENABLE);
 
-    if( gTCP_HEUR ) {
-        if( !tcp_register_done ) {
-            /* g_message( "Registering TCP Heuristic dissector" ); */
-            heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta);
-            tcp_register_done = TRUE;
-            }
-    } else {
-        if( tcp_register_done ) {
-            /* g_message( "Deregistering TCP Heuristic dissector" ); */
-            heur_dissector_delete("tcp", dissect_jxta_TCP_heur, proto_jxta);
-            tcp_register_done = FALSE;
-            }
-    }
+    /* g_message( "Registering TCP Heuristic dissector" ); */
+    heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta, HEURISTIC_ENABLE);
 
-    if( gSCTP_HEUR ) {
-        if( !sctp_register_done ) {
-            /* g_message( "Registering SCTP Heuristic dissector" ); */
-            heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta);
-            sctp_register_done = TRUE;
-            }
-    } else {
-        if( sctp_register_done ) {
-            /* g_message( "Deregistering SCTP Heuristic dissector" ); */
-            heur_dissector_delete("sctp", dissect_jxta_SCTP_heur, proto_jxta);
-            sctp_register_done = FALSE;
-            }
-    }
+    /* g_message( "Registering SCTP Heuristic dissector" ); */
+    heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta, HEURISTIC_ENABLE);
 }
 
 /*

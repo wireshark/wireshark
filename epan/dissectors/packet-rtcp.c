@@ -697,9 +697,6 @@ static expert_field ei_rtcp_roundtrip_delay_negative = EI_INIT;
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
      proto_tree *tree );
 
-/* Heuristic dissection */
-static gboolean global_rtcp_heur = FALSE;
-
 /* Displaying set info */
 static gboolean global_rtcp_show_setup_info = TRUE;
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -801,16 +798,6 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     unsigned int offset = 0;
     unsigned int first_byte;
     unsigned int packet_type;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (!global_rtcp_heur)
-    {
-        return FALSE;
-    }
 
     /* Look at first byte */
     first_byte = tvb_get_guint8(tvb, offset);
@@ -6502,11 +6489,7 @@ proto_register_rtcp(void)
         "this RTCP stream to be created",
         &global_rtcp_show_setup_info);
 
-    prefs_register_bool_preference(rtcp_module, "heuristic_rtcp",
-        "Try to decode RTCP outside of conversations",
-        "If call control SIP/H.323/RTSP/.. messages are missing in the trace, "
-        "RTCP isn't decoded without this",
-        &global_rtcp_heur);
+    prefs_register_obsolete_preference(rtcp_module, "heuristic_rtcp");
 
     prefs_register_bool_preference(rtcp_module, "show_roundtrip_calculation",
         "Show relative roundtrip calculations",
@@ -6537,8 +6520,8 @@ proto_reg_handoff_rtcp(void)
     dissector_add_for_decode_as("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
-    heur_dissector_add( "udp", dissect_rtcp_heur_udp, "RTCP over UDP", "rtcp_udp", proto_rtcp);
-    heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp);
+    heur_dissector_add( "udp", dissect_rtcp_heur_udp, "RTCP over UDP", "rtcp_udp", proto_rtcp, HEURISTIC_ENABLE);
+    heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp, HEURISTIC_ENABLE);
 }
 
 /*

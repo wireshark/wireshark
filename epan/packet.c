@@ -1964,19 +1964,37 @@ has_heur_dissector_list(const gchar *name) {
 }
 
 
+static int
+find_matching_heur_dissector_by_short_name(gconstpointer a, gconstpointer b)
+{
+	const gchar *str_a = proto_get_protocol_short_name(((const heur_dtbl_entry_t *)a)->protocol);
+	const gchar *str_b = (const gchar*)b;
+
+	return strcmp(str_a, str_b);
+}
+
+heur_dtbl_entry_t*
+find_heur_dissector_by_short_name(heur_dissector_list_t heur_list, const char *short_name)
+{
+	GSList *found_entry;
+	found_entry = g_slist_find_custom(heur_list->dissectors, (gpointer) short_name, find_matching_heur_dissector_by_short_name);
+
+	return found_entry ? (heur_dtbl_entry_t *)(found_entry->data) : NULL;
+}
+
 heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_name)
 {
 	return (heur_dtbl_entry_t*)g_hash_table_lookup(heuristic_short_names, (gpointer)short_name);
 }
 
 void
-heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *short_name, const int proto)
+heur_dissector_add(const char *name, heur_dissector_t dissector, const char *display_name, const char *short_name, const int proto, heuristic_enable_e enable)
 {
 	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
 	const char            *proto_name;
 	heur_dtbl_entry_t     *hdtbl_entry;
-	guint	               i, list_size;
-	GSList	              *list_entry;
+	guint                  i, list_size;
+	GSList                *list_entry;
 
 	/*
 	 * Make sure the dissector table exists.
@@ -2026,7 +2044,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	hdtbl_entry->display_name = display_name;
 	hdtbl_entry->short_name = short_name;
 	hdtbl_entry->list_name = g_strdup(name);
-	hdtbl_entry->enabled   = TRUE;
+	hdtbl_entry->enabled   = (enable == HEURISTIC_ENABLE);
 
 	/* do the table insertion */
 	g_hash_table_insert(heuristic_short_names, (gpointer)short_name, hdtbl_entry);

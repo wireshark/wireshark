@@ -975,7 +975,7 @@ void proto_reg_handoff_etch(void)
   /* create dissector handle only once */
   if(!etch_prefs_initialized) {
     /* add heuristic dissector for tcp */
-    heur_dissector_add("tcp", dissect_etch, "Etch over TCP", "etch_tcp", proto_etch);
+    heur_dissector_add("tcp", dissect_etch, "Etch over TCP", "etch_tcp", proto_etch, HEURISTIC_ENABLE);
     etch_prefs_initialized = TRUE;
   }
 

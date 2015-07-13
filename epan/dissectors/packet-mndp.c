@@ -255,9 +255,8 @@ test_mndp(tvbuff_t *tvb)
 	return TRUE;
 }
 
-#if 0
 static gboolean
-dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if ( !test_mndp(tvb) ) {
 		return FALSE;
@@ -265,7 +264,6 @@ dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_mndp(tvb, pinfo, tree);
 	return TRUE;
 }
-#endif
 
 static int
 dissect_mndp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -362,7 +360,7 @@ proto_reg_handoff_mndp(void)
 
 	mndp_handle = new_create_dissector_handle(dissect_mndp_static, proto_mndp);
 	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
-	/* heur_dissector_add("udp", dissect_mndp_heur, "MNDP over UDP", "mndp_udp", proto_mndp); */
+	heur_dissector_add("udp", dissect_mndp_heur, "MNDP over UDP", "mndp_udp", proto_mndp, HEURISTIC_DISABLE);
 }
 
 /*

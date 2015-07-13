@@ -2916,7 +2916,7 @@ proto_reg_handoff_6lowpan(void)
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, handle_6lowpan);
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, "6LoWPAN over IEEE 802.15.4", "6lowpan_wlan", proto_6lowpan);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, "6LoWPAN over IEEE 802.15.4", "6lowpan_wlan", proto_6lowpan, HEURISTIC_ENABLE);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_LE_IPSP, handle_6lowpan);
 } /* proto_reg_handoff_6lowpan */

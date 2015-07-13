@@ -101,9 +101,6 @@ static dissector_handle_t data_handle;
 /* Preference to control whether to check the CATTP checksum */
 static gboolean cattp_check_checksum = TRUE;
 
-/* Preference to control whether to heuristically detect CATTP packets */
-static gboolean cattp_enable_heuristic_dissection = TRUE;
-
 /* Reason code mapping */
 static const value_string cattp_reset_reason[] = {
     { 0, "Normal Ending" },
@@ -564,10 +561,7 @@ proto_register_cattp(void)
                                    "Whether the checksum of all messages should be validated or not",
                                    &cattp_check_checksum);
 
-    prefs_register_bool_preference(cattp_module, "enable",
-                                   "Enable " CATTP_SHORTNAME " heuristic dissection",
-                                   "Enable " CATTP_SHORTNAME " heuristic dissection (default is enabled)",
-                                   &cattp_enable_heuristic_dissection);
+    prefs_register_obsolete_preference(cattp_module, "enable");
 }
 
 /* Handoff */
@@ -585,13 +579,10 @@ proto_reg_handoff_cattp(void)
         /* find data handle */
         data_handle = find_dissector("data");
 
-        heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp);
+        heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
         dissector_add_for_decode_as("udp.port", cattp_handle);
         initialized = TRUE;
     }
-
-    heur_dissector_set_enabled("udp", dissect_cattp_heur, proto_cattp,
-                               cattp_enable_heuristic_dissection);
 }
 
 /*

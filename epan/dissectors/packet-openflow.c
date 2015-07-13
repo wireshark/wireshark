@@ -39,7 +39,6 @@ void proto_reg_handoff_openflow(void);
 #define OFP_LEGACY2_PORT 6634
 #define OFP_IANA_PORT 6653
 static int g_openflow_port = OFP_IANA_PORT;
-static gboolean openflow_heur_enabled = TRUE;
 
 static dissector_handle_t openflow_handle;
 static dissector_handle_t openflow_v1_handle;
@@ -121,10 +120,6 @@ dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
 {
     conversation_t *conversation = NULL;
 
-    if (!openflow_heur_enabled) {
-        return FALSE;
-    }
-
     if ((pinfo->destport != OFP_LEGACY_PORT) &&
         (pinfo->destport != OFP_LEGACY2_PORT) &&
         (pinfo->destport != OFP_IANA_PORT) &&
@@ -179,12 +174,7 @@ proto_register_openflow(void)
                                    10, &g_openflow_port);
 
     /* Register heuristic preference */
-    prefs_register_bool_preference(openflow_module, "heuristic",
-                                   "Try to decode OpenFlow on other common ports",
-                                   "Try to decode OpenFlow on several common "
-                                   "ports in addition to the one supplied by "
-                                   "user above (6653 is the IANA assigned port).",
-                                   &openflow_heur_enabled);
+    prefs_register_obsolete_preference(openflow_module, "heuristic");
 
     /* Register desegment preference */
     prefs_register_bool_preference(openflow_module, "desegment",
@@ -202,7 +192,7 @@ proto_reg_handoff_openflow(void)
 
     if (!initialized) {
         openflow_handle = new_create_dissector_handle(dissect_openflow, proto_openflow);
-        heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow);
+        heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow, HEURISTIC_ENABLE);
         initialized = TRUE;
     } else {
         dissector_delete_uint("tcp.port", currentPort, openflow_handle);

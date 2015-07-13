@@ -627,7 +627,7 @@ proto_reg_handoff_tapa(void)
 
 	tapa_handle = find_dissector("tapa");
 	dissector_add_uint("udp.port", PORT_TAPA, tapa_handle);
-	heur_dissector_add( "ip", dissect_tapa_heur, "TAPA over IP", "tapa_ip", proto_tapa);
+	heur_dissector_add( "ip", dissect_tapa_heur, "TAPA over IP", "tapa_ip", proto_tapa, HEURISTIC_ENABLE);
 }
 
 /*

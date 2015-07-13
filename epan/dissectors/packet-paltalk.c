@@ -131,7 +131,7 @@ proto_register_paltalk(void)
 void
 proto_reg_handoff_paltalk(void)
 {
-    heur_dissector_add("tcp", dissect_paltalk, "Paltalk over TCP", "paltalk_tcp", proto_paltalk);
+    heur_dissector_add("tcp", dissect_paltalk, "Paltalk over TCP", "paltalk_tcp", proto_paltalk, HEURISTIC_ENABLE);
 }
 
 /*

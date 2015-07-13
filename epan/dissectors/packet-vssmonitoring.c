@@ -57,8 +57,6 @@ static int hf_vssmonitoring_srcport = -1;
 
 static gint ett_vssmonitoring = -1;
 
-static gboolean vssmonitoring_use_heuristics = TRUE;
-
 static int
 dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -124,9 +122,6 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     vssmonitoring_clksrc     = (guint8)(((guint32)vssmonitoring_time.nsecs) >> CLKSRC_SHIFT);
     vssmonitoring_time.nsecs &= VSS_NS_MASK;
 
-    /* There are only heuristics for timestamps, the port stamp can be any value */
-    if ( vssmonitoring_use_heuristics ) {
-
       /* The timestamp will be based on the uptime until the TAP is completely booted,
        * this takes about 60s, but use 1 hour to be sure
        */
@@ -155,7 +150,6 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
        */
       if ( vssmonitoring_time.nsecs >= 1000000000 )
         return 0;
-    }
   }
 
   /* All systems are go, lets dissect the VSS-Monitoring trailer */
@@ -233,17 +227,13 @@ proto_register_vssmonitoring(void)
 
   vssmonitoring_module = prefs_register_protocol(proto_vssmonitoring, NULL);
 
-  prefs_register_bool_preference(vssmonitoring_module, "use_heuristics",
-      "Use heuristics to verify if trailer contains VSS-Monitoring data",
-      "When enabled, Wireshark will do a check on the trailer data to verify"
-      "whether it contains VSS-Monitoring time- and port-stamps.",
-      &vssmonitoring_use_heuristics);
+  prefs_register_obsolete_preference(vssmonitoring_module, "use_heuristics");
 }
 
 void
 proto_reg_handoff_vssmonitoring(void)
 {
-  heur_dissector_add("eth.trailer", dissect_vssmonitoring, "VSS-Monitoring ethernet trailer", "vssmonitoring_eth", proto_vssmonitoring);
+  heur_dissector_add("eth.trailer", dissect_vssmonitoring, "VSS-Monitoring ethernet trailer", "vssmonitoring_eth", proto_vssmonitoring, HEURISTIC_ENABLE);
 }
 
 /*

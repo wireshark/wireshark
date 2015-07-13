@@ -777,8 +777,8 @@ proto_register_adwin_config(void)
 void
 proto_reg_handoff_adwin_config(void)
 {
-	heur_dissector_add("udp", dissect_adwin_config_udp, "ADwin-Config over UDP", "adwin_config_udp", proto_adwin_config);
-	heur_dissector_add("tcp", dissect_adwin_config_tcp, "ADwin-Config over TCP", "adwin_config_tcp", proto_adwin_config);
+	heur_dissector_add("udp", dissect_adwin_config_udp, "ADwin-Config over UDP", "adwin_config_udp", proto_adwin_config, HEURISTIC_ENABLE);
+	heur_dissector_add("tcp", dissect_adwin_config_tcp, "ADwin-Config over TCP", "adwin_config_tcp", proto_adwin_config, HEURISTIC_ENABLE);
 }
 
 

@@ -1291,7 +1291,7 @@ void
 proto_reg_handoff_pn_dcp (void)
 {
     /* register ourself as an heuristic pn-rt payload dissector */
-    heur_dissector_add("pn_rt", dissect_PNDCP_Data_heur, "PROFINET DCP IO", "pn_dcp_pn_rt", proto_pn_dcp);
+    heur_dissector_add("pn_rt", dissect_PNDCP_Data_heur, "PROFINET DCP IO", "pn_dcp_pn_rt", proto_pn_dcp, HEURISTIC_ENABLE);
 }
 
 /*

@@ -72,8 +72,6 @@ static gint proto_hislip = -1;
 
 static dissector_handle_t hislip_handle;
 
-static gboolean hislip_enable_heuristic_dissection = FALSE; /* disabled by default since heuristic is weak */
-
 /* Request/Response tracking*/
 
 typedef struct _hislip_transaction_t
@@ -1022,11 +1020,7 @@ proto_register_hislip(void)
                                     "Set the TCP port for HiSLIP traffic if other than the default",
                                     10,
                                     &global_hislip_port);
-    prefs_register_bool_preference(hislip_module,
-                                   "enable_heuristic",
-                                   "Enable HiSLIP heuristic dissection",
-                                   "Enable HiSLIP heuristic dissection (default is disabled)",
-                                   &hislip_enable_heuristic_dissection);
+    prefs_register_obsolete_preference(hislip_module, "enable_heuristic");
 
 }
 
@@ -1039,7 +1033,8 @@ proto_reg_handoff_hislip(void)
     if (!initialized)
     {
         hislip_handle = new_create_dissector_handle(dissect_hislip, proto_hislip);
-        heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip);
+        /* disabled by default since heuristic is weak */
+        heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
         initialized = TRUE;
     }
     else
@@ -1050,8 +1045,6 @@ proto_reg_handoff_hislip(void)
     currentPort = global_hislip_port;
 
     dissector_add_uint("tcp.port", currentPort, hislip_handle);
-
-    heur_dissector_set_enabled("tcp", dissect_hislip_heur, proto_hislip, hislip_enable_heuristic_dissection);
 }
 
 /*

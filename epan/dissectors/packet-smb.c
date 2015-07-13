@@ -20530,10 +20530,10 @@ proto_reg_handoff_smb(void)
 	gssapi_handle  = find_dissector("gssapi");
 	ntlmssp_handle = find_dissector("ntlmssp");
 
-	heur_dissector_add("netbios", dissect_smb_heur, "SMB over Netbios", "smb_netbios", proto_smb);
-	heur_dissector_add("smb_direct", dissect_smb_heur, "SMB over SMB Direct", "smb_smb_direct", proto_smb);
-	heur_dissector_add("cotp", dissect_smb_heur, "SMB over COTP", "smb_cotp", proto_smb);
-	heur_dissector_add("vines_spp", dissect_smb_heur, "SMB over Vines", "smb_vines", proto_smb);
+	heur_dissector_add("netbios", dissect_smb_heur, "SMB over Netbios", "smb_netbios", proto_smb, HEURISTIC_ENABLE);
+	heur_dissector_add("smb_direct", dissect_smb_heur, "SMB over SMB Direct", "smb_smb_direct", proto_smb, HEURISTIC_ENABLE);
+	heur_dissector_add("cotp", dissect_smb_heur, "SMB over COTP", "smb_cotp", proto_smb, HEURISTIC_ENABLE);
+	heur_dissector_add("vines_spp", dissect_smb_heur, "SMB over Vines", "smb_vines", proto_smb, HEURISTIC_ENABLE);
 
 	smb_handle = find_dissector("smb");
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);

@@ -287,7 +287,6 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return offset;
 }
 
-#if SKYPE_HEUR
 static gboolean
 test_skype_udp(tvbuff_t *tvb)
 {
@@ -321,7 +320,6 @@ dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	}
 	return TRUE;
 }
-#endif
 
 static int
 dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -448,11 +446,9 @@ proto_reg_handoff_skype(void)
 	skype_handle = new_create_dissector_handle(dissect_skype_static, proto_skype);
 	dissector_add_for_decode_as("tcp.port", skype_handle);
 	dissector_add_for_decode_as("udp.port", skype_handle);
-#if SKYPE_HEUR
-	heur_dissector_add("tcp", dissect_skype_heur, "Skype over TCP", "sip_tcp", proto_skype);
-	heur_dissector_add("udp", dissect_skype_heur, "Skype over UDP", "sip_udp", proto_skype);
-#endif
 
+	heur_dissector_add("tcp", dissect_skype_heur, "Skype over TCP", "skype_tcp", proto_skype, HEURISTIC_DISABLE);
+	heur_dissector_add("udp", dissect_skype_heur, "Skype over UDP", "skype_udp", proto_skype, HEURISTIC_DISABLE);
 }
 
 /*

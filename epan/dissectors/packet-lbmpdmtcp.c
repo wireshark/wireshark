@@ -440,7 +440,7 @@ void proto_reg_handoff_lbmpdm_tcp(void)
     {
         lbmpdm_tcp_dissector_handle = create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
         dissector_add_for_decode_as("tcp.port", lbmpdm_tcp_dissector_handle);
-        heur_dissector_add("tcp", test_lbmpdm_tcp_packet, "LBMPDM over TCP", "lbmpdm_tcp", lbmpdm_tcp_protocol_handle);
+        heur_dissector_add("tcp", test_lbmpdm_tcp_packet, "LBMPDM over TCP", "lbmpdm_tcp", lbmpdm_tcp_protocol_handle, HEURISTIC_ENABLE);
     }
 
     /* Make sure the port low is <= the port high. If not, don't change them. */

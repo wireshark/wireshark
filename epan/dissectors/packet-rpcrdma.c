@@ -591,8 +591,8 @@ proto_reg_handoff_rpcordma(void)
 
     if (!initialized) {
         rpcordma_handler = new_create_dissector_handle(dissect_rpcordma, proto_rpcordma);
-        heur_dissector_add("infiniband.payload", dissect_rpcordma_heur, "Infiniband RPC over RDMA", "rpcordma_infiniband", proto_rpcordma);
-        heur_dissector_add("infiniband.mad.cm.private", dissect_rpcordma_heur, "RPC over RDMA in PrivateData of CM packets", "rpcordma_ib_private", proto_rpcordma);
+        heur_dissector_add("infiniband.payload", dissect_rpcordma_heur, "Infiniband RPC over RDMA", "rpcordma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
+        heur_dissector_add("infiniband.mad.cm.private", dissect_rpcordma_heur, "RPC over RDMA in PrivateData of CM packets", "rpcordma_ib_private", proto_rpcordma, HEURISTIC_ENABLE);
 
         /* allocate enough space in the addresses to store the largest address (a GID) */
         manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);

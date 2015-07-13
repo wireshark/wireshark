@@ -397,8 +397,8 @@ proto_reg_handoff_iser(void)
 
     if (!initialized) {
         new_create_dissector_handle(dissect_iser, proto_iser);
-        heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser);
-        heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser);
+        heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser, HEURISTIC_ENABLE);
+        heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser, HEURISTIC_ENABLE);
 
         /* allocate enough space in the addresses to store the largest address (a GID) */
         manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);

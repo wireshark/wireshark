@@ -477,9 +477,6 @@ set_disabled_heur_dissector_list(void)
   heur_protocol_def *heur;
   heur_dtbl_entry_t* h;
 
-  /*
-   * assume all heuristics are enabled by default
-   */
   if (disabled_heuristics == NULL)
     goto skip;
 

@@ -60,10 +60,6 @@ static gboolean global_rlc_perform_reassemby = TRUE;
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_headers_expected = FALSE;
 
-
-/* Heuristic dissection */
-static gboolean global_rlc_heur = FALSE;
-
 /* Preference to expect ciphered data */
 static gboolean global_rlc_ciphered = FALSE;
 
@@ -2578,14 +2574,6 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *ti                 = NULL;
     proto_tree *subtree            = NULL;
 
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-    if (!global_rlc_heur) {
-        return FALSE;
-    }
-
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
@@ -2955,11 +2943,7 @@ proto_register_rlc(void)
     /* Preferences */
     rlc_module = prefs_register_protocol(proto_rlc, NULL);
 
-    prefs_register_bool_preference(rlc_module, "heuristic_rlc_over_udp",
-        "Try Heuristic RLC over UDP framing",
-        "When enabled, use heuristic dissector to find RLC frames sent with "
-        "UDP framing",
-        &global_rlc_heur);
+    prefs_register_obsolete_preference(rlc_module, "heuristic_rlc_over_udp");
 
     prefs_register_bool_preference(rlc_module, "perform_reassembly",
         "Try to reassemble SDUs",
@@ -3003,7 +2987,7 @@ proto_reg_handoff_rlc(void)
     ip_handle  = find_dissector("ip");
     bmc_handle = find_dissector("bmc");
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_rlc);
+    heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_rlc, HEURISTIC_DISABLE);
 }
 
 /*

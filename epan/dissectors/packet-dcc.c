@@ -585,7 +585,7 @@ proto_register_dcc(void)
 void
 proto_reg_handoff_dcc(void)
 {
-	heur_dissector_add("udp", dissect_dcc, "Distributed Checksum Clearinghouse over UDP", "dcc_udp", proto_dcc);
+	heur_dissector_add("udp", dissect_dcc, "Distributed Checksum Clearinghouse over UDP", "dcc_udp", proto_dcc, HEURISTIC_ENABLE);
 }
 
 /*

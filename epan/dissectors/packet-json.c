@@ -646,8 +646,8 @@ proto_reg_handoff_json(void)
 {
 	dissector_handle_t json_file_handle = new_create_dissector_handle(dissect_json_file, proto_json);
 
-	heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json);
-	heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json);
+	heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json, HEURISTIC_ENABLE);
+	heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json, HEURISTIC_ENABLE);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_file_handle);
 
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */

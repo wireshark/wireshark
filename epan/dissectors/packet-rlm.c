@@ -151,7 +151,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 void
 proto_reg_handoff_rlm(void)
 {
-	heur_dissector_add("udp", dissect_rlm, "Redundant Link Management over UDP", "rlm_udp", proto_rlm);
+	heur_dissector_add("udp", dissect_rlm, "Redundant Link Management over UDP", "rlm_udp", proto_rlm, HEURISTIC_ENABLE);
 }
 
 void

@@ -176,5 +176,5 @@ proto_register_mpeg_audio(void)
 void
 proto_reg_handoff_mpeg_audio(void)
 {
-	heur_dissector_add("mpeg", dissect_mpeg_audio, "MPEG Audio", "mpeg_audio", proto_mpeg_audio);
+	heur_dissector_add("mpeg", dissect_mpeg_audio, "MPEG Audio", "mpeg_audio", proto_mpeg_audio, HEURISTIC_ENABLE);
 }

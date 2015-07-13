@@ -3270,7 +3270,7 @@ proto_reg_handoff_tds(void)
     dissector_add_uint("tcp.port", 1433, tds_tcp_handle);
     dissector_add_uint("tcp.port", 2433, tds_tcp_handle);
 
-    heur_dissector_add("tcp", dissect_tds_tcp_heur, "Tabular Data Stream over TCP", "tds_tcp", proto_tds);
+    heur_dissector_add("tcp", dissect_tds_tcp_heur, "Tabular Data Stream over TCP", "tds_tcp", proto_tds, HEURISTIC_ENABLE);
 
     ntlmssp_handle = find_dissector("ntlmssp");
     gssapi_handle = find_dissector("gssapi");

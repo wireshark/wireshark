@@ -1655,7 +1655,6 @@ static int dissect_spdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-#if 0 /* heuristic too weak */
 /*
  * Looks for SPDY frame at tvb start.
  * If not enough data for either, requests more via desegment struct.
@@ -1685,7 +1684,6 @@ gboolean dissect_spdy_heur(tvbuff_t *tvb,
 
   return FALSE;
 }
-#endif
 
 /*
  * Performs plugin registration.
@@ -1949,9 +1947,8 @@ void proto_reg_handoff_spdy(void) {
   port_subdissector_table = find_dissector_table("http.port");
   media_type_subdissector_table = find_dissector_table("media_type");
 
-#if 0 /* heuristic too weak */
-  heur_dissector_add("tcp", dissect_spdy_heur, "SPDY over TCP", "spdy_tcp", proto_spdy);
-#endif
+  /* Weak heuristic, so disabled by default */
+  heur_dissector_add("tcp", dissect_spdy_heur, "SPDY over TCP", "spdy_tcp", proto_spdy, HEURISTIC_DISABLE);
 }
 
 /*

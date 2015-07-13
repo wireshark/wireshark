@@ -303,9 +303,9 @@ proto_register_h1 (void)
 void
 proto_reg_handoff_h1(void)
 {
-  heur_dissector_add("cotp", dissect_h1, "Sinec H1 over COTP", "hi_cotp", proto_h1);
-  heur_dissector_add("cotp_is", dissect_h1, "Sinec H1 over COTP (inactive subset)", "hi_cotp_is", proto_h1);
-  heur_dissector_add("tcp", dissect_h1, "Sinec H1 over TCP", "hi_tcp", proto_h1);
+  heur_dissector_add("cotp", dissect_h1, "Sinec H1 over COTP", "hi_cotp", proto_h1, HEURISTIC_ENABLE);
+  heur_dissector_add("cotp_is", dissect_h1, "Sinec H1 over COTP (inactive subset)", "hi_cotp_is", proto_h1, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp", dissect_h1, "Sinec H1 over TCP", "hi_tcp", proto_h1, HEURISTIC_ENABLE);
   data_handle = find_dissector("data");
 }
 

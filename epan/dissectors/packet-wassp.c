@@ -984,7 +984,6 @@ test_wassp(tvbuff_t *tvb)
 	return TRUE;
 }
 
-#if 0
 static gboolean
 dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -994,7 +993,6 @@ dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	dissect_wassp(tvb, pinfo, tree);
 	return TRUE;
 }
-#endif
 
 static int
 dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2102,9 +2100,8 @@ proto_reg_handoff_wassp(void)
 	dissector_add_uint("udp.port", PORT_WASSP_DISCOVER, wassp_handle);
 	dissector_add_uint("udp.port", PORT_WASSP_TUNNEL, wassp_handle);
 	/* dissector_add_uint("udp.port", PORT_WASSP_PEER, wassp_handle); */
-#if 0
-	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp);
-#endif
+
+	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp, HEURISTIC_DISABLE);
 
 	snmp_handle = find_dissector("snmp");
 	ieee80211_handle = find_dissector("wlan_withoutfcs");

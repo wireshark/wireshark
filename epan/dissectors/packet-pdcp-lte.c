@@ -1231,9 +1231,6 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
 /* Forwad declarations */
 static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Heuristic dissection */
-static gboolean global_pdcp_lte_heur = FALSE;
-
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
@@ -1244,15 +1241,6 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     guint8                tag                    = 0;
     gboolean              infoAlreadySet         = FALSE;
     gboolean              seqnumLengthTagPresent = FALSE;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (!global_pdcp_lte_heur) {
-        return FALSE;
-    }
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
@@ -2633,11 +2621,7 @@ void proto_register_pdcp(void)
         "Attempt to decode ROHC data",
         &global_pdcp_dissect_rohc);
 
-    prefs_register_bool_preference(pdcp_lte_module, "heuristic_pdcp_lte_over_udp",
-        "Try Heuristic LTE-PDCP over UDP framing",
-        "When enabled, use heuristic dissector to find PDCP-LTE frames sent with "
-        "UDP framing",
-        &global_pdcp_lte_heur);
+    prefs_register_obsolete_preference(pdcp_lte_module, "heuristic_pdcp_lte_over_udp");
 
     prefs_register_enum_preference(pdcp_lte_module, "layer_to_show",
         "Which layer info to show in Info column",
@@ -2699,7 +2683,7 @@ void proto_register_pdcp(void)
 void proto_reg_handoff_pdcp_lte(void)
 {
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte);
+    heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte, HEURISTIC_DISABLE);
 
     ip_handle   = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");

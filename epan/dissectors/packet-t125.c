@@ -593,6 +593,6 @@ void proto_register_t125(void) {
 /*--- proto_reg_handoff_t125 ---------------------------------------*/
 void proto_reg_handoff_t125(void) {
 
-  heur_dissector_add("cotp", dissect_t125_heur, "T.125 over COTP", "t125_cotp", proto_t125);
-  heur_dissector_add("cotp_is", dissect_t125_heur, "T.125 over COTP (inactive subset)", "t125_cotp_is", proto_t125);
+  heur_dissector_add("cotp", dissect_t125_heur, "T.125 over COTP", "t125_cotp", proto_t125, HEURISTIC_ENABLE);
+  heur_dissector_add("cotp_is", dissect_t125_heur, "T.125 over COTP (inactive subset)", "t125_cotp_is", proto_t125, HEURISTIC_ENABLE);
 }

@@ -3457,7 +3457,7 @@ void
 proto_reg_handoff_s7comm(void)
 {
     /* register ourself as an heuristic cotp (ISO 8073) payload dissector */
-    heur_dissector_add("cotp", dissect_s7comm, "S7 Communication over COTP", "s7comm_cotp", proto_s7comm);
+    heur_dissector_add("cotp", dissect_s7comm, "S7 Communication over COTP", "s7comm_cotp", proto_s7comm, HEURISTIC_ENABLE);
 }
 
 /*

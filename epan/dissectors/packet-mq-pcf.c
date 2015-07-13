@@ -708,7 +708,7 @@ void proto_register_mqpcf(void)
 
 void proto_reg_handoff_mqpcf(void)
 {
-    heur_dissector_add("mq", dissect_mqpcf_heur, "WebSphere MQ PCF", "mqpcf_mq", proto_mqpcf);
+    heur_dissector_add("mq", dissect_mqpcf_heur, "WebSphere MQ PCF", "mqpcf_mq", proto_mqpcf, HEURISTIC_ENABLE);
 }
 
 /*

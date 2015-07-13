@@ -57,16 +57,6 @@ static int hf_ul = -1;
 static int hf_ig = -1;
 static int hf_ooodl = -1;
 
-/*  Ethernet heuristic dissectors (such as this one) get called for
- *  every Ethernet frame Wireshark handles.  In order to not impose that
- *  performance penalty on everyone this dissector disables itself by
- *  default.
- *
- *  This is done separately from the disabled protocols list mainly so
- *  we can disable it by default.  XXX Maybe there's a better way.
- */
-static gboolean  mim_enable_dissector = FALSE;
-
 static const true_false_string ig_tfs = {
   "Group address (multicast/broadcast)",
   "Individual address (unicast)"
@@ -366,9 +356,7 @@ proto_register_mim(void)
 
   mim_module = prefs_register_protocol (proto_fp, proto_reg_handoff_fabricpath);
 
-  prefs_register_bool_preference (mim_module, "enable", "Enable dissector",
-                                  "Enable this dissector (default is false)",
-                                  &mim_enable_dissector);
+  prefs_register_obsolete_preference (mim_module, "enable");
 
   proto_register_field_array(proto_fp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -391,12 +379,10 @@ proto_reg_handoff_fabricpath(void)
      * get outer source and destination MAC
      * before the standard ethernet dissector
      */
-    heur_dissector_add ("eth", dissect_fp_heur, "Cisco FabricPath over Ethernet", "fp_eth", proto_fp);
+    heur_dissector_add ("eth", dissect_fp_heur, "Cisco FabricPath over Ethernet", "fp_eth", proto_fp, HEURISTIC_DISABLE);
     eth_dissector = find_dissector( "eth" );
     prefs_initialized = TRUE;
   }
-
-  proto_set_decoding(proto_fp, mim_enable_dissector);
 }
 
 /*

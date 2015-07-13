@@ -693,7 +693,7 @@ proto_reg_handoff_peekremote(void)
   peekremote_handle = new_create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);
 
-  heur_dissector_add("udp", dissect_peekremote_new, "OmniPeek Remote over UDP", "peekremote_udp", proto_peekremote);
+  heur_dissector_add("udp", dissect_peekremote_new, "OmniPeek Remote over UDP", "peekremote_udp", proto_peekremote, HEURISTIC_ENABLE);
 }
 
 /*

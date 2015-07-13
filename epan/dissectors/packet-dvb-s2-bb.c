@@ -69,7 +69,6 @@ void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
 
 /* preferences */
-static gboolean dvb_s2_enable          = FALSE;
 static gboolean dvb_s2_full_dissection = FALSE;
 
 /* Initialize the protocol and registered fields */
@@ -1090,8 +1089,7 @@ void proto_register_dvb_s2_modeadapt(void)
 
     dvb_s2_modeadapt_module = prefs_register_protocol(proto_dvb_s2_modeadapt, proto_reg_handoff_dvb_s2_modeadapt);
 
-    prefs_register_bool_preference(dvb_s2_modeadapt_module, "enable", "Enable dissector",
-        "Enable DVB-S2 dissector", &dvb_s2_enable);
+    prefs_register_obsolete_preference(dvb_s2_modeadapt_module, "enable");
 
     prefs_register_bool_preference(dvb_s2_modeadapt_module, "full_decode",
         "Enable dissection of GSE data",
@@ -1104,13 +1102,11 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt);
+        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
         ip_handle   = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
         prefs_initialized = TRUE;
     }
-
-    proto_set_decoding(proto_dvb_s2_modeadapt, dvb_s2_enable);
 }
 
 /*

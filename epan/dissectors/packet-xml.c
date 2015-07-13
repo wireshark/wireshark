@@ -74,12 +74,6 @@ static xml_ns_t xml_ns     = {(gchar *)"xml",     "/", -1, -1, -1, NULL, NULL, N
 static xml_ns_t unknown_ns = {(gchar *)"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
-static gboolean pref_heuristic_media      = FALSE;
-static gboolean pref_heuristic_tcp        = FALSE;
-static gboolean pref_heuristic_udp        = FALSE;
-static gboolean pref_heuristic_media_save = FALSE;
-static gboolean pref_heuristic_tcp_save   = FALSE;
-static gboolean pref_heuristic_udp_save   = FALSE;
 static gboolean pref_heuristic_unicode    = FALSE;
 
 static range_t *global_xml_tcp_range = NULL;
@@ -1346,40 +1340,6 @@ static void init_xml_names(void)
 
 static void apply_prefs(void)
 {
-    if (pref_heuristic_media_save != pref_heuristic_media) {
-        if (pref_heuristic_media) {
-            heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag);
-            heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag);
-            heur_dissector_add("media", dissect_xml_heur, "XML in media", "xml_media", xml_ns.hf_tag);
-            pref_heuristic_media_save = TRUE;
-        } else {
-            heur_dissector_delete("http",  dissect_xml_heur, xml_ns.hf_tag);
-            heur_dissector_delete("sip",   dissect_xml_heur, xml_ns.hf_tag);
-            heur_dissector_delete("media", dissect_xml_heur, xml_ns.hf_tag);
-            pref_heuristic_media_save = FALSE;
-        }
-    }
-
-    if (pref_heuristic_tcp_save != pref_heuristic_tcp ) {
-        if (pref_heuristic_tcp) {
-            heur_dissector_add("tcp", dissect_xml_heur, "XML over TCP", "xml_tcp", xml_ns.hf_tag);
-            pref_heuristic_tcp_save = TRUE;
-        } else {
-            heur_dissector_delete("tcp", dissect_xml_heur, xml_ns.hf_tag);
-            pref_heuristic_tcp_save = FALSE;
-        }
-    }
-
-    if (pref_heuristic_udp_save != pref_heuristic_udp ) {
-        if (pref_heuristic_udp) {
-            heur_dissector_add("udp", dissect_xml_heur, "XML over UDP", "xml_udp", xml_ns.hf_tag);
-            pref_heuristic_udp_save = TRUE;
-        } else {
-            heur_dissector_delete("udp", dissect_xml_heur, xml_ns.hf_tag);
-            pref_heuristic_udp_save = FALSE;
-        }
-    }
-
     dissector_delete_uint_range("tcp.port", xml_tcp_range, xml_handle);
     g_free(xml_tcp_range);
     xml_tcp_range = range_copy(global_xml_tcp_range);
@@ -1454,18 +1414,12 @@ proto_register_xml(void)
     proto_register_subtree_array((gint **)g_array_data(ett_arr), ett_arr->len);
 
     xml_module = prefs_register_protocol(xml_ns.hf_tag, apply_prefs);
-    prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics for media types",
-                                   "Try to recognize XML for unknown media types",
-                                   &pref_heuristic_media);
-    prefs_register_bool_preference(xml_module, "heuristic_tcp", "Use Heuristics for TCP",
-                                   "Try to recognize XML for unknown TCP ports",
-                                   &pref_heuristic_tcp);
+    prefs_register_obsolete_preference(xml_module, "heuristic");
+    prefs_register_obsolete_preference(xml_module, "heuristic_tcp");
     prefs_register_range_preference(xml_module, "tcp.port", "TCP Ports",
                                     "TCP Ports range",
                                     &global_xml_tcp_range, 65535);
-    prefs_register_bool_preference(xml_module, "heuristic_udp", "Use Heuristics for UDP",
-                                   "Try to recognize XML for unknown UDP ports",
-                                   &pref_heuristic_udp);
+    prefs_register_obsolete_preference(xml_module, "heuristic_udp");
     /* XXX - UCS-2, or UTF-16? */
     prefs_register_bool_preference(xml_module, "heuristic_unicode", "Use Unicode in heuristics",
                                    "Try to recognize XML encoded in Unicode (UCS-2BE)",
@@ -1494,7 +1448,14 @@ proto_reg_handoff_xml(void)
     xml_handle = find_dissector("xml");
 
     g_hash_table_foreach(media_types, add_dissector_media, NULL);
-    heur_dissector_add("wtap_file", dissect_xml_heur, "XML file", "xml_wtap", xml_ns.hf_tag);
+
+    heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag, HEURISTIC_DISABLE);
+    heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag, HEURISTIC_DISABLE);
+    heur_dissector_add("media", dissect_xml_heur, "XML in media", "xml_media", xml_ns.hf_tag, HEURISTIC_DISABLE);
+    heur_dissector_add("tcp", dissect_xml_heur, "XML over TCP", "xml_tcp", xml_ns.hf_tag, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", dissect_xml_heur, "XML over UDP", "xml_udp", xml_ns.hf_tag, HEURISTIC_DISABLE);
+
+    heur_dissector_add("wtap_file", dissect_xml_heur, "XML file", "xml_wtap", xml_ns.hf_tag, HEURISTIC_ENABLE);
 
 }
 

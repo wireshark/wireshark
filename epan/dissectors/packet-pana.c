@@ -887,7 +887,7 @@ proto_reg_handoff_pana(void)
 
         dissector_handle_t pana_handle;
 
-        heur_dissector_add("udp", dissect_pana, "PANA over UDP", "pana_udp", proto_pana);
+        heur_dissector_add("udp", dissect_pana, "PANA over UDP", "pana_udp", proto_pana, HEURISTIC_ENABLE);
 
         pana_handle = new_create_dissector_handle(dissect_pana, proto_pana);
         dissector_add_for_decode_as("udp.port", pana_handle);

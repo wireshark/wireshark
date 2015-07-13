@@ -3807,6 +3807,78 @@ try_convert_to_custom_column(gpointer *el_data)
     }
 }
 
+static gboolean
+deprecated_heur_dissector_pref(gchar *pref_name, const gchar *value)
+{
+    struct heur_pref_name
+    {
+        const char* pref_name;
+        const char* short_name;
+        gboolean  more_dissectors; /* For multiple dissectors controlled by the same preference */
+    };
+
+    struct heur_pref_name heur_prefs[] = {
+        {"acn.heuristic_acn", "acn_udp", 0},
+        {"bfcp.enable", "bfcp_tcp", 1},
+        {"bfcp.enable", "bfcp_udp", 0},
+        {"bt-dht.enable", "bittorrent_dht_udp", 0},
+        {"bt-utp.enable", "bt_utp_udp", 0},
+        {"cattp.enable", "cattp_udp", 0},
+        {"cfp.enable", "fp_eth", 0},
+        {"dicom.heuristic", "dicom_tcp", 0},
+        {"dnp3.heuristics", "dnp3_tcp", 1},
+        {"dnp3.heuristics", "dnp3_udp", 0},
+        {"dvb-s2_modeadapt.enable", "dvb_s2_udp", 0},
+        {"esl.enable", "esl_eth", 0},
+        {"fp.udp_heur", "fp_udp", 0},
+        {"gvsp.enable_heuristic", "gvsp_udp", 0},
+        {"hdcp2.enable", "hdcp2_tcp", 0},
+        {"hislip.enable_heuristic", "hislip_tcp", 0},
+        {"jxta.udp.heuristic", "jxta_udp", 0},
+        {"jxta.tcp.heuristic", "jxta_tcp", 0},
+        {"jxta.sctp.heuristic", "jxta_sctp", 0},
+        {"mac-lte.heuristic_mac_lte_over_udp", "mac_lte_udp", 0},
+        {"mbim.bulk_heuristic", "mbim_usb_bulk", 0},
+        {"norm.heuristic_norm", "rmt_norm_udp", 0},
+        {"openflow.heuristic", "openflow_tcp", 0},
+        {"pdcp-lte.heuristic_pdcp_lte_over_udp", "pdcp_lte_udp", 0},
+        {"rlc.heuristic_rlc_over_udp", "rlc_udp", 0},
+        {"rlc-lte.heuristic_rlc_lte_over_udp", "rlc_lte_udp", 0},
+        {"rtcp.heuristic_rtcp", "rtcp_udp", 1},
+        {"rtcp.heuristic_rtcp", "rtcp_stun", 0},
+        {"rtp.heuristic_rtp", "rtp_udp", 1},
+        {"rtp.heuristic_rtp", "rtp_stun", 0},
+        {"teredo.heuristic_teredo", "teredo_udp", 0},
+        {"vssmonitoring.use_heuristics", "vssmonitoring_eth", 0},
+        {"xml.heuristic", "xml_http", 1},
+        {"xml.heuristic", "xml_sip", 1},
+        {"xml.heuristic", "xml_media", 0},
+        {"xml.heuristic_tcp", "xml_tcp", 0},
+        {"xml.heuristic_udp", "xml_udp", 0},
+    };
+
+    unsigned int i;
+    heur_dtbl_entry_t* heuristic;
+
+
+    for (i = 0; i < sizeof(heur_prefs)/sizeof(struct heur_pref_name); i++)
+    {
+        if (strcmp(pref_name, heur_prefs[i].pref_name) == 0)
+        {
+            heuristic = find_heur_dissector_by_unique_short_name(heur_prefs[i].short_name);
+            if (heuristic != NULL) {
+                heuristic->enabled = ((g_ascii_strcasecmp(value, "true") == 0) ? TRUE : FALSE);
+            }
+
+            if (!heur_prefs[i].more_dissectors)
+                return TRUE;
+        }
+    }
+
+
+    return FALSE;
+}
+
 static prefs_set_pref_e
 set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          gboolean return_range_errors)
@@ -3870,6 +3942,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             if (string_to_name_resolve(value, &gbl_resolv_flags) != '\0')
                 return PREFS_SET_SYNTAX_ERR;
         }
+    } else if (deprecated_heur_dissector_pref(pref_name, value)) {
+         /* Handled within deprecated_heur_dissector_pref() if found */
     } else {
         /* Handle deprecated "global" options that don't have a module
          * associated with them

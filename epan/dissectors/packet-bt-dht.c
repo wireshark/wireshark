@@ -43,8 +43,6 @@ void proto_reg_handoff_bt_dht(void);
 static int proto_bt_dht = -1;
 static dissector_handle_t bt_dht_handle;
 
-static gboolean  bt_dht_enable_heuristic_dissection = FALSE; /* disabled by default since heuristic is weak */
-
 /* fields */
 static int hf_bencoded_int = -1;
 static int hf_bencoded_string = -1;
@@ -576,9 +574,7 @@ proto_register_bt_dht(void)
   );
 
   bt_dht_module = prefs_register_protocol(proto_bt_dht, proto_reg_handoff_bt_dht);
-  prefs_register_bool_preference(bt_dht_module, "enable", "Enable BT-DHT heuristic dissection",
-                                 "Enable BT-DHT heuristic dissection (default is disabled)",
-                                 &bt_dht_enable_heuristic_dissection);
+  prefs_register_obsolete_preference(bt_dht_module, "enable");
 
   proto_register_field_array(proto_bt_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -594,15 +590,13 @@ proto_reg_handoff_bt_dht(void)
    *  XXX - Still too weak?
    */
   if (!prefs_initialized) {
-    heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht);
+    heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
 
     bt_dht_handle = new_create_dissector_handle(dissect_bt_dht, proto_bt_dht);
     dissector_add_for_decode_as("udp.port", bt_dht_handle);
 
     prefs_initialized = TRUE;
   }
-
-  heur_dissector_set_enabled("udp", dissect_bt_dht_heur, proto_bt_dht, bt_dht_enable_heuristic_dissection);
 }
 
 /*

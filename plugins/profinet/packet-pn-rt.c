@@ -1000,8 +1000,8 @@ proto_reg_handoff_pn_rt(void)
     dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
     dissector_add_uint("udp.port", 0x8892, pn_rt_handle);
 
-    heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, "PROFINET CSF_SDU IO", "pn_csf_sdu_pn_rt", proto_pn_rt);
-    heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, "PROFINET Frag PDU IO", "pn_frag_pn_rt", proto_pn_rt);
+    heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, "PROFINET CSF_SDU IO", "pn_csf_sdu_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);
+    heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, "PROFINET Frag PDU IO", "pn_frag_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);
     data_handle = find_dissector("data");
 
     ethertype_subdissector_table = find_dissector_table("ethertype");

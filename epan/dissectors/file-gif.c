@@ -702,8 +702,8 @@ proto_reg_handoff_gif(void)
 {
     /* Register the GIF media type */
     dissector_add_string("media_type", "image/gif", gif_handle);
-    heur_dissector_add("http", dissect_gif_heur, "GIF file in HTTP", "gif_http", hfi_gif->id);
-    heur_dissector_add("wtap_file", dissect_gif_heur, "GIF file", "gif_wtap", hfi_gif->id);
+    heur_dissector_add("http", dissect_gif_heur, "GIF file in HTTP", "gif_http", hfi_gif->id, HEURISTIC_ENABLE);
+    heur_dissector_add("wtap_file", dissect_gif_heur, "GIF file", "gif_wtap", hfi_gif->id, HEURISTIC_ENABLE);
 }
 
 /*

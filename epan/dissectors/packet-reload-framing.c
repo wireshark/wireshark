@@ -599,9 +599,9 @@ proto_reg_handoff_reload_framing(void)
   dissector_add_uint("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
 
-  heur_dissector_add("udp",  dissect_reload_framing_heur, "RELOAD Framing over UDP", "reload_framing_udp", proto_reload_framing);
-  heur_dissector_add("tcp",  dissect_reload_framing_heur, "RELOAD Framing over TCP", "reload_framing_tcp", proto_reload_framing);
-  heur_dissector_add("dtls", dissect_reload_framing_heur_dtls, "RELOAD Framing over DTLS", "reload_framing_dtls", proto_reload_framing);
+  heur_dissector_add("udp",  dissect_reload_framing_heur, "RELOAD Framing over UDP", "reload_framing_udp", proto_reload_framing, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp",  dissect_reload_framing_heur, "RELOAD Framing over TCP", "reload_framing_tcp", proto_reload_framing, HEURISTIC_ENABLE);
+  heur_dissector_add("dtls", dissect_reload_framing_heur_dtls, "RELOAD Framing over DTLS", "reload_framing_dtls", proto_reload_framing, HEURISTIC_ENABLE);
 
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }

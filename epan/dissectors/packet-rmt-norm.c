@@ -132,8 +132,6 @@ static const value_string string_norm_nack_form[] =
 
 #define hdrlen2bytes(x) ((x)*4U)
 
-static gboolean global_norm_heur = FALSE;
-
 typedef struct norm_packet_data
 {
     guint8 encoding_id;
@@ -654,8 +652,6 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     guint8 byte1;
 
-    if (!global_norm_heur)
-        return FALSE;
     if (tvb_reported_length(tvb) < 12)
         return FALSE;  /* not enough to check */
     byte1 = tvb_get_guint8(tvb, 0);
@@ -972,10 +968,7 @@ void proto_register_norm(void)
 
     /* Register preferences */
     module = prefs_register_protocol(proto_rmt_norm, NULL);
-    prefs_register_bool_preference(module, "heuristic_norm",
-                                   "Try to decode UDP packets as NORM packets",
-                                   "Check this to decode NORM traffic between clients",
-                                   &global_norm_heur);
+    prefs_register_obsolete_preference(module, "heuristic_norm");
 }
 
 void proto_reg_handoff_norm(void)
@@ -984,7 +977,7 @@ void proto_reg_handoff_norm(void)
 
     handle = new_create_dissector_handle(dissect_norm, proto_rmt_norm);
     dissector_add_for_decode_as("udp.port", handle);
-    heur_dissector_add("udp", dissect_norm_heur, "NORM over UDP", "rmt_norm_udp", proto_rmt_norm);
+    heur_dissector_add("udp", dissect_norm_heur, "NORM over UDP", "rmt_norm_udp", proto_rmt_norm, HEURISTIC_DISABLE);
 
     rmt_fec_handle = find_dissector("rmt-fec");
 }

@@ -513,8 +513,8 @@ proto_reg_handoff_ib_sdp(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        heur_dissector_add("infiniband.payload", dissect_ib_sdp, "Infiniband SDP", "sdp_infiniband", proto_ib_sdp);
-        heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp, "Infiniband SDP in PrivateData of CM packets", "sdp_ib_private", proto_ib_sdp);
+        heur_dissector_add("infiniband.payload", dissect_ib_sdp, "Infiniband SDP", "sdp_infiniband", proto_ib_sdp, HEURISTIC_ENABLE);
+        heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp, "Infiniband SDP in PrivateData of CM packets", "sdp_ib_private", proto_ib_sdp, HEURISTIC_ENABLE);
 
         /* allocate enough space in the addresses to store the largest address (a GID) */
         manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);

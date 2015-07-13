@@ -415,7 +415,7 @@ proto_reg_handoff_fcoib(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        heur_dissector_add("infiniband.payload", dissect_fcoib, "Fibre Channel over Infiniband", "fc_infiniband", proto_fcoib);
+        heur_dissector_add("infiniband.payload", dissect_fcoib, "Fibre Channel over Infiniband", "fc_infiniband", proto_fcoib, HEURISTIC_ENABLE);
 
         data_handle = find_dissector("data");
         fc_handle = find_dissector("fc");

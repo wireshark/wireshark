@@ -291,7 +291,7 @@ void proto_reg_handoff_redbackli(void) {
 	redbackli_handle = find_dissector("redbackli");
 	dissector_add_for_decode_as("udp.port", redbackli_handle);
 
-	heur_dissector_add("udp", redbackli_dissect_heur, "Redback Lawful Intercept over UDP", "redbackli_udp", proto_redbackli);
+	heur_dissector_add("udp", redbackli_dissect_heur, "Redback Lawful Intercept over UDP", "redbackli_udp", proto_redbackli, HEURISTIC_ENABLE);
 }
 
 

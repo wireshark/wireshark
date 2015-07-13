@@ -439,7 +439,7 @@ void proto_register_thrift(void) {
 
 void proto_reg_handoff_thrift(void) {
 
-    heur_dissector_add("tcp", dissect_thrift_heur, "Thrift over TCP", "thrift_tcp", proto_thrift);
+    heur_dissector_add("tcp", dissect_thrift_heur, "Thrift over TCP", "thrift_tcp", proto_thrift, HEURISTIC_ENABLE);
 
 }
 /*

@@ -180,11 +180,8 @@ proto_reg_handoff_rnsap(void)
 	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
-	/* Add heuristic dissector
-	 * Perhaps we want a preference whether the heuristic dissector
-	 * is or isn't enabled
-	 */
-	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "ranap_sccp", proto_rnsap); */
+	/* Add heuristic dissector */
+	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "ranap_sccp", proto_rnsap, HEURISTIC_DISABLE); */
 
 #include "packet-rnsap-dis-tab.c"
 }

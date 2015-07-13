@@ -642,7 +642,6 @@ static dissector_handle_t eth_fcs_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
-static gboolean mbim_bulk_heuristic = TRUE;
 static gboolean mbim_control_decode_unknown_itf = FALSE;
 
 enum {
@@ -8004,10 +8003,7 @@ proto_register_mbim(void)
         "MBIM DSS Session Id", FT_UINT8, BASE_DEC);
 
     mbim_module = prefs_register_protocol(proto_mbim, proto_reg_handoff_mbim);
-    prefs_register_bool_preference(mbim_module, "bulk_heuristic",
-        "Try to identify data traffic with heuristic",
-        "Try to identify MBIM data packets on \"usb.bulk\" using heuristic",
-        &mbim_bulk_heuristic);
+    prefs_register_obsolete_preference(mbim_module, "bulk_heuristic");
     prefs_register_bool_preference(mbim_module, "control_decode_unknown_itf",
         "Force decoding of unknown USB control data as MBIM",
         "Decode control data received on \"usb.control\" with an "
@@ -8034,13 +8030,12 @@ proto_reg_handoff_mbim(void)
         eth_fcs_handle = find_dissector("eth_withfcs");
         ip_handle = find_dissector("ip");
         data_handle = find_dissector("data");
-        heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim);
+        heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim, HEURISTIC_ENABLE);
         dissector_add_for_decode_as("usb.device", mbim_decode_as_handle);
         dissector_add_for_decode_as("usb.product", mbim_decode_as_handle);
         dissector_add_for_decode_as("usb.protocol", mbim_decode_as_handle);
         initialized = TRUE;
     }
-    heur_dissector_set_enabled("usb.bulk", dissect_mbim_bulk_heur, proto_mbim, mbim_bulk_heuristic);
     if (mbim_control_decode_unknown_itf != mbim_control_decode_unknown_itf_prev) {
         dissector_handle_t mbim_control_handle = find_dissector("mbim.control");
         if (mbim_control_decode_unknown_itf) {

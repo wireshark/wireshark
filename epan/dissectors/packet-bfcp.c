@@ -36,8 +36,6 @@ void proto_reg_handoff_bfcp(void);
 
 /* Initialize protocol and registered fields */
 static int proto_bfcp = -1;
-static gboolean  bfcp_enable_heuristic_dissection = FALSE;
-
 
 static int hf_bfcp_version = -1;
 static int hf_bfcp_hdr_r_bit = -1;
@@ -686,10 +684,7 @@ void proto_register_bfcp(void)
 	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);
 
-	prefs_register_bool_preference(bfcp_module, "enable",
-		      "Enable BFCP heuristic dissection",
-		      "Enable BFCP heuristic dissection (default is disabled)",
-		      &bfcp_enable_heuristic_dissection);
+	prefs_register_obsolete_preference(bfcp_module, "enable");
 
 	/* Register field and subtree array */
 	proto_register_field_array(proto_bfcp, hf, array_length(hf));
@@ -709,18 +704,12 @@ void proto_reg_handoff_bfcp(void)
 	 */
 	if (!prefs_initialized)
 	{
-		heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp);
-		heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp);
+		heur_dissector_add("tcp", dissect_bfcp_heur, "BFCP over TCP", "bfcp_tcp", proto_bfcp, HEURISTIC_DISABLE);
+		heur_dissector_add("udp", dissect_bfcp_heur, "BFCP over UDP", "bfcp_udp", proto_bfcp, HEURISTIC_DISABLE);
 		dissector_add_for_decode_as("tcp.port", bfcp_handle);
 		dissector_add_for_decode_as("udp.port", bfcp_handle);
 		prefs_initialized = TRUE;
 	}
-
-	heur_dissector_set_enabled("tcp", dissect_bfcp_heur, proto_bfcp,
-				   bfcp_enable_heuristic_dissection);
-
-	heur_dissector_set_enabled("udp", dissect_bfcp_heur, proto_bfcp,
-				   bfcp_enable_heuristic_dissection);
 }
 
 /*

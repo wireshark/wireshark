@@ -387,12 +387,9 @@ proto_reg_handoff_ranap(void)
 
 	dissector_add_uint("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
 	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
-	/* Add heuristic dissector
-	* Perhaps we want a preference whether the heuristic dissector
-	* is or isn't enabled
-	*/
-	heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap);
-	heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap);
+
+	heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
+	heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
 }
 
 

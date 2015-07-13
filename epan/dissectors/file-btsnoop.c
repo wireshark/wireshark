@@ -325,7 +325,7 @@ proto_reg_handoff_btsnoop(void)
     hci_h4_handle = find_dissector("hci_h4");
     hci_mon_handle = find_dissector("hci_mon");
 
-    heur_dissector_add("wtap_file", dissect_btsnoop_heur, "BTSNOOP file", "btsnoop_wtap", proto_btsnoop);
+    heur_dissector_add("wtap_file", dissect_btsnoop_heur, "BTSNOOP file", "btsnoop_wtap", proto_btsnoop, HEURISTIC_ENABLE);
 }
 
 /*

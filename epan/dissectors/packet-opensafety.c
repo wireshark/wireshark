@@ -2805,13 +2805,13 @@ proto_reg_handoff_opensafety(void)
     data_dissector = find_dissector ( "data" );
 
     /* EPL & SercosIII dissector registration */
-    heur_dissector_add("epl_data",  dissect_opensafety_epl, "openSAFETY over EPL", "opensafety_epl_data", proto_opensafety);
-    heur_dissector_add("sercosiii", dissect_opensafety_siii, "openSAFETY over SercosIII", "opensafety_sercosiii", proto_opensafety);
+    heur_dissector_add("epl_data",  dissect_opensafety_epl, "openSAFETY over EPL", "opensafety_epl_data", proto_opensafety, HEURISTIC_ENABLE);
+    heur_dissector_add("sercosiii", dissect_opensafety_siii, "openSAFETY over SercosIII", "opensafety_sercosiii", proto_opensafety, HEURISTIC_ENABLE);
 
     /* If an openSAFETY UDP transport filter is present, add to its
      * heuristic filter list. Otherwise ignore the transport */
     if ( find_dissector("opensafety_udp") != NULL )
-        heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, "openSAFETY over UDP", "opensafety_udp", proto_opensafety);
+        heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, "openSAFETY over UDP", "opensafety_udp", proto_opensafety, HEURISTIC_ENABLE);
 
     /* Modbus TCP dissector registration */
     dissector_add_string("modbus.data", "data", find_dissector("opensafety_mbtcp"));
@@ -2822,7 +2822,7 @@ proto_reg_handoff_opensafety(void)
      */
     if ( find_dissector("pn_io") != NULL )
     {
-        heur_dissector_add("pn_io", dissect_opensafety_pn_io, "openSAFETY over Profinet", "opensafety_pn_io", proto_opensafety);
+        heur_dissector_add("pn_io", dissect_opensafety_pn_io, "openSAFETY over Profinet", "opensafety_pn_io", proto_opensafety, HEURISTIC_DISABLE);
     }
     else
     {

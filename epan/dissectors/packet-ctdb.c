@@ -1243,7 +1243,7 @@ proto_reg_handoff_ctdb(void)
 	ctdb_handle = new_create_dissector_handle(dissect_ctdb, proto_ctdb);
 	dissector_add_for_decode_as("tcp.port", ctdb_handle);
 
-	heur_dissector_add("tcp", dissect_ctdb, "Cluster TDB over TCP", "ctdb_tcp", proto_ctdb);
+	heur_dissector_add("tcp", dissect_ctdb, "Cluster TDB over TCP", "ctdb_tcp", proto_ctdb, HEURISTIC_ENABLE);
 }
 
 /*

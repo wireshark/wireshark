@@ -560,7 +560,7 @@ proto_reg_handoff_ymsg(void)
 	 * Just register as a heuristic TCP dissector, and reject stuff
 	 * that doesn't begin with a YMSG signature.
 	 */
-	heur_dissector_add("tcp", dissect_ymsg, "Yahoo YMSG Messenger over TCP", "ymsg_tcp", proto_ymsg);
+	heur_dissector_add("tcp", dissect_ymsg, "Yahoo YMSG Messenger over TCP", "ymsg_tcp", proto_ymsg, HEURISTIC_ENABLE);
 }
 
 /*
