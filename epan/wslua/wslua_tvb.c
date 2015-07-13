@@ -498,16 +498,29 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
+            pushUInt64(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 2:
+            pushUInt64(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 3:
+            pushUInt64(L,tvb_get_ntoh24(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 4:
+            pushUInt64(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 5:
+            pushUInt64(L,tvb_get_ntoh40(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 6:
+            pushUInt64(L,tvb_get_ntoh48(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 7:
-        case 8: {
+            pushUInt64(L,tvb_get_ntoh56(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 8:
             pushUInt64(L,tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The `UInt64` object. */
-        }
         default:
             luaL_error(L,"TvbRange:uint64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -529,16 +542,29 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
+            pushUInt64(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 2:
+            pushUInt64(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 3:
+            pushUInt64(L,tvb_get_letoh24(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 4:
+            pushUInt64(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 5:
+            pushUInt64(L,tvb_get_letoh40(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 6:
+            pushUInt64(L,tvb_get_letoh48(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 7:
-        case 8: {
+            pushUInt64(L,tvb_get_letoh56(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 8:
             pushUInt64(L,tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The `UInt64` object. */
-        }
         default:
             luaL_error(L,"TvbRange:le_uint64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -615,7 +641,7 @@ WSLUA_METHOD TvbRange_le_int(lua_State* L) {
  */
 WSLUA_METHOD TvbRange_int64(lua_State* L) {
     /* Get a Big Endian (network order) signed 64 bit integer from a `TvbRange`, as an `Int64` object.
-       The range must be 1-8 octets long. */
+       The range must be 1, 2, 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -625,16 +651,17 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
+            pushInt64(L,(gint8)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 2:
-        case 3:
+            pushInt64(L,(gint16)tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8: {
+            pushInt64(L,(gint32)tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 8:
             pushInt64(L,(gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The `Int64` object. */
-        }
         default:
             luaL_error(L,"TvbRange:int64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -646,7 +673,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
  */
 WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
     /* Get a Little Endian signed 64 bit integer from a `TvbRange`, as an `Int64` object.
-       The range must be 1-8 octets long. */
+       The range must be 1, 2, 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -656,16 +683,17 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
+            pushInt64(L,(gint8)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 2:
-        case 3:
+            pushInt64(L,(gint16)tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
         case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8: {
+            pushInt64(L,(gint32)tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 8:
             pushInt64(L,(gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The `Int64` object. */
-        }
         default:
             luaL_error(L,"TvbRange:le_int64() does not handle %d byte integers",tvbr->len);
             return 0;
