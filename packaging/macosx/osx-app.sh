@@ -497,7 +497,7 @@ while $endl; do
 		for lib in $libs
 		do
 			if [ ! -d "$pkglib/$lib" ] ; then
-				libfrompath=`echo "$lib" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/;$qt_frameworks_dir/Qt\1.framework;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$qt_frameworks_dir/Qt\1.framework;"`
+				libfrompath=`echo "$lib" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/;$qt_frameworks_dir/Qt\1.framework/;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$qt_frameworks_dir/Qt\1.framework;"`
 				libbinarypath=`echo "$lib" | sed "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$pkglib/Qt\1.framework/Versions/*/Qt\1;p"`
 				echo "$libfrompath -> $pkglib"
 				cp -nR $libfrompath "$pkglib"
