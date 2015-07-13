@@ -468,7 +468,7 @@ while $endl; do
 		otool -L $lib_dep_search_list 2>/dev/null \
 		| fgrep compatibility \
 		| cut -d\( -f1 \
-		| egrep -v "$exclude_prefixes" \
+		| egrep -v "$exclude_prefixes|$qt_frameworks_dir" \
 		| sort \
 		| uniq \
 		`"
@@ -483,17 +483,17 @@ while $endl; do
 			otool -L $lib_dep_search_list 2>/dev/null \
 			| fgrep compatibility \
 			| cut -d\( -f1 \
-			| egrep '@rpath/Qt[a-zA-Z0-9_]*\.framework/' \
+			| egrep "(@rpath|$qt_frameworks_dir)/Qt[a-zA-Z0-9_]*\.framework/" \
 			| sort \
 			| uniq \
 			`"
 		for lib in $libs
 		do
 			if [ ! -d "$pkglib/$lib" ] ; then
-				libfrompath=`echo "$lib" | sed -n "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$qt_frameworks_dir/Qt\1.framework;p"`
-				libbinarypath=`echo "$lib" | sed -n "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$pkglib/Qt\1.framework/Versions/*/Qt\1;p"`
+				libfrompath=`echo "$lib" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/;$qt_frameworks_dir/Qt\1.framework;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$qt_frameworks_dir/Qt\1.framework;"`
+				libbinarypath=`echo "$lib" | sed "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$pkglib/Qt\1.framework/Versions/*/Qt\1;p"`
 				echo "$libfrompath -> $pkglib"
-				cp -vnR $libfrompath "$pkglib"
+				cp -nR $libfrompath "$pkglib"
 				lib_dep_search_list="
 					$lib_dep_search_list
 					$libbinarypath"
