@@ -812,12 +812,6 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return FALSE;
     }
 
-    /* Was it sent to an odd-numbered port? */
-    if ((pinfo->destport % 2) == 0)
-    {
-        return FALSE;   /* no */
-    }
-
     /* Look at first byte */
     first_byte = tvb_get_guint8(tvb, offset);
 
@@ -851,6 +845,18 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* OK, dissect as RTCP */
     dissect_rtcp(tvb, pinfo, tree);
     return TRUE;
+}
+
+static gboolean
+dissect_rtcp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /* Was it sent to an odd-numbered port? */
+    if ((pinfo->destport % 2) == 0)
+    {
+        return FALSE;   /* no */
+    }
+
+    return dissect_rtcp_heur(tvb, pinfo, tree, data);
 }
 
 /* Dissect the length field. Append to this field text indicating the number of
@@ -6531,7 +6537,7 @@ proto_reg_handoff_rtcp(void)
     dissector_add_for_decode_as("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
-    heur_dissector_add( "udp", dissect_rtcp_heur, "RTCP over UDP", "rtcp_udp", proto_rtcp);
+    heur_dissector_add( "udp", dissect_rtcp_heur_udp, "RTCP over UDP", "rtcp_udp", proto_rtcp);
     heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp);
 }
 
