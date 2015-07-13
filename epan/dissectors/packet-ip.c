@@ -2442,6 +2442,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     return;
   }
 
+  if (tvb_reported_length(next_tvb) > 0) {
     /* Hand off to the next protocol.
 
      XXX - setting the columns only after trying various dissectors means
@@ -2449,13 +2450,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-  if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, parent_tree, iph)) {
-    /* Unknown protocol */
-    if (update_col_info) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
+    if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, parent_tree, iph)) {
+      /* Unknown protocol */
+      if (update_col_info) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
                    ipprotostr(iph->ip_p), iph->ip_p);
+      }
+      call_dissector(data_handle,next_tvb, pinfo, parent_tree);
     }
-    call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
   pinfo->fragmented = save_fragmented;
 }
