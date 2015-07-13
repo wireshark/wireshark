@@ -487,12 +487,13 @@ if [ "$strip" = "true" ]; then
 fi
 
 if [ "$ui_toolkit" = "qt" ] ; then
-	macdeployqt "$bundle" -verbose=3 || exit 1
+	macdeployqt "$bundle" -verbose=2 || exit 1
 
 	#
 	# The build process added to the Wireshark binary an rpath entry
 	# pointing to the directory containing the Qt frameworks; remove
 	# that entry from the Wireshark binary in the package.
+	#
 	/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgbin/Wireshark
 fi
 
