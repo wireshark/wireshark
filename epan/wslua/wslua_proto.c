@@ -1942,9 +1942,13 @@ int Proto_commit(lua_State* L) {
         GArray* hfa  = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
         GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
         GArray* eia  = g_array_new(TRUE,TRUE,sizeof(ei_register_info));
+        gint*   ettp = NULL;
         Proto proto;
         /* const gchar* proto_name = lua_tostring(L,2); */
         proto = checkProto(L,3);
+
+        ettp = &(proto->ett);
+        g_array_append_val(etta,ettp);
 
         /* get the Lua table of ProtoFields, push it on the stack (index=3) */
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
@@ -1953,7 +1957,7 @@ int Proto_commit(lua_State* L) {
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
             ProtoField f = checkProtoField(L,6);
             hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
-            gint* ettp = &(f->ett);
+            ettp = &(f->ett);
 
             hfri.p_id = &(f->hfid);
             hfri.hfinfo.name = f->name;
