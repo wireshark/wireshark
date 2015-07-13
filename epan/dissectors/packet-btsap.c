@@ -733,7 +733,7 @@ proto_reg_handoff_btsap(void)
     gsm_sim_resp_handle = find_dissector("gsm_sim.response");
     iso7816_atr_handle = find_dissector("iso7816.atr");
 
-    dissector_add_uint("btrfcomm.service", BTSDP_SAP_SERVICE_UUID, btsap_handle);
+    dissector_add_string("bluetooth.uuid",  "112d", btsap_handle);
 
     dissector_add_for_decode_as("btrfcomm.channel", btsap_handle);
 }

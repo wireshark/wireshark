@@ -1155,9 +1155,10 @@ proto_register_bthsp(void)
 void
 proto_reg_handoff_bthsp(void)
 {
-    dissector_add_uint("btrfcomm.service", BTSDP_HSP_SERVICE_UUID, bthsp_handle);
-    dissector_add_uint("btrfcomm.service", BTSDP_HSP_HS_SERVICE_UUID, bthsp_handle);
-    dissector_add_uint("btrfcomm.service", BTSDP_HSP_GW_SERVICE_UUID, bthsp_handle);
+    dissector_add_string("bluetooth.uuid",  "1108", bthsp_handle);
+    dissector_add_string("bluetooth.uuid",  "1112", bthsp_handle);
+    dissector_add_string("bluetooth.uuid",  "1131", bthsp_handle);
+
     dissector_add_for_decode_as("btrfcomm.channel", bthsp_handle);
 }
 

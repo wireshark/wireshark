@@ -2710,7 +2710,7 @@ proto_register_btavdtp(void)
 void
 proto_reg_handoff_btavdtp(void)
 {
-    dissector_add_uint("btl2cap.service", BTSDP_AVDTP_PROTOCOL_UUID, btavdtp_handle);
+    dissector_add_string("bluetooth.uuid", "19", btavdtp_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVDTP, btavdtp_handle);
 
@@ -3145,9 +3145,10 @@ proto_reg_handoff_bta2dp(void)
 
     rtp_handle   = find_dissector("rtp");
 
-    dissector_add_uint("btl2cap.service", BTSDP_A2DP_SOURCE_SERVICE_UUID, bta2dp_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_A2DP_SINK_SERVICE_UUID, bta2dp_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_A2DP_DISTRIBUTION_SERVICE_UUID, bta2dp_handle);
+    dissector_add_string("bluetooth.uuid", "110a", bta2dp_handle);
+    dissector_add_string("bluetooth.uuid", "110b", bta2dp_handle);
+    dissector_add_string("bluetooth.uuid", "110d", bta2dp_handle);
+
     dissector_add_for_decode_as("btl2cap.cid", bta2dp_handle);
 }
 
@@ -3381,9 +3382,10 @@ proto_reg_handoff_btvdp(void)
 
     rtp_handle   = find_dissector("rtp");
 
-    dissector_add_uint("btl2cap.service", BTSDP_VDP_SOURCE_SERVICE_UUID, btvdp_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_VDP_SINK_SERVICE_UUID, btvdp_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_VDP_DISTRIBUTION_SERVICE_UUID, btvdp_handle);
+    dissector_add_string("bluetooth.uuid", "1303", btvdp_handle);
+    dissector_add_string("bluetooth.uuid", "1304", btvdp_handle);
+    dissector_add_string("bluetooth.uuid", "1305", btvdp_handle);
+
     dissector_add_for_decode_as("btl2cap.cid", btvdp_handle);
 }
 

@@ -31,6 +31,8 @@ extern "C" {
 #include "packet-usb.h"
 #include "packet-ubertooth.h"
 
+#define PROTO_DATA_BLUETOOTH_SERVICE_UUID  0
+
 #define BLUETOOTH_DATA_SRC 0
 #define BLUETOOTH_DATA_DST 1
 
@@ -231,6 +233,8 @@ extern int bluetooth_device_tap;
 
 WS_DLL_PUBLIC const value_string   bluetooth_uuid_vals[];
 WS_DLL_PUBLIC const bluetooth_uuid_custom_t  bluetooth_uuid_custom[];
+
+extern dissector_table_t  bluetooth_uuid_table;
 
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;

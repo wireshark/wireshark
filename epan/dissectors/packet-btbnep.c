@@ -541,9 +541,9 @@ proto_reg_handoff_btbnep(void)
     data_handle   = find_dissector("data");
     ethertype_handle = find_dissector("ethertype");
 
-    dissector_add_uint("btl2cap.service", BTSDP_PAN_GN_SERVICE_UUID, btbnep_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_PAN_NAP_SERVICE_UUID, btbnep_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_PAN_GN_SERVICE_UUID, btbnep_handle);
+    dissector_add_string("bluetooth.uuid", "1115", btbnep_handle);
+    dissector_add_string("bluetooth.uuid", "1116", btbnep_handle);
+    dissector_add_string("bluetooth.uuid", "1117", btbnep_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_BNEP, btbnep_handle);
     dissector_add_for_decode_as("btl2cap.cid", btbnep_handle);

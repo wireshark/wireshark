@@ -4903,9 +4903,9 @@ proto_register_btatt(void)
             "Bluetooth Protocol ATT version from Core 4.0",
             "Version of protocol supported by this dissector.");
 
-  register_decode_as(&btatt_handle_da);
-  register_decode_as(&btatt_uuid16_da);
-  register_decode_as(&btatt_uuid128_da);
+    register_decode_as(&btatt_handle_da);
+    register_decode_as(&btatt_uuid16_da);
+    register_decode_as(&btatt_uuid128_da);
 }
 
 void

@@ -150,7 +150,6 @@ static expert_field ei_btl2cap_unknown_command_code = EI_INIT;
 /* Initialize dissector table */
 static dissector_table_t l2cap_psm_dissector_table;
 static dissector_table_t l2cap_cid_dissector_table;
-static dissector_table_t l2cap_service_dissector_table;
 
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
@@ -399,9 +398,8 @@ static const range_string le_psm_rvals[] = {
     { 0, 0, NULL }
 };
 
-#define BTL2CAP_CID_CONV        0
-#define BTL2CAP_PSM_CONV        1
-#define BTL2CAP_SERV_CONV       2
+#define PROTO_DATA_BTL2CAP_CID        0
+#define PROTO_DATA_BTL2CAP_PSM        1
 
 void proto_register_btl2cap(void);
 void proto_reg_handoff_btl2cap(void);
@@ -410,7 +408,7 @@ static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as", (guint) *value_data);
     else
@@ -421,7 +419,7 @@ static gpointer btl2cap_cid_value(packet_info *pinfo)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
 
     if (value_data)
         return (gpointer) *value_data;
@@ -433,7 +431,7 @@ static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as", (guint) *value_data);
     else
@@ -444,30 +442,7 @@ static gpointer btl2cap_psm_value(packet_info *pinfo)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV);
-
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
-}
-
-static void btl2cap_serv_prompt(packet_info *pinfo, gchar* result)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV);
-    if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP SERVICE 0x%04x as", (guint) *value_data);
-    else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP SERVICE");
-}
-
-static gpointer btl2cap_serv_value(packet_info *pinfo)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
 
     if (value_data)
         return (gpointer) *value_data;
@@ -601,13 +576,13 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     psm = tvb_get_letohs(tvb, offset);
 
-    if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
         gulong *value_data;
 
         value_data = wmem_new(wmem_file_scope(), gulong);
         *value_data = psm;
 
-        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
+        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
     }
 
     if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1467,26 +1442,31 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (psm) {
         proto_item        *psm_item;
-        guint16            uuid;
+        guint16            bt_uuid;
+        bluetooth_uuid_t   uuid;
 
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
             gulong *value_data;
 
             value_data = wmem_new(wmem_file_scope(), gulong);
             *value_data = psm;
 
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
         }
 
-        uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
+        bt_uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
 
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-            gulong *value_data;
+        uuid.size = 2;
+        uuid.bt_uuid = bt_uuid;
+        uuid.data[0] = bt_uuid >> 8;
+        uuid.data[1] = bt_uuid & 0xFF;
 
-            value_data = wmem_new(wmem_file_scope(), gulong);
-            *value_data = uuid;
+        if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
+            guint8 *value_data;
 
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
         }
 
         if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1494,9 +1474,9 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
             psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
-            if (uuid)
+            if (uuid.bt_uuid)
                 proto_item_append_text(psm_item, ": %s",
-                                       val_to_str_ext_const(uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
+                                       val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
         }
         PROTO_ITEM_SET_GENERATED(psm_item);
 
@@ -1504,7 +1484,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
             if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                 /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-                if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
+                if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, l2cap_data)) {
                     /* unknown protocol. declare as data */
                     proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
                 }
@@ -1642,42 +1622,47 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (next_tvb) {
         if (psm) {
             proto_item        *psm_item;
-            guint16            uuid;
+            guint16            bt_uuid;
+             bluetooth_uuid_t  uuid;
 
-            if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
+            if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
                 gulong *value_data;
 
                 value_data = wmem_new(wmem_file_scope(), gulong);
                 *value_data = psm;
 
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
+                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
             }
 
-            uuid = get_service_uuid(pinfo, l2cap_data, psm, psm_data->local_service);
+            bt_uuid = get_service_uuid(pinfo, l2cap_data, psm, psm_data->local_service);
 
-            if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                gulong *value_data;
+            uuid.size = 2;
+            uuid.bt_uuid = bt_uuid;
+            uuid.data[0] = bt_uuid >> 8;
+            uuid.data[1] = bt_uuid & 0xFF;
 
-                value_data = wmem_new(wmem_file_scope(), gulong);
-                *value_data = uuid;
+            if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
+                guint8 *value_data;
 
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
+                value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
+
+                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
             }
 
             if (psm < BTL2CAP_DYNAMIC_PSM_START) {
                 psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
             } else {
                 psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
-                if (uuid)
+                if (uuid.bt_uuid)
                     proto_item_append_text(psm_item, " (%s)",
-                                           val_to_str_ext_const(uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
+                                           val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
             }
             PROTO_ITEM_SET_GENERATED(psm_item);
 
             /* call next dissector */
             if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                 /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-                if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
+                if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, l2cap_data)) {
                     /* unknown protocol. declare as data */
                     proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_reported_length(next_tvb), ENC_NA);
                 }
@@ -1774,13 +1759,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     cid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV ) == NULL) {
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID ) == NULL) {
         gulong *value_data;
 
         value_data = wmem_new(wmem_file_scope(), gulong);
         *value_data = cid;
 
-        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV, value_data);
+        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID, value_data);
     }
     offset += 2;
 
@@ -1990,13 +1975,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         l2cap_data->psm = psm;
         l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
 
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
             gulong *value_data;
 
             value_data = wmem_new(wmem_file_scope(), gulong);
             *value_data = psm;
 
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
         }
 
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2007,20 +1992,25 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* call next dissector */
         if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
             /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-            guint16  uuid;
+            guint16  bt_uuid;
+            bluetooth_uuid_t  uuid;
 
-            uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
+            bt_uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
 
-            if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                gulong *value_data;
+            uuid.size = 2;
+            uuid.bt_uuid = bt_uuid;
+            uuid.data[0] = bt_uuid >> 8;
+            uuid.data[1] = bt_uuid & 0xFF;
 
-                value_data = wmem_new(wmem_file_scope(), gulong);
-                *value_data = uuid;
+            if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
+                guint8 *value_data;
 
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
+                value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
+
+                p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
             }
 
-            if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
+            if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, l2cap_data)) {
                 /* unknown protocol. declare as data */
                 proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
             }
@@ -2653,20 +2643,14 @@ proto_register_btl2cap(void)
     static decode_as_t btl2cap_psm_da = {"btl2cap", "L2CAP PSM", "btl2cap.psm", 1, 0, &btl2cap_psm_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static build_valid_func btl2cap_serv_da_build_value[1] = {btl2cap_serv_value};
-    static decode_as_value_t btl2cap_serv_da_values = {btl2cap_serv_prompt, 1, btl2cap_serv_da_build_value};
-    static decode_as_t btl2cap_serv_da = {"btl2cap", "L2CAP SERVICE", "btl2cap.service", 1, 0, &btl2cap_serv_da_values, NULL, NULL,
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     /* Register the protocol name and description */
     proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
 
     new_register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
 
     /* subdissector code */
-    l2cap_psm_dissector_table     = register_dissector_table("btl2cap.psm",     "BT L2CAP PSM",     FT_UINT16, BASE_HEX);
-    l2cap_service_dissector_table = register_dissector_table("btl2cap.service", "BT L2CAP Service", FT_UINT16, BASE_HEX);
-    l2cap_cid_dissector_table     = register_dissector_table("btl2cap.cid",     "BT L2CAP CID",     FT_UINT16, BASE_HEX);
+    l2cap_psm_dissector_table = register_dissector_table("btl2cap.psm",     "BT L2CAP PSM",     FT_UINT16, BASE_HEX);
+    l2cap_cid_dissector_table = register_dissector_table("btl2cap.cid",     "BT L2CAP CID",     FT_UINT16, BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btl2cap, hf, array_length(hf));
@@ -2678,7 +2662,6 @@ proto_register_btl2cap(void)
 
     register_decode_as(&btl2cap_cid_da);
     register_decode_as(&btl2cap_psm_da);
-    register_decode_as(&btl2cap_serv_da);
 }
 
 

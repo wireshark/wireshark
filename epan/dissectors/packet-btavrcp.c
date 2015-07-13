@@ -3203,9 +3203,9 @@ proto_register_btavrcp(void)
 void
 proto_reg_handoff_btavrcp(void)
 {
-    dissector_add_uint("btavctp.service", BTSDP_AVRCP_TG_SERVICE_UUID, btavrcp_handle);
-    dissector_add_uint("btavctp.service", BTSDP_AVRCP_CT_SERVICE_UUID, btavrcp_handle);
-    dissector_add_uint("btavctp.service", BTSDP_AVRCP_SERVICE_UUID, btavrcp_handle);
+    dissector_add_string("bluetooth.uuid", "110c", btavrcp_handle);
+    dissector_add_string("bluetooth.uuid", "110e", btavrcp_handle);
+    dissector_add_string("bluetooth.uuid", "110f", btavrcp_handle);
 }
 
 

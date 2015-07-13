@@ -160,7 +160,6 @@
 #define BTSDP_HDP_SOURCE_SERVICE_UUID                   0x1401
 #define BTSDP_HDP_SINK_SERVICE_UUID                     0x1402
 
-
 #define BTSDP_LOCAL_SERVICE_FLAG_MASK                   0x0001
 #define BTSDP_SECONDARY_CHANNEL_FLAG_MASK               0x0002
 

@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/conversation_table.h>
+#include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"
@@ -47,6 +48,7 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t bluetooth_table;
 static dissector_table_t hci_vendor_table;
+dissector_table_t        bluetooth_uuid_table;
 
 static wmem_tree_t *chandle_sessions        = NULL;
 static wmem_tree_t *chandle_to_bdaddr       = NULL;
@@ -1022,6 +1024,28 @@ guint32 max_disconnect_in_frame = G_MAXUINT32;
 void proto_register_bluetooth(void);
 void proto_reg_handoff_bluetooth(void);
 
+static void bluetooth_uuid_prompt(packet_info *pinfo, gchar* result)
+{
+    gchar *value_data;
+
+    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "BT Service UUID %s as", (gchar *) value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown BT Service UUID");
+}
+
+static gpointer bluetooth_uuid_value(packet_info *pinfo)
+{
+    gchar *value_data;
+
+    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
+
+    if (value_data)
+        return (gpointer) value_data;
+
+    return NULL;
+}
 
 gint
 dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
@@ -1499,6 +1523,13 @@ proto_register_bluetooth(void)
         &ett_bluetooth,
     };
 
+    /* Decode As handling */
+    static build_valid_func bluetooth_uuid_da_build_value[1] = {bluetooth_uuid_value};
+    static decode_as_value_t bluetooth_uuid_da_values = {bluetooth_uuid_prompt, 1, bluetooth_uuid_da_build_value};
+    static decode_as_t bluetooth_uuid_da = {"bluetooth", "BT Service UUID", "bluetooth.uuid", 1, 0, &bluetooth_uuid_da_values, NULL, NULL,
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+
     proto_bluetooth = proto_register_protocol("Bluetooth",
             "Bluetooth", "bluetooth");
 
@@ -1524,7 +1555,11 @@ proto_register_bluetooth(void)
     bluetooth_tap = register_tap("bluetooth");
     bluetooth_device_tap = register_tap("bluetooth.device");
 
+    bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", FT_STRING, BASE_NONE);
+
     register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_hostlist_packet);
+
+    register_decode_as(&bluetooth_uuid_da);
 }
 
 void

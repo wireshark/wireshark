@@ -54,8 +54,6 @@ static gint ett_btavctp             = -1;
 static expert_field ei_btavctp_unexpected_frame = EI_INIT;
 static expert_field ei_btavctp_invalid_profile = EI_INIT;
 
-static dissector_table_t avctp_service_dissector_table;
-
 static dissector_handle_t btavctp_handle;
 static dissector_handle_t data_handle    = NULL;
 
@@ -98,33 +96,8 @@ static const value_string ipid_vals[] = {
     { 0, NULL }
 };
 
-#define BTAVCTP_PID_CONV 0
-
 void proto_register_btavctp(void);
 void proto_reg_handoff_btavctp(void);
-
-static void btavctp_pid_prompt(packet_info *pinfo, gchar* result)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV);
-    if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AVCTP SERVICE 0x%04x as", (guint) *value_data);
-    else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown AVCTP SERVICE");
-}
-
-static gpointer btavctp_pid_value(packet_info *pinfo)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV);
-
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
-}
 
 static gint
 dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -194,12 +167,18 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btavctp_tree, hf_btavctp_pid,  tvb, offset, 2, ENC_BIG_ENDIAN);
         pid = tvb_get_ntohs(tvb, offset);
 
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV ) == NULL) {
-            gulong *value_data;
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
+            guint8 *value_data;
+            bluetooth_uuid_t  uuid;
 
-            value_data = wmem_new(wmem_file_scope(), gulong);
-            *value_data = pid;
-            p_add_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV, value_data);
+            uuid.size = 2;
+            uuid.bt_uuid = pid;
+            uuid.data[0] = pid >> 8;
+            uuid.data[1] = pid & 0xFF;
+
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
         }
         offset +=2;
     }
@@ -227,7 +206,14 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* reassembling */
     next_tvb = tvb_new_subset_length(tvb, offset, length);
     if (packet_type == PACKET_TYPE_SINGLE) {
-        if (!dissector_try_uint_new(avctp_service_dissector_table, pid, next_tvb, pinfo, tree, TRUE, avctp_data)) {
+        bluetooth_uuid_t  uuid;
+
+        uuid.size = 2;
+        uuid.bt_uuid = pid;
+        uuid.data[0] = pid >> 8;
+        uuid.data[1] = pid & 0xFF;
+
+        if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, avctp_data)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);
         }
 
@@ -399,6 +385,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 call_dissector(data_handle, next_tvb, pinfo, tree);
             } else {
                 guint8   *reassembled;
+                bluetooth_uuid_t  uuid;
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
@@ -418,7 +405,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 next_tvb = tvb_new_child_real_data(tvb, reassembled, length, length);
                 add_new_data_source(pinfo, next_tvb, "Reassembled AVCTP");
 
-                if (!dissector_try_uint_new(avctp_service_dissector_table, fragments->pid, next_tvb, pinfo, tree, TRUE, avctp_data)) {
+                uuid.size = 2;
+                uuid.bt_uuid = fragments->pid;
+                uuid.data[0] = fragments->pid >> 8;
+                uuid.data[1] = fragments->pid & 0xFF;
+
+                if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, avctp_data)) {
                     call_dissector(data_handle, next_tvb, pinfo, tree);
                 }
             }
@@ -486,14 +478,7 @@ proto_register_btavctp(void)
     };
 
     /* Decode As handling */
-    static build_valid_func btavctp_pid_da_build_value[1] = {btavctp_pid_value};
-    static decode_as_value_t btavctp_pid_da_values = {btavctp_pid_prompt, 1, btavctp_pid_da_build_value};
-    static decode_as_t btavctp_pid_da = {"btavctp", "AVCTP SERVICE", "btavctp.service", 1, 0, &btavctp_pid_da_values, NULL, NULL,
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-
-    avctp_service_dissector_table = register_dissector_table("btavctp.service", "BT AVCTP Service", FT_UINT16, BASE_HEX);
 
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "BT AVCTP", "btavctp");
     btavctp_handle = new_register_dissector("btavctp", dissect_btavctp, proto_btavctp);
@@ -507,8 +492,6 @@ proto_register_btavctp(void)
     prefs_register_static_text_preference(module, "avctp.version",
             "Bluetooth Protocol AVCTP version: 1.4",
             "Version of protocol supported by this dissector.");
-
-    register_decode_as(&btavctp_pid_da);
 }
 
 
@@ -517,7 +500,7 @@ proto_reg_handoff_btavctp(void)
 {
     data_handle    = find_dissector("data");
 
-    dissector_add_uint("btl2cap.service", BTSDP_AVCTP_PROTOCOL_UUID, btavctp_handle);
+    dissector_add_string("bluetooth.uuid", "17", btavctp_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVCTP_CTRL, btavctp_handle);
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVCTP_BRWS, btavctp_handle);

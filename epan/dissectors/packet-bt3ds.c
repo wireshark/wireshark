@@ -180,9 +180,9 @@ proto_register_bt3ds(void)
 void
 proto_reg_handoff_bt3ds(void)
 {
-    dissector_add_uint("btl2cap.service", BTSDP_3D_SYNCHRONIZATION_UUID, b3ds_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_3D_DISPLAY_UUID, b3ds_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_3D_GLASSES_UUID, b3ds_handle);
+    dissector_add_string("bluetooth.uuid", "1137", b3ds_handle);
+    dissector_add_string("bluetooth.uuid", "1138", b3ds_handle);
+    dissector_add_string("bluetooth.uuid", "1139", b3ds_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_3DS, b3ds_handle);
     dissector_add_for_decode_as("btl2cap.cid", b3ds_handle);

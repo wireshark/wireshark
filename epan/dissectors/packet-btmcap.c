@@ -434,12 +434,11 @@ proto_register_btmcap(void)
 void
 proto_reg_handoff_btmcap(void)
 {
-    dissector_add_uint("btl2cap.service", BTSDP_MCAP_CONTROL_CHANNEL_PROTOCOL_UUID, btmcap_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_MCAP_DATA_CHANNEL_PROTOCOL_UUID, btmcap_handle);
-
-    dissector_add_uint("btl2cap.service", BTSDP_HDP_SERVICE_UUID, btmcap_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_HDP_SOURCE_SERVICE_UUID, btmcap_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_HDP_SINK_SERVICE_UUID, btmcap_handle);
+    dissector_add_string("bluetooth.uuid", "1e", btmcap_handle);
+    dissector_add_string("bluetooth.uuid", "1f", btmcap_handle);
+    dissector_add_string("bluetooth.uuid", "1400", btmcap_handle);
+    dissector_add_string("bluetooth.uuid", "1401", btmcap_handle);
+    dissector_add_string("bluetooth.uuid", "1402", btmcap_handle);
 
     /* dynamic PSM */
     dissector_add_for_decode_as("btl2cap.psm", btmcap_handle);

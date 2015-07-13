@@ -425,8 +425,8 @@ proto_reg_handoff_bthid(void)
     usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
     usb_hid_boot_mouse_input_report_handle     = find_dissector("usbhid.boot_report.mouse.input");
 
-    dissector_add_uint("btl2cap.service", BTSDP_HID_SERVICE_UUID, bthid_handle);
-    dissector_add_uint("btl2cap.service", BTSDP_HIDP_PROTOCOL_UUID, bthid_handle);
+    dissector_add_string("bluetooth.uuid", "11", bthid_handle);
+    dissector_add_string("bluetooth.uuid", "1124", bthid_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_HID_CTRL, bthid_handle);
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_HID_INTR, bthid_handle);

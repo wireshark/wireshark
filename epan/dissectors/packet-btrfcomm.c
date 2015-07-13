@@ -124,7 +124,6 @@ static dissector_handle_t btdun_handle;
 static dissector_handle_t btspp_handle;
 static dissector_handle_t btgnss_handle;
 
-static dissector_table_t rfcomm_service_dissector_table;
 static dissector_table_t rfcomm_channel_dissector_table;
 
 static wmem_tree_t *service_directions = NULL;
@@ -265,48 +264,24 @@ void proto_reg_handoff_btspp(void);
 void proto_register_btgnss(void);
 void proto_reg_handoff_btgnss(void);
 
-#define BTRFCOMM_SERVICE_CONV        0
-#define BTRFCOMM_CHANNEL_CONV        1
+#define PROTO_DATA_BTRFCOMM_CHANNEL                0
 
-static void btrfcomm_serv_prompt(packet_info *pinfo, gchar* result)
+static void btrfcomm_channel_prompt(packet_info *pinfo, gchar* result)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV);
-    if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM SERVICE %d as", (guint) *value_data);
-    else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown RFCOMM SERVICE");
-}
-
-static gpointer btrfcomm_serv_value(packet_info *pinfo)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV);
-
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
-}
-
-static void btrfcomm_chan_prompt(packet_info *pinfo, gchar* result)
-{
-    gulong *value_data;
-
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_CHANNEL);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM Channel %d as", (guint) *value_data);
     else
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown RFCOMM Channel");
 }
 
-static gpointer btrfcomm_chan_value(packet_info *pinfo)
+static gpointer btrfcomm_channel_value(packet_info *pinfo)
 {
     gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_CHANNEL);
 
     if (value_data)
         return (gpointer) *value_data;
@@ -492,13 +467,13 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
     channel = dlci >> 1;
     proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", dlci & 0x01, channel);
 
-    if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV) == NULL) {
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_CHANNEL) == NULL) {
         gulong *value_data;
 
         value_data = wmem_new(wmem_file_scope(), gulong);
         *value_data = channel;
 
-        p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV, value_data);
+        p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_CHANNEL, value_data);
     }
 
     dlci_tree = proto_item_add_subtree(dlci_item, ett_dlci);
@@ -771,9 +746,13 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
-    if (dlci && (frame_type == FRAME_TYPE_SABM))
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                        val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+    if (dlci && (frame_type == FRAME_TYPE_SABM)) {
+        if (service_info->uuid.size==16)
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_uuid(&service_info->uuid));
+        else
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
+                    val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+    }
 
     /* UID frame */
     if ((frame_type == FRAME_TYPE_UIH) && dlci && pf_flag) {
@@ -874,19 +853,18 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
 
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV ) == NULL) {
-            gulong *value_data;
+        if (service_info->uuid.size != 0 && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
+            guint8 *value_data;
 
-            value_data = wmem_new(wmem_file_scope(), gulong);
-            *value_data = service_info->uuid.bt_uuid;
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&service_info->uuid));
 
-            p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV, value_data);
+            p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
         }
 
         if (!dissector_try_uint_new(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
                 next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
-            if (!dissector_try_uint_new(rfcomm_service_dissector_table, service_info->uuid.bt_uuid,
-                        next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
+            if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&service_info->uuid),
+                    next_tvb, pinfo, tree, rfcomm_data)) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {
                     call_dissector_with_data(decode_by_dissector, next_tvb, pinfo, tree, rfcomm_data);
@@ -1143,14 +1121,9 @@ proto_register_btrfcomm(void)
     };
 
     /* Decode As handling */
-    static build_valid_func btrfcomm_serv_da_build_value[1] = {btrfcomm_serv_value};
-    static decode_as_value_t btrfcomm_serv_da_values = {btrfcomm_serv_prompt, 1, btrfcomm_serv_da_build_value};
-    static decode_as_t btrfcomm_serv_da = {"btrfcomm", "RFCOMM SERVICE", "btrfcomm.service", 1, 0, &btrfcomm_serv_da_values, NULL, NULL,
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
-    static build_valid_func btrfcomm_chan_da_build_value[1] = {btrfcomm_chan_value};
-    static decode_as_value_t btrfcomm_chan_da_values = {btrfcomm_chan_prompt, 1, btrfcomm_chan_da_build_value};
-    static decode_as_t btrfcomm_chan_da = {"btrfcomm", "RFCOMM Channel", "btrfcomm.channel", 1, 0, &btrfcomm_chan_da_values, NULL, NULL,
+    static build_valid_func btrfcomm_channel_da_build_value[1] = {btrfcomm_channel_value};
+    static decode_as_value_t btrfcomm_channel_da_values = {btrfcomm_channel_prompt, 1, btrfcomm_channel_da_build_value};
+    static decode_as_t btrfcomm_channel_da = {"btrfcomm", "RFCOMM Channel", "btrfcomm.channel", 1, 0, &btrfcomm_channel_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     /* Register the protocol name and description */
@@ -1165,8 +1138,7 @@ proto_register_btrfcomm(void)
 
     service_directions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "BT RFCOMM Service", FT_UINT16, BASE_HEX);
-    rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "BT RFCOMM Channel", FT_UINT16, BASE_DEC);
+    rfcomm_channel_dissector_table         = register_dissector_table("btrfcomm.channel", "BT RFCOMM Channel", FT_UINT16, BASE_DEC);
 
     module = prefs_register_protocol(proto_btrfcomm, NULL);
     prefs_register_static_text_preference(module, "rfcomm.version",
@@ -1196,8 +1168,7 @@ proto_register_btrfcomm(void)
             "Decode by channel",
             uat_rfcomm_channels);
 
-    register_decode_as(&btrfcomm_serv_da);
-    register_decode_as(&btrfcomm_chan_da);
+    register_decode_as(&btrfcomm_channel_da);
 }
 
 void
@@ -1282,7 +1253,8 @@ proto_register_btdun(void)
 void
 proto_reg_handoff_btdun(void)
 {
-    dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
+    dissector_add_string("bluetooth.uuid",  "1103", btdun_handle);
+
     dissector_add_for_decode_as("btrfcomm.channel", btdun_handle);
 
     ppp_handle = find_dissector("ppp_raw_hdlc");
@@ -1348,7 +1320,8 @@ proto_register_btspp(void)
 void
 proto_reg_handoff_btspp(void)
 {
-    dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
+    dissector_add_string("bluetooth.uuid",  "1101", btspp_handle);
+
     dissector_add_for_decode_as("btrfcomm.channel", btspp_handle);
 }
 
@@ -1400,8 +1373,9 @@ proto_register_btgnss(void)
 void
 proto_reg_handoff_btgnss(void)
 {
-    dissector_add_uint("btrfcomm.service", BTSDP_GNSS_UUID, btgnss_handle);
-    dissector_add_uint("btrfcomm.service", BTSDP_GNSS_SERVER_UUID, btgnss_handle);
+    dissector_add_string("bluetooth.uuid",  "1135", btgnss_handle);
+    dissector_add_string("bluetooth.uuid",  "1136", btgnss_handle);
+
     dissector_add_for_decode_as("btrfcomm.channel", btgnss_handle);
 }
 
