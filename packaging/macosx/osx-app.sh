@@ -486,7 +486,7 @@ while $endl; do
 		# Forcibly copy over Qt frameworks, as macdeployqt fails
 		# to do so for some unknown reason.
 		#
-		libs="`\
+		qt_frameworks="`\
 			otool -L $lib_dep_search_list 2>/dev/null \
 			| fgrep compatibility \
 			| cut -d\( -f1 \
@@ -494,16 +494,19 @@ while $endl; do
 			| sort \
 			| uniq \
 			`"
-		for lib in $libs
+		for framework in $qt_frameworks
 		do
-			if [ ! -d "$pkglib/$lib" ] ; then
-				libfrompath=`echo "$lib" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/;$qt_frameworks_dir/Qt\1.framework/;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$qt_frameworks_dir/Qt\1.framework;"`
-				libbinarypath=`echo "$lib" | sed "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;$pkglib/Qt\1.framework/Versions/*/Qt\1;p"`
-				echo "$libfrompath -> $pkglib"
-				cp -nR $libfrompath "$pkglib"
+			if [ ! -d "$pkglib/$framework" ] ; then
+				frameworkname=`echo "$framework" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;"`
+				echo "$qt_frameworks_dir/$frameworkname.framework -> $pkglib"
+				frameworkdir="$pkglib/$frameworkname.framework"
+				mkdir "$frameworkdir"
+				cp -nR "$qt_frameworks_dir/$frameworkname.framework/Contents" "$frameworkdir"
+				cp -nR "$qt_frameworks_dir/$frameworkname.framework/$frameworkname" "$frameworkdir"
+				cp -nR "$qt_frameworks_dir/$frameworkname.framework/Versions" "$frameworkdir"
 				lib_dep_search_list="
 					$lib_dep_search_list
-					$libbinarypath"
+					$frameworkdir/Versions/*/*"
 			fi
 		done
 	fi
