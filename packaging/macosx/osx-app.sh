@@ -606,7 +606,7 @@ rpathify_file () {
 				otool -L $1 \
 				| fgrep compatibility \
 				| cut -d\( -f1 \
-				| egrep -v "$exclude_prefixes" \
+				| egrep -v "$exclude_prefixes|$qt_frameworks_dir" \
 				| sort \
 				| uniq \
 				`"
@@ -628,6 +628,42 @@ rpathify_file () {
 				echo "Changing reference to $lib to $to in $1"
 				/usr/bin/install_name_tool -change $lib $to $1
 			done
+
+			if [ "$ui_toolkit" = "qt" ] ; then
+				#
+				# Rpathify the references to the Qt frameworks
+				# as necessary.
+				#
+				qt_frameworks="`\
+					otool -L $lib_dep_search_list 2>/dev/null \
+					| fgrep compatibility \
+					| cut -d\( -f1 \
+					| egrep "$qt_frameworks_dir/Qt[a-zA-Z0-9_]*\.framework/" \
+					| sort \
+					| uniq \
+					`"
+				for framework in $qt_frameworks
+				do
+					#
+					# Get the pathname of the framework,
+					# with everything leading up to it
+					# stripped.
+					#
+					base=`echo $framework | sed 's;$qt_frameworks_dir/;;'`
+					#
+					# The framework will end up in a
+					# directory under the rpath; this
+					# is what we should change its file
+					# name to.
+					#
+					to=@rpath/$base
+					#
+					# Change the reference to that framework.
+					#
+					echo "Changing reference to $framework to $to in $1"
+					/usr/bin/install_name_tool -change $lib $to $1
+				done
+			fi
 			;;
 		esac
 	fi
