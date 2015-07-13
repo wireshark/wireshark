@@ -499,14 +499,19 @@ while $endl; do
 			if [ ! -d "$pkglib/$framework" ] ; then
 				frameworkname=`echo "$framework" | sed -e "s;@rpath/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;" -e "s;$qt_frameworks_dir/Qt\([a-zA-Z0-9_]*\)\.framework/.*;Qt\1;"`
 				echo "$qt_frameworks_dir/$frameworkname.framework -> $pkglib"
-				frameworkdir="$pkglib/$frameworkname.framework"
-				mkdir "$frameworkdir"
-				cp -nR "$qt_frameworks_dir/$frameworkname.framework/Contents" "$frameworkdir"
-				cp -nR "$qt_frameworks_dir/$frameworkname.framework/$frameworkname" "$frameworkdir"
-				cp -nR "$qt_frameworks_dir/$frameworkname.framework/Versions" "$frameworkdir"
+				cp -nR "$qt_frameworks_dir/$frameworkname.framework" "$pkglib"
+				#
+				# Get rid of the headers and debug stuff.
+				#
+				rm -rf "$pkglib/$frameworkname.framework/Headers"
+				rm -rf "$pkglib/$frameworkname.framework/"*.prl
+				rm -rf "$pkglib/$frameworkname.framework/"*_debug
+				rm -rf "$pkglib/$frameworkname.framework/"*_debug.prl
+				rm -rf "$pkglib/$frameworkname.framework/Versions"/*/Headers
+				rm -rf "$pkglib/$frameworkname.framework/Versions"/*/*_debug
 				lib_dep_search_list="
 					$lib_dep_search_list
-					$frameworkdir/Versions/*/*"
+					$pkglib/$frameworkname.framework/Versions/Current/*"
 			fi
 		done
 	fi
