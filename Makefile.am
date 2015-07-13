@@ -372,7 +372,7 @@ if HAVE_GTK
 wireshark_gtk_LDFLAGS = -export-dynamic
 endif
 if HAVE_Qt
-wireshark_LDFLAGS = -export-dynamic
+wireshark_LDFLAGS = -export-dynamic @Qt_LDFLAGS@
 endif
 endif
 

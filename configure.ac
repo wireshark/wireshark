@@ -1625,7 +1625,7 @@ if test "x$enable_wireshark" = "xyes"; then
 	fi
 	if test "x$with_qt" != "xno"; then
 		#
-		# Qt was specified; Make sure we have a C++ compiler.
+		# Qt was specified; make sure we have a C++ compiler.
 		#
 		if test -z "$CXX"; then
 			AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
@@ -1663,6 +1663,26 @@ if test "x$enable_wireshark" = "xyes"; then
 			AC_SUBST(MOC)
 			AC_WIRESHARK_QT_TOOL_CHECK(RCC, rcc, "$qt_version")
 			AC_SUBST(RCC)
+
+			#
+			# On Darwin, find where the Qt frameworks are
+			# located, and add that to the rpath, just in
+			# case this is Qt 5.5 or later and the frameworks
+			# have an install name that begins with @rpath
+			# and aren't installed in a frameworks directory
+			# that's searched by default.
+			#
+			case "$host_os" in
+			darwin*)
+				if test $qt_version -le 4
+				then
+					Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs QtCore | sed -e 's/-F//' -e 's/ -framework.*//'`
+				else
+					Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs Qt${qt_version}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
+				fi
+				;;
+			esac
+			AC_SUBST(Qt_LDFLAGS)
 		],
 		[
 			case "$with_qt" in

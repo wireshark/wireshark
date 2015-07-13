@@ -178,6 +178,21 @@ elif [ ! -d "$bundle" ] ; then
 	exit 1
 fi
 
+if [ "$ui_toolkit" = "qt" ] ; then
+	for i in 5 ""
+	do
+		qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
+		if [ ! -z "$qt_frameworks_dir" ] ; then
+			# found it
+			break;
+		fi
+	done
+	if [ -z "$qt_frameworks_dir" ] ; then
+		echo "Can't find the Qt frameworks directory" >&2
+		exit 1
+	fi
+fi
+
 # Package paths
 pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
@@ -468,6 +483,12 @@ fi
 
 if [ "$ui_toolkit" = "qt" ] ; then
 	macdeployqt "$bundle" -verbose=3 || exit 1
+
+	#
+	# The build process added to the Wireshark binary an rpath entry
+	# pointing to the directory containing the Qt frameworks; remove
+	# that entry from the Wireshark binary in the package.
+	/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgbin/Wireshark
 fi
 
 # NOTE: we must rpathify *all* files, *including* plugins for GTK+ etc.,
