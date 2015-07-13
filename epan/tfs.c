@@ -87,4 +87,5 @@ const true_false_string tfs_full_half = { "Full", "Half" };
 const true_false_string tfs_acknowledged_not_acknowledged = { "Acknowledged", "Not Acknowledged" };
 const true_false_string tfs_response_request = { "Response", "Request" };
 const true_false_string tfs_defined_not_defined = { "Defined", "Not defined" };
+const true_false_string tfs_constructed_primitive = { "Constructed", "Primitive" };
 

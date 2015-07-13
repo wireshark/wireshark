@@ -138,6 +138,7 @@ static int proto_zvt = -1;
 static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
 static int ett_zvt_tlv_dat_obj = -1;
+static int ett_zvt_tlv_tag = -1;
 
 static int hf_zvt_resp_in = -1;
 static int hf_zvt_resp_to = -1;
@@ -155,6 +156,8 @@ static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bitmap = -1;
 static int hf_zvt_tlv_total_len = -1;
 static int hf_zvt_tlv_tag = -1;
+static int hf_zvt_tlv_tag_class = -1;
+static int hf_zvt_tlv_tag_type = -1;
 static int hf_zvt_tlv_len = -1;
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
@@ -225,25 +228,58 @@ static const value_string tlv_tags[] = {
 };
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
 
+static const value_string tlv_tag_class[] = {
+    { 0x00, "Universal" },
+    { 0x01, "Application" },
+    { 0x02, "Context-specific" },
+    { 0x03, "Private" },
+    { 0, NULL }
+};
+static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class);
+
+
+
 
 static gint
 dissect_zvt_tlv_tag(tvbuff_t *tvb, gint offset,
         packet_info *pinfo _U_, proto_tree *tree, guint32 *tag)
 {
-    guint8 tag_byte;
+    gint offset_start;
+    guint8 one_byte;
+    guint32 _tag;
+    proto_item *tag_ti;
+    proto_tree *tag_tree;
 
-    tag_byte = tvb_get_guint8(tvb, offset);
-    if ((tag_byte & 0x1F) == 0x1F) {
-        /* XXX - handle multi-byte tags */
-        return -1;
+    offset_start = offset;
+
+    one_byte = tvb_get_guint8(tvb, offset);
+    _tag = one_byte;
+    offset++;
+    if ((one_byte & 0x1F) == 0x1F) {
+        do {
+            if ((offset-offset_start)>4) {
+                /* we support tags of <= 4 bytes
+                   (the specification defines only 1 and 2-byte tags) */
+                return -1;
+            }
+            one_byte = tvb_get_guint8(tvb, offset);
+            _tag = _tag << 8 | (one_byte&0x7F);
+            offset++;
+        } while (one_byte & 0x80);
     }
 
-    proto_tree_add_uint_format(tree, hf_zvt_tlv_tag,
-            tvb, offset, 1, tag_byte, "Tag: 0x%x", tag_byte);
+    tag_ti = proto_tree_add_uint_format(tree, hf_zvt_tlv_tag,
+            tvb, offset_start, offset-offset_start, _tag, "Tag: 0x%x", _tag);
+
+    tag_tree = proto_item_add_subtree(tag_ti, ett_zvt_tlv_tag);
+    proto_tree_add_item(tag_tree, hf_zvt_tlv_tag_class,
+            tvb, offset_start, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tag_tree, hf_zvt_tlv_tag_type,
+            tvb, offset_start, 1, ENC_BIG_ENDIAN);
 
     if (tag)
-        *tag = tag_byte;
-    return 1;
+        *tag = _tag;
+    return offset-offset_start;
 }
 
 
@@ -764,7 +800,8 @@ proto_register_zvt(void)
     static gint *ett[] = {
         &ett_zvt,
         &ett_zvt_apdu,
-        &ett_zvt_tlv_dat_obj
+        &ett_zvt_tlv_dat_obj,
+        &ett_zvt_tlv_tag
     };
     static hf_register_info hf[] = {
         { &hf_zvt_resp_in,
@@ -817,6 +854,13 @@ proto_register_zvt(void)
         { &hf_zvt_tlv_tag,
             { "Tag", "zvt.tlv.tag", FT_UINT32,
                 BASE_HEX|BASE_EXT_STRING, &tlv_tags_ext, 0, NULL, HFILL } },
+        { &hf_zvt_tlv_tag_class,
+            { "Class", "zvt.tlv.tag.class", FT_UINT8,
+                BASE_HEX|BASE_EXT_STRING, &tlv_tag_class_ext,
+                0xC0, NULL, HFILL } },
+        { &hf_zvt_tlv_tag_type,
+            { "Type", "zvt.tlv.tag.type", FT_BOOLEAN,
+                8, TFS(&tfs_constructed_primitive), 0x20, NULL, HFILL } },
         { &hf_zvt_tlv_len,
             { "Length", "zvt.tlv.len",
                 FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } }
