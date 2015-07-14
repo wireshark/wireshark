@@ -351,6 +351,12 @@ print_usage(FILE *output)
   fprintf(output, "                           Example: tcp.port==8888,http\n");
   fprintf(output, "  -H <hosts file>          read a list of entries from a hosts file, which will\n");
   fprintf(output, "                           then be written to a capture file. (Implies -W n)\n");
+  fprintf(output, "  --disable-protocol <proto_name>\n");
+  fprintf(output, "                           disable dissection of proto_name\n");
+  fprintf(output, "  --enable-heuristic <short_name>\n");
+  fprintf(output, "                           enable dissection of heuristic protocol\n");
+  fprintf(output, "  --disable-heuristic <short_name>\n");
+  fprintf(output, "                           disable dissection of heuristic protocol\n");
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
@@ -1003,6 +1009,9 @@ DIAG_ON(cast-qual)
   char                 badopt;
   int                  log_flags;
   gchar               *output_only = NULL;
+  GSList              *disable_protocol_slist = NULL;
+  GSList              *enable_heur_slist = NULL;
+  GSList              *disable_heur_slist = NULL;
 
 /*
  * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1702,6 +1711,16 @@ DIAG_ON(cast-qual)
         return 1;
       }
       break;
+    case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
+      disable_protocol_slist = g_slist_append(disable_protocol_slist, optarg);
+      break;
+    case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
+      enable_heur_slist = g_slist_append(enable_heur_slist, optarg);
+      break;
+    case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
+      disable_heur_slist = g_slist_append(disable_heur_slist, optarg);
+      break;
+
     default:
     case '?':        /* Bad flag - print usage message */
       switch(optopt) {
@@ -2030,6 +2049,30 @@ DIAG_ON(cast-qual)
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
     set_disabled_heur_dissector_list();
+  }
+
+  if(disable_protocol_slist) {
+      GSList *proto_disable;
+      for (proto_disable = disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+      {
+          proto_disable_proto_by_name((char*)proto_disable->data);
+      }
+  }
+
+  if(enable_heur_slist) {
+      GSList *heur_enable;
+      for (heur_enable = enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+      {
+          proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
+      }
+  }
+
+  if(disable_heur_slist) {
+      GSList *heur_disable;
+      for (heur_disable = disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
+      {
+          proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
+      }
   }
 
   /* Build the column format array */

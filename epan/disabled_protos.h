@@ -62,6 +62,13 @@ WS_DLL_PUBLIC void
 save_disabled_protos_list(char **pref_path_return, int *errno_return);
 
 /*
+ * Disable a particular protocol by name
+ */
+
+WS_DLL_PUBLIC void
+proto_disable_proto_by_name(const char *name);
+
+/*
  * Read in a list of disabled protocols.
  *
  * On success, "*pref_path_return" is set to NULL.
@@ -93,6 +100,12 @@ set_disabled_heur_dissector_list(void);
  */
 WS_DLL_PUBLIC void
 save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return);
+
+/*
+ * Enable/disable a particular heuristic dissector by name
+ */
+WS_DLL_PUBLIC void
+proto_enable_heuristic_by_name(const char *name, gboolean enable);
 
 
 #ifdef __cplusplus

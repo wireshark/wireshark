@@ -356,6 +356,27 @@ skip:
 }
 
 /*
+ * Disable a particular protocol by name
+ */
+
+void
+proto_disable_proto_by_name(const char *name)
+{
+    protocol_t *protocol;
+    int proto_id;
+
+    proto_id = proto_get_id_by_filter_name(name);
+    if (proto_id >= 0 ) {
+        protocol = find_protocol_by_id(proto_id);
+        if (proto_is_protocol_enabled(protocol) == TRUE) {
+            if (proto_can_toggle_protocol(proto_id) == TRUE) {
+                proto_set_decoding(proto_id, FALSE);
+            }
+        }
+    }
+}
+
+/*
  * Write out a list of disabled protocols.
  *
  * On success, "*pref_path_return" is set to NULL.
@@ -790,6 +811,15 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
   }
   g_free(ff_path_new);
   g_free(ff_path);
+}
+
+void
+proto_enable_heuristic_by_name(const char *name, gboolean enable)
+{
+  heur_dtbl_entry_t* heur = find_heur_dissector_by_unique_short_name(name);
+  if (heur != NULL) {
+      heur->enabled = enable;
+  }
 }
 
 /*

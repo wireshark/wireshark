@@ -78,6 +78,12 @@ Processing:
   -R <read filter>         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mntC"
+  --disable-protocol <proto_name> disable dissection of proto_name
+                           Repeat option for each protocol
+  --enable-heuristic <short_name> enable dissection of heuristic protocol
+                           Repeat option for each protocol
+  --disable-heuristic <short_name> disable dissection of heuristic protocol
+                           Repeat option for each protocol
 
 User interface:
   -C <config profile>      start with specified configuration profile

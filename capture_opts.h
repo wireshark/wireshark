@@ -63,7 +63,10 @@ extern "C" {
  * Non-capture long-only options should start here, to avoid collision
  * with capture options.
  */
-#define MIN_NON_CAPTURE_LONGOPT 129
+#define MIN_NON_CAPTURE_LONGOPT  129
+#define LONGOPT_DISABLE_PROTOCOL  130
+#define LONGOPT_ENABLE_HEURISTIC  131
+#define LONGOPT_DISABLE_HEURISTIC 132
 
 /*
  * Options for capturing common to all capturing programs.
@@ -102,7 +105,10 @@ extern "C" {
     {(char *)"list-data-link-types", no_argument,       NULL, 'L'}, \
     {(char *)"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
     {(char *)"snapshot-length",      required_argument, NULL, 's'}, \
-    {(char *)"linktype",             required_argument, NULL, 'y'},
+    {(char *)"linktype",             required_argument, NULL, 'y'}, \
+    {(char *)"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
+    {(char *)"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
+    {(char *)"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC },
 
 #define OPTSTRING_CAPTURE_COMMON \
     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
