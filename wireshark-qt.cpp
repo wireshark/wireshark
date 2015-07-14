@@ -508,6 +508,57 @@ int main(int argc, char *argv[])
         (void *) get_gui_compiled_info);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
+#ifdef _WIN32
+    /* Load wpcap if possible. Do this before collecting the run-time version information */
+    load_wpcap();
+
+    /* ... and also load the packet.dll from wpcap */
+    wpcap_packet_load();
+
+#ifdef HAVE_AIRPCAP
+    /* Load the airpcap.dll.  This must also be done before collecting
+     * run-time version information. */
+    load_airpcap();
+#if 0
+    airpcap_dll_ret_val = load_airpcap();
+
+    switch (airpcap_dll_ret_val) {
+    case AIRPCAP_DLL_OK:
+        /* load the airpcap interfaces */
+        g_airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
+
+        if (g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0){
+            if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
+                g_free(err_str);
+            }
+            airpcap_if_active = NULL;
+
+        } else {
+
+            /* select the first ad default (THIS SHOULD BE CHANGED) */
+            airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
+        }
+        break;
+    /*
+     * XXX - Maybe we need to warn the user if one of the following happens???
+     */
+    case AIRPCAP_DLL_OLD:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
+        break;
+
+    case AIRPCAP_DLL_ERROR:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+        break;
+
+    case AIRPCAP_DLL_NOT_FOUND:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+        break;
+    }
+#endif
+#endif /* HAVE_AIRPCAP */
+#endif /* _WIN32 */
+
     /* Get the compile-time version information string */
     // XXX qtshark
     comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
@@ -654,58 +705,6 @@ DIAG_ON(cast-qual)
     //initialize_funnel_ops();
 
     AirPDcapInitContext(&airpdcap_ctx);
-
-// xxx qtshark
-#ifdef _WIN32
-    /* Load wpcap if possible. Do this before collecting the run-time version information */
-    load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    wpcap_packet_load();
-
-#ifdef HAVE_AIRPCAP
-    /* Load the airpcap.dll.  This must also be done before collecting
-     * run-time version information. */
-    load_airpcap();
-#if 0
-    airpcap_dll_ret_val = load_airpcap();
-
-    switch (airpcap_dll_ret_val) {
-    case AIRPCAP_DLL_OK:
-        /* load the airpcap interfaces */
-        airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
-
-        if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
-            if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
-                g_free(err_str);
-            }
-            airpcap_if_active = NULL;
-
-        } else {
-
-            /* select the first ad default (THIS SHOULD BE CHANGED) */
-            airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
-        }
-        break;
-    /*
-     * XXX - Maybe we need to warn the user if one of the following happens???
-     */
-    case AIRPCAP_DLL_OLD:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
-        break;
-
-    case AIRPCAP_DLL_ERROR:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
-        break;
-
-    case AIRPCAP_DLL_NOT_FOUND:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
-        break;
-    }
-#endif
-#endif /* HAVE_AIRPCAP */
-#endif /* _WIN32 */
 
     QString locale;
     QString cf_name;
