@@ -2,7 +2,7 @@
  * Routines for CoAP packet disassembly
  * draft-ietf-core-coap-14.txt
  * draft-ietf-core-block-10.txt
- * draft-ietf-core-observe-07.txt
+ * draft-ietf-core-observe-16.txt
  * draft-ietf-core-link-format-06.txt
  * Shoichi Sakane <sakane@tanu.org>
  *
@@ -159,6 +159,12 @@ static const value_string vals_code[] = {
 };
 static value_string_ext vals_code_ext = VALUE_STRING_EXT_INIT(vals_code);
 
+static const value_string vals_observe_options[] = {
+	{ 0, "Register" },
+	{ 1, "Deregister" },
+	{ 0, NULL },
+};
+
 /*
  * Option Headers
  * No-Option must not be included in this structure, is handled in the function
@@ -168,7 +174,7 @@ static value_string_ext vals_code_ext = VALUE_STRING_EXT_INIT(vals_code);
 #define COAP_OPT_URI_HOST	 3
 #define COAP_OPT_ETAG		 4
 #define COAP_OPT_IF_NONE_MATCH	 5
-#define COAP_OPT_OBSERVE	 6	/* core-observe-07 */
+#define COAP_OPT_OBSERVE	 6	/* core-observe-16 */
 #define COAP_OPT_URI_PORT	 7
 #define COAP_OPT_LOCATION_PATH	 8
 #define COAP_OPT_URI_PATH	11
@@ -227,7 +233,7 @@ struct coap_option_range_t {
 	{ COAP_OPT_PROXY_URI,      1,1034 },
 	{ COAP_OPT_PROXY_SCHEME,   1, 255 },
 	{ COAP_OPT_SIZE1,          0,   4 },
-	{ COAP_OPT_OBSERVE,        0,   2 },
+	{ COAP_OPT_OBSERVE,        0,   3 },
 	{ COAP_OPT_BLOCK2,         0,   3 },
 	{ COAP_OPT_BLOCK1,         0,   3 },
 	{ COAP_OPT_BLOCK_SIZE,     0,   4 },
@@ -1052,8 +1058,8 @@ proto_register_coap(void)
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_observe,
-		  { "Lifetime", "coap.opt.subscr_lifetime",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		  { "Observe", "coap.opt.observe",
+		    FT_UINT32, BASE_DEC, VALS(vals_observe_options), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_accept,
