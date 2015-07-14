@@ -1555,6 +1555,10 @@ AirPDcapStoreSa(
 {
     INT last_free;
 
+    if (ctx->first_free_index>=AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR) {
+        /* there is no empty space available. FAILURE */
+        return -1;
+    }
     if (ctx->sa[ctx->first_free_index].used) {
         /* last addition was in the middle of the array (and the first_free_index was just incremented by 1)   */
         /* search for a free space from the first_free_index to AIRPDCAP_STA_INFOS_NR (to avoid free blocks in */
