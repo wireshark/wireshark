@@ -155,7 +155,8 @@ copy_address(address *to, const address *from) {
     to->type = from->type;
     to->len = from->len;
     to_data = (guint8 *)g_malloc(from->len);
-    memcpy(to_data, from->data, from->len);
+    if (from->len != 0)
+        memcpy(to_data, from->data, from->len);
     to->data = to_data;
 }
 #define COPY_ADDRESS(to, from) copy_address((to), (from))
@@ -189,7 +190,8 @@ copy_address_shallow(address *to, const address *from) {
         void *WMEM_COPY_ADDRESS_data; \
         copy_address_shallow((to), (from)); \
         WMEM_COPY_ADDRESS_data = wmem_alloc(scope, (from)->len); \
-        memcpy(WMEM_COPY_ADDRESS_data, (from)->data, (from)->len); \
+        if ((from)->len != 0) \
+            memcpy(WMEM_COPY_ADDRESS_data, (from)->data, (from)->len); \
         (to)->data = WMEM_COPY_ADDRESS_data; \
     } while (0)
 
