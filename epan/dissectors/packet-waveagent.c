@@ -528,21 +528,20 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 tag_len = tvb_get_ntohl(tvb, current_offset + 52);
 
                 if (tag_len != 0) {
-                    const guint8  *tag_data_ptr;
-                    guint32        isr;
-
-                    tag_data_ptr = tvb_get_ptr (tvb, offset + 36, tag_len);
+                    guint32       isr;
+                    guint8        isr_value;
 
                     for (isr = 0; isr < tag_len; isr++) {
-                        if (tag_data_ptr[isr] == 0xFF){
+                        isr_value = tvb_get_guint8(tvb, offset + 36 + isr);
+                        if (isr_value == 0xFF){
                             proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
                                                    1,
                                                    "BSS requires support for mandatory features of HT PHY (IEEE 802.11"
                                                    " - Clause 20)");
                         } else {
                             wmem_strbuf_append_printf(sb, "%2.1f%s ",
-                                      (tag_data_ptr[isr] & 0x7F) * 0.5,
-                                      (tag_data_ptr[isr] & 0x80) ? "(B)" : "");
+                                      (isr_value & 0x7F) * 0.5,
+                                      (isr_value & 0x80) ? "(B)" : "");
 
                         }
                     }
