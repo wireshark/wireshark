@@ -61,7 +61,7 @@ void proto_reg_handoff_gsm_rlcmac(void);
 /* private typedefs */
 typedef struct
 {
-  guint8 offset;
+  gint   offset;
   guint8 li;
 } length_indicator_t;
 
@@ -6899,9 +6899,10 @@ static const value_string gsm_rlcmac_t3192_vals[] = {
   { 0, NULL}
 };
 
-static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
+static gint construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
 {
-  guint8      offset = initial_offset, li_array_size = *li_count;
+  gint        offset = initial_offset;
+  guint8      li_array_size = *li_count;
   proto_item *item;
 
   *li_count = 0;
@@ -6925,15 +6926,15 @@ static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tr
   return (offset - initial_offset);
 }
 
-static guint8 construct_egprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
+static gint construct_egprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
 {
-  guint8      offset = initial_offset, li_array_size = *li_count;
+  gint        offset = initial_offset;
+  guint8      li_array_size = *li_count;
   proto_item *item;
 
   *li_count = 0;
   while (*e == 0)
   {
-    DISSECTOR_ASSERT(*li_count < li_array_size);
     item = proto_tree_add_bits_item(tree, hf_li, tvb, offset * 8, 7, ENC_BIG_ENDIAN);
     proto_tree_add_bits_ret_val(tree, hf_e, tvb, (offset * 8) + 7, 1, e, ENC_BIG_ENDIAN);
     if (*li_count < li_array_size)
@@ -7626,7 +7627,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   csnStream_t ar;
   guint8      payload_type = tvb_get_bits8(tvb, 0, 2);
   guint16     bit_length   = tvb_reported_length(tvb) * 8;
-  guint16     bit_offset   = 0;
+  gint        bit_offset   = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS UL");
@@ -7756,7 +7757,7 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_item         *ti;
   proto_tree         *data_tree;
-  guint8              offset   = 0;
+  gint                offset   = 0;
   length_indicator_t  li_array[20];
   guint8              li_count = array_length(li_array);
   guint64             e, tlli_i;
@@ -7816,7 +7817,7 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_item         *ti;
   proto_tree         *data_tree;
-  guint16             offset   = 0;
+  gint                offset   = 0;
   guint16             block_number;
   length_indicator_t  li_array[20];
   guint8              li_count = array_length(li_array);
