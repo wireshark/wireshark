@@ -3429,6 +3429,7 @@ dissect_openflow_tablemod_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
     proto_item *ti;
     proto_tree *conf_tree;
+    int save_offset;
 
     /* uint8_t table_id; */
     if (tvb_get_guint8(tvb, offset) <= OFPTT_MAX) {
@@ -3452,7 +3453,12 @@ dissect_openflow_tablemod_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     /* struct ofp_table_mod_prop_header properties[0]; */
     while (offset < length) {
+        save_offset = offset;
         offset = dissect_openflow_tablemod_prop_v5(tvb, pinfo, tree, offset, length);
+        if (offset <= save_offset) {
+            /* We don't need to go backwards or introduce an infinite loop */
+            break;
+        }
     }
 }
 
