@@ -298,12 +298,11 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
 static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb, guint32 control_word, guint8 version)
 {
     guint32 if_type, if_status, flags_bitfield;
-    guint8 iLoop, isr, n, ret;
+    guint8 iLoop, n, ret;
     guint32 offset, delta, num_bss_entries, st_index[NUM_STATE_CHANGES], bss_array[NUM_BSS];
     proto_tree *st_change_index_tree[NUM_STATE_CHANGES], *fs_flags;
     proto_tree *bss_tree[NUM_BSS], *fs_flags_tree;
     proto_item *stIndex[NUM_STATE_CHANGES], *bssIndex[NUM_BSS];
-    const guint8 *tag_data_ptr;
     guint32 tag_len;
     char out_buff[SHORT_STR];
     char print_buff[SHORT_STR];
@@ -541,16 +540,18 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 tag_len = tvb_get_ntohl(tvb, current_offset + 52);
 
                 if (tag_len > 0) {
-                    tag_data_ptr = tvb_get_ptr (tvb, offset + 36, tag_len);
+                    guint32       isr;
+                    guint8        isr_value;
 
                     for (isr = 0, n = 0; isr < tag_len; isr++) {
-                        if (tag_data_ptr[isr] == 0xFF){
+                        isr_value = tvb_get_guint8(tvb, offset + 36 + isr);
+                        if (isr_value == 0xFF){
                             proto_tree_add_string (bss_tree[iLoop], hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
                                 1, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)");
                         } else {
                             ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
-                                      (tag_data_ptr[isr] & 0x7F) * 0.5,
-                                      (tag_data_ptr[isr] & 0x80) ? "(B)" : "");
+                                      (isr_value & 0x7F) * 0.5,
+                                      (isr_value & 0x80) ? "(B)" : "");
                             if (ret >= SHORT_STR - n) {
                                 /* ret = <buf_size> or greater. means buffer truncated */
                                 break;
