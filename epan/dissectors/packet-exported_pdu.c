@@ -211,16 +211,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case EXPORTED_PDU_NEXT_HEUR_PROTO_STR:
         {
-            gchar **heur_proto_str = wmem_strsplit(wmem_packet_scope(), proto_name, "##", 2);
-            if (heur_proto_str && heur_proto_str[0] && heur_proto_str[1]) {
-                heur_dissector_list_t heur_list = find_heur_dissector_list(heur_proto_str[0]);
-                if (heur_list) {
-                    heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_short_name(heur_list, heur_proto_str[1]);
-                    if (heur_diss) {
-                        col_clear(pinfo->cinfo, COL_PROTOCOL);
-                        call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, NULL);
-                    }
-                }
+            heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_unique_short_name(proto_name);
+            if (heur_diss) {
+                col_clear(pinfo->cinfo, COL_PROTOCOL);
+                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, NULL);
             }
             break;
         }

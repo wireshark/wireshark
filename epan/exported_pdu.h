@@ -89,8 +89,8 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
                                           * Will be used to call the next dissector.
                                           */
 #define EXP_PDU_TAG_HEUR_PROTO_NAME   13 /**< The value part should be an ASCII non NULL terminated string
-                                          * composed of the heuristic table name followed by "##" followed
-                                          * by protocol short name of the used heuristic dissector e.g "ssl##HTTP2"
+                                          * containing the heuristic unique short protocol name given
+                                          * during registration, e.g "sip_udp"
                                           * Will be used to call the next dissector.
                                           */
 /* Add protocol type related tags here.

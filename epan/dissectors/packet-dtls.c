@@ -962,9 +962,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           /* try heuristic subdissectors */
           dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
           if (dissected && have_tap_listener(exported_pdu_tap)) {
-            gchar *name = wmem_strconcat(wmem_packet_scope(), hdtbl_entry->list_name, "##",
-                                         proto_get_protocol_short_name(hdtbl_entry->protocol), NULL);
-            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, name);
+            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
           }
         }
         pinfo->match_uint = saved_match_port;

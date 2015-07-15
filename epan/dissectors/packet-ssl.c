@@ -1325,9 +1325,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
                                     pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL)) {
             if (have_tap_listener(exported_pdu_tap)) {
-                gchar *name = wmem_strconcat(wmem_packet_scope(), hdtbl_entry->list_name, "##",
-                                             proto_get_protocol_short_name(hdtbl_entry->protocol), NULL);
-                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, name);
+                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
             }
         } else {
             if (have_tap_listener(exported_pdu_tap)) {
