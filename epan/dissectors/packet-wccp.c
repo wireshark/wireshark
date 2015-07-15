@@ -1854,7 +1854,6 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
   EAT(4);
 
   if (wccp_wccp_address_table.in_use == FALSE) {
-    wccp_wccp_address_table.in_use = TRUE;
     wccp_wccp_address_table.family = family;
     wccp_wccp_address_table.table_length =  table_length;
 
@@ -1897,13 +1896,17 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
     case 1:
       /* IPv4 */
       addr  =  tvb_ip_to_str(tvb, offset);
-      if ((wccp_wccp_address_table.table_ipv4 != NULL) && ((address_length * i) < wccp_wccp_address_table.table_length))
+      if ((wccp_wccp_address_table.in_use == FALSE) &&
+          (wccp_wccp_address_table.table_ipv4 != NULL) &&
+          ((address_length * i) < wccp_wccp_address_table.table_length))
         wccp_wccp_address_table.table_ipv4[i] = tvb_get_ntohl(tvb, offset);
       break;
     case 2:
       /* IPv6 */
       addr = tvb_ip6_to_str(tvb, offset);
-      if ((wccp_wccp_address_table.table_ipv6 != NULL) && ((address_length * i) < wccp_wccp_address_table.table_length))
+      if ((wccp_wccp_address_table.in_use == FALSE) &&
+          (wccp_wccp_address_table.table_ipv6 != NULL) &&
+          (i < wccp_wccp_address_table.table_length))
         tvb_get_ipv6(tvb, offset, &(wccp_wccp_address_table.table_ipv6[i]));
       break;
     default:
@@ -1916,12 +1919,13 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       pi = proto_tree_add_string_format_value(element_tree, hf_address_table_element, tvb,
                                               offset, address_length, addr,
                                               "%d: %s", i+1, addr);
-      if ((address_length * i) > wccp_wccp_address_table.table_length)
+      if (i > wccp_wccp_address_table.table_length)
         expert_add_info_format(pinfo, pi, &ei_wccp_length_bad, "Ran out of space to store address");
     }
     EAT(address_length);
   }
 
+  wccp_wccp_address_table.in_use = TRUE;
   return length;
 }
 
