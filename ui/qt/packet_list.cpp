@@ -1076,6 +1076,7 @@ void PacketList::ignoreFrame()
     if (!cap_file_ || !packet_list_model_) return;
 
     fdata = packet_list_model_->getRowFdata(row);
+    if (!fdata) return;
 
     setFrameIgnore(!fdata->flags.ignored, fdata);
     emit packetDissectionChanged();
