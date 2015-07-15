@@ -29,9 +29,22 @@ find . -name "nghttp2*" -type f -exec sed -i 's/"nghttp2_net.h"/<glib.h>/g'  {} 
 
 Fix c++-compat error and documentation (struct => typedef) error
 
-in nghttp2/nghttp2_helper.h remove check for CONFIG.H
-
 in nghttp2/nghttp2.h
 
 Add on the top
 #include <config.h>
+
+After
+#define NGHTTP2_EXTERN
+ #endif /* !defined(WIN32) */
+
+Add
+/*
+ * When we're building this as part of Wireshark, we want to treat
+ * all these routines as internal to libwireshark.
+ */
+
+#include "ws_symbol_export.h"
+
+#undef NGHTTP2_EXTERN
+#define NGHTTP2_EXTERN WS_DLL_LOCAL

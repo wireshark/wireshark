@@ -356,7 +356,7 @@ int nghttp2_hd_emit_newname_block(nghttp2_bufs *bufs, nghttp2_nv *nv,
 int nghttp2_hd_emit_table_size(nghttp2_bufs *bufs, size_t table_size);
 
 /* For unittesting purpose */
-nghttp2_hd_entry *nghttp2_hd_table_get(nghttp2_hd_context *context,
+NGHTTP2_EXTERN nghttp2_hd_entry *nghttp2_hd_table_get(nghttp2_hd_context *context,
                                        size_t index);
 
 /* For unittesting purpose */

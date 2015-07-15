@@ -50,17 +50,6 @@ extern "C" {
 
 #include "nghttp2ver.h"
 
-/*
- * When we're building this as part of Wireshark, we want to treat
- * all these routines as internal to libwireshark.
- */
-#if 1
-#include "ws_symbol_export.h"
-
-#define NGHTTP2_EXTERN WS_DLL_LOCAL
-
-#else
-
 #ifdef NGHTTP2_STATICLIB
 #define NGHTTP2_EXTERN
 #elif defined(WIN32)
@@ -73,7 +62,16 @@ extern "C" {
 #define NGHTTP2_EXTERN
 #endif /* !defined(WIN32) */
 
-#endif /* 1 */
+/*
+ * When we're building this as part of Wireshark, we want to treat
+ * all these routines as internal to libwireshark.
+ */
+
+#include "ws_symbol_export.h"
+
+#undef NGHTTP2_EXTERN
+#define NGHTTP2_EXTERN WS_DLL_LOCAL
+
 
 /**
  * @macro
@@ -365,8 +363,10 @@ typedef enum {
    */
   NGHTTP2_ERR_PUSH_DISABLED = -528,
   /**
-   * DATA frame for a given stream has been already submitted and has
-   * not been fully processed yet.
+   * DATA or HEADERS frame for a given stream has been already
+   * submitted and has not been fully processed yet.  Application
+   * should wait for the transmission of the previously submitted
+   * frame before submitting another.
    */
   NGHTTP2_ERR_DATA_EXIST = -529,
   /**
@@ -1538,7 +1538,7 @@ typedef int (*nghttp2_on_begin_headers_callback)(nghttp2_session *session,
  * used, nghttp2 library does perform validation against the |name|
  * and the |value| using `nghttp2_check_header_name()` and
  * `nghttp2_check_header_value()`.  In addition to this, nghttp2
- * performs vaidation based on HTTP Messaging rule, which is briefly
+ * performs validation based on HTTP Messaging rule, which is briefly
  * explained in :ref:`http-messaging` section.
  *
  * If the application uses `nghttp2_session_mem_recv()`, it can return
@@ -3015,6 +3015,11 @@ NGHTTP2_EXTERN int32_t
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0.
+ * :enum:`NGHTTP2_ERR_DATA_EXIST`
+ *     DATA or HEADERS has been already submitted and not fully
+ *     processed yet.  Normally, this does not happen, but when
+ *     application wrongly calls `nghttp2_submit_response()` twice,
+ *     this may happen.
  *
  * .. warning::
  *
@@ -3124,7 +3129,8 @@ NGHTTP2_EXTERN int nghttp2_submit_trailer(nghttp2_session *session,
  *
  * This function is low-level in a sense that the application code can
  * specify flags directly.  For usual HTTP request,
- * `nghttp2_submit_request()` is useful.
+ * `nghttp2_submit_request()` is useful.  Likewise, for HTTP response,
+ * prefer `nghttp2_submit_response()`.
  *
  * This function returns newly assigned stream ID if it succeeds and
  * |stream_id| is -1.  Otherwise, this function returns 0 if it
@@ -3137,6 +3143,10 @@ NGHTTP2_EXTERN int nghttp2_submit_trailer(nghttp2_session *session,
  *     reached.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0.
+ * :enum:`NGHTTP2_ERR_DATA_EXIST`
+ *     DATA or HEADERS has been already submitted and not fully
+ *     processed yet.  This happens if stream denoted by |stream_id|
+ *     is in reserved state.
  *
  * .. warning::
  *
@@ -3171,7 +3181,8 @@ NGHTTP2_EXTERN int32_t
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_DATA_EXIST`
- *     DATA has been already submitted and not fully processed yet.
+ *     DATA or HEADERS has been already submitted and not fully
+ *     processed yet.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0.
  * :enum:`NGHTTP2_ERR_STREAM_CLOSED`
@@ -3179,14 +3190,19 @@ NGHTTP2_EXTERN int32_t
  *
  * .. note::
  *
- *   Currently, only one data is allowed for a stream at a time.
- *   Submitting data more than once before first data is finished
- *   results in :enum:`NGHTTP2_ERR_DATA_EXIST` error code.  The
- *   earliest callback which tells that previous data is done is
- *   :type:`nghttp2_on_frame_send_callback`.  In side that callback,
- *   new data can be submitted using `nghttp2_submit_data()`.  Of
- *   course, all data except for last one must not have
- *   :enum:`NGHTTP2_FLAG_END_STREAM` flag set in |flags|.
+ *   Currently, only one DATA or HEADERS is allowed for a stream at a
+ *   time.  Submitting these frames more than once before first DATA
+ *   or HEADERS is finished results in :enum:`NGHTTP2_ERR_DATA_EXIST`
+ *   error code.  The earliest callback which tells that previous
+ *   frame is done is :type:`nghttp2_on_frame_send_callback`.  In side
+ *   that callback, new data can be submitted using
+ *   `nghttp2_submit_data()`.  Of course, all data except for last one
+ *   must not have :enum:`NGHTTP2_FLAG_END_STREAM` flag set in
+ *   |flags|.  This sounds a bit complicated, and we recommend to use
+ *   `nghttp2_submit_request()` and `nghttp2_submit_response()` to
+ *   avoid this cascading issue.  The experience shows that for HTTP
+ *   use, these two functions are enough to implement both client and
+ *   server.
  */
 NGHTTP2_EXTERN int nghttp2_submit_data(nghttp2_session *session, uint8_t flags,
                                        int32_t stream_id,
