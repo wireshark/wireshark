@@ -13,6 +13,22 @@ SetCompressorDictSize 64 ; MB
 !include "common.nsh"
 !include 'LogicLib.nsh'
 
+; See http://nsis.sourceforge.net/Check_if_a_file_exists_at_compile_time for documentation
+!macro !defineifexist _VAR_NAME _FILE_NAME
+  !tempfile _TEMPFILE
+  !ifdef NSIS_WIN32_MAKENSIS
+    ; Windows - cmd.exe
+    !system 'if exist "${_FILE_NAME}" echo !define ${_VAR_NAME} > "${_TEMPFILE}"'
+  !else
+    ; Posix - sh
+    !system 'if [ -e "${_FILE_NAME}" ]; then echo "!define ${_VAR_NAME}" > "${_TEMPFILE}"; fi'
+  !endif
+  !include '${_TEMPFILE}'
+  !delfile '${_TEMPFILE}'
+  !undef _TEMPFILE
+!macroend
+!define !defineifexist "!insertmacro !defineifexist"
+
 ; ============================================================================
 ; Header configuration
 ; ============================================================================
@@ -820,7 +836,13 @@ Section "${PROGRAM_NAME}" SecWiresharkQt
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH_QT}"
 !include qt-dll-manifest.nsh
-File "${QT_DIR}\*.qm"
+${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
+!ifdef TRANSLATIONS_FOLDER
+  ; Starting from Qt 5.5, *.qm files are put in a translations subfolder
+  File /r "${QT_DIR}\translations"
+!else
+  File "${QT_DIR}\*.qm"
+!endif
 
 Push $0
 ;SectionGetFlags ${SecWiresharkQt} $0
