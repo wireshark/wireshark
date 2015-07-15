@@ -207,6 +207,7 @@ void InterfaceTree::display()
 #endif
         addTopLevelItem(ti);
         // XXX Add other device information
+        resizeColumnToContents(IFTREE_COL_NAME);
         resizeColumnToContents(IFTREE_COL_STATS);
 
 #if HAVE_EXTCAP
