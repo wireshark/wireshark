@@ -1715,23 +1715,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/wireshark)
 	endif()
 
-	if(APPLE)
-		#
-		# On Darwin, find where the Qt frameworks are
-		# located, and add that to the rpath, just in
-		# case this is Qt 5.5 or later and the frameworks
-		# have an install name that begins with @rpath
-		# and aren't installed in a frameworks directory
-		# that's searched by default.
-		#
-		# It would be *amazingly convenient* if we
-		# could get that from Qt's CMake configuration
-		# files, but we can't, so we have to extract it from
-		# an internal variable.
-		#
-		set(wireshark_rpath_flag "-Wl,-rpath,${_qt5Core_install_prefix}/lib")
-	endif(APPLE)
-	target_link_libraries(wireshark ${wireshark_rpath_flag} ${wireshark_LIBS})
+	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(
 		TARGETS wireshark
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
