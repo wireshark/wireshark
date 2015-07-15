@@ -375,21 +375,28 @@ static const value_string attributes_family[] = {
     {0x0002, "IPv6"},
     {0x00, NULL}
 };
+/* http://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2015-06-12)*/
 
 static const value_string error_code[] = {
     {274, "Disable Candidate"},               /* MS-ICE2BWN */
-    {275, "Disable Candidate Pair"},               /* MS-ICE2BWN */
+    {275, "Disable Candidate Pair"},          /* MS-ICE2BWN */
     {300, "Try Alternate"},                   /* rfc3489bis-15 */
     {400, "Bad Request"},                     /* rfc3489bis-15 */
     {401, "Unauthorized"},                    /* rfc3489bis-15 */
+    {403, "Forbidden"},                       /* rfc5766 */
     {420, "Unknown Attribute"},               /* rfc3489bis-15 */
     {437, "Allocation Mismatch"},             /* turn-07 */
     {438, "Stale Nonce"},                     /* rfc3489bis-15 */
     {439, "Wrong Credentials"},               /* turn-07 - collision 38=>39 */
     {440, "Address Family not Supported"},    /* turn-ipv6-04 */
+    {441, "Wrong Credentials"},               /* rfc5766 */
     {442, "Unsupported Transport Protocol"},  /* turn-07 */
+    {443, "Peer Address Family Mismatch"},    /* rfc6156 */
+    {446, "Connection Already Exists"},       /* rfc6062 */
+    {447, "Connection Timeout or Failure"},   /* rfc6062 */
     {481, "Connection does not exist"},       /* nat-behavior-discovery-03 */
     {486, "Allocation Quota Reached"},        /* turn-07 */
+    {487, "Role Conflict"},                   /* rfc5245 */
     {500, "Server Error"},                    /* rfc3489bis-15 */
     {503, "Service Unavailable"},             /* nat-behavior-discovery-03 */
     {507, "Insufficient Bandwidth Capacity"}, /* turn-07 */
