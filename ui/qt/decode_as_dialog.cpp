@@ -553,6 +553,7 @@ void DecodeAsDialog::applyChanges()
 
             if (!g_strcmp0(decode_as_entry->table_name, ui_name_to_name_[item->text(table_col_)])) {
                 gpointer  selector_value;
+                QByteArray byteArray;
 
                 switch (selector_type) {
                 case FT_UINT8:
@@ -565,7 +566,8 @@ void DecodeAsDialog::applyChanges()
                 case FT_STRINGZ:
                 case FT_UINT_STRING:
                 case FT_STRINGZPAD:
-                    selector_value = (gpointer) item->text(selector_col_).toUtf8().constData();
+                    byteArray = item->text(selector_col_).toUtf8();
+                    selector_value = (gpointer) byteArray.constData();
                     break;
                 default:
                     continue;
