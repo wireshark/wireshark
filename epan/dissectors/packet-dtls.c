@@ -343,7 +343,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SslSession        *session;
   gint               is_from_server;
   gboolean           conv_first_seen;
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
   Ssl_private_key_t *private_key;
+#endif
 
   ti                    = NULL;
   dtls_tree             = NULL;
@@ -383,6 +385,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ssl_debug_printf("dissect_dtls server %s:%d\n",
                      address_to_str(wmem_packet_scope(), &dummy.addr),dummy.port);
 
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
     /* try to retrieve private key for this service. Do it now 'cause pinfo
      * is not always available
      * Note that with HAVE_LIBGNUTLS undefined private_key is always 0
@@ -394,6 +397,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
       ssl_session->private_key = private_key->sexp_pkey;
     }
+#endif
   }
   session = &ssl_session->session;
   is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
