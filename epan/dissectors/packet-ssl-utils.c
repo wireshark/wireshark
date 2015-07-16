@@ -3489,11 +3489,11 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
         /* p, q = q, p */
         gcry_mpi_swap(rsa_params[3], rsa_params[4]);
         /* due to swapping p and q, u = p^-1 mod p which happens to be needed. */
-    } else {
-        /* libgcrypt expects u = p^-1 mod q (for OpenPGP), but the u parameter
-         * says u = q^-1 mod p. Recompute u = p^-1 mod q. */
-        gcry_mpi_invm(rsa_params[5], rsa_params[3], rsa_params[4]);
     }
+    /* libgcrypt expects u = p^-1 mod q (for OpenPGP), but the u parameter
+     * says u = q^-1 mod p. Recompute u = p^-1 mod q. Do this unconditionally as
+     * at least GnuTLS 2.12.23 computes an invalid value. */
+    gcry_mpi_invm(rsa_params[5], rsa_params[3], rsa_params[4]);
 
     if  (gcry_sexp_build( &rsa_priv_key, NULL,
             "(private-key(rsa((n%m)(e%m)(d%m)(p%m)(q%m)(u%m))))", rsa_params[0],
