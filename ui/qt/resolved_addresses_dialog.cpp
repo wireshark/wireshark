@@ -44,7 +44,7 @@
 extern "C" {
 
 static void
-ipv4_hash_table_resolved_to_qstringlist(gpointer key _U_, gpointer value, gpointer sl_ptr)
+ipv4_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *) value;
@@ -58,7 +58,7 @@ ipv4_hash_table_resolved_to_qstringlist(gpointer key _U_, gpointer value, gpoint
 }
 
 static void
-ipv6_hash_table_resolved_to_qstringlist(gpointer key _U_, gpointer value, gpointer sl_ptr)
+ipv6_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *) value;
@@ -119,7 +119,7 @@ serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 }
 
 static void
-eth_hash_to_qstringlist(gpointer key _U_, gpointer value, gpointer sl_ptr)
+eth_hash_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashether_t* tp = (hashether_t*)value;
