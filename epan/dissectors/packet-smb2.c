@@ -5986,7 +5986,6 @@ dissect_smb2_posix_v1_caps_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 	/* Request */
 	proto_tree_add_item(sub_tree, hf_smb2_posix_v1_request,
 			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
 }
 
 static void
@@ -6011,7 +6010,6 @@ dissect_smb2_posix_v1_caps_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 			       hf_smb2_posix_v1_supported_features,
 			       ett_smb2_posix_v1_supported_features,
 			       posix_flags_fields, ENC_LITTLE_ENDIAN);
-	offset += 4;
 
 }
 
