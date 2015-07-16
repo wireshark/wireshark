@@ -44,6 +44,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include <epan/reassemble.h>
 
 #include "packet-per.h"
 #include "packet-rrc.h"
@@ -179,7 +180,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 78 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 79 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1090,13 +1091,13 @@ static int hf_lte_rrc_dummy = -1;                 /* OCTET_STRING_SIZE_50 */
 static int hf_lte_rrc_messageIdentifier_01 = -1;  /* T_messageIdentifier_01 */
 static int hf_lte_rrc_serialNumber_01 = -1;       /* T_serialNumber_01 */
 static int hf_lte_rrc_warningMessageSegmentType = -1;  /* T_warningMessageSegmentType */
-static int hf_lte_rrc_warningMessageSegmentNumber = -1;  /* INTEGER_0_63 */
+static int hf_lte_rrc_warningMessageSegmentNumber = -1;  /* T_warningMessageSegmentNumber */
 static int hf_lte_rrc_warningMessageSegment = -1;  /* T_warningMessageSegment */
 static int hf_lte_rrc_dataCodingScheme = -1;      /* T_dataCodingScheme */
 static int hf_lte_rrc_messageIdentifier_r9 = -1;  /* T_messageIdentifier_r9 */
 static int hf_lte_rrc_serialNumber_r9 = -1;       /* T_serialNumber_r9 */
 static int hf_lte_rrc_warningMessageSegmentType_r9 = -1;  /* T_warningMessageSegmentType_r9 */
-static int hf_lte_rrc_warningMessageSegmentNumber_r9 = -1;  /* INTEGER_0_63 */
+static int hf_lte_rrc_warningMessageSegmentNumber_r9 = -1;  /* T_warningMessageSegmentNumber_r9 */
 static int hf_lte_rrc_warningMessageSegment_r9 = -1;  /* T_warningMessageSegment_r9 */
 static int hf_lte_rrc_dataCodingScheme_r9 = -1;   /* T_dataCodingScheme_r9 */
 static int hf_lte_rrc_mbsfn_AreaInfoList_r9 = -1;  /* MBSFN_AreaInfoList_r9 */
@@ -2329,7 +2330,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 83 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 84 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2439,6 +2440,28 @@ static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
 static int hf_lte_rrc_sr_config_subframe_offset = -1;
+static int hf_lte_rrc_sib11_fragments = -1;
+static int hf_lte_rrc_sib11_fragment = -1;
+static int hf_lte_rrc_sib11_fragment_overlap = -1;
+static int hf_lte_rrc_sib11_fragment_overlap_conflict = -1;
+static int hf_lte_rrc_sib11_fragment_multiple_tails = -1;
+static int hf_lte_rrc_sib11_fragment_too_long_fragment = -1;
+static int hf_lte_rrc_sib11_fragment_error = -1;
+static int hf_lte_rrc_sib11_fragment_count = -1;
+static int hf_lte_rrc_sib11_reassembled_in = -1;
+static int hf_lte_rrc_sib11_reassembled_length = -1;
+static int hf_lte_rrc_sib11_reassembled_data = -1;
+static int hf_lte_rrc_sib12_fragments = -1;
+static int hf_lte_rrc_sib12_fragment = -1;
+static int hf_lte_rrc_sib12_fragment_overlap = -1;
+static int hf_lte_rrc_sib12_fragment_overlap_conflict = -1;
+static int hf_lte_rrc_sib12_fragment_multiple_tails = -1;
+static int hf_lte_rrc_sib12_fragment_too_long_fragment = -1;
+static int hf_lte_rrc_sib12_fragment_error = -1;
+static int hf_lte_rrc_sib12_fragment_count = -1;
+static int hf_lte_rrc_sib12_reassembled_in = -1;
+static int hf_lte_rrc_sib12_reassembled_length = -1;
+static int hf_lte_rrc_sib12_reassembled_data = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -3537,7 +3560,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 197 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 220 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -3554,6 +3577,10 @@ static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
 static gint ett_lte_rrc_sr_ConfigIndex = -1;
+static gint ett_lte_rrc_sib11_fragment = -1;
+static gint ett_lte_rrc_sib11_fragments = -1;
+static gint ett_lte_rrc_sib12_fragment = -1;
+static gint ett_lte_rrc_sib12_fragments = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -3564,6 +3591,43 @@ static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
 static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
 static expert_field ei_lte_rrc_invalid_drx_config = EI_INIT;
+
+static reassembly_table lte_rrc_sib11_reassembly_table;
+static reassembly_table lte_rrc_sib12_reassembly_table;
+
+static const fragment_items lte_rrc_sib11_frag_items = {
+    &ett_lte_rrc_sib11_fragment,
+    &ett_lte_rrc_sib11_fragments,
+    &hf_lte_rrc_sib11_fragments,
+    &hf_lte_rrc_sib11_fragment,
+    &hf_lte_rrc_sib11_fragment_overlap,
+    &hf_lte_rrc_sib11_fragment_overlap_conflict,
+    &hf_lte_rrc_sib11_fragment_multiple_tails,
+    &hf_lte_rrc_sib11_fragment_too_long_fragment,
+    &hf_lte_rrc_sib11_fragment_error,
+    &hf_lte_rrc_sib11_fragment_count,
+    &hf_lte_rrc_sib11_reassembled_in,
+    &hf_lte_rrc_sib11_reassembled_length,
+    &hf_lte_rrc_sib11_reassembled_data,
+    "SIB11 warning message segments"
+};
+
+static const fragment_items lte_rrc_sib12_frag_items = {
+    &ett_lte_rrc_sib12_fragment,
+    &ett_lte_rrc_sib12_fragments,
+    &hf_lte_rrc_sib12_fragments,
+    &hf_lte_rrc_sib12_fragment,
+    &hf_lte_rrc_sib12_fragment_overlap,
+    &hf_lte_rrc_sib12_fragment_overlap_conflict,
+    &hf_lte_rrc_sib12_fragment_multiple_tails,
+    &hf_lte_rrc_sib12_fragment_too_long_fragment,
+    &hf_lte_rrc_sib12_fragment_error,
+    &hf_lte_rrc_sib12_fragment_count,
+    &hf_lte_rrc_sib12_reassembled_in,
+    &hf_lte_rrc_sib12_reassembled_length,
+    &hf_lte_rrc_sib12_reassembled_data,
+    "SIB12 warning message segments"
+};
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -5183,6 +5247,8 @@ typedef struct lte_rrc_private_data_t
     guint8  si_or_psi_geran;
     guint8  ra_preambles;
     guint16 message_identifier;
+    guint8 warning_message_segment_type;
+    guint8 warning_message_segment_number;
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
     pdcp_security_info_t pdcp_security;
@@ -5271,6 +5337,34 @@ static void private_data_set_message_identifier(asn1_ctx_t *actx, guint16 messag
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->message_identifier = message_identifier;
+}
+
+
+/* Warning message segment type */
+static guint16 private_data_get_warning_message_segment_type(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->warning_message_segment_type;
+}
+
+static void private_data_set_warning_message_segment_type(asn1_ctx_t *actx, guint8 segment_type)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->warning_message_segment_type = segment_type;
+}
+
+
+/* Warning message segment number */
+static guint16 private_data_get_warning_message_segment_number(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->warning_message_segment_number;
+}
+
+static void private_data_set_warning_message_segment_number(asn1_ctx_t *actx, guint8 segment_number)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->warning_message_segment_number = segment_number;
 }
 
 
@@ -9591,8 +9685,26 @@ static const value_string lte_rrc_T_warningMessageSegmentType_vals[] = {
 
 static int
 dissect_lte_rrc_T_warningMessageSegmentType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 segment_type;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &segment_type, FALSE, 0, NULL);
+
+  private_data_set_warning_message_segment_type(actx, (guint8)segment_type);
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_warningMessageSegmentNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 segment_number;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, &segment_number, FALSE);
+
+  private_data_set_warning_message_segment_number(actx, (guint8)segment_number);
+
 
   return offset;
 }
@@ -9611,8 +9723,18 @@ dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
+    tvbuff_t *frag_tvb;
+    fragment_head *frag_data = fragment_add_seq_check(&lte_rrc_sib11_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
+                                                      private_data_get_message_identifier(actx), NULL,
+                                                      private_data_get_warning_message_segment_number(actx),
+                                                      tvb_reported_length(warning_msg_seg_tvb),
+                                                      private_data_get_warning_message_segment_type(actx) ? FALSE : TRUE);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB11 warning message",
+                                        frag_data, &lte_rrc_sib11_frag_items, NULL, subtree);
+    if (frag_tvb) {
+      dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    }
   }
 
   return offset;
@@ -9645,7 +9767,7 @@ static const per_sequence_t SystemInformationBlockType11_sequence[] = {
   { &hf_lte_rrc_messageIdentifier_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_messageIdentifier_01 },
   { &hf_lte_rrc_serialNumber_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_serialNumber_01 },
   { &hf_lte_rrc_warningMessageSegmentType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentType },
-  { &hf_lte_rrc_warningMessageSegmentNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_63 },
+  { &hf_lte_rrc_warningMessageSegmentNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentNumber },
   { &hf_lte_rrc_warningMessageSegment, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegment },
   { &hf_lte_rrc_dataCodingScheme, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_dataCodingScheme },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
@@ -9714,8 +9836,26 @@ static const value_string lte_rrc_T_warningMessageSegmentType_r9_vals[] = {
 
 static int
 dissect_lte_rrc_T_warningMessageSegmentType_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 segment_type;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &segment_type, FALSE, 0, NULL);
+
+  private_data_set_warning_message_segment_type(actx, (guint8)segment_type);
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_warningMessageSegmentNumber_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 segment_number;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, &segment_number, FALSE);
+
+  private_data_set_warning_message_segment_number(actx, (guint8)segment_number);
+
 
   return offset;
 }
@@ -9734,8 +9874,18 @@ dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, as
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
+    tvbuff_t *frag_tvb;
+    fragment_head *frag_data = fragment_add_seq_check(&lte_rrc_sib12_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
+                                                      private_data_get_message_identifier(actx), NULL,
+                                                      private_data_get_warning_message_segment_number(actx),
+                                                      tvb_reported_length(warning_msg_seg_tvb),
+                                                      private_data_get_warning_message_segment_type(actx) ? FALSE : TRUE);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB12 warning message",
+                                        frag_data, &lte_rrc_sib12_frag_items, NULL, subtree);
+    if (frag_tvb) {
+      dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
+    }
   }
 
   return offset;
@@ -9768,7 +9918,7 @@ static const per_sequence_t SystemInformationBlockType12_r9_sequence[] = {
   { &hf_lte_rrc_messageIdentifier_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_messageIdentifier_r9 },
   { &hf_lte_rrc_serialNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_serialNumber_r9 },
   { &hf_lte_rrc_warningMessageSegmentType_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentType_r9 },
-  { &hf_lte_rrc_warningMessageSegmentNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_63 },
+  { &hf_lte_rrc_warningMessageSegmentNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentNumber_r9 },
   { &hf_lte_rrc_warningMessageSegment_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegment_r9 },
   { &hf_lte_rrc_dataCodingScheme_r9, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_dataCodingScheme_r9 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
@@ -35046,7 +35196,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2255 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2349 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -35185,6 +35335,10 @@ lte_rrc_init_protocol(void)
 
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
   lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+  reassembly_table_init(&lte_rrc_sib11_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_init(&lte_rrc_sib12_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -38811,7 +38965,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_warningMessageSegmentNumber,
       { "warningMessageSegmentNumber", "lte-rrc.warningMessageSegmentNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_63", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegment,
       { "warningMessageSegment", "lte-rrc.warningMessageSegment",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -38835,7 +38989,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_warningMessageSegmentNumber_r9,
       { "warningMessageSegmentNumber-r9", "lte-rrc.warningMessageSegmentNumber_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_63", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegment_r9,
       { "warningMessageSegment-r9", "lte-rrc.warningMessageSegment_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -43754,7 +43908,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2402 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2500 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44188,6 +44342,94 @@ void proto_register_lte_rrc(void) {
       { "Subframe Offset", "lte-rrc.sr_SubframeOffset",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragments,
+      { "Fragments", "lte-rrc.warningMessageSegment.fragments",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment,
+      { "Fragment", "lte-rrc.warningMessageSegment.fragment",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_overlap,
+      { "Fragment Overlap", "lte-rrc.warningMessageSegment.fragment_overlap",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_overlap_conflict,
+      { "Fragment Overlap Conflict", "lte-rrc.warningMessageSegment.fragment_overlap_conflict",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_multiple_tails,
+      { "Fragment Multiple Tails", "lte-rrc.warningMessageSegment.fragment_multiple_tails",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_too_long_fragment,
+      { "Too Long Fragment", "lte-rrc.warningMessageSegment.fragment_too_long_fragment",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_error,
+      { "Fragment Error", "lte-rrc.warningMessageSegment.fragment_error",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_fragment_count,
+      { "Fragment Count", "lte-rrc.warningMessageSegment.fragment_count",
+         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_reassembled_in,
+      { "Reassembled In", "lte-rrc.warningMessageSegment.reassembled_in",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_reassembled_length,
+      { "Reassembled Length", "lte-rrc.warningMessageSegment.reassembled_length",
+         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib11_reassembled_data,
+      { "Reassembled Data", "lte-rrc.warningMessageSegment.reassembled_data",
+         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragments,
+      { "Fragments", "lte-rrc.warningMessageSegment_r9.fragments",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment,
+      { "Fragment", "lte-rrc.warningMessageSegment_r9.fragment",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_overlap,
+      { "Fragment Overlap", "lte-rrc.warningMessageSegment_r9.fragment_overlap",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_overlap_conflict,
+      { "Fragment Overlap Conflict", "lte-rrc.warningMessageSegment_r9.fragment_overlap_conflict",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_multiple_tails,
+      { "Fragment Multiple Tails", "lte-rrc.warningMessageSegment_r9.fragment_multiple_tails",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_too_long_fragment,
+      { "Too Long Fragment", "lte-rrc.warningMessageSegment_r9.fragment_too_long_fragment",
+         FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_error,
+      { "Fragment Error", "lte-rrc.warningMessageSegment_r9.fragment_error",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_fragment_count,
+      { "Fragment Count", "lte-rrc.warningMessageSegment_r9.fragment_count",
+         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_reassembled_in,
+      { "Reassembled In", "lte-rrc.warningMessageSegment_r9.reassembled_in",
+         FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_reassembled_length,
+      { "Reassembled Length", "lte-rrc.warningMessageSegment_r9.reassembled_length",
+         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sib12_reassembled_data,
+      { "Reassembled Data", "lte-rrc.warningMessageSegment_r9.reassembled_data",
+         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }}
   };
 
   /* List of subtrees */
@@ -45287,7 +45529,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2841 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3027 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45303,7 +45545,11 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment,
     &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
-    &ett_lte_rrc_sr_ConfigIndex
+    &ett_lte_rrc_sr_ConfigIndex,
+    &ett_lte_rrc_sib11_fragment,
+    &ett_lte_rrc_sib11_fragments,
+    &ett_lte_rrc_sib12_fragment,
+    &ett_lte_rrc_sib12_fragments
   };
 
   static ei_register_info ei[] = {
@@ -45356,7 +45602,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2894 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3084 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
