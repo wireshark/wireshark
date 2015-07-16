@@ -50,6 +50,11 @@ void compute_timestamp_diff(gint *diffsec, gint *diffusec,
  */
 const char *get_conn_cfilter(void);
 
+/** Check if we're running on a remote connection.
+ * @return TRUE if we're running remotely, FALSE if local.
+ */
+gboolean display_is_remote(void);
+
 /** Set the latest opened directory.
  *  Will already be done when using file_selection_new().
  *

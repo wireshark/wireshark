@@ -83,7 +83,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 
 #ifndef THROTTLE_STARTUP
     // Check for a remote connection
-    if (strlen (get_conn_cfilter()) > 0)
+    if (display_is_remote())
         info_update_freq_ = 1000;
 #endif
 

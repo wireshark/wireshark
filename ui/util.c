@@ -336,6 +336,17 @@ const gchar *get_conn_cfilter(void) {
     return filter_str->str;
 }
 
+gboolean display_is_remote(void)
+{
+    static gboolean remote_display_checked;
+    static gboolean is_remote;
+
+    if (!remote_display_checked) {
+        is_remote = (strlen(get_conn_cfilter()) > 0);
+    }
+    return is_remote;
+}
+
 /*
  * Editor modelines
  *

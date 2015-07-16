@@ -60,7 +60,7 @@ void AccordionFrame::animatedShow()
         return;
     }
 
-    if (strlen (get_conn_cfilter()) < 1) {
+    if (!display_is_remote()) {
         QWidget *parent = parentWidget();
 
         if (parent && parent->layout()) {
@@ -89,7 +89,7 @@ void AccordionFrame::animatedHide()
         return;
     }
 
-    if (strlen (get_conn_cfilter()) < 1) {
+    if (!display_is_remote()) {
         animation_->setStartValue(frame_height_);
         animation_->setEndValue(0);
         animation_->start();
