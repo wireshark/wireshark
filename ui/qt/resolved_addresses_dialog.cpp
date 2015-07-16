@@ -132,7 +132,7 @@ eth_hash_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
 }
 
 static void
-manuf_hash_to_qstringlist(gpointer key _U_, gpointer value, gpointer sl_ptr)
+manuf_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashmanuf_t *manuf = (hashmanuf_t*)value;
