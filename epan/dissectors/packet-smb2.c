@@ -6017,8 +6017,6 @@ dissect_smb2_posix_v1_caps_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
 
-typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
-
 typedef struct create_context_data_dissectors {
 	create_context_data_dissector_t request;
 	create_context_data_dissector_t response;
