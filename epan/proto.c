@@ -2177,6 +2177,31 @@ guint32 *retval)
 	return proto_tree_add_node(tree, new_fi);
 }
 
+
+/*
+ * Validates that field length bytes are available starting from
+ * start (pos/neg). Throws an exception if they aren't.
+ */
+static void
+test_length(header_field_info *hfinfo, tvbuff_t *tvb,
+	    gint start, gint length)
+{
+	gint size = length;
+
+	if (!tvb)
+		return;
+
+	if (hfinfo->type == FT_STRINGZ) {
+		/* If we're fetching until the end of the TVB, only validate
+		 * that the offset is within range.
+		 */
+		if (length == -1)
+			size = 0;
+	}
+
+	tvb_ensure_bytes_exist(tvb, start, size);
+}
+
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
    and returns proto_item* */
 proto_item *
@@ -2205,6 +2230,8 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		ptvc->offset += n;
 	}
 
+	test_length(hfinfo, ptvc->tvb, ptvc->offset, item_length);
+
 	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
 
@@ -2212,30 +2239,6 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 
 	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
 		offset, length, encoding);
-}
-
-/*
- * Validates that field length bytes are available starting from
- * start (pos/neg). Throws an exception if they aren't.
- */
-static void
-test_length(header_field_info *hfinfo, tvbuff_t *tvb,
-	    gint start, gint length)
-{
-	gint size = length;
-
-	if (!tvb)
-		return;
-
-	if (hfinfo->type == FT_STRINGZ) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		if (length == -1)
-			size = 0;
-	}
-
-	tvb_ensure_bytes_exist(tvb, start, size);
 }
 
 /* Add an item to a proto_tree, using the text label registered to that item;
