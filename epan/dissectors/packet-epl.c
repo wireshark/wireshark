@@ -1314,6 +1314,7 @@ setup_dissector(void)
 
 /* preference whether or not display the SoC flags in info column */
 gboolean show_soc_flags = FALSE;
+gboolean sdo_duplicate_detection_flags = FALSE;
 
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
@@ -2251,132 +2252,137 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	/* get the current frame-number */
 	frame = pinfo->fd->num;
 
-	/* get frame_ref */
-	frame_ref = (epl_sdo_frame_ref *)p_get_proto_data(wmem_file_scope(), pinfo,proto_epl,frame);
-	/* if the frame is opened the first time create a new memory block */
-	if(!frame_ref)
-		frame_ref = (epl_sdo_frame_ref *)wmem_new0(wmem_file_scope(), epl_sdo_frame_ref);
+	if ( sdo_duplicate_detection_flags == TRUE )
+	{
+		/* get frame_ref */
+		frame_ref = (epl_sdo_frame_ref *)p_get_proto_data(wmem_file_scope(), pinfo,proto_epl,frame);
+		/* if the frame is opened the first time create a new memory block */
+		if(!frame_ref)
+			frame_ref = (epl_sdo_frame_ref *)wmem_new0(wmem_file_scope(), epl_sdo_frame_ref);
 
-	/* clear array at the start Sequence */
-	if((rcon < EPL_VALID && scon < EPL_VALID)
-		||(rcon == EPL_VALID && scon < EPL_VALID)
-		||(rcon < EPL_VALID && scon == EPL_VALID))
-	{
-		/* reset memory block */
-		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
-		duplication = 0x00;
-	}
-	/* if cooked/fuzzed capture*/
-	else if(seq_recv >= EPL_MAX_SEQUENCE || seq_send >= EPL_MAX_SEQUENCE
-			||rcon > EPL_RETRANSMISSION || scon > EPL_RETRANSMISSION )
-	{
-		if(seq_recv >= EPL_MAX_SEQUENCE)
+		/* clear array at the start Sequence */
+		if((rcon < EPL_VALID && scon < EPL_VALID)
+			||(rcon == EPL_VALID && scon < EPL_VALID)
+			||(rcon < EPL_VALID && scon == EPL_VALID))
 		{
-			expert_add_info(pinfo, epl_tree, &ei_recvseq_value);
+			/* reset memory block */
+			memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+			duplication = 0x00;
 		}
-		if(seq_send >= EPL_MAX_SEQUENCE)
+		/* if cooked/fuzzed capture*/
+		else if(seq_recv >= EPL_MAX_SEQUENCE || seq_send >= EPL_MAX_SEQUENCE
+				||rcon > EPL_RETRANSMISSION || scon > EPL_RETRANSMISSION )
 		{
-			expert_add_info(pinfo, epl_tree, &ei_sendseq_value);
+			if(seq_recv >= EPL_MAX_SEQUENCE)
+			{
+				expert_add_info(pinfo, epl_tree, &ei_recvseq_value);
+			}
+			if(seq_send >= EPL_MAX_SEQUENCE)
+			{
+				expert_add_info(pinfo, epl_tree, &ei_sendseq_value);
+			}
+			if(rcon > EPL_RETRANSMISSION)
+			{
+				expert_add_info(pinfo, epl_tree, &ei_recvcon_value);
+			}
+			if(scon > EPL_RETRANSMISSION)
+			{
+				expert_add_info(pinfo, epl_tree, &ei_sendcon_value);
+			}
+			duplication = 0x00;
+			pinfo->fd->subnum = 0x00;
 		}
-		if(rcon > EPL_RETRANSMISSION)
-		{
-			expert_add_info(pinfo, epl_tree, &ei_recvcon_value);
-		}
-		if(scon > EPL_RETRANSMISSION)
-		{
-			expert_add_info(pinfo, epl_tree, &ei_sendcon_value);
-		}
-		duplication = 0x00;
-		pinfo->fd->subnum = 0x00;
-	}
-	else
-	{
-		/* if retransmission request or connection valid with acknowledge request */
-		if((rcon == EPL_VALID && scon == EPL_RETRANSMISSION) || (rcon == EPL_RETRANSMISSION && scon == EPL_VALID))
-		{
-			epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
-			epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-		}
-		/* if connection valid*/
 		else
 		{
-			/* for a filter to prevent false detection of duplicated frames add
-			100 frames to the saved frame, in this time retransmission can occur,
-			if the frame is bigger, then no retransmission occurs.
-			--------------------------------------------------------------------
-			if the saved frame is bigger than the current frame save the frame
-			and reset duplication value. */
-			if(((frame > (epl_asnd_sdo_duplication.frame[seq_recv][seq_send] + EPL_MAX_FRAME_OFFSET))
-				||(epl_asnd_sdo_duplication.frame[seq_recv][seq_send] > frame))
-				&& epl_asnd_sdo_duplication.frame[seq_recv][seq_send] != 0x00)
+			/* if retransmission request or connection valid with acknowledge request */
+			if((rcon == EPL_VALID && scon == EPL_RETRANSMISSION) || (rcon == EPL_RETRANSMISSION && scon == EPL_VALID))
 			{
+				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
 				epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
 			}
-			/* if the frame is the same as the saved frame reset the value */
-			if((frame == epl_asnd_sdo_duplication.frame[seq_recv][seq_send])
-				&&(epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] == 0x01))
-			{
-				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
-			}
+			/* if connection valid*/
 			else
-				epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] = 0x01;
+			{
+				/* for a filter to prevent false detection of duplicated frames add
+				100 frames to the saved frame, in this time retransmission can occur,
+				if the frame is bigger, then no retransmission occurs.
+				--------------------------------------------------------------------
+				if the saved frame is bigger than the current frame save the frame
+				and reset duplication value. */
+				if(((frame > (epl_asnd_sdo_duplication.frame[seq_recv][seq_send] + EPL_MAX_FRAME_OFFSET))
+					||(epl_asnd_sdo_duplication.frame[seq_recv][seq_send] > frame))
+					&& epl_asnd_sdo_duplication.frame[seq_recv][seq_send] != 0x00)
+				{
+					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+				}
+				/* if the frame is the same as the saved frame reset the value */
+				if((frame == epl_asnd_sdo_duplication.frame[seq_recv][seq_send])
+					&&(epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] == 0x01))
+				{
+					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+				}
+				else
+					epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] = 0x01;
 
-			/* if the frame is a duplicated frame */
-			if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] == epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
-			{
-				/* if the frame has no frame reference */
-				if(frame_ref->frame == 0x00)
+				/* if the frame is a duplicated frame */
+				if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] == epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
 				{
-					duplication = 0x01;
-					/* store the frame with the first occurrence of this SequenceNumber
-					 in the frame_ref_num */
-					frame_ref->frame = epl_asnd_sdo_duplication.frame[seq_recv][seq_send];
+					/* if the frame has no frame reference */
+					if(frame_ref->frame == 0x00)
+					{
+						duplication = 0x01;
+						/* store the frame with the first occurrence of this SequenceNumber
+						 in the frame_ref_num */
+						frame_ref->frame = epl_asnd_sdo_duplication.frame[seq_recv][seq_send];
+					}
+					/* if the frame has a reference */
+					else if(frame_ref->frame != frame)
+					{
+						duplication = 0x01;
+					}
 				}
-				/* if the frame has a reference */
-				else if(frame_ref->frame != frame)
+				/* if stored values are not equal */
+				else if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] != epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
 				{
-					duplication = 0x01;
-				}
-			}
-			/* if stored values are not equal */
-			else if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] != epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
-			{
-				/* if the frame has no frame_ref_num */
-				if(frame_ref->frame == 0x00)
-				{
-					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
-					/* save the frame number */
-					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-					/* save the frame as a reference for possible duplicated frames */
-					frame_ref->frame = frame;
-				}
-				/* if the frame is in the frame_ref_num */
-				else if(frame_ref->frame == frame)
-				{
-					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
-					/* save the frame number */
-					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+					/* if the frame has no frame_ref_num */
+					if(frame_ref->frame == 0x00)
+					{
+						epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
+						/* save the frame number */
+						epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+						/* save the frame as a reference for possible duplicated frames */
+						frame_ref->frame = frame;
+					}
+					/* if the frame is in the frame_ref_num */
+					else if(frame_ref->frame == frame)
+					{
+						epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
+						/* save the frame number */
+						epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+					}
 				}
 			}
 		}
-	}
-	/* if the frame is a duplicated frame */
-	if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum != 0x00))
-	{
-		pinfo->fd->subnum = 0x01;
-		expert_add_info_format(pinfo, epl_tree, &ei_duplicated_frame,
-			"Duplication of Frame: %d ReceiveSequenceNumber: %d and SendSequenceNumber: %d ",
-			frame_ref->frame,seq_recv,seq_send );
-	}
-	/* if the last frame in the ReceiveSequence is sent get new memory */
-	if(seq_recv == 0x3f && seq_send <= 0x3f)
-	{
-		/* reset memory block */
-		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+
+		/* if the frame is a duplicated frame */
+		if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum != 0x00))
+		{
+			pinfo->fd->subnum = 0x01;
+			expert_add_info_format(pinfo, epl_tree, &ei_duplicated_frame,
+				"Duplication of Frame: %d ReceiveSequenceNumber: %d and SendSequenceNumber: %d ",
+				frame_ref->frame,seq_recv,seq_send );
+		}
+		/* if the last frame in the ReceiveSequence is sent get new memory */
+		if(seq_recv == 0x3f && seq_send <= 0x3f)
+		{
+			/* reset memory block */
+			memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+		}
+
+		p_add_proto_data(wmem_file_scope(), pinfo,proto_epl,frame,frame_ref);
 	}
 
-	p_add_proto_data(wmem_file_scope(), pinfo,proto_epl,frame,frame_ref);
 	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
 	sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
 	/* Asynchronuous SDO Sequence Layer */
@@ -3865,6 +3871,8 @@ proto_register_epl(void)
 
 	prefs_register_bool_preference(epl_module, "show_soc_flags", "Show flags of SoC frame in Info column",
 		"If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
+	prefs_register_bool_preference(epl_module, "do_sdo_duplicate_detection", "Detect duplicate transmission of SDO frames",
+		"Detects, if the command-layer is a duplicate or not", &sdo_duplicate_detection_flags);
 
 	/* tap-registration */
 	/*  epl_tap = register_tap("epl");*/
