@@ -1191,3 +1191,100 @@
 		<enum name="TERMINATION"   code="1"/>
 	</avp>
 </application>	<!-- 3GPP S9 -->
+
+<application id="16777335" name="3GPP MB2c" uri="http://www.3gpp.org/DynaReport/29468.htm">
+
+	<command name="GCS-Action" code="8388662" vendor-id="TGPP"/>
+	<command name="GCS-Notification" code="8388663" vendor-id="TGPP"/>
+
+	<avp name="BMSC-Address" code="3500" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="IPAddress"/>
+	</avp>
+	<avp name="BMSC-Port" code="3501" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="MBMS-Bearer-Event" code="3502" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="MBMS-Bearer-Event-Notification" code="3503" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+			<gavp name="MBMS-Flow-Identifier"/>
+			<gavp name="MBMS-Bearer-Event"/>
+		</grouped>
+	</avp>
+	<avp name="MBMS-Bearer-Request" code="3504" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="MBMS-StartStop-Indication"/>
+			<gavp name="TMGI"/>
+			<gavp name="MBMS-Flow-Identifier"/>
+			<gavp name="QoS-Information"/>
+			<gavp name="MBMS-Service-Area"/>
+			<gavp name="MBMS-Start-Time"/>
+			<gavp name="MB2U-Security"/>
+		</grouped>
+	</avp>
+	<avp name="MBMS-Bearer-Response" code="3505" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+			<gavp name="MBMS-Flow-Identifier"/>
+			<gavp name="MBMS-Session-Duration"/>
+			<gavp name="MBMS-Bearer-Result"/>
+			<gavp name="BMSC-Address"/>
+			<gavp name="BMSC-Port"/>
+			<gavp name="MB2U-Security"/>
+			<gavp name="Radio-Frequency"/>
+		</grouped>
+	</avp>
+	<avp name="MBMS-Bearer-Result" code="3506" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="MBMS-Start-Time" code="3507" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Radio-Frequency" code="3508" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="TMGI-Allocation-Request" code="3509" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI-Number"/>
+			<gavp name="TMGI"/>
+		</grouped>
+	</avp>
+	<avp name="TMGI-Allocation-Response" code="3510" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+			<gavp name="MBMS-Session-Duration"/>
+			<gavp name="TMGI-Allocation-Result"/>
+		</grouped>
+	</avp>
+	<avp name="TMGI-Allocation-Result" code="3511" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="TMGI-Deallocation-Request" code="3512" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+		</grouped>
+	</avp>
+	<avp name="TMGI-Deallocation-Response" code="3513" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+			<gavp name="TMGI-Deallocation-Result"/>
+		</grouped>
+	</avp>
+	<avp name="TMGI-Deallocation-Result" code="3514" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="TMGI-Expiry" code="3515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="TMGI"/>
+		</grouped>
+	</avp>
+	<avp name="TMGI-Number" code="3516" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="MB2U-Security" code="3517" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+</application>	<!-- 3GPP MB2c -->
