@@ -587,45 +587,6 @@ void PacketList::timerEvent(QTimerEvent *event)
     }
 }
 
-void PacketList::markFramesReady()
-{
-    packets_bar_update();
-    redrawVisiblePackets();
-}
-
-void PacketList::setFrameMark(gboolean set, frame_data *fdata)
-{
-    if (set)
-        cf_mark_frame(cap_file_, fdata);
-    else
-        cf_unmark_frame(cap_file_, fdata);
-}
-
-void PacketList::setFrameIgnore(gboolean set, frame_data *fdata)
-{
-    if (set)
-        cf_ignore_frame(cap_file_, fdata);
-    else
-        cf_unignore_frame(cap_file_, fdata);
-}
-
-void PacketList::setFrameReftime(gboolean set, frame_data *fdata)
-{
-    if (!fdata || !cap_file_) return;
-    if (set) {
-        fdata->flags.ref_time=1;
-        cap_file_->ref_time_count++;
-    } else {
-        fdata->flags.ref_time=0;
-        cap_file_->ref_time_count--;
-    }
-    cf_reftime_packets(cap_file_);
-    if (!fdata->flags.ref_time && !fdata->flags.passed_dfilter) {
-        cap_file_->displayed_count--;
-        packet_list_model_->recreateVisibleRows();
-    }
-}
-
 void PacketList::setColumnVisibility()
 {
     for (int i = 0; i < prefs.num_cols; i++) {
@@ -1040,105 +1001,50 @@ void PacketList::goToPacket(int packet, int hf_id)
 
 void PacketList::markFrame()
 {
-    int row = currentIndex().row();
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
 
-    fdata = packet_list_model_->getRowFdata(row);
-
-    if (!fdata) return;
-
-    setFrameMark(!fdata->flags.marked, fdata);
-    markFramesReady();
+    packet_list_model_->toggleFrameMark(currentIndex());
+    packets_bar_update();
 }
 
 void PacketList::markAllDisplayedFrames(bool set)
 {
-    guint32 framenum;
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
 
-    for (framenum = 1; framenum <= cap_file_->count; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->frames, framenum);
-        if (fdata->flags.passed_dfilter)
-            setFrameMark(set, fdata);
-    }
-    markFramesReady();
+    packet_list_model_->setDisplayedFrameMark(set);
+    packets_bar_update();
 }
 
 void PacketList::ignoreFrame()
 {
-    int row = currentIndex().row();
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
 
-    fdata = packet_list_model_->getRowFdata(row);
-    if (!fdata) return;
-
-    setFrameIgnore(!fdata->flags.ignored, fdata);
+    packet_list_model_->toggleFrameIgnore(currentIndex());
+    int sb_val = verticalScrollBar()->value(); // Surely there's a better way to keep our position?
+    setUpdatesEnabled(false);
     emit packetDissectionChanged();
+    setUpdatesEnabled(true);
+    verticalScrollBar()->setValue(sb_val);
 }
 
 void PacketList::ignoreAllDisplayedFrames(bool set)
 {
-    guint32 framenum;
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
 
-    for (framenum = 1; framenum <= cap_file_->count; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->frames, framenum);
-        if (!set || fdata->flags.passed_dfilter)
-            setFrameIgnore(set, fdata);
-    }
+    packet_list_model_->setDisplayedFrameIgnore(set);
     emit packetDissectionChanged();
 }
 
 void PacketList::setTimeReference()
 {
-    if (!cap_file_) return;
-
-    if (cap_file_->current_frame) {
-        if(recent.gui_time_format != TS_RELATIVE && cap_file_->current_frame->flags.ref_time==0) {
-            int ret = QMessageBox::question(
-                        this,
-                        tr("Change Time Display Format?"),
-                        tr("Time References don't work well with the currently selected Time Display Format.\n"
-                           "Do you want to switch to \"Seconds Since Beginning of Capture\" now?"),
-                        QMessageBox::Yes | QMessageBox::No
-                        );
-            if (ret == QMessageBox::Yes) {
-                timestamp_set_type(TS_RELATIVE);
-                recent.gui_time_format  = TS_RELATIVE;
-                cf_timestamp_auto_precision(cap_file_);
-                setFrameReftime(!cap_file_->current_frame->flags.ref_time,
-                                cap_file_->current_frame);
-            }
-        } else {
-            setFrameReftime(!cap_file_->current_frame->flags.ref_time,
-                            cap_file_->current_frame);
-        }
-    }
-    redrawVisiblePackets();
+    if (!cap_file_ || !packet_list_model_) return;
+    packet_list_model_->toggleFrameRefTime(currentIndex());
 }
 
 void PacketList::unsetAllTimeReferences()
 {
-    if (!cap_file_) return;
-
-    /* XXX: we might need a progressbar here */
-    guint32 framenum;
-    frame_data *fdata;
-    for (framenum = 1; framenum <= cap_file_->count && cap_file_->ref_time_count > 0; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->frames, framenum);
-        if (fdata->flags.ref_time == 1) {
-            setFrameReftime(FALSE, fdata);
-        }
-    }
-    redrawVisiblePackets();
+    if (!cap_file_ || !packet_list_model_) return;
+    packet_list_model_->unsetAllFrameRefTime();
 }
 
 void PacketList::showHeaderMenu(QPoint pos)

@@ -21,6 +21,8 @@
 
 #include "packet_list_model.h"
 
+#include "file.h"
+
 #include <wsutil/nstime.h>
 #include <epan/column.h>
 #include <epan/prefs.h>
@@ -119,11 +121,110 @@ void PacketListModel::resetColumns()
 
 void PacketListModel::resetColorized()
 {
-    PacketListRecord *record;
-
-    foreach (record, physical_rows_) {
+    foreach (PacketListRecord *record, physical_rows_) {
         record->resetColorized();
     }
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
+void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
+{
+    if (!cap_file_ || !fm_index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(fm_index.internalPointer());
+    if (!record) return;
+
+    frame_data *fdata = record->frameData();
+    if (!fdata) return;
+
+    if (fdata->flags.marked)
+        cf_unmark_frame(cap_file_, fdata);
+    else
+        cf_mark_frame(cap_file_, fdata);
+
+    dataChanged(fm_index, fm_index);
+}
+
+void PacketListModel::setDisplayedFrameMark(gboolean set)
+{
+    foreach (PacketListRecord *record, visible_rows_) {
+        if (set) {
+            cf_mark_frame(cap_file_, record->frameData());
+        } else {
+            cf_unmark_frame(cap_file_, record->frameData());
+        }
+    }
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
+void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
+{
+    if (!cap_file_ || !i_index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(i_index.internalPointer());
+    if (!record) return;
+
+    frame_data *fdata = record->frameData();
+    if (!fdata) return;
+
+    if (fdata->flags.ignored)
+        cf_unignore_frame(cap_file_, fdata);
+    else
+        cf_ignore_frame(cap_file_, fdata);
+}
+
+void PacketListModel::setDisplayedFrameIgnore(gboolean set)
+{
+    foreach (PacketListRecord *record, visible_rows_) {
+        if (set) {
+            cf_ignore_frame(cap_file_, record->frameData());
+        } else {
+            cf_unignore_frame(cap_file_, record->frameData());
+        }
+    }
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
+void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
+{
+    if (!cap_file_ || !rt_index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(rt_index.internalPointer());
+    if (!record) return;
+
+    frame_data *fdata = record->frameData();
+    if (!fdata) return;
+
+    if (fdata->flags.ref_time) {
+        fdata->flags.ref_time=0;
+        cap_file_->ref_time_count--;
+    } else {
+        fdata->flags.ref_time=1;
+        cap_file_->ref_time_count++;
+    }
+    cf_reftime_packets(cap_file_);
+    if (!fdata->flags.ref_time && !fdata->flags.passed_dfilter) {
+        cap_file_->displayed_count--;
+    }
+    record->resetColumns(&cap_file_->cinfo);
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
+void PacketListModel::unsetAllFrameRefTime()
+{
+    if (!cap_file_) return;
+
+    /* XXX: we might need a progressbar here */
+
+    foreach (PacketListRecord *record, physical_rows_) {
+        frame_data *fdata = record->frameData();
+        if (fdata->flags.ref_time) {
+            fdata->flags.ref_time = 0;
+        }
+    }
+    cap_file_->ref_time_count = 0;
+    cf_reftime_packets(cap_file_);
+    PacketListRecord::resetColumns(&cap_file_->cinfo);
     dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
@@ -232,9 +333,9 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     }
 }
 
-void PacketListModel::emitItemHeightChanged(const QModelIndex &index)
+void PacketListModel::emitItemHeightChanged(const QModelIndex &ih_index)
 {
-    emit dataChanged(index, index);
+    emit dataChanged(ih_index, ih_index);
 }
 
 int PacketListModel::rowCount(const QModelIndex &parent) const
@@ -250,12 +351,12 @@ int PacketListModel::columnCount(const QModelIndex &) const
     return prefs.num_cols;
 }
 
-QVariant PacketListModel::data(const QModelIndex &index, int role) const
+QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
 {
-    if (!index.isValid())
+    if (!d_index.isValid())
         return QVariant();
 
-    PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+    PacketListRecord *record = static_cast<PacketListRecord*>(d_index.internalPointer());
     if (!record)
         return QVariant();
     const frame_data *fdata = record->frameData();
@@ -266,7 +367,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     case Qt::FontRole:
         return mono_font_;
     case Qt::TextAlignmentRole:
-        switch(recent_get_column_xalign(index.column())) {
+        switch(recent_get_column_xalign(d_index.column())) {
         case COLUMN_XALIGN_RIGHT:
             return Qt::AlignRight;
             break;
@@ -278,7 +379,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
             break;
         case COLUMN_XALIGN_DEFAULT:
         default:
-            if (right_justify_column(index.column(), cap_file_)) {
+            if (right_justify_column(d_index.column(), cap_file_)) {
                 return Qt::AlignRight;
             }
             break;
@@ -312,14 +413,14 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
         return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
     case Qt::DisplayRole:
     {
-        int column = index.column();
+        int column = d_index.column();
         QVariant column_string = record->columnString(cap_file_, column);
         // We don't know an item's sizeHint until we fetch its text here.
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
         // fetch of SizeHintRole and DisplayRole) in the next event loop.
         if (column == 0 && record->lineCountChanged())
-            emit itemHeightChanged(index);
+            emit itemHeightChanged(d_index);
         return column_string;
     }
     case Qt::SizeHintRole:

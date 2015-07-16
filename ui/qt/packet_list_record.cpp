@@ -171,6 +171,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     ws_buffer_free(&buf);
 }
 
+#include <QDebug>
 //#define MINIMIZE_STRING_COPYING 1
 void PacketListRecord::cacheColumnStrings(column_info *cinfo)
 {

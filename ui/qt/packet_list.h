@@ -102,9 +102,6 @@ private:
     bool tail_at_end_;
     bool rows_inserted_;
 
-    void markFramesReady();
-    void setFrameMark(gboolean set, frame_data *fdata);
-    void setFrameIgnore(gboolean set, frame_data *fdata);
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
     int sizeHintForColumn(int column) const;

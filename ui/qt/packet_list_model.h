@@ -53,7 +53,7 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex & = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &d_index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                              int role = Qt::DisplayRole) const;
 
@@ -62,11 +62,17 @@ public:
     int visibleIndexOf(frame_data *fdata) const;
     void resetColumns();
     void resetColorized();
+    void toggleFrameMark(const QModelIndex &fm_index);
+    void setDisplayedFrameMark(gboolean set);
+    void toggleFrameIgnore(const QModelIndex &i_index);
+    void setDisplayedFrameIgnore(gboolean set);
+    void toggleFrameRefTime(const QModelIndex &rt_index);
+    void unsetAllFrameRefTime();
     void setSizeHintEnabled(bool enable) { size_hint_enabled_ = enable; }
 
 signals:
     void goToPacket(int);
-    void itemHeightChanged(const QModelIndex &index) const;
+    void itemHeightChanged(const QModelIndex &ih_index) const;
 
 public slots:
     void setMonospaceFont(const QFont &mono_font, int row_height);
@@ -91,7 +97,7 @@ private:
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
 
 private slots:
-    void emitItemHeightChanged(const QModelIndex &index);
+    void emitItemHeightChanged(const QModelIndex &ih_index);
 };
 
 #endif // PACKET_LIST_MODEL_H
