@@ -122,11 +122,12 @@ decryption_step_ssl() {
 # SSL, using the server's private key with p < q
 # (test whether libgcrypt is correctly called)
 decryption_step_ssl_rsa_pq() {
-	echo $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
-		-o ssl.keys_list:"0.0.0.0,443,http,${TEST_KEYS_DIR//\\/\\\\x5c}rsa-p-lt-q.key" \
-		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http
+	TEST_KEYS_FILE="$TESTS_DIR/keys/rsa-p-lt-q.key"
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
+	fi
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
-		-o ssl.keys_list:"0.0.0.0,443,http,${TEST_KEYS_DIR//\\/\\\\x5c}rsa-p-lt-q.key" \
+		-o ssl.keys_list:"0.0.0.0,443,http,$TEST_KEYS_FILE" \
 		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http \
 		| grep / > /dev/null 2>&1
 	RETURNVALUE=$?
@@ -152,8 +153,12 @@ decryption_step_ssl_with_password() {
 
 # SSL, using the master secret
 decryption_step_ssl_master_secret() {
+	TEST_KEYS_FILE="$TESTS_DIR/keys/dhe1_keylog.dat"
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
+	fi
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
-		-o "ssl.keylog_file: $TEST_KEYS_DIR/dhe1_keylog.dat" \
+		-o "ssl.keylog_file: $TEST_KEYS_FILE" \
 		-o "ssl.desegment_ssl_application_data: FALSE" \
 		-o "http.ssl.port: 443" \
 		-r "$CAPTURE_DIR/dhe1.pcapng.gz" -Y http \
