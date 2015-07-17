@@ -129,6 +129,7 @@ static gint ett_dtls_fragment          = -1;
 static gint ett_dtls_fragments         = -1;
 
 static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
+static expert_field ei_dtls_handshake_fragment_length_zero = EI_INIT;
 static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
@@ -1243,6 +1244,14 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
               expert_add_info(pinfo, fragment_length_item, &ei_dtls_handshake_fragment_past_end_msg);
             }
         }
+      else if (fragment_offset > 0 && fragment_length == 0)
+        {
+          /* Fragmented message, but no actual fragment... Note that if a
+           * fragment was previously completed (reassembled_length == length),
+           * it is already dissected. */
+          expert_add_info(pinfo, fragment_length_item, &ei_dtls_handshake_fragment_length_zero);
+          continue;
+        }
       else if (fragment_length < length)
         {
           fragmented = TRUE;
@@ -1874,6 +1883,7 @@ proto_register_dtls(void)
   };
 
   static ei_register_info ei[] = {
+     { &ei_dtls_handshake_fragment_length_zero, { "dtls.handshake.fragment_length.zero", PI_PROTOCOL, PI_WARN, "Zero-length fragment length for fragmented message", EXPFILL }},
      { &ei_dtls_handshake_fragment_length_too_long, { "dtls.handshake.fragment_length.too_long", PI_PROTOCOL, PI_ERROR, "Fragment length is larger than message length", EXPFILL }},
      { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
