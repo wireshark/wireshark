@@ -2218,9 +2218,16 @@ DIAG_ON(cast-qual)
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
           interface_options  interface_opts;
           if_capabilities_t *caps;
+          char *auth_str = NULL;
 
           interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-          caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str, NULL);
+#ifdef HAVE_PCAP_REMOTE
+          if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
+              auth_str = g_strdup_printf("%s:%s", interface_opts.auth_username, interface_opts.auth_password);
+          }
+#endif
+          caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, auth_str, &err_str, NULL);
+          g_free(auth_str);
           if (caps == NULL) {
             cmdarg_err("%s", err_str);
             g_free(err_str);

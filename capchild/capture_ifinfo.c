@@ -223,6 +223,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
  * we use "real" data serialization instead, e.g. via XML? */
 if_capabilities_t *
 capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
+                            const gchar *auth_string,
                             char **err_str, void (*update_cb)(void))
 {
     if_capabilities_t *caps;
@@ -246,7 +247,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 #endif /* HAVE_EXTCAP */
 
     /* Try to get our interface list */
-    err = sync_if_capabilities_open(ifname, monitor_mode, &data,
+    err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed, error %d, %s (%s)!",

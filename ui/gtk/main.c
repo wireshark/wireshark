@@ -2955,11 +2955,19 @@ DIAG_ON(cast-qual)
 
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device.selected) {
-#if defined(HAVE_PCAP_CREATE)
-                caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str, main_window_update);
-#else
-                caps = capture_get_if_capabilities(device.name, FALSE, &err_str,main_window_update);
+                gchar* auth_str = NULL;
+#ifdef HAVE_PCAP_REMOTE
+                if (device.remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+                    auth_str = g_strdup_printf("%s:%s", device.remote_opts.remote_host_opts.auth_username,
+                                               device.remote_opts.remote_host_opts.auth_password);
+                }
 #endif
+#if defined(HAVE_PCAP_CREATE)
+                caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, auth_str, &err_str, main_window_update);
+#else
+                caps = capture_get_if_capabilities(device.name, FALSE, auth_str, &err_str,main_window_update);
+#endif
+                g_free(auth_str);
                 if (caps == NULL) {
                     cmdarg_err("%s", err_str);
                     g_free(err_str);

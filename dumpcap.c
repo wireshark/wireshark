@@ -1214,11 +1214,7 @@ is_linux_bonding_device(const char *ifname _U_)
  * Get the capabilities of a network device.
  */
 static if_capabilities_t *
-get_if_capabilities(const char *devicename, gboolean monitor_mode
-#ifndef HAVE_PCAP_CREATE
-        _U_
-#endif
-, char **err_str)
+get_if_capabilities(interface_options *interface_opts, char **err_str)
 {
     if_capabilities_t *caps;
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -1254,7 +1250,19 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
      */
     errbuf[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
-    pch = pcap_open(devicename, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+#ifdef HAVE_PCAP_REMOTE
+    if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
+        struct pcap_rmtauth auth;
+
+        auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
+            RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+        auth.username = interface_opts->auth_username;
+        auth.password = interface_opts->auth_password;
+
+        pch = pcap_open(interface_opts->name, MIN_PACKET_SIZE, 0, 0, &auth, errbuf);
+    } else
+#endif
+        pch = pcap_open(interface_opts->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
@@ -1263,14 +1271,14 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
         return NULL;
     }
 #elif defined(HAVE_PCAP_CREATE)
-    pch = pcap_create(devicename, errbuf);
+    pch = pcap_create(interface_opts->name, errbuf);
     if (pch == NULL) {
         if (err_str != NULL)
             *err_str = g_strdup(errbuf);
         g_free(caps);
         return NULL;
     }
-    if (is_linux_bonding_device(devicename)) {
+    if (is_linux_bonding_device(interface_opts->name)) {
         /*
          * Linux bonding device; not Wi-Fi, so no monitor mode, and
          * calling pcap_can_set_rfmon() might get a "no such device"
@@ -1298,7 +1306,7 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
         caps->can_set_rfmon = FALSE;
     else if (status == 1) {
         caps->can_set_rfmon = TRUE;
-        if (monitor_mode)
+        if (interface_opts->monitor_mode)
             pcap_set_rfmon(pch, 1);
     } else {
         if (err_str != NULL) {
@@ -1325,7 +1333,7 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
         return NULL;
     }
 #else
-    pch = pcap_open_live(devicename, MIN_PACKET_SIZE, 0, 0, errbuf);
+    pch = pcap_open_live(interface_opts->name, MIN_PACKET_SIZE, 0, 0, errbuf);
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
@@ -1334,7 +1342,7 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
         return NULL;
     }
 #endif
-    deflt = get_pcap_linktype(pch, devicename);
+    deflt = get_pcap_linktype(pch, interface_opts->name);
 #ifdef HAVE_PCAP_LIST_DATALINKS
     nlt = pcap_list_datalinks(pch, &linktypes);
     if (nlt == 0 || linktypes == NULL) {
@@ -4962,8 +4970,7 @@ DIAG_ON(cast-qual)
 
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
 
-            caps = get_if_capabilities(interface_opts.name,
-                                       interface_opts.monitor_mode, &err_str);
+            caps = get_if_capabilities(&interface_opts, &err_str);
             if (caps == NULL) {
                 cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
                            "Please check to make sure you have sufficient permissions, and that\n"

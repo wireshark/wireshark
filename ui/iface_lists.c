@@ -183,7 +183,7 @@ scan_local_interfaces(void (*update_cb)(void))
         }
         device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, update_cb);
+        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, update_cb);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = (if_addr_t *)g_malloc0(sizeof(if_addr_t));
             if (ips != 0) {

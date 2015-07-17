@@ -73,7 +73,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
 
 /** Get interface capabilities using dumpcap */
 extern int
-sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
+sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gchar* auth,
                           gchar **data, gchar **primary_msg,
                           gchar **secondary_msg, void (*update_cb)(void));
 

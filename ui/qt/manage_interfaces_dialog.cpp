@@ -475,7 +475,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
     GList *if_entry, *lt_entry;
     if_info_t *if_info;
     char *if_string = NULL;
-    gchar *descr, *str = NULL, *link_type_name = NULL;;
+    gchar *descr, *str = NULL, *link_type_name = NULL, *auth_str;
     if_capabilities_t *caps;
     gint linktype_count;
     bool monitor_mode, found = false;
@@ -490,6 +490,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
 
     guint num_interfaces = global_capture_opts.all_ifaces->len;
     for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        auth_str = NULL;
         if_info = (if_info_t *)if_entry->data;
         for (i = 0; i < num_interfaces; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -546,7 +547,14 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
         }
         device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
         monitor_mode = prefs_capture_device_monitor_mode(if_string);
-        caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
+#ifdef HAVE_PCAP_REMOTE
+        if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+            auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
+                                       roptions->remote_host_opts.auth_password);
+        }
+#endif
+        caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
+        g_free(auth_str);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             address addr_str;
             char* temp_addr_str = NULL;

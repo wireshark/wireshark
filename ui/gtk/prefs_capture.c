@@ -1075,7 +1075,7 @@ ifopts_description_to_val (const char *if_name, gboolean monitor_mode, const cha
 	if_capabilities_t *caps;
 	int dlt = -1;
 
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, NULL, main_window_update);
 	if (caps != NULL) {
 		if (caps->data_link_types != NULL) {
 			GList  *lt_entry;
@@ -1186,9 +1186,9 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	 * to the interface capabilities of the selected interface
 	 */
 #ifdef HAVE_PCAP_CREATE
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, NULL, main_window_update);
 #else
-	caps = capture_get_if_capabilities(if_name, FALSE, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL, NULL, main_window_update);
 #endif
 	if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
@@ -1304,10 +1304,10 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	gtk_list_store_set  (list_store, &list_iter,
 			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
 			     -1);
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, NULL, main_window_update);
 #else
 	/* no monitor-mode support */
-	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL, NULL);
 #endif
 
 	/*
@@ -1620,10 +1620,10 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 #ifdef HAVE_PCAP_CREATE
 	/* get default monitor mode setting */
 	monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, main_window_update);
 #else
 	/* no monitor-mode support */
-	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL, main_window_update);
+	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL, NULL, main_window_update);
 #endif
 
 	/* set default link-layer header type */

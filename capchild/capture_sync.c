@@ -1324,7 +1324,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
  * must be freed with g_free().
  */
 int
-sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
+sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gchar* auth,
                           gchar **data, gchar **primary_msg,
                           gchar **secondary_msg, void (*update_cb)(void))
 {
@@ -1348,6 +1348,10 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
     argv = sync_pipe_add_arg(argv, &argc, "-L");
     if (monitor_mode)
         argv = sync_pipe_add_arg(argv, &argc, "-I");
+    if (auth) {
+        argv = sync_pipe_add_arg(argv, &argc, "-A");
+        argv = sync_pipe_add_arg(argv, &argc, auth);
+    }
 
 #ifndef DEBUG_CHILD
     /* Run dumpcap in capture child mode */
