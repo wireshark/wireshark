@@ -591,7 +591,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
         if (chunk == allocator->master_head) {
             wmem_block_pop_master(allocator);
         }
-        else {
+        else if (WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t)) {
             wmem_block_remove_from_recycler(allocator, chunk);
         }
         return;
