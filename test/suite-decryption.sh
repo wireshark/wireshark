@@ -126,6 +126,10 @@ decryption_step_ssl_rsa_pq() {
 	if [ "$WS_SYSTEM" == "Windows" ] ; then
 		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
 	fi
+	echo $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+		-o ssl.keys_list:"0.0.0.0,443,http,$TEST_KEYS_FILE" \
+		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http \
+		| grep / > /dev/null 2>&1
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
 		-o ssl.keys_list:"0.0.0.0,443,http,$TEST_KEYS_FILE" \
 		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http \
