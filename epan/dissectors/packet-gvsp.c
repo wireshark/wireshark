@@ -689,8 +689,11 @@ static gint dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
     file_length = tvb_strsize(tvb, offset + 20);
     proto_tree_add_item(gvsp_tree, hf_gvsp_filename, tvb, offset + 20, file_length, ENC_ASCII|ENC_NA);
 
+    if (20 + file_length > G_MAXINT)
+        return -1;
+
     /* Return dissected byte count (for all-in dissection) */
-    return 20 + file_length;
+    return (gint)(20 + file_length);
 }
 
 
@@ -1006,6 +1009,8 @@ static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tv
 
 static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, gvsp_packet_info *info)
 {
+    gint ret;
+
     switch (info->payloadtype)
     {
     case GVSP_PAYLOAD_IMAGE:
@@ -1029,7 +1034,10 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         break;
 
     case GVSP_PAYLOAD_FILE:
-        offset += dissect_file_leader(gvsp_tree, tvb, pinfo, offset);
+        ret = dissect_file_leader(gvsp_tree, tvb, pinfo, offset);
+        if (ret < 0)
+            break;
+        offset += ret;
         offset += dissect_generic_trailer(gvsp_tree, tvb, pinfo, offset);
         if (info->chunk != 0)
         {
