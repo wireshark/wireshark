@@ -4746,9 +4746,14 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
     }
 
     if (*keylog_file == NULL) {
+        errno = 0;
         *keylog_file = ws_fopen(ssl_keylog_filename, "r");
         if (!*keylog_file) {
-            ssl_debug_printf("%s failed to open SSL keylog\n", G_STRFUNC);
+            /*
+             * This shouldn't fail, not even with ENOENT, as the user
+             * supplied the pathname.
+             */
+            report_open_failure(ssl_keylog_filename, errno, FALSE);
             return;
         }
     }
