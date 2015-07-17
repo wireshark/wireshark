@@ -2315,7 +2315,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     guint8       bd_addr[6];
     gboolean     local_addr = FALSE;
     gint         hfx;
-    guint16      status;
+    guint8       status;
     wmem_tree_key_t     key[4];
     guint32             interface_id;
     guint32             adapter_id;

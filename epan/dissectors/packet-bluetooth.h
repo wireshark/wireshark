@@ -246,8 +246,8 @@ typedef struct _bluetooth_hci_summary_tap_t {
     guint32                          interface_id;
     guint32                          adapter_id;
 
+    guint16                          ocf;
     guint8                           ogf;
-    guint8                           ocf;
     guint8                           event;
     guint8                           status;
     guint8                           reason;
