@@ -240,6 +240,8 @@ been completely removed in favour of wmem which is now fully mature.
 * The (long-since-broken) Python bindings support has been removed.  If
 you want to write dissectors in something other than C, use Lua.
 * Plugins can now create GUI menu items.
+* Heuristic dissectors can now be globally enabled/disabled so
+heur_dissector_add() has a few more parameters to make that possible
 
 
 == Getting Wireshark

@@ -918,6 +918,18 @@ VoIP Calls.
 
 Example: B<-z voip,calls>
 
+=item --disable-protocol E<lt>proto_nameE<gt>
+
+Disable dissection of proto_name.
+
+=item --enable-heuristic E<lt>short_nameE<gt>
+
+Enable dissection of heuristic protocol.
+
+=item --disable-heuristic E<lt>short_nameE<gt>
+
+Disable dissection of heuristic protocol.
+
 =back
 
 =back
