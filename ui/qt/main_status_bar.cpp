@@ -52,6 +52,7 @@ enum StatusContext {
     STATUS_CTX_FIELD,
     STATUS_CTX_BYTE,
     STATUS_CTX_FILTER,
+    STATUS_CTX_BUSY,
     STATUS_CTX_TEMPORARY
 };
 
@@ -265,7 +266,7 @@ void MainStatusBar::pushFileStatus(const QString &message, const QString &messag
 
 void MainStatusBar::popFileStatus() {
     info_status_.popText(STATUS_CTX_FILE);
-    info_status_.setToolTip("");
+    info_status_.setToolTip(QString());
 }
 
 void MainStatusBar::pushFieldStatus(const QString &message) {
@@ -330,6 +331,20 @@ void MainStatusBar::pushProfileName()
         edit_action_->setEnabled(false);
         delete_action_->setEnabled(false);
     }
+}
+
+void MainStatusBar::pushBusyStatus(const QString &message, const QString &messagetip)
+{
+    info_status_.pushText(message, STATUS_CTX_BUSY);
+    info_status_.setToolTip(messagetip);
+    progress_frame_.showBusy(true, false, NULL);
+}
+
+void MainStatusBar::popBusyStatus()
+{
+    info_status_.popText(STATUS_CTX_BUSY);
+    info_status_.setToolTip(QString());
+    progress_frame_.hide();
 }
 
 void MainStatusBar::popProfileStatus() {
@@ -434,7 +449,7 @@ void MainStatusBar::toggleBackground(bool enabled)
                       .arg(ws_css_warn_text, 6, 16, QChar('0'))
                       .arg(ws_css_warn_background, 6, 16, QChar('0')));
     } else {
-        setStyleSheet("");
+        setStyleSheet(QString());
     }
 }
 

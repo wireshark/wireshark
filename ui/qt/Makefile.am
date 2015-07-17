@@ -136,8 +136,6 @@ bluetooth_devices_dialog.$(OBJEXT): ui_bluetooth_devices_dialog.h
 
 bluetooth_hci_summary_dialog.$(OBJEXT): ui_bluetooth_hci_summary_dialog.h
 
-capture_file_progress_frame.$(OBJEXT): ui_capture_file_progress_frame.h
-
 capture_file_properties_dialog.$(OBJEXT): ui_capture_file_properties_dialog.h
 
 capture_interfaces_dialog.$(OBJEXT): ui_capture_interfaces_dialog.h
@@ -217,6 +215,8 @@ preference_editor_frame.$(OBJEXT): ui_preference_editor_frame.h
 preferences_dialog.$(OBJEXT): ui_preferences_dialog.h
 
 print_dialog.$(OBJEXT): ui_print_dialog.h
+
+progress_frame.$(OBJEXT): ui_progress_frame.h
 
 rtp_analysis_dialog.$(OBJEXT): ui_rtp_analysis_dialog.h
 

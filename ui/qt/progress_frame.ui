@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CaptureFileProgressFrame</class>
- <widget class="QFrame" name="CaptureFileProgressFrame">
+ <class>ProgressFrame</class>
+ <widget class="QFrame" name="ProgressFrame">
   <property name="geometry">
    <rect>
     <x>0</x>

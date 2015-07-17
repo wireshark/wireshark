@@ -1,4 +1,4 @@
-/* capture_file_progress_frame.h
+/* progress_frame.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,15 +19,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CAPTURE_FILE_PROGRESS_FRAME_H
-#define CAPTURE_FILE_PROGRESS_FRAME_H
+#ifndef PROGRESS_FRAME_H
+#define PROGRESS_FRAME_H
 
 #include <glib.h>
 
 #include <QFrame>
 
 namespace Ui {
-class CaptureFileProgressFrame;
+class ProgressFrame;
 }
 
 #if defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
@@ -35,26 +35,25 @@ class CaptureFileProgressFrame;
 #include <QWinTaskbarProgress>
 #endif
 
-class CaptureFileProgressFrame;
+class ProgressFrame;
 
 // Define the structure describing a progress dialog.
 struct progdlg {
-    CaptureFileProgressFrame *progress_frame;  // This progress frame
+    ProgressFrame *progress_frame;  // This progress frame
     QWidget *top_level_window;  // Progress frame's main window
 };
 
-class CaptureFileProgressFrame : public QFrame
+class ProgressFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit CaptureFileProgressFrame(QWidget *parent = 0);
-    ~CaptureFileProgressFrame();
+    explicit ProgressFrame(QWidget *parent = 0);
+    ~ProgressFrame();
 
-    struct progdlg *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
-#ifdef QWINTASKBARPROGRESS_H
+    struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
+    struct progdlg *showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag);
     void hide();
-#endif
 
 public slots:
     void setValue(int value);
@@ -62,23 +61,32 @@ public slots:
 signals:
     void stopLoading();
 
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+protected:
+    void timerEvent(QTimerEvent *event);
+#endif
+
 private slots:
     void on_pushButton_clicked();
 
 private:
-    Ui::CaptureFileProgressFrame *ui;
+    Ui::ProgressFrame *ui;
 
     struct progdlg progress_dialog_;
     QString message_;
     QString status_;
     bool terminate_is_stop_;
     gboolean *stop_flag_;
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+    int show_timer_;
+#endif
 #ifdef QWINTASKBARPROGRESS_H
     QWinTaskbarProgress *taskbar_progress_;
 #endif
+    struct progdlg *show(bool animate, bool terminate_is_stop, gboolean *stop_flag);
 };
 
-#endif // CAPTURE_FILE_PROGRESS_FRAME_H
+#endif // PROGRESS_FRAME_H
 
 /*
  * Editor modelines

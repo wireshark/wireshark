@@ -32,7 +32,6 @@ set(WIRESHARK_QT_HEADERS
 	byte_view_text.h
 	capture_file.h
 	capture_file_dialog.h
-	capture_file_progress_frame.h
 	capture_file_properties_dialog.h
 	capture_filter_combo.h
 	capture_filter_edit.h
@@ -93,6 +92,7 @@ set(WIRESHARK_QT_HEADERS
 	preferences_dialog.h
 	print_dialog.h
 	profile_dialog.h
+	progress_frame.h
 	proto_tree.h
 	protocol_hierarchy_dialog.h
 	protocol_preferences_menu.h
@@ -163,7 +163,6 @@ set(WIRESHARK_QT_SRC
 	byte_view_text.cpp
 	capture_file.cpp
 	capture_file_dialog.cpp
-	capture_file_progress_frame.cpp
 	capture_file_properties_dialog.cpp
 	capture_filter_combo.cpp
 	capture_filter_edit.cpp
@@ -221,6 +220,7 @@ set(WIRESHARK_QT_SRC
 	preferences_dialog.cpp
 	print_dialog.cpp
 	profile_dialog.cpp
+	progress_frame.cpp
 	proto_tree.cpp
 	protocol_hierarchy_dialog.cpp
 	protocol_preferences_menu.cpp
@@ -294,7 +294,6 @@ set(WIRESHARK_QT_UI
 	bluetooth_att_server_attributes_dialog.ui
 	bluetooth_devices_dialog.ui
 	bluetooth_hci_summary_dialog.ui
-	capture_file_progress_frame.ui
 	capture_file_properties_dialog.ui
 	capture_interfaces_dialog.ui
 	capture_preferences_frame.ui
@@ -334,6 +333,7 @@ set(WIRESHARK_QT_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
+	progress_frame.ui
 	protocol_hierarchy_dialog.ui
 	resolved_addresses_dialog.ui
 	rtp_analysis_dialog.ui

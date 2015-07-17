@@ -74,6 +74,8 @@ public:
 signals:
     void goToPacket(int);
     void itemHeightChanged(const QModelIndex &ih_index) const;
+    void pushBusyStatus(const QString &status);
+    void popBusyStatus();
 
 public slots:
     void setMonospaceFont(const QFont &mono_font, int row_height);

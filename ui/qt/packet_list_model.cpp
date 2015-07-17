@@ -40,6 +40,7 @@
 #include <QColor>
 #include <QFontMetrics>
 #include <QModelIndex>
+#include <QElapsedTimer>
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
@@ -247,11 +248,12 @@ int PacketListModel::text_sort_column_;
 Qt::SortOrder PacketListModel::sort_order_;
 capture_file *PacketListModel::sort_cap_file_;
 
+QElapsedTimer busy_timer_;
+const int busy_timeout_ = 65; // ms, approximately 15 fps
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
-    if (!cap_file_ || visible_rows_.count() < 1) {
-        return;
-    }
+    if (!cap_file_ || visible_rows_.count() < 1) return;
+    if (column < 0) return;
 
     sort_column_ = column;
     text_sort_column_ = PacketListRecord::textColumn(column);
@@ -259,9 +261,18 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_cap_file_ = cap_file_;
 
     beginResetModel();
-    qSort(visible_rows_.begin(), visible_rows_.end(), recordLessThan);
+    QString col_title = get_column_title(column);
+    if (!col_title.isEmpty()) {
+        QString busy_msg = tr("Sorting \"%1\"").arg(col_title);
+        emit pushBusyStatus(busy_msg);
+        busy_timer_.start();
+    }
+    std::sort(visible_rows_.begin(), visible_rows_.end(), recordLessThan);
     for (int i = 0; i < visible_rows_.count(); i++) {
         number_to_row_[visible_rows_[i]->frameData()->num] = i;
+    }
+    if (!col_title.isEmpty()) {
+        emit popBusyStatus();
     }
     endResetModel();
 
@@ -278,6 +289,10 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     // _packet_list_compare_records, and packet_list_compare_custom from
     // gtk/packet_list_store.c into one function
 
+    if (busy_timer_.elapsed() > busy_timeout_) {
+        busy_timer_.restart();
+        wsApp->processEvents();
+    }
     if (sort_column_ < 0) {
         // No column.
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);
@@ -285,7 +300,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         // Column comes directly from frame data
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.columns[sort_column_].col_fmt);
     } else  {
-        if (r1->columnString(sort_cap_file_, sort_column_).toByteArray().data() == r2->columnString(sort_cap_file_, sort_column_).toByteArray().data()) {
+        if (r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData() == r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData()) {
             cmp_val = 0;
         } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
             header_field_info *hfi;
@@ -316,10 +331,10 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                     cmp_val = 1;
                 }
             } else {
-                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().data(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().data());
+                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData());
             }
         } else {
-            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().data(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().data());
+            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData());
         }
 
         if (cmp_val == 0) {

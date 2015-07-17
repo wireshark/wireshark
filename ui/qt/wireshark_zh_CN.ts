@@ -711,7 +711,7 @@
 <context>
     <name>CaptureFileProgressFrame</name>
     <message>
-        <location filename="capture_file_progress_frame.ui" line="14"/>
+        <location filename="progress_frame.ui" line="14"/>
         <source>Frame</source>
         <translation>帧</translation>
     </message>

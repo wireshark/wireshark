@@ -33,7 +33,6 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_bluetooth_att_server_attributes_dialog.h	\
 	ui_bluetooth_devices_dialog.h	\
 	ui_bluetooth_hci_summary_dialog.h	\
-	ui_capture_file_progress_frame.h \
 	ui_capture_file_properties_dialog.h	\
 	ui_capture_interfaces_dialog.h	\
 	ui_capture_preferences_frame.h	\
@@ -75,6 +74,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_preferences_dialog.h	\
 	ui_print_dialog.h	\
 	ui_profile_dialog.h	\
+	ui_progress_frame.h \
 	ui_protocol_hierarchy_dialog.h	\
 	ui_remote_capture_dialog.h	\
 	ui_remote_settings_dialog.h	\
@@ -141,7 +141,6 @@ MOC_HDRS =	\
 	byte_view_text.h	\
 	capture_file.h	\
 	capture_file_dialog.h	\
-	capture_file_progress_frame.h	\
 	capture_file_properties_dialog.h	\
 	capture_filter_combo.h	\
 	capture_filter_edit.h	\
@@ -204,6 +203,7 @@ MOC_HDRS =	\
 	preferences_dialog.h	\
 	print_dialog.h	\
 	profile_dialog.h	\
+	progress_frame.h	\
 	proto_tree.h	\
 	protocol_hierarchy_dialog.h	\
 	protocol_preferences_menu.h	\
@@ -251,7 +251,6 @@ UI_FILES =	\
 	bluetooth_att_server_attributes_dialog.ui	\
 	bluetooth_devices_dialog.ui	\
 	bluetooth_hci_summary_dialog.ui	\
-	capture_file_progress_frame.ui	\
 	capture_file_properties_dialog.ui 	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
@@ -292,6 +291,7 @@ UI_FILES =	\
 	preferences_dialog.ui	\
 	print_dialog.ui	\
 	profile_dialog.ui	\
+	progress_frame.ui	\
 	protocol_hierarchy_dialog.ui	\
 	remote_capture_dialog.ui	\
 	remote_settings_dialog.ui	\
@@ -374,7 +374,6 @@ WIRESHARK_QT_SRC =	\
 	byte_view_text.cpp	\
 	capture_file.cpp	\
 	capture_file_dialog.cpp	\
-	capture_file_progress_frame.cpp	\
 	capture_file_properties_dialog.cpp	\
 	capture_filter_combo.cpp	\
 	capture_filter_edit.cpp	\
@@ -439,6 +438,7 @@ WIRESHARK_QT_SRC =	\
 	preferences_dialog.cpp	\
 	print_dialog.cpp	\
 	profile_dialog.cpp	\
+	progress_frame.cpp	\
 	proto_tree.cpp	\
 	protocol_hierarchy_dialog.cpp	\
 	protocol_preferences_menu.cpp	\

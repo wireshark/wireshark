@@ -1,4 +1,4 @@
-/* capture_file_progress_frame.cpp
+/* progress_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,8 +21,8 @@
 
 #include "config.h"
 
-#include "capture_file_progress_frame.h"
-#include <ui_capture_file_progress_frame.h>
+#include "progress_frame.h"
+#include <ui_progress_frame.h>
 
 #include "ui/progress_dlg.h"
 
@@ -40,7 +40,7 @@
 
 progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *, const gchar *,
                                gboolean terminate_is_stop, gboolean *stop_flag) {
-    CaptureFileProgressFrame *cfpf;
+    ProgressFrame *pf;
     QWidget *main_window;
 
     if (!top_level_window) {
@@ -53,12 +53,12 @@ progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *, c
         return NULL;
     }
 
-    cfpf = main_window->findChild<CaptureFileProgressFrame *>();
+    pf = main_window->findChild<ProgressFrame *>();
 
-    if (!cfpf) {
+    if (!pf) {
         return NULL;
     }
-    return cfpf->show(true, terminate_is_stop, stop_flag, 0);
+    return pf->showProgress(true, terminate_is_stop, stop_flag, 0);
 }
 
 progdlg_t *
@@ -96,11 +96,14 @@ destroy_progress_dlg(progdlg_t *dlg)
     dlg->progress_frame->hide();
 }
 
-CaptureFileProgressFrame::CaptureFileProgressFrame(QWidget *parent) :
+ProgressFrame::ProgressFrame(QWidget *parent) :
     QFrame(parent),
-    ui(new Ui::CaptureFileProgressFrame)
+    ui(new Ui::ProgressFrame)
   , terminate_is_stop_(false)
   , stop_flag_(NULL)
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+  , show_timer_(-1)
+#endif
 #ifdef QWINTASKBARPROGRESS_H
   , taskbar_progress_(NULL)
 #endif
@@ -143,20 +146,36 @@ CaptureFileProgressFrame::CaptureFileProgressFrame(QWidget *parent) :
     hide();
 }
 
-CaptureFileProgressFrame::~CaptureFileProgressFrame()
+ProgressFrame::~ProgressFrame()
 {
     delete ui;
 }
 
-struct progdlg *CaptureFileProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
+struct progdlg *ProgressFrame::showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
 {
-    terminate_is_stop_ = terminate_is_stop;
-    stop_flag_ = stop_flag;
-
+    ui->progressBar->setMaximum(100);
     ui->progressBar->setValue(value);
+    return show(animate, terminate_is_stop, stop_flag);
+}
+
+progdlg *ProgressFrame::showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag)
+{
+    ui->progressBar->setMaximum(0);
+    return show(animate, terminate_is_stop, stop_flag);
+}
+
+void ProgressFrame::setValue(int value)
+{
+    ui->progressBar->setValue(value);
+}
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-    if (animate) {
+void ProgressFrame::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == show_timer_) {
+        killTimer(show_timer_);
+        show_timer_ = -1;
+
         QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
         this->setGraphicsEffect(effect);
 
@@ -167,9 +186,50 @@ struct progdlg *CaptureFileProgressFrame::show(bool animate, bool terminate_is_s
         animation->setEndValue(1.0);
         animation->setEasingCurve(QEasingCurve::InOutQuad);
         animation->start();
+
+        QFrame::show();
+    }
+}
+#endif
+
+void ProgressFrame::hide()
+{
+    show_timer_ = -1;
+    QFrame::hide();
+#ifdef QWINTASKBARPROGRESS_H
+    if (taskbar_progress_) {
+        taskbar_progress_->reset();
+        taskbar_progress_->hide();
+    }
+#endif
+}
+
+void ProgressFrame::on_pushButton_clicked()
+{
+    emit stopLoading();
+}
+
+const int show_delay_ = 500; // ms
+progdlg *ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
+{
+    terminate_is_stop_ = terminate_is_stop;
+    stop_flag_ = stop_flag;
+
+    if (stop_flag) {
+        ui->pushButton->show();
+    } else {
+        ui->pushButton->hide();
+    }
+
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+    if (animate) {
+        show_timer_ = startTimer(show_delay_);
+    } else {
+        QFrame::show();
     }
 #else
     Q_UNUSED(animate);
+    QFrame::show();
 #endif
 
 #ifdef QWINTASKBARPROGRESS_H
@@ -189,29 +249,7 @@ struct progdlg *CaptureFileProgressFrame::show(bool animate, bool terminate_is_s
     taskbar_progress_->resume();
 #endif
 
-    QFrame::show();
     return &progress_dialog_;
-}
-
-void CaptureFileProgressFrame::setValue(int value)
-{
-    ui->progressBar->setValue(value);
-}
-
-#ifdef QWINTASKBARPROGRESS_H
-void CaptureFileProgressFrame::hide()
-{
-    if (taskbar_progress_) {
-        taskbar_progress_->reset();
-        taskbar_progress_->hide();
-    }
-    QFrame::hide();
-}
-#endif
-
-void CaptureFileProgressFrame::on_pushButton_clicked()
-{
-    emit stopLoading();
 }
 
 /*

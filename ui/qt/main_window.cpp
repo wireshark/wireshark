@@ -483,6 +483,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(openPacketDialog()));
     connect(packet_list_, SIGNAL(packetListScrolled(bool)),
             main_ui_->actionGoAutoScroll, SLOT(setChecked(bool)));
+    connect(packet_list_->packetListModel(), SIGNAL(pushBusyStatus(QString)),
+            main_ui_->statusBar, SLOT(pushBusyStatus(QString)));
+    connect(packet_list_->packetListModel(), SIGNAL(popBusyStatus()),
+            main_ui_->statusBar, SLOT(popBusyStatus()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(const QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(const QString&)));

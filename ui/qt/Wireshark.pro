@@ -209,7 +209,6 @@ FORMS += \
     bluetooth_att_server_attributes_dialog.ui \
     bluetooth_devices_dialog.ui \
     bluetooth_hci_summary_dialog.ui \
-    capture_file_progress_frame.ui \
     capture_file_properties_dialog.ui \
     capture_interfaces_dialog.ui \
     capture_preferences_frame.ui \
@@ -250,6 +249,7 @@ FORMS += \
     preferences_dialog.ui \
     print_dialog.ui \
     profile_dialog.ui \
+    progress_frame.ui \
     protocol_hierarchy_dialog.ui \
     remote_capture_dialog.ui  \
     remote_settings_dialog.ui  \
@@ -280,7 +280,6 @@ HEADERS += $$HEADERS_WS_C \
     bluetooth_att_server_attributes_dialog.h \
     bluetooth_devices_dialog.h \
     bluetooth_hci_summary_dialog.h \
-    capture_file_progress_frame.h \
     capture_file_properties_dialog.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
@@ -324,6 +323,7 @@ HEADERS += $$HEADERS_WS_C \
     preferences_dialog.h \
     print_dialog.h \
     profile_dialog.h \
+    progress_frame.h \
     protocol_hierarchy_dialog.h \
     protocol_preferences_menu.h \
     remote_capture_dialog.h  \
@@ -643,7 +643,6 @@ SOURCES += \
     byte_view_text.cpp \
     capture_file.cpp \
     capture_file_dialog.cpp \
-    capture_file_progress_frame.cpp \
     capture_file_properties_dialog.cpp \
     capture_filter_combo.cpp \
     capture_filter_edit.cpp \
@@ -708,6 +707,7 @@ SOURCES += \
     preferences_dialog.cpp \
     print_dialog.cpp \
     profile_dialog.cpp \
+    progress_frame.cpp \
     proto_tree.cpp \
     protocol_hierarchy_dialog.cpp \
     protocol_preferences_menu.cpp \
