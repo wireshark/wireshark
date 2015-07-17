@@ -735,7 +735,7 @@ proto_reg_handoff_btsap(void)
 
     dissector_add_string("bluetooth.uuid",  "112d", btsap_handle);
 
-    dissector_add_for_decode_as("btrfcomm.channel", btsap_handle);
+    dissector_add_for_decode_as("btrfcomm.dlci", btsap_handle);
 }
 
 /*

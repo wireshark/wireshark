@@ -4013,7 +4013,7 @@ proto_reg_handoff_btobex(void)
     dissector_add_uint("btobex.profile", PROFILE_SYNCML,   raw_application_parameters_handle);
     dissector_add_uint("btobex.profile", PROFILE_SYNC,     raw_application_parameters_handle);
 
-    dissector_add_for_decode_as("btrfcomm.channel", btobex_handle);
+    dissector_add_for_decode_as("btrfcomm.dlci", btobex_handle);
     dissector_add_for_decode_as("btl2cap.psm", btobex_handle);
     dissector_add_for_decode_as("btl2cap.cid", btobex_handle);
 

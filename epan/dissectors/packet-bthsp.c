@@ -1159,7 +1159,7 @@ proto_reg_handoff_bthsp(void)
     dissector_add_string("bluetooth.uuid",  "1112", bthsp_handle);
     dissector_add_string("bluetooth.uuid",  "1131", bthsp_handle);
 
-    dissector_add_for_decode_as("btrfcomm.channel", bthsp_handle);
+    dissector_add_for_decode_as("btrfcomm.dlci", bthsp_handle);
 }
 
 /*
