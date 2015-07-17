@@ -105,6 +105,7 @@ static gboolean force_docsis_encap  = FALSE;
 static gboolean generate_md5_hash   = FALSE;
 static gboolean generate_epoch_time = TRUE;
 static gboolean generate_bits_field = TRUE;
+static gboolean disable_packet_size_limited_in_summary = FALSE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
@@ -910,6 +911,10 @@ proto_register_frame(void)
 	    "Show the number of bits in the frame",
 	    "Whether or not the number of bits in the frame should be shown.",
 	    &generate_bits_field);
+	prefs_register_bool_preference(frame_module, "disable_packet_size_limited_in_summary",
+	    "Disable 'packet size limited during capture' message in summary",
+	    "Whether or not 'packet size limited during capture' message in shown in Info column.",
+	    &disable_packet_size_limited_in_summary);
 
 	frame_tap=register_tap("frame");
 }

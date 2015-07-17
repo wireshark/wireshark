@@ -27,6 +27,8 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/show_exception.h>
 
 static int proto_short = -1;
@@ -89,13 +91,28 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case BoundsError:
-		col_append_str(pinfo->cinfo, COL_INFO, "[Packet size limited during capture]");
+		{
+		gboolean display_info = TRUE;
+		module_t * frame_module = prefs_find_module("frame");
+		if (frame_module != NULL)
+		{
+			pref_t *display_pref = prefs_find_preference(frame_module, "disable_packet_size_limited_in_summary");
+			if (display_pref)
+			{
+				if (*display_pref->varp.boolp)
+					display_info = FALSE;
+			}
+		}
+
+		if (display_info)
+			col_append_str(pinfo->cinfo, COL_INFO, "[Packet size limited during capture]");
 		proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Packet size limited during capture: %s truncated]", pinfo->current_proto);
 		/* Don't record BoundsError exceptions as expert events - they merely
 		 * reflect a capture done with a snapshot length too short to capture
 		 * all of the packet
 		 * (any case where it's caused by something else is a bug). */
+        }
 		break;
 
 	case FragmentBoundsError:
