@@ -122,6 +122,9 @@ decryption_step_ssl() {
 # SSL, using the server's private key with p < q
 # (test whether libgcrypt is correctly called)
 decryption_step_ssl_rsa_pq() {
+	echo $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+		-o ssl.keys_list:"0.0.0.0,443,http,${TEST_KEYS_DIR//\\/\\\\x5c}rsa-p-lt-q.key" \
+		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http
 	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
 		-o ssl.keys_list:"0.0.0.0,443,http,${TEST_KEYS_DIR//\\/\\\\x5c}rsa-p-lt-q.key" \
 		-r "$CAPTURE_DIR/rsa-p-lt-q.pcap" -Y http \
