@@ -4700,7 +4700,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "client_random_pms",  mk_map->pms},
     };
     /* no need to try if no key log file is configured. */
-    if (!ssl_keylog_filename) {
+    if (!ssl_keylog_filename || !*ssl_keylog_filename) {
         ssl_debug_printf("%s dtls/ssl.keylog_file is not configured!\n",
                          G_STRFUNC);
         return;
