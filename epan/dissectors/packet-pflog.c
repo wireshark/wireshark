@@ -37,6 +37,7 @@ http://www.openbsd.org/cgi-bin/cvsweb/src/sys/net/if_pflog.h
 #include <epan/aftypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 void proto_register_pflog(void);
 void proto_reg_handoff_pflog(void);
@@ -84,6 +85,8 @@ static int hf_old_pflog_action = -1;
 static int hf_old_pflog_dir = -1;
 
 static gint ett_old_pflog = -1;
+
+static gboolean uid_endian = TRUE;
 
 #define LEN_PFLOG_BSD34 48
 #define LEN_PFLOG_BSD38 64
@@ -210,16 +213,17 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(length >= LEN_PFLOG_BSD38)
   {
-    proto_tree_add_item(pflog_tree, hf_pflog_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    int endian = uid_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    proto_tree_add_item(pflog_tree, hf_pflog_uid, tvb, offset, 4, endian);
     offset += 4;
 
-    proto_tree_add_item(pflog_tree, hf_pflog_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pflog_tree, hf_pflog_pid, tvb, offset, 4, endian);
     offset += 4;
 
-    proto_tree_add_item(pflog_tree, hf_pflog_rule_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pflog_tree, hf_pflog_rule_uid, tvb, offset, 4, endian);
     offset += 4;
 
-    proto_tree_add_item(pflog_tree, hf_pflog_rule_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pflog_tree, hf_pflog_rule_pid, tvb, offset, 4, endian);
     offset += 4;
   }
   proto_tree_add_item(pflog_tree, hf_pflog_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -386,6 +390,7 @@ proto_register_pflog(void)
   };
 
   expert_module_t* expert_pflog;
+  module_t *pflog_module;
 
   proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file",
                                         "PFLOG", "pflog");
@@ -393,6 +398,14 @@ proto_register_pflog(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_pflog = expert_register_protocol(proto_pflog);
   expert_register_field_array(expert_pflog, ei, array_length(ei));
+
+  pflog_module = prefs_register_protocol(proto_pflog, NULL);
+
+  prefs_register_bool_preference(pflog_module, "uid_endian",
+        "Display UID as big endian value",
+        "Whether or not UID and PID fields are dissected in big or little endian",
+        &uid_endian);
+
 }
 
 void
