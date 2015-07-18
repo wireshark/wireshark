@@ -1410,7 +1410,11 @@ void PacketList::drawFarOverlay()
         // background is white. Instead of trying to figure out if our
         // available colors will show up, just use the palette's background
         // here and foreground below.
+#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
+        overlay.fill(palette().base().color().value());
+#else
         overlay.fill(palette().base().color());
+#endif
         QColor arrow_fg = palette().text().color();
         arrow_fg.setAlphaF(0.3);
         painter.setPen(arrow_fg);
