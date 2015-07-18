@@ -238,8 +238,8 @@ uat_wep_key_record_free_cb(void*r)
 UAT_VS_DEF(uat_wep_key_records, key, uat_wep_key_record_t, guint8, 0, STRING_KEY_TYPE_WEP)
 UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 
-/* Stuff for the WEP decoder */
-static gboolean enable_decryption = FALSE;
+/* Stuff for the WEP/WPA/WPA2 decoder */
+static gboolean enable_decryption = TRUE;
 
 static void
 ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
