@@ -1050,6 +1050,8 @@ proto_reg_handoff_eth(void)
    * the UDP port is user-defined.
    */
   dissector_add_for_decode_as("udp.port", eth_withoutfcs_handle);
+
+  dissector_add_for_decode_as("pcli.payload", eth_withoutfcs_handle);
 }
 
 /*

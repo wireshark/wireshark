@@ -3147,6 +3147,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_IP, ip_handle);
   dissector_add_for_decode_as("udp.port", ip_handle);
+  dissector_add_for_decode_as("pcli.payload", ip_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
