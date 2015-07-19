@@ -1836,8 +1836,8 @@ slinkysearch     1225/tcp # SLINKYSEARCH [Desmond_Chan] [Desmond_Chan]
 slinkysearch     1225/udp # SLINKYSEARCH [Desmond_Chan] [Desmond_Chan]
 stgxfws          1226/tcp # STGXFWS [Tetsuya_Shioda] [Tetsuya_Shioda]
 stgxfws          1226/udp # STGXFWS [Tetsuya_Shioda] [Tetsuya_Shioda]
-dns2go           1227/tcp # DNS2Go [Mike_Courterier] [Mike_Courterier]
-dns2go           1227/udp # DNS2Go [Mike_Courterier] [Mike_Courterier]
+dns2go           1227/tcp # DNS2Go [Deerfield_Communications_Inc] [Mike_Courterier] 2015-07-15
+dns2go           1227/udp # DNS2Go [Deerfield_Communications_Inc] [Mike_Courterier] 2015-07-15
 florence         1228/tcp # FLORENCE [Brian_Trammell] [Brian_Trammell]
 florence         1228/udp # FLORENCE [Brian_Trammell] [Brian_Trammell]
 zented           1229/tcp # ZENworks Tiered Electronic Distribution [Ty_Ellis] [Ty_Ellis]
@@ -9758,6 +9758,9 @@ freezexservice   7726/tcp # FreezeX Console Service [David_Crowe] [David_Crowe] 
 freezexservice   7726/udp # FreezeX Console Service [David_Crowe] [David_Crowe] 2005-06
 trident-data     7727/tcp # Trident Systems Data [Jeremy_McClintock] [Jeremy_McClintock] 2005-08
 trident-data     7727/udp # Trident Systems Data [Jeremy_McClintock] [Jeremy_McClintock] 2005-08
+osvr             7728/tcp # Open-Source Virtual Reality [Open_Source_Virtual_Reality_OSVR.com] [Yuval_Boger_2] 2015-07-14
+osvr             7728/udp # Open-Source Virtual Reality [Open_Source_Virtual_Reality_OSVR.com] [Yuval_Boger_2] 2015-07-14
+osvr             7728/sctp # Open-Source Virtual Reality [Open_Source_Virtual_Reality_OSVR.com] [Yuval_Boger_2] 2015-07-14
 smip             7734/tcp # Smith Protocol over IP [Jim_Pettinato] [Jim_Pettinato] 2007-04
 smip             7734/udp # Smith Protocol over IP [Jim_Pettinato] [Jim_Pettinato] 2007-04
 aiagent          7738/tcp # HP Enterprise Discovery Agent [Matthew_Darwin] [Matthew_Darwin] 2005-08
