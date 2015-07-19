@@ -37,7 +37,7 @@ static gint ett_ypxfr = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff ypxfr1_proc[] = {
-	{ YPXFRPROC_NULL,	"NULL",	
+	{ YPXFRPROC_NULL,	"NULL",
 		dissect_rpc_void,		dissect_rpc_void },
 	{ YPXFRPROC_GETMAP,	"GETMAP",	dissect_rpc_unknown,		dissect_rpc_unknown },
 	{ 0,			NULL,		NULL,		NULL }
