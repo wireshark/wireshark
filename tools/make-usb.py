@@ -17,7 +17,8 @@ else:
 
 MODE_IDLE           = 0
 MODE_VENDOR_PRODUCT = 1
-
+MIN_VENDORS = 2900 # 2948 as of 2015-06-28
+MIN_PRODUCTS = 15000 # 15415 as of 2015-06-28
 
 mode = MODE_IDLE
 
@@ -60,6 +61,13 @@ for line in u.readlines():
     fields=line.split()
     products[fields[0]]= ' '.join(fields[1:])
 
+if (len(vendors) < MIN_VENDORS):
+    sys.stderr.write("Not enough vendors: %d\n" % len(vendors))
+    sys.exit(1)
+
+if (len(products) < MIN_PRODUCTS):
+    sys.stderr.write("Not enough products: %d\n" % len(products))
+    sys.exit(1)
 
 for v in sorted(vendors):
     vendors_str += "    { 0x%s, \"%s\" },\n"%(v,vendors[v])
@@ -131,5 +139,3 @@ f.write("\n")
 f.close()
 
 print("Success!")
-
-
