@@ -41,10 +41,9 @@ static gint ett_sadmind = -1;
 #define SADMINDPROC_NULL		0
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff sadmind1_proc[] = {
 	{ SADMINDPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string sadmind1_proc_vals[] = {
@@ -54,7 +53,7 @@ static const value_string sadmind1_proc_vals[] = {
 
 static const vsff sadmind2_proc[] = {
 	{ SADMINDPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string sadmind2_proc_vals[] = {
@@ -64,7 +63,7 @@ static const value_string sadmind2_proc_vals[] = {
 
 static const vsff sadmind3_proc[] = {
 	{ SADMINDPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string sadmind3_proc_vals[] = {

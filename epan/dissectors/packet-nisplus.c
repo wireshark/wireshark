@@ -1090,10 +1090,9 @@ dissect_nisplus_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff nisplus3_proc[] = {
 	{ NISPROC_NULL,			"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ NISPROC_LOOKUP,		"LOOKUP",
 		dissect_ns_request,	dissect_nisplus_result },
 	{ NISPROC_ADD,			"ADD",
@@ -1129,7 +1128,7 @@ static const vsff nisplus3_proc[] = {
 	{ NISPROC_CHECKPOINT,		"CHECKPOINT",
 		dissect_nisname,	dissect_cp_result },
 	{ NISPROC_PING,			"PING",
-		dissect_ping_args,	NULL },
+		dissect_ping_args,	dissect_rpc_void },
 	{ NISPROC_SERVSTATE,		"SERVSTATE",
 		dissect_nisplus_taglist, dissect_nisplus_taglist },
 	{ NISPROC_MKDIR,		"MKDIR",
@@ -1880,16 +1879,15 @@ dissect_cback_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff cb1_proc[] = {
 	{ CBPROC_NULL,			"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ CBPROC_RECEIVE,		"RECEIVE",
 		dissect_cback_data,	dissect_callback_result },
 	{ CBPROC_FINISH,		"FINISH",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ CBPROC_ERROR,			"ERROR",
-		dissect_nisplus_error,	NULL },
+		dissect_nisplus_error,	dissect_rpc_void },
 	{	0,	NULL,	NULL,	NULL },
 };
 static const value_string nispluscb1_proc_vals[] = {

@@ -54,12 +54,12 @@ dissect_statnotify_mon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff statnotify1_proc[] = {
-	{ 0, "NULL", NULL, NULL },
+	{ 0, "NULL",
+	  dissect_rpc_void, dissect_rpc_void },
 	{ STATNOTIFYPROC_MON,   "MON-CALLBACK",
-	  dissect_statnotify_mon, NULL },
+	  dissect_statnotify_mon, dissect_rpc_void },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string statnotify1_proc_vals[] = {

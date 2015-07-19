@@ -38,10 +38,9 @@ static int hf_clearcase_procedure_v3 = -1;
 static gint ett_clearcase = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff clearcase3_proc[] = {
-	{ CLEARCASEPROC_NULL,	"NULL",		NULL,		NULL },
-	{ 0,			NULL,		NULL,		NULL }
+	{ CLEARCASEPROC_NULL,	"NULL",	dissect_rpc_void,	dissect_rpc_void },
+	{ 0,			NULL,	NULL,			NULL }
 };
 static const value_string clearcase3_proc_vals[] = {
 	{ CLEARCASEPROC_NULL,	"NULL" },

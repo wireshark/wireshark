@@ -149,6 +149,10 @@ WS_DLL_PUBLIC const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc
 WS_DLL_PUBLIC int rpc_prog_hf(guint32 prog, guint32 vers);
 
 WS_DLL_PUBLIC unsigned int rpc_roundup(unsigned int a);
+WS_DLL_PUBLIC int dissect_rpc_void(tvbuff_t *tvb,
+        packet_info *pinfo, proto_tree *tree, void *data);
+WS_DLL_PUBLIC int dissect_rpc_unknown(tvbuff_t *tvb,
+        packet_info *pinfo, proto_tree *tree, void *data);
 WS_DLL_PUBLIC int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 WS_DLL_PUBLIC int dissect_rpc_string(tvbuff_t *tvb,

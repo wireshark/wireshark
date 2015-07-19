@@ -283,10 +283,10 @@ dissect_stat_umon_all(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff stat1_proc[] = {
-	{ 0, "NULL", NULL, NULL },
+	{ 0, "NULL",
+	  dissect_rpc_void, dissect_rpc_void },
 	{ STATPROC_STAT,       "STAT",
 	  dissect_stat_stat, dissect_stat_stat_res },
 	{ STATPROC_MON,        "MON",
@@ -296,9 +296,9 @@ static const vsff stat1_proc[] = {
 	{ STATPROC_UNMON_ALL,  "UNMON_ALL",
 	  dissect_stat_umon_all, dissect_stat_state },
 	{ STATPROC_SIMU_CRASH, "SIMU_CRASH",
-	  NULL, NULL },
+	  dissect_rpc_void, dissect_rpc_void },
 	{ STATPROC_NOTIFY,     "NOTIFY",
-	  dissect_stat_notify, NULL },
+	  dissect_stat_notify, dissect_rpc_void },
 	{ 0, NULL, NULL, NULL }
 };
 /* end of stat version 1 */

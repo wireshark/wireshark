@@ -1883,23 +1883,26 @@ glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, packet_info *pinfo,
  * - xlators/protocol/server/src/server3_1-fops.c
  */
 static const vsff glusterfs3_1_fop_proc[] = {
-	{ GFS3_OP_NULL,     "NULL",     NULL, NULL },
-	{ GFS3_OP_STAT,     "STAT",     NULL, NULL },
-	{ GFS3_OP_READLINK, "READLINK", NULL, NULL },
-	{ GFS3_OP_MKNOD,    "MKNOD",    NULL, NULL },
-	{ GFS3_OP_MKDIR,    "MKDIR",    NULL, NULL },
+	{
+		GFS3_OP_NULL,     "NULL",
+		dissect_rpc_void, dissect_rpc_void
+	},
+	{ GFS3_OP_STAT,     "STAT",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_READLINK, "READLINK", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_MKNOD,    "MKNOD",    dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_MKDIR,    "MKDIR",    dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_UNLINK, "UNLINK",
 		glusterfs_gfs3_op_unlink_call, glusterfs_gfs3_op_unlink_reply
 	},
-	{ GFS3_OP_RMDIR,    "RMDIR",    NULL, NULL },
-	{ GFS3_OP_SYMLINK,  "SYMLINK",  NULL, NULL },
-	{ GFS3_OP_RENAME,   "RENAME",   NULL, NULL },
-	{ GFS3_OP_LINK,     "LINK",     NULL, NULL },
-	{ GFS3_OP_TRUNCATE, "TRUNCATE", NULL, NULL },
-	{ GFS3_OP_OPEN,     "OPEN",     NULL, NULL },
-	{ GFS3_OP_READ,     "READ",     NULL, NULL },
-	{ GFS3_OP_WRITE,    "WRITE",    NULL, NULL },
+	{ GFS3_OP_RMDIR,    "RMDIR",    dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_SYMLINK,  "SYMLINK",  dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_RENAME,   "RENAME",   dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_LINK,     "LINK",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_TRUNCATE, "TRUNCATE", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_OPEN,     "OPEN",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_READ,     "READ",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_WRITE,    "WRITE",    dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_STATFS, "STATFS",
 		glusterfs_gfs3_op_statfs_call, glusterfs_gfs3_op_statfs_reply
@@ -1908,43 +1911,43 @@ static const vsff glusterfs3_1_fop_proc[] = {
 		GFS3_OP_FLUSH, "FLUSH",
 		glusterfs_gfs3_op_flush_call, gluster_local_dissect_common_reply
 	},
-	{ GFS3_OP_FSYNC, "FSYNC", NULL, NULL },
+	{ GFS3_OP_FSYNC, "FSYNC", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_SETXATTR, "SETXATTR",
 		glusterfs_gfs3_op_setxattr_call, gluster_local_dissect_common_reply
 	},
-	{ GFS3_OP_GETXATTR,    "GETXATTR",    NULL, NULL },
-	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR", NULL, NULL },
+	{ GFS3_OP_GETXATTR,    "GETXATTR",    dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_OPENDIR, "OPENDIR",
 		glusterfs_gfs3_op_opendir_call, glusterfs_gfs3_op_opendir_reply
 	},
-	{ GFS3_OP_FSYNCDIR, "FSYNCDIR", NULL, NULL },
-	{ GFS3_OP_ACCESS,   "ACCESS",   NULL, NULL },
+	{ GFS3_OP_FSYNCDIR, "FSYNCDIR", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_ACCESS,   "ACCESS",   dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_CREATE, "CREATE",
 		glusterfs_gfs3_op_create_call, glusterfs_gfs3_op_create_reply
 	},
-	{ GFS3_OP_FTRUNCATE, "FTRUNCATE", NULL, NULL },
-	{ GFS3_OP_FSTAT,     "FSTAT",     NULL, NULL },
-	{ GFS3_OP_LK,        "LK",        NULL, NULL },
+	{ GFS3_OP_FTRUNCATE, "FTRUNCATE", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_FSTAT,     "FSTAT",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_LK,        "LK",        dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_LOOKUP, "LOOKUP",
 		glusterfs_gfs3_op_lookup_call, glusterfs_gfs3_op_lookup_reply
 	},
-	{ GFS3_OP_READDIR, "READDIR", NULL, NULL },
+	{ GFS3_OP_READDIR, "READDIR", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_INODELK, "INODELK",
 		glusterfs_gfs3_op_inodelk_call, gluster_local_dissect_common_reply
 	},
-	{ GFS3_OP_FINODELK,  "FINODELK",  NULL, NULL },
-	{ GFS3_OP_ENTRYLK,   "ENTRYLK",   NULL, NULL },
-	{ GFS3_OP_FENTRYLK,  "FENTRYLK",  NULL, NULL },
-	{ GFS3_OP_XATTROP,   "XATTROP",   NULL, NULL },
-	{ GFS3_OP_FXATTROP,  "FXATTROP",  NULL, NULL },
-	{ GFS3_OP_FGETXATTR, "FGETXATTR", NULL, NULL },
-	{ GFS3_OP_FSETXATTR, "FSETXATTR", NULL, NULL },
-	{ GFS3_OP_RCHECKSUM, "RCHECKSUM", NULL, NULL },
+	{ GFS3_OP_FINODELK,  "FINODELK",  dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_ENTRYLK,   "ENTRYLK",   dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_FENTRYLK,  "FENTRYLK",  dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_XATTROP,   "XATTROP",   dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_FXATTROP,  "FXATTROP",  dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_FGETXATTR, "FGETXATTR", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_FSETXATTR, "FSETXATTR", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_RCHECKSUM, "RCHECKSUM", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_SETATTR, "SETATTR",
 		glusterfs_gfs3_op_setattr_call, glusterfs_gfs3_op_setattr_reply
@@ -1958,8 +1961,8 @@ static const vsff glusterfs3_1_fop_proc[] = {
 		GFS3_OP_READDIRP, "READDIRP",
 		glusterfs_gfs3_op_readdirp_call, glusterfs_gfs3_op_readdirp_reply
 	},
-	{ GFS3_OP_RELEASE,    "RELEASE",    NULL, NULL },
-	{ GFS3_OP_RELEASEDIR, "RELEASEDIR", NULL, NULL },
+	{ GFS3_OP_RELEASE,    "RELEASE",    dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_RELEASEDIR, "RELEASEDIR", dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -1970,7 +1973,10 @@ static const vsff glusterfs3_1_fop_proc[] = {
  * - xlators/protocol/server/src/server3_1-fops.c
  */
 static const vsff glusterfs3_3_fop_proc[] = {
-	{ GFS3_OP_NULL, "NULL", NULL, NULL },
+	{
+		GFS3_OP_NULL, "NULL",
+		dissect_rpc_void, dissect_rpc_void
+	},
 	{
 		GFS3_OP_STAT, "STAT",
 		glusterfs_gfs3_3_op_stat_call, glusterfs_gfs3_3_op_stat_reply
@@ -2116,7 +2122,7 @@ static const vsff glusterfs3_3_fop_proc[] = {
 		GFS3_OP_FSETXATTR, "FSETXATTR",
 		gluter_gfs3_3_op_fsetxattr_call, glusterfs_gfs3_3_op_common_reply
 	},
-	{ GFS3_OP_RCHECKSUM, "RCHECKSUM", NULL, NULL },
+	{ GFS3_OP_RCHECKSUM, "RCHECKSUM", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_SETATTR, "SETATTR",
 		glusterfs_gfs3_3_op_setattr_call, glusterfs_gfs3_3_op_setattr_reply

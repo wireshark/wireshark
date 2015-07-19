@@ -282,13 +282,12 @@ dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* "NFS Illustrated", 14.6 */
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff pcnfsd1_proc[] = {
-    { 0,    "NULL",     NULL,               NULL },
-    { 1,    "AUTH",     NULL,               NULL },
-    { 2,    "PR_INIT",  NULL,               NULL },
-    { 3,    "PR_START", NULL,               NULL },
-    { 0,    NULL,       NULL,               NULL }
+    { 0,    "NULL",     dissect_rpc_void,    dissect_rpc_void },
+    { 1,    "AUTH",     dissect_rpc_unknown, dissect_rpc_unknown },
+    { 2,    "PR_INIT",  dissect_rpc_unknown, dissect_rpc_unknown },
+    { 3,    "PR_START", dissect_rpc_unknown, dissect_rpc_unknown },
+    { 0,    NULL,       NULL,                NULL }
 };
 static const value_string pcnfsd1_proc_vals[] = {
     { 0,    "NULL" },
@@ -302,23 +301,24 @@ static const value_string pcnfsd1_proc_vals[] = {
 
 /* "NFS Illustrated", 14.7 */
 static const vsff pcnfsd2_proc[] = {
-    {  0,   "NULL",       NULL,               NULL },
-    {  1,   "INFO",       NULL,               NULL },
-    {  2,   "PR_INIT",    NULL,               NULL },
-    {  3,   "PR_START",   NULL,               NULL },
-    {  4,   "PR_LIST",    NULL,               NULL },
-    {  5,   "PR_QUEUE",   NULL,               NULL },
-    {  6,   "PR_STATUS",  NULL,               NULL },
-    {  7,   "PR_CANCEL",  NULL,               NULL },
-    {  8,   "PR_ADMIN",   NULL,               NULL },
-    {  9,   "PR_REQUEUE", NULL,               NULL },
-    { 10,   "PR_HOLD",    NULL,               NULL },
-    { 11,   "PR_RELEASE", NULL,               NULL },
+    {  0,   "NULL",
+    dissect_rpc_void, dissect_rpc_void },
+    {  1,   "INFO",       dissect_rpc_unknown, dissect_rpc_unknown },
+    {  2,   "PR_INIT",    dissect_rpc_unknown, dissect_rpc_unknown },
+    {  3,   "PR_START",   dissect_rpc_unknown, dissect_rpc_unknown },
+    {  4,   "PR_LIST",    dissect_rpc_unknown, dissect_rpc_unknown },
+    {  5,   "PR_QUEUE",   dissect_rpc_unknown, dissect_rpc_unknown },
+    {  6,   "PR_STATUS",  dissect_rpc_unknown, dissect_rpc_unknown },
+    {  7,   "PR_CANCEL",  dissect_rpc_unknown, dissect_rpc_unknown },
+    {  8,   "PR_ADMIN",   dissect_rpc_unknown, dissect_rpc_unknown },
+    {  9,   "PR_REQUEUE", dissect_rpc_unknown, dissect_rpc_unknown },
+    { 10,   "PR_HOLD",    dissect_rpc_unknown, dissect_rpc_unknown },
+    { 11,   "PR_RELEASE", dissect_rpc_unknown, dissect_rpc_unknown },
     { 12,   "MAPID",
     dissect_pcnfsd2_mapid_call, dissect_pcnfsd2_mapid_reply },
     { 13,   "AUTH",
     dissect_pcnfsd2_auth_call,  dissect_pcnfsd2_auth_reply },
-    { 14,   "ALERT",      NULL,               NULL },
+    { 14,   "ALERT",      dissect_rpc_unknown, dissect_rpc_unknown },
     { 0,    NULL,         NULL,               NULL }
 };
 static const value_string pcnfsd2_proc_vals[] = {

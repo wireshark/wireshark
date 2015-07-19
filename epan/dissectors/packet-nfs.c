@@ -3261,16 +3261,15 @@ dissect_nfs2_statfs_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfs2_proc[] = {
 	{ 0,	"NULL",		/* OK */
-	NULL,				NULL },
+	dissect_rpc_void,		dissect_rpc_void },
 	{ 1,	"GETATTR",	/* OK */
 	dissect_nfs2_getattr_call,	dissect_nfs2_getattr_reply },
 	{ 2,	"SETATTR",	/* OK */
 	dissect_nfs2_setattr_call,	dissect_nfs2_setattr_reply },
 	{ 3,	"ROOT",		/* OK */
-	NULL,				NULL },
+	dissect_rpc_void,		dissect_rpc_void },
 	{ 4,	"LOOKUP",	/* OK */
 	dissect_nfs2_lookup_call,	dissect_nfs2_lookup_reply },
 	{ 5,	"READLINK",	/* OK */
@@ -3278,7 +3277,7 @@ static const vsff nfs2_proc[] = {
 	{ 6,	"READ",		/* OK */
 	dissect_nfs2_read_call,		dissect_nfs2_read_reply },
 	{ 7,	"WRITECACHE",	/* OK */
-	NULL,				NULL },
+	dissect_rpc_void,		dissect_rpc_void },
 	{ 8,	"WRITE",	/* OK */
 	dissect_nfs2_write_call,	dissect_nfs2_write_reply },
 	{ 9,	"CREATE",	/* OK */
@@ -9652,7 +9651,6 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfs3_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	dissect_nfs3_null_call,		dissect_nfs3_null_reply },

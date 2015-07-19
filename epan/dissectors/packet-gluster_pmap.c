@@ -140,15 +140,18 @@ gluster_dump_call(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* GLUSTER_PMAP_PROGRAM from xlators/mgmt/glusterd/src/glusterd-pmap.c */
 static const vsff gluster_pmap_proc[] = {
-	{ GF_PMAP_NULL,        "NULL",        NULL, NULL },
+	{
+		GF_PMAP_NULL,        "NULL",
+		dissect_rpc_void, dissect_rpc_void
+	},
 	{
 		GF_PMAP_PORTBYBRICK, "PORTBYBRICK",
 		gluster_pmap_portbybrick_call, gluster_pmap_portbybrick_reply
 	},
-	{ GF_PMAP_BRICKBYPORT, "BRICKBYPORT", NULL, NULL },
-	{ GF_PMAP_SIGNIN,      "SIGNIN",      NULL, NULL },
-	{ GF_PMAP_SIGNOUT,     "SIGNOUT",     NULL, NULL },
-	{ GF_PMAP_SIGNUP,      "SIGNUP",      NULL, NULL },
+	{ GF_PMAP_BRICKBYPORT, "BRICKBYPORT", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_PMAP_SIGNIN,      "SIGNIN",      dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_PMAP_SIGNOUT,     "SIGNOUT",     dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_PMAP_SIGNUP,      "SIGNUP",      dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string gluster_pmap_proc_vals[] = {
@@ -163,7 +166,7 @@ static const value_string gluster_pmap_proc_vals[] = {
 
 /* procedures for GLUSTER_DUMP_PROGRAM */
 static const vsff gluster_dump_proc[] = {
-	{ 0, "NULL", NULL, NULL },
+	{ 0, "NULL", dissect_rpc_void, dissect_rpc_void },
 	{ GF_DUMP_DUMP, "DUMP", gluster_dump_call, gluster_dump_reply },
 	{ 0, NULL, NULL, NULL }
 };

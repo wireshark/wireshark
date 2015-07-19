@@ -71,16 +71,15 @@ dissect_spray_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff spray1_proc[] = {
 	{ SPRAYPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ SPRAYPROC_SPRAY,	"SPRAY",
-		dissect_spray_call,	NULL },
+		dissect_spray_call,	dissect_rpc_void },
 	{ SPRAYPROC_GET,	"GET",
-		NULL,	dissect_get_reply },
+		dissect_rpc_void,	dissect_get_reply },
 	{ SPRAYPROC_CLEAR,	"CLEAR",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ 0,	NULL,		NULL,				NULL }
 };
 static const value_string spray1_proc_vals[] = {

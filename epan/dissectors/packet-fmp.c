@@ -1636,9 +1636,12 @@ dissect_FMP_FlushEx_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 /*
  * proc number, "proc name", dissect_request, dissect_reply
- * NULL as function pointer means: type of arguments is "void".
  */
 static const vsff fmp3_proc[] = {
+    { 0,
+      "NULL",
+      dissect_rpc_void,
+      dissect_rpc_void, },
 
     { 1,
       "SessionCreate",

@@ -44,14 +44,13 @@ static gint ett_rstat = -1;
 #define RSTATPROC_HAVEDISK	2
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff rstat1_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ RSTATPROC_STATS,	"STATS",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string rstat1_proc_vals[] = {
@@ -63,11 +62,11 @@ static const value_string rstat1_proc_vals[] = {
 
 static const vsff rstat2_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ RSTATPROC_STATS,	"STATS",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string rstat2_proc_vals[] = {
@@ -79,11 +78,11 @@ static const value_string rstat2_proc_vals[] = {
 
 static const vsff rstat3_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ RSTATPROC_STATS,	"STATS",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string rstat3_proc_vals[] = {
@@ -95,11 +94,11 @@ static const value_string rstat3_proc_vals[] = {
 
 static const vsff rstat4_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ RSTATPROC_STATS,	"STATS",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string rstat4_proc_vals[] = {

@@ -36,10 +36,10 @@ static int hf_ypxfr_procedure_v1 = -1;
 static gint ett_ypxfr = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff ypxfr1_proc[] = {
-	{ YPXFRPROC_NULL,	"NULL",		NULL,		NULL },
-	{ YPXFRPROC_GETMAP,	"GETMAP",	NULL,		NULL },
+	{ YPXFRPROC_NULL,	"NULL",	
+		dissect_rpc_void,		dissect_rpc_void },
+	{ YPXFRPROC_GETMAP,	"GETMAP",	dissect_rpc_unknown,		dissect_rpc_unknown },
 	{ 0,			NULL,		NULL,		NULL }
 };
 static const value_string ypxfr1_proc_vals[] = {

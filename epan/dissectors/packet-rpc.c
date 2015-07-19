@@ -247,6 +247,7 @@ static int hf_rpc_fragment_too_long_fragment = -1;
 static int hf_rpc_fragment_error = -1;
 static int hf_rpc_fragment_count = -1;
 static int hf_rpc_reassembled_length = -1;
+static int hf_rpc_unknown_body = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_rpc_opaque_data = -1;
@@ -489,18 +490,29 @@ rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
 		key.vers = vers;
 		key.proc = proc->value;
 
-		if (proc->dissect_call != NULL)
-		{
-			dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
-						new_create_dissector_handle_with_name(proc->dissect_call, proto, proc->strptr));
+		if (proc->dissect_call == NULL) {
+			fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+			    proto_get_protocol_long_name(rpc_prog->proto),
+			    vers,
+			    proc->strptr);
+			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				abort();
+			continue;
 		}
+		dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
+					new_create_dissector_handle_with_name(proc->dissect_call, proto, proc->strptr));
 
-		if (proc->dissect_reply != NULL)
-		{
-			dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
-						new_create_dissector_handle_with_name(proc->dissect_reply, proto, proc->strptr));
+		if (proc->dissect_reply == NULL) {
+			fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+			    proto_get_protocol_long_name(rpc_prog->proto),
+			    vers,
+			    proc->strptr);
+			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+				abort();
+			continue;
 		}
-
+		dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
+					new_create_dissector_handle_with_name(proc->dissect_reply, proto, proc->strptr));
 	}
 }
 
@@ -1926,7 +1938,7 @@ make_fake_rpc_prog_if_needed (guint32 prpc_prog_key, guint prog_ver)
 		int proto_rpc_unknown_program;
 		char *NAME, *Name, *name;
 		static const vsff unknown_proc[] = {
-			{ 0,"NULL",NULL,NULL },
+			{ 0,"NULL",dissect_rpc_void,dissect_rpc_void },
 			{ 0,NULL,NULL,NULL }
 		};
 
@@ -1939,6 +1951,21 @@ make_fake_rpc_prog_if_needed (guint32 prpc_prog_key, guint prog_ver)
 		rpc_init_proc_table(proto_rpc, prpc_prog_key, prog_ver, unknown_proc, hf_rpc_procedure);
 
 	}
+}
+
+int
+dissect_rpc_void(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+{
+	return 0;
+}
+
+int
+dissect_rpc_unknown(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+{
+	guint captured_length = tvb_captured_length(tvb);
+
+	proto_tree_add_item(tree, hf_rpc_unknown_body, tvb, 0, captured_length, ENC_NA);
+	return captured_length;
 }
 
 static gboolean
@@ -4045,6 +4072,9 @@ proto_register_rpc(void)
 		{ "Reassembled RPC length", "rpc.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
 
+		{ &hf_rpc_unknown_body,
+		{ "Unknown RPC call/reply body", "rpc.unknown_body", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_rpc,

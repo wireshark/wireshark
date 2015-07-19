@@ -55,7 +55,7 @@ dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 }
 
 static const vsff rwall1_proc[] = {
-	{ RWALL_WALL,	"RWALL", dissect_rwall_call,	NULL },
+	{ RWALL_WALL,	"RWALL", dissect_rwall_call,	dissect_rpc_void },
 	{ 0,	NULL,	NULL,	NULL }
 };
 

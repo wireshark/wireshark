@@ -84,10 +84,9 @@ dissect_yppasswd_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff yppasswd1_proc[] = {
 	{ YPPASSWDPROC_NULL,	"NULL",
-		NULL,		NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ YPPASSWDPROC_UPDATE,	"UPDATE",
 		dissect_yppasswd_call,	dissect_yppasswd_reply },
 	{ 0,	NULL,		NULL,				NULL }

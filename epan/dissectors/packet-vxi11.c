@@ -888,10 +888,9 @@ void
 proto_reg_handoff_vxi11_core(void)
 {
     /* proc number, "proc name", dissect_request, dissect_reply     */
-    /* NULL as function pointer means: type of arguments is "void". */
     static const vsff vxi111_core_proc[] = {
         { VXI11_CORE_PROC_NULL, "NULL",
-          NULL, NULL },
+          dissect_rpc_void, dissect_rpc_void },
         { VXI11_CORE_PROC_CREATE_LINK, "CREATE_LINK",
           dissect_create_link_parms, dissect_create_link_resp },
         { VXI11_CORE_PROC_DEVICE_WRITE, "DEVICE_WRITE",
@@ -921,7 +920,7 @@ proto_reg_handoff_vxi11_core(void)
         { VXI11_CORE_PROC_CREATE_INTR_CHAN, "CREATE_INTR_CHAN",
           dissect_device_remote_func, dissect_device_error },
         { VXI11_CORE_PROC_DESTROY_INTR_CHAN, "DESTROY_INTR_CHAN",
-          NULL, dissect_device_error },
+          dissect_rpc_void, dissect_device_error },
         { 0, NULL, NULL, NULL }
     };
 
@@ -966,7 +965,7 @@ proto_reg_handoff_vxi11_async(void)
 {
     static const vsff vxi111_async_proc[] = {
         { VXI11_ASYNC_PROC_NULL, "NULL",
-          NULL, NULL },
+          dissect_rpc_void, dissect_rpc_void },
         { VXI11_ASYNC_PROC_DEVICE_ABORT, "DEVICE_ABORT",
           dissect_device_link, dissect_device_error },
         { 0, NULL, NULL, NULL }
@@ -1019,9 +1018,9 @@ proto_reg_handoff_vxi11_intr(void)
 {
     static const vsff vxi111_intr_proc[] = {
         { VXI11_INTR_PROC_NULL, "NULL",
-          NULL, NULL },
+          dissect_rpc_void, dissect_rpc_void },
         { VXI11_INTR_PROC_DEVICE_INTR_SRQ, "DEVICE_INTR_SRQ",
-          dissect_device_SRQ_parms, NULL },
+          dissect_device_SRQ_parms, dissect_rpc_void },
         { 0, NULL, NULL, NULL }
     };
 

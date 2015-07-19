@@ -334,14 +334,13 @@ dissect_callit_reply(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff portmap1_proc[] = {
-	{ PORTMAPPROC_NULL,	"NULL",		NULL,	NULL },
-	{ PORTMAPPROC_SET,	"SET",		NULL,	NULL },
-	{ PORTMAPPROC_UNSET,	"UNSET",	NULL,	NULL },
-	{ PORTMAPPROC_GETPORT,	"GETPORT",	NULL,	NULL },
-	{ PORTMAPPROC_DUMP,	"DUMP",		NULL,	NULL },
-	{ PORTMAPPROC_CALLIT,	"CALLIT",	NULL,	NULL },
+	{ PORTMAPPROC_NULL,	"NULL",		dissect_rpc_void,	dissect_rpc_void },
+	{ PORTMAPPROC_SET,	"SET",		dissect_rpc_unknown,	dissect_rpc_unknown },
+	{ PORTMAPPROC_UNSET,	"UNSET",	dissect_rpc_unknown,	dissect_rpc_unknown },
+	{ PORTMAPPROC_GETPORT,	"GETPORT",	dissect_rpc_unknown,	dissect_rpc_unknown },
+	{ PORTMAPPROC_DUMP,	"DUMP",		dissect_rpc_unknown,	dissect_rpc_unknown },
+	{ PORTMAPPROC_CALLIT,	"CALLIT",	dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,			NULL,		NULL,	NULL }
 };
 static const value_string portmap1_proc_vals[] = {
@@ -357,7 +356,7 @@ static const value_string portmap1_proc_vals[] = {
 
 static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_NULL, "NULL",
-		NULL, NULL },
+		dissect_rpc_void, dissect_rpc_void },
 	{ PORTMAPPROC_SET, "SET",
 		dissect_set_call, dissect_set_reply },
 	{ PORTMAPPROC_UNSET, "UNSET",
@@ -365,7 +364,7 @@ static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_GETPORT,	"GETPORT",
 		dissect_getport_call, dissect_getport_reply },
 	{ PORTMAPPROC_DUMP, "DUMP",
-		NULL, dissect_dump_reply },
+		dissect_rpc_void, dissect_dump_reply },
 	{ PORTMAPPROC_CALLIT, "CALLIT",
 		dissect_callit_call, dissect_callit_reply },
 	{ 0, NULL, NULL, NULL }
@@ -473,23 +472,23 @@ dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_,
 /* Portmapper version 3, RFC 1833, Page 7 */
 static const vsff portmap3_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
-		NULL, NULL },
+		dissect_rpc_void, dissect_rpc_void },
 	{ RPCBPROC_SET,		"SET",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_UNSET,	"UNSET",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_GETADDR,	"GETADDR",
 		dissect_rpcb3_getaddr_call, dissect_rpcb3_getaddr_reply},
 	{ RPCBPROC_DUMP,	"DUMP",
-		NULL, dissect_rpcb3_dump_reply },
+		dissect_rpc_void, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_CALLIT,	"CALLIT",
 		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETTIME,	"GETTIME",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string portmap3_proc_vals[] = {
@@ -510,31 +509,31 @@ static const value_string portmap3_proc_vals[] = {
 /* Portmapper version 4, RFC 1833, Page 8 */
 static const vsff portmap4_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
-		NULL, NULL },
+		dissect_rpc_void, dissect_rpc_void },
 	{ RPCBPROC_SET,		"SET",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_UNSET,	"UNSET",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_GETADDR,	"GETADDR",
 		dissect_rpcb3_getaddr_call, dissect_rpcb3_getaddr_reply},
 	{ RPCBPROC_DUMP,	"DUMP",
-		NULL, dissect_rpcb3_dump_reply },
+		dissect_rpc_void, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_BCAST,	"BCAST",
 		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETTIME,	"GETTIME",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_GETVERSADDR,	"GETVERSADDR",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_INDIRECT,	"INDIRECT",
 		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETADDRLIST,	"GETADDRLIST",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ RPCBPROC_GETSTAT,	"GETSTAT",
-		NULL, NULL },
+		dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string portmap4_proc_vals[] = {

@@ -39,12 +39,11 @@ static gint ett_nfsauth = -1;
 #define NFSAUTHPROC_NULL		0
 #define NFSAUTH1_ACCESS			1
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfsauth1_proc[] = {
 	{ NFSAUTHPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,	dissect_rpc_void },
 	{ NFSAUTH1_ACCESS,	"ACCESS",
-		NULL,	NULL },
+		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string nfsauth1_proc_vals[] = {

@@ -170,7 +170,6 @@ dissect_klm_test_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff klm1_proc[] = {
 	{ KLMPROC_TEST,	"TEST",
 		dissect_klm_test_call,	dissect_klm_test_reply },

@@ -129,10 +129,9 @@ dissect_whoami_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff bootparams1_proc[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL",
-		NULL, NULL },
+		dissect_rpc_void, dissect_rpc_void },
 	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI",
 		dissect_whoami_call, dissect_whoami_reply },
 	{ BOOTPARAMSPROC_GETFILE, "GETFILE",

@@ -144,10 +144,9 @@ dissect_getquota_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff rquota1_proc[] = {
 	{ RQUOTAPROC_NULL,		"NULL",
-		NULL,				NULL },
+		dissect_rpc_void,		dissect_rpc_void },
 	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA",
 		dissect_getquota_call,		dissect_getquota_result	},
 	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA",
@@ -186,7 +185,7 @@ dissect_getquota2_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 static const vsff rquota2_proc[] = {
 	{ RQUOTAPROC_NULL,		"NULL",
-		NULL,				NULL },
+		dissect_rpc_void,		dissect_rpc_void },
 	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA",
 		dissect_getquota2_call,		dissect_getquota_result	},
 	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA",

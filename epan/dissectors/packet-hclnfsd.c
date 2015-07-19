@@ -636,15 +636,14 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
 
 static const vsff hclnfsd1_proc[] = {
 	{ HCLNFSDPROC_NULL, "NULL",
-	  NULL, NULL },
+	  dissect_rpc_void, dissect_rpc_void },
 	{ HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE",
-	  dissect_hclnfsd_spool_inquire_call, NULL },
+	  dissect_hclnfsd_spool_inquire_call, dissect_rpc_unknown },
 	{ HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE",
-	  dissect_hclnfsd_spool_file_call, NULL },
+	  dissect_hclnfsd_spool_file_call, dissect_rpc_void },
 	{ HCLNFSDPROC_AUTHORIZE, "AUTHORIZE",
 	  dissect_hclnfsd_authorize_call, dissect_hclnfsd_authorize_reply },
 	{ HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB",
@@ -664,17 +663,17 @@ static const vsff hclnfsd1_proc[] = {
 	{ HCLNFSDPROC_LOCK, "LOCK",
 	  dissect_hclnfsd_lock_call, dissect_hclnfsd_lock_reply },
 	{ HCLNFSDPROC_REMOVE, "REMOVE",
-	  dissect_hclnfsd_remove_call, NULL },
+	  dissect_hclnfsd_remove_call, dissect_rpc_void },
 	{ HCLNFSDPROC_UNLOCK, "UNLOCK",
 	  dissect_hclnfsd_unlock_call, dissect_hclnfsd_unlock_reply },
 	{ HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS",
-	  NULL, dissect_hclnfsd_get_printers_reply },
+	  dissect_rpc_void, dissect_hclnfsd_get_printers_reply },
 	{ HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ",
 	  dissect_hclnfsd_get_printq_call, dissect_hclnfsd_get_printq_reply },
 	{ HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB",
-	  NULL, NULL },
+	  dissect_rpc_unknown, dissect_rpc_unknown },
 	{ HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS",
-	  NULL, NULL },
+	  dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string hclnfsd1_proc_vals[] = {

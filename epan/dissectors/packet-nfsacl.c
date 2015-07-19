@@ -201,10 +201,9 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfsacl1_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
-		NULL,	NULL },
+	  dissect_rpc_void,	dissect_rpc_void },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string nfsacl1_proc_vals[] = {
@@ -360,7 +359,7 @@ dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 static const vsff nfsacl2_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,		dissect_rpc_void },
 	{ NFSACLPROC2_GETACL,	"GETACL",
 		dissect_nfsacl2_getacl_call,	dissect_nfsacl2_getacl_reply },
 	{ NFSACLPROC2_SETACL,	"SETACL",
@@ -488,7 +487,7 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 static const vsff nfsacl3_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
-		NULL,	NULL },
+		dissect_rpc_void,		dissect_rpc_void },
 	{ NFSACLPROC3_GETACL,	"GETACL",
 		dissect_nfsacl3_getacl_call,	dissect_nfsacl3_getacl_reply },
 	{ NFSACLPROC3_SETACL,	"SETACL",

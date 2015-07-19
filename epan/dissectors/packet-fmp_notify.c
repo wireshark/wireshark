@@ -365,9 +365,11 @@ dissect_FMP_NOTIFY_revokeHandleList_reply(tvbuff_t *tvb,
 
 /*
  * proc number, "proc name", dissect_request, dissect_reply
- * NULL as function pointer means: type of arguments is "void".
  */
 static const vsff fmp_notify2_proc[] = {
+	{ 0,						"NULL",
+	  dissect_rpc_void,
+	  dissect_rpc_void, },
 
 	{ FMP_NOTIFY_DownGrade,				"DownGrade",
 	  dissect_FMP_NOTIFY_DownGrade_request,
@@ -401,6 +403,7 @@ static const vsff fmp_notify2_proc[] = {
 };
 
 static const value_string fmp_notify_proc_vals[] = {
+	{ 0, "NULL" },
 	{ 1, "DownGrade" },
 	{ 2, "RevokeList" },
 	{ 3, "RevokeAll" },
@@ -408,7 +411,6 @@ static const value_string fmp_notify_proc_vals[] = {
 	{ 5, "RequestDone" },
 	{ 6, "VolFreeze" },
 	{ 7, "RevokeHandleList" },
-	{ 0, "NULL" },
 	{ 0,NULL}
 };
 
