@@ -1963,25 +1963,6 @@ has_heur_dissector_list(const gchar *name) {
 	return (find_heur_dissector_list(name) != NULL);
 }
 
-
-static int
-find_matching_heur_dissector_by_short_name(gconstpointer a, gconstpointer b)
-{
-	const gchar *str_a = proto_get_protocol_short_name(((const heur_dtbl_entry_t *)a)->protocol);
-	const gchar *str_b = (const gchar*)b;
-
-	return strcmp(str_a, str_b);
-}
-
-heur_dtbl_entry_t*
-find_heur_dissector_by_short_name(heur_dissector_list_t heur_list, const char *short_name)
-{
-	GSList *found_entry;
-	found_entry = g_slist_find_custom(heur_list->dissectors, (gpointer) short_name, find_matching_heur_dissector_by_short_name);
-
-	return found_entry ? (heur_dtbl_entry_t *)(found_entry->data) : NULL;
-}
-
 heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_name)
 {
 	return (heur_dtbl_entry_t*)g_hash_table_lookup(heuristic_short_names, (gpointer)short_name);
