@@ -194,7 +194,9 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
 
 void ProgressFrame::hide()
 {
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     show_timer_ = -1;
+#endif
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
     if (taskbar_progress_) {
