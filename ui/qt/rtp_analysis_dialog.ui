@@ -204,11 +204,25 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="hintLabel">
-     <property name="text">
-      <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
+     <item>
+      <widget class="QLabel" name="hintLabel">
+       <property name="text">
+        <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="ProgressFrame" name="progressFrame">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -305,6 +319,12 @@
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ProgressFrame</class>
+   <extends>QFrame</extends>
+   <header>progress_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

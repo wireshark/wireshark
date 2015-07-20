@@ -51,7 +51,7 @@ public:
     explicit ProgressFrame(QWidget *parent = 0);
     ~ProgressFrame();
 
-    struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
+    struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value = 0);
     struct progdlg *showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag);
     void hide();
 

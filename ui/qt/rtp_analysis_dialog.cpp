@@ -256,6 +256,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
+    ui->progressFrame->hide();
 
     stream_ctx_menu_.addAction(ui->actionGoToPacket);
     stream_ctx_menu_.addAction(ui->actionNextProblem);
@@ -1081,10 +1082,6 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
     QFile      save_file(file_path);
     gint16     sample;
     gchar      pd[4];
-//    progdlg_t *progbar;
-//    guint32	   progbar_count, progbar_quantum;
-//    guint32    progbar_nextstep = 0;
-    guint32    count = 0;
     gboolean   stop_flag = FALSE;
     size_t     nchars;
 
@@ -1097,7 +1094,8 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         return;
     }
 
-//    progbar = create_progress_dlg(top_level, "Saving voice in a file", dest, TRUE, &stop_flag);
+    ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
+    ui->progressFrame->showProgress(true, true, &stop_flag);
 
     if	(save_format == save_audio_au_) { /* au format */
         /* First we write the .au header. XXX Hope this is endian independent */
@@ -1137,17 +1135,11 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         case dir_forward_:
         {
             char f_rawvalue;
-//                progbar_count = user_data->forward.saveinfo.count;
-//                progbar_quantum = user_data->forward.saveinfo.count/100;
             while (fwd_tempfile_->getChar(&f_rawvalue)) {
-                if (stop_flag)
+                if (stop_flag) {
                     break;
-//                    if ((count > progbar_nextstep) && (count <= progbar_count)) {
-//                        update_progress_dlg(progbar,
-//                            (gfloat) count/progbar_count, "Saving");
-//                        progbar_nextstep = progbar_nextstep + progbar_quantum;
-//                    }
-                count++;
+                }
+                ui->progressFrame->setValue(fwd_tempfile_->pos() * 100 / fwd_tempfile_->size());
 
                 if (fwd_statinfo_.pt == PT_PCMU) {
                     sample = ulaw2linear((unsigned char)f_rawvalue);
@@ -1170,17 +1162,11 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         case dir_reverse_:
         {
             char r_rawvalue;
-//                progbar_count = user_data->reversed.saveinfo.count;
-//                progbar_quantum = user_data->reversed.saveinfo.count/100;
             while (rev_tempfile_->getChar(&r_rawvalue)) {
-                if (stop_flag)
+                if (stop_flag) {
                     break;
-//                if ((count > progbar_nextstep) && (count <= progbar_count)) {
-//                    update_progress_dlg(progbar,
-//                                        (gfloat) count/progbar_count, "Saving");
-//                    progbar_nextstep = progbar_nextstep + progbar_quantum;
-//                }
-                count++;
+                }
+                ui->progressFrame->setValue(rev_tempfile_->pos() * 100 / rev_tempfile_->size());
 
                 if (rev_statinfo_.pt == PT_PCMU) {
                     sample = ulaw2linear((unsigned char)r_rawvalue);
@@ -1205,12 +1191,6 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
             char f_rawvalue, r_rawvalue;
             guint32 f_write_silence = 0;
             guint32 r_write_silence = 0;
-//            if (user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) {
-//                progbar_count = user_data->forward.saveinfo.count;
-//            } else {
-//                progbar_count = user_data->reversed.saveinfo.count;
-//            }
-//            progbar_quantum = progbar_count/100;
             /* since conversation in one way can start later than in the other one,
                  * we have to write some silence information for one channel */
             if (fwd_statinfo_.start_time > rev_statinfo_.start_time) {
@@ -1223,14 +1203,13 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
                          * (8000/1000));
             }
             for (;;) {
-                if (stop_flag)
+                if (stop_flag) {
                     break;
-//                if ((count > progbar_nextstep) && (count <= progbar_count)) {
-//                    update_progress_dlg(progbar,
-//                                        (gfloat) count/progbar_count, "Saving");
-//                    progbar_nextstep = progbar_nextstep + progbar_quantum;
-//                }
-                count++;
+                }
+                int fwd_pct = fwd_tempfile_->pos() * 100 / fwd_tempfile_->size();
+                int rev_pct = rev_tempfile_->pos() * 100 / rev_tempfile_->size();
+                ui->progressFrame->setValue(qMin(fwd_pct, rev_pct));
+
                 if (f_write_silence > 0) {
                     rev_tempfile_->getChar(&r_rawvalue);
                     switch (fwd_statinfo_.reg_pt) {
@@ -1289,18 +1268,18 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         }
     } else if (save_format == save_audio_raw_) { /* raw format */
         QFile *tempfile;
+        int progress_pct;
+
         switch (direction) {
         /* Only forward direction */
         case dir_forward_: {
-//            progbar_count = user_data->forward.saveinfo.count;
-//            progbar_quantum = user_data->forward.saveinfo.count/100;
+            progress_pct = fwd_tempfile_->pos() * 100 / fwd_tempfile_->size();
             tempfile = fwd_tempfile_;
             break;
         }
             /* only reversed direction */
         case dir_reverse_: {
-//            progbar_count = user_data->reversed.saveinfo.count;
-//            progbar_quantum = user_data->reversed.saveinfo.count/100;
+            progress_pct = rev_tempfile_->pos() * 100 / rev_tempfile_->size();
             tempfile = rev_tempfile_;
             break;
         }
@@ -1315,12 +1294,7 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
             if (stop_flag)
                 break;
             QByteArray bytes = tempfile->read(chunk_size);
-//            if ((count > progbar_nextstep) && (count <= progbar_count)) {
-//                update_progress_dlg(progbar,
-//                                    (gfloat) count/progbar_count, "Saving");
-//                progbar_nextstep = progbar_nextstep + progbar_quantum;
-//            }
-//            count++;
+            ui->progressFrame->setValue(progress_pct);
 
             if (!save_file.write(bytes)) {
                 goto copy_file_err;
@@ -1329,20 +1303,10 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         }
     }
 
-//	ret_val = TRUE;
-//	goto copy_file_xit;
-
 copy_file_err:
+    ui->progressFrame->hide();
+    updateWidgets();
     return;
-//    ret_val = FALSE;
-//    goto copy_file_xit;
-
-//copy_file_xit:
-//	destroy_progress_dlg(progbar);
-//	fclose(forw_stream);
-//	fclose(rev_stream);
-//	fclose(to_stream);
-    //	return ret_val;
 }
 
 // XXX The GTK+ UI saves the length and timestamp.
