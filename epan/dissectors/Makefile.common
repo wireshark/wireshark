@@ -389,6 +389,7 @@ DISSECTOR_SRC = \
 	packet-cast.c		\
 	packet-catapult-dct2000.c	\
 	packet-cattp.c		\
+	packet-cbor.c		\
 	packet-ccsds.c		\
 	packet-cdp.c		\
 	packet-cell_broadcast.c	\
