@@ -487,7 +487,7 @@ static const value_string ulsch_lcid_vals[] =
     { 8,                                    "8"},
     { 9,                                    "9"},
     { 10,                                   "10"},
-    { 11,                                   "CCCH"},
+    { 11,                                   "CCCH (Category 0)"},
     { DUAL_CONN_POWER_HEADROOM_REPORT_LCID, "Dual Connectivity Power Headroom Report"},
     { EXTENDED_POWER_HEADROOM_REPORT_LCID,  "Extended Power Headroom Report"},
     { POWER_HEADROOM_REPORT_LCID,           "Power Headroom Report"},
