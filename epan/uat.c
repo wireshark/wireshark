@@ -735,11 +735,11 @@ char* uat_esc(const char* buf, guint len) {
     char* s = out;
 
     for (b = (const guint8 *)buf; b < end; b++) {
-        if (g_ascii_isprint(*b) ) {
-            *(s++) = (*b);
-        } else {
+        if (*b == '"' || *b == '\\' || ! g_ascii_isprint(*b) ) {
             g_snprintf(s,5,"\\x%.2x",((guint)*b));
             s+=4;
+        } else {
+            *(s++) = (*b);
         }
     }
 

@@ -257,8 +257,10 @@ dtls_parse_old_keys(void)
     for (i = 0; old_keys[i] != NULL; i++) {
       parts = wmem_strsplit(NULL, old_keys[i], ",", 4);
       if (parts[0] && parts[1] && parts[2] && parts[3]) {
+        gchar *path = uat_esc(parts[3], (guint)strlen(parts[3]));
         uat_entry = wmem_strdup_printf(NULL, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
-                        parts[0], parts[1], parts[2], parts[3]);
+                        parts[0], parts[1], parts[2], path);
+        g_free(path);
         if (!uat_load_str(dtlsdecrypt_uat, uat_entry, &err)) {
           ssl_debug_printf("dtls_parse: Can't load UAT string %s: %s\n",
                            uat_entry, err);
