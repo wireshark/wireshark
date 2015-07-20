@@ -51,6 +51,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_encap@Base 1.9.1
  wtap_file_get_idb_info@Base 1.9.1
  wtap_file_get_shb_info@Base 1.9.1
+ wtap_file_get_nrb_for_new_file@Base 1.99.9
+ wtap_free_nrb@Base 1.99.9
  wtap_file_size@Base 1.9.1
  wtap_file_tsprec@Base 1.99.0
  wtap_file_type_subtype@Base 1.12.0~rc1
@@ -63,6 +65,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_file_extension_type_extensions@Base 1.12.0~rc1
  wtap_get_file_extension_type_name@Base 1.12.0~rc1
  wtap_get_file_extensions_list@Base 1.9.1
+ wtap_get_nrb_comment@Base 1.99.9
  wtap_get_num_encap_types@Base 1.9.1
  wtap_get_num_file_type_extensions@Base 1.12.0~rc1
  wtap_get_num_file_types_subtypes@Base 1.12.0~rc1
@@ -93,5 +96,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_short_string_to_file_type_subtype@Base 1.9.1
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
+ wtap_write_nrb_comment@Base 1.99.9
  wtap_write_shb_comment@Base 1.9.1
  wtap_wtap_encap_to_pcap_encap@Base 1.9.1

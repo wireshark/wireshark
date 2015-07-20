@@ -44,6 +44,7 @@ protected slots:
 
 private slots:
     void on_actionAddressesHosts_triggered();
+    void on_actionComment_triggered();
     void on_actionIPv4HashTable_triggered();
     void on_actionIPv6HashTable_triggered();
     void on_actionPortNames_triggered();
@@ -57,6 +58,7 @@ private slots:
 private:
     Ui::ResolvedAddressesDialog *ui;
     QString file_name_;
+    QString comment_;
     QStringList host_addresses_;
     QStringList v4_hash_addrs_;
     QStringList v6_hash_addrs_;

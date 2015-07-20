@@ -1396,6 +1396,14 @@ typedef struct wtapng_if_stats_s {
 } wtapng_if_stats_t;
 
 
+/* Name Resolution, pcap-ng Name Resolution Block (NRB). */
+typedef struct wtapng_name_res_s {
+    /* options */
+    gchar  *opt_comment;    /**< NULL if not available */
+    /* XXX */
+} wtapng_name_res_t;
+
+
 /** A struct with lists of resolved addresses.
  *  Used when writing name resoultion blocks (NRB)
  */
@@ -1653,8 +1661,64 @@ WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
 WS_DLL_PUBLIC
 wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
+
+/**
+ * @brief Gets existing interface descriptions.
+ * @details Returns a new struct containing a pointer to the existing
+ *          description, without creating new descriptions internally.
+ * @note The returned pointer must be g_free'd, but its internal
+ *       interface_data must not.
+ *
+ * @param wth The current wtap.
+ * @return A new struct of the existing section descriptions, which must be g_free'd.
+ */
 WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
+
+/**
+ * @brief Gets new name resolution info for new file, based on existing info.
+ * @details Creates a new wtapng_name_res_t name resolution info and only
+ *          copies appropriate members for a new file.
+ *
+ * @note Use wtap_free_nrb() to free the returned pointer.
+ *
+ * @param wth The current wiretap header.
+ * @return The new name resolution info, which must be wtap_free_nrb'd.
+ */
+WS_DLL_PUBLIC
+wtapng_name_res_t* wtap_file_get_nrb_for_new_file(wtap *wth);
+
+/**
+ * Free's the name resolution info and all of its members.
+ */
+WS_DLL_PUBLIC
+void wtap_free_nrb(wtapng_name_res_t *nrb_hdr);
+
+/**
+ * @brief Gets the name resolution comment, if any.
+ * @details This retrieves the name resolution comment string pointer,
+ *          possibly NULL.
+ *
+ * @param wth The wiretap session.
+ * @return The comment string.
+ */
+WS_DLL_PUBLIC
+const gchar* wtap_get_nrb_comment(wtap *wth);
+
+/**
+ * @brief Sets or replaces the name resolution comment.
+ * @details The passed-in comment string is set to be the comment
+ *          for the name resolution block. The passed-in string's
+ *          ownership will be owned by the block, so it should be
+ *          duplicated before passing into this function.
+ *
+ * @param wth The wiretap session.
+ * @param comment The comment string.
+ */
+WS_DLL_PUBLIC
+void wtap_write_nrb_comment(wtap *wth, gchar *comment);
+
+/*** sets/replaces the section header comment ***/
 WS_DLL_PUBLIC
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
@@ -1705,20 +1769,49 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
 
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
+wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
     int snaplen, gboolean compressed, int *err);
 
+/**
+ * @brief Opens a new capture file for writing.
+ *
+ * @param filename The new file's name.
+ * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
+ * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
+ * @param snaplen The maximum packet capture length.
+ * @param compressed True if file should be compressed.
+ * @param shb_hdr The section header block information, or NULL.
+ * @param idb_inf The interface description information, or NULL.
+ * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param[out] err Will be set to an error code on failure.
+ * @return The newly created dumper object, or NULL on failure.
+ */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-    int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
+wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
+    int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+    wtapng_name_res_t *nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
+wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
     gboolean compressed, int *err);
 
+/**
+ * @brief Creates a dumper for an existing file descriptor.
+ *
+ * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
+ * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
+ * @param snaplen The maximum packet capture length.
+ * @param compressed True if file should be compressed.
+ * @param shb_hdr The section header block information, or NULL.
+ * @param idb_inf The interface description information, or NULL.
+ * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param[out] err Will be set to an error code on failure.
+ * @return The newly created dumper object, or NULL on failure.
+ */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
-                gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
+wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
+                gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                wtapng_name_res_t *nrb_hdr, int *err);
 
 
 WS_DLL_PUBLIC

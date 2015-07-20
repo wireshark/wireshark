@@ -28,6 +28,20 @@
     </widget>
    </item>
   </layout>
+  <action name="actionComment">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Comment</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the comment.</string>
+   </property>
+  </action>
   <action name="actionIPv4HashTable">
    <property name="checkable">
     <bool>true</bool>

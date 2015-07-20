@@ -186,6 +186,39 @@ wtap_file_get_shb_info(wtap *wth)
 	return shb_hdr;
 }
 
+const gchar*
+wtap_get_nrb_comment(wtap *wth)
+{
+	g_assert(wth);
+
+	if (wth == NULL)
+		return NULL;
+
+	return wth->nrb_hdr ? wth->nrb_hdr->opt_comment : NULL;
+}
+
+void
+wtap_write_nrb_comment(wtap *wth, gchar *comment)
+{
+	g_assert(wth);
+
+	if (wth == NULL)
+		return;
+
+	if (wth->nrb_hdr == NULL) {
+		wth->nrb_hdr = g_new0(wtapng_name_res_t,1);
+	} else {
+		g_free(wth->nrb_hdr->opt_comment);
+	}
+
+	/*
+	 * I'd prefer this function duplicate the passed-in comment,
+	 * but wtap_write_shb_comment() assumes the caller duplicated
+	 * it so we'll stick with that.
+	 */
+	wth->nrb_hdr->opt_comment = comment;
+}
+
 void
 wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
@@ -205,6 +238,32 @@ wtap_file_get_idb_info(wtap *wth)
 
 	return idb_info;
 }
+
+wtapng_name_res_t *
+wtap_file_get_nrb_for_new_file(wtap *wth)
+{
+	wtapng_name_res_t *nrb_hdr;
+
+	if (wth == NULL || wth->nrb_hdr == NULL)
+	    return NULL;
+
+	nrb_hdr = g_new0(wtapng_name_res_t,1);
+
+	nrb_hdr->opt_comment = g_strdup(wth->nrb_hdr->opt_comment);
+
+	return nrb_hdr;
+}
+
+void
+wtap_free_nrb(wtapng_name_res_t *nrb_hdr)
+{
+	if (nrb_hdr == NULL)
+	    return;
+
+	g_free(nrb_hdr->opt_comment);
+	g_free(nrb_hdr);
+}
+
 
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {

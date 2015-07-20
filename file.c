@@ -1317,6 +1317,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     }
     shb_hdr->section_length = -1;
     /* options */
+    /* TODO: handle comments from each file being merged */
     shb_hdr->opt_comment   = g_string_free(comment_gstr, FALSE);  /* NULL if not available */
     shb_hdr->shb_hardware  = NULL;        /* NULL if not available, UTF-8 string containing the        */
                                           /*  description of the hardware used to create this section. */
@@ -1324,6 +1325,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
                                           /*  of the operating system used to create this section.     */
     shb_hdr->shb_user_appl = g_strdup("Wireshark"); /* NULL if not available, UTF-8 string containing the name   */
                                           /*  of the application used to create this section.          */
+
+    /* TODO: handle name resolution info from each file being merged */
 
     /* create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);
@@ -1366,7 +1369,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     pdh = wtap_dump_fdopen_ng(out_fd, file_type,
                               selected_frame_type,
                               merge_max_snapshot_length(in_file_count, in_files),
-                              FALSE /* compressed */, shb_hdr, idb_inf /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
+                              FALSE /* compressed */, shb_hdr, idb_inf /* wtapng_iface_descriptions_t *idb_inf */,
+                              NULL, &open_err);
 
     if (pdh == NULL) {
       ws_close(out_fd);
@@ -4671,12 +4675,15 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
        or moving the capture file, we have to do it by writing the packets
        out in Wiretap. */
 
-    wtapng_section_t *shb_hdr = NULL;
+    wtapng_section_t            *shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
+    wtapng_name_res_t           *nrb_hdr = NULL;
     int encap;
 
+    /* XXX: what free's this shb_hdr? */
     shb_hdr = wtap_file_get_shb_info(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
+    nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
 
     /* Determine what file encapsulation type we should use. */
     encap = wtap_dump_file_encap_type(cf->linktypes);
@@ -4691,10 +4698,10 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
       pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                              compressed, shb_hdr, idb_inf, &err);
+                              compressed, shb_hdr, idb_inf, nrb_hdr, &err);
     } else {
       pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                              compressed, shb_hdr, idb_inf, &err);
+                              compressed, shb_hdr, idb_inf, nrb_hdr, &err);
     }
     g_free(idb_inf);
     idb_inf = NULL;
@@ -4891,8 +4898,9 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   int                          err;
   wtap_dumper                 *pdh;
   save_callback_args_t         callback_args;
-  wtapng_section_t            *shb_hdr;
-  wtapng_iface_descriptions_t *idb_inf;
+  wtapng_section_t            *shb_hdr = NULL;
+  wtapng_iface_descriptions_t *idb_inf = NULL;
+  wtapng_name_res_t           *nrb_hdr = NULL;
   int                          encap;
 
   cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
@@ -4904,8 +4912,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
      written, don't special-case the operation - read each packet
      and then write it out if it's one of the specified ones. */
 
+  /* XXX: what free's this shb_hdr? */
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
+  nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
 
   /* Determine what file encapsulation type we should use. */
   encap = wtap_dump_file_encap_type(cf->linktypes);
@@ -4920,10 +4930,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
     pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                            compressed, shb_hdr, idb_inf, &err);
+                            compressed, shb_hdr, idb_inf, nrb_hdr, &err);
   } else {
     pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                            compressed, shb_hdr, idb_inf, &err);
+                            compressed, shb_hdr, idb_inf, nrb_hdr, &err);
   }
   g_free(idb_inf);
   idb_inf = NULL;

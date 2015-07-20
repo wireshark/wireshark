@@ -29,6 +29,7 @@
 #include "file.h"
 
 #include "epan/addr_resolv.h"
+#include <wiretap/wtap.h>
 
 #include <QMenu>
 #include <QPushButton>
@@ -193,6 +194,14 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
     ui->plainTextEdit->setWordWrapMode(QTextOption::NoWrap);
     ui->plainTextEdit->setTabStopWidth(ui->plainTextEdit->fontMetrics().averageCharWidth() * 8);
 
+    if (capture_file->isValid()) {
+        wtap* wth = capture_file->capFile()->wth;
+        if (wth) {
+            // might return null
+            comment_ = wtap_get_nrb_comment(wth);
+        }
+    }
+
     GHashTable *ipv4_hash_table = get_ipv4_hash_table();
     if (ipv4_hash_table) {
         g_hash_table_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_qstringlist, &host_addresses_);
@@ -265,6 +274,7 @@ void ResolvedAddressesDialog::fillShowMenu()
     show_menu->clear();
 
     show_menu->addAction(ui->actionAddressesHosts);
+    show_menu->addAction(ui->actionComment);
     show_menu->addAction(ui->actionIPv4HashTable);
     show_menu->addAction(ui->actionIPv6HashTable);
     show_menu->addAction(ui->actionPortNames);
@@ -284,6 +294,19 @@ void ResolvedAddressesDialog::fillBlocks()
 
     QString lines;
     ui->plainTextEdit->appendPlainText(tr("# Resolved addresses found in %1").arg(file_name_));
+
+    if (ui->actionComment->isChecked()) {
+        lines = "\n";
+        lines.append(tr("# Comments\n#\n# "));
+        if (!comment_.isEmpty()) {
+            lines.append("\n\n");
+            lines.append(comment_);
+            lines.append("\n");
+        } else {
+            lines.append(no_entries_);
+        }
+        ui->plainTextEdit->appendPlainText(lines);
+    }
 
     if (ui->actionAddressesHosts->isChecked()) {
         lines = "\n";
@@ -385,6 +408,11 @@ void ResolvedAddressesDialog::on_actionAddressesHosts_triggered()
     fillBlocks();
 }
 
+void ResolvedAddressesDialog::on_actionComment_triggered()
+{
+    fillBlocks();
+}
+
 void ResolvedAddressesDialog::on_actionIPv4HashTable_triggered()
 {
     fillBlocks();
@@ -418,6 +446,7 @@ void ResolvedAddressesDialog::on_actionEthernetWKA_triggered()
 void ResolvedAddressesDialog::on_actionShowAll_triggered()
 {
     ui->actionAddressesHosts->setChecked(true);
+    ui->actionComment->setChecked(true);
     ui->actionIPv4HashTable->setChecked(true);
     ui->actionIPv6HashTable->setChecked(true);
     ui->actionPortNames->setChecked(true);
@@ -431,6 +460,7 @@ void ResolvedAddressesDialog::on_actionShowAll_triggered()
 void ResolvedAddressesDialog::on_actionHideAll_triggered()
 {
     ui->actionAddressesHosts->setChecked(false);
+    ui->actionComment->setChecked(false);
     ui->actionIPv4HashTable->setChecked(false);
     ui->actionIPv6HashTable->setChecked(false);
     ui->actionPortNames->setChecked(false);

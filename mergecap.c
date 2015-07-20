@@ -524,7 +524,7 @@ DIAG_ON(cast-qual)
     }
 
     pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
-                              FALSE /* compressed */, shb_hdr, idb_inf, &open_err);
+                              FALSE /* compressed */, shb_hdr, idb_inf, NULL, &open_err);
     g_string_free(comment_gstr, TRUE);
   } else {
     pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);

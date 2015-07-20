@@ -924,8 +924,9 @@ DIAG_ON(cast-qual)
 
     const struct wtap_pkthdr    *phdr;
     struct wtap_pkthdr           temp_phdr;
-    wtapng_iface_descriptions_t *idb_inf;
-    wtapng_section_t            *shb_hdr;
+    wtapng_iface_descriptions_t *idb_inf = NULL;
+    wtapng_section_t            *shb_hdr = NULL;
+    wtapng_name_res_t           *nrb_hdr = NULL;
 
 #ifdef HAVE_PLUGINS
     char* init_progfile_dir_error;
@@ -1278,6 +1279,7 @@ DIAG_ON(cast-qual)
 
     shb_hdr = wtap_file_get_shb_info(wth);
     idb_inf = wtap_file_get_idb_info(wth);
+    nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
 
     /*
      * Now, process the rest, if any ... we only write if there is an extra
@@ -1325,7 +1327,7 @@ DIAG_ON(cast-qual)
 
                 pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                        FALSE /* compressed */, shb_hdr, idb_inf, &err);
+                                        FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
 
                 if (pdh == NULL) {
                     fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1367,7 +1369,7 @@ DIAG_ON(cast-qual)
 
                         pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                                 snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                                FALSE /* compressed */, shb_hdr, idb_inf, &err);
+                                                FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
 
                         if (pdh == NULL) {
                             fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1396,7 +1398,7 @@ DIAG_ON(cast-qual)
 
                     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            FALSE /* compressed */, shb_hdr, idb_inf, &err);
+                                            FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                                 filename, wtap_strerror(err));
@@ -1760,7 +1762,7 @@ DIAG_ON(cast-qual)
 
             pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-                                    FALSE /* compressed */, shb_hdr, idb_inf, &err);
+                                    FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                         filename, wtap_strerror(err));
@@ -1777,6 +1779,9 @@ DIAG_ON(cast-qual)
             exit(2);
         }
         g_free(shb_hdr);
+        shb_hdr = NULL;
+        wtap_free_nrb(nrb_hdr);
+        nrb_hdr = NULL;
         g_free(filename);
 
         if (frames_user_comments) {

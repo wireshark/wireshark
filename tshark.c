@@ -3134,8 +3134,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   char        *save_file_string = NULL;
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
-  wtapng_section_t            *shb_hdr;
-  wtapng_iface_descriptions_t *idb_inf;
+  wtapng_section_t            *shb_hdr = NULL;
+  wtapng_iface_descriptions_t *idb_inf = NULL;
+  wtapng_name_res_t           *nrb_hdr = NULL;
   char         *appname = NULL;
   struct wtap_pkthdr phdr;
   Buffer       buf;
@@ -3164,6 +3165,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
+
+    nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
+
     /* If we don't have an application name add Tshark */
     if (shb_hdr->shb_user_appl == NULL) {
         appname = g_strdup_printf("TShark (Wireshark) %s", get_ws_vcs_version_info());
@@ -3176,7 +3180,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             snapshot_length, FALSE /* compressed */, &err);
     else
         pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
-            snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, &err);
+            snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
 
     g_free(idb_inf);
     idb_inf = NULL;
@@ -3380,6 +3384,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               wtap_dump_close(pdh, &err);
               g_free(shb_hdr);
               g_free(appname);
+              wtap_free_nrb(nrb_hdr);
               exit(2);
             }
           }
@@ -3485,6 +3490,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             wtap_dump_close(pdh, &err);
             g_free(shb_hdr);
             g_free(appname);
+            wtap_free_nrb(nrb_hdr);
             exit(2);
           }
         }
@@ -3599,6 +3605,7 @@ out:
   g_free(save_file_string);
   g_free(shb_hdr);
   g_free(appname);
+  wtap_free_nrb(nrb_hdr);
 
   return err;
 }

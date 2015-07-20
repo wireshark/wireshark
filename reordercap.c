@@ -191,8 +191,9 @@ main(int argc, char *argv[])
     guint wrong_order_count = 0;
     gboolean write_output_regardless = TRUE;
     guint i;
-    wtapng_section_t            *shb_hdr;
-    wtapng_iface_descriptions_t *idb_inf;
+    wtapng_section_t            *shb_hdr = NULL;
+    wtapng_iface_descriptions_t *idb_inf = NULL;
+    wtapng_name_res_t           *nrb_hdr = NULL;
 
     GPtrArray *frames;
     FrameRecord_t *prevFrame = NULL;
@@ -275,15 +276,19 @@ DIAG_ON(cast-qual)
 
     shb_hdr = wtap_file_get_shb_info(wth);
     idb_inf = wtap_file_get_idb_info(wth);
+    nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
 
     /* Open outfile (same filetype/encap as input file) */
     pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                            65535, FALSE, shb_hdr, idb_inf, &err);
+                            65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
     g_free(idb_inf);
+    idb_inf = NULL;
+
     if (pdh == NULL) {
         fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
                 outfile, wtap_strerror(err));
         g_free(shb_hdr);
+        wtap_free_nrb(nrb_hdr);
         exit(1);
     }
 
@@ -357,9 +362,11 @@ DIAG_ON(cast-qual)
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
         g_free(shb_hdr);
+        wtap_free_nrb(nrb_hdr);
         exit(1);
     }
     g_free(shb_hdr);
+    wtap_free_nrb(nrb_hdr);
 
     /* Finally, close infile */
     wtap_fdclose(wth);

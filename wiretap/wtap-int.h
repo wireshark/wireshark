@@ -53,6 +53,7 @@ struct wtap {
     struct wtapng_section_s     shb_hdr;
     guint                       number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
+    wtapng_name_res_t           *nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
 
     void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
@@ -111,9 +112,10 @@ struct wtap_dumper {
     int                     tsprecision;    /**< timestamp precision of the lower 32bits
                                              * e.g. WTAP_TSPREC_USEC
                                              */
-    addrinfo_lists_t        *addrinfo_lists;        /**< Struct containing lists of resolved addresses */
-    struct wtapng_section_s *shb_hdr;
-    GArray                  *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
+    addrinfo_lists_t        *addrinfo_lists;    /**< Struct containing lists of resolved addresses */
+    wtapng_section_t        *shb_hdr;
+    wtapng_name_res_t       *nrb_hdr;           /**< name resolution comment/custom_opt, or NULL */
+    GArray                  *interface_data;    /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
 WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
