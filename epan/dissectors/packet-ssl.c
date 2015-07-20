@@ -407,8 +407,10 @@ ssl_parse_old_keys(void)
         for (i = 0; old_keys[i] != NULL; i++) {
             parts = ep_strsplit(old_keys[i], ",", 4);
             if (parts[0] && parts[1] && parts[2] && parts[3]) {
+                gchar *path = uat_esc(parts[3], (guint)strlen(parts[3]));
                 uat_entry = ep_strdup_printf("\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
-                                parts[0], parts[1], parts[2], parts[3]);
+                                parts[0], parts[1], parts[2], path);
+                g_free(path);
                 if (!uat_load_str(ssldecrypt_uat, uat_entry, &err)) {
                     ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
                                      uat_entry, err);
