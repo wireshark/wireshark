@@ -1306,7 +1306,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
     fake_interface_ids = TRUE;
     /* Create SHB info */
-    shb_hdr      = wtap_file_get_shb_info(in_files[0].wth);
+    shb_hdr      = wtap_file_get_shb_for_new_file(in_files[0].wth);
     comment_gstr = g_string_new("");
     g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
     g_string_append_printf(comment_gstr, "File created by merging: \n");
@@ -1315,14 +1315,10 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     for (i = 0; i < in_file_count; i++) {
         g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
     }
-    shb_hdr->section_length = -1;
-    /* options */
     /* TODO: handle comments from each file being merged */
+    if (shb_hdr->opt_comment)
+      g_free(shb_hdr->opt_comment);
     shb_hdr->opt_comment   = g_string_free(comment_gstr, FALSE);  /* NULL if not available */
-    shb_hdr->shb_hardware  = NULL;        /* NULL if not available, UTF-8 string containing the        */
-                                          /*  description of the hardware used to create this section. */
-    shb_hdr->shb_os        = NULL;        /* NULL if not available, UTF-8 string containing the name   */
-                                          /*  of the operating system used to create this section.     */
     shb_hdr->shb_user_appl = g_strdup("Wireshark"); /* NULL if not available, UTF-8 string containing the name   */
                                           /*  of the application used to create this section.          */
 
@@ -3921,38 +3917,25 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 const gchar *
 cf_read_shb_comment(capture_file *cf)
 {
-  wtapng_section_t *shb_inf;
-  const gchar      *temp_str;
-
   /* Get info from SHB */
-  shb_inf = wtap_file_get_shb_info(cf->wth);
-  if (shb_inf == NULL)
-        return NULL;
-  temp_str = shb_inf->opt_comment;
-  g_free(shb_inf);
-
-  return temp_str;
-
+  return wtap_file_get_shb_comment(cf->wth);
 }
 
 void
 cf_update_capture_comment(capture_file *cf, gchar *comment)
 {
-  wtapng_section_t *shb_inf;
+  const gchar *shb_comment;
 
   /* Get info from SHB */
-  shb_inf = wtap_file_get_shb_info(cf->wth);
+  shb_comment = wtap_file_get_shb_comment(cf->wth);
 
   /* See if the comment has changed or not */
-  if (shb_inf && shb_inf->opt_comment) {
-    if (strcmp(shb_inf->opt_comment, comment) == 0) {
+  if (shb_comment) {
+    if (strcmp(shb_comment, comment) == 0) {
       g_free(comment);
-      g_free(shb_inf);
       return;
     }
   }
-
-  g_free(shb_inf);
 
   /* The comment has changed, let's update it */
   wtap_write_shb_comment(cf->wth, comment);
@@ -4681,7 +4664,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     int encap;
 
     /* XXX: what free's this shb_hdr? */
-    shb_hdr = wtap_file_get_shb_info(cf->wth);
+    shb_hdr = wtap_file_get_shb_for_new_file(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
     nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
 
@@ -4913,7 +4896,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
      and then write it out if it's one of the specified ones. */
 
   /* XXX: what free's this shb_hdr? */
-  shb_hdr = wtap_file_get_shb_info(cf->wth);
+  shb_hdr = wtap_file_get_shb_for_new_file(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
   nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
 

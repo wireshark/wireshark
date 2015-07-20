@@ -1285,7 +1285,7 @@ DIAG_ON(cast-qual)
                 wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
     }
 
-    shb_hdr = wtap_file_get_shb_info(wth);
+    shb_hdr = wtap_file_get_shb_for_new_file(wth);
     idb_inf = wtap_file_get_idb_info(wth);
     nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
 
@@ -1320,7 +1320,7 @@ DIAG_ON(cast-qual)
             if (read_count == 1) {
                 if (split_packet_count > 0 || secs_per_block > 0) {
                     if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
-                        exit(2);
+                        goto error_on_exit;
 
                     filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
                 } else {
@@ -1340,7 +1340,7 @@ DIAG_ON(cast-qual)
                 if (pdh == NULL) {
                     fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                             filename, wtap_strerror(err));
-                    exit(2);
+                    goto error_on_exit;
                 }
             } /* first packet only handling */
 
@@ -1365,7 +1365,7 @@ DIAG_ON(cast-qual)
                         if (!wtap_dump_close(pdh, &err)) {
                             fprintf(stderr, "editcap: Error writing to %s: %s\n",
                                     filename, wtap_strerror(err));
-                            exit(2);
+                            goto error_on_exit;
                         }
                         block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
                         g_free(filename);
@@ -1382,7 +1382,7 @@ DIAG_ON(cast-qual)
                         if (pdh == NULL) {
                             fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                                     filename, wtap_strerror(err));
-                            exit(2);
+                            goto error_on_exit;
                         }
                     }
                 }
@@ -1394,7 +1394,7 @@ DIAG_ON(cast-qual)
                     if (!wtap_dump_close(pdh, &err)) {
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
                                 filename, wtap_strerror(err));
-                        exit(2);
+                        goto error_on_exit;
                     }
 
                     g_free(filename);
@@ -1410,7 +1410,7 @@ DIAG_ON(cast-qual)
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                                 filename, wtap_strerror(err));
-                        exit(2);
+                        goto error_on_exit;
                     }
                 }
             } /* split packet handling */
@@ -1747,7 +1747,7 @@ DIAG_ON(cast-qual)
                                 filename, wtap_strerror(err));
                         break;
                     }
-                    exit(2);
+                    goto error_on_exit;
                 }
                 written_count++;
             }
@@ -1781,7 +1781,7 @@ DIAG_ON(cast-qual)
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                         filename, wtap_strerror(err));
-                exit(2);
+                goto error_on_exit;
             }
         }
 
@@ -1791,9 +1791,9 @@ DIAG_ON(cast-qual)
         if (!wtap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                     wtap_strerror(err));
-            exit(2);
+            goto error_on_exit;
         }
-        g_free(shb_hdr);
+        wtap_free_shb(shb_hdr);
         shb_hdr = NULL;
         wtap_free_nrb(nrb_hdr);
         nrb_hdr = NULL;
@@ -1817,6 +1817,12 @@ DIAG_ON(cast-qual)
     }
 
     return 0;
+
+error_on_exit:
+    wtap_free_shb(shb_hdr);
+    wtap_free_nrb(nrb_hdr);
+    g_free(idb_inf);
+    exit(2);
 }
 
 /* Skip meta-information read from file to return offset of real

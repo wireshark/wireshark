@@ -274,7 +274,7 @@ DIAG_ON(cast-qual)
     }
     DEBUG_PRINT("file_type_subtype is %u\n", wtap_file_type_subtype(wth));
 
-    shb_hdr = wtap_file_get_shb_info(wth);
+    shb_hdr = wtap_file_get_shb_for_new_file(wth);
     idb_inf = wtap_file_get_idb_info(wth);
     nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
 
@@ -287,7 +287,7 @@ DIAG_ON(cast-qual)
     if (pdh == NULL) {
         fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
                 outfile, wtap_strerror(err));
-        g_free(shb_hdr);
+        wtap_free_shb(shb_hdr);
         wtap_free_nrb(nrb_hdr);
         exit(1);
     }
@@ -361,11 +361,11 @@ DIAG_ON(cast-qual)
     if (!wtap_dump_close(pdh, &err)) {
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
-        g_free(shb_hdr);
+        wtap_free_shb(shb_hdr);
         wtap_free_nrb(nrb_hdr);
         exit(1);
     }
-    g_free(shb_hdr);
+    wtap_free_shb(shb_hdr);
     wtap_free_nrb(nrb_hdr);
 
     /* Finally, close infile */

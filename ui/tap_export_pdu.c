@@ -119,7 +119,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     appname = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
 
-    shb_hdr = g_new(wtapng_section_t,1);
+    shb_hdr = g_new0(wtapng_section_t,1);
     shb_hdr->section_length = -1;
     /* options */
     shb_hdr->opt_comment    = g_strdup_printf("Dump of PDUs from %s", cfile.filename);

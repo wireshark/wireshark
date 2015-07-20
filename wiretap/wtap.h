@@ -1222,6 +1222,9 @@ typedef struct wtapng_section_s {
                                          *     following section.
                                          *     Section Length equal -1 (0xFFFFFFFFFFFFFFFF) means
                                          *     that the size of the section is not specified
+                                         *   Note: if writing to a new file, this length will
+                                         *     be invalid if anything changes, such as the other
+                                         *     members of this struct, or the packets written.
                                          */
     /* options */
     gchar               *opt_comment;   /**< NULL if not available */
@@ -1232,7 +1235,7 @@ typedef struct wtapng_section_s {
     gchar               *shb_os;        /**< NULL if not available, UTF-8 string containing the
                                          *     name of the operating system used to create this section.
                                          */
-    gchar         *shb_user_appl;       /**< NULL if not available, UTF-8 string containing the
+    gchar               *shb_user_appl; /**< NULL if not available, UTF-8 string containing the
                                          *     name of the application used to create this section.
                                          */
 } wtapng_section_t;
@@ -1659,8 +1662,64 @@ WS_DLL_PUBLIC
 int wtap_file_encap(wtap *wth);
 WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
+
+/**
+ * @brief Gets existing section header block, not for new file.
+ * @details Returns the pointer to the existing SHB, without creating a
+ *          new one. This should only be used for accessing info, not
+ *          for creating a new file based on existing SHB info. Use
+ *          wtap_file_get_shb_for_new_file() for that.
+ *
+ * @param wth The wiretap session.
+ * @return The existing section header, which must NOT be g_free'd.
+ */
 WS_DLL_PUBLIC
-wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
+const wtapng_section_t* wtap_file_get_shb(wtap *wth);
+
+/**
+ * @brief Gets new section header block for new file, based on existing info.
+ * @details Creates a new wtapng_section_t section header block and only
+ *          copies appropriate members of the SHB for a new file. In
+ *          particular, the comment string is copied, and any custom options
+ *          which should be copied are copied. The os, hardware, and
+ *          application strings are *not* copied.
+ *
+ * @note Use wtap_free_shb() to free the returned section header.
+ *
+ * @param wth The wiretap session.
+ * @return The new section header, which must be wtap_free_shb'd.
+ */
+WS_DLL_PUBLIC
+wtapng_section_t* wtap_file_get_shb_for_new_file(wtap *wth);
+
+/**
+ * Free's a section header block and all of its members.
+ */
+WS_DLL_PUBLIC
+void wtap_free_shb(wtapng_section_t *shb_hdr);
+
+/**
+ * @brief Gets the section header comment string.
+ * @details This gets the pointer, without duplicating the string.
+ *
+ * @param wth The wtap session.
+ * @return The comment string.
+ */
+WS_DLL_PUBLIC
+const gchar* wtap_file_get_shb_comment(wtap *wth);
+
+/**
+ * @brief Sets or replaces the section header comment.
+ * @details The passed-in comment string is set to be the comment
+ *          for the section header block. The passed-in string's
+ *          ownership will be owned by the block, so it should be
+ *          duplicated before passing into this function.
+ *
+ * @param wth The wiretap session.
+ * @param comment The comment string.
+ */
+WS_DLL_PUBLIC
+void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
 /**
  * @brief Gets existing interface descriptions.
@@ -1669,7 +1728,7 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
  * @note The returned pointer must be g_free'd, but its internal
  *       interface_data must not.
  *
- * @param wth The current wtap.
+ * @param wth The wiretap session.
  * @return A new struct of the existing section descriptions, which must be g_free'd.
  */
 WS_DLL_PUBLIC
@@ -1682,7 +1741,7 @@ wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
  *
  * @note Use wtap_free_nrb() to free the returned pointer.
  *
- * @param wth The current wiretap header.
+ * @param wth The wiretap session.
  * @return The new name resolution info, which must be wtap_free_nrb'd.
  */
 WS_DLL_PUBLIC
@@ -1717,10 +1776,6 @@ const gchar* wtap_get_nrb_comment(wtap *wth);
  */
 WS_DLL_PUBLIC
 void wtap_write_nrb_comment(wtap *wth, gchar *comment);
-
-/*** sets/replaces the section header comment ***/
-WS_DLL_PUBLIC
-void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC

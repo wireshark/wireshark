@@ -1012,7 +1012,7 @@ process_cap_file(wtap *wth, const char *filename)
   nstime_t              prev_time;
   gboolean              know_order = FALSE;
   order_t               order = IN_ORDER;
-  wtapng_section_t     *shb_inf;
+  const gchar          *shb_comment;
   gchar                *p;
 
 
@@ -1167,18 +1167,17 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   cf_info.comment = NULL;
-  shb_inf = wtap_file_get_shb_info(wth);
-  if (shb_inf) {
+  shb_comment = wtap_file_get_shb_comment(wth);
+  if (shb_comment) {
     /* opt_comment is always 0-terminated by pcapng_read_section_header_block */
-    cf_info.comment = g_strdup(shb_inf->opt_comment);
-  }
-  g_free(shb_inf);
-  if (cf_info.comment) {
+    cf_info.comment = g_strdup(shb_comment);
     /* multi-line comments would conflict with the formatting that capinfos uses
-       we replace linefeeds with spaces */
+       we replace carriage-returns/linefeeds with spaces */
     p = cf_info.comment;
     while (*p != '\0') {
       if (*p == '\n')
+        *p = ' ';
+      if (*p == '\r')
         *p = ' ';
       p++;
     }

@@ -105,7 +105,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 {
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
-  wtapng_section_t* shb_inf;
+  const wtapng_section_t* shb_inf;
   iface_options iface;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
@@ -156,7 +156,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->dfilter = cf->dfilter;
 
   /* Get info from SHB */
-  shb_inf = wtap_file_get_shb_info(cf->wth);
+  shb_inf = wtap_file_get_shb(cf->wth);
   if(shb_inf == NULL){
     st->opt_comment    = NULL;
     st->shb_hardware   = NULL;
@@ -167,7 +167,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     st->shb_hardware   = shb_inf->shb_hardware;
     st->shb_os         = shb_inf->shb_os;
     st->shb_user_appl  = shb_inf->shb_user_appl;
-    g_free(shb_inf);
   }
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
