@@ -474,6 +474,16 @@ static expert_field ei_gtpv2_fq_csid_type_bad = EI_INIT;
 
 #define GTPV2_CREATE_SESSION_REQUEST     32
 #define GTPV2_CREATE_SESSION_RESPONSE    33
+#define GTPV2_MODIFY_BEARER_RESPONSE     35
+#define GTPV2_DELETE_SESSION_REQUEST     36
+#define GTPV2_DELETE_SESSION_RESPONSE    37
+#define GTPV2_BEARER_RESOURCE_COMMAND    68
+#define GTPV2_CREATE_BEARER_REQUEST      95
+#define GTPV2_CREATE_BEARER_RESPONSE     96
+#define GTPV2_UPDATE_BEARER_REQUEST      97
+#define GTPV2_UPDATE_BEARER_RESPONSE     98
+#define GTPV2_DELETE_BEARER_REQUEST      99
+#define GTPV2_DELETE_BEARER_RESPONSE    100
 #define GTPV2_CONTEXT_RESPONSE          131
 #define GTPV2_FORWARD_RELOCATION_REQ    133
 #define GTPV2_FORWARD_CTX_NOTIFICATION  137
@@ -1669,10 +1679,20 @@ dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 {
     switch (message_type) {
     case GTPV2_CREATE_SESSION_REQUEST:
+    case GTPV2_DELETE_SESSION_REQUEST:
+    case GTPV2_BEARER_RESOURCE_COMMAND:
+    case GTPV2_CREATE_BEARER_RESPONSE:
+    case GTPV2_UPDATE_BEARER_RESPONSE:
+    case GTPV2_DELETE_BEARER_RESPONSE:
         /* PCO options as MS to network direction */
         pinfo->link_dir = P2P_DIR_UL;
         break;
     case GTPV2_CREATE_SESSION_RESPONSE:
+    case GTPV2_MODIFY_BEARER_RESPONSE:
+    case GTPV2_DELETE_SESSION_RESPONSE:
+    case GTPV2_CREATE_BEARER_REQUEST:
+    case GTPV2_UPDATE_BEARER_REQUEST:
+    case GTPV2_DELETE_BEARER_REQUEST:
         /* PCO options as Network to MS direction: */
         pinfo->link_dir = P2P_DIR_DL;
         break;
@@ -4997,10 +5017,20 @@ dissect_gtpv2_apco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 {
     switch (message_type) {
     case GTPV2_CREATE_SESSION_REQUEST:
+    case GTPV2_DELETE_SESSION_REQUEST:
+    case GTPV2_BEARER_RESOURCE_COMMAND:
+    case GTPV2_CREATE_BEARER_RESPONSE:
+    case GTPV2_UPDATE_BEARER_RESPONSE:
+    case GTPV2_DELETE_BEARER_RESPONSE:
         /* PCO options as MS to network direction */
         pinfo->link_dir = P2P_DIR_UL;
         break;
     case GTPV2_CREATE_SESSION_RESPONSE:
+    case GTPV2_MODIFY_BEARER_RESPONSE:
+    case GTPV2_DELETE_SESSION_RESPONSE:
+    case GTPV2_CREATE_BEARER_REQUEST:
+    case GTPV2_UPDATE_BEARER_REQUEST:
+    case GTPV2_DELETE_BEARER_REQUEST:
         /* PCO options as Network to MS direction: */
         pinfo->link_dir = P2P_DIR_DL;
         break;
