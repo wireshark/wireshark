@@ -216,6 +216,7 @@ Aeron
 Network File System over Remote Direct Memory Access (NFSoRDMA)
 eXpressive Internet Protocol (XIP)
 Windows Search Protocol (MS-WSP)
+Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
 --sort-and-group--
 
 === Updated Protocol Support
