@@ -289,9 +289,11 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     // _packet_list_compare_records, and packet_list_compare_custom from
     // gtk/packet_list_store.c into one function
 
+    // What's the least amount of processing that we can do which will draw
+    // the busy indicator?
     if (busy_timer_.elapsed() > busy_timeout_) {
         busy_timer_.restart();
-        wsApp->processEvents();
+        wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
     }
     if (sort_column_ < 0) {
         // No column.
