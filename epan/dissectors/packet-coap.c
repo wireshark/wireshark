@@ -246,6 +246,7 @@ static const value_string vals_ctype[] = {
 	{ 42, "application/octet-stream" },
 	{ 47, "application/exi" },
 	{ 50, "application/json" },
+	{ 60, "application/cbor" },
 	{ 0, NULL },
 };
 
