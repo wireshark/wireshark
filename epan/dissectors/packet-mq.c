@@ -3644,7 +3644,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 proto_tree_add_item(mq_tree, hf_mq_wih_servicename  , tvb, offset +  32, 32, p_mq_parm->mq_str_enc);
                                                 proto_tree_add_item(mq_tree, hf_mq_wih_servicestep  , tvb, offset +  64,  8, p_mq_parm->mq_str_enc);
                                                 proto_tree_add_item(mq_tree, hf_mq_wih_msgtoken     , tvb, offset +  72, 16, ENC_NA);
-                                                proto_tree_add_item(mq_tree, hf_mq_wih_reserved     , tvb, offset +  86, 32, p_mq_parm->mq_str_enc);
+                                                proto_tree_add_item(mq_tree, hf_mq_wih_reserved     , tvb, offset +  88, 32, p_mq_parm->mq_str_enc);
                                             }
                                             else
                                             {
@@ -4561,7 +4561,7 @@ void proto_register_mq(void)
         { &hf_mq_wih_servicename  , {"ServiceName..", "mq.wih.servicename"  , FT_STRINGZ, BASE_NONE, NULL, 0x0, "Service Name", HFILL }},
         { &hf_mq_wih_servicestep  , {"ServiceStep..", "mq.wih.servicestep"  , FT_STRINGZ, BASE_NONE, NULL, 0x0, "Service Step Name", HFILL }},
         { &hf_mq_wih_msgtoken     , {"MsgToken.....", "mq.wih.msgtoken"     , FT_BYTES  , BASE_NONE, NULL, 0x0, "Message Token", HFILL }},
-        { &hf_mq_wih_reserved     , {"Resereved....", "mq.wih.reserved"     , FT_STRINGZ, BASE_NONE, NULL, 0x0, "Resereved", HFILL }},
+        { &hf_mq_wih_reserved     , {"Reserved.....", "mq.wih.reserved"     , FT_STRINGZ, BASE_NONE, NULL, 0x0, "Reserved", HFILL }},
     };
 
     static gint *ett[] =
