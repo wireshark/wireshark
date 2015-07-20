@@ -108,6 +108,7 @@ typedef struct {
  */
 extern if_capabilities_t *
 capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
+                            const gchar *auth_string,
                             char **err_str, void (*update_cb)(void));
 
 void free_if_capabilities(if_capabilities_t *caps);

@@ -1227,6 +1227,7 @@ insert_new_rows(GList *list)
   model = gtk_tree_view_get_model(if_cb);
   /* Scan through the list and build a list of strings to display. */
   for (if_entry = g_list_first(list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+    gchar *auth_str = NULL;
     if_info = (if_info_t *)if_entry->data;
 #ifdef HAVE_PCAP_REMOTE
     add_interface_to_remote_list(if_info);
@@ -1283,7 +1284,14 @@ insert_new_rows(GList *list)
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     monitor_mode = prefs_capture_device_monitor_mode(if_string);
-    caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
+#ifdef HAVE_PCAP_REMOTE
+    if (global_remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+      auth_str = g_strdup_printf("%s:%s", global_remote_opts.remote_host_opts.auth_username,
+                                 global_remote_opts.remote_host_opts.auth_password);
+    }
+#endif
+    caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
+    g_free(auth_str);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
       if (ips != 0) {
@@ -5883,6 +5891,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   link_row          *linkr;
   GtkWidget         *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
   GtkWidget         *linktype_lb        = (GtkWidget *)g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
+  gchar             *auth_str = NULL;
 
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_interface);
@@ -5890,7 +5899,14 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 
   if_string = g_strdup(device.name);
   monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
-  caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
+#ifdef HAVE_PCAP_REMOTE
+  if (device.remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+    auth_str = g_strdup_printf("%s:%s", device.remote_opts.remote_host_opts.auth_username,
+                               device.remote_opts.remote_host_opts.auth_password);
+  }
+#endif
+  caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
+  g_free(auth_str);
 
   if (caps != NULL) {
     g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
