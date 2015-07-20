@@ -24,6 +24,7 @@
 #include <errno.h>
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 #include <epan/to_str-int.h>
 
 #include <wsutil/pint.h>
@@ -723,18 +724,35 @@ bool_ne(const fvalue_t *a, const fvalue_t *b)
 static gboolean
 eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
+	GByteArray	*bytes;
+	gboolean	res;
+	union {
+		guint64 value;
+		guint8  bytes[8];
+	} eui64;
+
 	/*
 	 * Don't request an error message if uint64_from_unparsed fails;
-	 * if it does, we'll report an error specific to this address
-	 * type.
+	 * if it does, we'll try parsing it as a sequence of bytes, and
+	 * report an error if *that* fails.
 	 */
 	if (uint64_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 
-	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid EUI64 Address", s);
-	return FALSE;
+	bytes = g_byte_array_new();
+	res = hex_str_to_bytes(s, bytes, TRUE);
+	if (!res || bytes->len != 8) {
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid EUI-64 address.", s);
+		g_byte_array_free(bytes, TRUE);
+		return FALSE;
+	}
+
+	memcpy(eui64.bytes, bytes->data, 8);
+	g_byte_array_free(bytes, TRUE);
+	fv->value.integer64 = GUINT64_FROM_BE(eui64.value);
+	return TRUE;
 }
 
 static int
@@ -746,18 +764,17 @@ eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	guint8 eui64[8];
-	guint8 *p_eui64 = eui64;
+	union {
+		guint64 value;
+		guint8  bytes[8];
+	} eui64;
 
-	/* ensure array is initialized (Clang) */
-	memset(eui64, 0, 8);
-
-	/* Copy and convert the address to network byte order. */
-	*(guint64 *)(void *)(p_eui64) = pntoh64(&(fv->value.integer64));
+	/* Copy and convert the address from host to network byte order. */
+	eui64.value = GUINT64_TO_BE(fv->value.integer64);
 
 	g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-	p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
-	p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
+	    eui64.bytes[0], eui64.bytes[1], eui64.bytes[2], eui64.bytes[3],
+	    eui64.bytes[4], eui64.bytes[5], eui64.bytes[6], eui64.bytes[7]);
 }
 
 void
