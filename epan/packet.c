@@ -1226,6 +1226,7 @@ dissector_get_string_handle(dissector_table_t sub_dissectors,
 {
 	dtbl_entry_t *dtbl_entry;
 
+	if (!string) return NULL;
 	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
 	if (dtbl_entry != NULL)
 		return dtbl_entry->current;
