@@ -46,7 +46,7 @@ UL-CCCH-Message              @ul.ccch
 UL-DCCH-Message              @ul.dcch
 UECapabilityInformation      @ue_cap_info
 UE-EUTRA-Capability          @ue_eutra_cap
-SBCCH-SL-BCH-Message         @sbcch.sl_bch
+SBCCH-SL-BCH-Message         @sbcch.sl.bch
 #.END
 
 #.OMIT_ASSIGNMENT
