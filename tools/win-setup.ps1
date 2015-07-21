@@ -196,7 +196,7 @@ $CleanupItems = @(
 )
 
 [Uri] $DownloadPrefix = "https://anonsvn.wireshark.org/wireshark-$($Platform)-libs/tags/$($CurrentTag)/packages"
-$SevenZip = "7-zip-not-found"
+$Global:SevenZip = "7-zip-not-found"
 
 # Functions
 
@@ -273,7 +273,7 @@ function DownloadArchive($fileName, $subDir) {
     }
     $activity = "Extracting into $($archiveDir)"
     Write-Progress -Activity "$activity" -Status "Running 7z x $archiveFile ..."
-    & $SevenZip x "-o$archiveDir" -y "$archiveFile" 2>&1 |
+    & "$SevenZip" x "-o$archiveDir" -y "$archiveFile" 2>&1 |
         Set-Variable -Name SevenZOut
     $bbStatus = $LASTEXITCODE
     Write-Progress -Activity "$activity" -Status "Done" -Completed
