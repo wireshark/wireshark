@@ -392,6 +392,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_rpc_string@Base 1.9.1
  dissect_rpc_uint32@Base 1.9.1
  dissect_rpc_uint64@Base 1.9.1
+ dissect_rpc_unknown@Base 1.99.8
+ dissect_rpc_void@Base 1.99.8
  dissect_tcp_payload@Base 1.99.0
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
@@ -569,6 +571,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  free_rtd_table@Base 1.99.8
  free_srt_table@Base 1.99.8
  free_srt_table_data@Base 1.99.8
+ free_stat_table@Base 1.99.8
  ftype_can_contains@Base 1.9.1
  ftype_can_eq@Base 1.9.1
  ftype_can_ge@Base 1.9.1
@@ -686,6 +689,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_manuf_name_if_known@Base 1.9.1
  get_node_field_value@Base 1.12.0~rc1
  get_rose_ctx@Base 1.9.1
+ get_rtd_num_tables@Base 1.99.8
  get_rtd_packet_func@Base 1.99.8
  get_srt_max_tables@Base 1.99.8
  get_srt_packet_func@Base 1.99.8
@@ -794,6 +798,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  new_register_ber_syntax_dissector@Base 1.99.1
  new_register_dissector@Base 1.9.1
  new_register_per_oid_dissector@Base 1.99.1
+ new_stat_tap_add_table@Base 1.99.8
+ new_stat_tap_get_field_data@Base 1.99.8
+ new_stat_tap_get_filter@Base 1.99.8
+ new_stat_tap_init_table@Base 1.99.8
+ new_stat_tap_init_table_row@Base 1.99.8
+ new_stat_tap_iterate_tables@Base 1.99.8
+ new_stat_tap_set_field_data@Base 1.99.8
  next_tvb_add_handle@Base 1.9.1
  next_tvb_add_string@Base 1.9.1
  next_tvb_add_uint@Base 1.9.1
@@ -903,7 +914,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
  proto_construct_match_selected_string@Base 1.9.1
+ proto_disable_proto_by_name@Base 1.99.8
  proto_enable_all@Base 1.9.1
+ proto_enable_heuristic_by_name@Base 1.99.8
  proto_expert@Base 1.9.1
  proto_field_is_referenced@Base 1.9.1
  proto_find_field_from_offset@Base 1.9.1
@@ -1074,6 +1087,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_empty@Base 1.9.1
  range_foreach@Base 1.9.1
  ranges_are_equal@Base 1.9.1
+ read_disabled_heur_dissector_list@Base 1.99.8
  read_disabled_protos_list@Base 1.12.0~rc1
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
@@ -1103,6 +1117,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_heur_dissector_list@Base 1.9.1
  register_init_routine@Base 1.9.1
  register_cleanup_routine@Base 1.99.8
+ register_new_stat_tap_ui@Base 1.99.8
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8
@@ -1121,12 +1136,15 @@ libwireshark.so.0 libwireshark0 #MINVER#
  req_resp_hdrs_do_reassembly@Base 1.9.1
  reset_conversation_table_data@Base 1.99.0
  reset_hostlist_table_data@Base 1.99.0
+ reset_rtd_table@Base 1.99.8
+ reset_srt_table@Base 1.99.8
+ reset_stat_table@Base 1.99.8
  reset_tap_listeners@Base 1.9.1
  reset_tcp_reassembly@Base 1.9.1
  reset_udp_follow@Base 1.99.2
  rose_ctx_clean_data@Base 1.9.1
  rose_ctx_init@Base 1.9.1
- rpc_init_proc_table@Base 1.9.1
+#MISSING: 1.99.8# rpc_init_proc_table@Base 1.9.1
  rpc_init_prog@Base 1.9.1
  rpc_proc_name@Base 1.9.1
  rpc_prog_hf@Base 1.9.1
@@ -1157,6 +1175,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  s1ap_CauseProtocol_vals@Base 1.9.1
  s1ap_CauseRadioNetwork_vals@Base 1.9.1
  s1ap_CauseTransport_vals@Base 1.9.1
+ save_disabled_heur_dissector_list@Base 1.99.8
  save_disabled_protos_list@Base 1.12.0~rc1
  sccp_address_signal_values@Base 1.9.1
  sccp_error_cause_values@Base 1.9.1
@@ -1178,6 +1197,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_column_resolved@Base 1.9.1
  set_column_title@Base 1.9.1
  set_column_visible@Base 1.9.1
+ set_disabled_heur_dissector_list@Base 1.99.8
  set_disabled_protos_list@Base 1.12.0~rc1
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
@@ -1273,7 +1293,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_command_response@Base 1.9.1
  tfs_complete_incomplete@Base 1.12.0~rc1
  tfs_confirmed_unconfirmed@Base 1.12.0~rc1
+ tfs_constructed_primitive@Base 1.99.8
  tfs_critical_not_critical@Base 1.12.0~rc1
+ tfs_defined_not_defined@Base 1.99.8
  tfs_detected_not_detected@Base 1.9.1
  tfs_disabled_enabled@Base 1.9.1
  tfs_do_not_clear_clear@Base 1.12.0~rc1
