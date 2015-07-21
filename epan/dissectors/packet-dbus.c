@@ -355,7 +355,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 }
 
 static int
-dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset, int field_code)
+dissect_dbus_field_signature(tvbuff_t *tvb, packet_info *pinfo, dbus_info_t *dinfo, proto_tree *tree, int offset, int field_code)
 {
 	const int org_offset = offset;
 
@@ -397,7 +397,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 				offset = dissect_dbus_sig(tvb, dinfo, tree, offset, 's', &addr_val);
 				if (offset != -1)
 					SET_ADDRESS((field_code == DBUS_HEADER_FIELD_DESTINATION) ? &dinfo->pinfo->dst : &dinfo->pinfo->src,
-					            AT_STRINGZ, (int)strlen(addr_val.str)+1, addr_val.str);
+					            AT_STRINGZ, (int)strlen(addr_val.str)+1, wmem_strdup(pinfo->pool, addr_val.str));
 				return offset;
 			}
 			break;
@@ -426,7 +426,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 }
 
 static int
-dissect_dbus_hdr_fields(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset)
+dissect_dbus_hdr_fields(tvbuff_t *tvb, packet_info *pinfo, dbus_info_t *dinfo, proto_tree *tree, int offset)
 {
 	int end_offset;
 
@@ -446,7 +446,7 @@ dissect_dbus_hdr_fields(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int
 		proto_item_append_text(ti, ": %s", val_to_str(field_code, field_code_vals, "Unknown: %d"));
 		offset += 1;
 
-		offset = dissect_dbus_field_signature(tvb, dinfo, field_tree, offset, field_code);
+		offset = dissect_dbus_field_signature(tvb, pinfo, dinfo, field_tree, offset, field_code);
 		if (offset == -1)
 			break;
 
@@ -573,7 +573,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	offset = 0;
 	offset = dissect_dbus_hdr(tvb, &dinfo, dbus_tree, offset);
-	offset = dissect_dbus_hdr_fields(tvb, &dinfo, dbus_tree, offset);
+	offset = dissect_dbus_hdr_fields(tvb, pinfo, &dinfo, dbus_tree, offset);
 	/* header aligned to 8B */
 	offset = (offset + 7) & ~7;
 
