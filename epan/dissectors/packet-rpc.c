@@ -1918,41 +1918,6 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/**
- *  Produce a dummy RPC program entry for the given RPC program key
- *  and version values.
- */
-
-static void
-make_fake_rpc_prog_if_needed (guint32 prpc_prog_key, guint prog_ver)
-{
-	/* sanity check: no one uses versions > 10 */
-	if(prog_ver>10){
-		return;
-	}
-
-	if(g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(prpc_prog_key)) == NULL) {
-		/* ok this is not a known rpc program so we
-		 * will have to fake it.
-		 */
-		int proto_rpc_unknown_program;
-		char *NAME, *Name, *name;
-		static const vsff unknown_proc[] = {
-			{ 0,"NULL",dissect_rpc_void,dissect_rpc_void },
-			{ 0,NULL,NULL,NULL }
-		};
-
-		NAME = g_strdup_printf("Unknown RPC Program:%d", prpc_prog_key);
-		Name = g_strdup_printf("RPC:%d", prpc_prog_key);
-		name = g_strdup_printf("rpc%d", prpc_prog_key);
-		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
-
-		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key, ett_rpc_unknown_program);
-		rpc_init_proc_table(proto_rpc, prpc_prog_key, prog_ver, unknown_proc, hf_rpc_procedure);
-
-	}
-}
-
 int
 dissect_rpc_void(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
@@ -2068,28 +2033,43 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (tvb_get_ntohl(tvb, offset + 8) != 2 ){
 			return FALSE;
 		}
-		/* let the user be able to weaken the heuristics if he need
-		 * to look at proprietary protocols not known
-		 * to wireshark.
-		 */
-		if(rpc_dissect_unknown_programs){
+		/* Do we know this program? */
+		if( (rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(rpc_prog_key))) != NULL) {
+			/* Yes. */
+			proto = rpc_prog->proto;
+			proto_id = rpc_prog->proto_id;
+			ett = rpc_prog->ett;
+			progname = rpc_prog->progname;
+		} else {
 			guint32 version;
 
-			/* if the user has specified that he wants to try to
-			 * dissect even completely unknown RPC program numbers
+			/* No.
+			 * If the user has specified that he wants to try to
+			 * dissect even completely unknown RPC program numbers,
 			 * then let him do that.
-			 * In this case we only check that the program number
-			 * is neither 0 nor -1 which is better than nothing.
+			 */
+			if(!rpc_dissect_unknown_programs){
+				/* They didn't, so just fail. */
+				return FALSE;
+			}
+			/* Yes.  Use some heuristics to keep from matching
+			 * any packet with a 2 in the appropriate location.
+			 * We check that the program number is neither
+			 * 0 nor -1, and that the version is <= 10, which
+			 * is better than nothing.
 			 */
 			if(rpc_prog_key==0 || rpc_prog_key==0xffffffff){
 				return FALSE;
 			}
 			version=tvb_get_ntohl(tvb, offset+16);
-			make_fake_rpc_prog_if_needed (rpc_prog_key, version);
-		}
-		if( (rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
-			/* They're not, so it's probably not an RPC call. */
-			return FALSE;
+			if(version>10){
+				return FALSE;
+			}
+
+			proto = NULL;
+			proto_id = 0;
+			ett = ett_rpc_unknown_program;
+			progname = wmem_strdup_printf(wmem_packet_scope(), "Unknown RPC program %u", rpc_prog_key);
 		}
 		break;
 
@@ -2228,13 +2208,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (msg_type) {
 
 	case RPC_CALL:
-		/* we know already the proto-entry, the ETT-const,
-		   and "rpc_prog" */
-		proto = rpc_prog->proto;
-		proto_id = rpc_prog->proto_id;
-		ett = rpc_prog->ett;
-		progname = rpc_prog->progname;
-
 		rpcvers = tvb_get_ntohl(tvb, offset);
 		if (rpc_tree) {
 			proto_tree_add_uint(rpc_tree,
@@ -2269,8 +2242,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = dissector_handle_get_dissector_name(dissect_function);
 		}
 		else {
-			/* happens only with strange program versions or
-			   non-existing dissectors */
+			/* happens only with unknown program or version
+			 * numbers
+			 */
+			dissect_function = data_handle;
 			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
 		}
 
@@ -2497,6 +2472,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = dissector_handle_get_dissector_name(dissect_function);
 		}
 		else {
+			/* happens only with unknown program or version
+			 * numbers
+			 */
+			dissect_function = data_handle;
 			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
 		}
 
@@ -2795,7 +2774,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* proto==0 if this is an unknown program */
 	if( (proto==0) || !proto_is_protocol_enabled(proto)){
-		dissect_function = NULL;
+		dissect_function = data_handle;
 	}
 
 	/*
@@ -4198,4 +4177,3 @@ proto_reg_handoff_rpc(void)
  * ex: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
