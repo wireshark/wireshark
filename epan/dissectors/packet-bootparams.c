@@ -138,13 +138,17 @@ static const vsff bootparams1_proc[] = {
 		dissect_getfile_call, dissect_getfile_reply },
 	{ 0, NULL, NULL, NULL }
 };
-/* end of Bootparams version 1 */
 
 static const value_string bootparams1_proc_vals[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL" },
 	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI" },
 	{ BOOTPARAMSPROC_GETFILE, "GETFILE" },
 	{ 0, NULL }
+};
+/* end of Bootparams version 1 */
+
+static const rpc_prog_vers_info bootparams_vers_info[] = {
+	{ 1, bootparams1_proc, &hf_bootparams_procedure_v1 },
 };
 
 void
@@ -190,9 +194,8 @@ void
 proto_reg_handoff_bootparams(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_bootparams, BOOTPARAMS_PROGRAM, 1, bootparams1_proc, hf_bootparams_procedure_v1);
+	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams,
+	    G_N_ELEMENTS(bootparams_vers_info), bootparams_vers_info);
 }
 
 /*

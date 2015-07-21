@@ -465,58 +465,6 @@ rpc_proc_hash(gconstpointer k)
 }
 
 
-/* insert some entries */
-void
-rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
-		    int procedure_hf)
-{
-	rpc_prog_info_value *rpc_prog;
-	const vsff *proc;
-
-	/*
-	 * Add the operation number hfinfo value for this version of the
-	 * program.
-	 */
-	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(prog));
-	DISSECTOR_ASSERT(rpc_prog != NULL);
-	rpc_prog->procedure_hfs = g_array_set_size(rpc_prog->procedure_hfs,
-	    vers);
-	g_array_insert_val(rpc_prog->procedure_hfs, vers, procedure_hf);
-
-	for (proc = proc_table ; proc->strptr!=NULL; proc++) {
-		rpc_proc_info_key key;
-
-		key.prog = prog;
-		key.vers = vers;
-		key.proc = proc->value;
-
-		if (proc->dissect_call == NULL) {
-			fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
-			    proto_get_protocol_long_name(rpc_prog->proto),
-			    vers,
-			    proc->strptr);
-			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-				abort();
-			continue;
-		}
-		dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
-					new_create_dissector_handle_with_name(proc->dissect_call, proto, proc->strptr));
-
-		if (proc->dissect_reply == NULL) {
-			fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
-			    proto_get_protocol_long_name(rpc_prog->proto),
-			    vers,
-			    proc->strptr);
-			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-				abort();
-			continue;
-		}
-		dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
-					new_create_dissector_handle_with_name(proc->dissect_reply, proto, proc->strptr));
-	}
-}
-
-
 /*	return the name associated with a previously registered procedure. */
 const char *
 rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
@@ -561,9 +509,12 @@ rpc_prog_free_val(gpointer v)
 }
 
 void
-rpc_init_prog(int proto, guint32 prog, int ett)
+rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
+    const rpc_prog_vers_info *versions)
 {
 	rpc_prog_info_value *value;
+	size_t versidx;
+	const vsff *proc;
 
 	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
 	value->proto = find_protocol_by_id(proto);
@@ -573,6 +524,52 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	value->procedure_hfs = g_array_new(FALSE, TRUE, sizeof (int));
 
 	g_hash_table_insert(rpc_progs,GUINT_TO_POINTER(prog),value);
+
+	/*
+	 * Now register each of the versions of the program.
+	 */
+	for (versidx = 0; versidx < nvers; versidx++) {
+		/*
+		 * Add the operation number hfinfo value for this version.
+		 */
+		value->procedure_hfs = g_array_set_size(value->procedure_hfs,
+		    versions[versidx].vers);
+		g_array_insert_val(value->procedure_hfs,
+		    versions[versidx].vers, *versions[versidx].procedure_hf);
+
+		for (proc = versions[versidx].proc_table; proc->strptr != NULL;
+		    proc++) {
+			rpc_proc_info_key key;
+
+			key.prog = prog;
+			key.vers = versions[versidx].vers;
+			key.proc = proc->value;
+
+			if (proc->dissect_call == NULL) {
+				fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+				    proto_get_protocol_long_name(value->proto),
+				    versions[versidx].vers,
+				    proc->strptr);
+				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+					abort();
+				continue;
+			}
+			dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
+						new_create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
+
+			if (proc->dissect_reply == NULL) {
+				fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+				    proto_get_protocol_long_name(value->proto),
+				    versions[versidx].vers,
+				    proc->strptr);
+				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+					abort();
+				continue;
+			}
+			dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
+					new_create_dissector_handle_with_name(proc->dissect_reply, value->proto_id, proc->strptr));
+		}
+	}
 }
 
 

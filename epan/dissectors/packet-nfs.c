@@ -9746,6 +9746,12 @@ static const value_string nfs4_proc_vals[] = {
 	{ 0, NULL }
 };
 
+static const rpc_prog_vers_info nfs_vers_info[] = {
+	{ 2, nfs2_proc, &hf_nfs2_procedure },
+	{ 3, nfs3_proc, &hf_nfs3_procedure },
+	{ 4, nfs4_proc, &hf_nfs4_procedure },
+};
+
 /*
  * Union of the NFSv2, NFSv3, and NFSv4 status codes.
  * Used for the "nfs.status" hidden field and in packet-nfsacl.c.
@@ -10239,18 +10245,20 @@ static const value_string nfs_cb_proc_vals[] = {
 	{ 0, NULL }
 };
 
+/*
+ * The version should be 4, but some Linux kernels set this field to 1.
+ * "Temporarily" accommodate these servers.
+ */
+static const rpc_prog_vers_info nfs_cb_vers_info[] = {
+	{ 1, nfs_cb_proc, &hf_nfs4_cb_procedure },
+	{ 4, nfs_cb_proc, &hf_nfs4_cb_procedure },
+};
+
 void reg_callback(int cbprog)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfs, cbprog, ett_nfs);
-
-	/*
-	 * Register the procedure tables.  The version should be 4,
-	 * but some Linux kernels set this field to 1.  "Temporarily",
-	 * accommodate these servers.
-	 */
-	rpc_init_proc_table(proto_nfs, cbprog, 1, nfs_cb_proc, hf_nfs4_cb_procedure);
-	rpc_init_proc_table(proto_nfs, cbprog, 4, nfs_cb_proc, hf_nfs4_cb_procedure);
+	rpc_init_prog(proto_nfs, cbprog, ett_nfs,
+	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 }
 
 void
@@ -12621,12 +12629,8 @@ proto_reg_handoff_nfs(void)
 	dissector_handle_t fhandle_handle;
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
-
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 2, nfs2_proc, hf_nfs2_procedure);
-	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 3, nfs3_proc, hf_nfs3_procedure);
-	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 4, nfs4_proc, hf_nfs4_procedure);
+	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs,
+	    G_N_ELEMENTS(nfs_vers_info), nfs_vers_info);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);

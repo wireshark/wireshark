@@ -230,6 +230,12 @@ static const vsff gluster_hndsk_2_proc[] = {
 };
 
 
+static const rpc_prog_vers_info gluster_hndsk_vers_info[] = {
+	{ 1, gluster_hndsk_proc, &hf_gluster_hndsk_proc },
+	{ 2, gluster_hndsk_2_proc, &hf_gluster_hndsk_proc },
+};
+
+
 static const value_string gluster_hndsk_proc_vals[] = {
 	{ GF_HNDSK_NULL,         "NULL" },
 	{ GF_HNDSK_SETVOLUME,    "DUMP" },
@@ -301,11 +307,8 @@ void
 proto_reg_handoff_gluster_hndsk(void)
 {
 	rpc_init_prog(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM,
-							ett_gluster_hndsk);
-	rpc_init_proc_table(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM, 1, gluster_hndsk_proc,
-							hf_gluster_hndsk_proc);
-	rpc_init_proc_table(proto_gluster_hndsk, GLUSTER_HNDSK_PROGRAM, 2, gluster_hndsk_2_proc,
-							hf_gluster_hndsk_proc);
+	    ett_gluster_hndsk,
+	    G_N_ELEMENTS(gluster_hndsk_vers_info), gluster_hndsk_vers_info);
 }
 
 /* Legacy GlusterFS Callback procedures, they don't contain any data. */
@@ -314,6 +317,9 @@ static const vsff gluster_cbk_proc[] = {
 	{ GF_CBK_FETCHSPEC, "FETCHSPEC", dissect_rpc_unknown, dissect_rpc_unknown },
 	{ GF_CBK_INO_FLUSH, "INO_FLUSH", dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
+};
+static const rpc_prog_vers_info gluster_cbk_vers_info[] = {
+	{ 1, gluster_cbk_proc, &hf_gluster_cbk_proc },
 };
 static const value_string gluster_cbk_proc_vals[] = {
 	{ GF_CBK_NULL,      "NULL" },
@@ -350,9 +356,8 @@ proto_register_gluster_cbk(void)
 void
 proto_reg_handoff_gluster_cbk(void)
 {
-	rpc_init_prog(proto_gluster_cbk, GLUSTER_CBK_PROGRAM, ett_gluster_cbk);
-	rpc_init_proc_table(proto_gluster_cbk, GLUSTER_CBK_PROGRAM, 1, gluster_cbk_proc,
-							hf_gluster_cbk_proc);
+	rpc_init_prog(proto_gluster_cbk, GLUSTER_CBK_PROGRAM, ett_gluster_cbk,
+	    G_N_ELEMENTS(gluster_cbk_vers_info), gluster_cbk_vers_info);
 }
 
 /*

@@ -1777,6 +1777,11 @@ static const vsff fmp3_proc[] = {
 };
 
 
+static const rpc_prog_vers_info fmp_vers_info[] = {
+    { FMP_VERSION_3, fmp3_proc, &hf_fmp_procedure }
+};
+
+
 static const value_string fmp_proc_vals[] = {
     {  0, "NULL" },
     {  1, "SessionCreate" },
@@ -2296,10 +2301,8 @@ void
 proto_reg_handoff_fmp(void)
 {
     /* Register the protocol as RPC */
-    rpc_init_prog(proto_fmp, FMP_PROGRAM, ett_fmp);
-
-    /* Register the procedure tables */
-    rpc_init_proc_table(proto_fmp, FMP_PROGRAM, FMP_VERSION_3, fmp3_proc, hf_fmp_procedure);
+    rpc_init_prog(proto_fmp, FMP_PROGRAM, ett_fmp,
+                  G_N_ELEMENTS(fmp_vers_info), fmp_vers_info);
 }
 
 /*

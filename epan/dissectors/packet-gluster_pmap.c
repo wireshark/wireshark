@@ -163,6 +163,9 @@ static const value_string gluster_pmap_proc_vals[] = {
 	{ GF_PMAP_SIGNUP,      "SIGNUP" },
 	{ 0, NULL }
 };
+static const rpc_prog_vers_info gluster_pmap_vers_info[] = {
+	{ 1, gluster_pmap_proc, &hf_gluster_pmap_proc }
+};
 
 /* procedures for GLUSTER_DUMP_PROGRAM */
 static const vsff gluster_dump_proc[] = {
@@ -174,6 +177,9 @@ static const value_string gluster_dump_proc_vals[] = {
 	{ 0,            "NULL" },
 	{ GF_DUMP_DUMP, "DUMP" },
 	{ 0, NULL }
+};
+static const rpc_prog_vers_info gluster_dump_vers_info[] = {
+	{ 1, gluster_dump_proc, &hf_gluster_dump_proc }
 };
 
 void
@@ -216,9 +222,8 @@ void
 proto_reg_handoff_gluster_pmap(void)
 {
 	rpc_init_prog(proto_gluster_pmap, GLUSTER_PMAP_PROGRAM,
-							ett_gluster_pmap);
-	rpc_init_proc_table(proto_gluster_pmap, GLUSTER_PMAP_PROGRAM, 1, gluster_pmap_proc,
-							hf_gluster_pmap_proc);
+	    ett_gluster_pmap,
+	    G_N_ELEMENTS(gluster_pmap_vers_info), gluster_pmap_vers_info);
 }
 
 void
@@ -266,9 +271,8 @@ void
 proto_reg_handoff_gluster_dump(void)
 {
 	rpc_init_prog(proto_gluster_dump, GLUSTER_DUMP_PROGRAM,
-							ett_gluster_dump);
-	rpc_init_proc_table(proto_gluster_dump, GLUSTER_DUMP_PROGRAM, 1, gluster_dump_proc,
-							hf_gluster_dump_proc);
+	    ett_gluster_dump,
+	    G_N_ELEMENTS(gluster_dump_vers_info), gluster_dump_vers_info);
 }
 
 /*

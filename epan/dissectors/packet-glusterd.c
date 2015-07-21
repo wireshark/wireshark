@@ -616,6 +616,12 @@ static const vsff gd_mgmt_3_proc[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
+static const rpc_prog_vers_info glusterd_mgmt_vers_info[] = {
+	{ 1, gd_mgmt_proc, &hf_gd_mgmt_proc },
+	{ 2, gd_mgmt_2_proc, &hf_gd_mgmt_2_proc },
+	{ 3, gd_mgmt_3_proc, &hf_gd_mgmt_3_proc }
+};
+
 static const vsff gd_mgmt_brick_2_proc[] = {
 	{
 		GLUSTERD_2_BRICK_NULL, "NULL",
@@ -656,6 +662,10 @@ static const vsff gd_mgmt_brick_2_proc[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
+static const rpc_prog_vers_info gd_mgmt_brick_vers_info[] = {
+	{ 2, gd_mgmt_brick_2_proc, &hf_gd_mgmt_brick_2_proc },
+};
+
 static const vsff glusterd_friend_proc[] = {
 	{ GLUSTERD_FRIEND_NULL,   "NULL" ,        dissect_rpc_void , dissect_rpc_void },
 	{ GLUSTERD_PROBE_QUERY,   "PROBE_QUERY" , dissect_rpc_unknown , dissect_rpc_unknown },
@@ -663,6 +673,10 @@ static const vsff glusterd_friend_proc[] = {
 	{ GLUSTERD_FRIEND_REMOVE, "REMOVE",       dissect_rpc_unknown , dissect_rpc_unknown },
 	{ GLUSTERD_FRIEND_UPDATE, "UPDATE" ,      dissect_rpc_unknown , dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
+};
+
+static const rpc_prog_vers_info glusterd_friend_vers_info[] = {
+	{ 2, glusterd_friend_proc, &hf_glusterd_friend_proc },
 };
 
 static const value_string gd_mgmt_proc_vals[] = {
@@ -885,19 +899,14 @@ proto_register_gluster_gd_mgmt(void)
 void
 proto_reg_handoff_gluster_gd_mgmt(void)
 {
-	rpc_init_prog(proto_gd_mgmt, GD_MGMT_PROGRAM, ett_gd_mgmt);
-	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 1, gd_mgmt_proc, hf_gd_mgmt_proc);
-	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 2, gd_mgmt_2_proc,
-							hf_gd_mgmt_2_proc);
-	rpc_init_proc_table(proto_gd_mgmt, GD_MGMT_PROGRAM, 3, gd_mgmt_3_proc,
-							hf_gd_mgmt_3_proc);
+	rpc_init_prog(proto_gd_mgmt, GD_MGMT_PROGRAM, ett_gd_mgmt,
+	    G_N_ELEMENTS(glusterd_mgmt_vers_info), glusterd_mgmt_vers_info);
 
-	rpc_init_prog(proto_gd_brick, GD_BRICK_PROGRAM, ett_gd_brick);
-	rpc_init_proc_table(proto_gd_brick, GD_BRICK_PROGRAM, 2, gd_mgmt_brick_2_proc,
-						hf_gd_mgmt_brick_2_proc);
-	rpc_init_prog(proto_gd_friend, GD_FRIEND_PROGRAM, ett_gd_friend);
-	rpc_init_proc_table(proto_gd_friend, GD_FRIEND_PROGRAM, 2,glusterd_friend_proc,
-						hf_glusterd_friend_proc);
+	rpc_init_prog(proto_gd_brick, GD_BRICK_PROGRAM, ett_gd_brick,
+	    G_N_ELEMENTS(gd_mgmt_brick_vers_info), gd_mgmt_brick_vers_info);
+
+	rpc_init_prog(proto_gd_friend, GD_FRIEND_PROGRAM, ett_gd_friend,
+	    G_N_ELEMENTS(glusterd_friend_vers_info), glusterd_friend_vers_info);
 }
 
 /*

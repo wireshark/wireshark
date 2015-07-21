@@ -97,6 +97,10 @@ static const value_string yppasswd1_proc_vals[] = {
 	{ 0,	NULL }
 };
 
+static const rpc_prog_vers_info yppasswd_vers_info[] = {
+	{ 1, yppasswd1_proc, &hf_yppasswd_procedure_v1 },
+};
+
 void
 proto_register_yppasswd(void)
 {
@@ -161,9 +165,8 @@ void
 proto_reg_handoff_yppasswd(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_yppasswd, YPPASSWD_PROGRAM, ett_yppasswd);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_yppasswd, YPPASSWD_PROGRAM, 1, yppasswd1_proc, hf_yppasswd_procedure_v1);
+	rpc_init_prog(proto_yppasswd, YPPASSWD_PROGRAM, ett_yppasswd,
+	    G_N_ELEMENTS(yppasswd_vers_info), yppasswd_vers_info);
 }
 
 /*

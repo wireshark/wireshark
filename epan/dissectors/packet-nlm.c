@@ -1095,6 +1095,12 @@ static const value_string nlm4_proc_vals[] = {
 };
 /* end of NLM protocol version 4 */
 
+static const rpc_prog_vers_info nlm_vers_info[] = {
+	{ 1, nlm1_proc, &hf_nlm_procedure_v1 },
+	{ 2, nlm2_proc, &hf_nlm_procedure_v2 },
+	{ 3, nlm3_proc, &hf_nlm_procedure_v3 },
+	{ 4, nlm4_proc, &hf_nlm_procedure_v4 },
+};
 
 void
 proto_register_nlm(void)
@@ -1214,12 +1220,8 @@ void
 proto_reg_handoff_nlm(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nlm, NLM_PROGRAM, 1, nlm1_proc, hf_nlm_procedure_v1);
-	rpc_init_proc_table(proto_nlm, NLM_PROGRAM, 2, nlm2_proc, hf_nlm_procedure_v2);
-	rpc_init_proc_table(proto_nlm, NLM_PROGRAM, 3, nlm3_proc, hf_nlm_procedure_v3);
-	rpc_init_proc_table(proto_nlm, NLM_PROGRAM, 4, nlm4_proc, hf_nlm_procedure_v4);
+	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm,
+	    G_N_ELEMENTS(nlm_vers_info), nlm_vers_info);
 }
 
 /*

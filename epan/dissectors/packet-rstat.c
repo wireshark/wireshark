@@ -108,6 +108,13 @@ static const value_string rstat4_proc_vals[] = {
 	{ 0,	NULL }
 };
 
+static const rpc_prog_vers_info rstat_vers_info[] = {
+	{ 1, rstat1_proc, &hf_rstat_procedure_v1 },
+	{ 2, rstat2_proc, &hf_rstat_procedure_v2 },
+	{ 3, rstat3_proc, &hf_rstat_procedure_v3 },
+	{ 4, rstat4_proc, &hf_rstat_procedure_v4 },
+};
+
 void
 proto_register_rstat(void)
 {
@@ -139,12 +146,8 @@ void
 proto_reg_handoff_rstat(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_rstat, RSTAT_PROGRAM, ett_rstat);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_rstat, RSTAT_PROGRAM, 1, rstat1_proc, hf_rstat_procedure_v1);
-	rpc_init_proc_table(proto_rstat, RSTAT_PROGRAM, 2, rstat2_proc, hf_rstat_procedure_v2);
-	rpc_init_proc_table(proto_rstat, RSTAT_PROGRAM, 3, rstat3_proc, hf_rstat_procedure_v3);
-	rpc_init_proc_table(proto_rstat, RSTAT_PROGRAM, 4, rstat4_proc, hf_rstat_procedure_v4);
+	rpc_init_prog(proto_rstat, RSTAT_PROGRAM, ett_rstat,
+	    G_N_ELEMENTS(rstat_vers_info), rstat_vers_info);
 }
 
 /*

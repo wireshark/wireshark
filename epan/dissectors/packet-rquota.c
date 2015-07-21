@@ -203,6 +203,11 @@ static const value_string rquota2_proc_vals[] = {
 };
 /* end of RQUOTA version 2 */
 
+static const rpc_prog_vers_info rquota_vers_info[] = {
+	{ 1, rquota1_proc, &hf_rquota_procedure_v1 },
+	{ 2, rquota2_proc, &hf_rquota_procedure_v2 },
+};
+
 void
 proto_register_rquota(void)
 {
@@ -296,10 +301,8 @@ void
 proto_reg_handoff_rquota(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_rquota, RQUOTA_PROGRAM, 1, rquota1_proc, hf_rquota_procedure_v1);
-	rpc_init_proc_table(proto_rquota, RQUOTA_PROGRAM, 2, rquota2_proc, hf_rquota_procedure_v2);
+	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota,
+	    G_N_ELEMENTS(rquota_vers_info), rquota_vers_info);
 }
 
 /*

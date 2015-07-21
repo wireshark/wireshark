@@ -462,6 +462,10 @@ static const value_string teklink_proc_vals[] = {
 	{ 0, NULL }
 };
 
+static const rpc_prog_vers_info teklink_vers_info[] = {
+	{ 1, teklink_proc, &hf_teklink_procedure },
+};
+
 #if 0
 static const value_string teklink_error_vals[] = {
 	{ 0, NULL }
@@ -573,10 +577,8 @@ void
 proto_reg_handoff_teklink(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_teklink, PROGRAM_TEKLINK, ett_teklink);
-
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_teklink, PROGRAM_TEKLINK, 1, teklink_proc, hf_teklink_procedure);
+	rpc_init_prog(proto_teklink, PROGRAM_TEKLINK, ett_teklink,
+	    G_N_ELEMENTS(teklink_vers_info), teklink_vers_info);
 }
 
 /*

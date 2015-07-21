@@ -49,6 +49,10 @@ static const value_string ypxfr1_proc_vals[] = {
 };
 /* end of YPXFR version 1 */
 
+static const rpc_prog_vers_info ypxfr_vers_info[] = {
+	{ 1, ypxfr1_proc, &hf_ypxfr_procedure_v1 },
+};
+
 void
 proto_register_ypxfr(void)
 {
@@ -72,9 +76,8 @@ void
 proto_reg_handoff_ypxfr(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_ypxfr, YPXFR_PROGRAM, 1, ypxfr1_proc, hf_ypxfr_procedure_v1);
+	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr,
+	    G_N_ELEMENTS(ypxfr_vers_info), ypxfr_vers_info);
 }
 
 /*

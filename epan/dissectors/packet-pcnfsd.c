@@ -341,6 +341,10 @@ static const value_string pcnfsd2_proc_vals[] = {
 };
 /* end of PCNFS version 2 */
 
+static const rpc_prog_vers_info pcnfsd_vers_info[] = {
+	{ 1, pcnfsd1_proc, &hf_pcnfsd_procedure_v1 },
+	{ 2, pcnfsd2_proc, &hf_pcnfsd_procedure_v2 },
+};
 
 void
 proto_register_pcnfsd(void)
@@ -416,10 +420,8 @@ void
 proto_reg_handoff_pcnfsd(void)
 {
     /* Register the protocol as RPC */
-    rpc_init_prog(proto_pcnfsd, PCNFSD_PROGRAM, ett_pcnfsd);
-    /* Register the procedure tables */
-    rpc_init_proc_table(proto_pcnfsd, PCNFSD_PROGRAM, 1, pcnfsd1_proc, hf_pcnfsd_procedure_v1);
-    rpc_init_proc_table(proto_pcnfsd, PCNFSD_PROGRAM, 2, pcnfsd2_proc, hf_pcnfsd_procedure_v2);
+    rpc_init_prog(proto_pcnfsd, PCNFSD_PROGRAM, ett_pcnfsd,
+                  G_N_ELEMENTS(pcnfsd_vers_info), pcnfsd_vers_info);
 }
 
 /*

@@ -393,6 +393,12 @@ static const vsff gluster_cli_2_proc[] = {
 };
 
 
+static const rpc_prog_vers_info gluster_cli_vers_info[] = {
+	{ 1, gluster_cli_proc, &hf_gluster_cli_proc },
+	{ 2, gluster_cli_2_proc, &hf_gluster_cli_2_proc }
+};
+
+
 static const value_string gluster_cli_proc_vals[] = {
 	{ GLUSTER_CLI_NULL,             "NULL" },
 	{ GLUSTER_CLI_PROBE,            "PROBE" },
@@ -546,11 +552,8 @@ proto_register_gluster_cli(void)
 void
 proto_reg_handoff_gluster_cli(void)
 {
-	rpc_init_prog(proto_gluster_cli, GLUSTER_CLI_PROGRAM, ett_gluster_cli);
-	rpc_init_proc_table(proto_gluster_cli, GLUSTER_CLI_PROGRAM, 1, gluster_cli_proc,
-							hf_gluster_cli_proc);
-	rpc_init_proc_table(proto_gluster_cli, GLUSTER_CLI_PROGRAM, 2, gluster_cli_2_proc,
-							hf_gluster_cli_2_proc);
+	rpc_init_prog(proto_gluster_cli, GLUSTER_CLI_PROGRAM, ett_gluster_cli,
+	    G_N_ELEMENTS(gluster_cli_vers_info), gluster_cli_vers_info);
 }
 
 /*

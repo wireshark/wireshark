@@ -765,6 +765,12 @@ static const value_string mount3_proc_vals[] = {
 };
 /* end of Mount protocol version 3 */
 
+static const rpc_prog_vers_info mount_vers_info[] = {
+	{ 1, mount1_proc, &hf_mount_procedure_v1 },
+	{ 2, mount2_proc, &hf_mount_procedure_v2 },
+	{ 3, mount3_proc, &hf_mount_procedure_v3 },
+};
+
 /* SGI mount protocol version 1; actually the same as v1 plus
    MOUNTPROC_EXPORTLIST and MOUNTPROC_STATVFS */
 
@@ -802,6 +808,10 @@ static const value_string sgi_mount1_proc_vals[] = {
 	{ 0, NULL }
 };
 /* end of SGI mount protocol version 1 */
+
+static const rpc_prog_vers_info sgi_mount_vers_info[] = {
+	{ 1, sgi_mount1_proc, &hf_sgi_mount_procedure_v1 },
+};
 
 void
 proto_register_mount(void)
@@ -1027,14 +1037,11 @@ proto_register_mount(void)
 void
 proto_reg_handoff_mount(void)
 {
-	/* Register the protocol as RPC */
-	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
-	rpc_init_prog(proto_sgi_mount, SGI_MOUNT_PROGRAM, ett_mount);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 1, mount1_proc, hf_mount_procedure_v1);
-	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 2, mount2_proc, hf_mount_procedure_v2);
-	rpc_init_proc_table(proto_mount, MOUNT_PROGRAM, 3, mount3_proc, hf_mount_procedure_v3);
-	rpc_init_proc_table(proto_sgi_mount, SGI_MOUNT_PROGRAM, 1, sgi_mount1_proc, hf_sgi_mount_procedure_v1);
+	/* Register the protocols as RPC */
+	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount,
+	    G_N_ELEMENTS(mount_vers_info), mount_vers_info);
+	rpc_init_prog(proto_sgi_mount, SGI_MOUNT_PROGRAM, ett_mount,
+	    G_N_ELEMENTS(sgi_mount_vers_info), sgi_mount_vers_info);
 }
 
 /*

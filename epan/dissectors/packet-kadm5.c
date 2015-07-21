@@ -114,6 +114,10 @@ static const value_string kadm5_v2_proc_vals[] = {
 	{ 0,				 NULL }
 };
 
+static const rpc_prog_vers_info kadm5_vers_info[] = {
+	{ 2, kadm5_v2_proc, &hf_kadm5_procedure_v2 },
+};
+
 void
 proto_register_kadm5(void)
 {
@@ -137,10 +141,8 @@ void
 proto_reg_handoff_kadm5(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_kadm5, KADM5_PROGRAM, ett_kadm5);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_kadm5, KADM5_PROGRAM, 2, kadm5_v2_proc,
-	    hf_kadm5_procedure_v2);
+	rpc_init_prog(proto_kadm5, KADM5_PROGRAM, ett_kadm5,
+	    G_N_ELEMENTS(kadm5_vers_info), kadm5_vers_info);
 }
 
 /*

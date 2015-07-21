@@ -1165,6 +1165,9 @@ static const value_string nisplus3_proc_vals[] = {
 	{ NISPROC_UPDKEYS,		"UPDKEYS" },
 	{ 0,	NULL }
 };
+static const rpc_prog_vers_info nisplus_vers_info[] = {
+	{ 3, nisplus3_proc, &hf_nisplus_procedure_v3 },
+};
 
 
 
@@ -1831,9 +1834,8 @@ void
 proto_reg_handoff_nis(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nisplus, NIS_PROGRAM, ett_nisplus);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nisplus, NIS_PROGRAM, 3, nisplus3_proc, hf_nisplus_procedure_v3);
+	rpc_init_prog(proto_nisplus, NIS_PROGRAM, ett_nisplus,
+	    G_N_ELEMENTS(nisplus_vers_info), nisplus_vers_info);
 }
 
 
@@ -1897,6 +1899,9 @@ static const value_string nispluscb1_proc_vals[] = {
 	{ CBPROC_ERROR,		"ERROR" },
 	{	0,	NULL }
 };
+static const rpc_prog_vers_info nispluscb_vers_info[] = {
+	{ 1, cb1_proc, &hf_nispluscb_procedure_v1 },
+};
 
 void
 proto_register_niscb(void)
@@ -1930,9 +1935,8 @@ void
 proto_reg_handoff_niscb(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nispluscb, CB_PROGRAM, ett_nispluscb);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nispluscb, CB_PROGRAM, 1, cb1_proc, hf_nispluscb_procedure_v1);
+	rpc_init_prog(proto_nispluscb, CB_PROGRAM, ett_nispluscb,
+	    G_N_ELEMENTS(nispluscb_vers_info), nispluscb_vers_info);
 }
 
 /*

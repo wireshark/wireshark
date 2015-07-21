@@ -923,12 +923,12 @@ proto_reg_handoff_vxi11_core(void)
           dissect_rpc_void, dissect_device_error },
         { 0, NULL, NULL, NULL }
     };
+    static const rpc_prog_vers_info vxi11_core_vers_info[] = {
+        { VXI11_CORE_VERSION, vxi111_core_proc, &hf_vxi11_core_procedure_v1 },
+    };
 
-    rpc_init_prog(proto_vxi11_core, VXI11_CORE_PROGRAM, ett_vxi11_core);
-    rpc_init_proc_table(proto_vxi11_core, VXI11_CORE_PROGRAM,
-                        VXI11_CORE_VERSION,
-                        vxi111_core_proc,
-                        hf_vxi11_core_procedure_v1);
+    rpc_init_prog(proto_vxi11_core, VXI11_CORE_PROGRAM, ett_vxi11_core,
+                  G_N_ELEMENTS(vxi11_core_vers_info), vxi11_core_vers_info);
 }
 
 
@@ -970,12 +970,12 @@ proto_reg_handoff_vxi11_async(void)
           dissect_device_link, dissect_device_error },
         { 0, NULL, NULL, NULL }
     };
+    static const rpc_prog_vers_info vxi11_async_vers_info[] = {
+        { VXI11_ASYNC_VERSION, vxi111_async_proc, &hf_vxi11_async_procedure_v1 },
+    };
 
-    rpc_init_prog(proto_vxi11_async, VXI11_ASYNC_PROGRAM, ett_vxi11_async);
-    rpc_init_proc_table(proto_vxi11_async, VXI11_ASYNC_PROGRAM,
-                        VXI11_ASYNC_VERSION,
-                        vxi111_async_proc,
-                        hf_vxi11_async_procedure_v1);
+    rpc_init_prog(proto_vxi11_async, VXI11_ASYNC_PROGRAM, ett_vxi11_async,
+                  G_N_ELEMENTS(vxi11_async_vers_info), vxi11_async_vers_info);
 }
 
 
@@ -1023,12 +1023,12 @@ proto_reg_handoff_vxi11_intr(void)
           dissect_device_SRQ_parms, dissect_rpc_void },
         { 0, NULL, NULL, NULL }
     };
+    static const rpc_prog_vers_info vxi11_intr_vers_info[] = {
+        { VXI11_INTR_VERSION, vxi111_intr_proc, &hf_vxi11_intr_procedure_v1 },
+    };
 
-    rpc_init_prog(proto_vxi11_intr, VXI11_INTR_PROGRAM, ett_vxi11_intr);
-    rpc_init_proc_table(proto_vxi11_intr, VXI11_INTR_PROGRAM,
-                        VXI11_INTR_VERSION,
-                        vxi111_intr_proc,
-                        hf_vxi11_intr_procedure_v1);
+    rpc_init_prog(proto_vxi11_intr, VXI11_INTR_PROGRAM, ett_vxi11_intr,
+                  G_N_ELEMENTS(vxi11_intr_vers_info), vxi11_intr_vers_info);
 }
 
 /*

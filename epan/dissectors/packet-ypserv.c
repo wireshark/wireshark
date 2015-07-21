@@ -572,6 +572,11 @@ static const value_string ypserv2_proc_vals[] = {
 /* end of YPServ version 2 */
 
 
+static const rpc_prog_vers_info ypserv_vers_info[] = {
+	{ 1, ypserv1_proc, &hf_ypserv_procedure_v1 },
+	{ 2, ypserv2_proc, &hf_ypserv_procedure_v2 },
+};
+
 void
 proto_register_ypserv(void)
 {
@@ -640,12 +645,8 @@ void
 proto_reg_handoff_ypserv(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_ypserv, YPSERV_PROGRAM, 1, ypserv1_proc,
-	    hf_ypserv_procedure_v1);
-	rpc_init_proc_table(proto_ypserv, YPSERV_PROGRAM, 2, ypserv2_proc,
-	    hf_ypserv_procedure_v2);
+	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv,
+	    G_N_ELEMENTS(ypserv_vers_info), ypserv_vers_info);
 }
 
 /*

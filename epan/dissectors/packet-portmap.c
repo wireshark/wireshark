@@ -554,6 +554,13 @@ static const value_string portmap4_proc_vals[] = {
 };
 /* end of Portmap version 4 */
 
+static const rpc_prog_vers_info portmap_vers_info[] = {
+	{ 1, portmap1_proc, &hf_portmap_procedure_v1 },
+	{ 2, portmap2_proc, &hf_portmap_procedure_v2 },
+	{ 3, portmap3_proc, &hf_portmap_procedure_v3 },
+	{ 4, portmap4_proc, &hf_portmap_procedure_v4 },
+};
+
 void
 proto_register_portmap(void)
 {
@@ -631,12 +638,9 @@ void
 proto_reg_handoff_portmap(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 1, portmap1_proc, hf_portmap_procedure_v1);
-	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 2, portmap2_proc, hf_portmap_procedure_v2);
-	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 3, portmap3_proc, hf_portmap_procedure_v3);
-	rpc_init_proc_table(proto_portmap, PORTMAP_PROGRAM, 4, portmap4_proc, hf_portmap_procedure_v4);
+	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap,
+	    G_N_ELEMENTS(portmap_vers_info), portmap_vers_info);
+
 	rpc_handle = find_dissector("rpc");
 }
 

@@ -504,6 +504,12 @@ static const value_string nfsacl3_proc_vals[] = {
 	{ 0,	NULL }
 };
 
+static const rpc_prog_vers_info nfsacl_vers_info[] = {
+	{ 1, nfsacl1_proc, &hf_nfsacl_procedure_v1 },
+	{ 2, nfsacl2_proc, &hf_nfsacl_procedure_v2 },
+	{ 3, nfsacl3_proc, &hf_nfsacl_procedure_v3 },
+};
+
 void
 proto_register_nfsacl(void)
 {
@@ -587,11 +593,8 @@ void
 proto_reg_handoff_nfsacl(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfsacl, NFSACL_PROGRAM, ett_nfsacl);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nfsacl, NFSACL_PROGRAM, 1, nfsacl1_proc, hf_nfsacl_procedure_v1);
-	rpc_init_proc_table(proto_nfsacl, NFSACL_PROGRAM, 2, nfsacl2_proc, hf_nfsacl_procedure_v2);
-	rpc_init_proc_table(proto_nfsacl, NFSACL_PROGRAM, 3, nfsacl3_proc, hf_nfsacl_procedure_v3);
+	rpc_init_prog(proto_nfsacl, NFSACL_PROGRAM, ett_nfsacl,
+	    G_N_ELEMENTS(nfsacl_vers_info), nfsacl_vers_info);
 }
 
 /*

@@ -69,6 +69,10 @@ static const value_string statnotify1_proc_vals[] = {
 };
 /* end of stat-notify version 1 */
 
+static const rpc_prog_vers_info statnotify_vers_info[] = {
+	{ 1, statnotify1_proc, &hf_statnotify_procedure_v1 },
+};
+
 
 void
 proto_register_statnotify(void)
@@ -101,9 +105,8 @@ void
 proto_reg_handoff_statnotify(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_statnotify, STATNOTIFY_PROGRAM, ett_statnotify);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_statnotify, STATNOTIFY_PROGRAM, 1, statnotify1_proc, hf_statnotify_procedure_v1);
+	rpc_init_prog(proto_statnotify, STATNOTIFY_PROGRAM, ett_statnotify,
+	    G_N_ELEMENTS(statnotify_vers_info), statnotify_vers_info);
 }
 
 /*

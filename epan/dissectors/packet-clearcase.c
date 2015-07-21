@@ -48,6 +48,10 @@ static const value_string clearcase3_proc_vals[] = {
 };
 /* end of Clearcase version 3 */
 
+static const rpc_prog_vers_info clearcase_vers_info[] = {
+	{ 3, clearcase3_proc, &hf_clearcase_procedure_v3 }
+};
+
 void
 proto_register_clearcase(void)
 {
@@ -71,9 +75,8 @@ void
 proto_reg_handoff_clearcase(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_clearcase, CLEARCASE_PROGRAM, ett_clearcase);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_clearcase, CLEARCASE_PROGRAM, 3, clearcase3_proc, hf_clearcase_procedure_v3);
+	rpc_init_prog(proto_clearcase, CLEARCASE_PROGRAM, ett_clearcase,
+	    G_N_ELEMENTS(clearcase_vers_info), clearcase_vers_info);
 }
 
 /*

@@ -2164,6 +2164,12 @@ static const vsff glusterfs3_3_fop_proc[] = {
 };
 
 
+static const rpc_prog_vers_info glusterfs_vers_info[] = {
+	{ 310, glusterfs3_1_fop_proc, &hf_glusterfs_proc },
+	{ 330, glusterfs3_3_fop_proc, &hf_glusterfs_proc },
+};
+
+
 static const value_string glusterfs3_1_fop_proc_vals[] = {
 	{ GFS3_OP_NULL,         "NULL" },
 	{ GFS3_OP_STAT,         "STAT" },
@@ -2860,12 +2866,8 @@ proto_register_glusterfs(void)
 void
 proto_reg_handoff_glusterfs(void)
 {
-	rpc_init_prog(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, ett_glusterfs);
-	rpc_init_proc_table(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, 310, glusterfs3_1_fop_proc,
-							hf_glusterfs_proc);
-	rpc_init_proc_table(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, 330, glusterfs3_3_fop_proc,
-							hf_glusterfs_proc);
-
+	rpc_init_prog(proto_glusterfs, GLUSTER3_1_FOP_PROGRAM, ett_glusterfs,
+	    G_N_ELEMENTS(glusterfs_vers_info), glusterfs_vers_info);
 }
 
 /*

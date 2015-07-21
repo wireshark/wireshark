@@ -676,6 +676,9 @@ static const vsff hclnfsd1_proc[] = {
 	  dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
+static const rpc_prog_vers_info hclnfsd_vers_info[] = {
+	{ 1, hclnfsd1_proc, &hf_hclnfsd_procedure_v1 },
+};
 static const value_string hclnfsd1_proc_vals[] = {
 	{ HCLNFSDPROC_NULL,		"NULL" },
 	{ HCLNFSDPROC_SPOOL_INQUIRE,	"SPOOL_INQUIRE" },
@@ -902,10 +905,8 @@ void
 proto_reg_handoff_hclnfsd(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd);
-
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_hclnfsd, HCLNFSD_PROGRAM, 1, hclnfsd1_proc, hf_hclnfsd_procedure_v1);
+	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd,
+	    G_N_ELEMENTS(hclnfsd_vers_info), hclnfsd_vers_info);
 }
 
 /*

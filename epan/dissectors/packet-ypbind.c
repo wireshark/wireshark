@@ -165,6 +165,11 @@ static const value_string ypbind2_proc_vals[] = {
 /* end of YPBind version 2 */
 
 
+static const rpc_prog_vers_info ypbind_vers_info[] = {
+	{ 1, ypbind1_proc, &hf_ypbind_procedure_v1 },
+	{ 2, ypbind2_proc, &hf_ypbind_procedure_v2 },
+};
+
 void
 proto_register_ypbind(void)
 {
@@ -216,10 +221,8 @@ void
 proto_reg_handoff_ypbind(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ett_ypbind);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_ypbind, YPBIND_PROGRAM, 1, ypbind1_proc, hf_ypbind_procedure_v1);
-	rpc_init_proc_table(proto_ypbind, YPBIND_PROGRAM, 2, ypbind2_proc, hf_ypbind_procedure_v2);
+	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ett_ypbind,
+	    G_N_ELEMENTS(ypbind_vers_info), ypbind_vers_info);
 }
 
 /*

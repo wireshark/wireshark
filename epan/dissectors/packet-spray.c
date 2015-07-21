@@ -90,6 +90,10 @@ static const value_string spray1_proc_vals[] = {
 	{ 0,	NULL }
 };
 
+static const rpc_prog_vers_info spray_vers_info[] = {
+	{ 1, spray1_proc, &hf_spray_procedure_v1 },
+};
+
 void
 proto_register_spray(void)
 {
@@ -133,9 +137,8 @@ void
 proto_reg_handoff_spray(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_spray, SPRAY_PROGRAM, ett_spray);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_spray, SPRAY_PROGRAM, 1, spray1_proc, hf_spray_procedure_v1);
+	rpc_init_prog(proto_spray, SPRAY_PROGRAM, ett_spray,
+	    G_N_ELEMENTS(spray_vers_info), spray_vers_info);
 }
 
 /*

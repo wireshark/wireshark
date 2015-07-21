@@ -59,6 +59,10 @@ static const vsff rwall1_proc[] = {
 	{ 0,	NULL,	NULL,	NULL }
 };
 
+static const rpc_prog_vers_info rwall_vers_info[] = {
+	{ 1, rwall1_proc, &hfi_rwall_procedure_v1.id },
+};
+
 void
 proto_register_rwall(void)
 {
@@ -86,9 +90,8 @@ void
 proto_reg_handoff_rwall(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(hfi_rwall->id, RWALL_PROGRAM, ett_rwall);
-	/* Register the procedure tables */
-	rpc_init_proc_table(hfi_rwall->id, RWALL_PROGRAM, 1, rwall1_proc, hfi_rwall_procedure_v1.id);
+	rpc_init_prog(hfi_rwall->id, RWALL_PROGRAM, ett_rwall,
+	    G_N_ELEMENTS(rwall_vers_info), rwall_vers_info);
 }
 
 /*

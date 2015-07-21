@@ -51,6 +51,9 @@ static const value_string nfsauth1_proc_vals[] = {
 	{ NFSAUTH1_ACCESS,	"ACCESS" },
 	{ 0,	NULL }
 };
+static const rpc_prog_vers_info nfsauth_vers_info[] = {
+	{ 1, nfsauth1_proc, &hf_nfsauth_procedure_v1 },
+};
 
 
 void
@@ -75,9 +78,8 @@ void
 proto_reg_handoff_nfsauth(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfsauth, NFSAUTH_PROGRAM, ett_nfsauth);
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_nfsauth, NFSAUTH_PROGRAM, 1, nfsauth1_proc, hf_nfsauth_procedure_v1);
+	rpc_init_prog(proto_nfsauth, NFSAUTH_PROGRAM, ett_nfsauth,
+	    G_N_ELEMENTS(nfsauth_vers_info), nfsauth_vers_info);
 }
 
 /*

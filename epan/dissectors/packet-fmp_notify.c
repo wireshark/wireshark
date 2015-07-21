@@ -402,6 +402,10 @@ static const vsff fmp_notify2_proc[] = {
 	{ 0,		NULL,		NULL,		NULL }
 };
 
+static const rpc_prog_vers_info fmp_notify_vers_info[] = {
+	{ FMP_NOTIFY_VERSION_2, fmp_notify2_proc, &hf_fmp_notify_procedure }
+};
+
 static const value_string fmp_notify_proc_vals[] = {
 	{ 0, "NULL" },
 	{ 1, "DownGrade" },
@@ -610,11 +614,8 @@ void
 proto_reg_handoff_fmp_notify(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_fmp_notify, FMP_NOTIFY_PROG, ett_fmp_notify);
-
-	/* Register the procedure tables */
-	rpc_init_proc_table(proto_fmp_notify, FMP_NOTIFY_PROG, FMP_NOTIFY_VERSION_2,
-			    fmp_notify2_proc,hf_fmp_notify_procedure);
+	rpc_init_prog(proto_fmp_notify, FMP_NOTIFY_PROG, ett_fmp_notify,
+                      G_N_ELEMENTS(fmp_notify_vers_info), fmp_notify_vers_info);
 }
 
 /*

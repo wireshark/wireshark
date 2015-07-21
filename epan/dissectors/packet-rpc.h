@@ -132,6 +132,9 @@ typedef struct _rpc_call_info_value {
 
 typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree, void* data);
 
+/*
+ * Information about a particular version of a program.
+ */
 typedef struct _vsff {
 	guint32	value;
 	const gchar   *strptr;
@@ -139,11 +142,16 @@ typedef struct _vsff {
 	new_dissector_t dissect_reply;
 } vsff;
 
+typedef struct _rpc_proc_list {
+	guint vers;
+	const vsff *proc_table;
+	int *procedure_hf;
+} rpc_prog_vers_info;
+
 extern const value_string rpc_auth_flavor[];
 
-WS_DLL_PUBLIC void rpc_init_proc_table(int proto, guint prog, guint vers, const vsff *proc_table,
-    int procedure_hf);
-WS_DLL_PUBLIC void rpc_init_prog(int proto, guint32 prog, int ett);
+WS_DLL_PUBLIC void rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
+    const rpc_prog_vers_info *versions);
 WS_DLL_PUBLIC const char *rpc_prog_name(guint32 prog);
 WS_DLL_PUBLIC const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
 WS_DLL_PUBLIC int rpc_prog_hf(guint32 prog, guint32 vers);
