@@ -130,6 +130,8 @@ ui_%.h: %.ui
 #
 about_dialog.$(OBJEXT): ui_about_dialog.h
 
+address_editor_frame.$(OBJEXT): ui_address_editor_frame.h
+
 bluetooth_att_server_attributes_dialog.$(OBJEXT): ui_bluetooth_att_server_attributes_dialog.h
 
 bluetooth_devices_dialog.$(OBJEXT): ui_bluetooth_devices_dialog.h

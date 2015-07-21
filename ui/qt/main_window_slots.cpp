@@ -958,7 +958,7 @@ void MainWindow::recentActionTriggered() {
 void MainWindow::setMenusForSelectedPacket()
 {
 //    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE;
-    gboolean is_tcp = FALSE, is_sctp = FALSE, is_rtp = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_sctp = FALSE, is_rtp = FALSE;
 
 //    /* Making the menu context-sensitive allows for easier selection of the
 //       desired item and has the added benefit, with large captures, of
@@ -967,25 +967,25 @@ void MainWindow::setMenusForSelectedPacket()
 //    gboolean is_ssl = epan_dissect_packet_contains_field(cf->edt, "ssl");
 
     /* We have one or more items in the packet list */
-    gboolean have_frames = FALSE;
+    bool have_frames = false;
     /* A frame is selected */
-    gboolean frame_selected = FALSE;
+    bool frame_selected = false;
     /* We have marked frames.  (XXX - why check frame_selected?) */
-    gboolean have_marked = FALSE;
+    bool have_marked = false;
     /* We have a marked frame other than the current frame (i.e.,
        we have at least one marked frame, and either there's more
        than one marked frame or the current frame isn't marked). */
-    gboolean another_is_marked = FALSE;
+    bool another_is_marked = false;
     /* One or more frames are hidden by a display filter */
-    gboolean have_filtered = FALSE;
+    bool have_filtered = false;
     /* One or more frames have been ignored */
-    gboolean have_ignored = FALSE;
-    gboolean have_time_ref = FALSE;
+    bool have_ignored = false;
+    bool have_time_ref = false;
     /* We have a time reference frame other than the current frame (i.e.,
        we have at least one time reference frame, and either there's more
        than one time reference frame or the current frame isn't a
        time reference frame). (XXX - why check frame_selected?) */
-    gboolean another_is_time_ref = FALSE;
+    bool another_is_time_ref = false;
 
     if (capture_file_.capFile()) {
         frame_selected = capture_file_.capFile()->current_frame != NULL;
@@ -1001,7 +1001,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (capture_file_.capFile()->edt)
         {
-            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp, NULL, &is_rtp);
+            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, &is_ip, &is_tcp, NULL, &is_sctp, NULL, &is_rtp);
         }
     }
 //    if (cfile.edt && cfile.edt->tree) {
@@ -1075,8 +1075,7 @@ void MainWindow::setMenusForSelectedPacket()
 //                         tmp_color_filters_used());
 
     main_ui_->actionViewShowPacketInNewWindow->setEnabled(frame_selected);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
-//                         frame_selected ? is_ip : FALSE);
+    main_ui_->actionViewEditResolvedName->setEnabled(frame_selected && is_ip);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
 //                         frame_selected ? is_sctp : FALSE);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
@@ -1403,7 +1402,8 @@ void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)
 {
     QList<AccordionFrame *>frame_list = QList<AccordionFrame *>()
             << main_ui_->goToFrame << main_ui_->searchFrame
-            << main_ui_->columnEditorFrame << main_ui_->preferenceEditorFrame;
+            << main_ui_->addressEditorFrame << main_ui_->columnEditorFrame
+            << main_ui_->preferenceEditorFrame;
 
     frame_list.removeAll(show_frame);
     foreach (AccordionFrame *af, frame_list) af->animatedHide();
@@ -2166,6 +2166,19 @@ void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bo
     if (packet_list_) {
         packet_list_->redrawVisiblePackets();
     }
+}
+
+void MainWindow::on_actionViewEditResolvedName_triggered()
+{
+//    int column = packet_list_->selectedColumn();
+    int column = -1;
+
+    if (packet_list_->currentIndex().isValid()) {
+        column = packet_list_->currentIndex().column();
+    }
+
+    main_ui_->addressEditorFrame->editAddresses(capture_file_, column);
+    showAccordionFrame(main_ui_->addressEditorFrame);
 }
 
 void MainWindow::setNameResolution()

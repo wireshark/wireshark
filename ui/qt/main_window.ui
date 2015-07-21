@@ -92,6 +92,9 @@
      <widget class="SearchFrame" name="searchFrame" native="true"/>
     </item>
     <item>
+     <widget class="AddressEditorFrame" name="addressEditorFrame"/>
+    </item>
+    <item>
      <widget class="ColumnEditorFrame" name="columnEditorFrame"/>
     </item>
     <item>
@@ -275,6 +278,8 @@
      <property name="title">
       <string>Name Resolution</string>
      </property>
+     <addaction name="actionViewEditResolvedName"/>
+     <addaction name="separator"/>
      <addaction name="actionViewNameResolutionPhysical"/>
      <addaction name="actionViewNameResolutionNetwork"/>
      <addaction name="actionViewNameResolutionTransport"/>
@@ -2550,6 +2555,14 @@
     <string>RTP Stream Analysis</string>
    </property>
   </action>
+  <action name="actionViewEditResolvedName">
+   <property name="text">
+    <string>Edit Resolved Name</string>
+   </property>
+   <property name="toolTip">
+    <string>Manually edit a name resolution entry.</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2574,6 +2587,12 @@
    <class>SearchFrame</class>
    <extends>QWidget</extends>
    <header>search_frame.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AddressEditorFrame</class>
+   <extends>QFrame</extends>
+   <header>address_editor_frame.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ColumnEditorFrame</class>

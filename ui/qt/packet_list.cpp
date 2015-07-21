@@ -267,6 +267,9 @@ PacketList::PacketList(QWidget *parent) :
 
     ctx_menu_.addSeparator();
 
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+    ctx_menu_.addSeparator();
+
     action = window()->findChild<QAction *>("actionFollow");
     submenu = new QMenu();
     action->setMenu(submenu);
@@ -285,9 +288,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
 
     ctx_menu_.addSeparator();
-
-//    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
-//    ctx_menu_.addSeparator();
 
     action = window()->findChild<QAction *>("actionApply_as_Filter");
     submenu = new QMenu();

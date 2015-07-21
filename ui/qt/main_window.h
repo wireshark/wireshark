@@ -365,6 +365,7 @@ private slots:
     void setTimestampFormat(QAction *action);
     void setTimestampPrecision(QAction *action);
     void on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked);
+    void on_actionViewEditResolvedName_triggered();
     void setNameResolution();
     void on_actionViewNameResolutionPhysical_triggered();
     void on_actionViewNameResolutionNetwork_triggered();

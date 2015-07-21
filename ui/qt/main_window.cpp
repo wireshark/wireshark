@@ -301,6 +301,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->searchFrame, SIGNAL(visibilityChanged(bool)),
             main_ui_->actionEditFindPacket, SLOT(setChecked(bool)));
 
+    main_ui_->addressEditorFrame->hide();
     main_ui_->columnEditorFrame->hide();
     main_ui_->preferenceEditorFrame->hide();
 
@@ -429,6 +430,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
             main_ui_->statusBar, SLOT(popFilterStatus()));
 
+    connect(main_ui_->addressEditorFrame, SIGNAL(editAddressStatus(QString)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString)));
+    connect(main_ui_->addressEditorFrame, SIGNAL(redissectPackets()),
+            this, SLOT(redissectPackets()));
+    connect(main_ui_->addressEditorFrame, SIGNAL(showNameResolutionPreferences(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
     connect(main_ui_->preferenceEditorFrame, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
 
