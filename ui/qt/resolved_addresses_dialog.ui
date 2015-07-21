@@ -91,7 +91,7 @@
     <string>Port names (services)</string>
    </property>
    <property name="toolTip">
-    <string>Show resolved port names names in &quot;servies&quot; format.</string>
+    <string>Show resolved port names in &quot;services&quot; format.</string>
    </property>
   </action>
   <action name="actionEthernetAddresses">
