@@ -266,12 +266,10 @@ static guint global_network_udp_port           = OPENSAFETY_UDP_PORT;
 static guint global_network_udp_port_sercosiii = OPENSAFETY_UDP_PORT_SIII;
 static gboolean global_classify_transport      = TRUE;
 
-static gboolean global_enable_plk    = TRUE;
 static gboolean global_enable_udp    = TRUE;
-static gboolean global_enable_genudp = TRUE;
-static gboolean global_enable_siii   = TRUE;
-static gboolean global_enable_pnio   = FALSE;
 static gboolean global_enable_mbtcp  = TRUE;
+
+static gboolean heuristic_siii_dissection_enabled = TRUE;
 
 static heur_dissector_list_t heur_opensafety_spdo_subdissector_list;
 
@@ -287,12 +285,19 @@ static void
 reset_dissector(void)
 {
     bDissector_Called_Once_Before = FALSE;
+
 }
 
 static void
 setup_dissector(void)
 {
+    heur_dtbl_entry_t * heur_entry = NULL;
+
     reassembly_table_init(&os_reassembly_table, &addresses_reassembly_table_functions);
+
+    heur_entry = find_heur_dissector_by_unique_short_name("opensafety_sercosiii");
+    if ( heur_entry != NULL )
+        heuristic_siii_dissection_enabled = heur_entry->enabled;
 }
 
 static void
@@ -1328,10 +1333,39 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 }
 
 static void
+opensafety_parse_scm_udid ( tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree,
+        opensafety_packet_info *packet, guint offset )
+{
+    proto_item * item = NULL;
+    gchar      *scm_udid_test = NULL;
+
+    item = proto_tree_add_item(tree, hf_oss_snmt_udid, tvb, offset, 6, ENC_NA);
+
+    scm_udid_test = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, 6, ':' );
+
+    if ( scm_udid_test != NULL && strlen ( scm_udid_test ) == 17 )
+    {
+        if ( g_strcmp0("00:00:00:00:00:00", scm_udid_test ) != 0 )
+        {
+            packet->payload.snmt->scm_udid = scm_udid_test;
+
+            if ( ( global_scm_udid_autoset == TRUE ) &&  ( memcmp ( global_scm_udid, scm_udid_test, 17 ) != 0 ) )
+            {
+                if ( local_scm_udid == NULL || memcmp ( local_scm_udid, scm_udid_test, 17 ) != 0 )
+                {
+                    local_scm_udid = wmem_strdup(wmem_file_scope(), scm_udid_test );
+                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected,
+                            "Auto detected payload as SCM UDID [%s].", local_scm_udid);
+                }
+            }
+        }
+    }
+}
+
+static void
 dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
         opensafety_packet_info *packet )
 {
-    proto_item *item;
     proto_tree *snmt_tree;
     guint32     entry = 0;
     guint16     addr, taddr, sdn;
@@ -1448,21 +1482,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
-            item = proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ENC_NA);
-
-            if ( global_scm_udid_autoset == TRUE )
-            {
-                packet->payload.snmt->scm_udid = wmem_strdup(wmem_packet_scope(),
-                        tvb_bytes_to_str_punct(wmem_packet_scope(),
-                        message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ':' ) );
-                if ( memcmp ( global_scm_udid, packet->payload.snmt->scm_udid, 17 ) != 0 )
-                {
-                    local_scm_udid = wmem_strdup(wmem_file_scope(), packet->payload.snmt->scm_udid );
-                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected,
-                            "Auto detected payload as SCM UDID [%s].", packet->payload.snmt->scm_udid);
-                }
-            }
-
+            opensafety_parse_scm_udid ( message_tvb, pinfo, snmt_tree, packet, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1 );
         }
         else if ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_ADDITIONAL_SADR) == 0 )
         {
@@ -1500,17 +1520,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGN_UDID_SCM) == 0 )
         {
-            item = proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ENC_NA);
-            packet->payload.snmt->scm_udid = wmem_strdup(wmem_packet_scope(),
-                    tvb_bytes_to_str_punct(wmem_packet_scope(), message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ':' ) );
-
-            if ( ( global_scm_udid_autoset == TRUE ) &&  ( memcmp ( global_scm_udid, packet->payload.snmt->scm_udid, 17 ) != 0 ) )
-            {
-                local_scm_udid = wmem_strdup(wmem_file_scope(), packet->payload.snmt->scm_udid );
-                expert_add_info_format(pinfo, item, &ei_scmudid_autodetected,
-                        "Auto detected payload as SCM UDID [%s].", packet->payload.snmt->scm_udid);
-            }
-
+            opensafety_parse_scm_udid ( message_tvb, pinfo, snmt_tree, packet, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1 );
         }
         else if ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_ASSIGN_INIT_CT) == 0 )
         {
@@ -2189,9 +2199,6 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
     proto_tree      *epl_tree = NULL;
     guint8  epl_msgtype = 0;
 
-    if ( ! global_enable_plk )
-        return result;
-
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
      * loop */
@@ -2223,39 +2230,34 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static gboolean
-dissect_opensafety_siii_udp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
-{
-    if ( ! global_enable_siii )
-        return FALSE;
-
-    return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0,
-                message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
-}
-
-static gboolean
 dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     gboolean        result     = FALSE;
+    gboolean        udp        = FALSE;
     guint8          firstByte;
 
-    if ( ! global_enable_siii )
-        return result;
-
-    /* We can assume to have a SercosIII package, as the SercosIII dissector won't detect
-     * SercosIII-UDP packages, this is most likely SercosIII-over-ethernet */
+    /* The UDP dissection is not done by a heuristic, but rather by a normal dissector. But
+     * the customer may not expect, that if (s)he disables the SercosIII dissector, that the
+     * SercosIII UDP packages get still dissected. This will disable them as well. */
+    if ( ! heuristic_siii_dissection_enabled )
+        return FALSE;
 
     /* We will call the SercosIII dissector by using call_dissector(). The SercosIII dissector will
      * then call the heuristic openSAFETY dissector again. By setting this information, we prevent
      * a dissector loop. */
     if ( bDissector_Called_Once_Before == FALSE )
     {
+        udp = pinfo->srcport == OPENSAFETY_UDP_PORT_SIII;
+
         bDissector_Called_Once_Before = TRUE;
         /* No frames can be sent in AT messages, therefore those get filtered right away */
         firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
-        if ( ( firstByte & 0x40 ) == 0x40 )
+        if ( udp || ( firstByte & 0x40 ) == 0x40 )
         {
-            result = opensafety_package_dissector("openSAFETY/SercosIII", "sercosiii",
-                          FALSE, FALSE, 0, message_tvb, pinfo, tree, OPENSAFETY_CYCLIC_DATA );
+            result = opensafety_package_dissector( "openSAFETY/SercosIII",
+                    udp ? "" : "sercosiii",
+                    FALSE, FALSE, 0, message_tvb, pinfo, tree,
+                    udp ? OPENSAFETY_ACYCLIC_DATA : OPENSAFETY_CYCLIC_DATA );
         }
         bDissector_Called_Once_Before = FALSE;
     }
@@ -2267,9 +2269,6 @@ static gboolean
 dissect_opensafety_pn_io(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     gboolean        result     = FALSE;
-
-    if ( ! global_enable_pnio )
-        return result;
 
     /* We will call the pn_io dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
@@ -2335,7 +2334,7 @@ static void
 apply_prefs ( void )
 {
     static dissector_handle_t opensafety_udpdata_handle;
-    static dissector_handle_t opensafety_sii_handle;
+    static dissector_handle_t opensafety_siii_handle;
     static guint    opensafety_udp_port_number;
     static guint    opensafety_udp_siii_port_number;
     static gboolean opensafety_init = FALSE;
@@ -2344,14 +2343,14 @@ apply_prefs ( void )
     if ( !opensafety_init )
     {
         opensafety_udpdata_handle = find_dissector("opensafety_udpdata");
-        opensafety_sii_handle     = find_dissector("opensafety_siii");
+        opensafety_siii_handle    = find_dissector("opensafety_siii");
         opensafety_init = TRUE;
     }
     else
     {
         /* Delete dissectors in preparation of a changed config setting */
         dissector_delete_uint ("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
-        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_sii_handle);
+        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_siii_handle);
     }
 
 
@@ -2365,7 +2364,7 @@ apply_prefs ( void )
     /* Sercos III dissector does not handle UDP transport, has to be handled
      *  separately, everything else should be caught by the heuristic dissector
      */
-    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii_udp"));
+    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
 
 }
 
@@ -2764,21 +2763,13 @@ proto_register_opensafety(void)
                 "Modbus/TCP words can be transcoded either big- or little endian. Default will be little endian",
                 &global_mbtcp_big_endian);
 
-    prefs_register_bool_preference(opensafety_module, "enable_plk",
-                "Enable heuristic dissection for Ethernet POWERLINK", "Enable heuristic dissection for Ethernet POWERLINK",
-                &global_enable_plk);
+    prefs_register_obsolete_preference(opensafety_module, "enable_plk");
+    prefs_register_obsolete_preference(opensafety_module, "enable_siii");
+    prefs_register_obsolete_preference(opensafety_module, "enable_pnio");
+
     prefs_register_bool_preference(opensafety_module, "enable_udp",
                 "Enable heuristic dissection for openSAFETY over UDP encoded traffic", "Enable heuristic dissection for openSAFETY over UDP encoded traffic",
                 &global_enable_udp);
-    prefs_register_bool_preference(opensafety_module, "enable_genudp",
-                "Enable heuristic dissection for generic UDP encoded traffic", "Enable heuristic dissection for generic UDP encoded traffic",
-                &global_enable_genudp);
-    prefs_register_bool_preference(opensafety_module, "enable_siii",
-                "Enable heuristic dissection for SercosIII", "Enable heuristic dissection for SercosIII",
-                &global_enable_siii);
-    prefs_register_bool_preference(opensafety_module, "enable_pnio",
-                "Enable heuristic dissection for Profinet IO", "Enable heuristic dissection for Profinet IO",
-                &global_enable_pnio);
     prefs_register_bool_preference(opensafety_module, "enable_mbtcp",
                 "Enable heuristic dissection for Modbus/TCP", "Enable heuristic dissection for Modbus/TCP",
                 &global_enable_mbtcp);
@@ -2794,7 +2785,7 @@ proto_register_opensafety(void)
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
     new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
-    new_register_dissector("opensafety_siii_udp", dissect_opensafety_siii_udp, proto_opensafety );
+    new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety );
     new_register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 
