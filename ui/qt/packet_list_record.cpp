@@ -197,6 +197,23 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         }
 
         switch (cinfo->col_fmt[column]) {
+        case COL_PROTOCOL:
+        case COL_INFO:
+        case COL_IF_DIR:
+        case COL_DCE_CALL:
+        case COL_8021Q_VLAN_ID:
+        case COL_EXPERT:
+        case COL_FREQ_CHAN:
+            if (cinfo->columns[column].col_data && cinfo->columns[column].col_data != cinfo->columns[column].col_buf) {
+                /* This is a constant string, so we don't have to copy it */
+                // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
+                // truncation in either case.
+                int col_text_len = MIN(qstrlen(cinfo->col_data[column]) + 1, COL_MAX_INFO_LEN);
+                col_text_.append(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
+                break;
+            }
+            /* !! FALL-THROUGH!! */
+
         case COL_DEF_SRC:
         case COL_RES_SRC:        /* COL_DEF_SRC is currently just like COL_RES_SRC */
         case COL_UNRES_SRC:
@@ -215,23 +232,6 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-        case COL_PROTOCOL:
-        case COL_INFO:
-        case COL_IF_DIR:
-        case COL_DCE_CALL:
-        case COL_8021Q_VLAN_ID:
-        case COL_EXPERT:
-        case COL_FREQ_CHAN:
-            if (cinfo->columns[column].col_data && cinfo->columns[column].col_data != cinfo->columns[column].col_buf) {
-                /* This is a constant string, so we don't have to copy it */
-                // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
-                // truncation in either case.
-                int col_text_len = MIN(qstrlen(cinfo->col_data[column]) + 1, COL_MAX_INFO_LEN);
-                col_text_.append(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
-                break;
-            }
-            /* !! FALL-THROUGH!! */
-
         default:
             if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
                 /* Use the unresolved value in col_expr_val */

@@ -662,24 +662,6 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 
 	col_item = &cfile.cinfo.columns[col];
 	switch (col_item->col_fmt) {
-		case COL_DEF_SRC:
-		case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
-		case COL_UNRES_SRC:
-		case COL_DEF_DL_SRC:
-		case COL_RES_DL_SRC:
-		case COL_UNRES_DL_SRC:
-		case COL_DEF_NET_SRC:
-		case COL_RES_NET_SRC:
-		case COL_UNRES_NET_SRC:
-		case COL_DEF_DST:
-		case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
-		case COL_UNRES_DST:
-		case COL_DEF_DL_DST:
-		case COL_RES_DL_DST:
-		case COL_UNRES_DL_DST:
-		case COL_DEF_NET_DST:
-		case COL_RES_NET_DST:
-		case COL_UNRES_NET_DST:
 		case COL_PROTOCOL:
 		case COL_INFO:
 		case COL_IF_DIR:
@@ -702,6 +684,24 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 			}
 		/* !! FALL-THROUGH!! */
 
+		case COL_DEF_SRC:
+		case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
+		case COL_UNRES_SRC:
+		case COL_DEF_DL_SRC:
+		case COL_RES_DL_SRC:
+		case COL_UNRES_DL_SRC:
+		case COL_DEF_NET_SRC:
+		case COL_RES_NET_SRC:
+		case COL_UNRES_NET_SRC:
+		case COL_DEF_DST:
+		case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
+		case COL_UNRES_DST:
+		case COL_DEF_DL_DST:
+		case COL_RES_DL_DST:
+		case COL_UNRES_DL_DST:
+		case COL_DEF_NET_DST:
+		case COL_RES_NET_DST:
+		case COL_UNRES_NET_DST:
 		default:
 			if(col_item->col_data){
 				col_text_len = strlen(col_item->col_data);
