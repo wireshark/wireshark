@@ -415,6 +415,7 @@ private slots:
 
     void applyConversationFilter();
 
+    void on_actionAnalyzeEnabledProtocols_triggered();
     void on_actionAnalyzeDecodeAs_triggered();
 
     void openFollowStreamDialog(follow_type_t type);

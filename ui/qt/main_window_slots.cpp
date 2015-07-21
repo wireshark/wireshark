@@ -82,6 +82,7 @@
 #include "color_utils.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
+#include "enabled_protocols_dialog.h"
 #include "decode_as_dialog.h"
 #include "display_filter_edit.h"
 #include "display_filter_expression_dialog.h"
@@ -2498,6 +2499,12 @@ void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
 void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 {
     matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeOrNot);
+}
+
+void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
+{
+    EnabledProtocolsDialog enable_proto_dialog(this);
+    enable_proto_dialog.exec();
 }
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()

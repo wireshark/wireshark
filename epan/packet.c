@@ -2035,6 +2035,9 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 
 	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors,
 	    (gpointer)hdtbl_entry);
+
+	/* XXX - could be optimized to pass hdtbl_entry directly */
+	proto_add_heuristic_dissector(hdtbl_entry->protocol, short_name);
 }
 
 

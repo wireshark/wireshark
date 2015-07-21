@@ -219,6 +219,7 @@ FORMS += \
     compiled_filter_output.ui \
     decode_as_dialog.ui \
     display_filter_expression_dialog.ui \
+    enabled_protocols_dialog.ui \
     expert_info_dialog.ui \
     export_object_dialog.ui \
     export_pdu_dialog.ui \
@@ -293,6 +294,7 @@ HEADERS += $$HEADERS_WS_C \
     decode_as_dialog.h \
     display_filter_expression_dialog.h \
     elided_label.h \
+    enabled_protocols_dialog.h \
     endpoint_dialog.h \
     expert_info_dialog.h \
     export_dissection_dialog.h \
@@ -664,6 +666,7 @@ SOURCES += \
     display_filter_edit.cpp \
     display_filter_expression_dialog.cpp \
     elided_label.cpp \
+    enabled_protocols_dialog.cpp \
     endpoint_dialog.cpp \
     expert_info_dialog.cpp \
     export_dissection_dialog.cpp \

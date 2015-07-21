@@ -290,6 +290,7 @@ struct _protocol {
 	gboolean    is_enabled;   /* TRUE if protocol is enabled */
 	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
 	gboolean    is_private;   /* TRUE is protocol is private */
+	GList      *heur_list;    /* Heuristic dissectors associated with this protocol */
 };
 
 /* List of all protocols */
@@ -535,6 +536,7 @@ proto_cleanup(void)
 
 		g_slice_free(header_field_info, hfinfo);
 		g_ptr_array_free(protocol->fields, TRUE);
+		g_list_free(protocol->heur_list);
 		protocols = g_list_remove(protocols, protocol);
 		g_free(protocol);
 	}
@@ -5212,6 +5214,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->can_toggle = TRUE;
 	protocol->is_private = FALSE;
+	protocol->heur_list = NULL;
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
 	g_hash_table_insert(proto_filter_names, (gpointer)filter_name, protocol);
@@ -5412,6 +5415,28 @@ proto_get_protocol_filter_name(const int proto_id)
 	if (protocol == NULL)
 		return "(none)";
 	return protocol->filter_name;
+}
+
+void proto_add_heuristic_dissector(protocol_t *protocol, const char *short_name)
+{
+	heur_dtbl_entry_t* heuristic_dissector;
+
+	if (protocol == NULL)
+		return;
+
+	heuristic_dissector = find_heur_dissector_by_unique_short_name(short_name);
+	if (heuristic_dissector != NULL)
+	{
+		protocol->heur_list = g_list_append (protocol->heur_list, heuristic_dissector);
+	}
+}
+
+void proto_heuristic_dissector_foreach(const protocol_t *protocol, GFunc func, gpointer user_data)
+{
+	if (protocol == NULL)
+		return;
+
+	g_list_foreach(protocol->heur_list, func, user_data);
 }
 
 void

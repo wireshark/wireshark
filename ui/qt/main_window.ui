@@ -116,7 +116,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -383,6 +383,7 @@
     <addaction name="menuPrepareAFilter"/>
     <addaction name="menuConversationFilter"/>
     <addaction name="separator"/>
+    <addaction name="actionAnalyzeEnabledProtocols"/>
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="separator"/>
     <addaction name="menuSCTP"/>
@@ -2561,6 +2562,17 @@
    </property>
    <property name="toolTip">
     <string>Manually edit a name resolution entry.</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeEnabledProtocols">
+   <property name="text">
+    <string>Enable Protocols...</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable and disable specific protocols</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+E</string>
    </property>
   </action>
  </widget>

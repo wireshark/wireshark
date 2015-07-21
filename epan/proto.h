@@ -2156,6 +2156,21 @@ WS_DLL_PUBLIC gboolean proto_is_protocol_enabled(const protocol_t *protocol);
  @return its filter name. */
 WS_DLL_PUBLIC const char *proto_get_protocol_filter_name(const int proto_id);
 
+/** Associate a heuristic dissector with a protocol
+ * INTERNAL USE ONLY!!!
+ * @param protocol to associate the heuristic with
+ * @param short_name heuristic dissector's short name
+ */
+extern void proto_add_heuristic_dissector(protocol_t *protocol, const char *short_name);
+
+/** Apply func to all heuristic dissectors of a protocol
+ * @param protocol to iterate over heuristics
+ * @param func function to execute on heuristics
+ * @param user_data user-specific data for function
+ */
+WS_DLL_PUBLIC void proto_heuristic_dissector_foreach(const protocol_t *protocol, GFunc func, gpointer user_data);
+
+
 /** Find commonly-used protocols in a layer list.
  * @param layers Protocol layer list
  * @param is_ip Set to TRUE if the layer list contains IPv4 or IPv6, otherwise
