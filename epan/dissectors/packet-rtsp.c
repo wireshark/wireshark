@@ -145,6 +145,7 @@ static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
 static dissector_table_t media_type_dissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 static const gchar *st_str_packets = "Total RTSP Packets";
 static const gchar *st_str_requests = "RTSP Request Packets";
@@ -394,7 +395,15 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         (dissector = data->interleaved[rf_chan].dissector)) {
         call_dissector(dissector, next_tvb, pinfo, tree);
     } else {
-        proto_tree_add_item(rtspframe_tree, hf_rtsp_data, tvb, offset, rf_len, ENC_NA);
+        gboolean dissected = FALSE;
+        heur_dtbl_entry_t *hdtbl_entry = NULL;
+
+        dissected = dissector_try_heuristic(heur_subdissector_list,
+                            next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+
+        if (!dissected) {
+            proto_tree_add_item(rtspframe_tree, hf_rtsp_data, tvb, offset, rf_len, ENC_NA);
+        }
     }
 
     offset += rf_len;
@@ -1484,6 +1493,13 @@ proto_register_rtsp(void)
         "\"Content-length:\" value to desegment the body "
         "of a request spanning multiple TCP segments",
         &rtsp_desegment_body);
+
+    /*
+     * Heuristic dissectors SHOULD register themselves in
+     * this table using the standard heur_dissector_add()
+     * function.
+     */
+    heur_subdissector_list = register_heur_dissector_list("rtsp");
 
     /*
      * Register for tapping

@@ -1408,7 +1408,7 @@ dissect_rtp_heur_udp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static gboolean
-dissect_rtp_heur_stun( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data )
+dissect_rtp_heur_app( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data )
 {
     return dissect_rtp_heur_common(tvb, pinfo, tree, data, FALSE);
 }
@@ -3731,7 +3731,8 @@ proto_reg_handoff_rtp(void)
         dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
         heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("stun", dissect_rtp_heur_stun, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add("stun", dissect_rtp_heur_app, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add("rtsp", dissect_rtp_heur_app, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
 
         rtp_hdr_ext_ed137_handle = find_dissector("rtp.ext.ed137");
         rtp_hdr_ext_ed137a_handle = find_dissector("rtp.ext.ed137a");
