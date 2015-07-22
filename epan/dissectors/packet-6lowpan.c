@@ -1870,6 +1870,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
     if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS) == LOWPAN_NHC_PATTERN_EXT) {
         struct ip6_ext  ipv6_ext;
         guint8          ext_flags;
+        guint8          ext_hlen;
         guint8          ext_len;
         guint8          ext_proto;
 
@@ -1902,16 +1903,26 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             offset += 1;
         }
 
-        /* Get and display the extension header length. */
-        ext_len = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_length, tvb, offset, 1, ext_len);
-        }
-        offset += 1;
+        if (ext_proto == IP_PROTO_FRAGMENT) {
+            /* Fragment header has a reserved byte in place of the Length field. */
+            ext_hlen = 1;
+            length = (guint8)sizeof(struct ip6_frag);
+            ext_len = length - ext_hlen;
+        } else {
+            /* Get and display the extension header length. */
+            ext_hlen = (guint8)sizeof(struct ip6_ext);
+            ext_len = tvb_get_guint8(tvb, offset);
+            if (tree) {
+                proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_length, tvb, offset, 1, ext_len);
+            }
+            offset += 1;
 
-        /* Compute the length of the extension header padded to an 8-byte alignment. */
-        length = (int)sizeof(struct ip6_ext) + ext_len;
-        length = (length + 7) & ~0x7;
+            /* Compute the length of the extension header padded to an 8-byte alignment. */
+            length = ext_hlen + ext_len;
+            length = (length + 7) & ~0x7;
+            ipv6_ext.ip6e_len = length>>3;          /* Convert to units of 8 bytes. */
+            ipv6_ext.ip6e_len -= 1;                 /* Don't include the first 8 bytes. */
+       }
 
         /* Create the next header structure for the IPv6 extension header. */
         nhdr = (struct lowpan_nhdr *)wmem_alloc0(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
@@ -1924,9 +1935,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if (ext_flags & LOWPAN_NHC_EXT_NHDR) {
             ipv6_ext.ip6e_nxt = lowpan_parse_nhc_proto(tvb, offset+ext_len);
         }
-        ipv6_ext.ip6e_len = nhdr->reported>>3;  /* Convert to units of 8 bytes. */
-        ipv6_ext.ip6e_len -= 1;                 /* Don't include the first 8 bytes. */
-        memcpy(LOWPAN_NHDR_DATA(nhdr), &ipv6_ext, sizeof(struct ip6_ext));
+        memcpy(LOWPAN_NHDR_DATA(nhdr), &ipv6_ext, ext_hlen);
 
         /*
          * If the extension header was truncated, display the remainder using
@@ -1937,8 +1946,8 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, nhc_tree);
 
             /* Copy the remainder, and truncate the real buffer length. */
-            nhdr->length = tvb_captured_length_remaining(tvb, offset) + (int)sizeof(struct ip6_ext);
-            tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct ip6_ext), offset, tvb_captured_length_remaining(tvb, offset));
+            nhdr->length = tvb_captured_length_remaining(tvb, offset) + ext_hlen;
+            tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + ext_hlen, offset, tvb_captured_length_remaining(tvb, offset));
 
             /* There is nothing more we can do. */
             return nhdr;
@@ -1948,7 +1957,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         call_dissector(data_handle, tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
 
         /* Copy the extension header into the struct. */
-        tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct ip6_ext), offset, ext_len);
+        tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + ext_hlen, offset, ext_len);
         offset += ext_len;
 
         if (ext_flags & LOWPAN_NHC_EXT_NHDR) {
@@ -1969,7 +1978,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 nhdr->next->reported = tvb_reported_length_remaining(tvb, offset);
             }
             else {
-                nhdr->next->reported = dgram_size - ext_len - (int)sizeof(struct ip6_ext);
+                nhdr->next->reported = dgram_size - ext_len - ext_hlen;
             }
             tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr->next), offset, nhdr->next->length);
         }
