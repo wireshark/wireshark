@@ -21,6 +21,7 @@
 
 #include "rpc_service_response_time_dialog.h"
 
+#include <algorithm>
 #include <stdio.h>
 
 #include <epan/dissectors/packet-dcerpc.h>
