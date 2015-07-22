@@ -10088,6 +10088,66 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 }
 
 /*
+ * [4] 9.1.44 Talker indication
+ */
+static void
+dtap_rr_talker_indication(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Mobile Station Classmark 2 10.5.1.6 M LV */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+
+    /* Mobile identity 10.5.1.4 M LV */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+
+    /* Ciphering Key Sequence Number 10.5.1.2 O TV 1 */
+    ELEM_OPT_TV_SHORT(0xD0,GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM,NULL);
+}
+
+/*
+ * [4] 9.1.48 Uplink release
+ */
+static void
+dtap_rr_upl_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* RR Cause 10.5.2.31 M V 1 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
+}
+
+/*
+ * [4] 9.1.49 VGCS uplink grant
+ */
+static void
+dtap_rr_vgcs_upl_grant(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Request reference 10.5.2.30 M V 3 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, NULL);
+
+    /* Timing advance 10.5.2.40 M V 1 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
+}
+
+/*
  * [4] 9.1.51 Extended Measurement Order
  */
 static void
@@ -10704,11 +10764,11 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     dtap_rr_ext_meas_order,     /* Extended Measurement Order */
     dtap_rr_gprs_sus_req,       /* 9.1.13b GPRS Suspension Request */
 
-    NULL,                       /* VGCS Uplink Grant */
-    NULL,                       /* Uplink Release */
+    dtap_rr_vgcs_upl_grant,     /* VGCS Uplink Grant */
+    dtap_rr_upl_rel,            /* Uplink Release */
     NULL,                       /* Reserved */
     NULL,                       /* Uplink Busy */
-    NULL,                       /* Talker Indication */
+    dtap_rr_talker_indication,  /* Talker Indication */
 
     NULL,                       /* UTRAN Classmark Change/Handover To UTRAN Command */  /* spec conflict */
 
