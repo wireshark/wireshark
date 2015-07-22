@@ -1329,7 +1329,7 @@ static gint dissect_wccp2_hash_buckets_assignment_element(tvbuff_t *tvb, int off
     if (length < 4)
       return length - 4*(n_web_caches-i)-256;
 
-    l_te = wccp_add_ipaddress_item(info_tree, hf_hash_buckets_assignment_wc_ip_index, hf_hash_buckets_assignment_wc_ipv4, hf_hash_buckets_assignment_wc_ipv6, tvb, offset, 4, addr_table);
+    l_te = wccp_add_ipaddress_item(element_tree, hf_hash_buckets_assignment_wc_ip_index, hf_hash_buckets_assignment_wc_ipv4, hf_hash_buckets_assignment_wc_ipv6, tvb, offset, 4, addr_table);
 
     proto_item_append_text(l_te, " id: %d", i);
     EAT(4);
