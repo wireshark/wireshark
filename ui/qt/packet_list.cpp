@@ -1312,6 +1312,7 @@ void PacketList::drawNearOverlay()
 #endif
     int o_height = overlay_sb_->height() * dp_ratio * height_multiplier_;
     int o_rows = qMin(packet_list_model_->rowCount(), o_height);
+    int selected_pos = -1;
 
     if (recent.packet_list_colorize && o_rows > 0) {
         QImage overlay(1, o_height, QImage::Format_ARGB32_Premultiplied);
@@ -1363,7 +1364,18 @@ void PacketList::drawNearOverlay()
             cur_line = next_line;
         }
 
-        overlay_sb_->setNearOverlayImage(overlay);
+        if (selectionModel()->hasSelection()) {
+            int sel_row = selectionModel()->currentIndex().row();
+            if (sel_row < start) {
+                selected_pos = 0;
+            } else if (sel_row >= end) {
+                selected_pos = overlay.height() - 1;
+            } else {
+                selected_pos = sel_row * overlay.height() / packet_list_model_->rowCount();
+            }
+        }
+
+        overlay_sb_->setNearOverlayImage(overlay, selected_pos);
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);

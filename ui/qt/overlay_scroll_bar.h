@@ -33,8 +33,18 @@ public:
 
     virtual QSize sizeHint() const;
 
-    // Images are assumed to be 1 pixel wide and grooveRect.height() high.
-    void setNearOverlayImage(QImage &overlay_image);
+    /** Set the "near" overlay image.
+     * @param overlay_image An image containing a 1:1 mapping of nearby
+     *        packet colors to raster lines.
+     * @param selected_pos The position of the selected packet within the
+     *        image. -1 means no packet is selected.
+     */
+    void setNearOverlayImage(QImage &overlay_image, int selected_pos = -1);
+
+    /** Set the "far" overlay image.
+     * @param overlay_image An image showing the position of marked, ignored,
+     *        and reference time packets over the entire packet list.
+     */
     void setFarOverlayImage(QImage &overlay_image);
     QRect grooveRect();
 
@@ -44,6 +54,7 @@ protected:
 private:
     QImage near_overlay_;
     QImage far_overlay_;
+    int selected_pos_;
 };
 
 #endif // __OVERLAY_SCROLL_BAR_H__

@@ -32,7 +32,8 @@
 OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent) :
     QScrollBar(orientation, parent = 0),
     near_overlay_(QImage()),
-    far_overlay_(QImage())
+    far_overlay_(QImage()),
+    selected_pos_(-1)
 {}
 
 QSize OverlayScrollBar::sizeHint() const
@@ -40,9 +41,10 @@ QSize OverlayScrollBar::sizeHint() const
     return QSize(QScrollBar::sizeHint().width() + (far_overlay_.width() * 2), QScrollBar::sizeHint().height());
 }
 
-void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image)
+void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int selected_pos)
 {
     near_overlay_ = overlay_image;
+    selected_pos_ = selected_pos;
     update();
 }
 
@@ -89,6 +91,17 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
             far_dest.moveLeft(gr_size.width() - fo_width);
             go_painter.drawImage(far_dest, far_overlay_.mirrored(true, false));
         }
+
+        // Selected packet indicator
+        if (selected_pos_ >= 0 && selected_pos_ < near_overlay_.height()) {
+            int no_pos = near_dest.height() * selected_pos_ / near_overlay_.height();
+            go_painter.save();
+            go_painter.setBrush(palette().highlight().color());
+            go_painter.drawRect(0, no_pos, near_dest.width(), devicePixelRatio());
+            go_painter.restore();
+        }
+
+        // Outline
         QRect near_outline(near_dest);
         near_outline.adjust(0, 0, -1, -1);
         go_painter.save();
@@ -97,21 +110,6 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
         go_painter.setPen(no_fg);
         go_painter.drawRect(near_outline);
         go_painter.restore();
-
-#if 0
-        // Fade in from the left and right.
-        go_painter.save();
-        go_painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-        QLinearGradient fade(0, 0, groove_overlay.width(), 0);
-        fade.setColorAt(0, Qt::transparent);
-        fade.setColorAt(0.2, Qt::white);
-        fade.setColorAt(0.8, Qt::white);
-        fade.setColorAt(1, Qt::transparent);
-
-        go_painter.setBrush(fade);
-        go_painter.drawRect(groove_overlay.rect());
-        go_painter.restore();
-#endif
 
         // Punch a hole for the slider.
         QStyleOptionSlider opt;
