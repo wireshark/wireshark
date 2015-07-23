@@ -320,7 +320,8 @@ static int hf_isakmp_cfg_attr_internal_ip4_nbns = -1;
 static int hf_isakmp_cfg_attr_internal_address_expiry = -1;
 static int hf_isakmp_cfg_attr_internal_ip4_dhcp = -1;
 static int hf_isakmp_cfg_attr_application_version = -1;
-static int hf_isakmp_cfg_attr_internal_ip6_address = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_address_ip = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_address_prefix = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_netmask = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_dns = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_nbns = -1;
@@ -4481,12 +4482,14 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
     case INTERNAL_IP6_ADDRESS: /* 8 */
       offset_end = offset + optlen;
 
-      if (optlen%16 == 0)
+      if (optlen%17 == 0)
       {
         while (offset_end-offset > 0)
         {
-          proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+          proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address_ip, tvb, offset, 16, ENC_NA);
           offset += 16;
+          proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
         }
 
       }
@@ -6264,10 +6267,14 @@ proto_register_isakmp(void)
       { "APPLICATION VERSION",  "isakmp.cfg.attr.application_version",
         FT_STRING, BASE_NONE, NULL, 0x00,
         "The version or application information of the IPsec host", HFILL }},
-    { &hf_isakmp_cfg_attr_internal_ip6_address,
+    { &hf_isakmp_cfg_attr_internal_ip6_address_ip,
       { "INTERNAL IP6 ADDRESS", "isakmp.cfg.attr.internal_ip6_address",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
+        FT_IPv6, BASE_NONE, NULL, 0x00,
         "An IPv6 address on the internal network", HFILL }},
+    { &hf_isakmp_cfg_attr_internal_ip6_address_prefix,
+      { "INTERNAL IP6 ADDRESS (PREFIX)", "isakmp.cfg.attr.internal_ip6_address.prefix",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
     { &hf_isakmp_cfg_attr_internal_ip6_netmask,
       { "INTERNAL IP4 NETMASK", "isakmp.cfg.attr.internal_ip6_netmask",
         FT_IPv6, BASE_NONE, NULL, 0x00,
