@@ -72,8 +72,10 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
     if (!near_overlay_.isNull()) {
         QRect groove_rect = grooveRect();
         QSize gr_size = groove_rect.size();
+        qreal dp_ratio = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-        gr_size *= devicePixelRatio();
+        dp_ratio = devicePixelRatio();
+        gr_size *= dp_ratio;
 #endif
         QImage groove_overlay(gr_size, QImage::Format_ARGB32_Premultiplied);
         groove_overlay.fill(Qt::transparent);
@@ -97,7 +99,7 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
             int no_pos = near_dest.height() * selected_pos_ / near_overlay_.height();
             go_painter.save();
             go_painter.setBrush(palette().highlight().color());
-            go_painter.drawRect(0, no_pos, near_dest.width(), devicePixelRatio());
+            go_painter.drawRect(0, no_pos, near_dest.width(), dp_ratio);
             go_painter.restore();
         }
 
