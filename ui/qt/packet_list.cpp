@@ -1364,6 +1364,8 @@ void PacketList::drawNearOverlay()
             cur_line = next_line;
         }
 
+        // If the selected packet is in the overlay set selected_pos
+        // accordingly. Otherwise, pin it to either the top or bottom.
         if (selectionModel()->hasSelection()) {
             int sel_row = selectionModel()->currentIndex().row();
             if (sel_row < start) {
@@ -1371,7 +1373,7 @@ void PacketList::drawNearOverlay()
             } else if (sel_row >= end) {
                 selected_pos = overlay.height() - 1;
             } else {
-                selected_pos = sel_row * overlay.height() / packet_list_model_->rowCount();
+                selected_pos = (sel_row - start) * o_height / o_rows;
             }
         }
 
