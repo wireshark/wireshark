@@ -1360,7 +1360,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 		guint16		offset;
 		guint		i;
 
-		guint32		v6_flag;
+		guint32		v6_flag = 0;
 
 		proto_item*     monlist_item;
 		proto_tree*     monlist_item_tree;
@@ -1650,7 +1650,7 @@ proto_register_ntp(void)
 			"version", "ntp.priv.monlist.version", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_v6_flag, {
-			"ipv6", "ntp.priv.monlist.ipv6", FT_BOOLEAN, BASE_NONE,
+			"ipv6", "ntp.priv.monlist.ipv6", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_addr6, {
 			"ipv6 remote addr", "ntp.priv.monlist.addr6", FT_IPv6, BASE_NONE,
