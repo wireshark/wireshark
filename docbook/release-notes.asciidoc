@@ -26,10 +26,16 @@ since version 1.99.7:
 
 * Qt port:
 
+** The Enabled Protocols dialog has been added.
 ** Many statistics dialogs have been added, including Service response time,
    DHCP/BOOTP, and  ANSI.
+** The RTP Analysis dialog has been added.
 ** Lua dialog support has been added.
+** You can now manually resolve addresses.
+** The Resolved Addresses dialog has been added.
+** The packet list scrollbar now has a minimap.
 ** The capture interfaces dialog has been updated.
+** You can now colorize conversations.
 ** Welcome screen behavior has been improved.
 ** Plugin support has been improved.
 ** Many dialogs should now more correctly minimize and maximize.
