@@ -74,6 +74,8 @@
 #include <QTreeWidget>
 
 // To do:
+// - Fix "apply as filter" behavior.
+// - Add colorize conversation.
 // - Use a timer to trigger automatic scrolling.
 
 // If we ever add the ability to open multiple capture files we might be
@@ -240,7 +242,7 @@ PacketList::PacketList(QWidget *parent) :
     tail_timer_id_(0),
     rows_inserted_(false)
 {
-    QMenu *submenu, *subsubmenu;
+    QMenu *main_menu_item, *submenu, *subsubmenu;
     QAction *action;
 
     setItemsExpandable(false);
@@ -270,18 +272,15 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
     ctx_menu_.addSeparator();
 
-    action = window()->findChild<QAction *>("actionFollow");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
+    main_menu_item = window()->findChild<QMenu *>("menuFollow");
+    submenu = new QMenu(main_menu_item->title());
+    ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
 
-    action = window()->findChild<QAction *>("actionSCTP");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
+    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
+    submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
@@ -290,9 +289,8 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addSeparator();
 
     action = window()->findChild<QAction *>("actionApply_as_Filter");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
+    submenu = new QMenu(action->text());
+    ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
@@ -301,9 +299,8 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
     action = window()->findChild<QAction *>("actionPrepare_a_Filter");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
+    submenu = new QMenu(action->text());
+    ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
@@ -392,18 +389,17 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addSeparator();
 
     action = window()->findChild<QAction *>("actionCopy");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
+    submenu = new QMenu(action->text());
+    ctx_menu_.addMenu(submenu);
     //    "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
     //    "        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
     submenu->addSeparator();
 
     action = window()->findChild<QAction *>("actionBytes");
-    subsubmenu = new QMenu();
-    action->setMenu(subsubmenu);
-    submenu->addAction(action);
+    subsubmenu = new QMenu(action->text());
+    submenu->addMenu(subsubmenu);
+
     //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
     //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
     //    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"

@@ -35,6 +35,10 @@
 #include <QTreeWidgetItemIterator>
 #include <QUrl>
 
+// To do:
+// - Fix "apply as filter" behavior.
+// - Add colorize conversation.
+
 /* Fill a single protocol tree item with its string value and set its color. */
 static void
 proto_tree_draw_node(proto_node *node, gpointer data)
@@ -149,9 +153,6 @@ ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent),
     decode_as_(NULL)
 {
-    QMenu *submenu, *subsubmenu;
-    QAction *action;
-
     setAccessibleName(tr("Packet details"));
     // Leave the uniformRowHeights property as-is (false) since items might
     // have multiple lines (e.g. packet comments). If this slows things down
@@ -163,6 +164,9 @@ ProtoTree::ProtoTree(QWidget *parent) :
         // Assume we're a child of the main window.
         // XXX We might want to reimplement setParent() and fill in the context
         // menu there.
+        QMenu *submenu, *subsubmenu;
+        QAction *action;
+
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
@@ -173,10 +177,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
 
         action = window()->findChild<QAction *>("actionApply_as_Filter");
-
-        submenu = new QMenu();
-        action->setMenu(submenu);
-        ctx_menu_.addAction(action);
+        submenu = new QMenu(action->text());
+        ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
@@ -185,9 +187,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
         action = window()->findChild<QAction *>("actionPrepare_a_Filter");
-        submenu = new QMenu();
-        action->setMenu(submenu);
-        ctx_menu_.addAction(action);
+        submenu = new QMenu(action->text());
+        ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
@@ -221,9 +222,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
 
         action = window()->findChild<QAction *>("actionCopy");
-        submenu = new QMenu();
-        action->setMenu(submenu);
-        ctx_menu_.addAction(action);
+        subsubmenu = new QMenu(action->text());
+        submenu->addMenu(subsubmenu);
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
@@ -233,9 +233,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
 
         action = window()->findChild<QAction *>("actionBytes");
-        subsubmenu = new QMenu();
-        action->setMenu(subsubmenu);
-        submenu->addAction(action);
+        subsubmenu = new QMenu(action->text());
+        submenu->addMenu(subsubmenu);
         subsubmenu->addSeparator();
 //    "        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
 //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
