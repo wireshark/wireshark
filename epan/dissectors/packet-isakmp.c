@@ -335,6 +335,8 @@ static int hf_isakmp_cfg_attr_internal_ip6_link_interface = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_link_id = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_prefix_ip = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_prefix_length = -1;
+static int hf_isakmp_cfg_attr_p_cscf_ip4_address = -1;
+static int hf_isakmp_cfg_attr_p_cscf_ip6_address = -1;
 static int hf_isakmp_cfg_attr_xauth_type = -1;
 static int hf_isakmp_cfg_attr_xauth_user_name = -1;
 static int hf_isakmp_cfg_attr_xauth_user_password = -1;
@@ -448,6 +450,7 @@ static const fragment_items isakmp_frag_items = {
  *   draft-ietf-ipsec-isakmp-xauth-06.txt and draft-beaulieu-ike-xauth-02.txt for XAUTH
  *   RFC4306 for IKEv2
  *   RFC5739 for INTERNAL_IP6_LINK and INTERNAL_IP6_PREFIX
+ *   draft-gundavelli-ipsecme-3gpp-ims-options for P_CSCF_IP4_ADDRESS and P_CSCF_IP6_ADDRESS
  */
 #define INTERNAL_IP4_ADDRESS            1
 #define INTERNAL_IP4_NETMASK            2
@@ -467,6 +470,8 @@ static const fragment_items isakmp_frag_items = {
 #define MIP6_HOME_PREFIX                16
 #define INTERNAL_IP6_LINK               17
 #define INTERNAL_IP6_PREFIX             18
+#define P_CSCF_IP4_ADDRESS              20
+#define P_CSCF_IP6_ADDRESS              21
 /* checkpoint configuration attributes */
 #define CHKPT_DEF_DOMAIN                16387
 #define CHKPT_MAC_ADDRESS               16388
@@ -1389,7 +1394,10 @@ static const range_string vs_v2_cfgattr[] = {
   { 17,17,       "INTERNAL_IP6_LINK" },
   { 18,18,       "INTERNAL_IP6_PREFIX" },
   { 19,19,       "HOME_AGENT_ADDRESS" },        /* 3GPP TS 24.302 http://www.3gpp.org/ftp/Specs/html-info/24302.htm */
-  { 20,16383,    "RESERVED TO IANA"},
+  { 20,20,       "P_CSCF_IP4_ADDRESS" },        /* 3GPP IMS Option for IKEv2 https://datatracker.ietf.org/doc/draft-gundavelli-ipsecme-3gpp-ims-options/ */
+  { 21,21,       "P_CSCF_IP6_ADDRESS" },
+  { 22,22,       "FTT_KAT" },
+  { 23,16383,    "RESERVED TO IANA"},
   { 16384,32767, "PRIVATE USE"},
   { 0,0,          NULL },
   };
@@ -4598,6 +4606,31 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
 
       }
       break;
+    case P_CSCF_IP4_ADDRESS: /* 20 */
+      offset_end = offset + optlen;
+
+      if (optlen%4 == 0)
+      {
+        while (offset_end-offset > 0)
+        {
+          proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_p_cscf_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+        }
+      }
+      break;
+    case P_CSCF_IP6_ADDRESS: /* 21 */
+      offset_end = offset + optlen;
+
+      if (optlen%16 == 0)
+      {
+        while (offset_end-offset > 0)
+        {
+          proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_p_cscf_ip6_address, tvb, offset, 16, ENC_NA);
+          offset += 16;
+        }
+
+      }
+      break;
     case XAUTH_TYPE: /* 16520 */
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
       proto_item_append_text(cfg_attr_type_item," : %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
@@ -6327,6 +6360,14 @@ proto_register_isakmp(void)
       { "INTERNAL_IP6_PREFIX (Length)", "isakmp.cfg.attr.internal_ip6_prefix_length",
         FT_UINT8, BASE_DEC, NULL, 0x00,
          "The length of the prefix in bits (usually 64)", HFILL }},
+    { &hf_isakmp_cfg_attr_p_cscf_ip4_address,
+      { "P_CSCF_IP4_ADDRESS (IP)",     "isakmp.cfg.attr.p_cscf_ip4_address",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "An IPv4 address of the P-CSCF server", HFILL }},
+    { &hf_isakmp_cfg_attr_p_cscf_ip6_address,
+      { "P_CSCF_IP6_ADDRESS (IP)", "isakmp.cfg.attr.p_cscf_ip6_address",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "An IPv6 address of the P-CSCF server", HFILL }},
 
     { &hf_isakmp_cfg_attr_xauth_type,
       { "XAUTH TYPE",   "isakmp.cfg.attr.xauth.type",
