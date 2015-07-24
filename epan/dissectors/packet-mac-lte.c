@@ -4019,8 +4019,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     for (n=0; n < number_of_headers; n++) {
         /* Get out of loop once see any data SDU subheaders */
         if (lcids[n] <= 10) {
-            /* Update tap sdu count for this channel */
-            tap_info->sdus_for_lcid[lcids[n]]++;
             break;
         }
 
@@ -4831,12 +4829,30 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     /* There might not be any data, if only headers (plus control data) were logged */
-    is_truncated = ((tvb_reported_length_remaining(tvb, offset) == 0) && expecting_body_data);
+    is_truncated = ((tvb_captured_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
         PROTO_ITEM_SET_GENERATED(truncated_ti);
         expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only_truncated);
+        /* Update sdu and byte count in stats */
+        for (; n < number_of_headers; n++) {
+            guint16 data_length;
+            /* Break out if meet padding */
+            if (lcids[n] == PADDING_LCID) {
+                break;
+            }
+            data_length = (pdu_lengths[n] == -1) ?
+                            tvb_reported_length_remaining(tvb, offset) :
+                            pdu_lengths[n];
+            tap_info->sdus_for_lcid[lcids[n]]++;
+            tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            offset += data_length;
+        }
+        if (lcids[number_of_headers-1] == PADDING_LCID) {
+            /* Update padding bytes in stats */
+            tap_info->padding_bytes += (p_mac_lte_info->length - offset);
+        }
         return;
     }
     else {
@@ -5001,7 +5017,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         offset += data_length;
 
-        /* Update tap byte count for this channel */
+        /* Update tap sdu and byte count for this channel */
+        tap_info->sdus_for_lcid[lcids[n]]++;
         tap_info->bytes_for_lcid[lcids[n]] += data_length;
     }
 
@@ -5367,7 +5384,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
 
     /* There might not be any data, if only headers (plus control data) were logged */
-    is_truncated = ((tvb_reported_length_remaining(tvb, offset) == 0) && expecting_body_data);
+    is_truncated = ((tvb_captured_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_mch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
