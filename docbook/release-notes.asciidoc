@@ -1,7 +1,7 @@
 = Wireshark wireshark-version:[] Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is an experimental release intended to test new features for Wireshark 2.0.
+This is a semi-experimental release intended to test new features for Wireshark 2.0.
 
 == What is Wireshark?
 
@@ -28,7 +28,7 @@ since version 1.99.7:
 
 ** The Enabled Protocols dialog has been added.
 ** Many statistics dialogs have been added, including Service response time,
-   DHCP/BOOTP, and  ANSI.
+   DHCP/BOOTP, and ANSI.
 ** The RTP Analysis dialog has been added.
 ** Lua dialog support has been added.
 ** You can now manually resolve addresses.
