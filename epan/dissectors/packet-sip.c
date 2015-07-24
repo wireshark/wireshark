@@ -2576,7 +2576,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     gboolean first = TRUE;
     int remaining_length;
 
-    remaining_length = tvb_reported_length(tvb);
+    remaining_length = tvb_captured_length(tvb);
     while (remaining_length > 0) {
         len = dissect_sip_common(tvb, offset, remaining_length, pinfo, tree, !first, TRUE);
         if (len == -2) {
@@ -2602,7 +2602,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static gboolean
 dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int remaining_length = tvb_reported_length(tvb);
+    int remaining_length = tvb_captured_length(tvb);
 
     return dissect_sip_common(tvb, 0, remaining_length, pinfo, tree, FALSE, FALSE) > 0;
 }
