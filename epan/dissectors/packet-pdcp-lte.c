@@ -1840,7 +1840,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
 
-            if (tvb_reported_length_remaining(tvb, offset) == 0) {
+            if (tvb_captured_length_remaining(tvb, offset) == 0) {
                 /* Only PDCP header was captured, stop dissection here */
                 return;
             }
@@ -2124,7 +2124,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
                         mac, data_length);
     }
-    else {
+    else if (tvb_captured_length_remaining(payload_tvb, offset)) {
         /* User-plane payload here */
 
         /* If not compressed with ROHC, show as user-plane data */
