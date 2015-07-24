@@ -224,11 +224,13 @@ function DownloadFile($fileName, [Uri] $fileUrl = $null) {
 # https://github.com/thoemmi/7Zip4Powershell
 function Bootstrap7Zip() {
     $searchExes = @("7z.exe", "7za.exe")
+    $binDir = "$Destination\bin"
 
     # First, check $env:Path.
     foreach ($exe in $searchExes) {
         if (Get-Command $exe -ErrorAction SilentlyContinue)  {
             $Global:SevenZip = "$exe"
+            Write-Output "Found 7-zip on the path"
             return
         }
     }
@@ -239,6 +241,7 @@ function Bootstrap7Zip() {
         "${env:ProgramFiles(x86)}\7-Zip"
         "${env:ChocolateyInstall}\bin"
         "${env:ChocolateyInstall}\tools"
+        "$binDir"
     )
 
     foreach ($dir in $searchDirs) {
@@ -246,6 +249,7 @@ function Bootstrap7Zip() {
             foreach ($exe in $searchExes) {
                 if (Test-Path "$dir\$exe" -PathType 'Leaf') {
                     $Global:SevenZip = "$dir\$exe"
+                    Write-Output "Found 7-zip at $dir\$exe"
                     return
                 }
             }
@@ -253,13 +257,13 @@ function Bootstrap7Zip() {
     }
 
     # Finally, download a copy from anonsvn.
-    $binDir = "$Destination\bin"
     if ( -not (Test-Path $binDir -PathType 'Container') ) {
         New-Item -ItemType 'Container' "$binDir" > $null
     }
 
+    Write-Output "Unable to find 7-zip, retrieving from anonsvn into $binDir\7za.exe"
     [Uri] $bbUrl = "https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/bin/7za.exe"
-    DownloadFile "$binDir\7za.exe" "$bbUrl"
+    DownloadFile "bin\7za.exe" "$bbUrl"
 
     $Global:SevenZip = "$binDir\7za.exe"
 }
