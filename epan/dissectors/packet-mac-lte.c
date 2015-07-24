@@ -5011,7 +5011,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             else
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, pdu_lengths[n]));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, data_length));
             }
         }
 
@@ -5436,7 +5436,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             }
             else
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, pdu_lengths[n]));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, data_length));
             }
         }
 
