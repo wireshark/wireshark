@@ -2160,7 +2160,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_lte_headers_expected) {
         /* There might not be any data, if only headers (plus control data) were logged */
-        is_truncated = (tvb_reported_length_remaining(tvb, offset) == 0);
+        is_truncated = (tvb_captured_length_remaining(tvb, offset) == 0);
         truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
                                            is_truncated);
         if (is_truncated) {
@@ -2574,7 +2574,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* There might not be any data, if only headers (plus control data) were logged */
     if (global_rlc_lte_headers_expected) {
-        is_truncated = (tvb_reported_length_remaining(tvb, offset) == 0);
+        is_truncated = (tvb_captured_length_remaining(tvb, offset) == 0);
         truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
                                            is_truncated);
         if (is_truncated) {
