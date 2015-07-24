@@ -141,13 +141,16 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
         }
     }
 
+    ui->protocol_tree_->expandAll();
+
     //make sortable
     ui->protocol_tree_->setSortingEnabled(true);
     ui->protocol_tree_->sortByColumn(PROTOCOL_COLUMN, Qt::AscendingOrder);
 
-    for (int i = 0; i < ui->protocol_tree_->columnCount() - 1; i++) {
-        ui->protocol_tree_->resizeColumnToContents(i);
-    }
+    // Some protocols have excessively long names. Instead of calling
+    // resizeColumnToContents, pick a reasonable-ish em width and apply it.
+    int one_em = ui->protocol_tree_->fontMetrics().height();
+    ui->protocol_tree_->setColumnWidth(PROTOCOL_COLUMN, one_em * 18);
 
     //"Remove" Save button
     if (!prefs.gui_use_pref_save)
