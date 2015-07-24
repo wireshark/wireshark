@@ -222,8 +222,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
 
         action = window()->findChild<QAction *>("actionCopy");
-        subsubmenu = new QMenu(action->text());
-        submenu->addMenu(subsubmenu);
+        submenu = new QMenu(action->text());
+        ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
