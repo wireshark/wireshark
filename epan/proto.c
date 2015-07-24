@@ -1744,7 +1744,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		ptvc->offset += n;
 	}
 
-	test_length(hfinfo, ptvc->tvb, ptvc->offset, item_length);
+	test_length(hfinfo, ptvc->tvb, offset, item_length);
 
 	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
