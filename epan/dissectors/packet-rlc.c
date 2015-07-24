@@ -1889,7 +1889,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_headers_expected) {
         /* There might not be any data, if only header was logged */
-        is_truncated = (tvb_reported_length_remaining(tvb, offs) == 0);
+        is_truncated = (tvb_captured_length_remaining(tvb, offs) == 0);
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
@@ -2312,7 +2312,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     offs += ((li_is_on_2_bytes) ? 2 : 1) * num_li;
     if (global_rlc_headers_expected) {
         /* There might not be any data, if only header was logged */
-        is_truncated = (tvb_reported_length_remaining(tvb, offs) == 0);
+        is_truncated = (tvb_captured_length_remaining(tvb, offs) == 0);
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
