@@ -168,7 +168,7 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
 WSLUA_METHOD Tvb_bytes(lua_State* L) {
     /* Obtain a `ByteArray` from a `Tvb`.
 
-       @since 1.99.9
+       @since 1.99.8
      */
 #define WSLUA_OPTARG_Tvb_bytes_OFFSET 2 /* The offset (in octets) from the beginning of the `Tvb`. Defaults to 0. */
 #define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `Tvb`. */
@@ -275,7 +275,7 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
 WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
     /* Checks whether the two `Tvb` contents are equal.
 
-       @since 1.99.9
+       @since 1.99.8
      */
     Tvb tvb_l = checkTvb(L,1);
     Tvb tvb_r = checkTvb(L,2);
@@ -1322,7 +1322,7 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
     /* Checks whether the two `TvbRange` contents are equal.
 
-       @since 1.99.9
+       @since 1.99.8
      */
     TvbRange tvb_l = checkTvbRange(L,1);
     TvbRange tvb_r = checkTvbRange(L,2);

@@ -76,7 +76,7 @@ WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
         set_plugin_info(my_info)
         @endcode
 
-        @since 1.99.9
+        @since 1.99.8
      */
 #define WSLUA_ARG_set_plugin_info_TABLE 1 /* The Lua table of information. */
 

@@ -700,7 +700,7 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
 
 /* WSLUA_ATTRIBUTE TreeItem_visible RO Get the `TreeItem`'s subtree visibility status (boolean).
 
-    @since 1.99.9
+    @since 1.99.8
  */
 static int TreeItem_get_visible(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
@@ -718,7 +718,7 @@ static int TreeItem_get_visible(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE TreeItem_generated RW Set/get the `TreeItem`'s generated state (boolean).
 
-    @since 1.99.9
+    @since 1.99.8
  */
 static int TreeItem_get_generated(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
@@ -755,7 +755,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 
 /* WSLUA_ATTRIBUTE TreeItem_hidden RW Set/get `TreeItem`'s hidden state (boolean).
 
-    @since 1.99.9
+    @since 1.99.8
  */
 static int TreeItem_get_hidden(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
@@ -791,7 +791,7 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
 
 /* WSLUA_ATTRIBUTE TreeItem_len RW Set/get `TreeItem`'s length inside tvb, after it has already been created.
 
-    @since 1.99.9
+    @since 1.99.8
  */
 static int TreeItem_get_len(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
@@ -824,7 +824,7 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
 WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
     /* Returns string debug information about the `TreeItem`.
 
-       @since 1.99.9
+       @since 1.99.8
      */
     TreeItem ti = toTreeItem(L,1);
 
