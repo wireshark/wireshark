@@ -50,6 +50,22 @@ WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     setWindowTitleFromSubtitle();
 }
 
+void WiresharkDialog::accept()
+{
+    // We need to make sure our destructor is called.
+    deleteLater();
+    QDialog::accept();
+}
+
+// XXX Should we do this in WiresharkDialog?
+void WiresharkDialog::reject()
+{
+    // We need to make sure our destructor is called.
+    deleteLater();
+    QDialog::reject();
+}
+
+
 void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 {
     subtitle_ = subtitle;

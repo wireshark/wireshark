@@ -465,14 +465,6 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
     delete rev_tempfile_;
 }
 
-// XXX Should we do this in WiresharkDialog?
-void RtpAnalysisDialog::reject()
-{
-    // We need to make sure our temporary files are closed.
-    deleteLater();
-    WiresharkDialog::reject();
-}
-
 void RtpAnalysisDialog::updateWidgets()
 {
     bool enable_tab = false;

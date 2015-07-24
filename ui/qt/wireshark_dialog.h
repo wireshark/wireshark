@@ -40,6 +40,9 @@ public slots:
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+    virtual void accept();
+    virtual void reject();
+
     void setWindowSubtitle(const QString &subtitle);
     const QString &windowSubtitle() { return subtitle_; }
     virtual void updateWidgets();

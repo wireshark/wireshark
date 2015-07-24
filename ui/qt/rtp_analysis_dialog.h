@@ -54,9 +54,6 @@ public:
 signals:
     void goToPacket(int packet_num);
 
-protected:
-    virtual void reject();
-
 protected slots:
     virtual void updateWidgets();
 
