@@ -77,7 +77,7 @@ Input file:
 Processing:
   -R <read filter>         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mntC"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
   --disable-protocol <proto_name> disable dissection of proto_name
                            Repeat option for each protocol
   --enable-heuristic <short_name> enable dissection of heuristic protocol
@@ -289,7 +289,8 @@ Turns on name resolving for particular types of addresses and port numbers. The
 argument is a string that may contain the letters `m` to enable MAC address
 resolution, `n` to enable network address resolution, and `t` to enable
 transport-layer port number resolution. This overrides `-n` if both `-N` and
-`-n` are present. The letter C enables concurrent (asynchronous) DNS lookups.
+`-n` are present. The letter `C` enables concurrent (asynchronous) DNS lookups.
+The letter `d` enables resolution from captured DNS packets.
 
 -o <preference or recent settings>::
 

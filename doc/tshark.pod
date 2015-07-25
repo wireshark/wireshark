@@ -571,6 +571,8 @@ The argument is a string that may contain the letters:
 
 B<C> to enable concurrent (asynchronous) DNS lookups
 
+B<d> to enable resolution from captured DNS packets
+
 B<m> to enable MAC address resolution
 
 B<n> to enable network address resolution

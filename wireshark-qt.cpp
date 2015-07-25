@@ -215,7 +215,7 @@ print_usage(gboolean for_help_option) {
     fprintf(output, "Processing:\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtCd\"\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
     fprintf(output, "  --enable-heuristic <short_name>\n");
@@ -971,15 +971,12 @@ DIAG_ON(cast-qual)
             /* Not supported yet */
             break;
         case 'n':        /* No name resolution */
-            gbl_resolv_flags.mac_name = FALSE;
-            gbl_resolv_flags.network_name = FALSE;
-            gbl_resolv_flags.transport_name = FALSE;
-            gbl_resolv_flags.concurrent_dns = FALSE;
+            disable_name_resolution();
             break;
         case 'N':        /* Select what types of addresses/port #s to resolve */
             badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
             if (badopt != '\0') {
-                cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+                cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'C', 'd', m', 'n', 'N', and 't'",
                            badopt);
                 exit(1);
             }

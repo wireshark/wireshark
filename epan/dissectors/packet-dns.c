@@ -420,9 +420,6 @@ static range_t *global_dns_udp_port_range;
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
 
-/* whether or not to use DNS data we see in packets to resolve addresses */
-static gboolean dns_use_for_addr_resolution = TRUE;
-
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t ntlmssp_handle;
@@ -1814,7 +1811,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item_append_text(trr, ", addr %s", addr);
       proto_tree_add_item(rr_tree, hf_dns_a, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
-      if (dns_use_for_addr_resolution && (dns_class & 0x7f) == C_IN) {
+      if (gbl_resolv_flags.dns_pkt_addr_resolution && (dns_class & 0x7f) == C_IN) {
         guint32 addr_int;
         tvb_memcpy(tvb, &addr_int, cur_offset, sizeof(addr_int));
         add_ipv4_name(addr_int, name);
@@ -2425,7 +2422,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_aaaa, tvb, cur_offset, 16, ENC_NA);
 
 
-      if (dns_use_for_addr_resolution && (dns_class & 0x7f) == C_IN) {
+      if (gbl_resolv_flags.dns_pkt_addr_resolution && (dns_class & 0x7f) == C_IN) {
         struct e_in6_addr  addr_in6;
         tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
         add_ipv6_name(&addr_in6, name);
@@ -5616,10 +5613,11 @@ proto_register_dns(void)
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dns_desegment);
 
-  prefs_register_bool_preference(dns_module, "use_for_addr_resolution",
-    "Use DNS packet data for address resolution",
-    "Whether address/name pairs found in dissected DNS packets should be used by Wireshark for name resolution.",
-    &dns_use_for_addr_resolution);
+  prefs_register_obsolete_preference(dns_module, "use_for_addr_resolution");
+
+  prefs_register_static_text_preference(dns_module, "text_use_for_addr_resolution",
+                                        "DNS address resolution settings can be changed in the Name Resolution preferences",
+                                        "DNS address resolution settings can be changed in the Name Resolution preferences");
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
 

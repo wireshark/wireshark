@@ -299,7 +299,15 @@ ipv6_equal(gconstpointer v1, gconstpointer v2)
 /*
  * Flag controlling what names to resolve.
  */
-e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, FALSE, TRUE, TRUE, FALSE};
+e_addr_resolve gbl_resolv_flags = {
+    TRUE,   /* mac_name */
+    FALSE,  /* network_name */
+    FALSE,  /* transport_name */
+    TRUE,   /* concurrent_dns */
+    TRUE,   /* dns_pkt_addr_resolution */
+    TRUE,   /* use_external_net_name_resolver */
+    FALSE   /* load_hosts_file_from_profile_only */
+};
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
 #endif
@@ -2414,6 +2422,11 @@ addr_resolve_pref_init(module_t *nameres)
             " capture file name resolution blocks and DNS packets in the capture.",
             &gbl_resolv_flags.network_name);
 
+    prefs_register_bool_preference(nameres, "dns_pkt_addr_resolution",
+            "Use captured DNS packet data for address resolution",
+            "Whether address/name pairs found in captured DNS packets should be used by Wireshark for name resolution.",
+            &gbl_resolv_flags.dns_pkt_addr_resolution);
+
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
             "Use an external network name resolver",
             "Use your system's configured name resolver"
@@ -2451,6 +2464,16 @@ addr_resolve_pref_init(module_t *nameres)
             " Checking this box only loads the \"hosts\" in the current profile.",
             &gbl_resolv_flags.load_hosts_file_from_profile_only);
 
+}
+
+void
+disable_name_resolution(void) {
+    gbl_resolv_flags.mac_name                           = FALSE;
+    gbl_resolv_flags.network_name                       = FALSE;
+    gbl_resolv_flags.transport_name                     = FALSE;
+    gbl_resolv_flags.concurrent_dns                     = FALSE;
+    gbl_resolv_flags.dns_pkt_addr_resolution            = FALSE;
+    gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
 }
 
 #ifdef HAVE_C_ARES

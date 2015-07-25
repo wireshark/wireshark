@@ -3761,6 +3761,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
         case 'C':
             name_resolve->concurrent_dns = TRUE;
             break;
+        case 'd':
+            name_resolve->dns_pkt_addr_resolution = TRUE;
+            break;
         default:
             /*
              * Unrecognized letter.
@@ -3936,17 +3939,11 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             gbl_resolv_flags.concurrent_dns = TRUE;
         }
         else if (g_ascii_strcasecmp(value, "false") == 0) {
-            gbl_resolv_flags.mac_name = FALSE;
-            gbl_resolv_flags.network_name = FALSE;
-            gbl_resolv_flags.transport_name = FALSE;
-            gbl_resolv_flags.concurrent_dns = FALSE;
+            disable_name_resolution();
         }
         else {
             /* start out with none set */
-            gbl_resolv_flags.mac_name = FALSE;
-            gbl_resolv_flags.network_name = FALSE;
-            gbl_resolv_flags.transport_name = FALSE;
-            gbl_resolv_flags.concurrent_dns = FALSE;
+            disable_name_resolution();
             if (string_to_name_resolve(value, &gbl_resolv_flags) != '\0')
                 return PREFS_SET_SYNTAX_ERR;
         }

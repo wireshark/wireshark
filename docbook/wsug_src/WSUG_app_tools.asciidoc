@@ -67,7 +67,7 @@ Processing:
   -Y <display filter>      packet displaY filter in Wireshark display filter
                            syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mntC"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As", see the man page for details
                            Example: tcp.port==8888,http
@@ -330,7 +330,7 @@ Processing:
                            packet encapsulation or protocol
   -F <field>               field to display
   -n                       disable all name resolution (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mntC"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
   -p                       use the system's packet header format
                            (which may have 64-bit timestamps)
   -R <read filter>         packet filter in Wireshark display filter syntax

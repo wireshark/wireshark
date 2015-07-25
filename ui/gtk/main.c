@@ -952,7 +952,15 @@ void collapse_tree_cb(GtkWidget *widget _U_, gpointer data _U_)
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    static const e_addr_resolve resolv_flags = {TRUE, TRUE, TRUE, TRUE, TRUE, FALSE};
+    static const e_addr_resolve resolv_flags = {
+        TRUE,   /* mac_name */
+        TRUE,   /* network_name */
+        TRUE,   /* transport_name */
+        TRUE,   /* concurrent_dns */
+        TRUE,   /* dns_pkt_addr_resolution */
+        TRUE,   /* use_external_net_name_resolver */
+        FALSE   /* load_hosts_file_from_profile_only */
+    };
 
     if (cfile.edt->tree) {
         proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, &resolv_flags);
@@ -1231,7 +1239,7 @@ print_usage(gboolean for_help_option) {
     fprintf(output, "Processing:\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtCd\"\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
     fprintf(output, "  --enable-heuristic <short_name>\n");
@@ -2682,15 +2690,12 @@ DIAG_ON(cast-qual)
                 prefs_p->gui_gtk2_font_name = g_strdup(optarg);
                 break;
             case 'n':        /* No name resolution */
-                gbl_resolv_flags.mac_name = FALSE;
-                gbl_resolv_flags.network_name = FALSE;
-                gbl_resolv_flags.transport_name = FALSE;
-                gbl_resolv_flags.concurrent_dns = FALSE;
+                disable_name_resolution();
                 break;
             case 'N':        /* Select what types of addresses/port #s to resolve */
                 badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
                 if (badopt != '\0') {
-                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'C', 'd', m', 'n', 'N', and 't'",
                                badopt);
                     exit(1);
                 }

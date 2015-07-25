@@ -345,7 +345,7 @@ print_usage(FILE *output)
   fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter\n");
   fprintf(output, "                           syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-  fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+  fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtCd\"\n");
   fprintf(output, "  -d %s ...\n", decode_as_arg_template);
   fprintf(output, "                           \"Decode As\", see the man page for details\n");
   fprintf(output, "                           Example: tcp.port==8888,http\n");
@@ -1520,10 +1520,7 @@ DIAG_ON(cast-qual)
 #endif
       break;
     case 'n':        /* No name resolution */
-      gbl_resolv_flags.mac_name = FALSE;
-      gbl_resolv_flags.network_name = FALSE;
-      gbl_resolv_flags.transport_name = FALSE;
-      gbl_resolv_flags.concurrent_dns = FALSE;
+      disable_name_resolution();
       break;
     case 'N':        /* Select what types of addresses/port #s to resolve */
       badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
@@ -1531,6 +1528,7 @@ DIAG_ON(cast-qual)
         cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
                    badopt);
         cmdarg_err_cont("\t'C' to enable concurrent (asynchronous) DNS lookups\n"
+                        "\t'd' to enable address resolution from captured DNS packets\n"
                         "\t'm' to enable MAC address resolution\n"
                         "\t'n' to enable network address resolution\n"
                         "\t'N' to enable using external resolvers (e.g., DNS)\n"

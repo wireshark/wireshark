@@ -201,7 +201,7 @@ print_usage(FILE *output)
     fprintf(output, "                           packet encapsulation or protocol\n");
     fprintf(output, "  -F <field>               field to display\n");
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtCd\"\n");
     fprintf(output, "  -p                       use the system's packet header format\n");
     fprintf(output, "                           (which may have 64-bit timestamps)\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
@@ -636,15 +636,12 @@ DIAG_ON(cast-qual)
                 line_buffered = TRUE;
                 break;
             case 'n':        /* No name resolution */
-                gbl_resolv_flags.mac_name = FALSE;
-                gbl_resolv_flags.network_name = FALSE;
-                gbl_resolv_flags.transport_name = FALSE;
-                gbl_resolv_flags.concurrent_dns = FALSE;
+                disable_name_resolution();
                 break;
             case 'N':        /* Select what types of addresses/port #s to resolve */
                 badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
                 if (badopt != '\0') {
-                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'C', 'd', m', 'n', 'N', and 't'",
                                badopt);
                     exit(1);
                 }
