@@ -2855,6 +2855,7 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
             case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
             case TIMING_ADVANCE_LCID:
             case DRX_COMMAND_LCID:
+            case LONG_DRX_COMMAND_LCID:
                 return TRUE;
 
             default:
@@ -3817,9 +3818,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                      val_to_str_const(lcids[number_of_headers],
                                                       dlsch_lcid_vals, "(Unknown LCID)"));
 
-            if (lcids[number_of_headers] == DRX_COMMAND_LCID) {
+            if ((lcids[number_of_headers] == DRX_COMMAND_LCID) ||
+                (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID)) {
                 expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
-                                       "DRX command received for UE %u (RNTI %u)",
+                                       "%sDRX command received for UE %u (RNTI %u)",
+                                       (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID) ? "Long " :"",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rnti);
             }
         }
@@ -4213,6 +4216,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     }
                     break;
                 case DRX_COMMAND_LCID:
+                case LONG_DRX_COMMAND_LCID:
                     /* No payload */
                     mac_lte_drx_control_element_received(p_mac_lte_info->ueid);
                     break;
