@@ -9020,8 +9020,15 @@ dissect_ieee80211_extension(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, prot
         offset += add_ff_cc_field(fixed_tree,tvb, offset, dis);
       }
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-      tagged_tree = get_tagged_parameter_tree (ext_tree, tvb, offset, tagged_parameter_tree_len);
-      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, EXTENSION_DMG_BEACON);
+
+      /*
+       * The tagged params are optional here. See Table 8.33a of the 2012
+       * version of the standard.
+       */
+      if (tagged_parameter_tree_len) {
+        tagged_tree = get_tagged_parameter_tree (ext_tree, tvb, offset, tagged_parameter_tree_len);
+        ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, EXTENSION_DMG_BEACON);
+      }
       break;
     }
   }
