@@ -2792,11 +2792,11 @@ gint
 dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	gint    payload_length;
-	guint8  segmented, command_id, transaction_id, subindex = 0;
+	guint8  segmented, command_id, transaction_id;
 	gboolean response, abort_flag;
 	guint32 abort_code = 0;
 	guint32 fragmentId = 0, remlength = 0;
-	guint16 segment_size, idx = 0;
+	guint16 segment_size;
 	proto_tree *sdo_cmd_tree = NULL;
 	proto_tree *payload = NULL;
 	proto_item *item;
@@ -2888,14 +2888,10 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 				/* the SDO response can contain several abort codes for multiple transfers */
 				while (remlength > 0)
 				{
-					idx = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-
-					item = proto_tree_add_uint_format(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, idx, "OD Index: 0x%04X", idx);
+					proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 					offset += 2;
 
-					subindex = tvb_get_guint8(tvb, offset);
-
-					item = proto_tree_add_uint_format(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+					proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 					proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_sub_abort, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2967,7 +2963,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			/* get index offset */
 			idx = tvb_get_letohs(tvb, offset);
 			/* add index item */
-			psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, idx, "OD Index: 0x%04X", idx);
+			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			/* value to string */
 			index_str = rval_to_str_const(idx, sod_cmd_str, "unknown");
 			/* get index string value */
@@ -3030,7 +3026,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			if((idx == EPL_SOD_STORE_PARAM && subindex <= 0x7F && subindex >= 0x04) ||
 			   (idx == EPL_SOD_RESTORE_PARAM && subindex <= 0x7F && subindex >= 0x04))
 			{
-				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)", subindex);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/ManufacturerParam_%02Xh_U32)", subindex);
 			}
@@ -3039,7 +3035,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			else if((idx == EPL_SOD_PDO_RX_MAPP && subindex >= 0x01 && subindex <= 0xfe) ||
 				(idx == EPL_SOD_PDO_TX_MAPP && subindex >= 0x01 && subindex <= 0xfe))
 			{
-				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (ObjectMapping)");
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/ObjectMapping)");
 			}
@@ -3051,13 +3047,13 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			/* if the subindex has the value 0x00 */
 			else if(subindex == entries)
 			{
-				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (NumberOfEntries)");
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/NumberOfEntries)");
 			}
 			else
 			{
-				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex | (idx << 16)), &sod_index_names, "User Defined"));
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/%s)",val_to_str_ext_const((subindex | (idx << 16)), &sod_index_names, "User Defined"));
 			}
@@ -3246,7 +3242,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				/* get SDO index value */
 				idx = tvb_get_letohs(tvb, dataoffset);
 				/* add index item */
-				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset+4, 2, idx, "OD Index: 0x%04X", idx);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
 				/* value to string */
 				index_str = rval_to_str_const(idx, sod_cmd_str, "unknown");
 				/* get index string value */
@@ -3298,37 +3294,37 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				/* if the subindex is a EPL_SOD_STORE_PARAM */
 				if(idx == EPL_SOD_STORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)", subindex);
 				}
 				/* if the subindex is a EPL_SOD_RESTORE_PARAM */
 				else if(idx == EPL_SOD_RESTORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)", subindex);
 				}
 				/* if the subindex is a EPL_SOD_PDO_RX_MAPP */
 				else if(idx == EPL_SOD_PDO_RX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (ObjectMapping)");
 				}
 				/* if the subindex is a EPL_SOD_PDO_TX_MAPP */
 				else if(idx == EPL_SOD_PDO_TX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (ObjectMapping)");
 				}
 				/* if the subindex has the value 0x00 */
 				else if(subindex == entries)
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (NumberOfEntries)");
 				}
 				/* subindex */
 				else
 				{
-					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindex, "OD SubIndex: 0x%02x", subindex);
+					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex | (idx << 16)), &sod_index_names, "User Defined"));
 				}
 
