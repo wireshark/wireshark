@@ -3757,7 +3757,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /************************************************************************/
     /* Dissect each sub-header.                                             */
     do {
-        guint8 reserved;
+        guint8 reserved, initial_lcid;
         guint64 length = 0;
         proto_item *pdu_subheader_ti;
         proto_tree *pdu_subheader_tree;
@@ -3793,6 +3793,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* LCID.  Has different meaning depending upon direction. */
         lcids[number_of_headers] = first_byte & 0x1f;
+        initial_lcid = lcids[number_of_headers];
         if (direction == DIRECTION_UPLINK) {
 
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
@@ -3801,6 +3802,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                      "(%s",
                                      val_to_str_const(lcids[number_of_headers],
                                                       ulsch_lcid_vals, "(Unknown LCID)"));
+            if (lcids[number_of_headers] == 11) {
+                /* This LCID is used for CCCH by Category 0 devices
+                   Let's remap it to LCID 0 for statistics and other checks */
+                lcids[number_of_headers] = 0;
+            }
         }
         else {
             /* Downlink */
@@ -3936,7 +3942,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Append summary to subheader root */
         proto_item_append_text(pdu_subheader_ti, " (lcid=%s",
-                               val_to_str_const(lcids[number_of_headers],
+                               val_to_str_const(initial_lcid,
                                                 (direction == DIRECTION_UPLINK) ?
                                                     ulsch_lcid_vals :
                                                         dlsch_lcid_vals,
@@ -3946,14 +3952,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             case -1:
                 proto_item_append_text(pdu_subheader_ti, ", length is remainder)");
                 proto_item_append_text(pdu_header_ti, " (%s:remainder)",
-                                       val_to_str_const(lcids[number_of_headers],
+                                       val_to_str_const(initial_lcid,
                                                         (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
                                                         "Unknown"));
                 break;
             case 0:
                 proto_item_append_text(pdu_subheader_ti, ")");
                 proto_item_append_text(pdu_header_ti, " (%s)",
-                                       val_to_str_const(lcids[number_of_headers],
+                                       val_to_str_const(initial_lcid,
                                                         (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
                                                         "Unknown"));
                 break;
@@ -3961,7 +3967,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_item_append_text(pdu_subheader_ti, ", length=%u)",
                                        pdu_lengths[number_of_headers]);
                 proto_item_append_text(pdu_header_ti, " (%s:%u)",
-                                       val_to_str_const(lcids[number_of_headers],
+                                       val_to_str_const(initial_lcid,
                                                         (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
                                                         "Unknown"),
                                        pdu_lengths[number_of_headers]);
@@ -4910,8 +4916,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* CCCH frames can be dissected directly by LTE RRC... */
-        if (((lcids[n] == 0) || ((direction == DIRECTION_UPLINK) && (lcids[n] == 11)))
-            && global_mac_lte_attempt_rrc_decode) {
+        if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
             tvbuff_t *rrc_tvb = tvb_new_subset_length(tvb, offset, data_length);
 
             /* Get appropriate dissector handle */
