@@ -4035,7 +4035,7 @@ static void vvalue_strbuf_append_i4(wmem_strbuf_t *strbuf, void *ptr)
 static void vvalue_strbuf_append_i8(wmem_strbuf_t *strbuf, void *ptr)
 {
 	gint64 i8 = *(gint64*)ptr;
-	wmem_strbuf_append_printf(strbuf, "%ld", i8);
+	wmem_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "d", i8);
 }
 
 static void vvalue_strbuf_append_ui1(wmem_strbuf_t *strbuf, void *ptr)
@@ -4059,7 +4059,7 @@ static void vvalue_strbuf_append_ui4(wmem_strbuf_t *strbuf, void *ptr)
 static void vvalue_strbuf_append_ui8(wmem_strbuf_t *strbuf, void *ptr)
 {
 	guint64 ui8 = *(guint64*)ptr;
-	wmem_strbuf_append_printf(strbuf, "%lu", ui8);
+	wmem_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", ui8);
 }
 
 static void vvalue_strbuf_append_r4(wmem_strbuf_t *strbuf, void *ptr)
@@ -5314,7 +5314,7 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 		if (is_64bit) {
 			size = 8;
 			item_address = tvb_get_letoh64(tvb, buf_offset + (i * size));
-			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, buf_offset, size, item_address, "address[%d] 0x%lx", i, item_address);
+			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, buf_offset, size, item_address, "address[%d] 0x%" G_GINT64_MODIFIER "x", i, item_address);
 		} else {
 			size = 4;
 			item_address = tvb_get_letohl(tvb, buf_offset + (i * size));
