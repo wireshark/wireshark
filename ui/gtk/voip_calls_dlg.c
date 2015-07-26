@@ -127,6 +127,7 @@ voip_calls_get_info(void)
 		NULL, /* h245 */
 		NULL, NULL, 0, 0, 0, /* q931 */
 		0, 0, H225_OTHER, FALSE, /* h225 */
+		0, /* SIP */
 		0, 0, 0, /* actrace */
 		FLOW_ALL, /* flow show option */
 		FALSE };
