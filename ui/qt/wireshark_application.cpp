@@ -529,6 +529,19 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     connect(this, SIGNAL(appInitialized()), &tap_update_timer_, SLOT(start()));
     connect(&tap_update_timer_, SIGNAL(timeout()), this, SLOT(updateTaps()));
 
+    // Application-wide style sheet
+    QString app_style_sheet = qApp->styleSheet();
+#if defined(Q_OS_MAC)
+    // Qt uses the HITheme API to draw splitters. In recent versions of OS X
+    // this looks particularly bad: https://bugreports.qt.io/browse/QTBUG-43425
+    // This doesn't look native but it looks better than Yosemite's bit-rotten
+    // rendering of HIThemeSplitterDrawInfo.
+    app_style_sheet +=
+            "QSplitter::handle:vertical { height: 0px; }\n"
+            "QSplitter::handle:horizontal { width: 0px; }\n";
+#endif
+    qApp->setStyleSheet(app_style_sheet);
+
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }
 
