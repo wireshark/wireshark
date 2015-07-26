@@ -27,7 +27,6 @@
 /* Include only as needed */
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -694,13 +693,13 @@ static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 	return fid_info;
 }
 
-static bool get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame,
+static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame,
 							  void *data)
 {
-	bool result = true;
+	gboolean result = TRUE;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
 	if (!p_smb_level) {
-		return false;
+		return FALSE;
 	}
 	*frame = pinfo->fd->num;
 	if (*p_smb_level == SMB1) {
@@ -708,7 +707,7 @@ static bool get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame,
 		smb_fid_info_t *info;
 		info = find_fid_info(si);
 		if (!info) {
-			return false;
+			return FALSE;
 		}
 		*fid = info->fid;
 	} else {
@@ -719,7 +718,7 @@ static bool get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame,
 			dcerpc_fetch_polhnd_data(&si2->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num);
 			*fid = open_frame;
 		} else {
-			result = false;
+			result = FALSE;
 		}
 	}
 	return result;
@@ -813,7 +812,7 @@ static struct CPMSetBindingsIn *
 find_binding_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
 {
 	struct CPMSetBindingsIn *result = NULL;
-	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xD0, true, private_data);
+	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xD0, TRUE, private_data);
 	if (data) {
 		result = &data->content.bindingsin;
 	}
@@ -824,7 +823,7 @@ static struct rows_data *
 find_rowsin_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
 {
 	struct rows_data *result = NULL;
-	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xCC, true, private_data);
+	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xCC, TRUE, private_data);
 	if (data) {
 		result = &data->content.rowsin;
 	}
@@ -833,14 +832,14 @@ find_rowsin_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data
 
 static gboolean is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
 {
-	gboolean result = false; /* default to 32 bit */
+	gboolean result = FALSE; /* default to 32 bit */
 	guint32 client_ver = 0;
 	guint32 server_ver = 0;
 	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xC8,
-								true, private_data);
+								TRUE, private_data);
 	if (data) {
 		client_ver = data->content.version;
-		data = find_matching_request_by_fid(ct, pinfo, 0xC8, false, private_data);
+		data = find_matching_request_by_fid(ct, pinfo, 0xC8, FALSE, private_data);
 		if (data) {
 			server_ver = data->content.version;
 			result = (server_ver & 0xffff0000) && (client_ver & 0xffff0000);
@@ -3482,7 +3481,7 @@ static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, guint32 *re
 				*relop |= PRAny;
 				break;
 			default:
-				DISSECTOR_ASSERT(false);
+				DISSECTOR_ASSERT(FALSE);
 				break;
 		}
 		str1 = try_val_to_str((modifier), PR_VALS);
@@ -3736,7 +3735,7 @@ static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *
 			*rtype = RTInternalProp;
 			break;
 		default:
-			DISSECTOR_ASSERT(false);
+			DISSECTOR_ASSERT(FALSE);
 			break;
 	}
 	txt = val_to_str(*rtype, RT_VALS, "0x%.8x");
@@ -4289,7 +4288,7 @@ static int parse_vType(tvbuff_t *tvb, int offset, guint16 *vtype)
 			*vtype = VT_CLSID;
 			break;
 		default:
-			DISSECTOR_ASSERT(false);
+			DISSECTOR_ASSERT(FALSE);
 			break;
 	}
 	if (modifier) {
@@ -4301,7 +4300,7 @@ static int parse_vType(tvbuff_t *tvb, int offset, guint16 *vtype)
 				*vtype |= VT_ARRAY;
 				break;
 			default:
-				DISSECTOR_ASSERT(false);
+				DISSECTOR_ASSERT(FALSE);
 				break;
 		}
 	}
@@ -4394,8 +4393,8 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, int offset, proto_tree *pare
 	proto_item_set_end(ti, tvb, offset);
 	proto_item_set_end(ti_val, tvb, offset);
 
-	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, false));
-	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, true));
+	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, FALSE));
+	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, TRUE));
 
 	goto done;
 
@@ -4486,7 +4485,7 @@ static int parse_CDbProp(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pro
 
 	offset = parse_CBaseStorageVariant(tvb, offset, tree, pad_tree, &value, "vValue");
 
-	str = str_CBaseStorageVariant(&value, true);
+	str = str_CBaseStorageVariant(&value, TRUE);
 	proto_item_append_text(item, " %s", str);
 	proto_item_set_end(item, tvb, offset);
 
@@ -4642,7 +4641,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, int offset, proto_tree *parent_tree, prot
 		offset += 2*ccLabel;
 	}
 
-	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, true));
+	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, TRUE));
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -4852,7 +4851,7 @@ static int parse_CInGroupSortAggregSet_type(tvbuff_t *tvb, int offset, proto_tre
 			*type = GroupIdValue;
 			break;
 		default:
-			DISSECTOR_ASSERT(false);
+			DISSECTOR_ASSERT(FALSE);
 			break;
 	}
 	proto_tree_add_uint(tree, hf_mswsp_cingroupsortaggregset_type, tvb, offset, 1, *type);
@@ -5789,7 +5788,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		struct CPMSetBindingsIn *bindingsin = find_binding_msg_data(ct, pinfo,
 											  private_data);
 		struct rows_data *rowsin = find_rowsin_msg_data(ct, pinfo, private_data);
-		bool b_64bit_mode = false;
+		gboolean b_64bit_mode = FALSE;
 		if (bindingsin && rowsin) {
 			b_64bit_mode = is_64bit_mode(ct, pinfo, private_data);
 		}
