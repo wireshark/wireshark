@@ -3035,7 +3035,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
          2) we're printing packet info but we're *not* verbose; in verbose
             mode, we print the protocol tree, not the protocol summary.
      */
-    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary))
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
@@ -3342,6 +3342,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     buffer_free(&buf);
   }
   else {
+    /* !perform_two_pass_analysis */
     framenum = 0;
 
     if (do_dissection) {
