@@ -229,7 +229,7 @@ Android Logcat text files
 Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 Colasoft Capsa files
 Netscaler 3.5
-3GPP Nettrace TS 34 423
+3GPP TS 32.423 Trace
 --sort-and-group--
 
 === New and Updated Capture Interfaces support

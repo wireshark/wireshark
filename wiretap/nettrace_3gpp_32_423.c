@@ -1,6 +1,6 @@
 /* nettrace_3gpp_32_423.c
  *
- * Decoder for 3GPP 32.423 file format for the Wiretap library.
+ * Decoder for 3GPP TS 32.423 file format for the Wiretap library.
  * The main purpose is to have Wireshark decode raw message content (<rawMsg> tag).
  *
  * This program is free software; you can redistribute it and/or
