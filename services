@@ -8794,6 +8794,7 @@ checkoutdb       5505/tcp # Checkout Database [Dirk_Stoop] [Dirk_Stoop] 2007-04
 checkoutdb       5505/udp # Checkout Database [Dirk_Stoop] [Dirk_Stoop] 2007-04
 amc              5506/tcp # Amcom Mobile Connect [Aaron_Fracht_Monroe] [Aaron_Fracht_Monroe] 2010-06-03
 amc              5506/udp # Amcom Mobile Connect [Aaron_Fracht_Monroe] [Aaron_Fracht_Monroe] 2010-06-03
+psl-management   5507/tcp # PowerSysLab Electrical Management [PowerSysLab] [Lucas_Lorensi] 2015-07-20
 sgi-eventmond    5553/tcp # SGI Eventmond Port [Andrei_Vilkotski] [Andrei_Vilkotski] 2003-06
 sgi-eventmond    5553/udp # SGI Eventmond Port [Andrei_Vilkotski] [Andrei_Vilkotski] 2003-06
 sgi-esphttp      5554/tcp # SGI ESP HTTP [Vladimir_Legalov] [Vladimir_Legalov]
@@ -10008,6 +10009,8 @@ tnp-discover     8320/tcp # Thin(ium) Network Protocol [Aly_Orady] [Aly_Orady] 2
 tnp-discover     8320/udp # Thin(ium) Network Protocol [Aly_Orady] [Aly_Orady] 2007-08-07
 tnp              8321/tcp # Thin(ium) Network Protocol [Aly_Orady] [Aly_Orady] 2007-08-07
 tnp              8321/udp # Thin(ium) Network Protocol [Aly_Orady] [Aly_Orady] 2007-08-07
+garmin-marine    8322/tcp # Garmin Marine [Garmin_International_Inc] [Nathan_Karstens] 2015-07-23
+garmin-marine    8322/udp # Garmin Marine [Garmin_International_Inc] [Nathan_Karstens] 2015-07-23
 server-find      8351/tcp # Server Find [Chris_Brown] [Chris_Brown]
 server-find      8351/udp # Server Find [Chris_Brown] [Chris_Brown]
 cruise-enum      8376/tcp # Cruise ENUM [Steve_Husak] [Steve_Husak]
@@ -10862,6 +10865,10 @@ avtp            17220/udp # IEEE 1722 Transport Protocol for Time Sensitive Appl
 avdecc          17221/tcp # IEEE 1722.1 AVB Discovery, Enumeration, Connection management, and Control [IEEE_1722_1] [Jeffrey_Daniel_Koftinoff] 2011-11-01
 avdecc          17221/udp # IEEE 1722.1 AVB Discovery, Enumeration, Connection management, and Control [IEEE_1722_1] [Jeffrey_Daniel_Koftinoff] 2011-11-01
 cpsp            17222/udp # Control Plane Synchronization Protocol (SPSP) [Randall_Stewart_2] [Randall_Stewart_2] 2011-11-10
+isa100-gci      17223/tcp # ISA100 GCI is a service utilizing a common interface between an ISA100 Wireless gateway and a client application [ISA100_Wireless_Compliance_Institute] [Jay_Werb] 2015-07-24
+trdp-pd         17224/udp # Train Realtime Data Protocol (TRDP) Process Data [IEC_Central_Office] [Gianosvaldo_Fadin] 2015-07-24
+trdp-md         17225/tcp # Train Realtime Data Protocol (TRDP) Message Data [IEC_Central_Office] [Gianosvaldo_Fadin] 2015-07-24
+trdp-md         17225/udp # Train Realtime Data Protocol (TRDP) Message Data [IEC_Central_Office] [Gianosvaldo_Fadin] 2015-07-24
 integrius-stp   17234/tcp # Integrius Secure Tunnel Protocol [Christian_Klemetsson] [Christian_Klemetsson] 2010-03-04
 integrius-stp   17234/udp # Integrius Secure Tunnel Protocol [Christian_Klemetsson] [Christian_Klemetsson] 2010-03-04
 ssh-mgmt        17235/tcp # SSH Tectia Manager [Ville_Laurikari] [Ville_Laurikari] 2005-08
