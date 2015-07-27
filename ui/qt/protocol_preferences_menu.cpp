@@ -32,6 +32,7 @@
 
 #include "protocol_preferences_menu.h"
 
+#include "enabled_protocols_dialog.h"
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"
 #include "wireshark_application.h"
@@ -178,25 +179,32 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
 {
     QAction *action;
     int proto_id = -1;
-    protocol_t *protocol;
+
+    if (module_name) {
+        proto_id = proto_get_id_by_filter_name(module_name);
+    }
 
     clear();
     module_name_.clear();
     module_ = NULL;
 
-    if (!module_name ||
-        (proto_id = proto_get_id_by_filter_name(module_name)) < 0 ||
-        !(protocol = find_protocol_by_id(proto_id))) {
+    protocol_ = find_protocol_by_id(proto_id);
+    const QString proto_name = proto_get_protocol_long_name(protocol_);
+    if (!module_name || proto_id < 0 || !protocol_) {
         action = addAction(tr("No protocol preferences available"));
         action->setDisabled(true);
         return;
     }
 
+    QAction *disable_action = new QAction(tr("Disable %1" UTF8_HORIZONTAL_ELLIPSIS).arg(proto_name), this);
+    connect(disable_action, SIGNAL(triggered(bool)), this, SLOT(disableProtocolTriggered()));
+
     module_ = prefs_find_module(module_name);
-    const QString proto_name = proto_get_protocol_long_name(protocol);
     if (!module_ || !prefs_is_registered_protocol(module_name)) {
         action = addAction(tr("%1 has no preferences").arg(proto_name));
         action->setDisabled(true);
+        addSeparator();
+        addAction(disable_action);
         return;
     }
 
@@ -205,10 +213,14 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
     action = addAction(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(proto_name));
     action->setData(QString(module_name));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
-
     addSeparator();
 
     prefs_pref_foreach(module_, add_prefs_menu_item, this);
+
+    if (!actions().last()->isSeparator()) {
+        addSeparator();
+    }
+    addAction(disable_action);
 }
 
 void ProtocolPreferencesMenu::addMenuItem(preference *pref)
@@ -267,6 +279,14 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     if (pref->type != PREF_ENUM) {
     } else {
     }
+}
+
+void ProtocolPreferencesMenu::disableProtocolTriggered()
+{
+    EnabledProtocolsDialog enable_proto_dialog(this);
+    enable_proto_dialog.selectProtocol(protocol_);
+    hide();
+    enable_proto_dialog.exec();
 }
 
 void ProtocolPreferencesMenu::modulePreferencesTriggered()

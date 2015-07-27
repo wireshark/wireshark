@@ -39,11 +39,18 @@ enum
     DESCRIPTION_COLUMN
 };
 
+enum
+{
+    enable_type_ = 1000,
+    protocol_type_ = 1001,
+    heuristic_type_ = 1002
+};
+
 class EnableProtocolTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    EnableProtocolTreeWidgetItem(QTreeWidgetItem *parent, QString proto_name, QString short_name, bool enable) :
-        QTreeWidgetItem (parent),
+    EnableProtocolTreeWidgetItem(QTreeWidgetItem *parent, QString proto_name, QString short_name, bool enable, int type = enable_type_) :
+        QTreeWidgetItem (parent, type),
         short_name_(short_name),
         proto_name_(proto_name),
         enable_(enable)
@@ -79,10 +86,11 @@ class ProtocolTreeWidgetItem : public EnableProtocolTreeWidgetItem
 {
 public:
     ProtocolTreeWidgetItem(QTreeWidgetItem *parent, const protocol_t *protocol) :
-        EnableProtocolTreeWidgetItem (parent, proto_get_protocol_long_name(protocol), proto_get_protocol_short_name(protocol), proto_is_protocol_enabled(protocol)),
+        EnableProtocolTreeWidgetItem (parent, proto_get_protocol_long_name(protocol), proto_get_protocol_short_name(protocol), proto_is_protocol_enabled(protocol), protocol_type_),
         protocol_(protocol)
     {
     }
+    const protocol_t *protocol() { return protocol_; }
 
 protected:
     virtual void applyValuePrivate(gboolean value)
@@ -98,7 +106,7 @@ class HeuristicTreeWidgetItem : public EnableProtocolTreeWidgetItem
 {
 public:
     HeuristicTreeWidgetItem(QTreeWidgetItem *parent, heur_dtbl_entry_t *heuristic) :
-        EnableProtocolTreeWidgetItem (parent, heuristic->display_name, heuristic->short_name, heuristic->enabled),
+        EnableProtocolTreeWidgetItem (parent, heuristic->display_name, heuristic->short_name, heuristic->enabled, heuristic_type_),
         heuristic_(heuristic)
     {
     }
@@ -135,7 +143,6 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
         {
             protocol = find_protocol_by_id(i);
             ProtocolTreeWidgetItem* protocol_row = new ProtocolTreeWidgetItem(ui->protocol_tree_->invisibleRootItem(), protocol);
-            ui->protocol_tree_->addTopLevelItem(protocol_row);
 
             proto_heuristic_dissector_foreach(protocol, addHeuristicItem, protocol_row);
         }
@@ -160,6 +167,25 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
 EnabledProtocolsDialog::~EnabledProtocolsDialog()
 {
     delete ui;
+}
+
+void EnabledProtocolsDialog::selectProtocol(_protocol *protocol)
+{
+    QTreeWidgetItemIterator it(ui->protocol_tree_->invisibleRootItem());
+    while (*it)
+    {
+        if ((*it)->type() == protocol_type_)
+        {
+            ProtocolTreeWidgetItem* protocol_item = dynamic_cast<ProtocolTreeWidgetItem*>((ProtocolTreeWidgetItem*)(*it));
+            if (protocol_item && protocol_item->protocol() == protocol) {
+                protocol_item->setSelected(true);
+                ui->protocol_tree_->scrollToItem((*it));
+                return;
+            }
+        }
+
+        ++it;
+    }
 }
 
 void EnabledProtocolsDialog::addHeuristicItem(gpointer data, gpointer user_data)

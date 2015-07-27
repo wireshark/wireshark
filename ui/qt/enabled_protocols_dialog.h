@@ -28,6 +28,8 @@ namespace Ui {
 class EnabledProtocolsDialog;
 }
 
+struct _protocol;
+
 class QAbstractButton;
 
 class EnabledProtocolsDialog : public QDialog
@@ -37,20 +39,15 @@ class EnabledProtocolsDialog : public QDialog
 public:
     explicit EnabledProtocolsDialog(QWidget *parent);
     ~EnabledProtocolsDialog();
+    void selectProtocol(struct _protocol *protocol);
 
 private slots:
     void on_invert_button__clicked();
-
     void on_enable_all_button__clicked();
-
     void on_disable_all_button__clicked();
-
     void on_search_line_edit__textChanged(const QString &search_re);
-
     void on_buttonBox_accepted();
-
     void on_buttonBox_clicked(QAbstractButton *button);
-
     void on_buttonBox_helpRequested();
 
 private:

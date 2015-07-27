@@ -24,6 +24,7 @@
 
 #include <QMenu>
 
+struct _protocol;
 struct pref_module;
 struct preference;
 
@@ -44,8 +45,10 @@ signals:
 private:
     QString module_name_;
     struct pref_module *module_;
+    struct _protocol *protocol_;
 
 private slots:
+    void disableProtocolTriggered();
     void modulePreferencesTriggered();
     void editorPreferenceTriggered();
     void boolPreferenceTriggered();
