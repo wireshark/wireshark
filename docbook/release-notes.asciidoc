@@ -244,6 +244,7 @@ Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
 Time Division Multiplexing over Packet Network (TDMoP)
 Concise Binary Object Representation (CBOR) (RFC 7049)
 XIP Serval
+TCP based Robot Operating System protocol (TCPROS)
 --sort-and-group--
 
 === Updated Protocol Support

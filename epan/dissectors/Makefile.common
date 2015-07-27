@@ -1236,6 +1236,7 @@ DISSECTOR_SRC = \
 	packet-tali.c		\
 	packet-tapa.c		\
 	packet-tcp.c		\
+	packet-tcpros.c		\
 	packet-tdmoe.c		\
 	packet-tdmop.c		\
 	packet-tds.c		\
