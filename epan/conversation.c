@@ -103,83 +103,83 @@ typedef struct _conv_proto_data {
 static conversation_t *
 conversation_create_from_template(conversation_t *conversation, const address *addr2, const guint32 port2)
 {
-   /*
-    * Add a new conversation and keep the conversation template only if the
-    * CONVERSATION_TEMPLATE bit is set for a connection oriented protocol.
-    */
-   if(conversation->options & CONVERSATION_TEMPLATE &&
-      conversation->key_ptr->ptype != PT_UDP)
-   {
-      /*
-       * Set up a new options mask where the conversation template bit and the
-       * bits for absence of a second address and port pair have been removed.
-       */
-      conversation_t *new_conversation_from_template;
-      guint options = conversation->options & ~(CONVERSATION_TEMPLATE | NO_ADDR2 | NO_PORT2);
+	/*
+	 * Add a new conversation and keep the conversation template only if the
+	 * CONVERSATION_TEMPLATE bit is set for a connection oriented protocol.
+	 */
+	if(conversation->options & CONVERSATION_TEMPLATE &&
+		conversation->key_ptr->ptype != PT_UDP)
+	{
+		/*
+		 * Set up a new options mask where the conversation template bit and the
+		 * bits for absence of a second address and port pair have been removed.
+		 */
+		conversation_t *new_conversation_from_template;
+		guint options = conversation->options & ~(CONVERSATION_TEMPLATE | NO_ADDR2 | NO_PORT2);
 
-      /*
-       * Are both the NO_ADDR2 and NO_PORT2 wildcards set in the options mask?
-       */
-      if(conversation->options & NO_ADDR2 &&
-         conversation->options & NO_PORT2)
-      {
-         /*
-          * The conversation template was created without knowledge of both
-          * the second address as well as the second port. Create a new
-          * conversation with new 2nd address and 2nd port.
-          */
-         new_conversation_from_template =
-            conversation_new(conversation->setup_frame,
-                             &conversation->key_ptr->addr1, addr2,
-                             conversation->key_ptr->ptype, conversation->key_ptr->port1,
-                             port2, options);
-      }
-      else if(conversation->options & NO_PORT2)
-      {
-         /*
-          * The conversation template was created without knowledge of port 2
-          * only. Create a new conversation with new 2nd port.
-          */
-         new_conversation_from_template =
-            conversation_new(conversation->setup_frame,
-                             &conversation->key_ptr->addr1, &conversation->key_ptr->addr2,
-                             conversation->key_ptr->ptype, conversation->key_ptr->port1,
-                             port2, options);
-      }
-      else if(conversation->options & NO_ADDR2)
-      {
-         /*
-          * The conversation template was created without knowledge of address
-          * 2. Create a new conversation with new 2nd address.
-          */
-         new_conversation_from_template =
-            conversation_new(conversation->setup_frame,
-                             &conversation->key_ptr->addr1, addr2,
-                             conversation->key_ptr->ptype, conversation->key_ptr->port1,
-                             conversation->key_ptr->port2, options);
-      }
-      else
-      {
-         /*
-          * The CONVERSATION_TEMPLATE bit was set, but no other bit that the
-          * CONVERSATION_TEMPLATE bit controls is active. Just return the old
-          * conversation.
-          */
-         return conversation;
-      }
+		/*
+		 * Are both the NO_ADDR2 and NO_PORT2 wildcards set in the options mask?
+		 */
+		if(conversation->options & NO_ADDR2 &&
+			conversation->options & NO_PORT2)
+		{
+			/*
+			 * The conversation template was created without knowledge of both
+			 * the second address as well as the second port. Create a new
+			 * conversation with new 2nd address and 2nd port.
+			 */
+			new_conversation_from_template =
+				conversation_new(conversation->setup_frame,
+						 &conversation->key_ptr->addr1, addr2,
+						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 port2, options);
+		}
+		else if(conversation->options & NO_PORT2)
+		{
+			/*
+			 * The conversation template was created without knowledge of port 2
+			 * only. Create a new conversation with new 2nd port.
+			 */
+			new_conversation_from_template =
+				conversation_new(conversation->setup_frame,
+						 &conversation->key_ptr->addr1, &conversation->key_ptr->addr2,
+						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 port2, options);
+		}
+		else if(conversation->options & NO_ADDR2)
+		{
+			/*
+			 * The conversation template was created without knowledge of address
+			 * 2. Create a new conversation with new 2nd address.
+			 */
+			new_conversation_from_template =
+				conversation_new(conversation->setup_frame,
+						 &conversation->key_ptr->addr1, addr2,
+						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 conversation->key_ptr->port2, options);
+		}
+		else
+		{
+			/*
+			 * The CONVERSATION_TEMPLATE bit was set, but no other bit that the
+			 * CONVERSATION_TEMPLATE bit controls is active. Just return the old
+			 * conversation.
+			 */
+			return conversation;
+		}
 
-      /*
-       * Set the protocol dissector used for the template conversation as
-       * the handler of the new conversation as well.
-       */
-      new_conversation_from_template->dissector_handle = conversation->dissector_handle;
+		/*
+		 * Set the protocol dissector used for the template conversation as
+		 * the handler of the new conversation as well.
+		 */
+		new_conversation_from_template->dissector_handle = conversation->dissector_handle;
 
-      return new_conversation_from_template;
-   }
-   else
-   {
-      return conversation;
-   }
+		return new_conversation_from_template;
+	}
+	else
+	{
+		return conversation;
+	}
 }
 
 /*
@@ -840,8 +840,8 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 		}
 	}
 
-    if (match)
-    	chain_head->latest_found = match;
+	if (match)
+		chain_head->latest_found = match;
 
 	return match;
 }
@@ -887,330 +887,330 @@ conversation_t *
 find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b, const port_type ptype,
     const guint32 port_a, const guint32 port_b, const guint options)
 {
-   conversation_t *conversation;
+	conversation_t *conversation;
 
-   /*
-    * First try an exact match, if we have two addresses and ports.
-    */
-   if (!(options & (NO_ADDR_B|NO_PORT_B))) {
-      /*
-       * Neither search address B nor search port B are wildcarded,
-       * start out with an exact match.
-       */
-      DPRINT(("trying exact match"));
-      conversation =
-         conversation_lookup_hashtable(conversation_hashtable_exact,
-         frame_num, addr_a, addr_b, ptype,
-         port_a, port_b);
-      /* Didn't work, try the other direction */
-      if (conversation == NULL) {
-	      DPRINT(("trying opposite direction"));
-	      conversation =
-		 conversation_lookup_hashtable(conversation_hashtable_exact,
-		 frame_num, addr_b, addr_a, ptype,
-		 port_b, port_a);
-      }
-      if ((conversation == NULL) && (addr_a->type == AT_FC)) {
-         /* In Fibre channel, OXID & RXID are never swapped as
-          * TCP/UDP ports are in TCP/IP.
-          */
-         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_exact,
-            frame_num, addr_b, addr_a, ptype,
-            port_a, port_b);
-      }
-	  DPRINT(("exact match %sfound",conversation?"":"not "));
-      if (conversation != NULL)
-         return conversation;
-   }
+	/*
+	 * First try an exact match, if we have two addresses and ports.
+	 */
+	if (!(options & (NO_ADDR_B|NO_PORT_B))) {
+		/*
+		 * Neither search address B nor search port B are wildcarded,
+		 * start out with an exact match.
+		 */
+		DPRINT(("trying exact match"));
+		conversation =
+			conversation_lookup_hashtable(conversation_hashtable_exact,
+			frame_num, addr_a, addr_b, ptype,
+			port_a, port_b);
+		/* Didn't work, try the other direction */
+		if (conversation == NULL) {
+			DPRINT(("trying opposite direction"));
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_exact,
+				frame_num, addr_b, addr_a, ptype,
+				port_b, port_a);
+		}
+		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+			/* In Fibre channel, OXID & RXID are never swapped as
+			 * TCP/UDP ports are in TCP/IP.
+			 */
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_exact,
+				frame_num, addr_b, addr_a, ptype,
+				port_a, port_b);
+		}
+		DPRINT(("exact match %sfound",conversation?"":"not "));
+		if (conversation != NULL)
+			return conversation;
+	}
 
-   /*
-    * Well, that didn't find anything.  Try matches that wildcard
-    * one of the addresses, if we have two ports.
-    */
-   if (!(options & NO_PORT_B)) {
-      /*
-       * Search port B isn't wildcarded.
-       *
-       * First try looking for a conversation with the specified
-       * address A and port A as the first address and port, and
-       * with any address and the specified port B as the second
-       * address and port.
-       * ("addr_b" doesn't take part in this lookup.)
-       */
-      DPRINT(("trying wildcarded dest address"));
-      conversation =
-         conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-         frame_num, addr_a, addr_b, ptype, port_a, port_b);
-      if ((conversation == NULL) && (addr_a->type == AT_FC)) {
-         /* In Fibre channel, OXID & RXID are never swapped as
-          * TCP/UDP ports are in TCP/IP.
-          */
-         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-            frame_num, addr_b, addr_a, ptype,
-            port_a, port_b);
-      }
-      if (conversation != NULL) {
-         /*
-          * If search address B isn't wildcarded, and this is for a
-          * connection-oriented protocol, set the second address for this
-          * conversation to address B, as that's the address that matched the
-          * wildcarded second address for this conversation.
-          *
-          * (This assumes that, for all connection oriented protocols, the
-          * endpoints of a connection have only one address each, i.e. you
-          * don't get packets in a given direction coming from more than one
-          * address, unless the CONVERSATION_TEMPLATE option is set.)
-          */
-         DPRINT(("wildcarded dest address match found"));
-         if (!(conversation->options & NO_ADDR_B) && ptype != PT_UDP)
-         {
-            if(!(conversation->options & CONVERSATION_TEMPLATE))
-            {
-               conversation_set_addr2(conversation, addr_b);
-            }
-            else
-            {
-               conversation =
-                  conversation_create_from_template(conversation, addr_b, 0);
-            }
-         }
-         return conversation;
-      }
+	/*
+	 * Well, that didn't find anything.  Try matches that wildcard
+	 * one of the addresses, if we have two ports.
+	 */
+	if (!(options & NO_PORT_B)) {
+		/*
+		 * Search port B isn't wildcarded.
+		 *
+		 * First try looking for a conversation with the specified
+		 * address A and port A as the first address and port, and
+		 * with any address and the specified port B as the second
+		 * address and port.
+		 * ("addr_b" doesn't take part in this lookup.)
+		 */
+		DPRINT(("trying wildcarded dest address"));
+		conversation =
+			conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+			frame_num, addr_a, addr_b, ptype, port_a, port_b);
+		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+			/* In Fibre channel, OXID & RXID are never swapped as
+			 * TCP/UDP ports are in TCP/IP.
+			 */
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+				frame_num, addr_b, addr_a, ptype,
+				port_a, port_b);
+		}
+		if (conversation != NULL) {
+			/*
+			 * If search address B isn't wildcarded, and this is for a
+			 * connection-oriented protocol, set the second address for this
+			 * conversation to address B, as that's the address that matched the
+			 * wildcarded second address for this conversation.
+			 *
+			 * (This assumes that, for all connection oriented protocols, the
+			 * endpoints of a connection have only one address each, i.e. you
+			 * don't get packets in a given direction coming from more than one
+			 * address, unless the CONVERSATION_TEMPLATE option is set.)
+			 */
+			DPRINT(("wildcarded dest address match found"));
+			if (!(conversation->options & NO_ADDR_B) && ptype != PT_UDP)
+			{
+				if(!(conversation->options & CONVERSATION_TEMPLATE))
+				{
+					conversation_set_addr2(conversation, addr_b);
+				}
+				else
+				{
+					conversation =
+						conversation_create_from_template(conversation, addr_b, 0);
+				}
+			}
+			return conversation;
+		}
 
-      /*
-       * Well, that didn't find anything.
-       * If search address B was specified, try looking for a
-       * conversation with the specified address B and port B as
-       * the first address and port, and with any address and the
-       * specified port A as the second address and port (this
-       * packet may be going in the opposite direction from the
-       * first packet in the conversation).
-       * ("addr_a" doesn't take part in this lookup.)
-       */
-      if (!(options & NO_ADDR_B)) {
-         DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
-         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-            frame_num, addr_b, addr_a, ptype, port_b, port_a);
-         if (conversation != NULL) {
-            /*
-             * If this is for a connection-oriented
-             * protocol, set the second address for
-             * this conversation to address A, as
-             * that's the address that matched the
-             * wildcarded second address for this
-             * conversation.
-             */
-	        DPRINT(("match found"));
-            if (ptype != PT_UDP) {
-               if(!(conversation->options & CONVERSATION_TEMPLATE))
-               {
-                  conversation_set_addr2(conversation, addr_a);
-               }
-               else
-               {
-                  conversation =
-                     conversation_create_from_template(conversation, addr_a, 0);
-               }
-            }
-            return conversation;
-         }
-      }
-   }
+		/*
+		 * Well, that didn't find anything.
+		 * If search address B was specified, try looking for a
+		 * conversation with the specified address B and port B as
+		 * the first address and port, and with any address and the
+		 * specified port A as the second address and port (this
+		 * packet may be going in the opposite direction from the
+		 * first packet in the conversation).
+		 * ("addr_a" doesn't take part in this lookup.)
+		 */
+		if (!(options & NO_ADDR_B)) {
+			DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+				frame_num, addr_b, addr_a, ptype, port_b, port_a);
+			if (conversation != NULL) {
+				/*
+				 * If this is for a connection-oriented
+				 * protocol, set the second address for
+				 * this conversation to address A, as
+				 * that's the address that matched the
+				 * wildcarded second address for this
+				 * conversation.
+				 */
+				DPRINT(("match found"));
+				if (ptype != PT_UDP) {
+					if(!(conversation->options & CONVERSATION_TEMPLATE))
+					{
+						conversation_set_addr2(conversation, addr_a);
+					}
+					else
+					{
+						conversation =
+							conversation_create_from_template(conversation, addr_a, 0);
+					}
+				}
+				return conversation;
+			}
+		}
+	}
 
-   /*
-    * Well, that didn't find anything.  Try matches that wildcard
-    * one of the ports, if we have two addresses.
-   */
-   if (!(options & NO_ADDR_B)) {
-      /*
-       * Search address B isn't wildcarded.
-       *
-       * First try looking for a conversation with the specified
-       * address A and port A as the first address and port, and
-       * with the specified address B and any port as the second
-       * address and port.
-       * ("port_b" doesn't take part in this lookup.)
-       */
-      DPRINT(("trying wildcarded dest port"));
-      conversation =
-         conversation_lookup_hashtable(conversation_hashtable_no_port2,
-         frame_num, addr_a, addr_b, ptype, port_a, port_b);
-      if ((conversation == NULL) && (addr_a->type == AT_FC)) {
-         /* In Fibre channel, OXID & RXID are never swapped as
-          * TCP/UDP ports are in TCP/IP
-          */
-         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_port2,
-            frame_num, addr_b, addr_a, ptype, port_a, port_b);
-      }
-      if (conversation != NULL) {
-         /*
-          * If search port B isn't wildcarded, and this is for a connection-
-          * oriented protocol, set the second port for this conversation to
-          * port B, as that's the port that matched the wildcarded second port
-          * for this conversation.
-          *
-          * (This assumes that, for all connection oriented protocols, the
-          * endpoints of a connection have only one port each, i.e. you don't
-          * get packets in a given direction coming from more than one port,
-          * unless the CONVERSATION_TEMPLATE option is set.)
-          */
-         DPRINT(("match found"));
-         if (!(conversation->options & NO_PORT_B) && ptype != PT_UDP)
-         {
-            if(!(conversation->options & CONVERSATION_TEMPLATE))
-            {
-               conversation_set_port2(conversation, port_b);
-            }
-            else
-            {
-               conversation =
-                  conversation_create_from_template(conversation, 0, port_b);
-            }
-         }
-         return conversation;
-      }
+	/*
+	 * Well, that didn't find anything.  Try matches that wildcard
+	 * one of the ports, if we have two addresses.
+	*/
+	if (!(options & NO_ADDR_B)) {
+		/*
+		 * Search address B isn't wildcarded.
+		 *
+		 * First try looking for a conversation with the specified
+		 * address A and port A as the first address and port, and
+		 * with the specified address B and any port as the second
+		 * address and port.
+		 * ("port_b" doesn't take part in this lookup.)
+		 */
+		DPRINT(("trying wildcarded dest port"));
+		conversation =
+			conversation_lookup_hashtable(conversation_hashtable_no_port2,
+			frame_num, addr_a, addr_b, ptype, port_a, port_b);
+		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+			/* In Fibre channel, OXID & RXID are never swapped as
+			 * TCP/UDP ports are in TCP/IP
+			 */
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_no_port2,
+				frame_num, addr_b, addr_a, ptype, port_a, port_b);
+		}
+		if (conversation != NULL) {
+			/*
+			 * If search port B isn't wildcarded, and this is for a connection-
+			 * oriented protocol, set the second port for this conversation to
+			 * port B, as that's the port that matched the wildcarded second port
+			 * for this conversation.
+			 *
+			 * (This assumes that, for all connection oriented protocols, the
+			 * endpoints of a connection have only one port each, i.e. you don't
+			 * get packets in a given direction coming from more than one port,
+			 * unless the CONVERSATION_TEMPLATE option is set.)
+			 */
+			DPRINT(("match found"));
+			if (!(conversation->options & NO_PORT_B) && ptype != PT_UDP)
+			{
+				if(!(conversation->options & CONVERSATION_TEMPLATE))
+				{
+					conversation_set_port2(conversation, port_b);
+				}
+				else
+				{
+					conversation =
+						conversation_create_from_template(conversation, 0, port_b);
+				}
+			}
+			return conversation;
+		}
 
-      /*
-       * Well, that didn't find anything.
-       * If search port B was specified, try looking for a
-       * conversation with the specified address B and port B
-       * as the first address and port, and with the specified
-       * address A and any port as the second address and port
-       * (this packet may be going in the opposite direction
-       * from the first packet in the conversation).
-       * ("port_a" doesn't take part in this lookup.)
-       */
-      if (!(options & NO_PORT_B)) {
-         DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
-         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_port2,
-            frame_num, addr_b, addr_a, ptype, port_b, port_a);
-         if (conversation != NULL) {
-            /*
-             * If this is for a connection-oriented
-             * protocol, set the second port for
-             * this conversation to port A, as
-             * that's the address that matched the
-             * wildcarded second address for this
-             * conversation.
-             */
-            DPRINT(("match found"));
-            if (ptype != PT_UDP)
-            {
-               if(!(conversation->options & CONVERSATION_TEMPLATE))
-               {
-                  conversation_set_port2(conversation, port_a);
-               }
-               else
-               {
-                  conversation =
-                     conversation_create_from_template(conversation, 0, port_a);
-               }
-            }
-            return conversation;
-         }
-      }
-   }
+		/*
+		 * Well, that didn't find anything.
+		 * If search port B was specified, try looking for a
+		 * conversation with the specified address B and port B
+		 * as the first address and port, and with the specified
+		 * address A and any port as the second address and port
+		 * (this packet may be going in the opposite direction
+		 * from the first packet in the conversation).
+		 * ("port_a" doesn't take part in this lookup.)
+		 */
+		if (!(options & NO_PORT_B)) {
+			DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
+			conversation =
+				conversation_lookup_hashtable(conversation_hashtable_no_port2,
+				frame_num, addr_b, addr_a, ptype, port_b, port_a);
+			if (conversation != NULL) {
+				/*
+				 * If this is for a connection-oriented
+				 * protocol, set the second port for
+				 * this conversation to port A, as
+				 * that's the address that matched the
+				 * wildcarded second address for this
+				 * conversation.
+				 */
+				DPRINT(("match found"));
+				if (ptype != PT_UDP)
+				{
+					if(!(conversation->options & CONVERSATION_TEMPLATE))
+					{
+						conversation_set_port2(conversation, port_a);
+					}
+					else
+					{
+						conversation =
+							conversation_create_from_template(conversation, 0, port_a);
+					}
+				}
+				return conversation;
+			}
+		}
+	}
 
-   /*
-    * Well, that didn't find anything.  Try matches that wildcard
-    * one address/port pair.
-    *
-    * First try looking for a conversation with the specified address A
-    * and port A as the first address and port.
-    * (Neither "addr_b" nor "port_b" take part in this lookup.)
-    */
-   DPRINT(("trying wildcarding dest addr:port"));
-   conversation =
-      conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      frame_num, addr_a, addr_b, ptype, port_a, port_b);
-   if (conversation != NULL) {
-      /*
-       * If this is for a connection-oriented protocol:
-       *
-       * if search address B isn't wildcarded, set the
-       * second address for this conversation to address
-       * B, as that's the address that matched the
-       * wildcarded second address for this conversation;
-       *
-       * if search port B isn't wildcarded, set the
-       * second port for this conversation to port B,
-       * as that's the port that matched the wildcarded
-       * second port for this conversation.
-       */
-      DPRINT(("match found"));
-      if (ptype != PT_UDP)
-      {
-         if(!(conversation->options & CONVERSATION_TEMPLATE))
-         {
-            if (!(conversation->options & NO_ADDR_B))
-               conversation_set_addr2(conversation, addr_b);
-            if (!(conversation->options & NO_PORT_B))
-               conversation_set_port2(conversation, port_b);
-         }
-         else
-         {
-            conversation =
-               conversation_create_from_template(conversation, addr_b, port_b);
-         }
-      }
-      return conversation;
-   }
+	/*
+	 * Well, that didn't find anything.  Try matches that wildcard
+	 * one address/port pair.
+	 *
+	 * First try looking for a conversation with the specified address A
+	 * and port A as the first address and port.
+	 * (Neither "addr_b" nor "port_b" take part in this lookup.)
+	 */
+	DPRINT(("trying wildcarding dest addr:port"));
+	conversation =
+		conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+		frame_num, addr_a, addr_b, ptype, port_a, port_b);
+	if (conversation != NULL) {
+		/*
+		 * If this is for a connection-oriented protocol:
+		 *
+		 * if search address B isn't wildcarded, set the
+		 * second address for this conversation to address
+		 * B, as that's the address that matched the
+		 * wildcarded second address for this conversation;
+		 *
+		 * if search port B isn't wildcarded, set the
+		 * second port for this conversation to port B,
+		 * as that's the port that matched the wildcarded
+		 * second port for this conversation.
+		 */
+		DPRINT(("match found"));
+		if (ptype != PT_UDP)
+		{
+			if(!(conversation->options & CONVERSATION_TEMPLATE))
+			{
+				if (!(conversation->options & NO_ADDR_B))
+					conversation_set_addr2(conversation, addr_b);
+				if (!(conversation->options & NO_PORT_B))
+					conversation_set_port2(conversation, port_b);
+			}
+			else
+			{
+				conversation =
+					conversation_create_from_template(conversation, addr_b, port_b);
+			}
+		}
+		return conversation;
+	}
 
-   /*
-    * Well, that didn't find anything.
-    * If search address and port B were specified, try looking for a
-    * conversation with the specified address B and port B as the
-    * first address and port, and with any second address and port
-    * (this packet may be going in the opposite direction from the
-    * first packet in the conversation).
-    * (Neither "addr_a" nor "port_a" take part in this lookup.)
-    */
-   DPRINT(("trying dest addr:port as source addr:port and wildcarding dest addr:port"));
-   if (addr_a->type == AT_FC)
-      conversation =
-      conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      frame_num, addr_b, addr_a, ptype, port_a, port_b);
-   else
-      conversation =
-      conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      frame_num, addr_b, addr_a, ptype, port_b, port_a);
-   if (conversation != NULL) {
-      /*
-       * If this is for a connection-oriented protocol, set the
-       * second address for this conversation to address A, as
-       * that's the address that matched the wildcarded second
-       * address for this conversation, and set the second port
-       * for this conversation to port A, as that's the port
-       * that matched the wildcarded second port for this
-       * conversation.
-       */
-      DPRINT(("match found"));
-      if (ptype != PT_UDP)
-      {
-         if(!(conversation->options & CONVERSATION_TEMPLATE))
-         {
-            conversation_set_addr2(conversation, addr_a);
-            conversation_set_port2(conversation, port_a);
-         }
-         else
-         {
-            conversation = conversation_create_from_template(conversation, addr_a, port_a);
-         }
-      }
-      return conversation;
-   }
+	/*
+	 * Well, that didn't find anything.
+	 * If search address and port B were specified, try looking for a
+	 * conversation with the specified address B and port B as the
+	 * first address and port, and with any second address and port
+	 * (this packet may be going in the opposite direction from the
+	 * first packet in the conversation).
+	 * (Neither "addr_a" nor "port_a" take part in this lookup.)
+	 */
+	DPRINT(("trying dest addr:port as source addr:port and wildcarding dest addr:port"));
+	if (addr_a->type == AT_FC)
+		conversation =
+			conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+			frame_num, addr_b, addr_a, ptype, port_a, port_b);
+	else
+		conversation =
+			conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+			frame_num, addr_b, addr_a, ptype, port_b, port_a);
+	if (conversation != NULL) {
+		/*
+		 * If this is for a connection-oriented protocol, set the
+		 * second address for this conversation to address A, as
+		 * that's the address that matched the wildcarded second
+		 * address for this conversation, and set the second port
+		 * for this conversation to port A, as that's the port
+		 * that matched the wildcarded second port for this
+		 * conversation.
+		 */
+		DPRINT(("match found"));
+		if (ptype != PT_UDP)
+		{
+			if(!(conversation->options & CONVERSATION_TEMPLATE))
+			{
+				conversation_set_addr2(conversation, addr_a);
+				conversation_set_port2(conversation, port_a);
+			}
+			else
+			{
+				conversation = conversation_create_from_template(conversation, addr_a, port_a);
+			}
+		}
+		return conversation;
+	}
 
-   DPRINT(("no matches found"));
+	DPRINT(("no matches found"));
 
-   /*
-    * We found no conversation.
-    */
-   return NULL;
+	/*
+	 * We found no conversation.
+	 */
+	return NULL;
 }
 
 static gint
