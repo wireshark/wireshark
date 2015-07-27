@@ -52,6 +52,8 @@
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
+#define NT_STATUS_PENDING	0x00000103
+
 void proto_register_smb2(void);
 void proto_reg_handoff_smb2(void);
 
@@ -7596,7 +7598,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				}
 			} else {
 				/* This is a response */
-				if (ssi) {
+				if (!((si->flags & SMB2_FLAGS_ASYNC_CMD)
+					&& si->status == NT_STATUS_PENDING)
+					&& ssi) {
 					/* just  set the response frame and move it to the matched table */
 					ssi->frame_res = pinfo->fd->num;
 					g_hash_table_remove(si->conv->unmatched, ssi);
