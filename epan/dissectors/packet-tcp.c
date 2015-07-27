@@ -1282,8 +1282,8 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 
 finished_fwd:
-    /* If this was NOT a dupack we must reset the dupack counters */
-    if( (!tcpd->ta) || !(tcpd->ta->flags&TCP_A_DUPLICATE_ACK) ) {
+    /* If the ack number changed we must reset the dupack counters */
+    if( ack != tcpd->fwd->lastack ) {
         tcpd->fwd->lastnondupack=pinfo->fd->num;
         tcpd->fwd->dupacknum=0;
     }
