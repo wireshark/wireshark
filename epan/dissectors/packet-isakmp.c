@@ -1048,8 +1048,9 @@ static const value_string transform_ike2_encr_type[] = {
   { 25, "ENCR_CAMELLIA_CCM with an 8-octet ICV" },      /* [RFC5529] */
   { 26, "ENCR_CAMELLIA_CCM with a 12-octet ICV" },      /* [RFC5529] */
   { 27, "ENCR_CAMELLIA_CCM with a 16-octet ICV" },      /* [RFC5529] */
+  { 28, "ENCR_CHACHA20_POLY1305" },                     /* [RFC7634] */
 /*
- *              28-1023    RESERVED TO IANA         [RFC4306]
+ *              29-1023    RESERVED TO IANA         [RFC4306]
  *              1024-65535    PRIVATE USE           [RFC4306]
  */
     { 0,        NULL },
