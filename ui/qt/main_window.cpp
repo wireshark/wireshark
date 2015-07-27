@@ -200,6 +200,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_(new Ui::MainWindow),
     cur_layout_(QVector<unsigned>()),
     df_combo_box_(new DisplayFilterCombo()),
+    packet_list_(NULL),
+    proto_tree_(NULL),
     previous_focus_(NULL),
     show_hide_actions_(NULL),
     time_display_actions_(NULL),

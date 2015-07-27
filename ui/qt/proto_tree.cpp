@@ -164,7 +164,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         // Assume we're a child of the main window.
         // XXX We might want to reimplement setParent() and fill in the context
         // menu there.
-        QMenu *submenu, *subsubmenu;
+        QMenu *main_menu_item, *submenu, *subsubmenu;
         QAction *action;
 
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
@@ -176,8 +176,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addAction(action);
         ctx_menu_.addSeparator();
 
-        action = window()->findChild<QAction *>("actionApply_as_Filter");
-        submenu = new QMenu(action->text());
+        main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
+        submenu = new QMenu(main_menu_item->title());
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
@@ -186,8 +186,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
-        action = window()->findChild<QAction *>("actionPrepare_a_Filter");
-        submenu = new QMenu(action->text());
+        main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
+        submenu = new QMenu(main_menu_item->title());
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));

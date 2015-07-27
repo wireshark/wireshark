@@ -987,6 +987,8 @@ void MainWindow::setMenusForSelectedPacket()
        than one time reference frame or the current frame isn't a
        time reference frame). (XXX - why check frame_selected?) */
     bool another_is_time_ref = false;
+    /* We have a valid filter expression */
+    bool have_filter_expr = false;
 
     if (capture_file_.capFile()) {
         frame_selected = capture_file_.capFile()->current_frame != NULL;
@@ -1004,6 +1006,10 @@ void MainWindow::setMenusForSelectedPacket()
         {
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, &is_ip, &is_tcp, NULL, &is_sctp, NULL, &is_rtp);
         }
+    }
+
+    if (packet_list_) {
+        have_filter_expr = !packet_list_->getFilterFromRowAndColumn().isEmpty();
     }
 //    if (cfile.edt && cfile.edt->tree) {
 //        GPtrArray          *ga;
@@ -1057,6 +1063,20 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);
     main_ui_->actionEditTimeShift->setEnabled(have_frames);
 
+    main_ui_->actionAnalyzeAAFSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzeAAFNotSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzeAAFAndSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzeAAFOrSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(have_filter_expr);
+
+    main_ui_->actionAnalyzePAFSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzePAFNotSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzePAFAndSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzePAFOrSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(have_filter_expr);
+    main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(have_filter_expr);
+
     main_ui_->actionViewColorizeConversation1->setEnabled(frame_selected);
     main_ui_->actionViewColorizeConversation2->setEnabled(frame_selected);
     main_ui_->actionViewColorizeConversation3->setEnabled(frame_selected);
@@ -1106,8 +1126,6 @@ void MainWindow::setMenusForSelectedPacket()
         connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
     }
 
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
-//                         frame_selected ? is_udp : FALSE);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
 //                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
@@ -1139,19 +1157,9 @@ void MainWindow::setMenusForSelectedPacket()
 //                             properties);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
 //                         frame_selected);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ApplyAsFilter",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/PrepareaFilter",
-//                         frame_selected);
 //    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
-//                         frame_selected ? is_tcp : FALSE);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
-//                         frame_selected ? is_udp : FALSE);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
-//                         frame_selected ? is_ssl : FALSE);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
@@ -1181,6 +1189,10 @@ void MainWindow::setMenusForSelectedPacket()
 
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     // XXX Add commented items below
+
+    // The ProtoTree either doesn't exist yet or emitted protoItemSelected as
+    // a result of a packet list selection. Don't assume control of the menu.
+    if (!proto_tree_ || !proto_tree_->hasFocus()) return;
 
     if (capture_file_.capFile()) {
         capture_file_.capFile()->finfo_selected = fi;
@@ -1214,8 +1226,6 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                             hfinfo->type != FT_NONE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences",
-//                             properties);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol",
 //                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
@@ -1292,11 +1302,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                             "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences",
-//                             FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
@@ -2371,21 +2377,17 @@ void MainWindow::on_actionViewReload_triggered()
 
 // Analyze Menu
 
-// XXX This should probably be somewhere else.
 void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type)
 {
     QString field_filter;
-    char* tmp_field;
 
-    if (packet_list_->contextMenuActive()) {
+    if (packet_list_->contextMenuActive() || packet_list_->hasFocus()) {
         field_filter = packet_list_->getFilterFromRowAndColumn();
     } else if (capture_file_.capFile() && capture_file_.capFile()->finfo_selected) {
-        tmp_field = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
+        char *tmp_field = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
                                                        capture_file_.capFile()->edt);
         field_filter = QString(tmp_field);
         wmem_free(NULL, tmp_field);
-    } else {
-        return;
     }
 
     if (field_filter.isEmpty()) {

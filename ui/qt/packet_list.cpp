@@ -288,8 +288,8 @@ PacketList::PacketList(QWidget *parent) :
 
     ctx_menu_.addSeparator();
 
-    action = window()->findChild<QAction *>("actionApply_as_Filter");
-    submenu = new QMenu(action->text());
+    main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
+    submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
@@ -298,8 +298,8 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
-    action = window()->findChild<QAction *>("actionPrepare_a_Filter");
-    submenu = new QMenu(action->text());
+    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
+    submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
@@ -383,9 +383,6 @@ PacketList::PacketList(QWidget *parent) :
 //    "     <menu name= 'SCTP' action='/SCTP'>\n"
 //    "        <menuitem name='AnalysethisAssociation' action='/SCTP/Analyse this Association'/>\n"
 //    "        <menuitem name='PrepareFilterforthisAssociation' action='/SCTP/Prepare Filter for this Association'/>\n"
-//    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
-//    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
-//    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
     ctx_menu_.addSeparator();
 
     action = window()->findChild<QAction *>("actionCopy");
@@ -583,9 +580,14 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
+
+    // Set menu sensitivity for the current column
+    emit packetSelectionChanged();
+
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
     decode_as_->setData(QVariant());
+
 }
 
 // Auto scroll if:
@@ -842,7 +844,7 @@ bool PacketList::contextMenuActive()
     return ctx_column_ >= 0 ? true : false;
 }
 
-QString &PacketList::getFilterFromRowAndColumn()
+const QString &PacketList::getFilterFromRowAndColumn()
 {
     frame_data *fdata;
     QString &filter = *new QString();

@@ -116,7 +116,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2295,16 +2295,6 @@
     <string>SCTP</string>
    </property>
   </action>
-  <action name="actionApply_as_Filter">
-   <property name="text">
-    <string>Apply as Filter</string>
-   </property>
-  </action>
-  <action name="actionPrepare_a_Filter">
-   <property name="text">
-    <string>Prepare a Filter</string>
-   </property>
-  </action>
   <action name="actionCopy">
    <property name="text">
     <string>Copy</string>
@@ -2601,12 +2591,6 @@
    <header>search_frame.h</header>
   </customwidget>
   <customwidget>
-   <class>AddressEditorFrame</class>
-   <extends>QFrame</extends>
-   <header>address_editor_frame.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ColumnEditorFrame</class>
    <extends>QFrame</extends>
    <header>column_editor_frame.h</header>
@@ -2616,6 +2600,12 @@
    <class>PreferenceEditorFrame</class>
    <extends>QFrame</extends>
    <header>preference_editor_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AddressEditorFrame</class>
+   <extends>QFrame</extends>
+   <header>address_editor_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
