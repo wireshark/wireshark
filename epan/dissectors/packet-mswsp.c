@@ -24,12 +24,7 @@
 
 # include "config.h"
 
-/* Include only as needed */
-#include <stdlib.h>
-#include <string.h>
-
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #include "packet-smb.h"
 #include "packet-smb2.h"
@@ -338,11 +333,8 @@ struct CRowVariant {
 static int SMB1 = 1;
 static int SMB2 = 2;
 
-/* Forward declaration we need below (if using proto_reg_handoff...
-   as a prefs callback)       */
 void proto_reg_handoff_mswsp(void);
 
-/* Initialize the protocol and registered fields */
 static int proto_mswsp = -1;
 static int hf_mswsp_msg = -1;
 static int hf_mswsp_hdr = -1;
@@ -565,12 +557,7 @@ static int hf_mswsp_msg_cpmsetscopeprioritization_eventfreq = -1;
 static int hf_mswsp_msg_cpmsetscopestatisics_dwindexitems = -1;
 static int hf_mswsp_msg_cpmsetscopestatisics_dwoutstandingadds = -1;
 static int hf_mswsp_msg_cpmsetscopestatisics_dwoutstandingmodifies = -1;
-/* Global sample preference ("controls" display of numbers) */
-static gboolean gPREF_HEX = FALSE;
-/* Global sample port pref */
-static guint gPORT_PREF = 1234;
 
-/* Initialize the subtree pointers */
 static gint ett_mswsp = -1;
 static gint ett_mswsp_hdr = -1;
 static gint ett_mswsp_msg = -1;
@@ -2931,6 +2918,16 @@ static struct GuidPropertySet GuidPropertySet[] = {
 	}
 };
 
+static const value_string version_vals[] = {
+	{0x00000102, "Windows Vista or 2008"},
+	{0x00000109, "Windows XP or 2003 with Windows Search 4.0"},
+	{0x00000700, "Windows 7 or 2008 R2"},
+	{0x00010102, "Windows Vista or 2008 (64 bit)"},
+	{0x00010109, "Windows XP or 2003 with Windows Search 4.0 (64 bit)"},
+	{0x00010700, "Windows 7 or 2008 R2 (64 bit)"},
+	{0, NULL}
+};
+
 static struct GuidPropertySet *GuidPropertySet_find_guid(const e_guid_t *guid)
 {
 	unsigned i;
@@ -3905,28 +3902,28 @@ static int vvalue_tvb_get1(tvbuff_t *tvb, int offset, void *val)
 	return 1;
 }
 
-static int vvalue_tvb_get2(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_get2(tvbuff_t *tvb, int offset, void *val)
 {
 	guint16 *ui2 = (guint16*)val;
 	*ui2 = tvb_get_letohs(tvb, offset);
 	return 2;
 }
 
-static int vvalue_tvb_get4(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_get4(tvbuff_t *tvb, int offset, void *val)
 {
 	guint32 *ui4 = (guint32*)val;
 	*ui4 = tvb_get_letohl(tvb, offset);
 	return 4;
 }
 
-static int vvalue_tvb_get8(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_get8(tvbuff_t *tvb, int offset, void *val)
 {
 	guint64 *ui8 = (guint64*)val;
 	*ui8 = tvb_get_letoh64(tvb, offset);
 	return 8;
 }
 
-static int vvalue_tvb_blob(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_blob(tvbuff_t *tvb, int offset, void *val)
 {
 	struct data_blob *blob = (struct data_blob*)val;
 	guint32 len = tvb_get_letohl(tvb, offset);
@@ -3938,7 +3935,7 @@ static int vvalue_tvb_blob(tvbuff_t *tvb , int offset, void *val)
 	return 4 + len;
 }
 
-static int vvalue_tvb_lpstr(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_lpstr(tvbuff_t *tvb, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 	gint len;
@@ -3950,7 +3947,7 @@ static int vvalue_tvb_lpstr(tvbuff_t *tvb , int offset, void *val)
 	return 4 + len;
 }
 
-static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb , int offset, int length, void *val)
+static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, int offset, int length, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 	const gchar *ptr;
@@ -3969,7 +3966,7 @@ static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb , int offset, int length, void *v
 	return len;
 }
 
-static int vvalue_tvb_lpwstr(tvbuff_t *tvb , int offset, void *val)
+static int vvalue_tvb_lpwstr(tvbuff_t *tvb, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 
@@ -3978,7 +3975,7 @@ static int vvalue_tvb_lpwstr(tvbuff_t *tvb , int offset, void *val)
 	return 4 + vvalue_tvb_lpwstr_len(tvb, offset + 4, 0, val);
 }
 
-static int vvalue_tvb_vector_internal(tvbuff_t *tvb , int offset, struct vt_vector *val, struct vtype_data *type, int num)
+static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, int num)
 {
 	const int offset_in = offset;
 	const gboolean varsize = (type->size == -1);
@@ -4004,10 +4001,10 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb , int offset, struct vt_vect
 	return offset - offset_in;
 }
 
-static int vvalue_tvb_vector(tvbuff_t *tvb , int offset, struct vt_vector *val, struct vtype_data *type)
+static int vvalue_tvb_vector(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type)
 {
 	const int num = tvb_get_letohl(tvb, offset);
-	return 4 + vvalue_tvb_vector_internal(tvb , offset+4, val, type, num);
+	return 4 + vvalue_tvb_vector_internal(tvb, offset+4, val, type, num);
 }
 
 static void vvalue_strbuf_append_null(wmem_strbuf_t *strbuf _U_, void *ptr _U_)
@@ -4383,7 +4380,7 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, int offset, proto_tree *pare
 			num *= cElements;
 		}
 
-		len = vvalue_tvb_vector_internal(tvb , offset, &value->vValue.vt_array.vData, value->type, num);
+		len = vvalue_tvb_vector_internal(tvb, offset, &value->vValue.vt_array.vData, value->type, num);
 		offset += len;
 		break;
 	}
@@ -4437,7 +4434,7 @@ static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pr
 		int len = ulId;
 		name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 		proto_item_append_text(tree_item, " \"%s\"", name);
-		proto_tree_add_string_format_value(tree, hf_mswsp_cdbcolid_vstring, tvb, offset, len, name,  "\"%s\"", name);
+		proto_tree_add_string_format_value(tree, hf_mswsp_cdbcolid_vstring, tvb, offset, len, name, "\"%s\"", name);
 		offset += len;
 	} else if (eKind == DBKIND_GUID_PROPID) {
 		proto_item_append_text(tree_item, " %08x", ulId);
@@ -4615,7 +4612,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, int offset, proto_tree *parent_tree, prot
 	tree =proto_tree_add_subtree (parent_tree, tvb, offset, 0, ett_RANGEBOUNDARY, &item, txt);
 
 	ulType = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_rangeboundry_ultype, tvb, offset, 4, ulType);
+	proto_tree_add_item(tree, hf_mswsp_rangeboundry_ultype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_item_append_text(item, ": Type 0x%08x", ulType);
 	offset += 4;
 
@@ -4623,21 +4620,19 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, int offset, proto_tree *parent_tree, prot
 	offset = parse_CBaseStorageVariant(tvb, offset, tree, pad_tree, &prval, "prVal");
 
 	labelPresent = tvb_get_guint8(tvb, offset);
-	proto_tree_add_string_format_value(tree, hf_mswsp_rangeboundry_labelpresent, tvb, offset, 1, "",  "%s", labelPresent ? "True" : "False");
+	proto_tree_add_item(tree, hf_mswsp_rangeboundry_labelpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	if (labelPresent) {
 		guint32 ccLabel;
-		const char *label;
 		offset = parse_padding(tvb, offset, 4, pad_tree, "paddingLabelPresent");
 
 		ccLabel = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_mswsp_rangeboundry_cclabel, tvb, offset, 4, ccLabel);
+		proto_tree_add_item_ret_uint(tree, hf_mswsp_rangeboundry_cclabel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ccLabel);
 		offset += 4;
 
-		label = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2);
-		proto_tree_add_string(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, label);
-		proto_item_append_text(item, " Label: \"%s\"", label);
+		proto_tree_add_item(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2);
+		proto_item_append_text(item, " Label: \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2));
 		offset += 2*ccLabel;
 	}
 
@@ -4918,7 +4913,6 @@ static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, int offset, proto_tree *p
 /* 2.2.1.20 CCategorizationSpec */
 int parse_CCategorizationSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 cMaxResults;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4945,46 +4939,28 @@ int parse_CCategorizationSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree
 	/* 2.2.1.28 CInGroupSortAggregSets */
 	offset = parse_CInGroupSortAggregSets(tvb, offset, tree, pad_tree, "InGroupSortAggregSets");
 
-	cMaxResults = tvb_get_letohl(tvb, offset);
-	proto_tree_add_int(tree, hf_mswsp_categorizationspec_cmaxres, tvb, offset, 4, cMaxResults);
+	proto_tree_add_item(tree, hf_mswsp_categorizationspec_cmaxres, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
 }
 
-static int parse_BooleanOptions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
-{
-	proto_item *item;
-	proto_tree *tree;
-	guint32 opt = tvb_get_letohl(tvb, offset);
-	item = proto_tree_add_uint_format(parent_tree, hf_mswsp_bool_options,  tvb, offset, 4, opt,
-									  "uBooleanOptions: 0x%08x", opt);
-	tree = proto_item_add_subtree(item, ett_mswsp_bool_options);
-	proto_tree_add_uint(tree, hf_mswsp_bool_options_cursor, tvb, offset, 1, opt & 0x7);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_async, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_firstrows, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_holdrows, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_chaptered, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_useci, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_defertrim, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_rowsetevents, tvb, offset,
-						   4, opt);
-	proto_tree_add_boolean(tree, hf_mswsp_bool_options_dontcomputeexpensive, tvb, offset,
-						   4, opt);
-	offset += 4;
+static const int *mswsp_bool_options[] = {
+	&hf_mswsp_bool_options_cursor,
+	&hf_mswsp_bool_options_async,
+	&hf_mswsp_bool_options_firstrows,
+	&hf_mswsp_bool_options_holdrows,
+	&hf_mswsp_bool_options_chaptered,
+	&hf_mswsp_bool_options_useci,
+	&hf_mswsp_bool_options_defertrim,
+	&hf_mswsp_bool_options_rowsetevents,
+	&hf_mswsp_bool_options_dontcomputeexpensive,
+	NULL
+};
 
-	return offset;
-}
 int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...)
 {
-	guint32 maxres, timeout;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4997,7 +4973,10 @@ int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsetProperties, &item, txt);
 
-	offset = parse_BooleanOptions(tvb, offset, tree);
+	proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+hf_mswsp_bool_options, ett_mswsp_bool_options, mswsp_bool_options, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+
+	offset += 4;
 
 	proto_tree_add_item(tree, hf_mswsp_crowsetprops_ulmaxopenrows, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -5005,12 +4984,10 @@ int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 	proto_tree_add_item(tree, hf_mswsp_crowsetprops_ulmemusage, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	maxres = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_crowsetprops_cmaxresults, tvb, offset, 4, maxres);
+	proto_tree_add_item(tree, hf_mswsp_crowsetprops_cmaxresults, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	timeout = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_crowsetprops_ccmdtimeout, tvb, offset, 4, timeout);
+	proto_tree_add_item(tree, hf_mswsp_crowsetprops_ccmdtimeout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_item_set_end(item, tvb, offset);
@@ -5518,12 +5495,8 @@ static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	proto_item_set_text(ti, "CPMConnect%s", in ? "In" : "Out");
 	col_append_str(pinfo->cinfo, COL_INFO, "Connect");
 
-	version = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(tree, hf_mswsp_msg_Connect_Version, tvb,
-							 offset, 4, ENC_LITTLE_ENDIAN);
-	if (version & 0xffff0000) {
-		proto_item_append_text(ti, " 64 bit");
-	}
+	ti = proto_tree_add_item_ret_uint(tree, hf_mswsp_msg_Connect_Version, tvb,
+							 offset, 4, ENC_LITTLE_ENDIAN, &version);
 
 	ct = get_create_converstation_data(pinfo);
 
@@ -5532,17 +5505,6 @@ static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		if (data) {
 			data->content.version = version;
 		}
-	}
-	switch (version & 0xffff) {
-	case 0x102:
-		proto_item_append_text(ti, " w2k8 or vista");
-		break;
-	case 0x109:
-		proto_item_append_text(ti, " XP or w2k3, with Windows Search 4.0");
-		break;
-	case 0x700:
-		proto_item_append_text(ti, " win7 or w2k8r2");
-		break;
 	}
 	offset += 4;
 
@@ -5569,16 +5531,13 @@ static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		offset = parse_padding(tvb, offset, 16, pad_tree, "_padding");
 
 		len = tvb_unicode_strsize(tvb, offset);
-		ti = proto_tree_add_item(tree, hf_mswsp_msg_ConnectIn_MachineName, tvb,
-								 offset, len, ENC_UTF_16);
-		/*This shouldnt be necessary, is this a bug or is there some GUI setting I've missed?*/
-		proto_item_set_text(ti, "Remote machine: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2));
+		proto_tree_add_item(tree, hf_mswsp_msg_ConnectIn_MachineName, tvb,
+								 offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 		offset += len;
 
 		len = tvb_unicode_strsize(tvb, offset);
 		ti = proto_tree_add_item(tree, hf_mswsp_msg_ConnectIn_UserName, tvb,
-								 offset, len, ENC_UTF_16);
-		proto_item_set_text(ti, "User: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2));
+								 offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 		offset += len;
 
 		offset = parse_padding(tvb, offset, 8, pad_tree, "_paddingcPropSets");
@@ -5628,7 +5587,7 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		offset += 4;
 
 		CColumnSetPresent = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent, tvb, offset, 1, CColumnSetPresent, "%s", CColumnSetPresent ? "True" : "False");
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		if (CColumnSetPresent) {
@@ -5638,15 +5597,17 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		}
 
 		CRestrictionPresent = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_mswsp_msg_cpmcreatequery_crestrictionpresent, tvb, offset, 1, CColumnSetPresent,"%s", CColumnSetPresent ? "True" : "False");
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_crestrictionpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
+
 		if (CRestrictionPresent) {
 			offset = parse_CRestrictionArray(tvb, offset, tree, pad_tree, "RestrictionArray");
 		}
 
 		CSortSetPresent = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_mswsp_msg_cpmcreatequery_csortpresent, tvb, offset, 1, CSortSetPresent, "%s", CSortSetPresent ? "True" : "False");
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_csortpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
+
 		if (CSortSetPresent) {
 			offset = parse_padding(tvb, offset, 4, tree, "paddingCSortSetPresent");
 
@@ -5657,7 +5618,7 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		}
 
 		CCategorizationSetPresent = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_mswsp_msg_cpmcreatequery_ccategpresent, tvb, offset, 1, CCategorizationSetPresent, "%s", CCategorizationSetPresent ? "True" : "False");
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_ccategpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		if (CCategorizationSetPresent) {
@@ -5719,7 +5680,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	ct = get_create_converstation_data(pinfo);
 	if (in) {
 		/* 2.2.3.11 */
-		struct message_data *data = find_or_create_message_data(ct, pinfo,0xCC,in, private_data);
+		struct message_data *data = find_or_create_message_data(ct, pinfo, 0xCC, in, private_data);
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_hcursor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -5766,7 +5727,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
 			break;
 		case 3: /* eRowSeekAtRatio */
-			parse_CRowSeekAtRatio(tvb, offset, seek_tree,  "CRowSeekAtRatio");
+			parse_CRowSeekAtRatio(tvb, offset, seek_tree, "CRowSeekAtRatio");
 			break;
 		case 4: /* eRowSeekByBookmark */
 			parse_CRowSeekByBookmark(tvb, offset, seek_tree, "CRowSeekByRatio");
@@ -5815,7 +5776,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
 			break;
 		case 3: /* eRowSeekAtRatio */
-			parse_CRowSeekAtRatio(tvb, offset, seek_tree,  "CRowSeekAtRatio");
+			parse_CRowSeekAtRatio(tvb, offset, seek_tree, "CRowSeekAtRatio");
 			break;
 		case 4: /* eRowSeekByBookmark */
 			parse_CRowSeekByBookmark(tvb, offset, seek_tree, "CRowSeekByRatio");
@@ -5957,7 +5918,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_acolumns, tvb, offset, size-4, ENC_NA);
 		ct = get_create_converstation_data(pinfo);
-		data = find_or_create_message_data(ct, pinfo,0xD0,in, private_data);
+		data = find_or_create_message_data(ct, pinfo, 0xD0, in, private_data);
 
 		request.acolumns = (struct CTableColumn*)wmem_alloc(wmem_file_scope(),
 						   sizeof(struct CTableColumn) * num);
@@ -6173,38 +6134,29 @@ static int dissect_CPMGetRowsetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree *tree;
 	col_append_str(pinfo->cinfo, COL_INFO, "GetRowsetNotify");
 	if (!in) {
-		guint32 word;
-		guint8  byte;
 		item = proto_tree_add_item(parent_tree, hf_mswsp_msg, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mswsp_msg);
 		proto_item_set_text(item, "GetRowsetNotifyOut");
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_wid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
-		word = tvb_get_letohl(tvb, offset);
+
 		/* moveevents */
-		byte = word & 0x00000001;
-		proto_tree_add_uint_format_value(tree, hf_mswsp_msg_cpmgetrowsetnotify_moreevents, tvb, offset, 1, byte, "%s", byte ? "True" : "False");
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_moreevents, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		/*  eventType */
-		word = word >> 1;
-		byte = word & 0x0000007F;
-		proto_tree_add_uint(tree, hf_mswsp_msg_cpmgetrowsetnotify_eventtype, tvb, offset, 1, byte );
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_eventtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
 		/* rowSetItemState */
-		word = word >> 7;
-		byte = word & 0x000000FF;
-		proto_tree_add_uint(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowsetitemstate, tvb, offset + 1, 1, byte );
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowsetitemstate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
 		/* changedItemState */
-		word = word >> 8;
-		byte = word & 0x000000FF;
-		proto_tree_add_uint(tree, hf_mswsp_msg_cpmgetrowsetnotify_changeditemstate, tvb, offset + 2, 1, byte );
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_changeditemstate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
 		/* rowSetEvent */
-		word = word >> 8;
-		byte = word & 0x000000FF;
-		proto_tree_add_uint(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowsetevent, tvb, offset + 3, 1, byte );
-		offset += 4;
-
+		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowsetevent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowseteventdata1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
@@ -6322,90 +6274,15 @@ static int
 dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean in, void *data)
 {
 	proto_tree *mswsp_tree = NULL;
-	struct {
-		guint32 msg;
-		guint32 status;
-		guint32 checksum;
-		guint32 reserved;
-	} hdr;
-	int (*fn)(tvbuff_t*, packet_info*, proto_tree*, gboolean, void *data);
+	proto_tree *hdr_tree;
+	proto_item *ti, *hti;
+	guint32 msg;
+	guint32 status;
+
 
 	if (tvb_reported_length(tvb) < 16) {
 		return 0;
 	}
-
-	hdr.msg = tvb_get_letohl(tvb, 0);
-
-	switch(hdr.msg) {
-	case 0xC8:
-		fn = dissect_CPMConnect;
-		break;
-	case 0xC9:
-		fn = dissect_CPMDisconnect;
-		break;
-	case 0xCA:
-		fn = dissect_CPMCreateQuery;
-		break;
-	case 0xCB:
-		fn = dissect_CPMFreeCursor;
-		break;
-	case 0xCC:
-		fn = dissect_CPMGetRows;
-		break;
-	case 0xCD:
-		fn = dissect_CPMRatioFinished;
-		break;
-	case 0xCE:
-		fn = dissect_CPMCompareBmk;
-		break;
-	case 0xCF:
-		fn = dissect_CPMGetApproximatePosition;
-		break;
-	case 0xD0:
-		fn = dissect_CPMSetBindings;
-		break;
-	case 0xD1:
-		fn = dissect_CPMGetNotify;
-		break;
-	case 0xD2:
-		fn = dissect_CPMSendNotifyOut;
-		break;
-	case  0xD7:
-		fn = dissect_CPMGetQueryStatus;
-		break;
-	case  0xD9:
-		fn = dissect_CPMCiState;
-		break;
-	case  0xE4:
-		fn = dissect_CPMFetchValue;
-		break;
-	case  0xE7:
-		fn = dissect_CPMGetQueryStatusEx;
-		break;
-	case  0xE8:
-		fn = dissect_CPMRestartPosition;
-		break;
-	case  0xEC:
-		fn = dissect_CPMSetCatState;
-		break;
-	case  0xF1:
-		fn = dissect_CPMGetRowsetNotify;
-		break;
-	case  0xF2:
-		fn = dissect_CPMFindIndices;
-		break;
-	case  0xF3:
-		fn = dissect_CPMSetScopePrioritization;
-		break;
-	case  0xF4:
-		fn = dissect_CPMGetScopeStatistics;
-		break;
-	default:
-		return 0;
-	}
-
-	hdr.status = tvb_get_letohl(tvb, 4);
-	hdr.checksum = tvb_get_letohl(tvb, 8);
 
 	/* col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS-WSP"); */
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, " WSP");
@@ -6414,62 +6291,115 @@ dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean in, 
 	col_set_str(pinfo->cinfo, COL_INFO, "WSP ");
 	col_append_str(pinfo->cinfo, COL_INFO, in ? "Request: " : "Response: ");
 
-	if (tree) {
-		proto_tree *hdr_tree;
-		proto_item *ti, *hti;
+	ti = proto_tree_add_item(tree, proto_mswsp, tvb, 0, -1, ENC_NA);
+	mswsp_tree = proto_item_add_subtree(ti, ett_mswsp);
 
-		ti = proto_tree_add_item(tree, proto_mswsp, tvb, 0, -1, ENC_NA);
-		mswsp_tree = proto_item_add_subtree(ti, ett_mswsp);
+	hti = proto_tree_add_item(mswsp_tree, hf_mswsp_hdr, tvb, 0, 16, ENC_NA);
+	hdr_tree = proto_item_add_subtree(hti, ett_mswsp_hdr);
 
-		hti = proto_tree_add_item(mswsp_tree, hf_mswsp_hdr, tvb, 0, 16, ENC_NA);
-		hdr_tree = proto_item_add_subtree(hti, ett_mswsp_hdr);
+	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_msg, tvb,
+						0, 4, ENC_LITTLE_ENDIAN, &msg);
+	proto_item_append_text(hti, " %s", val_to_str(msg, VALS(msg_ids),
+						   "(Unknown: 0x%x)"));
 
-		proto_tree_add_item(hdr_tree, hf_mswsp_hdr_msg, tvb,
-							0, 4, ENC_LITTLE_ENDIAN);
-		proto_item_append_text(hti, " %s", val_to_str(hdr.msg, VALS(msg_ids),
-							   "(Unknown: 0x%x)"));
-
-		proto_tree_add_item(hdr_tree, hf_mswsp_hdr_status, tvb,
-							4, 4, ENC_LITTLE_ENDIAN);
-		if (!in || hdr.status != 0) {
-			proto_item_append_text(hti, " %s",
-								   val_to_str(hdr.status, VALS(dcom_hresult_vals),
-											  "(Unknown: 0x%x)"));
-		}
-
-		proto_tree_add_item(hdr_tree, hf_mswsp_hdr_checksum, tvb,
-							8, 4, ENC_LITTLE_ENDIAN);
-		/* todo: validate checksum */
-
-		proto_tree_add_item(hdr_tree, hf_mswsp_hdr_reserved, tvb,
-							12, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_status, tvb,
+						4, 4, ENC_LITTLE_ENDIAN, &status);
+	if (!in || status != 0) {
+		proto_item_append_text(hti, " %s",
+							   val_to_str(status, VALS(dcom_hresult_vals),
+										  "(Unknown: 0x%x)"));
 	}
 
-	fn(tvb, pinfo, mswsp_tree, in, data);
+	proto_tree_add_item(hdr_tree, hf_mswsp_hdr_checksum, tvb,
+						8, 4, ENC_LITTLE_ENDIAN);
+	/* todo: validate checksum */
+
+	proto_tree_add_item(hdr_tree, hf_mswsp_hdr_reserved, tvb,
+						12, 4, ENC_LITTLE_ENDIAN);
+
+
+	switch(msg) {
+	case 0xC8:
+		dissect_CPMConnect(tvb, pinfo, tree, in, data);
+		break;
+	case 0xC9:
+		dissect_CPMDisconnect(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCA:
+		dissect_CPMCreateQuery(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCB:
+		dissect_CPMFreeCursor(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCC:
+		dissect_CPMGetRows(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCD:
+		dissect_CPMRatioFinished(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCE:
+		dissect_CPMCompareBmk(tvb, pinfo, tree, in, data);
+		break;
+	case 0xCF:
+		dissect_CPMGetApproximatePosition(tvb, pinfo, tree, in, data);
+		break;
+	case 0xD0:
+		dissect_CPMSetBindings(tvb, pinfo, tree, in, data);
+		break;
+	case 0xD1:
+		dissect_CPMGetNotify(tvb, pinfo, tree, in, data);
+		break;
+	case 0xD2:
+		dissect_CPMSendNotifyOut(tvb, pinfo, tree, in, data);
+		break;
+	case  0xD7:
+		dissect_CPMGetQueryStatus(tvb, pinfo, tree, in, data);
+		break;
+	case  0xD9:
+		dissect_CPMCiState(tvb, pinfo, tree, in, data);
+		break;
+	case  0xE4:
+		dissect_CPMFetchValue(tvb, pinfo, tree, in, data);
+		break;
+	case  0xE7:
+		dissect_CPMGetQueryStatusEx(tvb, pinfo, tree, in, data);
+		break;
+	case  0xE8:
+		dissect_CPMRestartPosition(tvb, pinfo, tree, in, data);
+		break;
+	case  0xEC:
+		 dissect_CPMSetCatState(tvb, pinfo, tree, in, data);
+		break;
+	case  0xF1:
+		dissect_CPMGetRowsetNotify(tvb, pinfo, tree, in, data);
+		break;
+	case  0xF2:
+		dissect_CPMFindIndices(tvb, pinfo, tree, in, data);
+		break;
+	case  0xF3:
+		dissect_CPMSetScopePrioritization(tvb, pinfo, tree, in, data);
+		break;
+	case  0xF4:
+		dissect_CPMGetScopeStatistics(tvb, pinfo, tree, in, data);
+		break;
+	default:
+		return 0;
+	}
 
 	/* Return the amount of data this dissector was able to dissect */
 	return tvb_reported_length(tvb);
 }
 
 
-/* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_mswsp(void)
 {
-	module_t *mswsp_module;
-
-	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{
 			&hf_mswsp_hdr,
 			{
-				"Header",           "mswsp.hdr",
-				FT_NONE, BASE_NONE , NULL, 0,
+				"Header", "mswsp.hdr",
+				FT_NONE, BASE_NONE, NULL, 0,
 				"Message header", HFILL
 			}
 		},
@@ -6477,7 +6407,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_hdr_msg,
 			{
 				"Msg id", "mswsp.hdr.id",
-				FT_UINT32, BASE_HEX , VALS(msg_ids), 0,
+				FT_UINT32, BASE_HEX, VALS(msg_ids), 0,
 				"Message id", HFILL
 			}
 		},
@@ -6485,7 +6415,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_hdr_status,
 			{
 				"Status", "mswsp.hdr.status",
-				FT_UINT32, BASE_HEX , VALS(dcom_hresult_vals), 0,
+				FT_UINT32, BASE_HEX, VALS(dcom_hresult_vals), 0,
 				"Message Status", HFILL
 			}
 		},
@@ -6493,7 +6423,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_hdr_checksum,
 			{
 				"checksum", "mswsp.hdr.checksum",
-				FT_UINT32, BASE_HEX , NULL, 0,
+				FT_UINT32, BASE_HEX, NULL, 0,
 				"Message Checksum", HFILL
 			}
 		},
@@ -6501,7 +6431,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_hdr_reserved,
 			{
 				"Reserved", "mswsp.hdr.reserved",
-				FT_UINT32, BASE_HEX , NULL, 0,
+				FT_UINT32, BASE_HEX, NULL, 0,
 				"Reserved bytes", HFILL
 			}
 		},
@@ -6509,7 +6439,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg,
 			{
 				"msg", "mswsp.msg",
-				FT_NONE, BASE_NONE , NULL, 0,
+				FT_NONE, BASE_NONE, NULL, 0,
 				"Message", HFILL
 			}
 		},
@@ -6517,15 +6447,15 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_Connect_Version,
 			{
 				"Version", "mswsp.Connect.version",
-				FT_UINT32, BASE_HEX , NULL, 0,
-				"OS Version",HFILL
+				FT_UINT32, BASE_HEX, VALS(version_vals), 0,
+				"OS Version", HFILL
 			}
 		},
 		{
 			&hf_mswsp_msg_ConnectIn_ClientIsRemote,
 			{
 				"Remote", "mswsp.ConnectIn.isRemote",
-				FT_BOOLEAN, BASE_HEX , NULL, 0,
+				FT_BOOLEAN, BASE_HEX, NULL, 0,
 				"Client is remote",HFILL
 			}
 		},
@@ -6533,7 +6463,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_ConnectIn_Blob1,
 			{
 				"Size", "mswsp.ConnectIn.propset.size",
-				FT_UINT32, BASE_DEC , NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				"Size of PropSet fields",HFILL
 			}
 		},
@@ -6541,7 +6471,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_ConnectIn_MachineName,
 			{
 				"Remote machine", "mswsp.ConnectIn.machine",
-				FT_STRINGZ, BASE_NONE , NULL, 0,
+				FT_STRINGZ, BASE_NONE, NULL, 0,
 				"Name of remote machine",HFILL
 			}
 		},
@@ -6549,7 +6479,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_ConnectIn_UserName,
 			{
 				"User", "mswsp.ConnectIn.user",
-				FT_STRINGZ, BASE_NONE , NULL, 0,
+				FT_STRINGZ, BASE_NONE, NULL, 0,
 				"Name of remote user",HFILL
 			}
 		},
@@ -6557,7 +6487,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_ConnectIn_PropSets_num,
 			{
 				"Num", "mswsp.ConnectIn.propset.num",
-				FT_UINT32, BASE_DEC , NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				"Number of Property Sets", HFILL
 			}
 		},
@@ -6571,8 +6501,8 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_bool_options_cursor,
 			{
-				"Cursor", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions", FT_UINT8,
-				BASE_HEX, VALS(cursor_vals), 0, "Cursor Type", HFILL
+				"Cursor", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions", FT_UINT32,
+				BASE_HEX, VALS(cursor_vals), 0x0000000007, "Cursor Type", HFILL
 			}
 		},
 		{
@@ -7020,7 +6950,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_rangeboundry_labelpresent,
 			{
 				"labelPresent", "mswsp.rangeboundry.labelpresent",
-				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
@@ -7346,38 +7276,38 @@ proto_register_mswsp(void)
 			}
 		},
 		{
-			&hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent ,
+			&hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent,
 			{
 				"CColumnSetPresent", "mswsp.cpmcreatequery.ccolumnsetpresent",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
-			&hf_mswsp_msg_cpmcreatequery_crestrictionpresent ,
+			&hf_mswsp_msg_cpmcreatequery_crestrictionpresent,
 			{
 				"CRestrictionPresent", "mswsp.cpmcreatequery.crestrictionpresent",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
-			&hf_mswsp_msg_cpmcreatequery_csortpresent ,
+			&hf_mswsp_msg_cpmcreatequery_csortpresent,
 			{
 				"CSortPresent", "mswsp.cpmcreatequery.csortpresent",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
-			&hf_mswsp_msg_cpmcreatequery_csortset_xxx ,
+			&hf_mswsp_msg_cpmcreatequery_csortset_xxx,
 			{
 				"XXX - (undocumented bytes)", "mswsp.cpmcreatequery.csortset.xxx",
 				FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
 		{
-			&hf_mswsp_msg_cpmcreatequery_ccategpresent ,
+			&hf_mswsp_msg_cpmcreatequery_ccategpresent,
 			{
 				"CCategorizationSetPresent", "mswsp.cpmcreatequery.ccategpresent",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
@@ -7923,14 +7853,14 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_cpmgetrowsetnotify_moreevents,
 			{
 				"moreEvents", "mswsp.msg.cpmgetrowsetnotify.moreevents",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
 			&hf_mswsp_msg_cpmgetrowsetnotify_eventtype,
 			{
 				"eventType", "mswsp.msg.cpmgetrowsetnotify.eventType",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xFE, NULL, HFILL
 			}
 		},
 		{
@@ -7944,14 +7874,14 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_cpmgetrowsetnotify_changeditemstate,
 			{
 				"changedItemState", "mswsp.msg.cpmgetrowsetnotify.changeditemState",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC, NULL, 0, 0, HFILL
 			}
 		},
 		{
 			&hf_mswsp_msg_cpmgetrowsetnotify_rowsetevent,
 			{
 				"rowSetEvent", "mswsp.msg.cpmgetrowsetnotify.rowsetevent",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC, NULL, 0, 0, HFILL
 			}
 		},
 		{
@@ -8026,7 +7956,6 @@ proto_register_mswsp(void)
 		}
 	};
 
-	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_mswsp,
 		&ett_mswsp_hdr,
@@ -8085,11 +8014,9 @@ proto_register_mswsp(void)
 
 	int i;
 
-	/* Register the protocol name and description */
 	proto_mswsp = proto_register_protocol("Windows Search Protocol",
 										  "MS-WSP", "mswsp");
 
-	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mswsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -8097,37 +8024,8 @@ proto_register_mswsp(void)
 		guids_add_guid(&GuidPropertySet[i].guid, GuidPropertySet[i].def);
 	}
 
-
-	/* Register preferences module (See Section 2.6 for more on preferences) */
-	/* (Registration of a prefs callback is not required if there are no     */
-	/*  prefs-dependent registration functions (eg: a port pref).            */
-	/*  See proto_reg_handoff below.                                         */
-	/*  If a prefs callback is not needed, use NULL instead of               */
-	/*  proto_reg_handoff_mswsp in the following).                     */
-	mswsp_module = prefs_register_protocol(proto_mswsp,
-										   proto_reg_handoff_mswsp);
-
 	register_init_routine(&mswsp_init_protocol);
-	/* Register preferences module under preferences subtree.
-	   Use this function instead of prefs_register_protocol if you want to group
-	   preferences of several protocols under one preferences subtree.
-	   Argument subtree identifies grouping tree node name, several subnodes can be
-	   specified using slash '/' (e.g. "OSI/X.500" - protocol preferences will be
-	   accessible under Protocols->OSI->X.500-><PROTOSHORTNAME> preferences node.
-	*/
-	/* mswsp_module = prefs_register_protocol_subtree(subtree, */
-	/*      proto_mswsp, proto_reg_handoff_mswsp); */
 
-	/* Register a sample preference */
-	prefs_register_bool_preference(mswsp_module, "show_hex",
-								   "Display numbers in Hex",
-								   "Enable to display numerical values in hexadecimal.",
-								   &gPREF_HEX);
-
-	/* Register a sample port preference   */
-	prefs_register_uint_preference(mswsp_module, "tcp.port", "mswsp TCP Port",
-								   " mswsp TCP port if other than the default",
-								   10, &gPORT_PREF);
 }
 
 static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -8174,20 +8072,6 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return dissect_mswsp(tvb, pinfo, tree, in, data);
 }
 
-
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This exact format is required because a script is used to find these
-   routines and create the code that calls these routines.
-
-   If this function is registered as a prefs callback (see prefs_register_protocol
-   above) this function is also called by preferences whenever "Apply" is pressed;
-   In that case, it should accommodate being called more than once.
-
-   Simple form of proto_reg_handoff_mswsp which can be used if there are
-   no prefs-dependent registration function calls.
- */
-
 void
 proto_reg_handoff_mswsp(void)
 {
@@ -8205,6 +8089,6 @@ proto_reg_handoff_mswsp(void)
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
  */
