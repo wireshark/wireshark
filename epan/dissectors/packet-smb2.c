@@ -168,6 +168,11 @@ static int hf_smb2_write_remaining = -1;
 static int hf_smb2_read_length = -1;
 static int hf_smb2_read_remaining = -1;
 static int hf_smb2_file_offset = -1;
+static int hf_smb2_qfr_length = -1;
+static int hf_smb2_qfr_usage = -1;
+static int hf_smb2_qfr_flags = -1;
+static int hf_smb2_qfr_total_region_entry_count = -1;
+static int hf_smb2_qfr_region_entry_count = -1;
 static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
 static int hf_smb2_create_disposition = -1;
@@ -459,6 +464,7 @@ static gint ett_smb2_lock_flags = -1;
 static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
 static gint ett_smb2_ioctl_network_interface_capabilities = -1;
+static gint ett_qfr_entry = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -1270,6 +1276,11 @@ static const true_false_string tfs_smb2_ioctl_network_interface_capability_rss =
 static const true_false_string tfs_smb2_ioctl_network_interface_capability_rdma = {
 	"This interface supports RDMA",
 	"This interface does not support RDMA"
+};
+
+static const value_string file_region_usage_vals[] = {
+	{ 0x00000001, "FILE_REGION_USAGE_VALID_CACHED_DATA" },
+	{ 0, NULL }
 };
 
 static const value_string originator_flags_vals[] = {
@@ -4651,6 +4662,60 @@ dissect_smb2_FSCTL_PIPE_WAIT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static void
+dissect_smb2_FSCTL_QUERY_FILE_REGIONS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_, gboolean data_in)
+{
+
+	if (data_in) {
+		proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_qfr_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_qfr_usage, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+		offset += 4;
+	} else {
+		guint32 entry_count = 0;
+
+		proto_tree_add_item(tree, hf_smb2_qfr_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_qfr_total_region_entry_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item_ret_uint(tree, hf_smb2_qfr_region_entry_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &entry_count);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+		offset += 4;
+
+		while (entry_count && tvb_reported_length_remaining(tvb, offset)) {
+			proto_tree *sub_tree;
+			proto_item *sub_item;
+
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_qfr_entry, &sub_item, "Entry");
+
+			proto_tree_add_item(sub_tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+
+			proto_tree_add_item(sub_tree, hf_smb2_qfr_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+
+			proto_tree_add_item(sub_tree, hf_smb2_qfr_usage, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+
+			proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+			offset += 4;
+
+			entry_count--;
+		}
+	}
+}
+
+static void
 dissect_smb2_FSCTL_LMR_REQUEST_RESILIENCY(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 	/* There is no out data */
@@ -5201,6 +5266,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
 		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00090284: /* FSCTL_QUERY_FILE_REGIONS */
+		dissect_smb2_FSCTL_QUERY_FILE_REGIONS(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009C280: /* FSCTL_SET_INTEGRITY_INFORMATION request or response */
 		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvb, pinfo, tree, 0, data_in);
@@ -7906,6 +7974,26 @@ proto_register_smb2(void)
 		  { "File Offset", "smb2.file_offset", FT_UINT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_qfr_length,
+		  { "Length", "smb2.qfr_length", FT_UINT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_qfr_usage,
+		  { "Desired Usage", "smb2.qfr_usage", FT_UINT32, BASE_HEX,
+		    VALS(file_region_usage_vals), 0, NULL, HFILL }},
+
+		{ &hf_smb2_qfr_flags,
+		  { "Flags", "smb2.qfr_flags", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_qfr_total_region_entry_count,
+		  { "Total Region Entry Count", "smb2.qfr_tot_region_entry_count", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_qfr_region_entry_count,
+		  { "Region Entry Count", "smb2.qfr_region_entry_count", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
 		{ &hf_smb2_security_blob,
 		  { "Security Blob", "smb2.security_blob", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
@@ -9059,6 +9147,7 @@ proto_register_smb2(void)
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
+		&ett_qfr_entry,
 	};
 
 	static ei_register_info ei[] = {
