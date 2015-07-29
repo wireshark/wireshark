@@ -136,7 +136,10 @@
 // Public slots
 //
 
-const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
+static const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
+
+// We're too lazy to sublcass QAction.
+static const char *color_number_property_ = "color number";
 
 bool MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigned int type)
 {
@@ -958,14 +961,12 @@ void MainWindow::recentActionTriggered() {
 
 void MainWindow::setMenusForSelectedPacket()
 {
-//    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE;
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_sctp = FALSE, is_rtp = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_rtp = FALSE;
 
-//    /* Making the menu context-sensitive allows for easier selection of the
-//       desired item and has the added benefit, with large captures, of
-//       avoiding needless looping through huge lists for marked, ignored,
-//       or time-referenced packets. */
-//    gboolean is_ssl = epan_dissect_packet_contains_field(cf->edt, "ssl");
+    /* Making the menu context-sensitive allows for easier selection of the
+       desired item and has the added benefit, with large captures, of
+       avoiding needless looping through huge lists for marked, ignored,
+       or time-referenced packets. */
 
     /* We have one or more items in the packet list */
     bool have_frames = false;
@@ -990,6 +991,13 @@ void MainWindow::setMenusForSelectedPacket()
     /* We have a valid filter expression */
     bool have_filter_expr = false;
 
+    QList<QAction *> cc_actions = QList<QAction *>()
+            << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
+            << main_ui_->actionViewColorizeConversation3 << main_ui_->actionViewColorizeConversation4
+            << main_ui_->actionViewColorizeConversation5 << main_ui_->actionViewColorizeConversation6
+            << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
+            << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
+
     if (capture_file_.capFile()) {
         frame_selected = capture_file_.capFile()->current_frame != NULL;
         have_frames = capture_file_.capFile()->count > 0;
@@ -1004,40 +1012,11 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (capture_file_.capFile()->edt)
         {
-            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, &is_ip, &is_tcp, NULL, &is_sctp, NULL, &is_rtp);
+            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl, &is_rtp);
         }
     }
 
-    if (packet_list_) {
-        have_filter_expr = !packet_list_->getFilterFromRowAndColumn().isEmpty();
-    }
-//    if (cfile.edt && cfile.edt->tree) {
-//        GPtrArray          *ga;
-//        header_field_info  *hfinfo;
-//        field_info         *v;
-//        guint              ii;
-
-//        ga = proto_all_finfos(cfile.edt->tree);
-
-//        for (ii = ga->len - 1; ii > 0 ; ii -= 1) {
-
-//            v = g_ptr_array_index (ga, ii);
-//            hfinfo =  v->hfinfo;
-
-//            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
-//                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
-//                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
-
-//                if (hfinfo->parent == -1) {
-//                    abbrev = hfinfo->abbrev;
-//                } else {
-//                    abbrev = proto_registrar_get_abbrev(hfinfo->parent);
-//                }
-//                properties = prefs_is_registered_protocol(abbrev);
-//                break;
-//            }
-//        }
-//    }
+    have_filter_expr = !packet_list_->getFilterFromRowAndColumn().isEmpty();
 
     main_ui_->actionEditMarkPacket->setEnabled(frame_selected);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
@@ -1046,10 +1025,10 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditNextMark->setEnabled(another_is_marked);
     main_ui_->actionEditPreviousMark->setEnabled(another_is_marked);
 
-//#ifdef WANT_PACKET_EDITOR
+#ifdef WANT_PACKET_EDITOR
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
 //                         frame_selected);
-//#endif /* WANT_PACKET_EDITOR */
+#endif // WANT_PACKET_EDITOR
     main_ui_->actionEditPacketComment->setEnabled(frame_selected && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
@@ -1077,41 +1056,29 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(have_filter_expr);
     main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(have_filter_expr);
 
-    main_ui_->actionViewColorizeConversation1->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation2->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation3->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation4->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation5->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation6->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation7->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation8->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation9->setEnabled(frame_selected);
-    main_ui_->actionViewColorizeConversation10->setEnabled(frame_selected);
+    main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
+    main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
+    main_ui_->actionAnalyzeFollowSSLStream->setEnabled(is_ssl);
+
+    foreach (QAction *cc_action, cc_actions) {
+        cc_action->setEnabled(frame_selected);
+    }
     main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
 
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
 
     main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResetColoring1-10",
-//                         tmp_color_filters_used());
 
     main_ui_->actionViewShowPacketInNewWindow->setEnabled(frame_selected);
     main_ui_->actionViewEditResolvedName->setEnabled(frame_selected && is_ip);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
-//                         frame_selected ? is_sctp : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
-//                         frame_selected ? is_tcp : FALSE);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowTCPStream",
-//                         frame_selected ? is_tcp : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowUDPStream",
-//                         frame_selected ? is_udp : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
-//                         frame_selected ? is_ssl : FALSE);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowSSLStream",
-//                         frame_selected ? is_ssl : FALSE);
 
     main_ui_->menuConversationFilter->clear();
+
+    packet_list_->conversationMenu()->clear();
+    packet_list_->colorizeMenu()->clear();
+
     for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
+        // Main menu items
         color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
         QAction *conv_action = main_ui_->menuConversationFilter->addAction(color_filter->display_name);
 
@@ -1124,49 +1091,35 @@ void MainWindow::setMenusForSelectedPacket()
         conv_action->setEnabled(enable);
         conv_action->setData(filter);
         connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
+
+        // Packet list context menu items
+        packet_list_->conversationMenu()->addAction(conv_action);
+
+        QMenu *submenu = packet_list_->colorizeMenu()->addMenu(conv_action->text());
+        int i = 1;
+        foreach (QAction *cc_action, cc_actions) {
+            QAction *colorize_action = submenu->addAction(cc_action->icon(), cc_action->text());
+            colorize_action->setProperty(color_number_property_, i++);
+            colorize_action->setData(filter);
+            colorize_action->setEnabled(enable);
+            connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizePacketConversation()));
+        }
+
+        QAction *conv_rule_action = submenu->addAction(main_ui_->actionViewColorizeNewConversationRule->text());
+        conv_rule_action->setData(conv_action->data());
+        conv_rule_action->setEnabled(enable);
+        connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizePacketConversation()));
     }
 
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
-//                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/Ethernet",
-//                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
-//                         frame_selected ? is_ip : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
-//                         frame_selected ? is_tcp : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
-//                         frame_selected ? is_udp : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
-//                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
 
-//    if (properties) {
-//        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
-//        if (!prev_abbrev || (strcmp(prev_abbrev, abbrev) != 0)) {
-//          /*No previous protocol or protocol changed - update Protocol Preferences menu*/
-//            module_t *prefs_module_p = prefs_find_module(abbrev);
-//            rebuild_protocol_prefs_menu(prefs_module_p, properties, ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences");
-
-//            g_object_set_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev", g_strdup(abbrev));
-//            g_free (prev_abbrev);
-//        }
-//    }
-
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences",
-//                             properties);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
 //                         frame_selected);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
-//                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
 //                         frame_selected);
     main_ui_->menuTcpStreamGraphs->setEnabled(is_tcp);
-    main_ui_->menuSCTP->setEnabled(is_sctp);
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
@@ -1288,15 +1241,6 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
         main_ui_->actionViewExpandSubtrees->setEnabled(capture_file_.capFile()->finfo_selected->tree_type != -1);
 
-//        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
-//        if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
-//            /* No previous protocol or protocol changed - update Protocol Preferences menu */
-//            module_t *prefs_module_p = prefs_find_module(abbrev);
-//            rebuild_protocol_prefs_menu (prefs_module_p, properties);
-
-//            g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", g_strdup(abbrev));
-//            g_free (prev_abbrev);
-//        }
     } else {
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
@@ -1304,6 +1248,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol", FALSE);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
+//                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
+//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
 //                             FALSE);
@@ -2306,6 +2253,29 @@ void MainWindow::colorizeConversation(bool create_rule)
         }
     }
     setMenusForSelectedPacket();
+}
+
+void MainWindow::colorizePacketConversation()
+{
+    QAction *colorize_action = qobject_cast<QAction *>(sender());
+    if (!colorize_action) return;
+
+    QString filter = colorize_action->data().toString();
+    if (filter.isEmpty()) return;
+
+    bool ok = false;
+    int color_number = colorize_action->property(color_number_property_).toInt(&ok);
+
+    if (ok) {
+        // Assume "Color X"
+        color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE);
+        packet_list_->recolorPackets();
+    } else {
+        // New coloring rule
+        ColoringRulesDialog coloring_rules_dialog(window(), filter);
+        coloring_rules_dialog.exec();
+    }
+    main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
 }
 
 void MainWindow::on_actionViewColorizeResetColorization_triggered()

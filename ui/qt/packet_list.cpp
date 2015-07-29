@@ -308,81 +308,24 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
 
-    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
-    conv_menu_.setTitle(main_conv_menu->title());
+    const char *conv_menu_name = "menuConversationFilter";
+    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
+    conv_menu_.setTitle(main_menu_item->title());
+    conv_menu_.setObjectName(conv_menu_name);
     ctx_menu_.addMenu(&conv_menu_);
 
-//    "     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
-//    "       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
-//    "       <menuitem name='IP' action='/Conversation Filter/IP'/>\n"
-//    "       <menuitem name='TCP' action='/Conversation Filter/TCP'/>\n"
-//    "       <menuitem name='UDP' action='/Conversation Filter/UDP'/>\n"
-//    "       <menuitem name='PN-CBA' action='/Conversation Filter/PN-CBA'/>\n"
-    //submenu = new QMenu(tr("Colorize with Filter"));
-//    "     <menu name= 'ColorizeConversation' action='/Colorize Conversation'>\n"
-//    "        <menu name= 'Ethernet' action='/Colorize Conversation/Ethernet'>\n"
-//    "          <menuitem name='Color1' action='/Colorize Conversation/Ethernet/Color 1'/>\n"
-//    "          <menuitem name='Color2' action='/Colorize Conversation/Ethernet/Color 2'/>\n"
-//    "          <menuitem name='Color3' action='/Colorize Conversation/Ethernet/Color 3'/>\n"
-//    "          <menuitem name='Color4' action='/Colorize Conversation/Ethernet/Color 4'/>\n"
-//    "          <menuitem name='Color5' action='/Colorize Conversation/Ethernet/Color 5'/>\n"
-//    "          <menuitem name='Color6' action='/Colorize Conversation/Ethernet/Color 6'/>\n"
-//    "          <menuitem name='Color7' action='/Colorize Conversation/Ethernet/Color 7'/>\n"
-//    "          <menuitem name='Color8' action='/Colorize Conversation/Ethernet/Color 8'/>\n"
-//    "          <menuitem name='Color9' action='/Colorize Conversation/Ethernet/Color 9'/>\n"
-//    "          <menuitem name='Color10' action='/Colorize Conversation/Ethernet/Color 10'/>\n"
-//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/Ethernet/New Coloring Rule'/>\n"
-//    "        <menu name= 'IP' action='/Colorize Conversation/IP'>\n"
-//    "          <menuitem name='Color1' action='/Colorize Conversation/IP/Color 1'/>\n"
-//    "          <menuitem name='Color2' action='/Colorize Conversation/IP/Color 2'/>\n"
-//    "          <menuitem name='Color3' action='/Colorize Conversation/IP/Color 3'/>\n"
-//    "          <menuitem name='Color4' action='/Colorize Conversation/IP/Color 4'/>\n"
-//    "          <menuitem name='Color5' action='/Colorize Conversation/IP/Color 5'/>\n"
-//    "          <menuitem name='Color6' action='/Colorize Conversation/IP/Color 6'/>\n"
-//    "          <menuitem name='Color7' action='/Colorize Conversation/IP/Color 7'/>\n"
-//    "          <menuitem name='Color8' action='/Colorize Conversation/IP/Color 8'/>\n"
-//    "          <menuitem name='Color9' action='/Colorize Conversation/IP/Color 9'/>\n"
-//    "          <menuitem name='Color10' action='/Colorize Conversation/IP/Color 10'/>\n"
-//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/IP/New Coloring Rule'/>\n"
-//    "        <menu name= 'TCP' action='/Colorize Conversation/TCP'>\n"
-//    "          <menuitem name='Color1' action='/Colorize Conversation/TCP/Color 1'/>\n"
-//    "          <menuitem name='Color2' action='/Colorize Conversation/TCP/Color 2'/>\n"
-//    "          <menuitem name='Color3' action='/Colorize Conversation/TCP/Color 3'/>\n"
-//    "          <menuitem name='Color4' action='/Colorize Conversation/TCP/Color 4'/>\n"
-//    "          <menuitem name='Color5' action='/Colorize Conversation/TCP/Color 5'/>\n"
-//    "          <menuitem name='Color6' action='/Colorize Conversation/TCP/Color 6'/>\n"
-//    "          <menuitem name='Color7' action='/Colorize Conversation/TCP/Color 7'/>\n"
-//    "          <menuitem name='Color8' action='/Colorize Conversation/TCP/Color 8'/>\n"
-//    "          <menuitem name='Color9' action='/Colorize Conversation/TCP/Color 9'/>\n"
-//    "          <menuitem name='Color10' action='/Colorize Conversation/TCP/Color 10'/>\n"
-//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/TCP/New Coloring Rule'/>\n"
-//    "        <menu name= 'UDP' action='/Colorize Conversation/UDP'>\n"
-//    "          <menuitem name='Color1' action='/Colorize Conversation/UDP/Color 1'/>\n"
-//    "          <menuitem name='Color2' action='/Colorize Conversation/UDP/Color 2'/>\n"
-//    "          <menuitem name='Color3' action='/Colorize Conversation/UDP/Color 3'/>\n"
-//    "          <menuitem name='Color4' action='/Colorize Conversation/UDP/Color 4'/>\n"
-//    "          <menuitem name='Color5' action='/Colorize Conversation/UDP/Color 5'/>\n"
-//    "          <menuitem name='Color6' action='/Colorize Conversation/UDP/Color 6'/>\n"
-//    "          <menuitem name='Color7' action='/Colorize Conversation/UDP/Color 7'/>\n"
-//    "          <menuitem name='Color8' action='/Colorize Conversation/UDP/Color 8'/>\n"
-//    "          <menuitem name='Color9' action='/Colorize Conversation/UDP/Color 9'/>\n"
-//    "          <menuitem name='Color10' action='/Colorize Conversation/UDP/Color 10'/>\n"
-//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/UDP/New Coloring Rule'/>\n"
-//    "        <menu name= 'PN-CBA' action='/Colorize Conversation/PN-CBA'>\n"
-//    "          <menuitem name='Color1' action='/Colorize Conversation/PN-CBA/Color 1'/>\n"
-//    "          <menuitem name='Color2' action='/Colorize Conversation/PN-CBA/Color 2'/>\n"
-//    "          <menuitem name='Color3' action='/Colorize Conversation/PN-CBA/Color 3'/>\n"
-//    "          <menuitem name='Color4' action='/Colorize Conversation/PN-CBA/Color 4'/>\n"
-//    "          <menuitem name='Color5' action='/Colorize Conversation/PN-CBA/Color 5'/>\n"
-//    "          <menuitem name='Color6' action='/Colorize Conversation/PN-CBA/Color 6'/>\n"
-//    "          <menuitem name='Color7' action='/Colorize Conversation/PN-CBA/Color 7'/>\n"
-//    "          <menuitem name='Color8' action='/Colorize Conversation/PN-CBA/Color 8'/>\n"
-//    "          <menuitem name='Color9' action='/Colorize Conversation/PN-CBA/Color 9'/>\n"
-//    "          <menuitem name='Color10' action='/Colorize Conversation/PN-CBA/Color 10'/>\n"
-//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/PN-CBA/New Coloring Rule'/>\n"
-//    "     <menu name= 'SCTP' action='/SCTP'>\n"
-//    "        <menuitem name='AnalysethisAssociation' action='/SCTP/Analyse this Association'/>\n"
-//    "        <menuitem name='PrepareFilterforthisAssociation' action='/SCTP/Prepare Filter for this Association'/>\n"
+    const char *colorize_menu_name = "menuColorizeConversation";
+    main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
+    colorize_menu_.setTitle(main_menu_item->title());
+    colorize_menu_.setObjectName(colorize_menu_name);
+    ctx_menu_.addMenu(&colorize_menu_);
+
+    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
+    submenu = new QMenu(main_menu_item->title());
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+
     ctx_menu_.addSeparator();
 
     action = window()->findChild<QAction *>("actionCopy");
@@ -522,39 +465,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
-    QAction *action;
-    gboolean is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
-
-    /* walk the list of a available protocols in the packet to see what we have */
-    if (cap_file_ != NULL && cap_file_->edt != NULL)
-        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, &is_sctp, NULL, NULL);
-
-    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
-    conv_menu_.clear();
-    foreach (action, main_conv_menu->actions()) {
-        conv_menu_.addAction(action);
-    }
-
-    action = window()->findChild<QAction *>("actionSCTP");
-    if (cap_file_ != NULL && cap_file_->edt != NULL && is_sctp)
-        action->setEnabled(TRUE);
-    else
-        action->setEnabled(FALSE);
-
-    action = window()->findChild<QAction *>("actionAnalyzeFollowTCPStream");
-    action->setEnabled(is_tcp);
-
-    action = window()->findChild<QAction *>("actionAnalyzeFollowUDPStream");
-    action->setEnabled(is_udp);
-
-    action = window()->findChild<QAction *>("actionAnalyzeFollowSSLStream");
-
-    if (cap_file_ != NULL && cap_file_->edt != NULL &&
-            epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
-        action->setEnabled(TRUE);
-    else
-        action->setEnabled(FALSE);
-
     const char *module_name = NULL;
     if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
         GPtrArray          *finfo_array = proto_all_finfos(cap_file_->edt->tree);
@@ -581,7 +491,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
 
-    // Set menu sensitivity for the current column
+    // Set menu sensitivity for the current column and fill in conversation
+    // actions.
     emit packetSelectionChanged();
 
     ctx_menu_.exec(event->globalPos());

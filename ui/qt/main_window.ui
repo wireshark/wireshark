@@ -284,7 +284,7 @@
      <addaction name="actionViewNameResolutionNetwork"/>
      <addaction name="actionViewNameResolutionTransport"/>
     </widget>
-    <widget class="QMenu" name="menuColorize_Conversation">
+    <widget class="QMenu" name="menuColorizeConversation">
      <property name="title">
       <string>Colorize Conversation</string>
      </property>
@@ -322,7 +322,7 @@
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
     <addaction name="actionViewColoringRules"/>
-    <addaction name="menuColorize_Conversation"/>
+    <addaction name="menuColorizeConversation"/>
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>

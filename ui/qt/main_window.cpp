@@ -230,8 +230,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
     setForCapturedPackets(false);
-    setMenusForSelectedPacket();
-    setMenusForSelectedTreeRow();
     setMenusForFileSet(false);
     interfaceSelectionChanged();
     loadWindowGeometry();
@@ -349,6 +347,10 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->installEventFilter(this);
 
     main_welcome_ = main_ui_->welcomePage;
+
+    // Packet list and proto tree must exist before these are called.
+    setMenusForSelectedPacket();
+    setMenusForSelectedTreeRow();
 
     initShowHideMainWidgets();
     initTimeDisplayFormatMenu();
@@ -477,8 +479,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
-    connect(packet_list_, SIGNAL(packetSelectionChanged()),
-            this, SLOT(setMenusForFollowStream()));
     connect(packet_list_, SIGNAL(showColumnPreferences(PreferencesDialog::PreferencesPane)),
             this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
     connect(packet_list_, SIGNAL(showProtocolPreferences(QString)),
@@ -1796,38 +1796,6 @@ void MainWindow::setTitlebarForCaptureInProgress()
 }
 
 // Menu state
-
-void MainWindow::setMenusForFollowStream()
-{
-    gboolean is_tcp = FALSE, is_udp = FALSE;
-
-    if (!capture_file_.capFile())
-        return;
-
-    if (!capture_file_.capFile()->edt)
-        return;
-
-    main_ui_->actionAnalyzeFollowTCPStream->setEnabled(false);
-    main_ui_->actionAnalyzeFollowUDPStream->setEnabled(false);
-    main_ui_->actionAnalyzeFollowSSLStream->setEnabled(false);
-
-    proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL, NULL);
-
-    if (is_tcp)
-    {
-        main_ui_->actionAnalyzeFollowTCPStream->setEnabled(true);
-    }
-
-    if (is_udp)
-    {
-        main_ui_->actionAnalyzeFollowUDPStream->setEnabled(true);
-    }
-
-    if ( epan_dissect_packet_contains_field(capture_file_.capFile()->edt, "ssl") )
-    {
-        main_ui_->actionAnalyzeFollowSSLStream->setEnabled(true);
-    }
-}
 
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved

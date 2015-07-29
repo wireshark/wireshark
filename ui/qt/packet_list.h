@@ -57,6 +57,8 @@ public:
     };
     explicit PacketList(QWidget *parent = 0);
     PacketListModel *packetListModel() const;
+    QMenu *conversationMenu() { return &conv_menu_; }
+    QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
     void freeze();
@@ -91,6 +93,7 @@ private:
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QMenu conv_menu_;
+    QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
     int ctx_column_;

@@ -253,7 +253,6 @@ private slots:
     void saveWindowGeometry();
     void updateRecentFiles();
     void recentActionTriggered();
-    void setMenusForFollowStream();
     void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
     void interfaceSelectionChanged();
@@ -378,6 +377,7 @@ private slots:
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
     void colorizeConversation(bool create_rule = false);
+    void colorizePacketConversation();
     void on_actionViewColorizeResetColorization_triggered();
     void on_actionViewColorizeNewConversationRule_triggered();
     void on_actionViewResizeColumns_triggered();
