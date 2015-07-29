@@ -15909,15 +15909,12 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     hdr_len = roundup2(hdr_len, 4);
 
   /* Add the FC and duration/id to the current tree */
-  if (tree)
-    {
-      ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
-                                           "IEEE 802.11 %s", fts_str);
-      hdr_tree = proto_item_add_subtree (ti, ett_80211);
+  ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
+                                       "IEEE 802.11 %s", fts_str);
+  hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
-      dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0, pinfo);
-      dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
-    }
+  dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0, pinfo);
+  dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
 
   /*
    * Decode the part of the frame header that isn't the same for all
@@ -16230,7 +16227,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           src = tvb_get_ptr (tvb, offset, 6);
           set_src_addr_cols(pinfo, src, "TA");
 
-          if (tree)
+          /* if (tree) */
           {
             guint16 bar_control;
             guint8 block_ack_type;
@@ -16343,7 +16340,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           src = tvb_get_ptr (tvb, offset, 6);
           set_src_addr_cols(pinfo, src, "TA");
 
-          if (tree)
+          /* if (tree) */
           {
             guint16 ba_control;
             guint8 block_ack_type;
