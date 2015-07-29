@@ -56,6 +56,7 @@ public:
     void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
     void setFieldAppendixHighlight(int start, int end);
     bool isEmpty() { return tvb_ == NULL || proto_tree_ == NULL; }
+    const guint8 *dataAndLength(guint *data_len_ptr);
 
 signals:
     void byteFieldHovered(const QString &);

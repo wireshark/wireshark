@@ -39,14 +39,28 @@ class ByteViewTab : public QTabWidget
 {
     Q_OBJECT
 public:
+    enum copyDataType {
+        copyDataHexTextDump,
+        copyDataHexDump,
+        copyDataPrintableText,
+        copyDataHexStream,
+        copyDataBinary
+    };
+
     explicit ByteViewTab(QWidget *parent = 0);
     void addTab(const char *name = "", tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
     void clear();
+    void copyData(copyDataType copy_type, field_info *fi = NULL);
 
 private:
-    void setTabsVisible();
     capture_file *cap_file_;
     QFont mono_font_;
+
+    void setTabsVisible();
+    void copyHexTextDump(const guint8 *data_p, int data_len, bool append_text);
+    void copyPrintableText(const guint8 *data_p, int data_len);
+    void copyHexStream(const guint8 *data_p, int data_len);
+    void copyBinary(const guint8 *data_p, int data_len);
 
 protected:
     void tabInserted(int index);

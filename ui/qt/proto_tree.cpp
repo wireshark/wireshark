@@ -164,7 +164,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         // Assume we're a child of the main window.
         // XXX We might want to reimplement setParent() and fill in the context
         // menu there.
-        QMenu *main_menu_item, *submenu, *subsubmenu;
+        QMenu *main_menu_item, *submenu;
         QAction *action;
 
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
@@ -221,9 +221,10 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
         ctx_menu_.addSeparator();
 
-        action = window()->findChild<QAction *>("actionCopy");
-        submenu = new QMenu(action->text());
+        main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
+        submenu = new QMenu(main_menu_item->title());
         ctx_menu_.addMenu(submenu);
+
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
@@ -232,10 +233,24 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addSeparator();
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
 
-        action = window()->findChild<QAction *>("actionBytes");
-        subsubmenu = new QMenu(action->text());
-        submenu->addMenu(subsubmenu);
-        subsubmenu->addSeparator();
+        submenu->addSeparator();
+
+        action = window()->findChild<QAction *>("actionContextCopyBytesHexTextDump");
+        submenu->addAction(action);
+        copy_actions_ << action;
+        action = window()->findChild<QAction *>("actionContextCopyBytesHexDump");
+        submenu->addAction(action);
+        copy_actions_ << action;
+        action = window()->findChild<QAction *>("actionContextCopyBytesPrintableText");
+        submenu->addAction(action);
+        copy_actions_ << action;
+        action = window()->findChild<QAction *>("actionContextCopyBytesHexStream");
+        submenu->addAction(action);
+        copy_actions_ << action;
+        action = window()->findChild<QAction *>("actionContextCopyBytesBinary");
+        submenu->addAction(action);
+        copy_actions_ << action;
+
 //    "        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
 //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
 //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
@@ -290,9 +305,10 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         conv_menu_.addAction(action);
     }
 
+    field_info *fi = NULL;
     const char *module_name = NULL;
     if (selectedItems().count() > 0) {
-        field_info *fi = selectedItems()[0]->data(0, Qt::UserRole).value<field_info *>();
+        fi = selectedItems()[0]->data(0, Qt::UserRole).value<field_info *>();
         if (fi && fi->hfinfo) {
             if (fi->hfinfo->parent == -1) {
                 module_name = fi->hfinfo->abbrev;
@@ -303,7 +319,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     }
     proto_prefs_menu_.setModule(module_name);
 
+    foreach (QAction *action, copy_actions_) {
+        action->setData(QVariant::fromValue<field_info *>(fi));
+    }
+
     decode_as_->setData(qVariantFromValue(true));
+
+    // Set menu sensitivity and action data.
+    emit protoItemSelected(fi);
     ctx_menu_.exec(event->globalPos());
     decode_as_->setData(QVariant());
 }

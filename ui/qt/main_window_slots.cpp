@@ -1147,81 +1147,25 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     // a result of a packet list selection. Don't assume control of the menu.
     if (!proto_tree_ || !proto_tree_->hasFocus()) return;
 
+    bool can_match_selected = false;
+    bool is_framenum = false;
+    bool have_field_info = false;
+    bool have_subtree = false;
+
     if (capture_file_.capFile()) {
         capture_file_.capFile()->finfo_selected = fi;
+
+        if (fi && fi->tree_type != -1) {
+            have_subtree = true;
+        }
     }
 
     if (capture_file_.capFile() != NULL && fi != NULL) {
         header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
 
-        /*
-        const char *abbrev;
-        char *prev_abbrev;
-
-        if (hfinfo->parent == -1) {
-            abbrev = hfinfo->abbrev;
-            id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
-        } else {
-            abbrev = proto_registrar_get_abbrev(hfinfo->parent);
-            id = hfinfo->parent;
-        }
-        properties = prefs_is_registered_protocol(abbrev);
-        */
-        bool can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
-        bool is_framenum = hfinfo && hfinfo->type == FT_FRAMENUM ? true : false;
-//        set_menu_sensitivity(ui_manager_tree_view_menu,
-//                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-        main_ui_->actionViewShowPacketReferenceInNewWindow->setEnabled(is_framenum);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
-//                             TRUE);
-
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn",
-//                             hfinfo->type != FT_NONE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol",
-//                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
-//                             cf->finfo_selected->tree_type != -1);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
-//                             (id == -1) ? FALSE : TRUE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
-//                             (id == -1) ? FALSE : TRUE);
-//        set_menu_sensitivity(ui_manager_main_menubar,
-        main_ui_->actionFileExportPacketBytes->setEnabled(true);
-
-//        set_menu_sensitivity(ui_manager_main_menubar,
-//                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-        main_ui_->actionCopyAllVisibleItems->setEnabled(true);
-        main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
-        main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
-        main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
-        main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
-        main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Value",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-
-        main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
-
-        main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzeAAFAndSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzeAAFOrSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(can_match_selected);
-
-        main_ui_->actionAnalyzePAFSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzePAFNotSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzePAFAndSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzePAFOrSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(can_match_selected);
-        main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
+        have_field_info = true;
+        can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
+        is_framenum = hfinfo && hfinfo->type == FT_FRAMENUM ? true : false;
 
         main_ui_->menuConversationFilter->clear();
         for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
@@ -1238,10 +1182,38 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
             conv_action->setData(filter);
             connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
         }
+    }
 
-        main_ui_->actionViewExpandSubtrees->setEnabled(capture_file_.capFile()->finfo_selected->tree_type != -1);
+//        set_menu_sensitivity(ui_manager_tree_view_menu,
+//                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
+//                             TRUE);
 
-    } else {
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn",
+//                             hfinfo->type != FT_NONE);
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter",
+//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol",
+//                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
+//                             cf->finfo_selected->tree_type != -1);
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
+//                             (id == -1) ? FALSE : TRUE);
+//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
+//                             (id == -1) ? FALSE : TRUE);
+//        set_menu_sensitivity(ui_manager_main_menubar,
+
+//        set_menu_sensitivity(ui_manager_main_menubar,
+//                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description",
+//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname",
+//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Value",
+//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter",
+//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy", FALSE);
@@ -1256,37 +1228,37 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                             FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
 //                             FALSE);
-        main_ui_->actionFileExportPacketBytes->setEnabled(false);
 //        set_menu_sensitivity(ui_manager_main_menubar,
 //                             "/Menubar/GoMenu/GotoCorrespondingPacket", FALSE);
-        if (capture_file_.capFile() != NULL)
-            main_ui_->actionCopyAllVisibleItems->setEnabled(true);
-        else
-            main_ui_->actionCopyAllVisibleItems->setEnabled(false);
-        main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(false);
-        main_ui_->actionEditCopyDescription->setEnabled(false);
-        main_ui_->actionEditCopyFieldName->setEnabled(false);
-        main_ui_->actionEditCopyValue->setEnabled(false);
-        main_ui_->actionEditCopyAsFilter->setEnabled(false);
 
-        main_ui_->actionAnalyzeCreateAColumn->setEnabled(false);
+    main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
+    main_ui_->actionViewShowPacketReferenceInNewWindow->setEnabled(is_framenum);
 
-        main_ui_->actionAnalyzeAAFSelected->setEnabled(false);
-        main_ui_->actionAnalyzeAAFNotSelected->setEnabled(false);
-        main_ui_->actionAnalyzeAAFAndSelected->setEnabled(false);
-        main_ui_->actionAnalyzeAAFOrSelected->setEnabled(false);
-        main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(false);
-        main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(false);
+    main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL);
+    main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
 
-        main_ui_->actionAnalyzePAFSelected->setEnabled(false);
-        main_ui_->actionAnalyzePAFNotSelected->setEnabled(false);
-        main_ui_->actionAnalyzePAFAndSelected->setEnabled(false);
-        main_ui_->actionAnalyzePAFOrSelected->setEnabled(false);
-        main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(false);
-        main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(false);
+    main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
 
-        main_ui_->actionViewExpandSubtrees->setEnabled(false);
-    }
+    main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
+
+    main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeAAFAndSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeAAFOrSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(can_match_selected);
+
+    main_ui_->actionAnalyzePAFSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzePAFNotSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzePAFAndSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzePAFOrSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
+
+    main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
 }
 
 void MainWindow::interfaceSelectionChanged()
@@ -3277,6 +3249,58 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
     }
 }
 #endif
+
+// Q_DECLARE_METATYPE(field_info *) called in proto_tree.h
+
+void MainWindow::on_actionContextCopyBytesHexTextDump_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataHexTextDump, fi);
+}
+
+void MainWindow::on_actionContextCopyBytesHexDump_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataHexDump, fi);
+}
+
+void MainWindow::on_actionContextCopyBytesPrintableText_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataPrintableText, fi);
+}
+
+void MainWindow::on_actionContextCopyBytesHexStream_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataHexStream, fi);
+}
+
+void MainWindow::on_actionContextCopyBytesBinary_triggered()
+{
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    field_info *fi = ca->data().value<field_info *>();
+
+    byte_view_tab_->copyData(ByteViewTab::copyDataBinary, fi);
+}
 
 /*
  * Editor modelines

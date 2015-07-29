@@ -96,6 +96,7 @@ private:
     QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
+    QList<QAction *> copy_actions_;
     int ctx_column_;
     QByteArray column_state_;
     OverlayScrollBar *overlay_sb_;
@@ -155,6 +156,7 @@ private slots:
     void columnVisibilityTriggered();
     void sectionResized(int col, int, int new_width);
     void sectionMoved(int, int, int);
+    void copySummary();
     void vScrollBarActionTriggered(int);
     void drawFarOverlay();
     void drawNearOverlay();

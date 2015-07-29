@@ -59,6 +59,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QtCore/qmath.h>
 #include <QElapsedTimer>
@@ -225,9 +226,15 @@ packet_list_recent_write_all(FILE *rf) {
     gbl_cur_packet_list->writeRecent(rf);
 }
 
-#define MIN_COL_WIDTH_STR "...."
+#define MIN_COL_WIDTH_STR "MMMMMM"
 
 Q_DECLARE_METATYPE(PacketList::ColumnActions)
+
+enum copy_summary_type {
+    copy_summary_text_,
+    copy_summary_csv_,
+    copy_summary_yaml_
+};
 
 PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
@@ -242,7 +249,7 @@ PacketList::PacketList(QWidget *parent) :
     tail_timer_id_(0),
     rows_inserted_(false)
 {
-    QMenu *main_menu_item, *submenu, *subsubmenu;
+    QMenu *main_menu_item, *submenu;
     QAction *action;
 
     setItemsExpandable(false);
@@ -328,17 +335,36 @@ PacketList::PacketList(QWidget *parent) :
 
     ctx_menu_.addSeparator();
 
-    action = window()->findChild<QAction *>("actionCopy");
-    submenu = new QMenu(action->text());
+    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
+    submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
-    //    "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
-    //    "        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+
+    action = submenu->addAction(tr("Summary (Text)"));
+    action->setData(copy_summary_text_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr("Summary (CSV)"));
+    action->setData(copy_summary_csv_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr("Summary (YAML)"));
+    action->setData(copy_summary_yaml_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
 
-    action = window()->findChild<QAction *>("actionBytes");
-    subsubmenu = new QMenu(action->text());
-    submenu->addMenu(subsubmenu);
+    action = window()->findChild<QAction *>("actionContextCopyBytesHexTextDump");
+    submenu->addAction(action);
+    copy_actions_ << action;
+    action = window()->findChild<QAction *>("actionContextCopyBytesHexDump");
+    submenu->addAction(action);
+    copy_actions_ << action;
+    action = window()->findChild<QAction *>("actionContextCopyBytesPrintableText");
+    submenu->addAction(action);
+    copy_actions_ << action;
+    action = window()->findChild<QAction *>("actionContextCopyBytesHexStream");
+    submenu->addAction(action);
+    copy_actions_ << action;
+    action = window()->findChild<QAction *>("actionContextCopyBytesBinary");
+    submenu->addAction(action);
+    copy_actions_ << action;
 
     //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
     //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
@@ -488,11 +514,14 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     }
     proto_prefs_menu_.setModule(module_name);
 
+    foreach (QAction *action, copy_actions_) {
+        action->setData(QVariant());
+    }
+
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
 
-    // Set menu sensitivity for the current column and fill in conversation
-    // actions.
+    // Set menu sensitivity for the current column and set action data.
     emit packetSelectionChanged();
 
     ctx_menu_.exec(event->globalPos());
@@ -1177,6 +1206,44 @@ void PacketList::sectionMoved(int, int, int)
     }
 
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
+}
+
+void PacketList::copySummary()
+{
+    if (!currentIndex().isValid()) return;
+
+    QAction *ca = qobject_cast<QAction*>(sender());
+    if (!ca) return;
+
+    bool ok = false;
+    int copy_type = ca->data().toInt(&ok);
+    if (!ok) return;
+
+    QStringList col_parts;
+    int row = currentIndex().row();
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+    }
+
+    QString copy_text;
+    switch (copy_type) {
+    case copy_summary_csv_:
+        copy_text = "\"";
+        copy_text += col_parts.join("\",\"");
+        copy_text += "\"";
+        break;
+    case copy_summary_yaml_:
+        copy_text = "----\n";
+        copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
+        copy_text += "- ";
+        copy_text += col_parts.join("\n- ");
+        copy_text += "\n";
+        break;
+    case copy_summary_text_:
+    default:
+        copy_text = col_parts.join("\t");
+    }
+    wsApp->clipboard()->setText(copy_text);
 }
 
 // We need to tell when the user has scrolled the packet list, either to

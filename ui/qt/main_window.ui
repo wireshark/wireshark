@@ -2285,24 +2285,44 @@
     <string>Show or hide the packet bytes</string>
    </property>
   </action>
-  <action name="actionFollow">
+  <action name="actionContextCopyBytesHexTextDump">
    <property name="text">
-    <string>Follow...</string>
+    <string>Copy Bytes as Hex + ASCII Dump</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy packet bytes as a hex and ASCII dump.</string>
    </property>
   </action>
-  <action name="actionSCTP">
+  <action name="actionContextCopyBytesHexDump">
    <property name="text">
-    <string>SCTP</string>
+    <string>…as Hex Dump</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy packet bytes as a hex dump.</string>
    </property>
   </action>
-  <action name="actionCopy">
+  <action name="actionContextCopyBytesPrintableText">
    <property name="text">
-    <string>Copy</string>
+    <string>…as Printable Text</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy only the printable text in the packet.</string>
    </property>
   </action>
-  <action name="actionBytes">
+  <action name="actionContextCopyBytesHexStream">
    <property name="text">
-    <string>Bytes</string>
+    <string>…as a Hex Stream</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy packet bytes as a stream of hex.</string>
+   </property>
+  </action>
+  <action name="actionContextCopyBytesBinary">
+   <property name="text">
+    <string>…as Raw Binary</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy packet bytes as application/octet-stream MIME data.</string>
    </property>
   </action>
   <action name="actionTelephonyVoipCalls">

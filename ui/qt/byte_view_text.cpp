@@ -38,6 +38,7 @@
 // - Add recent settings and context menu items to show/hide the offset,
 //   hex/bits, and ASCII/EBCDIC.
 // - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
+// - Add "copy bytes as" context menu items.
 
 // We don't obey the gui.hex_dump_highlight_style preference. If you
 // would like to add support for this you'll probably have to call
@@ -112,6 +113,18 @@ void ByteViewText::setFieldAppendixHighlight(int start, int end)
     fa_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
     fa_bound_save_ = f_bound_;
     viewport()->update();
+}
+
+const guint8 *ByteViewText::dataAndLength(guint *data_len_ptr)
+{
+    if (!tvb_) return NULL;
+
+    guint data_len = tvb_captured_length(tvb_);
+    if (data_len) {
+        *data_len_ptr = data_len;
+        return tvb_get_ptr(tvb_, 0, -1);
+    }
+    return NULL;
 }
 
 void ByteViewText::setMonospaceFont(const QFont &mono_font)

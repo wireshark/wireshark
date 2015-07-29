@@ -51,6 +51,7 @@ private:
     QMenu conv_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
+    QList<QAction *> copy_actions_;
     QFont mono_font_;
 
 signals:

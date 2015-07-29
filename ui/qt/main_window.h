@@ -525,6 +525,12 @@ private slots:
 
     void externalMenuItem_triggered();
 
+    void on_actionContextCopyBytesHexTextDump_triggered();
+    void on_actionContextCopyBytesHexDump_triggered();
+    void on_actionContextCopyBytesPrintableText_triggered();
+    void on_actionContextCopyBytesHexStream_triggered();
+    void on_actionContextCopyBytesBinary_triggered();
+
     void changeEvent(QEvent* event);
 
 #if HAVE_EXTCAP
