@@ -85,7 +85,7 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
 #endif
     itemSelectionChanged();
 
-    cap_file_.retapPackets();
+    cap_file_.delayedRetapPackets();
 }
 
 EndpointDialog::~EndpointDialog()

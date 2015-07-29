@@ -68,10 +68,6 @@ public:
      */
     const QString fileName();
 
-    /** Retap the capture file
-     */
-    void retapPackets();
-
     /** Re;load the capture file
      */
     void reload();
@@ -107,11 +103,26 @@ signals:
     void captureCaptureFailed(capture_session *cap_session);
 
 public slots:
+    /** Retap the capture file. Convenience wrapper for cf_retap_packets.
+     * Application events are processed periodically via update_progress_dlg.
+     */
+    void retapPackets();
+
+    /** Retap the capture file after the current batch of application events
+     * is processed. If you call this instead of retapPackets or
+     * cf_retap_packets in a dialog's constructor it will be displayed before
+     * tapping starts.
+     */
+    void delayedRetapPackets();
+
     /** Cancel any tapping that might be in progress.
      */
     void stopLoading();
 
-    // XXX Not used.
+    /** Sets the capture file's "stop_flag" member.
+     *
+     * @param stop_flag If true, stops the current capture file operation.
+     */
     void setCaptureStopFlag(bool stop_flag = true);
 
 private:

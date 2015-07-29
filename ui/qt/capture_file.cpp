@@ -36,6 +36,7 @@ capture_file cfile;
 #include "ui/capture.h"
 
 #include <QFileInfo>
+#include <QTimer>
 
 // To do:
 // - Add getters and (if needed) setters:
@@ -94,6 +95,11 @@ void CaptureFile::retapPackets()
     if (cap_file_) {
         cf_retap_packets(cap_file_);
     }
+}
+
+void CaptureFile::delayedRetapPackets()
+{
+    QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
 
 void CaptureFile::reload()

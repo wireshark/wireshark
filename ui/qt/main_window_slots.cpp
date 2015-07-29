@@ -2528,8 +2528,8 @@ void MainWindow::openFollowStreamDialog(follow_type_t type) {
     connect(fsd, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 
-    fsd->follow(getFilter());
     fsd->show();
+    fsd->follow(getFilter());
 }
 
 void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()

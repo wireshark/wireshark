@@ -262,7 +262,7 @@ void ResponseTimeDelayDialog::fillTree()
 
     statsTreeWidget()->setSortingEnabled(false);
 
-    cf_retap_packets(cap_file_.capFile());
+    cap_file_.retapPackets();
 
     tapDraw(&rtd_data);
 

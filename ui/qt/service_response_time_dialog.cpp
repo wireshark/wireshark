@@ -317,7 +317,7 @@ void ServiceResponseTimeDialog::fillTree()
 
     statsTreeWidget()->setSortingEnabled(false);
 
-    cf_retap_packets(cap_file_.capFile());
+    cap_file_.retapPackets();
 
     // We only have one table. Move its tree items up one level.
     if (statsTreeWidget()->invisibleRootItem()->childCount() == 1) {

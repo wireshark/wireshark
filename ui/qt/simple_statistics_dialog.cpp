@@ -261,7 +261,7 @@ void SimpleStatisticsDialog::fillTree()
         reject();
     }
 
-    cf_retap_packets(cap_file_.capFile());
+    cap_file_.retapPackets();
 
     tapDraw(&stat_data);
 

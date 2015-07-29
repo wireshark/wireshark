@@ -192,7 +192,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     updateWidgets();
 
     tapinfo_.session = cap_file_.capFile()->epan;
-    cap_file_.retapPackets();
+    cap_file_.delayedRetapPackets();
 }
 
 VoipCallsDialog::~VoipCallsDialog()

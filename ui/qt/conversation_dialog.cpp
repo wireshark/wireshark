@@ -98,7 +98,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     updateWidgets();
     itemSelectionChanged();
 
-    cap_file_.retapPackets();
+    cap_file_.delayedRetapPackets();
 }
 
 ConversationDialog::~ConversationDialog()
@@ -228,7 +228,7 @@ void ConversationDialog::followStream()
     }
 
     emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
-    openFollowStreamDialog(ftype);
+    emit openFollowStreamDialog(ftype);
 }
 
 void ConversationDialog::graphTcp()
