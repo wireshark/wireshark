@@ -1102,18 +1102,15 @@ void MainWindow::setMenusForSelectedPacket()
             colorize_action->setProperty(color_number_property_, i++);
             colorize_action->setData(filter);
             colorize_action->setEnabled(enable);
-            connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizePacketConversation()));
+            connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
         }
 
         QAction *conv_rule_action = submenu->addAction(main_ui_->actionViewColorizeNewConversationRule->text());
         conv_rule_action->setData(conv_action->data());
         conv_rule_action->setEnabled(enable);
-        connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizePacketConversation()));
+        connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
     }
 
-
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
-//                         frame_selected);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
@@ -1124,20 +1121,6 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
     main_ui_->actionTelephonyRTPStreamAnalysis->setEnabled(is_rtp);
-
-//    while (list_entry != NULL) {
-//        dissector_filter_t *filter_entry;
-//        gchar *path;
-
-//        filter_entry = list_entry->data;
-//        path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
-
-//        set_menu_sensitivity(ui_manager_main_menubar, path,
-//            menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
-//        g_free(path);
-//        i++;
-//        list_entry = g_list_next(list_entry);
-//    }
 }
 
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
@@ -1151,6 +1134,14 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     bool is_framenum = false;
     bool have_field_info = false;
     bool have_subtree = false;
+    QString field_filter;
+
+    QList<QAction *> cc_actions = QList<QAction *>()
+            << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
+            << main_ui_->actionViewColorizeConversation3 << main_ui_->actionViewColorizeConversation4
+            << main_ui_->actionViewColorizeConversation5 << main_ui_->actionViewColorizeConversation6
+            << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
+            << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
     if (capture_file_.capFile()) {
         capture_file_.capFile()->finfo_selected = fi;
@@ -1167,36 +1158,47 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
         is_framenum = hfinfo && hfinfo->type == FT_FRAMENUM ? true : false;
 
-        main_ui_->menuConversationFilter->clear();
-        for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
-            color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
-            QAction *conv_action = main_ui_->menuConversationFilter->addAction(color_filter->display_name);
-
-            bool enable = false;
-            QString filter;
-            if (capture_file_.capFile()->edt) {
-                enable = color_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
-                filter = color_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
-            }
-            conv_action->setEnabled(enable);
-            conv_action->setData(filter);
-            connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
-        }
+        char *tmp_field = proto_construct_match_selected_string(fi, capture_file_.capFile()->edt);
+        field_filter = QString(tmp_field);
+        wmem_free(NULL, tmp_field);
     }
+
+    main_ui_->menuConversationFilter->clear();
+    for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
+        color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
+        QAction *conv_action = main_ui_->menuConversationFilter->addAction(color_filter->display_name);
+
+        bool conv_enable = false;
+        QString conv_filter;
+        if (capture_file_.capFile() && capture_file_.capFile()->edt) {
+            conv_enable = color_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
+            conv_filter = color_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
+        }
+        conv_action->setEnabled(conv_enable);
+        conv_action->setData(conv_filter);
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
+    }
+
+    proto_tree_->colorizeMenu()->clear();
+    int i = 1;
+    foreach (QAction *cc_action, cc_actions) {
+        QAction *colorize_action = proto_tree_->colorizeMenu()->addAction(cc_action->icon(), cc_action->text());
+        colorize_action->setProperty(color_number_property_, i++);
+        colorize_action->setData(field_filter);
+        colorize_action->setEnabled(!field_filter.isEmpty());
+        connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+    }
+
+    QAction *conv_rule_action = proto_tree_->colorizeMenu()->addAction(main_ui_->actionViewColorizeNewConversationRule->text());
+    conv_rule_action->setData(field_filter);
+    conv_rule_action->setEnabled(!field_filter.isEmpty());
+    connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
 
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
 //                             TRUE);
 
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn",
-//                             hfinfo->type != FT_NONE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol",
-//                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
-//                             cf->finfo_selected->tree_type != -1);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
 //                             (id == -1) ? FALSE : TRUE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
@@ -1205,25 +1207,12 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
 //        set_menu_sensitivity(ui_manager_main_menubar,
 //                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Value",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CreateAColumn", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter", FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol", FALSE);
 //    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees", FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
 //                             FALSE);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
@@ -2227,7 +2216,7 @@ void MainWindow::colorizeConversation(bool create_rule)
     setMenusForSelectedPacket();
 }
 
-void MainWindow::colorizePacketConversation()
+void MainWindow::colorizeWithFilter()
 {
     QAction *colorize_action = qobject_cast<QAction *>(sender());
     if (!colorize_action) return;

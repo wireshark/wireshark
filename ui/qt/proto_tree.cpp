@@ -200,22 +200,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         conv_menu_.setTitle(main_conv_menu->title());
         ctx_menu_.addMenu(&conv_menu_);
 
-//    action = window()->findChild<QAction *>("actionColorize_with_Filter");
-//    submenu = new QMenu();
-//    action->setMenu(submenu);
-//    ctx_menu_.addAction(action);
-//    "       <menuitem name='Color1' action='/Colorize with Filter/Color 1'/>\n"
-//    "       <menuitem name='Color2' action='/Colorize with Filter/Color 2'/>\n"
-//    "       <menuitem name='Color3' action='/Colorize with Filter/Color 3'/>\n"
-//    "       <menuitem name='Color4' action='/Colorize with Filter/Color 4'/>\n"
-//    "       <menuitem name='Color5' action='/Colorize with Filter/Color 5'/>\n"
-//    "       <menuitem name='Color6' action='/Colorize with Filter/Color 6'/>\n"
-//    "       <menuitem name='Color7' action='/Colorize with Filter/Color 7'/>\n"
-//    "       <menuitem name='Color8' action='/Colorize with Filter/Color 8'/>\n"
-//    "       <menuitem name='Color9' action='/Colorize with Filter/Color 9'/>\n"
-//    "       <menuitem name='Color10' action='/Colorize with Filter/Color 10'/>\n"
-//    "       <menuitem name='NewColoringRule' action='/Colorize with Filter/New Coloring Rule'/>\n"
-//    "     </menu>\n"
+        colorize_menu_.setTitle(tr("Colorize with Filter"));
+        ctx_menu_.addMenu(&colorize_menu_);
 
         main_menu_item = window()->findChild<QMenu *>("menuFollow");
         submenu = new QMenu(main_menu_item->title());
