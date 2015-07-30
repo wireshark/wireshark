@@ -25,6 +25,7 @@
 # include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-smb.h"
 #include "packet-smb2.h"
@@ -334,6 +335,8 @@ static int SMB1 = 1;
 static int SMB2 = 2;
 
 void proto_reg_handoff_mswsp(void);
+
+static expert_field ei_missing_msg_context = EI_INIT;
 
 static int proto_mswsp = -1;
 static int hf_mswsp_msg = -1;
@@ -733,23 +736,25 @@ mswsp_init_protocol(void)
 static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_data, packet_info *pinfo, guint16 msg_id, gboolean is_request, void *data)
 {
 	struct message_data to_find;
+	struct message_data* msg_data = NULL;
 	GSList *result = NULL;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
 	to_find.is_request = is_request;
 	to_find.msg_id = msg_id;
 	to_find.smb_level = *p_smb_level;
-	if (!get_fid_and_frame(pinfo, &to_find.fid, &to_find.frame, data)) {
-		return NULL;
+	if (!get_fid_and_frame(pinfo, &to_find.fid, &to_find.frame, data) || !conv_data) {
+		return msg_data;
 	}
 	result = g_slist_find_custom(conv_data->GSL_message_data,
 								 &to_find, (GCompareFunc)msg_data_find);
 	if (!result) {
-		struct message_data *pdata = (struct message_data *)wmem_alloc(wmem_file_scope(), sizeof(struct message_data));
-		*pdata = to_find;
-		conv_data->GSL_message_data = g_slist_prepend(conv_data->GSL_message_data, pdata);
-		return pdata;
+		msg_data = (struct message_data *)wmem_alloc(wmem_file_scope(), sizeof(struct message_data));
+		*msg_data = to_find;
+		conv_data->GSL_message_data = g_slist_prepend(conv_data->GSL_message_data, msg_data);
+	} else {
+		msg_data = (struct message_data*)result->data;
 	}
-	return (struct message_data*)result->data;
+	return msg_data;
 }
 
 static struct mswsp_ct *get_create_converstation_data(packet_info *pinfo)
@@ -817,9 +822,8 @@ find_rowsin_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data
 	return result;
 }
 
-static gboolean is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
+static gboolean is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, gboolean *result, void *private_data)
 {
-	gboolean result = FALSE; /* default to 32 bit */
 	guint32 client_ver = 0;
 	guint32 server_ver = 0;
 	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xC8,
@@ -829,10 +833,11 @@ static gboolean is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, void *pri
 		data = find_matching_request_by_fid(ct, pinfo, 0xC8, FALSE, private_data);
 		if (data) {
 			server_ver = data->content.version;
-			result = (server_ver & 0xffff0000) && (client_ver & 0xffff0000);
+			*result = (server_ver & 0xffff0000) && (client_ver & 0xffff0000);
+			return TRUE;
 		}
 	}
-	return result;
+	return FALSE;
 }
 
 #define eSequential			0x00000001
@@ -5680,7 +5685,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	ct = get_create_converstation_data(pinfo);
 	if (in) {
 		/* 2.2.3.11 */
-		struct message_data *data = find_or_create_message_data(ct, pinfo, 0xCC, in, private_data);
+		struct message_data *data = NULL;
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_hcursor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -5694,14 +5699,20 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_cbseek, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		data->content.rowsin.cbreserved = tvb_get_letohl(tvb, offset);
+		data = find_or_create_message_data(ct, pinfo, 0xCC, in, private_data);
+		if (data) {
+			data->content.rowsin.cbreserved = tvb_get_letohl(tvb, offset);
+		}
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_cbreserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_cbreadbuffer, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		data->content.rowsin.ulclientbase = tvb_get_letohl(tvb, offset);
+		if (data) {
+			data->content.rowsin.ulclientbase = tvb_get_letohl(tvb, offset);
+		}
+
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_ulclientbase, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
@@ -5750,9 +5761,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 											  private_data);
 		struct rows_data *rowsin = find_rowsin_msg_data(ct, pinfo, private_data);
 		gboolean b_64bit_mode = FALSE;
-		if (bindingsin && rowsin) {
-			b_64bit_mode = is_64bit_mode(ct, pinfo, private_data);
-		}
+		gboolean b_has_arch = is_64bit_mode(ct, pinfo, &b_64bit_mode, private_data);
 		num_rows = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_crowsreturned, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -5786,10 +5795,13 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		}
 		DISSECTOR_ASSERT(eType <=4);
 
-		if (bindingsin && rowsin) {
+		if (b_has_arch && bindingsin && rowsin) {
 			offset = parse_padding(tvb, offset, rowsin->cbreserved, pad_tree,
 								   "paddingRows");
 			parse_RowsBuffer(tvb, offset, num_rows, bindingsin, rowsin, b_64bit_mode, tree, "Rows");
+		} else {
+			gint nbytes = tvb_reported_length_remaining(tvb, offset);
+			proto_tree_add_expert_format(tree, pinfo, &ei_missing_msg_context, tvb, offset, nbytes, "Undissected %d bytes (due to missing preceding msg(s))", nbytes);
 		}
 	}
 
@@ -5918,7 +5930,6 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_acolumns, tvb, offset, size-4, ENC_NA);
 		ct = get_create_converstation_data(pinfo);
-		data = find_or_create_message_data(ct, pinfo, 0xD0, in, private_data);
 
 		request.acolumns = (struct CTableColumn*)wmem_alloc(wmem_file_scope(),
 						   sizeof(struct CTableColumn) * num);
@@ -5926,7 +5937,10 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			offset = parse_padding(tvb, offset, 4, pad_tree, "padding_aColumns[%u]", n);
 			offset = parse_CTableColumn(tvb, offset, tree, pad_tree, &request.acolumns[n],"aColumns[%u]", n);
 		}
-		data->content.bindingsin = request;
+		data = find_or_create_message_data(ct, pinfo,0xD0,in, private_data);
+		if (data) {
+			data->content.bindingsin = request;
+		}
 
 	} else { /* server only returns status with header */
 	}
@@ -6394,6 +6408,7 @@ dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean in, 
 void
 proto_register_mswsp(void)
 {
+	expert_module_t* expert_mswsp = NULL;
 	static hf_register_info hf[] = {
 		{
 			&hf_mswsp_hdr,
@@ -8012,6 +8027,9 @@ proto_register_mswsp(void)
 		&ett_mswsp_msg_creusewhere
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_missing_msg_context, { "mswsp.msg.cpmgetrows.missing_msg_context", PI_SEQUENCE, PI_WARN, "previous messages needed for context not captured", EXPFILL }}
+	};
 	int i;
 
 	proto_mswsp = proto_register_protocol("Windows Search Protocol",
@@ -8019,7 +8037,8 @@ proto_register_mswsp(void)
 
 	proto_register_field_array(proto_mswsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
+	expert_mswsp = expert_register_protocol(proto_mswsp);
+	expert_register_field_array(expert_mswsp, ei, array_length(ei));
 	for (i=0; i<(int)array_length(GuidPropertySet); i++) {
 		guids_add_guid(&GuidPropertySet[i].guid, GuidPropertySet[i].def);
 	}
