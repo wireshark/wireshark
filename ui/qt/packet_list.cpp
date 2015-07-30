@@ -279,22 +279,6 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
     ctx_menu_.addSeparator();
 
-    main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title());
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
-
-    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    submenu = new QMenu(main_menu_item->title());
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
-
-    ctx_menu_.addSeparator();
-
     main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
     submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
@@ -332,6 +316,14 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
+
+    main_menu_item = window()->findChild<QMenu *>("menuFollow");
+    submenu = new QMenu(main_menu_item->title());
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
 
     ctx_menu_.addSeparator();
 

@@ -216,15 +216,18 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "       <menuitem name='Color10' action='/Colorize with Filter/Color 10'/>\n"
 //    "       <menuitem name='NewColoringRule' action='/Colorize with Filter/New Coloring Rule'/>\n"
 //    "     </menu>\n"
-//    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
-//    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
-//    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+
+        main_menu_item = window()->findChild<QMenu *>("menuFollow");
+        submenu = new QMenu(main_menu_item->title());
+        ctx_menu_.addMenu(submenu);
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
         ctx_menu_.addSeparator();
 
         main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
         submenu = new QMenu(main_menu_item->title());
         ctx_menu_.addMenu(submenu);
-
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
@@ -251,8 +254,11 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(action);
         copy_actions_ << action;
 
-//    "     <menuitem name='ExportSelectedPacketBytes' action='/ExportSelectedPacketBytes'/>\n"
-//    ctx_menu_.addSeparator();
+        action = window()->findChild<QAction *>("actionFileExportPacketBytes");
+        ctx_menu_.addAction(action);
+
+        ctx_menu_.addSeparator();
+
 //    "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
 //    "     <menuitem name='FilterFieldReference' action='/FilterFieldReference'/>\n"
 //    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"

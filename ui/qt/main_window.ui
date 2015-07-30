@@ -1577,7 +1577,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Follow TCP Stream</string>
+    <string>TCP Stream</string>
    </property>
   </action>
   <action name="actionAnalyzeFollowUDPStream">
@@ -1585,7 +1585,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Follow UDP Stream</string>
+    <string>UDP Stream</string>
    </property>
   </action>
   <action name="actionAnalyzeFollowSSLStream">
@@ -1593,7 +1593,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Follow SSL Stream</string>
+    <string>SSL Stream</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">
