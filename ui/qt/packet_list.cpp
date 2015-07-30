@@ -350,6 +350,9 @@ PacketList::PacketList(QWidget *parent) :
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
 
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+    submenu->addSeparator();
+
     action = window()->findChild<QAction *>("actionContextCopyBytesHexTextDump");
     submenu->addAction(action);
     copy_actions_ << action;

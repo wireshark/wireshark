@@ -231,8 +231,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyFieldName"));
         submenu->addAction(window()->findChild<QAction *>("actionEditCopyValue"));
         submenu->addSeparator();
-        submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
 
+        submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
         submenu->addSeparator();
 
         action = window()->findChild<QAction *>("actionContextCopyBytesHexTextDump");
@@ -251,15 +251,6 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(action);
         copy_actions_ << action;
 
-//    "        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
-//    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
-//    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
-//    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
-//    "           <separator/>\n"
-//    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
-//    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
-//    "        </menu>\n"
-//    "     </menu>\n"
 //    "     <menuitem name='ExportSelectedPacketBytes' action='/ExportSelectedPacketBytes'/>\n"
 //    ctx_menu_.addSeparator();
 //    "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
@@ -269,7 +260,6 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
         decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
         ctx_menu_.addAction(decode_as_);
-//    "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
 //    "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
 //    "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewShowPacketReferenceInNewWindow"));
