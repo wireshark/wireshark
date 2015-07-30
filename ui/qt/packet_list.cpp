@@ -339,13 +339,13 @@ PacketList::PacketList(QWidget *parent) :
     submenu = new QMenu(main_menu_item->title());
     ctx_menu_.addMenu(submenu);
 
-    action = submenu->addAction(tr("Summary (Text)"));
+    action = submenu->addAction(tr("Summary as Text"));
     action->setData(copy_summary_text_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr("Summary (CSV)"));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " as CSV"));
     action->setData(copy_summary_csv_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr("Summary (YAML)"));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " as YAML"));
     action->setData(copy_summary_yaml_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
@@ -369,12 +369,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(action);
     copy_actions_ << action;
 
-    //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
-    //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
-    //    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
-//    ctx_menu_.addSeparator();
-//    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
-//    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
     ctx_menu_.addSeparator();
     ctx_menu_.addMenu(&proto_prefs_menu_);
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");

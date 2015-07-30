@@ -1144,12 +1144,12 @@
   </action>
   <action name="actionCopyAllVisibleItems">
    <property name="text">
-    <string>Copy All Visible Items</string>
+    <string>All Visible Items</string>
    </property>
   </action>
   <action name="actionCopyAllVisibleSelectedTreeItems">
    <property name="text">
-    <string>Copy All Visible Selected Tree Items</string>
+    <string>All Visible Selected Tree Items</string>
    </property>
   </action>
   <action name="actionEditCopyFieldName">
@@ -2287,7 +2287,7 @@
   </action>
   <action name="actionContextCopyBytesHexTextDump">
    <property name="text">
-    <string>Copy Bytes as Hex + ASCII Dump</string>
+    <string>Bytes as Hex + ASCII Dump</string>
    </property>
    <property name="toolTip">
     <string>Copy packet bytes as a hex and ASCII dump.</string>
