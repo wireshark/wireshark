@@ -144,6 +144,7 @@ static int hf_tcp_urgent_pointer = -1;
 static int hf_tcp_analysis = -1;
 static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_bytes_in_flight = -1;
+static int hf_tcp_analysis_push_bytes_sent = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
 static int hf_tcp_analysis_first_rtt = -1;
@@ -909,6 +910,10 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
+    tcpd->flow1.push_bytes_sent = 0;
+    tcpd->flow2.push_bytes_sent = 0;
+    tcpd->flow1.push_set_last = FALSE;
+    tcpd->flow2.push_set_last = FALSE;
     tcpd->stream = tcp_stream_count++;
     tcpd->server_port = 0;
 
@@ -1738,6 +1743,23 @@ finished_checking_retransmission_type:
             }
             tcpd->ta->bytes_in_flight = in_flight;
         }
+
+        if((flags & TH_PUSH) && !tcpd->fwd->push_set_last) {
+          tcpd->fwd->push_bytes_sent += seglen;
+          tcpd->fwd->push_set_last = TRUE;
+        } else if ((flags & TH_PUSH) && tcpd->fwd->push_set_last) {
+          tcpd->fwd->push_bytes_sent = seglen;
+          tcpd->fwd->push_set_last = TRUE;
+        } else if (tcpd->fwd->push_set_last) {
+          tcpd->fwd->push_bytes_sent = seglen;
+          tcpd->fwd->push_set_last = FALSE;
+        } else {
+          tcpd->fwd->push_bytes_sent += seglen;
+        }
+        if(!tcpd->ta) {
+          tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
+        }
+        tcpd->ta->push_bytes_sent = tcpd->fwd->push_bytes_sent;
     }
 
 }
@@ -2042,6 +2064,24 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
 
 
 static void
+tcp_sequence_number_analysis_print_push_bytes_sent(packet_info * pinfo _U_,
+                          tvbuff_t * tvb _U_,
+                          proto_tree * flags_tree _U_,
+                          struct tcp_acked *ta
+                        )
+{
+    proto_item * flags_item;
+
+    if (tcp_track_bytes_in_flight) {
+        flags_item=proto_tree_add_uint(flags_tree,
+                                       hf_tcp_analysis_push_bytes_sent,
+                                       tvb, 0, 0, ta->push_bytes_sent);
+
+        PROTO_ITEM_SET_GENERATED(flags_item);
+    }
+}
+
+static void
 tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
                           struct tcp_analysis *tcpd, guint32 seq, guint32 ack)
 {
@@ -2088,6 +2128,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
     if(ta->bytes_in_flight) {
         /* print results for amount of data in flight */
         tcp_sequence_number_analysis_print_bytes_in_flight(pinfo, tvb, tree, ta);
+        tcp_sequence_number_analysis_print_push_bytes_sent(pinfo, tvb, tree, ta);
     }
 
     if(ta->flags) {
@@ -5902,6 +5943,10 @@ proto_register_tcp(void)
         { &hf_tcp_analysis_bytes_in_flight,
           { "Bytes in flight",            "tcp.analysis.bytes_in_flight", FT_UINT32, BASE_DEC, NULL, 0x0,
             "How many bytes are now in flight for this connection", HFILL}},
+
+        { &hf_tcp_analysis_push_bytes_sent,
+          { "Bytes sent since last PSH flag",            "tcp.analysis.push_bytes_sent", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "How many bytes have been sent since the last PSH flag", HFILL}},
 
         { &hf_tcp_analysis_ack_rtt,
           { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,

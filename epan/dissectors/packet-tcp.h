@@ -160,6 +160,7 @@ struct tcp_acked {
 	guint32 dupack_num;	/* dup ack number */
 	guint32 dupack_frame;	/* dup ack to frame # */
 	guint32 bytes_in_flight; /* number of bytes in flight */
+	guint32 push_bytes_sent; /* bytes since the last PSH flag */
 };
 
 /* One instance of this structure is created for each pdu that spans across
@@ -261,6 +262,8 @@ typedef struct _tcp_flow_t {
 	gint16  scps_capable;   /* flow advertised scps capabilities */
 	guint16 maxsizeacked;   /* 0 if not yet known */
 	gboolean valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
+	guint32 push_bytes_sent; /* bytes since the last PSH flag */
+	gboolean push_set_last; /* tracking last time PSH flag was set */
 
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.
