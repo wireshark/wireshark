@@ -1207,6 +1207,247 @@ struct _SslDecompress {
 gint ssl_get_keyex_alg(gint cipher)
 {
     switch(cipher) {
+    case 0x0017:
+    case 0x0018:
+    case 0x0019:
+    case 0x001a:
+    case 0x001b:
+    case 0x0034:
+    case 0x003a:
+    case 0x0046:
+    case 0x006c:
+    case 0x006d:
+    case 0x0089:
+    case 0x009b:
+    case 0x00a6:
+    case 0x00a7:
+    case 0x00bf:
+    case 0x00c5:
+    case 0xc084:
+    case 0xc085:
+        return KEX_DH_ANON;
+    case 0x000b:
+    case 0x000c:
+    case 0x000d:
+    case 0x0030:
+    case 0x0036:
+    case 0x003e:
+    case 0x0042:
+    case 0x0068:
+    case 0x0085:
+    case 0x0097:
+    case 0x00a4:
+    case 0x00a5:
+    case 0x00bb:
+    case 0x00c1:
+    case 0xc082:
+    case 0xc083:
+        return KEX_DH_DSS;
+    case 0x000e:
+    case 0x000f:
+    case 0x0010:
+    case 0x0031:
+    case 0x0037:
+    case 0x003f:
+    case 0x0043:
+    case 0x0069:
+    case 0x0086:
+    case 0x0098:
+    case 0x00a0:
+    case 0x00a1:
+    case 0x00bc:
+    case 0x00c2:
+    case 0xc07e:
+    case 0xc07f:
+        return KEX_DH_RSA;
+    case 0x0011:
+    case 0x0012:
+    case 0x0013:
+    case 0x0032:
+    case 0x0038:
+    case 0x0040:
+    case 0x0044:
+    case 0x0063:
+    case 0x0065:
+    case 0x0066:
+    case 0x006a:
+    case 0x0087:
+    case 0x0099:
+    case 0x00a2:
+    case 0x00a3:
+    case 0x00bd:
+    case 0x00c3:
+    case 0xc080:
+    case 0xc081:
+        return KEX_DHE_DSS;
+    case 0x002d:
+    case 0x008e:
+    case 0x008f:
+    case 0x0090:
+    case 0x0091:
+    case 0x00aa:
+    case 0x00ab:
+    case 0x00b2:
+    case 0x00b3:
+    case 0x00b4:
+    case 0x00b5:
+    case 0xc090:
+    case 0xc091:
+    case 0xc096:
+    case 0xc097:
+    case 0xc0a6:
+    case 0xc0a7:
+    case 0xc0aa:
+    case 0xc0ab:
+    case 0xe41c:
+    case 0xe41d:
+        return KEX_DHE_PSK;
+    case 0x0014:
+    case 0x0015:
+    case 0x0016:
+    case 0x0033:
+    case 0x0039:
+    case 0x0045:
+    case 0x0067:
+    case 0x006b:
+    case 0x0088:
+    case 0x009a:
+    case 0x009e:
+    case 0x009f:
+    case 0x00be:
+    case 0x00c4:
+    case 0xc07c:
+    case 0xc07d:
+    case 0xc09e:
+    case 0xc09f:
+    case 0xc0a2:
+    case 0xc0a3:
+    case 0xe41e:
+    case 0xe41f:
+        return KEX_DHE_RSA;
+    case 0xc015:
+    case 0xc016:
+    case 0xc017:
+    case 0xc018:
+    case 0xc019:
+        return KEX_ECDH_ANON;
+    case 0xc001:
+    case 0xc002:
+    case 0xc003:
+    case 0xc004:
+    case 0xc005:
+    case 0xc025:
+    case 0xc026:
+    case 0xc02d:
+    case 0xc02e:
+    case 0xc074:
+    case 0xc075:
+    case 0xc088:
+    case 0xc089:
+        return KEX_ECDH_ECDSA;
+    case 0xc00b:
+    case 0xc00c:
+    case 0xc00d:
+    case 0xc00e:
+    case 0xc00f:
+    case 0xc029:
+    case 0xc02a:
+    case 0xc031:
+    case 0xc032:
+    case 0xc078:
+    case 0xc079:
+    case 0xc08c:
+    case 0xc08d:
+        return KEX_ECDH_RSA;
+    case 0xc006:
+    case 0xc007:
+    case 0xc008:
+    case 0xc009:
+    case 0xc00a:
+    case 0xc023:
+    case 0xc024:
+    case 0xc02b:
+    case 0xc02c:
+    case 0xc072:
+    case 0xc073:
+    case 0xc086:
+    case 0xc087:
+    case 0xc0ac:
+    case 0xc0ad:
+    case 0xc0ae:
+    case 0xc0af:
+    case 0xe414:
+    case 0xe415:
+        return KEX_ECDHE_ECDSA;
+    case 0xc033:
+    case 0xc034:
+    case 0xc035:
+    case 0xc036:
+    case 0xc037:
+    case 0xc038:
+    case 0xc039:
+    case 0xc03a:
+    case 0xc03b:
+    case 0xc09a:
+    case 0xc09b:
+    case 0xe418:
+    case 0xe419:
+        return KEX_ECDHE_PSK;
+    case 0xc010:
+    case 0xc011:
+    case 0xc012:
+    case 0xc013:
+    case 0xc014:
+    case 0xc027:
+    case 0xc028:
+    case 0xc02f:
+    case 0xc030:
+    case 0xc076:
+    case 0xc077:
+    case 0xc08a:
+    case 0xc08b:
+    case 0xe412:
+    case 0xe413:
+        return KEX_ECDHE_RSA;
+    case 0x001e:
+    case 0x001f:
+    case 0x0020:
+    case 0x0021:
+    case 0x0022:
+    case 0x0023:
+    case 0x0024:
+    case 0x0025:
+    case 0x0026:
+    case 0x0027:
+    case 0x0028:
+    case 0x0029:
+    case 0x002a:
+    case 0x002b:
+        return KEX_KRB5;
+    case 0x002c:
+    case 0x008a:
+    case 0x008b:
+    case 0x008c:
+    case 0x008d:
+    case 0x00a8:
+    case 0x00a9:
+    case 0x00ae:
+    case 0x00af:
+    case 0x00b0:
+    case 0x00b1:
+    case 0xc064:
+    case 0xc065:
+    case 0xc08e:
+    case 0xc08f:
+    case 0xc094:
+    case 0xc095:
+    case 0xc0a4:
+    case 0xc0a5:
+    case 0xc0a8:
+    case 0xc0a9:
+    case 0xe416:
+    case 0xe417:
+        return KEX_PSK;
     case 0x0001:
     case 0x0002:
     case 0x0003:
@@ -1233,199 +1474,49 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0x009d:
     case 0x00ba:
     case 0x00c0:
+    case 0xc07a:
+    case 0xc07b:
+    case 0xc09c:
+    case 0xc09d:
+    case 0xc0a0:
+    case 0xc0a1:
+    case 0xe410:
+    case 0xe411:
     case 0xfefe:
     case 0xfeff:
     case 0xffe0:
     case 0xffe1:
         return KEX_RSA;
-    case 0x000b:
-    case 0x000c:
-    case 0x000d:
-    case 0x000e:
-    case 0x000f:
-    case 0x0010:
-    case 0x0011:
-    case 0x0012:
-    case 0x0013:
-    case 0x0014:
-    case 0x0015:
-    case 0x0016:
-    case 0x0017:
-    case 0x0018:
-    case 0x0019:
-    case 0x001a:
-    case 0x001b:
-    case 0x002d:
-    case 0x0030:
-    case 0x0031:
-    case 0x0032:
-    case 0x0033:
-    case 0x0034:
-    case 0x0036:
-    case 0x0037:
-    case 0x0038:
-    case 0x0039:
-    case 0x003a:
-    case 0x003e:
-    case 0x003f:
-    case 0x0040:
-    case 0x0042:
-    case 0x0043:
-    case 0x0044:
-    case 0x0045:
-    case 0x0046:
-    case 0x0063:
-    case 0x0065:
-    case 0x0066:
-    case 0x0067:
-    case 0x0068:
-    case 0x0069:
-    case 0x006a:
-    case 0x006b:
-    case 0x006c:
-    case 0x006d:
-    case 0x0085:
-    case 0x0086:
-    case 0x0087:
-    case 0x0088:
-    case 0x0089:
-    case 0x008e:
-    case 0x008f:
-    case 0x0090:
-    case 0x0091:
-    case 0x0097:
-    case 0x0098:
-    case 0x0099:
-    case 0x009a:
-    case 0x009b:
-    case 0x009e:
-    case 0x009f:
-    case 0x00a0:
-    case 0x00a1:
-    case 0x00a2:
-    case 0x00a3:
-    case 0x00a4:
-    case 0x00a5:
-    case 0x00a6:
-    case 0x00a7:
-    case 0x00aa:
-    case 0x00ab:
-    case 0x00b2:
-    case 0x00b3:
-    case 0x00b4:
-    case 0x00b5:
-    case 0x00bb:
-    case 0x00bc:
-    case 0x00bd:
-    case 0x00be:
-    case 0x00bf:
-    case 0x00c1:
-    case 0x00c2:
-    case 0x00c3:
-    case 0x00c4:
-    case 0x00c5:
-        return KEX_DH;
-    case 0xc001:
-    case 0xc002:
-    case 0xc003:
-    case 0xc004:
-    case 0xc005:
-    case 0xc006:
-    case 0xc007:
-    case 0xc008:
-    case 0xc009:
-    case 0xc00a:
-    case 0xc00b:
-    case 0xc00c:
-    case 0xc00d:
-    case 0xc00e:
-    case 0xc00f:
-    case 0xc010:
-    case 0xc011:
-    case 0xc012:
-    case 0xc013:
-    case 0xc014:
-    case 0xc015:
-    case 0xc016:
-    case 0xc017:
-    case 0xc018:
-    case 0xc019:
-    case 0xc023:
-    case 0xc024:
-    case 0xc025:
-    case 0xc026:
-    case 0xc027:
-    case 0xc028:
-    case 0xc029:
-    case 0xc02a:
-    case 0xc02b:
-    case 0xc02c:
-    case 0xc02d:
-    case 0xc02e:
-    case 0xc02f:
-    case 0xc030:
-    case 0xc031:
-    case 0xc032:
-    case 0xc033:
-    case 0xc034:
-    case 0xc035:
-    case 0xc036:
-    case 0xc037:
-    case 0xc038:
-    case 0xc039:
-    case 0xc03a:
-    case 0xc03b:
-    case 0xc0ac:
-    case 0xc0ad:
-    case 0xc0ae:
-    case 0xc0af:
-        return KEX_ECDH;
-    case 0x002C:
-    case 0x008A:
-    case 0x008B:
-    case 0x008C:
-    case 0x008D:
-    case 0x00A8:
-    case 0x00A9:
-    case 0x00AE:
-    case 0x00AF:
-    case 0x00B0:
-    case 0x00B1:
-    case 0xC064:
-    case 0xC065:
-    case 0xC06A:
-    case 0xC06B:
-    case 0xC08E:
-    case 0xC08F:
-    case 0xC094:
-    case 0xC095:
-    case 0xC0A4:
-    case 0xC0A5:
-    case 0xC0A8:
-    case 0xC0A9:
-    case 0xC0AA:
-    case 0xC0AB:
-        return KEX_PSK;
-    case 0x002E:
+    case 0x002e:
     case 0x0092:
     case 0x0093:
     case 0x0094:
     case 0x0095:
-    case 0x00AC:
-    case 0x00AD:
-    case 0x00B6:
-    case 0x00B7:
-    case 0x00B8:
-    case 0x00B9:
-    case 0xC068:
-    case 0xC069:
-    case 0xC06E:
-    case 0xC06F:
-    case 0xC092:
-    case 0xC093:
-    case 0xC098:
-    case 0xC099:
+    case 0x00ac:
+    case 0x00ad:
+    case 0x00b6:
+    case 0x00b7:
+    case 0x00b8:
+    case 0x00b9:
+    case 0xc092:
+    case 0xc093:
+    case 0xc098:
+    case 0xc099:
+    case 0xe41a:
+    case 0xe41b:
         return KEX_RSA_PSK;
+    case 0xc01a:
+    case 0xc01d:
+    case 0xc020:
+        return KEX_SRP_SHA;
+    case 0xc01c:
+    case 0xc01f:
+    case 0xc022:
+        return KEX_SRP_SHA_DSS;
+    case 0xc01b:
+    case 0xc01e:
+    case 0xc021:
+        return KEX_SRP_SHA_RSA;
     default:
         break;
     }
@@ -1853,252 +1944,252 @@ static const gchar *ciphers[]={
 };
 
 static SslCipherSuite cipher_suites[]={
-    {0x0001,KEX_RSA,    ENC_NULL,        1,  0,  0,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_MD5 */
-    {0x0002,KEX_RSA,    ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_SHA */
-    {0x0003,KEX_RSA,    ENC_RC4,         1,128, 40,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT_WITH_RC4_40_MD5 */
-    {0x0004,KEX_RSA,    ENC_RC4,         1,128,128,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_WITH_RC4_128_MD5 */
-    {0x0005,KEX_RSA,    ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_WITH_RC4_128_SHA */
-    {0x0006,KEX_RSA,    ENC_RC2,         8,128, 40,DIG_MD5,    MODE_CBC   },   /* TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5 */
-    {0x0007,KEX_RSA,    ENC_IDEA,        8,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_IDEA_CBC_SHA */
-    {0x0008,KEX_RSA,    ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_EXPORT_WITH_DES40_CBC_SHA */
-    {0x0009,KEX_RSA,    ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_DES_CBC_SHA */
-    {0x000A,KEX_RSA,    ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_3DES_EDE_CBC_SHA */
-    {0x000B,KEX_DH,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA */
-    {0x000C,KEX_DH,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_DES_CBC_SHA */
-    {0x000D,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA */
-    {0x000E,KEX_DH,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA */
-    {0x000F,KEX_DH,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_DES_CBC_SHA */
-    {0x0010,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA */
-    {0x0011,KEX_DH,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA */
-    {0x0012,KEX_DH,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_DES_CBC_SHA */
-    {0x0013,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA */
-    {0x0014,KEX_DH,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA */
-    {0x0015,KEX_DH,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_DES_CBC_SHA */
-    {0x0016,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA */
-    {0x0017,KEX_DH,     ENC_RC4,         1,128, 40,DIG_MD5,    MODE_STREAM},   /* TLS_DH_anon_EXPORT_WITH_RC4_40_MD5 */
-    {0x0018,KEX_DH,     ENC_RC4,         1,128,128,DIG_MD5,    MODE_STREAM},   /* TLS_DH_anon_WITH_RC4_128_MD5 */
-    {0x0019,KEX_DH,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA */
-    {0x001A,KEX_DH,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_DES_CBC_SHA */
-    {0x001B,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_3DES_EDE_CBC_SHA */
-    {0x002C,KEX_PSK,    ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA */
-    {0x002D,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA */
-    {0x002E,KEX_RSA_PSK,ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA */
-    {0x002F,KEX_RSA,    ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_AES_128_CBC_SHA */
-    {0x0030,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA */
-    {0x0031,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA */
-    {0x0032,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA */
-    {0x0033,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA */
-    {0x0034,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_AES_128_CBC_SHA */
-    {0x0035,KEX_RSA,    ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_AES_256_CBC_SHA */
-    {0x0036,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA */
-    {0x0037,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA */
-    {0x0038,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA */
-    {0x0039,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA */
-    {0x003A,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_AES_256_CBC_SHA */
-    {0x003B,KEX_RSA,    ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_RSA_WITH_NULL_SHA256 */
-    {0x003C,KEX_RSA,    ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_AES_128_CBC_SHA256 */
-    {0x003D,KEX_RSA,    ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_AES_256_CBC_SHA256 */
-    {0x003E,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA256 */
-    {0x003F,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA256 */
-    {0x0040,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 */
-    {0x0041,KEX_RSA,    ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0042,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0043,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0044,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0045,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0046,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA */
-    {0x0060,KEX_RSA,    ENC_RC4,         1,128, 56,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC4_56_MD5 */
-    {0x0061,KEX_RSA,    ENC_RC2,         1,128, 56,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5 */
-    {0x0062,KEX_RSA,    ENC_DES,         8, 64, 56,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA */
-    {0x0063,KEX_DH,     ENC_DES,         8, 64, 56,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA */
-    {0x0064,KEX_RSA,    ENC_RC4,         1,128, 56,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC4_56_SHA */
-    {0x0065,KEX_DH,     ENC_RC4,         1,128, 56,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA */
-    {0x0066,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_DSS_WITH_RC4_128_SHA */
-    {0x0067,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 */
-    {0x0068,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA256 */
-    {0x0069,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA256 */
-    {0x006A,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA256 */
-    {0x006B,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 */
-    {0x006C,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_AES_128_CBC_SHA256 */
-    {0x006D,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_AES_256_CBC_SHA256 */
-    {0x0084,KEX_RSA,    ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_256_CBC_SHA */
-    {0x0085,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA */
-    {0x0086,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA */
-    {0x0087,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA */
-    {0x0088,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA */
-    {0x0089,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA */
-    {0x008A,KEX_PSK,    ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_PSK_WITH_RC4_128_SHA */
-    {0x008B,KEX_PSK,    ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_3DES_EDE_CBC_SHA */
-    {0x008C,KEX_PSK,    ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_AES_128_CBC_SHA */
-    {0x008D,KEX_PSK,    ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_AES_256_CBC_SHA */
-    {0x008E,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_PSK_WITH_RC4_128_SHA */
-    {0x008F,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA */
-    {0x0090,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_128_CBC_SHA */
-    {0x0091,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_256_CBC_SHA */
-    {0x0092,KEX_RSA_PSK,ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_PSK_WITH_RC4_128_SHA */
-    {0x0093,KEX_RSA_PSK,ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA */
-    {0x0094,KEX_RSA_PSK,ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_128_CBC_SHA */
-    {0x0095,KEX_RSA_PSK,ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_256_CBC_SHA */
-    {0x0096,KEX_RSA,    ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_SEED_CBC_SHA */
-    {0x0097,KEX_DH,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_SEED_CBC_SHA */
-    {0x0098,KEX_DH,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_SEED_CBC_SHA */
-    {0x0099,KEX_DH,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_SEED_CBC_SHA */
-    {0x009A,KEX_DH,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_SEED_CBC_SHA */
-    {0x009B,KEX_DH,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_SEED_CBC_SHA */
-    {0x009C,KEX_RSA,    ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_WITH_AES_128_GCM_SHA256 */
-    {0x009D,KEX_RSA,    ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_WITH_AES_256_GCM_SHA384 */
-    {0x009E,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 */
-    {0x009F,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 */
-    {0x00A0,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_RSA_WITH_AES_128_GCM_SHA256 */
-    {0x00A1,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_RSA_WITH_AES_256_GCM_SHA384 */
-    {0x00A2,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_DSS_WITH_AES_128_GCM_SHA256 */
-    {0x00A3,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_DSS_WITH_AES_256_GCM_SHA384 */
-    {0x00A4,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_DSS_WITH_AES_128_GCM_SHA256 */
-    {0x00A5,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_DSS_WITH_AES_256_GCM_SHA384 */
-    {0x00A6,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_anon_WITH_AES_128_GCM_SHA256 */
-    {0x00A7,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_anon_WITH_AES_256_GCM_SHA384 */
-    {0x00A8,KEX_PSK,    ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_PSK_WITH_AES_128_GCM_SHA256 */
-    {0x00A9,KEX_PSK,    ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_PSK_WITH_AES_256_GCM_SHA384 */
-    {0x00AA,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_PSK_WITH_AES_128_GCM_SHA256 */
-    {0x00AB,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_PSK_WITH_AES_256_GCM_SHA384 */
-    {0x00AC,KEX_RSA_PSK,ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_PSK_WITH_AES_128_GCM_SHA256 */
-    {0x00AD,KEX_RSA_PSK,ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_PSK_WITH_AES_256_GCM_SHA384 */
-    {0x00AE,KEX_PSK,    ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_PSK_WITH_AES_128_CBC_SHA256 */
-    {0x00AF,KEX_PSK,    ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_PSK_WITH_AES_256_CBC_SHA384 */
-    {0x00B0,KEX_PSK,    ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA256 */
-    {0x00B1,KEX_PSK,    ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA384 */
-    {0x00B2,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_128_CBC_SHA256 */
-    {0x00B3,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_256_CBC_SHA384 */
-    {0x00B4,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA256 */
-    {0x00B5,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA384 */
-    {0x00B6,KEX_RSA_PSK,ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_128_CBC_SHA256 */
-    {0x00B7,KEX_RSA_PSK,ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_256_CBC_SHA384 */
-    {0x00B8,KEX_RSA_PSK,ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA256 */
-    {0x00B9,KEX_RSA_PSK,ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA384 */
-    {0x00BA,KEX_RSA,    ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00BB,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00BC,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00BD,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00BE,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00BF,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0x00C0,KEX_RSA,    ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0x00C1,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0x00C2,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0x00C3,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0x00C4,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0x00C5,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256 */
-    {0xC001,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_NULL_SHA */
-    {0xC002,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_RC4_128_SHA */
-    {0xC003,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA */
-    {0xC004,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA */
-    {0xC005,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */
-    {0xC006,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_ECDSA_WITH_NULL_SHA */
-    {0xC007,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_ECDSA_WITH_RC4_128_SHA */
-    {0xC008,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA */
-    {0xC009,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA */
-    {0xC00A,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA */
-    {0xC00B,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_RSA_WITH_NULL_SHA */
-    {0xC00C,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_RSA_WITH_RC4_128_SHA */
-    {0xC00D,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA */
-    {0xC00E,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA */
-    {0xC00F,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA */
-    {0xC010,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_NULL_SHA */
-    {0xC011,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_RC4_128_SHA */
-    {0xC012,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA */
-    {0xC013,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA */
-    {0xC014,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA */
-    {0xC015,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_anon_WITH_NULL_SHA */
-    {0xC016,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_anon_WITH_RC4_128_SHA */
-    {0xC017,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA */
-    {0xC018,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_128_CBC_SHA */
-    {0xC019,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_256_CBC_SHA */
-    {0xC023,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 */
-    {0xC024,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 */
-    {0xC025,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256 */
-    {0xC026,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384 */
-    {0xC027,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 */
-    {0xC028,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 */
-    {0xC029,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256 */
-    {0xC02A,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384 */
-    {0xC02B,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 */
-    {0xC02C,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 */
-    {0xC02D,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 */
-    {0xC02E,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384 */
-    {0xC02F,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 */
-    {0xC030,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */
-    {0xC031,KEX_DH,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 */
-    {0xC032,KEX_DH,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 */
-    {0xC033,KEX_DH,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_RC4_128_SHA */
-    {0xC034,KEX_DH,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA */
-    {0xC035,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA */
-    {0xC036,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA */
-    {0xC037,KEX_DH,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256 */
-    {0xC038,KEX_DH,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384 */
-    {0xC039,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA */
-    {0xC03A,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA256 */
-    {0xC03B,KEX_DH,     ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA384 */
-    {0xC072,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC073,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC074,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC075,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC076,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC077,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC078,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC079,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC07A,KEX_RSA,    ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC07B,KEX_RSA,    ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC07C,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC07D,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC07E,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC07F,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC080,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC081,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC082,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC083,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC084,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC085,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC086,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC087,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC088,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC089,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC08A,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC08B,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC08C,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC08D,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC08E,KEX_PSK,    ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC08F,KEX_PSK,    ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC090,KEX_DH,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC091,KEX_DH,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC092,KEX_RSA_PSK,ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
-    {0xC093,KEX_RSA_PSK,ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
-    {0xC094,KEX_PSK,    ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC095,KEX_PSK,    ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC096,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC097,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC098,KEX_RSA_PSK,ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC099,KEX_RSA_PSK,ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC09A,KEX_DH,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
-    {0xC09B,KEX_DH,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
-    {0xC09C,KEX_RSA,    ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_RSA_WITH_AES_128_CCM */
-    {0xC09D,KEX_RSA,    ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_RSA_WITH_AES_256_CCM */
-    {0xC09E,KEX_DH,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_DHE_RSA_WITH_AES_128_CCM */
-    {0xC09F,KEX_DH,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_DHE_RSA_WITH_AES_256_CCM */
-    {0xC0A0,KEX_RSA,    ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_RSA_WITH_AES_128_CCM_8 */
-    {0xC0A1,KEX_RSA,    ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_RSA_WITH_AES_256_CCM_8 */
-    {0xC0A2,KEX_DH,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_DHE_RSA_WITH_AES_128_CCM_8 */
-    {0xC0A3,KEX_DH,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_DHE_RSA_WITH_AES_256_CCM_8 */
-    {0xC0A4,KEX_PSK,    ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_PSK_WITH_AES_128_CCM */
-    {0xC0A5,KEX_PSK,    ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_PSK_WITH_AES_256_CCM */
-    {0xC0A6,KEX_DH,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_DHE_PSK_WITH_AES_128_CCM */
-    {0xC0A7,KEX_DH,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_DHE_PSK_WITH_AES_256_CCM */
-    {0xC0A8,KEX_PSK,    ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_WITH_AES_128_CCM_8 */
-    {0xC0A9,KEX_PSK,    ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_WITH_AES_256_CCM_8 */
-    {0xC0AA,KEX_DH,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_128_CCM_8 */
-    {0xC0AB,KEX_DH,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_256_CCM_8 */
-    {0xC0AC,KEX_ECDH,   ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM */
-    {0xC0AD,KEX_ECDH,   ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM */
-    {0xC0AE,KEX_ECDH,   ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 */
-    {0xC0AF,KEX_ECDH,   ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 */
+    {0x0001,KEX_RSA,         ENC_NULL,        1,  0,  0,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_MD5 */
+    {0x0002,KEX_RSA,         ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_WITH_NULL_SHA */
+    {0x0003,KEX_RSA,         ENC_RC4,         1,128, 40,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT_WITH_RC4_40_MD5 */
+    {0x0004,KEX_RSA,         ENC_RC4,         1,128,128,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_WITH_RC4_128_MD5 */
+    {0x0005,KEX_RSA,         ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_WITH_RC4_128_SHA */
+    {0x0006,KEX_RSA,         ENC_RC2,         8,128, 40,DIG_MD5,    MODE_CBC   },   /* TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5 */
+    {0x0007,KEX_RSA,         ENC_IDEA,        8,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_IDEA_CBC_SHA */
+    {0x0008,KEX_RSA,         ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_EXPORT_WITH_DES40_CBC_SHA */
+    {0x0009,KEX_RSA,         ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_DES_CBC_SHA */
+    {0x000A,KEX_RSA,         ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0x000B,KEX_DH_DSS,      ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA */
+    {0x000C,KEX_DH_DSS,      ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_DES_CBC_SHA */
+    {0x000D,KEX_DH_DSS,      ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA */
+    {0x000E,KEX_DH_RSA,      ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA */
+    {0x000F,KEX_DH_RSA,      ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_DES_CBC_SHA */
+    {0x0010,KEX_DH_RSA,      ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0x0011,KEX_DHE_DSS,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA */
+    {0x0012,KEX_DHE_DSS,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_DES_CBC_SHA */
+    {0x0013,KEX_DHE_DSS,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA */
+    {0x0014,KEX_DHE_RSA,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA */
+    {0x0015,KEX_DHE_RSA,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_DES_CBC_SHA */
+    {0x0016,KEX_DHE_RSA,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0x0017,KEX_DH_ANON,     ENC_RC4,         1,128, 40,DIG_MD5,    MODE_STREAM},   /* TLS_DH_anon_EXPORT_WITH_RC4_40_MD5 */
+    {0x0018,KEX_DH_ANON,     ENC_RC4,         1,128,128,DIG_MD5,    MODE_STREAM},   /* TLS_DH_anon_WITH_RC4_128_MD5 */
+    {0x0019,KEX_DH_ANON,     ENC_DES,         8, 64, 40,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA */
+    {0x001A,KEX_DH_ANON,     ENC_DES,         8, 64, 64,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_DES_CBC_SHA */
+    {0x001B,KEX_DH_ANON,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_3DES_EDE_CBC_SHA */
+    {0x002C,KEX_PSK,         ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA */
+    {0x002D,KEX_DHE_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA */
+    {0x002E,KEX_RSA_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA */
+    {0x002F,KEX_RSA,         ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_AES_128_CBC_SHA */
+    {0x0030,KEX_DH_DSS,      ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA */
+    {0x0031,KEX_DH_RSA,      ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA */
+    {0x0032,KEX_DHE_DSS,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA */
+    {0x0033,KEX_DHE_RSA,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA */
+    {0x0034,KEX_DH_ANON,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_AES_128_CBC_SHA */
+    {0x0035,KEX_RSA,         ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_AES_256_CBC_SHA */
+    {0x0036,KEX_DH_DSS,      ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA */
+    {0x0037,KEX_DH_RSA,      ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA */
+    {0x0038,KEX_DHE_DSS,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA */
+    {0x0039,KEX_DHE_RSA,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA */
+    {0x003A,KEX_DH_ANON,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_AES_256_CBC_SHA */
+    {0x003B,KEX_RSA,         ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_RSA_WITH_NULL_SHA256 */
+    {0x003C,KEX_RSA,         ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_AES_128_CBC_SHA256 */
+    {0x003D,KEX_RSA,         ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_AES_256_CBC_SHA256 */
+    {0x003E,KEX_DH_DSS,      ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA256 */
+    {0x003F,KEX_DH_RSA,      ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA256 */
+    {0x0040,KEX_DHE_DSS,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 */
+    {0x0041,KEX_RSA,         ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0042,KEX_DH_DSS,      ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0043,KEX_DH_RSA,      ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0044,KEX_DHE_DSS,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0045,KEX_DHE_RSA,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0046,KEX_DH_ANON,     ENC_CAMELLIA128,16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA */
+    {0x0060,KEX_RSA,         ENC_RC4,         1,128, 56,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC4_56_MD5 */
+    {0x0061,KEX_RSA,         ENC_RC2,         1,128, 56,DIG_MD5,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5 */
+    {0x0062,KEX_RSA,         ENC_DES,         8, 64, 56,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA */
+    {0x0063,KEX_DHE_DSS,     ENC_DES,         8, 64, 56,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA */
+    {0x0064,KEX_RSA,         ENC_RC4,         1,128, 56,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_EXPORT1024_WITH_RC4_56_SHA */
+    {0x0065,KEX_DHE_DSS,     ENC_RC4,         1,128, 56,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA */
+    {0x0066,KEX_DHE_DSS,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_DSS_WITH_RC4_128_SHA */
+    {0x0067,KEX_DHE_RSA,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 */
+    {0x0068,KEX_DH_DSS,      ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA256 */
+    {0x0069,KEX_DH_RSA,      ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA256 */
+    {0x006A,KEX_DHE_DSS,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA256 */
+    {0x006B,KEX_DHE_RSA,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 */
+    {0x006C,KEX_DH_ANON,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_AES_128_CBC_SHA256 */
+    {0x006D,KEX_DH_ANON,     ENC_AES256,     16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_AES_256_CBC_SHA256 */
+    {0x0084,KEX_RSA,         ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_256_CBC_SHA */
+    {0x0085,KEX_DH_DSS,      ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA */
+    {0x0086,KEX_DH_RSA,      ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA */
+    {0x0087,KEX_DHE_DSS,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA */
+    {0x0088,KEX_DHE_RSA,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA */
+    {0x0089,KEX_DH_ANON,     ENC_CAMELLIA256,16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA */
+    {0x008A,KEX_PSK,         ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_PSK_WITH_RC4_128_SHA */
+    {0x008B,KEX_PSK,         ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_3DES_EDE_CBC_SHA */
+    {0x008C,KEX_PSK,         ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_AES_128_CBC_SHA */
+    {0x008D,KEX_PSK,         ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_PSK_WITH_AES_256_CBC_SHA */
+    {0x008E,KEX_DHE_PSK,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_DHE_PSK_WITH_RC4_128_SHA */
+    {0x008F,KEX_DHE_PSK,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA */
+    {0x0090,KEX_DHE_PSK,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_128_CBC_SHA */
+    {0x0091,KEX_DHE_PSK,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_256_CBC_SHA */
+    {0x0092,KEX_RSA_PSK,     ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_RSA_PSK_WITH_RC4_128_SHA */
+    {0x0093,KEX_RSA_PSK,     ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA */
+    {0x0094,KEX_RSA_PSK,     ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_128_CBC_SHA */
+    {0x0095,KEX_RSA_PSK,     ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_256_CBC_SHA */
+    {0x0096,KEX_RSA,         ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_RSA_WITH_SEED_CBC_SHA */
+    {0x0097,KEX_DH_DSS,      ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_DSS_WITH_SEED_CBC_SHA */
+    {0x0098,KEX_DH_RSA,      ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_RSA_WITH_SEED_CBC_SHA */
+    {0x0099,KEX_DHE_DSS,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_DSS_WITH_SEED_CBC_SHA */
+    {0x009A,KEX_DHE_RSA,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DHE_RSA_WITH_SEED_CBC_SHA */
+    {0x009B,KEX_DH_ANON,     ENC_SEED,       16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_DH_anon_WITH_SEED_CBC_SHA */
+    {0x009C,KEX_RSA,         ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_WITH_AES_128_GCM_SHA256 */
+    {0x009D,KEX_RSA,         ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_WITH_AES_256_GCM_SHA384 */
+    {0x009E,KEX_DHE_RSA,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 */
+    {0x009F,KEX_DHE_RSA,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 */
+    {0x00A0,KEX_DH_RSA,      ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_RSA_WITH_AES_128_GCM_SHA256 */
+    {0x00A1,KEX_DH_RSA,      ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_RSA_WITH_AES_256_GCM_SHA384 */
+    {0x00A2,KEX_DHE_DSS,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_DSS_WITH_AES_128_GCM_SHA256 */
+    {0x00A3,KEX_DHE_DSS,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_DSS_WITH_AES_256_GCM_SHA384 */
+    {0x00A4,KEX_DH_DSS,      ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_DSS_WITH_AES_128_GCM_SHA256 */
+    {0x00A5,KEX_DH_DSS,      ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_DSS_WITH_AES_256_GCM_SHA384 */
+    {0x00A6,KEX_DH_ANON,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_anon_WITH_AES_128_GCM_SHA256 */
+    {0x00A7,KEX_DH_ANON,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_anon_WITH_AES_256_GCM_SHA384 */
+    {0x00A8,KEX_PSK,         ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_PSK_WITH_AES_128_GCM_SHA256 */
+    {0x00A9,KEX_PSK,         ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_PSK_WITH_AES_256_GCM_SHA384 */
+    {0x00AA,KEX_DHE_PSK,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_PSK_WITH_AES_128_GCM_SHA256 */
+    {0x00AB,KEX_DHE_PSK,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_PSK_WITH_AES_256_GCM_SHA384 */
+    {0x00AC,KEX_RSA_PSK,     ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_PSK_WITH_AES_128_GCM_SHA256 */
+    {0x00AD,KEX_RSA_PSK,     ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_PSK_WITH_AES_256_GCM_SHA384 */
+    {0x00AE,KEX_PSK,         ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_PSK_WITH_AES_128_CBC_SHA256 */
+    {0x00AF,KEX_PSK,         ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_PSK_WITH_AES_256_CBC_SHA384 */
+    {0x00B0,KEX_PSK,         ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA256 */
+    {0x00B1,KEX_PSK,         ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_PSK_WITH_NULL_SHA384 */
+    {0x00B2,KEX_DHE_PSK,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_128_CBC_SHA256 */
+    {0x00B3,KEX_DHE_PSK,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_DHE_PSK_WITH_AES_256_CBC_SHA384 */
+    {0x00B4,KEX_DHE_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA256 */
+    {0x00B5,KEX_DHE_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_DHE_PSK_WITH_NULL_SHA384 */
+    {0x00B6,KEX_RSA_PSK,     ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_128_CBC_SHA256 */
+    {0x00B7,KEX_RSA_PSK,     ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_RSA_PSK_WITH_AES_256_CBC_SHA384 */
+    {0x00B8,KEX_RSA_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA256 */
+    {0x00B9,KEX_RSA_PSK,     ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_RSA_PSK_WITH_NULL_SHA384 */
+    {0x00BA,KEX_RSA,         ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00BB,KEX_DH_DSS,      ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00BC,KEX_DH_RSA,      ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00BD,KEX_DHE_DSS,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00BE,KEX_DHE_RSA,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00BF,KEX_DH_ANON,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0x00C0,KEX_RSA,         ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0x00C1,KEX_DH_DSS,      ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0x00C2,KEX_DH_RSA,      ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0x00C3,KEX_DHE_DSS,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0x00C4,KEX_DHE_RSA,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0x00C5,KEX_DH_ANON,     ENC_CAMELLIA256,16,256,256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256 */
+    {0xC001,KEX_ECDH_ECDSA,  ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_NULL_SHA */
+    {0xC002,KEX_ECDH_ECDSA,  ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_RC4_128_SHA */
+    {0xC003,KEX_ECDH_ECDSA,  ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA */
+    {0xC004,KEX_ECDH_ECDSA,  ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA */
+    {0xC005,KEX_ECDH_ECDSA,  ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */
+    {0xC006,KEX_ECDHE_ECDSA, ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_ECDSA_WITH_NULL_SHA */
+    {0xC007,KEX_ECDHE_ECDSA, ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_ECDSA_WITH_RC4_128_SHA */
+    {0xC008,KEX_ECDHE_ECDSA, ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA */
+    {0xC009,KEX_ECDHE_ECDSA, ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA */
+    {0xC00A,KEX_ECDHE_ECDSA, ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA */
+    {0xC00B,KEX_ECDH_RSA,    ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_RSA_WITH_NULL_SHA */
+    {0xC00C,KEX_ECDH_RSA,    ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_RSA_WITH_RC4_128_SHA */
+    {0xC00D,KEX_ECDH_RSA,    ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0xC00E,KEX_ECDH_RSA,    ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA */
+    {0xC00F,KEX_ECDH_RSA,    ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA */
+    {0xC010,KEX_ECDHE_RSA,   ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_NULL_SHA */
+    {0xC011,KEX_ECDHE_RSA,   ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_RC4_128_SHA */
+    {0xC012,KEX_ECDHE_RSA,   ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0xC013,KEX_ECDHE_RSA,   ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA */
+    {0xC014,KEX_ECDHE_RSA,   ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA */
+    {0xC015,KEX_ECDH_ANON,   ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_anon_WITH_NULL_SHA */
+    {0xC016,KEX_ECDH_ANON,   ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_anon_WITH_RC4_128_SHA */
+    {0xC017,KEX_ECDH_ANON,   ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA */
+    {0xC018,KEX_ECDH_ANON,   ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_128_CBC_SHA */
+    {0xC019,KEX_ECDH_ANON,   ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_256_CBC_SHA */
+    {0xC023,KEX_ECDHE_ECDSA, ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 */
+    {0xC024,KEX_ECDHE_ECDSA, ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 */
+    {0xC025,KEX_ECDH_ECDSA,  ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256 */
+    {0xC026,KEX_ECDH_ECDSA,  ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384 */
+    {0xC027,KEX_ECDHE_RSA,   ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 */
+    {0xC028,KEX_ECDHE_RSA,   ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 */
+    {0xC029,KEX_ECDH_RSA,    ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256 */
+    {0xC02A,KEX_ECDH_RSA,    ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384 */
+    {0xC02B,KEX_ECDHE_ECDSA, ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 */
+    {0xC02C,KEX_ECDHE_ECDSA, ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 */
+    {0xC02D,KEX_ECDH_ECDSA,  ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 */
+    {0xC02E,KEX_ECDH_ECDSA,  ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384 */
+    {0xC02F,KEX_ECDHE_RSA,   ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 */
+    {0xC030,KEX_ECDHE_RSA,   ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */
+    {0xC031,KEX_ECDH_RSA,    ENC_AES,         4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 */
+    {0xC032,KEX_ECDH_RSA,    ENC_AES256,      4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 */
+    {0xC033,KEX_ECDHE_PSK,   ENC_RC4,         1,128,128,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_RC4_128_SHA */
+    {0xC034,KEX_ECDHE_PSK,   ENC_3DES,        8,192,192,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA */
+    {0xC035,KEX_ECDHE_PSK,   ENC_AES,        16,128,128,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA */
+    {0xC036,KEX_ECDHE_PSK,   ENC_AES256,     16,256,256,DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA */
+    {0xC037,KEX_ECDHE_PSK,   ENC_AES,        16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256 */
+    {0xC038,KEX_ECDHE_PSK,   ENC_AES256,     16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384 */
+    {0xC039,KEX_ECDHE_PSK,   ENC_NULL,        1,  0,  0,DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA */
+    {0xC03A,KEX_ECDHE_PSK,   ENC_NULL,        1,  0,  0,DIG_SHA256, MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA256 */
+    {0xC03B,KEX_ECDHE_PSK,   ENC_NULL,        1,  0,  0,DIG_SHA384, MODE_STREAM},   /* TLS_ECDHE_PSK_WITH_NULL_SHA384 */
+    {0xC072,KEX_ECDHE_ECDSA, ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC073,KEX_ECDHE_ECDSA, ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC074,KEX_ECDH_ECDSA,  ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC075,KEX_ECDH_ECDSA,  ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC076,KEX_ECDHE_RSA,   ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC077,KEX_ECDHE_RSA,   ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC078,KEX_ECDH_RSA,    ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC079,KEX_ECDH_RSA,    ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC07A,KEX_RSA,         ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC07B,KEX_RSA,         ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC07C,KEX_DHE_RSA,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC07D,KEX_DHE_RSA,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC07E,KEX_DH_RSA,      ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC07F,KEX_DH_RSA,      ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC080,KEX_DHE_DSS,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC081,KEX_DHE_DSS,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC082,KEX_DH_DSS,      ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC083,KEX_DH_DSS,      ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC084,KEX_DH_ANON,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC085,KEX_DH_ANON,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC086,KEX_ECDHE_ECDSA, ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC087,KEX_ECDHE_ECDSA, ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC088,KEX_ECDH_ECDSA,  ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC089,KEX_ECDH_ECDSA,  ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC08A,KEX_ECDHE_RSA,   ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC08B,KEX_ECDHE_RSA,   ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC08C,KEX_ECDH_RSA,    ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC08D,KEX_ECDH_RSA,    ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC08E,KEX_PSK,         ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC08F,KEX_PSK,         ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC090,KEX_DHE_PSK,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC091,KEX_DHE_PSK,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC092,KEX_RSA_PSK,     ENC_CAMELLIA128, 4,128,128,DIG_SHA256, MODE_GCM   },   /* TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256 */
+    {0xC093,KEX_RSA_PSK,     ENC_CAMELLIA256, 4,256,256,DIG_SHA384, MODE_GCM   },   /* TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384 */
+    {0xC094,KEX_PSK,         ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC095,KEX_PSK,         ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC096,KEX_DHE_PSK,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC097,KEX_DHE_PSK,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC098,KEX_RSA_PSK,     ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC099,KEX_RSA_PSK,     ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC09A,KEX_ECDHE_PSK,   ENC_CAMELLIA128,16,128,128,DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256 */
+    {0xC09B,KEX_ECDHE_PSK,   ENC_CAMELLIA256,16,256,256,DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384 */
+    {0xC09C,KEX_RSA,         ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_RSA_WITH_AES_128_CCM */
+    {0xC09D,KEX_RSA,         ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_RSA_WITH_AES_256_CCM */
+    {0xC09E,KEX_DHE_RSA,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_DHE_RSA_WITH_AES_128_CCM */
+    {0xC09F,KEX_DHE_RSA,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_DHE_RSA_WITH_AES_256_CCM */
+    {0xC0A0,KEX_RSA,         ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_RSA_WITH_AES_128_CCM_8 */
+    {0xC0A1,KEX_RSA,         ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_RSA_WITH_AES_256_CCM_8 */
+    {0xC0A2,KEX_DHE_RSA,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_DHE_RSA_WITH_AES_128_CCM_8 */
+    {0xC0A3,KEX_DHE_RSA,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_DHE_RSA_WITH_AES_256_CCM_8 */
+    {0xC0A4,KEX_PSK,         ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_PSK_WITH_AES_128_CCM */
+    {0xC0A5,KEX_PSK,         ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_PSK_WITH_AES_256_CCM */
+    {0xC0A6,KEX_DHE_PSK,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_DHE_PSK_WITH_AES_128_CCM */
+    {0xC0A7,KEX_DHE_PSK,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_DHE_PSK_WITH_AES_256_CCM */
+    {0xC0A8,KEX_PSK,         ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_WITH_AES_128_CCM_8 */
+    {0xC0A9,KEX_PSK,         ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_WITH_AES_256_CCM_8 */
+    {0xC0AA,KEX_DHE_PSK,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_128_CCM_8 */
+    {0xC0AB,KEX_DHE_PSK,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_256_CCM_8 */
+    {0xC0AC,KEX_ECDHE_ECDSA, ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM */
+    {0xC0AD,KEX_ECDHE_ECDSA, ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM */
+    {0xC0AE,KEX_ECDHE_ECDSA, ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 */
+    {0xC0AF,KEX_ECDHE_ECDSA, ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 */
     {-1,    0,          0,               0,  0,  0,0,          MODE_STREAM}
 };
 
@@ -2958,10 +3049,14 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
 
     if (!encrypted_pre_master)
         return FALSE;
-
-    if(ssl_session->cipher_suite.kex == KEX_DH) {
+    if(ssl_session->cipher_suite.kex == KEX_DHE_DSS ||
+            ssl_session->cipher_suite.kex == KEX_DHE_PSK ||
+            ssl_session->cipher_suite.kex == KEX_DHE_RSA ||
+            ssl_session->cipher_suite.kex == KEX_DH_ANON ||
+            ssl_session->cipher_suite.kex == KEX_DH_DSS ||
+            ssl_session->cipher_suite.kex == KEX_DH_RSA) {
         ssl_debug_printf("%s: session uses DH (%d) key exchange, which is "
-                         "impossible to decrypt\n", G_STRFUNC, KEX_DH);
+                         "impossible to decrypt\n", G_STRFUNC, ssl_session->cipher_suite.kex);
         return FALSE;
     } else if(ssl_session->cipher_suite.kex != KEX_RSA) {
          ssl_debug_printf("%s key exchange %d different from KEX_RSA (%d)\n",
@@ -6386,7 +6481,8 @@ dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 static void
 dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                 proto_tree *tree, guint32 offset,
-                                guint32 length, const SslSession *session)
+                                guint32 length, const SslSession *session,
+                                gboolean anon)
 {
     /*
      * RFC 4492 ECC cipher suites for TLS
@@ -6447,14 +6543,16 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         offset + 1, point_len, ENC_NA);
     offset += 1 + point_len;
 
-    /* Signature */
-    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_ecdh_tree, offset, session);
+    /* Signature (if non-anonymous KEX) */
+    if (!anon) {
+        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_ecdh_tree, offset, session);
+    }
 }
 
 static void
 dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 length,
-                               const SslSession *session)
+                               const SslSession *session, gboolean anon)
 {
     gint        p_len, g_len, ys_len;
     proto_tree *ssl_dh_tree;
@@ -6486,8 +6584,10 @@ dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         offset + 2, ys_len, ENC_NA);
     offset += 2 + ys_len;
 
-    /* Signature */
-    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_dh_tree, offset, session);
+    /* Signature (if non-anonymous KEX) */
+    if (!anon) {
+        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_dh_tree, offset, session);
+    }
 }
 
 /* Only used in RSA-EXPORT cipher suites */
@@ -6553,21 +6653,45 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           const SslSession *session)
 {
     switch (ssl_get_keyex_alg(session->cipher)) {
-    case KEX_RSA: /* rsa: EncryptedPreMasterSecret */
-        dissect_ssl3_hnd_cli_keyex_rsa(hf, tvb, tree, offset, length, session);
-        break;
-    case KEX_DH: /* DHE_RSA: ClientDiffieHellmanPublic */
-        /* XXX: DHE_DSS, DH_DSS, DH_RSA, DH_ANON; same format */
+    case KEX_DH_ANON: /* RFC 5246; DHE_DSS, DHE_RSA, DH_DSS, DH_RSA, DH_ANON: ClientDiffieHellmanPublic */
+    case KEX_DH_DSS:
+    case KEX_DH_RSA:
+    case KEX_DHE_DSS:
+    case KEX_DHE_RSA:
         dissect_ssl3_hnd_cli_keyex_dh(hf, tvb, tree, offset, length);
         break;
-    case KEX_ECDH: /* ec_diffie_hellman: ClientECDiffieHellmanPublic */
+    case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity, ClientDiffieHellmanPublic */
+        /* XXX: implement support for DHE_PSK */
+        break;
+    case KEX_ECDH_ANON: /* RFC 4492; ec_diffie_hellman: ClientECDiffieHellmanPublic */
+    case KEX_ECDH_ECDSA:
+    case KEX_ECDH_RSA:
+    case KEX_ECDHE_ECDSA:
+    case KEX_ECDHE_RSA:
         dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset, length);
         break;
-    case KEX_PSK:
+    case KEX_ECDHE_PSK: /* RFC 5489; ec_diffie_hellman_psk: psk_identity, ClientECDiffieHellmanPublic */
+        /* XXX: implement support for ECDHE_PSK */
+        break;
+    case KEX_KRB5: /* RFC 2712; krb5: KerberosWrapper */
+        /* XXX: implement support for KRB5 */
+        break;
+    case KEX_PSK: /* RFC 4279; psk: psk_identity */
         dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, length);
         break;
-    case KEX_RSA_PSK:
+    case KEX_RSA: /* RFC 5246; rsa: EncryptedPreMasterSecret */
+        dissect_ssl3_hnd_cli_keyex_rsa(hf, tvb, tree, offset, length, session);
+        break;
+    case KEX_RSA_PSK: /* RFC 4279; rsa_psk: psk_identity, EncryptedPreMasterSecret */
         dissect_ssl3_hnd_cli_keyex_rsa_psk(hf, tvb, tree, offset, length);
+        break;
+    case KEX_SRP_SHA: /* RFC 5054; srp: ClientSRPPublic */
+    case KEX_SRP_SHA_DSS:
+    case KEX_SRP_SHA_RSA:
+        /* XXX: implement support for SRP_SHA* */
+        break;
+    default:
+        /* XXX: add info message for not supported KEX algo */
         break;
     }
 }
@@ -6578,20 +6702,49 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           const SslSession *session)
 {
     switch (ssl_get_keyex_alg(session->cipher)) {
-    case KEX_DH: /* DHE_RSA: ServerDHParams + signature */
-        /* XXX: DHE_DSS, same format */
-        /* XXX: DHE_ANON, almost the same, but without signed_params */
-        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session);
+    case KEX_DH_ANON: /* RFC 5246; ServerDHParams */
+        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session, TRUE);
         break;
-    case KEX_RSA: /* TLSv1.0 and older: RSA_EXPORT cipher suites */
+    case KEX_DH_DSS: /* RFC 5246; not allowed */
+    case KEX_DH_RSA:
+        /* XXX: add error on not allowed KEX */
+        break;
+    case KEX_DHE_DSS: /* RFC 5246; dhe_dss, dhe_rsa: ServerDHParams, Signature */
+    case KEX_DHE_RSA:
+        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session, FALSE);
+        break;
+    case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity_hint, ServerDHParams */
+        /* XXX: implement support for DHE_PSK */
+        break;
+    case KEX_ECDH_ANON: /* RFC 4492; ec_diffie_hellman: ServerECDHParams (without signature for anon) */
+        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session, TRUE);
+        break;
+    case KEX_ECDHE_PSK: /* RFC 5489; psk_identity_hint, ServerECDHParams */
+        /* XXX: implement support for ECDHE_PSK */
+        break;
+    case KEX_ECDH_ECDSA: /* RFC 4492; ec_diffie_hellman: ServerECDHParams, Signature */
+    case KEX_ECDH_RSA:
+    case KEX_ECDHE_ECDSA:
+    case KEX_ECDHE_RSA:
+        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session, FALSE);
+        break;
+    case KEX_KRB5: /* RFC 2712; not allowed */
+        /* XXX: add error on not allowed KEX */
+        break;
+    case KEX_PSK: /* RFC 4279; psk, rsa: psk_identity*/
+    case KEX_RSA_PSK:
+        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, length);
+        break;
+    case KEX_RSA: /* only allowed if the public key in the server certificate is longer than 512 bits*/
         dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, tree, offset, length, session);
         break;
-    case KEX_ECDH: /* ec_diffie_hellman: ServerECDHParams + signature */
-        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session);
+    case KEX_SRP_SHA: /* RFC 5054; srp: ServerSRPParams, Signature */
+    case KEX_SRP_SHA_DSS:
+    case KEX_SRP_SHA_RSA:
+        /* XXX: implement support for SRP_SHA* */
         break;
-    case KEX_RSA_PSK:
-    case KEX_PSK:
-        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, length);
+    default:
+        /* XXX: add info message for not supported KEX algo */
         break;
     }
 }

@@ -290,11 +290,25 @@ typedef struct _SslDecoder {
     SslFlow *flow;
 } SslDecoder;
 
-#define KEX_RSA         0x10
-#define KEX_DH          0x11
-#define KEX_PSK         0x12
-#define KEX_ECDH        0x13
-#define KEX_RSA_PSK     0x14
+#define KEX_DHE_DSS     0x10
+#define KEX_DHE_PSK     0x11
+#define KEX_DHE_RSA     0x12
+#define KEX_DH_ANON     0x13
+#define KEX_DH_DSS      0x14
+#define KEX_DH_RSA      0x15
+#define KEX_ECDHE_ECDSA 0x16
+#define KEX_ECDHE_PSK   0x17
+#define KEX_ECDHE_RSA   0x18
+#define KEX_ECDH_ANON   0x19
+#define KEX_ECDH_ECDSA  0x1a
+#define KEX_ECDH_RSA    0x1b
+#define KEX_KRB5        0x1c
+#define KEX_PSK         0x1d
+#define KEX_RSA         0x1e
+#define KEX_RSA_PSK     0x1f
+#define KEX_SRP_SHA     0x20
+#define KEX_SRP_SHA_DSS 0x21
+#define KEX_SRP_SHA_RSA 0x22
 
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
