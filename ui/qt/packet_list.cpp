@@ -334,10 +334,10 @@ PacketList::PacketList(QWidget *parent) :
     action = submenu->addAction(tr("Summary as Text"));
     action->setData(copy_summary_text_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " as CSV"));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
     action->setData(copy_summary_csv_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " as YAML"));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
     action->setData(copy_summary_yaml_);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();

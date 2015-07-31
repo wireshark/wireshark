@@ -125,16 +125,16 @@ const QString FilterAction::actionTypeName(ActionType type) {
         return QObject::tr("Not Selected");
         break;
     case ActionTypeAnd:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS " and Selected");
+        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected");
         break;
     case ActionTypeOr:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS " or Selected");
+        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected");
         break;
     case ActionTypeAndNot:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS " and not Selected");
+        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected");
         break;
     case ActionTypeOrNot:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS " or not Selected");
+        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected");
         break;
     default:
         return QObject::tr("UNKNOWN");
