@@ -303,8 +303,10 @@ typedef struct _capture_info {
 
   guint64        packet_bytes;
   gboolean       times_known;
-  double         start_time;
-  double         stop_time;
+  nstime_t       start_time;
+  int            start_time_tsprec;
+  nstime_t       stop_time;
+  int            stop_time_tsprec;
   guint32        packet_count;
   gboolean       snap_set;                /* If set in capture file header      */
   guint32        snaplen;                 /* value from the capture file header */
@@ -313,7 +315,8 @@ typedef struct _capture_info {
   gboolean       drops_known;
   guint32        drop_count;
 
-  double         duration;
+  nstime_t       duration;
+  int            duration_tsprec;
   double         packet_rate;
   double         packet_size;
   double         data_rate;              /* in bytes */
@@ -400,37 +403,229 @@ order_string(order_t order)
 }
 
 static gchar *
-time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
+absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 {
-  const gchar  *lf = want_lf ? "\n" : "";
-  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+1];
+  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+9+1+1];
   struct tm *ti_tm;
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
     if (time_as_secs) {
-      /* XXX - Would it be useful to show sub-second precision? */
-      g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
+      switch (tsprecision) {
+
+      case WTAP_TSPREC_SEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu",
+                   (unsigned long)timer->secs);
+        break;
+
+      case WTAP_TSPREC_DSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu.%01d",
+                   (unsigned long)timer->secs,
+                   timer->nsecs / 100000000);
+        break;
+
+      case WTAP_TSPREC_CSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu.%02d",
+                   (unsigned long)timer->secs,
+                   timer->nsecs / 10000000);
+        break;
+
+      case WTAP_TSPREC_MSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu.%03d",
+                   (unsigned long)timer->secs,
+                   timer->nsecs / 1000000);
+        break;
+
+      case WTAP_TSPREC_USEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu.%06d",
+                   (unsigned long)timer->secs,
+                   timer->nsecs / 1000);
+        break;
+
+      case WTAP_TSPREC_NSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%lu.%09d",
+                   (unsigned long)timer->secs,
+                   timer->nsecs);
+        break;
+
+      default:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "Unknown precision %d",
+                   tsprecision);
+        break;
+      }
       return time_string_buf;
     } else {
-      ti_tm = localtime(&timer);
+      ti_tm = localtime(&timer->secs);
       if (ti_tm == NULL) {
-        g_snprintf(time_string_buf, 20, "Not representable%s", lf);
+        g_snprintf(time_string_buf, sizeof time_string_buf, "Not representable");
         return time_string_buf;
       }
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-             "%04d-%02d-%02d %02d:%02d:%02d%s",
-             ti_tm->tm_year + 1900,
-             ti_tm->tm_mon + 1,
-             ti_tm->tm_mday,
-             ti_tm->tm_hour,
-             ti_tm->tm_min,
-             ti_tm->tm_sec,
-             lf);
+      switch (tsprecision) {
+
+      case WTAP_TSPREC_SEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec);
+        break;
+
+      case WTAP_TSPREC_DSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d.%01d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec,
+                   timer->nsecs / 100000000);
+        break;
+
+      case WTAP_TSPREC_CSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d.%02d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec,
+                   timer->nsecs / 10000000);
+        break;
+
+      case WTAP_TSPREC_MSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec,
+                   timer->nsecs / 1000000);
+        break;
+
+      case WTAP_TSPREC_USEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d.%06d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec,
+                   timer->nsecs / 1000);
+        break;
+
+      case WTAP_TSPREC_NSEC:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "%04d-%02d-%02d %02d:%02d:%02d.%09d",
+                   ti_tm->tm_year + 1900,
+                   ti_tm->tm_mon + 1,
+                   ti_tm->tm_mday,
+                   ti_tm->tm_hour,
+                   ti_tm->tm_min,
+                   ti_tm->tm_sec,
+                   timer->nsecs);
+        break;
+
+      default:
+        g_snprintf(time_string_buf, sizeof time_string_buf,
+                   "Unknown precision %d",
+                   tsprecision);
+        break;
+      }
       return time_string_buf;
     }
   }
 
-  g_snprintf(time_string_buf, 15, "n/a%s", lf);
+  g_snprintf(time_string_buf, sizeof time_string_buf, "n/a");
+  return time_string_buf;
+}
+
+static gchar *
+relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gboolean want_seconds)
+{
+  const gchar  *second = want_seconds ? " second" : "";
+  const gchar  *plural = want_seconds ? "s" : "";
+  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+1];
+
+  if (cf_info->times_known && cf_info->packet_count > 0) {
+    switch (tsprecision) {
+
+    case WTAP_TSPREC_SEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu%s%s",
+                 (unsigned long)timer->secs,
+                 second,
+                 timer->secs == 1 ? "" : plural);
+      break;
+
+    case WTAP_TSPREC_DSEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu.%01d%s%s",
+                 (unsigned long)timer->secs,
+                 timer->nsecs / 100000000,
+                 second,
+                 (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
+      break;
+
+    case WTAP_TSPREC_CSEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu.%02d%s%s",
+                 (unsigned long)timer->secs,
+                 timer->nsecs / 10000000,
+                 second,
+                 (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
+      break;
+
+    case WTAP_TSPREC_MSEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu.%03d%s%s",
+                 (unsigned long)timer->secs,
+                 timer->nsecs / 1000000,
+                 second,
+                 (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
+      break;
+
+    case WTAP_TSPREC_USEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu.%06d%s%s",
+                 (unsigned long)timer->secs,
+                 timer->nsecs / 1000,
+                 second,
+                 (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
+      break;
+
+    case WTAP_TSPREC_NSEC:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "%lu.%09d%s%s",
+                 (unsigned long)timer->secs,
+                 timer->nsecs,
+                 second,
+                 (timer->secs == 1 && timer->nsecs == 0) ? "" : plural);
+      break;
+
+    default:
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+                 "Unknown precision %d",
+                 tsprecision);
+      break;
+    }
+    return time_string_buf;
+  }
+
+  g_snprintf(time_string_buf, sizeof time_string_buf, "n/a");
   return time_string_buf;
 }
 
@@ -445,15 +640,11 @@ static void
 print_stats(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
-  time_t                 start_time_t;
-  time_t                 stop_time_t;
   gchar                 *size_string;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
   file_encap_string = wtap_encap_string(cf_info->file_encap);
-  start_time_t = (time_t)cf_info->start_time;
-  stop_time_t = (time_t)cf_info->stop_time;
 
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type)      printf     ("File type:           %s%s\n",
@@ -510,13 +701,13 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
   if (cf_info->times_known) {
     if (cap_duration) /* XXX - shorten to hh:mm:ss */
-                          print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
+                          printf("Capture duration:    %s\n", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, TRUE));
     if (cap_start_time)
-                          printf     ("First packet time:   %s", time_string(start_time_t, cf_info, TRUE));
+                          printf("First packet time:   %s\n", absolute_time_string(&cf_info->start_time, cf_info->start_time_tsprec, cf_info));
     if (cap_end_time)
-                          printf     ("Last packet time:    %s", time_string(stop_time_t, cf_info, TRUE));
+                          printf("Last packet time:    %s\n", absolute_time_string(&cf_info->stop_time, cf_info->stop_time_tsprec, cf_info));
     if (cap_data_rate_byte) {
-                          printf     ("Data byte rate:      ");
+                          printf("Data byte rate:      ");
       if (machine_readable) {
         print_value("", 2, " bytes/sec",   cf_info->data_rate);
       } else {
@@ -526,7 +717,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       }
     }
     if (cap_data_rate_bit) {
-                          printf     ("Data bit rate:       ");
+                          printf("Data bit rate:       ");
       if (machine_readable) {
         print_value("", 2, " bits/sec",    cf_info->data_rate*8);
       } else {
@@ -536,10 +727,10 @@ print_stats(const gchar *filename, capture_info *cf_info)
       }
     }
   }
-  if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
+  if (cap_packet_size)    printf("Average packet size: %.2f bytes\n",        cf_info->packet_size);
   if (cf_info->times_known) {
     if (cap_packet_rate) {
-                          printf     ("Average packet rate: ");
+                          printf("Average packet rate: ");
       if (machine_readable) {
         print_value("", 2, " packets/sec", cf_info->packet_rate);
       } else {
@@ -621,14 +812,10 @@ static void
 print_stats_table(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
-  time_t                 start_time_t;
-  time_t                 stop_time_t;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
   file_encap_string = wtap_encap_string(cf_info->file_encap);
-  start_time_t = (time_t)cf_info->start_time;
-  stop_time_t = (time_t)cf_info->stop_time;
 
   if (filename) {
     putquote();
@@ -709,24 +896,21 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_duration) {
     putsep();
     putquote();
-    if (cf_info->times_known)
-      printf("%f", cf_info->duration);
-    else
-      printf("n/a");
+    printf("%s", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, FALSE));
     putquote();
   }
 
   if (cap_start_time) {
     putsep();
     putquote();
-    printf("%s", time_string(start_time_t, cf_info, FALSE));
+    printf("%s", absolute_time_string(&cf_info->start_time, cf_info->start_time_tsprec, cf_info));
     putquote();
   }
 
   if (cap_end_time) {
     putsep();
     putquote();
-    printf("%s", time_string(stop_time_t, cf_info, FALSE));
+    printf("%s", absolute_time_string(&cf_info->stop_time, cf_info->stop_time_tsprec, cf_info));
     putquote();
   }
 
@@ -820,15 +1004,24 @@ process_cap_file(wtap *wth, const char *filename)
   const struct wtap_pkthdr *phdr;
   capture_info          cf_info;
   gboolean              have_times = TRUE;
-  double                start_time = 0;
-  double                stop_time  = 0;
-  double                cur_time   = 0;
-  double                prev_time = 0;
+  nstime_t              start_time;
+  int                   start_time_tsprec;
+  nstime_t              stop_time;
+  int                   stop_time_tsprec;
+  nstime_t              cur_time;
+  nstime_t              prev_time;
   gboolean              know_order = FALSE;
   order_t               order = IN_ORDER;
   wtapng_section_t     *shb_inf;
   gchar                *p;
 
+
+  nstime_set_zero(&start_time);
+  start_time_tsprec = WTAP_TSPREC_UNKNOWN;
+  nstime_set_zero(&stop_time);
+  stop_time_tsprec = WTAP_TSPREC_UNKNOWN;
+  nstime_set_zero(&cur_time);
+  nstime_set_zero(&prev_time);
 
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
@@ -837,20 +1030,24 @@ process_cap_file(wtap *wth, const char *filename)
     phdr = wtap_phdr(wth);
     if (phdr->presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
-      cur_time = nstime_to_sec(&phdr->ts);
+      cur_time = phdr->ts;
       if (packet == 0) {
-        start_time = cur_time;
-        stop_time  = cur_time;
-        prev_time  = cur_time;
+        start_time = phdr->ts;
+        start_time_tsprec = phdr->pkt_tsprec;
+        stop_time  = phdr->ts;
+        stop_time_tsprec = phdr->pkt_tsprec;
+        prev_time  = phdr->ts;
       }
-      if (cur_time < prev_time) {
+      if (nstime_cmp(&cur_time, &prev_time) < 0) {
         order = NOT_IN_ORDER;
       }
-      if (cur_time < start_time) {
+      if (nstime_cmp(&cur_time, &start_time) < 0) {
         start_time = cur_time;
+        start_time_tsprec = phdr->pkt_tsprec;
       }
-      if (cur_time > stop_time) {
+      if (nstime_cmp(&cur_time, &stop_time) > 0) {
         stop_time = cur_time;
+        stop_time_tsprec = phdr->pkt_tsprec;
       }
     } else {
       have_times = FALSE; /* at least one packet has no time stamp */
@@ -941,8 +1138,15 @@ process_cap_file(wtap *wth, const char *filename)
   /* File Times */
   cf_info.times_known = have_times;
   cf_info.start_time = start_time;
+  cf_info.start_time_tsprec = start_time_tsprec;
   cf_info.stop_time = stop_time;
-  cf_info.duration = stop_time-start_time;
+  cf_info.stop_time_tsprec = stop_time_tsprec;
+  nstime_delta(&cf_info.duration, &stop_time, &start_time);
+  /* Duration precision is the higher of the start and stop time precisions. */
+  if (cf_info.stop_time_tsprec > cf_info.start_time_tsprec)
+    cf_info.duration_tsprec = cf_info.stop_time_tsprec;
+  else
+    cf_info.duration_tsprec = cf_info.start_time_tsprec;
   cf_info.know_order = know_order;
   cf_info.order = order;
 
@@ -954,9 +1158,10 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.packet_size = 0.0;
 
   if (packet > 0) {
-    if (cf_info.duration > 0.0) {
-      cf_info.data_rate   = (double)bytes  / (stop_time-start_time); /* Data rate per second */
-      cf_info.packet_rate = (double)packet / (stop_time-start_time); /* packet rate per second */
+    double delta_time = nstime_to_sec(&stop_time) - nstime_to_sec(&start_time);
+    if (delta_time > 0.0) {
+      cf_info.data_rate   = (double)bytes  / delta_time; /* Data rate per second */
+      cf_info.packet_rate = (double)packet / delta_time; /* packet rate per second */
     }
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
   }
