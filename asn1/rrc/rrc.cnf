@@ -37,6 +37,10 @@ U-RNTI-Group
 UL-DCCH-MessageType
 UL-TS-ChannelisationCode
 UL-TS-ChannelisationCode-VHCR
+MinimumTEBS-threshold
+UE-DTX-Cycle2-2ms-Secondary
+SIB-Type2
+WLANThreshBackhaulRate
 
 #.EXPORTS
 InterRATHandoverInfo
@@ -80,6 +84,7 @@ BCCH-BCH-Message             @bcch.bch
 MCCH-Message                 @mcch
 MSCH-Message                 @msch
 SystemInformation-BCH        @sysinfo
+SystemInformation2-BCH       @sysinfo2
 System-Information-Container @sysinfo.cont
 MasterInformationBlock       @si.mib
 SysInfoType1                 @si.sib1
@@ -95,6 +100,7 @@ SysInfoType9                 @si.sib9
 SysInfoType10                @si.sib10
 SysInfoType11                @si.sib11
 SysInfoType11bis             @si.sib11bis
+SysInfoType11ter             @si.sib11ter
 SysInfoType12                @si.sib12
 SysInfoType13                @si.sib13
 SysInfoType13-1              @si.sib13-1
@@ -106,6 +112,7 @@ SysInfoType15                @si.sib15
 SysInfoType15bis             @si.sib15bis
 SysInfoType15-1              @si.sib15-1
 SysInfoType15-1bis           @si.sib15-1bis
+SysInfoType15-1ter           @si.sib15-1ter
 SysInfoType15-2              @si.sib15-2
 SysInfoType15-2bis           @si.sib15-2bis
 SysInfoType15-2ter           @si.sib15-2ter
@@ -123,8 +130,11 @@ SysInfoType19                @si.sib19
 SysInfoType20                @si.sib20
 SysInfoType21                @si.sib21
 SysInfoType22                @si.sib22
+SysInfoType23                @si.sib23
+SysInfoType24                @si.sib24
 SysInfoTypeSB1               @si.sb1
 SysInfoTypeSB2               @si.sb2
+SysInfoTypeSB3               @si.sb3
 HandoverToUTRANCommand       @irat.ho_to_utran_cmd
 InterRATHandoverInfo         @irat.irat_ho_info
 UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info

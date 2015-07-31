@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.8.0 (2013-12)
+-- 3GPP TS 25.331 V12.6.0 (2015-06)
 --
 Constant-definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -14,8 +14,11 @@ maxASCmap					INTEGER ::= 7
 maxASCpersist				INTEGER ::= 6
 maxCCTrCH					INTEGER ::= 8
 maxCellMeas 				INTEGER ::= 32
+maxCellMeas-ext 				INTEGER ::= 80
+maxCellMeas-ext2			INTEGER ::= 48
 maxCellMeasOnSecULFreq 		INTEGER ::= 32
 maxCellMeas-1				INTEGER ::= 31
+maxCellMeas-ext-1 			INTEGER ::= 79
 maxCellMeasOnSecULFreq-1	INTEGER ::= 31
 maxCNdomains				INTEGER ::= 4
 maxCommonHRNTI				INTEGER ::= 4
@@ -71,6 +74,7 @@ maxHSSCCHs					INTEGER ::= 4
 maxHSSCCHs-1				INTEGER ::= 3
 maxHSSICH-TDD128			INTEGER ::= 4
 maxHSSICH-TDD128-1			INTEGER ::= 3
+maxIGPInfo					INTEGER ::= 320
 maxInterSysMessages			INTEGER ::= 4
 maxLoCHperRLC				INTEGER ::= 2
 maxLoggedMeasReport			INTEGER	::=	128
@@ -91,16 +95,19 @@ maxMBSFNClusters			INTEGER ::= 16
 maxMeasCSGRange				INTEGER ::= 4
 maxMeasEvent				INTEGER ::= 8
 maxMeasEventOnSecULFreq		INTEGER ::= 8
+maxMeasIdentity				INTEGER ::= 32
 maxMeasIntervals			INTEGER ::= 3
 maxMeasOccasionPattern		INTEGER ::= 5
 maxMeasOccasionPattern-1	INTEGER ::= 4
 maxMeasParEvent				INTEGER ::= 2
 maxNonContiguousMultiCellCombinations	INTEGER ::= 3
+maxNumAccessGroups			INTEGER ::= 16
 maxNumCDMA2000Freqs			INTEGER ::=  8
 maxNumE-AGCH				INTEGER ::= 4
 maxNumE-HICH				INTEGER ::= 4
 maxNumEUTRAFreqs			INTEGER ::= 8
 maxNumEUTRAFreqs-FACH		INTEGER ::= 4
+maxNumEUTRAFreqs-FACH-ext	INTEGER ::= 8
 maxNumGSMCellGroup			INTEGER ::= 16
 maxNumGSMFreqRanges			INTEGER ::= 32
 maxNumFDDFreqs				INTEGER ::=  8
@@ -138,10 +145,12 @@ maxRBperRAB					INTEGER ::= 8
 maxRBperTrCh				INTEGER ::= 16
 maxReportedEUTRACellPerFreq	INTEGER ::= 4
 maxReportedEUTRAFreqs		INTEGER ::= 4
+maxReportedEUTRAFreqs-ext	INTEGER ::= 8
 maxReportedGSMCells			INTEGER ::= 8
 maxRL						INTEGER ::= 8
 maxRL-1						INTEGER ::= 7
 maxRLCPDUsizePerLogChan		INTEGER ::= 32
+maxRMPfrequencies			INTEGER ::= 8
 maxRFC3095-CID				INTEGER ::= 16384
 maxROHC-PacketSizes-r4		INTEGER ::= 16
 maxROHC-Profile-r4			INTEGER ::= 8
@@ -152,6 +161,7 @@ maxSatClockModels			INTEGER ::= 4
 maxSCCPCH					INTEGER ::= 16
 maxSgnType					INTEGER ::= 8
 maxSIB						INTEGER ::= 32
+maxSIB2						INTEGER ::= 64
 maxSIB-FACH					INTEGER ::= 8
 maxSIBperMsg				INTEGER ::= 16
 maxSIrequest				INTEGER ::= 4
@@ -168,6 +178,7 @@ maxTFCsub					INTEGER ::= 1024
 maxTFCI-2-Combs	 			INTEGER ::= 512
 maxTGPS						INTEGER ::= 6
 maxTrCH						INTEGER ::= 32
+maxTrCHConcat				INTEGER ::= 3
 -- maxTrCHpreconf should be 16 but has been set to 32 for compatibility
 maxTrCHpreconf				INTEGER ::= 32
 maxTS						INTEGER ::= 14
@@ -177,5 +188,6 @@ maxTS-LCR					INTEGER ::= 6
 maxTS-LCR-1					INTEGER ::= 5
 maxURA						INTEGER ::= 8
 maxURNTI-Group				INTEGER ::= 8
+maxWLANID					INTEGER ::= 16
 
 END
