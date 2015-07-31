@@ -101,7 +101,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     b_print_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(b_print_, SIGNAL(clicked()), this, SLOT(printStream()));
 
-    b_save_ = ui->buttonBox->addButton(tr("Save as..."), QDialogButtonBox::ActionRole);
+    b_save_ = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));

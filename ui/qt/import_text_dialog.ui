@@ -69,7 +69,7 @@
            <string>Browse for text file to import</string>
           </property>
           <property name="text">
-           <string>Browse...</string>
+           <string>Browse…</string>
           </property>
          </widget>
         </item>

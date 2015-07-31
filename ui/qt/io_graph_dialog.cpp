@@ -197,7 +197,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QCustomPlot *iop = ui->ioPlot;
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As..."));
+    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));

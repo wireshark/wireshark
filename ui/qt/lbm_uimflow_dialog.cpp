@@ -260,7 +260,7 @@ LBMUIMFlowDialog::LBMUIMFlowDialog(QWidget * parent, capture_file * cfile) :
     m_sequence_analysis.any_addr = TRUE;
 
     QPushButton * save_bt = m_ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As..."));
+    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
     // XXX Use recent settings instead
     if (parent)

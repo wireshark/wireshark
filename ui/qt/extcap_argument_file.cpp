@@ -21,6 +21,9 @@
 
 #include <extcap_argument.h>
 #include <extcap_argument_file.h>
+
+#include "ui/utf8_entities.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QLabel>
@@ -48,7 +51,7 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     QMargins margins = editLayout->contentsMargins();
     editLayout->setContentsMargins(0, 0, 0, margins.bottom());
     fileWidget->setContentsMargins(margins.left(), margins.right(), 0, margins.bottom());
-    QPushButton * button = new QPushButton("...", fileWidget);
+    QPushButton * button = new QPushButton(UTF8_HORIZONTAL_ELLIPSIS, fileWidget);
 
     textBox = new QLineEdit(_default->toString(), parent);
     textBox->setReadOnly(true);

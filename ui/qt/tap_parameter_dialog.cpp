@@ -89,7 +89,7 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
     button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect(button, SIGNAL(clicked()), this, SLOT(on_actionCopyToClipboard_triggered()));
 
-    button = ui->buttonBox->addButton(tr("Save as..."), QDialogButtonBox::ActionRole);
+    button = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     connect(button, SIGNAL(clicked()), this, SLOT(on_actionSaveAs_triggered()));
 
     if (help_topic_ < 1) {

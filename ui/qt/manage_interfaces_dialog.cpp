@@ -35,6 +35,7 @@
 #include "ui/iface_lists.h"
 #include "ui/preference_utils.h"
 #include "ui/ui_util.h"
+#include "ui/utf8_entities.h"
 
 #include "qt_ui_utils.h"
 
@@ -799,7 +800,7 @@ QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     QPushButton *pb = new QPushButton(path_editor_);
 
     path_le_->setText(item->text(col_p_pipe_));
-    pb->setText(QString(tr("Browse...")));
+    pb->setText(QString(tr("Browse" UTF8_HORIZONTAL_ELLIPSIS)));
 
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->addWidget(path_le_);

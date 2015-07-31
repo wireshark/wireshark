@@ -114,7 +114,7 @@
             <string>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</string>
            </property>
            <property name="text">
-            <string>Manage Interfaces...</string>
+            <string>Manage Interfaces…</string>
            </property>
           </widget>
          </item>
@@ -256,7 +256,7 @@
           <item row="0" column="2">
            <widget class="QPushButton" name="browseButton">
             <property name="text">
-             <string>Browse...</string>
+             <string>Browse…</string>
             </property>
            </widget>
           </item>
@@ -292,7 +292,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
-          <string>Create a new file automatically after...</string>
+          <string>Create a new file automatically after…</string>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -621,7 +621,7 @@ PLEASE NOTE: One option MUST be selected.</string>
           <bool>true</bool>
          </property>
          <property name="title">
-          <string>Stop capture automatically after...</string>
+          <string>Stop capture automatically after…</string>
          </property>
          <property name="flat">
           <bool>true</bool>

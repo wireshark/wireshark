@@ -93,7 +93,7 @@
         <bool>true</bool>
        </property>
        <property name="text">
-        <string>...then set packet</string>
+        <string>…then set packet</string>
        </property>
       </widget>
      </item>

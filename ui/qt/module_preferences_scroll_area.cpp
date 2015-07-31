@@ -28,6 +28,8 @@
 
 #include <epan/prefs-int.h>
 
+#include "ui/utf8_entities.h"
+
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -185,7 +187,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         QLabel *label = new QLabel(pref->title);
         label->setToolTip(tooltip);
         hb->addWidget(label);
-        QPushButton *uat_pb = new QPushButton(QObject::tr("Edit..."));
+        QPushButton *uat_pb = new QPushButton(QObject::tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
         uat_pb->setToolTip(tooltip);
         uat_pb->setProperty(pref_prop_, qVariantFromValue(pref));
         hb->addWidget(uat_pb);
@@ -212,7 +214,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                               )
                           .arg(path_le->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
         hb->addWidget(path_le);
-        QPushButton *path_pb = new QPushButton(QObject::tr("Browse..."));
+        QPushButton *path_pb = new QPushButton(QObject::tr("Browse" UTF8_HORIZONTAL_ELLIPSIS));
         path_pb->setProperty(pref_prop_, qVariantFromValue(pref));
         hb->addWidget(path_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));

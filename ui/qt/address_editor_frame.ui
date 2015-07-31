@@ -29,7 +29,7 @@
    <item>
     <widget class="QToolButton" name="nameResolutionPreferencesToolButton">
      <property name="text">
-      <string>Name Resolution Preferences...</string>
+      <string>Name Resolution Preferences…</string>
      </property>
     </widget>
    </item>

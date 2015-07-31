@@ -158,14 +158,14 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
     packets_bar_update();
 
-    action = ctx_menu_.addAction(tr("Manage Profiles..."));
+    action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
     action->setData(ProfileDialog::ShowProfiles);
     connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
     ctx_menu_.addSeparator();
-    action = ctx_menu_.addAction(tr("New..."));
+    action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
     action->setData(ProfileDialog::NewProfile);
     connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-    edit_action_ = ctx_menu_.addAction(tr("Edit..."));
+    edit_action_ = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
     edit_action_->setData(ProfileDialog::EditCurrentProfile);
     connect(edit_action_, SIGNAL(triggered()), this, SLOT(manageProfile()));
     delete_action_ = ctx_menu_.addAction(tr("Delete"));

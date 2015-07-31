@@ -247,7 +247,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     find_reverse_button_->setToolTip(ui->actionFindReverse->toolTip());
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ApplyRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
-    export_button_ = ui->buttonBox->addButton(tr("Export..."), QDialogButtonBox::ApplyRole);
+    export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
     copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     analyze_button_ = ui->buttonBox->addButton(ui->actionAnalyze->text(), QDialogButtonBox::ApplyRole);

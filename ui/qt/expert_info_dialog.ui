@@ -103,7 +103,7 @@
      <item>
       <widget class="QPushButton" name="severitiesPushButton">
        <property name="text">
-        <string>Show...</string>
+        <string>Show…</string>
        </property>
       </widget>
      </item>

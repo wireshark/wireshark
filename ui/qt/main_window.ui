@@ -942,7 +942,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Go to Packet...</string>
+    <string>Go to Packet…</string>
    </property>
    <property name="toolTip">
     <string>Go to specified packet</string>
@@ -953,7 +953,7 @@
   </action>
   <action name="actionFileMerge">
    <property name="text">
-    <string>&amp;Merge...</string>
+    <string>&amp;Merge…</string>
    </property>
    <property name="toolTip">
     <string>Merge one or more files</string>
@@ -961,7 +961,7 @@
   </action>
   <action name="actionFileImportFromHexDump">
    <property name="text">
-    <string>&amp;Import from Hex Dump...</string>
+    <string>&amp;Import from Hex Dump…</string>
    </property>
    <property name="toolTip">
     <string>Import a file</string>
@@ -983,7 +983,7 @@
   </action>
   <action name="actionFileSaveAs">
    <property name="text">
-    <string>Save &amp;As...</string>
+    <string>Save &amp;As…</string>
    </property>
    <property name="toolTip">
     <string>Save as a different file</string>
@@ -994,7 +994,7 @@
   </action>
   <action name="actionFileExportPackets">
    <property name="text">
-    <string>Export Specified Packets...</string>
+    <string>Export Specified Packets…</string>
    </property>
    <property name="toolTip">
     <string>Export specified packets</string>
@@ -1002,7 +1002,7 @@
   </action>
   <action name="actionFileExportPacketBytes">
    <property name="text">
-    <string>Export Packet &amp;Bytes...</string>
+    <string>Export Packet &amp;Bytes…</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+H</string>
@@ -1010,12 +1010,12 @@
   </action>
   <action name="actionFileExportSSLSessionKeys">
    <property name="text">
-    <string>Export SSL Session Keys...</string>
+    <string>Export SSL Session Keys…</string>
    </property>
   </action>
   <action name="actionFilePrint">
    <property name="text">
-    <string>&amp;Print...</string>
+    <string>&amp;Print…</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -1052,7 +1052,7 @@
   </action>
   <action name="actionCaptureOptions">
    <property name="text">
-    <string>&amp;Options...</string>
+    <string>&amp;Options…</string>
    </property>
    <property name="iconText">
     <string>Options</string>
@@ -1069,7 +1069,7 @@
   </action>
   <action name="actionCaptureCaptureFilters">
    <property name="text">
-    <string>Capture &amp;Filters...</string>
+    <string>Capture &amp;Filters…</string>
    </property>
    <property name="toolTip">
     <string>Capture filters</string>
@@ -1096,42 +1096,42 @@
   </action>
   <action name="actionFileExportAsPlainText">
    <property name="text">
-    <string>As Plain &amp;Text...</string>
+    <string>As Plain &amp;Text…</string>
    </property>
   </action>
   <action name="actionFileExportAsCSV">
    <property name="text">
-    <string>As CSV...</string>
+    <string>As CSV…</string>
    </property>
   </action>
   <action name="actionFileExportAsCArrays">
    <property name="text">
-    <string>As &quot;C&quot; Arrays...</string>
+    <string>As &quot;C&quot; Arrays…</string>
    </property>
   </action>
   <action name="actionFileExportAsPSML">
    <property name="text">
-    <string>As PSML XML...</string>
+    <string>As PSML XML…</string>
    </property>
   </action>
   <action name="actionFileExportAsPDML">
    <property name="text">
-    <string>As PDML XML...</string>
+    <string>As PDML XML…</string>
    </property>
   </action>
   <action name="actionFileExportObjectsHTTP">
    <property name="text">
-    <string>&amp;HTTP...</string>
+    <string>&amp;HTTP…</string>
    </property>
   </action>
   <action name="actionFileExportObjectsDICOM">
    <property name="text">
-    <string>&amp;DICOM...</string>
+    <string>&amp;DICOM…</string>
    </property>
   </action>
   <action name="actionFileExportObjectsSMB">
    <property name="text">
-    <string>&amp;SMB...</string>
+    <string>&amp;SMB…</string>
    </property>
   </action>
   <action name="actionEditCopyDescription">
@@ -1191,34 +1191,34 @@
   </action>
   <action name="actionAnalyzeAAFAndSelected">
    <property name="text">
-    <string>... &amp;and Selected</string>
+    <string>… &amp;and Selected</string>
    </property>
    <property name="toolTip">
-    <string>... and Selected</string>
+    <string>… and Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFOrSelected">
    <property name="text">
-    <string>... &amp;or Selected</string>
+    <string>… &amp;or Selected</string>
    </property>
    <property name="toolTip">
-    <string>... or Selected</string>
+    <string>… or Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFAndNotSelected">
    <property name="text">
-    <string>... a&amp;nd not Selected</string>
+    <string>… a&amp;nd not Selected</string>
    </property>
    <property name="toolTip">
-    <string>... and not Selected</string>
+    <string>… and not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFOrNotSelected">
    <property name="text">
-    <string>... o&amp;r not Selected</string>
+    <string>… o&amp;r not Selected</string>
    </property>
    <property name="toolTip">
-    <string>... or not Selected</string>
+    <string>… or not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFSelected">
@@ -1236,39 +1236,39 @@
   </action>
   <action name="actionAnalyzePAFAndSelected">
    <property name="text">
-    <string>... &amp;and Selected</string>
+    <string>… &amp;and Selected</string>
    </property>
    <property name="toolTip">
-    <string>... and Selected</string>
+    <string>… and Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFOrSelected">
    <property name="text">
-    <string>... &amp;or Selected</string>
+    <string>… &amp;or Selected</string>
    </property>
    <property name="toolTip">
-    <string>... or Selected</string>
+    <string>… or Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFAndNotSelected">
    <property name="text">
-    <string>... a&amp;nd not Selected</string>
+    <string>… a&amp;nd not Selected</string>
    </property>
    <property name="toolTip">
-    <string>... and not Selected</string>
+    <string>… and not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFOrNotSelected">
    <property name="text">
-    <string>... o&amp;r not Selected</string>
+    <string>… o&amp;r not Selected</string>
    </property>
    <property name="toolTip">
-    <string>... or not Selected</string>
+    <string>… or not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilters">
    <property name="text">
-    <string>Display Filters...</string>
+    <string>Display Filters…</string>
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilterMacros">
@@ -1276,7 +1276,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Display Filter &amp;Macros...</string>
+    <string>Display Filter &amp;Macros…</string>
    </property>
   </action>
   <action name="actionAnalyzeCreateAColumn">
@@ -1292,7 +1292,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Find Packet...</string>
+    <string>&amp;Find Packet…</string>
    </property>
    <property name="toolTip">
     <string>Find a packet</string>
@@ -1303,7 +1303,7 @@
   </action>
   <action name="actionEditFindNext">
    <property name="text">
-    <string>Find Ne&amp;xt...</string>
+    <string>Find Ne&amp;xt</string>
    </property>
    <property name="toolTip">
     <string>Find the next packet</string>
@@ -1314,7 +1314,7 @@
   </action>
   <action name="actionEditFindPrevious">
    <property name="text">
-    <string>Find Pre&amp;vious...</string>
+    <string>Find Pre&amp;vious</string>
    </property>
    <property name="toolTip">
     <string>Find the previous packet</string>
@@ -1457,7 +1457,7 @@
   </action>
   <action name="actionEditTimeShift">
    <property name="text">
-    <string>Time Shift...</string>
+    <string>Time Shift…</string>
    </property>
    <property name="toolTip">
     <string>Shift or change packet timestamps</string>
@@ -1468,7 +1468,7 @@
   </action>
   <action name="actionEditPacketComment">
    <property name="text">
-    <string>Packet Comment...</string>
+    <string>Packet Comment…</string>
    </property>
    <property name="toolTip">
     <string>Add or change a packet comment</string>
@@ -1479,7 +1479,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Configuration Profiles...</string>
+    <string>Configuration Profiles…</string>
    </property>
    <property name="iconText">
     <string>Configuration profiles</string>
@@ -1496,7 +1496,7 @@
   </action>
   <action name="actionEditPreferences">
    <property name="text">
-    <string>&amp;Preferences...</string>
+    <string>&amp;Preferences…</string>
    </property>
    <property name="toolTip">
     <string>Manage Wireshark's preferences</string>
@@ -1776,7 +1776,7 @@
   </action>
   <action name="actionAnalyzeDecodeAs">
    <property name="text">
-    <string>Decode &amp;As...</string>
+    <string>Decode &amp;As…</string>
    </property>
    <property name="toolTip">
     <string>Change the way packets are dissected</string>
@@ -1872,7 +1872,7 @@
   </action>
   <action name="actionFileExportPDU">
    <property name="text">
-    <string>Export PDUs to File...</string>
+    <string>Export PDUs to File…</string>
    </property>
   </action>
   <action name="actionStatisticsIOGraph">
@@ -2348,7 +2348,7 @@
   </action>
   <action name="actionViewColoringRules">
    <property name="text">
-    <string>&amp;Coloring Rules...</string>
+    <string>&amp;Coloring Rules…</string>
    </property>
    <property name="toolTip">
     <string>Edit the packet list coloring rules.</string>
@@ -2406,10 +2406,10 @@
   </action>
   <action name="actionDisplayFilterExpression">
    <property name="text">
-    <string>&amp;Expression...</string>
+    <string>&amp;Expression…</string>
    </property>
    <property name="iconText">
-    <string>Expression...</string>
+    <string>Expression…</string>
    </property>
    <property name="toolTip">
     <string>Add an expression to the display filter.</string>
@@ -2541,7 +2541,7 @@
   </action>
   <action name="actionViewColorizeNewConversationRule">
    <property name="text">
-    <string>New Conversation Rule...</string>
+    <string>New Conversation Rule…</string>
    </property>
    <property name="toolTip">
     <string>Create a new coloring rule based on this conversation.</string>
@@ -2576,7 +2576,7 @@
   </action>
   <action name="actionAnalyzeEnabledProtocols">
    <property name="text">
-    <string>Enable Protocols...</string>
+    <string>Enable Protocols…</string>
    </property>
    <property name="toolTip">
     <string>Enable and disable specific protocols</string>

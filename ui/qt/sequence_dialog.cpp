@@ -121,7 +121,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_in
     }
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As..."));
+    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
     // XXX Use recent settings instead
     resize(parent.width(), parent.height() * 4 / 5);

@@ -22,6 +22,8 @@
 #include "print_dialog.h"
 #include <ui_print_dialog.h>
 
+#include "ui/utf8_entities.h"
+
 #include <QPrintDialog>
 #include <QPageSetupDialog>
 #include <QPainter>
@@ -73,7 +75,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     cur_printer_(NULL),
     cur_painter_(NULL),
     preview_(new QPrintPreviewWidget(&printer_)),
-    print_bt_(new QPushButton(tr("&Print..."))),
+    print_bt_(new QPushButton(tr("&Print" UTF8_HORIZONTAL_ELLIPSIS))),
     cap_file_(cf)
 {
     if (!cf) done(QDialog::Rejected); // ...or assert?
@@ -115,7 +117,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     pd_ui_->rangeGroupBox->initRange(&print_args_.range);
 
     pd_ui_->buttonBox->addButton(print_bt_, QDialogButtonBox::ActionRole);
-    pd_ui_->buttonBox->addButton(tr("Page &Setup..."), QDialogButtonBox::ResetRole);
+    pd_ui_->buttonBox->addButton(tr("Page &Setup" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ResetRole);
     print_bt_->setDefault(true);
 
     connect(preview_, SIGNAL(paintRequested(QPrinter*)), this, SLOT(paintPreview(QPrinter*)));

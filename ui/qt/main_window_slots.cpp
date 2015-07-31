@@ -698,7 +698,7 @@ void MainWindow::captureFileSaveStarted(const QString &file_path)
 {
     QFileInfo file_info(file_path);
     main_ui_->statusBar->popFileStatus();
-    main_ui_->statusBar->pushFileStatus(tr("Saving %1...").arg(file_info.baseName()));
+    main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.baseName()));
 }
 
 void MainWindow::filterExpressionsChanged()

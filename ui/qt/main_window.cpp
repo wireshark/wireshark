@@ -325,7 +325,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
-    QAction *update_action = new QAction(tr("Check for Updates..."), main_ui_->menuHelp);
+    QAction *update_action = new QAction(tr("Check for Updates" UTF8_HORIZONTAL_ELLIPSIS), main_ui_->menuHelp);
     main_ui_->menuHelp->insertAction(update_sep, update_action);
     connect(update_action, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
@@ -1423,7 +1423,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             QPushButton *discardButton;
 
             msg_dialog.setIcon(QMessageBox::Question);
-            msg_dialog.setWindowTitle("Unsaved packets...");
+            msg_dialog.setWindowTitle("Unsaved packets" UTF8_HORIZONTAL_ELLIPSIS);
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */
             if (capture_file_.capFile()->is_tempfile) {
