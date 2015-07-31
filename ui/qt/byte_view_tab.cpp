@@ -159,14 +159,16 @@ void ByteViewTab::copyBinary(const guint8 *data_p, int data_len)
     QByteArray clipboard_bytes = QByteArray::fromRawData((const char *) data_p, data_len);
 
     if (!clipboard_bytes.isEmpty()) {
-        QMimeData mime_data;
+        QMimeData *mime_data = new QMimeData;
         // gtk/gui_utils.c:copy_binary_to_clipboard says:
         /* XXX - this is not understood by most applications,
          * but can be pasted into the better hex editors - is
          * there something better that we can do?
          */
-        mime_data.setData("application/octet-stream", clipboard_bytes);
-        qApp->clipboard()->setMimeData(&mime_data);
+        // As of 2015-07-30, pasting into Frhed works on Windows. Pasting into
+        // Hex Editor Neo and HxD does not.
+        mime_data->setData("application/octet-stream", clipboard_bytes);
+        qApp->clipboard()->setMimeData(mime_data);
     }
 }
 
