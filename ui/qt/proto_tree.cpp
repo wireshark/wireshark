@@ -245,16 +245,18 @@ ProtoTree::ProtoTree(QWidget *parent) :
 
         ctx_menu_.addSeparator();
 
-//    "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
-//    "     <menuitem name='FilterFieldReference' action='/FilterFieldReference'/>\n"
+        action = window()->findChild<QAction *>("actionContextWikiProtocolPage");
+        ctx_menu_.addAction(action);
+        action = window()->findChild<QAction *>("actionContextFilterFieldReference");
+        ctx_menu_.addAction(action);
 //    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
         ctx_menu_.addMenu(&proto_prefs_menu_);
         ctx_menu_.addSeparator();
         decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
         ctx_menu_.addAction(decode_as_);
 //    "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
-//    "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
-        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewShowPacketReferenceInNewWindow"));
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
     } else {
         ctx_menu_.clear();
     }

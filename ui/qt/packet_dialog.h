@@ -48,7 +48,7 @@ signals:
 private slots:
     void captureFileClosing();
     void setHintText() { QString empty; setHintText(empty); }
-    void setHintText(QString &hint);
+    void setHintText(const QString &hint);
     void on_buttonBox_helpRequested();
 
 private:

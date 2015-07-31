@@ -224,13 +224,10 @@ void WiresharkApplication::setLastOpenDir(QString *dir_str) {
 
 void WiresharkApplication::helpTopicAction(topic_action_e action)
 {
-    char *url;
+    QString url = gchar_free_to_qstring(topic_action_url(action));
 
-    url = topic_action_url(action);
-
-    if(url != NULL) {
+    if(!url.isEmpty()) {
         QDesktopServices::openUrl(QUrl(url));
-        g_free(url);
     }
 }
 

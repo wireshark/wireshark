@@ -1042,6 +1042,8 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);
     main_ui_->actionEditTimeShift->setEnabled(have_frames);
 
+    main_ui_->actionGoGoToLinkedPacket->setEnabled(false);
+
     main_ui_->actionAnalyzeAAFSelected->setEnabled(have_filter_expr);
     main_ui_->actionAnalyzeAAFNotSelected->setEnabled(have_filter_expr);
     main_ui_->actionAnalyzeAAFAndSelected->setEnabled(have_filter_expr);
@@ -1134,7 +1136,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     bool is_framenum = false;
     bool have_field_info = false;
     bool have_subtree = false;
+    bool can_open_url = false;
     QString field_filter;
+    int field_id = -1;
 
     QList<QAction *> cc_actions = QList<QAction *>()
             << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
@@ -1152,15 +1156,40 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     }
 
     if (capture_file_.capFile() != NULL && fi != NULL) {
-        header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
+        header_field_info *hfinfo = fi->hfinfo;
+        int linked_frame = -1;
 
         have_field_info = true;
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
-        is_framenum = hfinfo && hfinfo->type == FT_FRAMENUM ? true : false;
+        if (hfinfo && hfinfo->type == FT_FRAMENUM) {
+            is_framenum = true;
+            linked_frame = fvalue_get_uinteger(&fi->value);
+        }
 
         char *tmp_field = proto_construct_match_selected_string(fi, capture_file_.capFile()->edt);
         field_filter = QString(tmp_field);
         wmem_free(NULL, tmp_field);
+
+        field_id = fi->hfinfo->id;
+        /* if the selected field isn't a protocol, get its parent */
+        if (!proto_registrar_is_protocol(field_id)) {
+            field_id = proto_registrar_get_parent(fi->hfinfo->id);
+        }
+
+        if (field_id >= 0 && !proto_is_private(field_id)) {
+            can_open_url = true;
+            main_ui_->actionContextWikiProtocolPage->setData(field_id);
+            main_ui_->actionContextFilterFieldReference->setData(field_id);
+        } else {
+            main_ui_->actionContextWikiProtocolPage->setData(QVariant());
+            main_ui_->actionContextFilterFieldReference->setData(QVariant());
+        }
+
+        if (linked_frame > 0) {
+            main_ui_->actionGoGoToLinkedPacket->setData(linked_frame);
+        } else {
+            main_ui_->actionGoGoToLinkedPacket->setData(QVariant());
+        }
     }
 
     main_ui_->menuConversationFilter->clear();
@@ -1194,34 +1223,12 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     conv_rule_action->setEnabled(!field_filter.isEmpty());
     connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
 
-//        set_menu_sensitivity(ui_manager_tree_view_menu,
-//                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
-//                             TRUE);
-
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
-//                             (id == -1) ? FALSE : TRUE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
-//                             (id == -1) ? FALSE : TRUE);
-//        set_menu_sensitivity(ui_manager_main_menubar,
-
-//        set_menu_sensitivity(ui_manager_main_menubar,
-//                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-
-//        set_menu_sensitivity(ui_manager_tree_view_menu,
-//                             "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
 //    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
-//                             FALSE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
-//                             FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar,
-//                             "/Menubar/GoMenu/GotoCorrespondingPacket", FALSE);
 
     main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
-    main_ui_->actionViewShowPacketReferenceInNewWindow->setEnabled(is_framenum);
+    main_ui_->actionContextShowLinkedPacketInNewWindow->setEnabled(is_framenum);
 
     main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL);
     main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
@@ -1230,6 +1237,8 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
     main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
     main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
+
+    main_ui_->actionGoGoToLinkedPacket->setEnabled(is_framenum);
 
     main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
 
@@ -1248,6 +1257,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
 
     main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
+
+    main_ui_->actionContextWikiProtocolPage->setEnabled(can_open_url);
+    main_ui_->actionContextFilterFieldReference->setEnabled(can_open_url);
 }
 
 void MainWindow::interfaceSelectionChanged()
@@ -2292,7 +2304,7 @@ void MainWindow::on_actionViewShowPacketInNewWindow_triggered()
 }
 
 // This is only used in ProtoTree. Defining it here makes more sense.
-void MainWindow::on_actionViewShowPacketReferenceInNewWindow_triggered()
+void MainWindow::on_actionContextShowLinkedPacketInNewWindow_triggered()
 {
     openPacketDialog(true);
 }
@@ -3038,6 +3050,18 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     }
 }
 
+void MainWindow::on_actionGoGoToLinkedPacket_triggered()
+{
+    QAction *gta = qobject_cast<QAction*>(sender());
+    if (!gta) return;
+
+    bool ok = false;
+    int packet_num = gta->data().toInt(&ok);
+    if (!ok) return;
+
+    packet_list_->goToPacket(packet_num);
+}
+
 void MainWindow::on_actionGoAutoScroll_toggled(bool checked)
 {
     packet_list_->setAutoScroll(checked);
@@ -3289,6 +3313,47 @@ void MainWindow::on_actionContextCopyBytesBinary_triggered()
     field_info *fi = ca->data().value<field_info *>();
 
     byte_view_tab_->copyData(ByteViewTab::copyDataBinary, fi);
+}
+
+void MainWindow::on_actionContextWikiProtocolPage_triggered()
+{
+    QAction *wa = qobject_cast<QAction*>(sender());
+    if (!wa) return;
+
+    bool ok = false;
+    int field_id = wa->data().toInt(&ok);
+    if (!ok) return;
+
+    const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
+
+    int ret = QMessageBox::question(this, wsApp->windowTitleString(tr("Wiki Page for %1").arg(proto_abbrev)),
+                                   tr("<p>The Wireshark Wiki is maintained by the community.</p>"
+                                      "<p>The page you are about to load might be wonderful, "
+                                      "incomplete, wrong, or nonexistent.</p>"
+                                      "<p>Proceed to the wiki?</p>"),
+                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (ret != QMessageBox::Yes) return;
+
+    QUrl wiki_url = QString("https://wiki.wireshark.org/Protocols/%1").arg(proto_abbrev);
+    QDesktopServices::openUrl(wiki_url);
+}
+
+void MainWindow::on_actionContextFilterFieldReference_triggered()
+{
+    QAction *wa = qobject_cast<QAction*>(sender());
+    if (!wa) return;
+
+    bool ok = false;
+    int field_id = wa->data().toInt(&ok);
+    if (!ok) return;
+
+    const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
+
+    QUrl dfref_url = QString("https://www.wireshark.org/docs/dfref/%1/%2")
+            .arg(proto_abbrev[0])
+            .arg(proto_abbrev);
+    QDesktopServices::openUrl(dfref_url);
 }
 
 /*

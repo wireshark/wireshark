@@ -109,8 +109,8 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     connect(proto_tree_, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
-    connect(byte_view_tab_, SIGNAL(byteFieldHovered(QString&)),
-            this, SLOT(setHintText(QString&)));
+    connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
+            this, SLOT(setHintText(const QString&)));
 }
 
 PacketDialog::~PacketDialog()
@@ -139,7 +139,7 @@ void PacketDialog::captureFileClosing()
     WiresharkDialog::captureFileClosing();
 }
 
-void PacketDialog::setHintText(QString &hint)
+void PacketDialog::setHintText(const QString &hint)
 {
     ui->hintLabel->setText(hint.isEmpty() ? col_info_ : hint);
 }

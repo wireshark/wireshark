@@ -384,10 +384,11 @@ private slots:
 
     void openPacketDialog(bool from_reference = false);
     void on_actionViewShowPacketInNewWindow_triggered();
-    void on_actionViewShowPacketReferenceInNewWindow_triggered();
+    void on_actionContextShowLinkedPacketInNewWindow_triggered();
     void on_actionViewReload_triggered();
 
     void on_actionGoGoToPacket_triggered();
+    void on_actionGoGoToLinkedPacket_triggered();
     void on_actionGoAutoScroll_toggled(bool checked);
     void resetPreviousFocus();
 
@@ -530,6 +531,9 @@ private slots:
     void on_actionContextCopyBytesPrintableText_triggered();
     void on_actionContextCopyBytesHexStream_triggered();
     void on_actionContextCopyBytesBinary_triggered();
+
+    void on_actionContextWikiProtocolPage_triggered();
+    void on_actionContextFilterFieldReference_triggered();
 
     void changeEvent(QEvent* event);
 

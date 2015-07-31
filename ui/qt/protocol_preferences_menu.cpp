@@ -189,19 +189,20 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
     module_ = NULL;
 
     protocol_ = find_protocol_by_id(proto_id);
-    const QString proto_name = proto_get_protocol_long_name(protocol_);
+    const QString long_name = proto_get_protocol_long_name(protocol_);
+    const QString short_name = proto_get_protocol_short_name(protocol_);
     if (!module_name || proto_id < 0 || !protocol_) {
         action = addAction(tr("No protocol preferences available"));
         action->setDisabled(true);
         return;
     }
 
-    QAction *disable_action = new QAction(tr("Disable %1" UTF8_HORIZONTAL_ELLIPSIS).arg(proto_name), this);
+    QAction *disable_action = new QAction(tr("Disable %1" UTF8_HORIZONTAL_ELLIPSIS).arg(short_name), this);
     connect(disable_action, SIGNAL(triggered(bool)), this, SLOT(disableProtocolTriggered()));
 
     module_ = prefs_find_module(module_name);
     if (!module_ || !prefs_is_registered_protocol(module_name)) {
-        action = addAction(tr("%1 has no preferences").arg(proto_name));
+        action = addAction(tr("%1 has no preferences").arg(long_name));
         action->setDisabled(true);
         addSeparator();
         addAction(disable_action);
@@ -210,7 +211,7 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
 
     module_name_ = module_name;
 
-    action = addAction(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(proto_name));
+    action = addAction(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(long_name));
     action->setData(QString(module_name));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
     addSeparator();

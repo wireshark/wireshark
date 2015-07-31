@@ -229,6 +229,7 @@
      <string>&amp;Go</string>
     </property>
     <addaction name="actionGoGoToPacket"/>
+    <addaction name="actionGoGoToLinkedPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoNextPacket"/>
     <addaction name="actionGoPreviousPacket"/>
@@ -2377,9 +2378,9 @@
     <string>Show this packet in a separate window.</string>
    </property>
   </action>
-  <action name="actionViewShowPacketReferenceInNewWindow">
+  <action name="actionContextShowLinkedPacketInNewWindow">
    <property name="text">
-    <string>Show Packet Reference in New Window</string>
+    <string>Show Linked Packet in New Window</string>
    </property>
    <property name="toolTip">
     <string>Show the linked packet in a separate window.</string>
@@ -2583,6 +2584,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+E</string>
+   </property>
+  </action>
+  <action name="actionContextWikiProtocolPage">
+   <property name="text">
+    <string>Wiki Protocol Page</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the Wireshark wiki page for this protocol.</string>
+   </property>
+  </action>
+  <action name="actionContextFilterFieldReference">
+   <property name="text">
+    <string>Filter Field Reference</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the display filter reference page for this filter field.</string>
+   </property>
+  </action>
+  <action name="actionGoGoToLinkedPacket">
+   <property name="text">
+    <string>Go to Linked Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the packet referenced by the selected field.</string>
    </property>
   </action>
  </widget>
