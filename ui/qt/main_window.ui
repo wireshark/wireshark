@@ -1191,34 +1191,34 @@
   </action>
   <action name="actionAnalyzeAAFAndSelected">
    <property name="text">
-    <string>… &amp;and Selected</string>
+    <string>…&amp;and Selected</string>
    </property>
    <property name="toolTip">
-    <string>… and Selected</string>
+    <string>…and Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFOrSelected">
    <property name="text">
-    <string>… &amp;or Selected</string>
+    <string>…&amp;or Selected</string>
    </property>
    <property name="toolTip">
-    <string>… or Selected</string>
+    <string>…or Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFAndNotSelected">
    <property name="text">
-    <string>… a&amp;nd not Selected</string>
+    <string>…a&amp;nd not Selected</string>
    </property>
    <property name="toolTip">
-    <string>… and not Selected</string>
+    <string>…and not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFOrNotSelected">
    <property name="text">
-    <string>… o&amp;r not Selected</string>
+    <string>…o&amp;r not Selected</string>
    </property>
    <property name="toolTip">
-    <string>… or not Selected</string>
+    <string>…or not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFSelected">
@@ -1236,34 +1236,34 @@
   </action>
   <action name="actionAnalyzePAFAndSelected">
    <property name="text">
-    <string>… &amp;and Selected</string>
+    <string>…&amp;and Selected</string>
    </property>
    <property name="toolTip">
-    <string>… and Selected</string>
+    <string>…and Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFOrSelected">
    <property name="text">
-    <string>… &amp;or Selected</string>
+    <string>…&amp;or Selected</string>
    </property>
    <property name="toolTip">
-    <string>… or Selected</string>
+    <string>…or Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFAndNotSelected">
    <property name="text">
-    <string>… a&amp;nd not Selected</string>
+    <string>…a&amp;nd not Selected</string>
    </property>
    <property name="toolTip">
-    <string>… and not Selected</string>
+    <string>…and not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzePAFOrNotSelected">
    <property name="text">
-    <string>… o&amp;r not Selected</string>
+    <string>…o&amp;r not Selected</string>
    </property>
    <property name="toolTip">
-    <string>… or not Selected</string>
+    <string>…or not Selected</string>
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilters">
