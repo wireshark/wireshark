@@ -1642,7 +1642,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 }
 
-#if 0 /* XXX: Replaced by code creating the "Dechunked" tvb  O(N) rather tan O(N^2) */
+#if 0 /* XXX: Replaced by code creating the "Dechunked" tvb O(N) rather than O(N^2) */
 /*
  * Dissect the http data chunks and add them to the tree.
  */
@@ -1772,16 +1772,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			    1, chunk_size, "%u octets", chunk_size);
 			proto_item_set_len(chuck_size_item, chunk_offset - offset);
 
-			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
-
-
 			/*
-			 * XXX - just use "proto_tree_add_string_format()"?
-			 * This means that, in TShark, you get
-			 * the entire chunk dumped out in hex,
-			 * in addition to whatever dissection is
-			 * done on the reassembled data.
+			 * XXX - just add the chunk's data as an item?
+			 *
+			 * Using the data dissector means that, in
+			 * TShark, you get the entire chunk dumped
+			 * out in hex, in addition to whatever
+			 * dissection is done on the reassembled data.
 			 */
+			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
 			call_dissector(data_handle, data_tvb, pinfo,
 				    chunk_subtree);
 
@@ -1928,15 +1927,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 			/* last-chunk does not have chunk-data CRLF. */
 			if (chunk_size > 0) {
-				data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, datalen);
-
 				/*
-				 * XXX - just use "proto_tree_add_string_format()"?
-				 * This means that, in TShark, you get
-				 * the entire chunk dumped out in hex,
-				 * in addition to whatever dissection is
-				 * done on the reassembled data.
+				 * XXX - just add the chunk's data as an item?
+				 *
+				 * Using the data dissector means that, in
+				 * TShark, you get the entire chunk dumped
+				 * out in hex, in addition to whatever
+				 * dissection is done on the reassembled data.
 				 */
+				data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
 				call_dissector(data_handle, data_tvb, pinfo,
 					    chunk_subtree);
 
