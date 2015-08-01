@@ -656,7 +656,7 @@ static gint msg_data_find(struct message_data *a, struct message_data *b)
 static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 {
 	smb_fid_info_t *fid_info = NULL;
-	smb_transact_info_t *tri = (smb_transact_info_t *)((si->sip->extra_info_type == SMB_EI_TRI) ? si->sip->extra_info : NULL);
+	smb_transact_info_t *tri = (smb_transact_info_t *)((si->sip && (si->sip->extra_info_type == SMB_EI_TRI)) ? si->sip->extra_info : NULL);
 	GSList *iter;
 	guint32 fid = 0;
 
@@ -673,7 +673,7 @@ static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 	if (!fid) {
 		return NULL;
 	}
-	for (iter = si->ct->GSL_fid_info; iter; iter = g_slist_next(iter)) {
+	for (iter = si->ct->GSL_fid_info; iter; iter = iter->next) {
 		smb_fid_info_t *info = (smb_fid_info_t *)iter->data;
 		if ((info->tid == si->tid) && (info->fid == fid)) {
 			fid_info = info;
@@ -722,7 +722,7 @@ mswsp_init_protocol(void)
 	GSList *table_iter;
 	if (conv_tables) {
 		for(table_iter = conv_tables; table_iter;
-			table_iter = g_slist_next(table_iter)) {
+			table_iter = table_iter->next) {
 			struct mswsp_ct  *ct = (struct mswsp_ct *)table_iter->data;
 			/* should we free the elements the GSL_message_data */
 			g_slist_free(ct->GSL_message_data);
@@ -789,7 +789,7 @@ find_matching_request_by_fid(struct mswsp_ct *ct, packet_info *pinfo, guint32 ms
 
 	struct message_data *result = NULL;
 	get_fid_and_frame(pinfo, &fid, &frame, private_data);
-	for (iter = ct->GSL_message_data; iter; iter = g_slist_next(iter)) {
+	for (iter = ct->GSL_message_data; iter; iter = iter->next) {
 		struct message_data* data = (struct message_data*)iter->data;
 		if (data->frame < frame && data->fid == fid && data->is_request == in
 			&& data->msg_id == msg && data->smb_level == *p_smb_level) {
@@ -5745,7 +5745,6 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 			break;
 		default: /*error*/
 			break;
-			DISSECTOR_ASSERT(eType <=4);
 		}
 	} else {
 		/* 2.2.3.12 */
@@ -5793,7 +5792,6 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		default: /*error*/
 			break;
 		}
-		DISSECTOR_ASSERT(eType <=4);
 
 		if (b_has_arch && bindingsin && rowsin) {
 			offset = parse_padding(tvb, offset, rowsin->cbreserved, pad_tree,
@@ -8071,7 +8069,7 @@ static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	smb2_info_t *si = (smb2_info_t*)data;
-	gboolean in = !(si->flags & SMB2_FLAGS_RESPONSE);
+	gboolean in;
 	char* fid_name = NULL;
 	guint32     open_frame = 0, close_frame = 0;
 
@@ -8087,6 +8085,7 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		return 0;
 	}
 
+	in = !(si->flags & SMB2_FLAGS_RESPONSE);
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0, (void*)&SMB2);
 	return dissect_mswsp(tvb, pinfo, tree, in, data);
 }
