@@ -157,7 +157,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
         fi
         echo -n "    $CF: "
 
-        if [ $VALGRIND -eq 1 -a `ls -s $CF | cut -d' ' -f1` -gt 20000 ]; then
+        if [ $VALGRIND -eq 1 -a `ls -s $CF | cut -d' ' -f1` -gt 8000 ]; then
             echo "Too big for valgrind"
             continue
         fi
