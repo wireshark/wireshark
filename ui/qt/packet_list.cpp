@@ -1293,7 +1293,7 @@ void PacketList::drawNearOverlay()
         int cur_line = 0;
         int start = 0;
 
-        if (packet_list_model_->rowCount() > o_height) {
+        if (packet_list_model_->rowCount() > o_height && overlay_sb_->maximum() > 0) {
             start += ((double) overlay_sb_->value() / overlay_sb_->maximum()) * (packet_list_model_->rowCount() - o_rows);
         }
         int end = start + o_rows;
