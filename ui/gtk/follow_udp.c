@@ -40,7 +40,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/follow_udp.h"
 
-static int
+static gboolean
 udp_queue_packet_data(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data)
 {
@@ -69,7 +69,7 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
     follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
 
     follow_info->payload = g_list_append(follow_info->payload, follow_record);
-    return 0;
+    return FALSE;
 }
 
 /* Follow the UDP stream, if any, to which the last packet that we called

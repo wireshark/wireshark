@@ -199,7 +199,7 @@ expert_dlg_reset(void *tapdata)
     expert_dlg_display_reset(etd);
 }
 
-static int
+static gboolean
 expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
     expert_info_t    *ei;
@@ -231,9 +231,9 @@ expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
         g_assert_not_reached();
     }
     if(ei->severity < etd->severity_report_level) {
-        return 0; /* draw not required */
+        return FALSE; /* draw not required */
     } else {
-        return 1; /* draw required */
+        return TRUE; /* draw required */
     }
 }
 static void

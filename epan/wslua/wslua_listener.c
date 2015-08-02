@@ -81,11 +81,11 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = (Listener)tapdata;
-    int retval = 0;
+    gboolean retval = FALSE;
 
-    if (tap->packet_ref == LUA_NOREF) return 0;
+    if (tap->packet_ref == LUA_NOREF) return FALSE;
 
     lua_settop(tap->L,0);
 
@@ -107,7 +107,7 @@ static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
-            retval = (int)luaL_optinteger(tap->L,-1,1);
+            retval = luaL_optinteger(tap->L,-1,1) == 0 ? FALSE : TRUE;
             break;
         case LUA_ERRRUN:
             break;

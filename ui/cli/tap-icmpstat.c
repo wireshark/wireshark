@@ -110,10 +110,10 @@ static gint compare_doubles(gconstpointer a, gconstpointer b)
  * "icmp" tap, the third parameter type is icmp_transaction_t.
  *
  * function returns :
- *  0: no updates, no need to call (*draw) later
- * !0: state has changed, call (*draw) sometime later
+ *  FALSE: no updates, no need to call (*draw) later
+ *  TRUE: state has changed, call (*draw) sometime later
  */
-static int
+static gboolean
 icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
@@ -121,13 +121,13 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
     double resp_time, *rt;
 
     if (trans == NULL)
-        return 0;
+        return FALSE;
 
     if (trans->resp_frame) {
         resp_time = nstime_to_msec(&trans->resp_time);
         rt = g_new(double, 1);
         if (rt == NULL)
-            return 0;
+            return FALSE;
         *rt = resp_time;
         icmpstat->rt_list = g_slist_prepend(icmpstat->rt_list, rt);
         icmpstat->num_resps++;
@@ -143,9 +143,9 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
     } else if (trans->rqst_frame)
         icmpstat->num_rqsts++;
     else
-        return 0;
+        return FALSE;
 
-    return 1;
+    return TRUE;
 }
 
 

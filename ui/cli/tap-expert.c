@@ -81,7 +81,7 @@ expert_stat_reset(void *tapdata)
 }
 
 /* Process stat struct for an expert frame */
-static int
+static gboolean
 expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
                    const void *pointer)
 {
@@ -107,12 +107,12 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
             break;
         default:
             g_assert_not_reached();
-            return 0;
+            return FALSE;
     }
 
     /* Don't store details at a lesser severity than we are interested in */
     if (severity_level < lowest_report_level) {
-        return 1;
+        return TRUE;
     }
 
     /* If a duplicate just bump up frequency.
@@ -122,7 +122,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
         if ((strcmp(ei->protocol, entry->protocol) == 0) &&
             (strcmp(ei->summary, entry->summary) == 0)) {
             entry->frequency++;
-            return 1;
+            return TRUE;
         }
     }
 
@@ -136,7 +136,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
     /* Store a copy of the expert entry */
     g_array_append_val(data->ei_array[severity_level], tmp_entry);
 
-    return 1;
+    return TRUE;
 }
 
 /* Output for all of the items of one severity */

@@ -312,7 +312,7 @@ add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
 	return info;
 }
 
-static int
+static gboolean
 packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	const struct _sctp_info *sctp_info = (const struct _sctp_info *)data;
@@ -1177,7 +1177,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		info = calc_checksum(sctp_info, info);
 		info->n_packets++;
 	}
-	return(1);
+	return TRUE;
 }
 
 

@@ -61,7 +61,7 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
-static int
+static gboolean
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
@@ -73,7 +73,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
 
     /* Skip packets without decrypted payload data. */
     pi = (SslPacketInfo*) p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0);
-    if (!pi || !pi->appl_data) return 0;
+    if (!pi || !pi->appl_data) return FALSE;
 
     /* Compute the packet's sender. */
     if (follow_info->client_port == 0) {
@@ -117,7 +117,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
         follow_info->bytes_written[from] += rec->data.data_len;
     }
 
-    return 0;
+    return FALSE;
 }
 /* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently

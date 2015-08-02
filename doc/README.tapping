@@ -215,10 +215,10 @@ You can hand register_tap_listener() NULL for both (*draw) and (*reset)
 Perhaps you want an extension that will execute a certain command
 every time it sees a certain packet?
 Well, try this :
-	int packet(void *tapdata,...) {
+	gboolean packet(void *tapdata,...) {
 		...
 		system("mail ...");
-		return0;
+		return FALSE;
 	}
 
 	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
@@ -237,7 +237,3 @@ Well, try this :
 See tap-rpcstat.c for an example
 See tap.c as well. It contains lots of comments and descriptions on the tap
 system.
-
-
-
-

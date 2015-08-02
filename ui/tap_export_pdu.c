@@ -38,7 +38,7 @@
 #include "tap_export_pdu.h"
 
 /* Main entry point to the tap */
-static int
+static gboolean
 export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;

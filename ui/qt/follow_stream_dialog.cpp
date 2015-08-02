@@ -366,7 +366,7 @@ FollowStreamDialog::readStream()
 }
 
 //Copy from ui/gtk/follow_udp.c
-static int
+static gboolean
 udp_queue_packet_data(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *, const void *data)
 {
@@ -396,11 +396,11 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
     follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
 
     follow_info->payload = g_list_append(follow_info->payload, follow_record);
-    return 0;
+    return FALSE;
 }
 
 //Copy from ui/gtk/follow_ssl.c
-static int
+static gboolean
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *, const void *ssl)
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
@@ -457,7 +457,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *, const
         follow_info->bytes_written[from] += rec->data.data_len;
     }
 
-    return 0;
+    return FALSE;
 }
 
 /*
