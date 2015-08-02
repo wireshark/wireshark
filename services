@@ -11324,7 +11324,7 @@ kastenxpipe     36865/tcp # KastenX Pipe [Guy_Cheng] [Guy_Cheng]
 kastenxpipe     36865/udp # KastenX Pipe [Guy_Cheng] [Guy_Cheng]
 neckar          37475/tcp # science + computing's Venus Administration Port [Ralf_Allrutz] [Ralf_Allrutz] 2002-02
 neckar          37475/udp # science + computing's Venus Administration Port [Ralf_Allrutz] [Ralf_Allrutz] 2002-02
-gdrive-sync     37483/tcp # Google Drive Sync [Google] [Fil_Zembowicz] 2013-02-01
+gdrive-sync     37483/tcp # Google Drive Sync [Google_Inc] [Jason_Schiller] 2013-02-01 2015-07-31
 eftp            37601/tcp # Epipole File Transfer Protocol [Epipole_Limited] [Colin_Buchanan] 2014-11-13
 unisys-eportal  37654/tcp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
 unisys-eportal  37654/udp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
