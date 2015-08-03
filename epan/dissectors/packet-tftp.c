@@ -221,9 +221,11 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
+  /* Protocol root */
   ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
   tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
+  /* Opcode */
   opcode = tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb, offset, 2, opcode);
   col_add_str(pinfo->cinfo, COL_INFO,
@@ -472,6 +474,24 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   switch (opcode) {
     case TFTP_RRQ:
     case TFTP_WRQ:
+      /* These 2 opcodes have a NULL-terminated source file name after opcode. Verify */
+      {
+        gint char_offset = 1;
+        while (tvb_captured_length_remaining(tvb, char_offset)) {
+          gchar c = (gchar)tvb_get_guint8(tvb, char_offset++);
+          if (c == '\0') {
+            /* NULL termination found - continue with dissection */
+            break;
+          }
+          else if (!g_ascii_isprint(c)) {
+            /* Not part of a file name - give up now */
+            return FALSE;
+          }
+        }
+        /* Would have to have a short capture length to not include the whole filename,
+           but fall through here anyway rather than returning FALSE */
+     }
+     /* Intentionally dropping through here... */
     case TFTP_DATA:
     case TFTP_ACK:
     case TFTP_OACK:
