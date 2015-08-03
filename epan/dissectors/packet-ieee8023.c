@@ -1,5 +1,12 @@
 /* packet-ieee8023.c
- * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
+ * Routine for dissecting Ethernet packets with a length field (as opposed
+ * to a type field).
+ *
+ * The name "ieee8023" is historical, dating back to when IEEE Std 802.3
+ * had only a length field and expected all packets to have an 802.2
+ * header following the MAC header.  Since IEEE 802.3y-1997, 802.3
+ * supports either a type field or a length field, so it's no longer
+ * correct to refer to "802.3" vs. "D/I/X" or vs. "Ethernet II" frames.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
