@@ -1,5 +1,6 @@
 /* packet-cisco-metadata.c
  * Routines for dissection of Cisco's MetaData protocol.
+ * draft-smith-kandula-sxp
  * Copyright 2013 by Vaibhav Katkade (vkatkade[AT]cisco.com)
  *
  * Wireshark - Network traffic analyzer
