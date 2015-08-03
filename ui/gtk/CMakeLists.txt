@@ -206,7 +206,6 @@ set(WIRESHARK_TAP_SRC
 	gsm_a_stat.c
 	gsm_map_stat.c
 	gsm_map_summary.c
-	h225_counter.c
 	iax2_analysis.c
 	io_stat.c
 	lbm_stream_dlg.c

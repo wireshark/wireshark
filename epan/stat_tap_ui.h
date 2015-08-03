@@ -163,7 +163,7 @@ WS_DLL_PUBLIC new_stat_tap_table* new_stat_tap_init_table(const char *name, int 
                 const char *filter_string, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
 WS_DLL_PUBLIC void new_stat_tap_add_table(new_stat_tap_ui* new_stat, new_stat_tap_table* table);
 
-WS_DLL_PUBLIC void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, stat_tap_table_item_type* fields);
+WS_DLL_PUBLIC void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, const stat_tap_table_item_type* fields);
 WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(const new_stat_tap_table *stat_table, guint table_index, guint field_index);
 WS_DLL_PUBLIC void new_stat_tap_set_field_data(new_stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
 WS_DLL_PUBLIC void reset_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);

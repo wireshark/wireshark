@@ -5391,7 +5391,7 @@ void bootp_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_cal
 
 	new_stat_tap_add_table(new_stat, table);
 
-	/* Add a fow for each value type */
+	/* Add a row for each value type */
 	while (opt53_text[i].strptr)
 	{
 		items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;

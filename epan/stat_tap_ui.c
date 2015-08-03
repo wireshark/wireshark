@@ -192,7 +192,7 @@ void new_stat_tap_add_table(new_stat_tap_ui* new_stat, new_stat_tap_table* table
     g_array_insert_val(new_stat->tables, new_stat->tables->len, table);
 }
 
-void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, stat_tap_table_item_type* fields)
+void new_stat_tap_init_table_row(new_stat_tap_table *stat_table, guint table_index, guint num_fields, const stat_tap_table_item_type* fields)
 {
     /* we have discovered a new procedure. Extend the table accordingly */
     if(table_index>=stat_table->num_elements){

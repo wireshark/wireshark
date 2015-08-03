@@ -41,6 +41,7 @@
 #include <epan/asn1.h>
 #include <epan/t35.h>
 #include <epan/tap.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/rtd_table.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
@@ -84,7 +85,7 @@ typedef struct _h225ras_call_info_key {
 	conversation_t *conversation;
 } h225ras_call_info_key;
 
-static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages per packet */
+static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H.225 messages per packet */
 static int pi_current=0;
 static h225_packet_info *h225_pi=&pi_arr[0];
 
@@ -186,11 +187,11 @@ typedef enum _ras_category {
 
 #define NUM_RAS_STATS 7
 
-static int
+static gboolean
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
-    rtd_data_t* rtd_data = (rtd_data_t*)phs;
-    rtd_stat_table* rs = &rtd_data->stat_table;
+	rtd_data_t* rtd_data = (rtd_data_t*)phs;
+	rtd_stat_table* rs = &rtd_data->stat_table;
 	const h225_packet_info *pi=(const h225_packet_info *)phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
@@ -198,7 +199,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
 	if (pi->msg_type != H225_RAS || pi->msg_tag == -1) {
 		/* No RAS Message or uninitialized msg_tag -> return */
-		return 0;
+		return FALSE;
 	}
 
 	if (pi->msg_tag < 21) {
@@ -208,7 +209,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 	}
 	else {
 		/* No SRT yet (ToDo) */
-		return 0;
+		return FALSE;
 	}
 
 	switch(rasmsg_type) {
@@ -240,9 +241,9 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 		break;
 
 	default:
-		return 0;
+		return FALSE;
 	}
-	return 1;
+	return TRUE;
 }
 
 #include "packet-h225-fn.c"
@@ -430,6 +431,394 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
+
+/* The following values represent the size of their valuestring arrays */
+
+#define RAS_MSG_TYPES (sizeof(h225_RasMessage_vals) / sizeof(value_string))
+#define CS_MSG_TYPES (sizeof(T_h323_message_body_vals) / sizeof(value_string))
+
+#define GRJ_REASONS (sizeof(GatekeeperRejectReason_vals) / sizeof(value_string))
+#define RRJ_REASONS (sizeof(RegistrationRejectReason_vals) / sizeof(value_string))
+#define URQ_REASONS (sizeof(UnregRequestReason_vals) / sizeof(value_string))
+#define URJ_REASONS (sizeof(UnregRejectReason_vals) / sizeof(value_string))
+#define ARJ_REASONS (sizeof(AdmissionRejectReason_vals) / sizeof(value_string))
+#define BRJ_REASONS (sizeof(BandRejectReason_vals) / sizeof(value_string))
+#define DRQ_REASONS (sizeof(DisengageReason_vals) / sizeof(value_string))
+#define DRJ_REASONS (sizeof(DisengageRejectReason_vals) / sizeof(value_string))
+#define LRJ_REASONS (sizeof(LocationRejectReason_vals) / sizeof(value_string))
+#define IRQNAK_REASONS (sizeof(InfoRequestNakReason_vals) / sizeof(value_string))
+#define REL_CMP_REASONS (sizeof(h225_ReleaseCompleteReason_vals) / sizeof(value_string))
+#define FACILITY_REASONS (sizeof(FacilityReason_vals) / sizeof(value_string))
+
+/* TAP STAT INFO */
+typedef enum
+{
+	MESSAGE_TYPE_COLUMN = 0,
+	COUNT_COLUMN
+} h225_stat_columns;
+
+typedef struct _h225_table_item {
+	guint count;     /* Message count */
+	guint table_idx; /* stat_table index */
+} h225_table_item_t;
+
+static stat_tap_table_item h225_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Type or Reason", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
+
+static guint ras_msg_idx[RAS_MSG_TYPES];
+static guint cs_msg_idx[CS_MSG_TYPES];
+
+static guint grj_reason_idx[GRJ_REASONS];
+static guint rrj_reason_idx[RRJ_REASONS];
+static guint urq_reason_idx[URQ_REASONS];
+static guint urj_reason_idx[URJ_REASONS];
+static guint arj_reason_idx[ARJ_REASONS];
+static guint brj_reason_idx[BRJ_REASONS];
+static guint drq_reason_idx[DRQ_REASONS];
+static guint drj_reason_idx[DRJ_REASONS];
+static guint lrj_reason_idx[LRJ_REASONS];
+static guint irqnak_reason_idx[IRQNAK_REASONS];
+static guint rel_cmp_reason_idx[REL_CMP_REASONS];
+static guint facility_reason_idx[FACILITY_REASONS];
+
+static guint other_idx;
+
+void h225_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+	int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
+	new_stat_tap_table* table = new_stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL, gui_callback, gui_data);
+	int row_idx = 0, msg_idx;
+	stat_tap_table_item_type items[sizeof(h225_stat_fields)/sizeof(stat_tap_table_item)];
+
+	new_stat_tap_add_table(new_stat, table);
+
+	items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+	items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+	items[COUNT_COLUMN].value.uint_value = 0;
+
+	/* Add a row for each value type */
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			h225_RasMessage_vals[msg_idx].strptr
+			? h225_RasMessage_vals[msg_idx].strptr
+			: "Unknown RAS message";
+		ras_msg_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (h225_RasMessage_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			T_h323_message_body_vals[msg_idx].strptr
+			? T_h323_message_body_vals[msg_idx].strptr
+			: "Unknown CS message";
+		cs_msg_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (T_h323_message_body_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			GatekeeperRejectReason_vals[msg_idx].strptr
+			? GatekeeperRejectReason_vals[msg_idx].strptr
+			: "Unknown gatekeeper reject reason";
+		grj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (GatekeeperRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			RegistrationRejectReason_vals[msg_idx].strptr
+			? RegistrationRejectReason_vals[msg_idx].strptr
+			: "Unknown registration reject reason";
+		rrj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (RegistrationRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			UnregRequestReason_vals[msg_idx].strptr
+			? UnregRequestReason_vals[msg_idx].strptr
+			: "Unknown unregistration request reason";
+		urq_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (UnregRequestReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			UnregRejectReason_vals[msg_idx].strptr
+			? UnregRejectReason_vals[msg_idx].strptr
+			: "Unknown unregistration reject reason";
+		urj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (UnregRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			AdmissionRejectReason_vals[msg_idx].strptr
+			? AdmissionRejectReason_vals[msg_idx].strptr
+			: "Unknown admission reject reason";
+		arj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (AdmissionRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			BandRejectReason_vals[msg_idx].strptr
+			? BandRejectReason_vals[msg_idx].strptr
+			: "Unknown band reject reason";
+		brj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (BandRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			DisengageReason_vals[msg_idx].strptr
+			? DisengageReason_vals[msg_idx].strptr
+			: "Unknown disengage reason";
+		drq_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (DisengageReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			DisengageRejectReason_vals[msg_idx].strptr
+			? DisengageRejectReason_vals[msg_idx].strptr
+			: "Unknown disengage reject reason";
+		drj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (DisengageRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			LocationRejectReason_vals[msg_idx].strptr
+			? LocationRejectReason_vals[msg_idx].strptr
+			: "Unknown location reject reason";
+		lrj_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (LocationRejectReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			InfoRequestNakReason_vals[msg_idx].strptr
+			? InfoRequestNakReason_vals[msg_idx].strptr
+			: "Unknown info request nak reason";
+		irqnak_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (InfoRequestNakReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			h225_ReleaseCompleteReason_vals[msg_idx].strptr
+			? h225_ReleaseCompleteReason_vals[msg_idx].strptr
+			: "Unknown release complete reason";
+		rel_cmp_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (h225_ReleaseCompleteReason_vals[msg_idx].strptr);
+
+	msg_idx = 0;
+	do
+	{
+		items[MESSAGE_TYPE_COLUMN].value.string_value =
+			FacilityReason_vals[msg_idx].strptr
+			? FacilityReason_vals[msg_idx].strptr
+			: "Unknown facility reason";
+		facility_reason_idx[msg_idx] = row_idx;
+
+		new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+		row_idx++;
+		msg_idx++;
+	} while (FacilityReason_vals[msg_idx].strptr);
+
+
+	items[MESSAGE_TYPE_COLUMN].value.string_value = "Unknown H.225 message";
+	new_stat_tap_init_table_row(table, row_idx, num_fields, items);
+	other_idx = row_idx;
+}
+
+static gboolean
+h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *hpi_ptr)
+{
+	new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+	const h225_packet_info *hpi = (const h225_packet_info *)hpi_ptr;
+	int tag_idx = -1;
+	int reason_idx = -1;
+
+	if(hpi->msg_tag < 0) { /* uninitialized */
+		return FALSE;
+	}
+
+	switch (hpi->msg_type) {
+
+	case H225_RAS:
+		tag_idx = ras_msg_idx[MIN(hpi->msg_tag, (int)RAS_MSG_TYPES-1)];
+
+		/* Look for reason tag */
+		if(hpi->reason < 0) { /* uninitialized */
+			break;
+		}
+
+		switch(hpi->msg_tag) {
+
+		case 2:	/* GRJ */
+			reason_idx = grj_reason_idx[MIN(hpi->reason, (int)GRJ_REASONS-1)];
+			break;
+		case 5:	/* RRJ */
+			reason_idx = rrj_reason_idx[MIN(hpi->reason, (int)RRJ_REASONS-1)];
+			break;
+		case 6:	/* URQ */
+			reason_idx = urq_reason_idx[MIN(hpi->reason, (int)URQ_REASONS-1)];
+			break;
+		case 8:	/* URJ */
+			reason_idx = urj_reason_idx[MIN(hpi->reason, (int)URJ_REASONS-1)];
+			break;
+		case 11: /* ARJ */
+			reason_idx = arj_reason_idx[MIN(hpi->reason, (int)ARJ_REASONS-1)];
+			break;
+		case 14: /* BRJ */
+			reason_idx = brj_reason_idx[MIN(hpi->reason, (int)BRJ_REASONS-1)];
+			break;
+		case 15: /* DRQ */
+			reason_idx = drq_reason_idx[MIN(hpi->reason, (int)DRQ_REASONS-1)];
+			break;
+		case 17: /* DRJ */
+			reason_idx = drj_reason_idx[MIN(hpi->reason, (int)DRJ_REASONS-1)];
+			break;
+		case 20: /* LRJ */
+			reason_idx = lrj_reason_idx[MIN(hpi->reason, (int)LRJ_REASONS-1)];
+			break;
+		case 29: /* IRQ Nak */
+			reason_idx = irqnak_reason_idx[MIN(hpi->reason, (int)IRQNAK_REASONS-1)];
+			break;
+		default:
+			/* do nothing */
+			break;
+		}
+
+		break;
+
+	case H225_CS:
+		tag_idx = cs_msg_idx[MIN(hpi->msg_tag, (int)CS_MSG_TYPES-1)];
+
+		/* Look for reason tag */
+		if(hpi->reason < 0) { /* uninitialized */
+			break;
+		}
+
+		switch(hpi->msg_tag) {
+
+		case 5:	/* ReleaseComplete */
+			reason_idx = rel_cmp_reason_idx[MIN(hpi->reason, (int)REL_CMP_REASONS-1)];
+			break;
+		case 6:	/* Facility */
+			reason_idx = facility_reason_idx[MIN(hpi->reason, (int)FACILITY_REASONS-1)];
+			break;
+		default:
+			/* do nothing */
+			break;
+		}
+
+		break;
+
+	case H225_OTHERS:
+	default:
+		tag_idx = other_idx;
+	}
+
+	if (tag_idx >= 0) {
+		new_stat_tap_table*table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+		stat_tap_table_item_type* msg_data = new_stat_tap_get_field_data(table, tag_idx, COUNT_COLUMN);;
+		msg_data->value.uint_value++;
+		new_stat_tap_set_field_data(table, tag_idx, COUNT_COLUMN, msg_data);
+
+		if (reason_idx >= 0) {
+			msg_data = new_stat_tap_get_field_data(table, reason_idx, COUNT_COLUMN);;
+			msg_data->value.uint_value++;
+			new_stat_tap_set_field_data(table, reason_idx, COUNT_COLUMN, msg_data);
+		}
+
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static void
+h225_stat_reset(new_stat_tap_table* table)
+{
+	guint element;
+	stat_tap_table_item_type* item_data;
+
+	for (element = 0; element < table->num_elements; element++)
+	{
+		item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+		item_data->value.uint_value = 0;
+		new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+	}
+}
+
 /*--- proto_register_h225 -------------------------------------------*/
 void proto_register_h225(void) {
 
@@ -455,13 +844,33 @@ void proto_register_h225(void) {
       		NULL, 0, NULL, HFILL }},
 
 #include "packet-h225-hfarr.c"
-  };
+	};
 
   /* List of subtrees */
-  static gint *ett[] = {
-	  &ett_h225,
+	static gint *ett[] = {
+		&ett_h225,
 #include "packet-h225-ettarr.c"
-  };
+	};
+
+	static tap_param h225_stat_params[] = {
+		{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+	};
+
+	static new_stat_tap_ui h225_stat_table = {
+		REGISTER_STAT_GROUP_TELEPHONY,
+		"H.225",
+		PFNAME,
+		"h225,counter",
+		h225_stat_init,
+		h225_stat_packet,
+		h225_stat_reset,
+		NULL,
+		NULL,
+		sizeof(h225_stat_fields)/sizeof(stat_tap_table_item), h225_stat_fields,
+		sizeof(h225_stat_params)/sizeof(tap_param), h225_stat_params,
+		NULL
+	};
+
 	module_t *h225_module;
 	int proto_h225_ras;
 
@@ -494,7 +903,7 @@ void proto_register_h225(void) {
 		"ON - display tunnelled protocols inside H.225.0 tree, OFF - display tunnelled protocols in root tree after H.225.0",
 		&h225_tp_in_tree);
 
-	new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
+	new_register_dissector(PFNAME, dissect_h225_H323UserInformation, proto_h225);
 	new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
 	new_register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
@@ -506,9 +915,11 @@ void proto_register_h225(void) {
 
 	register_init_routine(&h225_init_routine);
 	register_cleanup_routine(&h225_cleanup_routine);
-	h225_tap = register_tap("h225");
+	h225_tap = register_tap(PFNAME);
 
-	register_rtd_table(proto_h225_ras, "h225", NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
+	register_rtd_table(proto_h225_ras, PFNAME, NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
+
+	register_new_stat_tap_ui(&h225_stat_table);
 
 	oid_add_from_string("Version 1","0.0.8.2250.0.1");
 	oid_add_from_string("Version 2","0.0.8.2250.0.2");
