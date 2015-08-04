@@ -4180,7 +4180,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
       proto_tree_add_item(parameter_tree, hf_isup_idi, parameter_tvb, offset + 1, 8, ENC_NA);
       offset = offset +1;
       /* Dissect country code */
-      dissect_e164_cc(parameter_tvb, parameter_tree, 3, E164_ENC_BCD);
+      dissect_e164_cc(parameter_tvb, parameter_tree, offset, E164_ENC_BCD);
 
       proto_tree_add_uint_format_value(parameter_tree, hf_bicc_nsap_dsp_length, parameter_tvb, offset, 0,
           (len-9), "%u (len %u -9)", (len-9), len);
