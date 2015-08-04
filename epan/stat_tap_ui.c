@@ -274,11 +274,8 @@ void free_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_cal
                 if (new_stat->stat_tap_free_table_item_cb)
                     new_stat->stat_tap_free_table_item_cb(stat_table, element, field_index, field_data);
             }
-
-            g_free(stat_table->elements[element]);
+            memset(stat_table->elements[i], 0, sizeof(field_data) * stat_table->num_fields);
         }
-
-        g_free(stat_table->elements);
     }
 }
 
