@@ -197,7 +197,6 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_TAP_SRC
-	camel_counter.c
 	compare_stat.c
 	dcerpc_stat.c
 	expert_comp_dlg.c

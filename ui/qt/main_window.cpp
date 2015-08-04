@@ -2000,6 +2000,9 @@ void MainWindow::addDynamicMenus()
             case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
                 main_ui_->menuANSI->addAction(action);
                 break;
+            case REGISTER_STAT_GROUP_TELEPHONY_GSM:
+                main_ui_->menuGSM->addAction(action);
+                break;
             case REGISTER_TOOLS_GROUP_UNSORTED:
             {
                 // Allow the creation of submenus. Mimics the behavor of

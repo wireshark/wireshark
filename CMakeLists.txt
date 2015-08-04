@@ -1140,7 +1140,6 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(TSHARK_TAP_SRC
-	ui/cli/tap-camelcounter.c
 	ui/cli/tap-camelsrt.c
 	ui/cli/tap-comparestat.c
 	ui/cli/tap-diameter-avp.c

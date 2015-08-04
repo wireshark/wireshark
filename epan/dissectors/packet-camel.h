@@ -48,7 +48,6 @@ void proto_register_camel(void);
 /* Defines for the camel taps */
 #define	camel_MAX_NUM_OPR_CODES	256
 
-
 WS_DLL_PUBLIC const value_string camel_opr_code_strings[];
 /* #include "packet-camel-exp.h"*/
 

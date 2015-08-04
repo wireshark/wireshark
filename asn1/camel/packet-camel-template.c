@@ -40,6 +40,7 @@
 #include <epan/oids.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
@@ -342,7 +343,7 @@ camelstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb 
   }
 }
 
-static int
+static gboolean
 camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
   guint idx = 0;
@@ -361,16 +362,16 @@ camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, cons
       add_srt_table_data(camel_srt_table, i, &pi->msginfo[i].req_time, pinfo);
     }
   } /* category */
-  return 1;
+  return TRUE;
 }
 
 
 static char camel_number_to_char(int number)
 {
-   if (number < 10)
-   return (char) (number + 48 ); /* this is ASCII specific */
-   else
-   return (char) (number + 55 );
+  if (number < 10)
+    return (char) (number + 48 ); /* this is ASCII specific */
+  else
+    return (char) (number + 55 );
 }
 
 /*
@@ -1213,6 +1214,78 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   return tvb_captured_length(tvb);
 }
 
+/* TAP STAT INFO */
+typedef enum
+{
+  MESSAGE_TYPE_COLUMN = 0,
+  COUNT_COLUMN
+} camel_stat_columns;
+
+static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Type or Reason", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
+
+void camel_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+  int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
+  new_stat_tap_table* table = new_stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL, gui_callback, gui_data);
+  int i;
+  stat_tap_table_item_type items[sizeof(camel_stat_fields)/sizeof(stat_tap_table_item)];
+
+  new_stat_tap_add_table(new_stat, table);
+
+  items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+  items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+  items[COUNT_COLUMN].value.uint_value = 0;
+
+  /* Add a row for each value type */
+  for (i = 0; i < camel_MAX_NUM_OPR_CODES; i++)
+  {
+    const char *ocs = try_val_to_str(i, camel_opr_code_strings);
+    char *col_str;
+    if (ocs) {
+      col_str = g_strdup_printf("Request %s", ocs);
+    } else {
+      col_str = g_strdup_printf("Unknown op code %d", i);
+    }
+
+    items[MESSAGE_TYPE_COLUMN].value.string_value = col_str;
+    new_stat_tap_init_table_row(table, i, num_fields, items);
+  }
+}
+
+static gboolean
+camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *csi_ptr)
+{
+  new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+  const struct camelsrt_info_t *csi = (const struct camelsrt_info_t *) csi_ptr;
+  new_stat_tap_table* table;
+  stat_tap_table_item_type* msg_data;
+  guint i = 0;
+
+  table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+  if (csi->opcode >= table->num_elements)
+    return FALSE;
+  msg_data = new_stat_tap_get_field_data(table, csi->opcode, COUNT_COLUMN);
+  msg_data->value.uint_value++;
+  new_stat_tap_set_field_data(table, csi->opcode, COUNT_COLUMN, msg_data);
+
+  return TRUE;
+}
+
+static void
+camel_stat_reset(new_stat_tap_table* table)
+{
+  guint element;
+  stat_tap_table_item_type* item_data;
+
+  for (element = 0; element < table->num_elements; element++)
+  {
+    item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+    item_data->value.uint_value = 0;
+    new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+  }
+}
+
+
 /*--- proto_reg_handoff_camel ---------------------------------------*/
 static void range_delete_callback(guint32 ssn)
 {
@@ -1436,10 +1509,10 @@ void proto_register_camel(void) {
     &ett_camel_cause,
     &ett_camel_RPcause,
     &ett_camel_stat,
-	&ett_camel_calledpartybcdnumber,
-	&ett_camel_callingpartynumber,
-	&ett_camel_locationnumber,
-	&ett_camel_additionalcallingpartynumber,
+    &ett_camel_calledpartybcdnumber,
+    &ett_camel_callingpartynumber,
+    &ett_camel_locationnumber,
+    &ett_camel_additionalcallingpartynumber,
 
 #include "packet-camel-ettarr.c"
   };
@@ -1451,6 +1524,25 @@ void proto_register_camel(void) {
   };
 
   expert_module_t* expert_camel;
+
+  static tap_param camel_stat_params[] = {
+    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+  };
+
+  static new_stat_tap_ui camel_stat_table = {
+    REGISTER_STAT_GROUP_TELEPHONY_GSM,
+    "CAMEL Messages and Response Status",
+    PSNAME,
+    "camel,counter",
+    camel_stat_init,
+    camel_stat_packet,
+    camel_stat_reset,
+    NULL,
+    NULL,
+    sizeof(camel_stat_fields)/sizeof(stat_tap_table_item), camel_stat_fields,
+    sizeof(camel_stat_params)/sizeof(tap_param), camel_stat_params,
+    NULL
+  };
 
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1494,8 +1586,8 @@ void proto_register_camel(void) {
     &global_ssn_range, MAX_SSN);
 
   prefs_register_bool_preference(camel_module, "srt",
-				 "Service Response Time Analyse",
-				 "Activate the analyse for Response Time",
+				 "Analyze Service Response Time",
+				 "Enable response time analysis",
 				 &gcamel_HandleSRT);
 
   prefs_register_bool_preference(camel_module, "persistentsrt",
@@ -1508,6 +1600,7 @@ void proto_register_camel(void) {
   register_cleanup_routine(&camelsrt_cleanup_routine);
   camel_tap=register_tap(PSNAME);
 
-  register_srt_table(proto_camel, "CAMEL", 1, camelstat_packet, camelstat_init, NULL);
+  register_srt_table(proto_camel, PSNAME, 1, camelstat_packet, camelstat_init, NULL);
+  register_new_stat_tap_ui(&camel_stat_table);
 }
 
