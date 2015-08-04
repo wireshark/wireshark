@@ -1609,7 +1609,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  nstrace_35_dump_can_write_encap, nstrace_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423 */
-	{ "3GPP TS 32.423 Trace", "nettrace3gpp324423", NULL, NULL,
+	{ "3GPP TS 32.423 Trace", "3gpp32423", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 };
