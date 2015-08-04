@@ -341,7 +341,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 
 	/* already aligned -> shortcut */
 	if ((left == 0) && (remaining_bits == 0)) {
-		return tvb_new_subset(tvb, byte_offset, datalen, -1);
+		return tvb_new_subset(tvb, byte_offset, datalen, datalen);
 	}
 
 	DISSECTOR_ASSERT(datalen>0);
