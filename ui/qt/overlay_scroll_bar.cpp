@@ -99,7 +99,7 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
             int no_pos = near_dest.height() * selected_pos_ / near_overlay_.height();
             go_painter.save();
             go_painter.setBrush(palette().highlight().color());
-            go_painter.drawRect(0, no_pos, near_dest.width(), dp_ratio);
+            go_painter.drawRect(0, no_pos, gr_size.width(), dp_ratio);
             go_painter.restore();
         }
 
