@@ -637,7 +637,7 @@ static void register_mibs(void) {
 				hf_register_info hf;
 
 				hf.p_id                     = &(oid_data->value_hfid);
-				hf.hfinfo.name              = oid_data->name;
+				hf.hfinfo.name              = g_strdup(oid_data->name);
 				hf.hfinfo.abbrev            = alnumerize(oid_data->name);
 				hf.hfinfo.type              = typedata->ft_type;
 				hf.hfinfo.display           = typedata->display;
