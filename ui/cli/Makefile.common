@@ -47,7 +47,6 @@ TSHARK_TAP_SRC = \
 	tap-follow.c		\
 	tap-funnel.c		\
 	tap-gsm_astat.c		\
-	tap-h225counter.c	\
 	tap-hosts.c		\
 	tap-httpstat.c		\
 	tap-icmpstat.c		\
