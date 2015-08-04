@@ -1078,18 +1078,6 @@ static const char *ui_desc_menubar =
 "      <menu name= 'ANSImenu' action='/Telephony/ANSI'>\n"
 "      </menu>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
-"        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
-"        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
-"          <menuitem name='CallControl' action='/Telephony/GSM/DTAP/CC'/>\n"
-"          <menuitem name='GPRS-MM' action='/Telephony/GSM/DTAP/GMM'/>\n"
-"          <menuitem name='GPRS-SM' action='/Telephony/GSM/DTAP/SM'/>\n"
-"          <menuitem name='MM' action='/Telephony/GSM/DTAP/MM'/>\n"
-"          <menuitem name='RR' action='/Telephony/GSM/DTAP/RR'/>\n"
-"          <menuitem name='SMS' action='/Telephony/GSM/DTAP/SMS'/>\n"
-"          <menuitem name='TP' action='/Telephony/GSM/DTAP/TP'/>\n"
-"          <menuitem name='SS' action='/Telephony/GSM/DTAP/SS'/>\n"
-"        </menu>\n"
-"        <menuitem name='SACCH' action='/Telephony/GSM/SACCH'/>\n"
 "        <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>\n"
 "        <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>\n"
 "      </menu>\n"
@@ -1514,19 +1502,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Telephony/ANSI",                 NULL,                       "_ANSI",                    NULL, NULL, NULL },
    { "/Telephony/GSM",                  NULL,                       "_GSM",                     NULL, NULL, NULL },
-   { "/Telephony/GSM/BSSMAP",           NULL,                       "A-Interface BSSMAP",  NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
-
-   { "/Telephony/GSM/DTAP",             NULL,                       "A-Interface DTAP",    NULL, NULL, NULL },
-   { "/Telephony/GSM/DTAP/CC",          NULL,                       "Call Control",             NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_cc_cb) },
-   { "/Telephony/GSM/DTAP/GMM",         NULL,                       "GPRS Mobility Management", NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_gmm_cb) },
-   { "/Telephony/GSM/DTAP/SM",          NULL,                       "GPRS Session Management",  NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_sm_cb) },
-   { "/Telephony/GSM/DTAP/MM",          NULL,                       "Mobility Management",      NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_mm_cb) },
-   { "/Telephony/GSM/DTAP/RR",          NULL,                       "Radio Resource Management",NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_rr_cb) },
-   { "/Telephony/GSM/DTAP/SMS",         NULL,                       "Short Message Service",    NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_sms_cb) },
-   { "/Telephony/GSM/DTAP/TP",          NULL,       "Special Conformance Testing Functions",    NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_tp_cb) },
-   { "/Telephony/GSM/DTAP/SS",          NULL,                       "Supplementary Services",   NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_dtap_ss_cb) },
-
-   { "/Telephony/GSM/SACCH",            NULL,                       "A-Interface SACCH",   NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_sacch_rr_cb) },
    { "/Telephony/GSM/MAP-OP",           NULL,                       "MAP Operation",       NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_cb) },
    { "/Telephony/GSM/MAPSummary",       NULL,                       "MAP Summary",              NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_sum_cb) },
 
