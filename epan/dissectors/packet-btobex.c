@@ -1126,14 +1126,9 @@ static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
 
 static gpointer btobex_profile_value(packet_info *pinfo _U_)
 {
-    gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+    return (gpointer)p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
 
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
 }
 
 static void

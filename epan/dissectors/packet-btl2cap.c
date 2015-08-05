@@ -417,14 +417,9 @@ static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btl2cap_cid_value(packet_info *pinfo)
 {
-    gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
+	return (gpointer)p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
 
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
 }
 
 static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
@@ -440,14 +435,9 @@ static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btl2cap_psm_value(packet_info *pinfo)
 {
-    gulong *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
+	return (gpointer)p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
 
-    if (value_data)
-        return (gpointer) *value_data;
-
-    return NULL;
 }
 
 static guint16
