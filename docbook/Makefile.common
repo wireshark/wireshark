@@ -297,10 +297,11 @@ WSDG_XSLTPROC_ARGS = \
 	--stringparam admon.graphics.path wsdg_graphics/
 
 SINGLE_XSLTPROC_ARGS = \
-	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
+	--nonet http://docbook.sourceforge.net/release/xsl/current/xhtml5/docbook.xsl
 
 CHUNKED_XSLTPROC_ARGS = \
-	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
+	--stringparam html.ext .html \
+	--nonet http://docbook.sourceforge.net/release/xsl/current/xhtml5/chunk.xsl
 
 HTMLHELP_XSLTPROC_ARGS = \
 	--nonet custom_layer_chm.xsl
