@@ -344,7 +344,7 @@ opensafety_packet_node(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-opensafety_packet_receiver(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree,
+opensafety_packet_receiver(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree, proto_item *opensafety_item,
         opensafety_packet_info *packet, guint16 recv,
         guint16 posInFrame, guint16 posSdnInFrame, guint16 sdn )
 {
@@ -353,12 +353,13 @@ opensafety_packet_receiver(tvbuff_t * message_tvb, packet_info *pinfo, proto_tre
         packet->sdn = sdn;
 
     opensafety_packet_node (message_tvb, pinfo, tree, hf_oss_msg_receiver, recv, posInFrame, posSdnInFrame, sdn );
+    proto_item_append_text(opensafety_item, ", Dst: 0x%03X (%d)", recv, recv);
 }
 
 /* Tracks the information that the packet pinfo has been sent by sender, and received by everyone else, and adds that information to
  * the tree, using pos, as byte position in the PDU */
 static void
-opensafety_packet_sender(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree,
+opensafety_packet_sender(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree, proto_item *opensafety_item,
         opensafety_packet_info *packet, guint16 sender,
         guint16 posInFrame, guint16 posSdnInFrame, guint16 sdn )
 {
@@ -367,17 +368,18 @@ opensafety_packet_sender(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree 
         packet->sdn = sdn;
 
     opensafety_packet_node (message_tvb, pinfo, tree, hf_oss_msg_sender, sender, posInFrame, posSdnInFrame, sdn );
+    proto_item_append_text(opensafety_item, ", Src: 0x%03X (%d)", sender, sender);
 }
 
 /* Tracks the information that the packet pinfo has been sent by sender, and received by receiver, and adds that information to
  * the tree, using pos for the sender and pos2 for the receiver, as byte position in the PDU */
 static void
-opensafety_packet_sendreceiv(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree,
+opensafety_packet_sendreceiv(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree, proto_item *opensafety_item,
         opensafety_packet_info *packet, guint16 send, guint16 pos,
         guint16 recv, guint16 pos2, guint16 posnet, guint16 sdn)
 {
-        opensafety_packet_receiver(message_tvb, pinfo, tree, packet, recv, pos2, posnet, sdn);
-        opensafety_packet_sender(message_tvb, pinfo, tree, packet, send, pos, posnet, sdn);
+        opensafety_packet_receiver(message_tvb, pinfo, tree, opensafety_item, packet, recv, pos2, posnet, sdn);
+        opensafety_packet_sender(message_tvb, pinfo, tree, opensafety_item, packet, send, pos, posnet, sdn);
 }
 
 static proto_item *
@@ -735,11 +737,11 @@ dissect_data_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, 
 
 static void
 dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        opensafety_packet_info * packet )
+        opensafety_packet_info * packet, proto_item * opensafety_item )
 {
     proto_item *item, *diritem;
     proto_tree *spdo_tree, *spdo_flags_tree;
-    guint16     ct;
+    guint16     ct, addr;
     guint64     ct40bit;
     gint16      taddr, sdn;
     guint       dataLength;
@@ -765,9 +767,10 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     if ( (OPENSAFETY_SPDO_FEAT_40BIT_USED & spdoFlags ) == OPENSAFETY_SPDO_FEAT_40BIT_USED )
         sdn = OPENSAFETY_DEFAULT_DOMAIN;
 
+    addr = OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1);
     opensafety_packet_node ( message_tvb, pinfo, opensafety_tree, hf_oss_msg_sender,
-            OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1),
-            OSS_FRAME_POS_ADDR + packet->frame.subframe1, packet->frame.subframe2, sdn );
+            addr, OSS_FRAME_POS_ADDR + packet->frame.subframe1, packet->frame.subframe2, sdn );
+    proto_item_append_text(opensafety_item, "; Producer: 0x%03X (%d)", addr, addr);
 
     spdo_tree = opensafety_packet_payloadtree ( message_tvb, opensafety_tree, packet, ett_opensafety_spdo );
 
@@ -1047,7 +1050,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
 
 static void
 dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        opensafety_packet_info * packet)
+        opensafety_packet_info * packet, proto_item * opensafety_item )
 {
     proto_item    *item;
     proto_tree    *ssdo_tree, *ssdo_payload;
@@ -1088,20 +1091,20 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         sdn =  ( OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1) ^
                         ( OSS_FRAME_ADDR_T2(message_tvb, packet->frame.subframe2, packet->scm_udid[0], packet->scm_udid[1]) ) );
 
-        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, packet, taddr,
+        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, opensafety_item, packet, taddr,
                 packet->frame.subframe2 + 3, OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1),
                 packet->frame.subframe1, packet->frame.subframe2, sdn );
     }
     else if ( ! isResponse )
     {
-        opensafety_packet_sender ( message_tvb, pinfo, opensafety_tree, packet,
+        opensafety_packet_sender ( message_tvb, pinfo, opensafety_tree, opensafety_item, packet,
                 OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1), packet->frame.subframe1,
                 packet->frame.subframe2, -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1) ) ^
                         ( OSS_FRAME_ADDR_T2(message_tvb, packet->frame.subframe2, packet->scm_udid[0], packet->scm_udid[1]) ) ) );
     }
     else if ( isResponse )
     {
-        opensafety_packet_receiver ( message_tvb, pinfo, opensafety_tree, packet,
+        opensafety_packet_receiver ( message_tvb, pinfo, opensafety_tree, opensafety_item, packet,
                 OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1), packet->frame.subframe1,
                 packet->frame.subframe2, -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1) ) ^
                         ( OSS_FRAME_ADDR_T2(message_tvb, packet->frame.subframe2, packet->scm_udid[0], packet->scm_udid[1]) ) ) );
@@ -1364,7 +1367,7 @@ opensafety_parse_scm_udid ( tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        opensafety_packet_info *packet )
+        opensafety_packet_info *packet, proto_item * opensafety_item )
 {
     proto_tree *snmt_tree;
     guint32     entry = 0;
@@ -1393,13 +1396,14 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
          ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_STOP) == 0 ||
            (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_OP) == 0 ) )
     {
-        opensafety_packet_receiver( message_tvb, pinfo, opensafety_tree, packet, addr,
+        opensafety_packet_receiver( message_tvb, pinfo, opensafety_tree, opensafety_item, packet, addr,
                 OSS_FRAME_POS_ADDR + packet->frame.subframe1, packet->frame.subframe2, sdn );
     }
     else
     {
-        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, packet, taddr, packet->frame.subframe2 + 3,
-                addr, OSS_FRAME_POS_ADDR + packet->frame.subframe1, packet->frame.subframe2, sdn );
+        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, opensafety_item, packet, taddr,
+                packet->frame.subframe2 + 3, addr, OSS_FRAME_POS_ADDR + packet->frame.subframe1,
+                packet->frame.subframe2, sdn );
     }
 
     snmt_tree = opensafety_packet_payloadtree ( message_tvb, opensafety_tree, packet, ett_opensafety_snmt );
@@ -1768,7 +1772,8 @@ dissect_opensafety_message(opensafety_packet_info *packet,
 
     if ( packet->msg_type == OPENSAFETY_SNMT_MESSAGE_TYPE )
     {
-        dissect_opensafety_snmt_message ( message_tvb, pinfo, opensafety_tree, packet );
+        proto_item_append_text(opensafety_item, ", SNMT");
+        dissect_opensafety_snmt_message ( message_tvb, pinfo, opensafety_tree, packet, opensafety_item );
     }
     else
     {
@@ -1823,15 +1828,19 @@ dissect_opensafety_message(opensafety_packet_info *packet,
 
         if ( packet->msg_type == OPENSAFETY_SSDO_MESSAGE_TYPE || packet->msg_type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
         {
-            dissect_opensafety_ssdo_message ( message_tvb, pinfo, opensafety_tree, packet );
+            proto_item_append_text(opensafety_item,
+                    (packet->msg_type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE) ? ", Slim SSDO" : ", SSDO");
+            dissect_opensafety_ssdo_message ( message_tvb, pinfo, opensafety_tree, packet, opensafety_item );
         }
         else if ( packet->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE )
         {
-            dissect_opensafety_spdo_message ( message_tvb, pinfo, opensafety_tree, packet );
+            proto_item_append_text(opensafety_item, ", SPDO" );
+            dissect_opensafety_spdo_message ( message_tvb, pinfo, opensafety_tree, packet, opensafety_item );
         }
         else
         {
             messageTypeUnknown = TRUE;
+            proto_item_append_text(opensafety_item, ", Unknown" );
         }
     }
 
