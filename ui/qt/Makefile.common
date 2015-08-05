@@ -181,6 +181,7 @@ MOC_HDRS =	\
 	funnel_string_dialog.h	\
 	funnel_text_dialog.h	\
 	funnel_statistics.h	\
+	gsm_map_summary_dialog.h \
 	import_text_dialog.h	\
 	interface_tree.h	\
 	io_graph_dialog.h	\
@@ -418,6 +419,7 @@ WIRESHARK_QT_SRC =	\
 	funnel_string_dialog.cpp	\
 	funnel_text_dialog.cpp	\
 	funnel_statistics.cpp	\
+	gsm_map_summary_dialog.cpp	\
 	import_text_dialog.cpp	\
 	interface_tree.cpp	\
 	io_graph_dialog.cpp	\

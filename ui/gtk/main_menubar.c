@@ -1078,7 +1078,6 @@ static const char *ui_desc_menubar =
 "      <menu name= 'ANSImenu' action='/Telephony/ANSI'>\n"
 "      </menu>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
-"        <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>\n"
 "        <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>\n"
 "      </menu>\n"
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
@@ -1502,7 +1501,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Telephony/ANSI",                 NULL,                       "_ANSI",                    NULL, NULL, NULL },
    { "/Telephony/GSM",                  NULL,                       "_GSM",                     NULL, NULL, NULL },
-   { "/Telephony/GSM/MAP-OP",           NULL,                       "MAP Operation",       NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_cb) },
    { "/Telephony/GSM/MAPSummary",       NULL,                       "MAP Summary",              NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_sum_cb) },
 
    { "/Telephony/IAX2",                 NULL,                       "IA_X2",                    NULL, NULL, NULL },

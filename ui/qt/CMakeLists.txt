@@ -68,6 +68,7 @@ set(WIRESHARK_QT_HEADERS
 	funnel_string_dialog.h
 	funnel_text_dialog.h
 	funnel_statistics.h
+	gsm_map_summary_dialog.h
 	import_text_dialog.h
 	interface_tree.h
 	io_graph_dialog.h
@@ -284,6 +285,7 @@ set(WIRESHARK_QT_TAP_SRC
 	conversation_dialog.cpp
 	endpoint_dialog.cpp
 	funnel_statistics.cpp
+	gsm_map_summary_dialog.cpp
 	io_graph_dialog.cpp
 	stats_tree_dialog.cpp
 )
@@ -319,6 +321,7 @@ set(WIRESHARK_QT_UI
 	font_color_preferences_frame.ui
 	funnel_string_dialog.ui
 	funnel_text_dialog.ui
+	gsm_map_summary_dialog.ui
 	import_text_dialog.ui
 	io_graph_dialog.ui
 	layout_preferences_frame.ui

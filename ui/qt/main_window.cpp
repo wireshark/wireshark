@@ -1966,6 +1966,10 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 
 void MainWindow::addDynamicMenus()
 {
+    // Manual additions
+    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
+
+    // Fill in each menu
     QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
             << REGISTER_ANALYZE_GROUP_UNSORTED
             << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER

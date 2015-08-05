@@ -32,7 +32,6 @@
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
-#include <QDateTime>
 #include <QPushButton>
 #include <QTextStream>
 
@@ -101,13 +100,6 @@ void CaptureFilePropertiesDialog::updateWidgets()
 
     ui->detailsTextEdit->setHtml(summaryToHtml());
     ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_.capFile()));
-}
-
-QString CaptureFilePropertiesDialog::timeToString(time_t ti_time)
-{
-    QDateTime date_time = QDateTime::fromTime_t(ti_time);
-    QString time_str = date_time.toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
-    return time_str;
 }
 
 QString CaptureFilePropertiesDialog::summaryToHtml()
@@ -189,6 +181,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(encaps_str)
         << table_row_end;
 
+    if (summary.has_snap) {
+        out << table_row_begin
+            << table_vheader_tmpl.arg(tr("Snapshot length"))
+            << table_data_tmpl.arg(summary.snap)
+            << table_row_end;
+    }
+
     out << table_end;
 
     // Time Section
@@ -201,13 +200,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         // start time
         out << table_row_begin
             << table_vheader_tmpl.arg(tr("First packet"))
-            << table_data_tmpl.arg(timeToString((time_t)summary.start_time))
+            << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.start_time))
             << table_row_end;
 
         // stop time
         out << table_row_begin
             << table_vheader_tmpl.arg(tr("Last packet"))
-            << table_data_tmpl.arg(timeToString((time_t)summary.stop_time))
+            << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.stop_time))
             << table_row_end;
 
         // elapsed seconds (capture duration)

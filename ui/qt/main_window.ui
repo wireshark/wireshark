@@ -2333,6 +2333,14 @@
     <string>Copy packet bytes as application/octet-stream MIME data.</string>
    </property>
   </action>
+  <action name="actionTelephonyGsmMapSummary">
+   <property name="text">
+    <string>MAP Summary</string>
+   </property>
+   <property name="toolTip">
+    <string>GSM MAP summary statistics</string>
+   </property>
+  </action>
   <action name="actionTelephonyVoipCalls">
    <property name="text">
     <string>&amp;VoIP Calls</string>

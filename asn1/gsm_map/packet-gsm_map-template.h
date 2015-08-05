@@ -31,7 +31,7 @@
 
 typedef struct _gsm_map_tap_rec_t {
     gboolean		invoke;
-    guint8		opr_code_idx;
+    guint32		opcode;
     guint16		size;
 } gsm_map_tap_rec_t;
 

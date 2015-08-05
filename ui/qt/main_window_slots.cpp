@@ -94,6 +94,7 @@
 #include "extcap_options_dialog.h"
 #endif
 #include "filter_dialog.h"
+#include "gsm_map_summary_dialog.h"
 #include "io_graph_dialog.h"
 #include "lbm_stream_dialog.h"
 #include "lbm_uimflow_dialog.h"
@@ -2856,6 +2857,12 @@ void MainWindow::openVoipCallsDialog(bool all_flows)
 void MainWindow::on_actionTelephonyVoipCalls_triggered()
 {
     openVoipCallsDialog();
+}
+
+void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
+{
+    GsmMapSummaryDialog *gms_dialog = new GsmMapSummaryDialog(*this, capture_file_);
+    gms_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyISUPMessages_triggered()

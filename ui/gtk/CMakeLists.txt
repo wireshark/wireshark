@@ -202,7 +202,6 @@ set(WIRESHARK_TAP_SRC
 	expert_comp_dlg.c
 	flow_graph.c
 	funnel_stat.c
-	gsm_map_stat.c
 	gsm_map_summary.c
 	iax2_analysis.c
 	io_stat.c

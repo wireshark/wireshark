@@ -153,7 +153,6 @@ WIRESHARK_TAP_SRC = \
 	export_pdu_dlg.c	\
 	flow_graph.c	\
 	funnel_stat.c	\
-	gsm_map_stat.c	\
 	gsm_map_summary.c	\
 	iax2_analysis.c	\
 	io_stat.c	\
@@ -225,7 +224,6 @@ noinst_HEADERS = \
 	font_utils.h	\
 	goto_dlg.h	\
 	graph_analysis.h \
-	gsm_map_stat.h	\
 	gtk_iface_monitor.h	\
 	gtkglobals.h	\
 	gui_stat_menu.h	\

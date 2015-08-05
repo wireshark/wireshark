@@ -1,7 +1,8 @@
-/* gsm_map_stat.h
+/* gsm_map_summary_dialog.h
  *
- * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
- * In association with Telos Technology Inc.
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,23 +23,44 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __GSM_MAP_STAT_H__
-#define __GSM_MAP_STAT_H__
+#ifndef GSM_MAP_SUMMARY_DIALOG_H
+#define GSM_MAP_SUMMARY_DIALOG_H
 
-/** @file
- *  Statistics for GSM MAP Operations.
+#include "wireshark_dialog.h"
+
+namespace Ui {
+class GsmMapSummaryDialog;
+}
+
+class GsmMapSummaryDialog : public WiresharkDialog
+{
+    Q_OBJECT
+
+public:
+    explicit GsmMapSummaryDialog(QWidget &parent, CaptureFile& capture_file);
+    ~GsmMapSummaryDialog();
+
+private:
+    Ui::GsmMapSummaryDialog *ui;
+
+    QString summaryToHtml();
+
+private slots:
+    void updateWidgets();
+
+};
+
+#endif // GSM_MAP_SUMMARY_DIALOG_H
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-/** Gsm map statistic data */
-typedef struct _gsm_map_stat_t {
-    int			opr_code[GSM_MAP_MAX_NUM_OPR_CODES];
-    int			size[GSM_MAP_MAX_NUM_OPR_CODES];
-
-    int			opr_code_rr[GSM_MAP_MAX_NUM_OPR_CODES];
-    int			size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
-} gsm_map_stat_t;
-
-/** Global gsm map statistic data */
-extern gsm_map_stat_t		gsm_map_stat;
-
-#endif /* __GSM_MAP_STAT_H__ */

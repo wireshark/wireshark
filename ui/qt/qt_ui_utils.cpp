@@ -36,6 +36,7 @@
 #include <wsutil/str_util.h>
 
 #include <QAction>
+#include <QDateTime>
 #include <QFontDatabase>
 
 /* Make the format_size_flags_e enum usable in C++ */
@@ -153,6 +154,13 @@ const QString file_size_to_qstring(const gint64 size)
 {
     return gchar_free_to_qstring(
                 format_size(size, format_size_unit_bytes|format_size_prefix_si));
+}
+
+const QString time_t_to_qstring(time_t ti_time)
+{
+    QDateTime date_time = QDateTime::fromTime_t(ti_time);
+    QString time_str = date_time.toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return time_str;
 }
 
 void smooth_font_size(QFont &font) {

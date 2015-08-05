@@ -180,6 +180,8 @@ funnel_string_dialog.$(OBJEXT): ui_funnel_string_dialog.h
 
 funnel_text_dialog.$(OBJEXT): ui_funnel_text_dialog.h
 
+gsm_map_summary_dialog.$(OBJEXT): ui_gsm_map_summary_dialog.h
+
 import_text_dialog.$(OBJEXT): ui_import_text_dialog.h
 
 io_graph_dialog.$(OBJEXT): ui_io_graph_dialog.h

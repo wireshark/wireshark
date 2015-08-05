@@ -153,6 +153,14 @@ const QString bits_s_to_qstring(const double bits_s);
  */
 const QString file_size_to_qstring(const gint64 size);
 
+/** Convert a time_t value to a human-readable QString using QDateTime.
+ *
+ * @param ti_time The value to convert.
+ *
+ * @return A QString representation of the file size in SI units.
+ */
+const QString time_t_to_qstring(time_t ti_time);
+
 /**
  * Round the current size of a font up to its next "smooth" size.
  * If a smooth size can't be found the font is left unchanged.

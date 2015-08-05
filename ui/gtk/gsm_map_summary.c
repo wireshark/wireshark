@@ -29,25 +29,33 @@
 
 #include <gtk/gtk.h>
 
-
 #include <epan/packet.h>
-#include <epan/value_string.h>
+#include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
 
-#include <epan/stat_groups.h>
-#include "../globals.h"
-#include "../summary.h"
+#include "globals.h"
+#include "summary.h"
 
-#include "ui/gtk/gui_stat_menu.h"
+#include "ui/simple_dialog.h"
+
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/gsm_map_stat.h"
 
+/** Gsm map statistic data */
+typedef struct _gsm_map_stat_t {
+    int                 opr_code[GSM_MAP_MAX_NUM_OPR_CODES];
+    int                 size[GSM_MAP_MAX_NUM_OPR_CODES];
+
+    int                 opr_code_rr[GSM_MAP_MAX_NUM_OPR_CODES];
+    int                 size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
+} gsm_map_stat_t;
+
+gsm_map_stat_t gsm_map_stat;
 
 #define SUM_STR_MAX 1024
 
-void register_tap_listener_gtkgsm_map_summary(void);
+void register_tap_listener_gtk_gsm_map_summary(void);
 
 static void
 add_string_to_box(gchar *str, GtkWidget *box)
@@ -347,10 +355,59 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   window_present(sum_open_w);
 }
 
+static void
+gsm_map_summary_reset(void *tapdata)
+{
+    gsm_map_stat_t *stat_p = (gsm_map_stat_t *)tapdata;
+
+    memset(stat_p, 0, sizeof(gsm_map_stat_t));
+}
+
+
+static gboolean
+gsm_map_summary_packet(
+    void            *tapdata,
+    packet_info     *pinfo _U_,
+    epan_dissect_t  *edt _U_,
+    const void      *data)
+{
+    gsm_map_stat_t *stat_p = (gsm_map_stat_t *)tapdata;
+    const gsm_map_tap_rec_t *data_p = (const gsm_map_tap_rec_t *)data;
+
+    if (data_p->invoke)
+    {
+        stat_p->opr_code[data_p->opcode]++;
+        stat_p->size[data_p->opcode] += data_p->size;
+    }
+    else
+    {
+        stat_p->opr_code_rr[data_p->opcode]++;
+        stat_p->size_rr[data_p->opcode] += data_p->size;
+    }
+
+    return(FALSE); /* We have no draw callback */
+}
 
 void
-register_tap_listener_gtkgsm_map_summary(void)
+register_tap_listener_gtk_gsm_map_summary(void)
 {
+    GString     *err_p;
+
+    memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
+
+    err_p =
+    register_tap_listener("gsm_map", &gsm_map_stat, NULL, 0,
+        gsm_map_summary_reset,
+        gsm_map_summary_packet,
+        NULL);
+
+    if (err_p != NULL)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_p->str);
+        g_string_free(err_p, TRUE);
+
+        exit(1);
+    }
 }
 
 /*
