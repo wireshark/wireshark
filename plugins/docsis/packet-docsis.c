@@ -23,7 +23,7 @@
 
 
 /* This code is based on the DOCSIS 1.1 specification available at:
- * http://www.cablemodem.com/specifications/specifications11.html
+ * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-RFIv1.1-C01-050907.pdf
  *
  * DOCSIS Captures can be facilitated using the Cable Monitor Feature
  * available on Cisco Cable Modem Termination Systems :
@@ -35,12 +35,11 @@
  * a Fast Ethernet interface; thus a preference was needed to enable
  * the DOCSIS encapsulation type.
  *
- * The current CVS version of libpcap allows a link-layer header type to
- * be specified for some interfaces on some platforms; for Ethernet
- * interfaces, it allows DOCSIS to be specified.  If an Ethernet capture
- * is done with a link-layer type of DOCSIS, the file will have a link-
- * layer type of DLT_DOCSIS; Wireshark will treat the frames in that capture
- * as DOCSIS frames.
+ * Libpcap 0.7 and later allow a link-layer header type to be specified for
+ * some interfaces on some platforms; for Ethernet interfaces, they allow
+ * DOCSIS to be specified.  If an Ethernet capture is done with a link-layer
+ * type of DOCSIS, the file will have a link-layer header type of DLT_DOCSIS;
+ * Wireshark will treat the frames in that capture as DOCSIS frames.
  */
 
 #include "config.h"
@@ -83,7 +82,7 @@ static int hf_docsis_ehdron = -1;
 static int hf_docsis_concat_cnt = -1;
 static int hf_docsis_macparm = -1;
 static int hf_docsis_ehdrlen = -1;
-static int hf_docsis_lensid = -1;
+static int hf_docsis_len = -1;
 static int hf_docsis_eh_type = -1;
 static int hf_docsis_eh_len = -1;
 static int hf_docsis_eh_val = -1;
@@ -446,7 +445,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               {
                 proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
                                      ENC_BIG_ENDIAN);
-                proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2,
                                      ENC_BIG_ENDIAN);
                 dissect_ehdr (tvb, docsis_tree, isfrag);
                 proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
@@ -456,7 +455,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               {
                 proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
                                      ENC_BIG_ENDIAN);
-                proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2,
                                      ENC_BIG_ENDIAN);
                 proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
                                      ENC_BIG_ENDIAN);
@@ -489,7 +488,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 proto_item_append_text (ti, " (Concatenated Header)");
                 proto_tree_add_item (docsis_tree, hf_docsis_concat_cnt, tvb, 1,
                                      1, ENC_BIG_ENDIAN);
-                proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2,
                                      ENC_BIG_ENDIAN);
                 proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
                                      ENC_BIG_ENDIAN);
@@ -500,7 +499,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               {
                 proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
                                      ENC_BIG_ENDIAN);
-                proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2,
                                      ENC_BIG_ENDIAN);
                 dissect_ehdr (tvb, docsis_tree, isfrag);
                 proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
@@ -510,7 +509,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             /* default case for all other Mac Frame Types */
             proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
                                  ENC_BIG_ENDIAN);
-            proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+            proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2,
                                  ENC_BIG_ENDIAN);
             proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2, ENC_BIG_ENDIAN);
             break;
@@ -625,19 +624,19 @@ proto_register_docsis (void)
       "Mac Parameter Field", HFILL}
     },
     {&hf_docsis_concat_cnt,
-     {"Number of Concatenated Frames", "docsis.macparm",
+     {"Number of Concatenated Frames", "docsis.concat_cnt",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ehdrlen,
-     {"Extended Header Length (bytes)", "docsis.macparm",
+     {"Extended Header Length (bytes)", "docsis.ehdrlen",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mac Parameter Field", HFILL}
+      NULL, HFILL}
     },
-    {&hf_docsis_lensid,
-     {"Length after HCS (bytes)", "docsis.lensid",
+    {&hf_docsis_len,
+     {"Length of the MAC frame (bytes)", "docsis.len",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Length or SID", HFILL}
+      "Length of the MAC frame, not counting the fixed-length MAC header", HFILL}
     },
     {&hf_docsis_eh_type,
      {"Type", "docsis.ehdr.type",
