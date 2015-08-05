@@ -1889,7 +1889,7 @@ decode_epl_address (guchar adr)
 static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
-	gint off = 0, rem_len = 0;
+	gint off = 0, rem_len = 0, pld_rem_len = 0;
 	tvbuff_t * payload_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry = NULL;
 	proto_item * item = NULL;
@@ -1898,11 +1898,12 @@ dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 	if (len > 0)
 	{
-		payload_tvb = tvb_new_subset_remaining(tvb, off);
-		rem_len = tvb_captured_length_remaining(payload_tvb, 0);
-		if ( rem_len < len )
+		rem_len = tvb_captured_length_remaining(tvb, 0);
+		payload_tvb = tvb_new_subset_length(tvb, off, len > rem_len ? rem_len : len);
+		pld_rem_len = tvb_captured_length_remaining(payload_tvb, 0);
+		if ( pld_rem_len < len )
 		{
-			item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, off, rem_len, rem_len);
+			item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, off, pld_rem_len, pld_rem_len);
 			PROTO_ITEM_SET_GENERATED(item);
 			expert_add_info(pinfo, item, &ei_real_length_differs );
 		}
