@@ -223,8 +223,23 @@ get_compiler_info(GString *str)
 	g_string_append_printf(str, "\n");
 #elif defined(_MSC_FULL_VER)
 # if _MSC_FULL_VER > 99999999
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
-			       (_MSC_FULL_VER / 10000000) - 6,
+	/* Quote from the web:
+	 * Bakersfield: DevDiv's upper management determines the scheduling of new major versions.
+	 * They also decided to increment the product version from 12 (for VS 2013) to 14 (for VS 2015).
+	 * However, the C++ compiler's version incremented normally, from 18 to 19.
+	 * (It's larger because the C++ compiler predates the "Visual" in Visual C++.)
+	 * XXX? Should we just output the compiler version?
+	 */
+    int compiler_major_version = (_MSC_FULL_VER / 10000000), visual_studio_ver;
+
+    if (compiler_major_version < 19) {
+        visual_studio_ver = compiler_major_version - 6;
+    }else{
+        visual_studio_ver = compiler_major_version - 5;
+    }
+
+    g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+                   visual_studio_ver,
 			       (_MSC_FULL_VER / 100000) % 100);
 #  if (_MSC_FULL_VER % 100000) != 0
 	g_string_append_printf(str, " build %d",
