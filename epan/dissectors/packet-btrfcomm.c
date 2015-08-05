@@ -279,9 +279,14 @@ static void btrfcomm_directed_channel_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btrfcomm_directed_channel_value(packet_info *pinfo)
 {
+    gulong *value_data;
 
-	return (gpointer)p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
 
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static dissector_handle_t
