@@ -1538,7 +1538,7 @@ decode_epl_address (guchar adr)
 static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
-	gint off = 0;
+	gint off = 0, rem_len = 0;
 	tvbuff_t * payload_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry = NULL;
 
@@ -1546,7 +1546,9 @@ dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 	if (len > 0)
 	{
-		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
+		rem_len = tvb_captured_length_remaining(tvb, 0);
+		payload_tvb = tvb_new_subset_length(tvb, off, len > rem_len ? rem_len : len);
+
 		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
 			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
