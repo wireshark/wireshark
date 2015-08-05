@@ -584,8 +584,14 @@ void proto_reg_handoff_pkcs1(void) {
 	/* these two are not from RFC2313  but pulled in from
  	   http://www.alvestrand.no/objectid/1.2.840.113549.1.1.html
 	*/
-	register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "shaWithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha1WithRSAEncryption");
 	register_ber_oid_dissector("1.2.840.113549.1.1.6", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaOAEPEncryptionSET");
+
+	/* these sha2 algorithms are from RFC3447 */
+	register_ber_oid_dissector("1.2.840.113549.1.1.11", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha256WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha384WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
 
 	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
 	oid_add_from_string("sect163k1","1.3.132.0.1");
@@ -605,6 +611,9 @@ void proto_reg_handoff_pkcs1(void) {
 
 	/* sha2 family, see RFC3447 and http://www.oid-info.com/get/2.16.840.1.101.3.4.2 */
 	oid_add_from_string("sha256", "2.16.840.1.101.3.4.2.1");
+	oid_add_from_string("sha384", "2.16.840.1.101.3.4.2.2");
+	oid_add_from_string("sha512", "2.16.840.1.101.3.4.2.3");
+	oid_add_from_string("sha224", "2.16.840.1.101.3.4.2.4");
 
 }
 

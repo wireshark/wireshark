@@ -2496,8 +2496,6 @@ void proto_reg_handoff_cmp(void) {
 		oid_add_from_string("HMAC TIGER","1.3.6.1.5.5.8.1.3");
 		oid_add_from_string("HMAC RIPEMD-160","1.3.6.1.5.5.8.1.4");
 
-		oid_add_from_string("sha256WithRSAEncryption","1.2.840.113549.1.1.11");
-
 
 /*--- Included file: packet-cmp-dis-tab.c ---*/
 #line 1 "../../asn1/cmp/packet-cmp-dis-tab.c"
@@ -2520,7 +2518,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 403 "../../asn1/cmp/packet-cmp-template.c"
+#line 401 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 
