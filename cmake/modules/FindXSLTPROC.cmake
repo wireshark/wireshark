@@ -78,7 +78,7 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_guide}_html_chunked)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/xhtml5/chunk.xsl")
-        SET(_modeparams --noout)
+        SET(_modeparams --stringparam html.ext .html --noout)
     ELSE() # single-page
         SET(_basedir ${_guide}_html)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/xhtml5/docbook.xsl")
