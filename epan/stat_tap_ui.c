@@ -251,7 +251,7 @@ void reset_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_reset_cb gui_c
     }
 }
 
-void free_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data)
+void free_stat_tables(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data)
 {
     guint i = 0, element, field_index;
     new_stat_tap_table *stat_table;
@@ -271,11 +271,16 @@ void free_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_cal
             {
                 field_data = new_stat_tap_get_field_data(stat_table, element, field_index);
                 /* Give dissector a crack at it */
+                /* XXX Should this be per-row instead? */
                 if (new_stat->stat_tap_free_table_item_cb)
                     new_stat->stat_tap_free_table_item_cb(stat_table, element, field_index, field_data);
             }
+            g_free(stat_table->elements[element]);
         }
+        g_free(stat_table->elements);
+        g_free(stat_table);
     }
+    g_array_set_size(new_stat->tables, 0);
 }
 
 

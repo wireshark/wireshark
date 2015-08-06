@@ -22519,10 +22519,15 @@ void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_c
   for (i = 0; i < GSM_MAP_MAX_NUM_OPR_CODES; i++)
   {
     const char *ocs = try_val_to_str(i, gsm_map_opr_code_strings);
-    if (!ocs) ocs = g_strdup_printf("Unknown op code %d", i);
+    char *col_str;
+    if (ocs) {
+      col_str = g_strdup(ocs);
+    } else {
+      col_str = g_strdup_printf("Unknown op code %d", i);
+    }
 
     items[ID_COLUMN].value.uint_value = i;
-    items[OP_CODE_COLUMN].value.string_value = ocs;
+    items[OP_CODE_COLUMN].value.string_value = col_str;
     new_stat_tap_init_table_row(table, i, num_fields, items);
   }
 }
@@ -22597,6 +22602,13 @@ gsm_map_stat_reset(new_stat_tap_table* table)
     item_data->value.uint_value = 0;
     new_stat_tap_set_field_data(table, element, INVOKES_COLUMN, item_data);
   }
+}
+
+static void
+gsm_map_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+  if (column != OP_CODE_COLUMN) return;
+  g_free((char*)field_data->value.string_value);
 }
 
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
@@ -29840,7 +29852,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3039 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 3051 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30555,7 +30567,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3073 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 3085 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -30586,7 +30598,7 @@ void proto_register_gsm_map(void) {
     gsm_map_stat_init,
     gsm_map_stat_packet,
     gsm_map_stat_reset,
-    NULL,
+    gsm_map_stat_free_table_item,
     NULL,
     sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item), gsm_map_stat_fields,
     sizeof(gsm_map_stat_params)/sizeof(tap_param), gsm_map_stat_params,
@@ -30677,7 +30689,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3129 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 3141 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

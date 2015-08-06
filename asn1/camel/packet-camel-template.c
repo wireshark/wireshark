@@ -1285,6 +1285,12 @@ camel_stat_reset(new_stat_tap_table* table)
   }
 }
 
+static void
+camel_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+  if (column != MESSAGE_TYPE_COLUMN) return;
+  g_free((char*)field_data->value.string_value);
+}
 
 /*--- proto_reg_handoff_camel ---------------------------------------*/
 static void range_delete_callback(guint32 ssn)
@@ -1537,7 +1543,7 @@ void proto_register_camel(void) {
     camel_stat_init,
     camel_stat_packet,
     camel_stat_reset,
-    NULL,
+    camel_stat_free_table_item,
     NULL,
     sizeof(camel_stat_fields)/sizeof(stat_tap_table_item), camel_stat_fields,
     sizeof(camel_stat_params)/sizeof(tap_param), camel_stat_params,

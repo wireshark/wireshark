@@ -3598,11 +3598,16 @@ void gsm_a_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_cal
     /* Add a row for each value type */
     for (i = 0; i < 256; i++)
     {
-	const char *ocs = try_val_to_str(i, msg_strings);
-	if (!ocs) ocs = g_strdup_printf("Unknown message %d", i);
+	const char *msg_str = try_val_to_str(i, msg_strings);
+	char *col_str;
+	if (msg_str) {
+	    col_str = g_strdup(msg_str);
+	} else {
+	    col_str = g_strdup_printf("Unknown message %d", i);
+	}
 
         items[IEI_COLUMN].value.uint_value = i;
-	items[MSG_NAME_COLUMN].value.string_value = ocs;
+	items[MSG_NAME_COLUMN].value.string_value = col_str;
 	new_stat_tap_init_table_row(table, i, num_fields, items);
     }
 }
@@ -3760,6 +3765,13 @@ gsm_a_stat_reset(new_stat_tap_table* table)
 	item_data->value.uint_value = 0;
 	new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
     }
+}
+
+static void
+gsm_a_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+    if (column != MSG_NAME_COLUMN) return;
+    g_free((char*)field_data->value.string_value);
 }
 
 /* Register the protocol with Wireshark */
@@ -4713,7 +4725,7 @@ proto_register_gsm_a_common(void)
 	gsm_a_bssmap_stat_init,
 	gsm_a_bssmap_stat_packet,
 	gsm_a_stat_reset,
-	NULL,
+	gsm_a_stat_free_table_item,
 	NULL,
 	sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
 	sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,

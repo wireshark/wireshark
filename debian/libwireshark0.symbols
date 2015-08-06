@@ -572,7 +572,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  free_rtd_table@Base 1.99.8
  free_srt_table@Base 1.99.8
  free_srt_table_data@Base 1.99.8
- free_stat_table@Base 1.99.8
+ free_stat_tables@Base 1.99.9
  ftype_can_contains@Base 1.9.1
  ftype_can_eq@Base 1.9.1
  ftype_can_ge@Base 1.9.1

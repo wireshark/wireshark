@@ -62,7 +62,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	remove_tap_listener(&ss->data);
 
-	free_stat_table(ss->new_stat_tap, NULL, NULL);
+    free_stat_tables(ss->new_stat_tap, NULL, NULL);
 
 	g_free(ss);
 }
@@ -223,7 +223,7 @@ init_simple_stat_tables(new_stat_tap_ui *new_stat_tap, const char *filter)
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		free_stat_table(ss->new_stat_tap, NULL, NULL);
+		free_stat_tables(ss->new_stat_tap, NULL, NULL);
 		g_free(ss);
 		return;
 	}

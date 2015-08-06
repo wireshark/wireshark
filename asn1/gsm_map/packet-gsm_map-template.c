@@ -2512,10 +2512,15 @@ void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_c
   for (i = 0; i < GSM_MAP_MAX_NUM_OPR_CODES; i++)
   {
     const char *ocs = try_val_to_str(i, gsm_map_opr_code_strings);
-    if (!ocs) ocs = g_strdup_printf("Unknown op code %d", i);
+    char *col_str;
+    if (ocs) {
+      col_str = g_strdup(ocs);
+    } else {
+      col_str = g_strdup_printf("Unknown op code %d", i);
+    }
 
     items[ID_COLUMN].value.uint_value = i;
-    items[OP_CODE_COLUMN].value.string_value = ocs;
+    items[OP_CODE_COLUMN].value.string_value = col_str;
     new_stat_tap_init_table_row(table, i, num_fields, items);
   }
 }
@@ -2590,6 +2595,13 @@ gsm_map_stat_reset(new_stat_tap_table* table)
     item_data->value.uint_value = 0;
     new_stat_tap_set_field_data(table, element, INVOKES_COLUMN, item_data);
   }
+}
+
+static void
+gsm_map_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+  if (column != OP_CODE_COLUMN) return;
+  g_free((char*)field_data->value.string_value);
 }
 
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
@@ -3100,7 +3112,7 @@ void proto_register_gsm_map(void) {
     gsm_map_stat_init,
     gsm_map_stat_packet,
     gsm_map_stat_reset,
-    NULL,
+    gsm_map_stat_free_table_item,
     NULL,
     sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item), gsm_map_stat_fields,
     sizeof(gsm_map_stat_params)/sizeof(tap_param), gsm_map_stat_params,

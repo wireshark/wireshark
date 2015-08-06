@@ -257,7 +257,7 @@ void SimpleStatisticsDialog::fillTree()
         QMessageBox::critical(this, tr("Failed to attach to tap \"%1\"").arg(stu_->tap_name),
                              error_string->str);
         g_string_free(error_string, TRUE);
-        free_stat_table(stu_, NULL, NULL);
+        free_stat_tables(stu_, NULL, NULL);
         reject();
     }
 
@@ -266,7 +266,7 @@ void SimpleStatisticsDialog::fillTree()
     tapDraw(&stat_data);
 
     remove_tap_listener(&stat_data);
-    free_stat_table(stu_, NULL, NULL);
+    free_stat_tables(stu_, NULL, NULL);
 }
 
 /*
