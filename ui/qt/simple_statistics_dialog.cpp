@@ -188,7 +188,7 @@ TapParameterDialog *SimpleStatisticsDialog::createSimpleStatisticsDialog(QWidget
     return new SimpleStatisticsDialog(parent, cf, stu, filter);
 }
 
-void SimpleStatisticsDialog::addSimpleStatisticsTable(const _stat_tap_table *st_table)
+void SimpleStatisticsDialog::addMissingRows(struct _new_stat_data_t *stat_data)
 {
     // Hierarchy:
     // - tables (GTK+ UI only supports one currently)
@@ -197,11 +197,18 @@ void SimpleStatisticsDialog::addSimpleStatisticsTable(const _stat_tap_table *st_
     // For multiple table support we might want to add them as subtrees, with
     // the top-level tree item text set to the column labels for that table.
 
-    for (guint element = 0; element < st_table->num_elements; element++) {
+    // Add any missing rows.
+    guint table_index = 0;
+    new_stat_tap_table* st_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, table_index);
+    for (guint element = statsTreeWidget()->topLevelItemCount(); element < st_table->num_elements; element++) {
         stat_tap_table_item_type* fields = new_stat_tap_get_field_data(st_table, element, 0);
-        new SimpleStatisticsTreeWidgetItem(statsTreeWidget(), st_table->num_fields, fields);
+        SimpleStatisticsTreeWidgetItem *ss_ti = new SimpleStatisticsTreeWidgetItem(statsTreeWidget(), st_table->num_fields, fields);
+        for (int col = 0; col < (int) stu_->nfields; col++) {
+            if (stu_->fields[col].align == TAP_ALIGN_RIGHT) {
+                ss_ti->setTextAlignment(col, Qt::AlignRight);
+            }
+        }
     }
-
 }
 
 void SimpleStatisticsDialog::tapReset(void *sd_ptr)
@@ -212,10 +219,6 @@ void SimpleStatisticsDialog::tapReset(void *sd_ptr)
 
     reset_stat_table(sd->new_stat_tap_data, NULL, NULL);
     ss_dlg->statsTreeWidget()->clear();
-
-    guint table_index = 0;
-    new_stat_tap_table* st_table = g_array_index(sd->new_stat_tap_data->tables, new_stat_tap_table*, table_index);
-    ss_dlg->addSimpleStatisticsTable(st_table);
 }
 
 void SimpleStatisticsDialog::tapDraw(void *sd_ptr)
@@ -223,6 +226,8 @@ void SimpleStatisticsDialog::tapDraw(void *sd_ptr)
     new_stat_data_t *sd = (new_stat_data_t*) sd_ptr;
     SimpleStatisticsDialog *ss_dlg = static_cast<SimpleStatisticsDialog *>(sd->user_data);
     if (!ss_dlg) return;
+
+    ss_dlg->addMissingRows(sd);
 
     QTreeWidgetItemIterator it(ss_dlg->statsTreeWidget());
     while (*it) {

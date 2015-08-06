@@ -87,6 +87,17 @@ typedef struct _stat_tap_table_item_type
         gfloat float_value;
         gint enum_value;
     } value;
+    /* Scratch space for the dissector. Alternatively we could also add support
+     * for hidden columns. */
+    union
+    {
+        guint uint_value;
+        gint  int_value;
+        const char* string_value;
+        gfloat float_value;
+        gint enum_value;
+        void* ptr_value;
+    } user_data;
 } stat_tap_table_item_type;
 
 /* Possible alignments */

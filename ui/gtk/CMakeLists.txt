@@ -213,7 +213,6 @@ set(WIRESHARK_TAP_SRC
 	mtp3_summary.c
 	rlc_lte_graph.c
 	rlc_lte_stat_dlg.c
-	rpc_progs.c
 	rpc_stat.c
 	rtp_analysis.c
 	rtp_stream_dlg.c

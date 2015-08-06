@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/srt_table.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
@@ -3810,6 +3811,149 @@ rpc_cleanup_protocol(void)
 	g_hash_table_destroy(rpc_reassembly_table);
 }
 
+/* Tap statistics */
+typedef enum
+{
+	PROGRAM_NAME_COLUMN,
+	PROGRAM_NUM_COLUMN,
+	VERSION_COLUMN,
+	CALLS_COLUMN,
+	MIN_SRT_COLUMN,
+	MAX_SRT_COLUMN,
+	AVG_SRT_COLUMN
+} rpc_prog_stat_columns;
+
+static stat_tap_table_item rpc_prog_stat_fields[] = {
+	{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Program", "%-25s"},
+	{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Program Num", "%u"},
+	{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Version", "%u"},
+	{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Calls", "%u"},
+	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Min SRT (s)", "%.2f"},
+	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max SRT (s)", "%.2f"},
+	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg SRT (s)", "%.2f"}
+};
+
+void rpc_prog_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
+	new_stat_tap_table* table;
+
+	table = new_stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+	new_stat_tap_add_table(new_stat, table);
+
+}
+
+static gboolean
+rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr)
+{
+	new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;
+	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
+	nstime_t delta;
+	double delta_s = 0.0;
+	guint call_count;
+	guint element;
+	gboolean found = FALSE;
+	new_stat_tap_table* table;
+	stat_tap_table_item_type* item_data;
+
+	table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+
+	for (element = 0; element < table->num_elements; element++)
+	{
+		stat_tap_table_item_type *program_data, *version_data;
+		program_data = new_stat_tap_get_field_data(table, element, PROGRAM_NUM_COLUMN);
+		version_data = new_stat_tap_get_field_data(table, element, VERSION_COLUMN);
+
+		if ((ri->prog == program_data->value.uint_value) && (ri->vers == version_data->value.uint_value)) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (!found) {
+		/* Add a new row */
+		stat_tap_table_item_type items[sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item)];
+		memset(items, 0, sizeof(items));
+
+		items[PROGRAM_NAME_COLUMN].type = TABLE_ITEM_STRING;
+		items[PROGRAM_NAME_COLUMN].value.string_value = g_strdup(rpc_prog_name(ri->prog));
+		items[PROGRAM_NUM_COLUMN].type = TABLE_ITEM_UINT;
+		items[PROGRAM_NUM_COLUMN].value.uint_value = ri->prog;
+		items[VERSION_COLUMN].type = TABLE_ITEM_UINT;
+		items[VERSION_COLUMN].value.uint_value = ri->vers;
+		items[CALLS_COLUMN].type = TABLE_ITEM_UINT;
+		items[MIN_SRT_COLUMN].type = TABLE_ITEM_FLOAT;
+		items[MAX_SRT_COLUMN].type = TABLE_ITEM_FLOAT;
+		items[AVG_SRT_COLUMN].type = TABLE_ITEM_FLOAT;
+
+		new_stat_tap_init_table_row(table, element, num_fields, items);
+	}
+
+	/* we are only interested in reply packets */
+	if (ri->request) {
+		return FALSE;
+	}
+
+	item_data = new_stat_tap_get_field_data(table, element, CALLS_COLUMN);
+	item_data->value.uint_value++;
+	call_count = item_data->value.uint_value;
+	new_stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
+
+	/* calculate time delta between request and reply */
+	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
+	delta_s = nstime_to_sec(&delta);
+
+	item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
+	if (item_data->value.float_value == 0.0 || delta_s < item_data->value.float_value) {
+		item_data->value.float_value = delta_s;
+		new_stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
+	}
+
+	item_data = new_stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
+	if (item_data->value.float_value == 0.0 || delta_s > item_data->value.float_value) {
+		item_data->value.float_value = delta_s;
+		new_stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
+	}
+
+	item_data = new_stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
+	item_data->user_data.float_value += delta_s;
+	item_data->value.float_value = item_data->user_data.float_value / call_count;
+	new_stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
+
+	return TRUE;
+}
+
+static void
+rpc_prog_stat_reset(new_stat_tap_table* table)
+{
+	guint element;
+	stat_tap_table_item_type* item_data;
+
+	for (element = 0; element < table->num_elements; element++)
+	{
+		item_data = new_stat_tap_get_field_data(table, element, CALLS_COLUMN);
+		item_data->value.uint_value = 0;
+		new_stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
+		item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
+		item_data->value.float_value = 0.0;
+		new_stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
+		item_data = new_stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
+		item_data->value.float_value = 0.0;
+		new_stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
+		item_data = new_stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
+		item_data->value.float_value = 0.0;
+		new_stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
+	}
+}
+
+static void
+rpc_prog_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+	if (column != PROGRAM_NAME_COLUMN) return;
+	g_free((char*)field_data->value.string_value);
+}
+
 /* will be called once from register.c at startup time */
 void
 proto_register_rpc(void)
@@ -4076,6 +4220,25 @@ proto_register_rpc(void)
 	module_t *rpc_module;
 	expert_module_t* expert_rpc;
 
+	static tap_param rpc_prog_stat_params[] = {
+		{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+	};
+
+	static new_stat_tap_ui rpc_prog_stat_table = {
+		REGISTER_STAT_GROUP_UNSORTED,
+		"ONC-RPC Programs",
+		"rpc",
+		"rpc,programs",
+		rpc_prog_stat_init,
+		rpc_prog_stat_packet,
+		rpc_prog_stat_reset,
+		rpc_prog_stat_free_table_item,
+		NULL,
+		sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item), rpc_prog_stat_fields,
+		sizeof(rpc_prog_stat_params)/sizeof(tap_param), rpc_prog_stat_params,
+		NULL
+	};
+
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "RPC", "rpc");
 
 	subdissector_call_table = register_custom_dissector_table("rpc.call", "RPC Call Functions", rpc_proc_hash, rpc_proc_equal);
@@ -4121,6 +4284,7 @@ proto_register_rpc(void)
 	rpc_tap = register_tap("rpc");
 
 	register_srt_table(proto_rpc, NULL, 1, rpcstat_packet, rpcstat_init, rpcstat_param);
+	register_new_stat_tap_ui(&rpc_prog_stat_table);
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must

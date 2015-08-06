@@ -24,6 +24,8 @@
 
 #include "tap_parameter_dialog.h"
 
+struct _new_stat_data_t;
+
 class SimpleStatisticsDialog : public TapParameterDialog
 {
     Q_OBJECT
@@ -38,7 +40,7 @@ protected:
      * @param st_table The table to add.
      */
     // gtk:service_response_table.h:init_srt_table
-    void addSimpleStatisticsTable(const struct _stat_tap_table *st_table);
+    void addMissingRows(struct _new_stat_data_t *stat_data);
 
 private:
     struct _new_stat_tap_ui *stu_;
