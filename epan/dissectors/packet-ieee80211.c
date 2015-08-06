@@ -4898,7 +4898,7 @@ static int hf_ieee80211_tag_bs_fbck_antenna_id = -1;
 static int hf_ieee80211_tag_snr_requested = -1;
 static int hf_ieee80211_tag_channel_measurement_requested = -1;
 static int hf_ieee80211_tag_number_of_taps_requested = -1;
-static int hf_ieee80211_tag_sector_id_oreder_req = -1;
+static int hf_ieee80211_tag_sector_id_order_req = -1;
 static int hf_ieee80211_tag_snr_present = -1;
 static int hf_ieee80211_tag_channel_measurement_present = -1;
 static int hf_ieee80211_tag_tap_delay_present = -1;
@@ -15937,7 +15937,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
        */
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_tag_number_of_taps_requested, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_oreder_req, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_order_req, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_ieee80211_tag_snr_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_ieee80211_tag_tap_delay_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -20405,7 +20405,7 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_DEC, VALS(number_of_taps_values), 0x00000180,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_sector_id_oreder_req,
+    {&hf_ieee80211_tag_sector_id_order_req,
      {"Sector ID Order Requested", "wlan.beam_refine.sector_id_req",
       FT_BOOLEAN, 32, NULL, 0x00000200,
       NULL, HFILL }},
@@ -20616,7 +20616,7 @@ proto_register_ieee80211 (void)
        NULL, HFILL }},
 
     {&hf_ieee80211_ff_vht_mimo_cntrl,
-     {"VHT MIMO Control", "wlan.vht.mimo_control.control.",
+     {"VHT MIMO Control", "wlan.vht.mimo_control.control",
       FT_UINT24, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
@@ -20701,17 +20701,17 @@ proto_register_ieee80211 (void)
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_tspec_allocation_id,
-      {"Allocation ID","wlan.dmg_tspec.allocatin_id",
+      {"Allocation ID","wlan.dmg_tspec.allocation_id",
        FT_UINT24, BASE_DEC, NULL, 0x00000f,
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_tspec_allocation_type,
-      {"Allocation Type","wlan.dmg_tspec.allocatin_type",
+      {"Allocation Type","wlan.dmg_tspec.allocation_type",
        FT_UINT24, BASE_DEC, NULL, 0x000070,
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_tspec_allocation_format,
-      {"Allocation Format","wlan.dmg_tspec.allocatin_format",
+      {"Allocation Format","wlan.dmg_tspec.allocation_format",
        FT_BOOLEAN, 24, NULL, 0x000080,
        NULL, HFILL }},
 
@@ -21224,7 +21224,7 @@ proto_register_ieee80211 (void)
       "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl,
-     {"MIMO Control", "wlan_mgt.fixed.mimo.control.",
+     {"MIMO Control", "wlan_mgt.fixed.mimo.control",
       FT_BYTES, BASE_NONE, 0, 0x0,
       NULL, HFILL }},
 
@@ -23769,7 +23769,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_service_interval_granularity,
-     {"Shortest service interval", "wlan_mgt.ht.info.",
+     {"Shortest service interval", "wlan_mgt.ht.info",
       FT_UINT8, BASE_HEX, VALS(ht_info_service_interval_granularity_flags), 0xe0,
       NULL, HFILL }},
 
