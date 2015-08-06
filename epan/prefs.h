@@ -126,6 +126,14 @@ typedef enum {
     pref_current
 } pref_source_t;
 
+typedef enum {
+    ELIDE_LEFT,
+    ELIDE_RIGHT,
+    ELIDE_MIDDLE,
+    ELIDE_NONE
+} elide_mode_e;
+
+
 /*
  * Update channel.
  */
@@ -214,6 +222,7 @@ typedef struct _e_prefs {
   gboolean     unknown_colorfilters; /* unknown or obsolete color filter(s) */
   gboolean     gui_qt_packet_list_separator;
   gboolean     gui_packet_editor; /* Enable Packet Editor */
+  elide_mode_e gui_packet_list_elide_mode;
   gboolean     st_enable_burstinfo;
   gboolean     st_burst_showcount;
   gint         st_burst_resolution;

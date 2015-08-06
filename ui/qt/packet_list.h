@@ -149,6 +149,7 @@ public slots:
     void redrawVisiblePackets();
     void columnsChanged();
     void applyRecentColumnWidths();
+    void elideModeChanged();
 
 private slots:
     void showHeaderMenu(QPoint pos);

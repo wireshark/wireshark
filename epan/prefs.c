@@ -194,6 +194,14 @@ static const gchar *capture_cols[5] = {
     "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, FILTER\n"
 #endif
 
+static const enum_val_t gui_packet_list_elide_mode[] = {
+    {"LEFT", "LEFT", ELIDE_LEFT},
+    {"RIGHT", "RIGHT", ELIDE_RIGHT},
+    {"MIDDLE", "MIDDLE", ELIDE_MIDDLE},
+    {"NONE", "NONE", ELIDE_NONE},
+    {NULL, NULL, -1}
+};
+
 /*
  * List of all modules with preference settings.
  */
@@ -2347,6 +2355,11 @@ prefs_register_modules(void)
                                    "Enable Packet Editor (Experimental)",
                                    &prefs.gui_packet_editor);
 
+    prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
+                       "Elide mode",
+                       "The position of \"...\" in packet list text.",
+                       (gint*)(void*)(&prefs.gui_packet_list_elide_mode), gui_packet_list_elide_mode, FALSE);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -2980,6 +2993,7 @@ pre_init_prefs(void)
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
     prefs.gui_packet_editor          = FALSE;
+    prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
 
     prefs.gui_qt_packet_list_separator = FALSE;
 

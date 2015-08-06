@@ -678,6 +678,28 @@ void PacketList::applyRecentColumnWidths()
     column_state_ = header()->saveState();
 }
 
+// This sets the mode for the entire view. If we want to make this setting
+// per-column we'll either have to generalize RelatedPacketDelegate so that
+// we can set it for entire rows or create another delegate.
+void PacketList::elideModeChanged()
+{
+    Qt::TextElideMode elide_mode = Qt::ElideRight;
+    switch (prefs.gui_packet_list_elide_mode) {
+    case ELIDE_LEFT:
+        elide_mode = Qt::ElideLeft;
+        break;
+    case ELIDE_MIDDLE:
+        elide_mode = Qt::ElideMiddle;
+        break;
+    case ELIDE_NONE:
+        elide_mode = Qt::ElideNone;
+        break;
+    default:
+        break;
+    }
+    setTextElideMode(elide_mode);
+}
+
 void PacketList::recolorPackets()
 {
     packet_list_model_->resetColorized();
