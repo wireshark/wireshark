@@ -82,13 +82,13 @@ QByteArray gstring_free_to_qbytearray(GString *glib_gstring);
 /** Convert an integer to a formatted string representation.
  *
  * @param value The integer to format.
- * @param base Number base between 2 and 36 (limited by QString::arg).
  * @param field_width Width of the output, not including any base prefix.
  *        Output will be zero-padded.
+ * @param base Number base between 2 and 36 (limited by QString::arg).
  *
  * @return A QString representation of the integer
  */
-const QString int_to_qstring(qint64 value, int base = 10, int field_width = 0);
+const QString int_to_qstring(qint64 value, int field_width = 0, int base = 10);
 
 /** Convert an address to a QString using address_to_str().
  *

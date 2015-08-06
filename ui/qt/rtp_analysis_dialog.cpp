@@ -942,8 +942,8 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(port_dst_fwd_);
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>0x%1</tr>")
-            .arg(ssrc_fwd_, 8, 16, QChar('0'));
+    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
+            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(fwd_statinfo_.max_delta, 0, 'f', 2)
             .arg(fwd_statinfo_.max_nr);
@@ -971,8 +971,8 @@ void RtpAnalysisDialog::updateStatistics()
 
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>0x%1</tr>")
-            .arg(ssrc_fwd_, 8, 16, QChar('0'));
+    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
+            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(rev_statinfo_.max_delta, 0, 'f', 2)
             .arg(rev_statinfo_.max_nr);

@@ -29,6 +29,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/utf8_entities.h"
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QComboBox>
@@ -135,7 +136,7 @@ QString DecodeAsDialog::entryString(const gchar *table_name, gpointer value)
                 g_assert_not_reached();
                 break;
             }
-            entry_str = QString("0x%1").arg(num_val, width, 16, QChar('0'));
+            entry_str = QString("%1").arg(int_to_qstring(num_val, width, 16));
             break;
 
         case BASE_OCT:

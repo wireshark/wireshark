@@ -67,7 +67,7 @@ QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
     return qt_ba;
 }
 
-const QString int_to_qstring(qint64 value, int base, int field_width)
+const QString int_to_qstring(qint64 value, int field_width, int base)
 {
     // Qt deprecated QString::sprintf in Qt 5.0, then added ::asprintf in
     // Qt 5.5. Rather than navigate a maze of QT_VERSION_CHECKs, just use

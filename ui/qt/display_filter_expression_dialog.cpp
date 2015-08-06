@@ -216,7 +216,7 @@ void DisplayFilterExpressionDialog::fillEnumIntValues(const _value_string *vals,
 
     for (int i = 0; vals[i].strptr != NULL; i++) {
         QListWidgetItem *eli = new QListWidgetItem(vals[i].strptr, ui->enumListWidget);
-        eli->setData(Qt::UserRole, int_to_qstring(vals[i].value, base));
+        eli->setData(Qt::UserRole, int_to_qstring(vals[i].value, 0, base));
     }
 }
 
@@ -226,7 +226,7 @@ void DisplayFilterExpressionDialog::fillEnumInt64Values(const _val64_string *val
 
     for (int i = 0; vals64[i].strptr != NULL; i++) {
         QListWidgetItem *eli = new QListWidgetItem(vals64[i].strptr, ui->enumListWidget);
-        eli->setData(Qt::UserRole, int_to_qstring(vals64[i].value, base));
+        eli->setData(Qt::UserRole, int_to_qstring(vals64[i].value, 0, base));
     }
 }
 
