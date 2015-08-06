@@ -229,9 +229,9 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 attribute_length;
         guint16 number_of_values;
         guint offset = 0;
-        int vect_attr_len;
-        int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
-        int vect_offset; /* Use when handling multiple vector attributes.  This points to the current vector attribute being decoded. */
+        unsigned int vect_attr_len;
+        unsigned int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
+        unsigned int vect_offset; /* Use when handling multiple vector attributes.  This points to the current vector attribute being decoded. */
 
         ti = proto_tree_add_item(tree, proto_mvrp, tvb, 0, -1, ENC_NA);
         mvrp_tree = proto_item_add_subtree(ti, ett_mvrp);
@@ -244,7 +244,7 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Attribute Type and Attribute Length (guaranteed to not be 0x0000).
          */
         msg_offset = 0;
-        while (tvb_get_ntohs(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset) != MVRP_END_MARK) {
+        while (MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset < tvb_reported_length(tvb) && tvb_get_ntohs(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset) != MVRP_END_MARK) {
 
             attribute_type = tvb_get_guint8(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset);
             attribute_length = tvb_get_guint8(tvb, MVRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset);
@@ -284,7 +284,7 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * instead of a Vector Header (guaranteed to not be 0x0000).
              */
             vect_offset = 0;
-            while (tvb_get_ntohs(tvb, MVRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset) != MVRP_END_MARK) {
+            while (MVRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset < tvb_reported_length(tvb) && tvb_get_ntohs(tvb, MVRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset) != MVRP_END_MARK) {
                 /* MVRP VectorAttribute is a group of fields
                  *
                  * Contains VectorHeader (2 bytes)
@@ -331,15 +331,19 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 vect_offset += vect_attr_len; /* Move to next Vector Attribute, if there is one */
             } /* Multiple VectorAttribute while() */
 
-            proto_tree_add_item(attr_list_tree, hf_mvrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
+            if (MVRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset < tvb_reported_length(tvb)) {
+                proto_tree_add_item(attr_list_tree, hf_mvrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
+            }
 
             proto_item_set_len(attr_list_ti, vect_offset); /*without an endmark*/
-            msg_offset += vect_offset + 2; /*  + endmark; Move to next Message, if there is one */
+            msg_offset += vect_offset + 4; /*  + endmark; Move to next Message, if there is one */
             proto_item_set_len(msg_ti, vect_offset + 2); /*length of message*/
 
         } /* Multiple Message while() */
 
-        proto_tree_add_item(mvrp_tree, hf_mvrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
+        if (MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset < tvb_reported_length(tvb)) {
+            proto_tree_add_item(mvrp_tree, hf_mvrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
+        }
     }
 }
 
