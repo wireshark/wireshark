@@ -1004,7 +1004,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
               guint16 *offlg, guint32 *ident) {
     struct ip6_frag  frag;
     int              len;
-    proto_tree      *rthdr_tree;
+    proto_tree      *frag_tree;
 
     tvb_memcpy(tvb, (guint8 *)&frag, offset, sizeof(frag));
     len = sizeof(frag);
@@ -1018,24 +1018,24 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                  (frag.ip6f_offlg & IP6F_OFF_MASK) >> IP6F_OFF_SHIFT, frag.ip6f_ident);
 
     if (tree) {
-        rthdr_tree = proto_tree_add_subtree(tree, tvb, offset, len,
+        frag_tree = proto_tree_add_subtree(tree, tvb, offset, len,
                                  ett_ipv6, NULL, "Fragmentation Header");
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_nxt, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_nxt, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_nxt), 1,
                             ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_reserved, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_reserved, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_reserved), 1,
                             ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_offset, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_offset, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_reserved_bits, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_reserved_bits, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_more, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_more, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_frag_id, tvb,
+        proto_tree_add_item(frag_tree, hf_ipv6_frag_id, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_ident), 4, ENC_BIG_ENDIAN);
     }
     return len;
