@@ -1864,18 +1864,18 @@ static const value_string  ff_channel_width_vals[] = {
 };
 
 static const true_false_string ff_qos_info_ap_q_ack_flag = {
-  "Implemented",
-  "Not Implemented"
+  "APs MIB attribute dot11QAckOptionImplemented is true",
+  "APs MIB attribute dot11QAckOptionImplemented is false"
 };
 
 static const true_false_string ff_qos_info_ap_queue_req_flag = {
-  "Can process a nonzero Queue Size subfield in the QoS Control field in QoS data frames",
-  "Can NOT process a nonzero Queue Size subfield in the QoS Control field in QoS data frames"
+  "AP can process a nonzero Queue Size subfield in the QoS Control field in QoS data frames",
+  "AP cannot process a nonzero Queue Size subfield in the QoS Control field in QoS data frames"
 };
 
 static const true_false_string ff_qos_info_ap_txop_request_flag = {
-  "Can process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames",
-  "Can NOT process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames"
+  "AP can process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames",
+  "AP cannot process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames"
 };
 
 static const true_false_string ff_qos_info_sta_ac_flag = {
@@ -1884,21 +1884,21 @@ static const true_false_string ff_qos_info_sta_ac_flag = {
 };
 
 static const true_false_string ff_qos_info_sta_q_ack_flag = {
-  "Implemented",
-  "Not Implemented"
+  "STAs MIB attribute dot11QAckOptionImplemented is true",
+  "STAs MIB attribute dot11QAckOptionImplemented is false"
 };
 
 static const value_string ff_qos_info_sta_max_sp_len_flags[] = {
   {0x00, "AP may deliver all buffered MSDUs, A-MSDUs and MMPDUs"},
-  {0x01, "AP may deliver a maximum of two MSDUs and MMPDUs per SP"},
-  {0x02, "AP may deliver a maximum of four MSDUs and MMPDUs per SP"},
-  {0x03, "AP may deliver a maximum of six MSDUs and MMPDUs per SP"},
+  {0x01, "AP may deliver a maximum of two MSDUs, A-MSDUs and MMPDUs per SP"},
+  {0x02, "AP may deliver a maximum of four MSDUs, A-MSDUs and MMPDUs per SP"},
+  {0x03, "AP may deliver a maximum of six MSDUs, A-MSDUs and MMPDUs per SP"},
   {0, NULL}
 };
 
 static const true_false_string ff_qos_info_sta_more_data_ack_flag = {
-  "Can process ACK frames with the More Data bit in the Frame Control field set to 1",
-  "Can NOT process ACK frames with the More Data bit in the Frame Control field set to 1"
+  "STA can process ACK frames with the More Data bit in the Frame Control field set to 1 and will remain in the wake state",
+  "STA cannot process ACK frames with the More Data bit in the Frame Control field set to 1"
 };
 
 static const true_false_string ff_sm_pwr_save_sm_mode_flag = {
@@ -2370,30 +2370,6 @@ static const value_string ieee80211_data_encap_payload_types[] = {
   {1, "Remote Request/Response"},
   {2, "TDLS"},
   {0, NULL}
-};
-
-static const true_false_string qos_info_field_qack_flags = {
-  "STAs/APs MIB attribute dot11QAckOptionImplemented is true",
-  "STAs/APs MIB attribute dot11QAckOptionImplemented is false"
-};
-
-static const true_false_string qos_info_field_more_data_ack_flags = {
-  "STA can process Ack frames with More Data bit and will remain in the awake state.",
-  "STA cannot process Ack frames with More Data bit in Frame Control field."
-};
-
-static const true_false_string qos_info_field_queue_req_flags = {
-  "AP can process a nonzero Queue Size subfield in the QoS Control field in QoS data frames",
-  "AP cannot process Queue Size subfield in QoS data frames."
-};
-
-  /* 7.3.1.17 Table 19b-Settings of the Max SP Length subfield */
-static const value_string qos_info_field_max_sp_length_flags[] = {
-  { 0x0, "QAP may deliver all buffered MSDUs and MMPDUs." },
-  { 0x2, "QAP may deliver a maximum of two MSDUs and MMPDUs per SP." },
-  { 0x1, "QAP may deliver a maximum of four MSDUs and MMPDUs per SP." },
-  { 0x3, "QAP may deliver a maximum of six MSDUs and MMPDUs per SP." },
-  { 0, NULL}
 };
 
 static const true_false_string rsn_preauth_flags = {
@@ -3399,7 +3375,7 @@ static int hf_ieee80211_ff_qos_info_sta_ac_vi = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_bk = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_be = -1;
 static int hf_ieee80211_ff_qos_info_sta_q_ack = -1;
-static int hf_ieee80211_ff_qos_info_sta_max_sp_len = -1;
+static int hf_ieee80211_ff_qos_info_sta_max_sp_length = -1;
 static int hf_ieee80211_ff_qos_info_sta_more_data_ack = -1;
 
 static const int *ieee80211_ff_qos_info_sta_fields[] = {
@@ -3408,7 +3384,7 @@ static const int *ieee80211_ff_qos_info_sta_fields[] = {
   &hf_ieee80211_ff_qos_info_sta_ac_bk,
   &hf_ieee80211_ff_qos_info_sta_ac_be,
   &hf_ieee80211_ff_qos_info_sta_q_ack,
-  &hf_ieee80211_ff_qos_info_sta_max_sp_len,
+  &hf_ieee80211_ff_qos_info_sta_max_sp_length,
   &hf_ieee80211_ff_qos_info_sta_more_data_ack,
   NULL
 };
@@ -4581,18 +4557,6 @@ static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_tspec_dmg = -1;
 static int hf_ieee80211_ts_delay = -1;
 static int hf_ieee80211_tclas_process = -1;
-static int hf_ieee80211_tag_qos_cap_qos_info = -1;
-static int hf_ieee80211_qos_info_field_vo_uapsd = -1;
-static int hf_ieee80211_qos_info_field_vi_uapsd = -1;
-static int hf_ieee80211_qos_info_field_bk_uapsd = -1;
-static int hf_ieee80211_qos_info_field_be_uapsd = -1;
-static int hf_ieee80211_qos_info_field_qack = -1;
-static int hf_ieee80211_qos_info_field_max_sp_length = -1;
-static int hf_ieee80211_qos_info_field_more_data_ack = -1;
-static int hf_ieee80211_qos_info_field_edca_upd_cnt = -1;
-static int hf_ieee80211_qos_info_field_queue_req = -1;
-static int hf_ieee80211_qos_info_field_txop_req = -1;
-static int hf_ieee80211_qos_info_field_reserved = -1;
 static int hf_ieee80211_tag_ext_supp_rates = -1;
 static int hf_ieee80211_sched_info = -1;
 static int hf_ieee80211_sched_info_agg = -1;
@@ -4991,7 +4955,6 @@ static gint ett_tag_country_fnm_tree = -1;
 static gint ett_tag_country_rcc_tree = -1;
 static gint ett_qos_parameters = -1;
 static gint ett_qos_ps_buf_state = -1;
-static gint ett_qos_info_field_tree = -1;
 static gint ett_wep_parameters = -1;
 static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
@@ -5158,6 +5121,7 @@ static expert_field ei_ieee80211_ff_anqp_capability = EI_INIT;
 static expert_field ei_ieee80211_not_enough_room_for_anqp_header = EI_INIT;
 static expert_field ei_ieee80211_ff_query_request_length = EI_INIT;
 static expert_field ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype = EI_INIT;
+static expert_field ei_ieee80211_qos_info_bad_ftype = EI_INIT;
 static expert_field ei_ieee80211_pmkid_count_too_large = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_venue_length = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_roaming_consortium_oi_len = EI_INIT;
@@ -7480,21 +7444,26 @@ add_ff_channel_width(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   return 1;
 }
 
+/* QoS Info:  802.11-2012 8.4.1.17 */
 static guint
 add_ff_qos_info_ap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_qos_info_ap,
-                         ett_ff_qos_info, ieee80211_ff_qos_info_ap_fields,
-                         ENC_LITTLE_ENDIAN);
+  /* From AP so decode as AP: Figure 8-51-QoS Info field when sent by a AP */
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_qos_info_ap,
+                                    ett_ff_qos_info, ieee80211_ff_qos_info_ap_fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   return 1;
 }
 
+
+/* QoS Info:  802.11-2012 8.4.1.17 */
 static guint
 add_ff_qos_info_sta(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_qos_info_sta,
-                         ett_ff_qos_info, ieee80211_ff_qos_info_sta_fields,
-                         ENC_LITTLE_ENDIAN);
+  /* To AP so decode as STA: Figure 8-52-QoS Info field when set by a non-AP STA */
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_qos_info_sta,
+                                    ett_ff_qos_info, ieee80211_ff_qos_info_sta_fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   return 1;
 }
 
@@ -10008,13 +9977,13 @@ static const value_string ft_subelem_id_vals[] = {
 };
 
 static int
-dissect_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
+dissect_wme_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
 {
-  proto_tree *qos_info_tree;
-  proto_item *qos_info_item;
+  proto_tree *wme_qos_info_tree;
+  proto_item *wme_qos_info_item;
 
-  qos_info_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_qos_info, tvb, offset, 1, ENC_NA);
-  qos_info_tree = proto_item_add_subtree(qos_info_item, ett_wme_qos_info);
+  wme_qos_info_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_qos_info, tvb, offset, 1, ENC_NA);
+  wme_qos_info_tree = proto_item_add_subtree(wme_qos_info_item, ett_wme_qos_info);
 
   switch (ftype) {
     case MGT_ASSOC_REQ:
@@ -10022,12 +9991,12 @@ dissect_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset
     case MGT_REASSOC_REQ:
     {
       /* To AP so decode as per WMM standard Figure 7 QoS Info field when sent from WMM STA*/
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_max_sp_length, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_be, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_bk, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_vi, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_vo, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_reserved, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_max_sp_length, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_be, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_bk, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_vi, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_vo, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_sta_reserved, tvb, offset, 1, ENC_NA);
       break;
     }
     case MGT_BEACON:
@@ -10036,13 +10005,13 @@ dissect_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset
     case MGT_REASSOC_RESP:
     {
       /* From AP so decode as per WMM standard Figure 6 QoS Info field when sent from WMM AP */
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_u_apsd, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_parameter_set_count, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_reserved, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_u_apsd, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_parameter_set_count, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(wme_qos_info_tree, hf_ieee80211_wfa_ie_wme_qos_info_ap_reserved, tvb, offset, 1, ENC_NA);
       break;
     }
     default:
-        expert_add_info_format(pinfo, qos_info_item, &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, "Could not deduce direction to decode correctly, ftype %u", ftype);
+        expert_add_info_format(pinfo, wme_qos_info_item, &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, "Could not deduce direction to decode correctly, ftype %u", ftype);
       break;
     }
 
@@ -10150,14 +10119,14 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         case 0: /* WME Information Element */
         {
           /* WME QoS Info Field */
-          offset = dissect_qos_info(tree, tvb, pinfo, offset, ftype);
+          offset = dissect_wme_qos_info(tree, tvb, pinfo, offset, ftype);
           break;
         }
         case 1: /* WME Parameter Element */
         {
           int i;
           /* WME QoS Info Field */
-          offset = dissect_qos_info(tree, tvb, pinfo, offset, ftype);
+          offset = dissect_wme_qos_info(tree, tvb, pinfo, offset, ftype);
           proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_reserved, tvb, offset, 1, ENC_NA);
           offset += 1;
           /* AC Parameters */
@@ -10737,49 +10706,37 @@ dissect_vendor_ie_nintendo(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
-/* 802.11e 7.3.2.33 QoS Capability element */
+/* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
 {
-  proto_item *cap_info_item;
-  proto_tree *cap_info_tree;
-
-  cap_info_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_cap_qos_info, tvb, offset, 1, ENC_NA);
-  cap_info_tree = proto_item_add_subtree(cap_info_item, ett_qos_info_field_tree);
   switch (ftype) {
     case MGT_ASSOC_REQ:
     case MGT_PROBE_REQ:
     case MGT_REASSOC_REQ:
     {
-      /* To AP so decode as STA: Figure 33h-QoS Info field when set by a non-AP QSTA */
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_vo_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_vi_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_bk_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_be_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_qack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_max_sp_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_more_data_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      /* To AP so decode Qos Info as STA */
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_QOS_INFO_STA);
       break;
     }
+
     case MGT_BEACON:
     case MGT_PROBE_RESP:
     case MGT_ASSOC_RESP:
     case MGT_REASSOC_RESP:
     {
-      /* From AP so decode as AP: Figure 33g-QoS Info field when sent by a QAP */
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_edca_upd_cnt, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_qack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_queue_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_txop_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      /* From AP so decode QoS Info as AP */
+      offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_QOS_INFO_AP);
       break;
     }
+
     default:
-        expert_add_info_format(pinfo, cap_info_item, &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, "Could not deduce direction to decode correctly, ftype %u", ftype);
+      expert_add_info_format(pinfo, proto_tree_get_parent(tree), &ei_ieee80211_qos_info_bad_ftype,
+                             "Could not deduce direction to decode correctly, ftype %u", ftype);
       break;
   }
 
-  return offset + 1;
+  return offset;
 }
 
 /* 7.3.2.25 RSN information element */
@@ -14035,6 +13992,17 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       break;
 
+#if 0 /* ToDo */
+  case TAG_EDCA_PARAM_SET: /* 8.4.2.31 in 802-11-2012 */
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_QOS_INFO_AP);
+    offset += 1;  /* reserved */
+    offset += 4;  /* AC_BE */
+    offset += 4;  /* AC_BK */
+    offset += 4;  /* AC_VI */
+    offset += 4;  /* AC_VO */
+    break;
+#endif
+
     case TAG_TSPEC: /* TSPEC element (13) */
       if (isDMG == FALSE && tag_len != 55)
       {
@@ -15049,15 +15017,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 1;
       break;
 
-    case TAG_QOS_CAPABILITY: /* 7.3.2.35 QoS Capability element (46) */
+    case TAG_QOS_CAPABILITY: /* 802.11-2012 8.4.2.37 QoS Capability element (46) */
       if (tag_len != 1)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       {
-        /* proto_item *ti_cap;
-        proto_tree *cap_tree; */
         offset += 2;
         offset = dissect_qos_capability(tree, tvb, pinfo, offset, ftype);
       }
@@ -21141,25 +21107,25 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_qos_info_sta,
      {"QoS Information (STA)", "wlan_mgt.fixed.qosinfo.sta",
       FT_UINT8, BASE_HEX, NULL, 0,
-      NULL, HFILL }},
+      "TCLAS Processing", HFILL }},
 
     {&hf_ieee80211_ff_qos_info_sta_ac_vo,
-     {"AC_VO", "wlan_mgt.fixed.qosinfo.sta.ac.vo",
+     {"AC_VO U-APSD Flag", "wlan_mgt.fixed.qosinfo.sta.ac_vo",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_qos_info_sta_ac_vi,
-     {"AC_VI", "wlan_mgt.fixed.qosinfo.sta.ac.vi",
+     {"AC_VI U-APSD Flag", "wlan_mgt.fixed.qosinfo.sta.ac_vi",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_qos_info_sta_ac_bk,
-     {"AC_BK", "wlan_mgt.fixed.qosinfo.sta.ac.bk",
+     {"AC_BK U-APSD Flag", "wlan_mgt.fixed.qosinfo.sta.ac_bk",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_qos_info_sta_ac_be,
-     {"AC_BE", "wlan_mgt.fixed.qosinfo.sta.ac.be",
+     {"AC_BE U-APSD Flag", "wlan_mgt.fixed.qosinfo.sta.ac_be",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08,
       NULL, HFILL }},
 
@@ -21168,13 +21134,13 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_q_ack_flag), 0x10,
       "QoS Ack", HFILL }},
 
-    {&hf_ieee80211_ff_qos_info_sta_max_sp_len,
-     {"Service Period (SP) Length", "wlan_mgt.fixed.qosinfo.sta.splen",
+    {&hf_ieee80211_ff_qos_info_sta_max_sp_length,
+     {"Max SP Length", "wlan_mgt.fixed.qosinfo.sta.max_sp_length",
       FT_UINT8, BASE_HEX, VALS(ff_qos_info_sta_max_sp_len_flags) , 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_qos_info_sta_more_data_ack,
-     {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
+     {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.more_data_ack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80,
       NULL, HFILL }},
 
@@ -25873,67 +25839,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tclas_process,
      {"Processing", "wlan_mgt.tclas_proc.processing",
       FT_UINT8, BASE_DEC, VALS(ieee80211_tclas_process_flag), 0,
-      "TCLAS Processing", HFILL }},
-
-    {&hf_ieee80211_tag_qos_cap_qos_info,
-     {"QoS Info", "wlan_mgt.tag.qos_cap.qos_info",
-      FT_UINT8, BASE_HEX, NULL, 0,
-      "TCLAS Processing", HFILL }},
-
-    {&hf_ieee80211_qos_info_field_vo_uapsd,
-     {"AC_VO U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vo_uapsd",
-      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
       NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_vi_uapsd,
-     {"AC_VI U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vi_uapsd",
-      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_bk_uapsd,
-     {"AC_BK U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.bk_uapsd",
-      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_be_uapsd,
-     {"AC_BE U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.be_uapsd",
-      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_qack,
-     {"Q-ACK", "wlan_mgt.tag.qos_cap.qos_info.qack",
-      FT_BOOLEAN, 8, TFS(&qos_info_field_qack_flags), 0x10,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_max_sp_length,
-     {"Max SP-Length", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length",
-      FT_UINT8, BASE_HEX, VALS(qos_info_field_max_sp_length_flags), 0x60,
-      NULL , HFILL }},
-
-    {&hf_ieee80211_qos_info_field_more_data_ack,
-     {"More Data Ack", "wlan_mgt.tag.qos_cap.qos_info.more_data_ack",
-      FT_BOOLEAN, 8, TFS(&qos_info_field_more_data_ack_flags) , 0x80,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_qos_info_field_edca_upd_cnt,
-     {"EDCA Parameter Set Update Count", "wlan_mgt.tag.qos_cap.qos_info.edca_upd_cnt",
-      FT_UINT8, BASE_DEC, NULL, 0x07,
-      NULL, HFILL}},
-
-    {&hf_ieee80211_qos_info_field_queue_req,
-     {"Queue Request", "wlan_mgt.tag.qos_cap.qos_info.queue_req",
-      FT_BOOLEAN, 8, TFS(&qos_info_field_queue_req_flags), 0x07,
-      NULL, HFILL}},
-
-    {&hf_ieee80211_qos_info_field_txop_req,
-     {"TXOP Request", "wlan_mgt.tag.qos_cap.qos_info.txop_req",
-      FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x40,
-      NULL, HFILL}},
-
-    {&hf_ieee80211_qos_info_field_reserved,
-     {"Reserved", "wlan_mgt.tag.qos_cap.qos_info.reserved",
-      FT_BOOLEAN, 8, NULL, 0x80,
-      NULL, HFILL}},
 
     {&hf_ieee80211_tag_ext_supp_rates,
      {"Extended Supported Rates", "wlan_mgt.extended_supported_rates",
@@ -26808,7 +26714,6 @@ proto_register_ieee80211 (void)
     &ett_tag_country_rcc_tree,
     &ett_qos_parameters,
     &ett_qos_ps_buf_state,
-    &ett_qos_info_field_tree,
     &ett_wep_parameters,
     &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
@@ -26997,6 +26902,7 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_tdls_setup_response_malformed, { "wlan_mgt.tdls_setup_response_malformed", PI_MALFORMED, PI_ERROR, "TDLS Setup Response (success) does not include mandatory fields", EXPFILL }},
     { &ei_ieee80211_tdls_setup_confirm_malformed, { "wlan_mgt.tdls_setup_confirm_malformed", PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields", EXPFILL }},
     { &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, { "wlan_mgt.wfa.ie.wme.qos_info.bad_ftype", PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly", EXPFILL }},
+    { &ei_ieee80211_qos_info_bad_ftype, { "wlan_mgt.qos_info.bad_ftype", PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly", EXPFILL }},
     { &ei_ieee80211_rsn_pcs_count, { "wlan_mgt.rsn.pcs.count.invalid", PI_MALFORMED, PI_ERROR, "Pairwise Cipher Suite Count too large", EXPFILL }},
     { &ei_ieee80211_rsn_pmkid_count, { "wlan_mgt.rsn.akms.count.invalid", PI_MALFORMED, PI_ERROR, "Auth Key Management (AKM) Suite Count too large", EXPFILL }},
     { &ei_ieee80211_pmkid_count_too_large, { "wlan_mgt.rsn.pmkid.count.invalid", PI_MALFORMED, PI_ERROR, "PMKID Count too large", EXPFILL }},
