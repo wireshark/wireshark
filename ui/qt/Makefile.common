@@ -279,6 +279,7 @@ UI_FILES =	\
 	font_color_preferences_frame.ui	\
 	funnel_string_dialog.ui	\
 	funnel_text_dialog.ui	\
+	gsm_map_summary_dialog.ui	\
 	import_text_dialog.ui	\
 	io_graph_dialog.ui	\
 	layout_preferences_frame.ui	\
