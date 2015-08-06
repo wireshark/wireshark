@@ -3785,7 +3785,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
                 option_hdr.value_length = comment_len;
 
                 memcpy(rec_data + rec_off, &option_hdr, sizeof(option_hdr));
-                rec_off += sizeof(option_hdr);
+                rec_off += (gint)sizeof(option_hdr);
 
                 /* Write the comments string */
                 memcpy(rec_data + rec_off, nrb_hdr->opt_comment, comment_len);
