@@ -55,6 +55,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_font_color_preferences_frame.h	\
 	ui_funnel_string_dialog.h	\
 	ui_funnel_text_dialog.h	\
+	ui_gsm_map_summary_dialog.h \
 	ui_import_text_dialog.h	\
 	ui_io_graph_dialog.h	\
 	ui_layout_preferences_frame.h	\
