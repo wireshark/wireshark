@@ -406,9 +406,9 @@ void proto_reg_handoff_btl2cap(void);
 
 static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as", (guint) *value_data);
     else
@@ -417,21 +417,21 @@ static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btl2cap_cid_value(packet_info *pinfo)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }
 
 static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as", (guint) *value_data);
     else
@@ -440,12 +440,12 @@ static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btl2cap_psm_value(packet_info *pinfo)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }
@@ -577,9 +577,9 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     psm = tvb_get_letohs(tvb, offset);
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
-        gulong *value_data;
+        guint16 *value_data;
 
-        value_data = wmem_new(wmem_file_scope(), gulong);
+        value_data = wmem_new(wmem_file_scope(), guint16);
         *value_data = psm;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
@@ -1446,9 +1446,9 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         bluetooth_uuid_t   uuid;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
-            gulong *value_data;
+            guint16 *value_data;
 
-            value_data = wmem_new(wmem_file_scope(), gulong);
+            value_data = wmem_new(wmem_file_scope(), guint16);
             *value_data = psm;
 
             p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
@@ -1626,9 +1626,9 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              bluetooth_uuid_t  uuid;
 
             if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
-                gulong *value_data;
+                guint16 *value_data;
 
-                value_data = wmem_new(wmem_file_scope(), gulong);
+                value_data = wmem_new(wmem_file_scope(), guint16);
                 *value_data = psm;
 
                 p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);
@@ -1760,9 +1760,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID ) == NULL) {
-        gulong *value_data;
+        guint16 *value_data;
 
-        value_data = wmem_new(wmem_file_scope(), gulong);
+        value_data = wmem_new(wmem_file_scope(), guint16);
         *value_data = cid;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID, value_data);
@@ -1976,9 +1976,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM ) == NULL) {
-            gulong *value_data;
+            guint16 *value_data;
 
-            value_data = wmem_new(wmem_file_scope(), gulong);
+            value_data = wmem_new(wmem_file_scope(), guint16);
             *value_data = psm;
 
             p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM, value_data);

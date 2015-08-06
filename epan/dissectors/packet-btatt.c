@@ -1401,9 +1401,9 @@ void proto_reg_handoff_btatt(void);
 
 static void btatt_handle_prompt(packet_info *pinfo, gchar* result)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT Handle 0x%04x as", (guint) *value_data);
     else
@@ -1412,21 +1412,21 @@ static void btatt_handle_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btatt_handle_value(packet_info *pinfo)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }
 
 static void btatt_uuid16_prompt(packet_info *pinfo, gchar* result)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT UUID16 0x%04x as", (guint) *value_data);
     else
@@ -1435,12 +1435,12 @@ static void btatt_uuid16_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btatt_uuid16_value(packet_info *pinfo)
 {
-    gulong *value_data;
+    guint16 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
+    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }

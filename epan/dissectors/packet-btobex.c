@@ -1115,9 +1115,9 @@ static gpointer media_type_value(packet_info *pinfo)
 
 static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    gulong *value_data;
+    guint8 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
     else
@@ -1126,12 +1126,12 @@ static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
 
 static gpointer btobex_profile_value(packet_info *pinfo _U_)
 {
-    gulong *value_data;
+    guint8 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }

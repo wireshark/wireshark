@@ -268,9 +268,9 @@ void proto_reg_handoff_btgnss(void);
 
 static void btrfcomm_directed_channel_prompt(packet_info *pinfo, gchar* result)
 {
-    gulong *value_data;
+    guint8 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
     if (value_data)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM Channel %d (direction: %u) as", (guint) (*value_data) >> 1, (guint) (*value_data) & 1);
     else
@@ -279,12 +279,12 @@ static void btrfcomm_directed_channel_prompt(packet_info *pinfo, gchar* result)
 
 static gpointer btrfcomm_directed_channel_value(packet_info *pinfo)
 {
-    gulong *value_data;
+    guint8 *value_data;
 
-    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
 
     if (value_data)
-        return (gpointer) *value_data;
+        return GUINT_TO_POINTER(*value_data);
 
     return NULL;
 }
@@ -468,9 +468,9 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
     proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", dlci & 0x01, channel);
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL) == NULL) {
-        gulong *value_data;
+        guint8 *value_data;
 
-        value_data = wmem_new(wmem_file_scope(), gulong);
+        value_data = wmem_new(wmem_file_scope(), guint8);
         *value_data = dlci;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL, value_data);
