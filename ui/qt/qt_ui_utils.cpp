@@ -66,6 +66,28 @@ QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
     return qt_ba;
 }
 
+const QString int_to_qstring(qint64 value, int base, int field_width)
+{
+    // Qt deprecated QString::sprintf in Qt 5.0, then added ::asprintf in
+    // Qt 5.5. Rather than navigate a maze of QT_VERSION_CHECKs, just use
+    // QString::arg.
+    QString int_qstr;
+
+    switch (base) {
+    case 8:
+        int_qstr = "0";
+        break;
+    case 16:
+        int_qstr = "0x";
+        break;
+    default:
+        break;
+    }
+
+    int_qstr += QString("%1").arg(value, field_width, base, QChar('0'));
+    return int_qstr;
+}
+
 const QString address_to_qstring(const _address *address, bool enclose)
 {
     QString address_qstr = QString();

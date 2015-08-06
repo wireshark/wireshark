@@ -216,7 +216,7 @@ void DisplayFilterExpressionDialog::fillEnumIntValues(const _value_string *vals,
 
     for (int i = 0; vals[i].strptr != NULL; i++) {
         QListWidgetItem *eli = new QListWidgetItem(vals[i].strptr, ui->enumListWidget);
-        eli->setData(Qt::UserRole, QString::number(vals[i].value, base));
+        eli->setData(Qt::UserRole, int_to_qstring(vals[i].value, base));
     }
 }
 
@@ -226,7 +226,7 @@ void DisplayFilterExpressionDialog::fillEnumInt64Values(const _val64_string *val
 
     for (int i = 0; vals64[i].strptr != NULL; i++) {
         QListWidgetItem *eli = new QListWidgetItem(vals64[i].strptr, ui->enumListWidget);
-        eli->setData(Qt::UserRole, QString::number(vals64[i].value, base));
+        eli->setData(Qt::UserRole, int_to_qstring(vals64[i].value, base));
     }
 }
 
@@ -398,6 +398,9 @@ void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString 
         bool hidden = true;
         if (search_re.isEmpty() || (*it)->text(0).contains(regex)) {
             hidden = false;
+            if ((*it)->type() == field_type_) {
+                (*it)->parent()->setHidden(false);
+            }
         }
         (*it)->setHidden(hidden);
         ++it;
