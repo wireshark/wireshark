@@ -97,23 +97,25 @@
 #define MODBUS_PROTOCOL_ID      0
 
 /* Preferences for Modbus/TCP Dissector */
-#define MBTCP_PREF_REGISTER_FORMAT_UINT16          0
-#define MBTCP_PREF_REGISTER_FORMAT_UINT32          1
-#define MBTCP_PREF_REGISTER_FORMAT_IEEE_FLOAT      2
-#define MBTCP_PREF_REGISTER_FORMAT_MODICON_FLOAT   3
-#define MBTCP_PREF_REGISTER_FORMAT_INT16           4
-#define MBTCP_PREF_REGISTER_FORMAT_INT32           5
-
-#define MBTCP_PREF_REGISTER_ADDR_RAW    0
-#define MBTCP_PREF_REGISTER_ADDR_MOD5   1
-#define MBTCP_PREF_REGISTER_ADDR_MOD6   2
-
+#define MODBUS_PREF_REGISTER_FORMAT_UINT16          0
+#define MODBUS_PREF_REGISTER_FORMAT_UINT32          1
+#define MODBUS_PREF_REGISTER_FORMAT_IEEE_FLOAT      2
+#define MODBUS_PREF_REGISTER_FORMAT_MODICON_FLOAT   3
+#define MODBUS_PREF_REGISTER_FORMAT_INT16           4
+#define MODBUS_PREF_REGISTER_FORMAT_INT32           5
 
 typedef struct {
-    guint8 register_format;
-    guint8 register_addr_type;
-    guint8 packet_type;
+    guint32 fnum;
+    guint8  function_code;
+    guint16 base_address;
+    guint16 num_reg;
 } modbus_request_info_t;
+
+/* List contains request data  */
+typedef struct {
+    wmem_list_t *modbus_request_frame_data;
+    gint        register_format;
+} modbus_conversation;
 
 /*
  * Editor modelines
