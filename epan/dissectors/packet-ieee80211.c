@@ -16007,7 +16007,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         offset += 2;
         proto_tree_add_item(tree, hf_ieee80211_tag_tspec_tsconst_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        proto_tree_add_item(tree, hf_ieee80211_tag_tspec_tsconst_interferer_mac, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_tspec_tsconst_interferer_mac, tvb, offset, 2, ENC_NA);
         offset += 6;
         num_constraints--;
       }
