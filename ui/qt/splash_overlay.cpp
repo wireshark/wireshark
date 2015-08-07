@@ -53,12 +53,9 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 {
     so_ui_->setupUi(this);
 
-    /* additional 6 for:
-     * dissectors, listeners,
-     * registering plugins, handingoff plugins,
-     * preferences and configuration
-     */
-    int register_add = 6;
+    // Number of register action transitions (e.g. RA_NONE -> RA_DISSECTORS,
+    // RA_DISSECTORS -> RA_PLUGIN_REGISTER) minus two.
+    int register_add = 4;
 #ifdef HAVE_LUA
       register_add += wslua_count_plugins();   /* get count of lua plugins */
 #endif
@@ -118,15 +115,16 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     QString action_msg = UTF8_HORIZONTAL_ELLIPSIS;
 
 #ifdef THROTTLE_STARTUP
-    ThrottleThread::msleep(100);
+    ThrottleThread::msleep(10);
 #endif
 
     register_cur_++;
-    if (last_action_ == action && time_.elapsed() < info_update_freq_ && register_cur_ < so_ui_->progressBar->maximum()) {
+    if (last_action_ == action && time_.elapsed() < info_update_freq_ && register_cur_ != so_ui_->progressBar->maximum()) {
       /* Only update every splash_register_freq milliseconds */
       return;
     }
     last_action_ = action;
+    time_.restart();
 
     switch(action) {
     case RA_DISSECTORS:
@@ -170,12 +168,9 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     }
     so_ui_->actionLabel->setText(action_msg);
 
-    register_cur_++;
     so_ui_->progressBar->setValue(register_cur_);
 
     wsApp->processEvents();
-
-    time_.restart();
 }
 
 void SplashOverlay::paintEvent(QPaintEvent *)
