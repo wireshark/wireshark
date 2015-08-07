@@ -3850,7 +3850,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
 	nstime_t delta;
-	gfloat delta_s = 0.0;
+	double delta_s = 0.0;
 	guint call_count;
 	guint element;
 	gboolean found = FALSE;
@@ -3902,7 +3902,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
 	/* calculate time delta between request and reply */
 	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
-	delta_s = (gfloat)nstime_to_sec(&delta);
+	delta_s = nstime_to_sec(&delta);
 
 	item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
 	if (item_data->value.float_value == 0.0 || delta_s < item_data->value.float_value) {

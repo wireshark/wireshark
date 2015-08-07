@@ -84,7 +84,7 @@ typedef struct _stat_tap_table_item_type
         guint uint_value;
         gint  int_value;
         const char* string_value;
-        gfloat float_value;
+        double float_value;
         gint enum_value;
     } value;
     /* Scratch space for the dissector. Alternatively we could also add support
@@ -94,7 +94,7 @@ typedef struct _stat_tap_table_item_type
         guint uint_value;
         gint  int_value;
         const char* string_value;
-        gfloat float_value;
+        double float_value;
         gint enum_value;
         void* ptr_value;
     } user_data;
