@@ -3608,7 +3608,10 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     pcapng_block_header_t bh;
     pcapng_name_resolution_block_t nrb;
     guint8 *rec_data;
-    gint rec_off, namelen, tot_rec_len;
+    guint32 rec_off;
+    size_t hostnamelen;
+    guint16 namelen;
+    guint32 tot_rec_len;
     hashipv4_t *ipv4_hash_list_entry;
     hashipv6_t *ipv6_hash_list_entry;
     int i;
@@ -3628,7 +3631,16 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
         while(ipv4_hash_list_entry != NULL){
 
             nrb.record_type = NRES_IP4RECORD;
-            namelen = (gint)strlen(ipv4_hash_list_entry->name) + 1;
+            hostnamelen = strlen(ipv4_hash_list_entry->name);
+            if (hostnamelen > (G_MAXUINT16 - 4) - 1) {
+                /*
+                 * This won't fit in a maximum-sized record; discard it.
+                 */
+                i++;
+                ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+                continue;
+            }
+            namelen = (guint16)(hostnamelen + 1);
             nrb.record_len = 4 + namelen;
             tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
 
@@ -3681,13 +3693,28 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
         while(ipv6_hash_list_entry != NULL){
 
             nrb.record_type = NRES_IP6RECORD;
-            namelen = (gint)strlen(ipv6_hash_list_entry->name) + 1;
+            hostnamelen = strlen(ipv6_hash_list_entry->name);
+            if (hostnamelen > (G_MAXUINT16 - 16) - 1) {
+                /*
+                 * This won't fit in a maximum-sized record; discard it.
+                 */
+                i++;
+                ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+                continue;
+            }
+            namelen = (guint16)(hostnamelen + 1);
             nrb.record_len = 16 + namelen;  /* 16 bytes IPv6 address length */
             /* 2 bytes record type, 2 bytes length field */
             tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
 
             if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE){
-                /* We know the total length now; copy the block header. */
+                /*
+                 * This record would overflow our maximum size for Name
+                 * Resolution Blocks; write out all the records we created
+                 * before it, and start a new NRB.
+                 */
+
+                /* First, copy the block header. */
                 memcpy(rec_data, &bh, sizeof(bh));
 
                 /* End of record */
@@ -3736,7 +3763,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
         struct option option_hdr;
         guint32 comment_len = 0, comment_pad_len = 0;
         wtapng_name_res_t *nrb_hdr = wdh->nrb_hdr;
-        gint prev_rec_off = rec_off;
+        guint32 prev_rec_off = rec_off;
 
         /* get lengths first to make sure we can fit this into the block */
         if (nrb_hdr->opt_comment) {
@@ -3755,7 +3782,13 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             options_total_length += 4;
 
             if (rec_off + options_total_length > NRES_REC_MAX_SIZE) {
-                /* Too much; copy the block header. */
+                /*
+                 * This record would overflow our maximum size for Name
+                 * Resolution Blocks; write out all the records we created
+                 * before it, and start a new NRB.
+                 */
+
+                /* First, copy the block header. */
                 memcpy(rec_data, &bh, sizeof(bh));
 
                 /* End of record */
@@ -3785,7 +3818,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
                 option_hdr.value_length = comment_len;
 
                 memcpy(rec_data + rec_off, &option_hdr, sizeof(option_hdr));
-                rec_off += (gint)sizeof(option_hdr);
+                rec_off += (guint32)sizeof(option_hdr);
 
                 /* Write the comments string */
                 memcpy(rec_data + rec_off, nrb_hdr->opt_comment, comment_len);
@@ -3803,7 +3836,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             rec_off += 4;
 
             /* sanity check */
-            g_assert((gint)options_total_length == rec_off - prev_rec_off);
+            g_assert(options_total_length == rec_off - prev_rec_off);
         }
     }
 
@@ -3882,7 +3915,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
+static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err)
 {
     guint i, j;
 
