@@ -2152,6 +2152,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
                       wtapng_name_res_t *nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
+	wtapng_if_descr_t descr, *file_int_data;
 
 	/* Allocate a data structure for the output stream. */
 	wdh = wtap_dump_alloc_wdh(file_type_subtype, encap, snaplen, compressed, err);
@@ -2164,10 +2165,21 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	wdh->nrb_hdr = nrb_hdr;
 	/* Set Interface Description Block data */
 	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
-		wdh->interface_data = idb_inf->interface_data;
-	} else {
-		wtapng_if_descr_t descr;
+		guint itf_count;
 
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
+			file_int_data = &g_array_index(idb_inf->interface_data, wtapng_if_descr_t, itf_count);
+			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data->wtap_encap)) {
+				memcpy(&descr, file_int_data, sizeof(wtapng_if_descr_t));
+				descr.wtap_encap = encap;
+				descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
+				g_array_append_val(wdh->interface_data, descr);
+			} else {
+				g_array_append_val(wdh->interface_data, *file_int_data);
+			}
+		}
+	} else {
 		descr.wtap_encap = encap;
 		descr.time_units_per_second = 1000000; /* default microsecond resolution */
 		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
