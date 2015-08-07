@@ -1417,7 +1417,7 @@ static gpointer btatt_handle_value(packet_info *pinfo)
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
 
     if (value_data)
-        return GUINT_TO_POINTER(*value_data);
+        return GUINT_TO_POINTER((gulong)*value_data);
 
     return NULL;
 }
@@ -1440,7 +1440,7 @@ static gpointer btatt_uuid16_value(packet_info *pinfo)
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
 
     if (value_data)
-        return GUINT_TO_POINTER(*value_data);
+        return GUINT_TO_POINTER((gulong)*value_data);
 
     return NULL;
 }
