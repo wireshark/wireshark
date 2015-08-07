@@ -438,6 +438,11 @@ static int hf_gtpv2_pres_rep_area_act_no_h_enodeb = -1;
 static int hf_gtpv2_pres_rep_area_act_no_ecgi = -1;
 static int hf_gtpv2_pres_rep_area_act_no_sai = -1;
 static int hf_gtpv2_pres_rep_area_act_no_cgi = -1;
+static int hf_gtpv2_ksi_ps = -1;
+static int hf_gtpv2_ck_ps = -1;
+static int hf_gtpv2_ik_ps = -1;
+static int hf_gtpv2_kc_ps = -1;
+static int hf_gtpv2_cksn_ps = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtpv2_downlink_subscribed_ue_ambr = -1;
@@ -598,7 +603,7 @@ static const value_string gtpv2_message_type_vals[] = {
     { 28, "SRVCC PS to CS Complete Acknowledge"},
     { 29, "SRVCC PS to CS Cancel Notification"},
     { 30, "SRVCC PS to CS Cancel Acknowledge"},
-    { 31, "For Future Sv interface use"},
+    { 31, "SRVCC CS to PS Request"},
 /*End SRVCC Messages*/
     /* SGSN/MME to PGW (S4/S11, S5/S8) */
     { 32, "Create Session Request"},
@@ -724,6 +729,7 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_TEID_C                  59
 #define GTPV2_IE_SV_FLAGS                60
 #define GTPV2_IE_SAI                     61
+#define GTPV2_IE_MM_CTX_FOR_CS_TO_PS_SRVCC 62
 /* 61 - 70 for future sv interface use*/
 /*End SRVCC Messages*/
 #define GTPV2_APN                        71
@@ -860,8 +866,9 @@ static const value_string gtpv2_element_type_vals[] = {
     {  1, "International Mobile Subscriber Identity (IMSI)"},                   /* Variable Length / 8.3 */
     {  2, "Cause"},                                                             /* Variable Length / 8.4 */
     {  3, "Recovery (Restart Counter)"},                                        /* Variable Length / 8.5 */
-    /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
-    /* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+																				/* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+																				/* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+																				/* 35-50  / See 3GPP TS 29.276 */
 /*Start SRVCC Messages ETSI TS 129 280 V10.1.0 (2011-06) 6.1*/
     { 51, "STN-SR"},                                                            /* Variable Length / 6.2 */
     { 52, "Source to Target Transparent Container"},                            /* Variable Length / 6.3 */
@@ -872,9 +879,10 @@ static const value_string gtpv2_element_type_vals[] = {
     { 57, "Target RNC ID"},                                                     /* Variable Length / 6.8 */
     { 58, "Target Global Cell ID"},                                             /* Variable Length / 6.9 */
     { 59, "TEID-C"},                                                            /* Extendable / 6.10 */
-    { 60, "Sv Flags"},                                                          /* Extendable / 6.11 */
-    { 61, "Service Area Identifier"},                                           /* Extendable / 6.12 */
-   /* 62-70 For future Sv interface use */
+    { 60, "Sv Flags" },                                                         /* Extendable / 6.11 */
+    { 61, "Service Area Identifier" },                                          /* Extendable / 6.12 */
+    { 62, "MM Context for CS to PS SRVCC" },                                    /* Extendable / 6.13 */
+                                                                                /* 63-70 For future Sv interface use */
 /*End SRVCC Messages*/
     { 71, "Access Point Name (APN)"},                                           /* Variable Length / 8.6 */
     { 72, "Aggregate Maximum Bit Rate (AMBR)"},                                 /* Fixed Length / 8.7 */
@@ -1578,6 +1586,33 @@ dissect_gtpv2_sai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     proto_tree_add_item(tree, hf_gtpv2_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
+/* 6.13 MM Context for CS to PS SRVCC */
+static void
+dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int offset = 0;
+
+    /* Octet 5 KSI"PS */
+    proto_tree_add_item(tree, hf_gtpv2_ksi_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* octet 6 - 21 CK'PS */
+    proto_tree_add_item(tree, hf_gtpv2_ck_ps, tvb, offset, 16, ENC_NA);
+    offset+=16;
+
+    /* octet 22 - 37 IK'PS */
+    proto_tree_add_item(tree, hf_gtpv2_ik_ps, tvb, offset, 16, ENC_NA);
+    offset += 16;
+
+    /* octet 38 to 45 kc'PS */
+    proto_tree_add_item(tree, hf_gtpv2_kc_ps, tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    /* Octet 46 CKSN"PS */
+    proto_tree_add_item(tree, hf_gtpv2_cksn_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /*offset++;*/
+
+}
 /*End SRVCC Messages*/
 
 
@@ -5755,8 +5790,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_TEID_C, dissect_gtpv2_teid_c},                               /* 59 TEID-C */
     {GTPV2_IE_SV_FLAGS, dissect_gtpv2_sv_flags},                           /* 60 Sv Flags */
     {GTPV2_IE_SAI, dissect_gtpv2_sai},                                     /* 61 Service Area Identifie */
+    {GTPV2_IE_MM_CTX_FOR_CS_TO_PS_SRVCC, dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc },  /* 62 Service Area Identifie */
                                                                            /* 61-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
-
     {GTPV2_APN, dissect_gtpv2_apn},                                        /* 71, Access Point Name (APN) 8.6 */
     {GTPV2_AMBR, dissect_gtpv2_ambr},                                      /* 72, Aggregate Maximum Bit Rate (AMBR) */
     {GTPV2_EBI, dissect_gtpv2_ebi},                                        /* 73, EPS Bearer ID (EBI)  8.8 */
@@ -7866,6 +7901,31 @@ void proto_register_gtpv2(void)
           {"Number of CGI", "gtpv2.pres_rep_area_action.no_cgi",
            FT_UINT8, BASE_DEC, NULL, 0x3f,
            NULL, HFILL}
+        },
+        { &hf_gtpv2_ksi_ps,
+            { "KSI'ps", "gtpv2.ksi_ps",
+            FT_UINT8, BASE_HEX, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_ck_ps,
+        { "CK'ps", "gtpv2.ck_ps",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_ik_ps,
+        { "IK'ps", "gtpv2.ik_ps",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_kc_ps,
+        { "KC'ps", "gtpv2.kc_ps",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_cksn_ps,
+        { "CKSN'ps", "gtpv2.cksn_ps",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
         },
 
       /* Generated from convert_proto_tree_add_text.pl */
