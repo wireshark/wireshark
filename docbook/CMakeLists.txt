@@ -74,7 +74,6 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
-	wsluarm.asciidoc
 	ws.css
 )
 
@@ -215,6 +214,7 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_userinterface.asciidoc
 	wsdg_src/WSDG_chapter_works.asciidoc
 	wsdg_src/WSDG_preface.asciidoc
+	wsluarm.asciidoc
 	ws.css
 )
 
@@ -285,18 +285,51 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
 )
 
+add_custom_target(user_guides)
 if(ENABLE_HTML_GUIDES)
 	set(WSUG_HTML_OUTPUT wsug_html_chunked/index.html wsug_html/index.html)
+	add_custom_target(
+		user_guide_html
+		DEPENDS
+			${WSUG_HTML_OUTPUT}
+	)
+	add_dependencies(user_guides user_guide_html)
 endif()
 
 if(ENABLE_PDF_GUIDES)
-	set(WSUG_PDF_OUTPUT user-guide-a4.pdf user-guide-us.pdf)
+	# To do:
+	# - Merge A4 and letter into the smallest dimension of each format.
+	#   Use   --stringparam  page.height <letter-height>mm --stringparam  page.width <at-width>mm
+	#   Test the effect of this on letter and a4 printers first (ps and non-ps).
+	# - Generate PDFs using AsciiDoc.
+
+	XML2PDF(
+		user-guide-a4.pdf
+		WSUG_SOURCE
+		custom_layer_pdf.xsl
+		A4
+	)
+	add_custom_target(user_guide_pdf_a4 DEPENDS user-guide-a4.pdf)
+	add_dependencies(user_guides user_guide_pdf_a4)
+
+	XML2PDF(
+		user-guide-us.pdf
+		WSUG_SOURCE
+		custom_layer_pdf.xsl
+		letter
+	)
 endif()
 
 if(ENABLE_CHM_GUIDES)
 	set(WSUG_CHM_OUTPUT user-guide.chm)
 	XML2HHP(wsug user-guide.xml)
 	HHP2CHM(user-guide.hhp)
+	add_custom_target(
+		user_guide_chm
+		DEPENDS
+			${WSUG_CHM_OUTPUT}
+	)
+	add_dependencies(user_guides user_guide_chm)
 endif()
 
 VALIDATE_XML(
@@ -318,36 +351,49 @@ XML2HTML(
 	WSUG_GRAPHICS
 )
 
-# 2do: Merge A4 and letter into the smallest dimension of each format.
-#      Use   --stringparam  page.height <letter-height>mm --stringparam  page.width <at-width>mm
-#      Test the effect of this on letter and a4 printers first (ps and non-ps).
-
-XML2PDF(
-	user-guide-a4.pdf
-	WSUG_SOURCE
-	custom_layer_pdf.xsl
-	A4
-)
-
-XML2PDF(
-	user-guide-us.pdf
-	WSUG_SOURCE
-	custom_layer_pdf.xsl
-	letter
-)
-
+add_custom_target(developer_guides)
 if(ENABLE_HTML_GUIDES)
 	set(WSDG_HTML_OUTPUT wsdg_html_chunked/index.html wsdg_html/index.html)
+	add_custom_target(
+		developer_guide_html
+		DEPENDS
+			wsluarm
+			${WSDG_HTML_OUTPUT}
+	)
+	add_dependencies(developer_guides developer_guide_html)
 endif()
 
 if(ENABLE_PDF_GUIDES)
-	set(WSDG_PDF_OUTPUT developer-guide-a4.pdf developer-guide-us.pdf)
+	XML2PDF(
+		developer-guide-a4.pdf
+		WSDG_SOURCE
+		custom_layer_pdf.xsl
+		A4
+	)
+	add_custom_target(developer_guide_pdf_a4 DEPENDS developer-guide-a4.pdf)
+	add_dependencies(developer_guides developer_guide_pdf_a4)
+
+	XML2PDF(
+		developer-guide-us.pdf
+		WSDG_SOURCE
+		custom_layer_pdf.xsl
+		letter
+	)
+	add_custom_target(developer_guide_pdf_us DEPENDS developer-guide-us.pdf)
+	add_dependencies(developer_guides developer_guide_pdf_us)
 endif()
 
 if(ENABLE_CHM_GUIDES)
 	set(WSDG_CHM_OUTPUT developer-guide.chm)
 	XML2HHP(wsdg developer-guide.xml)
 	HHP2CHM(developer-guide.hhp)
+	add_custom_target(
+		developer_guide_chm
+		DEPENDS
+			wsluarm
+			${WSDG_CHM_OUTPUT}
+	)
+	add_dependencies(developer_guides developer_guide_chm)
 endif()
 
 VALIDATE_XML(
@@ -369,38 +415,7 @@ XML2HTML(
 	WSDG_GRAPHICS
 )
 
-XML2PDF(
-	developer-guide-a4.pdf
-	WSDG_SOURCE
-	custom_layer_pdf.xsl
-	A4
-)
-
-XML2PDF(
-	developer-guide-us.pdf
-	WSDG_SOURCE
-	custom_layer_pdf.xsl
-	letter
-)
-
 if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
-	add_custom_target(
-		user_guides
-		DEPENDS
-			${WSUG_HTML_OUTPUT}
-			${WSUG_PDF_OUTPUT}
-			${WSUG_CHM_OUTPUT}
-	)
-
-	add_custom_target(
-		developer_guides
-		DEPENDS
-			wsluarm
-			${WSDG_HTML_OUTPUT}
-			${WSDG_PDF_OUTPUT}
-			${WSDG_CHM_OUTPUT}
-	)
-
 	add_custom_target( all_guides ALL )
 	add_dependencies ( all_guides user_guides developer_guides )
 endif()
