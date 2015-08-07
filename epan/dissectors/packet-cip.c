@@ -5500,7 +5500,6 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    tvbuff_t *next_tvb;
    int req_path_size;
    guint8 gen_status, add_stat_size, service;
-   modbus_request_info_t* request_info;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP MB");
 
@@ -5567,18 +5566,14 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Passthrough response (Success) */
                if( tvb_reported_length_remaining(tvb, offset) > 0 )
                {
+                  int packet_type = RESPONSE_PACKET;
+
                   /* dissect the Modbus PDU */
                   next_tvb = tvb_new_subset_length( tvb, offset+4+add_stat_size, item_length-4-add_stat_size);
 
-                  /* keep packet context */
-                  request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
-                  request_info->packet_type = RESPONSE_PACKET;
-                  request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
-                  request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
-                  p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
+                  /* Call Modbus Dissector */
+                  call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &packet_type );
 
-                  call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
-                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
                }
                break;
 
@@ -5657,18 +5652,13 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             /* Passthrough Request */
             if( tvb_reported_length_remaining(tvb, offset) > 0 )
             {
+               int packet_type = QUERY_PACKET;
+
                /* dissect the Modbus PDU */
                next_tvb = tvb_new_subset_length( tvb, offset+2+req_path_size, item_length-req_path_size-2);
 
-               /* keep packet context */
-               request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
-               request_info->packet_type = QUERY_PACKET;
-               request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
-               request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
-               p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
-
-               call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
-               p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
+               /* Call Modbus Dissector */
+               call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &packet_type);
             }
             break;
 
