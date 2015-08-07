@@ -1131,7 +1131,7 @@ static gpointer btobex_profile_value(packet_info *pinfo _U_)
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
 
     if (value_data)
-        return GUINT_TO_POINTER(*value_data);
+        return GUINT_TO_POINTER((gulong)*value_data);
 
     return NULL;
 }

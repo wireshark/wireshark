@@ -284,7 +284,7 @@ static gpointer btrfcomm_directed_channel_value(packet_info *pinfo)
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
 
     if (value_data)
-        return GUINT_TO_POINTER(*value_data);
+        return GUINT_TO_POINTER((gulong)*value_data);
 
     return NULL;
 }
