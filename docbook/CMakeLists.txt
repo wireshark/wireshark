@@ -318,6 +318,8 @@ if(ENABLE_PDF_GUIDES)
 		custom_layer_pdf.xsl
 		letter
 	)
+	add_custom_target(user_guide_pdf_us DEPENDS user-guide-us.pdf)
+	add_dependencies(user_guides user_guide_pdf_us)
 endif()
 
 if(ENABLE_CHM_GUIDES)
