@@ -29,6 +29,10 @@
 #include "ui/utf8_entities.h"
 #include "tango_colors.h"
 
+#ifdef HAVE_LUA
+#include "epan/wslua/init_wslua.h"
+#endif
+
 // Uncomment to slow the update progress
 //#define THROTTLE_STARTUP 1
 
@@ -56,7 +60,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
      */
     int register_add = 6;
 #ifdef HAVE_LUA
-      register_add++;   /* additional one for lua plugins */
+      register_add += wslua_count_plugins();   /* get count of lua plugins */
 #endif
     so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     time_.start();
