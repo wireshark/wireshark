@@ -3571,7 +3571,7 @@ typedef enum
 {
     IEI_COLUMN,
     MSG_NAME_COLUMN,
-    COUNT_COLUMN,
+    COUNT_COLUMN
 } gsm_a_stat_columns;
 
 static stat_tap_table_item gsm_a_stat_fields[] = {
