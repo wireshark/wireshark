@@ -19929,7 +19929,7 @@ proto_register_ieee80211 (void)
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_tspec_pseudo_static,
-      {"Pseduo Static","wlan.dmg_tspec.pseudo_static",
+      {"Pseudo Static","wlan.dmg_tspec.pseudo_static",
        FT_BOOLEAN, 24, NULL, 0x000100,
        NULL, HFILL }},
 
