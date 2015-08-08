@@ -20692,7 +20692,7 @@ proto_register_ieee80211 (void)
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_tspec_extendable,
-      {"Extenedable","wlan.dmg_tspec.extendable",
+      {"Extendable","wlan.dmg_tspec.extendable",
        FT_BOOLEAN, 24, NULL, 0x000400,
        NULL, HFILL }},
 
