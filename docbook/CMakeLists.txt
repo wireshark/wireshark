@@ -293,24 +293,30 @@ ADD_CUSTOM_COMMAND(
 
 set( WSDG_BUILT_DEPS ws.css wsluarm )
 
-# Generate the DocBook sources of user and developer guides
+if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
+	# Generate the DocBook sources of user and developer guides
 
-set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
+	set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
 
-ASCIIDOC2DOCBOOK(user-guide.asciidoc ASCIIDOC_CONF_FILES WSUG_SOURCE WSUG_BUILT_DEPS)
-add_custom_target(user_guide_docbook DEPENDS user-guide.xml)
-set_target_properties(user_guide_docbook PROPERTIES FOLDER "Docbook")
-ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_WSLUARM_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
-add_custom_target(developer_guide_docbook DEPENDS developer-guide.xml)
-set_target_properties(developer_guide_docbook PROPERTIES FOLDER "Docbook")
+	ASCIIDOC2DOCBOOK(user-guide.asciidoc ASCIIDOC_CONF_FILES WSUG_SOURCE WSUG_BUILT_DEPS)
+	add_custom_target(user_guide_docbook DEPENDS user-guide.xml)
+	set_target_properties(user_guide_docbook PROPERTIES FOLDER "Docbook")
 
-# Top-level guide targets.
-add_custom_target(user_guides DEPENDS user_guide_docbook)
-set_target_properties(user_guides PROPERTIES FOLDER "Docbook")
-add_custom_target(developer_guides DEPENDS developer_guide_docbook)
-set_target_properties(developer_guides PROPERTIES FOLDER "Docbook")
-add_custom_target(all_guides ALL DEPENDS user_guides developer_guides )
-set_target_properties(all_guides PROPERTIES FOLDER "Docbook")
+	ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_WSLUARM_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
+	add_custom_target(developer_guide_docbook DEPENDS developer-guide.xml)
+	set_target_properties(developer_guide_docbook PROPERTIES FOLDER "Docbook")
+
+	# Top-level guide targets.
+
+	add_custom_target(user_guides DEPENDS user_guide_docbook)
+	set_target_properties(user_guides PROPERTIES FOLDER "Docbook")
+
+	add_custom_target(developer_guides DEPENDS developer_guide_docbook)
+	set_target_properties(developer_guides PROPERTIES FOLDER "Docbook")
+
+	add_custom_target(all_guides ALL DEPENDS user_guides developer_guides )
+	set_target_properties(all_guides PROPERTIES FOLDER "Docbook")
+endif()
 
 # User's Guide chain.
 if(ENABLE_HTML_GUIDES)
