@@ -273,8 +273,8 @@ class PTVC(NamedList):
     def Code(self):
         x =  "static const ptvc_record %s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
-            x = x +  "\t%s,\n" % (ptvc_rec.Code())
-        x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+            x = x +  "    %s,\n" % (ptvc_rec.Code())
+        x = x + "    { NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
         return x
 
@@ -300,14 +300,14 @@ class PTVCBitfield(PTVC):
 
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
-            x = x +  "\t%s,\n" % (ptvc_rec.Code())
-        x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+            x = x +  "    %s,\n" % (ptvc_rec.Code())
+        x = x + "    { NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
-        x = x + "\t&%s,\n" % (ett_name,)
-        x = x + "\tNULL,\n"
-        x = x + "\tptvc_%s,\n" % (self.Name(),)
+        x = x + "    &%s,\n" % (ett_name,)
+        x = x + "    NULL,\n"
+        x = x + "    ptvc_%s,\n" % (self.Name(),)
         x = x + "};\n"
         return x
 
@@ -818,17 +818,17 @@ class struct(PTVC, Type):
         x = "static gint %s = -1;\n" % (ett_name,)
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
         for ptvc_rec in self.list:
-            x = x +  "\t%s,\n" % (ptvc_rec.Code())
-        x = x + "\t{ NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+            x = x +  "    %s,\n" % (ptvc_rec.Code())
+        x = x + "    { NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
-        x = x + "\t&%s,\n" % (ett_name,)
+        x = x + "    &%s,\n" % (ett_name,)
         if self.descr:
-            x = x + '\t"%s",\n' % (self.descr,)
+            x = x + '    "%s",\n' % (self.descr,)
         else:
-            x = x + "\tNULL,\n"
-        x = x + "\tptvc_%s,\n" % (self.Name(),)
+            x = x + "    NULL,\n"
+        x = x + "    ptvc_%s,\n" % (self.Name(),)
         x = x + "};\n"
         return x
 
@@ -968,11 +968,11 @@ class val_string(Type):
             value   = val_record[0]
             text    = val_record[1]
             value_repr = self.value_format % value
-            result = result + '\t{ %s,\t"%s" },\n' \
+            result = result + '    { %s, "%s" },\n' \
                             % (value_repr, text)
 
         value_repr = self.value_format % 0
-        result = result + "\t{ %s,\tNULL },\n" % (value_repr)
+        result = result + "    { %s, NULL },\n" % (value_repr)
         result = result + "};\n"
         REC_VAL_STRING_RES = self.value_format % value
         return result
@@ -5767,10 +5767,10 @@ static int ptvc_struct_int_storage;
 
 
     if global_highest_var > -1:
-        print("#define NUM_REPEAT_VARS\t%d" % (global_highest_var + 1))
+        print("#define NUM_REPEAT_VARS    %d" % (global_highest_var + 1))
         print("static guint repeat_vars[NUM_REPEAT_VARS];")
     else:
-        print("#define NUM_REPEAT_VARS\t0")
+        print("#define NUM_REPEAT_VARS    0")
         print("static guint *repeat_vars = NULL;")
 
     print("""
@@ -6366,7 +6366,7 @@ static expert_field ei_ncp_server = EI_INIT;
     print("/* Error strings. */")
     print("static const char *ncp_errors[] = {")
     for code in errors_used_list:
-        print('\t/* %02d (0x%04x) */ "%s",' % (errors_used_hash[code], code, errors[code]))
+        print('    /* %02d (0x%04x) */ "%s",' % (errors_used_hash[code], code, errors[code]))
     print("};\n")
 
 
@@ -6392,13 +6392,13 @@ static expert_field ei_ncp_server = EI_INIT;
     print("/* Group strings. */")
     print("static const char *ncp_groups[] = {")
     for group in groups_used_list:
-        print('\t/* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group]))
+        print('    /* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group]))
     print("};\n")
 
     # Print the group macros
     for group in groups_used_list:
         name = str.upper(group)
-        print("#define NCP_GROUP_%s\t%d" % (name, groups_used_hash[group]))
+        print("#define NCP_GROUP_%s    %d" % (name, groups_used_hash[group]))
     print("\n")
 
 
@@ -6413,7 +6413,7 @@ static expert_field ei_ncp_server = EI_INIT;
         req_cond_l = list(global_req_cond.keys())
         req_cond_l.sort()
         for req_cond in req_cond_l:
-            print("\t{ \"%s\", NULL }," % (req_cond,))
+            print("    { \"%s\", NULL }," % (req_cond,))
             global_req_cond[req_cond] = num
             num = num + 1
         print("};")
@@ -6465,9 +6465,9 @@ static expert_field ei_ncp_server = EI_INIT;
         for error in errors:
             error_in_packet = error >> 8;
             ncp_error_index = errors_used_hash[error]
-            print("\t{ 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
+            print("    { 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
                     ncp_error_index, error))
-        print("\t{ 0x00, -1 }\n};\n")
+        print("    { 0x00, -1 }\n};\n")
 
 
 
@@ -6489,7 +6489,7 @@ static expert_field ei_ncp_server = EI_INIT;
     # Print them
     for req_cond in req_cond_collection.Members():
         sys.stdout.write("static const int %s[] = {" % (req_cond.Name()))
-        sys.stdout.write("\t")
+        sys.stdout.write(" ")
         vals = []
         for text in req_cond.Records():
             vals.append(global_req_cond[text])
@@ -6512,9 +6512,9 @@ static expert_field ei_ncp_server = EI_INIT;
             name = pkt.InfoStrName() + "_req"
             var = pkt.req_info_str[0]
             print("static const info_string_t %s = {" % (name,))
-            print("\t&%s," % (var.HFName(),))
-            print('\t"%s",' % (pkt.req_info_str[1],))
-            print('\t"%s"' % (pkt.req_info_str[2],))
+            print("    &%s," % (var.HFName(),))
+            print('    "%s",' % (pkt.req_info_str[1],))
+            print('    "%s"' % (pkt.req_info_str[2],))
             print("};\n")
 
 
@@ -6540,10 +6540,10 @@ static expert_field ei_ncp_server = EI_INIT;
                 funcs_without_length[func] = 1
         else:
             subfunc_string = "NO_SUBFUNC"
-        sys.stdout.write('\t{ 0x%02x, 0x%02x, %s, "%s",' % (pkt.FunctionCode('high'),
+        sys.stdout.write('    { 0x%02x, 0x%02x, %s, "%s",' % (pkt.FunctionCode('high'),
                 pkt.FunctionCode('low'), subfunc_string, pkt.Description()))
 
-        print('\t%d /* %s */,' % (groups_used_hash[pkt.Group()], pkt.Group()))
+        print(' %d /* %s */,' % (groups_used_hash[pkt.Group()], pkt.Group()))
 
         ptvc = pkt.PTVCRequest()
         if not ptvc.Null() and not ptvc.Empty():
@@ -6579,11 +6579,11 @@ static expert_field ei_ncp_server = EI_INIT;
         else:
             req_info_str = "NULL"
 
-        print('\t\t%s, %s, %s, %s, %s, %s },\n' % \
+        print('        %s, %s, %s, %s, %s, %s },\n' % \
                 (ptvc_request, ptvc_reply, errors.Name(), req_conds,
                 req_cond_size, req_info_str))
 
-    print('\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE, NULL }')
+    print('    { 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE, NULL }')
     print("};\n")
 
     print("/* ncp funcs that require a subfunc */")
@@ -6593,9 +6593,9 @@ static expert_field ei_ncp_server = EI_INIT;
         if pkt.HasSubFunction():
             hi_func = pkt.FunctionCode('high')
             if hi_func not in hi_seen:
-                print("\t0x%02x," % (hi_func))
+                print("    0x%02x," % (hi_func))
                 hi_seen[hi_func] = 1
-    print("\t0")
+    print("    0")
     print("};\n")
 
 
@@ -6604,8 +6604,8 @@ static expert_field ei_ncp_server = EI_INIT;
     funcs = list(funcs_without_length.keys())
     funcs.sort()
     for func in funcs:
-        print("\t0x%02x," % (func,))
-    print("\t0")
+        print("    0x%02x," % (func,))
+    print("    0")
     print("};\n")
 
     print("")
@@ -8165,53 +8165,53 @@ proto_register_ncp2222(void)
 """)
     # Print the registration code for the hf variables
     for var in sorted_vars:
-        print("\t{ &%s," % (var.HFName()))
-        print("\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, NULL, HFILL }},\n" % \
+        print("    { &%s," % (var.HFName()))
+        print("    { \"%s\", \"%s\", %s, %s, %s, 0x%x, NULL, HFILL }},\n" % \
                 (var.Description(), var.DFilter(),
                 var.WiresharkFType(), var.Display(), var.ValuesName(),
                 var.Mask()))
 
-    print("\t};\n")
+    print("    };\n")
 
     if ett_list:
-        print("\tstatic gint *ett[] = {")
+        print("    static gint *ett[] = {")
 
         for ett in ett_list:
-            print("\t\t&%s," % (ett,))
+            print("        &%s," % (ett,))
 
-        print("\t};\n")
+        print("    };\n")
 
     print("""
-	static ei_register_info ei[] = {
-		{ &ei_ncp_file_handle, { "ncp.file_handle.expert", PI_REQUEST_CODE, PI_CHAT, "Close file handle", EXPFILL }},
-		{ &ei_ncp_file_rights, { "ncp.file_rights", PI_REQUEST_CODE, PI_CHAT, "File rights", EXPFILL }},
-		{ &ei_ncp_op_lock_handle, { "ncp.op_lock_handle", PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle", EXPFILL }},
-		{ &ei_ncp_file_rights_change, { "ncp.file_rights.change", PI_REQUEST_CODE, PI_CHAT, "Change handle rights", EXPFILL }},
-		{ &ei_ncp_effective_rights, { "ncp.effective_rights.expert", PI_RESPONSE_CODE, PI_CHAT, "Handle effective rights", EXPFILL }},
-		{ &ei_ncp_server, { "ncp.server", PI_RESPONSE_CODE, PI_CHAT, "Server info", EXPFILL }},
-		{ &ei_iter_verb_completion_code, { "ncp.iter_verb_completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Iteration Verb Error", EXPFILL }},
-		{ &ei_ncp_connection_request, { "ncp.connection_request", PI_RESPONSE_CODE, PI_CHAT, "Connection Request", EXPFILL }},
-		{ &ei_ncp_destroy_connection, { "ncp.destroy_connection", PI_RESPONSE_CODE, PI_CHAT, "Destroy Connection Request", EXPFILL }},
-		{ &ei_nds_reply_error, { "ncp.ndsreplyerror.expert", PI_RESPONSE_CODE, PI_ERROR, "NDS Error", EXPFILL }},
-		{ &ei_nds_iteration, { "ncp.nds_iteration.error", PI_RESPONSE_CODE, PI_ERROR, "NDS Iteration Error", EXPFILL }},
-		{ &ei_ncp_eid, { "ncp.eid", PI_RESPONSE_CODE, PI_CHAT, "EID", EXPFILL }},
-		{ &ei_ncp_completion_code, { "ncp.completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Code Completion Error", EXPFILL }},
-		{ &ei_ncp_connection_status, { "ncp.connection_status.bad", PI_RESPONSE_CODE, PI_ERROR, "Error: Bad Connection Status", EXPFILL }},
-		{ &ei_ncp_connection_destroyed, { "ncp.connection_destroyed", PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed", EXPFILL }},
-		{ &ei_ncp_no_request_record_found, { "ncp.no_request_record_found", PI_SEQUENCE, PI_NOTE, "No request record found.", EXPFILL }},
-	};
+    static ei_register_info ei[] = {
+        { &ei_ncp_file_handle, { "ncp.file_handle.expert", PI_REQUEST_CODE, PI_CHAT, "Close file handle", EXPFILL }},
+        { &ei_ncp_file_rights, { "ncp.file_rights", PI_REQUEST_CODE, PI_CHAT, "File rights", EXPFILL }},
+        { &ei_ncp_op_lock_handle, { "ncp.op_lock_handle", PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle", EXPFILL }},
+        { &ei_ncp_file_rights_change, { "ncp.file_rights.change", PI_REQUEST_CODE, PI_CHAT, "Change handle rights", EXPFILL }},
+        { &ei_ncp_effective_rights, { "ncp.effective_rights.expert", PI_RESPONSE_CODE, PI_CHAT, "Handle effective rights", EXPFILL }},
+        { &ei_ncp_server, { "ncp.server", PI_RESPONSE_CODE, PI_CHAT, "Server info", EXPFILL }},
+        { &ei_iter_verb_completion_code, { "ncp.iter_verb_completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Iteration Verb Error", EXPFILL }},
+        { &ei_ncp_connection_request, { "ncp.connection_request", PI_RESPONSE_CODE, PI_CHAT, "Connection Request", EXPFILL }},
+        { &ei_ncp_destroy_connection, { "ncp.destroy_connection", PI_RESPONSE_CODE, PI_CHAT, "Destroy Connection Request", EXPFILL }},
+        { &ei_nds_reply_error, { "ncp.ndsreplyerror.expert", PI_RESPONSE_CODE, PI_ERROR, "NDS Error", EXPFILL }},
+        { &ei_nds_iteration, { "ncp.nds_iteration.error", PI_RESPONSE_CODE, PI_ERROR, "NDS Iteration Error", EXPFILL }},
+        { &ei_ncp_eid, { "ncp.eid", PI_RESPONSE_CODE, PI_CHAT, "EID", EXPFILL }},
+        { &ei_ncp_completion_code, { "ncp.completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Code Completion Error", EXPFILL }},
+        { &ei_ncp_connection_status, { "ncp.connection_status.bad", PI_RESPONSE_CODE, PI_ERROR, "Error: Bad Connection Status", EXPFILL }},
+        { &ei_ncp_connection_destroyed, { "ncp.connection_destroyed", PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed", EXPFILL }},
+        { &ei_ncp_no_request_record_found, { "ncp.no_request_record_found", PI_SEQUENCE, PI_NOTE, "No request record found.", EXPFILL }},
+    };
 
-	expert_module_t* expert_ncp;
+    expert_module_t* expert_ncp;
 
     proto_register_field_array(proto_ncp, hf, array_length(hf));""")
 
     if ett_list:
         print("""
-proto_register_subtree_array(ett, array_length(ett));""")
+    proto_register_subtree_array(ett, array_length(ett));""")
 
     print("""
-	expert_ncp = expert_register_protocol(proto_ncp);
-	expert_register_field_array(expert_ncp, ei, array_length(ei));
+    expert_ncp = expert_register_protocol(proto_ncp);
+    expert_register_field_array(expert_ncp, ei, array_length(ei));
     register_init_routine(&ncp_init_protocol);
     register_postseq_cleanup_routine(&ncp_postseq_cleanup);""")
 
