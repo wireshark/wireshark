@@ -7865,7 +7865,7 @@ static guint facility_reason_idx[FACILITY_REASONS];
 
 static guint other_idx;
 
-void h225_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void h225_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
 	new_stat_tap_table* table = new_stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL, gui_callback, gui_data);
