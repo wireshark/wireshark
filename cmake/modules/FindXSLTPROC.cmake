@@ -72,71 +72,68 @@ endif()
 #        WSUG_FILES
 #        WSUG_GRAPHICS
 #)
-MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
-    SET(_validated ${_guide}.validated)
+MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
+    # We depend on the docbook target to avoid parallel builds.
+    SET(_dbk_dep ${_target_dep}_docbook)
+    #SET(_validated ${_dir_pfx}.validated)
 
     IF(${_mode} STREQUAL "chunked")
-        SET(_basedir ${_guide}_html_chunked)
+        SET(_basedir ${_dir_pfx}_html_chunked)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/xhtml5/chunk.xsl")
         SET(_modeparams --stringparam html.ext .html --noout)
     ELSE() # single-page
-        SET(_basedir ${_guide}_html)
+        SET(_basedir ${_dir_pfx}_html)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/xhtml5/docbook.xsl")
         SET(_modeparams --output ${_basedir}/index.html)
     ENDIF()
 
-    SET(_outdir ${CMAKE_CURRENT_BINARY_DIR}/${_basedir})
+    SET(_out_dir ${CMAKE_CURRENT_BINARY_DIR}/${_basedir})
     SET(_output ${_basedir}/index.html)
 
-#    FOREACH(_tmpgfx ${${_gfxsources}})
-#        set(_gfx ${_tmpgfx})
-#        BREAK()
-#    ENDFOREACH()
+    FOREACH(_tmpgfx ${${_gfx_sources}})
+        set(_gfx_deps ${CMAKE_CURRENT_SOURCE_DIR}/${_tmpgfx})
+    ENDFOREACH()
+
 #    GET_FILENAME_COMPONENT(_GFXDIR ${_gfx} ABSOLUTE)
 #    GET_FILENAME_COMPONENT(_GFXDIR ${_GFXDIR} PATH)
 #    GET_FILENAME_COMPONENT(_OUTDIR ${_output} PATH)
 #    SET(_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/${_OUTDIR})
 
-    FOREACH(_tmpsource ${${_xmlsources}})
-        set(_source ${_tmpsource})
-        BREAK()
-    ENDFOREACH()
-
-    SET(_gfxdir ${_guide}_graphics)
+    SET(_gfx_dir ${_dir_pfx}_graphics)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output}
         COMMAND ${CMAKE_COMMAND}
-            -E make_directory ${_outdir}
+            -E make_directory ${_out_dir}
         COMMAND ${CMAKE_COMMAND}
-           -E make_directory ${_outdir}/${_gfxdir}/toolbar
+           -E make_directory ${_out_dir}/${_gfx_dir}/toolbar
         COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_outdir}/${_gfxdir}
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_dir} ${_out_dir}/${_gfx_dir}
         COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_outdir}/${_gfxdir}
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_out_dir}/${_gfx_dir}
         COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/toolbar ${_outdir}/${_gfxdir}/toolbar
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_dir}/toolbar ${_out_dir}/${_gfx_dir}/toolbar
         COMMAND ${CMAKE_COMMAND}
-            -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_outdir}
+            -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_out_dir}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
             ${_common_xsltproc_args}
-            --stringparam admon.graphics.path ${_gfxdir}/
+            --stringparam admon.graphics.path ${_gfx_dir}/
             ${_modeparams}
             ${_STYLESHEET}
-            ${_source}
+            ${_dbk_source}
         DEPENDS
-            ${_validated}
-            ${${_xmlsources}}
-            ${${_gfxsources}}
+            ${_dbk_dep}
+            #${_validated}
+            ${_gfx_deps}
     )
     IF(NOT WIN32)
         ADD_CUSTOM_COMMAND(
             OUTPUT
                 ${_output}
             COMMAND chmod
-                -R og+rX ${_outdir}
+                -R og+rX ${_out_dir}
             APPEND
         )
     ENDIF()
@@ -149,15 +146,13 @@ ENDMACRO(XML2HTML)
 #       custom_layer_pdf.xsl
 #       A4 or letter
 #)
-MACRO(XML2PDF _output _sources _stylesheet _paper)
-    FOREACH(_tmpsource ${${_sources}})
-        set(_source ${_tmpsource})
-        BREAK()
-    ENDFOREACH()
-
+MACRO(XML2PDF _target_dep _output _dbk_source _stylesheet _paper)
+    # We depend on the docbook target to avoid parallel builds.
+    SET(_dbk_dep ${_target_dep}_docbook)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output}
+            ${_output}.fo
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam paper.type ${_paper}
@@ -169,12 +164,12 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
             --nonet
             --output ${_output}.fo
             ${_stylesheet}
-            ${_source}
+            ${_dbk_source}
         COMMAND ${FOP_EXECUTABLE}
             ${_output}.fo
             ${_output}
         DEPENDS
-            ${${_sources}}
+            ${_dbk_dep}
             ${_stylesheet}
     )
 ENDMACRO(XML2PDF)
@@ -184,7 +179,9 @@ ENDMACRO(XML2PDF)
 #       wsug or wsdg
 #       user-guide.xml or developer-guide.xml
 #)
-MACRO(XML2HHP _guide _docbooksource)
+MACRO(XML2HHP _target_dep _guide _docbooksource)
+    # We depend on the docbook target to avoid parallel builds.
+    SET(_dbk_dep ${_target_dep}_docbook)
     GET_FILENAME_COMPONENT( _source_base_name ${_docbooksource} NAME_WE )
     set( _output_chm ${_source_base_name}.chm )
     set( _output_hhp ${_source_base_name}.hhp )
@@ -196,6 +193,7 @@ MACRO(XML2HHP _guide _docbooksource)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output_hhp}
+            ${_output_toc_hhc}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
@@ -216,9 +214,10 @@ MACRO(XML2HHP _guide _docbooksource)
             --nonet custom_layer_chm.xsl
             ${_docbook_plain_title}
         DEPENDS
+            ${_dbk_dep}
             # AsciiDoc uses UTF-8 by default, which is unsupported by HTML
             # Help. We may want to render an ISO-8859-1 version, or get rid
             # of HTML Help.
-            ${_docbooksource}
+            custom_layer_chm.xsl
     )
 ENDMACRO(XML2HHP)

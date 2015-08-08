@@ -47,6 +47,7 @@ else()
 endif()
 
 # Validate XML
+# XXX Unused?
 MACRO(VALIDATE_XML _validated _sources)
     # FIXME: How do I extract the first element of a variable containing a
     # list of values? Isn't there a "cleaner" solution?

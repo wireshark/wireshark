@@ -63,20 +63,24 @@ MARK_AS_ADVANCED(RUNA2X)
 
 TO_A2X_COMPATIBLE_PATH( ${CMAKE_CURRENT_BINARY_DIR} _a2x_current_binary_dir )
 
-MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
+MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files _src_files _built_deps )
     GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
     set( A2X_HTML_OPTS --stylesheet=ws.css )
     set( _output_xml ${_source_base_name}.xml )
     set( _output_dbk ${_source_base_name}.dbk )
 
-    foreach(_conf_file ${_conf_files})
+    foreach(_conf_file ${${_conf_files}})
         TO_A2X_COMPATIBLE_PATH ( ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file} _a2x_conf_file )
         set( _conf_opts_list ${_conf_opts_list} --conf-file=${_a2x_conf_file})
     endforeach()
     string( REPLACE ";" " " _conf_opts "${_conf_opts_list}")
 
-    foreach(_conf_file ${_conf_files})
+    foreach(_conf_file ${${_conf_files}})
         set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+    endforeach()
+
+    foreach(_src_file ${${_src_files}})
+        set( _src_deps ${_src_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_src_file})
     endforeach()
 
     TO_A2X_COMPATIBLE_PATH ( ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource} _a2x_asciidocsource )
@@ -100,6 +104,8 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
         DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             ${_conf_deps}
+            ${_src_deps}
+            ${${_built_deps}}
     )
 ENDMACRO()
 
