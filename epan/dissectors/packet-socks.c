@@ -808,6 +808,8 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
         {
         case NO_AUTHENTICATION:
             hash_info->serverState = serverCommandReply;
+            /* If there is no authentication, client should expect command immediately */
+            hash_info->clientState = clientV5Command;
             break;
         case USER_NAME_AUTHENTICATION:
             hash_info->serverState = serverUserReply;
