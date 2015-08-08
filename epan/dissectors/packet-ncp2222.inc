@@ -1747,7 +1747,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
        a reply to it. */
     request_key = wmem_new(wmem_file_scope(), ncp_req_hash_key);
     request_key->conversation = conversation;
-	/* Make sequence number unique */
+    /* Make sequence number unique */
     request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
 
     request_value = wmem_new0(wmem_file_scope(), ncp_req_hash_value);
@@ -1788,28 +1788,27 @@ static ncp_req_hash_value*
 ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_num)
 {
     ncp_req_hash_key  request_key;
-	ncp_req_hash_value *temp_value;
+    ncp_req_hash_value *temp_value;
 
     request_key.conversation = conversation;
-	/* Find unique sequence number */
+    /* Find unique sequence number */
     request_key.nw_sequence_long = (0x10000+((pkt_num/255)<<16)) | nw_sequence;
 
-	/* Since masking of sequence number utilizes the packet number as
-	 * part of it's algorythm it is possible for a packet to sit right
-	 * on the boundary and fail. (depending on number of packets in trace)
-	 * Loop through all the previous sequence numbers in the hash to see
-	 * if the original request packet can be found.
-	 */
-	temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
-	while(!temp_value)
-	{
+    /* Since masking of sequence number utilizes the packet number as
+     * part of it's algorythm it is possible for a packet to sit right
+     * on the boundary and fail. (depending on number of packets in trace)
+     * Loop through all the previous sequence numbers in the hash to see
+     * if the original request packet can be found.
+     */
+    temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
+    while(!temp_value)
+    {
        request_key.nw_sequence_long = request_key.nw_sequence_long-0x10000;
-	   if((request_key.nw_sequence_long & 0xffff0000) == 0){
-	        break;
-	   }  
+       if((request_key.nw_sequence_long & 0xffff0000) == 0){
+            break;
+       }
        temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
-	}
-	
+    }
     return temp_value;
 }
 
@@ -2946,8 +2945,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             char p_min_ver[3]="\0";
             char p_rev[3]="\0";
             char p_lang[3]="\0";
-			char p_serv_type[3]="\0";
-			char p_kernel[3]="\0";
+            char p_serv_type[3]="\0";
+            char p_kernel[3]="\0";
 
             /* Get Server name and version info */
             build_expert_data(ncp_tree, "ncp.server_name",
@@ -8951,7 +8950,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
              request_value = ncp_hash_lookup(conversation,
                                sequence, pinfo->fd->num);
-		}
+        }
         if (request_value) {
             ncp_rec = request_value->ncp_rec;
         }
