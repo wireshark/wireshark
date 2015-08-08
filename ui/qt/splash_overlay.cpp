@@ -124,7 +124,6 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
       return;
     }
     last_action_ = action;
-    time_.restart();
 
     switch(action) {
     case RA_DISSECTORS:
@@ -171,6 +170,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     so_ui_->progressBar->setValue(register_cur_);
 
     wsApp->processEvents();
+    time_.restart();
 }
 
 void SplashOverlay::paintEvent(QPaintEvent *)
