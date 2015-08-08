@@ -866,9 +866,9 @@ static const value_string gtpv2_element_type_vals[] = {
     {  1, "International Mobile Subscriber Identity (IMSI)"},                   /* Variable Length / 8.3 */
     {  2, "Cause"},                                                             /* Variable Length / 8.4 */
     {  3, "Recovery (Restart Counter)"},                                        /* Variable Length / 8.5 */
-																				/* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
-																				/* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
-																				/* 35-50  / See 3GPP TS 29.276 */
+                                                                                /* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+                                                                                /* 4-34 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+                                                                                /* 35-50  / See 3GPP TS 29.276 */
 /*Start SRVCC Messages ETSI TS 129 280 V10.1.0 (2011-06) 6.1*/
     { 51, "STN-SR"},                                                            /* Variable Length / 6.2 */
     { 52, "Source to Target Transparent Container"},                            /* Variable Length / 6.3 */
