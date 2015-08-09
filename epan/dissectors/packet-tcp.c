@@ -742,10 +742,15 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
     int direction;
     struct tcp_analysis *tcpd;
+    gboolean clear_ta = TRUE;
 
     /* Did the caller supply the conversation pointer? */
-    if( conv==NULL )
-            conv = find_or_create_conversation(pinfo);
+    if( conv==NULL ) {
+        /* If the caller didn't supply a conversation, don't
+         * clear the analysis, it may be needed */
+        clear_ta = FALSE;
+        conv = find_or_create_conversation(pinfo);
+    }
 
     /* Get the data for this conversation */
     tcpd=(struct tcp_analysis *)conversation_get_proto_data(conv, proto_tcp);
@@ -778,7 +783,9 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
         tcpd->rev=&(tcpd->flow1);
     }
 
-    tcpd->ta=NULL;
+    if (clear_ta) {
+        tcpd->ta=NULL;
+    }
     return tcpd;
 }
 
