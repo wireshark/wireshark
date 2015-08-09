@@ -11268,6 +11268,7 @@ mlsn            32801/udp # Multiple Listing Service Network [Corey_Leong] [Core
 retp            32811/tcp # Real Estate Transport Protocol [Corey_Leong] [Corey_Leong] 2010-10-11
 idmgratm        32896/tcp # Attachmate ID Manager [George_Gianelos_2] [George_Gianelos_2] 2003-03
 idmgratm        32896/udp # Attachmate ID Manager [George_Gianelos_2] [George_Gianelos_2] 2003-03
+mysqlx          33060/tcp # MySQL Database Extended Interface [Oracle_8] [Omer_BarNir] 2015-08-06
 aurora-balaena  33123/tcp # Aurora (Balaena Ltd) [Andrew_Mather] [Andrew_Mather] 2008-02-14
 aurora-balaena  33123/udp # Aurora (Balaena Ltd) [Andrew_Mather] [Andrew_Mather] 2008-02-14
 diamondport     33331/tcp # DiamondCentral Interface [Edward_Browdy] [Edward_Browdy] 2002-07
