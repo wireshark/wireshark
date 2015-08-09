@@ -144,6 +144,7 @@ static expert_field ei_udp_length = EI_INIT;
 static expert_field ei_udplite_checksum_coverage = EI_INIT;
 static expert_field ei_udp_checksum_zero = EI_INIT;
 static expert_field ei_udp_checksum_bad = EI_INIT;
+static expert_field ei_udp_len_zero_bad = EI_INIT;
 
 /* Preferences */
 
@@ -572,6 +573,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   struct udp_analysis *udpd = NULL;
   proto_tree *process_tree;
   gchar *src_port_str, *dst_port_str;
+  gboolean udp_len_zero = FALSE; /* true if UDP length is zero and valid (RFC 2675) */
 
   udph=wmem_new(wmem_packet_scope(), e_udphdr);
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -633,9 +635,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
   if (ip_proto == IP_PROTO_UDP) {
     udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset+4);
-    if (udph->uh_ulen < 8) {
+    if (pinfo->src.type == AT_IPv6 && udph->uh_ulen == 0) {
+      udp_len_zero = TRUE;
+    }
+    if (udph->uh_ulen < 8 && !udp_len_zero) {
       /* Bogus length - it includes the header, so it must be >= 8. */
-      /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
       item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
           udph->uh_ulen, "%u (bogus, must be >= 8)", udph->uh_ulen);
       expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
@@ -650,7 +654,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
     } else {
       if (tree) {
-        proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
+        ti = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
+        if (udp_len_zero && tvb_reported_length(tvb) < 35635) {
+            expert_add_info(pinfo, ti, &ei_udp_len_zero_bad);
+        }
         /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
         hidden_item = proto_tree_add_uint(udp_tree, &hfi_udplite_checksum_coverage, tvb, offset + 4,
                                           0, udph->uh_sum_cov);
@@ -690,6 +697,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sum = tvb_get_ntohs(tvb, offset+6);
   reported_len = tvb_reported_length(tvb);
   len = tvb_captured_length(tvb);
+  if (udp_len_zero)
+    udph->uh_sum_cov = reported_len;
+
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if ((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) {
@@ -741,7 +751,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         break;
 
       case AT_IPv6:
-        if (ip_proto == IP_PROTO_UDP)
+        if (ip_proto == IP_PROTO_UDP && !udp_len_zero)
           phdr[0] = g_htonl(udph->uh_ulen);
         else
           phdr[0] = g_htonl(reported_len);
@@ -878,7 +888,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
    */
   if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0))
     decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport,
-                     udph->uh_ulen);
+                                        udp_len_zero ? reported_len : udph->uh_ulen);
 }
 
 static void
@@ -945,6 +955,7 @@ proto_register_udp(void)
     { &ei_udplite_checksum_coverage, { "udp.checksum_coverage.expert", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
     { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
     { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    { &ei_udp_len_zero_bad, { "udp.length_zero_bad", PI_PROTOCOL, PI_WARN, "UDP lenth is zero but payload < 65535", EXPFILL }},
   };
 
   static build_valid_func udp_da_src_values[1] = {udp_src_value};
