@@ -61,8 +61,6 @@ static int hf_t124_DomainMCSPDU_PDU = -1;
 
 static guint32 channelId = -1;
 
-static const char *t124Identifier = NULL; /* extensions identifier */
-static tvbuff_t *t124NSIdentifier = NULL; /* extensions non-standard identifier */
 static dissector_table_t t124_ns_dissector_table=NULL;
 static dissector_table_t t124_sd_dissector_table=NULL;
 
@@ -153,8 +151,6 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
-  t124Identifier = NULL;
-
   /*
    * We must catch all the "ran past the end of the packet" exceptions
    * here and, if we catch one, just return FALSE.  It's too painful
@@ -170,8 +166,8 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     failed = TRUE;
   } ENDTRY;
 
-  if (!failed && ((t124Identifier != NULL) &&
-                  (strcmp(t124Identifier, "0.0.20.124.0.1") == 0))) {
+  if (!failed && ((asn1_ctx.external.direct_reference != NULL) &&
+                  (strcmp(asn1_ctx.external.direct_reference, "0.0.20.124.0.1") == 0))) {
     dissect_t124(tvb, pinfo, parent_tree);
 
     return TRUE;

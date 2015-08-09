@@ -146,17 +146,17 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 #.END
 
 #.FN_BODY UserData/_item/value VAL_PTR = &next_tvb
-    tvbuff_t	*next_tvb = NULL;
-    guint8      *ns = NULL;
+    tvbuff_t *next_tvb = NULL;
+    tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
+    guint8   *ns = NULL;
 
 %(DEFAULT_BODY)s
 
-	if(next_tvb) {
+	if(next_tvb && t124NSIdentifier) {
 
-	ns = tvb_get_string_enc(NULL, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = tvb_get_string_enc(wmem_packet_scope(), t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, NULL);
-		g_free(ns);
 	}
 	}
 
@@ -208,10 +208,10 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 #.END
 
 #.FN_PARS Key/object
-	  FN_VARIANT = _str VAL_PTR = &t124Identifier
+	  FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
 
 #.FN_PARS H221NonStandardIdentifier
-	  VAL_PTR = &t124NSIdentifier
+      VAL_PTR = (tvbuff_t**)&actx->private_data
 
 #.FN_BODY H221NonStandardIdentifier
 
