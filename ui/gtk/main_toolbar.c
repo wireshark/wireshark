@@ -55,6 +55,8 @@
 #include "ui/gtk/packet_list.h"
 #include "ui/capture_globals.h"
 
+#include <epan/plugin_if.h>
+
 #include "ui/gtk/old-gtk-compat.h"
 
 static gboolean toolbar_init = FALSE;
@@ -263,6 +265,19 @@ toolbar_auto_scroll_live_changed(gboolean auto_scroll_live_lcl) {
 }
 #endif
 
+void plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
+{
+    if ( user_data != NULL )
+    {
+        GHashTable * dataSet = (GHashTable *) user_data;
+        gpointer framenr;
+        if ( g_hash_table_lookup_extended(dataSet, "frame_nr", NULL, &framenr ) )
+        {
+            if ( GPOINTER_TO_UINT(framenr) != 0 )
+                cf_goto_frame(&cfile, GPOINTER_TO_UINT(framenr));
+        }
+    }
+}
 
 /*
  * Create all toolbars (currently only the main toolbar)
@@ -397,6 +412,8 @@ toolbar_new(void)
 
     /* make current preferences effective */
     toolbar_redraw_all();
+
+    plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_maintoolbar_goto_frame);
 
     return main_tb;
 }

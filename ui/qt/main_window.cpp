@@ -121,6 +121,21 @@ static void plugin_if_mainwindow_preference(gconstpointer user_data)
     }
 }
 
+void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
+{
+    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
+    {
+        GHashTable * dataSet = (GHashTable *) user_data;
+        gpointer framenr;
+
+        if ( g_hash_table_lookup_extended(dataSet, "frame_nr", NULL, &framenr ) )
+        {
+            if ( GPOINTER_TO_UINT(framenr) != 0 )
+                gbl_cur_main_window_->gotoFrame(GPOINTER_TO_UINT(framenr));
+        }
+    }
+}
+
 gpointer
 simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 {
@@ -568,6 +583,7 @@ MainWindow::MainWindow(QWidget *parent) :
     plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_APPLY, plugin_if_mainwindow_apply_filter );
     plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_PREPARE, plugin_if_mainwindow_apply_filter );
     plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_mainwindow_preference);
+    plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_mainwindow_gotoframe);
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
@@ -2203,6 +2219,25 @@ void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint de
     }
 }
 
+QMenu * MainWindow::searchSubMenu(QString objectName)
+{
+    QList<QMenu*> lst;
+
+    if ( objectName.length() > 0 )
+    {
+        QString searchName = QString("menu") + objectName;
+
+        lst = main_ui_->menuBar->findChildren<QMenu*>();
+        foreach (QMenu* m, lst)
+        {
+            if ( QString::compare( m->objectName(), searchName ) == 0 )
+                return m;
+        }
+    }
+
+    return 0;
+}
+
 void MainWindow::addExternalMenus()
 {
     QMenu * subMenu = NULL;
@@ -2224,7 +2259,15 @@ void MainWindow::addExternalMenus()
         }
 
         /* Create main submenu and add it to the menubar */
-        subMenu = main_ui_->menuBar->addMenu(menu->label);
+        if ( menu->parent_menu != NULL )
+        {
+            QMenu * sortUnderneath = searchSubMenu(QString(menu->parent_menu));
+            if ( sortUnderneath != NULL)
+                subMenu = sortUnderneath->addMenu(menu->label);
+        }
+
+        if ( subMenu == NULL )
+            subMenu = main_ui_->menuBar->addMenu(menu->label);
 
         /* This will generate the action structure for each menu. It is recursive,
          * therefore a sub-routine, and we have a depth counter to prevent endless loops. */

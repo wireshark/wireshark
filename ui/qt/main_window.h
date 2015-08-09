@@ -90,6 +90,8 @@ public:
 
     virtual QMenu *createPopupMenu();
 
+    void gotoFrame(int packet_num);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
@@ -273,6 +275,7 @@ private slots:
     void addDynamicMenus();
     void reloadDynamicMenus();
     void addExternalMenus();
+    QMenu * searchSubMenu(QString objectName);
 
     void startInterfaceCapture(bool valid);
 

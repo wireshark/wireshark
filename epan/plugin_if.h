@@ -81,7 +81,7 @@ struct _ext_menubar_t
 
     ext_menubar_action_cb callback;
 
-
+    gchar * parent_menu;
 };
 
 /* Registers a new main menu.
@@ -96,6 +96,18 @@ struct _ext_menubar_t
  */
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_register_menu(
         int proto_id, const gchar * menulabel, gboolean is_plugin);
+
+/* Sets a parent menu for the user menu.
+ *
+ * This will set a parent menu, which allows this menu to be filtered underneath
+ * the given menu as a submenu. If the parent menu does not exist, the main menu
+ * will be used
+ *
+ * @param menu the menu for which to add the entry
+ * @param parentmenu a valid menu name for the parent menu
+ */
+WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
+        ext_menu_t * menu, const gchar * parentmenu);
 
 /* Registers a new main menu.
  *
@@ -162,7 +174,10 @@ typedef enum
     PLUGIN_IF_FILTER_ACTION_PREPARE,
 
     /* Saves a preference entry */
-    PLUGIN_IF_PREFERENCE_SAVE
+    PLUGIN_IF_PREFERENCE_SAVE,
+
+	/* Jumps to the provided frame number */
+	PLUGIN_IF_GOTO_FRAME
 } plugin_if_callback_t;
 
 
@@ -175,6 +190,10 @@ WS_DLL_PUBLIC void plugin_if_apply_filter(const char * filter_string, gboolean f
 
 /* Saves the given preference to the main preference storage */
 WS_DLL_PUBLIC void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value);
+
+/* Jumps to the given frame number */
+WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
+
 
 /* Private Method for retrieving the menubar entries
  *

@@ -66,6 +66,8 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
     entry->proto = proto_id;
     entry->is_plugin = is_plugin;
 
+    entry->parent_menu = 0;
+
     /* Create a name for this submenu */
     entry->name = name;
     entry->label = g_strdup(menulabel);
@@ -78,6 +80,17 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
     menubar_menunames = g_list_append(menubar_menunames, name);
 
     return entry;
+}
+
+extern ext_menu_t * ext_menubar_set_parentmenu(ext_menu_t * menu, const gchar * parentmenu)
+{
+    g_assert(menu != NULL && menu->parent == NULL);
+
+    g_assert(parentmenu != 0);
+
+    menu->parent_menu = g_strdup(parentmenu);
+
+    return menu;
 }
 
 extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *menulabel)
@@ -210,6 +223,17 @@ extern void plugin_if_apply_filter(const char * filter_string, gboolean force)
     g_hash_table_insert( dataSet, g_strdup("force"), (gpointer) &force );
 
     plugin_if_call_gui_cb(actionType, dataSet);
+}
+
+extern void plugin_if_goto_frame(guint32 framenr)
+{
+    GHashTable * dataSet = NULL;
+
+    dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+
+    g_hash_table_insert( dataSet, g_strdup("frame_nr"), GUINT_TO_POINTER(framenr) );
+
+    plugin_if_call_gui_cb(PLUGIN_IF_GOTO_FRAME, dataSet);
 }
 
 extern void plugin_if_save_preference(const char * pref_module, const char * pref_key, const char * pref_value)

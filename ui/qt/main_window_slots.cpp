@@ -3185,11 +3185,8 @@ void MainWindow::on_goToCancel_clicked()
 
 void MainWindow::on_goToGo_clicked()
 {
-    int packet_num = main_ui_->goToLineEdit->text().toInt();
+    gotoFrame(main_ui_->goToLineEdit->text().toInt());
 
-    if (packet_num > 0) {
-        packet_list_->goToPacket(packet_num);
-    }
     on_goToCancel_clicked();
 }
 
@@ -3340,6 +3337,14 @@ void MainWindow::externalMenuItem_triggered()
                 QDesktopServices::openUrl(QUrl(QString((gchar *)entry->user_data)));
             }
         }
+    }
+}
+
+void MainWindow::gotoFrame(int packet_num)
+{
+    if ( packet_num > 0 )
+    {
+        packet_list_->goToPacket(packet_num);
     }
 }
 
