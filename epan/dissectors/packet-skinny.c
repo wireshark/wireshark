@@ -2196,9 +2196,9 @@ get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static void
 dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32 length, guint32 maxlength)
 {
-  proto_item         *item       = NULL;
-  proto_tree         *subtree    = NULL;
-  dissector_handle_t handle      = NULL;
+  proto_item         *item;
+  proto_tree         *subtree;
+  dissector_handle_t handle;
   proto_tree         *tree       = ptvcursor_tree(cursor);
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
@@ -2231,7 +2231,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
   guint32            hdr_version = tvb_get_letohl(tvb, 4);
-  gboolean           is_video    = 0;
+  gboolean           is_video    = FALSE;
 
   /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
   if (hdr_version >= V17_MSG_TYPE) {
@@ -2270,15 +2270,15 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
 static void
 dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
 {
-  proto_item    *item             = NULL;
+  proto_item    *item;
   proto_tree    *tree             = ptvcursor_tree(cursor);
   guint32       offset            = ptvcursor_current_offset(cursor);
   tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
-  wmem_strbuf_t *wmem_new         = NULL;
-  gchar	        *disp_string      = NULL;
-  const gchar   *replacestr       = NULL;
+  wmem_strbuf_t *wmem_new;
+  gchar         *disp_string;
+  const gchar   *replacestr;
   gboolean      show_replaced_str = FALSE;
-  gint          x                 = 0;
+  gint          x;
 
   if (length == 0) {
     length = tvb_strnlen(tvb, offset, -1);
@@ -9657,28 +9657,23 @@ proto_register_skinny(void)
 void
 proto_reg_handoff_skinny(void)
 {
-  static gboolean    skinny_prefs_initialized = FALSE;
+  /* Skinny content type and internet media type used by other dissectors are the same */
+  media_type_dissector_table = find_dissector_table("media_type");
+  skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
+  dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 
-  if (!skinny_prefs_initialized) {
-    /* Skinny content type and internet media type used by other dissectors are the same */
-    media_type_dissector_table = find_dissector_table("media_type");
-    skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
-    dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
-
-    ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
-    skinny_prefs_initialized = TRUE;
-  }
+  ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
 }
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local variables:
+ * Local Variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
