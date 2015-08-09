@@ -1957,11 +1957,16 @@ void proto_reg_handoff_zbee_nwk(void)
     zbee_security_handoff();
 } /* proto_reg_handoff_zbee */
 
+static void free_keyring_key(gpointer key)
+{
+    g_free(key);
+}
+
 static void free_keyring_val(gpointer a)
 {
     GSList **slist = (GSList **)a;
-    g_slist_free(*slist);
-    return;
+    g_slist_free_full(*slist, g_free);
+    g_free(slist);
 }
 
 /*FUNCTION:------------------------------------------------------
@@ -1983,7 +1988,7 @@ proto_init_zbee_nwk(void)
 {
     zbee_nwk_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
     zbee_nwk_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
-    zbee_table_nwk_keyring  = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, free_keyring_val);
+    zbee_table_nwk_keyring  = g_hash_table_new_full(g_int_hash, g_int_equal, free_keyring_key, free_keyring_val);
 } /* proto_init_zbee_nwk */
 
 static void
