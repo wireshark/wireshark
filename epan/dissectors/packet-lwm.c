@@ -27,7 +27,11 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/filesystem.h>
 #include "packet-ieee802154.h"
+#include <epan/prefs.h>
+#include <epan/strutil.h>
+#include <wsutil/wsgcrypt.h>
 
 /*LwMesh lengths*/
 #define LWM_HEADER_BASE_LEN            7
@@ -94,6 +98,11 @@ void proto_reg_handoff_lwm(void);
 /*  Dissector handles */
 static dissector_handle_t       data_handle;
 
+/* User string with the decryption key. */
+static const gchar *lwmes_key_str = NULL;
+static gboolean     lwmes_key_valid;
+static guint8       lwmes_key[16];
+
 /* Dissection Routines. */
 static int  dissect_lwm                       (tvbuff_t *, packet_info *, proto_tree *, void *data);
 static int  dissect_lwm_cmd_frame_ack         (tvbuff_t *, packet_info *, proto_tree *);
@@ -140,7 +149,8 @@ static expert_field ei_lwm_mal_error = EI_INIT;
 static expert_field ei_lwm_n_src_broad = EI_INIT;
 static expert_field ei_lwm_mismatch_endp = EI_INIT;
 static expert_field ei_lwm_empty_payload = EI_INIT;
-
+static expert_field ei_lwm_no_decryption_key = EI_INIT;
+static expert_field ei_lwm_decryption_failed = EI_INIT;
 
 static const value_string lwm_cmd_names[] = {
     { LWM_CMD_ACK,          "LwMesh ACK" },
@@ -213,13 +223,27 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint8      lwm_src_endp;
     guint8      lwm_dst_endp;
 
+    ieee802154_packet   *ieee_packet;
     proto_tree *lwm_tree        = NULL;
     proto_item *ti_proto        = NULL;
     proto_item *ti;
     tvbuff_t   *new_tvb;
 
+    gint payload_length = 0;
+    gint length = 0;
+    gint payload_offset = 0;
+    guint8 block;
+    tvbuff_t *decrypted_tvb;
+    gcry_cipher_hd_t cypher_hd;
+    guint8* vector = NULL;
+    guint8* text =NULL;
+    guint8* text_dec =NULL;
+    guint8 i;
+    int gcrypt_err;
+
     /*---------------------------------------------------------*/
 
+    ieee_packet = (ieee802154_packet *)data;
     /*Enter name of protocol to info field*/
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LwMesh");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -386,22 +410,98 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if(lwm_fcf_security){
         guint rlen;
         gint  start;
+        guint32 vmic;
+        guint32 lwm_mic;
 
         /*MIC field*/
-        /*XXX: using -LWM_MIC_LEN for 'start' in the proto_tree_add_item() call fetches     */
-        /*     the correct bytes from the tvb; however the wrong 4 bytes (before the field) */
-        /*     are highlighted in the (GTK) GUI.                                            */
         rlen = tvb_reported_length(new_tvb);
         start = (rlen >= LWM_MIC_LEN) ? (rlen-LWM_MIC_LEN) : 0;
         /*An exception will occur if there are not enough bytes for the MIC */
-        proto_tree_add_item(lwm_tree, hf_lwm_mic, new_tvb, start, LWM_MIC_LEN, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(lwm_tree, hf_lwm_mic, new_tvb, start, LWM_MIC_LEN, ENC_LITTLE_ENDIAN, &lwm_mic);
 
-        col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Encrypted data (%i byte(s)) ",
+        if(lwmes_key_valid)
+        {
+            guint32 nwkSecurityVector[4];
+
+            nwkSecurityVector[0] = lwm_seq;
+            nwkSecurityVector[1] = ((guint32)lwm_dst_addr<< 16) | lwm_dst_endp;
+            nwkSecurityVector[2]= ((guint32) lwm_src_addr<< 16) | lwm_src_endp;
+            nwkSecurityVector[3] = ((guint32)ieee_packet->dst_pan << 16) | (guint8)lwm_fcf;
+
+            payload_length=tvb_reported_length(new_tvb) - LWM_MIC_LEN;
+
+            /* ECB - Nwk security vector*/
+            text = (guint8 *)tvb_memdup(NULL, new_tvb, 0, payload_length);
+            payload_offset=0;
+
+            /*Decrypt the actual data */
+            while(payload_length>0)
+            {
+                gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
+                if(gcrypt_err == 0) {
+                    gcrypt_err = gcry_cipher_setkey(cypher_hd,(guint8 *)lwmes_key, 16);
+                }
+                if(gcrypt_err == 0) {
+                    gcrypt_err = gcry_cipher_encrypt(cypher_hd,(guint8 *)nwkSecurityVector,16,(guint8 *)nwkSecurityVector,16);
+                }
+
+                if(gcrypt_err)
+                {
+                    col_add_fstr(pinfo->cinfo, COL_INFO,
+                         "Encrypted data (%i byte(s)) DECRYPT FAILED",
+                         tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+                    expert_add_info(pinfo, lwm_tree, &ei_lwm_decryption_failed);
+                    tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+                    call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+                }
+
+                text_dec = &text[payload_offset];
+                vector = (guint8 *)nwkSecurityVector;
+                block =  (payload_length < 16) ? payload_length : 16;
+
+                for (i = 0; i < block; i++)
+                {
+                    text_dec[i] ^= vector[i];
+                    vector[i] ^= text_dec[i];
+                }
+
+                payload_offset += block;
+                payload_length -= block;
+                gcry_cipher_close(cypher_hd);
+            }
+
+            vmic = nwkSecurityVector[0] ^ nwkSecurityVector[1] ^ nwkSecurityVector[2] ^ nwkSecurityVector[3];
+            length = tvb_reported_length(new_tvb) - LWM_MIC_LEN;
+
+            if(vmic == lwm_mic)
+            {
+                decrypted_tvb = tvb_new_real_data(text,length, length);
+                call_dissector(data_handle, decrypted_tvb, pinfo, lwm_tree);
+                /* XXX - needed?
+                   tvb_set_free_cb(decrypted_tvb, g_free);
+                   add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload"); */
+                col_append_fstr(pinfo->cinfo, COL_INFO, ",  MIC SUCCESS");
+
+            }
+            else
+            {
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "Encrypted data (%i byte(s)) MIC FAILURE",
                      tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-        tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-        call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+                tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+                call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+            }
+        }
+        else
+        {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "Encrypted data (%i byte(s)) NO DECRYPT KEY",
+                      tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+
+            expert_add_info(pinfo, lwm_tree, &ei_lwm_no_decryption_key);
+            tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+            call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+        }
     }
     /*stack command endpoint 0 and not secured*/
     else if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){
@@ -773,10 +873,11 @@ void proto_register_lwm(void)
         { &ei_lwm_n_src_broad,   { "lwm.not_src_broadcast", PI_COMMENTS_GROUP, PI_NOTE,  "Source address can not be broadcast address !", EXPFILL }},
         { &ei_lwm_mismatch_endp, { "lwm.mismatch_endp",     PI_COMMENTS_GROUP, PI_WARN,  "Stack command Endpoints mismatch (should be 0, both)!", EXPFILL }},
         { &ei_lwm_empty_payload, { "lwm.empty_payload",     PI_COMMENTS_GROUP, PI_WARN,  "Empty LwMesh Payload!", EXPFILL }},
-
-
+        { &ei_lwm_no_decryption_key, { "lwm.no_decryption_key", PI_PROTOCOL,   PI_NOTE,  "No encryption key set - can't decrypt", EXPFILL }},
+        { &ei_lwm_decryption_failed, { "lwm.decryption_failed", PI_PROTOCOL,   PI_WARN,  "Decryption Failed", EXPFILL }},
     };
 
+    module_t *lw_module;
     expert_module_t* expert_lwm;
 
     /*  Register protocol name and description. */
@@ -787,6 +888,13 @@ void proto_register_lwm(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_lwm = expert_register_protocol(proto_lwm);
     expert_register_field_array(expert_lwm, ei, array_length(ei));
+
+    lw_module = prefs_register_protocol(proto_lwm,proto_reg_handoff_lwm);
+
+    /* Register preferences for a decryption key */
+    /* TODO: Implement a UAT for multiple keys, and with more advanced key management. */
+    prefs_register_string_preference(lw_module, "lwmes_key", "Lw Decryption key",
+            "128-bit decryption key in hexadecimal format", (const char **)&lwmes_key_str);
 
     /*  Register dissector with Wireshark. */
     new_register_dissector("lwm", dissect_lwm, proto_lwm);
@@ -807,7 +915,20 @@ void proto_register_lwm(void)
  */
 void proto_reg_handoff_lwm(void)
 {
+    GByteArray      *bytes;
+    gboolean         res;
+
     data_handle     = find_dissector("data");
+
+    /* Convert key to raw bytes */
+    bytes = g_byte_array_new();
+    res = hex_str_to_bytes(lwmes_key_str, bytes, FALSE);
+    lwmes_key_valid = (res && bytes->len >= IEEE802154_CIPHER_SIZE);
+    if (lwmes_key_valid) {
+        memcpy(lwmes_key, bytes->data, IEEE802154_CIPHER_SIZE);
+    }
+    g_byte_array_free(bytes, TRUE);
+
 
     /* Register our dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("lwm"));
