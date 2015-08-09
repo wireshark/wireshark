@@ -603,11 +603,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Check for null payload. */
-    if ( !(payload_len = tvb_reported_length_remaining(tvb, offset+mic_len)) ) {
+    payload_len = tvb_captured_length_remaining(tvb, offset+mic_len);
+    if (payload_len == 0)
         return NULL;
-    } else if ( payload_len < 0 ) {
-        THROW(ReportedBoundsError);
-    }
 
     /**********************************************
      *  Perform Security Operations on the Frame  *
