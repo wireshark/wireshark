@@ -31,6 +31,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
@@ -306,6 +307,24 @@ static int hf_rrpcn_unk1 = -1;
 
 static int hf_replyopenprinter_unk0 = -1;
 static int hf_replyopenprinter_unk1 = -1;
+
+static int hf_devmode_devicename = -1;
+static int hf_devmode_form_name = -1;
+static int hf_relative_string = -1;
+static int hf_value_name = -1;
+static int hf_keybuffer = -1;
+static int hf_value_string = -1;
+
+static expert_field ei_unimplemented_dissector = EI_INIT;
+static expert_field ei_unknown_data = EI_INIT;
+static expert_field ei_spool_printer_info_level = EI_INIT;
+static expert_field ei_printer_info_level = EI_INIT;
+static expert_field ei_form_level = EI_INIT;
+static expert_field ei_job_info_level = EI_INIT;
+static expert_field ei_driver_info_level = EI_INIT;
+static expert_field ei_level = EI_INIT;
+static expert_field ei_notify_info_data_type = EI_INIT;
+static expert_field ei_enumprinterdataex_value = EI_INIT;
 
 /* Registry data types */
 
@@ -1061,7 +1080,7 @@ SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 static int
 dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			  proto_tree *tree, guint8 *drep _U_, char **data,
-			  const char *name)
+			  int hf_name)
 {
 	gint len, remaining;
 	char *text;
@@ -1081,8 +1100,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	text = tvb_get_string_enc(NULL, tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
-	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
-			    name ? name : "String", text);
+	proto_tree_add_string(tree, hf_name, tvb, offset, len * 2, text);
 
 	if (data)
 		*data = text;
@@ -1452,8 +1470,7 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* The device name is stored in a 32-wchar buffer */
 
-	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
-		"Devicename");
+	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL, hf_devmode_devicename);
 	offset += 64;
 
 	offset = dissect_ndr_uint16(
@@ -1536,8 +1553,7 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, di, drep,
 		hf_devmode_collate, NULL);
 
-	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
-		"Form name");
+	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL, hf_devmode_form_name);
 	offset += 64;
 
 	offset = dissect_ndr_uint16(
@@ -1663,7 +1679,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (relstr_offset) {
 		relstr_end = dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, NULL, drep, &text, NULL);
+			tvb, relstr_start, pinfo, NULL, drep, &text, hf_relative_string);
 	} else { 			/* relstr_offset == 0 is a NULL string */
 		text = g_strdup("");
 		relstr_end = relstr_start;
@@ -1679,7 +1695,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (relstr_offset)
 		dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, subtree, drep, NULL, NULL);
+			tvb, relstr_start, pinfo, subtree, drep, NULL, hf_relative_string);
 
 	if (data)
 		*data = text;
@@ -1718,7 +1734,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (relstr_offset)
 		/*relstr_end = */dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, subtree, drep, &text, NULL);
+			tvb, relstr_start, pinfo, subtree, drep, &text, hf_relative_string);
 	else {
 		text = g_strdup("NULL");
 		/*relstr_end = offset;*/
@@ -2388,13 +2404,14 @@ dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
 				  dcerpc_info *di, guint8 *drep)
 {
 	proto_tree *subtree;
+	proto_item *item;
 	guint32 level;
 
 	if (di->conformant_run)
 		return offset;
 
 	subtree = proto_tree_add_subtree(
-		tree, tvb, offset, 0, ett_USER_LEVEL_CTR, NULL, "User level container");
+		tree, tvb, offset, 0, ett_USER_LEVEL_CTR, &item, "User level container");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, &level);
@@ -2407,9 +2424,7 @@ dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
 			"User level 1", -1);
 		break;
 	default:
-		proto_tree_add_text(
-			tree, tvb, offset, 0,
-			"[Info level %d not decoded]", level);
+		expert_add_info_format(pinfo, item, &ei_level, "Info level %d not decoded", level);
 		break;
 	}
 
@@ -2609,8 +2624,7 @@ dissect_notify_field(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	proto_tree_add_text(tree, tvb, offset - 2, 2,
-			    "Field: %s (%d)", str, field);
+	proto_tree_add_uint_format_value(tree, hf_notify_field, tvb, offset - 2, 2, field, "%s (%d)", str, field);
 
 	if (data)
 		*data = field;
@@ -3108,7 +3122,7 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
 	gint16 level = GPOINTER_TO_INT(dcv->se_data);
-	proto_item *item;
+	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -3119,20 +3133,7 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, &buffer);
 
 	if (buffer.tvb) {
-		switch(level) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 7:
-			item = proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"Print info level %d", level);
-
-			subtree = proto_item_add_subtree(
-				item, ett_PRINTER_INFO);
-			break;
-		}
+		subtree = proto_tree_add_subtree_format( buffer.tree, buffer.tvb, 0, -1, ett_PRINTER_INFO, &item, "Print info level %d", level);
 
 		switch(level) {
 		case 0:
@@ -3156,9 +3157,7 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				buffer.tvb, 0, pinfo, subtree, di, drep);
 			break;
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"[Unknown printer info level %d]", level);
+			expert_add_info(pinfo, item, &ei_printer_info_level);
 			break;
 		}
 	}
@@ -3236,9 +3235,10 @@ dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_tree *subtree;
 	guint32 level;
+	proto_tree *item;
 
 	subtree = proto_tree_add_subtree(
-		tree, tvb, offset, 0, ett_SPOOL_PRINTER_INFO_LEVEL, NULL, "Spool printer info level");
+		tree, tvb, offset, 0, ett_SPOOL_PRINTER_INFO_LEVEL, &item, "Spool printer info level");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, &level);
@@ -3273,9 +3273,7 @@ dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	case 2:
 	default:
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"[Unknown spool printer info level %d]", level);
+		expert_add_info_format(pinfo, item, &ei_spool_printer_info_level, "Unknown spool printer info level %d", level);
 		break;
 	}
 
@@ -3636,8 +3634,7 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	if (value_len) {
 		dissect_spoolss_uint16uni(
-			tvb, offset, pinfo, value_subtree, drep, &value,
-			"Value name");
+			tvb, offset, pinfo, value_subtree, drep, &value, hf_value_name);
 
 		offset += value_len * 2;
 
@@ -3756,19 +3753,8 @@ SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, &buffer);
 
 	if (buffer.tvb) {
-		switch(level) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 7:
-			item = proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"Printer info level %d", level);
-			subtree = proto_item_add_subtree(
-				item, ett_PRINTER_INFO);
-			break;
-		}
+		subtree = proto_tree_add_subtree_format( buffer.tree, buffer.tvb, 0, -1, ett_PRINTER_INFO, &item, "Print info level %d", level);
+
 		switch(level) {
 		case 0:
 			dissect_PRINTER_INFO_0(
@@ -3791,9 +3777,7 @@ SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				buffer.tvb, 0, pinfo, subtree, di, drep);
 			break;
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"[Unknown printer info level %d]", level);
+			expert_add_info(pinfo, item, &ei_printer_info_level);
 			break;
 		}
 	}
@@ -3899,9 +3883,10 @@ dissect_FORM_CTR(tvbuff_t *tvb, int offset,
 			    dcerpc_info *di, guint8 *drep)
 {
 	proto_tree *subtree;
+	proto_item *item;
 	guint32 level;
 
-	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_FORM_CTR, NULL, "Form container");
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_FORM_CTR, &item, "Form container");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_form_level, &level);
@@ -3912,9 +3897,7 @@ dissect_FORM_CTR(tvbuff_t *tvb, int offset,
 		break;
 
 	default:
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"[Unknown form info level %d]", level);
+		expert_add_info_format(pinfo, item, &ei_form_level, "Unknown form info level %d", level);
 		break;
 	}
 
@@ -4167,9 +4150,7 @@ SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, buffer_offset, -1,
-				"[Unknown form info level %d]", level);
+			proto_tree_add_expert_format(buffer.tree, pinfo, &ei_form_level, buffer.tvb, buffer_offset, -1, "Unknown form info level %d", level);
 			break;
 		}
 	}
@@ -4191,8 +4172,7 @@ SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	int len = tvb_reported_length(tvb);
 
-	proto_tree_add_text(tree, tvb, offset, 0,
-			    "[Unimplemented dissector: SPOOLSS]");
+	proto_tree_add_expert(tree, pinfo, &ei_unimplemented_dissector, tvb, offset, 0);
 
 	offset = dissect_doserror(
 		tvb, len - 4, pinfo, tree, di, drep, hf_rc, NULL);
@@ -4466,9 +4446,7 @@ SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				buffer.tree, di, drep);
 			break;
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"[Unknown job info level %d]", level);
+			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, 0, -1, "Unknown job info level %d", level);
 			break;
 		}
 
@@ -4599,9 +4577,7 @@ SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		case 2:
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, buffer_offset, -1,
-				"[Unknown job info level %d]", level);
+			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, buffer_offset, -1, "Unknown job info level %d", level);
 			break;
 		}
 	}
@@ -5251,7 +5227,7 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 			tvb, offset, pinfo, subtree, di, drep, hf_environment,
 			struct_start, NULL);
 
-	proto_tree_add_text(subtree,tvb,offset,0,"Unknown Data Follows");
+	proto_tree_add_expert(subtree, pinfo, &ei_unknown_data, tvb, offset, 0);
 
 	return offset;
 }
@@ -5348,9 +5324,7 @@ SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 			/*break;*/
 			goto done; /*Not entirely imeplemented*/
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, buffer_offset, -1,
-				"[Unknown driver info level %d]", level);
+			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, buffer_offset, -1, "Unknown driver info level %d", level);
 			goto done;
 		}
 	}
@@ -5453,9 +5427,7 @@ SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 				buffer.tvb, 0, pinfo, buffer.tree, di, drep);
 			break;
 		default:
-			proto_tree_add_text(
-				buffer.tree, buffer.tvb, 0, -1,
-				"[Unknown driver info level %d]", level);
+			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, 0, -1, "Unknown driver info level %d", level);
 			break;
 		}
 	}
@@ -5954,9 +5926,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, subtree, item, di, drep, field);
 		break;
 	default:
-		proto_tree_add_text(
-			tree, tvb, offset, 0,
-			"[Unknown notify type %d]", type);
+		expert_add_info(pinfo, item, &ei_notify_info_data_type);
 		break;
 	}
 
@@ -6230,7 +6200,7 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	while (offset < end_offset)
 		offset = dissect_spoolss_uint16uni(
-			tvb, offset, pinfo, tree, drep, NULL, "Key");
+			tvb, offset, pinfo, tree, drep, NULL, hf_keybuffer);
 
 	return offset;
 }
@@ -6284,10 +6254,15 @@ SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
 
 static int hf_enumprinterdataex_name_offset = -1;
 static int hf_enumprinterdataex_name_len = -1;
+static int hf_enumprinterdataex_name = -1;
 static int hf_enumprinterdataex_val_offset = -1;
 static int hf_enumprinterdataex_val_len = -1;
 static int hf_enumprinterdataex_val_dword_low = -1;
 static int hf_enumprinterdataex_val_dword_high = -1;
+static int hf_enumprinterdataex_value_null = -1;
+static int hf_enumprinterdataex_value_uint = -1;
+static int hf_enumprinterdataex_value_binary = -1;
+static int hf_enumprinterdataex_value_multi_sz = -1;
 
 static int
 SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
@@ -6344,21 +6319,15 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 	dissect_spoolss_uint16uni(
 		tvb, start_offset + name_offset, pinfo, NULL, drep,
-		&name, "Name");
+		&name, hf_enumprinterdataex_name);
 
-	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_printer_enumdataex_value, &item, "Name: ");
+	subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_printer_enumdataex_value, &item, "Name: %s", name);
 
-	proto_item_append_text(item, "%s", name);
+	proto_tree_add_uint(subtree, hf_enumprinterdataex_name_offset, tvb, offset - 8, 4, name_offset);
 
-	proto_tree_add_text(
-		subtree, tvb, offset - 8, 4, "Name offset: %d", name_offset);
+	proto_tree_add_uint(subtree, hf_enumprinterdataex_name_len, tvb, offset - 4, 4, name_len);
 
-	proto_tree_add_text(
-		subtree, tvb, offset - 4, 4, "Name len: %d", name_len);
-
-	proto_tree_add_text(
-		subtree, tvb, start_offset + name_offset, ((int)strlen(name) + 1) * 2,
-		"Name: %s", name);
+	proto_tree_add_string( subtree, hf_enumprinterdataex_name, tvb, start_offset + name_offset, ((int)strlen(name) + 1) * 2, name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_printerdata_type,
@@ -6373,8 +6342,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		hf_enumprinterdataex_val_len, &val_len);
 
 	if (val_len == 0) {
-		proto_tree_add_text(subtree, tvb, start_offset + val_offset, 4,
-				    "Value: (null)");
+		proto_tree_add_uint_format_value(subtree, hf_enumprinterdataex_value_null, tvb, start_offset + val_offset, 4, 0, "(null)");
 		goto done;
 	}
 
@@ -6397,8 +6365,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		value = (high << 16) | low;
 
-		proto_tree_add_text(subtree, tvb, start_offset + val_offset, 4,
-				    "Value: %d", value);
+		proto_tree_add_uint(subtree, hf_enumprinterdataex_value_uint, tvb, start_offset + val_offset, 4, value);
 
 		proto_item_append_text(item, ", Value: %d", value);
 
@@ -6409,7 +6376,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		dissect_spoolss_uint16uni(
 			tvb, start_offset + val_offset, pinfo, subtree, drep,
-			&value, "Value");
+			&value, hf_value_string);
 
 		proto_item_append_text(item, ", Value: %s", value);
 
@@ -6421,24 +6388,18 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		/* FIXME: nicer way to display this */
 
-		proto_tree_add_text(
-			subtree, tvb, start_offset + val_offset, val_len,
-			"Value: <binary data>");
+		proto_tree_add_bytes_format_value( subtree, hf_enumprinterdataex_value_binary, tvb, start_offset + val_offset, val_len, NULL, "<binary data>");
 		break;
 
 	case DCERPC_REG_MULTI_SZ:
 
 		/* FIXME: implement REG_MULTI_SZ support */
 
-		proto_tree_add_text(
-			subtree, tvb, start_offset + val_offset, val_len,
-			"Value: <REG_MULTI_SZ not implemented>");
+		proto_tree_add_bytes_format_value(subtree, hf_enumprinterdataex_value_multi_sz, tvb, start_offset + val_offset, val_len, NULL, "<REG_MULTI_SZ not implemented>");
 		break;
 
 	default:
-		proto_tree_add_text(
-			subtree, tvb, start_offset + val_offset, val_len,
-			"%s: unknown type %d", name, val_type);
+		proto_tree_add_expert_format( subtree, pinfo, &ei_enumprinterdataex_value, tvb, start_offset + val_offset, val_len, "%s: unknown type %d", name, val_type);
 	}
 
  done:
@@ -7783,6 +7744,30 @@ proto_register_dcerpc_spoolss(void)
 		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32,
 		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
+		{ &hf_devmode_devicename,
+		  { "DeviceName", "spoolss.devmode.devicename", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_devmode_form_name,
+		  { "FormName", "spoolss.devmode.form_name", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_relative_string,
+		  { "String", "spoolss.relative_string", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_value_name,
+		  { "Value Name", "spoolss.value_name", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_keybuffer,
+		  { "Key", "spoolss.hf_keybuffer", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_value_string,
+		  { "Value", "spoolss.value_string", FT_STRING,
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
+
 		/* Printer attributes */
 
 		{ &hf_printer_attributes,
@@ -7942,6 +7927,11 @@ proto_register_dcerpc_spoolss(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_enumprinterdataex_name,
+		  { "Name", "spoolss.enumprinterdataex.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_enumprinterdataex_val_offset,
 		  { "Value offset", "spoolss.enumprinterdataex.value_offset",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -7956,6 +7946,30 @@ proto_register_dcerpc_spoolss(void)
 		  { "DWORD value (high)",
 		    "spoolss.enumprinterdataex.val_dword.high",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_enumprinterdataex_value_null,
+		  { "Value",
+		    "spoolss.enumprinterdataex.val_null",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_enumprinterdataex_value_uint,
+		  { "Value",
+		    "spoolss.enumprinterdataex.val_uint",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_enumprinterdataex_value_binary,
+		  { "Value",
+		    "spoolss.enumprinterdataex.val_binary",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_enumprinterdataex_value_multi_sz,
+		  { "Value",
+		    "spoolss.enumprinterdataex.val_multi_sz",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_dword_low,
@@ -8273,12 +8287,28 @@ proto_register_dcerpc_spoolss(void)
 		&ett_printer_enumdataex_value,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_unimplemented_dissector, { "spoolss.unimplemented_dissector", PI_UNDECODED, PI_WARN, "Unimplemented dissector: SPOOLSS", EXPFILL }},
+		{ &ei_unknown_data, { "spoolss.unknown_data", PI_UNDECODED, PI_WARN, "Unknown data follows", EXPFILL }},
+		{ &ei_printer_info_level, { "spoolss.printer.unknown", PI_PROTOCOL, PI_WARN, "Unknown printer info level", EXPFILL }},
+		{ &ei_spool_printer_info_level, { "spoolss.spool_printer.unknown", PI_PROTOCOL, PI_WARN, "Unknown spool printer info level", EXPFILL }},
+		{ &ei_form_level, { "spoolss.form.level.unknown", PI_PROTOCOL, PI_WARN, "Unknown form info level", EXPFILL }},
+		{ &ei_job_info_level, { "spoolss.job_info.level.unknown", PI_PROTOCOL, PI_WARN, "Unknown job info level", EXPFILL }},
+		{ &ei_driver_info_level, { "spoolss.driver_info.level.unknown", PI_PROTOCOL, PI_WARN, "Unknown driver info level", EXPFILL }},
+		{ &ei_level, { "spoolss.level.unknown", PI_PROTOCOL, PI_WARN, "Info level unknown", EXPFILL }},
+		{ &ei_notify_info_data_type, { "spoolss.notify_info_data.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown notify type", EXPFILL }},
+		{ &ei_enumprinterdataex_value, { "spoolss.enumprinterdataex.val_unknown", PI_PROTOCOL, PI_WARN, "Unknown value type", EXPFILL }},
+	};
+
+	expert_module_t* expert_dcerpc_spoolss;
+
 	proto_dcerpc_spoolss = proto_register_protocol(
 		"Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
 
 	proto_register_field_array(proto_dcerpc_spoolss, hf, array_length(hf));
-
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_dcerpc_spoolss = expert_register_protocol(proto_dcerpc_spoolss);
+	expert_register_field_array(expert_dcerpc_spoolss, ei, array_length(ei));
 }
 
 /* Protocol handoff */

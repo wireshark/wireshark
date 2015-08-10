@@ -121,6 +121,7 @@ static int hf_mpls_echo_tlv_ds_map_mp_ip = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_mask = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_ip_low = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_ip_high = -1;
+static int hf_mpls_echo_tlv_ds_map_mp_no_multipath_info = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_value = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_label = -1;
 static int hf_mpls_echo_tlv_ds_map_mp_exp = -1;
@@ -157,7 +158,11 @@ static int hf_mpls_echo_sub_tlv_mp_mask = -1;
 static int hf_mpls_echo_sub_tlv_op_type = -1;
 static int hf_mpls_echo_sub_tlv_addr_type = -1;
 static int hf_mpls_echo_sub_tlv_fec_tlv_value = -1;
+static int hf_mpls_echo_sub_tlv_label = -1;
+static int hf_mpls_echo_sub_tlv_traffic_class = -1;
+static int hf_mpls_echo_sub_tlv_s_bit = -1;
 static int hf_mpls_echo_sub_tlv_res = -1;
+static int hf_mpls_echo_sub_tlv_remote_peer_unspecified = -1;
 static int hf_mpls_echo_sub_tlv_remote_peer_ip = -1;
 static int hf_mpls_echo_sub_tlv_remore_peer_ipv6 = -1;
 static int hf_mpls_echo_tlv_dd_map_type = -1;
@@ -199,6 +204,7 @@ static int hf_mpls_echo_lspping_tlv_src_addr_nid=-1;
 static int hf_mpls_echo_lspping_tlv_pw_serv_identifier = -1;
 static int hf_mpls_echo_lspping_tlv_pw_src_ac_id = -1;
 static int hf_mpls_echo_lspping_tlv_pw_dst_ac_id = -1;
+static int hf_mpls_echo_padding = -1;
 /* static int hf_mpls_echo_lspping_tlv_pw_agi_type = -1; */
 /* static int hf_mpls_echo_lspping_tlv_pw_agi_len = -1; */
 /* static int hf_mpls_echo_lspping_tlv_pw_agi_val = -1; */
@@ -234,6 +240,7 @@ static expert_field ei_mpls_echo_tlv_len = EI_INIT;
 static expert_field ei_mpls_echo_tlv_ds_map_muti_len = EI_INIT;
 static expert_field ei_mpls_echo_unknown_address_type = EI_INIT;
 static expert_field ei_mpls_echo_incorrect_address_type = EI_INIT;
+static expert_field ei_mpls_echo_malformed = EI_INIT;
 
 static guint global_mpls_echo_udp_port = UDP_PORT_MPLS_ECHO;
 
@@ -517,7 +524,6 @@ static void
 dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *tlv_fec_tree;
-    proto_item *hidden_item;
     guint16     idx = 1, nil_idx = 1, type, saved_type;
     int         length, nil_length, pad;
     guint32     label;
@@ -770,12 +776,8 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 8, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
                                     tvb, offset + 10, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
-                                    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
-                                    tvb_ip_to_str(tvb, offset + 12));
-                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
                                                   tvb, offset + 12, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ipv4_sender,
                                     tvb, offset + 16, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz2,
@@ -800,12 +802,8 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
                                     tvb, offset + 22, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16, "Extended Tunnel ID: 0x%s (%s)",
-                                    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 24, 16),
-                                    tvb_ip6_to_str(tvb, offset + 24));
-                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
                                                   tvb, offset + 24, 16, ENC_NA);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ipv6_sender,
                                     tvb, offset + 40, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
@@ -872,7 +870,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                        length + pad, rem - 4);
                 return;
             } else {
-                proto_tree_add_text(tlv_fec_tree, tvb, offset + 4 + length, pad, "Padding");
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_padding, tvb, offset + 4 + length, pad, ENC_NA);
             }
             length += pad;
         }
@@ -998,8 +996,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
         case TLV_DS_MAP_HASH_NO_LABEL:
         case TLV_DS_MAP_HASH_ALL_IP:
         case TLV_DS_MAP_HASH_NO_MATCH:
-            proto_tree_add_text(tree, tvb, offset, mplen,
-                                "No Multipath Information");
+            proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_mp_no_multipath_info, tvb, offset, mplen, ENC_NA);
             break;
         case TLV_DS_MAP_HASH_BITMASK_IP:
             if (mplen < 4) {
@@ -1236,15 +1233,15 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                 break;
 
             case TLV_MULTIPATH_BIT_MASKED_LABEL_SET:
-                proto_tree_add_text(tlv_dd_map_tree, tvb, offset, 1,
-                                    "Multipath Information (Label prefix and bit mask)");
+                proto_tree_add_uint_format(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb, offset, 1, multipath_type,
+                                            "Multipath Information (Label prefix and bit mask)");
                 break;
 
             default:
                 if (!tree)
                     break;
-                proto_tree_add_text(tlv_dd_map_tree, tvb, offset, 1,
-                                    "Multipath Type not identified (%u)", multipath_type);
+                proto_tree_add_uint_format(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb, offset, 1, multipath_type,
+                                            "Multipath Type not identified (%u)", multipath_type);
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb,
                                     offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_dd_map_tree,
@@ -1268,9 +1265,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                     tlv_ddstlv_map_tree = proto_tree_add_subtree_format(tlv_dd_map_tree, tvb, offset, 4,
                                                  ett_mpls_echo_tlv_ddstlv_map, &ddsti2, "Downstream Label Element %u", idx);
                     proto_item_append_text(ddsti2, ", Label: %u , Protocol: %u", label, proto);
-                    proto_tree_add_text(tlv_ddstlv_map_tree, tvb, offset, 3, "Label: %u", label);
-                    proto_tree_add_text(tlv_ddstlv_map_tree, tvb, offset + 2, 1, "Traffic Class: %u", tc);
-                    proto_tree_add_text(tlv_ddstlv_map_tree, tvb, offset + 2, 1, "S bit: %u", s_bit);
+                    proto_tree_add_uint(tlv_ddstlv_map_tree, hf_mpls_echo_sub_tlv_label, tvb, offset, 3, label);
+                    proto_tree_add_uint(tlv_ddstlv_map_tree, hf_mpls_echo_sub_tlv_traffic_class, tvb, offset + 2, 1, tc);
+                    proto_tree_add_uint(tlv_ddstlv_map_tree, hf_mpls_echo_sub_tlv_s_bit, tvb, offset + 2, 1, s_bit);
                     proto_tree_add_item(tlv_ddstlv_map_tree, hf_mpls_echo_tlv_ddstlv_map_mp_proto,
                                         tvb, offset + 3, 1, ENC_BIG_ENDIAN);
                 }
@@ -1292,7 +1289,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_res,           tvb, offset + 3, 1, ENC_BIG_ENDIAN);
             switch (addr_type) {
             case SUB_TLV_FEC_UNSPECIFIED:
-                proto_tree_add_text(tlv_dd_map_tree, tvb, offset + 4, 0, "Unspecified (Address Length = 0)");
+                proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_remote_peer_unspecified, tvb, offset + 4, 0, ENC_NA);
                 rem    += 4;
                 offset -= 4;
                 break;
@@ -1447,10 +1444,8 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
     rem    = MIN(rem, length);
 
     if ( rem < 4 ) { /* Type Length */
-        if (tree)
-            proto_tree_add_text(tree, tvb, offset, rem,
-                                "Error processing TLV: length is %d, should be >= 4",
-                                rem);
+        proto_tree_add_expert_format(tree, pinfo, &ei_mpls_echo_tlv_len, tvb, offset, rem,
+                                    "Error processing TLV: length is %d, should be >= 4", rem);
         return rem;
     }
 
@@ -1712,13 +1707,9 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if ( ((!MSGTYPE_MPLS_ECHO(msgtype)) && (rem < 16)) ||
         ((MSGTYPE_MPLS_ECHO(msgtype)) && (rem < 32)) ) {
         col_set_str(pinfo->cinfo, COL_INFO, "Malformed Message");
-        if (tree) {
-            ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, ENC_NA);
-            mpls_echo_tree = proto_item_add_subtree(ti, ett_mpls_echo);
-            proto_tree_add_text(mpls_echo_tree, tvb, offset, rem,
-                                "Error processing Message: length is %d, should be >= %u",
-                                rem, (MSGTYPE_MPLS_ECHO(msgtype)) ? 32 : 16);
-        }
+        ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, ENC_NA);
+        expert_add_info_format(pinfo, ti, &ei_mpls_echo_malformed, "Error processing Message: length is %d, should be >= %u",
+                            rem, (MSGTYPE_MPLS_ECHO(msgtype)) ? 32 : 16);
         return 0;
     }
 
@@ -2098,6 +2089,10 @@ proto_register_mpls_echo(void)
           { "IP Address High", "mpls_echo.tlv.ds_map_mp.ip_high",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Downstream Map Multipath High IP Address", HFILL}
         },
+        { &hf_mpls_echo_tlv_ds_map_mp_no_multipath_info,
+          { "No Multipath Information", "mpls_echo.tlv.ds_map_mp.no_multipath_info",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         { &hf_mpls_echo_tlv_ds_map_mp_value,
           { "Multipath Value", "mpls_echo.tlv.ds_map_mp.value",
             FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Multipath Value", HFILL}
@@ -2261,6 +2256,10 @@ proto_register_mpls_echo(void)
           { "DST AC ID", "mpls_echo.lspping.tlv.pw.dst.ac.id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC DST AC ID", HFILL}
         },
+        { &hf_mpls_echo_padding,
+          { "Padding", "mpls_echo.padding",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
 #if 0
         { &hf_mpls_echo_lspping_tlv_pw_agi_type,
           { "AGI TYPE", "mpls_echo.lspping.tlv.pw.agi.type",
@@ -2414,9 +2413,25 @@ proto_register_mpls_echo(void)
           { "FEC tlv Length", "mpls_echo.subtlv.dd_map.fec_tlv_type",
             FT_UINT8, BASE_DEC, NULL, 0x0, "Detailed Downstream Map FEC TLV Length", HFILL}
         },
+        { &hf_mpls_echo_sub_tlv_label,
+          { "Label", "mpls_echo.subtlv.label",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_mpls_echo_sub_tlv_traffic_class,
+          { "Traffic Class", "mpls_echo.subtlv.traffic_class",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_mpls_echo_sub_tlv_s_bit,
+          { "S bit", "mpls_echo.subtlv.s_bit",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
         { &hf_mpls_echo_sub_tlv_res,
           { "Reserved", "mpls_echo.subtlv.dd_map.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x0, "Detailed Downstream Map FEC Stack Change Reserved Bits", HFILL}
+        },
+        { &hf_mpls_echo_sub_tlv_remote_peer_unspecified,
+          { "Unspecified (Address Length = 0)", "mpls_echo.tlv.dd_map.unspecified",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_mpls_echo_sub_tlv_remote_peer_ip,
           { "Remote Peer IP Address", "mpls_echo.tlv.dd_map.remote_ip",
@@ -2524,6 +2539,7 @@ proto_register_mpls_echo(void)
         { &ei_mpls_echo_tlv_ds_map_muti_len, { "mpls_echo.tlv.ds_map.multi_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Multipath TLV length", EXPFILL }},
         { &ei_mpls_echo_unknown_address_type, { "mpls_echo.address_type.unknown", PI_UNDECODED, PI_WARN, "Unknown Address Type", EXPFILL }},
         { &ei_mpls_echo_incorrect_address_type, { "mpls_echo.address_type.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect address type for TLV?", EXPFILL }},
+        { &ei_mpls_echo_malformed, { "mpls_echo.malformed", PI_MALFORMED, PI_ERROR, "Malformed MPLS message", EXPFILL }},
     };
 
     module_t *mpls_echo_module;

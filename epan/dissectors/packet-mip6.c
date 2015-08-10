@@ -1120,6 +1120,14 @@ static int hf_mip6_bi_h_flag = -1;
 static int hf_mip6_bi_coa_ipv4 = -1;
 static int hf_mip6_bi_coa_ipv6 = -1;
 
+static int hf_mip6_binding_refresh_request = -1;
+static int hf_mip6_unknown_mh_type = -1;
+static int hf_mip6_fast_neighbor_advertisement = -1;
+static int hf_mip6_vsm_data = -1;
+static int hf_mip6_vsm_req_data = -1;
+static int hf_mip6_opt_padn = -1;
+static int hf_mip6_option_unknown = -1;
+
 /* PMIP BRI */
 static int hf_pmip6_bri_brtype = -1;
 static int hf_pmip6_bri_rtrigger = -1;
@@ -1239,6 +1247,8 @@ static gint ett_mip6_sub_opt_acc_net_id = -1;
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
 static expert_field ei_mip6_ani_type_not_dissected = EI_INIT;
 static expert_field ei_mip6_opt_len_invalid = EI_INIT;
+static expert_field ei_mip6_vsm_data_not_dissected = EI_INIT;
+static expert_field ei_mip6_bogus_header_length = EI_INIT;
 
 typedef struct mip6_opt {
   int           optcode;            /**< code for option */
@@ -1259,14 +1269,7 @@ typedef struct mip6_opt {
 static int
 dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    if (mip6_tree) {
-        /*proto_tree *data_tree;*/
-        /*proto_item *ti;*/
-
-        /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                                     MIP6_BRR_LEN, "Binding Refresh Request");
-        /*data_tree = proto_item_add_subtree(ti, ett_mip6);*/
-    }
+    proto_tree_add_item(mip6_tree, hf_mip6_binding_refresh_request, tvb, MIP6_DATA_OFF, MIP6_BRR_LEN, ENC_NA);
 
     return MIP6_DATA_OFF + MIP6_BRR_LEN;
 }
@@ -1568,14 +1571,7 @@ dissect_mip6_hack(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 static int
 dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    if (mip6_tree) {
-        /*proto_tree *data_tree;*/
-        /*proto_item *ti;*/
-
-        /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_DATA_OFF + 1, "Unknown MH Type");
-        /*data_tree = proto_item_add_subtree(ti, ett_mip6);*/
-    }
+    proto_tree_add_item(mip6_tree, hf_mip6_unknown_mh_type, tvb, MIP6_DATA_OFF, MIP6_DATA_OFF + 1, ENC_NA);
 
     return MIP6_DATA_OFF + 1;
 }
@@ -1643,14 +1639,7 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_
 static int
 dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    if (mip6_tree) {
-        /*proto_tree *data_tree;*/
-        /*proto_item *ti;*/
-
-        /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                FMIP6_FNA_LEN, "Fast Neighbor Advertisement");
-        /*data_tree = proto_item_add_subtree(ti, ett_mip6);*/
-    }
+    proto_tree_add_item(mip6_tree, hf_mip6_fast_neighbor_advertisement, tvb, MIP6_DATA_OFF, FMIP6_FNA_LEN, ENC_NA);
 
     return MIP6_DATA_OFF + FMIP6_FNA_LEN;
 }
@@ -1853,7 +1842,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     len = len - 2;
 
     if(m_flag){
-        proto_tree_add_text(tree, tvb, offset, len, "Data fragment, handling not implemented yet");
+        proto_tree_add_expert_format(tree, pinfo, &ei_mip6_vsm_data_not_dissected, tvb, offset, len, "Data fragment, handling not implemented yet");
         return len;
     }
 
@@ -1972,7 +1961,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      *     with octet 3.
      */
     default:
-        proto_tree_add_text(tree, tvb, offset, len, "Data(Not dissected yet)");
+        proto_tree_add_expert(tree, pinfo, &ei_mip6_vsm_data_not_dissected, tvb, offset, len);
         break;
     }
 
@@ -1980,7 +1969,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 /* 1 PadN [RFC3775] */
 static void
-dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_padn(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen _U_, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
@@ -1993,8 +1982,7 @@ dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
     offset++;
 
     if (len > 0) {
-        proto_tree_add_text(opt_tree, tvb, offset, len,
-                "%s: %u bytes", optp->name, len);
+        proto_tree_add_item(opt_tree, hf_mip6_opt_padn, tvb, offset, len, ENC_NA);
     }
 }
 
@@ -2312,7 +2300,7 @@ dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
         len = optlen - MIP6_VSM_DATA_OFF;
         if (len > 0){
-            proto_tree_add_text(opt_tree, tvb, offset, len, "Data");
+            proto_tree_add_item(opt_tree, hf_mip6_vsm_data, tvb, offset, len, ENC_NA);
         }
     }
 }
@@ -2954,7 +2942,7 @@ dissect_pmip6_opt_cr(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
             }
         }
         else {
-            proto_tree_add_text(opt_tree, tvb, offset, req_length, "Req-Data");
+            proto_tree_add_item(opt_tree, hf_mip6_vsm_req_data, tvb, offset, req_length, ENC_NA);
         }
         offset += req_length;
     }
@@ -3888,7 +3876,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
             }
             length -= len;
         } else {
-            proto_tree_add_text(opt_tree, tvb, offset, 1, "%s", name);
+            proto_tree_add_uint_format(opt_tree, hf_mip6_option_unknown, tvb, offset, 1, opt, "%s", name);
             offset += 1;
         }
         if (opt == eol)
@@ -3917,6 +3905,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mip6_tree   = NULL;
     guint8      type, pproto;
     guint       len, offset = 0, start_offset = offset;
+    proto_item *ti, *header_item;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
@@ -3924,31 +3913,29 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
     pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
-    if (tree) {
-        proto_item *ti;
-        ti = proto_tree_add_item(tree, proto_mip6, tvb, 0, len, ENC_NA);
-        mip6_tree = proto_item_add_subtree(ti, ett_mip6);
 
-        /* Process header fields */
-        proto_tree_add_item(mip6_tree, hf_mip6_proto, tvb,
-                MIP6_PROTO_OFF, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_mip6, tvb, 0, len, ENC_NA);
+    mip6_tree = proto_item_add_subtree(ti, ett_mip6);
 
-        proto_tree_add_uint_format_value(mip6_tree, hf_mip6_hlen, tvb,
+    /* Process header fields */
+    proto_tree_add_item(mip6_tree, hf_mip6_proto, tvb,
+            MIP6_PROTO_OFF, 1, ENC_BIG_ENDIAN);
+
+    header_item = proto_tree_add_uint_format_value(mip6_tree, hf_mip6_hlen, tvb,
                 MIP6_HLEN_OFF, 1,
                 tvb_get_guint8(tvb, MIP6_HLEN_OFF),
                 "%u (%u bytes)",
                 tvb_get_guint8(tvb, MIP6_HLEN_OFF),
                 len);
 
-        proto_tree_add_item(mip6_tree, hf_mip6_mhtype, tvb,
-                MIP6_TYPE_OFF, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mip6_tree, hf_mip6_mhtype, tvb,
+            MIP6_TYPE_OFF, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(mip6_tree, hf_mip6_reserved, tvb,
-                MIP6_RES_OFF, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mip6_tree, hf_mip6_reserved, tvb,
+            MIP6_RES_OFF, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(mip6_tree, hf_mip6_csum, tvb,
-                MIP6_CSUM_OFF, 2, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_item(mip6_tree, hf_mip6_csum, tvb,
+            MIP6_CSUM_OFF, 2, ENC_BIG_ENDIAN);
 
     /* Process mobility header */
     type = tvb_get_guint8(tvb, MIP6_TYPE_OFF);
@@ -4051,7 +4038,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Process mobility options */
     if (offset < len) {
         if (len < (offset - start_offset)) {
-            proto_tree_add_text(tree, tvb, 0, 0, "Bogus header length");
+            expert_add_info(pinfo, header_item, &ei_mip6_bogus_header_length);
             return;
         }
         len -= (offset - start_offset);
@@ -4754,6 +4741,41 @@ proto_register_mip6(void)
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_mip6_binding_refresh_request,
+      { "Binding Refresh Request", "mip6.binding_refresh_request",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_unknown_mh_type,
+      { "Unknown MH Type", "mip6.unknown_mh_type",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_fast_neighbor_advertisement,
+      { "Fast Neighbor Advertisement", "mip6.fast_neighbor_advertisement",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_vsm_data,
+      { "Data", "mip6.vsm.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_vsm_req_data,
+      { "Req-Data", "mip6.vsm.req_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_padn,
+      { "PadN", "mip6.padn",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_option_unknown,
+      { "Option", "mip6.option_unknown",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
     { &hf_mip6_ipv4dra_reserved,
       { "Reserved", "mip6.ipv4dra.reserved",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -5181,6 +5203,8 @@ proto_register_mip6(void)
         { &ei_mip6_ie_not_dissected, { "mip6.ie_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
         { &ei_mip6_ani_type_not_dissected, { "mip6.acc_net_id.ani.unknown", PI_UNDECODED, PI_NOTE, "ANI Type not dissect yet", EXPFILL }},
         { &ei_mip6_opt_len_invalid, { "mip6.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+        { &ei_mip6_vsm_data_not_dissected, { "mip6.vsm.data_not_dissected", PI_UNDECODED, PI_NOTE, "Data (Not dissected yet)", EXPFILL }},
+        { &ei_mip6_bogus_header_length, { "mip6.bogus_header_length", PI_PROTOCOL, PI_WARN, "Bogus header length", EXPFILL }},
     };
 
     expert_module_t* expert_mip6;
