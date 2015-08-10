@@ -71,6 +71,7 @@ static gint ett_zbee_sec = -1;
 static gint ett_zbee_sec_control = -1;
 
 static expert_field ei_zbee_sec_encrypted_payload = EI_INIT;
+static expert_field ei_zbee_sec_encrypted_payload_sliced = EI_INIT;
 static expert_field ei_zbee_sec_extended_source_unknown = EI_INIT;
 
 static dissector_handle_t   data_handle;
@@ -284,6 +285,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
 
     static ei_register_info ei[] = {
         { &ei_zbee_sec_encrypted_payload, { "zbee_sec.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted Payload", EXPFILL }},
+        { &ei_zbee_sec_encrypted_payload_sliced, { "zbee_sec.encrypted_payload_sliced", PI_UNDECODED, PI_WARN, "Encrypted payload, cut short when capturing - can't decrypt", EXPFILL }},
         { &ei_zbee_sec_extended_source_unknown, { "zbee_sec.extended_source_unknown", PI_PROTOCOL, PI_NOTE, "Extended Source: Unknown", EXPFILL }},
     };
 
@@ -464,11 +466,10 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     zbee_security_packet    packet;
     guint           mic_len;
-    gint            payload_reported_len;
+    gint            payload_len;
     tvbuff_t       *payload_tvb;
 
 #ifdef HAVE_LIBGCRYPT
-    gint               payload_captured_len;
     proto_item         *ti;
     proto_item         *key_item;
     guint8             *enc_buffer;
@@ -637,8 +638,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Check for null payload. */
-    payload_reported_len = tvb_reported_length_remaining(tvb, offset+mic_len);
-    if (payload_reported_len == 0)
+    payload_len = tvb_reported_length_remaining(tvb, offset+mic_len);
+    if (payload_len == 0)
         return NULL;
 
     /**********************************************
@@ -651,15 +652,32 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         (packet.level == ZBEE_SEC_MIC128)) {
 
         /* Payload is only integrity protected. Just return the sub-tvbuff. */
-        return tvb_new_subset_length(tvb, offset, payload_reported_len);
+        return tvb_new_subset_length(tvb, offset, payload_len);
     }
 
 #ifdef HAVE_LIBGCRYPT
-    /* How much payload was actually captured? */
-    payload_captured_len = tvb_captured_length_remaining(tvb, offset+mic_len);
+    /* Have we captured all the payload? */
+    if (tvb_captured_length_remaining(tvb, offset+mic_len) < payload_len) {
+        /*
+         * No - don't try to decrypt it.
+         *
+         * XXX - it looks as if the decryption code is assuming we have the
+         * MIC, which won't be the case if the packet was cut short.  Is
+         * that in fact that case, or can we still make this work with a
+         * partially-captured packet?
+         */
+        /* Add expert info. */
+        expert_add_info(pinfo, sec_tree, &ei_zbee_sec_encrypted_payload_sliced);
+        /* Create a buffer for the undecrypted payload. */
+        payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
+        /* Dump the payload to the data dissector. */
+        call_dissector(data_handle, payload_tvb, pinfo, tree);
+        /* Couldn't decrypt, so return NULL. */
+        return NULL;
+    }         
 
     /* Allocate memory to decrypt the payload into. */
-    dec_buffer = (guint8 *)g_malloc(payload_captured_len);
+    dec_buffer = (guint8 *)g_malloc(payload_len);
 
     decrypted = FALSE;
     if ( packet.src64 ) {
@@ -670,14 +688,14 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                     case ZBEE_SEC_KEY_NWK:
                         if ( (key_rec = nwk_hints->nwk) ) {
                             decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
-                                payload_captured_len, mic_len, nwk_hints->nwk->key);
+                                payload_len, mic_len, nwk_hints->nwk->key);
                         }
                         break;
 
                     default:
                         if ( (key_rec = nwk_hints->link) ) {
                             decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
-                                payload_captured_len, mic_len, nwk_hints->link->key);
+                                payload_len, mic_len, nwk_hints->link->key);
                         }
                         break;
                 }
@@ -699,7 +717,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                     GSList_i = *nwk_keyring;
                     while ( GSList_i && !decrypted ) {
                         decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
-                                payload_captured_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
+                                payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
 
                         if (decrypted) {
                             /* save pointer to the successful key record */
@@ -722,7 +740,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 GSList_i = zbee_pc_keyring;
                 while ( GSList_i && !decrypted ) {
                     decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
-                            payload_captured_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
+                            payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
 
                     if (decrypted) {
                         /* save pointer to the successful key record */
@@ -758,7 +776,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         }
 
         /* Found a key that worked, setup the new tvbuff_t and return */
-        payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_captured_len, payload_reported_len);
+        payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_len, payload_len);
         tvb_set_free_cb(payload_tvb, g_free); /* set up callback to free dec_buffer */
         add_new_data_source(pinfo, payload_tvb, "Decrypted ZigBee Payload");
 
@@ -772,7 +790,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     /* Add expert info. */
     expert_add_info(pinfo, sec_tree, &ei_zbee_sec_encrypted_payload);
     /* Create a buffer for the undecrypted payload. */
-    payload_tvb = tvb_new_subset_length(tvb, offset, payload_reported_len);
+    payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
     /* Dump the payload to the data dissector. */
     call_dissector(data_handle, payload_tvb, pinfo, tree);
     /* Couldn't decrypt, so return NULL. */
