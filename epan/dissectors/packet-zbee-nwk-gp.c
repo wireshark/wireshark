@@ -1460,13 +1460,28 @@ gp_init_zbee_security(void)
     }
 }
 
+static void zbee_free_key_record(gpointer ptr, gpointer user_data _U_)
+{
+    key_record_t *k;
+
+    k = (key_record_t *)ptr;
+    if (!k)
+        return;
+
+    g_free(k->label);
+    g_free(k);
+}
+
 static void
 gp_cleanup_zbee_security(void)
 {
-    if (zbee_gp_keyring) {
-       g_slist_free(zbee_gp_keyring);
-       zbee_gp_keyring = NULL;
-    }
+    if (!zbee_gp_keyring)
+        return;
+
+    g_slist_foreach(zbee_gp_keyring, zbee_free_key_record, NULL);
+
+    g_slist_free(zbee_gp_keyring);
+    zbee_gp_keyring = NULL;
 }
 
 /*FUNCTION:------------------------------------------------------
