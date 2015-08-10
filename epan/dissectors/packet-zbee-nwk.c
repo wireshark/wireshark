@@ -1968,7 +1968,7 @@ static void free_keyring_val(gpointer a)
 #if GLIB_CHECK_VERSION(2, 28, 0)
     g_slist_free_full(*slist, g_free);
 #else
-    g_slist_foreach(*slist, g_free, NULL);
+    g_slist_foreach(*slist, (GFunc)g_free, NULL);
     g_slist_free(*slist);
 #endif /* GLIB_CHECK_VERSION(2, 28, 0) */
     g_free(slist);
