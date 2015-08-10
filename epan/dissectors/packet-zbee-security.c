@@ -533,17 +533,13 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     /* Get and display the frame counter field. */
     packet.counter = tvb_get_letohl(tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(sec_tree, hf_zbee_sec_counter, tvb, offset, 4, packet.counter);
-    }
+    proto_tree_add_uint(sec_tree, hf_zbee_sec_counter, tvb, offset, 4, packet.counter);
     offset += 4;
 
     if (packet.nonce) {
         /* Get and display the source address of the device that secured this payload. */
         packet.src64 = tvb_get_letoh64(tvb, offset);
-        if (tree) {
-            proto_tree_add_item(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_item(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 #if 1
         if (!pinfo->fd->flags.visited) {
             switch ( packet.key_id ) {
@@ -598,9 +594,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if (packet.key_id == ZBEE_SEC_KEY_NWK) {
         /* Get and display the key sequence number. */
         packet.key_seqno = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(sec_tree, hf_zbee_sec_key_seqno, tvb, offset, 1, packet.key_seqno);
-        }
+        proto_tree_add_uint(sec_tree, hf_zbee_sec_key_seqno, tvb, offset, 1, packet.key_seqno);
         offset += 1;
     }
 
@@ -631,10 +625,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     /* Get and display the MIC. */
     if (mic_len) {
         /* Display the MIC. */
-        if (tree) {
-            proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_captured_length(tvb)-mic_len),
-                   mic_len, ENC_NA);
-        }
+        proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_captured_length(tvb)-mic_len),
+                mic_len, ENC_NA);
     }
 
     /* Check for null payload. */
