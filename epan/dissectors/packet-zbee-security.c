@@ -641,7 +641,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         call_dissector(data_handle, payload_tvb, pinfo, tree);
         /* Couldn't decrypt, so return NULL. */
         return NULL;
-    }         
+    }
 
     /* Allocate memory to decrypt the payload into. */
     dec_buffer = (guint8 *)g_malloc(payload_len);
