@@ -1139,14 +1139,13 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
     if (offset < tvb_reported_length(tvb)) {
         /* There are leftover bytes! */
-        proto_tree *root = NULL;
+        proto_tree *root;
         tvbuff_t *leftover_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Correct the length of the command tree. */
-        if (tree) {
-            root = proto_tree_get_root(tree);
-            proto_item_set_len(cmd_root, offset);
-        }
+        root = proto_tree_get_root(tree);
+        proto_item_set_len(cmd_root, offset);
+
         /* Dump the tail. */
         call_dissector(data_handle, leftover_tvb, pinfo, root);
     }
@@ -1249,8 +1248,8 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8 *dec_buffer;
     guint8 *enc_buffer;
     guint8 fcf;
-    proto_tree *nwk_tree = NULL;
-    proto_item *proto_root = NULL;
+    proto_tree *nwk_tree;
+    proto_item *proto_root;
     proto_item *ti = NULL;
     tvbuff_t *payload_tvb;
     zbee_nwk_green_power_packet packet;
@@ -1274,11 +1273,11 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     /* Add ourself to the protocol column, clear the info column and create the protocol tree. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee Green Power");
     col_clear(pinfo->cinfo, COL_INFO);
-    if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk_gp, tvb, offset, tvb_captured_length(tvb),
+
+    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk_gp, tvb, offset, tvb_captured_length(tvb),
             "ZGP stub NWK header");
-        nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);
-    }
+    nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);
+
     enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
     /* Get and parse the FCF. */
     fcf = tvb_get_guint8(tvb, offset);
