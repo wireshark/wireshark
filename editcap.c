@@ -747,6 +747,9 @@ print_usage(FILE *output)
     fprintf(output, "                         all packets to the timestamp of the first packet.\n");
     fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.) that\n");
     fprintf(output, "                         a particular packet byte will be randomly changed.\n");
+    fprintf(output, "  -o <change offset>     When used in conjuction with -E, skip some bytes from the\n");
+    fprintf(output, "                         beginning of the packet. This allows to preserve some\n");
+    fprintf(output, "                         bytes, in order to have some headers untouched.\n");
     fprintf(output, "\n");
     fprintf(output, "Output File(s):\n");
     fprintf(output, "  -c <packets per file>  split the packet output to different files based on\n");
@@ -921,6 +924,7 @@ DIAG_ON(cast-qual)
     nstime_t      block_start;
     gchar        *fprefix            = NULL;
     gchar        *fsuffix            = NULL;
+    guint32       change_offset      = 0;
 
     const struct wtap_pkthdr    *phdr;
     struct wtap_pkthdr           temp_phdr;
@@ -978,7 +982,7 @@ DIAG_ON(cast-qual)
 #endif
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case 'a':
         {
@@ -1157,6 +1161,10 @@ DIAG_ON(cast-qual)
 
         case 'L':
             adjlen = TRUE;
+            break;
+
+        case 'o':
+            change_offset = (guint32)strtol(optarg, &p, 10);
             break;
 
         case 'r':
@@ -1608,13 +1616,20 @@ DIAG_ON(cast-qual)
                     }
                 } /* suppress duplicates by time window */
 
+                if (change_offset > phdr->caplen) {
+                    fprintf(stderr, "change offset %u is longer than caplen %u in packet %u\n",
+                        change_offset, phdr->caplen, count);
+                }
+
                 /* Random error mutation */
-                if (err_prob > 0.0) {
+                if (err_prob > 0.0 && change_offset <= phdr->caplen) {
                     int real_data_start = 0;
 
                     /* Protect non-protocol data */
                     if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
                         real_data_start = find_dct2000_real_data(buf);
+
+                    real_data_start += change_offset;
 
                     for (i = real_data_start; i < (int) phdr->caplen; i++) {
                         if (rand() <= err_prob * RAND_MAX) {

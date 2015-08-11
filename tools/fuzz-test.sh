@@ -48,13 +48,16 @@ VALGRIND=0
 # Run under AddressSanitizer ?
 ASAN=0
 
+# Don't skip any byte from being changed
+CHANGE_OFFSET=0
+
 # The maximum permitted amount of memory leaked. Eventually this should be
 # worked down to zero, but right now that would fail on every single capture.
 # Only has effect when running under valgrind.
 MAX_LEAK=`expr 1024 \* 100`
 
 # To do: add options for file names and limits
-while getopts "2b:C:d:e:agp:P:" OPTCHAR ; do
+while getopts "2b:C:d:e:agp:P:o:" OPTCHAR ; do
     case $OPTCHAR in
         a) ASAN=1 ;;
         2) TWO_PASS="-2 " ;;
@@ -65,6 +68,7 @@ while getopts "2b:C:d:e:agp:P:" OPTCHAR ; do
         g) VALGRIND=1 ;;
         p) MAX_PASSES=$OPTARG ;;
         P) MIN_PLUGINS=$OPTARG ;;
+        o) CHANGE_OFFSET=$OPTARG ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -176,9 +180,9 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
         DISSECTOR_BUG=0
         VG_ERR_CNT=0
 
-        "$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
+        "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
         if [ $? -ne 0 ] ; then
-            "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/$TMP_FILE \
+            "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET -T ether "$CF" $TMP_DIR/$TMP_FILE \
                 > /dev/null 2>&1
             if [ $? -ne 0 ] ; then
                 echo "Invalid format for editcap"
