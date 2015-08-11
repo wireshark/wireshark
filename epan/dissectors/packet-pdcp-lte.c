@@ -101,6 +101,7 @@ static int hf_pdcp_lte_fms = -1;
 static int hf_pdcp_lte_reserved4 = -1;
 static int hf_pdcp_lte_fms2 = -1;
 static int hf_pdcp_lte_bitmap = -1;
+static int hf_pdcp_lte_bitmap_byte = -1;
 
 
 /* Sequence Analysis */
@@ -1975,7 +1976,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                             not_received++;
                                         }
                                     }
-                                    proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
+                                    proto_tree_add_uint_format(bitmap_tree, hf_pdcp_lte_bitmap_byte, tvb, bit_offset/8, 1, bits, "%s", buff);
                                     bit_offset += 8;
                                 }
                             }
@@ -2421,7 +2422,12 @@ void proto_register_pdcp(void)
               "Status report bitmap (0=error, 1=OK)", HFILL
             }
         },
-
+        { &hf_pdcp_lte_bitmap_byte,
+            { "Bitmap byte",
+              "pdcp-lte.bitmap.byte", FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
 
         { &hf_pdcp_lte_sequence_analysis,
             { "Sequence Analysis",

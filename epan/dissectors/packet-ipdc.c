@@ -44,6 +44,7 @@
 #include <epan/to_str.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 void proto_register_ipdc(void);
 void proto_reg_handoff_ipdc(void);
@@ -696,9 +697,15 @@ static int hf_ipdc_ipv4 = -1;
 static int hf_ipdc_line_status = -1;
 static int hf_ipdc_channel_status = -1;
 static int hf_ipdc_enctype = -1;
+static int hf_ipdc_end_of_tags = -1;
+static int hf_ipdc_data_trailing_end_of_tags = -1;
+static int hf_ipdc_type_unknown = -1;
 
 static gint ett_ipdc = -1;
 static gint ett_ipdc_tag = -1;
+static gint ett_ipdc_line_status = -1;
+
+static expert_field ei_ipdc_ipv4 = EI_INIT;
 
 static gboolean ipdc_desegment = TRUE;
 static guint ipdc_port_pref = TCP_PORT_IPDC;
@@ -720,7 +727,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
 	proto_item *ti;
 	proto_tree *ipdc_tree;
-	proto_tree *tag_tree;
+	proto_tree *tag_tree, *line_tree;
 	tvbuff_t *q931_tvb;
 
 	const char *des;
@@ -807,11 +814,9 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 		if (tag == 0x0) {
 			if (offset == payload_len - 1) {
-				proto_tree_add_text(tag_tree, tvb,
-						    offset, 1, "end of tags");
+				proto_tree_add_item(tag_tree, hf_ipdc_end_of_tags, tvb, offset, 1, ENC_NA);
 			} else {
-				proto_tree_add_text(tag_tree, tvb,
-						    offset, 1, "data trailing end of tags");
+				proto_tree_add_item(tag_tree, hf_ipdc_data_trailing_end_of_tags, tvb, offset, 1, ENC_NA);
 			}
 
 			break;
@@ -879,22 +884,19 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 							    des, tag, tvb_ip_to_str(tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
 						break;
 					default:
-						proto_tree_add_text(tag_tree, tvb,
-								    offset, len + 2,
-								    "%s (0x%2.2x): Invalid IP address length %u",
+						proto_tree_add_expert_format(tag_tree, pinfo, &ei_ipdc_ipv4, tvb, offset, len + 2, "%s (0x%2.2x): Invalid IP address length %u",
 								    des, tag, len);
 				}
 				break;
 			/* Line status arrays */
 			case IPDC_LINESTATUS:
 			case IPDC_CHANNELSTATUS:
-				proto_tree_add_text(tag_tree, tvb, offset,
-						    len + 2, "%s (0x%2.2x)", des, tag);
+				line_tree = proto_tree_add_subtree_format(tag_tree, tvb, offset, len + 2, ett_ipdc_line_status, NULL, "%s (0x%2.2x)", des, tag);
 				val_ptr = (type == IPDC_LINESTATUS) ? line_status_vals : channel_status_vals;
 				hf_ptr = (type == IPDC_LINESTATUS) ? hf_ipdc_line_status : hf_ipdc_channel_status;
 				for (i = 0; i < len; i++) {
 					status = tvb_get_guint8(tvb,offset+2+i);
-					proto_tree_add_uint_format(tag_tree, hf_ptr, tvb,
+					proto_tree_add_uint_format(line_tree, hf_ptr, tvb,
 							    offset + 2 + i, 1, status,
 							    "%s (0x%2.2x) %.2u: %u (%s)",
 							    des, tag, i + 1, status,
@@ -926,8 +928,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				break;
 				/* default */
 			default:
-				proto_tree_add_text(tag_tree, tvb, offset,
-						    len + 2, "0x%2.2x: %s", tag, des);
+				proto_tree_add_bytes_format(tag_tree, hf_ipdc_type_unknown, tvb, offset, len + 2, NULL, "0x%2.2x: %s", tag, des);
 		} /* switch */
 		offset += len + 2;
 	}
@@ -1032,19 +1033,45 @@ proto_register_ipdc(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+
+		{ &hf_ipdc_end_of_tags,
+		  { "end of tags",	"ipdc.end_of_tags",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_data_trailing_end_of_tags,
+		  { "data trailing end of tags",	"ipdc.data_trailing_end_of_tags",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_type_unknown,
+		  { "Unknown type",	"ipdc.type_unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
 		&ett_ipdc,
 		&ett_ipdc_tag,
+		&ett_ipdc_line_status,
+	};
+
+	static ei_register_info ei[] = {
+		{ &ei_ipdc_ipv4, { "ipdc.ipv4.invalid_length", PI_PROTOCOL, PI_WARN, "Invalid IP address length", EXPFILL }},
 	};
 
 	module_t *ipdc_module;
+	expert_module_t* expert_ipdc;
 
 	proto_ipdc = proto_register_protocol("IP Device Control (SS7 over IP)",
 					     "IPDC", "ipdc");
 	proto_register_field_array(proto_ipdc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ipdc = expert_register_protocol(proto_ipdc);
+	expert_register_field_array(expert_ipdc, ei, array_length(ei));
 
 	ipdc_module = prefs_register_protocol(proto_ipdc, proto_reg_handoff_ipdc);
 	prefs_register_bool_preference(ipdc_module, "desegment_ipdc_messages",

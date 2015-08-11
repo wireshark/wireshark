@@ -138,11 +138,18 @@ static int hf_bpdu_cist_bridge_sys_id_ext = -1;
 static int hf_bpdu_cist_bridge_mac = -1;
 static int hf_bpdu_cist_remaining_hops = -1;
 static int hf_bpdu_msti_flags = -1;
+static int hf_bpdu_msti_id = -1;
+static int hf_bpdu_msti_id_FFF = -1;
+static int hf_bpdu_mst_priority = -1;
+static int hf_bpdu_msti_regional_root_id = -1;
 static int hf_bpdu_msti_regional_root_mac = -1;
 static int hf_bpdu_msti_internal_root_path_cost = -1;
 static int hf_bpdu_msti_bridge_identifier_priority = -1;
 static int hf_bpdu_msti_port_identifier_priority = -1;
 static int hf_bpdu_msti_port_id = -1;
+static int hf_bpdu_msti_bridge_id = -1;
+static int hf_bpdu_msti_bridge_id_priority = -1;
+static int hf_bpdu_msti_bridge_id_mac = -1;
 static int hf_bpdu_msti_remaining_hops = -1;
 static int hf_bpdu_version_4_length = -1;
 static int hf_bpdu_spt_config_format_selector = -1;
@@ -154,6 +161,11 @@ static int hf_bpdu_flags_dagree_num = -1;
 static int hf_bpdu_flags_agree_valid = -1;
 static int hf_bpdu_flags_restricted_role = -1;
 static int hf_bpdu_spt_agreement_digest = -1;
+static int hf_bpdu_agreement_digest_format_id = -1;
+static int hf_bpdu_agreement_digest_format_capabilities = -1;
+static int hf_bpdu_agreement_digest_convention_id = -1;
+static int hf_bpdu_agreement_digest_convention_capabilities = -1;
+static int hf_bpdu_agreement_digest_edge_count = -1;
 
 static int hf_bpdu_pvst_tlvtype = -1;
 static int hf_bpdu_pvst_tlvlength = -1;
@@ -176,6 +188,9 @@ static expert_field ei_pvst_tlv_length_invalid = EI_INIT;
 static expert_field ei_pvst_tlv_origvlan_missing = EI_INIT;
 static expert_field ei_pvst_tlv_truncated = EI_INIT;
 static expert_field ei_pvst_tlv_unknown = EI_INIT;
+static expert_field ei_bpdu_type = EI_INIT;
+static expert_field ei_bpdu_version_support = EI_INIT;
+
 
 static gboolean bpdu_use_system_id_extensions = TRUE;
 
@@ -329,17 +344,14 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   guint16 cist_bridge_identifier_bridge_priority;
   guint16 cist_bridge_identifier_system_id_extension = 0;
   const gchar *cist_bridge_identifier_mac_str;
-  guint16 msti_mstid;
   guint32 msti_regional_root_mstid, msti_regional_root_priority;
   const gchar *msti_regional_root_mac_str;
   guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
-  const gchar *msti_bridge_identifier_mac_str;
   int   total_msti_length, offset, msti, msti_format;
   int   msti_length_remaining;
   guint8 agree_num = 0, dagree_num = 0;
 
   int spt_offset = 0;
-  guint16 spt_edge_count = 0;
 
   int MCID_LEN = 51;
   guint8 spt_agree_data = 0;
@@ -347,11 +359,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   proto_tree *bpdu_tree;
   proto_tree *mstp_tree, *msti_tree, *spt_tree = NULL, *aux_mcid_tree = NULL, *agreement_tree = NULL;
   proto_item *bpdu_item;
-  proto_item *agreement_item;
+  proto_item *agreement_item, *proto_id_item, *type_item;
   proto_tree *root_id_tree;
   proto_tree *bridge_id_tree;
   proto_tree *cist_bridge_id_tree;
-  proto_item *hidden_item;
   const char *sep;
 
   static const int * bpdu_flags[] = {
@@ -499,7 +510,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
     break;
   }
 
-  if (tree) {
     bpdu_item = proto_tree_add_protocol_format(tree, proto_bpdu, tvb, 0, -1,
                                                "Spanning Tree Protocol");
     bpdu_tree = proto_item_add_subtree(bpdu_item, ett_bpdu);
@@ -508,7 +518,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
     proto_tree_add_uint(bpdu_tree, hf_bpdu_proto_id, tvb, BPDU_IDENTIFIER, 2,
                         protocol_identifier);
 
-    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb,
+    proto_id_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb,
                         BPDU_VERSION_IDENTIFIER, 1,
                         protocol_version_identifier);
     switch (protocol_version_identifier) {
@@ -522,11 +532,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
       break;
 
     default:
-      proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
-                          "   (Warning: this version of Wireshark only knows about versions 0, 2, 3 & 4)");
+      expert_add_info(pinfo, proto_id_item, &ei_bpdu_version_support);
       break;
     }
-    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb, BPDU_TYPE, 1, bpdu_type);
+    type_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb, BPDU_TYPE, 1, bpdu_type);
 
     if (bpdu_type == BPDU_TYPE_TOPOLOGY_CHANGE) {
       set_actual_length(tvb, TC_BPDU_SIZE);
@@ -535,8 +544,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 
     if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
       /* Unknown BPDU type - just display the rest of the PDU as data */
-      proto_tree_add_text(bpdu_tree, tvb, BPDU_TYPE + 1, -1,
-                          "Unknown BPDU type data");
+      expert_add_info(pinfo, type_item, &ei_bpdu_type);
       return;
     }
 
@@ -857,15 +865,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           proto_tree_add_bitmask_with_flags(msti_tree, tvb, offset+MSTI_FLAGS, hf_bpdu_msti_flags, ett_bpdu_flags, rst_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 
           /* pri, MSTID, Regional root */
-          hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+          proto_tree_add_item(msti_tree, hf_bpdu_mst_priority, tvb, offset + MSTI_REGIONAL_ROOT, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_id_FFF, tvb, offset + MSTI_REGIONAL_ROOT, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
                                             offset + MSTI_REGIONAL_ROOT + 2, 6, ENC_NA);
-
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
-          proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
-                              "MSTID %d, priority %d Root Identifier %s",
-                              msti_regional_root_mstid,
-                              msti_regional_root_priority,
-                              msti_regional_root_mac_str);
 
           proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
                               offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
@@ -900,39 +903,26 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                                           msti_regional_root_priority,
                                           msti_regional_root_mac_str);
 
-          msti_mstid = tvb_get_ntohs(tvb,  offset+ ALT_MSTI_MSTID);
-          proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2,
-                              "MSTID: %d", msti_mstid);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_id, tvb, offset+ALT_MSTI_MSTID, 2, ENC_BIG_ENDIAN);
 
           /* flags */
           proto_tree_add_bitmask_with_flags(msti_tree, tvb, offset+ALT_MSTI_FLAGS, hf_bpdu_msti_flags, ett_bpdu_flags, rst_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 
           /* pri, MSTID, Regional root */
-          hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+          proto_tree_add_item(msti_tree, hf_bpdu_mst_priority, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_id, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
                                             offset + ALT_MSTI_REGIONAL_ROOT + 2, 6, ENC_NA);
-
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
-          proto_tree_add_text(msti_tree, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 8,
-                              "MSTI Regional Root Identifier: %d / %d / %s",
-                              msti_regional_root_mstid,
-                              msti_regional_root_priority,
-                              msti_regional_root_mac_str);
 
           proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
                               offset+ALT_MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
-          msti_bridge_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER);
-          msti_bridge_identifier_mac_str = tvb_ether_to_str(tvb, ALT_MSTI_BRIDGE_IDENTIFIER + 2);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_bridge_id, tvb, offset + ALT_MSTI_BRIDGE_IDENTIFIER, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_bridge_id_priority, tvb, offset + ALT_MSTI_BRIDGE_IDENTIFIER, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_bridge_id_mac, tvb,
+                                            offset + ALT_MSTI_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
 
-          proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER, 8,
-                              "MSTI Bridge Identifier: %d / %d / %s",
-                              msti_bridge_identifier_priority & 0x0fff,
-                              msti_bridge_identifier_priority & 0xf000,
-                              msti_bridge_identifier_mac_str);
-
-          msti_port_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_PORT_IDENTIFIER);
-          proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb,
-                              offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_port_id, tvb, offset+ALT_MSTI_PORT_IDENTIFIER, 2, ENC_BIG_ENDIAN);
 
           proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
                               offset + ALT_MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
@@ -1020,28 +1010,17 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 
           spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Format Id: %d",
-                              (spt_agree_data & 0xf0) >> 4);
-          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Format Capabilities: %d",
-                              (spt_agree_data & 0x0f));
+          proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_format_id, tvb, spt_offset, 1, ENC_NA);
+          proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_format_capabilities, tvb, spt_offset, 1, ENC_NA);
           spt_offset += 1;
 
           spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Convention Id: %d",
-                              (spt_agree_data & 0xf0) >> 4);
-          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Convention Capabilities: %d",
-                              (spt_agree_data & 0x0f));
+          proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_convention_id, tvb, spt_offset, 1, ENC_NA);
+          proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_convention_capabilities, tvb, spt_offset, 1, ENC_NA);
           spt_offset += 1;
 
-          spt_edge_count = tvb_get_ntohs(tvb, spt_offset);
-
-          proto_tree_add_text(agreement_tree, tvb, spt_offset, 2,
-                              "Agreement Digest Edge Count: %d", spt_edge_count);
+          proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_edge_count, tvb, spt_offset, 2, ENC_BIG_ENDIAN);
           spt_offset += 10;
 
           proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
@@ -1057,7 +1036,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
       if (is_bpdu_pvst)
         dissect_bpdu_pvst_tlv(pinfo, bpdu_tree, tvb);
     }
-  }
 }
 
 void
@@ -1221,6 +1199,22 @@ proto_register_bpdu(void)
       { "MSTI flags",                   "mstp.msti.flags",
         FT_UINT8,       BASE_HEX,       NULL,   0x0,
         NULL, HFILL }},
+    { &hf_bpdu_mst_priority,
+      { "Priority",                   "mstp.msti.priority",
+        FT_UINT8,       BASE_HEX,       NULL,   0xF0,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_id_FFF,
+      { "MSTID",                   "mstp.msti.msti_id",
+        FT_UINT16,       BASE_DEC,       NULL,   0x0FFF,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_id,
+      { "MSTID",                   "mstp.msti.msti_id",
+        FT_UINT16,       BASE_DEC,       NULL,   0x0,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_regional_root_id,
+      { "MSTI Regional Root Identifier", "mstp.msti.regional_root_id",
+        FT_UINT16,       BASE_DEC,       NULL,   0x0,
+        NULL, HFILL }},
     { &hf_bpdu_msti_regional_root_mac,
       { "Regional Root",                "mstp.msti.root.hw",
         FT_ETHER,       BASE_NONE,      NULL,   0x0,
@@ -1228,6 +1222,18 @@ proto_register_bpdu(void)
     { &hf_bpdu_msti_internal_root_path_cost,
       { "Internal root path cost",              "mstp.msti.root_cost",
         FT_UINT32,      BASE_DEC,       NULL,   0x0,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_bridge_id,
+      { "MSTI Bridge Identifier",          "mstp.msti.bridge_id",
+        FT_UINT16,       BASE_DEC,       NULL,   0x0FFF,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_bridge_id_priority,
+      { "MSTI Bridge Priority",            "mstp.msti.bridge_id_priority",
+        FT_UINT16,       BASE_DEC,       NULL,   0xF000,
+        NULL, HFILL }},
+    { &hf_bpdu_msti_bridge_id_mac,
+      { "MSTI Bridge MAC",                "mstp.msti.bridge_id_mac",
+        FT_ETHER,       BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
     { &hf_bpdu_msti_bridge_identifier_priority,
       { "Bridge Identifier Priority",           "mstp.msti.bridge_priority",
@@ -1279,12 +1285,32 @@ proto_register_bpdu(void)
             NULL, HFILL } },
         { &hf_bpdu_flags_restricted_role,
           { "Restricted Role",    "mstp.agree_flags.rest_role",
-    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
-        NULL, HFILL } },
-    { &hf_bpdu_spt_agreement_digest,
-      { "Agreement Digest",    "mstp.agreement_digest",
-    FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL } },
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL } },
+        { &hf_bpdu_spt_agreement_digest,
+          { "Agreement Digest",    "mstp.agreement_digest",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+        { &hf_bpdu_agreement_digest_format_id,
+          { "Agreement Digest Format Id", "bpdu.agreement_digest_format_id",
+        FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }},
+        { &hf_bpdu_agreement_digest_format_capabilities,
+          { "Agreement Digest Format Capabilities", "bpdu.agreement_digest_format_capabilities",
+        FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }},
+        { &hf_bpdu_agreement_digest_convention_id,
+          { "Agreement Digest Convention Id", "bpdu.agreement_digest_convention_id",
+        FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }},
+        { &hf_bpdu_agreement_digest_convention_capabilities,
+          { "Agreement Digest Convention Capabilities", "bpdu.agreement_digest_convention_capabilities",
+        FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }},
+        { &hf_bpdu_agreement_digest_edge_count,
+          { "Agreement Digest Edge Count", "bpdu.agreement_digest_edge_count",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_bpdu,
@@ -1315,7 +1341,15 @@ proto_register_bpdu(void)
 
   { &ei_pvst_tlv_unknown,
     { "stp.pvst.tlv.unknown", PI_UNDECODED, PI_COMMENT,
-      "TLV type is unknown", EXPFILL }}
+      "TLV type is unknown", EXPFILL }},
+
+  { &ei_bpdu_version_support,
+    { "bpdu.version_support", PI_PROTOCOL, PI_WARN,
+      "This version of Wireshark only knows about versions 0, 2, 3 & 4", EXPFILL }},
+
+  { &ei_bpdu_type,
+    { "stp.type.unknown", PI_PROTOCOL, PI_WARN,
+      "Unknown BPDU type data", EXPFILL }},
   };
 
   module_t *bpdu_module;

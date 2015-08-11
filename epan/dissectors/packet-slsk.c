@@ -51,6 +51,7 @@ static int hf_slsk_message_code = -1;
 static int hf_slsk_client_ip = -1;
 /* static int hf_slsk_server_ip = -1; */
 static int hf_slsk_string_length = -1;
+static int hf_slsk_directory_name = -1;
 static int hf_slsk_username = -1;
 static int hf_slsk_password = -1;
 static int hf_slsk_version = -1;
@@ -78,6 +79,7 @@ static int hf_slsk_slotsfull = -1;
 static int hf_slsk_place_in_queue = -1;
 static int hf_slsk_number_of_rooms = -1;
 static int hf_slsk_filename = -1;
+static int hf_slsk_filename_ext = -1;
 static int hf_slsk_directory = -1;
 static int hf_slsk_size = -1;
 /* static int hf_slsk_checksum = -1; */
@@ -101,6 +103,7 @@ static int hf_slsk_seconds_server_inactivity_before_disconnect = -1;
 static int hf_slsk_nodes_in_cache_before_disconnect = -1;
 static int hf_slsk_seconds_before_ping_children = -1;
 static int hf_slsk_recommendation = -1;
+static int hf_slsk_user = -1;
 static int hf_slsk_ranking = -1;
 
 
@@ -109,6 +112,7 @@ static gint ett_slsk = -1;
 static gint ett_slsk_compr_packet = -1;
 
 static expert_field ei_slsk_unknown_data = EI_INIT;
+static expert_field ei_slsk_zlib_decompression_failed = EI_INIT;
 
 #define TCP_PORT_SLSK_1       2234
 #define TCP_PORT_SLSK_2       5534
@@ -472,11 +476,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
-              proto_tree_add_text(slsk_tree, tvb, offset, -1,
-                "[zlib compressed packet]");
+              proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);
               offset += tvb_captured_length_remaining(tvb, offset);
-              proto_tree_add_text(slsk_tree, tvb, 0, 0,
-                "(uncompression failed !)");
             } else {
 
               proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
@@ -505,9 +506,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
                       uncompr_tvb_offset, 4, len,
                       "Directory #%d String Length: %u", i+1, len);
-                    proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
-                      "Directory #%d Name: %s", i+1,
-                      tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                    str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                    proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                      "Directory #%d Name: %s", i+1, str);
                     uncompr_tvb_offset += 4+len;
                     i2=0;
                     j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -525,10 +526,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                           uncompr_tvb, uncompr_tvb_offset, 4, len,
                           "Dir #%d File #%d String Length: %u", i+1, i2+1, len);
-                        proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
-                          uncompr_tvb_offset+4, len,
-                          "Dir #%d File #%d Filename: %s", i+1, i2+1,
-                          tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                        str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                        proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                          "Dir #%d File #%d Filename: %s", i+1, i2+1, str);
                         uncompr_tvb_offset += 4+len;
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
                           uncompr_tvb, uncompr_tvb_offset, 4,
@@ -544,10 +544,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                           uncompr_tvb, uncompr_tvb_offset, 4, len,
                           "Dir #%d File #%d String Length: %u", i+1, i2+1, len);
-                        proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
-                          uncompr_tvb_offset+4, len,
-                          "Dir #%d File #%d ext: %s", i+1, i2+1,
-                          tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                        str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                        proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                          "Dir #%d File #%d ext: %s", i+1, i2+1, str);
                         uncompr_tvb_offset += 4+len;
                         i3=0;
                         j3 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -674,9 +673,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
                       uncompr_tvb_offset, 4, len,
                       "File #%d String Length: %u", i+1, len);
-                    proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
-                      "File #%d Filename: %s", i+1,
-                      tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                    str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                    proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                      "File #%d Filename: %s", i+1, str);
                     uncompr_tvb_offset += 4+len;
                     proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
                       uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
@@ -690,9 +689,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
                       uncompr_tvb_offset, 4, len,
                       "File #%d String Length: %d", i+1, len);
-                    proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
-                      "File #%d ext: %s", i+1,
-                      tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                    str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                    proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                      "File #%d ext: %s", i+1, str);
                     uncompr_tvb_offset += 4+len;
                     i2=0;
                     j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -798,8 +797,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "User #%d: %s", i+1, tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_user, tvb, offset+4, len, str, "User #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -1176,11 +1175,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
-              proto_tree_add_text(slsk_tree, tvb, offset, -1,
-                "[zlib compressed packet]");
+              proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);
               offset += tvb_captured_length_remaining(tvb, offset);
-              proto_tree_add_text(slsk_tree, tvb, 0, 0,
-                "[uncompression failed !]");
             } else {
 
               proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
@@ -1206,8 +1202,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                   uncompr_tvb, uncompr_tvb_offset, 4, len,
                   "Directory Name String Length: %u", len);
-                proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
-                  "Directory Name: %s", tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset+4, len, ENC_ASCII|ENC_NA);
                 uncompr_tvb_offset += 4+len;
 
                 i=0; j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -1221,9 +1216,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                       uncompr_tvb, uncompr_tvb_offset, 4, len,
                       "Directory #%d Name String Length: %u", i+1, len);
-                    proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
-                      "Directory #%d Name: %s", i+1,
-                      tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                    str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                    proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset+4, len,
+                      str, "Directory #%d Name: %s", i+1, str);
                     uncompr_tvb_offset += 4+len;
                     i2 = 0;
                     j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -1241,10 +1236,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                           uncompr_tvb, uncompr_tvb_offset, 4, len,
                           "Dir #%d File #%d String Length: %d", i+1, i2+1, len);
-                        proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
-                          uncompr_tvb_offset+4, len,
-                          "Dir #%d File #%d Filename: %s", i+1, i2+1,
-                          tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                        str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                        proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                          "Dir #%d File #%d Filename: %s", i+1, i2+1, str);
                         uncompr_tvb_offset += 4+len;
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
                           uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
@@ -1258,10 +1252,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
                           uncompr_tvb, uncompr_tvb_offset, 4, len,
                           "Dir #%d File #%d String Length: %d", i+1, i2+1, len);
-                        proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
-                          uncompr_tvb_offset+4, len,
-                          "Dir #%d File #%d ext: %s", i+1, i2+1,
-                          tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+                        str = tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len);
+                        proto_tree_add_string_format(slsk_compr_packet_tree, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset+4, len, str,
+                          "Dir #%d File #%d ext: %s", i+1, i2+1, str);
                         uncompr_tvb_offset += 4+len;
                         i3 = 0;
                         j3 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
@@ -1512,9 +1505,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Recommendation #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_recommendation, tvb, offset+4, len, str,
+                "Recommendation #%d: %s", i+1, str);
               offset += 4+len;
               proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
                 "Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
@@ -1560,9 +1553,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Recommendation #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_recommendation, tvb, offset+4, len, str,
+                "Recommendation #%d: %s", i+1, str);
               offset += 4+len;
               proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
                 "Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
@@ -1604,9 +1597,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Recommendation #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_recommendation, tvb, offset+4, len, str,
+                "Recommendation #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -1635,9 +1628,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "String #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_string, tvb, offset+4, len, str,
+                "String #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -1712,9 +1705,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Room #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_room, tvb, offset+4, len, str,
+                "Room #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -1817,9 +1810,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "User #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_user, tvb, offset+4, len, str, "User #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -1927,9 +1919,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "User #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_user, tvb, offset+4, len, str,
+                "User #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -2122,9 +2114,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "User #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_user, tvb, offset+4, len, str,
+                "User #%d: %s", i+1, str);
               offset += 4+len;
               proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
               offset += 4;
@@ -2188,9 +2180,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "User #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_user, tvb, offset+4, len, str,
+                "User #%d: %s", i+1, str);
               offset += 4+len;
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
                 "Same Recommendations #%d: %d", i+1, tvb_get_letohl(tvb, offset));
@@ -2232,9 +2224,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Recommendation #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_recommendation, tvb, offset+4, len, str,
+                "Recommendation #%d: %s", i+1, str);
               offset += 4+len;
               proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
                 "Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
@@ -2262,7 +2254,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
-          proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+          proto_tree_add_item(slsk_tree, hf_slsk_string_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
@@ -2276,9 +2268,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               len = tvb_get_letohl(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
                 "String #%d Length: %d", i+1, len);
-              proto_tree_add_text(slsk_tree, tvb, offset+4, len,
-                "Username #%d: %s", i+1,
-                tvb_format_text(tvb, offset+4, len));
+              str = tvb_format_text(tvb, offset+4, len);
+              proto_tree_add_string_format(slsk_tree, hf_slsk_username, tvb, offset+4, len, str,
+                "Username #%d: %s", i+1, str);
               offset += 4+len;
             }
             i++;
@@ -2425,6 +2417,9 @@ proto_register_slsk(void)
     { &hf_slsk_string_length,
       { "String Length", "slsk.string.length",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_slsk_directory_name,
+      { "Directory name", "slsk.directory_name",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_username,
       { "Username", "slsk.username",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2506,6 +2501,9 @@ proto_register_slsk(void)
     { &hf_slsk_filename,
       { "Filename", "slsk.filename",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_slsk_filename_ext,
+      { "Filename ext", "slsk.filename_ext",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_directory,
       { "Directory", "slsk.directory",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2579,6 +2577,9 @@ proto_register_slsk(void)
     { &hf_slsk_recommendation,
       { "Recommendation", "slsk.recommendation",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_slsk_user,
+      { "User", "slsk.user",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_ranking,
       { "Ranking", "slsk.ranking",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2592,6 +2593,7 @@ proto_register_slsk(void)
 
   static ei_register_info ei[] = {
      { &ei_slsk_unknown_data, { "slsk.unknown_data", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+     { &ei_slsk_zlib_decompression_failed, { "slsk.zlib_decompression_failed", PI_PROTOCOL, PI_WARN, "zlib compressed packet failed to decompress", EXPFILL }},
   };
 
   module_t *slsk_module;

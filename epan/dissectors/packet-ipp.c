@@ -333,6 +333,7 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_item  *tas          = NULL;
     int          start_offset = offset;
     proto_tree  *attr_tree    = tree;
+    proto_tree  *subtree      = NULL;
 
     while (tvb_offset_exists(tvb, offset)) {
         tag = tvb_get_guint8(tvb, offset);
@@ -365,9 +366,8 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
 
             /*
              * Now create a new item for this tag.
-             * XXX - should use proto_tree_add_subtree
              */
-            tas = proto_tree_add_text(tree, tvb, offset, 1, "%s", tag_desc);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_ipp_as, &tas, tag_desc);
             offset += 1;
             if (tag == TAG_END_OF_ATTRIBUTES) {
                 /*
@@ -397,8 +397,7 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
                  * have a tree for that tag yet; create
                  * a tree.
                  */
-                as_tree = proto_item_add_subtree(tas,
-                                                 ett_ipp_as);
+                as_tree = subtree;
                 attr_tree = as_tree;
             }
 
