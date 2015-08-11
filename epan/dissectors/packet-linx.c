@@ -43,6 +43,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 
@@ -845,6 +846,9 @@ proto_reg_handoff_linx(void)
 
 #define TCP_PORT_LINX 19790
 
+/* Default the port to zero */
+static guint linx_tcp_port = 0;
+
 static void
 dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1056,20 +1060,46 @@ proto_register_linx_tcp(void)
 	};
 
 	expert_module_t* expert_linx_tcp;
+	module_t *linx_tcp_module;
 
 	proto_linx_tcp = proto_register_protocol("ENEA LINX over TCP", "LINX/TCP", "linxtcp");
 	proto_register_field_array(proto_linx_tcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_linx_tcp = expert_register_protocol(proto_linx_tcp);
 	expert_register_field_array(expert_linx_tcp, ei, array_length(ei));
+
+	linx_tcp_module = prefs_register_protocol(proto_linx_tcp, proto_reg_handoff_linx_tcp);
+
+	prefs_register_uint_preference(linx_tcp_module, "tcp.port",
+		"ENEA LINX over TCP Port",
+		"TCP port used by ENEA LINX, usually 19790",
+		10, &linx_tcp_port);
+
 }
 
 void
 proto_reg_handoff_linx_tcp(void)
 {
-	dissector_handle_t linx_tcp_handle;
-	linx_tcp_handle = create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
-	dissector_add_uint("tcp.port", TCP_PORT_LINX, linx_tcp_handle);
+	static dissector_handle_t linx_tcp_handle;
+	static gboolean linx_tcp_prefs_initialized = FALSE;
+
+	static guint saved_linx_tcp_port;
+
+
+	if (!linx_tcp_prefs_initialized) {
+		linx_tcp_handle = create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
+		dissector_add_uint("tcp.port", linx_tcp_port, linx_tcp_handle);
+		linx_tcp_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete_uint("tcp.port", saved_linx_tcp_port, linx_tcp_handle);
+	}
+
+	saved_linx_tcp_port = linx_tcp_port;
+	if (linx_tcp_port != 0) {
+		dissector_add_uint("udp.port", linx_tcp_port, linx_tcp_handle);
+	}
+
 }
 
 /*
