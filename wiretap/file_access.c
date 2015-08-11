@@ -1553,11 +1553,6 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  FALSE, FALSE, 0,
 	  logcat_dump_can_write_encap, logcat_binary_dump_open, NULL },
 
-	/* WTAP_FILE_TYPE_SUBTYPE_JSON */
-	{ "JavaScript Object Notation", "json", "json", "NULL",
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL },
-
 	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF */
 	{ "Android Logcat Brief text format", "logcat-brief", NULL, NULL,
 	  FALSE, FALSE, 0,
@@ -1600,6 +1595,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_TYPE_SUBTYPE_COLASOFT_PACKET_BUILDER */
 	{ "Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_JSON */
+	{ "JavaScript Object Notation", "json", "json", "NULL",
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
