@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-diameter.h"
 #include "packet-gsm_a_common.h"
@@ -39,6 +40,8 @@
 
 void proto_register_diameter_3gpp(void);
 void proto_reg_handoff_diameter_3gpp(void);
+
+static expert_field ei_diameter_3gpp_plmn_id_wrong_len = EI_INIT;
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp          = -1;
@@ -1060,7 +1063,11 @@ dissect_diameter_3gpp_visited_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_t
     int length = tvb_reported_length(tvb);
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 
-    diam_sub_dis->avp_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, E212_NONE, TRUE);
+	if (length == 3) {
+		diam_sub_dis->avp_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, E212_NONE, TRUE);
+	} else {
+		proto_tree_add_expert(tree, pinfo, &ei_diameter_3gpp_plmn_id_wrong_len, tvb, 0, length);
+	}
 
     return length;
 }
@@ -2518,10 +2525,21 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_tmgi_deallocation_result_ett,
     };
 
+    expert_module_t *expert_diameter_3gpp;
+
+    static ei_register_info ei[] = {
+        { &ei_diameter_3gpp_plmn_id_wrong_len,
+        { "diameter_3gpp.plmn_id_wrong_len", PI_PROTOCOL, PI_ERROR, "PLMN Id should be 3 octets", EXPFILL } },
+    };
+
     /* Required function calls to register the header fields and subtrees used */
     proto_diameter_3gpp = proto_register_protocol("Diameter 3GPP","Diameter3GPP", "diameter.3gpp");
     proto_register_field_array(proto_diameter_3gpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+	expert_diameter_3gpp = expert_register_protocol(proto_diameter_3gpp);
+	expert_register_field_array(expert_diameter_3gpp, ei, array_length(ei));
+
 }
 
 /*
