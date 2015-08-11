@@ -415,9 +415,7 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
         int result = cmp(key, node->key);
         if (result == 0) {
             node->data = data;
-            if (!data) {
-                node->is_removed = TRUE;
-            }
+            node->is_removed = data ? FALSE : TRUE;
             return;
         }
         else if (result < 0) {
