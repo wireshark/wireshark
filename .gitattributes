@@ -1,4 +1,5 @@
 *              text=auto
+*.sh           eol=lf
 /test          export-ignore
 .bzrignore     export-ignore
 .gitattributes export-ignore
