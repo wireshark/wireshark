@@ -4777,6 +4777,10 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
       return 8;
   }
 
+  if (message_size == 0) {
+      return 8;
+  }
+
   if (header.flags & GIOP_MESSAGE_FLAGS_ZIOP_ENABLED)
   {
     gint rem_len;
