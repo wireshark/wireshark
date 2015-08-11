@@ -997,7 +997,6 @@ void wslua_cleanup(void) {
         wslua_deregister_filehandlers(L);
         wslua_deregister_menus();
         wslua_clear_plugin_list();
-        proto_free_deregistered_fields();
 
         lua_close(L);
         L = NULL;
