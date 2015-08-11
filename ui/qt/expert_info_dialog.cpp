@@ -205,6 +205,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
 
 ExpertInfoDialog::~ExpertInfoDialog()
 {
+    remove_tap_listener(this);
     delete ui;
 }
 
