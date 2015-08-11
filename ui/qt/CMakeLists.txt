@@ -104,6 +104,7 @@ set(WIRESHARK_QT_HEADERS
 	related_packet_delegate.h
 	resolved_addresses_dialog.h
 	response_time_delay_dialog.h
+	rpc_service_response_time_dialog.h
 	rtp_analysis_dialog.h
 	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
@@ -235,6 +236,7 @@ set(WIRESHARK_QT_SRC
 	related_packet_delegate.cpp
 	resolved_addresses_dialog.cpp
 	response_time_delay_dialog.cpp
+	rpc_service_response_time_dialog.cpp
 	rtp_analysis_dialog.cpp
 	rtp_stream_dialog.cpp
 	sctp_all_assocs_dialog.cpp

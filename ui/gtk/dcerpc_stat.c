@@ -65,25 +65,6 @@ typedef struct _dcerpcstat_t {
 } dcerpcstat_t;
 
 
-static gboolean
-uuid_equal(e_guid_t *uuid1, e_guid_t *uuid2)
-{
-	if( (uuid1->data1    != uuid2->data1)
-	  ||(uuid1->data2    != uuid2->data2)
-	  ||(uuid1->data3    != uuid2->data3)
-	  ||(uuid1->data4[0] != uuid2->data4[0])
-	  ||(uuid1->data4[1] != uuid2->data4[1])
-	  ||(uuid1->data4[2] != uuid2->data4[2])
-	  ||(uuid1->data4[3] != uuid2->data4[3])
-	  ||(uuid1->data4[4] != uuid2->data4[4])
-	  ||(uuid1->data4[5] != uuid2->data4[5])
-	  ||(uuid1->data4[6] != uuid2->data4[6])
-	  ||(uuid1->data4[7] != uuid2->data4[7]) ){
-		return FALSE;
-	}
-	return TRUE;
-}
-
 static char *
 dcerpcstat_gen_title(dcerpcstat_t *rs)
 {
@@ -363,7 +344,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer user_data)
 	GtkWidget       *vers_combo_box = (GtkWidget *)user_data;
 	char vs[5];
 
-	if(!uuid_equal(&(k->uuid), dcerpc_uuid_program)){
+	if(guid_cmp(&(k->uuid), dcerpc_uuid_program)){
 		return;
 	}
 	g_snprintf(vs, sizeof(vs), "%u", k->ver);

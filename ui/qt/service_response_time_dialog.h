@@ -38,6 +38,8 @@ public:
     static TapParameterDialog *createSrtDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
 
 protected:
+    struct register_srt *srt_;
+
     /** Add a service response time table.
      *
      * In the GTK+ UI "tables" are separate, tabbed widgets. In the Qt UI they are
@@ -47,15 +49,13 @@ protected:
      */
     // gtk:service_response_table.h:init_srt_table
     void addSrtTable(const struct _srt_stat_table *srt_table);
+    virtual void fillTree();
 
 private:
-    struct register_srt *srt_;
-
     // Callbacks for register_tap_listener
     static void tapReset(void *srtd_ptr);
     static void tapDraw(void *srtd_ptr);
 
-    virtual void fillTree();
     virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
     virtual const QString filterExpression();
 

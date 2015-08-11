@@ -683,12 +683,13 @@ the total number of packets.
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
 
-=item B<-z> dcerpc,srt,I<uuid>,I<major>.I<minor>[,I<filter>]
+=item B<-z> dcerpc,srt,I<name-or-uuid>,I<major>.I<minor>[,I<filter>]
 
-Collect call/reply SRT (Service Response Time) data for DCERPC interface I<uuid>,
-version I<major>.I<minor>.
+Collect call/reply SRT (Service Response Time) data for DCERPC interface
+I<name> or I<uuid>, version I<major>.I<minor>.
 Data collected is the number of calls for each procedure, MinSRT, MaxSRT
 and AvgSRT.
+Interface I<name> and I<uuid> are case-insensitive.
 
 Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
 
@@ -841,10 +842,13 @@ Collect call/reply SRT data for all known ONC-RPC programs/versions.
 Data collected is the number of calls for each protocol/version, MinSRT,
 MaxSRT and AvgSRT.
 
-=item B<-z> rpc,srt,I<program>,I<version>[,<filter>]
+=item B<-z> rpc,srt,I<name-or-number>,I<version>[,<filter>]
 
-Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
-is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+Collect call/reply SRT (Service Response Time) data for program
+I<name>/I<version> or I<number>/I<version>.
+Data collected is the number of calls for each procedure, MinSRT, MaxSRT and
+AvgSRT.
+Program I<name> is case-insensitive.
 
 Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
 
@@ -853,7 +857,7 @@ This option can be used multiple times on the command line.
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: S<B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678>> will collect NFS v3
+Example: S<B<-z rpc,srt,nfs,3,nfs.fh.hash==0x12345678>> will collect NFS v3
 SRT statistics for a specific file.
 
 =item B<-z> scsi,srt,I<cmdset>[,<filter>]

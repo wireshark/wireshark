@@ -628,6 +628,7 @@ HEADERS += \
     recent_file_status.h \
     related_packet_delegate.h \
     response_time_delay_dialog.h \
+    rpc_service_response_time_dialog.h \
     sequence_diagram.h \
     sequence_dialog.h \
     simple_dialog.h \
@@ -728,6 +729,7 @@ SOURCES += \
     remote_settings_dialog.cpp \
     response_time_delay_dialog.cpp \
     resolved_addresses_dialog.cpp \
+    rpc_service_response_time_dialog.cpp \
     rtp_analysis_dialog.cpp  \
     rtp_stream_dialog.cpp  \
     sctp_all_assocs_dialog.cpp  \

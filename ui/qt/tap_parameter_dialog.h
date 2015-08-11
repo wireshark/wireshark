@@ -34,6 +34,7 @@
 #include "filter_action.h"
 #include "wireshark_dialog.h"
 
+class QHBoxLayout;
 class QTreeWidget;
 class QTreeWidgetItem;
 
@@ -59,6 +60,8 @@ public:
     // Needed by static member functions in subclasses. Should we just make
     // "ui" available instead?
     QTreeWidget *statsTreeWidget();
+    QHBoxLayout *filterLayout();
+
     void drawTreeItems();
 
 signals:
@@ -75,6 +78,9 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
     const char *displayFilter();
     void setDisplayFilter(const QString &filter);
+    void setHint(const QString &hint);
+    // Retap packets on showEvent. RPC stats need to disable this.
+    void setRetapOnShow(bool retap = false) { retap_on_show_ = retap; }
 
 protected slots:
     void filterActionTriggered();
@@ -83,6 +89,7 @@ private:
     Ui::TapParameterDialog *ui;
     int help_topic_;
     static const QString action_name_;
+    bool retap_on_show_;
 
     // Called by the constructor. The subclass should tap packets here.
     virtual void fillTree() = 0;

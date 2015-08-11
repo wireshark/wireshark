@@ -27,6 +27,7 @@
 
 #include <ui/service_response_time.h>
 
+#include "rpc_service_response_time_dialog.h"
 #include "wireshark_application.h"
 
 #include <QMessageBox>
@@ -55,12 +56,17 @@ void register_service_response_tables(gpointer data, gpointer)
     register_srt_t *srt = (register_srt_t*)data;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
     const char *cfg_abbr = srt_table_get_tap_string(srt);
+    tpdCreator tpd_creator = ServiceResponseTimeDialog::createSrtDialog;
 
     /* XXX - These dissectors haven't been converted over to due to an "interactive input dialog" for their
        tap data.  Let those specific dialogs register for themselves */
-    if ((strcmp(short_name, "RPC") == 0) ||
-        (strcmp(short_name, "DCERPC") == 0))
-        return;
+    if (strcmp(short_name, "DCERPC") == 0) {
+        short_name = "DCE-RPC";
+        tpd_creator = RpcServiceResponseTimeDialog::createDceRpcSrtDialog;
+    } else if (strcmp(short_name, "RPC") == 0) {
+        short_name = "ONC-RPC";
+        tpd_creator = RpcServiceResponseTimeDialog::createOncRpcSrtDialog;
+    }
 
     cfg_str_to_srt_[cfg_abbr] = srt;
     TapParameterDialog::registerDialog(
@@ -68,7 +74,7 @@ void register_service_response_tables(gpointer data, gpointer)
                 cfg_abbr,
                 REGISTER_STAT_GROUP_RESPONSE_TIME,
                 srt_init,
-                ServiceResponseTimeDialog::createSrtDialog);
+                tpd_creator);
 }
 
 enum {
@@ -312,6 +318,7 @@ void ServiceResponseTimeDialog::fillTree()
         QMessageBox::critical(this, tr("Failed to attach to tap \"%1\"").arg(get_srt_tap_listener_name(srt_)),
                              error_string->str);
         g_string_free(error_string, TRUE);
+        g_array_free(srt_data.srt_array, TRUE);
         reject();
     }
 
@@ -330,6 +337,7 @@ void ServiceResponseTimeDialog::fillTree()
     statsTreeWidget()->setSortingEnabled(true);
 
     remove_tap_listener(&srt_data);
+    g_array_free(srt_data.srt_array, TRUE);
 }
 
 QList<QVariant> ServiceResponseTimeDialog::treeItemData(QTreeWidgetItem *ti) const

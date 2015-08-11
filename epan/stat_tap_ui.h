@@ -42,7 +42,7 @@ typedef enum {
     PARAM_UINT,   /* Unused? */
     PARAM_STRING, /* Unused? */
     PARAM_ENUM,   /* SCSI SRT */
-    PARAM_UUID,   /* Unused? */
+    PARAM_UUID,   /* DCE-RPC. Unused? */
     PARAM_FILTER
 } param_type;
 

@@ -75,12 +75,16 @@ const QString TapParameterDialog::action_name_ = "TapParameterAction";
 TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic) :
     WiresharkDialog(parent, cf),
     ui(new Ui::TapParameterDialog),
-    help_topic_(help_topic)
+    help_topic_(help_topic),
+    retap_on_show_(true)
 {
     ui->setupUi(this);
 
     // XXX Use recent settings instead
     resize(parent.width() * 2 / 3, parent.height() * 3 / 4);
+
+    // Only show a hint label if a subclass provides a hint.
+    ui->hintLabel->hide();
 
     ctx_menu_.addAction(ui->actionCopyToClipboard);
     ctx_menu_.addAction(ui->actionSaveAs);
@@ -137,6 +141,11 @@ QTreeWidget *TapParameterDialog::statsTreeWidget()
     return ui->statsTreeWidget;
 }
 
+QHBoxLayout *TapParameterDialog::filterLayout()
+{
+    return ui->filterLayout;
+}
+
 const char *TapParameterDialog::displayFilter()
 {
     return ui->displayFilterLineEdit->text().toUtf8().constData();
@@ -147,6 +156,12 @@ const char *TapParameterDialog::displayFilter()
 void TapParameterDialog::setDisplayFilter(const QString &filter)
 {
     ui->displayFilterLineEdit->setText(filter);
+}
+
+void TapParameterDialog::setHint(const QString &hint)
+{
+    ui->hintLabel->setText(hint);
+    ui->hintLabel->show();
 }
 
 void TapParameterDialog::filterActionTriggered()
@@ -394,7 +409,7 @@ void TapParameterDialog::showEvent(QShowEvent *)
         QString filter = ui->displayFilterLineEdit->text();
         emit updateFilter(filter, true);
     }
-    fillTree();
+    if (retap_on_show_) fillTree();
 }
 
 void TapParameterDialog::contextMenuEvent(QContextMenuEvent *event)

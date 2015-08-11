@@ -115,6 +115,7 @@
 #include "protocol_hierarchy_dialog.h"
 #include "qt_ui_utils.h"
 #include "resolved_addresses_dialog.h"
+#include "rpc_service_response_time_dialog.h"
 #include "rtp_stream_dialog.h"
 #include "rtp_analysis_dialog.h"
 #include "sctp_all_assocs_dialog.h"

@@ -29,6 +29,10 @@
 #include <epan/conversation.h>
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define RPC_CALL 0
 #define RPC_REPLY 1
 
@@ -203,11 +207,14 @@ typedef struct _rpc_prog_info_value {
 	int proto_id;
 	int ett;
 	const char* progname;
-	GArray *procedure_hfs;
+	GArray *procedure_hfs; /* int */
 } rpc_prog_info_value;
 
 /* rpc_progs is also used in tap. With MSVC and a
  * libwireshark.dll, we need a special declaration.
+ */
+/* Key: Program number (guint32)
+ * Value: rpc_prog_info_value *
  */
 WS_DLL_PUBLIC GHashTable *rpc_progs;
 
@@ -225,5 +232,8 @@ typedef struct rpcstat_tap_data
 	int num_procedures;
 } rpcstat_tap_data_t;
 
-#endif /* packet-rpc.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* packet-rpc.h */

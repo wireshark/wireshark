@@ -35,8 +35,8 @@
 
 #include <QString>
 
-class QFont;
 class QAction;
+class QFont;
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,7 +175,15 @@ void smooth_font_size(QFont &font);
  * @param a1 First action
  * @param a2 Second action
  */
-bool qActionLessThan(const QAction * a1, const QAction * a2);
+bool qActionLessThan(const QAction *a1, const QAction *a2);
+
+/**
+ * Compare two QStrings, ignoring case. Useful for passing to std::sort.
+ *
+ * @param s1 First string
+ * @param s2 Second string
+ */
+bool qStringCaseLessThan(const QString &s1, const QString &s2);
 
 #endif /* __QT_UI_UTILS__H__ */
 

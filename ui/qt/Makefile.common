@@ -220,7 +220,7 @@ MOC_HDRS =	\
 	remote_settings_dialog.h	\
 	resolved_addresses_dialog.h	\
 	response_time_delay_dialog.h	\
-	search_frame.h	\
+	rpc_service_response_time_dialog.h	\
 	rtp_analysis_dialog.h	\
 	rtp_stream_dialog.h	\
 	sctp_all_assocs_dialog.h	\
@@ -229,6 +229,7 @@ MOC_HDRS =	\
 	sctp_graph_dialog.h	\
 	sctp_graph_arwnd_dialog.h	\
 	sctp_graph_byte_dialog.h	\
+	search_frame.h	\
 	sequence_diagram.h	\
 	sequence_dialog.h	\
 	service_response_time_dialog.h	\
@@ -462,6 +463,7 @@ WIRESHARK_QT_SRC =	\
 	remote_settings_dialog.cpp	\
 	resolved_addresses_dialog.cpp	\
 	response_time_delay_dialog.cpp	\
+	rpc_service_response_time_dialog.cpp	\
 	rtp_analysis_dialog.cpp	\
 	rtp_stream_dialog.cpp	\
 	sctp_all_assocs_dialog.cpp	\

@@ -38,6 +38,7 @@
 #include <QAction>
 #include <QDateTime>
 #include <QFontDatabase>
+#include <QUuid>
 
 /* Make the format_size_flags_e enum usable in C++ */
 format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
@@ -185,6 +186,11 @@ void smooth_font_size(QFont &font) {
 
 bool qActionLessThan(const QAction * a1, const QAction * a2) {
     return a1->text().compare(a2->text()) < 0;
+}
+
+bool qStringCaseLessThan(const QString &s1, const QString &s2)
+{
+    return s1.compare(s2, Qt::CaseInsensitive) < 0;
 }
 
 /*

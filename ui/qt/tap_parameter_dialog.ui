@@ -24,7 +24,14 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="filterLayout" stretch="0,2,0">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -88,6 +95,7 @@
    <header>display_filter_edit.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
