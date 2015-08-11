@@ -48,6 +48,7 @@ struct _wmem_tree_node_t {
 
     wmem_node_color_t color;
     gboolean          is_subtree;
+    gboolean          is_removed;
 };
 
 typedef struct _wmem_tree_node_t wmem_tree_node_t;
@@ -303,6 +304,7 @@ create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, const void *k
 
     node->color      = color;
     node->is_subtree = is_subtree;
+    node->is_removed = FALSE;
 
     return node;
 }
@@ -413,6 +415,9 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
         int result = cmp(key, node->key);
         if (result == 0) {
             node->data = data;
+            if (!data) {
+                node->is_removed = TRUE;
+            }
             return;
         }
         else if (result < 0) {
@@ -566,7 +571,7 @@ wmem_tree_remove_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
 {
     void *ret = wmem_tree_lookup_string(tree, k, flags);
     if (ret) {
-        /* Not really a remove, but set data to NULL so the lookup don't find it */
+        /* Not really a remove, but set data to NULL to mark node with is_removed */
         wmem_tree_insert_string(tree, k, NULL, flags);
     }
     return ret;
@@ -669,7 +674,7 @@ wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
     if (node->is_subtree) {
         stop_traverse = wmem_tree_foreach((wmem_tree_t *)node->data,
                 callback, user_data);
-    } else if (node->data) {
+    } else if (!node->is_removed) {
         /* No callback for "removed" nodes */
         stop_traverse = callback(node->data, user_data);
     }
