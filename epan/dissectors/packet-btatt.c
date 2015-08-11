@@ -2886,7 +2886,6 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
             return NULL;
         }
 
-        last_offset = fragment_data->offset;
         if (first) {
             size = fragment_data->offset + fragment_data->length;
             data = (guint8 *) wmem_alloc(pinfo->pool, size);
@@ -2896,12 +2895,18 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
 
             first = FALSE;
         }
+        else if (fragment_data->offset + fragment_data->length != last_offset) {
+            if (length)
+                *length = 0;
+            return NULL;
+        }
 
         memcpy(data + fragment_data->offset, fragment_data->data, fragment_data->length);
 
         if (fragment_data->offset == 0)
             return data;
         frame_number = fragment_data->data_in_frame - 1;
+        last_offset = fragment_data->offset;
     }
 
     if (length)
