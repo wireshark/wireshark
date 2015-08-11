@@ -232,11 +232,13 @@ static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 
     return ret;
 }
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Pref__gc(lua_State* L) {
-    Pref pref = checkPref(L,1);
+    Pref pref = toPref(L,1);
 
-    if (pref && ! pref->name) {
+    if (! pref->name) {
+        /* Only free unregistered and deregistered Pref */
         g_free(pref->label);
         g_free(pref->desc);
         if (pref->type == PREF_STRING)
@@ -433,7 +435,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Prefs__gc(lua_State* L _U_) {
-    /* do NOT free Prefs, it's never free'd */
+    /* do NOT free Prefs, it's a static part of Proto */
     return 0;
 }
 

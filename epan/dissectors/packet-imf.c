@@ -872,9 +872,9 @@ header_fields_initialize_cb (void)
 
   if (custom_field_table && hf) {
     guint hf_size = g_hash_table_size (custom_field_table);
-    /* Unregister all fields */
+    /* Deregister all fields */
     for (i = 0; i < hf_size; i++) {
-      proto_unregister_field (proto_imf, *(hf[i].p_id));
+      proto_deregister_field (proto_imf, *(hf[i].p_id));
       g_free (hf[i].p_id);
     }
     g_hash_table_destroy (custom_field_table);

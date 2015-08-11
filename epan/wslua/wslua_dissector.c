@@ -168,6 +168,8 @@ WSLUA_CLASS_DEFINE(DissectorTable,NOP,NOP);
  Useful to add more dissectors to a table so that they appear in the Decode As... dialog.
  */
 
+static int dissectortable_table_ref = LUA_NOREF;
+
 WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     /* Creates a new DissectorTable for your dissector's use. */
 #define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
@@ -201,6 +203,15 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 
             dt->table = register_dissector_table(name, ui_name, type, base);
             dt->name = name;
+            dt->ui_name = ui_name;
+            dt->created = TRUE;
+            dt->expired = FALSE;
+
+            lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
+            lua_pushstring(L, name);
+            pushDissectorTable(L, dt);
+            lua_settable(L, -3);
+
             pushDissectorTable(L, dt);
         }
             WSLUA_RETURN(1); /* The newly created DissectorTable. */
@@ -284,6 +295,9 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
         DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
         dt->table = table;
         dt->name = g_strdup(name);
+        dt->ui_name = NULL;
+        dt->created = FALSE;
+        dt->expired = FALSE;
 
         pushDissectorTable(L, dt);
 
@@ -648,7 +662,17 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int DissectorTable__gc(lua_State* L _U_) {
-    /* do NOT free DissectorTable */
+    DissectorTable dt = toDissectorTable(L,1);
+
+    if (dt->created && !dt->expired) {
+        /* Created DissectorTable will pass GC two times */
+        dt->expired = TRUE;
+    } else {
+        g_free((char *)dt->name);
+        g_free((char *)dt->ui_name);
+        g_free(dt);
+    }
+
     return 0;
 }
 
@@ -674,9 +698,27 @@ WSLUA_META DissectorTable_meta[] = {
 
 int DissectorTable_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(DissectorTable);
+
+    lua_newtable (L);
+    dissectortable_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
     return 0;
 }
 
+int wslua_deregister_dissector_tables(lua_State* L) {
+    /* for each registered DissectorTable do... */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        DissectorTable dt = checkDissectorTable(L, -1);
+        if (dt->created) {
+            deregister_dissector_table(dt->name);
+        }
+    }
+
+    lua_pop(L, 1); /* dissector_table_ref */
+
+    return 0;
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

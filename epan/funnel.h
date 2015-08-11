@@ -46,6 +46,8 @@ typedef void (*funnel_dlg_cb_t)(gchar** user_input, void* data);
 
 typedef gboolean (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
 
+typedef void (* funnel_menu_callback)(gpointer);
+
 typedef struct _funnel_bt_t {
 	funnel_text_window_t* tw;
 	funnel_bt_cb_t func;
@@ -74,6 +76,7 @@ typedef struct _funnel_ops_t {
 		       funnel_dlg_cb_t dlg_cb,
 		       void* data);
 
+    void (*close_dialogs)(void);
 
     void (*logger)(const gchar *log_domain,
                    GLogLevelFlags log_level,
@@ -104,17 +107,21 @@ WS_DLL_PUBLIC void funnel_set_funnel_ops(const funnel_ops_t*);
 
 WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
-                                 void (*callback)(gpointer),
+                                 funnel_menu_callback callback,
                                  gpointer callback_data,
                                  gboolean retap);
+WS_DLL_PUBLIC void funnel_deregister_menus(void (*callback)(gpointer));
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          register_stat_group_t group,
-                                         void (*callback)(gpointer),
+                                         funnel_menu_callback callback,
                                          gpointer callback_data,
                                          gboolean retap);
+typedef void (*funnel_deregistration_cb_t)(funnel_menu_callback callback);
 
 WS_DLL_PUBLIC void funnel_register_all_menus(funnel_registration_cb_t r_cb);
+WS_DLL_PUBLIC void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
+                                       funnel_registration_cb_t r_cb);
 
 extern void initialize_funnel_ops(void);
 

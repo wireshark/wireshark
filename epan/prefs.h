@@ -289,6 +289,11 @@ module_t *prefs_register_subtree(module_t *parent, const char *title,
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
+/**
+ * Deregister preferences from a protocol.
+ */
+WS_DLL_PUBLIC void prefs_deregister_protocol(int id);
+
 /*
  * Register that a statistical tap has preferences.
  *

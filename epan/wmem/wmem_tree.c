@@ -561,6 +561,17 @@ wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
     return wmem_tree_lookup(tree, k, cmp);
 }
 
+void *
+wmem_tree_remove_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
+{
+    void *ret = wmem_tree_lookup_string(tree, k, flags);
+    if (ret) {
+        /* Not really a remove, but set data to NULL so the lookup don't find it */
+        wmem_tree_insert_string(tree, k, NULL, flags);
+    }
+    return ret;
+}
+
 static void *
 create_sub_tree(void* d)
 {
@@ -655,10 +666,11 @@ wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
         }
     }
 
-    if (node->is_subtree == TRUE) {
+    if (node->is_subtree) {
         stop_traverse = wmem_tree_foreach((wmem_tree_t *)node->data,
                 callback, user_data);
-    } else {
+    } else if (node->data) {
+        /* No callback for "removed" nodes */
         stop_traverse = callback(node->data, user_data);
     }
 

@@ -916,21 +916,24 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
 static int ProtoField__gc(lua_State* L) {
     ProtoField f = toProtoField(L,1);
 
-    /*
-     * A garbage collector for ProtoFields makes little sense.
-     * Even if This cannot be used anymore because it has gone out of scope,
-     * we can destroy the ProtoField only if it is not part of a ProtoFieldArray,
-     * if it actualy belongs to one we need to preserve it as it is pointed by
-     * a field array that may be registered afterwards causing a crash or memory corruption.
-     */
-
-    if (!f) {
-        luaL_argerror(L,1,"BUG: ProtoField_gc called for something not ProtoField");
-        /* g_assert() ?? */
-    } else if (f->hfid == -2) {
-        g_free(f->name);
-        g_free(f->abbrev);
-        g_free(f->blob);
+    if (f->hfid == -2) {
+        /* Only free unregistered and deregistered ProtoField */
+        if (f->vs) {
+            if (f->type == FT_UINT64 || f->type == FT_INT64) {
+                val64_string *vs64 = (val64_string *)f->vs;
+                while (vs64->strptr) {
+                    g_free((gchar *)vs64->strptr);
+                    vs64++;
+                }
+            } else if (f->type != FT_BOOLEAN) { /* Other Integer types */
+                value_string *vs = (value_string *)f->vs;
+                while (vs->strptr) {
+                    g_free((gchar *)vs->strptr);
+                    vs++;
+                }
+            }
+            g_free((void *)f->vs);
+        }
         g_free(f);
     }
 

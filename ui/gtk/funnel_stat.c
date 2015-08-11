@@ -558,6 +558,7 @@ static const funnel_ops_t funnel_ops = {
     text_window_add_button,
     /*...,*/
     funnel_new_dialog,
+    NULL,
     funnel_logger,
     funnel_retap_packets,
     copy_to_clipboard,

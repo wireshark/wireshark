@@ -982,6 +982,11 @@ int FileHandler_register(lua_State* L) {
     return 0;
 }
 
+int wslua_deregister_filehandlers(lua_State* L _U_) {
+    /* TODO: Implement */
+    return 0;
+}
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

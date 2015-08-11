@@ -67,14 +67,23 @@ static void progress_window_destroy(struct progdlg *progress_dialog);
 class FunnelAction : public QAction
 {
 public:
-    FunnelAction(const QString title, void (*callback)(gpointer), gpointer callback_data, gboolean retap) :
+    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap) :
         QAction(NULL),
+        title_(title),
         callback_(callback),
         callback_data_(callback_data),
         retap_(retap)
     {
         setText(title);
         setObjectName(FunnelStatistics::actionName());
+    }
+
+    funnel_menu_callback callback() const {
+        return callback_;
+    }
+
+    QString title() const {
+        return title_;
     }
 
     void triggerCallback() {
@@ -89,13 +98,15 @@ public:
     }
 
 private:
-    void (*callback_)(gpointer);
+    QString title_;
+    funnel_menu_callback callback_;
     gpointer callback_data_;
     gboolean retap_;
 };
 
-static QList<FunnelAction *> funnel_actions_;
+static QHash<int, QList<FunnelAction *> > funnel_actions_;
 const QString FunnelStatistics::action_name_ = "FunnelStatisticsAction";
+static gboolean menus_registered = FALSE;
 
 FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     QObject(parent),
@@ -116,6 +127,7 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->destroy_text_window = text_window_destroy;
     funnel_ops_->add_button = text_window_add_button;
     funnel_ops_->new_dialog = string_dialog_new;
+    funnel_ops_->close_dialogs = string_dialogs_close;
     funnel_ops_->logger = funnel_statistics_logger;
     funnel_ops_->retap_packets = funnel_statistics_retap_packets;
     funnel_ops_->copy_to_clipboard = funnel_statistics_copy_to_clipboard;
@@ -191,6 +203,7 @@ void funnel_statistics_logger(const gchar *,
                           gpointer) {
     qDebug() << message;
 }
+
 void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {
     FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
     if (!funnel_statistics) return;
@@ -274,18 +287,51 @@ extern "C" {
 
 static void register_menu_cb(const char *name,
                              register_stat_group_t group,
-                             void (*callback)(gpointer),
+                             funnel_menu_callback callback,
                              gpointer callback_data,
-                             gboolean retap) {
+                             gboolean retap)
+{
     FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap);
-    wsApp->addDynamicMenuGroupItem(group, funnel_action);
-    funnel_actions_ << funnel_action;
+    if (menus_registered) {
+        wsApp->appendDynamicMenuGroupItem(group, funnel_action);
+    } else {
+        wsApp->addDynamicMenuGroupItem(group, funnel_action);
+    }
+    if (!funnel_actions_.contains(group)) {
+        funnel_actions_[group] = QList<FunnelAction *>();
+    }
+    funnel_actions_[group] << funnel_action;
+}
+
+static void deregister_menu_cb(funnel_menu_callback callback)
+{
+    foreach (int group, funnel_actions_.uniqueKeys()) {
+        QList<FunnelAction *>::iterator it = funnel_actions_[group].begin();
+        while (it != funnel_actions_[group].end()) {
+            FunnelAction *funnel_action = *it;
+            if (funnel_action->callback() == callback) {
+                // Must set back to title to find the correct sub-menu in Tools
+                funnel_action->setText(funnel_action->title());
+                wsApp->removeDynamicMenuGroupItem(group, funnel_action);
+                it = funnel_actions_[group].erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
 }
 
 void
 register_tap_listener_qt_funnel(void)
 {
     funnel_register_all_menus(register_menu_cb);
+    menus_registered = TRUE;
+}
+
+void
+funnel_statistics_reload_menus(void)
+{
+    funnel_reload_menus(deregister_menu_cb, register_menu_cb);
 }
 
 } // extern "C"

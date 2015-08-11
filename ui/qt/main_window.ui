@@ -386,6 +386,7 @@
     <addaction name="separator"/>
     <addaction name="actionAnalyzeEnabledProtocols"/>
     <addaction name="actionAnalyzeDecodeAs"/>
+    <addaction name="actionAnalyzeReloadLuaPlugins"/>
     <addaction name="separator"/>
     <addaction name="menuSCTP"/>
     <addaction name="menuFollow"/>
@@ -1788,6 +1789,17 @@
    </property>
    <property name="toolTip">
     <string>Change the way packets are dissected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeReloadLuaPlugins">
+   <property name="text">
+    <string>Reload Lua Plugins</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload Lua plugins</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="action29West">

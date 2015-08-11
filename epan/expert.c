@@ -322,6 +322,11 @@ expert_module_t *expert_register_protocol(int id)
 	return module;
 }
 
+void expert_deregister_protocol (expert_module_t *module)
+{
+    wmem_free(wmem_epan_scope(), module);
+}
+
 static int
 expert_register_field_init(expert_field_info *expinfo, expert_module_t *module)
 {

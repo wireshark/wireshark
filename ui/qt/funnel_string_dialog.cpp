@@ -72,11 +72,15 @@ void FunnelStringDialog::on_buttonBox_accepted()
     g_ptr_array_free(returns, FALSE);
 }
 
-void FunnelStringDialog::stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)
+FunnelStringDialog *FunnelStringDialog::stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)
 {
     FunnelStringDialog *fsd = new FunnelStringDialog(title, field_name_list, dialog_cb, dialog_cb_data);
     fsd->show();
+
+    return fsd;
 }
+
+QList<FunnelStringDialog *> openDialogs;
 
 void string_dialog_new(const gchar *title, const gchar **fieldnames, funnel_dlg_cb_t dialog_cb, void *dialog_cb_data)
 {
@@ -84,7 +88,17 @@ void string_dialog_new(const gchar *title, const gchar **fieldnames, funnel_dlg_
     for (int i = 0; fieldnames[i]; i++) {
         field_name_list << fieldnames[i];
     }
-    FunnelStringDialog::stringDialogNew(title, field_name_list, dialog_cb, dialog_cb_data);
+    FunnelStringDialog *fsd = FunnelStringDialog::stringDialogNew(title, field_name_list, dialog_cb, dialog_cb_data);
+
+    openDialogs.append (fsd);
+}
+
+void string_dialogs_close(void)
+{
+    foreach (FunnelStringDialog *fsd, openDialogs)
+        delete fsd;
+
+    openDialogs.clear();
 }
 
 /*

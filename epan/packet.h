@@ -213,6 +213,9 @@ WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
 WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
     const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func);
 
+/** Deregister the dissector table by table name. */
+WS_DLL_PUBLIC void deregister_dissector_table(const char *name);
+
 /* Find a dissector table by table name. */
 WS_DLL_PUBLIC dissector_table_t find_dissector_table(const char *name);
 
@@ -484,10 +487,13 @@ WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t diss
 extern void heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled);
 
 /** Register a dissector. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector,
-    const int proto);
-WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector,
-    const int proto);
+WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
+
+/** Register a new dissector. */
+WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector, const int proto);
+
+/** Deregister a dissector. */
+WS_DLL_PUBLIC void deregister_dissector(const char *name);
 
 /** Get the long name of the protocol for a dissector handle. */
 extern const char *dissector_handle_get_long_name(const dissector_handle_t handle);
@@ -514,6 +520,9 @@ WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle(new_dissector_t dis
     const int proto);
 WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissector,
     const int proto, const char* name);
+
+/** Destroy an anonymous handle for a dissector. */
+WS_DLL_PUBLIC void destroy_dissector_handle(dissector_handle_t handle);
 
 /** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.
@@ -699,6 +708,8 @@ WS_DLL_PUBLIC void dissector_dump_heur_decodes(void);
  * dissector has been called.
  */
 WS_DLL_PUBLIC void register_postdissector(dissector_handle_t);
+WS_DLL_PUBLIC void deregister_postdissector(dissector_handle_t handle);
+
 extern gboolean have_postdissector(void);
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 

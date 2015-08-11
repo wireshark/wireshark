@@ -128,6 +128,13 @@ WS_DLL_PUBLIC
 void *
 wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* key, guint32 flags);
 
+/** Remove the value under a string key.  This is not really a remove, but the
+ * value is set to NULL so that wmem_tree_lookup_string not will find it.
+ * See wmem_tree_insert_string for an explanation of flags. */
+WS_DLL_PUBLIC
+void *
+wmem_tree_remove_string(wmem_tree_t* tree, const gchar* key, guint32 flags);
+
 typedef struct _wmem_tree_key_t {
     guint32 length;    /**< length in guint32 words */
     guint32 *key;

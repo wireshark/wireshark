@@ -183,6 +183,18 @@ static void lua_tap_draw(void *tapdata) {
     }
 }
 
+/* TODO: we should probably use a Lua table here */
+static GPtrArray *listeners = NULL;
+
+static void deregister_Listener (lua_State* L _U_, Listener tap) {
+    if (tap->all_fields) {
+        epan_set_always_visible(FALSE);
+        tap->all_fields = FALSE;
+    }
+
+    remove_tap_listener(tap);
+}
+
 WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     /* Creates a new `Listener` listener object. */
 #define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap. */
@@ -231,6 +243,8 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         epan_set_always_visible(TRUE);
     }
 
+    g_ptr_array_add(listeners, tap);
+
     pushListener(L,tap);
     WSLUA_RETURN(1); /* The newly created Listener listener object */
 }
@@ -272,12 +286,9 @@ WSLUA_METHOD Listener_remove(lua_State* L) {
     /* Removes a tap `Listener`. */
     Listener tap = checkListener(L,1);
 
-    if (tap->all_fields) {
-        epan_set_always_visible(FALSE);
-        tap->all_fields = FALSE;
+    if (g_ptr_array_remove(listeners, tap)) {
+        deregister_Listener(L, tap);
     }
-
-    remove_tap_listener(tap);
 
     return 0;
 }
@@ -326,7 +337,16 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,reset);
 
 
 static int Listener__gc(lua_State* L _U_) {
-    /* do NOT free Listener, it's never free'd */
+    Listener tap = toListener(L, 1);
+
+    if (listeners && g_ptr_array_remove(listeners, tap)) {
+        deregister_Listener(L, tap);
+    }
+
+    g_free(tap->filter);
+    g_free(tap->name);
+    g_free(tap);
+
     return 0;
 }
 
@@ -355,8 +375,25 @@ WSLUA_META Listener_meta[] = {
 
 int Listener_register(lua_State* L) {
     wslua_set_tap_enums(L);
+
+    listeners = g_ptr_array_new();
+
     WSLUA_REGISTER_CLASS(Listener);
     WSLUA_REGISTER_ATTRIBUTES(Listener);
+    return 0;
+}
+
+static void deregister_tap_listener (gpointer data, gpointer userdata) {
+    lua_State *L = (lua_State *) userdata;
+    Listener tap = (Listener) data;
+    deregister_Listener(L, tap);
+}
+
+int wslua_deregister_listeners(lua_State* L) {
+    g_ptr_array_foreach(listeners, deregister_tap_listener, L);
+    g_ptr_array_free(listeners, FALSE);
+    listeners = NULL;
+
     return 0;
 }
 

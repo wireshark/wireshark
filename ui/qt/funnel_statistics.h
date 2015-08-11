@@ -62,6 +62,10 @@ private:
     QByteArray display_filter_;
 };
 
+extern "C" {
+    void funnel_statistics_reload_menus(void);
+} // extern "C"
+
 #endif // FUNNELSTATISTICS_H
 
 /*

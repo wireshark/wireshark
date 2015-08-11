@@ -324,6 +324,7 @@ static GPtrArray *deregistered_data = NULL;
 	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
 		g_error("Unregistered hf! index=%d", hfindex);					\
 	DISSECTOR_ASSERT_HINT((guint)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
+	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf!");	\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
 /* List which stores protocols and fields that have been registered */
@@ -5240,6 +5241,48 @@ proto_register_protocol(const char *name, const char *short_name,
 	return proto_id;
 }
 
+gboolean
+proto_deregister_protocol(const char *short_name)
+{
+    protocol_t *protocol;
+    header_field_info *hfinfo;
+    int proto_id;
+    gint *key;
+    guint i;
+
+    proto_id = proto_get_id_by_short_name(short_name);
+    protocol = find_protocol_by_id(proto_id);
+    if (protocol == NULL)
+        return FALSE;
+
+    key  = (gint *)g_malloc(sizeof(gint));
+    *key = wrs_str_hash(protocol->name);
+
+    g_hash_table_remove(proto_names, key);
+    g_free(key);
+
+    g_hash_table_remove(proto_short_names, (gpointer)short_name);
+    g_hash_table_remove(proto_filter_names, (gpointer)protocol->filter_name);
+
+    for (i = 0; i < protocol->fields->len; i++) {
+        hfinfo = (header_field_info *)g_ptr_array_index(protocol->fields, i);
+        g_hash_table_steal(gpa_name_map, hfinfo->abbrev);
+        g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
+    }
+    g_ptr_array_free(protocol->fields, TRUE);
+
+    /* Remove this protocol from the list of known protocols */
+    protocols = g_list_remove(protocols, protocol);
+
+    g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[proto_id]);
+    g_hash_table_steal(gpa_name_map, protocol->filter_name);
+
+    g_free((gchar *)protocol->short_name);
+    g_free(protocol);
+
+    return TRUE;
+}
+
 void
 proto_mark_private(const int proto_id)
 {
@@ -5641,9 +5684,9 @@ proto_register_fields_manual(const int parent, header_field_info **hfi, const in
 	}
 }
 
-/* unregister already registered fields */
+/* deregister already registered fields */
 void
-proto_unregister_field (const int parent, gint hf_id)
+proto_deregister_field (const int parent, gint hf_id)
 {
 	header_field_info *hfi;
 	protocol_t       *proto;

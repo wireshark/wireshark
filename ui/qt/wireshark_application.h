@@ -75,7 +75,13 @@ public:
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
     void addDynamicMenuGroupItem(int group, QAction *sg_action);
+    void appendDynamicMenuGroupItem(int group, QAction *sg_action);
+    void removeDynamicMenuGroupItem(int group, QAction *sg_action);
     QList<QAction *> dynamicMenuGroupItems(int group);
+    QList<QAction *> addedMenuGroupItems(int group);
+    QList<QAction *> removedMenuGroupItems(int group);
+    void clearAddedMenuGroupItems();
+    void clearRemovedMenuGroupItems();
 
     void allSystemsGo();
     void refreshLocalInterfaces();
@@ -91,6 +97,8 @@ public:
     int monospaceTextSize(const char *str);
     void setConfigurationProfile(const gchar *profile_name);
     bool isInitialized() { return initialized_; }
+    void setReloadingLua(bool is_reloading) { is_reloading_lua_ = is_reloading; }
+    bool isReloadingLua() { return is_reloading_lua_; }
     const QIcon &normalIcon() const { return normal_icon_; }
     const QIcon &captureIcon() const { return capture_icon_; }
     const QString &windowTitleSeparator() const { return window_title_separator_; }
@@ -103,6 +111,7 @@ public:
 
 private:
     bool initialized_;
+    bool is_reloading_lua_;
     QFont mono_font_;
     QTimer recent_timer_;
     QTimer addr_resolv_timer_;

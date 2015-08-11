@@ -147,6 +147,9 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     case RA_LUA_PLUGINS:
         action_msg = tr("Loading Lua plugins");
         break;
+    case RA_LUA_DEREGISTER:
+        action_msg = tr("Removing Lua plugins");
+        break;
     case RA_PREFERENCES:
         action_msg = tr("Loading module preferences");
         break;

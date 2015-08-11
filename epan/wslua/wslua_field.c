@@ -590,7 +590,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     g_ptr_array_free(wanted_fields,TRUE);
     wanted_fields = NULL;
 
-    if (fake_tap) {
+    if (fake_tap && fake_tap_filter->len > strlen("frame")) {
         /* a boring tap :-) */
         GString* error = register_tap_listener("frame",
                 &fake_tap,
@@ -611,8 +611,10 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
                 g_free(err_msg);
             }
         }
+    } else if (fake_tap) {
+        remove_tap_listener(&fake_tap);
+        fake_tap = FALSE;
     }
-
 }
 
 WSLUA_CONSTRUCTOR Field_new(lua_State *L) {

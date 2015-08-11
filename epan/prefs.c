@@ -305,6 +305,27 @@ prefs_register_module(module_t *parent, const char *name, const char *title,
                                             FALSE, apply_cb, use_gui);
 }
 
+static void
+prefs_deregister_module(module_t *parent, const char *name, const char *title)
+{
+    /* Remove this module from the list of all modules */
+    module_t *module = (module_t *)wmem_tree_remove_string(prefs_modules, name, WMEM_TREE_STRING_NOCASE);
+
+    if (!module)
+        return;
+
+    if (parent == NULL) {
+        /* Remove from top */
+        wmem_tree_remove_string(prefs_top_level_modules, title, WMEM_TREE_STRING_NOCASE);
+    } else if (parent->submodules) {
+        /* Remove from parent */
+        wmem_tree_remove_string(parent->submodules, title, WMEM_TREE_STRING_NOCASE);
+    }
+
+    free_module_prefs(module, NULL);
+    wmem_free(wmem_epan_scope(), module);
+}
+
 /*
  * Register a subtree that will have modules under it.
  * Specify the module under which to register it or NULL to register it
@@ -452,6 +473,15 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
                                  proto_get_protocol_name(id), apply_cb, TRUE);
+}
+
+void
+prefs_deregister_protocol (int id)
+{
+    protocol_t *protocol = find_protocol_by_id(id);
+    prefs_deregister_module (protocols_module,
+                             proto_get_protocol_filter_name(id),
+                             proto_get_protocol_short_name(protocol));
 }
 
 module_t *
@@ -3331,6 +3361,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
     /* Try to read in the profile name in the first line of the preferences file. */
     if (fscanf(pf, "# Configuration file for %127[^\r\n]", ver) == 1) {
         /* Assume trailing period and remove it */
+        g_free(prefs.saved_at_version);
         prefs.saved_at_version = g_strndup(ver, strlen(ver) - 1);
     }
     rewind(pf);

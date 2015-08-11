@@ -121,8 +121,9 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     WSLUA_RETURN(0);
 }
 
-
-
+void wslua_deregister_menus(void) {
+    funnel_deregister_menus(lua_menu_callback);
+}
 
 struct _dlg_cb_data {
     lua_State* L;
@@ -553,6 +554,20 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     WSLUA_RETURN(1); /* The `TextWindow`'s text. */
 }
 
+WSLUA_METHOD TextWindow_close(lua_State* L) { /* Close the window */
+    TextWindow tw = checkTextWindow(L,1);
+
+    if (!ops->destroy_text_window) {
+        WSLUA_ERROR(TextWindow_get_text,"GUI not available");
+        return 0;
+    }
+
+    ops->destroy_text_window(tw->ws_tw);
+    tw->ws_tw = NULL;
+
+    return 0;
+}
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TextWindow__gc(lua_State* L) {
     TextWindow tw = toTextWindow(L,1);
@@ -666,7 +681,6 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 WSLUA_METHODS TextWindow_methods[] = {
     WSLUA_CLASS_FNREG(TextWindow,new),
     WSLUA_CLASS_FNREG(TextWindow,set),
-    WSLUA_CLASS_FNREG(TextWindow,new),
     WSLUA_CLASS_FNREG(TextWindow,append),
     WSLUA_CLASS_FNREG(TextWindow,prepend),
     WSLUA_CLASS_FNREG(TextWindow,clear),
@@ -674,6 +688,7 @@ WSLUA_METHODS TextWindow_methods[] = {
     WSLUA_CLASS_FNREG(TextWindow,set_editable),
     WSLUA_CLASS_FNREG(TextWindow,get_text),
     WSLUA_CLASS_FNREG(TextWindow,add_button),
+    WSLUA_CLASS_FNREG(TextWindow,close),
     { NULL, NULL }
 };
 

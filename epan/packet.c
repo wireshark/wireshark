@@ -1021,6 +1021,14 @@ dissector_delete_all_check (gpointer key _U_, gpointer value, gpointer user_data
 	dtbl_entry_t *dtbl_entry = (dtbl_entry_t *) value;
 	dissector_handle_t handle = (dissector_handle_t) user_data;
 
+	if (!dtbl_entry->current->protocol) {
+		/*
+		 * Not all dissectors are registered with a protocol, so we need this
+		 * check when running from dissector_delete_from_all_tables.
+		 */
+		return FALSE;
+	}
+
 	return (proto_get_id (dtbl_entry->current->protocol) == proto_get_id (handle->protocol));
 }
 
@@ -1031,6 +1039,23 @@ void dissector_delete_all(const char *name, dissector_handle_t handle)
 	g_assert (sub_dissectors);
 
 	g_hash_table_foreach_remove (sub_dissectors->hash_table, dissector_delete_all_check, handle);
+}
+
+static void
+dissector_delete_from_table(gpointer key _U_, gpointer value, gpointer user_data)
+{
+	dissector_table_t sub_dissectors = (dissector_table_t) value;
+	g_assert (sub_dissectors);
+
+	g_hash_table_foreach_remove(sub_dissectors->hash_table, dissector_delete_all_check, user_data);
+	sub_dissectors->dissector_handles = g_slist_remove(sub_dissectors->dissector_handles, user_data);
+}
+
+/* Delete handle from all tables and dissector_handles lists */
+static void
+dissector_delete_from_all_tables(dissector_handle_t handle)
+{
+	g_hash_table_foreach(dissector_tables, dissector_delete_from_table, handle);
 }
 
 /* Change the entry for a dissector in a uint dissector table
@@ -1927,6 +1952,15 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	return sub_dissectors;
 }
 
+void
+deregister_dissector_table(const char *name)
+{
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+	if (!sub_dissectors) return;
+
+	g_hash_table_remove(dissector_tables, (gpointer)name);
+}
+
 const char *
 get_dissector_table_ui_name(const char *name)
 {
@@ -2428,6 +2462,7 @@ create_dissector_handle(dissector_t dissector, const int proto)
 	return handle;
 }
 
+/* Create an anonymous handle for a new dissector. */
 dissector_handle_t
 new_create_dissector_handle(new_dissector_t dissector, const int proto)
 {
@@ -2456,6 +2491,17 @@ dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissect
 	return handle;
 }
 
+/* Destroy an anonymous handle for a dissector. */
+void
+destroy_dissector_handle(dissector_handle_t handle)
+{
+	if (handle == NULL) return;
+
+	dissector_delete_from_all_tables(handle);
+	deregister_postdissector(handle);
+	wmem_free(wmem_epan_scope(), handle);
+}
+
 /* Register a dissector by name. */
 dissector_handle_t
 register_dissector(const char *name, dissector_t dissector, const int proto)
@@ -2477,6 +2523,7 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 	return handle;
 }
 
+/* Register a new dissector by name. */
 dissector_handle_t
 new_register_dissector(const char *name, new_dissector_t dissector, const int proto)
 {
@@ -2495,6 +2542,19 @@ new_register_dissector(const char *name, new_dissector_t dissector, const int pr
 			    (gpointer) handle);
 
 	return handle;
+}
+
+/* Deregister a dissector by name. */
+void
+deregister_dissector(const char *name)
+{
+	dissector_handle_t handle = find_dissector(name);
+	if (handle == NULL) return;
+
+	g_hash_table_remove(registered_dissectors, (gpointer)name);
+	g_hash_table_remove(heur_dissector_lists, (gpointer)name);
+
+	destroy_dissector_handle(handle);
 }
 
 /* Call a dissector through a handle but if the dissector rejected it
@@ -2741,6 +2801,16 @@ register_postdissector(dissector_handle_t handle)
 
 	g_ptr_array_add(post_dissectors, handle);
 	num_of_postdissectors++;
+}
+
+void
+deregister_postdissector(dissector_handle_t handle)
+{
+    if (!post_dissectors) return;
+
+    if (g_ptr_array_remove(post_dissectors, handle)) {
+        num_of_postdissectors--;
+    }
 }
 
 gboolean

@@ -233,6 +233,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_tcp_ports@Base 1.99.0
  decode_udp_ports@Base 1.99.0
  delete_itu_tcap_subdissector@Base 1.9.1
+ deregister_dissector@Base 1.99.9
+ deregister_dissector_table@Base 1.99.9
+ deregister_postdissector@Base 1.99.9
+ destroy_dissector_handle@Base 1.99.9
  destroy_print_stream@Base 1.12.0~rc1
  dfilter_apply_edt@Base 1.9.1
  dfilter_compile@Base 1.9.1
@@ -507,6 +511,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  expert_add_info@Base 1.12.0~rc1
  expert_add_info_format@Base 1.9.1
  expert_checksum_vals@Base 1.12.0~rc1
+ expert_deregister_protocol@Base 1.99.9
  expert_get_highest_severity@Base 1.9.1
  expert_group_vals@Base 1.12.0~rc1
  expert_register_field_array@Base 1.12.0~rc1
@@ -584,9 +589,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ftype_can_slice@Base 1.9.1
  ftype_name@Base 1.9.1
  ftype_pretty_name@Base 1.9.1
+ funnel_deregister_menus@Base 1.99.9
  funnel_get_funnel_ops@Base 1.9.1
  funnel_register_all_menus@Base 1.9.1
  funnel_register_menu@Base 1.9.1
+ funnel_reload_menus@Base 1.99.9
  funnel_set_funnel_ops@Base 1.9.1
  fvalue_from_unparsed@Base 1.9.1
  fvalue_get@Base 1.9.1
@@ -868,6 +875,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_capture_device_monitor_mode@Base 1.9.1
  prefs_capture_options_dialog_column_is_visible@Base 1.9.1
  prefs_clear_string_list@Base 1.9.1
+ prefs_deregister_protocol@Base 1.99.9
  prefs_find_module@Base 1.9.1
  prefs_find_preference@Base 1.9.1
  prefs_get_string_list@Base 1.9.1
@@ -910,11 +918,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  process_reassembled_data@Base 1.9.1
  process_stat_cmd_arg@Base 1.9.1
  proto_all_finfos@Base 1.9.1
- proto_add_deregistered_data@Base 1.12.0~rc1
+ proto_add_deregistered_data@Base 1.12.2
  proto_can_match_selected@Base 1.9.1
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
  proto_construct_match_selected_string@Base 1.9.1
+ proto_deregister_field@Base 1.99.9
+ proto_deregister_protocol@Base 1.99.9
  proto_disable_proto_by_name@Base 1.99.8
  proto_enable_all@Base 1.9.1
  proto_enable_heuristic_by_name@Base 1.99.8
@@ -923,7 +933,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
  proto_find_undecoded_data@Base 1.99.3
- proto_free_deregistered_fields@Base 1.12.0~rc1
+ proto_free_deregistered_fields@Base 1.12.2
  proto_get_data_protocol@Base 1.9.1
  proto_get_finfo_ptr_array@Base 1.9.1
  proto_get_first_protocol@Base 1.9.1
@@ -1061,7 +1071,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_print@Base 1.12.0~rc1
  proto_tree_set_appendix@Base 1.9.1
  proto_tree_set_visible@Base 1.9.1
- proto_unregister_field@Base 1.9.1
  protocols_module@Base 1.9.1
  ptvcursor_add@Base 1.9.1
  ptvcursor_add_no_advance@Base 1.9.1
@@ -1610,6 +1619,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_tree_lookup_string@Base 1.12.0~rc1
  wmem_tree_new@Base 1.12.0~rc1
  wmem_tree_new_autoreset@Base 1.12.0~rc1
+ wmem_tree_remove_string@Base 1.99.9
  wmem_unregister_callback@Base 1.12.0~rc1
  write_carrays_hex_data@Base 1.99.1
  write_csv_column_titles@Base 1.99.1
@@ -1629,6 +1639,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wslua_count_plugins@Base 1.12.0~rc1
  wslua_plugins_dump_all@Base 1.12.0~rc1
  wslua_plugins_get_descriptions@Base 1.12.0~rc1
+ wslua_reload_plugins@Base 1.99.9
  wsp_vals_pdu_type_ext@Base 1.9.1
  wsp_vals_status_ext@Base 1.9.1
  xml_escape@Base 1.9.1

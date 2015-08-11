@@ -55,6 +55,10 @@
 #include "epan/prefs.h"
 #include "epan/value_string.h"
 
+#ifdef HAVE_LUA
+#include <epan/wslua/init_wslua.h>
+#endif
+
 #include "ui/alert_box.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
@@ -68,6 +72,7 @@
 #include "ui/recent_utils.h"
 #include "ui/ssl_key_export.h"
 #include "ui/ui_util.h"
+#include "ui/qt/simple_dialog.h"
 
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
@@ -94,6 +99,7 @@
 #include "extcap_options_dialog.h"
 #endif
 #include "filter_dialog.h"
+#include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
 #include "io_graph_dialog.h"
 #include "lbm_stream_dialog.h"
@@ -2466,6 +2472,28 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
             &da_dialog, SLOT(setCaptureFile(capture_file*)));
     da_dialog.exec();
 }
+
+#ifdef HAVE_LUA
+void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
+{
+    if (wsApp->isReloadingLua())
+        return;
+
+    wsApp->setReloadingLua(true);
+
+    wslua_reload_plugins(NULL, NULL);
+    funnel_statistics_reload_menus();
+    reloadDynamicMenus();
+
+    char *gdp_path, *dp_path;
+    (void) wsApp->readConfigurationFiles(&gdp_path, &dp_path);
+
+    fieldsChanged();
+
+    wsApp->setReloadingLua(false);
+    SimpleDialog::displayQueuedMessages();
+}
+#endif
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);

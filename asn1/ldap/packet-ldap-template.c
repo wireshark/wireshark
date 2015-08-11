@@ -557,9 +557,9 @@ attribute_types_initialize_cb(void)
 
   if (attribute_types_hash && hf) {
     guint hf_size = g_hash_table_size (attribute_types_hash);
-    /* Unregister all fields */
+    /* Deregister all fields */
     for (i = 0; i < hf_size; i++) {
-      proto_unregister_field (proto_ldap, *(hf[i].p_id));
+      proto_deregister_field (proto_ldap, *(hf[i].p_id));
       g_free (hf[i].p_id);
     }
     g_hash_table_destroy (attribute_types_hash);

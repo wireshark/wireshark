@@ -5,6 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
+ * (c) 2014, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -122,6 +123,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
     proto->ett = -1;
     proto->is_postdissector = FALSE;
+    proto->expired = FALSE;
 
     lua_newtable (L);
     proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -479,7 +481,18 @@ static int Proto_set_experts(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Proto__gc(lua_State* L _U_) {
-    /* do NOT free Proto, it's never free'd */
+    /* Proto is registered twice, once in protocols_table_ref and once returned from Proto_new.
+     * It will not be freed unless deregistered.
+     */
+    Proto proto = toProto(L,1);
+
+    if (!proto->expired) {
+        proto->expired = TRUE;
+    } else if (proto->hfid == -2) {
+        /* Only free deregistered Proto */
+        g_free(proto);
+    }
+
     return 0;
 }
 
@@ -553,6 +566,71 @@ ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr) {
     return NULL;
 }
 
+int wslua_deregister_protocols(lua_State* L) {
+    /* for each registered Proto protocol do... */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        Proto proto;
+        proto = checkProto(L, -1);
+
+        if (proto->handle) {
+            deregister_dissector(proto->loname);
+        }
+        if (proto->prefs_module) {
+            Pref pref;
+            prefs_deregister_protocol(proto->hfid);
+            for (pref = proto->prefs.next; pref; pref = pref->next) {
+                g_free(pref->name);
+                pref->name = NULL; /* Deregister Pref, freed in Pref__gc */
+            }
+        }
+        if (proto->expert_module) {
+            expert_deregister_protocol(proto->expert_module);
+        }
+        proto_deregister_protocol(proto->name);
+
+        /* for each registered ProtoField do... */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+        for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+            ProtoField f = checkProtoField(L, -1);
+            f->hfid = -2; /* Deregister ProtoField, freed in ProtoField__gc */
+        }
+        lua_pop(L, 1);
+
+        /* for each registered ProtoExpert do... */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
+        for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+            ProtoExpert pe = checkProtoExpert(L,-1);
+            pe->ids.hf = -2; /* Deregister ProtoExpert, freed in ProtoExpert__gc */
+        }
+        lua_pop(L, 1);
+
+        if (proto->hfa->len) {
+            proto_add_deregistered_data(g_array_free(proto->hfa,FALSE));
+        } else {
+            g_array_free(proto->hfa,TRUE);
+        }
+
+        if (proto->etta->len) {
+            proto_add_deregistered_data(g_array_free(proto->etta,FALSE));
+        } else {
+            g_array_free(proto->etta,TRUE);
+        }
+
+        if (proto->eia->len) {
+            proto_add_deregistered_data(g_array_free(proto->eia,FALSE));
+        } else {
+            g_array_free(proto->eia,TRUE);
+        }
+
+        proto->hfid = -2; /* Deregister Proto, freed in Proto__gc */
+    }
+
+    lua_pop(L, 1); /* protocols_table_ref */
+
+    return 0;
+}
+
 int Proto_commit(lua_State* L) {
     lua_settop(L,0);
     /* the following gets the table of registered Proto protocols and puts it on the stack (index=1) */
@@ -566,16 +644,15 @@ int Proto_commit(lua_State* L) {
            to lua_pop(L, 2), and when lua_next() returns 0 (no more table entries), it will have
            pop'ed the final key itself, leaving just the protocols_table_ref table on the stack.
          */
-        GArray* hfa  = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
-        GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
-        GArray* eia  = g_array_new(TRUE,TRUE,sizeof(ei_register_info));
+        Proto proto = checkProto(L,3);
         gint*   ettp = NULL;
-        Proto proto;
-        /* const gchar* proto_name = lua_tostring(L,2); */
-        proto = checkProto(L,3);
+
+        proto->hfa  = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
+        proto->etta = g_array_new(TRUE,TRUE,sizeof(gint*));
+        proto->eia  = g_array_new(TRUE,TRUE,sizeof(ei_register_info));
 
         ettp = &(proto->ett);
-        g_array_append_val(etta,ettp);
+        g_array_append_val(proto->etta,ettp);
 
         /* get the Lua table of ProtoFields, push it on the stack (index=3) */
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
@@ -600,13 +677,13 @@ int Proto_commit(lua_State* L) {
             }
 
             f->hfid = -1;
-            g_array_append_val(hfa,hfri);
-            g_array_append_val(etta,ettp);
+            g_array_append_val(proto->hfa,hfri);
+            g_array_append_val(proto->etta,ettp);
         }
 
         /* register the proto fields */
-        proto_register_field_array(proto->hfid,(hf_register_info*)(void*)hfa->data,hfa->len);
-        proto_register_subtree_array((gint**)(void*)etta->data,etta->len);
+        proto_register_field_array(proto->hfid,(hf_register_info*)(void*)proto->hfa->data,proto->hfa->len);
+        proto_register_subtree_array((gint**)(void*)proto->etta->data,proto->etta->len);
 
         lua_pop(L,1); /* pop the table of ProtoFields */
 
@@ -630,15 +707,10 @@ int Proto_commit(lua_State* L) {
                 return luaL_error(L,"expert fields can be registered only once");
             }
 
-            g_array_append_val(eia,eiri);
+            g_array_append_val(proto->eia,eiri);
         }
 
-        expert_register_field_array(proto->expert_module, (ei_register_info*)(void*)eia->data, eia->len);
-
-        /* XXX: the registration routines say to use static arrays only, so is this safe? */
-        g_array_free(hfa,FALSE);
-        g_array_free(etta,FALSE);
-        g_array_free(eia,FALSE);
+        expert_register_field_array(proto->expert_module, (ei_register_info*)(void*)proto->eia->data, proto->eia->len);
 
         /* Proto object and ProtoFields table will be pop'ed by lua_pop(L, 2) in for statement */
     }

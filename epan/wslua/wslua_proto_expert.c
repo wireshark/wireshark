@@ -99,17 +99,11 @@ WSLUA_METAMETHOD ProtoExpert__tostring(lua_State* L) {
 static int ProtoExpert__gc(lua_State* L) {
     ProtoExpert pe = toProtoExpert(L,1);
 
-    /*
-     * A garbage collector for ProtoExpert makes little sense.
-     * Even if this cannot be used anymore because it has gone out of scope,
-     * we can destroy the ProtoExpert only if it is not part of a registered Proto,
-     * if it actually belongs to one we need to preserve it as it is pointed by
-     * a expert code causing a crash or memory corruption.
-     */
-
-    if (pe) {
-        luaL_argerror(L,1,"BUG: ProtoExpert_gc called for something not ProtoExpert");
-        /* g_assert() ?? */
+    if (pe->ids.hf == -2) {
+        /* Only free unregistered and deregistered ProtoExpert */
+        g_free((gchar *)pe->abbrev);
+        g_free((gchar *)pe->text);
+        g_free(pe);
     }
 
     return 0;

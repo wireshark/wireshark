@@ -104,7 +104,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
         return;
     }
 
-    if (!parent || !wsApp->isInitialized()) {
+    if (!parent || !wsApp->isInitialized() || wsApp->isReloadingLua()) {
         message_queue_ << msg_pair;
         if (type > max_severity_) {
             max_severity_ = type;
@@ -168,7 +168,11 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
         return;
     }
 
-    QMessageBox mb(parent);
+    // Use last parent if not set
+    static QWidget *parent_w = NULL;
+    if (parent) parent_w = parent;
+
+    QMessageBox mb(parent_w);
 
     switch(max_severity_) {
     case ESD_TYPE_ERROR:

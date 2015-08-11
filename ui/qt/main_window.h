@@ -192,6 +192,9 @@ private:
     void recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level);
     void captureFileReadStarted(const QString &action);
 
+    void addMenuActions(QList<QAction *> &actions, int menu_group);
+    void removeMenuActions(QList<QAction *> &actions, int menu_group);
+
 signals:
     void showProgress(struct progdlg **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
     void setCaptureFile(capture_file *cf);
@@ -264,6 +267,7 @@ private slots:
     void showPreferenceEditor(); // module_t *, pref *
     void addStatsPluginsToMenu();
     void addDynamicMenus();
+    void reloadDynamicMenus();
     void addExternalMenus();
 
     void startInterfaceCapture(bool valid);
@@ -418,6 +422,9 @@ private slots:
 
     void on_actionAnalyzeEnabledProtocols_triggered();
     void on_actionAnalyzeDecodeAs_triggered();
+#ifdef HAVE_LUA
+    void on_actionAnalyzeReloadLuaPlugins_triggered();
+#endif
 
     void openFollowStreamDialog(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();

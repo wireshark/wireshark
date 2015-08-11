@@ -171,6 +171,11 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
  */
 WS_DLL_PUBLIC expert_module_t *expert_register_protocol(int id);
 
+/**
+ * Deregister expert info from a protocol.
+ */
+WS_DLL_PUBLIC void expert_deregister_protocol (expert_module_t *module);
+
 /** Register a expert field array.
  @param module the protocol handle from expert_register_protocol()
  @param ei the ei_register_info array

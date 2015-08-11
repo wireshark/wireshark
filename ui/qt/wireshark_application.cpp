@@ -90,7 +90,8 @@ static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
 static QHash<int, QList<QAction *> > dynamic_menu_groups_;
-static QHash<int, QList<QAction *> > funnel_groups_;
+static QHash<int, QList<QAction *> > added_menu_groups_;
+static QHash<int, QList<QAction *> > removed_menu_groups_;
 
 QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
 
@@ -592,6 +593,24 @@ void WiresharkApplication::addDynamicMenuGroupItem(int group, QAction *sg_action
     dynamic_menu_groups_[group] << sg_action;
 }
 
+void WiresharkApplication::appendDynamicMenuGroupItem(int group, QAction *sg_action)
+{
+    if (!added_menu_groups_.contains(group)) {
+        added_menu_groups_[group] = QList<QAction *>();
+    }
+    added_menu_groups_[group] << sg_action;
+    addDynamicMenuGroupItem(group, sg_action);
+}
+
+void WiresharkApplication::removeDynamicMenuGroupItem(int group, QAction *sg_action)
+{
+    if (!removed_menu_groups_.contains(group)) {
+        removed_menu_groups_[group] = QList<QAction *>();
+    }
+    removed_menu_groups_[group] << sg_action;
+    dynamic_menu_groups_[group].removeAll(sg_action);
+}
+
 QList<QAction *> WiresharkApplication::dynamicMenuGroupItems(int group)
 {
     if (!dynamic_menu_groups_.contains(group)) {
@@ -601,6 +620,45 @@ QList<QAction *> WiresharkApplication::dynamicMenuGroupItems(int group)
     QList<QAction *> sgi_list = dynamic_menu_groups_[group];
     std::sort(sgi_list.begin(), sgi_list.end(), qActionLessThan);
     return sgi_list;
+}
+
+QList<QAction *> WiresharkApplication::addedMenuGroupItems(int group)
+{
+    if (!added_menu_groups_.contains(group)) {
+        return QList<QAction *>();
+    }
+
+    QList<QAction *> sgi_list = added_menu_groups_[group];
+    std::sort(sgi_list.begin(), sgi_list.end(), qActionLessThan);
+    return sgi_list;
+}
+
+QList<QAction *> WiresharkApplication::removedMenuGroupItems(int group)
+{
+    if (!removed_menu_groups_.contains(group)) {
+        return QList<QAction *>();
+    }
+
+    QList<QAction *> sgi_list = removed_menu_groups_[group];
+    std::sort(sgi_list.begin(), sgi_list.end(), qActionLessThan);
+    return sgi_list;
+}
+
+void WiresharkApplication::clearAddedMenuGroupItems()
+{
+    foreach (int group, added_menu_groups_.uniqueKeys()) {
+        added_menu_groups_[group].clear();
+    }
+}
+
+void WiresharkApplication::clearRemovedMenuGroupItems()
+{
+    foreach (int group, removed_menu_groups_.uniqueKeys()) {
+        foreach (QAction *action, removed_menu_groups_[group]) {
+            delete action;
+        }
+        removed_menu_groups_[group].clear();
+    }
 }
 
 #ifdef HAVE_LIBPCAP

@@ -43,7 +43,7 @@ public:
     ~FunnelStringDialog();
 
     // Funnel ops
-    static void stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data);
+    static FunnelStringDialog *stringDialogNew(const QString title, const QStringList field_name_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data);
 
 private slots:
     void on_buttonBox_accepted();
@@ -57,6 +57,7 @@ private:
 
 extern "C" {
 void string_dialog_new(const gchar* title, const gchar** fieldnames, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data);
+void string_dialogs_close(void);
 }
 
 #endif // FUNNEL_STRING_DIALOG_H

@@ -2354,9 +2354,9 @@ header_fields_initialize_cb(void)
 
 	if (header_fields_hash && hf) {
 		guint hf_size = g_hash_table_size (header_fields_hash);
-		/* Unregister all fields */
+		/* Deregister all fields */
 		for (i = 0; i < hf_size; i++) {
-			proto_unregister_field (proto_http, *(hf[i].p_id));
+			proto_deregister_field (proto_http, *(hf[i].p_id));
 			g_free (hf[i].p_id);
 		}
 		g_hash_table_destroy (header_fields_hash);
