@@ -887,6 +887,10 @@ static gboolean
 dissect_smcr_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	void *data)
 {
+	if (tvb_captured_length(tvb) < 4) {
+		return FALSE;
+	}
+
 	if (tvb_get_ntohl(tvb, CLC_MSG_BYTE_0) != SMCR_CLC_ID) return FALSE;
 	dissect_smcr_tcp(tvb, pinfo, tree, data);
 	return TRUE;
