@@ -785,6 +785,28 @@ static int hf_gsm_a_rr_spare = -1;
 static int hf_gsm_a_rr_single_channel_arfcn = -1;
 static int hf_gsm_a_rr_rtd_index = -1;
 static int hf_gsm_a_rr_ti_flag = -1;
+static int hf_gsm_a_rr_arfcn_list = -1;
+static int hf_gsm_a_rr_da_list = -1;
+static int hf_gsm_a_rr_ua_list = -1;
+static int hf_gsm_a_rr_field_bit_long = -1;
+static int hf_gsm_a_rr_ma_bitmap = -1;
+static int hf_gsm_a_rr_inc_arfcn_bitmap = -1;
+static int hf_gsm_a_rr_ccn_supported = -1;
+static int hf_gsm_a_rr_pbcch_use_bcch = -1;
+static int hf_gsm_a_rr_ia_rest_oct_reserved = -1;
+static int hf_gsm_a_rr_tch_facch_sacchm = -1;
+static int hf_gsm_a_rr_tch_facch_sacchf = -1;
+static int hf_gsm_a_rr_tch_facch_sacchm_bi = -1;
+static int hf_gsm_a_rr_tch_acch = -1;
+static int hf_gsm_a_rr_sdcch4_sdcchc4_cbch = -1;
+static int hf_gsm_a_rr_sdcch8_sdcchc8_cbch = -1;
+static int hf_gsm_a_rr_tch_facchf_sacchm_bi = -1;
+static int hf_gsm_a_rr_tch_facchf_sacchm_uni = -1;
+static int hf_gsm_a_rr_tchf_acchs = -1;
+static int hf_gsm_a_rr_unknown_channel_info = -1;
+static int hf_gsm_a_rr_subchannel = -1;
+static int hf_gsm_a_rr_w_elements = -1;
+
 
 /* gsm_rr_csn_flag() fields */
 static int hf_gsm_a_rr_fdd_repeat_freq = -1;
@@ -1097,8 +1119,6 @@ static expert_field ei_gsm_a_rr_data_not_dissected = EI_INIT;
 static expert_field ei_gsm_a_rr_unknown_version = EI_INIT;
 static expert_field ei_gsm_a_rr_extraneous_data = EI_INIT;
 
-static char a_bigbuf[1024];
-
 static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_dissector;
 
@@ -1308,7 +1328,7 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
     int         arfcn;
     proto_item *ti = NULL;
 
-    ti = proto_tree_add_text(tree, tvb, offset, len, "List of ARFCNs =");
+    ti = proto_tree_add_bytes_format(tree, hf_gsm_a_rr_arfcn_list, tvb, offset, len, NULL, "List of ARFCNs =");
     for (arfcn=0; arfcn<ARFCN_MAX; arfcn++) {
         if (list[arfcn])
             proto_item_append_text(ti, " %d", arfcn);
@@ -1452,9 +1472,8 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
     /* extract the variable size w[] elements */
     for (i=1; i<=imax; i++) {
         w[i] = (gint) tvb_get_bits(tvb, bit_offset, wsize, FALSE);
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , "%s %s(%d): %d",
+        proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_w_elements, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , NULL, "%s W(%d): %d",
                             decode_bits_in_field(bit_offset, wsize, w[i]),
-                            "W",
                             i,
                             w[i]);
         bit_offset += wsize;
@@ -1497,7 +1516,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     if ((format & 0xc0) == 0x00)
     {
         /* bit map 0 */
-        item = proto_tree_add_text(tree,tvb, curr_offset, len, "List of ARFCNs =");
+        item = proto_tree_add_bytes_format(tree, hf_gsm_a_rr_arfcn_list, tvb, curr_offset, len, NULL, "List of ARFCNs =");
         bit = 4;
         arfcn = 125;
         for (byte = 0; byte <= len-1; byte++)
@@ -1543,7 +1562,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     {
         /* variable bit map */
         arfcn = ((format & 0x01) << 9) | (tvb_get_guint8(tvb, curr_offset+1) << 1) | ((tvb_get_guint8(tvb, curr_offset + 2) & 0x80) >> 7);
-        item = proto_tree_add_text(tree,tvb,curr_offset,len,"List of ARFCNs = %d",arfcn);
+        item = proto_tree_add_bytes_format(tree, hf_gsm_a_rr_arfcn_list, tvb, curr_offset, len, NULL, "List of ARFCNs = %d",arfcn);
         curr_offset = curr_offset + 2;
         bit = 7;
         for (byte = 0; byte <= len-3; byte++)
@@ -1750,7 +1769,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                 subtree2 = proto_tree_add_subtree(subtree,tvb, bit_offset>>3, (idx>>3)+1,
                                             ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_FDD_CELL_INFORMATION_FIELD], NULL,
                                             gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
-                proto_tree_add_text(subtree2,tvb, bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
+                proto_tree_add_bytes_format(subtree2, hf_gsm_a_rr_field_bit_long, tvb, bit_offset>>3, (idx>>3)+1, NULL, "Field is %d bits long", idx);
                 if (xdd_indic0)
                 {
                     proto_tree_add_uint(subtree2, hf_gsm_a_rr_scrambling_code, tvb, bit_offset>>3, 0, 0);
@@ -1821,7 +1840,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                 subtree2 = proto_tree_add_subtree(subtree,tvb, bit_offset>>3, (idx>>3)+1,
                                             ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_TDD_CELL_INFORMATION_FIELD], NULL,
                                             gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
-                proto_tree_add_text(subtree2,tvb, bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
+                proto_tree_add_bytes_format(subtree2, hf_gsm_a_rr_field_bit_long, tvb, bit_offset>>3, (idx>>3)+1, NULL, "Field is %d bits long", idx);
                 if (xdd_indic0)
                 {
                     proto_tree_add_uint(subtree2, hf_gsm_a_rr_cell_parameter, tvb, bit_offset>>3, 0, 0);
@@ -2053,7 +2072,7 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32
     guint32      curr_offset;
     guint8       oct8,subchannel;
     guint16      arfcn, hsn, maio;
-    const gchar *str;
+    int hf_subchannel;
 
     curr_offset = offset;
 
@@ -2062,33 +2081,31 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32
 
     if ((oct8 & 0xf8) == 0x08)
     {
-        str = "TCH/F + ACCHs";
-        other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+        proto_tree_add_item(subtree, hf_gsm_a_rr_tchf_acchs, tvb, curr_offset, 1, ENC_NA);
     }
     else
     {
         if ((oct8 & 0xf0) == 0x10)
         {
-            str = "TCH/H + ACCHs, Subchannel";
+            hf_subchannel = hf_gsm_a_rr_tch_acch;
             subchannel = ((oct8 & 0x08)>>3);
         }
         else if ((oct8 & 0xe0) == 0x20)
         {
-            str = "SDCCH/4 + SACCH/C4 or CBCH (SDCCH/4), Subchannel";
+            hf_subchannel = hf_gsm_a_rr_sdcch4_sdcchc4_cbch;
             subchannel = ((oct8 & 0x18)>>3);
         }
         else if ((oct8 & 0xc0) == 0x40)
         {
-            str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
+            hf_subchannel = hf_gsm_a_rr_sdcch8_sdcchc8_cbch;
             subchannel = ((oct8 & 0x38)>>3);
         } else {
-            str = "Unknown channel information";
+            hf_subchannel = hf_gsm_a_rr_unknown_channel_info;
             subchannel = oct8;
         }
 
-        other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
+        proto_tree_add_item(subtree, hf_subchannel, tvb, curr_offset, 1, ENC_NA);
+        proto_tree_add_uint(subtree, hf_gsm_a_rr_subchannel, tvb, curr_offset, 1, subchannel);
     }
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2131,60 +2148,57 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
     guint32      curr_offset;
     guint8       oct8,subchannel;
     guint16      arfcn, hsn, maio;
-    const gchar *str;
+    int hf_subchannel;
 
     curr_offset = offset;
 
     /* Octet 2 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
     if ((oct8 & 0xf8) == 0x0)
     {
-        str = "TCH/F + FACCH/F and SACCH/M";
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+        proto_tree_add_item(subtree, hf_gsm_a_rr_tch_facch_sacchm, tvb, curr_offset, 1, ENC_NA);
     }
     else if ((oct8 & 0xf8) == 0x08)
     {
-        str = "TCH/F + FACCH/F and SACCH/F";
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+        proto_tree_add_item(subtree, hf_gsm_a_rr_tch_facch_sacchf, tvb, curr_offset, 1, ENC_NA);
     }
     else if ((oct8 & 0xf8) == 0xf0)
     {
-        str = "TCH/F + FACCH/F and SACCH/M + bi- and unidirectional channels";
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+        proto_tree_add_item(subtree, hf_gsm_a_rr_tch_facch_sacchm_bi, tvb, curr_offset, 1, ENC_NA);
     }
     else
     {
         if ((oct8 & 0xf0) == 0x10)
         {
-            str = "TCH/H + ACCHs, Subchannel";
+            hf_subchannel = hf_gsm_a_rr_tch_acch;
             subchannel = ((oct8 & 0x08)>>3);
         }
         else if ((oct8 & 0xe0) == 0x20)
         {
-            str = "SDCCH/4 + SACCH/C4 or CBCH (SDCCH/4), Subchannel";
+            hf_subchannel = hf_gsm_a_rr_sdcch4_sdcchc4_cbch;
             subchannel = ((oct8 & 0x18)>>3);
         }
         else if ((oct8 & 0xc0) == 0x40)
         {
-            str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
+            hf_subchannel = hf_gsm_a_rr_sdcch8_sdcchc8_cbch;
             subchannel = ((oct8 % 0x38)>>3);
         }
         else if ((oct8 & 0xc0) == 0x80)
         {
-            str = "TCH/F + FACCH/F and SACCH/M + bidirectional channels at timeslot";
+            hf_subchannel = hf_gsm_a_rr_tch_facchf_sacchm_bi;
             subchannel = ((oct8 % 0x38)>>3);
         }
         else if ((oct8 & 0xe0) == 0xc0)
         {
-            str = "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot";
+            hf_subchannel = hf_gsm_a_rr_tch_facchf_sacchm_uni;
             subchannel = ((oct8 % 0x38)>>3);
         } else {
-            str = "Unknown channel information";
+            hf_subchannel = hf_gsm_a_rr_unknown_channel_info;
             subchannel = oct8;
         }
-        proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
+        proto_tree_add_item(subtree, hf_subchannel, tvb, curr_offset, 1, ENC_NA);
+        proto_tree_add_uint(subtree, hf_gsm_a_rr_subchannel, tvb, curr_offset, 1, subchannel);
     }
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3743,7 +3757,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
             }
             else
             {
-                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "reserved for future use (however the value 7C for the first octet shall not be used)");
+                proto_tree_add_item(subtree, hf_gsm_a_rr_ia_rest_oct_reserved, tvb, bit_offset>>3, 1, ENC_NA);
             }
         }
     }
@@ -3762,7 +3776,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
                 proto_tree_add_uint(subtree, hf_gsm_a_rr_maio, tvb, bit_offset>>3, 1, tvb_get_bits8(tvb,bit_offset,6));
                 bit_offset += 6;
                 length = (gint)ma_length;
-                item = proto_tree_add_text(subtree,tvb, bit_offset>>3, (length>>3)-1, "MA Bitmap: ");
+                item = proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_ma_bitmap, tvb, bit_offset>>3, (length>>3)-1, NULL, "MA Bitmap: ");
                 length = (length-1)*8;
                 while (length)
                 {
@@ -3965,7 +3979,8 @@ de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     curr_offset = offset;
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, len, "Bitmap of increasing ARFCNs included in the Mobile Allocation: ");
+    item = proto_tree_add_bytes_format(tree, hf_gsm_a_rr_inc_arfcn_bitmap, tvb, curr_offset, len, NULL,
+                                        "Bitmap of increasing ARFCNs included in the Mobile Allocation: ");
     for(i=len; i>0; i--)
     {
         value = tvb_get_guint8(tvb,curr_offset+i-1);
@@ -4197,9 +4212,9 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     curr_offset = offset;
 
-    item = proto_tree_add_text(tree,tvb, curr_offset, 1 ,"List of DA:");
-
     oct = tvb_get_guint8(tvb, curr_offset);
+    item = proto_tree_add_uint_format(tree, hf_gsm_a_rr_da_list, tvb, curr_offset, 1, oct, "List of DA:");
+
     curr_offset++;
     for( i=0;i<7;i++ )
     {
@@ -4211,8 +4226,8 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     if( oct & 0x80 )  /* octet 3a present */
     {
-        item = proto_tree_add_text(tree,tvb, curr_offset, 1 ,"List of UA:");
         oct = tvb_get_guint8(tvb, curr_offset);
+        item = proto_tree_add_uint_format(tree, hf_gsm_a_rr_ua_list, tvb, curr_offset, 1, oct, "List of UA:");
         curr_offset++;
         for( i=0;i<7;i++ )
         {
@@ -4332,7 +4347,8 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
                 }
             }
         }
-        proto_tree_add_text(subtree,tvb, bit_offset_sav>>3, (bit_offset-bit_offset_sav)>>3,"Group Call Information: Data(Not decoded)");
+        proto_tree_add_expert_format(subtree, pinfo, &ei_gsm_a_rr_data_not_dissected, tvb, bit_offset_sav>>3, (bit_offset-bit_offset_sav)>>3,
+                    "Group Call Information: Data(Not decoded)");
     }
     gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, hf_gsm_a_rr_packet_page_indication_1);
     gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, hf_gsm_a_rr_packet_page_indication_2);
@@ -5308,7 +5324,7 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
         idx = convert_n_to_p[idx];
         subtree2 = proto_tree_add_subtree(subtree,tvb, curr_bit_offset>>3, (idx>>3)+1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_FDD_CELL_INFORMATION_FIELD], &item2,
                                             gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
-        proto_tree_add_text(subtree2,tvb, curr_bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
+        proto_tree_add_bytes_format(subtree2, hf_gsm_a_rr_field_bit_long, tvb, curr_bit_offset>>3, (idx>>3)+1, NULL, "Field is %d bits long", idx);
         if (xdd_indic0)
         {
             proto_tree_add_uint(subtree2, hf_gsm_a_rr_scrambling_code, tvb, curr_bit_offset>>3, 0, 0);
@@ -5387,7 +5403,7 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
         idx = convert_n_to_q[idx];
         subtree2 = proto_tree_add_subtree(subtree,tvb, curr_bit_offset>>3, (idx>>3)+1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_TDD_CELL_INFORMATION_FIELD], &item,
                                         gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
-        proto_tree_add_text(subtree2,tvb, curr_bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
+        proto_tree_add_bytes_format(subtree2, hf_gsm_a_rr_field_bit_long, tvb, curr_bit_offset>>3, (idx>>3)+1, NULL, "Field is %d bits long", idx);
         if (xdd_indic0)
         {
             proto_tree_add_uint(subtree2, hf_gsm_a_rr_cell_parameter, tvb, curr_bit_offset>>3, 0, 0);
@@ -6822,7 +6838,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
             proto_tree_add_uint(subtree3, hf_gsm_a_rr_number_cells, tvb, bit_offset>>3, 1, value);
             bit_offset += 7;
             idx -= 7;
-            item2 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (value>>3)+1, "CCN Supported: ");
+            item2 = proto_tree_add_bytes_format(subtree3, hf_gsm_a_rr_ccn_supported, tvb, bit_offset>>3, (value>>3)+1, NULL, "CCN Supported: ");
             while (value)
             {
                 proto_item_append_text(item2,"%d",tvb_get_bits8(tvb,bit_offset,1));
@@ -7612,7 +7628,7 @@ de_rr_rest_oct_gprs_mobile_allocation(tvbuff_t *tvb, proto_tree *tree, gint bit_
         proto_tree_add_bits_ret_val(subtree, hf_gsm_a_rr_ma_length, tvb, curr_bit_offset, 6, &ma_length, ENC_BIG_ENDIAN);
         curr_bit_offset += 6;
         value = (gint)ma_length + 1;
-        item = proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, (value>>3)+1, "MA Bitmap: ");
+        item = proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_ma_bitmap, tvb, curr_bit_offset>>3, (value>>3)+1, NULL, "MA Bitmap: ");
         while (value)
         {
             proto_item_append_text(item,"%d",tvb_get_bits8(tvb,curr_bit_offset,1));
@@ -7944,7 +7960,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
                     bit_offset += 10;
                 }
                 else
-                    proto_tree_add_text(subtree2, tvb, bit_offset>>3, 1, "PBCCH shall use the BCCH carrier");
+                    proto_tree_add_item(subtree2, hf_gsm_a_rr_pbcch_use_bcch, tvb, bit_offset>>3, 1, ENC_NA);
             }
             proto_item_set_len(item2, (bit_offset>>3) - (bit_offset_sav>>3)+1);
         }
@@ -12973,6 +12989,27 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_single_channel_arfcn, { "Single channel ARFCN", "gsm_a.rr.single_channel_arfcn", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_rtd_index, { "RTD index", "gsm_a.rr.rtd_index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_ti_flag, { "TI flag", "gsm_a.rr.ti_flag", FT_BOOLEAN, 8, TFS(&tfs_allocated_by_receiver_sender), 0x80, NULL, HFILL }},
+            { &hf_gsm_a_rr_arfcn_list, { "List of ARFCNs", "gsm_a.rr.arfcn_list", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_da_list, { "List of DA", "gsm_a.rr.da_list", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_ua_list, { "List of UA", "gsm_a.rr.ua_list", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_ma_bitmap, { "MA Bitmap", "gsm_a.rr.ma_bitmap", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_inc_arfcn_bitmap, { "Bitmap of increasing ARFCNs included in the Mobile Allocation", "gsm_a.rr.inc_arfcn_bitmap", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_ccn_supported, { "CCN Supported", "gsm_a.rr.ccn_supported", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_pbcch_use_bcch, { "PBCCH shall use the BCCH carrier", "gsm_a.rr.pbcch_use_bcch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_ia_rest_oct_reserved, { "Reserved for future use (however the value 7C for the first octet shall not be used)", "gsm_a.rr.ia_rest_oct_reserved", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_facch_sacchm, { "TCH/F + FACCH/F and SACCH/M", "gsm_a.rr.tch_facch_sacchm", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_facch_sacchf, { "TCH/F + FACCH/F and SACCH/F", "gsm_a.rr.tch_facch_sacchf", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_facch_sacchm_bi, { "TCH/F + FACCH/F and SACCH/M + bi- and unidirectional channels", "gsm_a.rr.tch_facch_sacchm_bi", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_acch, { "TCH/H + ACCHs", "gsm_a.rr.tch_acch", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_sdcch4_sdcchc4_cbch, { "SDCCH/4 + SACCH/C4 or CBCH (SDCCH/4)", "gsm_a.rr.sdcch4_sdcchc4_cbch", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_sdcch8_sdcchc8_cbch, { "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8)", "gsm_a.rr.sdcch8_sdcchc8_cbch", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_facchf_sacchm_bi, { "TCH/F + FACCH/F and SACCH/M + bidirectional channels at timeslot", "gsm_a.rr.tch_facchf_sacchm_bi", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tch_facchf_sacchm_uni, { "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot", "gsm_a.rr.tch_facchf_sacchm_uni", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_unknown_channel_info, { "Unknown channel information", "gsm_a.rr.unknown_channel_info", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_tchf_acchs, { "TCH/F + ACCHs", "gsm_a.rr.tchf_acchs", FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }},
+            { &hf_gsm_a_rr_subchannel, { "Subchannel", "gsm_a.rr.tch_facch_sacchm", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_w_elements, { "W elements", "gsm_a.rr.w_elements", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_field_bit_long, { "Field is X bits long", "gsm_a.rr.field_bit_long", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
             /* gsm_rr_csn_flag() fields */
             { &hf_gsm_a_rr_fdd_repeat_freq, { "Repeating FDD Frequency", "gsm_a.rr.fdd_repeat_freq", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},

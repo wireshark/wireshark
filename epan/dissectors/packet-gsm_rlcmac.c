@@ -988,6 +988,7 @@ static expert_field ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported = EI
 static expert_field ei_gsm_rlcmac_coding_scheme_unknown = EI_INIT;
 static expert_field ei_gsm_rlcmac_egprs_header_type_not_handled = EI_INIT;
 static expert_field ei_gsm_rlcmac_unexpected_header_extension = EI_INIT;
+static expert_field ei_gsm_rlcmac_unknown_pacch_access_burst = EI_INIT;
 
 static dissector_handle_t data_handle;
 
@@ -6961,7 +6962,6 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
   tvbuff_t*   data_tvb     = NULL;
   gboolean    more         = TRUE, first_li = TRUE;
   proto_tree *subtree      = NULL;
-  proto_item *ti           = NULL;
 
   /* decode the LIs and any associated LLC Frames */
   for(i = 0; (i < li_count) && more; i++)
@@ -6974,7 +6974,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
     switch (li)
     {
       case 0:
-        proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+        proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                             "LI[%d]=%d indicates: The previous segment of LLC Frame precisely filled the previous RLC Block",
                             i, li);
         break;
@@ -6982,27 +6982,25 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
       case 63:
         if (first_li)
         {
-          ti = proto_tree_add_text(tree, tvb, octet_offset, li,
+          subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, li, ett_data_segments, NULL,
                                    "data segment: LI[%d]=%d indicates: The RLC data block contains only filler bits",
                                    i, li);
         }
         else
         {
-          ti = proto_tree_add_text(tree, tvb, octet_offset, li,
+          subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, li, ett_data_segments, NULL,
                                    "data segment: LI[%d]=%d indicates: The remainder of the RLC data block contains filler bits",
                                    i, li);
         }
-        subtree = proto_item_add_subtree(ti, ett_data_segments);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
 
       default:
-        ti = proto_tree_add_text(tree, tvb, octet_offset, li,
+        subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, li, ett_data_segments, NULL,
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
-        subtree = proto_item_add_subtree(ti, ett_data_segments);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset += li;
@@ -7015,14 +7013,13 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
     /* if there is space left in the RLC Block, then it is a segment of LLC Frame without LI*/
     if (more)
     {
-      ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset,
+      subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL,
                                "data segment: LI not present: \n The Upper Layer PDU in the current RLC data block either fills the current RLC data block precisely \nor continues in the following in-sequence RLC data block");
     }
     else
     {
-      ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset, "Padding Octets");
+      subtree = proto_tree_add_subtree(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL, "Padding Octets");
     }
-    subtree = proto_item_add_subtree(ti, ett_data_segments);
     data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
     call_dissector(data_handle, data_tvb, pinfo, subtree);
     octet_offset = octet_length;
@@ -7037,7 +7034,6 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
   tvbuff_t   *data_tvb     = NULL;
   gboolean    first_li     = TRUE;
   proto_tree *subtree      = NULL;
-  proto_item *ti           = NULL;
 
   /* decode the LIs and any associated LLC Frames */
   for(i = 0; i < li_count; i++)
@@ -7052,20 +7048,20 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
         {
           if (li_array[i].li & 1)
           {
-            proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+            proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                                 "LI[%d]=%d indicates: The previous RLC data block contains a Upper Layer PDU, or a part of it, \nthat fills precisely the previous data block and for which there is no length indicator in that RLC data block. \nThe current RLC data block contains a Upper Layer PDU that either fills the current RLC data block precisely or \ncontinues in the next RLC data block.",
                                 i, li);
           }
           else
           {
-            proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+            proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                                 "LI[%d]=%d indicates: The last Upper Layer PDU of the previous in sequence RLC data block ends \nat the boundary of that RLC data block and it has no LI in the header of that RLC data block. \nThus the current RLC data block contains the first segment of all included Upper Layer PDUs.",
                                 i, li);
           }
         }
         else
         {
-          proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+          proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                               "LI[%d]=%d indicates: Unexpected occurrence of LI=0.",
                               i, li);
         }
@@ -7076,20 +7072,20 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
         {
           if (li_array[i].li & 1)
           {
-            proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+            proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                                 "LI[%d]=%d indicates: The current RLC data block contains the first segment of an Upper Layer PDU \nthat either fills the current RLC data block precisely or continues in the next RLC data block.",
                                 i, li);
           }
           else
           {
-            proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+            proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                                 "LI[%d]=%d indicates: The current RLC data block contains the first segment of all included Upper Layer PDUs.",
                                 i, li);
           }
         }
         else
         {
-          proto_tree_add_text(tree, tvb, li_array[i].offset, 1,
+          proto_tree_add_subtree_format(tree, tvb, li_array[i].offset, 1, ett_data_segments, NULL,
                               "LI[%d]=%d indicates: Unexpected occurrence of LI=126.",
                               i, li);
         }
@@ -7098,27 +7094,25 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
       case 127:
         if (first_li)
         {
-          ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset,
+          subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL,
                                    "data segment: LI[%d]=%d indicates: The RLC data block contains only filler bits",
                                    i, li);
         }
         else
         {
-          ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset,
+          subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL,
                                    "data segment: LI[%d]=%d indicates: The remainder of the RLC data block contains filler bits",
                                    i, li);
         }
-        subtree = proto_item_add_subtree(ti, ett_data_segments);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
 
       default:
-        ti = proto_tree_add_text(tree, tvb, octet_offset, li,
+        subtree = proto_tree_add_subtree_format(tree, tvb, octet_offset, li, ett_data_segments, NULL,
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
-        subtree = proto_item_add_subtree(ti, ett_data_segments);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset += li;
@@ -7129,9 +7123,8 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
   /* if there is space left in the RLC Block, then it is a segment of LLC Frame without LI*/
   if (octet_offset < octet_length)
   {
-    ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset,
+    subtree = proto_tree_add_subtree(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL,
                              "data segment: LI not present: \n The Upper Layer PDU in the current RLC data block either fills the current RLC data block precisely \nor continues in the following in-sequence RLC data block");
-    subtree = proto_item_add_subtree(ti, ett_data_segments);
     data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
     call_dissector(data_handle, data_tvb, pinfo, subtree);
     octet_offset = octet_length;
@@ -7615,8 +7608,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   }
   else
   {
-    proto_tree_add_text(tree, tvb, 0, -1,
-                        "Unknown PACCH access burst");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unknown_pacch_access_burst, tvb, 0, -1);
     call_dissector(data_handle, tvb, pinfo, tree);
   }
 }
@@ -12367,6 +12359,7 @@ proto_register_gsm_rlcmac(void)
       { &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, { "gsm_rlcmac.gprs_fanr_header_dissection_not_supported", PI_UNDECODED, PI_WARN, "GPRS FANR Header dissection not supported (yet)", EXPFILL }},
       { &ei_gsm_rlcmac_egprs_header_type_not_handled, { "gsm_rlcmac.egprs_header_type_not_handled", PI_UNDECODED, PI_WARN, "EGPRS Header Type not handled (yet)", EXPFILL }},
       { &ei_gsm_rlcmac_coding_scheme_unknown, { "gsm_rlcmac.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "GSM RLCMAC unknown coding scheme", EXPFILL }},
+      { &ei_gsm_rlcmac_unknown_pacch_access_burst, { "gsm_rlcmac.unknown_pacch_access_burst", PI_PROTOCOL, PI_WARN, "Unknown PACCH access burst", EXPFILL }},
   };
 
   expert_module_t* expert_gsm_rlcmac;
