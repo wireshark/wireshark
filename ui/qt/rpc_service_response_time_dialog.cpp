@@ -147,7 +147,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createDceRpcSrtDialog(QWidget 
     bool have_args = false;
     QString program_name;
     e_guid_t uuid;
-    int version;
+    int version = 0;
 
     // dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]
     QStringList args_l = QString(opt_arg).split(',');
@@ -198,7 +198,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createOncRpcSrtDialog(QWidget 
     bool have_args = false;
     QString program_name;
     int program_num;
-    int version;
+    int version = 0;
 
     // rpc,srt,<program>,<version>[,<filter>
     QStringList args_l = QString(opt_arg).split(',');
