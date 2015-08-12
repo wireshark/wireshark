@@ -197,7 +197,7 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createOncRpcSrtDialog(QWidget 
     QString filter;
     bool have_args = false;
     QString program_name;
-    int program_num;
+    int program_num = 0;
     int version = 0;
 
     // rpc,srt,<program>,<version>[,<filter>
