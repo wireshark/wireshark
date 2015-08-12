@@ -317,9 +317,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	guint32	packet_size;
 	guint32 orig_size;
 	guint32 header_size;
-#if 0
 	guint64 timestamp;
-#endif
 
 	/* Read record header. */
 	switch (capsa->format_indicator) {
@@ -332,13 +330,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		orig_size = GUINT16_FROM_LE(capsarec_hdr.orig_len);
 		packet_size = GUINT16_FROM_LE(capsarec_hdr.incl_len);
 		header_size = sizeof capsarec_hdr;
-#if 0
 		timestamp = (((guint64)GUINT32_FROM_LE(capsarec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(capsarec_hdr.timestamplo);
-		/*
-		 * XXX - this is not the correct time origin.
-		 */
-		timestamp -= G_GUINT64_CONSTANT(11644473600);
-#endif
 
 		/*
 		 * OK, the rest of this is variable-length.
@@ -360,7 +352,6 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		orig_size = GUINT16_FROM_LE(pbrec_hdr.orig_len);
 		packet_size = GUINT16_FROM_LE(pbrec_hdr.incl_len);
 		header_size = sizeof pbrec_hdr;
-#if 0
 		timestamp = (((guint64)GUINT32_FROM_LE(pbrec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(pbrec_hdr.timestamplo);
 		/*
 		 * XXX - from the results of some conversions between
@@ -371,8 +362,6 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		 * time stamps on the day after the conversion was
 		 * done, which seems like more than just coincidence).
 		 */
-		timestamp -= G_GUINT64_CONSTANT(485946753291483);
-#endif
 		break;
 
 	default:
@@ -428,13 +417,9 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
-#if 0
 	phdr->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
 	phdr->ts.secs = (time_t)(timestamp / 1000000);
 	phdr->ts.nsecs = ((int)(timestamp % 1000000))*1000;
-#else
-	phdr->presence_flags = WTAP_HAS_CAP_LEN;
-#endif
 
 	/*
 	 * Read the packet data.
