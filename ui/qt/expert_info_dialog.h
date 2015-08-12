@@ -70,11 +70,10 @@ private:
     QMenu ctx_menu_;
 
     QHash<QString, QTreeWidgetItem*> ei_to_ti_;
+    QHash<QTreeWidgetItem*, QList<QTreeWidgetItem *> > gti_packets_;
     QList<QAction *> severity_actions_;
 
     QString display_filter_;
-
-    void retapPackets();
 
     // Called from tapPacket
     void addExpertInfo(struct expert_info_s *expert_info);
@@ -87,6 +86,8 @@ private:
     static void tapDraw(void *eid_ptr);
 
 private slots:
+    void retapPackets();
+
     void updateWidgets();
 
     void actionShowToggled();
