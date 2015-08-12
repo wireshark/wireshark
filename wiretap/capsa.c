@@ -30,8 +30,10 @@
  *
  *   a 4-byte magic number, with 'c', 'p', 's', 'e';
  *
- *   either a 1-byte "format indicator" (version number?) followed by
- *   0x00 or a 2-byte little-endian "format indicator";
+ *   either a 2-byte little-endian "format indicator" (version number?),
+ *   or a 1-byte major version number followed by a 1-byte minor version
+ *   number, or a 1-byte "format indicator" followed by something else
+ *   that's always been 0;
  *
  *   a 2-byte 0xe8 0x03 (1000 - a data rate?  megabits/second?)
  *
@@ -175,19 +177,21 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	/*
-	 * Flags of some sort?
+	 * Flags of some sort?  Four 1-byte numbers, two of which are 1
+	 * and two of which are zero?  Two 2-byte numbers or flag fields,
+	 * both of which are 1?
 	 */
 	if (!file_skip(wth->fh, 4, err))
 		return WTAP_OPEN_ERROR;
 
 	/*
-	 * File size.
+	 * File size, in bytes.
 	 */
 	if (!file_skip(wth->fh, 4, err))
 		return WTAP_OPEN_ERROR;
 
 	/*
-	 * Zeroes?
+	 * Zeroes?  Or upper 4 bytes of file size?
 	 */
 	if (!file_skip(wth->fh, 4, err))
 		return WTAP_OPEN_ERROR;
