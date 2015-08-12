@@ -200,7 +200,7 @@ static const value_string message_types_values[] = {
 static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
     guint32 flags,family;
-    guint16 addrlen, slen;
+    guint   addrlen, slen;
     const char* addrs;
 
     proto_tree* nba_request_tree;
