@@ -221,6 +221,7 @@ static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 	return (2);
 }
 
+#if (PDC_VERSION == 2)
 static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
@@ -231,67 +232,79 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 	proto_tree_add_item(tree, hf_pdc_admpdu_admpdunr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	if (PDC_VERSION == 2)
-	{
-		proto_tree_add_item(tree, hf_pdc_admpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
-		/* length of user data field */
-		userDataLen = tvb_get_ntohs(tvb, offset);
-		offset += 2;
+	proto_tree_add_item(tree, hf_pdc_admpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* length of user data field */
+	userDataLen = tvb_get_ntohs(tvb, offset);
+	offset += 2;
 
-		returnLen = userDataLen + 6;
-		asterixTVB = tvb_new_subset_length(tvb, offset, userDataLen);
+	returnLen = userDataLen + 6;
+	asterixTVB = tvb_new_subset_length(tvb, offset, userDataLen);
 
-		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
+	if (asterix_handle != NULL)
+		call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
-		return (returnLen);
-	}
+	return (returnLen);
+}
+#else
+static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree _U_, proto_tree *tree, guint16 offset, packet_info *pinfo _U_)
+{
+	/*Add the ad*/
+	proto_tree_add_item(tree, hf_pdc_admpdu_admpdunr, tvb, offset, 4, ENC_BIG_ENDIAN);
+
 	return (2);
 }
+#endif
 
+#if (PDC_VERSION == 2)
 static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
 	guint16	  returnLen;
 	tvbuff_t *asterixTVB;
 
-	if (PDC_VERSION == 2)
-	{
-		proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
-		/* length of user data field */
-		userDataLen = tvb_get_ntohs(tvb, 2);
-		returnLen  = userDataLen + 2;
-		asterixTVB = tvb_new_subset_length(tvb, offset + 2, userDataLen);
+	proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* length of user data field */
+	userDataLen = tvb_get_ntohs(tvb, 2);
+	returnLen  = userDataLen + 2;
+	asterixTVB = tvb_new_subset_length(tvb, offset + 2, userDataLen);
 
-		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
+	if (asterix_handle != NULL)
+		call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
-		return (returnLen);
-	}
+	return (returnLen);
+}
+#else
+static int dissect_dtmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, guint16 offset _U_, packet_info *pinfo _U_)
+{
 	return (2);
 }
+#endif
 
+
+#if (PDC_VERSION == 2)
 static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
 	guint16	  returnLen;
 	tvbuff_t *asterixTVB;
 
-	if (PDC_VERSION == 2)
-	{
-		proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
-		/* length of user data field */
-		userDataLen = tvb_get_ntohs(tvb, 2);
-		returnLen   = userDataLen + 2;
-		asterixTVB  = tvb_new_subset_length(tvb, offset + 2, userDataLen);
+	proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* length of user data field */
+	userDataLen = tvb_get_ntohs(tvb, 2);
+	returnLen   = userDataLen + 2;
+	asterixTVB  = tvb_new_subset_length(tvb, offset + 2, userDataLen);
 
-		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
+	if (asterix_handle != NULL)
+		call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
-		return (returnLen);
-	}
+	return (returnLen);
+}
+#else
+static int dissect_edmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, guint16 offset _U_, packet_info *pinfo _U_)
+{
 	return 2;
 }
+#endif
 
 static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 {
