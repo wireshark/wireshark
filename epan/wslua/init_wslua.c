@@ -984,20 +984,20 @@ void wslua_reload_plugins (register_cb cb, gpointer client_data) {
     if (ops->close_dialogs)
         ops->close_dialogs();
 
-    wslua_cleanup();                /* deregister */
+    wslua_deregister_protocols(L);
+    wslua_deregister_dissector_tables(L);
+    wslua_deregister_listeners(L);
+    wslua_deregister_filehandlers(L);
+    wslua_deregister_menus();
+    wslua_clear_plugin_list();
+
+    wslua_cleanup();
     wslua_init(cb, client_data);    /* reinitialize */
 }
 
 void wslua_cleanup(void) {
     /* cleanup lua */
     if (L) {
-        wslua_deregister_protocols(L);
-        wslua_deregister_dissector_tables(L);
-        wslua_deregister_listeners(L);
-        wslua_deregister_filehandlers(L);
-        wslua_deregister_menus();
-        wslua_clear_plugin_list();
-
         lua_close(L);
         L = NULL;
     }
