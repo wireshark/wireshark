@@ -86,7 +86,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *chil
     gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
 }
 
-void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
+static void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
 {
     if ( gbl_cur_main_window_ != NULL && user_data != NULL )
     {
@@ -100,7 +100,7 @@ void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
     }
 }
 
-void plugin_if_mainwindow_preference(gconstpointer user_data)
+static void plugin_if_mainwindow_preference(gconstpointer user_data)
 {
     if ( gbl_cur_main_window_ != NULL && user_data != NULL )
     {
