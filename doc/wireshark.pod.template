@@ -181,6 +181,9 @@ MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
 =item *
 Rabbit Labs CAM Inspector files
 
+=item *
+Colasoft Capsa files
+
 =back
 
 There is no need to tell B<Wireshark> what type of
