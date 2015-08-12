@@ -37,13 +37,13 @@ typedef void (*tap_draw_cb)(void *tapdata);
 /**
  * Flags to indicate what a tap listener's packet routine requires.
  */
-#define TL_REQUIRES_NOTHING	0x00000000	/**< nothing */
-#define TL_REQUIRES_PROTO_TREE	0x00000001	/**< full protocol tree */
-#define TL_REQUIRES_COLUMNS	0x00000002	/**< columns */
+#define TL_REQUIRES_NOTHING	0x00000000	        /**< nothing */
+#define TL_REQUIRES_PROTO_TREE	0x00000001	    /**< full protocol tree */
+#define TL_REQUIRES_COLUMNS	0x00000002	        /**< columns */
 #define TL_REQUIRES_ERROR_PACKETS	0x00000004	/**< include packet even if pinfo->flags.in_error_pkt is set */
 /** Flags to indicate what the tap listener does */
-#define TL_IS_DISSECTOR_HELPER	0x00000008	/**< tap helps a dissector do work
-						 ** but does not, itself, require dissection */
+#define TL_IS_DISSECTOR_HELPER	0x00000008	    /**< tap helps a dissector do work
+						                         ** but does not, itself, require dissection */
 
 #ifdef HAVE_PLUGINS
 /** Register tap plugin type with the plugin system.
