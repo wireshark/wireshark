@@ -84,8 +84,8 @@ static const char capsa_magic[] = {
 struct capsarec_hdr {
 	guint32 unknown1;	/* low-order 32 bits of a number? */
 	guint32 unknown2;	/* 0x00 0x00 0x00 0x00 */
-	guint32 timestamplo;	/* low-order 32 bits of a time stamp, in microseconds */
-	guint32 timestamphi;	/* high-order 32 bits of a time stamp, in microseconds */
+	guint32 timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	guint32 timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
 	guint16	rec_len;	/* length of record */
 	guint16	incl_len;	/* number of octets captured in file */
 	guint16	orig_len;	/* actual length of packet */
@@ -105,8 +105,8 @@ struct pbrec_hdr {
 	guint16 unknown2;
 	guint16 unknown3;
 	guint32 unknown4;
-	guint32 timestamplo;	/* low-order 32 bits of a time stamp, in microseconds */
-	guint32 timestamphi;	/* high-order 32 bits of a time stamp, in microseconds */
+	guint32 timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	guint32 timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
 	guint32 unknown5;
 	guint32 unknown6;
 };
