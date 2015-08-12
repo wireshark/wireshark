@@ -147,7 +147,7 @@ static const value_string valstr_drmpdu_reason[] = {
 /* start of functions here */
 static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint8 lenIndicator)
 {
-	guint16	    bytesProcessed;
+	gint	    bytesProcessed;
 	guint8	    paramCode;
 	proto_item *simpduItem;
 	proto_tree *simpduVarTree;
