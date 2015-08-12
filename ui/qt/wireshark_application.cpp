@@ -477,7 +477,8 @@ void WiresharkApplication::itemStatusFinished(const QString filename, qint64 siz
 
 WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     QApplication(argc, argv),
-    initialized_(false)
+    initialized_(false),
+    is_reloading_lua_(false)
 {
     wsApp = this;
     setApplicationName("Wireshark");
