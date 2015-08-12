@@ -151,6 +151,8 @@ typedef enum {
 } nghttp2_hd_opcode;
 
 typedef enum {
+  NGHTTP2_HD_STATE_EXPECT_TABLE_SIZE,
+  NGHTTP2_HD_STATE_INFLATE_START,
   NGHTTP2_HD_STATE_OPCODE,
   NGHTTP2_HD_STATE_READ_TABLE_SIZE,
   NGHTTP2_HD_STATE_READ_INDEX,
@@ -356,8 +358,8 @@ int nghttp2_hd_emit_newname_block(nghttp2_bufs *bufs, nghttp2_nv *nv,
 int nghttp2_hd_emit_table_size(nghttp2_bufs *bufs, size_t table_size);
 
 /* For unittesting purpose */
-NGHTTP2_EXTERN nghttp2_hd_entry *nghttp2_hd_table_get(nghttp2_hd_context *context,
-                                       size_t index);
+NGHTTP2_EXTERN nghttp2_hd_entry *
+nghttp2_hd_table_get(nghttp2_hd_context *context, size_t index);
 
 /* For unittesting purpose */
 ssize_t nghttp2_hd_decode_length(uint32_t *res, size_t *shift_ptr, int *final,
