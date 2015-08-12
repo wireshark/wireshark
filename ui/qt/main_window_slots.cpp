@@ -1321,6 +1321,8 @@ void MainWindow::fieldsChanged()
         dfilter_free(dfp);
     }
 
+    proto_free_deregistered_fields();
+
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
         /* Recreate packet list according to new/changed/deleted fields */
         packet_list_->redrawVisiblePackets();
@@ -1328,8 +1330,6 @@ void MainWindow::fieldsChanged()
         /* Redissect packets if we have any */
         redissectPackets();
     }
-
-    proto_free_deregistered_fields();
 }
 
 void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)

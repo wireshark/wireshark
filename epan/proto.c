@@ -656,6 +656,13 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 	gint               hfid = GPOINTER_TO_UINT(key);
 	header_field_info *hfinfo;
 
+	g_ptr_array_free(ptrs, TRUE);
+
+	if (gpa_hfinfo.hfi[hfid] == NULL) {
+		/* This is a deregistered field */
+		return;
+	}
+
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
 	if (hfinfo->ref_type != HF_REF_TYPE_NONE) {
 		/* when a field is referenced by a filter this also
@@ -669,8 +676,6 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 		}
 		hfinfo->ref_type = HF_REF_TYPE_NONE;
 	}
-
-	g_ptr_array_free(ptrs, TRUE);
 }
 
 static void
@@ -5501,6 +5506,10 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 	while (protos != NULL)
 	{
 		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+		if (gpa_hfinfo.hfi[proto_id] == NULL) {
+			protos = wmem_list_frame_next(protos);
+			continue; /* This is a deregistered protocol */
+		}
 		proto_name = proto_get_protocol_filter_name(proto_id);
 
 		if (is_ip && ((!strcmp(proto_name, "ip")) ||
@@ -5535,6 +5544,10 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 	while (protos != NULL)
 	{
 		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+		if (gpa_hfinfo.hfi[proto_id] == NULL) {
+			protos = wmem_list_frame_next(protos);
+			continue; /* This is a deregistered protocol */
+		}
 		name = proto_get_protocol_filter_name(proto_id);
 
 		if (!strcmp(name, proto_name))
