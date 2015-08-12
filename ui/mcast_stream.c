@@ -153,20 +153,32 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     nstime_t delta;
     double deltatime;
 
-    /* gather infos on the stream this packet is part of */
-    COPY_ADDRESS(&(tmp_strinfo.src_addr), &(pinfo->src));
-    tmp_strinfo.src_port = pinfo->srcport;
-    COPY_ADDRESS(&(tmp_strinfo.dest_addr), &(pinfo->dst));
-    tmp_strinfo.dest_port = pinfo->destport;
-
-    /* first we ignore non multicast packets; we filter out only those ethernet packets
-     * which start with the 01:00:5E multicast address (for IPv4) and 33:33 multicast
-     * address (for IPv6).
+    /*
+     * Restrict statistics to standard multicast IPv4 and IPv6 addresses.
+     * We might want to check for and allow ethernet addresses starting
+     * with 01:00:05 and 33:33 as well.
      */
-    if ((pinfo->dl_dst.type != AT_ETHER) ||
-        ((g_ascii_strncasecmp("01005E", bytes_to_str(pinfo->pool, (const guint8 *)pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
-         (g_ascii_strncasecmp("3333", bytes_to_str(pinfo->pool, (const guint8 *)pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
-        return 0;
+    switch (pinfo->net_dst.type) {
+        case AT_IPv4:
+            /* 224.0.0.0/4 */
+            if (pinfo->net_dst.len == 0 || (((const guint8*)pinfo->net_dst.data)[0] & 0xf0) != 0xe0)
+                return FALSE;
+            break;
+        case AT_IPv6:
+            /* ff00::/8 */
+            /* XXX This includes DHCPv6. */
+            if (pinfo->net_dst.len == 0 || ((const guint8*)pinfo->net_dst.data)[0] != 0xff)
+                return FALSE;
+            break;
+        default:
+            return FALSE;
+    }
+
+    /* gather infos on the stream this packet is part of */
+    COPY_ADDRESS(&(tmp_strinfo.src_addr), &(pinfo->net_src));
+    tmp_strinfo.src_port = pinfo->srcport;
+    COPY_ADDRESS(&(tmp_strinfo.dest_addr), &(pinfo->net_dst));
+    tmp_strinfo.dest_port = pinfo->destport;
 
     /* check whether we already have a stream with these parameters in the list */
     list = g_list_first(tapinfo->strinfo_list);
