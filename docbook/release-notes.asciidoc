@@ -15,10 +15,74 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2015-21[]
 +
-A dissector went awry.
-// Fixed in master: gXXX
-// Fixed in master-1.12: gXXX
-(ws-buglink:XXX[])
+Protocol tree crash.
+// Fixed in master: g6126a64
+// Fixed in master-1.12: g2728dfc
+(ws-buglink:11309[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-22[]
++
+Memory manager crash.
+// Fixed in master: geaf1aad
+// Fixed in master-1.12: g1abc148
+(ws-buglink:11373[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-23[]
++
+Dissector table crash.
+// Fixed in master: geb1ccbd
+// Fixed in master-1.12: g5470a4d
+(ws-buglink:11381[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-24[]
++
+ZigBee crash.
+// Fixed in master: g655b0dc, g3157114, g43c2e57
+// Fixed in master-1.12: g84a3493, g76d50a7, 39e6153
+(ws-buglink:11389[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-25[]
++
+GSM RLC/MAC infinite loop.
+// Fixed in master: g78bc3dd
+// Fixed in master-1.12: g6be36c1
+(ws-buglink:11358[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-26[]
++
+WaveAgent crash.
+// Fixed in master: g5523726
+// Fixed in master-1.12: g1c1733e
+(ws-buglink:11358[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-27[]
++
+OpenFlow infinite loop.
+// Fixed in master: g828358d
+// Fixed in master-1.12: g6cb9d38
+(ws-buglink:11358[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-28[]
++
+Ptvcursor crash.
+// Fixed in master: g5b53445, g3fc4a83
+// Fixed in master-1.12: g3c38a92, g9831d16
+(ws-buglink:11358[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-29[]
++
+WCCP crash.
+// Fixed in master: gb1eaf29
+// Fixed in master-1.12: gbc26f2e
+(ws-buglink:11358[])
 //cve-idlink:2015-XXXX[]
 
 
@@ -27,6 +91,48 @@ The following bugs have been fixed:
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* DCE RPC "Decode As" capability is missing. (ws-buglink:10368[])
+
+* Mergecap turns nanosecond-resolution time stamps into microsecond-resolution time stamps. (ws-buglink:11202[])
+
+* The Aruba ERM Type 1 Dissector inconsistent with Type 0 and Type 3. (ws-buglink:11204[])
+
+* Parse CFM Type Test signal (TST) without CRC. (ws-buglink:11286[])
+
+* Tshark: output format of rpc.xid changed from Hex to Integer. (ws-buglink:11292[])
+
+* Not stop -a filecount <COUNT>. (ws-buglink:11305[])
+
+* lldp.ieee.802_3.mdi_power_class display is wrong. (ws-buglink:11330[])
+
+* Powerlink (EPL) SDO packages interpreted as frame dublication. (ws-buglink:11341[])
+
+* Mysql dissector adds packet content to INFO column without scrubbing it. (ws-buglink:11344[])
+
+* PIM null-register according to rfc4601 is incorrectly parsed. (ws-buglink:11354[])
+
+* Wireshark Lua dissectors: both expand together. (ws-buglink:11356[])
+
+* Link-type not retrieved for rpcap interfaces configured with authentication. (ws-buglink:11366[])
+
+* SSL Decryption (RSA private key with p smaller than q) failing on the Windows 7 buildbot. (ws-buglink:11372[])
+
+* [gtpv2]PCSCF ip in the Protocol configuration of update bearer request is not getting populated. (ws-buglink:11378[])
+
+* wpan.src64 (and dst64) filter always gives "is not a valid EUI64 Address" error. (ws-buglink:11380[])
+
+* Websphere MQ Work Information Header incorrectly showing "Reserved". (ws-buglink:11384[])
+
+* DUP ACK Counter resetting after Window Update. (ws-buglink:11397[])
+
+* CSV values missing when using tshark -2 option. (ws-buglink:11401[])
+
+* Ethernet PAUSE frames are decoded incorrectly as PFC. (ws-buglink:11403[])
+
+* SOCKS decoder giving strange values for seemingly normal SOCKS connection. (ws-buglink:11417[])
+
+* 802.11ad decoding error. (ws-buglink:11419[])
 
 
 === New and Updated Features
@@ -40,6 +146,28 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+Aruba ERM
+CFM
+IEEE 802.11
+EPL
+GSM A-bis OML
+GSM MAP
+GSM RLC/MAC
+GTPv2
+LLDP
+LTE RRC
+MAC Control
+MQ
+MySQL
+OpenFlow
+OpcUa
+Radiotap
+SCCP
+SOCKS
+TCP
+WaveAgent
+WCCP
+ZigBee
 --sort-and-group--
 
 === New and Updated Capture File Support
