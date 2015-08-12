@@ -30,18 +30,15 @@
  *
  *   a 4-byte magic number, with 'c', 'p', 's', 'e';
  *
- *   a 1-byte or 2-byte "format indicator" (version number?) - if it's
- *   1-byte, it's followed by 0x00;
+ *   either a 1-byte "format indicator" (version number?) followed by
+ *   0x00 or a 2-byte little-endian "format indicator";
  *
  *   a 2-byte 0xe8 0x03 (1000 - a data rate?  megabits/second?)
  *
- *   a 2-byte 0x01 0x00;
+ *   4 bytes of 0x01 0x00 0x01 0x00;
  *
- *   a 2-byte 0x01 0x00;
- *
- *   a 4-byte little-endian file size;
- *
- *   a 4-byte 0x00 0x00 0x00 0x00;
+ *   either a 4-byte little-endian file size followed by 0x00 0x00 0x00 0x00
+ *   or an 8-byte little-endian file size;
  *
  *   a 4-byte little-endian packet count (in dns_error_of_udp, it exceeds?)
  *
