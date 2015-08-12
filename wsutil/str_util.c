@@ -121,6 +121,7 @@ isdigit_string(guchar *str)
 #endif
 
 /* Given a size, return its value in a human-readable format */
+/* This doesn't handle fractional values. We might want to make size a double. */
 gchar *
 format_size(gint64 size, format_size_flags_e flags)
 {

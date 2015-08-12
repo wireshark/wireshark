@@ -492,6 +492,7 @@
     <addaction name="actionStatisticsHTTP2"/>
     <addaction name="actionStatisticsSametime"/>
     <addaction name="menuTcpStreamGraphs"/>
+    <addaction name="actionStatisticsUdpMulticastStreams"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -2635,6 +2636,14 @@
    </property>
    <property name="toolTip">
     <string>Go to the packet referenced by the selected field.</string>
+   </property>
+  </action>
+  <action name="actionStatisticsUdpMulticastStreams">
+   <property name="text">
+    <string>UDP Multicast Streams</string>
+   </property>
+   <property name="toolTip">
+    <string>Show UTP multicast stream statistics.</string>
    </property>
   </action>
  </widget>

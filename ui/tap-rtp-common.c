@@ -94,8 +94,6 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 		tapinfo->npackets = 0;
 	}
 
-	++(tapinfo->launch_count);
-
 	return;
 }
 

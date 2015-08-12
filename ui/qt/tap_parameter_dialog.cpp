@@ -141,6 +141,21 @@ QTreeWidget *TapParameterDialog::statsTreeWidget()
     return ui->statsTreeWidget;
 }
 
+QLineEdit *TapParameterDialog::displayFilterLineEdit()
+{
+    return ui->displayFilterLineEdit;
+}
+
+QPushButton *TapParameterDialog::applyFilterButton()
+{
+    return ui->applyFilterButton;
+}
+
+QVBoxLayout *TapParameterDialog::verticalLayout()
+{
+    return ui->verticalLayout;
+}
+
 QHBoxLayout *TapParameterDialog::filterLayout()
 {
     return ui->filterLayout;
@@ -421,6 +436,53 @@ void TapParameterDialog::contextMenuEvent(QContextMenuEvent *event)
     }
 
     ctx_menu_.exec(event->globalPos());
+}
+
+void TapParameterDialog::addFilterActions()
+{
+    QMenu *submenu;
+    QAction *insert_action = ctx_menu_.actions().first();
+
+    FilterAction::Action cur_action = FilterAction::ActionApply;
+    submenu = ctx_menu_.addMenu(FilterAction::actionName(cur_action));
+    foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
+        FilterAction *fa = new FilterAction(submenu, cur_action, at);
+        submenu->addAction(fa);
+        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        filter_actions_ << fa;
+    }
+    ctx_menu_.insertMenu(insert_action, submenu);
+
+    cur_action = FilterAction::ActionPrepare;
+    submenu = ctx_menu_.addMenu(FilterAction::actionName(cur_action));
+    foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
+        FilterAction *fa = new FilterAction(submenu, cur_action, at);
+        submenu->addAction(fa);
+        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        filter_actions_ << fa;
+    }
+    ctx_menu_.insertMenu(insert_action, submenu);
+
+    cur_action = FilterAction::ActionFind;
+    submenu = ctx_menu_.addMenu(FilterAction::actionName(cur_action));
+    foreach (FilterAction::ActionType at, FilterAction::actionTypes(cur_action)) {
+        FilterAction *fa = new FilterAction(submenu, cur_action, at);
+        submenu->addAction(fa);
+        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        filter_actions_ << fa;
+    }
+    ctx_menu_.insertMenu(insert_action, submenu);
+
+    cur_action = FilterAction::ActionColorize;
+    submenu = ctx_menu_.addMenu(FilterAction::actionName(cur_action));
+    foreach (FilterAction::ActionType at, FilterAction::actionTypes(cur_action)) {
+        FilterAction *fa = new FilterAction(submenu, cur_action, at);
+        submenu->addAction(fa);
+        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        filter_actions_ << fa;
+    }
+    ctx_menu_.insertMenu(insert_action, submenu);
+    ctx_menu_.insertSeparator(insert_action);
 }
 
 void TapParameterDialog::updateWidgets()

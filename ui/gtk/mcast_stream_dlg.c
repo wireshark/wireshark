@@ -50,13 +50,11 @@
 
 static void mcaststream_dlg_update(void *ti_ptr);
 
-void register_tap_listener_mcast_stream_dlg(void);
-
 /****************************************************************************/
 /* the one and only global mcaststream_tapinfo_t structure for tshark and wireshark.
  */
 static mcaststream_tapinfo_t the_tapinfo_struct =
-    {mcaststream_dlg_update, 0, NULL, 0, NULL, 0, FALSE};
+    {NULL, NULL, mcaststream_dlg_update, NULL, 0, NULL, FALSE};
 
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"
@@ -397,9 +395,9 @@ add_to_list_store(mcast_stream_info_t* strinfo)
     data[2] = g_strdup(dst_addr);
     data[3] = g_strdup_printf("%u", strinfo->dest_port);
     data[4] = g_strdup_printf("%u", strinfo->npackets);
-    data[5] = g_strdup_printf("%u /s", strinfo->apackets);
-    data[6] = g_strdup_printf("%2.1f Mbps", strinfo->average_bw);
-    data[7] = g_strdup_printf("%2.1f Mbps", strinfo->element.maxbw);
+    data[5] = g_strdup_printf("%.1f /s", strinfo->apackets);
+    data[6] = g_strdup_printf("%2.1f Mbps", strinfo->average_bw/1000000);
+    data[7] = g_strdup_printf("%2.1f Mbps", strinfo->element.maxbw/1000000);
     data[8] = g_strdup_printf("%u / %dms", strinfo->element.topburstsize, mcast_stream_burstint);
     data[9] = g_strdup_printf("%u", strinfo->element.numbursts);
     data[10] = g_strdup_printf("%.1f KB", (float)strinfo->element.topbuffusage/1000);
@@ -438,7 +436,7 @@ add_to_list_store(mcast_stream_info_t* strinfo)
     g_snprintf(label_text, sizeof(label_text),
         "Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
         ++streams_nb,
-        mcaststream_dlg_get_tapinfo()->allstreams->average_bw, mcaststream_dlg_get_tapinfo()->allstreams->element.maxbw,
+        mcaststream_dlg_get_tapinfo()->allstreams->average_bw/1000000, mcaststream_dlg_get_tapinfo()->allstreams->element.maxbw/1000000,
         mcaststream_dlg_get_tapinfo()->allstreams->element.topburstsize, mcast_stream_burstint,
         (float)(mcaststream_dlg_get_tapinfo()->allstreams->element.topbuffusage)/1000);
     gtk_label_set_text(GTK_LABEL(top_label), label_text);
@@ -824,12 +822,6 @@ mcaststream_launch(GtkAction *action _U_, gpointer user_data _U_)
     mcaststream_dlg_show(the_tapinfo_struct.strinfo_list);
 
     /* Tap listener will be removed and cleaned up in mcaststream_on_destroy */
-}
-
-/****************************************************************************/
-void
-register_tap_listener_mcast_stream_dlg(void)
-{
 }
 
 mcaststream_tapinfo_t *mcaststream_dlg_get_tapinfo(void) {

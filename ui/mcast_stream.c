@@ -110,18 +110,19 @@ mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
     g_free(tapinfo->allstreams);
     tapinfo->allstreams = NULL;
 
-    tapinfo->nstreams = 0;
     tapinfo->npackets = 0;
-
-    ++(tapinfo->launch_count);
 
     return;
 }
 
 static void
-mcaststream_reset_cb(void *arg)
+mcaststream_reset_cb(void *ti_ptr)
 {
-    mcaststream_reset((mcaststream_tapinfo_t *)arg);
+    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)ti_ptr;
+    if (tapinfo && tapinfo->tap_reset) {
+        tapinfo->tap_reset(ti_ptr);
+    }
+    mcaststream_reset(tapinfo);
 }
 
 /****************************************************************************/
@@ -143,7 +144,7 @@ mcaststream_draw(void *ti_ptr)
 
 /****************************************************************************/
 /* whenever a udp packet is seen by the tap listener */
-static int
+static gboolean
 mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
 {
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
@@ -256,12 +257,16 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
     /* calculate average bandwidth for this stream */
     strinfo->total_bytes = strinfo->total_bytes + pinfo->fd->pkt_len;
-    if (deltatime > 0)
-        strinfo->average_bw = (((double)(strinfo->total_bytes*8) / deltatime) / 1000000);
 
     /* increment the packets counter for this stream and calculate average pps */
     ++(strinfo->npackets);
-    strinfo->apackets = (guint32) (strinfo->npackets / deltatime);
+    
+    if (deltatime > 0) {
+        strinfo->apackets = strinfo->npackets / deltatime;
+        strinfo->average_bw = ((double)(strinfo->total_bytes*8) / deltatime);
+    } else {
+        strinfo->apackets = strinfo->average_bw = 0.0;
+    }
 
     /* time between first and last packet in any group */
     tapinfo->allstreams->stop_rel = pinfo->rel_ts;
@@ -274,7 +279,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     /* calculate average bandwidth for all streams */
     tapinfo->allstreams->total_bytes = tapinfo->allstreams->total_bytes + pinfo->fd->pkt_len;
     if (deltatime > 0)
-        tapinfo->allstreams->average_bw = (((double)(tapinfo->allstreams->total_bytes *8) / deltatime) / 1000000);
+        tapinfo->allstreams->average_bw = ((double)(tapinfo->allstreams->total_bytes*8) / deltatime);
 
     /* sliding window and buffercalc for this group*/
     slidingwindow(strinfo, pinfo);
@@ -439,7 +444,7 @@ slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
     strinfo->element.burstsize = diff;
     if(strinfo->element.burstsize > strinfo->element.topburstsize) {
         strinfo->element.topburstsize = strinfo->element.burstsize;
-        strinfo->element.maxbw = (double)(strinfo->element.topburstsize) * 1000 / mcast_stream_burstint * pinfo->fd->pkt_len * 8 / 1000000;
+        strinfo->element.maxbw = (double)(strinfo->element.topburstsize) * 1000 / mcast_stream_burstint * pinfo->fd->pkt_len * 8;
     }
 
     strinfo->element.last++;

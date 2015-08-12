@@ -836,6 +836,10 @@ on those calls that match that filter.
 Example: B<-z "mgcp,srt,ip.addr==1.2.3.4"> will collect stats only for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+=item B<-z> multicast,stat[,<filter>]
+
+Show UDP multicast stream statistics.
+
 =item B<-z> rpc,programs
 
 Collect call/reply SRT data for all known ONC-RPC programs/versions.

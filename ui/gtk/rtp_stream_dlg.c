@@ -59,7 +59,7 @@ void register_tap_listener_rtp_stream_dlg(void);
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
     { rtpstream_tap_draw, rtpstream_dlg_mark_packet, NULL, 0, NULL, 0,
-      TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE
+      TAP_ANALYSE, NULL, NULL, NULL, FALSE
     };
 
 /****************************************************************************/

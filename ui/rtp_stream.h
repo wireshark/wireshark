@@ -106,7 +106,6 @@ struct _rtpstream_tapinfo {
     rtp_stream_info_t *filter_stream_fwd; /**< used as filter in some tap modes */
     rtp_stream_info_t *filter_stream_rev; /**< used as filter in some tap modes */
     FILE              *save_file;
-    guint32            launch_count; /**< number of times the tap has been run */
     gboolean           is_registered; /**< if the tap listener is currently registered or not */
 };
 

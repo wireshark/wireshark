@@ -477,6 +477,8 @@ private slots:
     void on_actionSCTPShowAllAssociations_triggered();
     void on_actionSCTPAnalyseThisAssociation_triggered();
     void on_actionSCTPFilterThisAssociation_triggered();
+    void statCommandMulticastStatistics(const char *arg, void *);
+    void on_actionStatisticsUdpMulticastStreams_triggered();
 
     void openStatisticsTreeDialog(const gchar *abbr);
     void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();

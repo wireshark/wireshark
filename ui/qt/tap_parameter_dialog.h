@@ -35,8 +35,10 @@
 #include "wireshark_dialog.h"
 
 class QHBoxLayout;
+class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
+class QVBoxLayout;
 
 namespace Ui {
 class TapParameterDialog;
@@ -60,6 +62,9 @@ public:
     // Needed by static member functions in subclasses. Should we just make
     // "ui" available instead?
     QTreeWidget *statsTreeWidget();
+    QLineEdit *displayFilterLineEdit();
+    QPushButton *applyFilterButton();
+    QVBoxLayout *verticalLayout();
     QHBoxLayout *filterLayout();
 
     void drawTreeItems();
@@ -71,11 +76,9 @@ signals:
 public slots:
 
 protected:
-    QMenu ctx_menu_;
-    QList<QAction *> filter_actions_;
-
     void showEvent(QShowEvent *);
     void contextMenuEvent(QContextMenuEvent *event);
+    void addFilterActions();
     QString displayFilter();
     void setDisplayFilter(const QString &filter);
     void setHint(const QString &hint);
@@ -84,9 +87,12 @@ protected:
 
 protected slots:
     void filterActionTriggered();
+    void updateWidgets();
 
 private:
     Ui::TapParameterDialog *ui;
+    QMenu ctx_menu_;
+    QList<QAction *> filter_actions_;
     int help_topic_;
     static const QString action_name_;
     bool retap_on_show_;
@@ -99,7 +105,6 @@ private:
     virtual QByteArray getTreeAsString(st_format_type format);
 
 private slots:
-    void updateWidgets();
     void on_applyFilterButton_clicked();
     void on_actionCopyToClipboard_triggered();
     void on_actionSaveAs_triggered();

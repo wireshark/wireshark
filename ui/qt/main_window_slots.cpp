@@ -127,6 +127,7 @@
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
+#include "multicast_statistics_dialog.h"
 #include "voip_calls_dialog.h"
 #include "wireshark_application.h"
 #include "filter_action.h"
@@ -2633,6 +2634,19 @@ void MainWindow::on_actionStatisticsTcpStreamRoundTripTime_triggered()
 void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
 {
     openTcpStreamDialog(GRAPH_WSCALE);
+}
+
+void MainWindow::statCommandMulticastStatistics(const char *arg, void *)
+{
+    MulticastStatisticsDialog *mcast_stats_dlg = new MulticastStatisticsDialog(*this, capture_file_, arg);
+    connect(mcast_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    mcast_stats_dlg->show();
+}
+
+void MainWindow::on_actionStatisticsUdpMulticastStreams_triggered()
+{
+    statCommandMulticastStatistics(NULL, NULL);
 }
 
 void MainWindow::openStatisticsTreeDialog(const gchar *abbr)

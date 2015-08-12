@@ -52,7 +52,7 @@ typedef struct buffer{
     gint32 buffstatus;         /* buffer status */
     gint32 numbuffalarms;      /* number of alarms triggered by buffer underruns */
     gint32 topbuffusage;       /* top buffer usage in refresh interval */
-    double maxbw;              /* maximum bandwidth usage */
+    double maxbw;              /* Maximum bandwidth usage. Bits/s */
 } t_buffer;
 
 
@@ -63,9 +63,9 @@ typedef struct _mcast_stream_info {
     address dest_addr;
     guint16 dest_port;
     guint32 npackets;
-    guint32 apackets;
+    double  apackets;
     guint32 total_bytes;
-    double  average_bw;
+    double  average_bw;         /* Bits/s */
 
     guint32 first_frame_num; /* frame number of first frame */
     /* start of recording (GMT) of this stream */
@@ -83,13 +83,13 @@ typedef struct _mcast_stream_info {
 /* structure that holds the information about all detected streams */
 /* struct holding all information of the tap */
 typedef struct _mcaststream_tapinfo {
-    tap_draw_cb tap_draw;                   /**< tap draw callback */
-    int     nstreams;       /* number of streams in the list */
-    GList*  strinfo_list;   /* list with all streams */
+    gpointer user_data;     /* User data pointer */
+    tap_reset_cb tap_reset; /**< tap reset callback */
+    tap_draw_cb tap_draw;   /**< tap draw callback */
+    GList*  strinfo_list;   /* list of mcast_stream_info_t */
     guint32 npackets;       /* total number of mcast packets of all streams */
     mcast_stream_info_t* allstreams; /* structure holding information common for all streams */
 
-    guint32 launch_count;   /* number of times the tap has been run */
     gboolean is_registered; /* if the tap listener is currently registered or not */
 } mcaststream_tapinfo_t;
 
