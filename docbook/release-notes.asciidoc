@@ -179,14 +179,14 @@ There is no new or updated capture file support in this release.
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from
-http://www.wireshark.org/download.html.
+https://www.wireshark.org/download.html.
 
 === Vendor-supplied Packages
 
 Most Linux and Unix vendors supply their own Wireshark packages. You can
 usually install or upgrade Wireshark using the package management system
 specific to that platform. A list of third-party packages can be found
-on the http://www.wireshark.org/download.html#thirdparty[download page]
+on the https://www.wireshark.org/download.html#thirdparty[download page]
 on the Wireshark web site.
 
 == File Locations
@@ -211,7 +211,7 @@ Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
 
 The 64-bit Windows installer does not support Kerberos decryption.
-(http://wiki.wireshark.org/Development/Win64[Win64 development page])
+(https://wiki.wireshark.org/Development/Win64[Win64 development page])
 
 Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
 no longer automatically decodes gzip data when following a TCP stream.
@@ -230,10 +230,10 @@ Wireshark and TShark will display incorrect delta times in some cases.
 
 == Getting Help
 
-Community support is available on http://ask.wireshark.org/[Wireshark's
+Community support is available on https://ask.wireshark.org/[Wireshark's
 Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark's mailing lists can be
-found on http://www.wireshark.org/lists/[the web site].
+found on https://www.wireshark.org/lists/[the web site].
 
 Official Wireshark training and certification are available from
 http://www.wiresharktraining.com/[Wireshark University].
@@ -241,4 +241,4 @@ http://www.wiresharktraining.com/[Wireshark University].
 == Frequently Asked Questions
 
 A complete FAQ is available on the
-http://www.wireshark.org/faq.html[Wireshark web site].
+https://www.wireshark.org/faq.html[Wireshark web site].
