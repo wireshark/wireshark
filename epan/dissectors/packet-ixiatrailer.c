@@ -34,16 +34,19 @@
 void proto_register_ixiatrailer(void);
 void proto_reg_handoff_ixiatrailer(void);
 
+/* Trailer "magic number". */
 #define IXIA_PATTERN    0xAF12
 
-/* TODO: which of these typestamp types are currently supported?
+/* Trailer TLV types.
+
+   TODO: which of these typestamp types are currently supported?
    Should lose the rest!! */
 #define IXIATRAILER_FTYPE_ORIGINAL_PACKET_SIZE 1
-#define IXIATRAILER_FTYPE_TIMESTAMP_LOCAL     3
-#define IXIATRAILER_FTYPE_TIMESTAMP_NTP       4
-#define IXIATRAILER_FTYPE_TIMESTAMP_GPS       5
-#define IXIATRAILER_FTYPE_TIMESTAMP_1588      6 /* PTP */
-#define IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER  7
+#define IXIATRAILER_FTYPE_TIMESTAMP_LOCAL      3
+#define IXIATRAILER_FTYPE_TIMESTAMP_NTP        4
+#define IXIATRAILER_FTYPE_TIMESTAMP_GPS        5
+#define IXIATRAILER_FTYPE_TIMESTAMP_1588       6 /* PTP */
+#define IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER   7
 
 static const value_string ixiatrailer_ftype_timestamp[] = {
   { IXIATRAILER_FTYPE_TIMESTAMP_LOCAL,      "Local" },
@@ -66,13 +69,16 @@ static int hf_ixiatrailer_orinallen = -1;
 
 static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
 
-/* Format is as follows:
-   - Time Sync source (1 byte)
-   - Length of time (1 byte - value will always be 8)
-   - Timestamp (8 bytes)
-   - Trailer length -previous fields, always 10 (1 byte)
-   - Ixia signature - AF12 (2 bytes)
-   - FCS for IXIA timestamp - covers 13 bytes of all previous fields (2 bytes)
+/* The trailer begins with a sequence of TLVs, each of which has a
+   1-byte type, a 1-byte value length (not TLV length, so the TLV
+   length is the value length + 2), and a variable-length value.
+
+   Following the sequence of TLVs is:
+   
+      a 1-byte field giving the length of the sequence of TLVs;
+      a 2-byte big-endian signature field with the value 0xAF12;
+      a 2-byte big-endian checksum field, covering the sequence
+      of TLVs, the sequence length, and the signature.
 */
 static int
 dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
