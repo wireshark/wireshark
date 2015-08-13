@@ -1035,6 +1035,7 @@ APPVER=5.02
 # /Zo                               Output debug info allowing debuggers to display local values and trace into inline
 #                                   functions.  For VS2013 Update 3.  Assume all VS2013 builds are at least Update 3.
 #                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
+#                                   VS2015: On by default when /Zi or /Z7 used.
 
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
