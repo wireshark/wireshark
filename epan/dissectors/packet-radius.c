@@ -91,12 +91,16 @@ typedef struct {
 #define RD_HDR_LENGTH		4
 #define HDR_LENGTH		(RD_HDR_LENGTH + AUTHENTICATOR_LENGTH)
 
-#define UDP_PORT_RADIUS		1645
-#define UDP_PORT_RADIUS_NEW	1812
-#define UDP_PORT_RADACCT	1646
-#define UDP_PORT_RADACCT_NEW	1813
-#define UDP_PORT_DAE_OLD	1700 /* DAE: pre RFC */
-#define UDP_PORT_DAE		3799 /* DAE: rfc3576 */
+/*
+ * Default RADIUS ports:
+ * 1645 (Authentication, pre RFC 2865)
+ * 1646 (Accounting, pre RFC 2866)
+ * 1812 (Authentication, RFC 2865)
+ * 1813 (Accounting, RFC 2866)
+ * 1700 (Dynamic Authorization Extensions, pre RFC 3576)
+ * 3799 (Dynamic Authorization Extensions, RFC 3576)
+*/
+#define DEFAULT_RADIUS_PORT_RANGE "1645,1646,1700,1812,1813,3799"
 
 static radius_dictionary_t* dict = NULL;
 
@@ -155,6 +159,7 @@ static dissector_handle_t eap_handle;
 static const gchar* shared_secret = "";
 static gboolean show_length = FALSE;
 static guint alt_port_pref = 0;
+static range_t *global_ports_range;
 static guint request_ttl = 5;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
@@ -2066,6 +2071,16 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 static void
 radius_init_protocol(void)
 {
+	module_t *radius_module = prefs_find_module("radius");
+	pref_t *alternate_port;
+
+	if (radius_module) {
+		/* Find alternate_port preference and mark it obsolete (thus hiding it from a user) */
+		alternate_port = prefs_find_preference(radius_module, "alternate_port");
+		if (! prefs_get_preference_obsolete(alternate_port))
+			prefs_set_preference_obsolete(alternate_port);
+	}
+
 	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
 }
 
@@ -2265,6 +2280,10 @@ proto_register_radius(void)
 				       &show_length);
 	prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
 				       "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
+
+	range_convert_str(&global_ports_range, DEFAULT_RADIUS_PORT_RANGE, MAX_UDP_PORT);
+	prefs_register_range_preference(radius_module, "ports","RADIUS ports",
+				       "A list of UDP ports to decode as RADIUS", &global_ports_range, MAX_UDP_PORT);
 	prefs_register_uint_preference(radius_module, "request_ttl", "Request TimeToLive",
 				       "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
 	radius_tap = register_tap("radius");
@@ -2285,29 +2304,32 @@ proto_reg_handoff_radius(void)
 {
 	static gboolean initialized = FALSE;
 	static dissector_handle_t radius_handle;
-	static guint alt_port;
+	static range_t *ports_range;
 
 	if (!initialized) {
 		radius_handle = find_dissector("radius");
-		dissector_add_uint("udp.port", UDP_PORT_RADIUS, radius_handle);
-		dissector_add_uint("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
-		dissector_add_uint("udp.port", UDP_PORT_RADACCT, radius_handle);
-		dissector_add_uint("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
-		dissector_add_uint("udp.port", UDP_PORT_DAE_OLD, radius_handle);
-		dissector_add_uint("udp.port", UDP_PORT_DAE, radius_handle);
-
 		eap_handle = find_dissector("eap");
 
 		initialized = TRUE;
 	} else {
-		if (alt_port != 0)
-			dissector_delete_uint("udp.port", alt_port, radius_handle);
+		dissector_delete_uint_range("udp.port", ports_range, radius_handle);
+		g_free(ports_range);
 	}
 
-	if (alt_port_pref != 0)
-		dissector_add_uint("udp.port", alt_port_pref, radius_handle);
+	if (alt_port_pref != 0) {
+		/* Append it to the range of ports but only if necessary */
+		if (!value_is_in_range(global_ports_range, alt_port_pref)) {
+			global_ports_range = (range_t*)g_realloc(global_ports_range,
+					/* see epan/range.c:range_copy function */
+					sizeof (range_t) - sizeof (range_admin_t) + (global_ports_range->nranges + 1) * sizeof (range_admin_t));
+			global_ports_range->ranges[global_ports_range->nranges].low = alt_port_pref;
+			global_ports_range->ranges[global_ports_range->nranges].high = alt_port_pref;
+			global_ports_range->nranges++;
+		}
+	}
 
-	alt_port = alt_port_pref;
+	ports_range = range_copy(global_ports_range);
+	dissector_add_uint_range("udp.port", ports_range, radius_handle);
 }
 
 /*
