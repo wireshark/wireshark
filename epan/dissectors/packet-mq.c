@@ -1397,6 +1397,8 @@ DEF_VALSB(notifcode)
     DEF_VALS2(NC_MESSAGE_TOO_LARGE , "MESSAGE_TOO_LARGE"),
     DEF_VALS2(NC_STREAMING_FAILURE , "STREAMING_FAILURE"),
     DEF_VALS2(NC_CLIENT_ASYNC_EMPTY, "CLIENT_ASYNC_EMPTY"),
+    DEF_VALS2(NC_STREAMING_TXN_PAUSED, "STREAMING_TXN_PAUSED"),
+    DEF_VALS2(NC_RECONNECTION_COMPLETE, "RECONNECTION_COMPLETE"),
 DEF_VALSE;
 
 DEF_VALSB(spi_verbs)
@@ -2813,7 +2815,10 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 else
                                     iCod = ENC_BIG_ENDIAN;
                                 cChr = tvb_get_guint8(tvb, offset + 48);
-                                if (cChr >='A' && cChr <='Z')
+                                if ((cChr >= 'A' && cChr <= 'Z') ||
+                                    (cChr >= 'a' && cChr <= 'z') ||
+                                    (cChr >= '0' && cChr <= '9') ||
+                                    (cChr == '\\'))
                                 {
                                     iEnc = p_mq_parm->mq_str_enc;
                                 }
