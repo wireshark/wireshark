@@ -117,7 +117,7 @@ if [ $FOUND -eq 0 ] ; then
     cat <<FIN
 Error: No valid capture files found.
 
-Usage: `basename $0` [-2] [-b bin_dir] [-C config_profile] [-d work_dir] [-e error probability] [-g] [-a] [-p passes] capture file 1 [capture file 2]...
+Usage: `basename $0` [-2] [-b bin_dir] [-C config_profile] [-d work_dir] [-e error probability] [-o changes offset] [-g] [-a] [-p passes] capture file 1 [capture file 2]...
 FIN
     exit 1
 fi
