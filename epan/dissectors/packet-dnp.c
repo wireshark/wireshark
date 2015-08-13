@@ -3431,7 +3431,9 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
   }
 
-  return tvb_captured_length(tvb);
+  /* Set the length of the message */
+  proto_item_set_len(ti, offset);
+  return offset;
 }
 
 static gboolean
@@ -3519,25 +3521,35 @@ dissect_dnp3_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static int
+dissect_dnp3_udp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, gboolean use_heuristics)
+{
+  guint offset;
+  tvbuff_t* next_tvb;
+  int bytes_dissected;
+
+  offset = 0;
+  do {
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (!check_dnp3_header(next_tvb, use_heuristics)) {
+      return offset;
+    }
+    bytes_dissected = dissect_dnp3_message(next_tvb, pinfo, tree, data);
+    offset += bytes_dissected;
+  } while ((bytes_dissected > 0) && (offset < tvb_reported_length(tvb)));
+
+  return offset;
+}
+
+static int
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, FALSE)) {
-    return 0;
-  }
-
-  dissect_dnp3_message(tvb, pinfo, tree, data);
-  return tvb_captured_length(tvb);
+  return dissect_dnp3_udp_loop(tvb, pinfo, tree, data, FALSE);
 }
 
 static gboolean
 dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, TRUE)) {
-    return FALSE;
-  }
-
-  dissect_dnp3_message(tvb, pinfo, tree, data);
-  return TRUE;
+  return dissect_dnp3_udp_loop(tvb, pinfo, tree, data, TRUE) != 0;
 }
 
 static void
