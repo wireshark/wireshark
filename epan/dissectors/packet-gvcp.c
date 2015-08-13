@@ -1090,10 +1090,10 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 	case GVCP_SC_PACKET_SIZE(1):
 	case GVCP_SC_PACKET_SIZE(2):
 	case GVCP_SC_PACKET_SIZE(3):
-		proto_tree_add_item(branch, hf_gvcp_sc_fire_test_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(branch, hf_gvcp_sc_do_not_fragment, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(branch, hf_gvcp_sc_pixel_endianness, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(branch, hf_gvcp_sc_packet_size, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_fire_test_packet, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_do_not_fragment, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_pixel_endianness, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_packet_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 
 	case GVCP_SC_PACKET_DELAY(0):
