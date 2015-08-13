@@ -155,6 +155,9 @@ win32 {
         CONFIG -= embed_manifest_dll
         CONFIG -= embed_manifest_exe
     }
+
+    # Use xcopy instead of copy so as to ensure that newer version of files are copied
+    QMAKE_COPY_FILE = xcopy /d /y
 }
 
 SOURCES_TAP = \
@@ -458,9 +461,9 @@ win32 {
     LIBS += \
         $${guilibsdll} $${HHC_LIBS} \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil \
-	-L../../wiretap -lwiretap-$${WTAP_VERSION} \
+        -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L../../capchild -llibcapchild -L../../caputils -llibcaputils \
-	-L.. -llibui -L../../codecs -lcodecs \
+        -L.. -llibui -L../../codecs -lcodecs \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
         -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle
