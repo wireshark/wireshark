@@ -1748,7 +1748,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
     request_key = wmem_new(wmem_file_scope(), ncp_req_hash_key);
     request_key->conversation = conversation;
     /* Make sequence number unique */
-    request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
+    request_key->nw_sequence_long = (0x10000 + ((pkt_num/16)<<16)) | nw_sequence;
 
     request_value = wmem_new0(wmem_file_scope(), ncp_req_hash_value);
     request_value->ncp_rec = ncp_rec;
@@ -1792,7 +1792,7 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_nu
 
     request_key.conversation = conversation;
     /* Find unique sequence number */
-    request_key.nw_sequence_long = (0x10000+((pkt_num/255)<<16)) | nw_sequence;
+    request_key.nw_sequence_long = (0x10000+((pkt_num/16)<<16)) | nw_sequence;
 
     /* Since masking of sequence number utilizes the packet number as
      * part of it's algorythm it is possible for a packet to sit right
@@ -2746,6 +2746,8 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
             switch (PTREE_FINFO(tree_pointer)->hfinfo->type)
             {
             case 3:                /* uint8 */
+                g_snprintf(buffer, (gulong) buffer_size, "%02x", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
+                break;
             case 4:                /* uint16 */
                 g_snprintf(buffer, (gulong) buffer_size, "%u", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
                 break;
@@ -6721,6 +6723,12 @@ dissect_ncp_123_17_reply(tvbuff_t *tvb, packet_info* pinfo, proto_tree *volatile
 }
 
 static void
+dissect_ncp_87_72_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
+{
+    proto_tree_add_item(ncp_tree, hf_ncp_bytes_actually_trans_64, tvb, tvb_captured_length_remaining(tvb, 0)-4, 4, FALSE);
+}
+
+static void
 dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 {
     /* For an IP-only server, the 4-byte IP address is placed into the 4-byte NetworkAddress
@@ -6741,6 +6749,169 @@ dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 }
 
 static void
+dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset, guint func)
+{
+    guint32 string_len, str_length, buffer_offset;
+    gint i;
+    guint16 c_char;
+    char *string_buf;
+    gint length_remaining = 0;
+
+    length_remaining = tvb_captured_length_remaining(tvb, offset);
+    if (func == 0x57)
+    {
+        string_len = tvb_get_guint8(tvb, offset);
+        str_length = tvb_get_guint8(tvb, offset);
+    }
+    else
+    {
+        string_len = tvb_get_letohs(tvb, offset);
+        str_length = tvb_get_letohs(tvb, offset);
+    }
+
+    if((gint)str_length > length_remaining)
+    {
+        THROW(ReportedBoundsError);
+    }
+
+    string_buf = (char *)wmem_alloc(wmem_packet_scope(), 255);
+    string_buf[0] = '\0';
+    offset++;
+    buffer_offset = offset;
+
+    for ( i = 0; i <= (gint)str_length; i++ )
+    {
+        c_char = tvb_get_guint8(tvb, buffer_offset );
+        if (c_char<0x20 || c_char>0x7e)
+        {
+            if (c_char == 0xff || c_char == 0xef)
+            {
+                if (c_char == 0xff)
+                {
+                    buffer_offset++;
+                    length_remaining--;
+                    c_char = tvb_get_guint8(tvb, buffer_offset);
+                    if (c_char == 0x3f || c_char == 0x2a || c_char == 0xbf || c_char == 0xaa || c_char == 0xae)
+                    {
+                        if (c_char == 0x3f)
+                        {
+                            c_char = '?';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
+                        }
+                        if (c_char == 0x2a)
+                        {
+                            c_char = '*';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
+                        }
+                        if (c_char == 0xbf)
+                        {
+                            c_char = '?';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
+                        }
+                        if (c_char == 0xaa)
+                        {
+                            c_char = '*';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
+                        }
+                        if (c_char == 0xae)
+                        {
+                            c_char = '.';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
+                        }
+                    }
+                    else
+                    {
+                        c_char = '.';
+                        string_buf[i] = (char) c_char;
+                    }
+                }
+                if (c_char == 0xef)
+                {
+                    buffer_offset++;
+                    length_remaining--;
+                    c_char = tvb_get_guint8(tvb, buffer_offset);
+                    if (c_char == 0xa3)
+                    {
+                        buffer_offset++;
+                        length_remaining--;
+                        c_char = tvb_get_guint8(tvb, buffer_offset);
+                        if (c_char == 0xbb)
+                        {
+                            c_char = '?';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
+                        }
+                        if (c_char == 0xbc)
+                        {
+                            c_char = '*';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
+                        }
+                        if (c_char == 0xbd)
+                        {
+                            c_char = '?';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
+                        }
+                        if (c_char == 0xbe)
+                        {
+                            c_char = '*';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
+                        }
+                        if (c_char == 0xbf)
+                        {
+                            c_char = '.';
+                            string_buf[i] = c_char & 0xff;
+                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (c_char != 0x00)
+                {
+                    c_char = '.';
+                    string_buf[i] = (char) c_char;
+                }
+                else
+                {
+                    i--;
+                    str_length--;
+                    offset++;
+                }
+            }
+        }
+        else
+        {
+            string_buf[i] = c_char & 0xff;
+        }
+        buffer_offset++;
+        length_remaining--;
+
+        if(length_remaining==1)
+        {
+            break;
+        }
+        if (i >= 1023) { /* Don't process beyond the size of our variable */
+            break;       /* If string is too long just return the first 1K. */
+        }
+    }
+    if (i < 0) {
+        i = 0;
+    }
+    string_buf[i+1] = '\0';
+
+    proto_tree_add_string(ncp_tree, hf_search_pattern, tvb, offset, string_len, string_buf);
+}
+
+static void
 dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                       const ncp_record *ncp_rec, ncp_req_hash_value *request_value)
 {
@@ -6750,7 +6921,11 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
     proto_tree          *atree, *btree;
     proto_item          *aitem, *bitem;
 
-    atree = proto_tree_add_subtree(ncp_tree, tvb, 8, 9, ett_ncp, NULL, "Search Sequence");
+    if ((request_value->req_mask ==0) & (request_value->req_mask_ext == 0))
+    {
+        return;
+    }
+    atree = proto_tree_add_subtree(ncp_tree, tvb, 8, 9, ett_ncp, &aitem, "Search Sequence");
 
     proto_tree_add_item(atree, hf_ncp_volume_number, tvb, 8, 1, TRUE);
     proto_tree_add_item(atree, hf_ncp_directory_entry_number, tvb, 9, 4, TRUE);
@@ -6821,6 +6996,22 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                 loffset += 6;
             }
         }
+        /* Extended Attributes oldstyle location*/
+        if (request_value->req_mask & 0x0020 && !ncp_newstyle) {
+            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Extended Attributes");
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 12;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
+                loffset += 12;
+            }
+        }
         /* Extended Attributes new style location*/
         if (request_value->req_mask & 0x0020 && ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Extended Attributes");
@@ -6838,12 +7029,11 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                 loffset += 12;
             }
         }
-        /* Creation Information old style location */
-        if (request_value->req_mask & 0x0100 && !ncp_newstyle) {
-            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Creation");
-
+        /* Archive Information */
+        if (request_value->req_mask & 0x0040) {
+            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Archive");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
+            process_ptvc_record(ptvc, ptvc_struct_archive_info_struct,
                     NULL, TRUE, ncp_rec);
             ptvcursor_free(ptvc);
             loffset += 8;
@@ -6851,7 +7041,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         }
         else
         {
-            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
                 loffset += 8;
             }
         }
@@ -6872,6 +7062,22 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                 loffset += 10;
             }
         }
+        /* Creation Information old style location */
+        if (request_value->req_mask & 0x0100 && !ncp_newstyle) {
+            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Creation");
+            ptvc = ptvcursor_new(btree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
+                    NULL, TRUE, ncp_rec);
+            ptvcursor_free(ptvc);
+            loffset += 8;
+            proto_item_set_end(bitem, tvb, loffset);
+        }
+        else
+        {
+            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
+                loffset += 8;
+            }
+        }
         /* Creation Information new style location */
         if (request_value->req_mask & 0x0100 && ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Creation");
@@ -6888,34 +7094,15 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                 loffset += 8;
             }
         }
-        /* Archive Information */
-        if (request_value->req_mask & 0x0040) {
-            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Archive");
-            ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_archive_info_struct,
-                    NULL, TRUE, ncp_rec);
-            ptvcursor_free(ptvc);
-            loffset += 8;
-            proto_item_set_end(bitem, tvb, loffset);
+        /* Name Space Information */
+        if (request_value->req_mask & 0x0200) {
+            proto_tree_add_item(atree, hf_ncp_creator_name_space_number, tvb, loffset, 1, TRUE);
+            loffset += 4;
         }
         else
         {
             if ((request_value->req_mask_ext & 0x8000)==FALSE) {
-                loffset += 8;
-            }
-        }
-        /* Rights Information */
-        if (request_value->req_mask & 0x0800) {
-            ptvc = ptvcursor_new(atree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_rights_info_struct,
-                    NULL, TRUE, ncp_rec);
-            ptvcursor_free(ptvc);
-            loffset += 2;
-        }
-        else
-        {
-            if ((request_value->req_mask_ext & 0x8000)==FALSE) {
-                loffset += 2;
+                loffset += 4;
             }
         }
         /* Directory Entry */
@@ -6934,41 +7121,31 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                 loffset += 12;
             }
         }
-        /* Extended Attributes oldstyle location*/
-        if (request_value->req_mask & 0x0020 && !ncp_newstyle) {
-            btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Extended Attributes");
-            ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
+        /* Rights Information */
+        if (request_value->req_mask & 0x0800) {
+            ptvc = ptvcursor_new(atree, tvb, loffset);
+            process_ptvc_record(ptvc, ptvc_struct_rights_info_struct,
                     NULL, TRUE, ncp_rec);
             ptvcursor_free(ptvc);
-            loffset += 12;
-            proto_item_set_end(bitem, tvb, loffset);
-        }
-        else
-        {
-            if ((request_value->req_mask_ext & 0x8000)==FALSE && !ncp_newstyle) {
-                loffset += 12;
-            }
-        }
-        /* Name Space Information */
-        if (request_value->req_mask & 0x0200) {
-            proto_tree_add_item(atree, hf_ncp_creator_name_space_number, tvb, loffset, 1, TRUE);
-            loffset += 4;
+            loffset += 2;
         }
         else
         {
             if ((request_value->req_mask_ext & 0x8000)==FALSE) {
-                loffset += 4;
+                loffset += 2;
             }
         }
+        /* Return ID Information */
         if (request_value->req_mask & 0x1000) {
             proto_tree_add_item(atree, hf_ncp_curr_ref_id, tvb, loffset, 2, TRUE);
             loffset += 2;
         }
+        /* Return Name Space Attributes Information */
         if (request_value->req_mask & 0x2000) {
             proto_tree_add_item(atree, hf_ncp_attr_def_32, tvb, loffset, 1, TRUE);
             loffset += 4;
         }
+        /* Return Actual Information */
         if (request_value->req_mask & 0x4000) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Actual");
 
@@ -6977,18 +7154,26 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
         }
+        /* Return Logical Information */
         if (request_value->req_mask & 0x8000) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Logical");
-
-            proto_tree_add_item(btree, hf_ncp_data_stream_num_long, tvb, loffset, 4, TRUE);
-            proto_tree_add_item(btree, hf_ncp_data_stream_size, tvb, loffset+4, 4, TRUE);
-            loffset += 8;
+            proto_tree_add_item(btree, hf_ncp_number_of_data_streams_long, tvb, loffset, 4, TRUE);
+            number_of_items = tvb_get_letohs(tvb, loffset);
+            loffset += 4;
+            for (x = 1; x <= number_of_items; x++ )
+            {
+                proto_tree_add_item(btree, hf_ncp_data_stream_num_long, tvb, loffset, 4, TRUE);
+                proto_tree_add_item(btree, hf_ncp_data_stream_size, tvb, loffset+4, 4, TRUE);
+                loffset += 8;
+            }
             proto_item_set_end(bitem, tvb, loffset);
         }
+        /* Last Update */
         if (request_value->req_mask_ext & 0x0001 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_sec_rel_to_y2k, tvb, loffset, 4, TRUE);
             loffset += 4;
         }
+        /* Dos Name */
         if (request_value->req_mask_ext & 0x0002 && ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "DOS Name");
 
@@ -7005,6 +7190,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             loffset += str_length;
             proto_item_set_end(bitem, tvb, loffset);
         }
+        /* Flush Time */
         if (request_value->req_mask_ext & 0x0004 && ncp_newstyle) {
             ptvc = ptvcursor_new(atree, tvb, loffset);
             process_ptvc_record(ptvc, ptvc_struct_flush_time_struct,
@@ -7012,22 +7198,27 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             ptvcursor_free(ptvc);
             loffset += 4;
         }
+        /* Parental */
         if (request_value->req_mask_ext & 0x0008 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_parent_base_id, tvb, loffset, 4, TRUE);
             loffset += 4;
         }
+        /* MAC finder */
         if (request_value->req_mask_ext & 0x0010 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_mac_finder_info, tvb, loffset, 32, TRUE);
             loffset += 32;
         }
+        /* Sibling */
         if (request_value->req_mask_ext & 0x0020 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_sibling_count, tvb, loffset, 4, TRUE);
             loffset += 4;
         }
+        /* Effective */
         if (request_value->req_mask_ext & 0x0040 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_effective_rights, tvb, loffset, 1, TRUE);
             loffset += 4;
         }
+        /* MAC Date */
         if (request_value->req_mask_ext & 0x0080 && ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Mac Date");
 
@@ -7038,6 +7229,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
         }
+        /* Last Access */
         if (request_value->req_mask_ext & 0x0100 && ncp_newstyle) {
             ptvc = ptvcursor_new(atree, tvb, loffset);
             process_ptvc_record(ptvc, ptvc_struct_last_access_time_struct,
@@ -7045,6 +7237,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             ptvcursor_free(ptvc);
             loffset += 2;
         }
+        /* 64 bit file sizes */
         if (request_value->req_mask_ext & 0x0400 && ncp_newstyle) {
             proto_tree_add_item(atree, hf_ncp_f_size_64bit, tvb, loffset, 8, TRUE);
             loffset += 8;
@@ -7059,7 +7252,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             str_length = tvb_get_letohs(tvb, loffset);
             loffset += 2;
         }
-        proto_tree_add_item(atree, hf_ncp_file_name_12, tvb, loffset, str_length, FALSE);
+        proto_tree_add_item(atree, hf_ncp_file_name_12, tvb, loffset, str_length, ENC_UTF_8);
         loffset += str_length;
 
         proto_item_set_end(aitem, tvb, loffset);
@@ -7839,6 +8032,21 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         /* packets from the python code */
         if (func == 0x59 && subfunc == 0x6) {
             dissect_ncp_89_6_request(tvb, ncp_tree, 22);
+        }
+        /* Need to parse for Novell specific wildcard values in Search Pattern, decode this ncp (89)/20 and (89)/03 req manually here. */
+        if (ncp_rec->func == 0x59 && (ncp_rec->subfunc == 0x14 || ncp_rec->subfunc == 0x03)) {
+            if (ncp_rec->func == 0x59 && ncp_rec->subfunc == 0x03)
+            {
+                 dissect_ncp_8x20req(tvb, ncp_tree, 26, ncp_rec->func);
+            }
+/*if (ncp_rec->func == 0x57)
+{
+            dissect_ncp_8x20req(tvb, ncp_tree, 27, ncp_rec->func);
+}*/
+            else
+            {
+                dissect_ncp_8x20req(tvb, ncp_tree, 28, ncp_rec->func);
+            }
         }
         /* Check to see if we need to report to the expert table */
         trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 0);
@@ -9069,10 +9277,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         if ((ncp_rec->func == 0x57 || ncp_rec->func == 0x59) && ncp_rec->subfunc == 0x14) {
             dissect_ncp_8x20reply(tvb, ncp_tree, ncp_rec, request_value);
         }
-        /* Process ncp 23/26 address records manually to format correctly. */
-        if (ncp_rec->func == 0x17 && ncp_rec->subfunc == 0x1a) {
-            dissect_ncp_23_26_reply(tvb, ncp_tree);
-        }
         if (ncp_rec->func == 5 && ncp_echo_conn) {
             expert_add_info(pinfo, NULL, &ei_ncp_connection_destroyed);
         }
@@ -9145,6 +9349,15 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             if (ncp_rec->func == 0x7b && ncp_rec->subfunc == 0x3e) {
                 dissect_ncp_123_62_reply(tvb, ncp_tree);
             }
+            /* Process ncp 23/26 address records manually to format correctly. */
+            if (ncp_rec->func == 0x17 && ncp_rec->subfunc == 0x1a) {
+                dissect_ncp_23_26_reply(tvb, ncp_tree);
+            }
+            /* Process ncp 87/72 bytes transfered value. */
+            if (ncp_rec->func == 0x57 && ncp_rec->subfunc == 0x48) {
+                dissect_ncp_87_72_reply(tvb, ncp_tree);
+            }
+
         }
         /* Check to see if we need to report to the expert table */
         trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 1);
