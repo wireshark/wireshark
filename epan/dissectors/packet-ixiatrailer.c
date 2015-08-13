@@ -74,7 +74,7 @@ static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
    length is the value length + 2), and a variable-length value.
 
    Following the sequence of TLVs is:
-   
+
       a 1-byte field giving the length of the sequence of TLVs;
       a 2-byte big-endian signature field with the value 0xAF12;
       a 2-byte big-endian checksum field, covering the sequence
