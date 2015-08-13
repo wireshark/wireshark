@@ -226,8 +226,8 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                and try the next dissector */
             return FALSE;
         }
-        if (tvb_get_guint8(tvb,offset + position + 1) < 1)
-            THROW(ReportedBoundsError);
+        if (tvb_get_guint8(tvb,offset + position + 1) == 0)
+          break;
         position += tvb_get_guint8(tvb,offset + position + 1);  /* Goto next section */
     }                   /* ..while */
   next_tvb = tvb_new_subset_remaining(tvb, offset+tvb_get_guint8(tvb,offset+2));
