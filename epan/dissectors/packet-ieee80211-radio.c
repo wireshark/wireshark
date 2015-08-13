@@ -1007,7 +1007,7 @@ static hf_register_info hf_wlan_radio[] = {
 
     {&hf_wlan_radio_11n_mcs_index,
      {"MCS index", "wlan_radio.11n.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
+      "Modulation and Coding Scheme index", HFILL }},
 
     {&hf_wlan_radio_11n_bandwidth,
      {"Bandwidth", "wlan_radio.11n.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
@@ -1071,7 +1071,7 @@ static hf_register_info hf_wlan_radio[] = {
 
     {&hf_wlan_radio_11ac_mcs,
      {"MCS index", "wlan_radio.11ac.mcs", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "MCS index", HFILL }},
+      "Modulation and Coding Scheme index", HFILL }},
 
     {&hf_wlan_radio_11ac_nss,
      {"Spatial streams", "wlan_radio.11ac.nss", FT_UINT32, BASE_DEC, NULL, 0x0,
