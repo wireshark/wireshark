@@ -76,13 +76,13 @@ void FunnelTextDialog::setText(const QString text)
 
 void FunnelTextDialog::appendText(const QString text)
 {
-    ui->textEdit->moveCursor(QTextCursor::Start);
+    ui->textEdit->moveCursor(QTextCursor::End);
     ui->textEdit->insertPlainText(text);
 }
 
 void FunnelTextDialog::prependText(const QString text)
 {
-    ui->textEdit->moveCursor(QTextCursor::End);
+    ui->textEdit->moveCursor(QTextCursor::Start);
     ui->textEdit->insertPlainText(text);
 }
 
