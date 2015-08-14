@@ -63,9 +63,9 @@ static gboolean ixiatrailer_summary_in_tree = TRUE;
 static int proto_ixiatrailer = -1;
 static gint ett_ixiatrailer = -1;
 
+static int hf_ixiatrailer_packetlen = -1;
 static int hf_ixiatrailer_timestamp = -1;
 static int hf_ixiatrailer_generic = -1;
-static int hf_ixiatrailer_orinallen = -1;
 
 static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
 
@@ -85,40 +85,67 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 {
   proto_tree *ti;
   guint tvblen, trailer_length, field_length;
+  gboolean matched_without_fcs, matched_with_fcs;
   proto_tree *ixiatrailer_tree = NULL;
   guint offset = 0;
   guint16 cksum, comp_cksum;
   vec_t vec;
   guint8 field_type;
 
-  /* Need at least 9 bytes.
-  for now minimum size for trailer is this
+  /* A trailer must, at minimum, include:
 
-  XX (field type) XX(field len) XX XX (original size) XX (trailer len)
-     AF 12 (signature) XX XX (trailer checksum)  - all makes 9 bytes*/
+       a "original packet size" TLV, with 1 byte of type, 1 byte of
+       value length, and 2 bytes of original packet ize;
 
-  tvblen = tvb_captured_length(tvb);
+       1 byte of trailer length;
+
+       2 bytes of signature;
+
+       2 bytes of trailer checksum;
+
+     for a total of 9 bytes. */
+  tvblen = tvb_reported_length(tvb);
+  if (tvblen != tvb_captured_length(tvb)) {
+    /* The heuristic check includes a checksum check, so we need the
+       *entire* trailer to have been captured; if it wasn't, we don't
+       try to check it. */
+    return 0;
+  }
   if (tvblen < 9) {
+    /* This is too short, so it cannot be a valid Ixia trailer. */
     return 0;
   }
 
   /* Depending upon the ethernet preference "Assume packets have FCS", we
-     may be given those 4 bytes too.  If we see 23 bytes, assume we are
-     getting them and only look at first 19. Note that if in a previous
-     dissector was able to dissect packets that contains only timestamp
-     AND FCS by looking at the size now user should specify that the
-     packet size is 15 and it has FCS - from preferences/protocol/
-     ethernet - trailer size set to 15 and assume FCS. In the past
-     user should only specify the trailer size to 19 (that was not
-     really correct)*/
+     may be given those 4 bytes too.
+
+     Try checking two locations for our pattern. */
 
   if (tvblen == 23) {
     tvblen = 19;
   }
 
-  /* 3rd & 4th bytes from the end must match our pattern */
-  if (tvb_get_ntohs(tvb, tvblen-4) != IXIA_PATTERN) {
-    return 0;
+  /* 3rd & 4th bytes from the end must match our pattern.
+     First, try under the assumption that the tvbuff doesn't include
+     the FCS. */
+  matched_without_fcs = (tvb_get_ntohs(tvb, tvblen-4) == IXIA_PATTERN);
+
+  /* If that didn't match, is the tvbuff big enough to include an Ixia
+     trailer *and* an FCS? If so, try under that assumption. */
+  if (!matched_without_fcs && tvblen >= 13)
+    matched_with_fcs = (tvb_get_ntohs(tvb, tvblen-(4+4)) == IXIA_PATTERN);
+  else
+    matched_with_fcs = FALSE;
+  if (!matched_without_fcs) {
+    if (!matched_with_fcs) {
+      /* Neither matched, so no Ixia trailer. */
+      return 0;
+    }
+
+    /* Matched under the assumption that we have an FCS, so let's
+       act as if that's the case.  Remove the FCS length from the
+       tvbuff. */
+    tvblen -= 4;
   }
 
   /* Read Trailer-length field */
@@ -153,16 +180,13 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
   {
     field_type = tvb_get_guint8(tvb, offset++);
     field_length = tvb_get_guint8(tvb, offset++);
-    if (field_length <= 0){
-      expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", field_length);
-    }
     switch (field_type) {
       case IXIATRAILER_FTYPE_ORIGINAL_PACKET_SIZE:
         if (field_length != 2){
           expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", field_length);
           break;
         }
-        ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_orinallen, tvb, offset, field_length, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_packetlen, tvb, offset, field_length, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, " bytes");
       break;
       case IXIATRAILER_FTYPE_TIMESTAMP_LOCAL:
@@ -195,14 +219,14 @@ proto_register_ixiatrailer(void)
 {
 
   static hf_register_info hf[] = {
+    { &hf_ixiatrailer_packetlen, {
+        "Original packet length", "ixiatrailer.packetlen", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
     { &hf_ixiatrailer_timestamp, {
         "Time Stamp", "ixiatrailer.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
         NULL, 0x0, NULL, HFILL }},
     { &hf_ixiatrailer_generic, {
         "Generic Field", "ixiatrailer.generic", FT_BYTES, BASE_NONE,
-        NULL, 0x0, NULL, HFILL }},
-    { &hf_ixiatrailer_orinallen, {
-        "Original packet length", "ixiatrailer.packetlen", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
   };
 
