@@ -918,22 +918,6 @@ static int ProtoField__gc(lua_State* L) {
 
     if (f->hfid == -2) {
         /* Only free unregistered and deregistered ProtoField */
-        if (f->vs) {
-            if (f->type == FT_UINT64 || f->type == FT_INT64) {
-                val64_string *vs64 = (val64_string *)f->vs;
-                while (vs64->strptr) {
-                    g_free((gchar *)vs64->strptr);
-                    vs64++;
-                }
-            } else if (f->type != FT_BOOLEAN) { /* Other Integer types */
-                value_string *vs = (value_string *)f->vs;
-                while (vs->strptr) {
-                    g_free((gchar *)vs->strptr);
-                    vs++;
-                }
-            }
-            g_free((void *)f->vs);
-        }
         g_free(f);
     }
 

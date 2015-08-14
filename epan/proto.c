@@ -656,13 +656,6 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 	gint               hfid = GPOINTER_TO_UINT(key);
 	header_field_info *hfinfo;
 
-	g_ptr_array_free(ptrs, TRUE);
-
-	if (gpa_hfinfo.hfi[hfid] == NULL) {
-		/* This is a deregistered field */
-		return;
-	}
-
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
 	if (hfinfo->ref_type != HF_REF_TYPE_NONE) {
 		/* when a field is referenced by a filter this also
@@ -676,6 +669,8 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 		}
 		hfinfo->ref_type = HF_REF_TYPE_NONE;
 	}
+
+	g_ptr_array_free(ptrs, TRUE);
 }
 
 static void
@@ -5727,15 +5722,40 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
     header_field_info *hfi = (header_field_info *) data;
     gint hf_id = hfi->id;
 
-    if (hfi->type == FT_PROTOCOL) {
-        protocol_t *protocol = (protocol_t *)hfi->strings;
-        g_free((gchar *)protocol->short_name);
-        g_free(protocol);
-    }
-
     g_free((char *)hfi->name);
     g_free((char *)hfi->abbrev);
     g_free((char *)hfi->blurb);
+
+    if (hfi->strings) {
+        switch (hfi->type) {
+            case FT_PROTOCOL: {
+                protocol_t *protocol = (protocol_t *)hfi->strings;
+                g_free((gchar *)protocol->short_name);
+                break;
+            }
+            case FT_BOOLEAN:
+                /* Nothing to free */
+                break;
+            case FT_UINT64:
+            case FT_INT64: {
+                val64_string *vs64 = (val64_string *)hfi->strings;
+                while (vs64->strptr) {
+                    g_free((gchar *)vs64->strptr);
+                    vs64++;
+                }
+            }
+            default: {
+                /* Other Integer types */
+                value_string *vs = (value_string *)hfi->strings;
+                while (vs->strptr) {
+                    g_free((gchar *)vs->strptr);
+                    vs++;
+                }
+            }
+        }
+        g_free((void *)hfi->strings);
+    }
+
     if (hfi->parent == -1)
         g_slice_free(header_field_info, hfi);
 
