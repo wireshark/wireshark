@@ -42,4 +42,19 @@ if (WERROR)
 	)
 endif()
 
-#add_executable(idl2wrs ${IDL2WRS_FILES})
+add_executable(idl2wrs ${IDL2WRS_FILES})
+
+target_link_libraries(idl2wrs ${GLIB2_LIBRARIES})
+
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 4
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=4 tabstop=4 noexpandtab:
+# :indentSize=4:tabSize=4:noTabs=false:
+#

@@ -19,8 +19,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-# Don't build anything, just add this stuff to the source tarball
-
 EXTRA_DIST = \
 	CMakeLists.txt				\
 	Makefile.inc				\
@@ -42,4 +40,23 @@ EXTRA_DIST = \
 	drsuapi/packet-dcerpc-drsuapi-template.h
 
 MAINTAINERCLEANFILES =  \
-        Makefile.in
+	Makefile.in
+
+bin_PROGRAMS = idl2wrs
+
+idl2wrs_SOURCES = idl2wrs.c
+
+idl2wrs_LDADD = @GLIB_LIBS@
+
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 4
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=4 tabstop=4 noexpandtab:
+# :indentSize=4:tabSize=4:noTabs=false:
+#

@@ -44,8 +44,10 @@ libdissectors_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
-# include dceprc and pidl in the source tarball. But nothing to build...
-DIST_SUBDIRS = dcerpc pidl
+# include pidl in the source tarball. But nothing to build...
+DIST_SUBDIRS = pidl
+
+SUBDIRS = dcerpc
 
 EXTRA_DIST = \
 	Custom.common		\
