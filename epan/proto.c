@@ -5275,15 +5275,13 @@ proto_deregister_protocol(const char *short_name)
         g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
     }
     g_ptr_array_free(protocol->fields, TRUE);
+    protocol->fields = NULL;
 
     /* Remove this protocol from the list of known protocols */
     protocols = g_list_remove(protocols, protocol);
 
     g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[proto_id]);
     g_hash_table_steal(gpa_name_map, protocol->filter_name);
-
-    g_free((gchar *)protocol->short_name);
-    g_free(protocol);
 
     return TRUE;
 }
@@ -5506,10 +5504,6 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 	while (protos != NULL)
 	{
 		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-		if (gpa_hfinfo.hfi[proto_id] == NULL) {
-			protos = wmem_list_frame_next(protos);
-			continue; /* This is a deregistered protocol */
-		}
 		proto_name = proto_get_protocol_filter_name(proto_id);
 
 		if (is_ip && ((!strcmp(proto_name, "ip")) ||
@@ -5544,10 +5538,6 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 	while (protos != NULL)
 	{
 		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-		if (gpa_hfinfo.hfi[proto_id] == NULL) {
-			protos = wmem_list_frame_next(protos);
-			continue; /* This is a deregistered protocol */
-		}
 		name = proto_get_protocol_filter_name(proto_id);
 
 		if (!strcmp(name, proto_name))
@@ -5736,6 +5726,12 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 {
     header_field_info *hfi = (header_field_info *) data;
     gint hf_id = hfi->id;
+
+    if (hfi->type == FT_PROTOCOL) {
+        protocol_t *protocol = (protocol_t *)hfi->strings;
+        g_free((gchar *)protocol->short_name);
+        g_free(protocol);
+    }
 
     g_free((char *)hfi->name);
     g_free((char *)hfi->abbrev);
