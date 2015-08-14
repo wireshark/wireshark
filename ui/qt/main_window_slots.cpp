@@ -1300,6 +1300,8 @@ void MainWindow::redissectPackets()
     if (capture_file_.capFile())
         cf_redissect_packets(capture_file_.capFile());
     main_ui_->statusBar->expertUpdate();
+
+    proto_free_deregistered_fields();
 }
 
 void MainWindow::fieldsChanged()
@@ -1322,14 +1324,9 @@ void MainWindow::fieldsChanged()
         dfilter_free(dfp);
     }
 
-    proto_free_deregistered_fields();
-
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
-        /* Recreate packet list according to new/changed/deleted fields */
-        packet_list_->redrawVisiblePackets();
-    } else if (CaptureFile::globalCapFile()->state != FILE_CLOSED) {
-        /* Redissect packets if we have any */
-        redissectPackets();
+        // Recreate packet list according to new/changed/deleted fields
+        packet_list_->columnsChanged();
     }
 }
 
@@ -2490,6 +2487,11 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     (void) wsApp->readConfigurationFiles(&gdp_path, &dp_path);
 
     fieldsChanged();
+
+    if (CaptureFile::globalCapFile()->state != FILE_CLOSED) {
+        // Redissect packets if we have any
+        redissectPackets();
+    }
 
     wsApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();
