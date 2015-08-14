@@ -5743,6 +5743,7 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
                     g_free((gchar *)vs64->strptr);
                     vs64++;
                 }
+                break;
             }
             default: {
                 /* Other Integer types */
@@ -5751,6 +5752,7 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
                     g_free((gchar *)vs->strptr);
                     vs++;
                 }
+                break;
             }
         }
         g_free((void *)hfi->strings);
