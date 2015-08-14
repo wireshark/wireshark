@@ -30,24 +30,24 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef enum {
-  PACKET_PRESENT,
-  PACKET_NOT_PRESENT,
-  AT_EOF,
-  GOT_ERROR
+    PACKET_PRESENT,
+    PACKET_NOT_PRESENT,
+    AT_EOF,
+    GOT_ERROR
 } in_file_state_e;
 
 /**
  * Structures to manage our input files.
  */
 typedef struct merge_in_file_s {
-  const char     *filename;
-  wtap           *wth;
-  gint64          data_offset;
-  in_file_state_e state;
-  guint32         packet_num;	  /* current packet number */
-  gint64          size;		      /* file size */
-  guint32         interface_id;   /* identifier of the interface.
-								   * Used for fake interfaces when writing WTAP_ENCAP_PER_PACKET */
+    const char     *filename;
+    wtap           *wth;
+    gint64          data_offset;
+    in_file_state_e state;
+    guint32         packet_num;     /* current packet number */
+    gint64          size;           /* file size */
+    guint32         interface_id;   /* identifier of the interface.
+                                     * Used for fake interfaces when writing WTAP_ENCAP_PER_PACKET */
 } merge_in_file_t;
 
 /** Open a number of input files to merge.

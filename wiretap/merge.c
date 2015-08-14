@@ -44,38 +44,38 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
                     merge_in_file_t **in_files, int *err, gchar **err_info,
                     int *err_fileno)
 {
-  gint i;
-  gint j;
-  size_t files_size = in_file_count * sizeof(merge_in_file_t);
-  merge_in_file_t *files;
-  gint64 size;
+    gint i;
+    gint j;
+    size_t files_size = in_file_count * sizeof(merge_in_file_t);
+    merge_in_file_t *files;
+    gint64 size;
 
-  files = (merge_in_file_t *)g_malloc(files_size);
-  *in_files = files;
+    files = (merge_in_file_t *)g_malloc(files_size);
+    *in_files = files;
 
-  for (i = 0; i < in_file_count; i++) {
-    files[i].filename    = in_file_names[i];
-    files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
-    files[i].data_offset = 0;
-    files[i].state       = PACKET_NOT_PRESENT;
-    files[i].packet_num  = 0;
-    if (!files[i].wth) {
-      /* Close the files we've already opened. */
-      for (j = 0; j < i; j++)
-        wtap_close(files[j].wth);
-      *err_fileno = i;
-      return FALSE;
+    for (i = 0; i < in_file_count; i++) {
+        files[i].filename    = in_file_names[i];
+        files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
+        files[i].data_offset = 0;
+        files[i].state       = PACKET_NOT_PRESENT;
+        files[i].packet_num  = 0;
+        if (!files[i].wth) {
+            /* Close the files we've already opened. */
+            for (j = 0; j < i; j++)
+                wtap_close(files[j].wth);
+            *err_fileno = i;
+            return FALSE;
+        }
+        size = wtap_file_size(files[i].wth, err);
+        if (size == -1) {
+            for (j = 0; j + 1 > j && j <= i; j++)
+                wtap_close(files[j].wth);
+            *err_fileno = i;
+            return FALSE;
+        }
+        files[i].size = size;
     }
-    size = wtap_file_size(files[i].wth, err);
-    if (size == -1) {
-      for (j = 0; j + 1 > j && j <= i; j++)
-        wtap_close(files[j].wth);
-      *err_fileno = i;
-      return FALSE;
-    }
-    files[i].size = size;
-  }
-  return TRUE;
+    return TRUE;
 }
 
 /*
@@ -84,10 +84,10 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
 void
 merge_close_in_files(int count, merge_in_file_t in_files[])
 {
-  int i;
-  for (i = 0; i < count; i++) {
-    wtap_close(in_files[i].wth);
-  }
+    int i;
+    for (i = 0; i < count; i++) {
+        wtap_close(in_files[i].wth);
+    }
 }
 
 /*
@@ -101,20 +101,20 @@ merge_close_in_files(int count, merge_in_file_t in_files[])
 int
 merge_select_frame_type(int count, merge_in_file_t files[])
 {
-  int i;
-  int selected_frame_type;
+    int i;
+    int selected_frame_type;
 
-  selected_frame_type = wtap_file_encap(files[0].wth);
+    selected_frame_type = wtap_file_encap(files[0].wth);
 
-  for (i = 1; i < count; i++) {
-    int this_frame_type = wtap_file_encap(files[i].wth);
-    if (selected_frame_type != this_frame_type) {
-      selected_frame_type = WTAP_ENCAP_PER_PACKET;
-      break;
+    for (i = 1; i < count; i++) {
+        int this_frame_type = wtap_file_encap(files[i].wth);
+        if (selected_frame_type != this_frame_type) {
+            selected_frame_type = WTAP_ENCAP_PER_PACKET;
+            break;
+        }
     }
-  }
 
-  return selected_frame_type;
+    return selected_frame_type;
 }
 
 /*
@@ -123,20 +123,20 @@ merge_select_frame_type(int count, merge_in_file_t files[])
 int
 merge_max_snapshot_length(int count, merge_in_file_t in_files[])
 {
-  int i;
-  int max_snapshot = 0;
-  int snapshot_length;
+    int i;
+    int max_snapshot = 0;
+    int snapshot_length;
 
-  for (i = 0; i < count; i++) {
-    snapshot_length = wtap_snapshot_length(in_files[i].wth);
-    if (snapshot_length == 0) {
-      /* Snapshot length of input file not known. */
-      snapshot_length = WTAP_MAX_PACKET_SIZE;
+    for (i = 0; i < count; i++) {
+        snapshot_length = wtap_snapshot_length(in_files[i].wth);
+        if (snapshot_length == 0) {
+            /* Snapshot length of input file not known. */
+            snapshot_length = WTAP_MAX_PACKET_SIZE;
+        }
+        if (snapshot_length > max_snapshot)
+            max_snapshot = snapshot_length;
     }
-    if (snapshot_length > max_snapshot)
-      max_snapshot = snapshot_length;
-  }
-  return max_snapshot;
+    return max_snapshot;
 }
 
 /*
@@ -145,17 +145,17 @@ merge_max_snapshot_length(int count, merge_in_file_t in_files[])
 static gboolean
 is_earlier(nstime_t *l, nstime_t *r) /* XXX, move to nstime.c */
 {
-  if (l->secs > r->secs) {  /* left is later */
-    return FALSE;
-  } else if (l->secs < r->secs) { /* left is earlier */
+    if (l->secs > r->secs) {  /* left is later */
+        return FALSE;
+    } else if (l->secs < r->secs) { /* left is earlier */
+        return TRUE;
+    } else if (l->nsecs > r->nsecs) { /* tv_sec equal, l.usec later */
+        return FALSE;
+    }
+    /* either one < two or one == two
+     * either way, return one
+     */
     return TRUE;
-  } else if (l->nsecs > r->nsecs) { /* tv_sec equal, l.usec later */
-    return FALSE;
-  }
-  /* either one < two or one == two
-   * either way, return one
-   */
-  return TRUE;
 }
 
 /*
@@ -175,59 +175,59 @@ merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[],
                   int *err, gchar **err_info)
 {
-  int i;
-  int ei = -1;
-  nstime_t tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
-  struct wtap_pkthdr *phdr;
+    int i;
+    int ei = -1;
+    nstime_t tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
+    struct wtap_pkthdr *phdr;
 
-  /*
-   * Make sure we have a packet available from each file, if there are any
-   * packets left in the file in question, and search for the packet
-   * with the earliest time stamp.
-   */
-  for (i = 0; i < in_file_count; i++) {
-    if (in_files[i].state == PACKET_NOT_PRESENT) {
-      /*
-       * No packet available, and we haven't seen an error or EOF yet,
-       * so try to read the next packet.
-       */
-      if (!wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset)) {
-        if (*err != 0) {
-          in_files[i].state = GOT_ERROR;
-          return &in_files[i];
+    /*
+     * Make sure we have a packet available from each file, if there are any
+     * packets left in the file in question, and search for the packet
+     * with the earliest time stamp.
+     */
+    for (i = 0; i < in_file_count; i++) {
+        if (in_files[i].state == PACKET_NOT_PRESENT) {
+            /*
+             * No packet available, and we haven't seen an error or EOF yet,
+             * so try to read the next packet.
+             */
+            if (!wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset)) {
+                if (*err != 0) {
+                    in_files[i].state = GOT_ERROR;
+                    return &in_files[i];
+                }
+                in_files[i].state = AT_EOF;
+            } else
+                in_files[i].state = PACKET_PRESENT;
         }
-        in_files[i].state = AT_EOF;
-      } else
-        in_files[i].state = PACKET_PRESENT;
+
+        if (in_files[i].state == PACKET_PRESENT) {
+            phdr = wtap_phdr(in_files[i].wth);
+            if (is_earlier(&phdr->ts, &tv)) {
+                tv = phdr->ts;
+                ei = i;
+            }
+        }
     }
 
-    if (in_files[i].state == PACKET_PRESENT) {
-      phdr = wtap_phdr(in_files[i].wth);
-      if (is_earlier(&phdr->ts, &tv)) {
-        tv = phdr->ts;
-        ei = i;
-      }
+    if (ei == -1) {
+        /* All the streams are at EOF.  Return an EOF indication. */
+        *err = 0;
+        return NULL;
     }
-  }
 
-  if (ei == -1) {
-    /* All the streams are at EOF.  Return an EOF indication. */
+    /* We'll need to read another packet from this file. */
+    in_files[ei].state = PACKET_NOT_PRESENT;
+
+    /* Count this packet. */
+    in_files[ei].packet_num++;
+
+    /*
+     * Return a pointer to the merge_in_file_t of the file from which the
+     * packet was read.
+     */
     *err = 0;
-    return NULL;
-  }
-
-  /* We'll need to read another packet from this file. */
-  in_files[ei].state = PACKET_NOT_PRESENT;
-
-  /* Count this packet. */
-  in_files[ei].packet_num++;
-
-  /*
-   * Return a pointer to the merge_in_file_t of the file from which the
-   * packet was read.
-   */
-  *err = 0;
-  return &in_files[ei];
+    return &in_files[ei];
 }
 
 /*
@@ -247,47 +247,47 @@ merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info)
 {
-  int i;
+    int i;
 
-  /*
-   * Find the first file not at EOF, and read the next packet from it.
-   */
-  for (i = 0; i < in_file_count; i++) {
-    if (in_files[i].state == AT_EOF)
-      continue; /* This file is already at EOF */
-    if (wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset))
-      break; /* We have a packet */
-    if (*err != 0) {
-      /* Read error - quit immediately. */
-      in_files[i].state = GOT_ERROR;
-      return &in_files[i];
+    /*
+     * Find the first file not at EOF, and read the next packet from it.
+     */
+    for (i = 0; i < in_file_count; i++) {
+        if (in_files[i].state == AT_EOF)
+            continue; /* This file is already at EOF */
+        if (wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset))
+            break; /* We have a packet */
+        if (*err != 0) {
+            /* Read error - quit immediately. */
+            in_files[i].state = GOT_ERROR;
+            return &in_files[i];
+        }
+        /* EOF - flag this file as being at EOF, and try the next one. */
+        in_files[i].state = AT_EOF;
     }
-    /* EOF - flag this file as being at EOF, and try the next one. */
-    in_files[i].state = AT_EOF;
-  }
-  if (i == in_file_count) {
-    /* All the streams are at EOF.  Return an EOF indication. */
-    *err = 0;
-    return NULL;
-  }
+    if (i == in_file_count) {
+        /* All the streams are at EOF.  Return an EOF indication. */
+        *err = 0;
+        return NULL;
+    }
 
-  /*
-   * Return a pointer to the merge_in_file_t of the file from which the
-   * packet was read.
-   */
-  *err = 0;
-  return &in_files[i];
-}
+    /*
+     * Return a pointer to the merge_in_file_t of the file from which the
+     * packet was read.
+     */
+    *err = 0;
+    return &in_files[i];
+  }
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
- * c-basic-offset: 2
- * tab-width: 8
+ * c-basic-offset: 4
+ * tab-width: 4
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
  */
