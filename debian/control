@@ -177,6 +177,7 @@ Section: libs
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}, libjs-openlayers
+Recommends: geoip-database, geoip-database-extra
 Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1)
 Suggests: snmp-mibs-downloader
