@@ -43,6 +43,7 @@ typedef struct _ws_ip
 } ws_ip;
 
 void capture_ip(const guchar *, int, int, packet_counts *);
+
 gboolean ip_try_dissect(gboolean heur_first, tvbuff_t *tvb,
                         packet_info *pinfo, proto_tree *tree, ws_ip *iph);
 
