@@ -566,6 +566,41 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // monitor folders in folder windows or open/save dialogs or...,
     // so my inclination is just to use QFileSystemWatcher.
     //
+    // However, that wouldn't catch files that become *re*-accessible
+    // by virtue of a file system being re-mounted.  The only way to
+    // catch *that* would be to watch for mounts and re-check all
+    // marked-as-inaccessible files.
+    //
+    // OS X and FreeBSD also support EVFILT_FS events, which notify you
+    // of file system mounts and unmounts.  We'd need to add our own
+    // kqueue for that, if we can check those with QSocketNotifier.
+    //
+    // On Linux, at least as of 2006, you're supposed to poll /proc/mounts:
+    //
+    //    https://lkml.org/lkml/2006/2/22/169
+    //
+    // to discover mounts.
+    //
+    // On Windows, you'd probably have to watch for WM_DEVICECHANGE events.
+    //
+    // Then again, with an automounter, a file system containing a
+    // recent capture might get unmounted automatically if you haven't
+    // referred to anything on that file system for a while, and get
+    // treated as inaccessible.  However, if you try to access it,
+    // the automounter will attempt to re-mount it, so the access *will*
+    // succeed if the automounter can remount the file.
+    //
+    // (Speaking of automounters, repeatedly polling recent files will
+    // keep the file system from being unmounted, for what that's worth.)
+    //
+    // At least on OS X, you can determine whether a file is on an
+    // automounted file system by calling statfs() on its path and
+    // checking whether MNT_AUTOMOUNTED is set in f_flags.  FreeBSD
+    // appears to support that flag as well, but no other *BSD appears
+    // to.
+    //
+    // I'm not sure what can be done on Linux.
+    //
     recent_timer_.setParent(this);
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_.start(2000);
