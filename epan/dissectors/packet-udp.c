@@ -655,7 +655,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     } else {
       if (tree) {
         ti = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
-        if (udp_len_zero && tvb_reported_length(tvb) < 35635) {
+        if (udp_len_zero && (tvb_reported_length(tvb) < 35636)) {
             expert_add_info(pinfo, ti, &ei_udp_len_zero_bad);
         }
         /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
@@ -955,7 +955,7 @@ proto_register_udp(void)
     { &ei_udplite_checksum_coverage, { "udp.checksum_coverage.expert", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
     { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
     { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-    { &ei_udp_len_zero_bad, { "udp.length_zero_bad", PI_PROTOCOL, PI_WARN, "UDP lenth is zero but payload < 65535", EXPFILL }},
+    { &ei_udp_len_zero_bad, { "udp.length_zero_bad", PI_PROTOCOL, PI_WARN, "UDP Length is zero but payload < 65536", EXPFILL }},
   };
 
   static build_valid_func udp_da_src_values[1] = {udp_src_value};
