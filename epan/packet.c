@@ -272,7 +272,7 @@ cleanup_dissection(void)
 	/* Cleanup the stream-handling tables */
 	stream_cleanup();
 
-	/* Initialize the expert infos */
+	/* Cleanup the expert infos */
 	expert_packet_cleanup();
 
 	wmem_leave_file_scope();
