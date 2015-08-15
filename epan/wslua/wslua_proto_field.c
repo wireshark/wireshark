@@ -226,7 +226,7 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
 static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     GArray* tfs = g_array_new(TRUE,TRUE,sizeof(true_false_string));
     true_false_string* ret;
-    true_false_string tf = { "True", "False" };
+    true_false_string tf = { g_strdup("True"), g_strdup("False") };
 
     if (lua_isnil(L,idx)) {
         return NULL;
@@ -253,11 +253,15 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
         }
 
         /* arrays in LUA start with index number 1 */
-        if (lua_tointeger(L,-2) == 1)
+        if (lua_tointeger(L,-2) == 1) {
+            g_free((gchar *)tf.true_string);
             tf.true_string = g_strdup(lua_tostring(L,-1));
+        }
 
-        if (lua_tointeger(L,-2) == 2)
+        if (lua_tointeger(L,-2) == 2) {
+            g_free((gchar *)tf.false_string);
             tf.false_string = g_strdup(lua_tostring(L,-1));
+        }
 
         lua_pop(L, 1);
     }

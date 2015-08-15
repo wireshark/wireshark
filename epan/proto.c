@@ -5733,9 +5733,12 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
                 g_free((gchar *)protocol->short_name);
                 break;
             }
-            case FT_BOOLEAN:
-                /* Nothing to free */
+            case FT_BOOLEAN: {
+                true_false_string *tf = (true_false_string *)hfi->strings;
+                g_free ((gchar *)tf->true_string);
+                g_free ((gchar *)tf->false_string);
                 break;
+            }
             case FT_UINT64:
             case FT_INT64: {
                 val64_string *vs64 = (val64_string *)hfi->strings;
