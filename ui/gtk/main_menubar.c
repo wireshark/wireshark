@@ -5398,7 +5398,7 @@ ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGrou
     ext_menubar_t * item = NULL;
     GList * children = NULL;
     gchar * xpath, * submenu_xpath;
-    GtkAction * menu_item;
+    GtkAction * menu_action;
     gchar *action_name;
     gchar ** paths = NULL;
 
@@ -5413,11 +5413,12 @@ ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGrou
 
     /* Create the action for the menu item and add it to the action group */
     action_name = g_strconcat("/", menu->name, NULL);
-    menu_item = (GtkAction *)g_object_new ( GTK_TYPE_ACTION,
+    menu_action = (GtkAction *)g_object_new ( GTK_TYPE_ACTION,
             "name", action_name, "label", menu->label, NULL );
     g_free(action_name);
 
-    gtk_action_group_add_action(action_group, menu_item);
+    gtk_action_group_add_action(action_group, menu_action);
+    g_object_unref(menu_action);
 
     children = menu->children;
 
@@ -5436,13 +5437,14 @@ ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGrou
         else if ( item->type != EXT_MENUBAR_SEPARATOR )
         {
             action_name = g_strconcat("/", item->name, NULL);
-            menu_item = (GtkAction*) g_object_new( GTK_TYPE_ACTION,
+            menu_action = (GtkAction*) g_object_new( GTK_TYPE_ACTION,
                     "name", action_name,
                     "label", item->label,
                     "tooltip", item->tooltip,
                     NULL);
-            g_signal_connect(menu_item, "activate", G_CALLBACK(ws_menubar_external_cb), item );
-            gtk_action_group_add_action(action_group, menu_item);
+            g_signal_connect(menu_action, "activate", G_CALLBACK(ws_menubar_external_cb), item );
+            gtk_action_group_add_action(action_group, menu_action);
+            g_object_unref(menu_action);
             g_free(action_name);
 
             /* Create the correct action path */
