@@ -523,14 +523,14 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // QFileSystemWatcher should allow us to watch for files being
     // removed or renamed.  It uses kqueues and EVFILT_VNODE on FreeBSD,
     // NetBSD, FSEvents on OS X, inotify on Linux if available, and
-    // FindFirstChagneNotification() on Windows.
+    // FindFirstChagneNotification() on Windows.  On all other platforms,
+    // it just periodically polls, as we're doing now.
     //
-    // For unmounts, however:
+    // For unmounts:
     //
-    // OS X and FreeBSD also support EVFILT_FS events, which notify you
-    // of file system mounts and, more importantly for this case,
-    // *un*mounts.  We'd need to add our own kqueue for that, if
-    // we can check those with QSocketNotifier.
+    // OS X and FreeBSD deliver NOTE_REVOKE notes for EVFILT_VNODE, and
+    // QFileSystemWatcher delivers signals for them, just as it does for
+    // NOTE_DELETE and NOTE_RENAME.
     //
     // On Linux, inotify:
     //
@@ -540,42 +540,31 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // unmounted" events.  It looks as if Qt turns them into "changed"
     // events.
     //
-    // On Windows, I think our main loop should receive a WM_DEVICECHANGE
-    // Windows message with DBT_DEVICEREMOVECOMPLETE if an unmount occurs
-    // - even for network devices.  We can use the winEvent method of the
-    // QWidget for the top-level window to get Windows messages.
+    // On Windows, it's not clearly documented what happens on a handle
+    // opened with FindFirstChangeNotification() if the volume on which
+    // the path handed to FindFirstChangeNotification() is removed, or
+    // ejected, or whatever the Windowsese is for "unmounted".  The
+    // handle obviously isn't valid any more, but whether it just hangs
+    // around and never delivers any notifications or delivers an
+    // event that turns into an error indication doesn't seem to be
+    // documented.  If it just hangs around, I think our main loop will
+    // receive a WM_DEVICECHANGE Windows message with DBT_DEVICEREMOVECOMPLETE
+    // if an unmount occurs - even for network devices.  If we need to watch
+    // for those, we can use the winEvent method of the QWidget for the
+    // top-level window to get Windows messages.
     //
-    // For platforms that have file change notification mechanisms not
-    // supported by QFileSystemWatcher:
+    // Note also that remote file systems might not report file
+    // removal or renames if they're done on the server or done by
+    // another client.  At least on OS X, they *will* get reported
+    // if they're done on the machine running the program doing the
+    // kqueue stuff, and, at least in newer versions, should get
+    // reported on SMB-mounted (and AFP-mounted?) file systems
+    // even if done on the server or another client.
     //
-    // Solaris 11 has File Events Notification on event ports:
-    //
-    //    https://blogs.oracle.com/praks/entry/file_events_notification
-    //
-    // and unmount events are delivered (see port_associate(3C)).  I'm
-    // guessing that select()/poll() work on event port file descriptors.
-    //
-    // On AIX 6.1 or later, we could use modDir events, in the AIX Event
-    // Infrastructure, on the containing directories for the files; it
-    // uses file descriptors, so the main loop should be able to handle
-    // it.  There's no indication that unmount events are delivered,
-    // however.
-    //
-    // For dead UN*Xes, IRIX has the imon(7m) device and the file access
-    // monitoring daemon that uses it, but it doesn't appear to
-    // deliver rename or unmount events.  I don't know what Tru64
-    // UNIX has, if anything.
-    //
-    // So we should probably use QFileSystemWatcher, in combination
-    // with EVFILT_FS events on systems with EVFILT_FS defined in a
-    // <sys/event.h> header, and in combination with WM_DEVICECHANGE
-    // message on Windows.  On other platforms, Qt will use polling
-    // in QFileSystemWatcher.  We couldn't use anything else on AIX
-    // or HP-UX, as they don't have a mechanism to get unmount events
-    // (and HP-UX doesn't appear to have any file change event
-    // mechanism); it'd be nice if Qt supported Solaris 11 event ports,
-    // but we wouldn't *lose* any functionality on Solaris with this
-    // change.
+    // But, when push comes to shove, the file manager(s) on the
+    // OSes in question probably use the same mechanisms to
+    // monitor folders in folder windows or open/save dialogs or...,
+    // so my inclination is just to use QFileSystemWatcher.
     //
     recent_timer_.setParent(this);
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
