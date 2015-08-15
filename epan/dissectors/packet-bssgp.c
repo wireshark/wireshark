@@ -183,6 +183,12 @@ static int hf_bssgp_unconfim_send_state_var = -1;
 static int hf_bssgp_Global_ENB_ID_PDU = -1;
 static int hf_bssgp_SONtransferRequestContainer_PDU = -1;
 static int hf_bssgp_selected_plmn_id = -1;
+static int hf_bssgp_num_pfc = -1;
+static int hf_bssgp_llc_data = -1;
+static int hf_bssgp_pdu_data = -1;
+static int hf_bssgp_rrlp_apdu = -1;
+static int hf_bssgp_dtm_handover_command_data = -1;
+static int hf_bssgp_message_elements = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -198,6 +204,8 @@ static gint ett_bssgp_ra_id = -1;
 
 static expert_field ei_bssgp_extraneous_data = EI_INIT;
 static expert_field ei_bssgp_missing_mandatory_element = EI_INIT;
+static expert_field ei_bssgp_not_dissected_yet = EI_INIT;
+static expert_field ei_bssgp_erroneous_app_container = EI_INIT;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -526,7 +534,7 @@ x8f Priority Class Indicator
     } \
     else \
     { \
-        proto_tree_add_text(tree, \
+        proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_missing_mandatory_element,\
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
@@ -914,7 +922,7 @@ de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     if(len > 0){
         next_tvb = tvb_new_subset_length(tvb, curr_offset, len);
-        proto_tree_add_text(tree, tvb, curr_offset, len, "LLC Data");
+        proto_tree_add_bytes_format(tree, hf_bssgp_llc_data, tvb, curr_offset, len, NULL, "LLC Data");
     }
 
     if(next_tvb){
@@ -1030,7 +1038,7 @@ de_bssgp_pdu_in_error(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
      proto_tree_add_item(tree, hf_bssgp_msg_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
      curr_offset++;
 
-     proto_tree_add_text(tree, tvb, curr_offset, len-1, "PDU Data");
+     proto_tree_add_item(tree, hf_bssgp_pdu_data, tvb, curr_offset, len-1, ENC_NA);
 
     return len;
 }
@@ -1557,7 +1565,7 @@ de_bssgp_rrlp_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     if(len > 0){
         next_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-        proto_tree_add_text(tree, tvb, curr_offset, len, "RRLP APDU");
+        proto_tree_add_bytes_format(tree, hf_bssgp_rrlp_apdu, tvb, curr_offset, len, NULL, "RRLP APDU");
     }
 
     if(next_tvb){
@@ -1829,7 +1837,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                  * PSI message content. Each message is 22 octets long.
                  */
                 for (i=0; i < num_items; i++){
-                    proto_tree_add_text(tree, tvb, curr_offset, 22, "PSI item %u - not dissected yet",i+1);
+                    proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_not_dissected_yet, tvb, curr_offset, 22, "PSI item %u - not dissected yet",i+1);
                     curr_offset+=22;
                 }
             }else{
@@ -1881,7 +1889,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
             /* Octet 3-10 Reporting Cell Identifier */
             curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
             /* Octet 11-n MBMS data channel report */
-            proto_tree_add_text(tree, tvb, curr_offset, len-6, "MBMS data channel report - not dissected yet");
+            proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_not_dissected_yet, tvb, curr_offset, len-6, "MBMS data channel report - not dissected yet");
             break;
         case 4:
             /* 11.3.63.2.4 RAN-INFORMATION Application Container for the SON Transfer Application */
@@ -1928,7 +1936,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * UTRA SI Container: This field contains System Information Container valid for the reporting cell
              * encoded as defined in TS 25.331
              */
-            proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
+            proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_not_dissected_yet, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
             break;
 
         default :
@@ -1995,7 +2003,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bssgp_nacc_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Erroneous Application Container including IEI and LI */
-            proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_erroneous_app_container, tvb, curr_offset, len-(curr_offset-offset));
             break;
         case 2:
             /*
@@ -2005,7 +2013,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bssgp_s13_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Erroneous Application Container including IEI and LI */
-            proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_erroneous_app_container, tvb, curr_offset, len-(curr_offset-offset));
             break;
         case 3:
             /*
@@ -2015,7 +2023,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bssgp_mbms_data_ch_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Erroneous Application Container including IEI and LI */
-            proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_erroneous_app_container, tvb, curr_offset, len-(curr_offset-offset));
             break;
         case 4:
             /*
@@ -2027,7 +2035,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
             curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, pinfo, tree, NULL);
             /* Erroneous Application Container including IEI and LI */
-            proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_erroneous_app_container, tvb, curr_offset, len-(curr_offset-offset));
             break;
         case 5:
             /* 11.3.64.5 Application Error Container for the UTRA SI Application*/
@@ -2146,7 +2154,6 @@ static guint16
 de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i, pfc_len;
@@ -2155,13 +2162,10 @@ de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset = offset;
 
     num_pfc = tvb_get_guint8(tvb, curr_offset);
-    pi = proto_tree_add_text(tree, tvb, curr_offset, 1,
-               "Number of PFCs: ");
-
     if (num_pfc < 12) {
-        proto_item_append_text(pi, "%u", num_pfc);
+        proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
-        proto_item_append_text(pi, "Reserved");
+        proto_tree_add_uint_format_value(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc, "Reserved");
         return (curr_offset-offset);
     }
     curr_offset++;
@@ -2518,7 +2522,6 @@ static guint16
 de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree, *pft_tree, *abqp_tree, *arp_tree, *t10_tree;
-    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i, pfc_len;
@@ -2526,13 +2529,10 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     curr_offset = offset;
 
     num_pfc = tvb_get_guint8(tvb, curr_offset);
-    pi = proto_tree_add_text(tree, tvb, curr_offset, 1,
-               "Number of PFCs: ");
-
     if (num_pfc < 12) {
-        proto_item_append_text(pi, "%u", num_pfc);
+        proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
-        proto_item_append_text(pi, "Reserved");
+        proto_tree_add_uint_format_value(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc, "Reserved");
         return (len);
     }
     curr_offset++;
@@ -2596,7 +2596,6 @@ static guint16
 de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i;
@@ -2604,13 +2603,10 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset = offset;
 
     num_pfc = tvb_get_guint8(tvb, curr_offset);
-    pi = proto_tree_add_text(tree, tvb, curr_offset, 1,
-               "Number of PFCs: ");
-
     if (num_pfc < 12) {
-        proto_item_append_text(pi, "%u", num_pfc);
+        proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
-        proto_item_append_text(pi, "Reserved");
+        proto_tree_add_uint_format_value(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc, "Reserved");
         return (curr_offset-offset);
     }
     curr_offset++;
@@ -2945,7 +2941,6 @@ static guint16
 de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i;
@@ -2953,13 +2948,10 @@ de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     curr_offset = offset;
 
     num_pfc = tvb_get_guint8(tvb, curr_offset);
-    pi = proto_tree_add_text(tree, tvb, curr_offset, 1,
-               "Number of PFCs: ");
-
     if (num_pfc < 12) {
-        proto_item_append_text(pi, "%u", num_pfc);
+        proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
-        proto_item_append_text(pi, "Reserved");
+        proto_tree_add_uint_format_value(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc, "Reserved");
         return (curr_offset-offset);
     }
     curr_offset++;
@@ -3009,7 +3001,7 @@ de_bssgp_dtm_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
      * radio interface message as defined in 3GPP TS 44.060 (carrying
      * the DTM Handover to A/Gb Mode Payload)
      */
-    proto_tree_add_text(tree, tvb, curr_offset, len, "DTM Handover Command data");
+    proto_tree_add_item(tree, hf_bssgp_dtm_handover_command_data, tvb, curr_offset, len, ENC_NA);
 
     return(len);
 }
@@ -6434,7 +6426,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_text(bssgp_tree, tvb, offset, len - offset, "Message Elements");
+        proto_tree_add_item(bssgp_tree, hf_bssgp_message_elements, tvb, offset, len - offset, ENC_NA);
     }
     else
     {
@@ -6918,6 +6910,37 @@ proto_register_bssgp(void)
           { "Selected PLMN ID", "bssgp.selected_plmn_id",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
+
+        { &hf_bssgp_num_pfc,
+          { "Number of PFCs", "bssgp.num_pfc",
+            FT_UINT16, BASE_DEC, NULL, 0x01ff,
+            NULL, HFILL }
+        },
+
+        { &hf_bssgp_llc_data,
+          { "LLC DATA", "bssgp.llc_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_pdu_data,
+          { "PDU DATA", "bssgp.pdu_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_rrlp_apdu,
+          { "RRLP APDU", "bssgp.rrlp_apdu",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_dtm_handover_command_data,
+          { "DTM Handover Command data", "bssgp.dtm_handover_command_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_message_elements,
+          { "Message Elements", "bssgp.message_elements",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -6929,6 +6952,8 @@ proto_register_bssgp(void)
     static ei_register_info ei[] = {
         { &ei_bssgp_extraneous_data, { "bssgp.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
         { &ei_bssgp_missing_mandatory_element, { "bssgp.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+        { &ei_bssgp_not_dissected_yet, { "bssgp.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
+        { &ei_bssgp_erroneous_app_container, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Erroneous Application Container including IEI and LI", EXPFILL }},
     };
 
     expert_module_t* expert_bssgp;

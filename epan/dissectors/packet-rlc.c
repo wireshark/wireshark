@@ -146,6 +146,8 @@ static expert_field ei_rlc_ctrl_type = EI_INIT;
 static expert_field ei_rlc_li_incorrect_warn = EI_INIT;
 static expert_field ei_rlc_li_too_many = EI_INIT;
 static expert_field ei_rlc_header_only = EI_INIT;
+static expert_field ei_rlc_ciphered_data = EI_INIT;
+static expert_field ei_rlc_no_per_frame_data = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -1574,8 +1576,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
         /*Unable to decipher the packet*/
         if(t == NULL){
-            proto_tree_add_text(tree, tvb, 0, -1,
-                "Cannot dissect RLC frame because it is ciphered");
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
 
@@ -1864,8 +1865,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         if(global_rlc_try_decipher){
             rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_UM);
         }else{
-            proto_tree_add_text(tree, tvb, 0, -1,
-                    "Cannot dissect RLC frame because it is ciphered");
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
@@ -2276,8 +2276,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!fpinf || !rlcinf) {
-        proto_tree_add_text(tree, tvb, 0, -1,
-            "Cannot dissect RLC frame because per-frame info is missing");
+        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
         return;
     }
 
@@ -2290,8 +2289,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         if(global_rlc_try_decipher){
             rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_AM);
         }else{
-            proto_tree_add_text(tree, tvb, 0, -1,
-                    "Cannot dissect RLC frame because it is ciphered");
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
@@ -2452,9 +2450,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
 
     if (!fpi || !rlci){
-        ti = proto_tree_add_text(tree, tvb, 0, -1,
-                     "Can't dissect RLC frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
         return;
     }
 
@@ -2492,9 +2488,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
 
     if (!fpi || !rlci) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,
-                     "Can't dissect RLC frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
         return;
     }
 
@@ -2924,6 +2918,8 @@ proto_register_rlc(void)
         { &ei_rlc_reserved_bits_not_zero, { "rlc.reserved_bits_not_zero", PI_PROTOCOL, PI_WARN, "reserved bits not zero", EXPFILL }},
         { &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type %u", EXPFILL }},
         { &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
+        { &ei_rlc_ciphered_data, { "rlc.ciphered_data", PI_UNDECODED, PI_WARN, "Cannot dissect RLC frame because it is ciphered", EXPFILL }},
+        { &ei_rlc_no_per_frame_data, { "rlc.no_per_frame_data", PI_PROTOCOL, PI_WARN, "Can't dissect RLC frame because no per-frame info was attached!", EXPFILL }},
     };
 
     proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");

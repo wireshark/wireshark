@@ -205,7 +205,19 @@ static int hf_selfm_fastmsg_soe_resp_doy           = -1;
 static int hf_selfm_fastmsg_soe_resp_year          = -1;
 static int hf_selfm_fastmsg_soe_resp_tod           = -1;
 /* static int hf_selfm_fastmsg_soe_resp_data          = -1; */
-
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_selfm_fmconfig_ai_channel = -1;
+static int hf_selfm_fmdata_ai_value16 = -1;
+static int hf_selfm_fmdata_ai_scale_factor = -1;
+static int hf_selfm_fmdata_ai_value_float = -1;
+static int hf_selfm_fmdata_ai_value_double = -1;
+static int hf_selfm_fmdata_data_type = -1;
+static int hf_selfm_fmdata_quantity = -1;
+static int hf_selfm_fmdata_ai_value_string = -1;
+static int hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded = -1;
+static int hf_selfm_fid = -1;
+static int hf_selfm_rid = -1;
+static int hf_selfm_fastmsg_data_region_name = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_selfm                       = -1;
@@ -1102,7 +1114,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree    *fmconfig_tree, *fmconfig_ai_tree=NULL, *fmconfig_calc_tree=NULL;
     guint         count;
     guint8        len, sf_loc, num_sf, num_ai, num_calc;
-    gchar         ai_name[FM_CONFIG_ANA_CHNAME_LEN+1]; /* 6 Characters + a Null */
+    gchar*        ai_name;
 
     len = tvb_get_guint8(tvb, offset);
     /* skip num_flags, position offset+1 */
@@ -1138,14 +1150,13 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     /* Get AI Channel Details */
     for (count = 0; count < num_ai; count++) {
-        tvb_memcpy(tvb, &ai_name, offset, 6);
-        ai_name[FM_CONFIG_ANA_CHNAME_LEN] = '\0'; /* Put a terminating null onto the end of the AI name, in case none exists */
+        ai_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 6, ENC_ASCII);
 
         fmconfig_ai_tree = proto_tree_add_subtree_format(fmconfig_tree, tvb, offset, 10,
                     ett_selfm_fmconfig_ai, NULL, "Analog Channel: %s", ai_name);
 
         /* Add Channel Name, Channel Data Type, Scale Factor Type and Scale Factor Offset to tree */
-        proto_tree_add_text(fmconfig_ai_tree, tvb, offset, 6, "Analog Channel Name: %s", ai_name);
+        proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_channel, tvb, offset, 6, ENC_ASCII|ENC_NA);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_type, tvb, offset+6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_sf_type, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_sf_ofs, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1213,8 +1224,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     guint16          config_cmd, ts_msec;
     gint16           ai_int16val;
     gint             cnt = 0, ch_size=0;
-    gfloat           ai_fpval, ai_sf_fp;
-    gdouble          ai_fpd_val;
+    gfloat           ai_sf_fp;
     gboolean         config_found = FALSE;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data;
@@ -1332,20 +1342,18 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                         ai_sf_fp = 1;
                                     }
 
-                                    proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value (Raw): %d", ai_int16val);
-                                    proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value (w/ Scale Factor): %f", ((gfloat)ai_int16val*ai_sf_fp));
+                                    proto_tree_add_uint(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value16, tvb, offset, ch_size, ai_int16val);
+                                    proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_scale_factor, tvb, offset, ch_size, ((gfloat)ai_int16val*ai_sf_fp));
                                     offset += ch_size;
                                     break;
                                 /* Channel type is IEEE Floating point */
                                 case FM_CONFIG_ANA_CHTYPE_FP:
-                                    ai_fpval = tvb_get_ntohieee_float(tvb, offset);
-                                    proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value: %f", ai_fpval);
+                                    proto_tree_add_item(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value_float, tvb, offset, ch_size, ENC_BIG_ENDIAN);
                                     offset += ch_size;
                                     break;
                                 /* Channel type is Double IEEE Floating point */
                                 case FM_CONFIG_ANA_CHTYPE_FPD:
-                                    ai_fpd_val = tvb_get_ntohieee_double(tvb, offset);
-                                    proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value: %f", ai_fpd_val);
+                                    proto_tree_add_item(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value_double, tvb, offset, ch_size, ENC_BIG_ENDIAN);
                                     offset += ch_size;
                                     break;
 
@@ -1652,7 +1660,6 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
     proto_tree        *fastmsg_tag_tree=NULL, *fmdata_dig_tree=NULL;
     guint32           base_addr;
     guint16           data_size, num_addr, cnt;
-    guint8            *item_val_str_ptr;
     guint8            seq_cnt;
     gboolean          seq_fir, seq_fin, save_fragmented;
     int               payload_offset=0;
@@ -1766,13 +1773,14 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
 
                     /* Load some information from the stored Data Format Response message into the tree for reference */
                     pi_fnum = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
-                    pi_type = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Data_Type: %s (%#x)",
-                                      val_to_str_const(dataitem->data_type, selfm_fastmsg_tagtype_vals, "Unknown Data Type"), dataitem->data_type);
-                    pi_qty = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Quantity: %d",dataitem->quantity );
+                    pi_type = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_data_type, payload_tvb, payload_offset, 0, dataitem->data_type);
+                    pi_qty = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_quantity, payload_tvb, payload_offset, 0, dataitem->quantity );
 
                     PROTO_ITEM_SET_GENERATED(pi_fnum);
                     PROTO_ITEM_SET_GENERATED(pi_type);
+                    proto_item_set_len(pi_type, data_size);
                     PROTO_ITEM_SET_GENERATED(pi_qty);
+                    proto_item_set_len(pi_qty, data_size);
 
                     /* Data Item Type determines how to decode */
                     switch (dataitem->data_type) {
@@ -1809,8 +1817,7 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
 
                         case FAST_MSG_TAGTYPE_CHAR8:
                         case FAST_MSG_TAGTYPE_CHAR16:
-                            item_val_str_ptr = tvb_get_string_enc(wmem_packet_scope(), payload_tvb, payload_offset, data_size, ENC_ASCII);
-                            proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Value: %s", item_val_str_ptr);
+                            proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fmdata_ai_value_string, payload_tvb, payload_offset, data_size, ENC_ASCII|ENC_NA);
                             payload_offset += data_size;
                             break;
 
@@ -1885,14 +1892,13 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *fastmsg_def_fc_item, *fastmsg_elementlist_item;
-    proto_item    *fastmsg_tag_item;
     proto_item    *pi_baseaddr, *fastmsg_crc16_item;
     proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_elementlist_tree=NULL;
     proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
     guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
     guint8        seq_cnt, elmt_idx, fc_enable;
-    guint8        *fid_str_ptr, *rid_str_ptr, *region_name_ptr, *tag_name_ptr;
+    guint8        *tag_name_ptr;
     guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
     static const int * seq_fields[] = {
@@ -2021,8 +2027,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_todms, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_text(fastmsg_tree, tvb, offset+4, 4, "Time of Day (decoded): %s", time_msecs_to_str(wmem_packet_scope(), tod_ms));
+            proto_tree_add_uint_format_value(fastmsg_tree, hf_selfm_fastmsg_unsresp_todms, tvb, offset+4, 4,
+                                        tod_ms, "%s", time_msecs_to_str(wmem_packet_scope(), tod_ms));
             offset += 8;
 
             /* Build element tree */
@@ -2062,8 +2068,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 /* Add Index Number and Timestamp offset to tree */
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_text(fastmsg_element_tree, tvb, offset+1, 3,
-                    "SER Element Timestamp Offset (decoded): %s", time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
+                proto_tree_add_uint_format_value(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded, tvb, offset+1, 3,
+                                     tod_ms + (elmt_ts_offset/1000), "%s", time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
                 proto_tree_add_uint(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
 
                 offset += 4;
@@ -2205,10 +2211,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
 
             /* Add FID / RID ASCII data to tree */
-            fid_str_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 50, ENC_ASCII);
-            rid_str_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+50, 40, ENC_ASCII);
-            proto_tree_add_text(fastmsg_tree, tvb, offset, 50, "FID: %s", fid_str_ptr);
-            proto_tree_add_text(fastmsg_tree, tvb, offset+50, 40, "RID: %s", rid_str_ptr);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fid, tvb, offset, 50, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_rid, tvb, offset+50, 40, ENC_ASCII|ENC_NA);
             offset += 90;
 
             /* 16-bit field with number of data areas */
@@ -2237,8 +2241,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                                 ett_selfm_fastmsg_datareg, NULL, "Fast Message Data Region #%d", cnt+1);
 
                 /* 10-Byte Region description */
-                region_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
-                proto_tree_add_text(fastmsg_datareg_tree, tvb, offset, 10, "Data Region Name: %s", region_name_ptr);
+                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_data_region_name, tvb, offset, 10, ENC_ASCII|ENC_NA);
                 offset += 10;
 
                 /* 32-bit field with base address of data region */
@@ -2286,8 +2289,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             while ((tvb_reported_length_remaining(tvb, offset)) > 2) {
                 /* Data Item record name 10 bytes */
                 tag_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
-                fastmsg_tag_item = proto_tree_add_text(fastmsg_tree, tvb, offset, 14, "Data Item Record Name: %s", tag_name_ptr);
-                fastmsg_tag_tree = proto_item_add_subtree(fastmsg_tag_item, ett_selfm_fastmsg_tag);
+                fastmsg_tag_tree = proto_tree_add_subtree_format(fastmsg_tree, tvb, offset, 14, ett_selfm_fastmsg_tag, NULL, "Data Item Record Name: %s", tag_name_ptr);
 
                 /* Data item qty and type */
                 proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_qty, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -2944,7 +2946,20 @@ proto_register_selfm(void)
         { &hf_selfm_fragment_reassembled_in,
         { "Reassembled PDU In Frame", "selfm.respdata.fragment.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "This PDU is reassembled in this frame", HFILL }},
         { &hf_selfm_fragment_reassembled_length,
-        { "Reassembled SEL Fast Msg length", "selfm.respdata.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }}
+        { "Reassembled SEL Fast Msg length", "selfm.respdata.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_selfm_fmconfig_ai_channel, { "Analog Channel Name", "selfm.fmconfig.ai_channel", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_value16, { "Value (Raw)", "selfm.fmdata.ai.value16", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_scale_factor, { "Value (w/ Scale Factor)", "selfm.fmdata.ai.value_scale_factor", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_value_float, { "Value", "selfm.fmdata.ai.value_float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_value_double, { "Value", "selfm.fmdata.ai.value_double", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_data_type, { "Data_Type", "selfm.fmdata.data_type", FT_UINT32, BASE_DEC, VALS(selfm_fastmsg_tagtype_vals), 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_quantity, { "Quantity", "selfm.fmdata.quantity", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_value_string, { "Value", "selfm.fmdata.ai.value_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded, { "SER Element Timestamp Offset (decoded)", "selfm.fastmsg.unsresp_elmt_ts_ofs.decoded", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fid, { "FID", "selfm.fid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_rid, { "RID", "selfm.rid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_data_region_name, { "Data Region Name", "selfm.fastmsg.data_region_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     /* Register expert fields */

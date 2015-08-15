@@ -221,6 +221,7 @@ static int hf_ansi_637_trans_addr_param_number_mode = -1;
 static int hf_ansi_637_trans_addr_param_ton = -1;
 static int hf_ansi_637_trans_addr_param_plan = -1;
 static int hf_ansi_637_trans_addr_param_num_fields = -1;
+static int hf_ansi_637_trans_addr_param_num_fields07f8 = -1;
 static int hf_ansi_637_trans_addr_param_number = -1;
 static int hf_ansi_637_trans_subaddr_type = -1;
 static int hf_ansi_637_trans_subaddr_odd_even_ind = -1;
@@ -275,6 +276,7 @@ static int hf_ansi_637_tele_cb_num_digit_mode = -1;
 static int hf_ansi_637_tele_cb_num_ton = -1;
 static int hf_ansi_637_tele_cb_num_plan = -1;
 static int hf_ansi_637_tele_cb_num_num_fields = -1;
+static int hf_ansi_637_tele_cb_num_num_fields07f8 = -1;
 static int hf_ansi_637_tele_cb_num_number = -1;
 static int hf_ansi_637_tele_msg_display_mode = -1;
 static int hf_ansi_637_tele_msg_deposit_idx = -1;
@@ -1395,21 +1397,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
         oct2 = tvb_get_guint8(tvb, offset);
         num_fields = ((oct & 0x7f) << 1) | ((oct2 & 0x80) >> 7);
 
-        /*
-         * not combined into a 16-bit field because hf_ansi_637_tele_cb_num_num_fields is used above
-         * and uses a different bitmask
-         */
-        other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x7f, 8);
-        proto_tree_add_uint_format(tree, hf_ansi_637_tele_cb_num_num_fields, tvb, offset, 1,
-            num_fields,
-            "%s = Number of fields (MSB): %u",
-            ansi_637_bigbuf,
-            num_fields);
-
-        other_decode_bitfield_value(ansi_637_bigbuf, oct2, 0x80, 8);
-        proto_tree_add_text(tree, tvb, offset, 1,
-            "%s = Number of fields (LSB)",
-            ansi_637_bigbuf);
+        proto_tree_add_item(tree, hf_ansi_637_tele_cb_num_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         oct = oct2;
         odd = FALSE;
@@ -2043,21 +2031,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             oct2 = tvb_get_guint8(tvb, offset);
             num_fields = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
 
-            /*
-             * not combined into a 16-bit field because hf_ansi_637_trans_addr_param_num_fields is used below
-             * and uses a different bitmask
-             */
-            other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x07, 8);
-            proto_tree_add_uint_format(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, offset - 1, 1,
-                num_fields,
-                "%s = Number of fields (MSB): %u",
-                ansi_637_bigbuf, num_fields);
-
-            other_decode_bitfield_value(ansi_637_bigbuf, oct2, 0xf8, 8);
-            proto_tree_add_text(tree, tvb, offset, 1,
-                "%s = Number of fields (LSB)",
-                ansi_637_bigbuf);
-
+            proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
             if (num_fields == 0) return;
 
             SHORT_DATA_CHECK(len - 2, num_fields);
@@ -2135,17 +2109,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             oct2 = tvb_get_guint8(tvb, offset);
             num_fields = ((oct & 0x7f) << 1) | ((oct2 & 0x80) >> 7);
 
-            other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x7f, 8);
-            proto_tree_add_uint_format(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, offset - 1, 1,
-                num_fields,
-                "%s = Number of fields (MSB): %u",
-                ansi_637_bigbuf,
-                num_fields);
-
-            other_decode_bitfield_value(ansi_637_bigbuf, oct2, 0x80, 8);
-            proto_tree_add_text(tree, tvb, offset, 1,
-                "%s = Number of fields (LSB)",
-                ansi_637_bigbuf);
+            proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             if (num_fields == 0) return;
 
@@ -2190,17 +2154,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
         oct2 = tvb_get_guint8(tvb, offset);
         num_fields = ((oct & 0x3f) << 2) | ((oct2 & 0xc0) >> 6);
 
-        other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
-        proto_tree_add_uint_format(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, offset - 1, 1,
-            num_fields,
-            "%s = Number of fields (MSB): %u",
-            ansi_637_bigbuf,
-            num_fields);
-
-        other_decode_bitfield_value(ansi_637_bigbuf, oct2, 0xc0, 8);
-        proto_tree_add_text(tree, tvb, offset, 1,
-            "%s = Number of fields (LSB)",
-            ansi_637_bigbuf);
+        proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         oct = oct2;
         odd = FALSE;
@@ -2850,6 +2804,11 @@ proto_register_ansi_637(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_ansi_637_trans_addr_param_num_fields07f8,
+            { "Number of fields", "ansi_637_trans.addr_param.num_fields",
+            FT_UINT8, BASE_DEC, NULL, 0x07F8,
+            NULL, HFILL }
+        },
         { &hf_ansi_637_trans_addr_param_number,
             { "Number", "ansi_637_trans.addr_param.number",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -3121,6 +3080,11 @@ proto_register_ansi_637(void)
         { &hf_ansi_637_tele_cb_num_num_fields,
             { "Number of fields", "ansi_637_tele.cb_num.num_fields",
             FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_cb_num_num_fields07f8,
+            { "Number of fields", "ansi_637_tele.cb_num.num_fields",
+            FT_UINT8, BASE_DEC, NULL, 0x07F8,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_cb_num_number,

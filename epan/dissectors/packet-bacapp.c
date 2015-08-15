@@ -7276,19 +7276,18 @@ fVendorIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fUnsigned32(tvb, offset + tag_len, lvt, &val))
-        ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-            "%s: %s (%u)",
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
+            ett_bacapp_tag, &ti, "%s: %s (%u)",
             label,
             val_to_str_ext_const(val, &BACnetVendorIdentifiers_ext, "Unknown Vendor"),
             val);
     else
-        ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-            "%s - %u octets (Unsigned)", label, lvt);
-    subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
+            ett_bacapp_tag, &ti, "%s - %u octets (Unsigned)", label, lvt);
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     if ((lvt < 1) || (lvt > 2)) { /* vendorIDs >= 1  and <= 2 are supported */
-        proto_tree_add_expert_format(tree, pinfo, &ei_bacapp_bad_length, tvb, 0, lvt,
+        expert_add_info_format(pinfo, ti, &ei_bacapp_bad_length,
                                 "Wrong length indicated. Expected 1 or 2, got %u", lvt);
         return offset+tag_len+lvt;
     }
@@ -7312,17 +7311,16 @@ fRestartReason(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fUnsigned32(tvb, offset + tag_len, lvt, &val))
-        ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-            "%s: %s (%u)", label,
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
+            ett_bacapp_tag, &ti, "%s: %s (%u)", label,
             val_to_str_const(val, BACnetRestartReason, "Unknown reason"), val);
     else
-        ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-            "%s - %u octets (Unsigned)", label, lvt);
-    subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
+            ett_bacapp_tag, &ti, "%s - %u octets (Unsigned)", label, lvt);
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     if (lvt != 1) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_bacapp_bad_length, tvb, 0, lvt,
+        expert_add_info_format(pinfo, ti, &ei_bacapp_bad_length,
                                 "Wrong length indicated. Expected 1, got %u", lvt);
         return offset+tag_len+lvt;
     }

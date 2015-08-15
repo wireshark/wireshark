@@ -16393,7 +16393,6 @@ dissect_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 	WORD_COUNT;
 
 	if (wc != 0) {
-		tvb_ensure_bytes_exist(tvb, offset, wc*2);
 		proto_tree_add_text(tree, tvb, offset, wc*2, "Word parameters");
 		offset += wc*2;
 	}
@@ -16401,7 +16400,6 @@ dissect_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 	BYTE_COUNT;
 
 	if (bc != 0) {
-		tvb_ensure_bytes_exist(tvb, offset, bc);
 		proto_tree_add_text(tree, tvb, offset, bc, "Byte parameters");
 		offset += bc;
 		bc = 0;

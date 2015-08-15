@@ -570,6 +570,7 @@ static int hf_dcerpc_array_actual_count = -1;
 static int hf_dcerpc_op = -1;
 static int hf_dcerpc_referent_id32 = -1;
 static int hf_dcerpc_referent_id64 = -1;
+static int hf_dcerpc_null_pointer = -1;
 static int hf_dcerpc_fragments = -1;
 static int hf_dcerpc_fragment = -1;
 static int hf_dcerpc_fragment_overlap = -1;
@@ -2684,9 +2685,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* we got a NULL pointer */
         if (id == 0) {
-            proto_tree_add_text(tree, tvb, offset-pointer_size,
-                                pointer_size,
-                                "(NULL pointer) %s",text);
+            proto_tree_add_bytes_format_value(tree, hf_dcerpc_null_pointer, tvb, offset-pointer_size,
+                                pointer_size, NULL, "%s", text);
             goto after_ref_id;
         }
 
@@ -2728,9 +2728,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* we got a NULL pointer */
         if (id == 0) {
-            proto_tree_add_text(tree, tvb, offset-pointer_size,
-                                pointer_size,
-                                "(NULL pointer) %s",text);
+            proto_tree_add_bytes_format_value(tree, hf_dcerpc_null_pointer, tvb, offset-pointer_size,
+                                pointer_size, NULL, "%s",text);
             goto after_ref_id;
         }
 
@@ -2786,9 +2785,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* we got a NULL pointer */
         if (id == 0) {
-            proto_tree_add_text(tree, tvb, offset-pointer_size,
-                                pointer_size,
-                                "(NULL pointer) %s", text);
+            proto_tree_add_bytes_format_value(tree, hf_dcerpc_null_pointer, tvb, offset-pointer_size,
+                                pointer_size, NULL, "%s",text);
             goto after_ref_id;
         }
 
@@ -2820,9 +2818,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* we got a NULL pointer */
         if (id == 0) {
-            proto_tree_add_text(tree, tvb, offset-pointer_size,
-                                pointer_size,
-                                "(NULL pointer) %s",text);
+            proto_tree_add_bytes_format_value(tree, hf_dcerpc_null_pointer, tvb, offset-pointer_size,
+                                pointer_size, NULL, "%s",text);
             goto after_ref_id;
         }
 
@@ -6362,6 +6359,9 @@ proto_register_dcerpc(void)
 
         { &hf_dcerpc_op,
           { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_dcerpc_null_pointer,
+          { "NULL Pointer", "dcerpc.null_pointer", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_dcerpc_fragments,
           { "Reassembled DCE/RPC Fragments", "dcerpc.fragments", FT_NONE, BASE_NONE,
