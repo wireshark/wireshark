@@ -1454,7 +1454,7 @@ sub checkShadowVariable($$$)
         for my $api ( @{$groupHashRef} )
         {
                 my $cnt = 0;
-                while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
+                while (${$fileContentsRef} =~ m/ \s $api \s* [^\(\w] /gx)
                 {
                         $cnt += 1;
                 }
