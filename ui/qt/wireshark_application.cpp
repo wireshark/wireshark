@@ -515,6 +515,68 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
         capture_icon_.addFile(icon_path);
     }
 
+    //
+    // XXX - this means we try to check for the existence of all files
+    // in the recent list every 2 seconds; that causes noticeable network
+    // traffic if any of them are stored on file servers.
+    //
+    // QFileSystemWatcher should allow us to watch for files being
+    // removed or renamed.  It uses kqueues and EVFILT_VNODE on FreeBSD,
+    // NetBSD, FSEvents on OS X, inotify on Linux if available, and
+    // FindFirstChagneNotification() on Windows.
+    //
+    // For unmounts, however:
+    //
+    // OS X and FreeBSD also support EVFILT_FS events, which notify you
+    // of file system mounts and, more importantly for this case,
+    // *un*mounts.  We'd need to add our own kqueue for that, if
+    // we can check those with QSocketNotifier.
+    //
+    // On Linux, inotify:
+    //
+    //    http://man7.org/linux/man-pages/man7/inotify.7.html
+    //
+    // appears to deliver "filesystem containing watched object was
+    // unmounted" events.  It looks as if Qt turns them into "changed"
+    // events.
+    //
+    // On Windows, I think our main loop should receive a WM_DEVICECHANGE
+    // Windows message with DBT_DEVICEREMOVECOMPLETE if an unmount occurs
+    // - even for network devices.  We can use the winEvent method of the
+    // QWidget for the top-level window to get Windows messages.
+    //
+    // For platforms that have file change notification mechanisms not
+    // supported by QFileSystemWatcher:
+    //
+    // Solaris 11 has File Events Notification on event ports:
+    //
+    //    https://blogs.oracle.com/praks/entry/file_events_notification
+    //
+    // and unmount events are delivered (see port_associate(3C)).  I'm
+    // guessing that select()/poll() work on event port file descriptors.
+    //
+    // On AIX 6.1 or later, we could use modDir events, in the AIX Event
+    // Infrastructure, on the containing directories for the files; it
+    // uses file descriptors, so the main loop should be able to handle
+    // it.  There's no indication that unmount events are delivered,
+    // however.
+    //
+    // For dead UN*Xes, IRIX has the imon(7m) device and the file access
+    // monitoring daemon that uses it, but it doesn't appear to
+    // deliver rename or unmount events.  I don't know what Tru64
+    // UNIX has, if anything.
+    //
+    // So we should probably use QFileSystemWatcher, in combination
+    // with EVFILT_FS events on systems with EVFILT_FS defined in a
+    // <sys/event.h> header, and in combination with WM_DEVICECHANGE
+    // message on Windows.  On other platforms, Qt will use polling
+    // in QFileSystemWatcher.  We couldn't use anything else on AIX
+    // or HP-UX, as they don't have a mechanism to get unmount events
+    // (and HP-UX doesn't appear to have any file change event
+    // mechanism); it'd be nice if Qt supported Solaris 11 event ports,
+    // but we wouldn't *lose* any functionality on Solaris with this
+    // change.
+    //
     recent_timer_.setParent(this);
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_.start(2000);
