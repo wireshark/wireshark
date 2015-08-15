@@ -1,0 +1,17 @@
+Description: Use system's OpenLayers.js to avoid privacy breach
+Forwarded: not-needed
+Author: Balint Reczey <balint@balintreczey.hu>
+
+diff --git a/ipmap.html b/ipmap.html
+index c1e83d0..94f4535 100644
+--- a/ipmap.html
++++ b/ipmap.html
+@@ -8,7 +8,7 @@
+       line-height: 17px;
+     }
+     </style>
+-    <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
++    <script type="text/javascript" src="file:///usr/share/javascript/openlayers/OpenLayers.js"></script>
+     <script type="text/javascript" src="http://openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+ 
+     <script type="text/javascript">
