@@ -2,8 +2,10 @@
 "Ethernet type 0x0806 (ARP)" ether proto 0x0806
 "No Broadcast and no Multicast" not broadcast and not multicast
 "No ARP" not arp
-"IP only" ip
-"IP address 192.168.0.1" host 192.168.0.1
+"IPv4 only" ip
+"IPv4 address 192.0.2.1" host 192.0.2.1
+"IPv6 only" ip6
+"IPv6 address 2001:db8::1" host 2001:db8::1
 "IPX only" ipx
 "TCP only" tcp
 "UDP only" udp
