@@ -10658,7 +10658,7 @@ get_amqp_timestamp(nstime_t *nstime, tvbuff_t *tvb, guint offset)
 
     msec = tvb_get_ntoh64(tvb, offset);
     nstime->secs = (time_t)(msec / 1000);
-    nstime->nsecs = (int)(msec % 1000)*1000;
+    nstime->nsecs = (int)(msec % 1000)*1000000;
 }
 
 static int
