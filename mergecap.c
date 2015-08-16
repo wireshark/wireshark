@@ -84,9 +84,8 @@ print_usage(FILE *output)
   fprintf(output, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
   fprintf(output, "  -F <capture type> set the output file type; default is pcapng.\n");
   fprintf(output, "                    an empty \"-F\" option will list the file types.\n");
-  fprintf(output, "  -T <encap type>   set the output file encapsulation type;\n");
-  fprintf(output, "                    default is the same as the first input file.\n");
-  fprintf(output, "                    an empty \"-T\" option will list the encapsulation types.\n");
+  fprintf(output, "  -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.\n");
+  fprintf(output, "                    an empty \"-I\" option will list the merge modes.\n");
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                display this help and exit.\n");
@@ -126,13 +125,6 @@ string_compare(gconstpointer a, gconstpointer b)
                 ((const struct string_elem *)b)->sstr);
 }
 
-static gint
-string_nat_compare(gconstpointer a, gconstpointer b)
-{
-  return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
-                            ((const struct string_elem *)b)->sstr);
-}
-
 static void
 string_elem_print(gpointer data, gpointer not_used _U_)
 {
@@ -162,23 +154,13 @@ list_capture_types(void) {
 }
 
 static void
-list_encap_types(void) {
+list_idb_merge_modes(void) {
   int i;
-  struct string_elem *encaps;
-  GSList *list = NULL;
 
-  encaps = g_new(struct string_elem,WTAP_NUM_ENCAP_TYPES);
-  fprintf(stderr, "mergecap: The available encapsulation types for the \"-T\" flag are:\n");
-  for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
-    encaps[i].sstr = wtap_encap_short_string(i);
-    if (encaps[i].sstr != NULL) {
-      encaps[i].lstr = wtap_encap_string(i);
-      list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
-    }
+  fprintf(stderr, "mergecap: The available IDB merge modes for the \"-I\" flag are:\n");
+  for (i = 0; i < IDB_MERGE_MODE_MAX; i++) {
+    fprintf(stderr, "    %s\n", merge_idb_merge_mode_to_string(i));
   }
-  g_slist_foreach(list, string_elem_print, NULL);
-  g_slist_free(list);
-  g_free(encaps);
 }
 
 static void
@@ -207,6 +189,73 @@ get_mergecap_runtime_info(GString *str)
 #endif
 }
 
+
+static gboolean
+merge_callback(merge_event event, int num,
+               const merge_in_file_t in_files[], const guint in_file_count,
+               void *data _U_)
+{
+  guint i;
+
+  switch (event) {
+
+    case MERGE_EVENT_INPUT_FILES_OPENED:
+      for (i = 0; i < in_file_count; i++) {
+        fprintf(stderr, "mergecap: %s is type %s.\n", in_files[i].filename,
+                wtap_file_type_subtype_string(wtap_file_type_subtype(in_files[i].wth)));
+      }
+      break;
+
+    case MERGE_EVENT_FRAME_TYPE_SELECTED:
+      /* for this event, num = frame_type */
+      if (num == WTAP_ENCAP_PER_PACKET) {
+        /*
+         * Find out why we had to choose WTAP_ENCAP_PER_PACKET.
+         */
+        int first_frame_type, this_frame_type;
+
+        first_frame_type = wtap_file_encap(in_files[0].wth);
+        for (i = 1; i < in_file_count; i++) {
+          this_frame_type = wtap_file_encap(in_files[i].wth);
+          if (first_frame_type != this_frame_type) {
+            fprintf(stderr, "mergecap: multiple frame encapsulation types detected\n");
+            fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
+            fprintf(stderr, "          %s had type %s (%s)\n",
+                    in_files[0].filename,
+                    wtap_encap_string(first_frame_type),
+                    wtap_encap_short_string(first_frame_type));
+            fprintf(stderr, "          %s had type %s (%s)\n",
+                    in_files[i].filename,
+                    wtap_encap_string(this_frame_type),
+                    wtap_encap_short_string(this_frame_type));
+            break;
+          }
+        }
+      }
+      fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
+              wtap_encap_string(num),
+              wtap_encap_short_string(num));
+      break;
+
+    case MERGE_EVENT_READY_TO_MERGE:
+      fprintf(stderr, "mergecap: ready to merge records\n");
+      break;
+
+    case MERGE_EVENT_PACKET_WAS_READ:
+      /* for this event, num = count */
+      fprintf(stderr, "Record: %d\n", num);
+      break;
+
+    case MERGE_EVENT_DONE:
+      fprintf(stderr, "mergecap: merging complete\n");
+      break;
+  }
+
+  /* false = do not stop merging */
+  return FALSE;
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -229,18 +278,15 @@ DIAG_ON(cast-qual)
 #else
   int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcapng format */
 #endif
-  int                 frame_type         = -2;
   int                 out_fd;
-  merge_in_file_t    *in_files           = NULL, *in_file;
-  int                 i;
-  struct wtap_pkthdr *phdr, snap_phdr;
-  wtap_dumper        *pdh;
-  int                 open_err, read_err = 0, write_err, close_err;
-  gchar              *err_info, *write_err_info = NULL;
+  int                 err                = 0;
+  gchar              *err_info           = NULL;
   int                 err_fileno;
   char               *out_filename       = NULL;
-  gboolean            got_read_error     = FALSE, got_write_error = FALSE;
-  int                 count;
+  merge_result        status;
+  idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
+  gboolean            use_stdout         = FALSE;
+  merge_progress_callback_t cb;
 
   cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
 
@@ -264,7 +310,7 @@ DIAG_ON(cast-qual)
     get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
   /* Process the options first */
-  while ((opt = getopt_long(argc, argv, "aF:hs:T:vVw:", long_options, NULL)) != -1) {
+  while ((opt = getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
 
     switch (opt) {
     case 'a':
@@ -290,18 +336,18 @@ DIAG_ON(cast-qual)
       exit(0);
       break;
 
-    case 's':
-      snaplen = get_positive_int(optarg, "snapshot length");
-      break;
-
-    case 'T':
-      frame_type = wtap_short_string_to_encap(optarg);
-      if (frame_type < 0) {
-        fprintf(stderr, "mergecap: \"%s\" isn't a valid encapsulation type\n",
+    case 'I':
+      mode = merge_string_to_idb_merge_mode(optarg);
+      if (mode == IDB_MERGE_MODE_MAX) {
+        fprintf(stderr, "mergecap: \"%s\" isn't a valid IDB merge mode\n",
                 optarg);
-        list_encap_types();
+        list_idb_merge_modes();
         exit(1);
       }
+      break;
+
+    case 's':
+      snaplen = get_positive_int(optarg, "snapshot length");
       break;
 
     case 'v':
@@ -324,8 +370,8 @@ DIAG_ON(cast-qual)
       case'F':
         list_capture_types();
         break;
-      case'T':
-        list_encap_types();
+      case'I':
+        list_idb_merge_modes();
         break;
       default:
         print_usage(stderr);
@@ -334,6 +380,9 @@ DIAG_ON(cast-qual)
       break;
     }
   }
+
+  cb.callback_func = merge_callback;
+  cb.data = NULL;
 
   /* check for proper args; at a minimum, must have an output
    * filename and one input file
@@ -349,72 +398,21 @@ DIAG_ON(cast-qual)
     return 1;
   }
 
-  /* open the input files */
-  if (!merge_open_in_files(in_file_count, &argv[optind], &in_files,
-                           &open_err, &err_info, &err_fileno)) {
-    fprintf(stderr, "mergecap: Can't open %s: %s\n", argv[optind + err_fileno],
-            wtap_strerror(open_err));
-    if (err_info != NULL) {
-      fprintf(stderr, "(%s)\n", err_info);
-      g_free(err_info);
-    }
-    return 2;
+  /* setting IDB merge mode must use PCAPNG output */
+  if (mode != IDB_MERGE_MODE_MAX && file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
+    fprintf(stderr, "The IDB merge mode can only be used with PCAPNG output format\n");
+    return 1;
   }
 
-  if (verbose) {
-    for (i = 0; i < in_file_count; i++)
-      fprintf(stderr, "mergecap: %s is type %s.\n", argv[optind + i],
-              wtap_file_type_subtype_string(wtap_file_type_subtype(in_files[i].wth)));
-  }
-
-  if (snaplen == 0) {
-    /*
-     * Snapshot length not specified - default to the maximum of the
-     * snapshot lengths of the input files.
-     */
-    snaplen = merge_max_snapshot_length(in_file_count, in_files);
-  }
-
-  /* set the outfile frame type */
-  if (frame_type == -2) {
-    /*
-     * Default to the appropriate frame type for the input files.
-     */
-    frame_type = merge_select_frame_type(in_file_count, in_files);
-    if (verbose) {
-      if (frame_type == WTAP_ENCAP_PER_PACKET) {
-        /*
-         * Find out why we had to choose WTAP_ENCAP_PER_PACKET.
-         */
-        int first_frame_type, this_frame_type;
-
-        first_frame_type = wtap_file_encap(in_files[0].wth);
-        for (i = 1; i < in_file_count; i++) {
-          this_frame_type = wtap_file_encap(in_files[i].wth);
-          if (first_frame_type != this_frame_type) {
-            fprintf(stderr, "mergecap: multiple frame encapsulation types detected\n");
-            fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
-            fprintf(stderr, "          %s had type %s (%s)\n",
-                    in_files[0].filename,
-                    wtap_encap_string(first_frame_type),
-                    wtap_encap_short_string(first_frame_type));
-            fprintf(stderr, "          %s had type %s (%s)\n",
-                    in_files[i].filename,
-                    wtap_encap_string(this_frame_type),
-                    wtap_encap_short_string(this_frame_type));
-            break;
-          }
-        }
-      }
-      fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
-              wtap_encap_string(frame_type),
-              wtap_encap_short_string(frame_type));
-    }
+  /* if they didn't set IDB merge mode, set it to our default */
+  if (mode == IDB_MERGE_MODE_MAX) {
+    mode = IDB_MERGE_MODE_ALL_SAME;
   }
 
   /* open the outfile */
   if (strncmp(out_filename, "-", 2) == 0) {
     /* use stdout as the outfile */
+    use_stdout = TRUE;
     out_fd = 1 /*stdout*/;
   } else {
     /* open the outfile */
@@ -426,252 +424,45 @@ DIAG_ON(cast-qual)
     }
   }
 
-  /* prepare the outfile */
-  if(file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ){
-    wtapng_section_t *shb_hdr;
-    GString *comment_gstr;
-    wtapng_iface_descriptions_t *idb_inf = NULL, *idb_inf_merge_file;
-    wtapng_if_descr_t int_data, *file_int_data;
-    guint itf_count, itf_id = 0;
+  /* merge the files */
+  status = merge_files(out_fd, out_filename, file_type,
+                       (const char *const *) &argv[optind], in_file_count,
+                       do_append, mode, snaplen, "mergecap", verbose ? &cb : NULL,
+                       &err, &err_info, &err_fileno);
 
-    shb_hdr = g_new(wtapng_section_t,1);
-    comment_gstr = g_string_new("File created by merging: \n");
-
-    for (i = 0; i < in_file_count; i++) {
-      g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
-    }
-    shb_hdr->section_length = -1;
-    /* options */
-    shb_hdr->opt_comment   = comment_gstr->str; /* NULL if not available */
-    shb_hdr->shb_hardware  = NULL;              /* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
-    shb_hdr->shb_os        = NULL;              /* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
-    shb_hdr->shb_user_appl = g_strdup("mergecap"); /* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
-
-    if (frame_type == WTAP_ENCAP_PER_PACKET) {
-      /* create fake IDB info */
-      idb_inf = g_new(wtapng_iface_descriptions_t,1);
-      /* TODO make this the number of DIFFERENT encapsulation types
-       * check that snaplength is the same too?
-       */
-      idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
-
-      for (i = 0; i < in_file_count; i++) {
-        idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
-        for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
-          /* read the interface data from the in file to our combined interface data */
-          file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
-          int_data.wtap_encap            = file_int_data->wtap_encap;
-          int_data.time_units_per_second = file_int_data->time_units_per_second;
-          int_data.link_type             = file_int_data->link_type;
-          int_data.snap_len              = file_int_data->snap_len;
-          int_data.if_name               = g_strdup(file_int_data->if_name);
-          int_data.opt_comment           = NULL;
-          int_data.if_description        = NULL;
-          int_data.if_speed              = 0;
-          int_data.if_tsresol            = file_int_data->if_tsresol;
-          int_data.if_filter_str         = NULL;
-          int_data.bpf_filter_len        = 0;
-          int_data.if_filter_bpf_bytes   = NULL;
-          int_data.if_os                 = NULL;
-          int_data.if_fcslen             = -1;
-          int_data.num_stat_entries      = 0;          /* Number of ISB:s */
-          int_data.interface_statistics  = NULL;
-
-          g_array_append_val(idb_inf->interface_data, int_data);
-        }
-        g_free(idb_inf_merge_file);
-
-        /* Set fake interface Id in per file data */
-        in_files[i].interface_id = itf_id;
-        itf_id += itf_count;
-      }
-    } else {
-      guint8 if_tsresol = 6;
-      guint64 time_units_per_second = 1000000;
-      for (i = 0; i < in_file_count; i++) {
-        idb_inf_merge_file = wtap_file_get_idb_info(in_files[i].wth);
-        for (itf_count = 0; itf_count < idb_inf_merge_file->interface_data->len; itf_count++) {
-          file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, itf_count);
-          if (file_int_data->time_units_per_second > time_units_per_second) {
-            time_units_per_second = file_int_data->time_units_per_second;
-            if_tsresol = file_int_data->if_tsresol;
-          }
-        }
-        g_free(idb_inf_merge_file);
-      }
-      if (time_units_per_second > 1000000) {
-        /* We are using a better than microsecond precision; let's create a fake IDB */
-        idb_inf = g_new(wtapng_iface_descriptions_t,1);
-        idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
-        int_data.wtap_encap            = frame_type;
-        int_data.time_units_per_second = time_units_per_second;
-        int_data.link_type             = wtap_wtap_encap_to_pcap_encap(frame_type);
-        int_data.snap_len              = snaplen;
-        int_data.if_name               = g_strdup("Unknown/not available in original file format(libpcap)");
-        int_data.opt_comment           = NULL;
-        int_data.if_description        = NULL;
-        int_data.if_speed              = 0;
-        int_data.if_tsresol            = if_tsresol;
-        int_data.if_filter_str         = NULL;
-        int_data.bpf_filter_len        = 0;
-        int_data.if_filter_bpf_bytes   = NULL;
-        int_data.if_os                 = NULL;
-        int_data.if_fcslen             = -1;
-        int_data.num_stat_entries      = 0;          /* Number of ISB:s */
-        int_data.interface_statistics  = NULL;
-        g_array_append_val(idb_inf->interface_data, int_data);
-      }
-    }
-
-    pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
-                              FALSE /* compressed */, shb_hdr, idb_inf, NULL, &open_err);
-    g_string_free(comment_gstr, TRUE);
-  } else {
-    pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
-  }
-  if (pdh == NULL) {
-    merge_close_in_files(in_file_count, in_files);
-    g_free(in_files);
-    fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
-            wtap_strerror(open_err));
-    exit(1);
-  }
-
-  /* do the merge (or append) */
-  count = 1;
-  for (;;) {
-    if (do_append)
-      in_file = merge_append_read_packet(in_file_count, in_files, &read_err,
-                                         &err_info);
-    else
-      in_file = merge_read_packet(in_file_count, in_files, &read_err,
-                                  &err_info);
-    if (in_file == NULL) {
-      /* EOF */
-      break;
-    }
-
-    if (read_err != 0) {
-      /* I/O error reading from in_file */
-      got_read_error = TRUE;
-      break;
-    }
-
-    if (verbose)
-      fprintf(stderr, "Record: %d\n", count++);
-
-    /* We simply write it, perhaps after truncating it; we could do other
-     * things, like modify it. */
-    phdr = wtap_phdr(in_file->wth);
-    if (snaplen != 0 && phdr->caplen > snaplen) {
-      snap_phdr = *phdr;
-      snap_phdr.caplen = snaplen;
-      phdr = &snap_phdr;
-    }
-    if ((file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) && (frame_type == WTAP_ENCAP_PER_PACKET)) {
-      if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
-        phdr->interface_id += in_file->interface_id;
-      } else {
-        phdr->interface_id = in_file->interface_id;
-        phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
-      }
-    }
-
-    if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err, &write_err_info)) {
-      got_write_error = TRUE;
-      break;
-    }
-  }
-
-  merge_close_in_files(in_file_count, in_files);
-  if (!got_write_error) {
-    if (!wtap_dump_close(pdh, &write_err))
-      got_write_error = TRUE;
-  } else {
-    /*
-     * We already got a write error; no need to report another
-     * write error on close.
-     *
-     * Don't overwrite the earlier write error.
-     */
-    (void)wtap_dump_close(pdh, &close_err);
-  }
-
-  if (got_read_error) {
-    /*
-     * Find the file on which we got the error, and report the error.
-     */
-    for (i = 0; i < in_file_count; i++) {
-      if (in_files[i].state == GOT_ERROR) {
-        fprintf(stderr, "mergecap: Error reading %s: %s\n",
-                in_files[i].filename, wtap_strerror(read_err));
-        if (err_info != NULL) {
-          fprintf(stderr, "(%s)\n", err_info);
-          g_free(err_info);
-        }
-      }
-    }
-  }
-
-  if (got_write_error) {
-    switch (write_err) {
-
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      /*
-       * This is a problem with the particular frame we're writing and
-       * the file type and subtype we're wwriting; note that, and
-       * report the frame number and file type/subtype.
-       */
-      fprintf(stderr, "mergecap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
-              wtap_file_type_subtype_string(file_type));
+  switch (status) {
+    case MERGE_OK:
       break;
 
-    case WTAP_ERR_PACKET_TOO_LARGE:
-      /*
-       * This is a problem with the particular frame we're writing and
-       * the file type and subtype we're wwriting; note that, and
-       * report the frame number and file type/subtype.
-       */
-      fprintf(stderr, "mergecap: Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
-              wtap_file_type_subtype_string(file_type));
+    case MERGE_USER_ABORTED:
+      /* we don't catch SIGINT/SIGTERM (yet?), so we couldn't have aborted */
+      g_assert(FALSE);
       break;
 
-    case WTAP_ERR_UNWRITABLE_REC_TYPE:
-      /*
-       * This is a problem with the particular record we're writing and
-       * the file type and subtype we're wwriting; note that, and
-       * report the record number and file type/subtype.
-       */
-      fprintf(stderr, "mergecap: Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
-              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
-              wtap_file_type_subtype_string(file_type));
+    case MERGE_ERR_CANT_OPEN_INFILE:
+      fprintf(stderr, "mergecap: Can't open %s: %s (%s)\n", argv[optind + err_fileno],
+              wtap_strerror(err), err_info ? err_info : "no more information");
       break;
 
-    case WTAP_ERR_UNWRITABLE_REC_DATA:
-      /*
-       * This is a problem with the particular record we're writing and
-       * the file type and subtype we're wwriting; note that, and
-       * report the record number and file type/subtype.
-       */
-      fprintf(stderr, "mergecap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
-              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
-              wtap_file_type_subtype_string(file_type),
-              write_err_info != NULL ? write_err_info : "no information supplied");
-      g_free(write_err_info);
+    case MERGE_ERR_CANT_OPEN_OUTFILE:
+      fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
+                  wtap_strerror(err));
+      if (!use_stdout)
+        ws_close(out_fd);
       break;
 
+    case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
+    case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
+    case MERGE_ERR_CANT_WRITE_OUTFILE:
+    case MERGE_ERR_CANT_CLOSE_OUTFILE:
     default:
-      fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
-              wtap_strerror(write_err));
+      fprintf(stderr, "mergecap: %s\n", err_info ? err_info : "unknown error");
       break;
-    }
   }
 
-  g_free(in_files);
+  g_free(err_info);
 
-  return (!got_read_error && !got_write_error) ? 0 : 2;
+  return (status == MERGE_OK) ? 0 : 2;
 }
 
 /*

@@ -9,8 +9,8 @@ B<mergecap>
 S<[ B<-a> ]>
 S<[ B<-F> E<lt>I<file format>E<gt> ]>
 S<[ B<-h> ]>
+S<[ B<-I> E<lt>I<IDB merge mode>E<gt> ]>
 S<[ B<-s> E<lt>I<snaplen>E<gt> ]>
-S<[ B<-T> E<lt>I<encapsulation type>E<gt> ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<B<-w> E<lt>I<outfile>E<gt>|->
@@ -79,6 +79,28 @@ first input file.
 
 Prints the version and options and exits.
 
+=item -I  E<lt>IDB merge modeE<gt>
+
+Sets the Interface Description Block (IDB) merge mode to use during merging.
+B<mergecap -I> provides a list of the available IDB merge modes.
+
+Every input file has one or more IDBs, which describe the interface(s) the
+capture was performed on originally. This includes encapsulation type,
+interface name, etc. When mergecap merges multiple input files, it has to
+merge these IDBs somehow for the new merged output file. This flag controls
+how that is accomplished. The currently available modes are:
+
+ * 'B<none>': no merging of IDBs is performed, and instead all IDBs are
+              copied to the merged output file.
+ * 'B<all>':  IDBs are merged only if all input files have the same number
+              of IDBs, and each IDB matches their respective entry in the
+              other files. This is the default mode.
+ * 'B<any>':  Any and all duplicate IDBs are merged into one IDB, regardless
+              of what file they are in.
+
+Note that an IDB is only considered a matching duplicate if it has the same
+encapsulation type, name, speed, time precision, comments, description, etc.
+
 =item -s  E<lt>snaplenE<gt>
 
 Sets the snapshot length to use when writing the data.
@@ -91,22 +113,6 @@ to read the output file cannot handle packets larger than a certain size
 appear to reject Ethernet frames larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 frames were used).
-
-=item -T  E<lt>encapsulation typeE<gt>
-
-Sets the packet encapsulation type of the output capture file.
-If the B<-T> flag is used to specify a frame encapsulation type, the
-encapsulation type of the output capture file will be forced to the
-specified type, rather than being the type appropriate to the
-encapsulation type of the input capture files.
-
-Note that this merely
-forces the encapsulation type of the output file to be the specified
-type; the packet headers of the packets will not be translated from the
-encapsulation type of the input capture file to the specified
-encapsulation type (for example, it will not translate an Ethernet
-capture to an FDDI capture if an Ethernet capture is read and 'B<-T
-fddi>' is specified).
 
 =item -v
 

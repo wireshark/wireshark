@@ -210,7 +210,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         /* merge the files in chronological order */
         tmpname = NULL;
         if (cf_merge_files(&tmpname, in_file_count, in_filenames,
-                           WTAP_FILE_TYPE_SUBTYPE_PCAP, FALSE) == CF_OK) {
+                           WTAP_FILE_TYPE_SUBTYPE_PCAPNG, FALSE) == CF_OK) {
             /* Merge succeeded; close the currently-open file and try
                to open the merged capture file. */
             cf_close(&cfile);

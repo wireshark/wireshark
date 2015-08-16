@@ -11,10 +11,13 @@ libwiretap.so.0 libwiretap0 #MINVER#
  init_open_routines@Base 1.12.0~rc1
  merge_append_read_packet@Base 1.12.0~rc1
  merge_close_in_files@Base 1.12.0~rc1
+ merge_files@Base 1.99.9
+ merge_idb_merge_mode_to_string@Base 1.99.9
  merge_max_snapshot_length@Base 1.12.0~rc1
  merge_open_in_files@Base 1.12.0~rc1
  merge_read_packet@Base 1.12.0~rc1
  merge_select_frame_type@Base 1.12.0~rc1
+ merge_string_to_idb_merge_mode@Base 1.99.9
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
  register_all_wiretap_modules@Base 1.12.0~rc1
@@ -65,6 +68,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_fstat@Base 1.9.1
  wtap_get_all_file_extensions_list@Base 1.12.0~rc1
  wtap_get_bytes_dumped@Base 1.9.1
+ wtap_get_debug_if_descr@Base 1.99.9
  wtap_get_file_extension_type_extensions@Base 1.12.0~rc1
  wtap_get_file_extension_type_name@Base 1.12.0~rc1
  wtap_get_file_extensions_list@Base 1.9.1

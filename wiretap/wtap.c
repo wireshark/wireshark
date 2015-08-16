@@ -263,6 +263,30 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
+gchar *
+wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr)
+{
+	GString *info = g_string_new("");
+
+	g_assert(if_descr);
+
+	g_string_printf(info,
+		"Interface description: wtap_encap=%d, time_units_per_second=%" G_GINT64_MODIFIER "u"
+		", tsprecision=%d, link_type=%u, snap_len=%u, opt_comment='%s', if_name='%s'"
+		", if_description='%s', if_speed=%" G_GINT64_MODIFIER "u, if_tsresol=%d"
+		", if_filter_str='%s', bpf_filter_len=%u, if_fcslen=%d, num_stat_entries=%u",
+		if_descr->wtap_encap, if_descr->time_units_per_second, if_descr->tsprecision,
+		if_descr->link_type, if_descr->snap_len,
+		if_descr->opt_comment ? if_descr->opt_comment : "NONE",
+		if_descr->if_name ? if_descr->if_name : "NONE",
+		if_descr->if_description ? if_descr->if_description : "NONE",
+		if_descr->if_speed, if_descr->if_tsresol,
+		if_descr->if_filter_str ? if_descr->if_filter_str : "NONE",
+		if_descr->bpf_filter_len, if_descr->if_fcslen, if_descr->num_stat_entries);
+
+	return g_string_free(info, FALSE);
+}
+
 wtapng_name_res_t *
 wtap_file_get_nrb_for_new_file(wtap *wth)
 {

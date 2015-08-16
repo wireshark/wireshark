@@ -1735,6 +1735,18 @@ WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 /**
+ * @brief Gets a debug string of an interface description.
+ * @details Returns a newly allocated string of debug information about
+ *          the given interface descrption, useful for debugging.
+ * @note The returned pointer must be g_free'd.
+ *
+ * @param if_descr The interface description.
+ * @return A newly allocated gcahr array string, which must be g_free'd.
+ */
+WS_DLL_PUBLIC
+gchar *wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr);
+
+/**
  * @brief Gets new name resolution info for new file, based on existing info.
  * @details Creates a new wtapng_name_res_t name resolution info and only
  *          copies appropriate members for a new file.
