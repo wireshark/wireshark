@@ -264,25 +264,87 @@ wtap_file_get_idb_info(wtap *wth)
 }
 
 gchar *
-wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr)
+wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr,
+                        const int indent,
+                        const char* line_end)
 {
 	GString *info = g_string_new("");
 
 	g_assert(if_descr);
 
 	g_string_printf(info,
-		"Interface description: wtap_encap=%d, time_units_per_second=%" G_GINT64_MODIFIER "u"
-		", tsprecision=%d, link_type=%u, snap_len=%u, opt_comment='%s', if_name='%s'"
-		", if_description='%s', if_speed=%" G_GINT64_MODIFIER "u, if_tsresol=%d"
-		", if_filter_str='%s', bpf_filter_len=%u, if_fcslen=%d, num_stat_entries=%u",
-		if_descr->wtap_encap, if_descr->time_units_per_second, if_descr->tsprecision,
-		if_descr->link_type, if_descr->snap_len,
-		if_descr->opt_comment ? if_descr->opt_comment : "NONE",
-		if_descr->if_name ? if_descr->if_name : "NONE",
-		if_descr->if_description ? if_descr->if_description : "NONE",
-		if_descr->if_speed, if_descr->if_tsresol,
-		if_descr->if_filter_str ? if_descr->if_filter_str : "NONE",
-		if_descr->bpf_filter_len, if_descr->if_fcslen, if_descr->num_stat_entries);
+			"%*cName = %s%s", indent, ' ',
+			if_descr->if_name ? if_descr->if_name : "UNKNOWN",
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cDescription = %s%s", indent, ' ',
+			if_descr->if_description ? if_descr->if_description : "NONE",
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cEncapsulation = %s (%d/%u - %s)%s", indent, ' ',
+			wtap_encap_string(if_descr->wtap_encap),
+			if_descr->wtap_encap,
+			if_descr->link_type,
+			wtap_encap_short_string(if_descr->wtap_encap),
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cSpeed = %" G_GINT64_MODIFIER "u%s", indent, ' ',
+			if_descr->if_speed,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cCapture length = %u%s", indent, ' ',
+			if_descr->snap_len,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cFCS length = %d%s", indent, ' ',
+			if_descr->if_fcslen,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cTime precision = %s (%d)%s", indent, ' ',
+			wtap_tsprec_string(if_descr->tsprecision),
+			if_descr->tsprecision,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cTime ticks per second = %" G_GINT64_MODIFIER "u%s", indent, ' ',
+			if_descr->time_units_per_second,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cTime resolution = 0x%.2x%s", indent, ' ',
+			if_descr->if_tsresol,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cFilter string = %s%s", indent, ' ',
+			if_descr->if_filter_str ? if_descr->if_filter_str : "NONE",
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cOperating system = %s%s", indent, ' ',
+			if_descr->if_os ? if_descr->if_os : "UNKNOWN",
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cComment = %s%s", indent, ' ',
+			if_descr->opt_comment ? if_descr->opt_comment : "NONE",
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cBPF filter length = %u%s", indent, ' ',
+			if_descr->bpf_filter_len,
+			line_end);
+
+	g_string_append_printf(info,
+			"%*cNumber of stat entries = %u%s", indent, ' ',
+			if_descr->num_stat_entries,
+			line_end);
 
 	return g_string_free(info, FALSE);
 }
@@ -926,6 +988,40 @@ wtap_short_string_to_encap(const char *short_name)
 			return encap;
 	}
 	return -1;	/* no such encapsulation type */
+}
+
+const char*
+wtap_tsprec_string(int tsprec)
+{
+	const char* s;
+	switch (tsprec) {
+		case WTAP_TSPREC_PER_PACKET:
+			s = "per-packet";
+			break;
+		case WTAP_TSPREC_SEC:
+			s = "seconds";
+			break;
+		case WTAP_TSPREC_DSEC:
+			s = "deciseconds";
+			break;
+		case WTAP_TSPREC_CSEC:
+			s = "centiseconds";
+			break;
+		case WTAP_TSPREC_MSEC:
+			s = "milliseconds";
+			break;
+		case WTAP_TSPREC_USEC:
+			s = "microseconds";
+			break;
+		case WTAP_TSPREC_NSEC:
+			s = "nanoseconds";
+			break;
+		case WTAP_TSPREC_UNKNOWN:
+		default:
+			s = "UNKNOWN";
+			break;
+	}
+	return s;
 }
 
 static const char *wtap_errlist[] = {

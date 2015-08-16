@@ -365,6 +365,7 @@ extern "C" {
 #define WTAP_TSPREC_MSEC        3
 #define WTAP_TSPREC_USEC        6
 #define WTAP_TSPREC_NSEC        9
+/* if you add to the above, update wtap_tsprec_string() */
 
 /*
  * Maximum packet size we'll support.
@@ -1741,10 +1742,14 @@ wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
  * @note The returned pointer must be g_free'd.
  *
  * @param if_descr The interface description.
+ * @param indent Number of spaces to indent each line by.
+ * @param line_end A string to append to each line (e.g., "\n" or ", ").
  * @return A newly allocated gcahr array string, which must be g_free'd.
  */
 WS_DLL_PUBLIC
-gchar *wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr);
+gchar *wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr,
+                               const int indent,
+                               const char* line_end);
 
 /**
  * @brief Gets new name resolution info for new file, based on existing info.
@@ -1936,6 +1941,9 @@ WS_DLL_PUBLIC
 const char *wtap_encap_short_string(int encap);
 WS_DLL_PUBLIC
 int wtap_short_string_to_encap(const char *short_name);
+
+WS_DLL_PUBLIC
+const char* wtap_tsprec_string(int tsprec);
 
 WS_DLL_PUBLIC
 const char *wtap_strerror(int err);

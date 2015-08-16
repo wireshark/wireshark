@@ -15,9 +15,11 @@ S<[ B<-C> ]>
 S<[ B<-d> ]>
 S<[ B<-e> ]>
 S<[ B<-E> ]>
+S<[ B<-F> ]>
 S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> ]>
+S<[ B<-I> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> ]>
@@ -147,6 +149,10 @@ B<Capinfos> detects this.
 
 Displays the per-file encapsulation of the capture file.
 
+=item -F
+
+Displays additional capture file information.
+
 =item -h
 
 Prints the help listing and exits.
@@ -158,6 +164,11 @@ Displays the SHA1, RIPEMD160, and MD5 hashes for the file.
 =item -i
 
 Displays the average data rate, in bits/sec
+
+=item -I
+
+Displays detailed capture file interface information. This information
+is not available in table format.
 
 =item -k
 
