@@ -131,10 +131,13 @@ endif()
 ABICHECK(libwiretap)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz
-	COMMAND cp ../config.h ${ABICHECK_TMPDIR}/
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${ABICHECK_TMPDIR}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${ABICHECK_TMPDIR}
+	COMMAND ${ABI_COPY_COMMAND} ../config.h ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
+	COMMAND ${ABI_COPY_COMMAND} ${ABICHECK_HEADERS} ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
 	COMMAND ${ABICHECK_COMMAND}
 	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwiretap/libwiretap_* ${CMAKE_CURRENT_BINARY_DIR}/libwiretap.abi.tar.gz
-	COMMAND rm -rf ${ABICHECK_TMPDIR}/* ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
+	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wiretap)
 
 target_link_libraries(wiretap ${wiretap_LIBS})
