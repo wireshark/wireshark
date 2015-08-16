@@ -215,7 +215,7 @@ static int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 
 	tick_stat_node(st, st_str_dsts, 0, FALSE);
 
-	ip_dst_node = tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_dsts, TRUE);
+	ip_dst_node = tick_stat_node(st, ep_address_to_str(&pinfo->net_dst), st_node_dsts, TRUE);
 
 	protocol_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
 
