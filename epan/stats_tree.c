@@ -370,10 +370,23 @@ stats_tree_get_cfg_by_abbr(const char *abbr)
     return (stats_tree_cfg *)g_hash_table_lookup(registry,abbr);
 }
 
+static gint
+compare_stat_menu_item(gconstpointer stat_a, gconstpointer stat_b)
+{
+    stats_tree_cfg* stat_cfg_a = (stats_tree_cfg*)stat_a;
+    stats_tree_cfg* stat_cfg_b = (stats_tree_cfg*)stat_b;
+
+    return strcmp(stat_cfg_a->name, stat_cfg_b->name);
+}
+
 extern GList*
 stats_tree_get_cfg_list(void)
 {
-    return g_hash_table_get_values(registry);
+    GList* registry_list = g_hash_table_get_values(registry);
+    /* Now sort the list so they can show up in the
+       menu alphabetically */
+    return g_list_sort(registry_list, compare_stat_menu_item);
+
 }
 
 struct _stats_tree_pres_cbs {
