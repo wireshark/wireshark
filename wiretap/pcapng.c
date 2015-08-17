@@ -2330,6 +2330,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
 
     int_data.wtap_encap = wblock->data.if_descr.wtap_encap;
     int_data.time_units_per_second = wblock->data.if_descr.time_units_per_second;
+    int_data.tsprecision = wblock->data.if_descr.tsprecision;
     int_data.link_type = wblock->data.if_descr.link_type;
     int_data.snap_len = wblock->data.if_descr.snap_len;
     /* Options */
