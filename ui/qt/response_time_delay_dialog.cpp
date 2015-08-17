@@ -245,9 +245,10 @@ void ResponseTimeDelayDialog::fillTree()
     rtd_table_dissector_init(rtd_, &rtd_data.stat_table, NULL, NULL);
     rtd_data.user_data = this;
 
+    QString display_filter = displayFilter();
     GString *error_string = register_tap_listener(get_rtd_tap_listener_name(rtd_),
                           &rtd_data,
-                          displayFilter(),
+                          display_filter.toUtf8().constData(),
                           0,
                           tapReset,
                           get_rtd_packet_func(rtd_),

@@ -307,9 +307,10 @@ void ServiceResponseTimeDialog::fillTree()
 
     srt_table_dissector_init(srt_, srt_data.srt_array, NULL, NULL);
 
+    QString display_filter = displayFilter();
     GString *error_string = register_tap_listener(get_srt_tap_listener_name(srt_),
                           &srt_data,
-                          displayFilter(),
+                          display_filter.toUtf8().constData(),
                           0,
                           tapReset,
                           get_srt_packet_func(srt_),

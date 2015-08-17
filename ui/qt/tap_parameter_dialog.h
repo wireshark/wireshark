@@ -76,7 +76,7 @@ protected:
 
     void showEvent(QShowEvent *);
     void contextMenuEvent(QContextMenuEvent *event);
-    const char *displayFilter();
+    QString displayFilter();
     void setDisplayFilter(const QString &filter);
     void setHint(const QString &hint);
     // Retap packets on showEvent. RPC stats need to disable this.

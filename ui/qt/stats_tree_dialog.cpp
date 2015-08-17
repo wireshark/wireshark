@@ -126,7 +126,8 @@ void StatsTreeDialog::fillTree()
     if (st_) {
         stats_tree_free(st_);
     }
-    st_ = stats_tree_new(st_cfg_, NULL, displayFilter());
+    QString display_filter = displayFilter();
+    st_ = stats_tree_new(st_cfg_, NULL, display_filter.toUtf8().constData());
 
     // Add number of columns for this stats_tree
     QStringList header_labels;

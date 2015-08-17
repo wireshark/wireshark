@@ -146,9 +146,9 @@ QHBoxLayout *TapParameterDialog::filterLayout()
     return ui->filterLayout;
 }
 
-const char *TapParameterDialog::displayFilter()
+QString TapParameterDialog::displayFilter()
 {
-    return ui->displayFilterLineEdit->text().toUtf8().constData();
+    return ui->displayFilterLineEdit->text();
 }
 
 // This assumes that we're called before signals are connected or show()

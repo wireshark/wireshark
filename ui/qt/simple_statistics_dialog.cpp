@@ -251,9 +251,10 @@ void SimpleStatisticsDialog::fillTree()
 
     stu_->stat_tap_init_cb(stu_, NULL, NULL);
 
+    QString display_filter = displayFilter();
     GString *error_string = register_tap_listener(stu_->tap_name,
                           &stat_data,
-                          displayFilter(),
+                          display_filter.toUtf8().constData(),
                           0,
                           tapReset,
                           stu_->packet_func,
