@@ -1306,7 +1306,6 @@ void MainWindow::redissectPackets()
 
 void MainWindow::fieldsChanged()
 {
-    // Reload color filters
     color_filters_reload();
 
     // Syntax check filter
@@ -1325,8 +1324,8 @@ void MainWindow::fieldsChanged()
     }
 
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
-        // Recreate packet list according to new/changed/deleted fields
-        packet_list_->columnsChanged();
+        // Recreate packet list columns according to new/changed/deleted fields
+        packet_list_->fieldsChanged(CaptureFile::globalCapFile());
     }
 }
 
@@ -2487,11 +2486,7 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     (void) wsApp->readConfigurationFiles(&gdp_path, &dp_path);
 
     fieldsChanged();
-
-    if (CaptureFile::globalCapFile()->state != FILE_CLOSED) {
-        // Redissect packets if we have any
-        redissectPackets();
-    }
+    redissectPackets();
 
     wsApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();

@@ -148,6 +148,7 @@ public slots:
     void unsetAllTimeReferences();
     void redrawVisiblePackets();
     void columnsChanged();
+    void fieldsChanged(capture_file *cf);
     void applyRecentColumnWidths();
     void elideModeChanged();
 

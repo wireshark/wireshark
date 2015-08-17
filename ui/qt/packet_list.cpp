@@ -642,6 +642,14 @@ void PacketList::columnsChanged()
     redrawVisiblePackets();
 }
 
+// Fields have changed, update custom columns
+void PacketList::fieldsChanged(capture_file *cf)
+{
+    prefs.num_cols = g_list_length(prefs.col_list);
+    col_cleanup(&cf->cinfo);
+    build_column_format_array(&cf->cinfo, prefs.num_cols, FALSE);
+}
+
 // Column widths should
 // - Load from recent when we load a new profile (including at starting up).
 // - Persist across freezes and thaws.
