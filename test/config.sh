@@ -68,6 +68,7 @@ WIRESHARK_GTK=$WS_BIN_PATH/wireshark-gtk
 TSHARK=$WS_BIN_PATH/tshark
 RAWSHARK=$WS_BIN_PATH/rawshark
 CAPINFOS=$WS_BIN_PATH/capinfos
+MERGECAP=$WS_BIN_PATH/mergecap
 DUMPCAP=$WS_BIN_PATH/dumpcap
 
 # interface with at least a few packets/sec traffic on it

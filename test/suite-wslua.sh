@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Run the epan unit tests
+# Run the Lua API unit tests
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
