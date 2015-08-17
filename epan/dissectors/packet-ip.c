@@ -2485,7 +2485,6 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     ihl = oct & 0x0f;
     version = oct >> 4;
     if(version == 6){
-        /* TODO: Add IPv6 checks here */
 /*
     3.  IPv6 Header Format
 
