@@ -1993,6 +1993,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pt = proto_item_add_subtree(pi,ett_ipv6_version);
         pi = proto_tree_add_item(pt, hf_ip_version, tvb,
                                  offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(pi, " (This field makes the filter \"ip.version == 6\" possible)");
         PROTO_ITEM_SET_GENERATED(pi);
 
         ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
@@ -2376,8 +2377,9 @@ proto_register_ipv6(void)
           { "Version",              "ipv6.version",
             FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
         { &hf_ip_version,
-          { "This field makes the filter \"ip.version == 6\" possible",             "ip.version",
-            FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+          { "Version",              "ip.version",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            "This field makes the filter \"ip.version == 6\" possible", HFILL }},
         { &hf_ipv6_class,
           { "Traffic class",        "ipv6.class",
             FT_UINT32, BASE_HEX, NULL, 0x0FF00000, NULL, HFILL }},
