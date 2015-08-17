@@ -256,6 +256,7 @@ static expert_field ei_ip_checksum_bad = EI_INIT;
 static expert_field ei_ip_ttl_lncb = EI_INIT;
 static expert_field ei_ip_ttl_too_small = EI_INIT;
 static expert_field ei_ip_cipso_tag = EI_INIT;
+static expert_field ei_ip_bogus_ip_version = EI_INIT;
 
 
 #ifdef HAVE_GEOIP
@@ -1983,7 +1984,7 @@ ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_tree *ip_tree, *field_tree = NULL;
   proto_item *ti, *tf;
@@ -2011,10 +2012,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   iph->ip_v_hl = tvb_get_guint8(tvb, offset);
-  if ( hi_nibble(iph->ip_v_hl) == 6) {
-    call_dissector(ipv6_handle, tvb, pinfo, parent_tree);
-    return;
-  }
 
   hlen = lo_nibble(iph->ip_v_hl) * 4;   /* IP header length, in bytes */
 
@@ -2462,6 +2459,31 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   pinfo->fragmented = save_fragmented;
 }
 
+static void
+dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint8 version;
+
+  version = tvb_get_guint8(tvb, 0) >> 4;
+
+  if(version == 4){
+    dissect_ip_v4(tvb, pinfo, tree);
+    return;
+  }
+  if(version == 6){
+    call_dissector(ipv6_handle, tvb, pinfo, tree);
+    return;
+  }
+
+  /* Bogus IP version */
+  ti = proto_tree_add_protocol_format(tree, proto_ip, tvb, 0, 1, "Internet Protocol, bogus version (%u)", version);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
+  col_clear(pinfo->cinfo, COL_INFO);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
+  expert_add_info(pinfo, ti, &ei_ip_bogus_ip_version);
+}
+
 static gboolean
 dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2551,7 +2573,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         return FALSE;
     }
 
-    dissect_ip(tvb, pinfo, tree);
+    dissect_ip_v4(tvb, pinfo, tree);
     return TRUE;
 }
 
@@ -3048,6 +3070,7 @@ proto_register_ip(void)
      { &ei_ip_ttl_lncb, { "ip.ttl.lncb", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
      { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
      { &ei_ip_cipso_tag, { "ip.cipso.malformed", PI_SEQUENCE, PI_ERROR, "Malformed CIPSO tag", EXPFILL }},
+     { &ei_ip_bogus_ip_version, { "ip.bogus_ip_version", PI_PROTOCOL, PI_ERROR, "Bogus IP version", EXPFILL }},
   };
 
   /* Decode As handling */
