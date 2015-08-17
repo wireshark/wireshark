@@ -140,7 +140,7 @@ void AddressEditorFrame::on_okButton_clicked()
         return;
     }
     QString addr = ui->addressComboBox->currentText();
-    QString name = ui->nameLineEdit->text().toUtf8();
+    QString name = ui->nameLineEdit->text();
     if (!add_ip_name_from_string(addr.toUtf8().constData(), name.toUtf8().constData())) {
         QString error_msg = tr("Can't assign %1 to %2").arg(name).arg(addr);
         emit editAddressStatus(error_msg);
