@@ -1,9 +1,9 @@
 Alexander Gärtner <sphinxs1988@googlemail.com> alage <sphinxs1988@googlemail.com>
 Alexander Wetzel <alexander.wetzel@web.de> deagol
 Anders Broman <anders.broman@ericsson.com> <a.broman58@gmail.com>
-Anders Broman <anders.broman@ericsson.com> AndersBroman <anders.broman@ericsson.com>
 Anders Broman <anders.broman@ericsson.com> <a.broman@bredband.net>
 Anders Broman <anders.broman@ericsson.com> Anders <anders.broman@ericsson.com>
+Anders Broman <anders.broman@ericsson.com> AndersBroman <anders.broman@ericsson.com>
 Balint Reczey <balint@balintreczey.hu> <balint.reczey@ericsson.com>
 Cal Turney <cturney@charter.net> Cal Turney <cal.turney@emc.com>
 Cal Turney <cturney@charter.net> cturney <cturney@charter.net>
@@ -15,30 +15,30 @@ Claudius Zingerli <czingerl@gmail.com> zeuz <czingerl@gmail.com>
 Daniël van Eeden <wireshark@myname.nl> Daniel van Eeden
 Dave Tapuska <dtapuska@google.com> dave@tapuska.com>
 David Ameiss <dameiss@29west.com> <netshark@ameissnet.com>
+Denis Janssen <janssend@gmail.com> janssend <janssend@gmail.com>
 Didier Gautheron <dgautheron@magic.fr> didier <dgautheron@magic.fr>
 Dmitry Bazhenov <dima_b@pigeonpoint.com> U-beauty\bdn <dima_b@pigeonpoint.com>
 Edwin Groothuis <edwin@mavetju.org> <wireshark@mavetju.org>
 Evan Huus <eapache@gmail.com> <evan.huus@jadedpixel.com>
 Francesco Fondelli <francesco.fondelli@gmail.com> ff <francesco.fondelli@gmail.com>
-Gilbert Ramirez <gram@alumni.rice.edu> <gilramir@cisco.com>
 Gerald Combs <gerald@wireshark.org> <gerald@zing.org>
+Gilbert Ramirez <gram@alumni.rice.edu> <gilramir@cisco.com>
 Hadriel Kaplan <hadrielk@yahoo.com> <hadriel@128technology.com>
 Hannes R. Boehm <hannes@boehm.org> hannes <hannes@localhost>
 Hitesh K Maisheri <maisheri.hitesh@gmail.com> <hmaisher@cisco.com>
 Hitesh K Maisheri <maisheri.hitesh@gmail.com> maisheri <maisheri.hitesh@gmail.com>
 Irene Rüngeler <ruengeler@wireshark.org> Irene Ruengeler <ruengeler@wireshark.org>
-Irene Rüngeler <ruengeler@wireshark.org> ruengeler <ruengeler@wireshark.org>
 Irene Rüngeler <ruengeler@wireshark.org> <I.Ruengeler@fh-muenster.de>
-Irene Rüngeler <ruengeler@wireshark.org> <ruengeler@MacBookIrene.local>
 Irene Rüngeler <ruengeler@wireshark.org> <ruengeler@localhost>
+Irene Rüngeler <ruengeler@wireshark.org> <ruengeler@MacBookIrene.local>
+Irene Rüngeler <ruengeler@wireshark.org> ruengeler <ruengeler@wireshark.org>
 Jakub Zawadzki <darkjames-ws@darkjames.pl> <darkjames@darkjames.pl>
-Jeff Morriss <jeff.morriss.ws@gmail.com> <morriss@ulticom.com>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <jeff.morriss@ulticom.com>
-Denis Janssen <janssend@gmail.com> janssend <janssend@gmail.com>
+Jeff Morriss <jeff.morriss.ws@gmail.com> <morriss@ulticom.com>
 Jiří Engelthaler <engycz@gmail.com> Jiri Engelthaler <engycz@gmail.com>
-Joseph Huffman <jhuffman@codeaurora.org> <jhuffman@qce.qualcomm.com>
 Jorge Power <jpower@rsscorp.org> jorge power
 Juan Jose Martin Carrascosa <juanjo@rti.com> Juanjo <juanjo@rti.com>
+Joseph Huffman <jhuffman@codeaurora.org> <jhuffman@qce.qualcomm.com>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.co.at>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.com>
 Marcel Essig <marcel.essig@gmx.de> <essig.marcel@gmail.com>
@@ -47,11 +47,12 @@ Martin Kaiser <wireshark@kaiser.cx> <martin@reykholt.kaiser.cx>
 Martin Kaiser <wireshark@kaiser.cx> <martin@skogar.kaiser.cx>
 Martin Tibensky <martin.tibensky@alcatel-lucent.com> matibens
 Martin Tibensky <martin.tibensky@alcatel-lucent.com> Mato <tibensky233@gmail.com>
-Michael Tüxen <tuexen@wireshark.org> <tuexen@mba.local>
 Michael Tüxen <tuexen@wireshark.org> <tuexen@fh-muenster.de>
+Michael Tüxen <tuexen@wireshark.org> <tuexen@mba.local>
 Michał Orynicz <michal.orynicz@tieto.com> michal.orynicz
 Mikhail Koreshkov <drkor@hotbox.ru> unknown <drkor@hotbox.ru>
 Moraney Jalil <moraney.jalil@outlook.com> moraney.jalil
+Øyvind Rønningstad <ronningstad@gmail.com> oyv <ronningstad@gmail.com>
 Pascal Quantin <pascal.quantin@gmail.com> <pascal@localhost>
 Patrick Servello <patrick.servello@gmail.com> Patrick <patrick.servello@gmail.com>
 Peter Ross <peter.ross@dsto.defence.gov.au> <peter.ross@rmit.edu.au>
@@ -69,4 +70,3 @@ Stephen Fisher <sfisher@sdf.org> <steve@stephen-fisher.com>
 Warren Moxam <warrenmptgrey@gmail.com> warrenm <warrenmptgrey@gmail.com>
 Warren Moxam <warrenmptgrey@gmail.com> <warren@peter-ubuntu32.(none)>
 Yaniv Kaul <mykaul@gmail.com> <yaniv.kaul@emc.com>
-Øyvind Rønningstad <ronningstad@gmail.com> oyv <ronningstad@gmail.com>
