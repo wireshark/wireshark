@@ -67,7 +67,7 @@ RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC) \
-	$(WIRESHARK_TAP_SRC) \
+	$(WIRESHARK_QT_TAP_SRC) \
 	$(GENERATED_C_FILES) \
 	$(GENERATED_CPP_FILES) \
 	$(noinst_HEADERS) \

@@ -56,8 +56,6 @@ typedef struct _gsm_map_stat_t {
 
 gsm_map_stat_t gsm_map_stat;
 
-void register_tap_listener_qt_gsm_map_summary(void);
-
 GsmMapSummaryDialog::GsmMapSummaryDialog(QWidget &parent, CaptureFile &capture_file) :
     WiresharkDialog(parent, capture_file),
     ui(new Ui::GsmMapSummaryDialog)
@@ -371,7 +369,7 @@ gsm_map_summary_packet(void *tapdata, packet_info *, epan_dissect_t *, const voi
 }
 
 void
-register_tap_listener_gtk_gsm_map_summary(void)
+register_tap_listener_qt_gsm_map_summary(void)
 {
     GString     *err_p;
 

@@ -180,13 +180,14 @@ set(WIRESHARK_QT_SRC
 	column_preferences_frame.cpp
 	column_editor_frame.cpp
 	compiled_filter_output.cpp
+	conversation_dialog.cpp
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
 	display_filter_expression_dialog.cpp
 	elided_label.cpp
 	enabled_protocols_dialog.cpp
-	expert_info_dialog.cpp
+	endpoint_dialog.cpp
 	export_dissection_dialog.cpp
 	export_object_dialog.cpp
 	export_pdu_dialog.cpp
@@ -238,9 +239,6 @@ set(WIRESHARK_QT_SRC
 	response_time_delay_dialog.cpp
 	rpc_service_response_time_dialog.cpp
 	rtp_analysis_dialog.cpp
-	rtp_stream_dialog.cpp
-	sctp_all_assocs_dialog.cpp
-	sctp_assoc_analyse_dialog.cpp
 	sctp_chunk_statistics_dialog.cpp
 	sctp_graph_dialog.cpp
 	sctp_graph_arwnd_dialog.cpp
@@ -284,11 +282,13 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_QT_TAP_SRC
-	conversation_dialog.cpp
-	endpoint_dialog.cpp
+	expert_info_dialog.cpp
 	funnel_statistics.cpp
 	gsm_map_summary_dialog.cpp
 	io_graph_dialog.cpp
+	rtp_stream_dialog.cpp
+	sctp_all_assocs_dialog.cpp
+	sctp_assoc_analyse_dialog.cpp
 	stats_tree_dialog.cpp
 )
 

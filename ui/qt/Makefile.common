@@ -405,7 +405,6 @@ WIRESHARK_QT_SRC =	\
 	elided_label.cpp	\
 	enabled_protocols_dialog.cpp	\
 	endpoint_dialog.cpp	\
-	expert_info_dialog.cpp	\
 	export_dissection_dialog.cpp	\
 	export_object_dialog.cpp	\
 	export_pdu_dialog.cpp	\
@@ -421,11 +420,8 @@ WIRESHARK_QT_SRC =	\
 	font_color_preferences_frame.cpp	\
 	funnel_string_dialog.cpp	\
 	funnel_text_dialog.cpp	\
-	funnel_statistics.cpp	\
-	gsm_map_summary_dialog.cpp	\
 	import_text_dialog.cpp	\
 	interface_tree.cpp	\
-	io_graph_dialog.cpp	\
 	label_stack.cpp	\
 	layout_preferences_frame.cpp	\
 	lbm_lbtrm_transport_dialog.cpp	\
@@ -465,9 +461,6 @@ WIRESHARK_QT_SRC =	\
 	response_time_delay_dialog.cpp	\
 	rpc_service_response_time_dialog.cpp	\
 	rtp_analysis_dialog.cpp	\
-	rtp_stream_dialog.cpp	\
-	sctp_all_assocs_dialog.cpp	\
-	sctp_assoc_analyse_dialog.cpp	\
 	sctp_chunk_statistics_dialog.cpp	\
 	sctp_graph_dialog.cpp	\
 	sctp_graph_arwnd_dialog.cpp	\
@@ -480,7 +473,6 @@ WIRESHARK_QT_SRC =	\
 	simple_statistics_dialog.cpp	\
 	sparkline_delegate.cpp	\
 	splash_overlay.cpp	\
-	stats_tree_dialog.cpp	\
 	stock_icon.cpp		\
 	syntax_line_edit.cpp	\
 	tap_parameter_dialog.cpp	\
@@ -494,6 +486,13 @@ WIRESHARK_QT_SRC =	\
 	wireshark_dialog.cpp
 
 WIRESHARK_QT_TAP_SRC =	\
+	expert_info_dialog.cpp	\
+	funnel_statistics.cpp	\
+	gsm_map_summary_dialog.cpp	\
+	io_graph_dialog.cpp	\
+	rtp_stream_dialog.cpp	\
+	sctp_all_assocs_dialog.cpp	\
+	sctp_assoc_analyse_dialog.cpp	\
 	stats_tree_dialog.cpp
 
 noinst_HEADERS =	\
