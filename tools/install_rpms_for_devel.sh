@@ -56,10 +56,10 @@ else
 fi
 
 PKGS="autoconf automake libtool gcc flex bison python perl $GLIB2
-$PCAP $ZLIB lua-devel lua $CARES $GTK2 desktop-file-utils $QT fop asciidoc
-git git-review perl-podlators"
+$PCAP $ZLIB lua-devel lua $CARES $GTK3 $GTK2 desktop-file-utils $QT fop
+asciidoc git git-review perl-podlators"
 
 echo "Run this command (as root):"
 echo
-echo $INSTALL_CMD install -y $PKGS
+echo $INSTALL_CMD install $PKGS
 
