@@ -35,6 +35,7 @@
 #include <epan/dtd.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/garrayfix.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
@@ -58,6 +59,10 @@ static int hf_comment = -1;
 static int hf_xmlpi = -1;
 static int hf_dtd_tag = -1;
 static int hf_doctype = -1;
+
+static expert_field ei_xml_closing_unopened_tag = EI_INIT;
+static expert_field ei_xml_closing_unopened_xmpli_tag = EI_INIT;
+static expert_field ei_xml_unrecognized_text = EI_INIT;
 
 /* dissector handles */
 static dissector_handle_t xml_handle;
@@ -185,6 +190,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     current_frame->name           = NULL;
     current_frame->name_orig_case = NULL;
     current_frame->value          = NULL;
+    current_frame->pinfo          = pinfo;
     insert_xml_frame(NULL, current_frame);
     g_ptr_array_add(stack, current_frame);
 
@@ -330,6 +336,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         new_frame->tree           = NULL;
         new_frame->start_offset   = tok->offset;
         new_frame->ns             = NULL;
+        new_frame->pinfo          = current_frame->pinfo;
     }
 }
 
@@ -373,6 +380,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     new_frame->tree           = pt;
     new_frame->start_offset   = tok->offset;
     new_frame->ns             = ns;
+    new_frame->pinfo          = current_frame->pinfo;
 
     g_ptr_array_add(stack, new_frame);
 
@@ -388,8 +396,8 @@ static void after_xmlpi(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
     } else {
-        proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len,
-                            "[ ERROR: Closing an unopened xmpli tag ]");
+        proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_xmpli_tag,
+            tok->tvb, tok->offset, tok->len);
     }
 }
 
@@ -461,6 +469,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
     new_frame->tree           = pt;
     new_frame->start_offset   = tok->offset;
     new_frame->ns             = ns;
+    new_frame->pinfo          = current_frame->pinfo;
 
     g_ptr_array_add(stack, new_frame);
 
@@ -484,7 +493,8 @@ static void after_closed_tag(void *tvbparse_data, const void *wanted_data _U_, t
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
     } else {
-        proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "[ ERROR: Closing an unopened tag ]");
+        proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_tag,
+                              tok->tvb, tok->offset, tok->len);
     }
 }
 
@@ -500,8 +510,8 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
     } else {
-        proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len,
-                            "[ ERROR: Closing an unopened tag ]");
+        proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_tag,
+            tok->tvb, tok->offset, tok->len);
     }
 }
 
@@ -530,6 +540,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
     new_frame->tree           = proto_item_add_subtree(dtd_item, ett_dtd);
     new_frame->start_offset   = tok->offset;
     new_frame->ns             = NULL;
+    new_frame->pinfo          = current_frame->pinfo;
 
     g_ptr_array_add(stack, new_frame);
 }
@@ -542,8 +553,8 @@ static void pop_stack(void *tvbparse_data, const void *wanted_data _U_, tvbparse
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
     } else {
-        proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len,
-                            "[ ERROR: Closing an unopened tag ]");
+        proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_tag,
+            tok->tvb, tok->offset, tok->len);
     }
 }
 
@@ -556,7 +567,8 @@ static void after_dtd_close(void *tvbparse_data, const void *wanted_data _U_, tv
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
     } else {
-        proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "[ ERROR: Closing an unopened tag ]");
+        proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_tag,
+            tok->tvb, tok->offset, tok->len);
     }
 }
 
@@ -606,6 +618,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     new_frame->tree           = NULL;
     new_frame->start_offset   = tok->offset;
     new_frame->ns             = NULL;
+    new_frame->pinfo          = current_frame->pinfo;
 
 }
 
@@ -614,7 +627,8 @@ static void unrecognized_token(void *tvbparse_data, const void *wanted_data _U_,
     GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
     xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
-    proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "[ ERROR: Unrecognized text ]");
+    proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_unrecognized_text,
+                    tok->tvb, tok->offset, tok->len);
 
 }
 
@@ -1398,7 +1412,15 @@ proto_register_xml(void)
            NULL, HFILL }
         }
     };
+
+    static ei_register_info ei[] = {
+        { &ei_xml_closing_unopened_tag, { "xml.closing_unopened_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened tag", EXPFILL }},
+        { &ei_xml_closing_unopened_xmpli_tag, { "xml.closing_unopened_xmpli_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened xmpli tag", EXPFILL }},
+        { &ei_xml_unrecognized_text, { "xml.unrecognized_text", PI_PROTOCOL, PI_WARN, "Unrecognized text", EXPFILL }},
+    };
+
     module_t *xml_module;
+    expert_module_t* expert_xml;
 
     hf_arr  = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
     ett_arr = g_array_new(FALSE, FALSE, sizeof(gint *));
@@ -1412,6 +1434,8 @@ proto_register_xml(void)
 
     proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)wmem_array_get_raw(hf_arr), wmem_array_get_count(hf_arr));
     proto_register_subtree_array((gint **)g_array_data(ett_arr), ett_arr->len);
+    expert_xml = expert_register_protocol(xml_ns.hf_tag);
+    expert_register_field_array(expert_xml, ei, array_length(ei));
 
     xml_module = prefs_register_protocol(xml_ns.hf_tag, apply_prefs);
     prefs_register_obsolete_preference(xml_module, "heuristic");
