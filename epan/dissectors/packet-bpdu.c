@@ -1008,13 +1008,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           }
           spt_offset += 2;
 
-          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
-
           proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_format_id, tvb, spt_offset, 1, ENC_NA);
           proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_format_capabilities, tvb, spt_offset, 1, ENC_NA);
           spt_offset += 1;
-
-          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
           proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_convention_id, tvb, spt_offset, 1, ENC_NA);
           proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_convention_capabilities, tvb, spt_offset, 1, ENC_NA);
