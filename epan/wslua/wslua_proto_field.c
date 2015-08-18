@@ -311,8 +311,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         `ftypes.DOUBLE` , `ftypes.ABSOLUTE_TIME`, `ftypes.RELATIVE_TIME`, `ftypes.STRING`,
         `ftypes.STRINGZ`, `ftypes.UINT_STRING`, `ftypes.ETHER`, `ftypes.BYTES`,
         `ftypes.UINT_BYTES`, `ftypes.IPv4`, `ftypes.IPv6`, `ftypes.IPXNET`, `ftypes.FRAMENUM`,
-        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, `ftypes.REL_OID`, `ftypes.SYSTEM_ID`,
-        `ftypes.EUI64` or `ftypes.NONE`.
+        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, `ftypes.PROTOCOL`, `ftypes.REL_OID`,
+        `ftypes.SYSTEM_ID`, `ftypes.EUI64` or `ftypes.NONE`.
     */
 #define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A table containing the text that
                                                      corresponds to the values. */
@@ -429,6 +429,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_UINT_BYTES:
     case FT_GUID:
     case FT_OID:
+    case FT_PROTOCOL:
     case FT_SYSTEM_ID:
     case FT_REL_OID:
     case FT_EUI64:
@@ -443,8 +444,20 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             return 0;
         }
         break;
+    /* TODO: new in 1.99 and not handled yet */
+    case FT_UINT40:
+    case FT_UINT48:
+    case FT_UINT56:
+    case FT_INT40:
+    case FT_INT48:
+    case FT_INT56:
+    /* older but not supported yet (or maybe ever) */
+    case FT_UINT_STRING:
+    case FT_PCRE:
+    case FT_AX25:
+    case FT_STRINGZPAD:
     default:
-        WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Invalid field type");
+        WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Invalid ProtoField field type");
         break;
     }
 
@@ -868,6 +881,12 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_oid_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
+/* _WSLUA_CONSTRUCTOR_ ProtoField_protocol Creates a `ProtoField` for a sub-protocol. Since 1.99.9. */
+/* WSLUA_ARG_Protofield_protocol_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_protocol_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_protocol_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
 /* _WSLUA_CONSTRUCTOR_ ProtoField_rel_oid Creates a `ProtoField` for an ASN.1 Relative-OID. */
 /* WSLUA_ARG_Protofield_rel_oid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_rel_oid_NAME Actual name of the field (the string that appears in the tree). */
@@ -900,6 +919,7 @@ PROTOFIELD_OTHER(bytes,FT_BYTES)
 PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
 PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
+PROTOFIELD_OTHER(protocol,FT_PROTOCOL)
 PROTOFIELD_OTHER(rel_oid,FT_REL_OID)
 PROTOFIELD_OTHER(systemid,FT_SYSTEM_ID)
 PROTOFIELD_OTHER(eui64,FT_EUI64)
@@ -957,6 +977,7 @@ WSLUA_METHODS ProtoField_methods[] = {
     WSLUA_CLASS_FNREG(ProtoField,ubytes),
     WSLUA_CLASS_FNREG(ProtoField,guid),
     WSLUA_CLASS_FNREG(ProtoField,oid),
+    WSLUA_CLASS_FNREG(ProtoField,protocol),
     WSLUA_CLASS_FNREG(ProtoField,rel_oid),
     WSLUA_CLASS_FNREG(ProtoField,systemid),
     WSLUA_CLASS_FNREG(ProtoField,eui64),
