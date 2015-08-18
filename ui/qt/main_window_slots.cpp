@@ -98,6 +98,7 @@
 #if HAVE_EXTCAP
 #include "extcap_options_dialog.h"
 #endif
+#include "filter_action.h"
 #include "filter_dialog.h"
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
@@ -130,7 +131,7 @@
 #include "multicast_statistics_dialog.h"
 #include "voip_calls_dialog.h"
 #include "wireshark_application.h"
-#include "filter_action.h"
+#include "wlan_statistics_dialog.h"
 
 #include <QClipboard>
 #include <QFileInfo>
@@ -2569,6 +2570,19 @@ void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
         assoc = NULL;
         emit filterPackets(newFilter, false);
     }
+}
+
+void MainWindow::statCommandWlanStatistics(const char *arg, void *)
+{
+    WlanStatisticsDialog *wlan_stats_dlg = new WlanStatisticsDialog(*this, capture_file_, arg);
+    connect(wlan_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    wlan_stats_dlg->show();
+}
+
+void MainWindow::on_actionWirelessWlanStatistics_triggered()
+{
+    statCommandWlanStatistics(NULL, NULL);
 }
 
 void MainWindow::statCommandExpertInfo(const char *, void *)

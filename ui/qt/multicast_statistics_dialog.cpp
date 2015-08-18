@@ -306,10 +306,6 @@ void MulticastStatisticsDialog::tapDraw(void *mti_ptr)
         ms_ti->updateStreamInfo(stream_info);
         cur_row++;
     }
-
-    for (int col = 0; col < ms_dlg->statsTreeWidget()->columnCount() - 1; col++) {
-        ms_dlg->statsTreeWidget()->resizeColumnToContents(col);
-    }
 }
 
 const QString MulticastStatisticsDialog::filterExpression()
@@ -442,6 +438,9 @@ void MulticastStatisticsDialog::fillTree()
     tapDraw(tapinfo_);
 
     foreach (QWidget *w, disable_widgets) w->setEnabled(true);
+    for (int col = 0; col < statsTreeWidget()->columnCount() - 1; col++) {
+        statsTreeWidget()->resizeColumnToContents(col);
+    }
     updateWidgets();
 }
 

@@ -5177,6 +5177,11 @@ static const enum_val_t wlan_ignore_wep_options[] = {
 static int wlan_address_type = -1;
 static int wlan_bssid_address_type = -1;
 
+static address bssid_broadcast;
+gboolean is_broadcast_bssid(const address *bssid) {
+  return addresses_equal(&bssid_broadcast, bssid);
+}
+
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
@@ -5294,7 +5299,7 @@ static int
 wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
   conv_hash_t *hash = (conv_hash_t*) pct;
-  const wlan_hdr *whdr=(const wlan_hdr *)vip;
+  const wlan_hdr_t *whdr=(const wlan_hdr_t *)vip;
 
   add_conversation_table_data(hash, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &wlan_ct_dissector_info, PT_NONE);
 
@@ -5315,7 +5320,7 @@ static int
 wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
   conv_hash_t *hash = (conv_hash_t*) pit;
-  const wlan_hdr *whdr=(const wlan_hdr *)vip;
+  const wlan_hdr_t *whdr=(const wlan_hdr_t *)vip;
 
   /* Take two "add" passes per packet, adding for each direction, ensures that all
   packets are counted properly (even if address is sending to itself)
@@ -16558,14 +16563,14 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   gint             meshctl_len = 0;
   guint8           mesh_flags;
   guint16          meshoff     = 0;
-  static wlan_hdr  whdrs[4];
+  static wlan_hdr_t whdrs[4];
   gboolean         retransmitted;
   gboolean         isDMG = (tree == NULL) ? FALSE : proto_tree_traverse_post_order(proto_tree_get_root(tree), is_80211ad, NULL);
 
   volatile encap_t encap_type;
   proto_tree *volatile hdr_tree = NULL;
   tvbuff_t   *volatile next_tvb = NULL;
-  wlan_hdr   *volatile whdr;
+  wlan_hdr_t   *volatile whdr;
 
   AIRPDCAP_KEY_ITEM  used_key;
 
@@ -26923,6 +26928,8 @@ proto_register_ieee80211 (void)
 
   module_t *wlan_module;
 
+  const unsigned char bssid_broadcast_data[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+
   memset(&wlan_stats, 0, sizeof wlan_stats);
 
   proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN aggregate frame",
@@ -26963,6 +26970,7 @@ proto_register_ieee80211 (void)
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);
   wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, wlan_bssid_col_filter_str,
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);
+  set_address(&bssid_broadcast, wlan_bssid_address_type, 6, bssid_broadcast_data);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

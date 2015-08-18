@@ -92,6 +92,7 @@ set(WIRESHARK_QT_HEADERS
 	packet_list.h
 	packet_list_model.h
 	packet_range_group_box.h
+	percent_bar_delegate.h
 	preference_editor_frame.h
 	preferences_dialog.h
 	print_dialog.h
@@ -132,6 +133,7 @@ set(WIRESHARK_QT_HEADERS
 	wireless_frame.h
 	wireshark_application.h
 	wireshark_dialog.h
+	wlan_statistics_dialog.h
 )
 
 if(HAVE_PCAP_REMOTE)
@@ -224,6 +226,7 @@ set(WIRESHARK_QT_SRC
 	packet_list_model.cpp
 	packet_list_record.cpp
 	packet_range_group_box.cpp
+	percent_bar_delegate.cpp
 	preference_editor_frame.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp
@@ -292,6 +295,7 @@ set(WIRESHARK_QT_TAP_SRC
 	sctp_all_assocs_dialog.cpp
 	sctp_assoc_analyse_dialog.cpp
 	stats_tree_dialog.cpp
+	wlan_statistics_dialog.cpp
 )
 
 set(WIRESHARK_QT_FILES

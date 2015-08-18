@@ -480,6 +480,9 @@ private slots:
     void statCommandMulticastStatistics(const char *arg, void *);
     void on_actionStatisticsUdpMulticastStreams_triggered();
 
+    void statCommandWlanStatistics(const char *arg, void *);
+    void on_actionWirelessWlanStatistics_triggered();
+
     void openStatisticsTreeDialog(const gchar *abbr);
     void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();
     void on_actionStatistics29WestTopics_Advertisements_by_Source_triggered();

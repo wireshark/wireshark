@@ -27,12 +27,10 @@
 #include "ui/proto_hier_stats.h"
 #include "ui/utf8_entities.h"
 
-#include "color_utils.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
-#include <QPainter>
 #include <QPushButton>
 #include <QTextStream>
 #include <QTreeWidgetItemIterator>
@@ -57,59 +55,6 @@ const int bandwidth_col_ = 5;
 const int end_packets_col_ = 6;
 const int end_bytes_col_ = 7;
 const int end_bandwidth_col_ = 8;
-
-const int bar_em_width_ = 8;
-const double bar_blend_ = 0.15;
-void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                               const QModelIndex &index) const
-{
-    QStyleOptionViewItemV4 optv4 = option;
-    QStyledItemDelegate::initStyleOption(&optv4, index);
-    double value = index.data(Qt::UserRole).toDouble();
-
-    QStyledItemDelegate::paint(painter, option, index);
-
-    painter->save();
-
-    if (QApplication::style()->objectName().contains("vista")) {
-        // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
-        // doesn't appear to be a more general way to do this.
-        optv4.palette.setColor(QPalette::All, QPalette::HighlightedText,
-                               optv4.palette.color(QPalette::Active, QPalette::Text));
-    }
-
-    QColor bar_color = ColorUtils::alphaBlend(optv4.palette.windowText(),
-                                              optv4.palette.window(), bar_blend_);
-    QPalette::ColorGroup cg = optv4.state & QStyle::State_Enabled
-                              ? QPalette::Normal : QPalette::Disabled;
-    if (cg == QPalette::Normal && !(optv4.state & QStyle::State_Active))
-        cg = QPalette::Inactive;
-    if (optv4.state & QStyle::State_Selected) {
-        painter->setPen(optv4.palette.color(cg, QPalette::HighlightedText));
-        bar_color = ColorUtils::alphaBlend(optv4.palette.color(cg, QPalette::Window),
-                                           optv4.palette.color(cg, QPalette::Highlight),
-                                           bar_blend_);
-    } else {
-        painter->setPen(optv4.palette.color(cg, QPalette::Text));
-    }
-
-    QRect pct_rect = option.rect;
-    pct_rect.adjust(1, 1, -1, -1);
-    pct_rect.setWidth(((pct_rect.width() * value) / 100.0) + 0.5);
-    painter->fillRect(pct_rect, bar_color);
-
-    QString pct_str = QString::number(value, 'f', 1);
-    painter->drawText(option.rect, Qt::AlignCenter, pct_str);
-
-    painter->restore();
-}
-
-QSize PercentBarDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
-{
-    return QSize(option.fontMetrics.height() * bar_em_width_,
-                 QStyledItemDelegate::sizeHint(option, index).height());
-}
 
 Q_DECLARE_METATYPE(ph_stats_t*)
 

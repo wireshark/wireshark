@@ -279,7 +279,6 @@ FORMS += \
     voip_calls_dialog.ui \
     wireless_frame.ui
 
-
 HEADERS += $$HEADERS_WS_C \
     about_dialog.h \
     accordion_frame.h \
@@ -329,6 +328,7 @@ HEADERS += $$HEADERS_WS_C \
     packet_comment_dialog.h \
     packet_dialog.h \
     packet_format_group_box.h \
+    percent_bar_delegate.h \
     preference_editor_frame.h \
     preferences_dialog.h \
     print_dialog.h \
@@ -358,7 +358,8 @@ HEADERS += $$HEADERS_WS_C \
     traffic_table_dialog.h \
     uat_dialog.h \
     voip_calls_dialog.h \
-    wireless_frame.h
+    wireless_frame.h \
+    wlan_statistics_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -642,7 +643,7 @@ HEADERS += \
     time_shift_dialog.h \
     wireshark_application.h \
     wireshark_dialog.h \
-
+    wlan_statistics_dialog.h
 
 SOURCES += \
     about_dialog.cpp \
@@ -718,6 +719,7 @@ SOURCES += \
     packet_list_model.cpp \
     packet_list_record.cpp \
     packet_range_group_box.cpp \
+    percent_bar_delegate.cpp \
     preference_editor_frame.cpp \
     preferences_dialog.cpp \
     print_dialog.cpp \
@@ -763,4 +765,5 @@ SOURCES += \
     wireless_frame.cpp \
     wireshark_application.cpp \
     wireshark_dialog.cpp \
+    wlan_statistics_dialog.cpp \
     ../../wireshark-qt.cpp

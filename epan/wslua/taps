@@ -76,5 +76,5 @@ smb2 ../dissectors/packet-smb2.h smb2_info_t
 tcp ../dissectors/packet-tcp.h tcp_info_t
 #teredo ../dissectors/packet-teredo.h teredo_info_t
 #tr ../dissectors/packet-tr.h tr_info_t
-wlan ../dissectors/packet-ieee80211.h wlan_hdr
+wlan ../dissectors/packet-ieee80211.h wlan_hdr_t
 #wsp ../dissectors/packet-wsp.h wsp_info_t

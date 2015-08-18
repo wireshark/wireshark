@@ -22,10 +22,11 @@
 #ifndef PROTOCOL_HIERARCHY_DIALOG_H
 #define PROTOCOL_HIERARCHY_DIALOG_H
 
-#include "filter_action.h"
-#include "wireshark_dialog.h"
-
 #include <QMenu>
+
+#include "filter_action.h"
+#include "percent_bar_delegate.h"
+#include "wireshark_dialog.h"
 
 class QPushButton;
 class QTreeWidgetItem;
@@ -33,24 +34,6 @@ class QTreeWidgetItem;
 namespace Ui {
 class ProtocolHierarchyDialog;
 }
-
-#include <QStyledItemDelegate>
-
-class PercentBarDelegate : public QStyledItemDelegate
-{
-public:
-    PercentBarDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { }
-//    void clear();
-//    void addRelatedFrame(int frame_num);
-//    void setConversationSpan(int first_frame, int last_frame);
-protected:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
-
-private:
-};
 
 class ProtocolHierarchyDialog : public WiresharkDialog
 {

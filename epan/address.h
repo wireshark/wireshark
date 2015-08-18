@@ -143,6 +143,25 @@ addresses_equal(const address *addr1, const address *addr2) {
 }
 #define ADDRESSES_EQUAL(addr1, addr2) addresses_equal((addr1), (addr2))
 
+/** Check the data of two addresses for equality.
+ *
+ * Given two addresses, return "true" if they have the same length and,
+ * their data is equal, "false" otherwise.
+ * The address types are ignored. This can be used to compare custom
+ * address types defined with address_type_dissector_register.
+ *
+ * @param addr1 [in] The first address to compare.
+ * @param addr2 [in] The second address to compare.
+ * @return TRUE if the adresses are equal, FALSE otherwise.
+ */
+static inline gboolean
+addresses_data_equal(const address *addr1, const address *addr2) {
+    if ( addr1->len == addr2->len
+            && memcmp(addr1->data, addr2->data, addr1->len) == 0
+            ) return TRUE;
+    return FALSE;
+}
+
 /** Copy an address, allocating a new buffer for the address data.
  *
  * @param to [in,out] The destination address.

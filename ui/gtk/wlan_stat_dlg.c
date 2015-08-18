@@ -122,7 +122,6 @@ typedef struct wlan_ep {
 static GtkWidget *wlanstat_dlg_w   = NULL;
 static GtkWidget *wlanstat_pane    = NULL;
 static GtkWidget *wlanstat_name_lb = NULL;
-static address    broadcast;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _wlan_stat_t {
@@ -358,10 +357,10 @@ wlanstat_packet_details (wlan_ep_t *te, guint32 type, const address *addr, gbool
     }
 }
 
+#if 0
 static gboolean
 is_broadcast(const address *addr)
 {
-#if 0
     gboolean cmp_addr;
     char* addr_str = address_to_display(NULL, addr);
 
@@ -370,9 +369,9 @@ is_broadcast(const address *addr)
 
     /* doesn't work if MAC resolution is disable */
     return cmp_addr;
-#endif
     return ADDRESSES_EQUAL(&broadcast, addr);
 }
+#endif
 
 static gboolean
 ssid_equal(const struct _wlan_stats *st1, const struct _wlan_stats *st2 )
@@ -380,7 +379,7 @@ ssid_equal(const struct _wlan_stats *st1, const struct _wlan_stats *st2 )
     return ((st1->ssid_len <= sizeof(st1->ssid)) && st1->ssid_len == st2->ssid_len) && (memcmp(st1->ssid, st2->ssid, st1->ssid_len) == 0);
 }
 
-static int
+static gboolean
 wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *phi)
 {
     wlanstat_t       *hs  = (wlanstat_t *)phs;
@@ -389,19 +388,19 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
     guint16 frame_type = si->type & 0xff0;
 
     if (!hs)
-        return (0);
+        return FALSE;
 
     if (!((frame_type == 0x0) || (frame_type == 0x20) || (frame_type == 0x30))
         || ((frame_type == 0x20) && DATA_FRAME_IS_NULL(si->type))) {
         /* Not a management or non null data or extension frame; let's skip it */
-        return (0);
+        return FALSE;
     }
 
     hs->number_of_packets++;
     if (!hs->ep_list) {
         hs->ep_list = alloc_wlan_ep (si, pinfo);
         te = hs->ep_list;
-        te->is_broadcast = is_broadcast(&si->bssid);
+        te->is_broadcast = is_broadcast_bssid(&si->bssid);
     } else {
         for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
             if ((((si->type == MGT_PROBE_REQ) && (
@@ -417,7 +416,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 
         if (!te) {
             te = alloc_wlan_ep (si, pinfo);
-            te->is_broadcast = is_broadcast(&si->bssid);
+            te->is_broadcast = is_broadcast_bssid(&si->bssid);
             te->next = hs->ep_list;
             hs->ep_list = te;
         }
@@ -488,7 +487,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
     wlanstat_packet_details (te, si->type, &si->src, TRUE);  /* Register source */
     wlanstat_packet_details (te, si->type, &si->dst, FALSE); /* Register destination */
 
-    return (1);
+    return TRUE;
 }
 
 static void
@@ -508,8 +507,8 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
     hs->num_details = 0;
 
     for (tmp = wlan_ep->details; tmp; tmp=tmp->next) {
-        broadcast_flag = is_broadcast(&tmp->addr);
-        basestation_flag = !broadcast_flag && !CMP_ADDRESS(&tmp->addr, &wlan_ep->bssid);
+        broadcast_flag = is_broadcast_bssid(&tmp->addr);
+        basestation_flag = !broadcast_flag && addresses_data_equal(&tmp->addr, &wlan_ep->bssid);
 
         if ((wlan_ep->number_of_packets - wlan_ep->type[MGT_BEACON]) > 0) {
             f = (float)(((float)tmp->number_of_packets * 100.0) / (wlan_ep->number_of_packets - wlan_ep->type[MGT_BEACON]));
@@ -1989,9 +1988,6 @@ wlanstat_launch (GtkAction *action _U_, gpointer user_data _U_)
 void
 register_tap_listener_wlanstat (void)
 {
-    static const unsigned char src[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-
-    SET_ADDRESS(&broadcast, AT_ETHER, 6, src);
 }
 
 /*

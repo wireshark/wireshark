@@ -576,13 +576,15 @@
     <addaction name="actionEditConfigurationProfiles"/>
     <addaction name="actionEditPreferences"/>
    </widget>
-   <widget class="QMenu" name="menuBluetooth">
+   <widget class="QMenu" name="menuWireless">
     <property name="title">
-     <string>&amp;Bluetooth</string>
+     <string>&amp;Wireless</string>
     </property>
     <addaction name="actionATT_Server_Attributes"/>
     <addaction name="actionDevices"/>
     <addaction name="actionHCI_Summary"/>
+    <addaction name="separator"/>
+    <addaction name="actionWirelessWlanStatistics"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -598,8 +600,8 @@
    <addaction name="menuAnalyze"/>
    <addaction name="menuStatistics"/>
    <addaction name="menuTelephony"/>
+   <addaction name="menuWireless"/>
    <addaction name="menuTools"/>
-   <addaction name="menuBluetooth"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -2385,7 +2387,7 @@
   </action>
   <action name="actionATT_Server_Attributes">
    <property name="text">
-    <string>ATT Server Attributes</string>
+    <string>Bluetooth ATT Server Attributes</string>
    </property>
   </action>
   <action name="actionDevices">
@@ -2644,6 +2646,14 @@
    </property>
    <property name="toolTip">
     <string>Show UTP multicast stream statistics.</string>
+   </property>
+  </action>
+  <action name="actionWirelessWlanStatistics">
+   <property name="text">
+    <string>WLAN Traffic</string>
+   </property>
+   <property name="toolTip">
+    <string>Show IEEE 802.11 wireless LAN statistics.</string>
    </property>
   </action>
  </widget>
