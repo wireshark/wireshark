@@ -948,7 +948,6 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
 
             break;
-            break;
         case BLOCK_ENHANCED_PACKET:
             switch (option_code) {
             case 0x0002:
