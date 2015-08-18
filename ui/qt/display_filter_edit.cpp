@@ -305,6 +305,13 @@ void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
     SyntaxLineEdit::focusOutEvent(event);
 }
 
+bool DisplayFilterEdit::checkFilter()
+{
+    checkFilter(text());
+
+    return (syntaxState() == Valid);
+}
+
 void DisplayFilterEdit::checkFilter(const QString& text)
 {
     if (clear_button_) {

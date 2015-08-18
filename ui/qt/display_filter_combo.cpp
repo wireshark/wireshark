@@ -100,6 +100,15 @@ void DisplayFilterCombo::writeRecent(FILE *rf) {
     }
 }
 
+bool DisplayFilterCombo::checkDisplayFilter()
+{
+    DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(lineEdit());
+    bool state = false;
+
+    if (df_edit) state = df_edit->checkFilter();
+    return state;
+}
+
 void DisplayFilterCombo::applyDisplayFilter()
 {
     DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(lineEdit());

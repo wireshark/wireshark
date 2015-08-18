@@ -43,6 +43,7 @@ protected:
     void focusOutEvent(QFocusEvent *event);
 
 public slots:
+    bool checkFilter();
     void applyDisplayFilter();
     void displayFilterSuccess(bool success);
 

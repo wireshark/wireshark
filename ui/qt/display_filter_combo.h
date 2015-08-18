@@ -36,6 +36,7 @@ public:
 signals:
 
 public slots:
+    bool checkDisplayFilter();
     void applyDisplayFilter();
 
 private slots:

@@ -1308,19 +1308,9 @@ void MainWindow::fieldsChanged()
 {
     color_filters_reload();
 
-    // Syntax check filter
-    // TODO: Check if syntax filter is still valid after fields have changed
-    //       and update background color.
-    if (CaptureFile::globalCapFile()->dfilter) {
-        // Check if filter is still valid
-        dfilter_t *dfp = NULL;
-        if (!dfilter_compile(CaptureFile::globalCapFile()->dfilter, &dfp, NULL)) {
-            // TODO: Not valid, enable "Apply" button.
-            // TODO: get an error message and display it?
-            g_free(CaptureFile::globalCapFile()->dfilter);
-            CaptureFile::globalCapFile()->dfilter = NULL;
-        }
-        dfilter_free(dfp);
+    if (!df_combo_box_->checkDisplayFilter()) {
+        g_free(CaptureFile::globalCapFile()->dfilter);
+        CaptureFile::globalCapFile()->dfilter = NULL;
     }
 
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
