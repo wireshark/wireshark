@@ -1461,7 +1461,7 @@ initialize_ethers(void)
 {
     ether_t *eth;
     char    *manuf_path;
-    guint    mask;
+    guint    mask = 0;
 
     /* hash table initialization */
     wka_hashtable   = g_hash_table_new_full(eth_addr_hash, eth_addr_cmp, g_free, g_free);

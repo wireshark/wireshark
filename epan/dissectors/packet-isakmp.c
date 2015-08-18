@@ -2657,8 +2657,8 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
                 int isakmp_version, guint8 initial_payload, int offset, int length,
                 packet_info *pinfo, guint32 message_id, gboolean is_request, void* decr_data)
 {
-  guint8         payload, next_payload;
-  guint16        payload_length;
+  guint8         payload, next_payload = 0;
+  guint16        payload_length = 0;
   proto_tree *   ntree;
 
   for (payload = initial_payload; length > 0; payload = next_payload) {

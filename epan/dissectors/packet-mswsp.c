@@ -782,8 +782,8 @@ out:
 static struct message_data *
 find_matching_request_by_fid(struct mswsp_ct *ct, packet_info *pinfo, guint32 msg, gboolean in, void *private_data)
 {
-	guint32 fid;
-	guint frame;
+	guint32 fid = 0;
+	guint frame = 0;
 	GSList *iter;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
 
