@@ -196,7 +196,7 @@ dissect_pcap_pseudoheader(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     gint         offset = 0;
     guint32     *link_type;
-    guint32      length;
+    guint32      length = 0;
     tvbuff_t    *next_tvb;
     proto_item  *pseudoheader_item;
     proto_tree  *pseudoheader_tree = NULL;
