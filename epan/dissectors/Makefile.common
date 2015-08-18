@@ -230,7 +230,7 @@ FILE_DISSECTOR_SRC = \
 	file-jpeg.c	\
 	file-mp4.c	\
 	file-pcap.c	\
-	file.pcapng.c	\
+	file-pcapng.c	\
 	file-png.c
 #
 # Dissectors without warnings.
