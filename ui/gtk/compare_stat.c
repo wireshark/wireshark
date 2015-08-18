@@ -524,6 +524,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	gtk_tree_store_clear(cs->simple_list);
 	g_hash_table_destroy(cs->packet_set);
 	g_hash_table_destroy(cs->nr_set);
+	g_hash_table_destroy(cs->ip_id_set);
 	g_free(cs);
 }
 
@@ -563,7 +564,6 @@ comparestat_draw(void *arg)
 		return;
 	}
 
-	cs->ip_id_set=g_hash_table_new(NULL, NULL);
 	g_hash_table_foreach(cs->packet_set, call_foreach_count_ip_id, cs);
 
 	/* set up TTL choice if only one number found */
@@ -616,7 +616,6 @@ comparestat_draw(void *arg)
 	}
 
 	g_hash_table_foreach(cs->ip_id_set, call_foreach_print_ip_tree, cs);
-	g_hash_table_destroy(cs->ip_id_set);
 	g_string_free(filter_str, TRUE);
 	g_array_free(cs->ip_ttl_list, TRUE);
 }
@@ -792,12 +791,15 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_set=g_hash_table_new(NULL, NULL);
 
+	cs->ip_id_set=g_hash_table_new(NULL, NULL);
+
 	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
 		gtk_tree_store_clear(cs->simple_list);
 		g_hash_table_destroy(cs->packet_set);
+		g_hash_table_destroy(cs->ip_id_set);
 		g_free(cs);
 		return;
 	}
