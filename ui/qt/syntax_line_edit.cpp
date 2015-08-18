@@ -36,6 +36,7 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 #include <QStringListModel>
+#include <limits>
 
 const int max_completion_items_ = 20;
 
@@ -45,6 +46,7 @@ SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
     completion_model_(NULL)
 {
     setSyntaxState();
+    setMaxLength(std::numeric_limits<quint32>::max());
 }
 
 // Override setCompleter so that we don't clobber the filter text on activate.
