@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include "packet-tcp.h"
+#include "packet-udp.h"
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/crc16-tvb.h>
@@ -3521,35 +3522,29 @@ dissect_dnp3_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static int
-dissect_dnp3_udp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, gboolean use_heuristics)
-{
-  guint offset;
-  tvbuff_t* next_tvb;
-  int bytes_dissected;
-
-  offset = 0;
-  do {
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!check_dnp3_header(next_tvb, use_heuristics)) {
-      return offset;
-    }
-    bytes_dissected = dissect_dnp3_message(next_tvb, pinfo, tree, data);
-    offset += bytes_dissected;
-  } while ((bytes_dissected > 0) && (offset < tvb_reported_length(tvb)));
-
-  return offset;
-}
-
-static int
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return dissect_dnp3_udp_loop(tvb, pinfo, tree, data, FALSE);
+  if (!check_dnp3_header(tvb, FALSE)) {
+    return 0;
+  }
+
+  udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN,
+                   get_dnp3_message_len, dissect_dnp3_message, data);
+
+  return tvb_captured_length(tvb);
 }
 
 static gboolean
 dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return dissect_dnp3_udp_loop(tvb, pinfo, tree, data, TRUE) != 0;
+  if (!check_dnp3_header(tvb, FALSE)) {
+    return FALSE;
+  }
+
+  udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN,
+                   get_dnp3_message_len, dissect_dnp3_message, data);
+
+  return TRUE;
 }
 
 static void

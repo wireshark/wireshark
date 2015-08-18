@@ -34,6 +34,8 @@
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-udp.h"
 
@@ -127,6 +129,10 @@ static header_field_info hfi_udp_proc_dst_cmd UDP_HFI_INIT =
 { "Destination process name", "udp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,
   "Destination process command name", HFILL};
 
+static header_field_info hfi_udp_pdu_size UDP_HFI_INIT =
+{ "PDU Size", "udp.pdu.size", FT_UINT32, BASE_DEC, NULL, 0x0,
+  "The size of this PDU", HFILL };
+
 static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 { "Checksum coverage", "udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
@@ -134,6 +140,7 @@ static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 static header_field_info hfi_udplite_checksum_coverage_bad UDPLITE_HFI_INIT =
 { "Bad Checksum coverage", "udp.checksum_coverage_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
   NULL, HFILL };
+
 
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
@@ -553,6 +560,126 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
+void
+udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                 guint fixed_len, guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 new_dissector_t dissect_pdu, void* dissector_data)
+{
+  volatile int offset = 0;
+  int offset_before;
+  guint captured_length_remaining;
+  volatile guint plen;
+  guint length;
+  tvbuff_t *next_tvb;
+  proto_item *item=NULL;
+  const char *saved_proto;
+  guint8 curr_layer_num;
+  wmem_list_frame_t *frame;
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+     /*
+      * We use "tvb_ensure_captured_length_remaining()" to make
+      * sure there actually *is* data remaining.  The protocol
+      * we're handling could conceivably consists of a sequence of
+      * fixed-length PDUs, and therefore the "get_pdu_len" routine
+      * might not actually fetch anything from the tvbuff, and thus
+      * might not cause an exception to be thrown if we've run past
+      * the end of the tvbuff.
+      *
+      * This means we're guaranteed that "captured_length_remaining" is positive.
+      */
+     captured_length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+
+     /*
+      * Get the length of the PDU.
+      */
+     plen = (*get_pdu_len)(pinfo, tvb, offset, dissector_data);
+     if (plen < fixed_len) {
+       /*
+        * Either:
+        *
+        *  1) the length value extracted from the fixed-length portion
+        *     doesn't include the fixed-length portion's length, and
+        *     was so large that, when the fixed-length portion's
+        *     length was added to it, the total length overflowed;
+        *
+        *  2) the length value extracted from the fixed-length portion
+        *     includes the fixed-length portion's length, and the value
+        *     was less than the fixed-length portion's length, i.e. it
+        *     was bogus.
+        *
+        * Report this as a bounds error.
+        */
+        show_reported_bounds_error(tvb, pinfo, tree);
+        return;
+     }
+
+     curr_layer_num = pinfo->curr_layer_num-1;
+     frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+     while (frame && (hfi_udp->id != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+       frame = wmem_list_frame_prev(frame);
+       curr_layer_num--;
+     }
+
+     /*
+      * Display the PDU length as a field
+      */
+     item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, hfi_udp->id, curr_layer_num),
+                                    &hfi_udp_pdu_size,
+                                    tvb, offset, plen, plen);
+     PROTO_ITEM_SET_GENERATED(item);
+
+     /*
+      * Construct a tvbuff containing the amount of the payload we have
+      * available.  Make its reported length the amount of data in the PDU.
+      */
+     length = captured_length_remaining;
+     if (length > plen)
+       length = plen;
+     next_tvb = tvb_new_subset(tvb, offset, length, plen);
+
+     /*
+      * Dissect the PDU.
+      *
+      * If it gets an error that means there's no point in
+      * dissecting any more PDUs, rethrow the exception in
+      * question.
+      *
+      * If it gets any other error, report it and continue, as that
+      * means that PDU got an error, but that doesn't mean we should
+      * stop dissecting PDUs within this frame or chunk of reassembled
+      * data.
+      */
+     saved_proto = pinfo->current_proto;
+     TRY {
+       (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
+     }
+     CATCH_NONFATAL_ERRORS {
+        /*  Restore the private_data structure in case one of the
+         *  called dissectors modified it (and, due to the exception,
+         *  was unable to restore it).
+         */
+       show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+        /*
+         * Restore the saved protocol as well; we do this after
+         * show_exception(), so that the "Malformed packet" indication
+         * shows the protocol for which dissection failed.
+         */
+       pinfo->current_proto = saved_proto;
+     }
+     ENDTRY;
+
+    /*
+     * Step to the next PDU.
+     * Make sure we don't overflow.
+     */
+    offset_before = offset;
+    offset += plen;
+    if (offset <= offset_before)
+      break;
+  }
+}
 
 static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
@@ -609,6 +736,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
+    p_add_proto_data(pinfo->pool, pinfo, hfi_udp->id, pinfo->curr_layer_num, udp_tree);
     port_item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_srcport.id, tvb, offset, 2, udph->uh_sport,
                                                  "%s (%u)", src_port_str, udph->uh_sport);
     /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
@@ -935,6 +1063,7 @@ proto_register_udp(void)
     &hfi_udp_proc_dst_pid,
     &hfi_udp_proc_dst_uname,
     &hfi_udp_proc_dst_cmd,
+    &hfi_udp_pdu_size,
   };
 
   static header_field_info *hfi_lite[] = {
