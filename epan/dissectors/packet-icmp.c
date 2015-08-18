@@ -1594,6 +1594,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		tap_queue_packet(icmp_tap, pinfo, trans);
 	}
 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Type=%d, Code=%d", icmp_type, icmp_code);
 	return tvb_reported_length(tvb);
 }
 

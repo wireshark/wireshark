@@ -4117,6 +4117,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (trans)
         tap_queue_packet(icmpv6_tap, pinfo, trans);
 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Type=%d, Code=%d", icmp6_type, icmp6_code);
     return offset;
 }
 
