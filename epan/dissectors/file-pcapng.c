@@ -119,6 +119,8 @@ static int hf_pcapng_packet_length = -1;
 static int hf_pcapng_packet_data = -1;
 static int hf_pcapng_packet_padding = -1;
 static int hf_pcapng_interface_id = -1;
+static int hf_pcapng_timestamp_high = -1;
+static int hf_pcapng_timestamp_low = -1;
 static int hf_pcapng_timestamp = -1;
 static int hf_pcapng_timestamp_data = -1;
 static int hf_pcapng_records = -1;
@@ -1007,6 +1009,48 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     return offset;
 }
 
+static void
+pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+        int offset, guint encoding, guint32 interface_id, struct info *info)
+{
+    proto_tree_add_item(tree, hf_pcapng_timestamp_high, tvb, offset, 4, encoding);
+    proto_tree_add_item(tree, hf_pcapng_timestamp_low, tvb, offset + 4, 4, encoding);
+
+    if (interface_id < wmem_array_get_count(info->interfaces)) {
+        struct interface_description  *interface_description;
+        nstime_t    timestamp;
+        guint64     ts;
+        guint32     base;
+        guint32     i_resolution;
+        guint64     resolution = 1;
+        proto_item *ti;
+
+        interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
+        ts = ((guint64)(tvb_get_guint32(tvb, offset, encoding))) << 32 |
+                        tvb_get_guint32(tvb, offset + 4, encoding);
+
+        ts += interface_description->timestamp_offset;
+        if (interface_description->timestamp_resolution == 0)
+            interface_description->timestamp_resolution = 6;
+
+        if (interface_description->timestamp_resolution & 0x80) {
+            base = 2;
+        } else {
+            base = 10;
+        }
+
+        for (i_resolution = 0; i_resolution < (guint32)(interface_description->timestamp_resolution & 0x7F); i_resolution += 1)
+            resolution *= base;
+        timestamp.secs  = (time_t)(ts / resolution);
+        timestamp.nsecs = (int)(ts - (ts / resolution) * resolution);
+
+        ti = proto_tree_add_time(tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        pinfo->fd->abs_ts = timestamp;
+    }
+}
+
 static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         guint encoding, struct info *info)
 {
@@ -1099,7 +1143,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_drops_count, tvb, offset, 2, encoding);
         offset += 2;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_timestamp_data, tvb, offset, 8, encoding);
+        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
         offset += 8;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding);
@@ -1266,9 +1310,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_INTERFACE_STATISTICS:
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
+        interface_id = tvb_get_guint32(tvb, offset, encoding);
         offset += 4;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_timestamp_data, tvb, offset, 8, encoding);
+        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
         offset += 8;
 
         next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8);
@@ -1283,47 +1328,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         interface_id = tvb_get_guint32(tvb, offset, encoding);
         offset += 4;
 
-        if (interface_id < wmem_array_get_count(info->interfaces)) {
-            struct interface_description  *interface_description;
-            nstime_t  timestamp;
-            union {
-                guint32 u32[2];
-                guint64 u64;
-            } ts;
-            guint32   base;
-            guint32  i_resolution;
-            guint64  resolution = 1;
-
-            interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-            ts.u32[1] = tvb_get_guint32(tvb, offset, encoding);
-            ts.u32[0] = tvb_get_guint32(tvb, offset + 4, encoding);
-#else
-            ts.u32[0] = tvb_get_guint32(tvb, offset, encoding);
-            ts.u32[1] = tvb_get_guint32(tvb, offset + 4, encoding);
-#endif
-
-            ts.u64 += interface_description->timestamp_offset;
-            if (interface_description->timestamp_resolution == 0)
-                interface_description->timestamp_resolution = 6;
-
-            if (interface_description->timestamp_resolution & 0x80) {
-                base = 2;
-            } else {
-                base = 10;
-            }
-
-            for (i_resolution = 0; i_resolution < (guint32)(interface_description->timestamp_resolution & 0x7F); i_resolution += 1)
-                resolution *= base;
-            timestamp.secs  = (time_t)(ts.u64 / resolution);
-            timestamp.nsecs = (int)(ts.u64 - (ts.u64 / resolution) * resolution);
-
-            proto_tree_add_time(block_data_tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
-
-            pinfo->fd->abs_ts = timestamp;
-        } else {
-            proto_tree_add_item(block_data_tree, hf_pcapng_timestamp_data, tvb, offset, 8, encoding);
-        }
+        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
         offset += 8;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding);
@@ -1827,6 +1832,16 @@ proto_register_pcapng(void)
         { &hf_pcapng_interface_id,
             { "Interface",                                 "pcapng.interface_id",
             FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_timestamp_high,
+            { "Timestamp (High)",                          "pcapng.timestamp_high",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_timestamp_low,
+            { "Timestamp (Low)",                           "pcapng.timestamp_low",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_timestamp,
