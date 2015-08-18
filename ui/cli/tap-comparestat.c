@@ -377,6 +377,10 @@ call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 	comparestat_t *cs = (comparestat_t*)user_data;
 	gdouble delta, average;
 	gboolean show_it = FALSE;
+	gboolean checksum_error = FALSE;
+	gboolean not_in_time = FALSE;
+	gboolean incorrect_order = FALSE;
+
 
 	delta = fabs(get_average(&fInfo->delta, 1));
 	average = fabs(get_average(&cs->stats.tot, cs->stats.num));
@@ -398,35 +402,35 @@ call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 
 	if (show_it) {
 		if (fInfo->fp->count < MERGED_FILES) {
-			printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
-			printf("Packet lost\n");
+			printf("Packet ID: %u, Count: %u, Problem: Packet lost\n", fInfo->id, fInfo->fp->count);
 		}
 		if (fInfo->fp->count > MERGED_FILES) {
-			printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
-			printf("More than two packets\n");
 			if (fInfo->fp->cksum == WRONG_CHKSUM) {
-				printf("Checksum error over IP header\n");
+				checksum_error = TRUE;
 			}
+			printf("Packet ID: %u, Count: %u, Problem: More than two packets%s\n", fInfo->id, fInfo->fp->count,
+							checksum_error ? "; Checksum error over IP header" : "");
 		}
 		if (fInfo->fp->count == MERGED_FILES) {
 			if (fInfo->fp->cksum == WRONG_CHKSUM) {
-				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
-				printf("Checksum error over IP header\n");
+				printf("Packet ID: %u, Count: %u, Problem: Checksum error over IP header\n", fInfo->id, fInfo->fp->count);
 				if (((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance != 0)) {
-					printf("Not arrived in time\n");
+					not_in_time = TRUE;
 				}
 				if ((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time) > 0||nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time) > 0) && (fInfo->zebra_time.nsecs != MERGED_FILES) && ON_method) {
-					printf("Not correct order\n");
+					incorrect_order = TRUE;
 				}
+				printf("Packet ID: %u, Count: %u, Problem: Checksum error over IP header%s%s\n", fInfo->id, fInfo->fp->count,
+					not_in_time ? "; Did not arrive in time" : "", incorrect_order ? "; Incorrect order" : "");
 			} else if (((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance != 0)) {
-				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
-				printf("Package not arrived in time\n");
+				printf("Packet ID: %u, Count: %u, Problem: Did not arrive in time\n", fInfo->id, fInfo->fp->count);
 				if ((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time) > 0 || nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time) > 0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method) {
-					printf("Not correct order\n");
+					incorrect_order = TRUE;
 				}
+				printf("Packet ID: %u, Count: %u, Problem: Did not arrive in time%s\n", fInfo->id, fInfo->fp->count,
+										incorrect_order ? "; Incorrect order" : "");
 			} else if ((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time) > 0 || nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time) > 0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method) {
-				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
-				printf("Not correct order\n");
+				printf("Packet ID: %u, Count: %u, Problem: Incorrect order", fInfo->id, fInfo->fp->count);
 			}
 		}
 	}
@@ -489,13 +493,26 @@ comparestat_draw(void *prs)
 	cs->stats.variance = compare_variance;
 
 	/* add statistic string */
-	statis_string = g_strdup_printf("Compare Statistics: \nFilter: %s\nNumber of packets total:%i 1st file:%i, 2nd file:%i\nScopes:\t start:%i stop:%i\nand:\t start:%i stop:%i\nEqual packets: %i \nAllowed variation: %f \nAverage time difference: %f\n", cs->filter ? cs->filter : "", (first_file_amount+second_file_amount), first_file_amount, second_file_amount, cs->start_packet_nr_first, cs->stop_packet_nr_first, cs->start_packet_nr_second, cs->stop_packet_nr_second, cs->stats.num, cs->stats.variance, fabs(get_average(&cs->stats.tot, cs->stats.num)));
-
+	statis_string = g_strdup_printf(
+			"Filter: %s\n"
+			"Packet count: %i, 1st file: %i, 2nd file: %i\n"
+			"Scope 1: packet %i to %i\n"
+			"Scope 2: packet %i to %i\n"
+			"Equal packets: %i\n"
+			"Allowed variance: %.2f\n"
+			"Average time difference: %.2f\n"
+			"===================================================================\n",
+			cs->filter ? cs->filter : "<none>", (first_file_amount+second_file_amount),
+			first_file_amount, second_file_amount, cs->start_packet_nr_first,
+			cs->stop_packet_nr_first, cs->start_packet_nr_second, cs->stop_packet_nr_second,
+			cs->stats.num, cs->stats.variance, fabs(get_average(&cs->stats.tot, cs->stats.num)));
 	printf("\n");
+	printf("===================================================================\n");
+	printf("                            Results\n");
 	printf("===================================================================\n");
 	printf("%s", statis_string);
 	g_hash_table_foreach(cs->ip_id_set, call_foreach_print_ip_tree, cs);
-	printf("===================================================================\n");
+
 	g_string_free(filter_str, TRUE);
 	g_hash_table_destroy(cs->ip_id_set);
 	g_array_free(cs->ip_ttl_list, TRUE);
@@ -516,14 +533,8 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 	gdouble variance;
 
 	if (sscanf(opt_arg, "compare,%d,%d,%d,%d,%lf%n", &start, &stop, &ttl, &order, &variance, &pos) == 5) {
-		if (pos) {
-			if (*(opt_arg+pos) == ',')
-				filter = opt_arg+pos+1;
-			else
-				filter = opt_arg+pos;
-		} else {
-			filter = NULL;
-		}
+		if (*(opt_arg+pos) == ',')
+			filter = opt_arg+pos+1;
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z compare,<start>,<stop>,<ttl[0|1]>,<order[0|1]>,<variance>[,<filter>]\" argument\n");
 		exit(1);

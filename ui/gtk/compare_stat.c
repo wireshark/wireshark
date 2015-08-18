@@ -699,14 +699,8 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	GString *error_string;
 
 	if(sscanf(opt_arg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
-		if(pos){
-			if(*(opt_arg+pos)==',')
-				filter=opt_arg+pos+1;
-			else
-				filter=opt_arg+pos;
-		} else {
-			filter=NULL;
-		}
+		if(*(opt_arg+pos)==',')
+			filter=opt_arg+pos+1;
 	} else {
 		fprintf(stderr, "wireshark: invalid \"-z compare,<start>,<stop>,<ttl[0|1]>,<order[0|1]>,<variance>[,<filter>]\" argument\n");
 		exit(1);
