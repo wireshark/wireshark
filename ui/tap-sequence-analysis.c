@@ -82,6 +82,8 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         gchar *protocol = NULL;
         gchar *colinfo = NULL;
         seq_analysis_item_t *sai = NULL;
+        gchar **strings = NULL;
+        gchar **stringsPart = NULL;
 
         if (sainfo->any_addr) {
             if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
@@ -104,6 +106,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
+        sai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
 
         if(pinfo->cinfo) {
             if (pinfo->cinfo->col_first[COL_INFO]>=0){
@@ -133,6 +136,25 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
             if (protocol != NULL) {
                 sai->frame_label = g_strdup(colinfo);
                 sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
+                if ((!sai->port_src && !sai->port_dst) || strcmp(protocol, g_strdup("ICMP")) == 0 || strcmp(protocol, g_strdup("ICMPv6")) == 0) {
+                    guint32 type = 0;
+                    guint32 code = 0;
+                    sai->protocol = g_strdup(g_strdup_printf("%s", protocol));
+                    strings = g_strsplit(colinfo,", ", -1);
+                    for (i = 0; strings[i] != NULL; i++) {
+                        if (g_str_has_prefix(strings[i], "Type=") == TRUE) {
+                            stringsPart = g_strsplit(strings[i], "=", -1);
+                            type = (guint32)g_ascii_strtoull(stringsPart[1], NULL, 10);
+                        }
+                        if (g_str_has_prefix(strings[i], "Code=") == TRUE) {
+                            stringsPart = g_strsplit(strings[i], "=", -1);
+                            code = (guint32)g_ascii_strtoull(stringsPart[1], NULL, 10);
+                        }
+                    }
+                    sai->port_src = 0;
+                    sai->port_dst = type * 256 + code;
+
+                }
             } else {
                 sai->frame_label = g_strdup(colinfo);
                 sai->comment = g_strdup(colinfo);
@@ -147,6 +169,8 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
         g_free(protocol);
         g_free(colinfo);
+        g_free(strings);
+        g_free(stringsPart);
 
         sai->line_style=1;
         sai->conv_num=0;
@@ -186,6 +210,7 @@ seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt 
         }
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
+        sai->protocol=g_strdup(port_type_to_str(pinfo->ptype));
 
         flags[0] = '\0';
         for (i = 0; i < 8; i++) {
@@ -273,6 +298,7 @@ static void sequence_analysis_item_free(gpointer data)
     g_free(seq_item->frame_label);
     g_free(seq_item->time_str);
     g_free(seq_item->comment);
+    g_free(seq_item->protocol);
     g_free((void *)seq_item->src_addr.data);
     g_free((void *)seq_item->dst_addr.data);
     g_free(data);
