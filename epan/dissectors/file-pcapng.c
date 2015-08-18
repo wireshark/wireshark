@@ -1315,7 +1315,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
             for (i_resolution = 0; i_resolution < (guint32)(interface_description->timestamp_resolution & 0x7F); i_resolution += 1)
                 resolution *= base;
-            timestamp.secs  = ts.u64 / resolution;
+            timestamp.secs  = (time_t)(ts.u64 / resolution);
             timestamp.nsecs = (int)(ts.u64 - (ts.u64 / resolution) * resolution);
 
             proto_tree_add_time(block_data_tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
