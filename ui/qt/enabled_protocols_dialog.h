@@ -1,4 +1,3 @@
-#ifndef ENABLED_PROTOCOLS_DIALOG_H
 /* enabled_protocols_dialog.h
  *
  * Wireshark - Network traffic analyzer
@@ -20,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef ENABLED_PROTOCOLS_DIALOG_H
 #define ENABLED_PROTOCOLS_DIALOG_H
 
 #include "wireshark_dialog.h"
