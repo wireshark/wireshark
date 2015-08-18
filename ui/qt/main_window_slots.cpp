@@ -2482,6 +2482,10 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     funnel_statistics_reload_menus();
     reloadDynamicMenus();
 
+    // Preferences may have been deleted so close all widgets using prefs
+    proto_tree_->closeContextMenu();
+    main_ui_->preferenceEditorFrame->animatedHide();
+
     char *gdp_path, *dp_path;
     (void) wsApp->readConfigurationFiles(&gdp_path, &dp_path);
 

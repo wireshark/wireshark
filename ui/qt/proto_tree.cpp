@@ -274,6 +274,11 @@ ProtoTree::ProtoTree(QWidget *parent) :
             this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
 }
 
+void ProtoTree::closeContextMenu()
+{
+    ctx_menu_.close();
+}
+
 void ProtoTree::clear() {
     updateSelectionStatus(NULL);
     QTreeWidget::clear();
