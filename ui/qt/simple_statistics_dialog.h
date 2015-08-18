@@ -37,7 +37,7 @@ public:
 protected:
     /** Add a simple statistics table.
      *
-     * @param st_table The table to add.
+     * @param stat_data The table to add.
      */
     // gtk:service_response_table.h:init_srt_table
     void addMissingRows(struct _new_stat_data_t *stat_data);
