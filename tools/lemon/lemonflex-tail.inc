@@ -5,11 +5,11 @@ for use with the Lemon parser. You must have #define'd:
 MODNAME		module name for creating function names:
 
 Prototypes:
-
-void	MODNAME_scanner_text(char *text);
-void	MODNAME_scanner_cleanup(void);
-int	MODNAME_wrap(void);
 */
+void	CONCAT(MODNAME,_scanner_text(char *text));
+void	CONCAT(MODNAME,_scanner_file(FILE *fh));
+void	CONCAT(MODNAME,_scanner_cleanup(void));
+int	CONCAT(MODNAME,_wrap(void));
 
 #include <cppmagic.h>
 
