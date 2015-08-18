@@ -699,7 +699,7 @@ xmpp_x_data_field_value(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
 static void
 xmpp_x_data_instr(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, xmpp_element_t* element)
 {
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "INSTRUCTIONS: %s",xmpp_elem_cdata(element));
+    proto_tree_add_string(tree, hf_xmpp_x_data_instructions, tvb, element->offset, element->length, xmpp_elem_cdata(element));
 }
 
 /*In-Band Bytestreams*/
@@ -1020,7 +1020,8 @@ static void
 xmpp_muc_user_status(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
     xmpp_attr_t *code = xmpp_get_attr(element, "code");
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "STATUS [code=\"%s\"]",code?code->value:"");
+    proto_tree_add_string_format(tree, hf_xmpp_muc_user_status, tvb, element->offset, element->length,
+                                  code?code->value:"", "STATUS [code=\"%s\"]", code?code->value:"");
 
     xmpp_unknown(tree, tvb, pinfo, element);
 }

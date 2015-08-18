@@ -46,6 +46,8 @@ gint hf_xmpp_id = -1;
 gint hf_xmpp_from = -1;
 gint hf_xmpp_to = -1;
 gint hf_xmpp_type = -1;
+gint hf_xmpp_cdata = -1;
+gint hf_xmpp_attribute = -1;
 
 gint hf_xmpp_iq = -1;
 
@@ -160,6 +162,8 @@ gint hf_xmpp_iq_feature_neg = -1;
 gint hf_xmpp_x_data = -1;
 gint hf_xmpp_x_data_field = -1;
 gint hf_xmpp_x_data_field_value = -1;
+gint hf_xmpp_x_data_instructions = -1;
+gint hf_xmpp_muc_user_status = -1;
 
 gint hf_xmpp_message = -1;
 gint hf_xmpp_message_chatstate = -1;
@@ -186,8 +190,11 @@ gint hf_xmpp_presence_caps = -1;
 
 gint hf_xmpp_auth = -1;
 gint hf_xmpp_failure = -1;
+gint hf_xmpp_failure_text = -1;
 gint hf_xmpp_starttls = -1;
 gint hf_xmpp_proceed = -1;
+gint hf_xmpp_xml_header_version = -1;
+gint hf_xmpp_stream_end = -1;
 
 gint hf_xmpp_muc_x = -1;
 gint hf_xmpp_muc_user_x  = -1;
@@ -198,11 +205,13 @@ gint hf_xmpp_gtalk_session = -1;
 gint hf_xmpp_gtalk_session_type = -1;
 gint hf_xmpp_gtalk = -1;
 gint hf_xmpp_gtalk_setting = -1;
+gint hf_xmpp_gtalk_setting_element = -1;
 gint hf_xmpp_gtalk_nosave_x = -1;
 gint hf_xmpp_gtalk_mail_mailbox = -1;
 gint hf_xmpp_gtalk_mail_new_mail = -1;
 gint hf_xmpp_gtalk_transport_p2p = -1;
-
+gint hf_xmpp_gtalk_mail_snippet = -1;
+gint hf_xmpp_gtalk_status_status_list = -1;
 
 gint hf_xmpp_conf_info = -1;
 gint hf_xmpp_conf_info_sid = -1;
@@ -550,6 +559,16 @@ proto_register_xmpp(void) {
          {
              "xmlns", "xmpp.xmlns", FT_STRING, BASE_NONE, NULL, 0x0,
              "element namespace", HFILL
+         }},
+        {&hf_xmpp_cdata,
+         {
+             "CDATA", "xmpp.cdata", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+         }},
+        {&hf_xmpp_attribute,
+         {
+             "Attribute", "xmpp.attribute", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
          }},
         { &hf_xmpp_id,
           {
@@ -1018,6 +1037,16 @@ proto_register_xmpp(void) {
               "VALUE", "xmpp.x-data.field.value", FT_NONE, BASE_NONE, NULL, 0x0,
               "jabber:x:data field value", HFILL
           }},
+        { &hf_xmpp_x_data_instructions,
+          {
+              "INSTRUCTIONS", "xmpp.x-data.instructions", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
+        { &hf_xmpp_muc_user_status,
+          {
+              "STATUS", "xmpp.muc_user_status", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
         { &hf_xmpp_delay,
           {
               "DELAY", "xmpp.delay", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1097,6 +1126,21 @@ proto_register_xmpp(void) {
           {
               "FAILURE", "xmpp.failure", FT_NONE, BASE_NONE, NULL, 0x0,
               "failure packet", HFILL
+          }},
+        { &hf_xmpp_failure_text,
+          {
+              "FAILURE TEXT", "xmpp.failure_text", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
+        { &hf_xmpp_xml_header_version,
+          {
+              "XML HEADER VER", "xmpp.xml_header_version", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
+        { &hf_xmpp_stream_end,
+          {
+              "STREAM END", "xmpp.stream_end", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
           }},
         { &hf_xmpp_features,
           {
@@ -1178,6 +1222,11 @@ proto_register_xmpp(void) {
               "USERSETTING", "xmpp.gtalk.setting", FT_NONE, BASE_NONE, NULL, 0x0,
               "google:setting usersetting", HFILL
           }},
+        { &hf_xmpp_gtalk_setting_element,
+          {
+              "USERSETTING ELEMENT", "xmpp.gtalk.setting_element", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
         { &hf_xmpp_gtalk_nosave_x,
           {
               "X-NOSAVE", "xmpp.gtalk.nosave.x", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1197,6 +1246,16 @@ proto_register_xmpp(void) {
           {
               "TRANSPORT", "xmpp.gtalk.transport-p2p", FT_NONE, BASE_NONE, NULL, 0x0,
               "google/transport/p2p", HFILL
+          }},
+        { &hf_xmpp_gtalk_mail_snippet,
+          {
+              "SNIPPET", "xmpp.gtalk.mail_snippet", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+          }},
+        { &hf_xmpp_gtalk_status_status_list,
+          {
+              "STATUS", "xmpp.gtalk.status_status_list", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
           }},
         { &hf_xmpp_conf_info,
           {

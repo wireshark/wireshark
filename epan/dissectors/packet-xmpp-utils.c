@@ -194,7 +194,7 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 
     if(element->data)
     {
-        proto_tree_add_text(tree, tvb, element->data->offset, element->data->length, "CDATA: %s",element->data->value);
+        proto_tree_add_string(tree, hf_xmpp_cdata, tvb, element->data->offset, element->data->length, element->data->value);
     }
 
     while(childs)
@@ -310,14 +310,14 @@ xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element, gint hf)
     if(element->data)
 {
         if (hf == -1) {
-            proto_tree_add_text(tree, tvb, element->data->offset, element->data->length, "CDATA: %s", element->data->value);
+            proto_tree_add_string(tree, hf_xmpp_cdata, tvb, element->data->offset, element->data->length, element->data->value);
         } else {
             proto_tree_add_string(tree, hf, tvb, element->data->offset, element->data->length, element->data->value);
         }
     } else
     {
         if (hf == -1) {
-            proto_tree_add_text(tree, tvb, 0, 0, "CDATA: (empty)");
+            proto_tree_add_string_format_value(tree, hf_xmpp_cdata, tvb, 0, 0, "", "(empty)");
         } else {
             proto_tree_add_string(tree, hf, tvb, 0, 0, "");
         }
@@ -325,12 +325,13 @@ xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element, gint hf)
 }
 
 /* displays element that looks like <element_name>element_value</element_name>
- * ELEMENT_NAME: element_value as TEXT(proto_tree_add_text) int PROTO_TREE
+ * ELEMENT_NAME: element_value as TEXT in PROTO_TREE
  */
 void
 xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element)
 {
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "%s: %s", xmpp_ep_string_upcase(element->name), xmpp_elem_cdata(element));
+    proto_tree_add_string_format(tree, hf_xmpp_cdata, tvb, element->offset, element->length, xmpp_elem_cdata(element),
+                                    "%s: %s", xmpp_ep_string_upcase(element->name), xmpp_elem_cdata(element));
 }
 
 xmpp_array_t*
@@ -820,7 +821,8 @@ xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo
             }
             else
             {
-                proto_tree_add_text(tree, tvb, attr->offset, attr->length, "%s: %s", attr->name?attr->name:attrs[i].name, attr->value);
+                proto_tree_add_string_format(tree, hf_xmpp_attribute, tvb, attr->offset, attr->length, attr->value,
+                    "%s: %s", attr->name?attr->name:attrs[i].name, attr->value);
             }
 
             if(attrs[i].in_short_list)
@@ -885,7 +887,8 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
                         else
                             proto_tree_add_string(tree, *attrs[i].info.phf, tvb, attr->offset, attr->length, attr->value);
                     } else {
-                        proto_tree_add_text(tree, tvb, attr->offset, attr->length, "%s: %s", attr->name ? attr->name : attrs[i].info.name, attr->value);
+                        proto_tree_add_string_format(tree, hf_xmpp_attribute, tvb, attr->offset, attr->length, attr->value,
+                            "%s: %s", attr->name ? attr->name : attrs[i].info.name, attr->value);
                     }
 
                     if (attrs[i].info.in_short_list) {

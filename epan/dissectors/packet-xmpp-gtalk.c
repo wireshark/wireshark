@@ -315,7 +315,8 @@ xmpp_gtalk_usersetting(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
         if(elem)
         {
             xmpp_attr_t *val = xmpp_get_attr(elem,"value");
-            proto_tree_add_text(sett_tree, tvb, elem->offset, elem->length, "%s [%s]",elem->name,val?val->value:"");
+            proto_tree_add_string_format(sett_tree, hf_xmpp_gtalk_setting_element, tvb, elem->offset, elem->length, val?val->value:"",
+                            "%s [%s]",elem->name,val?val->value:"");
         }
     }
 }
@@ -506,7 +507,7 @@ xmpp_gtalk_mail_sender(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
 static void
 xmpp_gtalk_mail_snippet(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
 {
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "SNIPPET: %s",element->data?element->data->value:"");
+    proto_tree_add_string(tree, hf_xmpp_gtalk_mail_snippet, tvb, element->offset, element->length, element->data?element->data->value:"");
     xmpp_unknown(tree, tvb, pinfo, element);
 }
 
@@ -588,7 +589,7 @@ xmpp_gtalk_status_status_list(proto_tree* tree, tvbuff_t* tvb, packet_info* pinf
 
     while((status = xmpp_steal_element_by_name(element, "status"))!=NULL)
     {
-        proto_tree_add_text(list_tree, tvb, status->offset, status->length, "STATUS: %s",status->data?status->data->value:"");
+        proto_tree_add_string(list_tree, hf_xmpp_gtalk_status_status_list, tvb, status->offset, status->length, status->data?status->data->value:"");
     }
 
     xmpp_display_attrs(list_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));

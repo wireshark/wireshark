@@ -584,7 +584,8 @@ xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element)
 {
     xmpp_attr_t *lang = xmpp_get_attr(element,"xml:lang");
 
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "TEXT%s: %s",
+    proto_tree_add_string_format(tree, hf_xmpp_failure_text, tvb, element->offset, element->length,
+            element->data?element->data->value:"", "TEXT%s: %s",
             lang?wmem_strdup_printf(wmem_packet_scope(), "(%s)",lang->value):"",
             element->data?element->data->value:"");
 }
@@ -593,7 +594,7 @@ void
 xmpp_xml_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *packet)
 {
     col_add_fstr(pinfo->cinfo, COL_INFO, "XML ");
-    proto_tree_add_text(tree, tvb, packet->offset, packet->length, "XML HEADER VER. %s","1.0");
+    proto_tree_add_string(tree, hf_xmpp_xml_header_version, tvb, packet->offset, packet->length, "1.0");
 }
 
 void
@@ -633,7 +634,7 @@ xmpp_stream_close(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo)
 
     if((elem = tvbparse_get(tt,want_stream_end_tag))!=NULL)
     {
-        proto_tree_add_text(tree, tvb, elem->offset, elem->len, "STREAM END");
+        proto_tree_add_item(tree, hf_xmpp_stream_end, tvb, elem->offset, elem->len, ENC_NA);
         col_add_fstr(pinfo->cinfo, COL_INFO, "STREAM END");
 
         return TRUE;

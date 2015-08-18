@@ -37,6 +37,8 @@ extern gint hf_xmpp_id;
 extern gint hf_xmpp_from;
 extern gint hf_xmpp_to;
 extern gint hf_xmpp_type;
+extern gint hf_xmpp_cdata;
+extern gint hf_xmpp_attribute;
 
 extern gint hf_xmpp_iq;
 
@@ -152,6 +154,8 @@ extern gint hf_xmpp_iq_feature_neg;
 extern gint hf_xmpp_x_data;
 extern gint hf_xmpp_x_data_field;
 extern gint hf_xmpp_x_data_field_value;
+extern gint hf_xmpp_x_data_instructions;
+extern gint hf_xmpp_muc_user_status;
 
 extern gint hf_xmpp_message;
 extern gint hf_xmpp_message_chatstate;
@@ -178,9 +182,13 @@ extern gint hf_xmpp_presence_caps;
 
 extern gint hf_xmpp_auth;
 extern gint hf_xmpp_failure;
+extern gint hf_xmpp_failure_text;
 extern gint hf_xmpp_stream;
 extern gint hf_xmpp_starttls;
 extern gint hf_xmpp_proceed;
+extern gint hf_xmpp_xml_header_version;
+extern gint hf_xmpp_stream_end;
+
 
 extern gint hf_xmpp_muc_x;
 extern gint hf_xmpp_muc_user_x;
@@ -191,10 +199,13 @@ extern gint hf_xmpp_gtalk_session;
 extern gint hf_xmpp_gtalk_session_type;
 extern gint hf_xmpp_gtalk;
 extern gint hf_xmpp_gtalk_setting;
+extern gint hf_xmpp_gtalk_setting_element;
 extern gint hf_xmpp_gtalk_nosave_x;
 extern gint hf_xmpp_gtalk_mail_mailbox;
 extern gint hf_xmpp_gtalk_mail_new_mail;
 extern gint hf_xmpp_gtalk_transport_p2p;
+extern gint hf_xmpp_gtalk_mail_snippet;
+extern gint hf_xmpp_gtalk_status_status_list;
 
 extern gint hf_xmpp_conf_info;
 extern gint hf_xmpp_conf_info_sid;
