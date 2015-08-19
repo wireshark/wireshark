@@ -28,6 +28,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <epan/wmem/wmem.h>
 
 #include <wiretap/wtap.h>
@@ -286,7 +288,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     static const guint8 pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
     static const guint8 pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
-    gint             offset = 0;
+    volatile gint    offset = 0;
     proto_tree      *main_tree;
     proto_item      *main_item;
     proto_tree      *header_tree;
@@ -297,10 +299,11 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item      *timestamp_item;
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
-    guint32          encoding;
+    volatile guint32 encoding;
+    guint32          origin_length;
     guint32          length;
     guint32          link_type;
-    guint32          frame_number = 1;
+    volatile guint32 frame_number = 1;
     nstime_t         timestamp;
 
     if (tvb_memeql(tvb, 0, pcap_magic, sizeof(pcap_magic)) &&
@@ -361,11 +364,10 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_item(timestamp_tree, hf_pcap_packet_timestamp_usec, tvb, offset, 4, encoding);
         offset += 4;
 
-        proto_tree_add_item(packet_tree, hf_pcap_packet_included_length, tvb, offset, 4, encoding);
-        length = tvb_get_guint32(tvb, offset, encoding);
+        proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_included_length, tvb, offset, 4, encoding, &length);
         offset += 4;
 
-        proto_tree_add_item(packet_tree, hf_pcap_packet_origin_length, tvb, offset, 4, encoding);
+        proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_origin_length, tvb, offset, 4, encoding, &origin_length);
         offset += 4;
 
         packet_data_item = proto_tree_add_item(packet_tree, hf_pcap_packet_data, tvb, offset, length, ENC_NA);
@@ -374,8 +376,15 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         pinfo->fd->num = frame_number;
         pinfo->fd->abs_ts = timestamp;
 
-        if (pref_dissect_next_layer)
-            call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, length), pinfo, packet_data_tree, &link_type);
+        if (pref_dissect_next_layer) {
+            TRY {
+                call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset(tvb, offset, length, origin_length), pinfo, packet_data_tree, &link_type);
+            }
+            CATCH_BOUNDS_ERRORS {
+                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+            }
+            ENDTRY;
+        }
         offset += length;
 
         proto_item_set_len(packet_item, 4 * 4 + length);
