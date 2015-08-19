@@ -2436,7 +2436,7 @@ end:
 }
 
 #else
-/* HAVE_LIBGRYPT is not set */
+/* HAVE_LIBGCRYPT is not set */
 static gint
 pref_key_string_to_bin(const gchar *key_string _U_, unsigned char **key_bin _U_)
 {
