@@ -122,7 +122,6 @@ static int hf_pcapng_interface_id = -1;
 static int hf_pcapng_timestamp_high = -1;
 static int hf_pcapng_timestamp_low = -1;
 static int hf_pcapng_timestamp = -1;
-static int hf_pcapng_timestamp_data = -1;
 static int hf_pcapng_records = -1;
 static int hf_pcapng_record = -1;
 static int hf_pcapng_record_code = -1;
@@ -1846,11 +1845,6 @@ proto_register_pcapng(void)
         { &hf_pcapng_timestamp,
             { "Timestamp",                                 "pcapng.timestamp",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_pcapng_timestamp_data,
-            { "Timestamp",                                 "pcapng.timestamp",
-            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_records,
