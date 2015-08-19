@@ -1308,6 +1308,7 @@ void MainWindow::redissectPackets()
 void MainWindow::fieldsChanged()
 {
     color_filters_reload();
+    tap_listeners_dfilter_recompile();
 
     if (!df_combo_box_->checkDisplayFilter()) {
         g_free(CaptureFile::globalCapFile()->dfilter);

@@ -93,6 +93,7 @@ typedef struct _tap_listener_t {
 	int tap_id;
 	gboolean needs_redraw;
 	guint flags;
+	gchar *fstring;
 	dfilter_t *code;
 	void *tapdata;
 	tap_reset_cb reset;
@@ -529,6 +530,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 			return error_string;
 		}
 	}
+	tl->fstring=g_strdup(fstring);
 
 	tl->tap_id=tap_id;
 	tl->tapdata=tapdata;
@@ -573,8 +575,10 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 			tl->code=NULL;
 		}
 		tl->needs_redraw=TRUE;
+		g_free(tl->fstring);
 		if(fstring){
 			if(!dfilter_compile(fstring, &tl->code, &err_msg)){
+				tl->fstring=NULL;
 				error_string = g_string_new("");
 				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
@@ -583,9 +587,34 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 				return error_string;
 			}
 		}
+		tl->fstring=g_strdup(fstring);
 	}
 
 	return NULL;
+}
+
+/* this function recompiles dfilter for all registered tap listeners
+ */
+void
+tap_listeners_dfilter_recompile(void)
+{
+	tap_listener_t *tl;
+	gchar *err_msg;
+
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		if(tl->code){
+			dfilter_free(tl->code);
+			tl->code=NULL;
+		}
+		tl->needs_redraw=TRUE;
+		if(tl->fstring){
+			if(!dfilter_compile(tl->fstring, &tl->code, &err_msg)){
+				g_free(err_msg);
+				/* Not valid, make a dfilter matching no packets */
+				dfilter_compile("frame.number == 0", &tl->code, &err_msg);
+			}
+		}
+	}
 }
 
 /* this function removes a tap listener
@@ -617,6 +646,7 @@ remove_tap_listener(void *tapdata)
 		if(tl->code){
 			dfilter_free(tl->code);
 		}
+		g_free(tl->fstring);
 		g_free(tl);
 	}
 

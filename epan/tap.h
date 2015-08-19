@@ -218,6 +218,9 @@ WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
 /** This function sets a new dfilter to a tap listener */
 WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);
 
+/** This function recompiles dfilter for all registered tap listeners */
+WS_DLL_PUBLIC void tap_listeners_dfilter_recompile(void);
+
 /** this function removes a tap listener */
 WS_DLL_PUBLIC void remove_tap_listener(void *tapdata);
 
