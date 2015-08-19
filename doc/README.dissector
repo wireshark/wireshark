@@ -3147,7 +3147,92 @@ will then be added to the protocol tree. Note that there may be more
 than one complete C string in the tvbuff, so the dissection is done in a
 loop.
 
-2.8 ptvcursors.
+2.8 Using udp_dissect_pdus().
+
+As noted in section 2.7.1, TCP has an API to dissect its PDU that can handle
+a PDU spread across multiple packets or multiple PDUs spread across a single
+packet.  This section describes a similar mechanism for UDP, but is only
+applicable for one or more PDUs in a single packet. If a protocol runs on top
+of TCP as well as UDP, a common PDU dissection function can be created for both.
+
+To register the distinct dissector functions, consider the following
+example using UDP and TCP dissection, stolen from packet-dnp.c:
+
+    #include "packet-tcp.h"
+    #include "packet-udp.h"
+
+    dissector_handle_t dnp3_tcp_handle;
+    dissector_handle_t dnp3_udp_handle;
+
+    dnp3_tcp_handle = new_create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
+    dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
+
+    dissector_add_uint("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
+
+Both dissect_dnp3_tcp and dissect_dnp3_udp call tcp_dissect_pdus and
+udp_dissect_pdus respectively, with a reference to the same callbacks which
+are called to handle PDU data.
+
+    static int
+    dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+    {
+        return udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN, dnp3_udp_check_header,
+                   get_dnp3_message_len, dissect_dnp3_message, data);
+    }
+
+    static int
+    dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+    {
+        if (!check_dnp3_header(tvb, FALSE)) {
+            return 0;
+        }
+
+        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
+                   get_dnp3_message_len, dissect_dnp3_message, data);
+
+        return tvb_captured_length(tvb);
+    }
+
+(udp_dissect_pdus has an option of a heuristic check function within it while
+tcp_dissect_pdus does not, so it's done outside)
+
+The arguments to udp_dissect_pdus are:
+
+    the tvbuff pointer, packet_info pointer, and proto_tree pointer
+    passed to the dissector;
+
+    the number of bytes of PDU data required to determine the length
+    of the PDU;
+
+    an optional routine (passing NULL is okay) that takes as arguments a
+    packet_info pointer, a tvbuff pointer and an offset value representing the
+    offset into the tvbuff at which a PDU begins, and a void pointer for user
+    data, and should return TRUE if the packet belongs to the dissector.
+    The routine must not throw exceptions (it is guaranteed that the
+    number of bytes specified by the previous argument to
+    udp_dissect_pdus is available, but more data might not be available,
+    so don't refer to any data past that);
+
+    a routine that takes as arguments a packet_info pointer, a tvbuff
+    pointer and an offset value representing the offset into the tvbuff
+    at which a PDU begins, and a void pointer for user data, and should
+    return the total length of the PDU in bytes. If return value is 0,
+	it's treated the same as a failed heuristic.
+    The routine must not throw exceptions (it is guaranteed that the
+    number of bytes specified by the previous argument to
+    tcp_dissect_pdus is available, but more data might not be available,
+    so don't refer to any data past that);
+
+    a new_dissector_t routine to dissect the pdu that's passed a tvbuff
+    pointer, packet_info pointer, proto_tree pointer and a void pointer for
+    user data, with the tvbuff containing a possibly-reassembled PDU. (The
+    "reported_length" of the tvbuff will be the length of the PDU);
+
+    a void pointer to user data that is passed to the length-determining
+    routine, and the dissector routine referenced in the previous parameter.
+
+2.9 ptvcursors.
 
 The ptvcursor API allows a simpler approach to writing dissectors for
 simple protocols. The ptvcursor API works best for protocols whose fields
@@ -3180,7 +3265,7 @@ To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
 is an example of how to use it. You don't need to look at it as a guide;
 instead, the API description here should be good enough.
 
-2.8.1 ptvcursor API.
+2.9.1 ptvcursor API.
 
 ptvcursor_t*
 ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
@@ -3236,7 +3321,7 @@ If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
 In this case, at the next pop, the item length will be equal to the advancement
 of the cursor since the creation of the subtree.
 
-2.8.2 Miscellaneous functions.
+2.9.2 Miscellaneous functions.
 
 tvbuff_t*
 ptvcursor_tvbuff(ptvcursor_t* ptvc)
@@ -3259,7 +3344,7 @@ ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
 
-2.9 Optimizations
+2.10 Optimizations
 
 A protocol dissector may be called in 2 different ways - with, or
 without a non-null "tree" argument.

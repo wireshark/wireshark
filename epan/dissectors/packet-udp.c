@@ -549,9 +549,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
-void
+int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 guint fixed_len, guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 guint fixed_len,  gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
+                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
                  new_dissector_t dissect_pdu, void* dissector_data)
 {
   volatile int offset = 0;
@@ -580,9 +581,25 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      captured_length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
      /*
+      * If there is a heuristic function, check it
+      */
+     if ((heuristic_check != NULL) &&
+         ((*heuristic_check)(pinfo, tvb, offset, dissector_data) == FALSE)) {
+        return offset;
+     }
+
+     /*
       * Get the length of the PDU.
       */
      plen = (*get_pdu_len)(pinfo, tvb, offset, dissector_data);
+     if (plen == 0) {
+        /*
+         * Either protocol has variable length (which isn't supposed by UDP)
+         * or packet doesn't belong to protocol
+         */
+        return offset;
+     }
+
      if (plen < fixed_len) {
        /*
         * Either:
@@ -600,7 +617,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         * Report this as a bounds error.
         */
         show_reported_bounds_error(tvb, pinfo, tree);
-        return;
+        return offset;
      }
 
      curr_layer_num = pinfo->curr_layer_num-1;
@@ -668,6 +685,8 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (offset <= offset_before)
       break;
   }
+
+  return offset;
 }
 
 static void
