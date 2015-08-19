@@ -3914,8 +3914,6 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
         last_offset = fragment_data->offset;
     }
 
-    if (length)
-        *length = 0;
     return NULL;
 }
 
