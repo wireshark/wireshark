@@ -40,6 +40,19 @@
 #include "wsutil/os_version_info.h"
 
 
+#if 1
+#define merge_debug0(str) g_warning(str)
+#define merge_debug1(str,p1) g_warning(str,p1)
+#define merge_debug2(str,p1,p2) g_warning(str,p1,p2)
+#define merge_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#else
+#define merge_debug0(str)
+#define merge_debug1(str,p1)
+#define merge_debug2(str,p1,p2)
+#define merge_debug3(str,p1,p2,p3)
+#endif
+
+
 static const char* idb_merge_mode_strings[] = {
     /* IDB_MERGE_MODE_NONE */
     "none",
@@ -440,6 +453,8 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
         other_idb_list_size = other_idb_list->interface_data->len;
 
         if (other_idb_list_size != first_idb_list_size) {
+            merge_debug2("merge::all_idbs_are_duplicates: sizes of IDB lists don't match: first=%u, other=%u",
+                         first_idb_list_size, other_idb_list_size);
             return FALSE;
         }
 
@@ -448,10 +463,13 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
             other_file_idb = &g_array_index(other_idb_list->interface_data, wtapng_if_descr_t, j);
 
             if (!is_duplicate_idb(first_file_idb, other_file_idb)) {
+                merge_debug1("merge::all_idbs_are_duplicates: IDBs at index %d do not match, returning FALSE", j);
                 return FALSE;
             }
         }
     }
+
+    merge_debug0("merge::all_idbs_are_duplicates: returning TRUE");
 
     return TRUE;
 }
@@ -542,6 +560,9 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
 
     if (mode == IDB_MERGE_MODE_ALL_SAME && all_idbs_are_duplicates(in_files, in_file_count)) {
         guint num_idbs;
+
+        merge_debug0("merge::generate_merged_idb: mode ALL set and all IDBs are duplicates");
+
         /* they're all the same, so just get the first file's IDBs */
         input_file_idb_list = wtap_file_get_idb_info(in_files[0].wth);
         /* this is really one more than number of IDBs, but that's good for the for-loops */
@@ -575,6 +596,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                 if (mode == IDB_MERGE_MODE_ANY_SAME &&
                     find_duplicate_idb(input_file_idb, merged_idb_list, &merged_index))
                 {
+                    merge_debug0("merge::generate_merged_idb: mode ANY set and found a duplicate");
                     /*
                      * It's the same as a previous IDB, so we're going to "merge"
                      * them into one by adding a map from its old IDB index to the new
@@ -583,6 +605,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                     add_idb_index_map(&in_files[i], itf_count, merged_index);
                 }
                 else {
+                    merge_debug0("merge::generate_merged_idb: mode NONE set or did not find a duplicate");
                     /*
                      * This IDB does not match a previous (or we want to save all IDBs),
                      * so add the IDB to the merge file, and add a map of the indeces.
@@ -613,6 +636,7 @@ map_phdr_interface_id(struct wtap_pkthdr *phdr, const merge_in_file_t *in_file)
 
     if (current_interface_id >= in_file->idb_index_map->len) {
         /* this shouldn't happen, but in a malformed input file it could */
+        merge_debug0("merge::map_phdr_interface_id: current_interface_id >= in_file->idb_index_map->len (ERROR?)");
         return FALSE;
     }
 
@@ -807,9 +831,12 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     /* if a callback was given, it has to have a callback function ptr */
     g_assert((cb != NULL) ? (cb->callback_func != NULL) : TRUE);
 
+    merge_debug0("merge_files: begin");
+
     /* open the input files */
     if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
                              err, err_info, err_fileno)) {
+        merge_debug1("merge_files: merge_open_in_files() failed with err=%d", *err);
         return MERGE_ERR_CANT_OPEN_INFILE;
     }
 
@@ -829,6 +856,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
      * whether we can merge IDBs into one or not.
      */
     frame_type = merge_select_frame_type(in_file_count, in_files);
+    merge_debug1("merge_files: got frame_type=%d", frame_type);
 
     if (cb)
         cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
@@ -839,8 +867,10 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
         wtapng_iface_descriptions_t *idb_inf = NULL;
 
         shb_hdr = create_shb_header(in_files, in_file_count, app_name);
+        merge_debug0("merge_files: SHB created");
 
         idb_inf = generate_merged_idb(in_files, in_file_count, mode);
+        merge_debug1("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
                                   FALSE /* compressed */, shb_hdr, idb_inf,

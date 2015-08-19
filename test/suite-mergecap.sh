@@ -41,44 +41,50 @@ mergecap_common_check() {
         test_step_failed "mergecap didn't complete"
     fi
 
-    $CAPINFOS -tEIc ./testout.pcap > testout.txt 2>&1
+    $CAPINFOS -tEIc ./testout.pcap > capinfo_testout.txt 2>&1
     RETURNVALUE=$?
     if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
         echo
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "exit status of capinfos: $RETURNVALUE"
         return
     fi
 
-    grep -Eiq "File type:[[:blank:]]+$2" testout.txt
+    grep -Eiq "File type:[[:blank:]]+$2" capinfo_testout.txt
     if [ $? -ne 0 ]; then
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "mergecap output format was not '$2'"
     fi
 
-    grep -Eiq "File encapsulation:[[:blank:]]+$3" testout.txt
+    grep -Eiq "File encapsulation:[[:blank:]]+$3" capinfo_testout.txt
     if [ $? -ne 0 ]; then
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "mergecap output encap type was not '$3'"
     fi
 
-    grep -Eiq "Number of interfaces in file:[[:blank:]]+$4" testout.txt
+    grep -Eiq "Number of interfaces in file:[[:blank:]]+$4" capinfo_testout.txt
     if [ $? -ne 0 ]; then
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "mergecap output did not generate only $4 IDB"
     fi
 
     # this checks the file's number of packets
-    grep -Eiq "Number of packets:[[:blank:]]+$5" testout.txt
+    grep -Eiq "Number of packets:[[:blank:]]+$5" capinfo_testout.txt
     if [ $? -ne 0 ]; then
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "mergecap output did not generate $5 packets for file"
     fi
 
     # this checks the IDB number of packets
-    grep -Eiq "Number of packets =[[:blank:]]+$6" testout.txt
+    grep -Eiq "Number of packets =[[:blank:]]+$6" capinfo_testout.txt
     if [ $? -ne 0 ]; then
         cat ./testout.txt
+        cat ./capinfo_testout.txt
         test_step_failed "mergecap output did not generate $6 packets in IDB"
     fi
 }
@@ -219,6 +225,7 @@ mergecap_step_3_pcapng_any_pcapng_test() {
 
 mergecap_cleanup_step() {
     rm -f ./testout.txt
+    rm -f ./capinfo_testout.txt
     rm -f ./testout.pcap
     rm -f ./testin.pcap
 }
