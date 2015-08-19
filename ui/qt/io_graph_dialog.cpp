@@ -684,7 +684,7 @@ void IOGraphDialog::updateLegend()
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
-        if (ti) {
+        if (ti && ti->checkState(name_col_) == Qt::Checked) {
             iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
             vu_label_set.insert(iog->valueUnitLabel());
         }
@@ -707,7 +707,11 @@ void IOGraphDialog::updateLegend()
         IOGraph *iog = NULL;
         if (ti) {
             iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
-            iog->addToLegend();
+            if (ti->checkState(name_col_) == Qt::Checked) {
+                iog->addToLegend();
+            } else {
+                iog->removeFromLegend();
+            }
         }
     }
     iop->legend->setVisible(true);
@@ -1741,6 +1745,17 @@ bool IOGraph::addToLegend()
     }
     if (bars_) {
         return bars_->addToLegend();
+    }
+    return false;
+}
+
+bool IOGraph::removeFromLegend()
+{
+    if (graph_) {
+        return graph_->removeFromLegend();
+    }
+    if (bars_) {
+        return bars_->removeFromLegend();
     }
     return false;
 }

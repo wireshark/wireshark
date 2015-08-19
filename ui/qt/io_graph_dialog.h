@@ -78,6 +78,7 @@ public:
     unsigned int movingAveragePeriod() { return moving_avg_period_; }
     void setInterval(int interval);
     bool addToLegend();
+    bool removeFromLegend();
     QCPGraph *graph() { return graph_; }
     QCPBars *bars() { return bars_; }
     double startOffset();
