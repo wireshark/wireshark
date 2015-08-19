@@ -151,7 +151,7 @@ static expert_field ei_udp_length = EI_INIT;
 static expert_field ei_udplite_checksum_coverage = EI_INIT;
 static expert_field ei_udp_checksum_zero = EI_INIT;
 static expert_field ei_udp_checksum_bad = EI_INIT;
-static expert_field ei_udp_len_zero_bad = EI_INIT;
+static expert_field ei_udp_length_bad_zero = EI_INIT;
 
 /* Preferences */
 
@@ -783,8 +783,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     } else {
       if (tree) {
         ti = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
-        if (udp_len_zero && (tvb_reported_length(tvb) < 35636)) {
-            expert_add_info(pinfo, ti, &ei_udp_len_zero_bad);
+        if (udp_len_zero && (tvb_reported_length(tvb) < 65536)) {
+            expert_add_info(pinfo, ti, &ei_udp_length_bad_zero);
         }
         /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
         hidden_item = proto_tree_add_uint(udp_tree, &hfi_udplite_checksum_coverage, tvb, offset + 4,
@@ -1084,7 +1084,7 @@ proto_register_udp(void)
     { &ei_udplite_checksum_coverage, { "udp.checksum_coverage.expert", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
     { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
     { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-    { &ei_udp_len_zero_bad, { "udp.length_zero_bad", PI_PROTOCOL, PI_WARN, "UDP Length is zero but payload < 65536", EXPFILL }},
+    { &ei_udp_length_bad_zero, { "udp.length.bad_zero", PI_PROTOCOL, PI_WARN, "Length is zero but payload < 65536", EXPFILL }},
   };
 
   static build_valid_func udp_da_src_values[1] = {udp_src_value};
