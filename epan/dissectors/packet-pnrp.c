@@ -448,7 +448,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
     /* Simply Display the Protcol Name in the INFO column */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "pnrp");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNRP");
     /* Clear out stuff in the info column */
     col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ",
                  val_to_str(message_type, messageType, "Unknown (0x%02x)"));
