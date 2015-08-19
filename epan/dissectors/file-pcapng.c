@@ -488,7 +488,6 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     proto_item  *option_item;
     proto_item  *p_item;
     gint         offset = 0;
-    gint         offset_option_start;
     guint16      option_code;
     gint         option_length;
     gint         hfj_pcapng_option_code;
@@ -508,8 +507,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     options_item = proto_tree_add_item(tree, hf_pcapng_options, tvb, offset, -1, ENC_NA);
     options_tree = proto_item_add_subtree(options_item, ett_pcapng_options);
 
-    offset_option_start = offset;
-    while (tvb_reported_length(tvb) - (offset_option_start - offset) > 0) {
+    while (tvb_captured_length_remaining(tvb, offset)) {
         str = NULL;
         option_code   = tvb_get_guint16(tvb, offset, encoding);
         option_length = tvb_get_guint16(tvb, offset + 2, encoding);
@@ -956,8 +954,19 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_flags, encoding);
-                offset += 4;
+                if (encoding == ENC_LITTLE_ENDIAN) {
+                    proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_flags, encoding);
+                    offset += 2;
+
+                    proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_flags_link_layer_errors, ett_pcapng_option, hfx_pcapng_option_data_packet_flags_link_layer_errors, encoding);
+                    offset += 2;
+                } else {
+                    proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_flags_link_layer_errors, ett_pcapng_option, hfx_pcapng_option_data_packet_flags_link_layer_errors, encoding);
+                    offset += 2;
+
+                    proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_flags, encoding);
+                    offset += 2;
+                }
 
                 break;
             case 0x0003:
