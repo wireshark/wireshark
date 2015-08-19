@@ -31,7 +31,10 @@
 #include "packet-ieee802154.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+
+#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
+#endif
 
 /*LwMesh lengths*/
 #define LWM_HEADER_BASE_LEN            7
@@ -223,27 +226,13 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint8      lwm_src_endp;
     guint8      lwm_dst_endp;
 
-    ieee802154_packet   *ieee_packet;
     proto_tree *lwm_tree        = NULL;
     proto_item *ti_proto        = NULL;
     proto_item *ti;
     tvbuff_t   *new_tvb;
 
-    gint payload_length = 0;
-    gint length = 0;
-    gint payload_offset = 0;
-    guint8 block;
-    tvbuff_t *decrypted_tvb;
-    gcry_cipher_hd_t cypher_hd;
-    guint8* vector = NULL;
-    guint8* text =NULL;
-    guint8* text_dec =NULL;
-    guint8 i;
-    int gcrypt_err;
-
     /*---------------------------------------------------------*/
 
-    ieee_packet = (ieee802154_packet *)data;
     /*Enter name of protocol to info field*/
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LwMesh");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -410,7 +399,6 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if(lwm_fcf_security){
         guint rlen;
         gint  start;
-        guint32 vmic;
         guint32 lwm_mic;
 
         /*MIC field*/
@@ -419,9 +407,24 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*An exception will occur if there are not enough bytes for the MIC */
         proto_tree_add_item_ret_uint(lwm_tree, hf_lwm_mic, new_tvb, start, LWM_MIC_LEN, ENC_LITTLE_ENDIAN, &lwm_mic);
 
+#ifdef HAVE_LIBGCRYPT
         if(lwmes_key_valid)
         {
+            ieee802154_packet *ieee_packet = NULL;
+            gint payload_length = 0;
+            gint length = 0;
+            gint payload_offset = 0;
+            guint8 block;
+            tvbuff_t *decrypted_tvb;
+            gcry_cipher_hd_t cypher_hd;
+            guint8* vector = NULL;
+            guint8* text =NULL;
+            guint8* text_dec =NULL;
+            guint8 i;
+            guint32 vmic;
             guint32 nwkSecurityVector[4];
+
+            ieee_packet = (ieee802154_packet *)data;
 
             nwkSecurityVector[0] = lwm_seq;
             nwkSecurityVector[1] = ((guint32)lwm_dst_addr<< 16) | lwm_dst_endp;
@@ -437,6 +440,8 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             /*Decrypt the actual data */
             while(payload_length>0)
             {
+                int gcrypt_err;
+
                 gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
                 if(gcrypt_err == 0) {
                     gcrypt_err = gcry_cipher_setkey(cypher_hd,(guint8 *)lwmes_key, 16);
@@ -502,6 +507,15 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
             call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
         }
+#else /* ! HAVE_LIBGCRYPT */
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                 "Encrypted data (%i byte(s)): libgcrypt not present, cannot decrypt",
+                  tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+
+        expert_add_info(pinfo, lwm_tree, &ei_lwm_no_decryption_key);
+        tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
+        call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+#endif /* ! HAVE_LIBGCRYPT */
     }
     /*stack command endpoint 0 and not secured*/
     else if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){
