@@ -351,7 +351,7 @@ static expert_field ei_ipv6_opt_jumbo_missing = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_prohibited = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_truncated = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_fragment = EI_INIT;
-static expert_field ei_ipv6_opt_jumbo_dstopts = EI_INIT;
+static expert_field ei_ipv6_opt_jumbo_not_hopbyhop = EI_INIT;
 static expert_field ei_ipv6_opt_rtalert_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_mipv6_home_address_invalid_len = EI_INIT;
@@ -1195,7 +1195,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
                                     offset, 4, ENC_BIG_ENDIAN);
                 if (!hopopts) {
-                    expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_dstopts);
+                    expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_not_hopbyhop);
                 } else if (ipv6_info->exthdr_count == 0) {
                     if (!ipv6_info->jumbogram) {
                         if (iph->ip_len) {
@@ -3151,7 +3151,7 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_jumbo_prohibited, { "ipv6.opt.jumbo.prohibited", PI_PROTOCOL, PI_ERROR, "When IPv6 payload length does not equal 0 a Jumbo Payload option must not be present", EXPFILL }},
         { &ei_ipv6_opt_jumbo_truncated, { "ipv6.opt.jumbo.truncated", PI_PROTOCOL, PI_ERROR, "Jumbo Payload option present and jumbo length < 65536", EXPFILL }},
         { &ei_ipv6_opt_jumbo_fragment, { "ipv6.opt.jumbo.fragment", PI_PROTOCOL, PI_ERROR, "Jumbo Payload option cannot be used with a fragment header", EXPFILL }},
-        { &ei_ipv6_opt_jumbo_dstopts, { "ipv6.opt.jumbo.not_hopbyhop", PI_PROTOCOL, PI_ERROR, "Jumbo Payload option must be a hop-by-hop option", EXPFILL }},
+        { &ei_ipv6_opt_jumbo_not_hopbyhop, { "ipv6.opt.jumbo.not_hopbyhop", PI_PROTOCOL, PI_ERROR, "Jumbo Payload option must be a hop-by-hop option", EXPFILL }},
         { &ei_ipv6_opt_rtalert_invalid_len, { "ipv6.opt.router_alert.invalid_len", PI_MALFORMED, PI_ERROR, "Router alert: Invalid Length", EXPFILL }},
         { &ei_ipv6_opt_unknown_data, { "ipv6.opt.unknown_data.expert", PI_UNDECODED, PI_NOTE, "Unknown Data (not interpreted)", EXPFILL }},
         { &ei_ipv6_mipv6_home_address_invalid_len, { "ipv6.mipv6_home_address.invalid_len", PI_MALFORMED, PI_ERROR, "Home Address: Invalid length", EXPFILL }},
