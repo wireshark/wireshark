@@ -115,20 +115,22 @@ WS_DLL_PUBLIC struct udp_analysis *get_udp_conversation_data(conversation_t *,
  * fixed-length chunk of data that contains enough information
  * to determine the length of the PDU, followed by rest of the PDU.
  *
- * The first three arguments are the arguments passed to the dissector
- * that calls this routine.
- *
- * "fixed_len" is the length of the fixed-length part of the PDU.
- *
- * "get_pdu_len()" is a routine called to get the length of the PDU from
+ * @param tvb the tvbuff with the (remaining) packet data passed to dissector
+ * @param pinfo the packet info of this packet (additional info) passed to dissector
+ * @param tree the protocol tree to be build or NULL passed to dissector
+ * @param fixed_len is the length of the fixed-length part of the PDU.
+ * @param heuristic_check is the optional routine called to see if dissection
+ * should be done; it's passed "pinfo", "tvb", "offset" and "dissector_data".
+ * @param get_pdu_len is a routine called to get the length of the PDU from
  * the fixed-length part of the PDU; it's passed "pinfo", "tvb", "offset" and
  * "dissector_data".
- *
- * "dissect_pdu()" is the routine to dissect a PDU.
+ * @param dissect_pdu the sub-dissector to be called
+ * @param dissector_data parameter to pass to subdissector
  */
-WS_DLL_PUBLIC void
+WS_DLL_PUBLIC int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 guint fixed_len, guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+		 guint fixed_len, gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
+		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
 		 new_dissector_t dissect_pdu, void* dissector_data);
 
 #ifdef __cplusplus

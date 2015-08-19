@@ -3521,30 +3521,31 @@ dissect_dnp3_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   return TRUE;
 }
 
+static gboolean
+dnp3_udp_check_header(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
+{
+    return check_dnp3_header(tvb, FALSE);
+}
+
+static gboolean
+dnp3_udp_check_header_heur(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
+{
+    return check_dnp3_header(tvb, TRUE);
+}
+
 static int
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, FALSE)) {
-    return 0;
-  }
-
-  udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN,
+  return udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN, dnp3_udp_check_header,
                    get_dnp3_message_len, dissect_dnp3_message, data);
-
-  return tvb_captured_length(tvb);
 }
 
 static gboolean
 dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (!check_dnp3_header(tvb, FALSE)) {
-    return FALSE;
-  }
+  return (udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN, dnp3_udp_check_header_heur,
+                   get_dnp3_message_len, dissect_dnp3_message, data) != 0);
 
-  udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN,
-                   get_dnp3_message_len, dissect_dnp3_message, data);
-
-  return TRUE;
 }
 
 static void

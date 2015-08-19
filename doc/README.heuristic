@@ -103,7 +103,7 @@ Heuristic Code Example
 ----------------------
 You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
-returns 163 files (November 2014).
+returns 177 files (October 2015).
 
 For the above example criteria, the following code example might do the work
 (combine this with the dissector skeleton in README.developer):
@@ -118,7 +118,7 @@ static dissector_handle_t PROTOABBREV_pdu_handle;
 
 /* Heuristics test */
 static gboolean
-test_PROTOABBREV(tvbuff_t *tvb)
+test_PROTOABBREV(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
     /* 0) Verify needed bytes available in tvb so tvb_get...() doesn't cause exception.
     if (tvb_captured_length(tvb) < 5)
@@ -172,7 +172,7 @@ dissect_PROTOABBREV_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static gboolean
 dissect_PROTOABBREV_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (!test_PROTOABBREV(tvb))
+    if (!test_PROTOABBREV(pinfo, tvb, 0, data))
         return FALSE;
 
     /* specify that dissect_PROTOABBREV is to be called directly from now on for
@@ -190,26 +190,21 @@ dissect_PROTOABBREV_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return (TRUE);
 }
 
+static int
+dissect_PROTOABBREV_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    udp_dissect_pdus(tvb, pinfo, tree, TRUE, 5, NULL,
+                     get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data);
+    return tvb_reported_length(tvb);
+}
+
 static gboolean
 dissect_PROTOABBREV_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 ...
-    If (!test_PROTOABBREV(tvb))
-        return FALSE;
-
-    /* specify that dissect_PROTOABBREV is to be called directly from now on for
-     * packets for this "connection" ... but only do this if your heuristic sits directly
-     * on top of (was called by) a dissector which established a conversation for the
-     * protocol "port type". In other words: only directly over TCP, UDP, DCCP, ...
-     * otherwise you'll be overriding the dissector that called your heuristic dissector.
-     */
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, PROTOABBREV_pdu_handle);
-
     /*   and do the dissection */
-    dissect_PROTOABBREV_pdu(tvb, pinfo, tree, data);
-
-    return (TRUE);
+    return (udp_dissect_pdus(tvb, pinfo, tree, TRUE, 5, test_PROTOABBREV,
+                     get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data) != 0);
 }
 
 void
@@ -221,9 +216,9 @@ proto_reg_handoff_PROTOABBREV(void)
                                                          proto_PROTOABBREV);
 
     /* register as heuristic dissector for both TCP and UDP */
-    heur_dissector_add("tcp", dissect_PROTOABBREV_tcp_heur, "PROTOABBREV over TCP",
+    heur_dissector_add("tcp", dissect_PROTOABBREV_heur_tcp, "PROTOABBREV over TCP",
                        "PROTOABBREV_tcp", proto_PROTOABBREV, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_PROTOABBREV_udp_heur, "PROTOABBREV over UDP",
+    heur_dissector_add("udp", dissect_PROTOABBREV_heur_udp, "PROTOABBREV over UDP",
                        "PROTOABBREV_udp", proto_PROTOABBREV, HEURISTIC_ENABLE);
 
 #ifdef OPTIONAL
