@@ -3064,22 +3064,22 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             sub_item = proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_timestamp, tvb, offset, 7, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
-            proto_tree_add_item(tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
 
