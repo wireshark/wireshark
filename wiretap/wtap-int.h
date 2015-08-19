@@ -51,7 +51,6 @@ struct wtap {
     struct Buffer               *frame_buffer;
     struct wtap_pkthdr          phdr;
     struct wtapng_section_s     shb_hdr;
-    guint                       number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     wtapng_name_res_t           *nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
 
