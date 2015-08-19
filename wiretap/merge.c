@@ -40,7 +40,7 @@
 #include "wsutil/os_version_info.h"
 
 
-#if 1
+#if 0
 #define merge_debug0(str) g_warning(str)
 #define merge_debug1(str,p1) g_warning(str,p1)
 #define merge_debug2(str,p1,p2) g_warning(str,p1,p2)

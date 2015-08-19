@@ -1120,9 +1120,11 @@ success:
 		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC) {
 			descr.time_units_per_second = 1000000000; /* nanosecond resolution */
 			descr.if_tsresol = 9;
+			descr.tsprecision = WTAP_TSPREC_NSEC;
 		} else {
 			descr.time_units_per_second = 1000000; /* default microsecond resolution */
 			descr.if_tsresol = 6;
+			descr.tsprecision = WTAP_TSPREC_USEC;
 		}
 		descr.link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
 		descr.snap_len = wth->snapshot_length;
