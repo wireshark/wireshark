@@ -410,6 +410,33 @@ is_duplicate_idb(const wtapng_if_descr_t *idb1, const wtapng_if_descr_t *idb2)
 {
     g_assert(idb1 && idb2);
 
+    merge_debug0("merge::is_duplicate_idb() called");
+    merge_debug1("idb1->wtap_encap == idb2->wtap_encap: %s",
+                 (idb1->wtap_encap == idb2->wtap_encap) ? "TRUE":"FALSE");
+    merge_debug1("idb1->time_units_per_second == idb2->time_units_per_second: %s",
+                 (idb1->time_units_per_second == idb2->time_units_per_second) ? "TRUE":"FALSE");
+    merge_debug1("idb1->tsprecision == idb2->tsprecision: %s",
+                 (idb1->tsprecision == idb2->tsprecision) ? "TRUE":"FALSE");
+    merge_debug1("idb1->link_type == idb2->link_type: %s",
+                 (idb1->link_type == idb2->link_type) ? "TRUE":"FALSE");
+    merge_debug1("idb1->snap_len == idb2->snap_len: %s",
+                 (idb1->snap_len == idb2->snap_len) ? "TRUE":"FALSE");
+    merge_debug1("idb1->if_speed == idb2->if_speed: %s",
+                 (idb1->if_speed == idb2->if_speed) ? "TRUE":"FALSE");
+    merge_debug1("idb1->if_tsresol == idb2->if_tsresol: %s",
+                 (idb1->if_tsresol == idb2->if_tsresol) ? "TRUE":"FALSE");
+    merge_debug1("idb1->if_fcslen == idb2->if_fcslen: %s",
+                 (idb1->if_fcslen == idb2->if_fcslen) ? "TRUE":"FALSE");
+    merge_debug1("g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0: %s",
+                 (g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0) ? "TRUE":"FALSE");
+    merge_debug1("g_strcmp0(idb1->if_name, idb2->if_name) == 0: %s",
+                 (g_strcmp0(idb1->if_name, idb2->if_name) == 0) ? "TRUE":"FALSE");
+    merge_debug1("g_strcmp0(idb1->if_description, idb2->if_description) == 0: %s",
+                 (g_strcmp0(idb1->if_description, idb2->if_description) == 0) ? "TRUE":"FALSE");
+    merge_debug1("g_strcmp0(idb1->if_os, idb2->if_os) == 0: %s",
+                 (g_strcmp0(idb1->if_os, idb2->if_os) == 0) ? "TRUE":"FALSE");
+    merge_debug0("merge::is_duplicate_idb() returning");
+
     /* does not compare filters nor interface statistics */
     return (idb1->wtap_encap == idb2->wtap_encap &&
             idb1->time_units_per_second == idb2->time_units_per_second &&
