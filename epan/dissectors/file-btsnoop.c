@@ -232,6 +232,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             case 2002: /* Simulator */
                 /* Not implemented yet */
                 proto_tree_add_expert(payload_tree, pinfo, &ei_not_implemented_yet, tvb, offset, length);
+                break;
             default:
                 /* Unknown */
                 proto_tree_add_expert(payload_tree, pinfo, &ei_unknown_data, tvb, offset, length);
