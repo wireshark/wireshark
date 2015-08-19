@@ -28,6 +28,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 
@@ -1065,11 +1067,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_item      *block_item;
     proto_tree      *block_data_tree;
     proto_item      *block_data_item;
-    proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
     gint             offset = 0;
     guint32          length;
     guint32          captured_length;
+    guint32          reported_length;
     guint32          block_type;
     guint32          block_data_length;
     guint32          interface_id;
@@ -1153,20 +1155,27 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
         offset += 8;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding);
-        captured_length = tvb_get_guint32(tvb, offset, encoding);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &reported_length);
         offset += 4;
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-        packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
+
         if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
             struct interface_description  *interface_description;
+            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, captured_length), pinfo, packet_data_tree, &interface_description->link_type);
+            TRY {
+                call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset(tvb, offset, captured_length, reported_length),
+                                         pinfo, packet_data_tree, &interface_description->link_type);
+            }
+            CATCH_BOUNDS_ERRORS {
+                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+            }
+            ENDTRY;
         }
         offset += captured_length;
 
@@ -1183,19 +1192,26 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         proto_item_append_text(block_item, " %u", info->frame_number);
         info->frame_number += 1;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding);
-        captured_length = tvb_get_guint32(tvb, offset, encoding);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
 
         interface_id = 0;
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-        packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
+
         if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
             struct interface_description  *interface_description;
+            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, captured_length), pinfo, packet_data_tree, &interface_description->link_type);
+            TRY {
+                call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, captured_length),
+                                         pinfo, packet_data_tree, &interface_description->link_type);
+            }
+            CATCH_BOUNDS_ERRORS {
+                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+            }
+            ENDTRY;
         }
         offset += captured_length;
 
@@ -1338,24 +1354,29 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
         offset += 8;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding);
-        captured_length = tvb_get_guint32(tvb, offset, encoding);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &reported_length);
         offset += 4;
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-        packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
         if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
             struct interface_description  *interface_description;
+            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
             pinfo->fd->num = info->frame_number;
 
-
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, captured_length), pinfo, packet_data_tree, &interface_description->link_type);
+            TRY {
+                call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset(tvb, offset, captured_length, reported_length),
+                                         pinfo, packet_data_tree, &interface_description->link_type);
+            }
+            CATCH_BOUNDS_ERRORS {
+                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+            }
+            ENDTRY;
         }
         offset += captured_length;
 
