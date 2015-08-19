@@ -36,6 +36,7 @@ sttype_init(void)
 	sttype_register_integer();
 	sttype_register_pointer();
 	sttype_register_range();
+	sttype_register_set();
 	sttype_register_string();
 	sttype_register_test();
 }

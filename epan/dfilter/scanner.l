@@ -89,6 +89,8 @@ static void mark_lval_deprecated(const char *s);
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
 ","				return simple(TOKEN_COMMA);
+"{"				return simple(TOKEN_LBRACE);
+"}"				return simple(TOKEN_RBRACE);
 
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
@@ -119,6 +121,7 @@ static void mark_lval_deprecated(const char *s);
 "and"			return simple(TOKEN_TEST_AND);
 "||"			return simple(TOKEN_TEST_OR);
 "or"			return simple(TOKEN_TEST_OR);
+"in"			return simple(TOKEN_TEST_IN);
 
 
 "["					{
@@ -292,6 +295,8 @@ simple(int token)
 		case TOKEN_RPAREN:
 		case TOKEN_LBRACKET:
 		case TOKEN_RBRACKET:
+		case TOKEN_LBRACE:
+		case TOKEN_RBRACE:
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
 		case TOKEN_HYPHEN:
@@ -307,6 +312,7 @@ simple(int token)
 		case TOKEN_TEST_NOT:
 		case TOKEN_TEST_AND:
 		case TOKEN_TEST_OR:
+		case TOKEN_TEST_IN:
 			break;
 		default:
 			g_assert_not_reached();

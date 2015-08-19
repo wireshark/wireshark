@@ -9,6 +9,7 @@
 #include "sttype-range.h"
 #include "sttype-test.h"
 #include "sttype-function.h"
+#include "sttype-set.h"
 #include "drange.h"
 
 #include "grammar.h"
@@ -61,6 +62,9 @@
 %type		funcparams	{GSList*}
 %destructor	funcparams	{st_funcparams_free($$);}
 
+%type		setnode_list	{GSList*}
+%destructor	setnode_list	{set_nodelist_free($$);}
+
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
@@ -97,6 +101,9 @@ any "error" symbols are shifted, if possible. */
 			break;
 		case STTYPE_FUNCTION:
 			dfilter_fail(dfw, "The function s was unexpected in this context.");
+			break;
+		case STTYPE_SET:
+			dfilter_fail(dfw, "Syntax error, SET.");
 			break;
 
 		/* These aren't handed to use as terminal tokens from
@@ -285,6 +292,23 @@ rel_op2(O) ::= TEST_BITWISE_AND.  { O = TEST_OP_BITWISE_AND; }
 rel_op2(O) ::= TEST_CONTAINS.  { O = TEST_OP_CONTAINS; }
 rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
 
+relation_test(T) ::= entity(E) TEST_IN LBRACE setnode_list(L) RBRACE.
+{
+	stnode_t *S;
+	T = stnode_new(STTYPE_TEST, NULL);
+	S = stnode_new(STTYPE_SET, L);
+	sttype_test_set2(T, TEST_OP_IN, E, S);
+}
+
+setnode_list(L) ::= entity(E).
+{
+	L = g_slist_append(NULL, E);
+}
+
+setnode_list(L) ::= setnode_list(P) entity(E).
+{
+	L = g_slist_append(P, E);
+}
 
 /* Functions */
 

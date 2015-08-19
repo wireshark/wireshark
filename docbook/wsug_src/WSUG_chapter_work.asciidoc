@@ -386,6 +386,19 @@ Wireshark allows you to string together single ranges in a comma separated list
 to form compound ranges as shown above.
 |===============
 
+==== Membership Operator.
+Wireshark allows you to test a field for membership in a set of values or
+fields. After the field name, use the in operator followed by the set items
+surrounded by braces {}.
+----
+tcp.port in {80 443 8080}
+----
+This can be considered a shortcut operator, as the previous expression could
+have been expressed as:
+----
+tcp.port == 80 || tcp.port == 443 || tcp.port == 8080
+----
+
 [[ChWorkBuildDisplayFilterMistake]]
 
 ==== A common mistake

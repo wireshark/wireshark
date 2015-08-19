@@ -264,6 +264,18 @@ Slices can be combined. You can concatenate them using the comma operator:
 This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
 data.
 
+=head2 The membership operator
+
+A field may be checked for matches against a set of values simply with the
+membership operator. For instance, you may find traffic on common HTTP/HTTPS
+ports with the following filter:
+
+    tcp.port in {80 443 8080}
+
+as opposed to the more verbose:
+
+    tcp.port == 80 or tcp.port == 443 or tcp.port == 8080
+
 =head2 Type conversions
 
 If a field is a text string or a byte array, it can be expressed in whichever

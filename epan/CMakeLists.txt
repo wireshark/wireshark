@@ -76,6 +76,7 @@ set(DFILTER_FILES
 	dfilter/sttype-integer.c
 	dfilter/sttype-pointer.c
 	dfilter/sttype-range.c
+	dfilter/sttype-set.c
 	dfilter/sttype-string.c
 	dfilter/sttype-test.c
 	dfilter/syntax-tree.c

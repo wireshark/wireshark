@@ -1912,7 +1912,7 @@ I<View:Main Toolbar>.
 A display filter can be entered into the filter toolbar.
 A filter for HTTP, HTTPS, and DNS traffic might look like this:
 
-  tcp.port == 80 || tcp.port == 443 || tcp.port == 53
+  tcp.port in {80 443 53}
 
 Selecting the I<Filter:> button lets you choose from a list of named
 filters that you can optionally save.  Pressing the Return or Enter

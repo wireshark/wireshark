@@ -26,6 +26,7 @@
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
+#include "sttype-set.h"
 #include "sttype-function.h"
 #include "ftypes/ftypes.h"
 
@@ -277,6 +278,80 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	}
 }
 
+static void
+fixup_jumps(gpointer data, gpointer user_data)
+{
+	dfvm_value_t *jmp = (dfvm_value_t*)data;
+	dfwork_t *dfw = (dfwork_t*)user_data;
+
+	if (jmp) {
+		jmp->value.numeric = dfw->next_insn_id;
+	}
+}
+
+/* Generate the code for the in operator.  It behaves much like an OR-ed
+ * series of == tests, but without the redundant existence checks. */
+static void
+gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*val1, *val2;
+	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
+	int		reg1 = -1, reg2 = -1;
+	stnode_t	*node;
+	GSList		*nodelist;
+	GSList		*jumplist = NULL;
+
+	/* Create code for the LHS of the relation */
+	reg1 = gen_entity(dfw, st_arg1, &jmp1);
+
+	/* Create code for the set on the RHS of the relation */
+	nodelist = (GSList*)stnode_data(st_arg2);
+	while (nodelist) {
+		node = (stnode_t*)nodelist->data;
+		reg2 = gen_entity(dfw, node, &jmp2);
+
+		/* Add test to see if the item matches */
+		insn = dfvm_insn_new(ANY_EQ);
+		val1 = dfvm_value_new(REGISTER);
+		val1->value.numeric = reg1;
+		val2 = dfvm_value_new(REGISTER);
+		val2->value.numeric = reg2;
+		insn->arg1 = val1;
+		insn->arg2 = val2;
+		dfw_append_insn(dfw, insn);
+
+		nodelist = g_slist_next(nodelist);
+
+		/* Exit as soon as we find a match */
+		if (nodelist) {
+			insn = dfvm_insn_new(IF_TRUE_GOTO);
+			val1 = dfvm_value_new(INSN_NUMBER);
+			insn->arg1 = val1;
+			dfw_append_insn(dfw, insn);
+			jumplist = g_slist_prepend(jumplist, val1);
+		}
+
+		/* If an item is not present, just jump to the next item */
+		if (jmp2) {
+			jmp2->value.numeric = dfw->next_insn_id;
+			jmp2 = NULL;
+		}
+	}
+
+	/* Jump here if the LHS entity was not present */
+	if (jmp1) {
+		jmp1->value.numeric = dfw->next_insn_id;
+	}
+	/* Jump here if any of the items in the set matched */
+	g_slist_foreach(jumplist, fixup_jumps, dfw);
+
+	/* Clean up */
+	g_slist_free(jumplist);
+	nodelist = (GSList*)stnode_data(st_arg2);
+	set_nodelist_free(nodelist);
+}
+
 /* Parse an entity, returning the reg that it gets put into.
  * p_jmp will be set if it has to be set by the calling code; it should
  * be set to the place to jump to, to return to the calling code,
@@ -421,6 +496,10 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_MATCHES:
 			gen_relation(dfw, ANY_MATCHES, st_arg1, st_arg2);
+			break;
+
+		case TEST_OP_IN:
+			gen_relation_in(dfw, st_arg1, st_arg2);
 			break;
 	}
 }

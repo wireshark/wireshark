@@ -228,6 +228,7 @@ typedef enum {
         STTYPE_INTEGER,
         STTYPE_RANGE,
         STTYPE_FUNCTION,
+        STTYPE_SET,
         STTYPE_NUM_TYPES
 } sttype_id_t;
 

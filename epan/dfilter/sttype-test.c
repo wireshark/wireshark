@@ -96,6 +96,7 @@ num_operands(test_op_t op)
 		case TEST_OP_BITWISE_AND:
 		case TEST_OP_CONTAINS:
 		case TEST_OP_MATCHES:
+		case TEST_OP_IN:
 			return 2;
 	}
 	g_assert_not_reached();
