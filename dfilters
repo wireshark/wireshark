@@ -1,4 +1,4 @@
-"Ethernet address 00:08:15:00:08:15" eth.addr == 00:08:15:00:08:15
+"Ethernet address 00:00:5e:00:53:00" eth.addr == 00:00:5e:00:53:00
 "Ethernet type 0x0806 (ARP)" eth.type == 0x0806
 "Ethernet broadcast" eth.addr == ff:ff:ff:ff:ff:ff
 "No ARP" not arp

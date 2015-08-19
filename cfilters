@@ -1,4 +1,4 @@
-"Ethernet address 00:08:15:00:08:15" ether host 00:08:15:00:08:15
+"Ethernet address 00:00:5e:00:53:00" ether host 00:00:5e:00:53:00
 "Ethernet type 0x0806 (ARP)" ether proto 0x0806
 "No Broadcast and no Multicast" not broadcast and not multicast
 "No ARP" not arp
