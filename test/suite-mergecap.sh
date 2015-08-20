@@ -106,91 +106,91 @@ mergecap_common_pcapng_pkt() {
 
 
 mergecap_step_basic_1_pcap_pcap_test() {
-    $MERGECAP -vF pcap -w testout.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcap_pkt $RETURNVALUE 4
     test_step_ok
 }
 
 mergecap_step_basic_2_pcap_pcap_test() {
-    $MERGECAP -vF pcap -w testout.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcap_pkt $RETURNVALUE 8
     test_step_ok
 }
 
 mergecap_step_basic_3_empty_pcap_pcap_test() {
-    $MERGECAP -vF pcap -w testout.pcap $CAPTURE_DIR/empty.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/empty.pcap > testout.txt 2>&1
+    $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}empty.pcap" "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}empty.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcap_pkt $RETURNVALUE 4
     test_step_ok
 }
 
 mergecap_step_basic_2_nano_pcap_pcap_test() {
-    $MERGECAP -vF pcap -w testout.pcap $CAPTURE_DIR/dhcp-nanosecond.pcap $CAPTURE_DIR/rsasnakeoil2.pcap > testout.txt 2>&1
+    $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp-nanosecond.pcap" "${CAPTURE_DIR}rsasnakeoil2.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcap_pkt $RETURNVALUE 62
     test_step_ok
 }
 
 mergecap_step_basic_1_pcap_pcapng_test() {
-    $MERGECAP -v -w testout.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 1 4 4
     test_step_ok
 }
 
 mergecap_step_basic_2_pcap_pcapng_test() {
-    $MERGECAP -v -w testout.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 1 8 8
     test_step_ok
 }
 
 mergecap_step_basic_2_pcap_none_pcapng_test() {
-    $MERGECAP -vI 'none' -w testout.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -vI 'none' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 2 8 4
     test_step_ok
 }
 
 mergecap_step_basic_2_pcap_all_pcapng_test() {
-    $MERGECAP -vI 'all' -w testout.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -vI 'all' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 1 8 8
     test_step_ok
 }
 
 mergecap_step_basic_2_pcap_any_pcapng_test() {
-    $MERGECAP -vI 'any' -w testout.pcap $CAPTURE_DIR/dhcp.pcap $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+    $MERGECAP -vI 'any' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 1 8 8
     test_step_ok
 }
 
 mergecap_step_basic_1_pcapng_pcapng_test() {
-    $MERGECAP -v -w testout.pcap $CAPTURE_DIR/dhcp.pcapng > testout.txt 2>&1
+    $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcapng" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Ethernet" 1 4 4
     test_step_ok
 }
 
 mergecap_step_1_pcapng_many_pcapng_test() {
-    $MERGECAP -v -w testout.pcap $CAPTURE_DIR/many_interfaces.pcapng.1 > testout.txt 2>&1
+    $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}many_interfaces.pcapng.1" > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Per packet" 11 64 62
     test_step_ok
 }
 
 mergecap_step_3_pcapng_pcapng_test() {
-    $MERGECAP -v -w testout.pcap $CAPTURE_DIR/many_interfaces.pcapng* > testout.txt 2>&1
+    $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Per packet" 11 88 86
     test_step_ok
 }
 
 mergecap_step_3_pcapng_none_pcapng_test() {
-    $MERGECAP -vI 'none' -w testout.pcap $CAPTURE_DIR/many_interfaces.pcapng* > testout.txt 2>&1
+    $MERGECAP -vI 'none' -w testout.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
     RETURNVALUE=$?
     mergecap_common_pcapng_pkt $RETURNVALUE "Per packet" 33 88 62
     test_step_ok
@@ -198,7 +198,7 @@ mergecap_step_3_pcapng_none_pcapng_test() {
 
 mergecap_step_3_pcapng_all_pcapng_test() {
     # build a pcapng of all the interfaces repeated by using mode 'none'
-    $MERGECAP -vI 'none' -w testin.pcap $CAPTURE_DIR/many_interfaces.pcapng* > testout.txt 2>&1
+    $MERGECAP -vI 'none' -w testin.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
     # the above generated 33 IDBs, 88 total pkts, 62 in first IDB
 
     # and use that generated pcap for our test
@@ -211,7 +211,7 @@ mergecap_step_3_pcapng_all_pcapng_test() {
 
 mergecap_step_3_pcapng_any_pcapng_test() {
     # build a pcapng of all the interfaces repeated by using mode 'none'
-    $MERGECAP -vI 'none' -w testin.pcap $CAPTURE_DIR/many_interfaces.pcapng* > testout.txt 2>&1
+    $MERGECAP -vI 'none' -w testin.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
     # the above generated 33 IDBs, 88 total pkts, 62 in first IDB
 
     # and use that generated pcap for our test
