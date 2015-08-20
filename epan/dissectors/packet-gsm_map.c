@@ -22128,74 +22128,74 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 static int
 dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    proto_item  *item=NULL;
-    proto_tree  *tree=NULL;
-    /* Used for gsm_map TAP */
-    static      gsm_map_tap_rec_t tap_rec;
-    gint        op_idx;
-    struct tcap_private_t * p_private_tcap = (struct tcap_private_t *)data;
-    asn1_ctx_t asn1_ctx;
+  proto_item  *item=NULL;
+  proto_tree  *tree=NULL;
+  /* Used for gsm_map TAP */
+  static      gsm_map_tap_rec_t tap_rec;
+  gint        op_idx;
+  struct tcap_private_t * p_private_tcap = (struct tcap_private_t *)data;
+  asn1_ctx_t asn1_ctx;
 
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-    top_tree = parent_tree;
+  top_tree = parent_tree;
 
-    /* create display subtree for the protocol */
-    item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
-    tree = proto_item_add_subtree(item, ett_gsm_map);
+  /* create display subtree for the protocol */
+  item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_gsm_map);
 
-    dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, p_private_tcap);
-    try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
+  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, p_private_tcap);
+  try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
-    if (op_idx != -1) {
-        tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
-        tap_rec.opcode = opcode;
-        tap_rec.size = gsm_map_pdu_size;
+  if (op_idx != -1) {
+    tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
+    tap_rec.opcode = opcode;
+    tap_rec.size = gsm_map_pdu_size;
 
-        tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-    }
+    tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+  }
 
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
 dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    proto_item  *item=NULL;
-    proto_tree  *tree=NULL;
-    /* Used for gsm_map TAP */
-    static      gsm_map_tap_rec_t tap_rec;
-    gint        op_idx;
-    asn1_ctx_t asn1_ctx;
+  proto_item  *item=NULL;
+  proto_tree  *tree=NULL;
+  /* Used for gsm_map TAP */
+  static      gsm_map_tap_rec_t tap_rec;
+  gint        op_idx;
+  asn1_ctx_t asn1_ctx;
 
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-    top_tree = parent_tree;
+  top_tree = parent_tree;
 
-    /* create display subtree for the protocol */
-    item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
-    tree = proto_item_add_subtree(item, ett_gsm_map);
+  /* create display subtree for the protocol */
+  item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_gsm_map);
 
-    /* Save the sccp_msg_info_t data (if present) because it can't be passed
-       through function calls */
-    p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, pinfo->curr_layer_num, data);
+  /* Save the sccp_msg_info_t data (if present) because it can't be passed
+     through function calls */
+  p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, pinfo->curr_layer_num, data);
 
-    dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, NULL);
-    try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
+  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, NULL);
+  try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
-    if (op_idx != -1) {
-        tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
-        tap_rec.opcode = opcode;
-        tap_rec.size = gsm_map_pdu_size;
+  if (op_idx != -1) {
+    tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
+    tap_rec.opcode = opcode;
+    tap_rec.size = gsm_map_pdu_size;
 
-        tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-    }
+    tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+  }
 
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 const value_string ssCode_vals[] = {
@@ -22276,105 +22276,105 @@ const value_string ssCode_vals[] = {
 };
 
 static const value_string Teleservice_vals[] = {
-{0x00, "allTeleservices" },
-{0x10, "allSpeechTransmissionServices" },
-{0x11, "telephony" },
-{0x12, "emergencyCalls" },
-{0x20, "allShortMessageServices" },
-{0x21, "shortMessageMT-PP" },
-{0x22, "shortMessageMO-PP" },
-{0x60, "allFacsimileTransmissionServices" },
-{0x61, "facsimileGroup3AndAlterSpeech" },
-{0x62, "automaticFacsimileGroup3" },
-{0x63, "facsimileGroup4" },
+  { 0x00, "allTeleservices" },
+  { 0x10, "allSpeechTransmissionServices" },
+  { 0x11, "telephony" },
+  { 0x12, "emergencyCalls" },
+  { 0x20, "allShortMessageServices" },
+  { 0x21, "shortMessageMT-PP" },
+  { 0x22, "shortMessageMO-PP" },
+  { 0x60, "allFacsimileTransmissionServices" },
+  { 0x61, "facsimileGroup3AndAlterSpeech" },
+  { 0x62, "automaticFacsimileGroup3" },
+  { 0x63, "facsimileGroup4" },
 
-{0x70, "allDataTeleservices" },
-{0x80, "allTeleservices-ExeptSMS" },
+  { 0x70, "allDataTeleservices" },
+  { 0x80, "allTeleservices-ExeptSMS" },
 
-{0x90, "allVoiceGroupCallServices" },
-{0x91, "voiceGroupCall" },
-{0x92, "voiceBroadcastCall" },
+  { 0x90, "allVoiceGroupCallServices" },
+  { 0x91, "voiceGroupCall" },
+  { 0x92, "voiceBroadcastCall" },
 
-{0xd0, "allPLMN-specificTS" },
-{0xd1, "plmn-specificTS-1" },
-{0xd2, "plmn-specificTS-2" },
-{0xd3, "plmn-specificTS-3" },
-{0xd4, "plmn-specificTS-4" },
-{0xd5, "plmn-specificTS-5" },
-{0xd6, "plmn-specificTS-6" },
-{0xd7, "plmn-specificTS-7" },
-{0xd8, "plmn-specificTS-8" },
-{0xd9, "plmn-specificTS-9" },
-{0xda, "plmn-specificTS-A" },
-{0xdb, "plmn-specificTS-B" },
-{0xdc, "plmn-specificTS-C" },
-{0xdd, "plmn-specificTS-D" },
-{0xde, "plmn-specificTS-E" },
-{0xdf, "plmn-specificTS-F" },
+  { 0xd0, "allPLMN-specificTS" },
+  { 0xd1, "plmn-specificTS-1" },
+  { 0xd2, "plmn-specificTS-2" },
+  { 0xd3, "plmn-specificTS-3" },
+  { 0xd4, "plmn-specificTS-4" },
+  { 0xd5, "plmn-specificTS-5" },
+  { 0xd6, "plmn-specificTS-6" },
+  { 0xd7, "plmn-specificTS-7" },
+  { 0xd8, "plmn-specificTS-8" },
+  { 0xd9, "plmn-specificTS-9" },
+  { 0xda, "plmn-specificTS-A" },
+  { 0xdb, "plmn-specificTS-B" },
+  { 0xdc, "plmn-specificTS-C" },
+  { 0xdd, "plmn-specificTS-D" },
+  { 0xde, "plmn-specificTS-E" },
+  { 0xdf, "plmn-specificTS-F" },
   { 0, NULL }
 };
 
 static const value_string Bearerservice_vals[] = {
-{0x00, "allBearerServices" },
-{0x10, "allDataCDA-Services" },
-{0x11, "dataCDA-300bps" },
-{0x12, "dataCDA-1200bps" },
-{0x13, "dataCDA-1200-75bps" },
-{0x14, "dataCDA-2400bps" },
-{0x15, "dataCDA-4800bps" },
-{0x16, "dataCDA-9600bps" },
-{0x17, "general-dataCDA" },
+  { 0x00, "allBearerServices" },
+  { 0x10, "allDataCDA-Services" },
+  { 0x11, "dataCDA-300bps" },
+  { 0x12, "dataCDA-1200bps" },
+  { 0x13, "dataCDA-1200-75bps" },
+  { 0x14, "dataCDA-2400bps" },
+  { 0x15, "dataCDA-4800bps" },
+  { 0x16, "dataCDA-9600bps" },
+  { 0x17, "general-dataCDA" },
 
-{0x18, "allDataCDS-Services" },
-{0x1A, "dataCDS-1200bps" },
-{0x1C, "dataCDS-2400bps" },
-{0x1D, "dataCDS-4800bps" },
-{0x1E, "dataCDS-9600bps" },
-{0x1F, "general-dataCDS" },
+  { 0x18, "allDataCDS-Services" },
+  { 0x1A, "dataCDS-1200bps" },
+  { 0x1C, "dataCDS-2400bps" },
+  { 0x1D, "dataCDS-4800bps" },
+  { 0x1E, "dataCDS-9600bps" },
+  { 0x1F, "general-dataCDS" },
 
-{0x20, "allPadAccessCA-Services" },
-{0x21, "padAccessCA-300bps" },
-{0x22, "padAccessCA-1200bps" },
-{0x23, "padAccessCA-1200-75bps" },
-{0x24, "padAccessCA-2400bps" },
-{0x25, "padAccessCA-4800bps" },
-{0x26, "padAccessCA-9600bps" },
-{0x27, "general-padAccessCA" },
+  { 0x20, "allPadAccessCA-Services" },
+  { 0x21, "padAccessCA-300bps" },
+  { 0x22, "padAccessCA-1200bps" },
+  { 0x23, "padAccessCA-1200-75bps" },
+  { 0x24, "padAccessCA-2400bps" },
+  { 0x25, "padAccessCA-4800bps" },
+  { 0x26, "padAccessCA-9600bps" },
+  { 0x27, "general-padAccessCA" },
 
-{0x28, "allDataPDS-Services" },
-{0x2C, "dataPDS-2400bps" },
-{0x2D, "dataPDS-4800bps" },
-{0x2E, "dataPDS-9600bps" },
-{0x2F, "general-dataPDS" },
+  { 0x28, "allDataPDS-Services" },
+  { 0x2C, "dataPDS-2400bps" },
+  { 0x2D, "dataPDS-4800bps" },
+  { 0x2E, "dataPDS-9600bps" },
+  { 0x2F, "general-dataPDS" },
 
-{0x30, "allAlternateSpeech-DataCDA" },
-{0x38, "allAlternateSpeech-DataCDS" },
-{0x40, "allSpeechFollowedByDataCDA" },
-{0x48, "allSpeechFollowedByDataCDS" },
+  { 0x30, "allAlternateSpeech-DataCDA" },
+  { 0x38, "allAlternateSpeech-DataCDS" },
+  { 0x40, "allSpeechFollowedByDataCDA" },
+  { 0x48, "allSpeechFollowedByDataCDS" },
 
-{0x50, "allDataCircuitAsynchronous" },
-{0x60, "allAsynchronousServices" },
-{0x58, "allDataCircuitSynchronous" },
-{0x68, "allSynchronousServices" },
+  { 0x50, "allDataCircuitAsynchronous" },
+  { 0x60, "allAsynchronousServices" },
+  { 0x58, "allDataCircuitSynchronous" },
+  { 0x68, "allSynchronousServices" },
 
-{0xD0, "allPLMN-specificBS" },
-{0xD1, "plmn-specificBS-1" },
-{0xD2, "plmn-specificBS-2" },
-{0xD3, "plmn-specificBS-3" },
-{0xD4, "plmn-specificBS-4" },
-{0xD5, "plmn-specificBS-5" },
-{0xD6, "plmn-specificBS-6" },
-{0xD7, "plmn-specificBS-7" },
-{0xD8, "plmn-specificBS-8" },
-{0xD9, "plmn-specificBS-9" },
-{0xDA, "plmn-specificBS-A" },
-{0xDB, "plmn-specificBS-B" },
-{0xDC, "plmn-specificBS-C" },
-{0xDD, "plmn-specificBS-D" },
-{0xDE, "plmn-specificBS-E" },
-{0xDF, "plmn-specificBS-F" },
+  { 0xD0, "allPLMN-specificBS" },
+  { 0xD1, "plmn-specificBS-1" },
+  { 0xD2, "plmn-specificBS-2" },
+  { 0xD3, "plmn-specificBS-3" },
+  { 0xD4, "plmn-specificBS-4" },
+  { 0xD5, "plmn-specificBS-5" },
+  { 0xD6, "plmn-specificBS-6" },
+  { 0xD7, "plmn-specificBS-7" },
+  { 0xD8, "plmn-specificBS-8" },
+  { 0xD9, "plmn-specificBS-9" },
+  { 0xDA, "plmn-specificBS-A" },
+  { 0xDB, "plmn-specificBS-B" },
+  { 0xDC, "plmn-specificBS-C" },
+  { 0xDD, "plmn-specificBS-D" },
+  { 0xDE, "plmn-specificBS-E" },
+  { 0xDF, "plmn-specificBS-F" },
 
-{ 0, NULL }
+  {  0, NULL }
 };
 
 /* ForwardingOptions
@@ -22411,33 +22411,33 @@ static const true_false_string redirecting_presentation_value  = {
 -- or call deflection when used in a RCH Argument
 */
 static const value_string forwarding_reason_values[] = {
-{0x0, "ms not reachable" },
-{0x1, "ms busy" },
-{0x2, "no reply" },
-{0x3, "unconditional when used in a SRI Result or call deflection when used in a RCH Argument" },
-{ 0, NULL }
+  { 0x0, "ms not reachable" },
+  { 0x1, "ms busy" },
+  { 0x2, "no reply" },
+  { 0x3, "unconditional when used in a SRI Result or call deflection when used in a RCH Argument" },
+  {  0, NULL }
 };
 /*
 -- bits 21: 00 (unused)
 */
 
 static const value_string pdp_type_org_values[] = {
-{0x0, "ETSI" },
-{0x1, "IETF" },
-{0xf, "Empty PDP type" },
-{ 0, NULL }
+  { 0x0, "ETSI" },
+  { 0x1, "IETF" },
+  { 0xf, "Empty PDP type" },
+  {  0, NULL }
 };
 
 static const value_string etsi_pdp_type_number_values[] = {
-{0x0, "Reserved, used in earlier version of this protocol" },
-{0x1, "PPP" },
-{ 0, NULL }
+  { 0x0, "Reserved, used in earlier version of this protocol" },
+  { 0x1, "PPP" },
+  {  0, NULL }
 };
 
 static const value_string ietf_pdp_type_number_values[] = {
-{0x21, "IPv4 Address" },
-{0x57, "IPv6 Address" },
-{ 0, NULL }
+  { 0x21, "IPv4 Address" },
+  { 0x57, "IPv6 Address" },
+  {  0, NULL }
 };
 
 /*
@@ -22457,11 +22457,11 @@ ChargingCharacteristics ::= OCTET STRING (SIZE (2))
 -- Bit 8: - (Reserved, set to 0) := '10000000'B
 */
 static const value_string chargingcharacteristics_values[] = {
-{0x1, "H (Hot billing)" },
-{0x2, "F (Flat rate)" },
-{0x4, "P (Prepaid service)" },
-{0x8, "N (Normal billing)" },
-{ 0, NULL }
+  { 0x1, "H (Hot billing)" },
+  { 0x2, "F (Flat rate)" },
+  { 0x4, "P (Prepaid service)" },
+  { 0x8, "N (Normal billing)" },
+  {  0, NULL }
 };
 
 /* TAP STAT INFO */
@@ -30717,3 +30717,16 @@ void proto_register_gsm_map(void) {
 
   register_new_stat_tap_ui(&gsm_map_stat_table);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
