@@ -181,7 +181,7 @@ disable_all_cb(GtkWidget *button _U_, gpointer pl)
   set_active_all((GtkWidget *)pl, FALSE);
 }
 
-void heur_toggle_all_cb(GtkWidget *button _U_, gpointer pl)
+static void heur_toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 {
   GSList *entry;
   GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
@@ -212,12 +212,12 @@ heur_set_active_all(GtkWidget *w, gboolean new_state)
   }
 }
 
-void heur_enable_all_cb(GtkWidget *button _U_, gpointer pl)
+static void heur_enable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
   heur_set_active_all((GtkWidget *)pl, TRUE);
 }
 
-void heur_disable_all_cb(GtkWidget *button _U_, gpointer pl)
+static void heur_disable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
   heur_set_active_all((GtkWidget *)pl, FALSE);
 }
