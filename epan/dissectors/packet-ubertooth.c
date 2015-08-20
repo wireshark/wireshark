@@ -97,6 +97,8 @@ static int hf_usb_rx_packet_channel = -1;
 static int hf_spectrum_entry = -1;
 static int hf_frequency = -1;
 static int hf_rssi = -1;
+static int hf_jam_mode = -1;
+static int hf_ego_mode = -1;
 static int hf_cc2400_value = -1;
 static int hf_cc2400_main_resetn = -1;
 static int hf_cc2400_main_reserved_14_10 = -1;
@@ -406,6 +408,8 @@ static const value_string command_vals[] = {
     { 56,  "BTLE Set Target" },
     { 57,  "BTLE Phy" },
     { 58,  "Write Register" },
+    { 59,  "Jam Mode" },
+    { 60,  "Ego" },
     { 0x00, NULL }
 };
 static value_string_ext(command_vals_ext) = VALUE_STRING_EXT_INIT(command_vals);
@@ -439,6 +443,7 @@ static const value_string packet_type_vals[] = {
     { 0x03,  "Keep Alive" },
     { 0x04,  "Spectrum Analyze"},
     { 0x05,  "LE Promiscuous" },
+    { 0x06,  "Ego Packet" },
     { 0x00, NULL }
 };
 static value_string_ext(packet_type_vals_ext) = VALUE_STRING_EXT_INIT(packet_type_vals);
@@ -458,6 +463,22 @@ static const value_string modulation_vals[] = {
     { 0x00, NULL }
 };
 static value_string_ext(modulation_vals_ext) = VALUE_STRING_EXT_INIT(modulation_vals);
+
+
+static const value_string jam_mode_vals[] = {
+    { 0x00,  "None" },
+    { 0x01,  "Once" },
+    { 0x02,  "Continuous" },
+    { 0x00, NULL }
+};
+
+
+static const value_string ego_mode_vals[] = {
+    { 0x00,  "Follow" },
+    { 0x01,  "Continuous Rx" },
+    { 0x02,  "Jam" },
+    { 0x00, NULL }
+};
 
 static const value_string register_vals[] = {
     { 0x00,  "MAIN" },
@@ -1304,22 +1325,33 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
         offset += 2;
         break;
     case 49: /* Poll */
-        length = 9; /* From BTLE: AccessAddress (4) + Header (2) + Length from Header (below) + CRC (3) */
+        if (packet_type == 0x00) {/* BD/EDR */
+            /* TODO: btbb dissector */
+            offset += 50;
+        } else if (packet_type == 0x01 || packet_type == 0x05) { /* LE || LE Promiscuous */
+            length = 9; /* From BTLE: AccessAddress (4) + Header (2) + Length from Header (below) + CRC (3) */
 
-        if (tvb_get_letohl(tvb, offset) == ACCESS_ADDRESS_ADVERTISING)
-            length += tvb_get_guint8(tvb, offset + 5) & 0x3f;
-        else
-            length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
+            if (tvb_get_letohl(tvb, offset) == ACCESS_ADDRESS_ADVERTISING)
+                length += tvb_get_guint8(tvb, offset + 5) & 0x3f;
+            else
+                length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
 
-        ubertooth_data = wmem_new(wmem_packet_scope(), ubertooth_data_t);
-        ubertooth_data->bus_id = usb_conv_info->bus_id;
-        ubertooth_data->device_address = usb_conv_info->device_address;
-        ubertooth_data->clock_100ns = clock_100ns;
-        ubertooth_data->channel = channel;
+            ubertooth_data = wmem_new(wmem_packet_scope(), ubertooth_data_t);
+            ubertooth_data->bus_id = usb_conv_info->bus_id;
+            ubertooth_data->device_address = usb_conv_info->device_address;
+            ubertooth_data->clock_100ns = clock_100ns;
+            ubertooth_data->channel = channel;
 
-        next_tvb = tvb_new_subset_length(tvb, offset, length);
-        call_dissector_with_data(bluetooth_ubertooth_handle, next_tvb, pinfo, main_tree, ubertooth_data);
-        offset += length;
+            next_tvb = tvb_new_subset_length(tvb, offset, length);
+            call_dissector_with_data(bluetooth_ubertooth_handle, next_tvb, pinfo, main_tree, ubertooth_data);
+            offset += length;
+        } else if (packet_type == 0x06) {/* Ego */
+            /* NOTE: Yuneec E-GO skateboard - unknown protocol */
+            offset += 50;
+        } else if (packet_type == 0x02 || packet_type == 0x03 || packet_type == 0x04) { /* Message || Keep Alive || Spectrum Analyze */
+            /* NOTE: ? */
+            offset += 50;
+        }
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(data_tree, hf_reserved, tvb, offset, -1, ENC_NA);
@@ -1426,6 +1458,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 48: /* Set CRC Verify */
         case 53: /* Read Register */
         case 58: /* Write Register */
+        case 59: /* Jam Mode */
+        case 60: /* Ego */
 
             switch (command) {
             case 1: /* Rx Symbols */
@@ -1537,6 +1571,18 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         tvb_get_ntohs(tvb, offset));
 
                 dissect_cc2400_register(sub_tree, tvb, offset, register_id);
+                offset += 2;
+
+                break;
+            case 59: /* Jam Mode */
+                proto_tree_add_item(main_tree, hf_jam_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(tvb_get_letohs(tvb, offset), jam_mode_vals, "Unknown"));
+                offset += 2;
+
+                break;
+            case 60: /* Ego */
+                proto_tree_add_item(main_tree, hf_ego_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(tvb_get_letohs(tvb, offset), ego_mode_vals, "Unknown"));
                 offset += 2;
 
                 break;
@@ -1910,6 +1956,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 49: /* Poll */
+    case 59: /* Jam Mode */
+    case 60: /* Ego */
         if (tvb_reported_length_remaining(tvb, offset) == 1) {
             proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2208,6 +2256,16 @@ proto_register_ubertooth(void)
         { &hf_access_address,
             { "Access Address",                  "ubertooth.access_address",
             FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_jam_mode,
+            { "Jam Mode",                        "ubertooth.jam_mode",
+            FT_UINT16, BASE_HEX, VALS(jam_mode_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ego_mode,
+            { "Ego Mode",                        "ubertooth.ego_mode",
+            FT_UINT16, BASE_HEX, VALS(ego_mode_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_register,
