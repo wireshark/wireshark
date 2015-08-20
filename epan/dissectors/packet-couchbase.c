@@ -1,6 +1,7 @@
 /* packet-couchbase.c
  *
  * Routines for Couchbase Protocol
+ * Copyright 2015, Dave Rigby <daver@couchbase.com>
  * Copyright 2011, Sergey Avseyev <sergey.avseyev@gmail.com>
  *
  * With contributions from Mark Woosey <mark@markwoosey.com>
@@ -78,6 +79,19 @@
 #define PROTOCOL_BINARY_RESPONSE_EINTERNAL          0x84
 #define PROTOCOL_BINARY_RESPONSE_EBUSY              0x85
 #define PROTOCOL_BINARY_RESPONSE_ETMPFAIL           0x86
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT         0xc0
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH       0xc1
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL         0xc2
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_E2BIG          0xc3
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_E2DEEP          0xc4
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_CANTINSERT    0xc5
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_NOTJSON         0xc6
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_NUM_ERANGE          0xc7
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DELTA_ERANGE        0xc8
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EEXISTS        0xc9
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_ETOODEEP      0xca
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_COMBO       0xcb
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE  0xcc
 
  /* Command Opcodes */
 #define PROTOCOL_BINARY_CMD_GET                     0x00
@@ -206,6 +220,20 @@
 #define PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG      0xb4
 #define PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG      0xb5
 
+/* Sub-document API commands */
+#define PROTOCOL_BINARY_CMD_SUBDOC_GET              0xc5
+#define PROTOCOL_BINARY_CMD_SUBDOC_EXISTS           0xc6
+#define PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD         0xc7
+#define PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT      0xc8
+#define PROTOCOL_BINARY_CMD_SUBDOC_DELETE           0xc9
+#define PROTOCOL_BINARY_CMD_SUBDOC_REPLACE          0xca
+#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST  0xcb
+#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST 0xcc
+#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT     0xcd
+#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE 0xce
+#define PROTOCOL_BINARY_CMD_SUBDOC_COUNTER          0xcf
+#define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP     0xd0
+#define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION   0xd1
 
 /* DCP commands */
 #define PROTOCOL_BINARY_DCP_OPEN_CONNECTION         0x50
@@ -278,6 +306,8 @@ static int hf_extras_flags_dcp_snapshot_marker_memory = -1;
 static int hf_extras_flags_dcp_snapshot_marker_disk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_chk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_ack = -1;
+static int hf_subdoc_flags = -1;
+static int hf_subdoc_flags_mkdirp = -1;
 static int hf_extras_seqno = -1;
 static int hf_extras_opaque = -1;
 static int hf_extras_reserved = -1;
@@ -295,7 +325,9 @@ static int hf_extras_rev_seqno = -1;
 static int hf_extras_lock_time = -1;
 static int hf_extras_nmeta = -1;
 static int hf_extras_nru = -1;
+static int hf_extras_pathlen = -1;
 static int hf_key = -1;
+static int hf_path = -1;
 static int hf_value = -1;
 static int hf_uint64_response = -1;
 static int hf_observe = -1;
@@ -309,6 +341,14 @@ static int hf_failover_log = -1;
 static int hf_failover_log_size = -1;
 static int hf_failover_log_vbucket_uuid = -1;
 static int hf_failover_log_vbucket_seqno = -1;
+
+static int hf_multipath = -1;
+static int hf_multipath_opcode = -1;
+static int hf_multipath_index = -1;
+static int hf_multipath_pathlen = -1;
+static int hf_multipath_path = -1;
+static int hf_multipath_valuelen = -1;
+static int hf_multipath_value = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
@@ -328,6 +368,7 @@ static gint ett_extras = -1;
 static gint ett_extras_flags = -1;
 static gint ett_observe = -1;
 static gint ett_failover_log = -1;
+static gint ett_multipath = -1;
 
 static const value_string magic_vals[] = {
   { MAGIC_REQUEST,     "Request"  },
@@ -355,6 +396,33 @@ static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_EINTERNAL,         "Internal error"          },
   { PROTOCOL_BINARY_RESPONSE_EBUSY,             "Server is busy"          },
   { PROTOCOL_BINARY_RESPONSE_ETMPFAIL,          "Temporary failure"       },
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT,
+    "Subdoc: Path not does not exist"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH,
+    "Subdoc: Path mismatch"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL,
+    "Subdoc: Invalid path"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_E2BIG,
+    "Subdoc: Path too large"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_E2DEEP,
+    "Subdoc: Document too deep"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_CANTINSERT,
+    "Subdoc: Cannot insert specified value"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_NOTJSON,
+    "Subdoc: Existing document not JSON"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_NUM_ERANGE,
+    "Subdoc: Existing number outside valid arithmetic range"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DELTA_ERANGE,
+    "Subdoc: Delta outside valid arithmetic range"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EEXISTS,
+    "Subdoc: Document path already exists"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_ETOODEEP,
+    "Subdoc: Inserting value would make document too deep"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_COMBO,
+    "Subdoc: Invalid combination for multi-path command"},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE,
+    "Subdoc: One or more paths in a multi-path command failed"},
+
   { 0, NULL }
 };
 
@@ -485,6 +553,19 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
   { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { PROTOCOL_BINARY_CMD_SUBDOC_GET,                 "Subdoc Get"               },
+  { PROTOCOL_BINARY_CMD_SUBDOC_EXISTS,              "Subdoc Exists"            },
+  { PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD,            "Subdoc Dictionary Add"    },
+  { PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT,         "Subdoc Dictionary Upsert" },
+  { PROTOCOL_BINARY_CMD_SUBDOC_DELETE,              "Subdoc Delete"            },
+  { PROTOCOL_BINARY_CMD_SUBDOC_REPLACE,             "Subdoc Replace"           },
+  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST,     "Subdoc Array Push Last"   },
+  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST,    "Subdoc Array Push First"  },
+  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT,        "Subdoc Array Insert"      },
+  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE,    "Subdoc Array Add Unique"  },
+  { PROTOCOL_BINARY_CMD_SUBDOC_COUNTER,             "Subdoc Counter"           },
+  { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP,        "Subdoc Multipath Lookup"  },
+  { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
   { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
   { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
   { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
@@ -508,6 +589,11 @@ const value_string dcp_connection_type_vals[] = {
 static const value_string datatype_vals[] = {
   { DT_RAW_BYTES, "Raw bytes"},
   { 0, NULL }
+};
+
+static const int * subdoc_flags[] = {
+  &hf_subdoc_flags_mkdirp,
+  NULL
 };
 
 static dissector_handle_t couchbase_tcp_handle;
@@ -538,9 +624,25 @@ get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
   }
 }
 
+
+/* Returns true if the specified opcode's response value is JSON. */
+static gboolean
+has_json_value(guint8 opcode)
+{
+  switch (opcode) {
+  case PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG:
+  case PROTOCOL_BINARY_CMD_SUBDOC_GET:
+    return TRUE;
+
+  default:
+    return FALSE;
+  }
+}
+
 static void
 dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               gint offset, guint8 extlen, guint8 opcode, gboolean request)
+               gint offset, guint8 extlen, guint8 opcode, gboolean request,
+               guint16 *path_len)
 {
   proto_tree *extras_tree = NULL;
   proto_item *extras_item = NULL;
@@ -555,6 +657,8 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     "BACKFILL", "DUMP", "LIST_VBUCKETS", "TAKEOVER_VBUCKETS",
     "SUPPORT_ACK", "REQUEST_KEYS_ONLY", "CHECKPOINT", "REGISTERED_CLIENT"
   };
+
+  *path_len = 0;
 
   if (extlen) {
     extras_item = proto_tree_add_item(tree, hf_extras, tvb, offset, extlen, ENC_NA);
@@ -848,6 +952,41 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  case PROTOCOL_BINARY_CMD_SUBDOC_GET:
+  case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
+  case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
+  case PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT:
+  case PROTOCOL_BINARY_CMD_SUBDOC_DELETE:
+  case PROTOCOL_BINARY_CMD_SUBDOC_REPLACE:
+  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST:
+  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST:
+  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT:
+  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE:
+  case PROTOCOL_BINARY_CMD_SUBDOC_COUNTER:
+    if (extlen) {
+        if (request) {
+          *path_len = tvb_get_ntohs(tvb, offset);
+          proto_tree_add_item(extras_tree, hf_extras_pathlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset += 2;
+
+          proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_flags, ett_extras_flags, subdoc_flags, ENC_BIG_ENDIAN);
+          offset += 1;
+        }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
+  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
+    if (request) {
+      if (extlen) {
+        illegal = TRUE;
+      }
+    }
+    break;
+
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -976,8 +1115,123 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
+                                  proto_tree *tree, gint offset, guint32 value_len)
+{
+  gint end = offset + value_len;
+  int spec_idx = 0;
+
+  while (offset < end) {
+    proto_item *ti;
+    proto_tree *multipath_tree;
+    tvbuff_t *json_tvb;
+    guint32 result_len;
+    gint start_offset = offset;
+
+    ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
+                                       &multipath_tree, "Lookup Result [ %u ]",
+                                       spec_idx);
+
+    proto_tree_add_item(multipath_tree, hf_status, tvb, offset, 2,
+                        ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb, offset,
+                                 4, ENC_BIG_ENDIAN, &result_len);
+    offset += 4;
+
+    proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
+                        ENC_ASCII | ENC_NA);
+    if (result_len > 0) {
+        json_tvb = tvb_new_subset(tvb, offset, result_len, result_len);
+        call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
+    }
+    offset += result_len;
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    spec_idx++;
+  }
+}
+
+static void
+dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        gint offset, guint32 value_len, gboolean is_mutation,
+                        gboolean request)
+{
+  gint end = offset + value_len;
+  int spec_idx = 0;
+  proto_item *ti;
+  proto_tree *multipath_tree;
+
+  if (request) {
+    gint min_spec_size;
+
+    /* Minimum size is the fixed header plus at least 1 byte for path. */
+    min_spec_size = (is_mutation ? 8 : 4) + 1;
+
+    while (offset + min_spec_size < end) {
+      guint32 path_len;
+      guint32 spec_value_len = 0;
+      gint start_offset = offset;
+
+      ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
+                                         &multipath_tree,
+                                         (is_mutation ? "Mutation spec [ %u ]"
+                                                      : "Lookup spec [ %u ]"),
+                                         spec_idx);
+
+      proto_tree_add_item(multipath_tree, hf_multipath_opcode, tvb, offset, 1,
+                          ENC_BIG_ENDIAN);
+      offset += 1;
+      proto_tree_add_bitmask(multipath_tree, tvb, offset, hf_subdoc_flags,
+                             ett_extras_flags, subdoc_flags, ENC_BIG_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_item_ret_uint(multipath_tree, hf_multipath_pathlen, tvb,
+                                   offset, 2, ENC_BIG_ENDIAN, &path_len);
+      offset += 2;
+
+      if (is_mutation) {
+        proto_tree_add_item_ret_uint(multipath_tree, hf_multipath_valuelen,
+                                     tvb, offset, 4, ENC_BIG_ENDIAN,
+                                     &spec_value_len);
+        offset += 4;
+      }
+
+      proto_tree_add_item(multipath_tree, hf_path, tvb, offset, path_len,
+                          ENC_ASCII | ENC_NA);
+      offset += path_len;
+
+      if (spec_value_len > 0) {
+        proto_tree_add_item(multipath_tree, hf_value, tvb, offset,
+                            spec_value_len, ENC_ASCII | ENC_NA);
+        offset += spec_value_len;
+      }
+
+      proto_item_set_len(ti, offset - start_offset);
+
+      spec_idx++;
+    }
+  } else {
+    /* Response - for lookup we expect one lookup_result per path. */
+    if (is_mutation) {
+        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len,
+                                 ENC_ASCII | ENC_NA);
+
+        expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value,
+                               "%s Response shall not have Value",
+                               val_to_str_ext(PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,
+                                              &opcode_vals_ext, "Opcode 0x%x"));
+    } else {
+      dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
+    }
+  }
+}
+
+static void
 dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              gint offset, guint32 value_len, guint8 opcode, gboolean request)
+              gint offset, guint32 value_len, guint16 path_len, guint8 opcode,
+              gboolean request)
 {
   proto_item *ti = NULL;
   gboolean    illegal = FALSE;  /* Set when value shall not be present */
@@ -1027,11 +1281,25 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (value_len != 8) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
       }
-    } else if (!request && (opcode == PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG)) {
+    } else if (!request && has_json_value(opcode)) {
       tvbuff_t *json_tvb;
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
       json_tvb = tvb_new_subset(tvb, offset, value_len, value_len);
       call_dissector(json_handle, json_tvb, pinfo, tree);
+
+    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP ||
+               opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION) {
+      dissect_multipath_value(tvb, pinfo, tree, offset, value_len,
+                              (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION),
+                              request);
+
+    } else if (path_len != 0) {
+        ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII | ENC_NA);
+        value_len -= path_len;
+        if (value_len > 0) {
+            ti = proto_tree_add_item(tree, hf_value, tvb, offset + path_len,
+                                     value_len, ENC_ASCII | ENC_NA);
+        }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
     }
@@ -1210,27 +1478,71 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   }
 
   if (status == 0) {
-    dissect_extras(tvb, pinfo, couchbase_tree, offset, extlen, opcode, request);
+    guint16 path_len = 0;
+
+    dissect_extras(tvb, pinfo, couchbase_tree, offset, extlen, opcode, request,
+                   &path_len);
     offset += extlen;
 
     dissect_key(tvb, pinfo, couchbase_tree, offset, keylen, opcode, request);
     offset += keylen;
 
-    dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, opcode, request);
+    dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, path_len,
+                  opcode, request);
   } else if (bodylen) {
-    proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen, ENC_ASCII | ENC_NA);
+    ti = proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen,
+                             ENC_ASCII | ENC_NA);
     if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET) {
       tvbuff_t *json_tvb;
       json_tvb = tvb_new_subset(tvb, offset, bodylen, bodylen);
       call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
+
+    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP) {
+        dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
+
+    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION) {
+        /* Upon non-success includes the index and status code of first path
+         * to fail.
+         */
+        proto_tree *multipath_tree;
+        multipath_tree = proto_item_add_subtree(ti, ett_multipath);
+
+        proto_tree_add_item(multipath_tree, hf_status, tvb, offset, 2,
+                            ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(multipath_tree, hf_multipath_index, tvb, offset, 1,
+                            ENC_BIG_ENDIAN);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                     val_to_str_ext(status, &status_vals_ext, "Unknown status: 0x%x"));
   } else {
-    proto_tree_add_expert_format(couchbase_tree, pinfo, &ei_value_missing, tvb, offset, 0,
-                           "%s with status %s (0x%x) must have Value",
-                           val_to_str_ext(opcode, &opcode_vals_ext, "Opcode 0x%x"),
-                           val_to_str_ext(status, &status_vals_ext, "Unknown"), status);
+    /* Newer opcodes do not include a value in non-SUCCESS responses. */
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_SUBDOC_GET:
+    case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
+    case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
+    case PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT:
+    case PROTOCOL_BINARY_CMD_SUBDOC_DELETE:
+    case PROTOCOL_BINARY_CMD_SUBDOC_REPLACE:
+    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST:
+    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST:
+    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT:
+    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE:
+    case PROTOCOL_BINARY_CMD_SUBDOC_COUNTER:
+    case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
+    case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
+      break;
+
+    default:
+      ti = proto_tree_add_item(tree, hf_value, tvb, offset, 0,
+                               ENC_ASCII | ENC_NA);
+      expert_add_info_format(pinfo, ti, &ei_value_missing,
+                             "%s with status %s (0x%x) must have Value",
+                             val_to_str_ext(opcode, &opcode_vals_ext, "Opcode 0x%x"),
+                             val_to_str_ext(status, &status_vals_ext, "Unknown"),
+                             status);
+      break;
+    }
   }
   return tvb_reported_length(tvb);
 }
@@ -1284,6 +1596,11 @@ proto_register_couchbase(void)
     { &hf_extras_flags_request_keys_only, { "Request Keys Only", "couchbase.extras.flags.request_keys_only", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, NULL, HFILL } },
     { &hf_extras_flags_checkpoint, { "Checkpoint", "couchbase.extras.flags.checkpoint", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x40, NULL, HFILL } },
 
+    /* Sub-document */
+    { &hf_subdoc_flags, {"Subdoc flags", "couchbase.extras.subdoc.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_subdoc_flags_mkdirp, {"MKDIR_P", "couchbase.extras.subdoc.flags.mkdir_p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, "Create non-existent intermediate paths", HFILL} },
+    { &hf_extras_pathlen, { "Path Length", "couchbase.extras.pathlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
     /* DCP flags */
     { &hf_extras_flags_dcp_connection_type, {"Connection Type", "couchbase.extras.flags.dcp_connection_type", FT_UINT32, BASE_HEX, VALS(dcp_connection_type_vals), 0x03, NULL, HFILL } },
     { &hf_extras_flags_dcp_add_stream_takeover, {"Take Over", "couchbase.extras.flags.dcp_add_stream_takeover", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL } },
@@ -1317,6 +1634,7 @@ proto_register_couchbase(void)
     { &hf_extras_initial, { "Initial Value", "couchbase.extras.initial", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_unknown, { "Unknown", "couchbase.extras.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, "Unknown Extras", HFILL } },
     { &hf_key, { "Key", "couchbase.key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_path, { "Path", "couchbase.path", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_value, { "Value", "couchbase.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_uint64_response, { "Response", "couchbase.extras.response", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_observe, { "Observe", "couchbase.observe", FT_STRING, BASE_NONE, NULL, 0x0, "The observe properties", HFILL } },
@@ -1325,6 +1643,14 @@ proto_register_couchbase(void)
     { &hf_observe_vbucket, { "VBucket", "couchbase.observe.vbucket", FT_UINT16, BASE_HEX, NULL, 0x0, "VBucket of the observable key", HFILL } },
     { &hf_observe_status, { "Status", "couchbase.observe.status", FT_UINT8, BASE_HEX, NULL, 0x0, "Status of the observable key", HFILL } },
     { &hf_observe_cas, { "CAS", "couchbase.observe.cas", FT_UINT64, BASE_HEX, NULL, 0x0, "CAS value of the observable key", HFILL } },
+
+    { &hf_multipath, { "Multipath", "couchbase.multipath", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_multipath_opcode, { "Opcode", "couchbase.multipath.opcode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcode_vals_ext, 0x0, "Command code", HFILL } },
+    { &hf_multipath_index, { "Index", "couchbase.multipath.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_multipath_pathlen, { "Path Length", "couchbase.multipath.path.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_multipath_path, { "Path", "couchbase.multipath.path", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_multipath_valuelen, { "Value Length", "couchbase.multipath.value.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_multipath_value, { "Value", "couchbase.multipath.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
   };
 
   static ei_register_info ei[] = {
@@ -1346,7 +1672,8 @@ proto_register_couchbase(void)
     &ett_extras,
     &ett_extras_flags,
     &ett_observe,
-    &ett_failover_log
+    &ett_failover_log,
+    &ett_multipath
   };
 
   module_t *couchbase_module;
