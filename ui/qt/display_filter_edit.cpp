@@ -309,7 +309,7 @@ bool DisplayFilterEdit::checkFilter()
 {
     checkFilter(text());
 
-    return (syntaxState() == Valid || syntaxState() == Empty);
+    return syntaxState() != Invalid;
 }
 
 void DisplayFilterEdit::checkFilter(const QString& text)
@@ -348,7 +348,7 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         bookmark_button_->setEnabled(syntaxState() == Valid || syntaxState() == Deprecated);
     }
     if (apply_button_) {
-        apply_button_->setEnabled(SyntaxState() != Invalid);
+        apply_button_->setEnabled(syntaxState() != Invalid);
     }
 }
 
@@ -457,7 +457,7 @@ void DisplayFilterEdit::clearFilter()
 
 void DisplayFilterEdit::applyDisplayFilter()
 {
-    if (syntaxState() != Valid && syntaxState() != Empty) {
+    if (syntaxState() == Invalid) {
         return;
     }
 
