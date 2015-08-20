@@ -218,6 +218,9 @@ static int hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded = -1;
 static int hf_selfm_fid = -1;
 static int hf_selfm_rid = -1;
 static int hf_selfm_fastmsg_data_region_name = -1;
+static int hf_selfm_fmdata_timestamp = -1;
+static int hf_selfm_fmdata_frame_data_format_reference = -1;
+static int hf_selfm_fastmsg_bit_label_name = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_selfm                       = -1;
@@ -1376,7 +1379,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     ts_min  = tvb_get_guint8(tvb, offset+4);
                     ts_sec  = tvb_get_guint8(tvb, offset+5);
                     ts_msec = tvb_get_ntohs(tvb, offset+6);
-                    proto_tree_add_text(fmdata_tree, tvb, offset, 8, "Timestamp: %.2d/%.2d/%.2d %.2d:%.2d:%.2d.%.3d", ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec, ts_msec);
+                    proto_tree_add_bytes_format_value(fmdata_tree, hf_selfm_fmdata_timestamp, tvb, offset, 8, NULL,
+                            "%.2d/%.2d/%.2d %.2d:%.2d:%.2d.%.3d", ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec, ts_msec);
 
                     offset += 8;
                 }
@@ -1772,7 +1776,8 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
                                     ett_selfm_fastmsg_tag, NULL, "Data Item Name: %s", dataitem->name);
 
                     /* Load some information from the stored Data Format Response message into the tree for reference */
-                    pi_fnum = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
+                    pi_fnum = proto_tree_add_uint_format(fastmsg_tag_tree, hf_selfm_fmdata_frame_data_format_reference, payload_tvb, payload_offset, data_size,
+                                dataitem->fnum, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
                     pi_type = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_data_type, payload_tvb, payload_offset, 0, dataitem->data_type);
                     pi_qty = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_quantity, payload_tvb, payload_offset, 0, dataitem->quantity );
 
@@ -2308,8 +2313,9 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* find the null separators and add the bit label text strings to the tree */
             for (null_offset = offset; null_offset < len; null_offset++) {
                 if ((tvb_memeql(tvb, null_offset, "\x00", 1) == 0) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
-                    proto_tree_add_text(fastmsg_tree, tvb, offset, (null_offset-offset), "Bit Label #%d Name: %s", cnt,
-                       tvb_format_text(tvb, offset, (null_offset-offset)));
+                    gchar* str = tvb_format_text(tvb, offset, (null_offset-offset));
+                    proto_tree_add_string_format(fastmsg_tree, hf_selfm_fastmsg_bit_label_name, tvb, offset, (null_offset-offset), str,
+                            "Bit Label #%d Name: %s", cnt, str);
                     offset = null_offset+1; /* skip the null */
                     cnt++;
                 }
@@ -2960,6 +2966,9 @@ proto_register_selfm(void)
         { &hf_selfm_fid, { "FID", "selfm.fid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_rid, { "RID", "selfm.rid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_data_region_name, { "Data Region Name", "selfm.fastmsg.data_region_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_timestamp, { "Timestamp", "selfm.fmdata.timestamp", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_frame_data_format_reference, { "Frame Data Format Reference", "selfm.fmdata.frame_data_format_reference", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_bit_label_name, { "Bit Label Name", "selfm.fastmsg.bit_label_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     /* Register expert fields */

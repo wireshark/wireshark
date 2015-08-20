@@ -676,6 +676,7 @@ static int hf_smb_fs_attr_soids = -1;
 static int hf_smb_fs_attr_se = -1;
 static int hf_smb_fs_attr_ns = -1;
 static int hf_smb_fs_attr_rov = -1;
+static int hf_smb_quota_flags = -1;
 static int hf_smb_quota_flags_enabled = -1;
 static int hf_smb_quota_flags_deny_disk = -1;
 static int hf_smb_quota_flags_log_limit = -1;
@@ -769,6 +770,14 @@ static int hf_smb_posix_ace_perm_gid = -1;
 static int hf_smb_trans_data_setup_word = -1;
 static int hf_smb_trans_data_parameters = -1;
 static int hf_smb_trans_data = -1;
+static int hf_smb_extra_byte_parameters = -1;
+static int hf_smb_file_access_mask_full_control = -1;
+static int hf_smb_dir_access_mask_full_control = -1;
+static int hf_smb_word_unk_response_format = -1;
+static int hf_smb_nt_transaction_setup = -1;
+static int hf_smb_server_component = -1;
+static int hf_smb_byte_parameters = -1;
+static int hf_smb_word_parameters = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
@@ -854,6 +863,10 @@ static gint ett_smb_info2_file_flags = -1;
 
 static expert_field ei_smb_mal_information_level = EI_INIT;
 static expert_field ei_smb_not_implemented = EI_INIT;
+static expert_field ei_smb_nt_transaction_setup = EI_INIT;
+static expert_field ei_smb_posix_ace_type = EI_INIT;
+static expert_field ei_smb_info_level_unknown = EI_INIT;
+static expert_field ei_smb_info_level_not_understood = EI_INIT;
 
 static int smb_tap = -1;
 static int smb_eo_tap = -1;
@@ -991,8 +1004,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			bc = bc_remaining; \
 		} \
 		if (bc) { \
-			proto_tree_add_text(tree, tvb, offset, bc, \
-			    "Extra byte parameters");		\
+			proto_tree_add_item(tree, hf_smb_extra_byte_parameters, tvb, offset, bc, ENC_NA);		\
 		} \
 		offset += bc;				\
 	}						\
@@ -1313,7 +1325,7 @@ smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 m
 {
 	mask &= 0x0000ffff;
 	if (mask == 0x000001ff) {
-		proto_tree_add_text(tree, tvb, offset, 4, "[FULL CONTROL]");
+		proto_tree_add_uint(tree, hf_smb_file_access_mask_full_control, tvb, offset, 4, mask);
 	}
 
 
@@ -1339,9 +1351,8 @@ smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 ma
 {
 	mask &= 0x0000ffff;
 	if (mask == 0x000001ff) {
-		proto_tree_add_text(tree, tvb, offset, 4, "[FULL CONTROL]");
+		proto_tree_add_uint(tree, hf_smb_dir_access_mask_full_control, tvb, offset, 4, mask);
 	}
-
 
 	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_write_attribute, tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_dir_access_mask_read_attribute, tvb, offset, 4, mask);
@@ -2347,8 +2358,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			"%u: %s", dialect, dialect_name);
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset, wc*2,
-			"Words for unknown response format");
+		proto_tree_add_item(tree, hf_smb_word_unk_response_format, tvb, offset, wc*2, ENC_NA);
 		offset += wc*2;
 		goto bytecount;
 	}
@@ -9165,14 +9175,10 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *parent_tree,
 				int len, nt_trans_data *ntd _U_, smb_info_t *si)
 {
-#if 0
-	proto_item             *item = NULL;
-	proto_tree             *tree = NULL;
-#endif
 	smb_nt_transact_info_t *nti;
 
 	DISSECTOR_ASSERT(si);
@@ -9184,18 +9190,16 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (parent_tree) {
 		if (nti != NULL) {
-			/*item = */proto_tree_add_text(parent_tree, tvb, offset, len,
-				"%s Setup",
+			proto_tree_add_bytes_format(parent_tree, hf_smb_nt_transaction_setup, tvb, offset, len,
+				NULL, "%s Setup",
 				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
 			 * response.
 			 */
-			/*item = */proto_tree_add_text(parent_tree, tvb, offset, len,
-				"Unknown NT Transaction Setup (matching request not seen)");
+			proto_tree_add_expert(parent_tree, pinfo, &ei_smb_nt_transaction_setup, tvb, offset, len);
 		}
-		/*tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);*/
 	}
 
 	if (nti == NULL) {
@@ -12266,7 +12270,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	COUNT_BYTES_SUBR(2);
 
 	while (num_file_aces--) {
-		proto_item *it;
+		proto_item *it, *type_item;
 		proto_tree *tr;
 		int old_offset = offset;
 		guint8 ace_type;
@@ -12276,7 +12280,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* ace type */
 		CHECK_BYTE_COUNT_SUBR(1);
 		ace_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		type_item = proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		CHECK_BYTE_COUNT_SUBR(1);
@@ -12330,7 +12334,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			COUNT_BYTES_SUBR(4);
 			break;
 		default:
-			proto_tree_add_text(tr, tvb, offset, 0, "Unknown posix ace type");
+			expert_add_info(pinfo, type_item, &ei_smb_posix_ace_type);
 			CHECK_BYTE_COUNT_SUBR(8);
 			/* skip 8 bytes */
 			COUNT_BYTES_SUBR(8);
@@ -12847,8 +12851,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, *bcp,
-		    "Information level unknown");
+		proto_tree_add_expert(tree, pinfo, &ei_smb_info_level_unknown, tvb, offset, *bcp);
 		offset += *bcp;
 		*bcp = 0;
 		trunc = FALSE;
@@ -12973,16 +12976,14 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1039:
 	case 1040:
 		/* XXX: TODO, extra levels discovered by tridge */
-		proto_tree_add_text(tree, tvb, offset, *bcp,
-		    "Information level not understood");
+		proto_tree_add_expert(tree, pinfo, &ei_smb_info_level_not_understood, tvb, offset, *bcp);
 		offset += *bcp;
 		*bcp = 0;
 		trunc = FALSE;
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, *bcp,
-		    "Information level unknown");
+		proto_tree_add_expert(tree, pinfo, &ei_smb_info_level_unknown, tvb, offset, *bcp);
 		offset += *bcp;
 		*bcp = 0;
 		trunc = FALSE;
@@ -13015,36 +13016,16 @@ static const true_false_string tfs_quota_flags_enabled = {
 static void
 dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	guint8      mask;
-	proto_item *item;
-	proto_tree *tree;
+	static const int *mask[] = {
+		&hf_smb_quota_flags_deny_disk,
+		&hf_smb_quota_flags_log_warning,
+		&hf_smb_quota_flags_log_limit,
+		&hf_smb_quota_flags_enabled,
+		NULL
+	};
 
-	mask = tvb_get_guint8(tvb, offset);
-
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Quota Flags: 0x%02x %s", mask,
-			mask?"Enabled":"Disabled");
-		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
-
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
-			tvb, offset, 1, mask);
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
-			tvb, offset, 1, mask);
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
-			tvb, offset, 1, mask);
-
-		if (mask && (!(mask&0x01))) {
-			proto_item *hidden_item;
-			hidden_item = proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
-				tvb, offset, 1, 0x01);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
-		} else {
-			proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
-				tvb, offset, 1, mask);
-		}
-	}
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb_quota_flags,
+							ett_smb_quotaflags, mask, ENC_NA);
 }
 
 int
@@ -15585,8 +15566,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
 		} else {
-			proto_tree_add_text(parent_tree, tvb, offset, dc,
-					    "Unknown Transaction2 Data");
+			tree = proto_tree_add_subtree(parent_tree, tvb, offset, dc,
+					ett_smb_transaction_data, &item, "Unknown Transaction2 Data");
 		}
 	}
 
@@ -15761,8 +15742,8 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
 		} else {
-			proto_tree_add_text(parent_tree, tvb, offset, pc,
-					    "Unknown Transaction2 Parameters");
+			tree = proto_tree_add_subtree(parent_tree, tvb, offset, pc,
+				ett_smb_transaction_params, &item, "Unknown Transaction2 Parameters");
 		}
 	}
 
@@ -16393,14 +16374,14 @@ dissect_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 	WORD_COUNT;
 
 	if (wc != 0) {
-		proto_tree_add_text(tree, tvb, offset, wc*2, "Word parameters");
+		proto_tree_add_item(tree, hf_smb_word_parameters, tvb, offset, wc*2, ENC_NA);
 		offset += wc*2;
 	}
 
 	BYTE_COUNT;
 
 	if (bc != 0) {
-		proto_tree_add_text(tree, tvb, offset, bc, "Byte parameters");
+		proto_tree_add_item(tree, hf_smb_byte_parameters, tvb, offset, bc, ENC_NA);
 		offset += bc;
 		bc = 0;
 	}
@@ -17194,7 +17175,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			ett_smb_hdr, NULL, "SMB Header");
 
 
-	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
+	proto_tree_add_uint_format_value(htree, hf_smb_server_component, tvb, offset, 4, tvb_get_letohl(tvb, offset), "SMB");
 	offset += 4;  /* Skip the marker */
 
 	/* find which conversation we are part of and get the tables for that
@@ -17323,14 +17304,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		} else {
 			switch(si->cmd) {
 			case SMB_COM_NT_CANCEL:
-				proto_tree_add_text(htree, tvb, 0, 0,
-						    "Cancellation to: <unknown frame>");
+				proto_tree_add_uint_format_value(htree, hf_smb_cancel_to, tvb, 0, 0, 0, "<unknown frame>");
 				break;
 			case SMB_COM_TRANSACTION_SECONDARY:
 			case SMB_COM_TRANSACTION2_SECONDARY:
 			case SMB_COM_NT_TRANSACT_SECONDARY:
-				proto_tree_add_text(htree, tvb, 0, 0,
-						    "Continuation to: <unknown frame>");
+				proto_tree_add_uint_format_value(htree, hf_smb_continuation_to, tvb, 0, 0, 0, "<unknown frame>");
 				break;
 			}
 		}
@@ -19953,6 +19932,10 @@ proto_register_smb(void)
 		{ "Log Warning", "smb.quota.flags.log_warning", FT_BOOLEAN, 8,
 		TFS(&tfs_quota_flags_log_warning), 0x10, "Should the server log an event when the warning level is exceeded?", HFILL }},
 
+	{ &hf_smb_quota_flags,
+		{ "Quota Flags", "smb.quota.flags", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_quota_flags_enabled,
 		{ "Enabled", "smb.quota.flags.enabled", FT_BOOLEAN, 8,
 		TFS(&tfs_quota_flags_enabled), 0x01, "Is quotas enabled of this FS?", HFILL }},
@@ -20380,6 +20363,38 @@ proto_register_smb(void)
 	{ &hf_smb_trans_data,
 		{ "Data", "smb.trans_data", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_extra_byte_parameters,
+		{ "Extra byte parameters", "smb.extra_byte_parameters", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_file_access_mask_full_control,
+		{ "FULL CONTROL", "smb.file.accessmask.full_control", FT_UINT32, BASE_HEX,
+		NULL, 0x000001ff, NULL, HFILL }},
+
+	{ &hf_smb_dir_access_mask_full_control,
+		{ "FULL CONTROL", "smb.dir.accessmask.full_control", FT_UINT32, BASE_HEX,
+		NULL, 0x000001ff, NULL, HFILL }},
+
+	{ &hf_smb_word_unk_response_format,
+		{ "Words for unknown response format", "smb.word_unk_response_format", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_nt_transaction_setup,
+		{ "NT Transaction Setup", "smb.nt_transaction_setup", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_server_component,
+		{ "Server Component", "smb.server_component", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_byte_parameters,
+		{ "Byte parameters", "smb.byte_parameters", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_word_parameters,
+		{ "Word parameters", "smb.word_parameters", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -20469,6 +20484,10 @@ proto_register_smb(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb_mal_information_level, { "smb.information_level.malformed", PI_MALFORMED, PI_ERROR, "Information level structure goes past the end of the transation data.", EXPFILL }},
 		{ &ei_smb_not_implemented, { "smb.not_implemented", PI_UNDECODED, PI_WARN, "Not Implemented yet", EXPFILL }},
+		{ &ei_smb_nt_transaction_setup, { "smb.nt_transaction_setup.unknown", PI_PROTOCOL, PI_NOTE, "Unknown NT Transaction Setup (matching request not seen)", EXPFILL }},
+		{ &ei_smb_posix_ace_type, { "smb.posix_acl.ace_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown posix ace type", EXPFILL }},
+		{ &ei_smb_info_level_unknown, { "smb.info_level_unknown", PI_PROTOCOL, PI_WARN, "Information level unknown", EXPFILL }},
+		{ &ei_smb_info_level_not_understood, { "smb.info_level_not_understood", PI_PROTOCOL, PI_WARN, "Information level not understood", EXPFILL }},
 	};
 
 	module_t *smb_module;
