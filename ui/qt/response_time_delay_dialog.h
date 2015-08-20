@@ -49,8 +49,10 @@ private:
     static void tapReset(void *rtdd_ptr);
     static void tapDraw(void *rtdd_ptr);
 
-    virtual void fillTree();
     virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
+
+private slots:
+    virtual void fillTree();
 };
 
 /** Register function to register dissectors that support RTD.

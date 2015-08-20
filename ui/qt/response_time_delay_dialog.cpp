@@ -256,7 +256,8 @@ void ResponseTimeDelayDialog::fillTree()
                              error_string->str);
         g_string_free(error_string, TRUE);
         free_rtd_table(&rtd_data.stat_table, NULL, NULL);
-        reject();
+        reject(); // XXX Stay open instead?
+        return;
     }
 
     statsTreeWidget()->setSortingEnabled(false);

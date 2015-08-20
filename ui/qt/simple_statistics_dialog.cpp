@@ -264,7 +264,8 @@ void SimpleStatisticsDialog::fillTree()
                              error_string->str);
         g_string_free(error_string, TRUE);
         free_stat_tables(stu_, NULL, NULL);
-        reject();
+        reject(); // XXX Stay open instead?
+        return;
     }
 
     cap_file_.retapPackets();

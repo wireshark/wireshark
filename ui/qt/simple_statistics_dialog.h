@@ -49,6 +49,7 @@ private:
     static void tapReset(void *sd_ptr);
     static void tapDraw(void *sd_ptr);
 
+private slots:
     virtual void fillTree();
 
 };

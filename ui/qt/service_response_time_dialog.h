@@ -49,6 +49,8 @@ protected:
      */
     // gtk:service_response_table.h:init_srt_table
     void addSrtTable(const struct _srt_stat_table *srt_table);
+
+protected slots:
     virtual void fillTree();
 
 private:

@@ -76,7 +76,6 @@ signals:
 public slots:
 
 protected:
-    void showEvent(QShowEvent *);
     void contextMenuEvent(QContextMenuEvent *event);
     void addFilterActions();
     QString displayFilter();
@@ -97,14 +96,15 @@ private:
     static const QString action_name_;
     bool retap_on_show_;
 
-    // Called by the constructor. The subclass should tap packets here.
-    virtual void fillTree() = 0;
     virtual const QString filterExpression() { return QString(); }
     QString itemDataToPlain(QVariant var, int width = 0);
     virtual QList<QVariant> treeItemData(QTreeWidgetItem *) const;
     virtual QByteArray getTreeAsString(st_format_type format);
 
 private slots:
+    // Called by the constructor. The subclass should tap packets here.
+    virtual void fillTree() = 0;
+
     void on_applyFilterButton_clicked();
     void on_actionCopyToClipboard_triggered();
     void on_actionSaveAs_triggered();

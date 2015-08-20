@@ -109,6 +109,8 @@ void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *c
         g_free(table->time_stats[i].rtd);
     }
     g_free(table->time_stats);
+    table->time_stats = NULL;
+    table->num_rtds = 0;
 
     /* Give GUI the first crack at it before we clean up */
     if (gui_callback)

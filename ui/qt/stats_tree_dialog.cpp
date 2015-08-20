@@ -150,7 +150,8 @@ void StatsTreeDialog::fillTree()
         QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(display_name),
                              error_string->str);
         g_string_free(error_string, TRUE);
-        reject();
+        reject(); // XXX Stay open instead?
+        return;
     }
 
     cf_retap_packets(cap_file_.capFile());
@@ -182,7 +183,7 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     while (*iter) {
         stat_node *node = (*iter)->data(item_col_, Qt::UserRole).value<stat_node *>();
         if (node) {
-            gchar    **valstrs = stats_tree_get_values_from_node(node);
+            gchar **valstrs = stats_tree_get_values_from_node(node);
             for (int count = 0; count<st->num_columns; count++) {
                 (*iter)->setText(count,valstrs[count]);
                 g_free(valstrs[count]);

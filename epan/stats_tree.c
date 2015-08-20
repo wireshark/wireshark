@@ -137,6 +137,8 @@ stats_tree_free(stats_tree *st)
     stat_node *child;
     stat_node *next;
 
+    if (!st) return;
+
     g_free(st->filter);
     g_hash_table_destroy(st->names);
     g_ptr_array_free(st->parents,TRUE);

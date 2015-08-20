@@ -96,8 +96,19 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
     button = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     connect(button, SIGNAL(clicked()), this, SLOT(on_actionSaveAs_triggered()));
 
+    connect(ui->displayFilterLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(updateWidgets()));
+
     if (help_topic_ < 1) {
         ui->buttonBox->button(QDialogButtonBox::Help)->hide();
+    }
+
+    if (!ui->displayFilterLineEdit->text().isEmpty()) {
+        QString filter = ui->displayFilterLineEdit->text();
+        emit updateFilter(filter, true);
+    }
+    if (retap_on_show_) {
+        QTimer::singleShot(0, this, SLOT(fillTree()));
     }
 }
 
@@ -418,15 +429,6 @@ void TapParameterDialog::drawTreeItems()
     }
 }
 
-void TapParameterDialog::showEvent(QShowEvent *)
-{
-    if (!ui->displayFilterLineEdit->text().isEmpty()) {
-        QString filter = ui->displayFilterLineEdit->text();
-        emit updateFilter(filter, true);
-    }
-    if (retap_on_show_) fillTree();
-}
-
 void TapParameterDialog::contextMenuEvent(QContextMenuEvent *event)
 {
     bool enable = filterExpression().length() > 0 ? true : false;
@@ -487,14 +489,25 @@ void TapParameterDialog::addFilterActions()
 
 void TapParameterDialog::updateWidgets()
 {
+    bool edit_enable = true;
+    bool apply_enable = true;
+
     if (file_closed_) {
-        ui->displayFilterLineEdit->setEnabled(false);
-        ui->applyFilterButton->setEnabled(false);
+        edit_enable = false;
+        apply_enable = false;
+    } else if (!ui->displayFilterLineEdit->checkFilter()) {
+        // XXX Tell the user why the filter is invalid.
+        apply_enable = false;
     }
+    ui->displayFilterLineEdit->setEnabled(edit_enable);
+    ui->applyFilterButton->setEnabled(apply_enable);
 }
 
 void TapParameterDialog::on_applyFilterButton_clicked()
 {
+    if (!ui->displayFilterLineEdit->checkFilter())
+        return;
+
     QString filter = ui->displayFilterLineEdit->text();
     emit updateFilter(filter, true);
     fillTree();

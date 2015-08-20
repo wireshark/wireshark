@@ -278,7 +278,9 @@ void ServiceResponseTimeDialog::fillTree()
                              error_string->str);
         g_string_free(error_string, TRUE);
         g_array_free(srt_data.srt_array, TRUE);
-        reject();
+        srt_data.srt_array = NULL;
+        reject(); // XXX Stay open instead?
+        return;
     }
 
     statsTreeWidget()->setSortingEnabled(false);

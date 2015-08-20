@@ -59,7 +59,7 @@ public slots:
     void dceRpcProgramChanged(const QString &program_name);
     void oncRpcProgramChanged(const QString &program_name);
 
-protected:
+protected slots:
     virtual void fillTree();
 
 private:

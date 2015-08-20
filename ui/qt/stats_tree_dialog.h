@@ -48,10 +48,12 @@ private:
     stats_tree *st_;
     stats_tree_cfg *st_cfg_;
 
-    virtual void fillTree();
     static void resetTap(void *st_ptr);
     static void drawTreeItems(void *st_ptr);
     virtual QByteArray getTreeAsString(st_format_type format);
+
+private slots:
+    virtual void fillTree();
 };
 
 #endif // STATS_TREE_DIALOG_H
