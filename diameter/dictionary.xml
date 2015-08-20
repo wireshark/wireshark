@@ -1840,11 +1840,11 @@
 		     different Vendor IDs.  So far we don't have a way to do that, so:
 
 		     1) The below values are for 3GPP (why 3GPP? Because that's the most
-		        common Vendor ID for the people who did this).  Note that
+			common Vendor ID for the people who did this).  Note that
 			packet-diameter.c assumes that the codes specified here are from 3GPP.
 
 		     2) Other Vendor-IDs are handled by registering a dissector to the
-		        "diameter.vnd_exp_res" dissector table.
+			"diameter.vnd_exp_res" dissector table.
 		-->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<!-- 3GPP TS 29.230 version 13.0.0 -->
@@ -6285,8 +6285,80 @@
 		<!--
 		Note: The AVP codes from 2607 to 2699 are reserved for TS 32.299
 		-->
-		<!-- -->
-		<avp name="Presence-Reporting-Area-Elements-List" code="2820" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+
+		<!-- 3GPP 29.212 -->
+		<avp name="TDF-Application-Instance-Identifier" code="2802" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="HeNB-Local-IP-Address" code="2804" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="UE-Local-IP-Address" code="2805" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="UDP-Source-Port" code="2806" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="CS-Service-QoS-Request-Identifier" code="2807" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="CS-Service-QoS-Request-Operation" code="2808" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="Deletion" code="0"/>
+			<enum name="Modification" code="1"/>
+		</avp>
+		<avp name="Mute-Notification" code="2809" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="Mute Required" code="0"/>
+		</avp>
+		<avp name="Monitoring-Time" code="2810" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="AN-GW-Status" code="2811" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="AN_GW_FAILED" code="0"/>
+		</avp>
+		<avp name="User-Location-Info-Time" code="2812" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="CS-Service-Resource-Report" code="2813" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="CS-Service-QoS-Request-Identifier"/>
+				<gavp name="CS-Service-Resource-Result-Operation"/>
+				<gavp name="CS-Service-Resource-Failure-Cause"/>
+			</grouped>
+		</avp>
+		<avp name="CS-Service-Resource-Failure-Cause" code="2814" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="Resource Released" code="0"/>
+		</avp>
+		<avp name="CS-Service-Resource-Result-Operation" code="2815" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="Deletion" code="0"/>
+		</avp>
+		<avp name="Default-QoS-Information" code="2816" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="QoS-Class-Identifier"/>
+				<gavp name="Max-Requested-Bandwidth-UL"/>
+				<gavp name="Max-Requested-Bandwidth-DL"/>
+				<gavp name="Default-QoS-Name"/>
+			</grouped>
+		</avp>
+		<avp name="Default-QoS-Name" code="2817" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Conditional-APN-Aggregate-Max-Bitrate" code="2818" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="APN-Aggregate-Max-Bitrate-UL"/>
+				<gavp name="APN-Aggregate-Max-Bitrate-DL"/>
+				<gavp name="IP-CAN-Type"/>
+				<gavp name="RAT-Type"/>
+			</grouped>
+		</avp>
+		<avp name="RAN-NAS-Release-Cause" code="2819" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Presence-Reporting-Area-Elements-List" code="2820" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Presence-Reporting-Area-Identifier" code="2821" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -6304,6 +6376,32 @@
 			<enum name="In area" code="0"/>
 			<enum name="Out of area" code="1"/>
 		</avp>
+		<avp name="NetLoc-Access-Support" code="2824" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="NETLOC_ACCESS_NOT_SUPPORTED" code="0"/>
+		</avp>
+		<avp name="Fixed-User-Location-Info" code="2825" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="SSID"/>
+				<gavp name="BSSID"/>
+				<gavp name="Logical-Access-ID"/>
+				<gavp name="Physical-Access-ID"/>
+			</grouped>
+		</avp>
+		<avp name="PCSCF-Restoration-Indication" code="2826" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="PCSCF_RESTORATION" code="0"/>
+		</avp>
+		<avp name="IP-CAN-Session-Charging-Scope" code="2827" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="IP-CAN_SESSION_SCOPE" code="0"/>
+		</avp>
+		<avp name="Monitoring-Flags" code="2828" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<!--
+		Note: The AVP codes from 2829 to 2899 are reserved for TS 29.212
+		-->
 
 		<avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
