@@ -274,18 +274,18 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	int import_file_fd;
 	wtap_dumper* wdh_exp_pdu;
 	int   exp_pdu_file_err;
+	wtap_open_return_val result = WTAP_OPEN_MINE;
 
 	/* pcapng defs */
-	wtapng_section_t            *shb_hdr;
-	wtapng_iface_descriptions_t *idb_inf;
+	wtapng_section_t            *shb_hdr = NULL;
+	wtapng_iface_descriptions_t *idb_inf = NULL;
 	wtapng_if_descr_t            int_data;
 	GString                     *os_info_str;
-	char                        *appname;
 	gint64 file_size;
 	int packet_size;
-	guint8 *packet_buf;
+	guint8 *packet_buf = NULL;
 	int wrt_err;
-	gchar *wrt_err_info;
+	gchar *wrt_err_info = NULL;
 	struct wtap_pkthdr phdr;
 
 	gboolean do_random = FALSE;
@@ -297,8 +297,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	/* Create data for SHB  */
 	os_info_str = g_string_new("");
 	get_os_version_info(os_info_str);
-
-	appname = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
 
 	shb_hdr = g_new(wtapng_section_t, 1);
 	shb_hdr->section_length = -1;
@@ -318,7 +316,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* UTF-8 string containing the name of the application used to create
 	* this section.
 	*/
-	shb_hdr->shb_user_appl = appname;
+	shb_hdr->shb_user_appl = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
 
 	/* Create fake IDB info */
 	idb_inf = g_new(wtapng_iface_descriptions_t, 1);
@@ -347,16 +345,16 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	wdh_exp_pdu = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU,
 					  WTAP_MAX_PACKET_SIZE, FALSE, shb_hdr, idb_inf, NULL, &exp_pdu_file_err);
 	if (wdh_exp_pdu == NULL) {
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
-
-	g_free(shb_hdr);
-	g_free(appname);
 
 	/* OK we've opend a new pcap-ng file and written the headers, time to do the packets, strt by finding the file size */
 
-	if ((file_size = wtap_file_size(wth, err)) == -1)
-		return WTAP_OPEN_ERROR;
+	if ((file_size = wtap_file_size(wth, err)) == -1) {
+		result = WTAP_OPEN_ERROR;
+		goto end;
+	}
 
 	if (file_size > MAX_FILE_SIZE) {
 		/*
@@ -366,7 +364,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("mime_file: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
 			file_size, MAX_FILE_SIZE);
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
 	packet_size = (int)file_size;
 	/* Allocate the packet buffer
@@ -393,7 +392,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 
 	if (!wtap_read_bytes(wth->fh, packet_buf + 12, packet_size, &wrt_err, &wrt_err_info)){
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
 
 	/* Create the packet header */
@@ -413,13 +413,14 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 		case WTAP_ERR_UNWRITABLE_REC_DATA:
 			g_free(wrt_err_info);
+			wrt_err_info = NULL;
 			break;
 
 		default:
 			break;
 		}
-		g_free(packet_buf);
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
 
 	/* Advance *packet_buf to point at the raw file data */
@@ -446,19 +447,18 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		/* Add the raw msg*/
 		temp_val = write_packet_data(wdh_exp_pdu, &phdr, &wrt_err, &wrt_err_info, curr_pos);
 		if (temp_val != WTAP_OPEN_MINE){
-			g_free(packet_buf);
-			return temp_val;
+			result = temp_val;
+			goto end;
 		}
 		curr_pos = next_pos;
 	}
 
 	/* Close the written file*/
 	if (!wtap_dump_close(wdh_exp_pdu, err)){
-		g_free(packet_buf);
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
 
-	g_free(packet_buf);
 	/* Now open the file for reading */
 
 	/* Find out if random read was requested */
@@ -469,10 +469,17 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		wtap_open_offline(file_info->tmpname, WTAP_TYPE_AUTO, err, err_info, do_random);
 
 	if (!file_info->wth_tmp_file){
-		return WTAP_OPEN_ERROR;
+		result = WTAP_OPEN_ERROR;
+		goto end;
 	}
 
-	return WTAP_OPEN_MINE;
+end:
+	g_free(wrt_err_info);
+	g_free(packet_buf);
+	wtap_free_shb(shb_hdr);
+	wtap_free_idb_info(idb_inf);
+
+	return result;
 }
 
 wtap_open_return_val

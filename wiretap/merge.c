@@ -459,8 +459,8 @@ is_duplicate_idb(const wtapng_if_descr_t *idb1, const wtapng_if_descr_t *idb2)
 static gboolean
 all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_count)
 {
-    const wtapng_iface_descriptions_t *first_idb_list = NULL;
-    const wtapng_iface_descriptions_t *other_idb_list = NULL;
+    wtapng_iface_descriptions_t *first_idb_list = NULL;
+    wtapng_iface_descriptions_t *other_idb_list = NULL;
     guint first_idb_list_size, other_idb_list_size;
     const wtapng_if_descr_t *first_file_idb, *other_file_idb;
     guint i, j;
@@ -482,6 +482,8 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
         if (other_idb_list_size != first_idb_list_size) {
             merge_debug2("merge::all_idbs_are_duplicates: sizes of IDB lists don't match: first=%u, other=%u",
                          first_idb_list_size, other_idb_list_size);
+            g_free(other_idb_list);
+            g_free(first_idb_list);
             return FALSE;
         }
 
@@ -491,12 +493,17 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
 
             if (!is_duplicate_idb(first_file_idb, other_file_idb)) {
                 merge_debug1("merge::all_idbs_are_duplicates: IDBs at index %d do not match, returning FALSE", j);
+                g_free(other_idb_list);
+                g_free(first_idb_list);
                 return FALSE;
             }
         }
+        g_free(other_idb_list);
     }
 
     merge_debug0("merge::all_idbs_are_duplicates: returning TRUE");
+
+    g_free(first_idb_list);
 
     return TRUE;
 }
@@ -847,6 +854,8 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     struct wtap_pkthdr *phdr, snap_phdr;
     int                 count = 0;
     gboolean            stop_flag = FALSE;
+    wtapng_section_t            *shb_hdr = NULL;
+    wtapng_iface_descriptions_t *idb_inf = NULL;
 
     g_assert(out_fd > 0);
     g_assert(in_file_count > 0);
@@ -890,9 +899,6 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
 
     /* prepare the outfile */
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-        wtapng_section_t            *shb_hdr = NULL;
-        wtapng_iface_descriptions_t *idb_inf = NULL;
-
         shb_hdr = create_shb_header(in_files, in_file_count, app_name);
         merge_debug0("merge_files: SHB created");
 
@@ -910,6 +916,8 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
+        wtap_free_shb(shb_hdr);
+        wtap_free_idb_info(idb_inf);
         return MERGE_ERR_CANT_OPEN_OUTFILE;
     }
 
@@ -1030,6 +1038,8 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     }
 
     g_free(in_files);
+    wtap_free_shb(shb_hdr);
+    wtap_free_idb_info(idb_inf);
 
     return status;
 }

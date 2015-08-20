@@ -1736,6 +1736,21 @@ WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 /**
+ * @brief Free's a interface description block and all of its members.
+ *
+ * @details This free's all of the interface descriptions inside the passed-in
+ *     struct, including their members (e.g., comments); and then free's the
+ *     passed-in struct as well.
+ *
+ * @warning Do not use this for the struct returned by
+ *     wtap_file_get_idb_info(), as that one did not create the internal
+ *     interface descriptions; for that case you can simply g_free() the new
+ *     struct.
+ */
+WS_DLL_PUBLIC
+void wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info);
+
+/**
  * @brief Gets a debug string of an interface description.
  * @details Returns a newly allocated string of debug information about
  *          the given interface descrption, useful for debugging.
@@ -1847,6 +1862,10 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
 /**
  * @brief Opens a new capture file for writing.
  *
+ * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
+ *     wtap_dump_close() is called, but will not be free'd by the dumper. If
+ *     you created them, you must free them yourself after wtap_dump_close().
+ *
  * @param filename The new file's name.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
@@ -1869,6 +1888,10 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
 
 /**
  * @brief Creates a dumper for an existing file descriptor.
+ *
+ * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
+ *     wtap_dump_close() is called, but will not be free'd by the dumper. If
+ *     you created them, you must free them yourself after wtap_dump_close().
  *
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)

@@ -263,6 +263,54 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
+static void
+wtap_free_isb_members(wtapng_if_stats_t *isb)
+{
+	if (isb) {
+		g_free(isb->opt_comment);
+	}
+}
+
+static void
+wtap_free_idb_members(wtapng_if_descr_t* idb)
+{
+	if (idb) {
+		g_free(idb->opt_comment);
+		g_free(idb->if_os);
+		g_free(idb->if_name);
+		g_free(idb->if_description);
+		g_free(idb->if_filter_str);
+		g_free(idb->if_filter_bpf_bytes);
+		if (idb->interface_statistics) {
+			wtapng_if_stats_t *isb;
+			guint i;
+			for (i = 0; i < idb->interface_statistics->len; i++) {
+				isb = &g_array_index(idb->interface_statistics, wtapng_if_stats_t, i);
+				wtap_free_isb_members(isb);
+			}
+			g_array_free(idb->interface_statistics, TRUE);
+		}
+	}
+}
+
+void
+wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
+{
+	if (idb_info == NULL)
+	    return;
+
+	if (idb_info->interface_data) {
+		guint i;
+		for (i = 0; i < idb_info->interface_data->len; i++) {
+			wtapng_if_descr_t* idb = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
+			wtap_free_idb_members(idb);
+		}
+		g_array_free(idb_info->interface_data, TRUE);
+	}
+
+	g_free(idb_info);
+}
+
 gchar *
 wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr,
                         const int indent,

@@ -2169,10 +2169,12 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
 		guint itf_count;
 
+		/* XXX: what free's this stuff? */
 		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
 			file_int_data = &g_array_index(idb_inf->interface_data, wtapng_if_descr_t, itf_count);
 			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data->wtap_encap)) {
+				/* XXX: this does a shallow copy, not a true clone; e.g., comments are not duped */
 				memcpy(&descr, file_int_data, sizeof(wtapng_if_descr_t));
 				descr.wtap_encap = encap;
 				descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
