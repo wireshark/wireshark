@@ -1143,7 +1143,6 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_PACKET:
         proto_item_append_text(block_item, " %u", info->frame_number);
-        info->frame_number += 1;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, encoding);
         interface_id = tvb_get_guint16(tvb, offset, encoding);
@@ -1167,6 +1166,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             struct interface_description  *interface_description;
             proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
+            pinfo->fd->num = info->frame_number;
+
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
                 call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset(tvb, offset, captured_length, reported_length),
@@ -1177,6 +1178,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             }
             ENDTRY;
         }
+        info->frame_number += 1;
         offset += captured_length;
 
         if (captured_length % 4) {
@@ -1190,7 +1192,6 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_SIMPLE_PACKET:
         proto_item_append_text(block_item, " %u", info->frame_number);
-        info->frame_number += 1;
 
         proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
@@ -1203,6 +1204,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             struct interface_description  *interface_description;
             proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
+            pinfo->fd->num = info->frame_number;
+
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
                 call_dissector_with_data(pcap_pseudoheader_handle, tvb_new_subset_length(tvb, offset, captured_length),
@@ -1213,6 +1216,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             }
             ENDTRY;
         }
+        info->frame_number += 1;
         offset += captured_length;
 
         if (captured_length % 4) {
@@ -1345,7 +1349,6 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_ENHANCED_PACKET:
         proto_item_append_text(block_item, " %u", info->frame_number);
-        info->frame_number += 1;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
         interface_id = tvb_get_guint32(tvb, offset, encoding);
@@ -1378,6 +1381,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             }
             ENDTRY;
         }
+        info->frame_number += 1;
         offset += captured_length;
 
         if (captured_length % 4) {
