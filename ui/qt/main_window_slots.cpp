@@ -276,6 +276,8 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
             else {
                 df_combo_box_->setCurrentIndex(index);
             }
+        } else {
+            df_combo_box_->lineEdit()->clear();
         }
     } else {
         emit displayFilterSuccess(false);
