@@ -15,6 +15,6 @@ if( WIN32 )
 	# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 	set( WIN_SETARGV_OBJECT   setargv.obj )
 	#
-	set( WS_LINK_FLAGS ${WS_LINK_FLAGS} "${WIN_SETARGV_OBJECT}" )
+	set( WS_LINK_FLAGS ${WS_LINK_FLAGS} " ${WIN_SETARGV_OBJECT}" )
 
 endif()
