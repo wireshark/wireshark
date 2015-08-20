@@ -210,21 +210,23 @@ static const enum_val_t date_options[] = {
 };
 
 static const value_string digit_value[] = {
-    { 0,  "0"},
-    { 1,  "1"},
-    { 2,  "2"},
-    { 3,  "3"},
-    { 4,  "4"},
-    { 5,  "5"},
-    { 6,  "6"},
-    { 7,  "7"},
-    { 8,  "8"},
-    { 9,  "9"},
-    { 10, "spare"},
-    { 11, "spare"},
-    { 12, "spare"},
-    { 13, "spare"},
-    { 0,  NULL}};
+  { 0,  "0"},
+  { 1,  "1"},
+  { 2,  "2"},
+  { 3,  "3"},
+  { 4,  "4"},
+  { 5,  "5"},
+  { 6,  "6"},
+  { 7,  "7"},
+  { 8,  "8"},
+  { 9,  "9"},
+  { 10, "spare"},
+  { 11, "spare"},
+  { 12, "spare"},
+  { 13, "spare"},
+  { 0,  NULL}
+
+};
 
 
 #if 0
@@ -379,10 +381,10 @@ static char camel_number_to_char(int number)
  */
 static guint8
 dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
-		    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
+                    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
 {
-  guint8	oct;
-  guint32	curr_offset;
+  guint8 oct;
+  guint32 curr_offset;
   static char a_bigbuf[1024];
 
   curr_offset = offset;
@@ -392,18 +394,18 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
   other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
   proto_tree_add_uint_format(tree, hf_cause_value,
-			     tvb, curr_offset, 1, *cause_value,
-			     "%s : %s",
-			     a_bigbuf,
-			     val_to_str(*cause_value, camel_RP_Cause_values,
-					"Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
+                             tvb, curr_offset, 1, *cause_value,
+                             "%s : %s",
+                             a_bigbuf,
+                             val_to_str(*cause_value, camel_RP_Cause_values,
+                                        "Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
   curr_offset++;
 
   if ((oct & 0x80)) {
     oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_uint_format(tree, hf_cause_value,
-			       tvb, curr_offset, 1, oct,
-			       "Diagnostic : %u", oct);
+                               tvb, curr_offset, 1, oct,
+                               "Diagnostic : %u", oct);
     curr_offset++;
   }
   return(curr_offset - offset);
@@ -525,7 +527,7 @@ camelsrt_cleanup_routine(void)
  */
 static void
 update_camelsrt_call(struct camelsrt_call_t *p_camelsrt_call, packet_info *pinfo,
-		     guint msg_category)
+                     guint msg_category)
 {
   p_camelsrt_call->category[msg_category].req_num = pinfo->fd->num;
   p_camelsrt_call->category[msg_category].rsp_num = 0;
@@ -539,7 +541,7 @@ update_camelsrt_call(struct camelsrt_call_t *p_camelsrt_call, packet_info *pinfo
  */
 static void
 camelsrt_close_call_matching(packet_info *pinfo,
-			     struct camelsrt_info_t *p_camelsrt_info)
+                             struct camelsrt_info_t *p_camelsrt_info)
 {
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
@@ -589,8 +591,8 @@ camelsrt_close_call_matching(packet_info *pinfo,
  */
 static void
 camelsrt_tcap_matching(tvbuff_t *tvb _U_, packet_info *pinfo,
-		       proto_tree *tree _U_,
-		       struct tcaphash_context_t *p_tcap_context)
+                       proto_tree *tree _U_,
+                       struct tcaphash_context_t *p_tcap_context)
 {
   struct camelsrt_info_t *p_camelsrt_info;
 
@@ -617,7 +619,7 @@ camelsrt_tcap_matching(tvbuff_t *tvb _U_, packet_info *pinfo,
  */
 static void
 camelsrt_begin_call_matching(packet_info *pinfo,
-			     struct camelsrt_info_t *p_camelsrt_info)
+                             struct camelsrt_info_t *p_camelsrt_info)
 {
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
@@ -659,9 +661,9 @@ camelsrt_begin_call_matching(packet_info *pinfo,
  */
 static void
 camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
-			       proto_tree *tree,
-			       struct camelsrt_info_t *p_camelsrt_info,
-			       guint srt_type )
+                               proto_tree *tree,
+                               struct camelsrt_info_t *p_camelsrt_info,
+                               guint srt_type )
 {
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
@@ -690,24 +692,24 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
      * we will prepare the measurement for 3 slices with 3 categories */
     if (srt_type==CAMELSRT_VOICE_ACR1) {
       if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num == 0) {
-	srt_type=CAMELSRT_VOICE_ACR1;
+        srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num == 0)
-		   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0)
-		   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num < pinfo->fd->num) ) {
-	srt_type=CAMELSRT_VOICE_ACR2;
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0)
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num < pinfo->fd->num) ) {
+        srt_type=CAMELSRT_VOICE_ACR2;
       } else  if ( (p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num == 0)
-		   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num != 0)
-		   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num < pinfo->fd->num) ) {
-	srt_type=CAMELSRT_VOICE_ACR3;
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num != 0)
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num < pinfo->fd->num) ) {
+        srt_type=CAMELSRT_VOICE_ACR3;
       } else if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0
-		 && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num > pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR1;
+                 && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num > pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num != 0
-		   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num > pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR2;
+                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num > pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR2;
       } else  if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0
-		  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].rsp_num > pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR3;
+                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].rsp_num > pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR3;
       }
 #ifdef DEBUG_CAMELSRT
       dbg(70,"Request ACR %u ",srt_type);
@@ -721,7 +723,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if (p_camelsrt_call->category[srt_type].req_num == 0) {
       /* We have not yet seen a request to that call, so this must be the first request
-	 remember its frame number. */
+         remember its frame number. */
 #ifdef DEBUG_CAMELSRT
       dbg(5,"Set reqlink #%u ", pinfo->fd->num);
 #endif
@@ -730,43 +732,43 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
       /* We have seen a request to this call - but was it *this* request? */
       if (p_camelsrt_call->category[srt_type].req_num != pinfo->fd->num) {
 
-	if (srt_type!=CAMELSRT_VOICE_DISC) {
-	  /* No, so it's a duplicate request. Mark it as such. */
+        if (srt_type!=CAMELSRT_VOICE_DISC) {
+          /* No, so it's a duplicate request. Mark it as such. */
 #ifdef DEBUG_CAMELSRT
-	  dbg(21,"Display_duplicate with req %d ", p_camelsrt_call->category[srt_type].req_num);
+          dbg(21,"Display_duplicate with req %d ", p_camelsrt_call->category[srt_type].req_num);
 #endif
-	  p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
-	  if (gcamel_DisplaySRT){
-	    hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	  }
+          p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
+          if (gcamel_DisplaySRT){
+            hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+          }
 
-	} else {
-	  /* Ignore duplicate frame */
-	  if (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) {
-	    p_camelsrt_call->category[srt_type].req_num = pinfo->fd->num;
+        } else {
+          /* Ignore duplicate frame */
+          if (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) {
+            p_camelsrt_call->category[srt_type].req_num = pinfo->fd->num;
 #ifdef DEBUG_CAMELSRT
-	    dbg(5,"DISC Set reqlink #%u ", pinfo->fd->num);
+            dbg(5,"DISC Set reqlink #%u ", pinfo->fd->num);
 #endif
-	    update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
-	  } /* greater frame */
-	} /* DISC */
+            update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
+          } /* greater frame */
+        } /* DISC */
       } /* req_num already seen */
     } /* req_num != 0 */
 
       /* add link to response frame, if available */
     if ( gcamel_DisplaySRT &&
-	 (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
-	 (p_camelsrt_call->category[srt_type].req_num != 0) &&
-	 (p_camelsrt_call->category[srt_type].req_num == pinfo->fd->num) ) {
+         (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
+         (p_camelsrt_call->category[srt_type].req_num != 0) &&
+         (p_camelsrt_call->category[srt_type].req_num == pinfo->fd->num) ) {
 #ifdef DEBUG_CAMELSRT
       dbg(20,"Display_framersplink %d ",p_camelsrt_call->category[srt_type].rsp_num);
 #endif
       ti = proto_tree_add_uint_format(tree, hf_camelsrt_RequestFrame, tvb, 0, 0,
-				      p_camelsrt_call->category[srt_type].rsp_num,
-				      "Linked response %s in frame %u",
-				      val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
-				      p_camelsrt_call->category[srt_type].rsp_num);
+                                      p_camelsrt_call->category[srt_type].rsp_num,
+                                      "Linked response %s in frame %u",
+                                      val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
+                                      p_camelsrt_call->category[srt_type].rsp_num);
       PROTO_ITEM_SET_GENERATED(ti);
     } /* frame valid */
   } /* call reference */
@@ -778,7 +780,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
  */
 static void
 camelsrt_display_DeltaTime(proto_tree *tree, tvbuff_t *tvb, nstime_t *value_ptr,
-			   guint category)
+                           guint category)
 {
   proto_item *ti;
 
@@ -828,9 +830,9 @@ camelsrt_display_DeltaTime(proto_tree *tree, tvbuff_t *tvb, nstime_t *value_ptr,
  */
 static void
 camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
-			      proto_tree *tree,
-			      struct camelsrt_info_t *p_camelsrt_info,
-			      guint srt_type)
+                              proto_tree *tree,
+                              struct camelsrt_info_t *p_camelsrt_info,
+                              guint srt_type)
 {
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
@@ -856,14 +858,14 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if (srt_type==CAMELSRT_VOICE_ACR1) {
       if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num != 0
-	  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num < pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR1;
+          && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num < pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num != 0
-		   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num < pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR2;
+                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num < pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR2;
       } else  if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num != 0
-		  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num < pinfo->fd->num) {
-	srt_type=CAMELSRT_VOICE_ACR1;
+                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num < pinfo->fd->num) {
+        srt_type=CAMELSRT_VOICE_ACR1;
       }
 #ifdef DEBUG_CAMELSRT
       dbg(70,"Report ACR %u ",srt_type);
@@ -873,37 +875,37 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if (p_camelsrt_call->category[srt_type].rsp_num == 0) {
       if  ( (p_camelsrt_call->category[srt_type].req_num != 0)
-	    && (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) ){
-	/* We have not yet seen a response to that call, so this must be the first response;
-	   remember its frame number only if response comes after request */
+            && (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) ){
+        /* We have not yet seen a response to that call, so this must be the first response;
+           remember its frame number only if response comes after request */
 #ifdef DEBUG_CAMELSRT
-	dbg(14,"Set reslink #%d req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+        dbg(14,"Set reslink #%d req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
-	p_camelsrt_call->category[srt_type].rsp_num = pinfo->fd->num;
+        p_camelsrt_call->category[srt_type].rsp_num = pinfo->fd->num;
 
       } else {
 #ifdef DEBUG_CAMELSRT
-	dbg(2,"badreslink #%u req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+        dbg(2,"badreslink #%u req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
       } /* req_num != 0 */
     } else { /* rsp_num != 0 */
       /* We have seen a response to this call - but was it *this* response? */
       if (p_camelsrt_call->category[srt_type].rsp_num != pinfo->fd->num) {
-	/* No, so it's a duplicate response. Mark it as such. */
+        /* No, so it's a duplicate response. Mark it as such. */
 #ifdef DEBUG_CAMELSRT
-	dbg(21,"Display_duplicate rsp=%d ", p_camelsrt_call->category[srt_type].rsp_num);
+        dbg(21,"Display_duplicate rsp=%d ", p_camelsrt_call->category[srt_type].rsp_num);
 #endif
-	p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
-	if ( gcamel_DisplaySRT ){
-	  hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+        p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
+        if ( gcamel_DisplaySRT ){
+          hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
+        }
       }
     } /* rsp_num != 0 */
 
     if ( (p_camelsrt_call->category[srt_type].req_num != 0) &&
-	 (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
-	 (p_camelsrt_call->category[srt_type].rsp_num == pinfo->fd->num) ) {
+         (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
+         (p_camelsrt_call->category[srt_type].rsp_num == pinfo->fd->num) ) {
 
       p_camelsrt_call->category[srt_type].responded = TRUE;
       p_camelsrt_info->msginfo[srt_type].request_available = TRUE;
@@ -912,12 +914,12 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 #endif
       /* Indicate the frame to which this is a reply. */
       if ( gcamel_DisplaySRT ) {
-	ti = proto_tree_add_uint_format(tree, hf_camelsrt_ResponseFrame, tvb, 0, 0,
-					p_camelsrt_call->category[srt_type].req_num,
-					"Linked request %s in frame %u",
-					val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
-					p_camelsrt_call->category[srt_type].req_num);
-	PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_uint_format(tree, hf_camelsrt_ResponseFrame, tvb, 0, 0,
+                                        p_camelsrt_call->category[srt_type].req_num,
+                                        "Linked request %s in frame %u",
+                                        val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
+                                        p_camelsrt_call->category[srt_type].req_num);
+        PROTO_ITEM_SET_GENERATED(ti);
       }
       /* Calculate Service Response Time */
       nstime_delta(&delta, &pinfo->fd->abs_ts, &p_camelsrt_call->category[srt_type].req_time);
@@ -941,7 +943,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
  */
 void
 camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		       struct camelsrt_info_t *p_camelsrt_info)
+                       struct camelsrt_info_t *p_camelsrt_info)
 {
 
 #ifdef DEBUG_CAMELSRT
@@ -953,17 +955,17 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case 0:  /*InitialDP*/
     camelsrt_begin_call_matching(pinfo, p_camelsrt_info);
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_VOICE_INITIALDP);
+                                   CAMELSRT_VOICE_INITIALDP);
     break;
   case 60: /*InitialDPSMS*/
     camelsrt_begin_call_matching(pinfo, p_camelsrt_info);
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_SMS_INITIALDP);
+                                   CAMELSRT_SMS_INITIALDP);
     break;
   case 78: /*InitialDPGPRS*/
     camelsrt_begin_call_matching(pinfo, p_camelsrt_info);
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_GPRS_INITIALDP);
+                                   CAMELSRT_GPRS_INITIALDP);
     break;
 
   case 23: /*RequestReportBCSMEvent*/
@@ -977,7 +979,7 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case 24: /*EventReportBCSMEvent*/
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_VOICE_DISC );
+                                   CAMELSRT_VOICE_DISC );
     break;
 
   case 64: /*EventReportSMS*/
@@ -989,12 +991,12 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case 80: /*EventReportGPRS*/
     camelsrt_begin_call_matching(pinfo, p_camelsrt_info);
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_GPRS_REPORT);
+                                   CAMELSRT_GPRS_REPORT);
     break;
 
   case 35: /*ApplyCharging*/
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				  CAMELSRT_VOICE_ACR1 );
+                                  CAMELSRT_VOICE_ACR1 );
     break;
 
   case 71: /*ApplyChargingGPRS*/
@@ -1002,7 +1004,7 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case 36: /*ApplyChargingReport*/
     camelsrt_request_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				   CAMELSRT_VOICE_ACR1 );
+                                   CAMELSRT_VOICE_ACR1 );
     break;
 
   case 72: /*ApplyChargingReportGPRS*/
@@ -1010,22 +1012,22 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case 31: /*Continue*/
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-    				  CAMELSRT_VOICE_INITIALDP);
+                                      CAMELSRT_VOICE_INITIALDP);
     break;
   case 65: /*ContinueSMS*/
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				  CAMELSRT_SMS_INITIALDP);
+                                  CAMELSRT_SMS_INITIALDP);
     break;
   case 75: /*ContinueGPRS*/
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				  CAMELSRT_GPRS_INITIALDP);
+                                  CAMELSRT_GPRS_INITIALDP);
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-				  CAMELSRT_GPRS_REPORT);
+                                  CAMELSRT_GPRS_REPORT);
     break;
 
   case 22: /*ReleaseCall*/
     camelsrt_report_call_matching(tvb, pinfo, tree, p_camelsrt_info,
-    				  CAMELSRT_VOICE_DISC);
+                                      CAMELSRT_VOICE_DISC);
     /* Session has been closed by Network */
     camelsrt_close_call_matching(pinfo, p_camelsrt_info);
     break;
@@ -1350,7 +1352,7 @@ void proto_register_camel(void) {
       { "local", "camel.extension_code_local",
         FT_INT32, BASE_DEC, NULL, 0,
         "Extension local code", HFILL }},
-	{ &hf_camel_error_code_local,
+        { &hf_camel_error_code_local,
       { "local", "camel.error_code_local",
         FT_INT32, BASE_DEC, VALS(camel_err_code_string_vals), 0,
         "ERROR code", HFILL }},
@@ -1384,7 +1386,7 @@ void proto_register_camel(void) {
     { &hf_camel_RP_Cause,
       { "RP Cause",  "camel.RP_Cause",
         FT_UINT8, BASE_DEC, NULL, 0,
-	"RP Cause Value", HFILL }},
+        "RP Cause Value", HFILL }},
 
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
       { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
@@ -1592,14 +1594,14 @@ void proto_register_camel(void) {
     &global_ssn_range, MAX_SSN);
 
   prefs_register_bool_preference(camel_module, "srt",
-				 "Analyze Service Response Time",
-				 "Enable response time analysis",
-				 &gcamel_HandleSRT);
+                                 "Analyze Service Response Time",
+                                 "Enable response time analysis",
+                                 &gcamel_HandleSRT);
 
   prefs_register_bool_preference(camel_module, "persistentsrt",
-				 "Persistent stats for SRT",
-				 "Statistics for Response Time",
-				 &gcamel_PersistentSRT);
+                                 "Persistent stats for SRT",
+                                 "Statistics for Response Time",
+                                 &gcamel_PersistentSRT);
 
   /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
@@ -1610,3 +1612,15 @@ void proto_register_camel(void) {
   register_new_stat_tap_ui(&camel_stat_table);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
