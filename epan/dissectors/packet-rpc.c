@@ -3833,7 +3833,7 @@ static stat_tap_table_item rpc_prog_stat_fields[] = {
 	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg SRT (s)", "%.2f"}
 };
 
-void rpc_prog_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void rpc_prog_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
 	new_stat_tap_table* table;

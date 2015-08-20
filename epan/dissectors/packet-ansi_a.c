@@ -10758,7 +10758,7 @@ typedef enum
 static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-void ansi_a_dtap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_dtap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
     new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
@@ -10826,7 +10826,7 @@ ansi_a_stat_reset(new_stat_tap_table* table)
 static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-void ansi_a_bsmap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_bsmap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
     new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);

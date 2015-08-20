@@ -22492,7 +22492,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%d"},
 };
 
-void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   new_stat_tap_table* table;
