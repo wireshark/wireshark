@@ -325,8 +325,14 @@ void TCPStreamDialog::mouseReleaseEvent(QMouseEvent *event)
 
 void TCPStreamDialog::findStream()
 {
+    QCustomPlot *sp = ui->streamPlot;
+
+    disconnect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
+    ui->streamNumberSpinBox->setEnabled(false);
     graph_segment_list_free(&graph_);
     graph_segment_list_get(cap_file_, &graph_, TRUE);
+    ui->streamNumberSpinBox->setEnabled(true);
+    connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
 }
 
 void TCPStreamDialog::fillGraph()
