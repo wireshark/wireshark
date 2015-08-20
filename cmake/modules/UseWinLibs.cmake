@@ -13,8 +13,6 @@ if( WIN32 )
 	set( WIN_COMCTL32_LIBRARY comctl32.lib )
 
 	# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
-	set( WIN_SETARGV_OBJECT   setargv.obj )
-	#
-	set( WS_LINK_FLAGS ${WS_LINK_FLAGS} " ${WIN_SETARGV_OBJECT}" )
+	set( WS_LINK_FLAGS "${WS_LINK_FLAGS} setargv.obj" )
 
 endif()
