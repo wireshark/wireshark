@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 
@@ -43,7 +44,7 @@ static void dissect_cigi_pdu(tvbuff_t*, packet_info*, proto_tree*);
 static void cigi_add_tree(tvbuff_t*, proto_tree*);
 static gint cigi_add_data(tvbuff_t*, proto_tree*, gint);
 
-static void cigi2_add_tree(tvbuff_t*, proto_tree*);
+static void cigi2_add_tree(tvbuff_t*, packet_info*, proto_tree*);
 static gint cigi2_add_ig_control(tvbuff_t*, proto_tree*, gint);
 static gint cigi2_add_entity_control(tvbuff_t*, proto_tree*, gint);
 static gint cigi2_add_component_control(tvbuff_t*, proto_tree*, gint);
@@ -71,7 +72,7 @@ static gint cigi2_add_height_of_terrain_response(tvbuff_t*, proto_tree*, gint);
 static gint cigi2_add_collision_detection_volume_response(tvbuff_t*, proto_tree*, gint);
 static gint cigi2_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
 
-static void cigi3_add_tree(tvbuff_t*, proto_tree*);
+static void cigi3_add_tree(tvbuff_t*, packet_info*, proto_tree*);
 static gint cigi3_add_ig_control(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_add_entity_control(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_add_conformal_clamped_entity_control(tvbuff_t*, proto_tree*, gint);
@@ -2411,6 +2412,9 @@ static int hf_cigi3_image_generator_message_message = -1;
 static int hf_cigi3_user_defined = -1;
 
 
+static expert_field ei_cigi_invalid_len = EI_INIT;
+
+
 /* Global preferences */
 #define CIGI_VERSION_FROM_PACKET 0
 #define CIGI_VERSION_1   1
@@ -2680,9 +2684,9 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * XXX - If another version of cigi is added to this dissector be
          * sure to place the version in this statement.*/
         if ( cigi_version == CIGI_VERSION_2 ) {
-            cigi2_add_tree(tvb, cigi_tree);
+            cigi2_add_tree(tvb, pinfo, cigi_tree);
         } else if ( cigi_version == CIGI_VERSION_3 ) {
-            cigi3_add_tree(tvb, cigi_tree);
+            cigi3_add_tree(tvb, pinfo, cigi_tree);
         } else {
             /* Since there exists no dissector to dissect this version
              * just put the data into a tree using an unknown version */
@@ -2767,9 +2771,8 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* A cigi packet cannot be less than 2 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
-    if ( packet_size < 2 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 2 )
+        return -1;
 
     proto_tree_add_item(tree, hf_cigi_data, tvb, offset, packet_size-2, ENC_NA);
     offset += packet_size-2;
@@ -2780,7 +2783,7 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 /* Create the tree for CIGI 2
  * Note: CIGI 2 guarantee's that the byte order will be big endian. */
 static void
-cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
+cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 {
     gint offset = 0;
     gint length = 0;
@@ -2996,14 +2999,16 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             break;
         }
 
-        /* Does the packet offset match the supposed length of the packet? */
-        DISSECTOR_ASSERT_HINT(offset - init_offset == packet_length, "Packet offset does not match packet length");
+        if (offset-init_offset != packet_length) {
+            proto_tree_add_expert(cigi_packet_tree, pinfo, &ei_cigi_invalid_len, tvb, init_offset, offset-init_offset);
+            break;
+        }
     }
 }
 
 /* Create the tree for CIGI 3 */
 static void
-cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
+cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 {
     gint offset = 0;
     gint length = 0;
@@ -3390,8 +3395,10 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             offset = cigi_add_data(tvb, cigi_packet_tree, offset);
         }
 
-        /* Does the packet offset match the supposed length of the packet? */
-        DISSECTOR_ASSERT_HINT(offset - init_offset == packet_length, "Packet offset does not match packet length");
+        if (offset-init_offset != packet_length) {
+            proto_tree_add_expert(cigi_packet_tree, pinfo, &ei_cigi_invalid_len, tvb, init_offset, offset-init_offset);
+            break;
+        }
     }
 }
 
@@ -4168,9 +4175,8 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
-    if ( packet_size < 4 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 4 )
+        return -1;
 
     proto_tree_add_item(tree, hf_cigi2_image_generator_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5509,9 +5515,8 @@ cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
     packet_size = tvb_get_guint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
-    if ( packet_size < 16 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 16 )
+        return -1;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5542,9 +5547,8 @@ cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, proto_tree *tree, gint offse
     packet_size = tvb_get_guint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
-    if ( packet_size < 16 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 16 )
+        return -1;
 
     ncircles = (packet_size - 16) / 24;
 
@@ -5596,9 +5600,8 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
     packet_size = tvb_get_guint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
-    if ( packet_size < 16 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 16 )
+        return -1;
 
     nvertices = (packet_size - 16) / 8;
 
@@ -6396,9 +6399,8 @@ cigi3_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
-    if ( packet_size < 4 ) {
-        THROW(ReportedBoundsError);
-    }
+    if ( packet_size < 4 )
+        return -1;
 
     proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6429,6 +6431,7 @@ void
 proto_register_cigi(void)
 {
     module_t *cigi_module;
+    expert_module_t* expert_cigi;
 
     static hf_register_info hf[] = {
         /* All Versions of CIGI */
@@ -11964,6 +11967,13 @@ proto_register_cigi(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_cigi_invalid_len,
+            { "cigi.invalid_len", PI_MALFORMED, PI_ERROR,
+                "Packet offset does not match packet length",
+                EXPFILL }}
+    };
+
     /* CIGI preferences */
     static const enum_val_t cigi_versions[] = {
         { "from_packet", "From Packet", CIGI_VERSION_FROM_PACKET },
@@ -11991,6 +12001,9 @@ proto_register_cigi(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_cigi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_cigi = expert_register_protocol(proto_cigi);
+    expert_register_field_array(expert_cigi, ei, array_length(ei));
 
     /* Register preferences module */
     cigi_module = prefs_register_protocol(proto_cigi, proto_reg_handoff_cigi);
