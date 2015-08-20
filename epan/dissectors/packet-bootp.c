@@ -2515,7 +2515,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 
 			if (i != RFC3825_NOERROR) {
 				ti = proto_tree_add_uint(v_tree, hf_bootp_option_rfc3825_error, tvb, optoff, 1, i);
-                proto_item_set_len(ti, optlen);
+			proto_item_set_len(ti, optlen);
 			} else {
 				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_latitude, tvb, optoff, 5, location.latitude, "%15.10f", location.latitude);
 				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_longitude, tvb, optoff+5, 5, location.longitude, "%15.10f", location.longitude);
@@ -3632,7 +3632,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 
 	if (suboptoff >= optend) {
 		expert_add_info_format(pinfo, v_ti, &ei_bootp_missing_subopt_length,
-		                       "Suboption %d: no room left in option for suboption length", subopt);
+				       "Suboption %d: no room left in option for suboption length", subopt);
 		return (optend);
 	}
 
@@ -3655,8 +3655,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 	PROTO_ITEM_SET_HIDDEN(ti);
 
 	if (subopt < array_length(o125_tr111_opt)) {
-		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype,
-		                             suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
+		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype, suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
 			if (o125_tr111_opt[subopt].ftype == special) {
 				if (o125_tr111_opt[subopt].phf != NULL)
 				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
@@ -3993,7 +3992,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				    tvb, off, 2, raw_val, "0x%s: %s = ",
 				    tvb_format_text(tvb, off, 2),
 				    val_to_str_const(raw_val, pkt_mdc_type_vals, "unknown"));
-                proto_item_set_len(ti, (tlv_len * 2) + 4);
+				proto_item_set_len(ti, (tlv_len * 2) + 4);
 				switch (raw_val) {
 
 				case PKT_MDC_VERSION:
