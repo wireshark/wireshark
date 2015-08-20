@@ -272,8 +272,7 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
             if (index == -1) {
                 df_combo_box_->insertItem(0, new_filter);
                 df_combo_box_->setCurrentIndex(0);
-            }
-            else {
+            } else {
                 df_combo_box_->setCurrentIndex(index);
             }
         } else {
@@ -437,6 +436,7 @@ void MainWindow::layoutToolbars()
         break;
     case TB_STYLE_BOTH:
         tbstyle = Qt::ToolButtonTextUnderIcon;
+        break;
     }
 
     main_ui_->mainToolBar->setToolButtonStyle(tbstyle);
