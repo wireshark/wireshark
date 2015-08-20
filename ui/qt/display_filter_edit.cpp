@@ -309,7 +309,7 @@ bool DisplayFilterEdit::checkFilter()
 {
     checkFilter(text());
 
-    return (syntaxState() == Valid);
+    return (syntaxState() == Valid || syntaxState() == Empty);
 }
 
 void DisplayFilterEdit::checkFilter(const QString& text)
