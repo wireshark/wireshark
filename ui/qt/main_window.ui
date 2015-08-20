@@ -2493,7 +2493,7 @@
     <string>Color &amp;1</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation2">
@@ -2501,7 +2501,7 @@
     <string>Color &amp;2</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation3">
@@ -2509,7 +2509,7 @@
     <string>Color &amp;3</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation4">
@@ -2517,7 +2517,7 @@
     <string>Color &amp;4</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation5">
@@ -2525,7 +2525,7 @@
     <string>Color &amp;5</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation6">
@@ -2533,7 +2533,7 @@
     <string>Color &amp;6</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation7">
@@ -2541,7 +2541,7 @@
     <string>Color &amp;7</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation8">
@@ -2549,7 +2549,7 @@
     <string>Color &amp;8</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation9">
@@ -2557,7 +2557,7 @@
     <string>Color &amp;9</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation10">
@@ -2565,7 +2565,7 @@
     <string>Color 1&amp;0</string>
    </property>
    <property name="toolTip">
-    <string>Mark the current coversation with its own color.</string>
+    <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
   <action name="actionViewColorizeNewConversationRule">
