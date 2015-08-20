@@ -516,9 +516,11 @@ void TapParameterDialog::on_applyFilterButton_clicked()
     if (!ui->displayFilterLineEdit->checkFilter())
         return;
 
+    ui->applyFilterButton->setEnabled(false);
     QString filter = ui->displayFilterLineEdit->text();
     emit updateFilter(filter, true);
     fillTree();
+    ui->applyFilterButton->setEnabled(true);
 }
 
 void TapParameterDialog::on_actionCopyToClipboard_triggered()
