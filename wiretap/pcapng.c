@@ -923,7 +923,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                 } else if (option_content[0] == 1) {
                                         wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
                                         wblock->data.if_descr.if_filter_bpf_bytes = (gchar *)g_malloc(oh.option_length-1);
-                                        memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
+                                        memcpy(wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
                                 }
                         } else {
                                 pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
