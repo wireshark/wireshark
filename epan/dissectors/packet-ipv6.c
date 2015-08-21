@@ -3183,10 +3183,10 @@ proto_register_ipv6(void)
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
     proto_ipv6_nxt = proto_register_protocol("IPv6 Next Header", "IPv6 Next Header", "ipv6.nxt");
-    proto_ipv6_hopopts = proto_register_protocol("IPv6 HOP OPT", "HOP OPT", "ipv6.hop_opt");
-    proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "Routing", "ipv6.routing_hdr");
+    proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hop_opt");
+    proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing_hdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
-    proto_ipv6_dstopts = proto_register_protocol("IPv6 DST OPT", "DST OPT", "ipv6.dst_opt");
+    proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dst_opt");
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt",
       "IPv6 Next Header", FT_UINT32, BASE_DEC);
 
