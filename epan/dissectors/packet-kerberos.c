@@ -917,7 +917,10 @@ read_keytab_file(const char *service_key_file)
 			sk->contents = g_memdup(buf + 2, DES3_KEY_SIZE);
 			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
-			fseek(skf, newline_skip, SEEK_CUR);
+			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
+				fprintf(stderr, "unable to seek...\n");
+				return;
+			}
 			count++;
 		}
 		fclose(skf);
@@ -4252,7 +4255,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1982 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1985 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5290,7 +5293,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2363 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2366 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5364,7 +5367,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2379 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2382 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

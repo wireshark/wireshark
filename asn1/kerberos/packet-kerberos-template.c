@@ -666,7 +666,10 @@ read_keytab_file(const char *service_key_file)
 			sk->contents = g_memdup(buf + 2, DES3_KEY_SIZE);
 			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
-			fseek(skf, newline_skip, SEEK_CUR);
+			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
+				fprintf(stderr, "unable to seek...\n");
+				return;
+			}
 			count++;
 		}
 		fclose(skf);
