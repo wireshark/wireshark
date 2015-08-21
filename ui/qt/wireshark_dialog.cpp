@@ -52,6 +52,8 @@ WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
 
 void WiresharkDialog::accept()
 {
+    // Cancel any taps in progress.
+    cap_file_.setCaptureStopFlag();
     // We need to make sure our destructor is called.
     deleteLater();
     QDialog::accept();
@@ -60,6 +62,8 @@ void WiresharkDialog::accept()
 // XXX Should we do this in WiresharkDialog?
 void WiresharkDialog::reject()
 {
+    // Cancel any taps in progress.
+    cap_file_.setCaptureStopFlag();
     // We need to make sure our destructor is called.
     deleteLater();
     QDialog::reject();

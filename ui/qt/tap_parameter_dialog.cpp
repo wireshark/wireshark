@@ -75,8 +75,7 @@ const QString TapParameterDialog::action_name_ = "TapParameterAction";
 TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int help_topic) :
     WiresharkDialog(parent, cf),
     ui(new Ui::TapParameterDialog),
-    help_topic_(help_topic),
-    retap_on_show_(true)
+    help_topic_(help_topic)
 {
     ui->setupUi(this);
 
@@ -107,14 +106,15 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
         QString filter = ui->displayFilterLineEdit->text();
         emit updateFilter(filter, true);
     }
-    if (retap_on_show_) {
-        QTimer::singleShot(0, this, SLOT(fillTree()));
-    }
+    show_timer_ = new QTimer(this);
+    setRetapOnShow(true);
 }
 
 TapParameterDialog::~TapParameterDialog()
 {
     delete ui;
+    show_timer_->stop();
+    delete show_timer_;
 }
 
 void TapParameterDialog::registerDialog(const QString title, const char *cfg_abbr, register_stat_group_t group, stat_tap_init_cb tap_init_cb, tpdCreator creator)
@@ -188,6 +188,14 @@ void TapParameterDialog::setHint(const QString &hint)
 {
     ui->hintLabel->setText(hint);
     ui->hintLabel->show();
+}
+
+void TapParameterDialog::setRetapOnShow(bool retap)
+{
+    show_timer_->stop();
+    if (retap) {
+        show_timer_->singleShot(0, this, SLOT(fillTree()));
+    }
 }
 
 void TapParameterDialog::filterActionTriggered()

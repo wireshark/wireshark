@@ -81,8 +81,8 @@ protected:
     QString displayFilter();
     void setDisplayFilter(const QString &filter);
     void setHint(const QString &hint);
-    // Retap packets on showEvent. RPC stats need to disable this.
-    void setRetapOnShow(bool retap = false) { retap_on_show_ = retap; }
+    // Retap packets on first display. RPC stats need to disable this.
+    void setRetapOnShow(bool retap);
 
 protected slots:
     void filterActionTriggered();
@@ -94,7 +94,7 @@ private:
     QList<QAction *> filter_actions_;
     int help_topic_;
     static const QString action_name_;
-    bool retap_on_show_;
+    QTimer *show_timer_;
 
     virtual const QString filterExpression() { return QString(); }
     QString itemDataToPlain(QVariant var, int width = 0);

@@ -256,7 +256,6 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
     register_tap_listener_mcast_stream(tapinfo_);
 
     updateWidgets();
-    QTimer::singleShot(0, this, SLOT(fillTree()));
 }
 
 MulticastStatisticsDialog::~MulticastStatisticsDialog()
