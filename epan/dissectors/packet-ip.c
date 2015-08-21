@@ -2462,7 +2462,8 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
+  proto_tree *ip_tree;
+  proto_item *ti, *tf;
   guint8 version;
 
   version = tvb_get_guint8(tvb, 0) >> 4;
@@ -2481,7 +2482,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
   col_clear(pinfo->cinfo, COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
-  expert_add_info(pinfo, ti, &ei_ip_bogus_ip_version);
+  ip_tree = proto_item_add_subtree(ti, ett_ip);
+  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, 0, 1, ENC_NA);
+  expert_add_info(pinfo, tf, &ei_ip_bogus_ip_version);
 }
 
 static gboolean
