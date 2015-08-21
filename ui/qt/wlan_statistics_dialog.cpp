@@ -77,10 +77,10 @@ public:
         setText(col_bssid_, address_to_qstring(&addr_));
     }
     bool isMatch(address *addr) {
-        return (addresses_equal(&addr_, addr)) == TRUE;
+        return addresses_equal(&addr_, addr);
     }
     void update(wlan_hdr_t *wlan_hdr) {
-        bool is_sender = addresses_equal(&addr_, &wlan_hdr->src) == TRUE;
+        bool is_sender = addresses_equal(&addr_, &wlan_hdr->src);
 
         // XXX Should we count received probes and auths? This is what the
         // GTK+ UI does, but it seems odd.
@@ -448,7 +448,7 @@ private:
 
     void updateBssid(wlan_hdr_t *wlan_hdr) {
         copy_address(&bssid_, &wlan_hdr->bssid);
-        is_broadcast_ = is_broadcast_bssid(&bssid_) == TRUE;
+        is_broadcast_ = is_broadcast_bssid(&bssid_);
         setText(col_bssid_, address_to_qstring(&bssid_));
     }
 };
@@ -463,7 +463,7 @@ static const QString node_col_4_title_ = QObject::tr("Pkts Sent");
 static const QString node_col_5_title_ = QObject::tr("Pkts Received");
 static const QString node_col_11_title_ = QObject::tr("Comment");
 
-WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *) :
+WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
     TapParameterDialog(parent, cf, HELP_STATS_WLAN_TRAFFIC_DIALOG)
 {
     setWindowSubtitle(tr("Wireless LAN Statistics"));
@@ -503,6 +503,10 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
     }
 
     addFilterActions();
+
+    if (filter) {
+        setDisplayFilter(filter);
+    }
 
     connect(statsTreeWidget(), SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(updateHeaderLabels()));
@@ -644,8 +648,13 @@ void WlanStatisticsDialog::captureFileClosing()
 // Stat command + args
 
 static void
-wlan_statistics_init(const char *, void*) {
-    wsApp->emitStatCommandSignal("WlanStatistics", NULL, NULL);
+wlan_statistics_init(const char *args, void*) {
+    QStringList args_l = QString(args).split(',');
+    QByteArray filter;
+    if (args_l.length() > 2) {
+        filter = QStringList(args_l.mid(2)).join(",").toUtf8();
+    }
+    wsApp->emitStatCommandSignal("WlanStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui wlan_statistics_ui = {

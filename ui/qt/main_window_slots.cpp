@@ -2572,6 +2572,7 @@ void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
     }
 }
 
+// -z wlan,stat
 void MainWindow::statCommandWlanStatistics(const char *arg, void *)
 {
     WlanStatisticsDialog *wlan_stats_dlg = new WlanStatisticsDialog(*this, capture_file_, arg);
@@ -2585,6 +2586,7 @@ void MainWindow::on_actionWirelessWlanStatistics_triggered()
     statCommandWlanStatistics(NULL, NULL);
 }
 
+// -z expert
 void MainWindow::statCommandExpertInfo(const char *, void *)
 {
     ExpertInfoDialog *expert_dialog = new ExpertInfoDialog(*this, capture_file_);
@@ -2653,6 +2655,7 @@ void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
     openTcpStreamDialog(GRAPH_WSCALE);
 }
 
+// -z mcast,stat
 void MainWindow::statCommandMulticastStatistics(const char *arg, void *)
 {
     MulticastStatisticsDialog *mcast_stats_dlg = new MulticastStatisticsDialog(*this, capture_file_, arg);
@@ -2798,6 +2801,7 @@ void MainWindow::on_actionStatisticsCollectd_triggered()
     openStatisticsTreeDialog("collectd");
 }
 
+// -z conv,...
 void MainWindow::statCommandConversations(const char *arg, void *userdata)
 {
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
@@ -2815,6 +2819,7 @@ void MainWindow::on_actionStatisticsConversations_triggered()
     statCommandConversations(NULL, NULL);
 }
 
+// -z endpoints,...
 void MainWindow::statCommandEndpoints(const char *arg, void *userdata)
 {
     EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
@@ -2857,6 +2862,7 @@ void MainWindow::on_actionStatisticsPacketLengths_triggered()
     openStatisticsTreeDialog("plen");
 }
 
+// -z io,stat
 void MainWindow::statCommandIOGraph(const char *, void *)
 {
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);

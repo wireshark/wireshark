@@ -705,6 +705,10 @@ SRT statistics for a specific host.
 
 Show DHCP (BOOTP) statistics.
 
+=item B<-z> expert
+
+Show expert information.
+
 =item B<-z> fc,srt[,I<filter>]
 
 Collect call/reply SRT (Service Response Time) data for FC.  Data collected
@@ -930,6 +934,10 @@ This is the same window shown as when you go to the Statistics Menu and choose
 VoIP Calls.
 
 Example: B<-z voip,calls>
+
+=item B<-z> wlan,stat[,<filter>]
+
+Show IEEE 802.11 network and station statistics.
 
 =item --disable-protocol E<lt>proto_nameE<gt>
 

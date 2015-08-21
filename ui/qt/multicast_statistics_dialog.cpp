@@ -455,8 +455,13 @@ void MulticastStatisticsDialog::captureFileClosing()
 // Stat command + args
 
 static void
-multicast_statistics_init(const char *, void*) {
-    wsApp->emitStatCommandSignal("MulticastStatistics", NULL, NULL);
+multicast_statistics_init(const char *args, void*) {
+    QStringList args_l = QString(args).split(',');
+    QByteArray filter;
+    if (args_l.length() > 2) {
+        filter = QStringList(args_l.mid(2)).join(",").toUtf8();
+    }
+    wsApp->emitStatCommandSignal("MulticastStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui multicast_statistics_ui = {
