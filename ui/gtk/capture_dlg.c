@@ -3488,6 +3488,10 @@ add_pipe_cb(gpointer w _U_)
     device.if_info.addrs = NULL;
     device.if_info.loopback = FALSE;
     device.if_info.type = IF_PIPE;
+#ifdef HAVE_EXTCAP
+    device.if_info.extcap = NULL;
+    device.external_cap_args_settings = NULL;
+#endif
 #if defined(HAVE_PCAP_CREATE)
     device.monitor_mode_enabled   = FALSE;
     device.monitor_mode_supported = FALSE;
