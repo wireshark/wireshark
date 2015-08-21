@@ -33,6 +33,7 @@
 #include "wireshark_application.h"
 
 #include <QPushButton>
+#include <QScrollBar>
 #include <QTextStream>
 
 // To do:
@@ -47,6 +48,8 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
 
     // XXX Use recent settings instead
     resize(parent.width() * 2 / 3, parent.height());
+
+    ui->detailsTextEdit->setAcceptRichText(true);
 
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Reset);
     if (button) {
@@ -64,7 +67,7 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
     }
 
     setWindowSubtitle(tr("Capture File Properties"));
-    updateWidgets();
+    QTimer::singleShot(0, this, SLOT(updateWidgets()));
 }
 
 /*
@@ -98,9 +101,12 @@ void CaptureFilePropertiesDialog::updateWidgets()
     save_bt->setEnabled(enable);
     ui->commentsTextEdit->setEnabled(enable);
 
-    ui->detailsTextEdit->setHtml(summaryToHtml());
+    fillDetails();
     ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_.capFile()));
 }
+
+static const QString section_tmpl_ = "<p><strong>%1</strong></p>\n";
+static const QString para_tmpl_ = "<p>%1</p>\n";
 
 QString CaptureFilePropertiesDialog::summaryToHtml()
 {
@@ -111,13 +117,11 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     memset(&summary, 0, sizeof(summary_tally));
 
-    QString section_tmpl;
     QString table_begin, table_end;
     QString table_row_begin, table_ul_row_begin, table_row_end;
     QString table_vheader_tmpl, table_hheader20_tmpl, table_hheader25_tmpl;
     QString table_data_tmpl;
 
-    section_tmpl = "<p><strong>%1</strong></p>\n";
     table_begin = "<p><table>\n";
     table_end = "</table></p>\n";
     table_row_begin = "<tr>\n";
@@ -145,7 +149,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     QString unknown = tr("Unknown");
 
     // File Section
-    out << section_tmpl.arg(tr("File"));
+    out << section_tmpl_.arg(tr("File"));
     out << table_begin;
 
     out << table_row_begin
@@ -194,7 +198,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     if (summary.packet_count_ts == summary.packet_count &&
             summary.packet_count >= 1)
     {
-        out << section_tmpl.arg(tr("Time"));
+        out << section_tmpl_.arg(tr("Time"));
         out << table_begin;
 
         // start time
@@ -234,7 +238,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     }
 
     // Capture Section
-    out << section_tmpl.arg(tr("Capture"));
+    out << section_tmpl_.arg(tr("Capture"));
     out << table_begin;
 
     QString capture_hardware(unknown);
@@ -269,7 +273,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     // capture interfaces info
     if (summary.ifaces->len > 0) {
-        out << section_tmpl.arg(tr("Interfaces"));
+        out << section_tmpl_.arg(tr("Interfaces"));
         out << table_begin;
 
         out << table_ul_row_begin
@@ -326,7 +330,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     }
 
     // Statistics Section
-    out << section_tmpl.arg(tr("Statistics"));
+    out << section_tmpl_.arg(tr("Statistics"));
     out << table_begin;
 
     out << table_ul_row_begin
@@ -480,6 +484,60 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     return summary_str;
 }
 
+void CaptureFilePropertiesDialog::fillDetails()
+{
+    if (!cap_file_.isValid()) return;
+
+    ui->detailsTextEdit->clear();
+
+    QTextCursor cursor = ui->detailsTextEdit->textCursor();
+    QString summary = summaryToHtml();
+    cursor.insertHtml(summary);
+    cursor.insertBlock(); // Work around rendering oddity.
+
+    QString file_comments = cf_read_shb_comment(cap_file_.capFile());
+    if (!file_comments.isEmpty()) {
+        QString file_comments_html;
+
+        QString comment_escaped;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            comment_escaped = Qt::escape(file_comments);
+#else
+            comment_escaped = file_comments.toHtmlEscaped();
+#endif
+        file_comments_html = section_tmpl_.arg(tr("File Comment"));
+        file_comments_html += para_tmpl_.arg(comment_escaped);
+
+        cursor.insertBlock();
+        cursor.insertHtml(file_comments_html);
+    }
+
+    if (cap_file_.capFile()->packet_comment_count > 0) {
+        cursor.insertBlock();
+        cursor.insertHtml(section_tmpl_.arg(tr("Packet Comments")));
+
+        for (guint32 framenum = 1; framenum <= cap_file_.capFile()->count ; framenum++) {
+            frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->frames, framenum);
+            char *pkt_comment = cf_get_comment(cap_file_.capFile(), fdata);
+
+            if (pkt_comment) {
+                QString frame_comment_html = tr("<p>Frame %1: ").arg(framenum);
+                QString raw_comment = pkt_comment;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                frame_comment_html += Qt::escape(raw_comment);
+#else
+                frame_comment_html += raw_comment.toHtmlEscaped();
+#endif
+                frame_comment_html += "</p>\n";
+                cursor.insertBlock();
+                cursor.insertHtml(frame_comment_html);
+            }
+        }
+    }
+    ui->detailsTextEdit->verticalScrollBar()->setValue(0);
+}
+
 void CaptureFilePropertiesDialog::changeEvent(QEvent* event)
 {
     if (0 != event)
@@ -513,6 +571,7 @@ void CaptureFilePropertiesDialog::on_buttonBox_accepted()
         gchar *str = qstring_strdup(ui->commentsTextEdit->toPlainText());
         cf_update_capture_comment(cap_file_.capFile(), str);
         emit captureCommentChanged();
+        fillDetails();
     }
 }
 

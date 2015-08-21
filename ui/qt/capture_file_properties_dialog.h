@@ -70,6 +70,7 @@ private:
     Ui::CaptureFilePropertiesDialog *ui;
 
     QString summaryToHtml();
+    void fillDetails();
 
 private slots:
     void updateWidgets();
