@@ -480,7 +480,7 @@ static const fragment_items ipv6_frag_items = {
 static dissector_handle_t data_handle;
 
 static dissector_table_t ip_dissector_table;
-static dissector_table_t ip_next_header_dissector_table;
+static dissector_table_t ipv6_next_header_dissector_table;
 
 /* Reassemble fragmented datagrams */
 static gboolean ipv6_reassemble = TRUE;
@@ -2271,7 +2271,7 @@ again:
 
     /* Get a tvbuff for the options. */
     options_tvb = tvb_new_subset_remaining(tvb, offset);
-    nxt_handle = dissector_get_uint_handle( ip_next_header_dissector_table, nxt);
+    nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
 
     if ((nxt_handle) &&
         ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_tree, &iph)) > 0)) {
@@ -3187,7 +3187,7 @@ proto_register_ipv6(void)
     proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "Routing", "ipv6.routing_hdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
     proto_ipv6_dstopts = proto_register_protocol("IPv6 DST OPT", "DST OPT", "ipv6.dst_opt");
-    ip_next_header_dissector_table = register_dissector_table("ipv6.nxt",
+    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt",
       "IPv6 Next Header", FT_UINT32, BASE_DEC);
 
     /* Register configuration options */
