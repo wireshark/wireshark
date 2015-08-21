@@ -360,6 +360,7 @@ static expert_field ei_ipv6_shim6_checksum_bad = EI_INIT;
 static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_length = EI_INIT;
+static expert_field ei_ipv6_bogus_payload_length = EI_INIT;
 
 static void ipv6_prompt(packet_info *pinfo, gchar* result)
 {
@@ -2263,6 +2264,11 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         return;
     }
+    if (plen > (tvb_reported_length(tvb) - 40)) {
+        expert_add_info_format(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_payload_length,
+                    "IPv6 payload length exceeds framing length (%d bytes)",
+                    tvb_reported_length(tvb) - 40);
+    }
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, plen + (guint)sizeof (struct ip6_hdr));
     plen -= advance;
@@ -3160,6 +3166,7 @@ proto_register_ipv6(void)
         { &ei_ipv6_routing_hdr_rpl_segments_ge0, { "ipv6.routing_hdr.rpl.segments.ge0", PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was X", EXPFILL }},
         { &ei_ipv6_hopopts_not_first, { "ipv6.hopopts.not_first", PI_PROTOCOL, PI_ERROR, "IPv6 Hop-by-Hop extension header must appear immediately after IPv6 header", EXPFILL }},
         { &ei_ipv6_bogus_ipv6_length, { "ipv6.bogus_ipv6_length", PI_PROTOCOL, PI_ERROR, "Bogus IPv6 length", EXPFILL }},
+        { &ei_ipv6_bogus_payload_length, { "ipv6.bogus_payload_length", PI_PROTOCOL, PI_WARN, "IPv6 payload length does not match expected framing length", EXPFILL }},
     };
 
     /* Decode As handling */
