@@ -99,8 +99,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_traffic_table_dialog.h	\
 	ui_uat_dialog.h		\
 	ui_voip_calls_dialog.h	\
-	ui_wireless_frame.h	\
-	ui_wlan_statistics_dialog.h
+	ui_wireless_frame.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =	\
@@ -326,8 +325,7 @@ UI_FILES =	\
 	traffic_table_dialog.ui	\
 	uat_dialog.ui		\
 	voip_calls_dialog.ui	\
-	wireless_frame.ui	\
-	wlan_statistics_dialog.ui
+	wireless_frame.ui
 
 #
 # The .moc.cpp files generated from them.
