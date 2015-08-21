@@ -375,8 +375,8 @@ expert_register_field_array(expert_module_t *module, ei_register_info *exp, cons
 		 */
 		if (ptr->ids->ei != -1 && ptr->ids->ei != 0) {
 			fprintf(stderr,
-				"Duplicate field detected in call to expert_register_field_array: '%s' is already registered\n",
-				ptr->eiinfo.summary);
+				"Duplicate field detected in call to expert_register_field_array: '%s' is already registered, name=%s\n",
+				ptr->eiinfo.summary, ptr->eiinfo.name);
 			return;
 		}
 
