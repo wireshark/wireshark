@@ -187,7 +187,10 @@ static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 
 void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 	r->fd = fd;
-	fcntl(fd, F_SETFL, O_NONBLOCK);
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0) {
+		fprintf(stderr, "Unable to set non blocking on file...\n");
+		return;
+	}
 
 	if (r->data == NULL) {
 		r->actual_len = initial;
