@@ -256,7 +256,9 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
     if (len > 0) {
-        sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
+        if (sscanf(s, "%" G_GINT64_MODIFIER "x", &result) != 1) {
+            return luaL_error(L, "Error decoding the passed-in hex string");
+        }
     }
     pushInt64(L,(gint64)result);
     WSLUA_RETURN(1); /* The new `Int64` object. */
@@ -816,7 +818,9 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
     if (len > 0) {
-        sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
+        if (sscanf(s, "%" G_GINT64_MODIFIER "x", &result) != 1) {
+            return luaL_error(L, "Error decoding the passed-in hex string");
+        }
     }
     pushUInt64(L,result);
     WSLUA_RETURN(1); /* The new `UInt64` object. */
