@@ -1440,8 +1440,8 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
     length_remaining = tvb_reported_length_remaining(tvb, offset);
     if (length_remaining < 4) {
         proto_tree_add_expert_format(tree, pinfo, &ei_ospf_lsa_bad_length,
-		tvb, offset, length_remaining, "LLS option bit set but data block missing");
-	return;
+            tvb, offset, length_remaining, "LLS option bit set but data block missing");
+        return;
     }
 
     ospf_lls_len = tvb_get_ntohs(tvb, offset + 2) * 4;
@@ -1584,7 +1584,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
 
             proto_tree_add_item(ospf_db_desc_tree, hf_ospf_db_dd_sequence, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
             break;
-	}
+        }
     }
     switch (version ) {
     case OSPF_VERSION_2:
@@ -2454,10 +2454,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     end_offset = offset + ls_length;
 
     ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset,
-			disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
+                        disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
                         ett_ospf_lsa, &lsa_ti, "LSA-type %d (%s), len %d",
                         ls_type, val_to_str_const(ls_type, ls_type_vals, "Unknown"),
-			ls_length);
+                        ls_length);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_donotage, tvb,
@@ -2719,10 +2719,10 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     end_offset = offset + ls_length;
 
     ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset,
-			disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
+                        disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
                         ett_ospf_lsa, &type_item, "LSA-type %d (%s), len %d",
                         ls_type, val_to_str_const(ls_type, v3_ls_type_vals, "Unknown"),
-			ls_length);
+                        ls_length);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_do_not_age, tvb, offset, 2, ENC_BIG_ENDIAN);
 
