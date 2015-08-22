@@ -280,10 +280,12 @@ Section /o "Un.WinPcap" un.SecWinPcap
 SectionIn 2
 ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
 ;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_OK "WinPcap $1" /SD IDOK
-ExecWait '$1' $0
-DetailPrint "WinPcap uninstaller returned $0"
-;SetRebootFlag true
+${If} $1 != ""
+    ;MessageBox MB_OK "WinPcap $1" /SD IDOK
+    ExecWait '$1' $0
+    DetailPrint "WinPcap uninstaller returned $0"
+    ;SetRebootFlag true
+${EndIf}
 ;un.lbl_winpcap_notinstalled:
 SectionEnd
 
