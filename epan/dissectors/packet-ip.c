@@ -1974,7 +1974,7 @@ ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
   }
 
-  if ((!heur_first) && (!dissector_try_heuristic(heur_subdissector_list, tvb,
+  if ((!heur_first) && (dissector_try_heuristic(heur_subdissector_list, tvb,
                                                  pinfo, tree, &hdtbl_entry,
                                                  iph))) {
     return TRUE;
