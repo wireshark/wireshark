@@ -571,6 +571,7 @@ struct p2p_phdr {
 #define PHDR_802_11_PHY_11G            6 /* 802.11g */
 #define PHDR_802_11_PHY_11N            7 /* 802.11n */
 #define PHDR_802_11_PHY_11AC           8 /* 802.11ac */
+#define PHDR_802_11_PHY_11AD           9 /* 802.11ad */
 
 /*
  * PHY-specific information.
@@ -737,7 +738,7 @@ struct ieee_802_11ac {
 };
 
 /*
- * Presence flags.
+ * 802.11ac presence flags.
  */
 #define PHDR_802_11AC_HAS_STBC                    0x00000001 /* stbc */
 #define PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED     0x00000002 /* txop_ps_not_allowed */
@@ -749,6 +750,30 @@ struct ieee_802_11ac {
 #define PHDR_802_11AC_HAS_FEC                     0x00000080 /* fec */
 #define PHDR_802_11AC_HAS_GROUP_ID                0x00000100 /* group_id */
 #define PHDR_802_11AC_HAS_PARTIAL_AID             0x00000200 /* partial_aid */
+
+/*
+ * 802.11ad.
+ */
+
+/*
+ * Min and Max frequencies for 802.11ad and a macro for checking for 802.11ad.
+ */
+
+#define PHDR_802_11AD_MIN_FREQUENCY    57000
+#define PHDR_802_11AD_MAX_FREQUENCY    66000
+
+#define IS_80211AD(frequency) (((frequency) >= PHDR_802_11AD_MIN_FREQUENCY) &&\
+                               ((frequency) <= PHDR_802_11AD_MAX_FREQUENCY))
+
+struct ieee_802_11ad {
+    guint32 presence_flags; /* Which of this information is present? */
+    guint8  mcs;            /* MCS index */
+};
+
+/*
+ * 802.11ad presence flags.
+ */
+#define PHDR_802_11AD_HAS_MCS_INDEX               0x00000001 /* mcs */
 
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
@@ -762,6 +787,7 @@ struct ieee_802_11_phdr {
         struct ieee_802_11g info_11g;
         struct ieee_802_11n info_11n;
         struct ieee_802_11ac info_11ac;
+        struct ieee_802_11ad info_11ad;
     } phy_info;
     guint32  presence_flags; /* Flags indicating presence of fields below */
     guint16  channel;        /* Channel number */
