@@ -819,7 +819,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         /* !!! specify length */
         ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
                                         offset, len, rt.ip6r_type,
-                                        "Routing Header, Type : %s (%u)",
+                                        "Routing Header, Type: %s (%u)",
                                         val_to_str_const(rt.ip6r_type, routing_header_type, "Unknown"),
                                         rt.ip6r_type);
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
