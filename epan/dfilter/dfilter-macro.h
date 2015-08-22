@@ -27,6 +27,9 @@
 
 #define DFILTER_MACRO_FILENAME "dfilter_macros"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef struct _dfilter_macro_t {
 	gchar* name; /* the macro id */
@@ -38,26 +41,21 @@ typedef struct _dfilter_macro_t {
 	void* priv; /* a copy of text that contains every c-string in parts */
 } dfilter_macro_t;
 
-/* loop over the macros list */
-typedef void (*dfilter_macro_cb_t)(dfilter_macro_t*, void*);
-WS_DLL_PUBLIC
-void dfilter_macro_foreach(dfilter_macro_cb_t, void*);
-
-/* save dfilter macros to a file */
-void dfilter_macro_save(const gchar*, gchar**);
-
-/* dumps the macros in the list (debug info, not formated as in the macros file) */
-void dfilter_macro_dump(void);
-
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
 const gchar* dfilter_macro_apply(const gchar* text, gchar** error);
 
 void dfilter_macro_init(void);
 
+struct epan_uat;
+
 WS_DLL_PUBLIC
-void dfilter_macro_get_uat(void**);
+void dfilter_macro_get_uat(struct epan_uat **dfmu_ptr_ptr);
 
 WS_DLL_PUBLIC
 void dfilter_macro_build_ftv_cache(void* tree_root);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* _DFILTER_MACRO_H */

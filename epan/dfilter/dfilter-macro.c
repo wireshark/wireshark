@@ -90,62 +90,6 @@ void dfilter_macro_build_ftv_cache(void* tree_root) {
 	proto_tree_traverse_post_order((proto_tree *)tree_root, fvt_cache_cb, NULL);
 }
 
-void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
-	guint i;
-
-	for (i = 0; i < num_macros; i++) {
-		cb(&(macros[i]),data);
-	}
-	return;
-}
-
-static void macro_fprint(dfilter_macro_t* m, void* ud) {
-	FILE* f = (FILE*)ud;
-
-	fprintf(f,"%s\t%s\n",m->name,m->text);
-}
-
-void dfilter_macro_save(const gchar* filename, gchar** error) {
-	FILE* f = ws_fopen(filename,"w");
-
-	if (!f) {
-		if (error != NULL)
-			*error = g_strdup_printf("Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
-		return;
-	}
-
-	dfilter_macro_foreach(macro_fprint, f);
-
-	fclose(f);
-
-	return;
-}
-
-#ifdef DUMP_MACROS
-static void macro_dump(dfilter_macro_t* m _U_, void* ud _U_) {
-	gchar** part = m->parts;
-	int* args_pos = m->args_pos;
-
-	printf("\n->%s\t%s\t%d [%d]\n\t'%s'\n",
-		   m->name, m->text, m->argc, m->usable, *(part++));
-
-	while (*part) {
-		printf("\t$%d '%s'\n",*args_pos,*part);
-
-		args_pos++;
-		part++;
-	}
-}
-#else
-#define macro_dump(a,b)
-#endif
-
-void dfilter_macro_dump(void) {
-#ifdef DUMP_MACROS
-	dfilter_macro_foreach(macro_dump, NULL);
-#endif
-}
-
 static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	GString* text;
 	int argc = 0;
@@ -488,8 +432,6 @@ done:
 
 	m->usable = TRUE;
 
-	macro_dump(m,NULL);
-
 	DUMP_MACRO(m);
 
 	return TRUE;
@@ -601,11 +543,11 @@ static gboolean macro_name_chk(void *mp, const char *in_name, guint name_len,
 	 * different name, check for uniqueness. NOTE: if a duplicate already
 	 * exists (because the user manually edited the file), then this will
 	 * not trigger a warning. */
-	if (!m->name || !g_str_equal(m->name, in_name)) {
+	if (!m->name || g_strcmp0(m->name, in_name)) {
 		for (i = 0; i < num_macros; i++) {
 			/* This a string field which is always NUL-terminated,
 			 * so no need to check name_len. */
-			if (g_str_equal(in_name, macros[i].name)) {
+			if (!g_strcmp0(in_name, macros[i].name)) {
 				*error = g_strdup_printf("macro '%s' already exists",
 							 in_name);
 				return FALSE;
@@ -646,8 +588,8 @@ void dfilter_macro_init(void) {
 	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);
 }
 
-void dfilter_macro_get_uat(void** p) {
-	*p = dfilter_macro_uat;
+void dfilter_macro_get_uat(uat_t **dfmu_ptr_ptr) {
+    *dfmu_ptr_ptr = dfilter_macro_uat;
 }
 
 #ifdef DUMP_DFILTER_MACRO

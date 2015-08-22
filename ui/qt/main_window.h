@@ -403,6 +403,7 @@ private slots:
     void on_actionCaptureCaptureFilters_triggered();
 
     void on_actionAnalyzeDisplayFilters_triggered();
+    void on_actionAnalyzeDisplayFilterMacros_triggered();
     void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);
     void on_actionAnalyzeCreateAColumn_triggered();
     void on_actionAnalyzeAAFSelected_triggered();

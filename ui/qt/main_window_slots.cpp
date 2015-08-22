@@ -50,9 +50,11 @@
 #include "epan/addr_resolv.h"
 #include "epan/color_dissector_filters.h"
 #include "epan/column.h"
+#include "epan/dfilter/dfilter-macro.h"
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"
+#include "epan/uat.h"
 #include "epan/value_string.h"
 
 #ifdef HAVE_LUA
@@ -107,6 +109,7 @@
 #include "lbm_uimflow_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
+#include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
@@ -128,7 +131,7 @@
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
-#include "multicast_statistics_dialog.h"
+#include "uat_dialog.h"
 #include "voip_calls_dialog.h"
 #include "wireshark_application.h"
 #include "wlan_statistics_dialog.h"
@@ -2352,6 +2355,16 @@ void MainWindow::on_actionAnalyzeDisplayFilters_triggered()
     display_filter_dlg_->show();
     display_filter_dlg_->raise();
     display_filter_dlg_->activateWindow();
+}
+
+struct epan_uat;
+void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
+{
+    struct epan_uat* dfm_uat;
+    dfilter_macro_get_uat(&dfm_uat);
+    UatDialog uat_dlg(parentWidget(), dfm_uat);
+
+    uat_dlg.exec();
 }
 
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()

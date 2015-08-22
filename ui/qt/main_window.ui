@@ -1284,9 +1284,6 @@
    </property>
   </action>
   <action name="actionAnalyzeDisplayFilterMacros">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Display Filter &amp;Macros…</string>
    </property>
