@@ -2294,10 +2294,26 @@ void MainWindow::openPacketDialog(bool from_reference)
 
         connect(this, SIGNAL(monospaceFontChanged(QFont)),
                 packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
+        connect(packet_dialog, SIGNAL(packetDialogClosed(QDialog *)),
+                this, SLOT(packetDialogClosed(QDialog *)));
         zoomText(); // Emits monospaceFontChanged
 
+        packet_dialogs_.append(packet_dialog);
         packet_dialog->show();
     }
+}
+
+void MainWindow::closePacketDialogs()
+{
+    QList<QDialog *> packet_dialogs_copy(packet_dialogs_);
+    foreach(QDialog *packet_dialog, packet_dialogs_copy) {
+        packet_dialog->close();
+    }
+}
+
+void MainWindow::packetDialogClosed(QDialog *packet_dialog)
+{
+    packet_dialogs_.removeOne(packet_dialog);
 }
 
 void MainWindow::on_actionViewShowPacketInNewWindow_triggered()
@@ -2489,6 +2505,7 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     wslua_reload_plugins(NULL, NULL);
     funnel_statistics_reload_menus();
     reloadDynamicMenus();
+    closePacketDialogs();
 
     // Preferences may have been deleted so close all widgets using prefs
     proto_tree_->closeContextMenu();

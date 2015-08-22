@@ -138,6 +138,7 @@ private:
     QActionGroup *time_display_actions_;
     QActionGroup *time_precision_actions_;
     FunnelStatistics *funnel_statistics_;
+    QList<QDialog *> packet_dialogs_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -239,6 +240,7 @@ public slots:
     void captureFileSaveStarted(const QString &file_path);
 
     void filterExpressionsChanged();
+    void packetDialogClosed(QDialog *);
 
 private slots:
     // Manually connected slots (no "on_<object>_<signal>").
@@ -387,6 +389,7 @@ private slots:
     void on_actionViewResizeColumns_triggered();
 
     void openPacketDialog(bool from_reference = false);
+    void closePacketDialogs();
     void on_actionViewShowPacketInNewWindow_triggered();
     void on_actionContextShowLinkedPacketInNewWindow_triggered();
     void on_actionViewReload_triggered();
