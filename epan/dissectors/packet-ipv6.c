@@ -465,6 +465,31 @@ ipv6_build_color_filter(packet_info *pinfo)
                 address_to_str(pinfo->pool, &pinfo->net_dst));
 }
 
+/* https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header */
+static gboolean
+ipv6_exthdr_check(int proto) {
+    switch (proto) {
+    /* fall through all cases */
+    case 0:   /* IPv6 Hop-by-Hop Option */
+    case 43:  /* Routing Header for IPv6 */
+    case 44:  /* Fragment Header for IPv6 */
+    case 50:  /* Encapsulating Security Payload */
+    case 51:  /* Authentication Header */
+    case 60:  /* Destination Options for IPv6 */
+    case 135: /* Mobility Header */
+    case 139: /* Host Identity Protocol */
+    case 140: /* Shim6 Protocol */
+    /* Experimental values ignored because they can collide with
+     * other experimental uses not relating to IPv6 parameters */
+/*  case 253: */ /* Use for experimentation and testing */
+/*  case 254: */ /* Use for experimentation and testing */
+        return TRUE;
+    default:
+        break;
+    }
+    return FALSE;
+}
+
 static const fragment_items ipv6_frag_items = {
     &ett_ipv6_fragment,
     &ett_ipv6_fragments,
@@ -2349,11 +2374,7 @@ again:
             break;
 
         default:
-            /* Since we did not recognize this IPv6 option, check
-             * whether it is a known protocol. If not, then it
-             * is an unknown IPv6 option
-             */
-            if (!dissector_get_uint_handle(ip_dissector_table, nxt)) {
+            if (ipv6_exthdr_check(nxt) && !dissector_get_uint_handle(ip_dissector_table, nxt)) {
                 advance = dissect_unknown_option(tvb, offset, ipv6_tree);
                 nxt = tvb_get_guint8(tvb, offset);
                 offset += advance;
