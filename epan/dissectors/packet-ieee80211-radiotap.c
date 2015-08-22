@@ -1910,9 +1910,9 @@ void proto_register_radiotap(void)
 		  "Specifies if the extended channel info field is present", HFILL}},
 
 		{&hf_radiotap_present_mcs,
-		 {"HT information", "radiotap.present.mcs",
+		 {"MCS information", "radiotap.present.mcs",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(MCS),
-		  "Specifies if the HT field is present", HFILL}},
+		  "Specifies if the MCS field is present", HFILL}},
 
 		{&hf_radiotap_present_ampdu,
 		 {"A-MPDU Status", "radiotap.present.ampdu",
