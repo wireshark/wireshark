@@ -804,7 +804,7 @@ IfSilent SecRequired_skip_Winpcap
 ; Install WinPcap (depending on winpcap page setting)
 ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_Winpcap
-; Uinstall old WinPcap first
+; Uninstall old WinPcap first
 ReadRegStr $WINPCAP_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
 IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
 ; from released version 3.1, WinPcap will uninstall an old version by itself
@@ -1168,6 +1168,7 @@ FunctionEnd
 
 Var WINPCAP_NAME ; DisplayName from WinPcap installation
 Var WINWINPCAP_VERSION ; DisplayVersion from WinPcap installation
+Var NPCAP_NAME ; DisplayName from Npcap installation
 
 Function myShowCallback
 
@@ -1188,6 +1189,9 @@ Function myShowCallback
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
     ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
     IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
+    ; check also if Npcap is installed
+    ReadRegStr $NPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayName"
+    IfErrors 0 lbl_npcap_installed
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
@@ -1213,6 +1217,24 @@ lbl_winpcap_installed:
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $WINPCAP_NAME manually first."
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
+    Goto lbl_winpcap_done
+
+lbl_npcap_installed:
+    ReadRegDWORD $0 HKEY_LOCAL_MACHINE "SOFTWARE\Npcap" "WinPcapCompatible"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 1" "Text" "Currently installed Npcap version"
+    ${If} $0 == "0"
+        ; Npcap is installed without WinPcap API-compatible mode; WinPcap can be installed
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME is currently installed without WinPcap API-compatible mode"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+    ${Else}
+        ; Npcap is installed with WinPcap API-compatible mode; WinPcap must not be installed
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $NPCAP_NAME manually first."
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
+    ${EndIf}
     Goto lbl_winpcap_done
 
 lbl_winpcap_do_install:
