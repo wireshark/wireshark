@@ -972,7 +972,7 @@ static void dissect_ospf_ls_req(tvbuff_t*, packet_info*, int, proto_tree*, guint
 static void dissect_ospf_ls_upd(tvbuff_t*, packet_info*, int, proto_tree*, guint8, guint16, guint8);
 static void dissect_ospf_ls_ack(tvbuff_t*, packet_info*, int, proto_tree*, guint8, guint16, guint8);
 static int dissect_ospf_authentication_trailer(tvbuff_t*, int, proto_tree*);
-static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
+static void dissect_ospf_lls_data_block(tvbuff_t*, packet_info*, int, proto_tree*, guint8);
 
 /* dissect_ospf_v[23]lsa returns the offset of the next LSA
  * if disassemble_body is set to FALSE (e.g. in LSA ACK
@@ -1267,7 +1267,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* take care of the LLS data block */
     if (ospf_has_lls_block(tvb, ospf_header_length, packet_type, version)) {
-        dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree,
+        dissect_ospf_lls_data_block(tvb, pinfo, ospflen + crypto_len, ospf_tree,
                                     version);
     }
 
@@ -1289,7 +1289,7 @@ dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset + 2);
 
     ospf_lls_tlv_tree = proto_tree_add_subtree(tree, tvb, offset, length + 4, ett_ospf_lls_tlv,
-                             NULL, val_to_str_const(type, lls_tlv_type_vals, "Unknown TLV"));
+                             NULL, val_to_str_const(type, lls_tlv_type_vals, "Unknown LLS TLV"));
 
     proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1351,7 +1351,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
     default:
         ospf_lls_tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4, ett_ospf_lls_tlv, NULL,
-                                 "%s", val_to_str_const(type, lls_v3_tlv_type_vals, "Unknown TLV"));
+                                 "%s", val_to_str_const(type, lls_v3_tlv_type_vals, "Unknown LLS TLV"));
     }
 
     if (ti != NULL)
@@ -1429,12 +1429,20 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static void
-dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
+dissect_ospf_lls_data_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
                             guint8 version)
 {
     proto_tree *ospf_lls_data_block_tree;
     int ospf_lls_len;
     int orig_offset = offset;
+    guint length_remaining;
+
+    length_remaining = tvb_reported_length_remaining(tvb, offset);
+    if (length_remaining < 4) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_ospf_lsa_bad_length,
+		tvb, offset, length_remaining, "LLS option bit set but data block missing");
+	return;
+    }
 
     ospf_lls_len = tvb_get_ntohs(tvb, offset + 2) * 4;
     ospf_lls_data_block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ospf_lls_data_block, NULL, "OSPF LLS Data Block");
@@ -2441,14 +2449,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     ls_length = tvb_get_ntohs(tvb, offset + 18);
     end_offset = offset + ls_length;
 
-    if (disassemble_body) {
-        ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
-                                 ett_ospf_lsa, &lsa_ti, "%s",
-                                 val_to_str(ls_type, ls_type_vals, "Unknown (%d)"));
-    } else {
-        ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-                                 ett_ospf_lsa, &lsa_ti, "LSA Header");
-    }
+    ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
+                                 ett_ospf_lsa, &lsa_ti, "LSA-type %d (%s), len %d",
+                                 ls_type, val_to_str(ls_type, ls_type_vals, "Unknown (%d)"),
+				 ls_length);
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
@@ -3764,7 +3768,7 @@ proto_register_ospf(void)
 
     static ei_register_info ei[] = {
         { &ei_ospf_header_reserved, { "ospf.reserved.not_zero", PI_PROTOCOL, PI_WARN, "incorrect, should be 0", EXPFILL }},
-        { &ei_ospf_lsa_bad_length, { "ospf.lsa.invalid_length", PI_MALFORMED, PI_WARN, "Invalid length", EXPFILL }},
+        { &ei_ospf_lsa_bad_length, { "ospf.lsa.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_ospf_lsa_constraint_missing, { "ospf.lsa.tos_missing", PI_MALFORMED, PI_WARN, "Blocks missing", EXPFILL }},
         { &ei_ospf_lsa_bc_error, { "ospf.lsa.bc_error", PI_PROTOCOL, PI_WARN, "BC error", EXPFILL }},
         { &ei_ospf_lsa_unknown_type, { "ospf.lsa.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown LSA Type", EXPFILL }},
