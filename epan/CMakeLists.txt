@@ -1383,6 +1383,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-usb-video.c
 	dissectors/packet-usb.c
 	dissectors/packet-user_encap.c
+	dissectors/packet-userlog.c
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
 	dissectors/packet-v150fw.c

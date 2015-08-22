@@ -55,6 +55,7 @@ Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurem
 LAT protocol (DECNET)
 Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
 STANAG 5602 SIMPLE
+UserLog Protocol
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
 --sort-and-group--
