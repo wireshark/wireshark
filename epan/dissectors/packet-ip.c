@@ -2311,8 +2311,11 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                              "Local Network Control Block (see RFC 3171)",
                              ttl);
     }
-  } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5 &&
-            (iph->ip_p != IP_PROTO_PIM)) {
+  } else if (!is_a_multicast_addr(dst32) &&
+	/* At least BGP should appear here as well */
+	iph->ip_ttl < 5 &&
+        iph->ip_p != IP_PROTO_PIM &&
+        iph->ip_p != IP_PROTO_OSPF) {
     expert_add_info_format(pinfo, ttl_item, &ei_ip_ttl_too_small, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 

@@ -8,7 +8,7 @@
 @ICMP@icmp || icmpv6@[64764,57568,65535][4718,10030,11796]
 @TCP RST@tcp.flags.reset eq 1@[42148,0,0][65535,64764,40092]
 @SCTP ABORT@sctp.chunk_type eq ABORT@[42148,0,0][65535,64764,40092]
-@TTL low or unexpected@( ! ip.dst == 224.0.0.0/4 && ip.ttl < 5 && !pim) || (ip.dst == 224.0.0.0/24 && ip.dst != 224.0.0.251 && ip.ttl != 1 && !(vrrp || carp))@[42148,0,0][60652,61680,60395]
+@TTL low or unexpected@( ! ip.dst == 224.0.0.0/4 && ip.ttl < 5 && !pim && !ospf) || (ip.dst == 224.0.0.0/24 && ip.dst != 224.0.0.251 && ip.ttl != 1 && !(vrrp || carp))@[42148,0,0][60652,61680,60395]
 @Checksum Errors@eth.fcs_bad==1 || ip.checksum_bad==1 || tcp.checksum_bad==1 || udp.checksum_bad==1 || sctp.checksum_bad==1 || mstp.checksum_bad==1 || cdp.checksum_bad==1 || edp.checksum_bad==1 || wlan.fcs_bad==1 || stt.checksum.bad==1@[4718,10030,11796][63479,34695,34695]
 @SMB@smb || nbss || nbns || nbipx || ipxsap || netbios@[65278,65535,53456][4718,10030,11796]
 @HTTP@http || tcp.port == 80 || http2@[58596,65535,51143][4718,10030,11796]
