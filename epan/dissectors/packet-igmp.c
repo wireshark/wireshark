@@ -558,14 +558,14 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
 	tree = dissect_igmp_common(tvb, pinfo, parent_tree, &offset, &type, 3);
 
-	/* skip reserved field*/
+        proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* checksum */
 	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
 	offset += 2;
 
-	/* skip reserved field */
+        proto_tree_add_item(tree, hf_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* number of group records */
@@ -927,7 +927,7 @@ proto_register_igmp(void)
 			  VALS(commands), 0, "IGMP Packet Type", HFILL }},
 
 		{ &hf_reserved,
-			{ "Reserved", "igmp.reserved", FT_UINT8, BASE_HEX,
+			{ "Reserved", "igmp.reserved", FT_BYTES, BASE_NONE,
 			  NULL, 0, "IGMP Reserved", HFILL }},
 
 		{ &hf_version,
