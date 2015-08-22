@@ -1562,8 +1562,6 @@ dissect_ospf_db_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
             dissect_ospf_bitfield(ospf_db_desc_tree, tvb, offset + 3, &bfinfo_dbd);
 
             proto_tree_add_item(ospf_db_desc_tree, hf_ospf_db_dd_sequence, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-
-            offset += 8;
             break;
 
         case OSPF_VERSION_3:
@@ -1585,10 +1583,16 @@ dissect_ospf_db_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
             dissect_ospf_bitfield(ospf_db_desc_tree, tvb, offset + 7, &bfinfo_dbd);
 
             proto_tree_add_item(ospf_db_desc_tree, hf_ospf_db_dd_sequence, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-
-            offset += 12;
             break;
-        }
+	}
+    }
+    switch (version ) {
+    case OSPF_VERSION_2:
+        offset += 8;
+        break;
+    case OSPF_VERSION_3:
+        offset += 12;
+        break;
     }
 
     /* LS Headers will be processed here */
@@ -2449,11 +2453,11 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     ls_length = tvb_get_ntohs(tvb, offset + 18);
     end_offset = offset + ls_length;
 
-    ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
-                                 ett_ospf_lsa, &lsa_ti, "LSA-type %d (%s), len %d",
-                                 ls_type, val_to_str(ls_type, ls_type_vals, "Unknown (%d)"),
-				 ls_length);
-
+    ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+			disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
+                        ett_ospf_lsa, &lsa_ti, "LSA-type %d (%s), len %d",
+                        ls_type, val_to_str_const(ls_type, ls_type_vals, "Unknown"),
+			ls_length);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_donotage, tvb,
@@ -2714,14 +2718,11 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     ls_length = tvb_get_ntohs(tvb, offset + 18);
     end_offset = offset + ls_length;
 
-    if (disassemble_body) {
-        ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
-                                 ett_ospf_lsa, &type_item, "%s (Type: 0x%04x)", val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
-    } else {
-        ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-                                 ett_ospf_lsa, &type_item, "LSA Header");
-    }
-
+    ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+			disassemble_body?ls_length:OSPF_LSA_HEADER_LENGTH,
+                        ett_ospf_lsa, &type_item, "LSA-type %d (%s), len %d",
+                        ls_type, val_to_str_const(ls_type, v3_ls_type_vals, "Unknown"),
+			ls_length);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_do_not_age, tvb, offset, 2, ENC_BIG_ENDIAN);
 
