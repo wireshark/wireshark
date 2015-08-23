@@ -968,13 +968,6 @@ void wslua_init(register_cb cb, gpointer client_data) {
     first_time = FALSE;
 }
 
-/* @TODO: Reloading Lua plugins.
- *
- * - Deregister FileHandlers
- * - Support deregister ProtoField with existing abbrev (same_name_hfinfo)
- * - Add a progress dialog when reloading many plugins
- * - Search for memory leakages in wslua functions
- */
 void wslua_reload_plugins (register_cb cb, gpointer client_data) {
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
