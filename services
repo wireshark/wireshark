@@ -7926,6 +7926,7 @@ slscc            4408/tcp # SLS Technology Control Centre [Steven_Sweeting] [Ste
 netcabinet-com   4409/tcp # Net-Cabinet comunication [Ian_Manning_2] [Ian_Manning_2] 2009-12-16
 itwo-server      4410/tcp # RIB iTWO Application Server [Kristean_Heisler_2] [Kristean_Heisler_2] 2009-12-16
 found            4411/tcp # Found Messaging Protocol [Found_Software] [John_Mitchell] 2012-04-11 Defined TXT keys: id, key
+smallchat        4412/udp # SmallChat [Valentino_Giudice] [Valentino_Giudice] 2015-08-18
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
