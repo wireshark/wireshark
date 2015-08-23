@@ -685,7 +685,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       printf   ("Capture application: %s\n", cf_info->usr_appl);
   }
 
-  if (cap_file_idb) {
+  if (cap_file_idb && cf_info->num_interfaces != 0) {
     guint i;
     g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
     printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
@@ -1065,9 +1065,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   idb_info = wtap_file_get_idb_info(wth);
 
-  /* every file should have at least one IDB, or else it's an internal programming error */
   g_assert(idb_info->interface_data != NULL);
-  g_assert(idb_info->interface_data->len > 0);
 
   cf_info.num_interfaces = idb_info->interface_data->len;
   cf_info.interface_ids  = g_new0(guint32, cf_info.num_interfaces);
@@ -1152,7 +1150,12 @@ process_cap_file(wtap *wth, const char *filename)
       }
       else {
         /* it's for interface_id 0 */
-        cf_info.interface_ids[0] += 1;
+        if (cf_info.num_interfaces != 0) {
+          cf_info.interface_ids[0] += 1;
+        }
+        else {
+          cf_info.pkt_interface_id_unknown += 1;
+        }
       }
     }
 
