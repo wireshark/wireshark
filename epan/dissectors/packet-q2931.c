@@ -27,6 +27,7 @@
 #include <epan/oui.h>
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include "packet-q931.h"
 #include "packet-arp.h"
 
@@ -102,6 +103,7 @@ static int hf_q2931_aal1_source_clock_frequency_recovery_method = -1;
 static int hf_q2931_broadband_repeat_indicator = -1;
 static int hf_q2931_cause_rejection_missing_information_element = -1;
 static int hf_q2931_e2e_transit_delay_maximum_end_to_end = -1;
+static int hf_q2931_endpoint_reference_flag = -1;
 static int hf_q2931_endpoint_reference_identifier_value = -1;
 static int hf_q2931_cause_vpci = -1;
 static int hf_q2931_endpoint_state = -1;
@@ -114,6 +116,7 @@ static int hf_q2931_cause_timer = -1;
 static int hf_q2931_cause_message_type = -1;
 static int hf_q2931_e2e_transit_delay_cumulative = -1;
 static int hf_q2931_oam_traffic_descriptor_shaping_indicator = -1;
+static int hf_q2931_oam_end_to_end_f5_flow = -1;
 static int hf_q2931_oam_traffic_descriptor_forward_f5_flow_indicator = -1;
 static int hf_q2931_organization_code = -1;
 static int hf_q2931_bband_low_layer_info_additional_l3_proto = -1;
@@ -135,12 +138,32 @@ static int hf_q2931_number_screening_indicator = -1;
 static int hf_q2931_bband_low_layer_info_window_size = -1;
 static int hf_q2931_conn_id_vp_associated_signalling = -1;
 static int hf_q2931_cause_cell_rate_subfield_identifier = -1;
+static int hf_q2931_frame_discard_forward_dir = -1;
+static int hf_q2931_frame_discard_backward_dir = -1;
+static int hf_q2931_tagging_backward_dir = -1;
+static int hf_q2931_tagging_forward_dir = -1;
+static int hf_q2931_midrange = -1;
+static int hf_q2931_cause_network_service = -1;
+static int hf_q2931_cause_network_behavior = -1;
+static int hf_q2931_nsap_address_number_short = -1;
+static int hf_q2931_atm_identifier = -1;
+static int hf_q2931_atm_identifier_value = -1;
+static int hf_q2931_aal_parameter_identifier = -1;
+static int hf_q2931_e2e_transit_delay_identifier = -1;
+static int hf_q2931_bband_sending_complete_id = -1;
+static int hf_q2931_bband_sending_complete = -1;
+static int hf_q2931_locking_codeset = -1;
 
 static gint ett_q2931 = -1;
 static gint ett_q2931_ext = -1;
 static gint ett_q2931_ie = -1;
 static gint ett_q2931_ie_ext = -1;
 static gint ett_q2931_nsap = -1;
+
+static expert_field ei_q2931_atm_identifier = EI_INIT;
+static expert_field ei_q2931_aal_parameter_identifier = EI_INIT;
+static expert_field ei_q2931_e2e_transit_delay_identifier = EI_INIT;
+static expert_field ei_q2931_bband_sending_complete_id = EI_INIT;
 
 static void dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			     proto_tree *tree, guint8 info_element, guint8 info_element_ext);
@@ -348,10 +371,10 @@ dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	non_locking_shift = (info_element == Q2931_IE_BBAND_NLOCKING_SHIFT);
 	codeset = tvb_get_guint8(tvb, offset) & 0x07;
-	proto_tree_add_text(tree, tvb, offset, 1, "%s shift to codeset %u: %s",
-	    (non_locking_shift ? "Non-locking" : "Locking"),
-	    codeset,
-	    val_to_str(codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
+	proto_tree_add_uint_format(tree, hf_q2931_locking_codeset, tvb, offset, 1, codeset,
+		"%s shift to codeset %u: %s",
+		(non_locking_shift ? "Non-locking" : "Locking"),
+		codeset, val_to_str(codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
 }
 
 /*
@@ -432,13 +455,14 @@ static const value_string q2931_sscs_type_vals[] = {
 };
 
 static void
-dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 				proto_tree *tree)
 {
 	guint8 aal_type;
 	guint8 identifier;
 	guint32 value;
 	guint32 low_mid, high_mid;
+	proto_item* ti;
 
 	if (len == 0)
 		return;
@@ -462,123 +486,114 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 
 	while (len >= 0) {
 		identifier = tvb_get_guint8(tvb, offset);
+		ti = proto_tree_add_item(tree, hf_q2931_aal_parameter_identifier, tvb, offset, 1, ENC_NA);
+		offset++;
+		len--;
 		switch (identifier) {
 
 		case 0x85:	/* Subtype identifier for AAL1 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_subtype, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_subtype, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		case 0x86:	/* CBR identifier for AAL1 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_cbr_rate, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_cbr_rate, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		case 0x87:	/* Multiplier identifier for AAL1 */
-			if (len < 3)
+			if (len < 2)
 				return;
-			value = tvb_get_ntohs(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_multiplier, tvb, offset, 3, value);
-			offset += 3;
-			len -= 3;
+			proto_tree_add_item(tree, hf_q2931_aal1_multiplier, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			len -= 2;
 			break;
 
 		case 0x88:	/* Source clock frequency recovery method identifier for AAL1 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_source_clock_frequency_recovery_method, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_source_clock_frequency_recovery_method, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		case 0x89:	/* Error correction method identifier for AAL1 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_error_correction_method, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_error_correction_method, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		case 0x8A:	/* Structured data transfer block size identifier for AAL1 */
-			if (len < 3)
+			if (len < 2)
 				return;
-			value = tvb_get_ntohs(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_structured_data_transfer_block_size, tvb, offset, 3, value);
-			offset += 3;
-			len -= 3;
+			proto_tree_add_item(tree, hf_q2931_aal1_structured_data_transfer_block_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			len -= 2;
 			break;
 
 		case 0x8B:	/* Partially filled cells identifier for AAL1 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint_format_value(tree, hf_q2931_aal1_partially_filled_cells_method, tvb, offset, 2,
+			value = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint_format_value(tree, hf_q2931_aal1_partially_filled_cells_method, tvb, offset, 1,
 			    value, "%u octets", value);
-			offset += 2;
-			len -= 2;
+			offset++;
+			len--;
 			break;
 
 		case 0x8C:	/* Forward maximum CPCS-SDU size identifier for AAL3/4 and AAL5 */
-			if (len < 3)
+			if (len < 2)
 				return;
-			value = tvb_get_ntohs(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_forward_max_cpcs_sdu_size, tvb, offset, 3, value);
-			offset += 3;
-			len -= 3;
+			proto_tree_add_item(tree, hf_q2931_aal1_forward_max_cpcs_sdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			len -= 2;
 			break;
 
 		case 0x81:	/* Backward maximum CPCS-SDU size identifier for AAL3/4 and AAL5 */
-			if (len < 3)
+			if (len < 2)
 				return;
-			value = tvb_get_ntohs(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_backward_max_cpcs_sdu_size, tvb, offset, 3, value);
-			offset += 3;
-			len -= 3;
+			proto_tree_add_item(tree, hf_q2931_aal1_backward_max_cpcs_sdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			len -= 2;
 			break;
 
 		case 0x82:	/* MID range identifier for AAL3/4 */
-			if (len < 5)
+			if (len < 4)
 				return;
-			low_mid = tvb_get_ntohs(tvb, offset + 1);
-			high_mid = tvb_get_ntohs(tvb, offset + 3);
-			proto_tree_add_text(tree, tvb, offset, 3,
-			    "MID range: %u - %u", low_mid, high_mid);
-			offset += 5;
-			len -= 5;
+			low_mid = tvb_get_ntohs(tvb, offset);
+			high_mid = tvb_get_ntohs(tvb, offset + 2);
+			proto_tree_add_uint_format_value(tree, hf_q2931_midrange, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
+											"%u - %u", low_mid, high_mid);
+			offset += 4;
+			len -= 4;
 			break;
 
 		case 0x83:	/* Mode identifier for AAL3/4 and AAL5 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_mode, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_mode, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		case 0x84:	/* SSCS type identifier for AAL3/4 and AAL5 */
-			if (len < 2)
+			if (len < 1)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_uint(tree, hf_q2931_aal1_sscs_type, tvb, offset, 2, value);
-			offset += 2;
-			len -= 2;
+			proto_tree_add_item(tree, hf_q2931_aal1_sscs_type, tvb, offset, 1, ENC_NA);
+			offset++;
+			len--;
 			break;
 
 		default:	/* unknown AAL parameter */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Unknown AAL parameter (0x%02X)",
-			    identifier);
+			expert_add_info(pinfo, ti, &ei_q2931_aal_parameter_identifier);
 			return;	/* give up */
 		}
 	}
@@ -621,14 +636,17 @@ static const value_string q2931_atm_td_subfield_vals[] = {
 };
 
 static void
-dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			       proto_tree *tree)
 {
 	guint8 identifier;
 	guint32 value;
+	proto_item* ti;
 
 	while (len >= 0) {
 		identifier = tvb_get_guint8(tvb, offset);
+		ti = proto_tree_add_item(tree, hf_q2931_atm_identifier, tvb, offset, 1, ENC_NA);
+
 		switch (identifier) {
 
 		case Q2931_ATM_CR_FW_PEAK_CLP_0:
@@ -646,21 +664,14 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 			if (len < 4)
 				return;
 			value = tvb_get_ntoh24(tvb, offset + 1);
-			proto_tree_add_text(tree, tvb, offset, 4,
-			    "%s: %u cell%s/s",
-			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      "Unknown (0x%02X)"),
-			    value, plurality(value, "", "s"));
+			proto_tree_add_uint_format_value(tree, hf_q2931_atm_identifier_value, tvb, offset+3, 3, value,
+			    "%u cell%s/s", value, plurality(value, "", "s"));
 			offset += 4;
 			len -= 4;
 			break;
 
 		case Q2931_ATM_CR_BEST_EFFORT_IND:
 			/* Yes, its value *IS* 0xBE.... */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "%s",
-			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
 			break;
@@ -668,31 +679,16 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 		case Q2931_ATM_CR_TRAFFIC_MGMT_OPT:
 			if (len < 2)
 				return;
-			value = tvb_get_guint8(tvb, offset + 1);
-			proto_tree_add_text(tree, tvb, offset, 2,
-			    "%s",
-			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      "Unknown (0x%02X)"));
-			proto_tree_add_text(tree, tvb, offset + 1, 1,
-			    "%s allowed in forward direction",
-			    (value & 0x80) ? "Frame discard" : "No frame discard");
-			proto_tree_add_text(tree, tvb, offset + 1, 1,
-			    "%s allowed in backward direction",
-			    (value & 0x40) ? "Frame discard" : "No frame discard");
-			proto_tree_add_text(tree, tvb, offset + 1, 1,
-			    "Tagging %srequested in backward direction",
-			    (value & 0x02) ? "" : "not ");
-			proto_tree_add_text(tree, tvb, offset + 1, 1,
-			    "Tagging %srequested in forward direction",
-			    (value & 0x01) ? "" : "not ");
+			proto_tree_add_item(tree, hf_q2931_frame_discard_forward_dir, tvb, offset + 1, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_frame_discard_backward_dir, tvb, offset + 1, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_tagging_backward_dir, tvb, offset + 1, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_tagging_forward_dir, tvb, offset + 1, 1, ENC_NA);
 			offset += 2;
 			len -= 2;
 			break;
 
 		default:	/* unknown ATM traffic descriptor element */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Unknown ATM traffic descriptor element (0x%02X)",
-			    identifier);
+			expert_add_info(pinfo, ti, &ei_q2931_atm_identifier);
 			return;	/* give up */
 		}
 	}
@@ -1138,6 +1134,9 @@ static const value_string q2931_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
+static const true_false_string tfs_user_provider             = { "User", "Provider" };
+static const true_false_string tfs_abnormal_normal           = { "Abnormal", "Normal" };
+
 static void
 dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		       proto_tree *tree)
@@ -1170,17 +1169,9 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	case Q2931_CAUSE_UNALLOC_NUMBER:
 	case Q2931_CAUSE_NO_ROUTE_TO_DEST:
 	case Q2931_CAUSE_QOS_UNAVAILABLE:
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Network service: %s",
-		    (octet & 0x80) ? "User" : "Provider");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s",
-		    (octet & 0x40) ? "Abnormal" : "Normal");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Condition: %s",
-		    val_to_str(octet & 0x03, q2931_cause_condition_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q2931_cause_network_service, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_cause_network_behavior, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_cause_rejection_condition, tvb, offset, 1, ENC_NA);
 		break;
 
 	case Q2931_CAUSE_CALL_REJECTED:
@@ -1384,9 +1375,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 
 	case Q2931_NSAP_ADDRESSING:
 		if (len < 20) {
-			proto_tree_add_text(tree, tvb, offset, len,
-			    "Number (too short): %s",
-			    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+			proto_tree_add_item(tree, hf_q2931_nsap_address_number_short, tvb, offset, len, ENC_NA);
 			return;
 		}
 		nsap_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_q2931_nsap, NULL, "Number");
@@ -1475,37 +1464,37 @@ dissect_q2931_connection_identifier_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect an End-to-end transit delay information element.
  */
 static void
-dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
-				   proto_tree *tree)
+dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree)
 {
 	guint8 identifier;
 	guint16 value;
+	proto_item* ti;
 
 	while (len >= 3) {
+		ti = proto_tree_add_item(tree, hf_q2931_e2e_transit_delay_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
 		identifier = tvb_get_guint8(tvb, offset);
-		value = tvb_get_ntohs(tvb, offset + 1);
+		offset++;
+		value = tvb_get_ntohs(tvb, offset);
 		len -=3;
 		switch (identifier) {
 
 		case 0x01:	/* Cumulative transit delay identifier */
-			proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_cumulative, tvb, offset, 3,
+			proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_cumulative, tvb, offset, 2,
 			    value, "%u ms", value);
 			break;
 
 		case 0x03:	/* Maximum transit delay identifier */
 			if (value == 0xFFFF) {
-				proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_maximum_end_to_end, tvb, offset, 3,
+				proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_maximum_end_to_end, tvb, offset, 2,
 				    value, "Any end-to-end transit delay value acceptable");
 			} else {
-				proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_maximum_end_to_end, tvb, offset, 3,
+				proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_maximum_end_to_end, tvb, offset, 2,
 				    value, "%u ms", value);
 			}
 			break;
 
 		default:	/* Unknown transit delay identifier */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Unknown transit delay identifier (0x%02X)",
-			    identifier);
+			expert_add_info(pinfo, ti, &ei_q2931_e2e_transit_delay_identifier);
 			return;	/* give up */
 		}
 	}
@@ -1577,26 +1566,25 @@ dissect_q2931_restart_indicator(tvbuff_t *tvb, int offset, int len,
  * Dissect an broadband sending complete information element.
  */
 static void
-dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 				     proto_tree *tree)
 {
 	guint8 identifier;
+	proto_item* ti;
 
 	while (len >= 0) {
+		ti = proto_tree_add_item(tree, hf_q2931_bband_sending_complete_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		identifier = tvb_get_guint8(tvb, offset);
 		switch (identifier) {
 
 		case 0xA1:	/* Sending complete indication */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Broadband sending complete indication");
+			proto_tree_add_item(tree, hf_q2931_bband_sending_complete, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			len -= 1;
 			break;
 
 		default:	/* unknown broadband sending complete element */
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Unknown broadband sending complete element (0x%02X)",
-			    identifier);
+			expert_add_info(pinfo, ti, &ei_q2931_bband_sending_complete_id);
 			return;	/* give up */
 		}
 	}
@@ -1665,19 +1653,17 @@ static const value_string q2931_bwd_e2e_oam_f5_flow_indicator_vals[] = {
 	{ 0x0,  NULL }
 };
 
+static const true_false_string tfs_mandatory_optional = { "Mandatory", "Optional" };
+
 static void
 dissect_q2931_oam_traffic_descriptor_ie(tvbuff_t *tvb, int offset, int len,
 					proto_tree *tree)
 {
-	guint8 octet;
-
 	if (len == 0)
 		return;
-	octet = tvb_get_guint8(tvb, offset);
+
 	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_shaping_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Use of end-to-end OAM F5 flow is %s",
-	    (octet & 0x10) ? "mandatory" : "optional");
+	proto_tree_add_item(tree, hf_q2931_oam_end_to_end_f5_flow, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_management_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
@@ -1697,12 +1683,13 @@ static const value_string q2931_endpoint_reference_type_vals[] = {
 	{ 0,    NULL }
 };
 
+static const true_false_string tfs_endpoint_reference_flag = { "Message sent to side that originates the endpoint reference",
+																"Message sent from side that originates the endpoint reference" };
+
 static void
 dissect_q2931_endpoint_reference_ie(tvbuff_t *tvb, int offset, int len,
 				    proto_tree *tree)
 {
-	guint16 value;
-
 	if (len == 0)
 		return;
 
@@ -1712,11 +1699,8 @@ dissect_q2931_endpoint_reference_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len < 2)
 		return;
-	value = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 2,
-	    "Endpoint reference flag: %s",
-	    (value & 0x8000) ? "Message sent to side that originates the endpoint reference" :
-			       "Message sent from side that originates the endpoint reference");
+
+	proto_tree_add_item(tree, hf_q2931_endpoint_reference_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_q2931_endpoint_reference_identifier_value, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
@@ -1768,11 +1752,11 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 		break;
 
 	case Q2931_IE_AAL_PARAMETERS:
-		dissect_q2931_aal_parameters_ie(tvb, offset, len, tree);
+		dissect_q2931_aal_parameters_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_ATM_USER_CELL_RATE:
-		dissect_q2931_atm_cell_rate_ie(tvb, offset, len, tree);
+		dissect_q2931_atm_cell_rate_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_BBAND_BEARER_CAP:
@@ -1810,7 +1794,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 		break;
 
 	case Q2931_IE_E2E_TRANSIT_DELAY:
-		dissect_q2931_e2e_transit_delay_ie(tvb, offset, len, tree);
+		dissect_q2931_e2e_transit_delay_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_QOS_PARAMETER:
@@ -1826,7 +1810,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 		break;
 
 	case Q2931_IE_BBAND_SENDING_COMPL:
-		dissect_q2931_bband_sending_compl_ie(tvb, offset, len, tree);
+		dissect_q2931_bband_sending_compl_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_TRANSIT_NETWORK_SEL:
@@ -2416,6 +2400,11 @@ proto_register_q2931(void)
 		    FT_UINT8, BASE_HEX, VALS(q2931_shaping_indicator_vals), 0x60,
 		    NULL, HFILL }
 		},
+		{ &hf_q2931_oam_end_to_end_f5_flow,
+		  { "Use of end-to-end OAM F5 flow", "q2931.oam_end_to_end_f5_flow",
+		    FT_BOOLEAN, 8, TFS(&tfs_mandatory_optional), 0x10,
+		    NULL, HFILL }
+		},
 		{ &hf_q2931_oam_traffic_descriptor_management_indicator,
 		  { "User-Network fault management indicator", "q2931.oam_traffic_descriptor.management_indicator",
 		    FT_UINT8, BASE_HEX, VALS(q2931_user_net_fault_mgmt_vals), 0x07,
@@ -2434,6 +2423,11 @@ proto_register_q2931(void)
 		{ &hf_q2931_endpoint_reference_type,
 		  { "Endpoint reference type", "q2931.endpoint_reference.type",
 		    FT_UINT8, BASE_HEX, VALS(q2931_endpoint_reference_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_endpoint_reference_flag,
+		  { "Endpoint reference identifier value", "q2931.endpoint_reference.flag",
+		    FT_BOOLEAN, 16, TFS(&tfs_endpoint_reference_flag), 0x8000,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_endpoint_reference_identifier_value,
@@ -2466,7 +2460,83 @@ proto_register_q2931(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_q2931_frame_discard_forward_dir,
+		  { "Frame discard in forward direction", "q2931.frame_discard_forward_dir",
+		    FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_frame_discard_backward_dir,
+		  { "Frame discard in backward direction", "q2931.frame_discard_backward_dir",
+		    FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x40,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_tagging_backward_dir,
+		  { "Tagging in backward direction", "q2931.tagging_backward_dir",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_tagging_forward_dir,
+		  { "Tagging in forward direction", "q2931.tagging_forward_dir",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_midrange,
+		  { "MID range", "q2931.midrange",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_network_service,
+		  { "Network service", "q2931.cause.network_service",
+		    FT_BOOLEAN, 8, TFS(&tfs_user_provider), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_network_behavior,
+		  { "Network behavior", "q2931.cause.network_behavior",
+		    FT_BOOLEAN, 8, TFS(&tfs_abnormal_normal), 0x40,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_nsap_address_number_short,
+		  { "Number (too short)", "q2931.nsap_address.number_short",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_atm_identifier,
+		  { "Identifier", "q2931.atm_identifier",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, VALS(q2931_atm_td_subfield_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_atm_identifier_value,
+		  { "Value", "q2931.atm_identifier_value",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal_parameter_identifier,
+		  { "Identifier", "q2931.aal.parameter_identifier",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_e2e_transit_delay_identifier,
+		  { "Identifier", "q2931.transit_delay.identifier",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_sending_complete_id,
+		  { "Identifier", "q2931.bband_sending_complete.id",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_sending_complete,
+		  { "Broadband sending complete indication", "q2931.bband_sending_complete",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_locking_codeset,
+		  { "Locking codeset", "q2931.locking_codeset",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
+
 	static gint *ett[] = {
 		&ett_q2931,
 		&ett_q2931_ext,
@@ -2475,9 +2545,20 @@ proto_register_q2931(void)
 		&ett_q2931_nsap,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_q2931_atm_identifier, { "q2931.atm_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown ATM traffic descriptor element", EXPFILL }},
+		{ &ei_q2931_aal_parameter_identifier, { "q2931.aal.parameter_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown AAL parameter", EXPFILL }},
+		{ &ei_q2931_e2e_transit_delay_identifier, { "q2931.transit_delay.parameter_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown transit delay identifier", EXPFILL }},
+		{ &ei_q2931_bband_sending_complete_id, { "q2931.bband_sending_complete.id.unknown", PI_PROTOCOL, PI_WARN, "Unknown broadband sending complete element", EXPFILL }},
+	};
+
+	expert_module_t* expert_q2931;
+
 	proto_q2931 = proto_register_protocol("Q.2931", "Q.2931", "q2931");
 	proto_register_field_array (proto_q2931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_q2931 = expert_register_protocol(proto_q2931);
+	expert_register_field_array(expert_q2931, ei, array_length(ei));
 
 	register_dissector("q2931", dissect_q2931, proto_q2931);
 }

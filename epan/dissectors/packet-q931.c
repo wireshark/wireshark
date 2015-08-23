@@ -193,6 +193,8 @@ static int hf_q931_accept_data_flow_control = -1;
 static int hf_q931_mode_of_operation = -1;
 static int hf_q931_extension_condition_type = -1;
 static int hf_q931_pl_binary_confirmation = -1;
+static int hf_q931_pl_request = -1;
+static int hf_q931_pl_modulus = -1;
 static int hf_q931_network_service = -1;
 static int hf_q931_extension_condition = -1;
 static int hf_q931_rate_adaption_header = -1;
@@ -202,6 +204,24 @@ static int hf_q931_accept_data_net_independent_clock = -1;
 static int hf_q931_send_data_flow_control = -1;
 static int hf_q931_data = -1;
 static int hf_q931_layer_1_in_band_negotiation = -1;
+static int hf_q931_information_element = -1;
+static int hf_q931_information_element_len = -1;
+static int hf_q931_date_time = -1;
+static int hf_q931_more_data = -1;
+static int hf_q931_sending_complete = -1;
+static int hf_q931_message_segment = -1;
+static int hf_q931_missing_info_element = -1;
+static int hf_q931_insufficient_info_element = -1;
+static int hf_q931_cumulative_transit_delay = -1;
+static int hf_q931_requested_end_to_end_transit_delay = -1;
+static int hf_q931_maximum_end_to_end_transit_delay = -1;
+static int hf_q931_transit_delay = -1;
+static int hf_q931_display_information = -1;
+static int hf_q931_keypad_facility = -1;
+static int hf_q931_avaya_display = -1;
+static int hf_q931_locking_codeset = -1;
+static int hf_q931_protocol_negotiation = -1;
+
 
 static gint ett_q931                    = -1;
 #define NUM_IE  256
@@ -211,6 +231,9 @@ static gint ett_q931_segments = -1;
 static gint ett_q931_segment = -1;
 
 static expert_field ei_q931_invalid_length = EI_INIT;
+static expert_field ei_q931_date_time = EI_INIT;
+static expert_field ei_q931_information_element = EI_INIT;
+static expert_field ei_q931_incomplete_ie = EI_INIT;
 
 static const fragment_items q931_frag_items = {
     &ett_q931_segment,
@@ -848,6 +871,7 @@ static const range_string q931_l1_modem_type_rvals[] = {
 
 static const true_false_string tfs_assignor_default                   = { "Assignor only", "Default assignee" };
 static const true_false_string tfs_in_out_band                        = { "in-band", "out-of-band" };
+static const true_false_string tfs_protocol_negotiation               = { "Full protocol negotiation", "LLI = 256 only" };
 
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
@@ -954,9 +978,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
         proto_tree_add_item(tree, hf_q931_rate_adaption_header, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_multiple_frame_establishment, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_mode_of_operation, tvb, offset, 1, ENC_NA);
-        proto_tree_add_text(tree, tvb, offset, 1,
-            (octet & 0x08) ?
-              "Full protocol negotiation" : "LLI = 256 only");
+        proto_tree_add_item(tree, hf_q931_protocol_negotiation, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_message_originator, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_negotiation_is_done, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -1354,16 +1376,14 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
             break;
 
         case Q931_REJ_IE_MISSING:
-            proto_tree_add_text(tree, tvb, offset, 1,
-                "Missing information element: %s",
-                val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+            proto_tree_add_uint_format_value(tree, hf_q931_missing_info_element, tvb, offset, 1,
+                 tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
         case Q931_REJ_IE_INSUFFICIENT:
-            proto_tree_add_text(tree, tvb, offset, 1,
-                "Insufficient information element: %s",
-                val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+            proto_tree_add_uint_format_value(tree, hf_q931_insufficient_info_element, tvb, offset, 1,
+                tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
@@ -1379,9 +1399,8 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
     case Q931_CAUSE_IE_NONEX_OR_UNIMPL:
     case Q931_CAUSE_INVALID_IE_CONTENTS:
         do {
-            proto_tree_add_text(tree, tvb, offset, 1,
-                "Information element: %s",
-                val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+            proto_tree_add_uint_format_value(tree, hf_q931_information_element, tvb, offset, 1,
+                tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             offset += 1;
             len -= 1;
@@ -1743,7 +1762,7 @@ dissect_q931_notification_indicator_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a Date/time information element.
  */
 static void
-dissect_q931_date_time_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_date_time_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
     proto_tree *tree)
 {
     if (len == 6) {
@@ -1751,18 +1770,15 @@ dissect_q931_date_time_ie(tvbuff_t *tvb, int offset, int len,
          * XXX - what is "year" relative to?  Is "month" 0-origin or
          * 1-origin?  Q.931 doesn't say....
          */
-        proto_tree_add_text(tree, tvb, offset, 6,
-            "Date/time: %02u-%02u-%02u %02u:%02u:%02u",
+        proto_tree_add_bytes_format_value(tree, hf_q931_date_time, tvb, offset, 6, NULL, "%02u-%02u-%02u %02u:%02u:%02u",
             tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
             tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4), tvb_get_guint8(tvb, offset + 5));
     } else if (len == 5) {
-        proto_tree_add_text(tree, tvb, offset, 5,
-            "Date/time: %02u-%02u-%02u %02u:%02u:00",
+        proto_tree_add_bytes_format_value(tree, hf_q931_date_time, tvb, offset, 5, NULL, "%02u-%02u-%02u %02u:%02u:00",
             tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
             tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4));
     } else {
-        proto_tree_add_text(tree, tvb, offset, len,
-            "Date/time: length is %d, should be 5 or 6", len);
+        proto_tree_add_expert_format(tree, pinfo, &ei_q931_date_time, tvb, offset, len, "Date/time: length is %d, should be 5 or 6", len);
     }
 }
 
@@ -1842,7 +1858,7 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 
 static int
 dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
-    proto_tree *tree, proto_item* item, const char *label)
+    proto_tree *tree, proto_item* item, int hf_value)
 {
     guint8 octet;
     guint16 value;
@@ -1898,17 +1914,18 @@ dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int le
     /*len -= 1;*/
     value_len++;
 
-    proto_tree_add_text(tree, tvb, offset, value_len, "%s: %u ms", label,
-        value);
+    proto_tree_add_uint_format_value(tree, hf_value, tvb, offset, value_len, value,
+        "%u ms", value);
     return value_len;
 
 past_end:
     expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
-        "%s goes past end of information element", label);
+        "%s goes past end of information element", proto_registrar_get_name(hf_value));
     return -1;
 
 bad_length:
-    expert_add_info_format(pinfo, item, &ei_q931_invalid_length, "%s isn't 3 octets long", label);
+    expert_add_info_format(pinfo, item, &ei_q931_invalid_length, "%s isn't 3 octets long",
+        proto_registrar_get_name(hf_value));
     return -1;
 }
 
@@ -1923,8 +1940,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
-        "Cumulative transit delay");
+    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_cumulative_transit_delay);
     if (value_len < 0)
         return; /* error */
     offset += value_len;
@@ -1932,8 +1948,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
-        "Requested end-to-end transit delay");
+    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_requested_end_to_end_transit_delay);
     if (value_len < 0)
         return; /* error */
     offset += value_len;
@@ -1941,8 +1956,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    /*value_len =*/ dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
-        "Maximum end-to-end transit delay");
+    dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_maximum_end_to_end_transit_delay);
 }
 
 /*
@@ -1954,8 +1968,7 @@ dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offs
 {
     if (len == 0)
         return;
-    dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
-        "Transit delay");
+    dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_transit_delay);
 }
 
 /*
@@ -1970,24 +1983,25 @@ static const value_string q931_fast_selected_vals[] = {
 };
 
 static const true_false_string tfs_link_end = { "Link-by-link", "End-to-end" };
+static const true_false_string tfs_pl_request = { "No request/request denied", "Request indicated/request accepted" };
+static const true_false_string tfs_pl_modulus = { "8 sequencing", "128 sequencing" };
 
 static void
 dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
+    const int * fields[] = {
+        &hf_q931_fast_select,
+        &hf_q931_pl_request,
+        &hf_q931_pl_binary_confirmation,
+        &hf_q931_pl_modulus,
+        NULL
+    };
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_q931_fast_select, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_text(tree, tvb, offset, 1,
-        "%s", (octet & 0x04) ? "No request/request denied" :
-                "Request indicated/request accepted");
-    proto_tree_add_item(tree, hf_q931_pl_binary_confirmation, tvb, offset, 1, ENC_NA);
-    proto_tree_add_text(tree, tvb, offset, 1,
-        "Modulus %u sequencing",
-        (octet & 0x01) ? 8 : 128);
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, fields, ENC_NA);
 }
 
 /*
@@ -2451,11 +2465,10 @@ dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
-    const char *label)
+    int hf_value)
 {
     if (len != 0) {
-        proto_tree_add_text(tree, tvb, offset, len, "%s: %s", label,
-            tvb_format_text(tvb, offset, len));
+        proto_tree_add_item(tree, hf_value, tvb, offset, len, ENC_ASCII|ENC_NA);
         proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(tvb, offset, len));
     }
 }
@@ -2553,9 +2566,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Segmented message IE */
     ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], NULL,
                     val_to_str(info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
-    proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
-                    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
-    proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
+    proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element,
+                            "%s", val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
+    proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, ENC_NA);
     dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
     first_frag = (tvb_get_guint8(tvb, offset + 2) & 0x80) != 0;
     more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
@@ -2638,11 +2651,10 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             if (!non_locking_shift)
                 locked_codeset = codeset;
             if (q931_tree != NULL) {
-                proto_tree_add_text(q931_tree, tvb, offset, 1,
-                    "%s shift to codeset %u: %s",
+                proto_tree_add_uint_format(q931_tree, hf_q931_locking_codeset, tvb, offset, 1,
+                    codeset, "%s shift to codeset %u: %s",
                     (non_locking_shift ? "Non-locking" : "Locking"),
-                    codeset,
-                    val_to_str(codeset, q931_codeset_vals,
+                    codeset, val_to_str(codeset, q931_codeset_vals,
                       "Unknown (0x%02X)"));
             }
             offset += 1;
@@ -2674,17 +2686,16 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                 switch (info_element) {
 
                 case Q931_IE_MORE_DATA:
-                    proto_tree_add_text(q931_tree, tvb, offset, 1, "More data");
+                    proto_tree_add_item(q931_tree, hf_q931_more_data, tvb, offset, 1, ENC_NA);
                     break;
 
                 case Q931_IE_SENDING_COMPLETE:
-                    proto_tree_add_text(q931_tree, tvb, offset, 1, "Sending complete");
+                    proto_tree_add_item(q931_tree, hf_q931_sending_complete, tvb, offset, 1, ENC_NA);
                     break;
 
                 default:
-                    proto_tree_add_text(q931_tree, tvb, offset, 1,
-                            "Unknown information element (0x%02X)",
-                            info_element);
+                    proto_tree_add_expert_format(q931_tree, pinfo, &ei_q931_information_element, tvb, offset, 1,
+                            "Unknown information element (0x%02X)", info_element);
                     break;
                 }
                 break;
@@ -2698,9 +2709,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                 break;
 
             default:
-                proto_tree_add_text(q931_tree, tvb, offset, 1,
-                        "Unknown information element (0x%02X)",
-                        info_element);
+                proto_tree_add_expert_format(q931_tree, pinfo, &ei_q931_information_element, tvb, offset, 1,
+                        "Unknown information element (0x%02X)", info_element);
                 break;
             }
             offset += 1;
@@ -2729,17 +2739,10 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                     val_to_str(info_element,
                       q931_info_element_vals[codeset],
                       "Unknown information element (0x%02X)"));
-                proto_tree_add_text(ie_tree, tvb, offset, 1,
-                    "Information element: %s",
-                    val_to_str(info_element,
+                proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element, "%s", val_to_str(info_element,
                       q931_info_element_vals[codeset], "Unknown (0x%02X)"));
-                proto_tree_add_text(ie_tree, tvb, offset + 1,
-                    2, "Length: %u", info_element_len);
-                proto_tree_add_text(ie_tree, tvb, offset + 3,
-                    1, "Protocol discriminator: %s",
-                    val_to_str_ext(tvb_get_guint8(tvb, offset + 3),
-                      &q931_protocol_discriminator_vals_ext,
-                      "Unknown (0x%02x)"));
+                proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ie_tree, hf_q931_user_protocol_discriminator, tvb, offset + 3, 1, ENC_NA);
             }
 
             if (info_element_len > 1) {
@@ -2778,7 +2781,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             info_element_len = tvb_get_guint8(tvb, offset + 1);
 
             if (first_segment && (tvb_reported_length_remaining(tvb, offset + 2) < info_element_len)) {  /* incomplete IE at the end of the 1st segment */
-                proto_tree_add_text(q931_tree, tvb, offset, -1, "Incomplete IE in the 1st segment");
+                proto_tree_add_expert(q931_tree, pinfo, &ei_q931_incomplete_ie, tvb, offset, -1);
                 break;
             }
 
@@ -2799,9 +2802,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
             ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], &ti,
                     val_to_str(info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
-            proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
+            proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element, "%s",
                     val_to_str(info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
-            proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
+            proto_tree_add_uint(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, info_element_len);
 
             if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
                 dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
@@ -2811,7 +2814,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                 if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
                     first_segment = TRUE;
                 } else {  /* not the 1st segment */
-                    proto_tree_add_text(q931_tree, tvb, offset + 4, -1, "Message segment");
+                    proto_tree_add_item(q931_tree, hf_q931_message_segment, tvb, offset + 4, -1, ENC_NA);
                     info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
                 }
             } else {
@@ -2892,25 +2895,19 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2,
-                            info_element_len, ie_tree,
-                            "Display information");
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_display_information);
                     }
                     break;
 
                 case CS0 | Q931_IE_DATE_TIME:
-                    if (q931_tree != NULL) {
-                        dissect_q931_date_time_ie(tvb,
+                    dissect_q931_date_time_ie(tvb, pinfo,
                             offset + 2, info_element_len,
                             ie_tree);
-                    }
                     break;
 
                 case CS0 | Q931_IE_KEYPAD_FACILITY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2,
-                            info_element_len, ie_tree,
-                            "Keypad facility");
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_keypad_facility);
                     }
                     break;
 
@@ -3054,9 +3051,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS6 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2,
-                            info_element_len, ie_tree,
-                            "Avaya Display");
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_avaya_display);
                     }
                     break;
 
@@ -3825,9 +3820,19 @@ proto_register_q931(void)
             FT_UINT8, BASE_HEX, VALS(q931_cause_condition_vals), 0x03,
             NULL, HFILL }
         },
+        { &hf_q931_pl_request,
+          { "Request", "q931.pl_request",
+            FT_BOOLEAN, 8, TFS(&tfs_pl_request), 0x04,
+            NULL, HFILL }
+        },
         { &hf_q931_pl_binary_confirmation,
           { "Confirmation", "q931.pl_binary_confirmation",
             FT_BOOLEAN, 8, TFS(&tfs_link_end), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_q931_pl_modulus,
+          { "Modulus", "q931.pl_modulus",
+            FT_BOOLEAN, 8, TFS(&tfs_pl_modulus), 0x01,
             NULL, HFILL }
         },
         { &hf_q931_data,
@@ -3835,12 +3840,101 @@ proto_register_q931(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_q931_information_element,
+          { "Information element", "q931.information_element",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_information_element_len,
+          { "Length", "q931.information_element_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_date_time,
+          { "Date/time", "q931.date_time",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_more_data,
+          { "More data", "q931.more_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_sending_complete,
+          { "Sending complete", "q931.sending_complete",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_message_segment,
+          { "Message segment", "q931.message_segment",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_missing_info_element,
+          { "Missing information element", "q931.missing_info_element",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_insufficient_info_element,
+          { "Insufficient information element", "q931.insufficient_info_element",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_cumulative_transit_delay,
+          { "Cumulative transit delay", "q931.cumulative_transit_delay",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_requested_end_to_end_transit_delay,
+          { "Requested end-to-end transit delay", "q931.requested_end_to_end_transit_delay",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_maximum_end_to_end_transit_delay,
+          { "Maximum end-to-end transit delay", "q931.maximum_end_to_end_transit_delay",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_transit_delay,
+          { "Transit delay", "q931.transit_delay",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_display_information,
+          { "Display information", "q931.display_information",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_keypad_facility,
+          { "Keypad facility", "q931.keypad_facility",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_avaya_display,
+          { "Avaya Display", "q931.avaya_display",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_locking_codeset,
+          { "Locking codeset", "q931.locking_codeset",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_q931_protocol_negotiation,
+          { "Protocol negotiation", "q931.protocol_negotiation",
+            FT_BOOLEAN, 8, TFS(&tfs_protocol_negotiation), 0x08,
+            NULL, HFILL }
+        },
     };
+
 #define NUM_INDIVIDUAL_ELEMS    3
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_IE];
 
     static ei_register_info ei[] = {
         { &ei_q931_invalid_length, { "q931.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+        { &ei_q931_date_time, { "q931.date_time.invalid", PI_MALFORMED, PI_ERROR, "Date/time: Invalid length", EXPFILL }},
+        { &ei_q931_information_element, { "q931.information_element.unknown", PI_PROTOCOL, PI_WARN, "Unknown information element", EXPFILL }},
+        { &ei_q931_incomplete_ie, { "q931.incomplete_ie", PI_MALFORMED, PI_ERROR, "Incomplete IE in the 1st segment", EXPFILL }},
     };
 
     module_t *q931_module;
