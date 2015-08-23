@@ -563,16 +563,16 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 
 /* based on code from rfc7049 appendix-D */
 static float decode_half(const int half) {
-	int exp = (half >> 10) & 0x1f;
-	int mant = half & 0x3ff;
+	int exponent = (half >> 10) & 0x1f;
+	int mantissa = half & 0x3ff;
 	float val;
 
-	if (exp == 0)
-		val = ldexpf((float)mant, -24);
-	else if (exp != 31)
-		val = ldexpf((float)(mant + 1024), exp - 25);
+	if (exponent == 0)
+		val = ldexpf((float)mantissa, -24);
+	else if (exponent != 31)
+		val = ldexpf((float)(mantissa + 1024), exponent - 25);
 	else
-		val = mant == 0 ? INFINITY : NAN;
+		val = mantissa == 0 ? INFINITY : NAN;
 	return half & 0x8000 ? -val : val;
 }
 
