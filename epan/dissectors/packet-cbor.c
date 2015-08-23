@@ -562,29 +562,35 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 }
 
 /* based on code from rfc7049 appendix-D */
-static float decode_half(const int half) {
-	int exponent = (half >> 10) & 0x1f;
-	int mantissa = half & 0x3ff;
+static proto_item *decode_half(tvbuff_t *tvb, proto_tree *tree, gint *offset, int hfindex) {
+	int half, exponent, mantissa;
 	float val;
+	proto_item *item;
 
-	if (exponent == 0)
+	half = tvb_get_ntohs(tvb, *offset);
+	exponent = (half >> 10) & 0x1f;
+	mantissa = half & 0x3ff;
+
+	if (exponent == 0) {
 		val = ldexpf((float)mantissa, -24);
-	else if (exponent != 31)
+		item = proto_tree_add_float(tree, hfindex, tvb, *offset, 2,
+						half & 0x8000 ? -val : val);
+	} else if (exponent != 31) {
 		val = ldexpf((float)(mantissa + 1024), exponent - 25);
-	else {
-		if (mantissa == 0)
-			val = INFINITY;
-		else
-			val = NAN;
+		item = proto_tree_add_float(tree, hfindex, tvb, *offset, 2,
+						half & 0x8000 ? -val : val);
+	} else {
+		item = proto_tree_add_float_format_value(tree, hfindex, tvb, *offset, 2,
+						0, "%s", mantissa == 0 ? "INFINITY" : "NAN");
 	}
-	return half & 0x8000 ? -val : val;
+	*offset += 2;
+	return item;
 }
 
 static proto_item *
 dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	proto_item      *item;
-	int		half;
 
 	switch (type_minor) {
 	case 0x18:
@@ -594,9 +600,7 @@ dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cb
 		return item;
 	case 0x19:
 		*offset += 1;
-		half = tvb_get_ntohs(tvb, *offset);
-		item = proto_tree_add_float(cbor_tree, hf_cbor_type_float16, tvb, *offset, 2, decode_half(half));
-		*offset += 2;
+		item = decode_half(tvb, cbor_tree, offset, hf_cbor_type_float16);
 		return item;
 	case 0x1a:
 		*offset += 1;
