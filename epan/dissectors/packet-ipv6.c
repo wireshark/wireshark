@@ -2272,13 +2272,13 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             } else if (plen == 0) {
                 /* IPv6 length zero is invalid if there is a hop-by-hop header without jumbo option */
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid IPv6 header length");
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid IPv6 payload length");
                 if (ti_ipv6_plen) {
                     expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_opt_jumbo_missing);
                 }
                 return;
             } else if (plen < (guint32)advance) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 header length");
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 payload length");
                 if (ti_ipv6_plen) {
                     proto_item_append_text(ti_ipv6_plen, " (Bogus, less than hop-by-hop extension header length)");
                     expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_ipv6_length);
@@ -2288,7 +2288,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     if (plen == (guint32)advance && nxt != IP_PROTO_NONE) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 header length");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 payload length");
         if (ti_ipv6_plen) {
             proto_item_append_text(ti_ipv6_plen, " (Bogus, next header is %s)", ipprotostr(nxt));
             expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_ipv6_length);
