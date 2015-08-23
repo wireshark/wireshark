@@ -16,8 +16,6 @@
 **              This contains all the simple types and some complex types.
 **
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
-** Last change by: $Author: gergap $
-**
 ******************************************************************************/
 #include "opcua_identifiers.h"
 

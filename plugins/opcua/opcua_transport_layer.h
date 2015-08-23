@@ -15,8 +15,6 @@
 ** Description: OpcUa Transport Layer Decoder.
 **
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
-** Last change by: $Author: gergap $
-**
 ******************************************************************************/
 
 /* Transport Layer: message parsers */

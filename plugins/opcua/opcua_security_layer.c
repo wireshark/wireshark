@@ -15,8 +15,6 @@
 ** Description: OpcUa Security Layer Decoder.
 **
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
-** Last change by: $Author: gergap $
-**
 ******************************************************************************/
 
 #include "config.h"

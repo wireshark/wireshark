@@ -15,8 +15,6 @@
 ** Description: OpcUa Application Layer Decoder.
 **
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
-** Last change by: $Author: gergap $
-**
 ******************************************************************************/
 
 void registerApplicationLayerTypes(int proto);
