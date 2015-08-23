@@ -2036,7 +2036,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
 
-    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen/4,
                                  "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
     return;
   }
