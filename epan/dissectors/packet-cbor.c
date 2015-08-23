@@ -571,8 +571,12 @@ static float decode_half(const int half) {
 		val = ldexpf((float)mantissa, -24);
 	else if (exponent != 31)
 		val = ldexpf((float)(mantissa + 1024), exponent - 25);
-	else
-		val = mantissa == 0 ? INFINITY : NAN;
+	else {
+		if (mantissa == 0)
+			val = INFINITY;
+		else
+			val = NAN;
+	}
 	return half & 0x8000 ? -val : val;
 }
 
