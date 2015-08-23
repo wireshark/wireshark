@@ -139,6 +139,8 @@ static gint ett_fcbls = -1;
 static gint ett_fc_vft = -1;
 
 static expert_field ei_fccrc = EI_INIT;
+static expert_field ei_short_hdr = EI_INIT;
+static expert_field ei_frag_size = EI_INIT;
 
 static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;
@@ -1021,8 +1023,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         is_exchg_resp = (f_ctl & FC_FCTL_EXCHANGE_RESPONDER) != 0;
     }
 
-    if (tvb_reported_length (tvb) < FC_HEADER_SIZE)
-        THROW(ReportedBoundsError);
+    if (tvb_reported_length (tvb) < FC_HEADER_SIZE) {
+        proto_tree_add_expert(fc_tree, pinfo, &ei_short_hdr,
+                tvb, 0, tvb_reported_length(tvb));
+        return;
+    }
 
     frag_size = tvb_reported_length (tvb)-FC_HEADER_SIZE;
 
@@ -1034,14 +1039,20 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if ((fc_data->ethertype == ETHERTYPE_UNK) || (fc_data->ethertype == ETHERTYPE_FCFT)) {
         if ((frag_size < MDSHDR_TRAILER_SIZE) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
-             (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
-            THROW(ReportedBoundsError);
+             (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS))) {
+            proto_tree_add_expert(fc_tree, pinfo, &ei_short_hdr,
+                    tvb, FC_HEADER_SIZE, frag_size);
+            return;
+        }
         frag_size -= MDSHDR_TRAILER_SIZE;
     } else if (fc_data->ethertype == ETHERTYPE_BRDWALK) {
         if ((frag_size <= 8) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
-             (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
-            THROW(ReportedBoundsError);
+             (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS))) {
+            proto_tree_add_expert(fc_tree, pinfo, &ei_short_hdr,
+                    tvb, FC_HEADER_SIZE, frag_size);
+            return;
+        }
         frag_size -= 8;         /* 4 byte of FC CRC +
                                    4 bytes of error+EOF = 8 bytes  */
     }
@@ -1518,7 +1529,14 @@ proto_register_fc(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_fccrc, { "fc.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_fccrc,
+            { "fc.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_short_hdr,
+            { "fc.short_hdr", PI_MALFORMED, PI_ERROR,
+                "Packet length is shorter than the required header", EXPFILL }},
+        { &ei_frag_size,
+            { "fc.frag_size", PI_MALFORMED, PI_ERROR,
+                "Invalid fragment size", EXPFILL }}
     };
 
     module_t *fc_module;
