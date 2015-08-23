@@ -57,6 +57,8 @@
 void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);
 
+#define IPv6_HDR_SIZE   40
+
 /* Option types and related macros */
 #define IP6OPT_PAD1                     0x00    /* 00 0 00000 */
 #define IP6OPT_PADN                     0x01    /* 00 0 00001 */
@@ -361,6 +363,8 @@ static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_length = EI_INIT;
 static expert_field ei_ipv6_bogus_payload_length = EI_INIT;
+static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
+static expert_field ei_ipv6_invalid_header = EI_INIT;
 
 static void ipv6_prompt(packet_info *pinfo, gchar* result)
 {
@@ -1959,6 +1963,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissector_handle_t nxt_handle;
     address        addr;
     ipv6_meta_t   *ipv6_info;
+    int version;
 
     /* Provide as much IPv4 header information as possible as some dissectors
        in the ip.proto dissector table may need it */
@@ -1966,10 +1971,39 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     struct ip6_hdr *ipv6;
 
+    offset = 0;
+
+    version = tvb_get_guint8(tvb, 0) >> 4;
+    if(version != 6){
+        /* Bogus IPv6 version */
+        ti = proto_tree_add_protocol_format(tree, proto_ipv6, tvb, 0, 1, "Internet Protocol, bogus version (%u)", version);
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
+        ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
+        pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb, 0, 1, ENC_NA);
+        expert_add_info(pinfo, pi, &ei_ipv6_bogus_ipv6_version);
+        pt = proto_item_add_subtree(pi, ett_ipv6_version);
+        pi = proto_tree_add_item(pt, hf_ip_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(pi, " (This field makes the filter match on \"ip.version\" possible)");
+        PROTO_ITEM_SET_GENERATED(pi);
+        return;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
     col_clear(pinfo->cinfo, COL_INFO);
+    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
 
-    offset = 0;
+    if (tvb_reported_length(tvb) < IPv6_HDR_SIZE) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                 "Invalid IPv6 header (%u bytes, need exactly 40)",
+                 tvb_reported_length(tvb));
+        expert_add_info(pinfo, ipv6_item, &ei_ipv6_invalid_header);
+        return;
+    }
+
+    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
+
     memset(&iph, 0, sizeof(iph));
     ipv6 = (struct ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(struct ip6_hdr));
 
@@ -1983,9 +2017,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ipv6_info = wmem_new0(wmem_packet_scope(), ipv6_meta_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META, ipv6_info);
-
-    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
-    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
 
     if (tree) {
         /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
@@ -3167,6 +3198,8 @@ proto_register_ipv6(void)
         { &ei_ipv6_hopopts_not_first, { "ipv6.hopopts.not_first", PI_PROTOCOL, PI_ERROR, "IPv6 Hop-by-Hop extension header must appear immediately after IPv6 header", EXPFILL }},
         { &ei_ipv6_bogus_ipv6_length, { "ipv6.bogus_ipv6_length", PI_PROTOCOL, PI_ERROR, "Bogus IPv6 length", EXPFILL }},
         { &ei_ipv6_bogus_payload_length, { "ipv6.bogus_payload_length", PI_PROTOCOL, PI_WARN, "IPv6 payload length does not match expected framing length", EXPFILL }},
+        { &ei_ipv6_bogus_ipv6_version, { "ipv6.bogus_ipv6_version", PI_PROTOCOL, PI_ERROR, "Bogus IP version", EXPFILL }},
+        { &ei_ipv6_invalid_header, { "ipv6.invalid_header", PI_MALFORMED, PI_ERROR, "IPv6 header must be exactly 40 bytes", EXPFILL }},
     };
 
     /* Decode As handling */
