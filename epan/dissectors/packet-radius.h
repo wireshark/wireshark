@@ -153,6 +153,7 @@ typedef struct _radius_call_t
 	guint32 rspcode;
 	nstime_t req_time;
 	gboolean responded;
+	guint8 *req_authenticator; /* request authenticator to validate response */
 } radius_call_t;
 
 /* Container for tapping relevant data */

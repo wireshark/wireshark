@@ -5,6 +5,7 @@
  * Changed 03/12/2003 Rui Carmo (http://the.taoofmac.com - added all 3GPP VSAs, some parsing)
  * Changed 07/2005 Luis Ontanon <luis@ontanon.org> - use FreeRADIUS' dictionary
  * Changed 10/2006 Alejandro Vaquero <alejandrovaquero@yahoo.com> - add Conversations support
+ * Changed 08/2015 Didier Arenzana <darenzana@yahoo.fr> - add response authenticator validation
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -120,6 +121,8 @@ static int hf_radius_id = -1;
 static int hf_radius_code = -1;
 static int hf_radius_length = -1;
 static int hf_radius_authenticator = -1;
+static int hf_radius_authenticator_valid = -1 ;
+static int hf_radius_authenticator_invalid = -1 ;
 
 static int hf_radius_chap_password = -1;
 static int hf_radius_chap_ident = -1;
@@ -140,6 +143,7 @@ static int hf_radius_3gpp_ms_tmime_zone = -1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
+static gint ett_radius_authenticator = -1 ;
 static gint ett_eap = -1;
 static gint ett_chap = -1;
 
@@ -157,6 +161,7 @@ static radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FAL
 static dissector_handle_t eap_handle;
 
 static const gchar* shared_secret = "";
+static gboolean validate_authenticator = FALSE;
 static gboolean show_length = FALSE;
 static guint alt_port_pref = 0;
 static range_t *global_ports_range;
@@ -1521,12 +1526,44 @@ is_radius(tvbuff_t *tvb)
 
 static void register_radius_fields(const char*);
 
+/*
+ * returns true if the response authenticator is valid
+ * input: tvb of the reponse, corresponding request authenticator
+ * uses the shared secret to calculate the Response authenticator
+ * and checks with the current.
+ * see RFC 2865, packet format page 16
+ */
+static gboolean
+valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
+{
+	md5_state_t md_ctx;
+	md5_byte_t digest[16];
+	guint tvb_length;
+	guint8 * payload;
+
+	tvb_length = tvb_captured_length(tvb) ; /* should it be tvb_reported_length ? */
+
+	/* copy response into payload */
+	payload = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length) ;
+
+	/* replace authenticator in reply with the one in request*/
+	memcpy(payload+4, request_authenticator, AUTHENTICATOR_LENGTH);
+
+	/* calculate MD5 hash (payload+shared_secret) */
+	md5_init(&md_ctx);
+	md5_append(&md_ctx, payload, tvb_length) ;
+	md5_append(&md_ctx, shared_secret, strlen(shared_secret)) ;
+	md5_finish(&md_ctx, digest);
+
+	return !memcmp(digest, authenticator, AUTHENTICATOR_LENGTH) ;
+}
+
 static int
 dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *radius_tree = NULL;
 	proto_tree *avptree = NULL;
-	proto_item *ti, *hidden_item;
+	proto_item *ti, *hidden_item, *authenticator_item = NULL;
 	guint avplength;
 	e_radiushdr rh;
 	radius_info_t *rad_info;
@@ -1599,7 +1636,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (tree)
 	{
 		proto_tree_add_uint(radius_tree, hf_radius_length, tvb, 2, 2, rh.rh_pktlength);
-		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4, AUTHENTICATOR_LENGTH,ENC_NA);
+		authenticator_item = proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4, AUTHENTICATOR_LENGTH, ENC_NA);
 	}
 	tvb_memcpy(tvb, authenticator, 4, AUTHENTICATOR_LENGTH);
 
@@ -1702,6 +1739,11 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				radius_call->responded = FALSE;
 				radius_call->req_time = pinfo->fd->abs_ts;
 				radius_call->rspcode = 0;
+				/* Copy request authenticator for future validation */
+				if (validate_authenticator && *shared_secret != '\0')
+				{
+					radius_call->req_authenticator=(guint8 *)tvb_memdup(wmem_file_scope(), tvb, 4, AUTHENTICATOR_LENGTH);
+				}
 
 				/* Store it */
 				g_hash_table_insert(radius_calls, new_radius_call_key, radius_call);
@@ -1794,6 +1836,26 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 							nstime_delta(&delta, &pinfo->fd->abs_ts, &radius_call->req_time);
 							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
 							PROTO_ITEM_SET_GENERATED(item);
+							/* Resonse Authenticator Validation */
+							if (validate_authenticator && *shared_secret != '\0')
+							{
+								proto_item * authenticator_tree ;
+								int valid ;
+								valid = valid_authenticator(tvb, radius_call->req_authenticator) ;
+
+								proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
+								authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
+								item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
+								PROTO_ITEM_SET_GENERATED(item);
+								item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
+								PROTO_ITEM_SET_GENERATED(item);
+
+								if (!valid)
+								{
+									/* FIXME: this information disappears when a display filter is enterred */
+									col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]") ;
+								}
+							}
 						}
 					}
 
@@ -2116,6 +2178,12 @@ static void register_radius_fields(const char* unused _U_) {
 		 { &hf_radius_authenticator,
 		 { "Authenticator",	"radius.authenticator", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
+		 { &hf_radius_authenticator_valid,
+		 { "Valid Authenticator", "radius.authenticator.valid", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"TRUE if Authenticator is valid", HFILL }},
+		 { &hf_radius_authenticator_invalid,
+		 { "Invalid Authenticator", "radius.authenticator.invalid", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"TRUE if Authenticator is invalid", HFILL }},
 		 { &hf_radius_length,
 		 { "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			 NULL, HFILL }},
@@ -2178,6 +2246,7 @@ static void register_radius_fields(const char* unused _U_) {
 	 gint *base_ett[] = {
 		 &ett_radius,
 		 &ett_radius_avp,
+		 &ett_radius_authenticator,
 		 &ett_eap,
 		 &ett_chap,
 		 &(no_dictionary_entry.ett),
@@ -2273,8 +2342,11 @@ proto_register_radius(void)
 	register_cleanup_routine(&radius_cleanup_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
-					 "Shared secret used to decode User Passwords",
+					 "Shared secret used to decode User Passwords and validate Response Authenticators",
 					 &shared_secret);
+	prefs_register_bool_preference(radius_module,"validate_authenticator","Validate Reponse Authenticator",
+                                   "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
+                                   &validate_authenticator);
 	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
