@@ -191,6 +191,7 @@ gboolean is_broadcast_bssid(const address *bssid);
  * COMPOSE_FRAME_TYPE() values for control frames.
  * 0x160 - 0x16A are for control frame extension where type = 1 and subtype =6.
  */
+#define CTRL_BEAMFORM_RPT_POLL 0x14  /* Beamforming Report             */
 #define CTRL_VHT_NDP_ANNC      0x15  /* VHT NDP Announcement           */
 #define CTRL_POLL              0x162  /* Poll                          */
 #define CTRL_SPR               0x163  /* Service Period Request        */

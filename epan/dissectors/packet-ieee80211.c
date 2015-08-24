@@ -1126,6 +1126,7 @@ static const value_string frame_type_subtype_vals[] = {
   {MGT_ACTION_NO_ACK,         "Action No Ack"},
   {MGT_ARUBA_WLAN,            "Aruba Management"},
 
+  {CTRL_BEAMFORM_RPT_POLL,    "Beamforming Report Poll"},
   {CTRL_VHT_NDP_ANNC,         "VHT NDP Announcement"},
   {CTRL_CONTROL_WRAPPER,      "Control Wrapper"},
   {CTRL_BLOCK_ACK_REQ,        "802.11 Block Ack Req"},
@@ -4126,6 +4127,8 @@ static int hf_ieee80211_vht_tpe_pwr_constr_40 = -1;
 static int hf_ieee80211_vht_tpe_pwr_constr_80 = -1;
 static int hf_ieee80211_vht_tpe_pwr_constr_160 = -1;
 
+static int hf_ieee80211_beamform_feedback_seg_retrans_bitmap = -1;
+
 static int hf_ieee80211_vht_ndp_annc_token = -1;
 static int hf_ieee80211_vht_ndp_annc_token_number = -1;
 static int hf_ieee80211_vht_ndp_annc_token_reserved = -1;
@@ -4167,6 +4170,8 @@ static int hf_ieee80211_vht_compressed_beamforming_report = -1;
 static int hf_ieee80211_vht_compressed_beamforming_report_snr = -1;
 static int hf_ieee80211_vht_compressed_beamforming_feedback_matrix = -1;
 static int hf_ieee80211_vht_group_id_management = -1;
+static int hf_ieee80211_vht_membership_status_array = -1;
+static int hf_ieee80211_vht_user_position_array = -1;
 static int hf_ieee80211_vht_operation_mode_notification = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
@@ -5012,6 +5017,8 @@ static gint ett_ff_vhtmimo_beamforming_report = -1;
 static gint ett_ff_vhtmimo_beamforming_report_snr = -1;
 static gint ett_ff_vhtmimo_beamforming_report_feedback_matrices = -1;
 
+static gint ett_vht_grpidmgmt = -1;
+
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
@@ -5402,15 +5409,18 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
     }
     switch (COMPOSE_FRAME_TYPE (cw_fcf)) {
 
-    case CTRL_CTS:
-    case CTRL_ACKNOWLEDGEMENT:
-      return len + 10;
+    case CTRL_BEAMFORM_RPT_POLL:
+      return len + 17;
 
     case CTRL_VHT_NDP_ANNC:
       len += 17;
       /* TODO: for now we only consider a single STA, add support for more */
       len += 2;
       return len;
+
+    case CTRL_CTS:
+    case CTRL_ACKNOWLEDGEMENT:
+      return len + 10;
 
     case CTRL_POLL:
       return len + 18;
@@ -9273,6 +9283,7 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint start = offset;
   guint8 vht_action;
   proto_item *ti;
+  proto_tree *ti_tree;
 
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
 
@@ -9287,8 +9298,15 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
     case VHT_ACT_GROUP_ID_MANAGEMENT:{
       ti = proto_tree_add_item(tree, hf_ieee80211_vht_group_id_management, tvb,
-                          offset, -1, ENC_NA);
-      expert_add_info(pinfo, ti, &ei_ieee80211_vht_action);
+                          offset, -1, ENC_NA);    
+      ti_tree = proto_item_add_subtree(ti, ett_vht_grpidmgmt);
+
+      proto_tree_add_item(ti, hf_ieee80211_vht_membership_status_array, tvb,
+                                offset, 8, ENC_NA);
+      offset += 8;
+      proto_tree_add_item(ti, hf_ieee80211_vht_user_position_array, tvb,
+                                offset, 16, ENC_NA);
+      /*expert_add_info(pinfo, ti, &ei_ieee80211_vht_action); */
       offset += tvb_reported_length_remaining(tvb, offset);
     }
     break;
@@ -16813,6 +16831,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           addr1_hf_resolved = hf_ieee80211_addr_bssid_resolved;
 
           break;
+        case CTRL_BEAMFORM_RPT_POLL:
         case CTRL_VHT_NDP_ANNC:
         case CTRL_RTS:
         case CTRL_POLL:
@@ -16905,6 +16924,29 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           }
           break;
         }
+
+        case CTRL_BEAMFORM_RPT_POLL:
+        {
+          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          if (tree) {
+            proto_item *feedback_seg_retrans_bitmap;
+            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            offset += 6;
+
+            feedback_seg_retrans_bitmap = proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap,
+                                                              tvb, offset, 1, ENC_NA);
+          }
+        break;
+        }
+
         case CTRL_VHT_NDP_ANNC:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
@@ -19321,6 +19363,11 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_beamform_feedback_seg_retrans_bitmap,
+     {"Feedback segment Retansmission Bitmap", "wlan.beamform.feedback_seg_retrans_bitmap",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_vht_ndp_annc_token,
      {"Sounding Dialog Token", "wlan.vht_ndp.token",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -20663,6 +20710,16 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_vht_group_id_management,
       {"Group ID Management","wlan.vht.group_id_management",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_membership_status_array,
+      {"Membership Status Array","wlan.vht.membership_status_array",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_user_position_array,
+      {"User Position Array","wlan.vht.user_position_array",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
@@ -26775,6 +26832,8 @@ proto_register_ieee80211 (void)
     &ett_ff_vhtmimo_beamforming_report,
     &ett_ff_vhtmimo_beamforming_report_snr,
     &ett_ff_vhtmimo_beamforming_report_feedback_matrices,
+
+    &ett_vht_grpidmgmt,
 
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
