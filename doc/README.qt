@@ -21,10 +21,15 @@ There are several ways of building the Qt UI:
 
    Open the top-level CMakeLists.txt within Qt Creator. It should ask you to
    choose a build location. Do so. It should then ask you to run CMake. Fill in
-   any desired build arguments (e.g. "-D CMAKE_BUILD_TYPE:STRING=Debug" or
-   "-D ENABLE_GTK3:BOOL=OFF") and click the "Run CMake" button. When that
+   any desired build arguments (e.g. "-D CMAKE_BUILD_TYPE=Debug" or
+   "-D ENABLE_GTK3=OFF") and click the "Run CMake" button. When that
    completes select "Build → Open Build and Run Kit Selector..." and make
    sure wireshark is selected.
+
+   Note that Qt Creator uses output created by the CodeBlocks generator. If
+   you run CMake outside of Qt Creator you should use the "CodeBlocks - Unix
+   Makefiles" or "CodeBlocks - NMake Makefiles" generators, otherwise Qt
+   Creator will prompt you to re-run CMake.
 
 2) CMake:
 

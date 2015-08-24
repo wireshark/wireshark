@@ -60,6 +60,10 @@ Note 1:
   # Disable building an application bundle (Wireshark.app) on Mac OS X
   -DENABLE_APPLICATION_BUNDLE=OFF
 
+  # Qt Creator expects .cbp files when used with CMake.
+  -G "CodeBlocks - Unix Makefiles"
+  -G "CodeBlocks - NMake Makefiles"
+
 Note 2:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.
