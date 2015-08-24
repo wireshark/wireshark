@@ -82,7 +82,6 @@ dumpcap
 editcap
 echld_test
 exntest
-gitversion.h
 install-sh
 libtool
 libtool.m4
