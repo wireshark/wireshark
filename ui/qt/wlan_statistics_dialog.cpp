@@ -27,7 +27,6 @@
 
 #include <epan/dissectors/packet-ieee80211.h>
 
-#include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
@@ -596,24 +595,20 @@ const QString WlanStatisticsDialog::filterExpression()
 
 void WlanStatisticsDialog::fillTree()
 {
-    GString *error_string = register_tap_listener("wlan",
-                                                 this,
-                                                 NULL,
-                                                 TL_REQUIRES_NOTHING,
-                                                 tapReset,
-                                                 tapPacket,
-                                                 tapDraw);
-    if (error_string) {
-        QMessageBox::warning(this, tr("Endpoint expert failed to register tap listener"),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
+    if (!registerTapListener("wlan",
+                             this,
+                             NULL,
+                             TL_REQUIRES_NOTHING,
+                             tapReset,
+                             tapPacket,
+                             tapDraw)) {
         reject();
         return;
     }
 
     cap_file_.retapPackets();
     tapDraw(this);
-    remove_tap_listener(this);
+    removeTapListeners();
 
     for (int i = 0; i < statsTreeWidget()->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = statsTreeWidget()->topLevelItem(i);

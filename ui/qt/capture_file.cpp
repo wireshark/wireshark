@@ -186,7 +186,6 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
         emit captureFileReloadFinished();
         break;
-
     case(cf_cb_file_rescan_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan started");
         emit captureFileRescanStarted();
@@ -194,6 +193,14 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     case(cf_cb_file_rescan_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan finished");
         emit captureFileRescanFinished();
+        break;
+    case(cf_cb_file_retap_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap started");
+        emit captureFileRetapStarted();
+        break;
+    case(cf_cb_file_retap_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap finished");
+        emit captureFileRetapFinished();
         break;
 
     case(cf_cb_file_fast_save_finished):

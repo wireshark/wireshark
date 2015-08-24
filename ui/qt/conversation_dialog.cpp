@@ -34,7 +34,6 @@
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
-#include <QMessageBox>
 #include <QPushButton>
 
 // To do:
@@ -127,7 +126,6 @@ void ConversationDialog::captureFileClosing()
     // on a live capture file.
     for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
         ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->widget(i));
-        remove_tap_listener(cur_tree->trafficTreeHash());
         disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
                    this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     }
@@ -174,16 +172,10 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
 
     conv_tree->trafficTreeHash()->user_data = conv_tree;
 
-    GString *error_string = register_tap_listener(proto_get_protocol_filter_name(proto_id), conv_tree->trafficTreeHash(), filter, 0,
-                                                  ConversationTreeWidget::tapReset,
-                                                  get_conversation_packet_func(table),
-                                                  ConversationTreeWidget::tapDraw);
-
-    if (error_string) {
-        QMessageBox::warning(this, tr("Conversation %1 failed to register tap listener").arg(table_name),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
-    }
+    registerTapListener(proto_get_protocol_filter_name(proto_id), conv_tree->trafficTreeHash(), filter, 0,
+                        ConversationTreeWidget::tapReset,
+                        get_conversation_packet_func(table),
+                        ConversationTreeWidget::tapDraw);
 
     return true;
 }

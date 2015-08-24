@@ -207,7 +207,6 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
 
 ExpertInfoDialog::~ExpertInfoDialog()
 {
-    remove_tap_listener(this);
     delete ui;
 }
 
@@ -236,24 +235,20 @@ void ExpertInfoDialog::retapPackets()
     if (file_closed_) return;
 
     clearAllData();
-    remove_tap_listener(this);
+    removeTapListeners();
 
-    GString *error_string = register_tap_listener("expert",
-                                                 this,
-                                                 NULL,
-                                                 TL_REQUIRES_NOTHING,
-                                                 tapReset,
-                                                 tapPacket,
-                                                 tapDraw);
-    if (error_string) {
-        QMessageBox::warning(this, tr("Endpoint expert failed to register tap listener"),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
+    if (!registerTapListener("expert",
+                             this,
+                             NULL,
+                             TL_REQUIRES_NOTHING,
+                             tapReset,
+                             tapPacket,
+                             tapDraw)) {
         return;
     }
 
     if (ui->limitCheckBox->isChecked()) {
-        error_string = set_tap_dfilter(this, display_filter_.toUtf8().constData());
+        GString *error_string = set_tap_dfilter(this, display_filter_.toUtf8().constData());
         if (error_string) {
             QMessageBox::warning(this, tr("Endpoint expert failed to set filter"),
                                  error_string->str);
@@ -517,7 +512,6 @@ void ExpertInfoDialog::filterActionTriggered()
 
 void ExpertInfoDialog::captureFileClosing()
 {
-    remove_tap_listener(this);
     WiresharkDialog::captureFileClosing();
 }
 

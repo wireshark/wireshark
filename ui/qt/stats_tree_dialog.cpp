@@ -111,7 +111,6 @@ void StatsTreeDialog::setupNode(stat_node* node)
 
 void StatsTreeDialog::fillTree()
 {
-    GString *error_string;
     if (!st_cfg_ || file_closed_) return;
 
     QString display_name = gchar_free_to_qstring(stats_tree_get_displayname(st_cfg_->name));
@@ -139,26 +138,22 @@ void StatsTreeDialog::fillTree()
     resize(st_->num_columns*80+80, height());
     statsTreeWidget()->setSortingEnabled(false);
 
-    error_string = register_tap_listener(st_cfg_->tapname,
-                          st_,
-                          st_->filter,
-                          st_cfg_->flags,
-                          resetTap,
-                          stats_tree_packet,
-                          drawTreeItems);
-    if (error_string) {
-        QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(display_name),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
+    if (!registerTapListener(st_cfg_->tapname,
+                             st_,
+                             st_->filter,
+                             st_cfg_->flags,
+                             resetTap,
+                             stats_tree_packet,
+                             drawTreeItems)) {
         reject(); // XXX Stay open instead?
         return;
     }
 
-    cf_retap_packets(cap_file_.capFile());
+    cap_file_.retapPackets();
     drawTreeItems(st_);
 
     statsTreeWidget()->setSortingEnabled(true);
-    remove_tap_listener(st_);
+    removeTapListeners();
 
     st_cfg_->pr = NULL;
 }

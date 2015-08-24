@@ -26,7 +26,6 @@
 #include "epan/proto.h"
 #include "epan/rtd_table.h"
 
-#include <QMessageBox>
 #include <QTreeWidget>
 
 #include "qt_ui_utils.h"
@@ -243,18 +242,14 @@ void ResponseTimeDelayDialog::fillTree()
     rtd_table_dissector_init(rtd_, &rtd_data.stat_table, NULL, NULL);
     rtd_data.user_data = this;
 
-    QString display_filter = displayFilter();
-    GString *error_string = register_tap_listener(get_rtd_tap_listener_name(rtd_),
+    QByteArray display_filter = displayFilter().toUtf8();
+    if (!registerTapListener(get_rtd_tap_listener_name(rtd_),
                           &rtd_data,
-                          display_filter.toUtf8().constData(),
+                          display_filter.constData(),
                           0,
                           tapReset,
                           get_rtd_packet_func(rtd_),
-                          tapDraw);
-    if (error_string) {
-        QMessageBox::critical(this, tr("Failed to attach to tap \"%1\"").arg(get_rtd_tap_listener_name(rtd_)),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
+                          tapDraw)) {
         free_rtd_table(&rtd_data.stat_table, NULL, NULL);
         reject(); // XXX Stay open instead?
         return;
@@ -269,7 +264,7 @@ void ResponseTimeDelayDialog::fillTree()
     statsTreeWidget()->sortItems(col_type_, Qt::AscendingOrder);
     statsTreeWidget()->setSortingEnabled(true);
 
-    remove_tap_listener(&rtd_data);
+    removeTapListeners();
     free_rtd_table(&rtd_data.stat_table, NULL, NULL);
 }
 

@@ -30,7 +30,6 @@
 #include "rpc_service_response_time_dialog.h"
 #include "wireshark_application.h"
 
-#include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 
@@ -266,19 +265,13 @@ void ServiceResponseTimeDialog::fillTree()
     srt_table_dissector_init(srt_, srt_data.srt_array, NULL, NULL);
 
     QString display_filter = displayFilter();
-    GString *error_string = register_tap_listener(get_srt_tap_listener_name(srt_),
-                          &srt_data,
-                          display_filter.toUtf8().constData(),
-                          0,
-                          tapReset,
-                          get_srt_packet_func(srt_),
-                          tapDraw);
-    if (error_string) {
-        QMessageBox::critical(this, tr("Failed to attach to tap \"%1\"").arg(get_srt_tap_listener_name(srt_)),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
-        g_array_free(srt_data.srt_array, TRUE);
-        srt_data.srt_array = NULL;
+    if (!registerTapListener(get_srt_tap_listener_name(srt_),
+                        &srt_data,
+                        display_filter.toUtf8().constData(),
+                        0,
+                        tapReset,
+                        get_srt_packet_func(srt_),
+                        tapDraw)) {
         reject(); // XXX Stay open instead?
         return;
     }
@@ -297,7 +290,8 @@ void ServiceResponseTimeDialog::fillTree()
     statsTreeWidget()->sortItems(SRT_COLUMN_PROCEDURE, Qt::AscendingOrder);
     statsTreeWidget()->setSortingEnabled(true);
 
-    remove_tap_listener(&srt_data);
+    removeTapListeners();
+
     g_array_free(srt_data.srt_array, TRUE);
 }
 

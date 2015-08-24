@@ -31,9 +31,9 @@
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>
-#include <QPushButton>
-#include <QMessageBox>
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QPushButton>
 
 extern "C" {
 
@@ -127,7 +127,7 @@ ExportObjectDialog::~ExportObjectDialog()
 {
     delete eo_ui_;
     export_object_list_.eod = NULL;
-    remove_tap_listener((void *)&export_object_list_);
+    removeTapListeners();
 }
 
 void ExportObjectDialog::addObjectEntry(export_object_entry_t *entry)
@@ -172,22 +172,11 @@ void ExportObjectDialog::resetObjects()
 
 void ExportObjectDialog::show()
 {
-    GString *error_msg;
-
     /* Data will be gathered via a tap callback */
-    error_msg = register_tap_listener(tap_name_, (void *)&export_object_list_, NULL, 0,
-                                      eo_reset,
-                                      tap_packet_,
-                                      NULL);
-
-    if (error_msg) {
-        QMessageBox::warning(
-                    this,
-                    tr("Tap registration error"),
-                    QString(tr("Unable to register ")) + name_ + QString(tr(" tap: ")) + error_msg->str,
-                    QMessageBox::Ok
-                    );
-        g_string_free(error_msg, TRUE);
+    if (!registerTapListener(tap_name_, &export_object_list_, NULL, 0,
+                             eo_reset,
+                             tap_packet_,
+                             NULL)) {
         return;
     }
 

@@ -85,6 +85,8 @@ signals:
     void captureFileReloadFinished() const;
     void captureFileRescanStarted() const;
     void captureFileRescanFinished() const;
+    void captureFileRetapStarted() const;
+    void captureFileRetapFinished() const;
     void captureFileClosing() const;
     void captureFileClosed() const;
     void captureFileSaveStarted(const QString &file_path) const;

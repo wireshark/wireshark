@@ -449,10 +449,9 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(updateWidgets()));
     updateWidgets();
 
-    register_tap_listener("rtp", this, NULL, 0, tapReset, tapPacket, tapDraw);
-
+    registerTapListener("rtp", this, NULL, 0, tapReset, tapPacket, tapDraw);
     cap_file_.retapPackets();
-    remove_tap_listener(this);
+    removeTapListeners();
 
     updateStatistics();
 }

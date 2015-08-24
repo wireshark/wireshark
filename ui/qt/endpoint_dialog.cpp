@@ -114,7 +114,6 @@ void EndpointDialog::captureFileClosing()
     // on a live capture file.
     for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
         EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->widget(i));
-        remove_tap_listener(cur_tree->trafficTreeHash());
         disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
                    this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     }
@@ -159,16 +158,10 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
 
     endp_tree->trafficTreeHash()->user_data = endp_tree;
 
-    GString *error_string = register_tap_listener(proto_get_protocol_filter_name(proto_id), endp_tree->trafficTreeHash(), filter, 0,
-                                                  EndpointTreeWidget::tapReset,
-                                                  get_hostlist_packet_func(table),
-                                                  EndpointTreeWidget::tapDraw);
-
-    if (error_string) {
-        QMessageBox::warning(this, tr("Endpoint %1 failed to register tap listener").arg(table_name),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
-    }
+    registerTapListener(proto_get_protocol_filter_name(proto_id), endp_tree->trafficTreeHash(), filter, 0,
+                        EndpointTreeWidget::tapReset,
+                        get_hostlist_packet_func(table),
+                        EndpointTreeWidget::tapDraw);
 
 #ifdef HAVE_GEOIP
     connect(endp_tree, SIGNAL(geoIPStatusChanged()), this, SLOT(tabChanged()));

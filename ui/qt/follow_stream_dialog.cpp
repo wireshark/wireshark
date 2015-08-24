@@ -841,9 +841,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     follow_stats_t      stats;
     tcp_stream_chunk    sc;
     size_t              nchars;
-    GString *           msg;
     gboolean is_tcp = FALSE, is_udp = FALSE;
 
+    beginRetapPackets();
     resetStream();
 
     if (file_closed_)
@@ -968,13 +968,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     case FOLLOW_UDP:
     {
         /* data will be passed via tap callback*/
-        msg = register_tap_listener("udp_follow", &follow_info_,
-                                    follow_filter.toUtf8().constData(),
-                                    0, NULL, udp_queue_packet_data, NULL);
-        if (msg) {
-            QMessageBox::critical(this, "Error",
-                               "Can't register udp_follow tap: %1",
-                               msg->str);
+        if (!registerTapListener("udp_follow", &follow_info_,
+                                 follow_filter.toUtf8().constData(),
+                                 0, NULL, udp_queue_packet_data, NULL)) {
             return false;
         }
 
@@ -990,13 +986,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     }
     case FOLLOW_SSL:
         /* we got ssl so we can follow */
-        msg = register_tap_listener("ssl", &follow_info_,
-                                    follow_filter.toUtf8().constData(), 0,
-                                    NULL, ssl_queue_packet_data, NULL);
-        if (msg)
-        {
-            QMessageBox::critical(this, "Error",
-                          "Can't register ssl tap: %1", msg->str);
+        if (!registerTapListener("ssl", &follow_info_,
+                                 follow_filter.toUtf8().constData(), 0,
+                                 NULL, ssl_queue_packet_data, NULL)) {
             return false;
         }
         break;
@@ -1012,10 +1004,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
 
         break;
     case FOLLOW_UDP:
-        remove_tap_listener(&follow_info_);
-        break;
     case FOLLOW_SSL:
-        remove_tap_listener(&follow_info_);
+        removeTapListeners();
         break;
     }
 
@@ -1235,6 +1225,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         data_out_file = NULL;
     }
 
+    endRetapPackets();
     return true;
 }
 

@@ -2127,6 +2127,8 @@ cf_retap_packets(capture_file *cf)
     return CF_READ_ABORTED;
   }
 
+  cf_callback_invoke(cf_cb_file_retap_started, cf);
+
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
 
@@ -2155,6 +2157,8 @@ cf_retap_packets(capture_file *cf)
                                   &callback_args);
 
   epan_dissect_cleanup(&callback_args.edt);
+
+  cf_callback_invoke(cf_cb_file_retap_finished, cf);
 
   switch (ret) {
   case PSP_FINISHED:

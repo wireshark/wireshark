@@ -25,7 +25,6 @@
 
 #include "epan/stat_tap_ui.h"
 
-#include <QMessageBox>
 #include <QTreeWidget>
 
 #include "wireshark_application.h"
@@ -252,17 +251,13 @@ void SimpleStatisticsDialog::fillTree()
     stu_->stat_tap_init_cb(stu_, NULL, NULL);
 
     QString display_filter = displayFilter();
-    GString *error_string = register_tap_listener(stu_->tap_name,
-                          &stat_data,
-                          display_filter.toUtf8().constData(),
-                          0,
-                          tapReset,
-                          stu_->packet_func,
-                          tapDraw);
-    if (error_string) {
-        QMessageBox::critical(this, tr("Failed to attach to tap \"%1\"").arg(stu_->tap_name),
-                             error_string->str);
-        g_string_free(error_string, TRUE);
+    if (!registerTapListener(stu_->tap_name,
+                             &stat_data,
+                             display_filter.toUtf8().constData(),
+                             0,
+                             tapReset,
+                             stu_->packet_func,
+                             tapDraw)) {
         free_stat_tables(stu_, NULL, NULL);
         reject(); // XXX Stay open instead?
         return;
@@ -272,7 +267,7 @@ void SimpleStatisticsDialog::fillTree()
 
     tapDraw(&stat_data);
 
-    remove_tap_listener(&stat_data);
+    removeTapListeners();
     free_stat_tables(stu_, NULL, NULL);
 }
 

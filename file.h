@@ -71,6 +71,8 @@ typedef enum {
     cf_cb_file_reload_finished,
     cf_cb_file_rescan_started,
     cf_cb_file_rescan_finished,
+    cf_cb_file_retap_started,
+    cf_cb_file_retap_finished,
     cf_cb_file_fast_save_finished,
     cf_cb_packet_selected,
     cf_cb_packet_unselected,

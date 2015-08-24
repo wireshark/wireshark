@@ -75,27 +75,6 @@ bluetooth_device_tap_reset(void *tapinfo_ptr)
         tapinfo->tap_reset(tapinfo);
 }
 
-
-static void
-bluetooth_devices_tap(void *data)
-{
-    GString *error_string;
-
-    error_string = register_tap_listener("bluetooth.device", data, NULL,
-            0,
-            bluetooth_device_tap_reset,
-            bluetooth_device_tap_packet,
-            NULL
-            );
-
-    if (error_string != NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
-    }
-}
-
-
 BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::BluetoothDevicesDialog)
@@ -118,7 +97,12 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf)
     tapinfo_.tap_reset  = tapReset;
     tapinfo_.ui = this;
 
-    bluetooth_devices_tap(&tapinfo_);
+    registerTapListener("bluetooth.device", &tapinfo_, NULL,
+                        0,
+                        bluetooth_device_tap_reset,
+                        bluetooth_device_tap_packet,
+                        NULL
+                        );
 
     cap_file_.retapPackets();
 }
@@ -127,15 +111,11 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf)
 BluetoothDevicesDialog::~BluetoothDevicesDialog()
 {
     delete ui;
-
-    remove_tap_listener(&tapinfo_);
 }
 
 
 void BluetoothDevicesDialog::captureFileClosing()
 {
-    remove_tap_listener(&tapinfo_);
-
     ui->interfaceComboBox->setEnabled(FALSE);
     ui->showInformationStepsCheckBox->setEnabled(FALSE);
 

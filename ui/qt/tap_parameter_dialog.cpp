@@ -197,7 +197,7 @@ void TapParameterDialog::setRetapOnShow(bool retap)
 {
     show_timer_->stop();
     if (retap) {
-        show_timer_->singleShot(0, this, SLOT(fillTree()));
+        show_timer_->singleShot(0, this, SLOT(fillTreeWrapper()));
     }
 }
 
@@ -429,6 +429,13 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     return ba;
 }
 
+void TapParameterDialog::fillTreeWrapper()
+{
+    ui->applyFilterButton->setEnabled(false);
+    fillTree();
+    ui->applyFilterButton->setEnabled(true);
+}
+
 void TapParameterDialog::drawTreeItems()
 {
     if (ui->statsTreeWidget->model()->rowCount() < expand_all_threshold_) {
@@ -519,11 +526,9 @@ void TapParameterDialog::on_applyFilterButton_clicked()
     if (!ui->displayFilterLineEdit->checkFilter())
         return;
 
-    ui->applyFilterButton->setEnabled(false);
     QString filter = ui->displayFilterLineEdit->text();
     emit updateFilter(filter, true);
-    fillTree();
-    ui->applyFilterButton->setEnabled(true);
+    fillTreeWrapper();
 }
 
 void TapParameterDialog::on_actionCopyToClipboard_triggered()
