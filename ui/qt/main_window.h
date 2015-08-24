@@ -201,6 +201,7 @@ signals:
     void displayFilterSuccess(bool success);
     void monospaceFontChanged(const QFont &mono_font);
     void closePacketDialogs();
+    void reloadFields();
 
 public slots:
     // in main_window_slots.cpp

@@ -334,6 +334,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     ti->setData(sma_period_col_, Qt::UserRole, moving_average);
 
     connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
+    connect(this, SIGNAL(reloadValueUnitFields()), iog, SLOT(reloadValueUnitField()));
     connect(&cap_file_, SIGNAL(captureFileClosing()), iog, SLOT(captureFileClosing()));
     connect(iog, SIGNAL(requestRetap()), this, SLOT(scheduleRetap()));
     connect(iog, SIGNAL(requestRecalc()), this, SLOT(scheduleRecalc()));
@@ -454,6 +455,11 @@ void IOGraphDialog::scheduleRetap(bool now)
 {
     need_retap_ = true;
     if (now) updateStatistics();
+}
+
+void IOGraphDialog::reloadFields()
+{
+    emit reloadValueUnitFields();
 }
 
 void IOGraphDialog::keyPressEvent(QKeyEvent *event)
@@ -1929,6 +1935,13 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
 void IOGraph::captureFileClosing()
 {
     remove_tap_listener(this);
+}
+
+void IOGraph::reloadValueUnitField()
+{
+    if (vu_field_.length() > 0) {
+        setValueUnitField(vu_field_);
+    }
 }
 
 void IOGraph::setInterval(int interval)

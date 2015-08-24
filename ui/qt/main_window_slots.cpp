@@ -1325,6 +1325,8 @@ void MainWindow::fieldsChanged()
         // Recreate packet list columns according to new/changed/deleted fields
         packet_list_->fieldsChanged(CaptureFile::globalCapFile());
     }
+
+    emit reloadFields();
 }
 
 void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)
@@ -2883,6 +2885,7 @@ void MainWindow::statCommandIOGraph(const char *, void *)
 {
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
 }
 
