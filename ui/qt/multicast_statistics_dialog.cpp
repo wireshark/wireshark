@@ -337,7 +337,7 @@ void MulticastStatisticsDialog::updateWidgets()
     }
 
     param = burst_alarm_threshold_le_->text().toInt(&ok);
-    if (!ok) {
+    if (!ok || param < 1) {
         hint += tr("The burst alarm threshold isn't valid. ");
         enable_apply = false;
         burst_alarm_threshold_le_->setSyntaxState(SyntaxLineEdit::Invalid);
