@@ -47,14 +47,14 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   if ((file_size = wtap_file_size(wth, err)) == -1)
     return FALSE;
 
-  if (file_size > WTAP_MAX_PACKET_SIZE) {
+  if (file_size > G_MAXINT) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("ber: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
-                                file_size, WTAP_MAX_PACKET_SIZE);
+                                file_size, G_MAXINT);
     return FALSE;
   }
   packet_size = (int)file_size;
@@ -68,6 +68,7 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->ts.secs = 0;
   phdr->ts.nsecs = 0;
 
+  ws_buffer_assure_space(buf, packet_size);
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
@@ -129,11 +130,10 @@ wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
   ber_tag = ber_id & 0x1F;
 
   /* it must be constructed and either a SET or a SEQUENCE */
-  /* or a CONTEXT less than 32 (arbitrary) */
-  /* XXX: do we also want to allow APPLICATION */
+  /* or a CONTEXT/APPLICATION less than 32 (arbitrary) */
   if(!(ber_pc &&
        (((ber_class == BER_CLASS_UNI) && ((ber_tag == BER_UNI_TAG_SET) || (ber_tag == BER_UNI_TAG_SEQ))) ||
-        ((ber_class == BER_CLASS_CON) && (ber_tag < 32)))))
+        (((ber_class == BER_CLASS_CON) || (ber_class == BER_CLASS_APP)) && (ber_tag < 32)))))
     return WTAP_OPEN_NOT_MINE;
 
   /* now check the length */
