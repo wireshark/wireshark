@@ -120,18 +120,6 @@ PacketDialog::~PacketDialog()
     g_free(packet_data_);
 }
 
-void PacketDialog::accept()
-{
-    emit packetDialogClosed(this);
-    WiresharkDialog::accept();
-}
-
-void PacketDialog::reject()
-{
-    emit packetDialogClosed(this);
-    WiresharkDialog::reject();
-}
-
 void PacketDialog::captureFileClosing()
 {
     delete byte_view_tab_;

@@ -44,7 +44,6 @@ public:
 
 signals:
     void monospaceFontChanged(QFont);
-    void packetDialogClosed(QDialog *);
 
 private slots:
     void captureFileClosing();
@@ -53,9 +52,6 @@ private slots:
     void on_buttonBox_helpRequested();
 
 private:
-    void accept();
-    void reject();
-
     Ui::PacketDialog *ui;
 
     QString col_info_;
