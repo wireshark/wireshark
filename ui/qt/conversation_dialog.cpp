@@ -30,7 +30,6 @@
 #include "wsutil/str_util.h"
 
 #include "qt_ui_utils.h"
-
 #include "wireshark_application.h"
 
 #include <QCheckBox>
@@ -69,6 +68,8 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     graph_bt_ = buttonBox()->addButton(tr("Graph" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
+
+    addProgressFrame(&parent);
 
     QList<int> conv_protos;
     for (GList *conv_tab = recent.conversation_tabs; conv_tab; conv_tab = conv_tab->next) {

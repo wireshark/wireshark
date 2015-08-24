@@ -22,6 +22,12 @@
 #ifndef TAP_PARAMETER_DIALOG_H
 #define TAP_PARAMETER_DIALOG_H
 
+/*
+ * @file Base class for statistics and analysis dialogs.
+ * Provides convenience classes for command-line tap parameters ("-z ...")
+ * and general tapping.
+ */
+
 #include "config.h"
 
 #include <glib.h>

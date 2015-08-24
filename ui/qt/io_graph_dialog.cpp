@@ -34,6 +34,7 @@
 
 #include "color_utils.h"
 #include "qcustomplot.h"
+#include "progress_frame.h"
 #include "stock_icon.h"
 #include "syntax_line_edit.h"
 #include "wireshark_application.h"
@@ -290,6 +291,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     gtw->setColumnWidth(yaxis_col_, one_em * 6.5);
     gtw->setColumnWidth(yfield_col_, one_em * 6);
     gtw->setColumnWidth(sma_period_col_, one_em * 6);
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     connect(wsApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
     connect(iop, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));

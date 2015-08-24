@@ -26,7 +26,9 @@
 
 #include "ui/progress_dlg.h"
 
+#include <QDialogButtonBox>
 #include <QGraphicsOpacityEffect>
+#include <QBoxLayout>
 #include <QPropertyAnimation>
 
 #include "stock_icon.h"
@@ -105,6 +107,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
   , show_timer_(-1)
 #endif
 #ifdef QWINTASKBARPROGRESS_H
+  , update_taskbar_(false)
   , taskbar_progress_(NULL)
 #endif
 {
@@ -116,7 +119,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     ui->progressBar->setStyleSheet(QString(
             "QProgressBar {"
             "  max-width: 20em;"
-            "  min-height: 0.8em;"
+            "  min-height: 0.5em;"
             "  max-height: 1em;"
             "  border-bottom: 0px;"
             "  border-top: 0px;"
@@ -143,6 +146,8 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "QPushButton:pressed {"
             "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
             "}"));
+    connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
+            this, SLOT(show(bool,bool,gboolean*)));
     hide();
 }
 
@@ -153,20 +158,63 @@ ProgressFrame::~ProgressFrame()
 
 struct progdlg *ProgressFrame::showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
 {
-    ui->progressBar->setMaximum(100);
+    setMaximumValue(100);
     ui->progressBar->setValue(value);
-    return show(animate, terminate_is_stop, stop_flag);
+    emit showRequested(animate, terminate_is_stop, stop_flag);
+    return &progress_dialog_;
 }
 
 progdlg *ProgressFrame::showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag)
 {
-    ui->progressBar->setMaximum(0);
-    return show(animate, terminate_is_stop, stop_flag);
+    setMaximumValue(0);
+    emit showRequested(animate, terminate_is_stop, stop_flag);
+    return &progress_dialog_;
+}
+
+void ProgressFrame::addToButtonBox(QDialogButtonBox *button_box, QObject *main_window)
+{
+    // We have a ProgressFrame in the main status bar which is controlled
+    // from the capture file and other parts of the application via
+    // create_progress_dlg and delayed_create_progress_dlg.
+    // Create a new ProgressFrame and pair it with the main instance.
+    ProgressFrame *main_progress_frame = main_window->findChild<ProgressFrame *>();
+    if (!button_box || !main_progress_frame) return;
+
+    QBoxLayout *layout = qobject_cast<QBoxLayout *>(button_box->layout());
+    if (!layout) return;
+
+    ProgressFrame *progress_frame = new ProgressFrame(button_box);
+
+    // Insert ourselves after the first spacer we find, otherwise the
+    // far right of the button box.
+    int idx = layout->count();
+    for (int i = 0; i < layout->count(); i++) {
+        if (layout->itemAt(i)->spacerItem()) {
+            idx = i + 1;
+            break;
+        }
+    }
+    layout->insertWidget(idx, progress_frame);
+
+    int one_em = progress_frame->fontMetrics().height();
+    progress_frame->setMaximumWidth(one_em * 8);
+    connect(main_progress_frame, SIGNAL(showRequested(bool,bool,gboolean*)),
+            progress_frame, SLOT(show(bool,bool,gboolean*)));
+    connect(main_progress_frame, SIGNAL(maximumValueChanged(int)),
+            progress_frame, SLOT(setMaximumValue(int)));
+    connect(main_progress_frame, SIGNAL(valueChanged(int)),
+            progress_frame, SLOT(setValue(int)));
+    connect(main_progress_frame, SIGNAL(setHidden()),
+            progress_frame, SLOT(hide()));
+
+    connect(progress_frame, SIGNAL(stopLoading()),
+            main_progress_frame, SIGNAL(stopLoading()));
 }
 
 void ProgressFrame::setValue(int value)
 {
     ui->progressBar->setValue(value);
+    emit valueChanged(value);
 }
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
@@ -197,6 +245,7 @@ void ProgressFrame::hide()
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     show_timer_ = -1;
 #endif
+    emit setHidden();
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
     if (taskbar_progress_) {
@@ -212,7 +261,7 @@ void ProgressFrame::on_pushButton_clicked()
 }
 
 const int show_delay_ = 500; // ms
-progdlg *ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
+void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
 {
     terminate_is_stop_ = terminate_is_stop;
     stop_flag_ = stop_flag;
@@ -237,7 +286,7 @@ progdlg *ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *sto
 #ifdef QWINTASKBARPROGRESS_H
     // windowHandle() is picky about returning a non-NULL value so we check it
     // each time.
-    if (!taskbar_progress_ && window()->windowHandle()) {
+    if (update_taskbar_ && !taskbar_progress_ && window()->windowHandle()) {
         QWinTaskbarButton *taskbar_button = new QWinTaskbarButton(this);
         if (taskbar_button) {
             taskbar_button->setWindow(window()->windowHandle());
@@ -247,11 +296,15 @@ progdlg *ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *sto
     }
     if (taskbar_progress_) {
         taskbar_progress_->show();
+        taskbar_progress_->resume();
     }
-    taskbar_progress_->resume();
 #endif
+}
 
-    return &progress_dialog_;
+void ProgressFrame::setMaximumValue(int value)
+{
+    ui->progressBar->setMaximum(value);
+    emit maximumValueChanged(value);
 }
 
 /*

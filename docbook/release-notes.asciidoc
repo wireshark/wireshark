@@ -22,6 +22,12 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.99.8:
+
+* Qt port:
+** Most dialogs now have a cancellable progress bar.
+
+The following features are new (or have been significantly updated)
 since version 1.99.7:
 
 * Qt port:

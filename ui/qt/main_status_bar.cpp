@@ -175,6 +175,10 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     profile_menu_.setTitle(tr("Switch to"));
     ctx_menu_.addMenu(&profile_menu_);
 
+#ifdef QWINTASKBARPROGRESS_H
+    progress_frame_.enableTaskbarUpdates(true);
+#endif
+
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(pushProfileName()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),

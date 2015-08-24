@@ -33,7 +33,6 @@
 #include "wsutil/str_util.h"
 
 #include "qt_ui_utils.h"
-
 #include "wireshark_application.h"
 
 #include <QCheckBox>
@@ -54,6 +53,8 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
 
     connect(trafficTableTabWidget(), SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
 #endif
+
+    addProgressFrame(&parent);
 
     QList<int> endp_protos;
     for (GList *endp_tab = recent.endpoint_tabs; endp_tab; endp_tab = endp_tab->next) {

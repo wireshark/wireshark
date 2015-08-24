@@ -45,6 +45,7 @@
 
 #include "wsutil/file_util.h"
 
+#include "progress_frame.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
@@ -97,6 +98,8 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
 
     connect(ui->displayFilterLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(updateWidgets()));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     if (help_topic_ < 1) {
         ui->buttonBox->button(QDialogButtonBox::Help)->hide();

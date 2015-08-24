@@ -36,6 +36,7 @@ class ProgressFrame;
 #endif
 
 class ProgressFrame;
+class QDialogButtonBox;
 
 // Define the structure describing a progress dialog.
 struct progdlg {
@@ -51,23 +52,28 @@ public:
     explicit ProgressFrame(QWidget *parent = 0);
     ~ProgressFrame();
 
-    struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value = 0);
-    struct progdlg *showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag);
-    void hide();
+#ifdef QWINTASKBARPROGRESS_H
+    void enableTaskbarUpdates(bool enable = true) { update_taskbar_ = enable; }
+#endif
+    static void addToButtonBox(QDialogButtonBox *button_box, QObject *main_window);
 
 public slots:
+    struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value = 0);
+    struct progdlg *showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag);
     void setValue(int value);
+    void hide();
 
 signals:
+    void showRequested(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    void valueChanged(int value);
+    void maximumValueChanged(int value);
+    void setHidden();
     void stopLoading();
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 protected:
     void timerEvent(QTimerEvent *event);
 #endif
-
-private slots:
-    void on_pushButton_clicked();
 
 private:
     Ui::ProgressFrame *ui;
@@ -81,9 +87,15 @@ private:
     int show_timer_;
 #endif
 #ifdef QWINTASKBARPROGRESS_H
+    bool update_taskbar_;
     QWinTaskbarProgress *taskbar_progress_;
 #endif
-    struct progdlg *show(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+
+private slots:
+    void on_pushButton_clicked();
+
+    void show(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    void setMaximumValue(int value);
 };
 
 #endif // PROGRESS_FRAME_H

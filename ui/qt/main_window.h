@@ -196,7 +196,6 @@ private:
     void removeMenuActions(QList<QAction *> &actions, int menu_group);
 
 signals:
-    void showProgress(struct progdlg **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
     void setCaptureFile(capture_file *cf);
     void setDissectedCaptureFile(capture_file *cf);
     void displayFilterSuccess(bool success);

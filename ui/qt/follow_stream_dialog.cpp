@@ -49,6 +49,7 @@
 
 #include "ui/follow.h"
 
+#include "progress_frame.h"
 #include "qt_ui_utils.h"
 
 #include <QKeyEvent>
@@ -103,6 +104,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
 
     b_save_ = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
     connect(ui->teStreamContent, SIGNAL(mouseMovedToTextCursorPosition(int)),

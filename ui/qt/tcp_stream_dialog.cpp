@@ -30,6 +30,7 @@
 
 #include "tango_colors.h"
 #include "qt_ui_utils.h"
+#include "progress_frame.h"
 #include "wireshark_application.h"
 
 #include <QCursor>
@@ -80,7 +81,7 @@ const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
 const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
 
-TCPStreamDialog::TCPStreamDialog(QWidget *, capture_file *cf, tcp_graph_type graph_type) :
+TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
     QDialog(NULL, Qt::Window),
     ui(new Ui::TCPStreamDialog),
     cap_file_(cf),
@@ -209,6 +210,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *, capture_file *cf, tcp_graph_type gra
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, parent);
 
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));

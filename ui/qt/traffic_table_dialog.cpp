@@ -30,6 +30,7 @@
 #include "ui/recent.h"
 //#include "ui/tap-tcp-stream.h"
 
+#include "progress_frame.h"
 #include "wireshark_application.h"
 
 #include <QCheckBox>
@@ -117,6 +118,11 @@ void TrafficTableDialog::fillTypeMenu(QList<int> &enabled_protos)
         connect(endp_action, SIGNAL(triggered()), this, SLOT(toggleTable()));
         traffic_type_menu_.addAction(endp_action);
     }
+}
+
+void TrafficTableDialog::addProgressFrame(QObject *parent)
+{
+    ProgressFrame::addToButtonBox(ui->buttonBox, parent);
 }
 
 QDialogButtonBox *TrafficTableDialog::buttonBox() const
