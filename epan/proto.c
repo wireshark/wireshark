@@ -4363,7 +4363,7 @@ hfinfo_same_name_get_prev(const header_field_info *hfinfo)
 }
 
 static void
-hfinfo_remove_fram_gpa_name_map(const header_field_info *hfinfo)
+hfinfo_remove_from_gpa_name_map(const header_field_info *hfinfo)
 {
     if (!hfinfo->same_name_next && hfinfo->same_name_prev_id == -1) {
         /* No hfinfo with the same name */
@@ -5289,7 +5289,7 @@ proto_deregister_protocol(const char *short_name)
 
     for (i = 0; i < protocol->fields->len; i++) {
         hfinfo = (header_field_info *)g_ptr_array_index(protocol->fields, i);
-        hfinfo_remove_fram_gpa_name_map(hfinfo);
+        hfinfo_remove_from_gpa_name_map(hfinfo);
         g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
     }
     g_ptr_array_free(protocol->fields, TRUE);
