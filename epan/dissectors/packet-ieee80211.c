@@ -265,8 +265,6 @@ typedef struct mimo_control
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
 #define SHORT_STR 256
-#define MINIMAL_80211AD_FREQ 57000
-#define MAXIMAL_80211AD_FREQ 66000
 #define IS_DMG_KEY 1
 #define IS_CTRL_GRANT_OR_GRANT_ACK_KEY 2
 /* ************************************************************************* */
@@ -280,37 +278,6 @@ typedef struct mimo_control
 #define FETCH_FCF(off) (wlan_broken_fc ? \
   GUINT16_SWAP_LE_BE(tvb_get_letohs(tvb, off)) : \
   tvb_get_letohs(tvb, off))
-
-/*
- * Checks if the packet was transmitted in channel frequency of MINIMAL_80211AD_FREQ
- * till MAXIMAL_80211AD_FREQ to determine if 802.11ad.
- */
-static gboolean is_80211ad(proto_node * pnode, gpointer data) {
-    field_info* finfo;
-    header_field_info* hfinfo;
-    if(data != NULL) {
-      return FALSE;
-    }
-    if(pnode == NULL) {
-      return FALSE;
-    }
-    finfo = PNODE_FINFO(pnode);
-    if (finfo == NULL) {
-      return FALSE;
-    }
-    hfinfo = finfo->hfinfo;
-    if (hfinfo == NULL) {
-      return FALSE;
-    }
-    if(hfinfo->name != NULL) {
-      if(strcmp(hfinfo->name, "Channel frequency") == 0) {
-        if((finfo->value.value.uinteger >= MINIMAL_80211AD_FREQ) && (finfo->value.value.uinteger <= MAXIMAL_80211AD_FREQ)) {
-          return TRUE;
-        }
-      }
-    }
-    return FALSE;
-}
 
 /*
  * Extract the fragment number and sequence number from the sequence
@@ -16583,7 +16550,9 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   guint16          meshoff     = 0;
   static wlan_hdr_t whdrs[4];
   gboolean         retransmitted;
-  gboolean         isDMG = (tree == NULL) ? FALSE : proto_tree_traverse_post_order(proto_tree_get_root(tree), is_80211ad, NULL);
+  gboolean         isDMG = (phdr->presence_flags & PHDR_802_11_HAS_FREQUENCY ?
+                                IS_80211AD(phdr->frequency) :
+                                FALSE);
 
   volatile encap_t encap_type;
   proto_tree *volatile hdr_tree = NULL;
