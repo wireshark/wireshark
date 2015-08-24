@@ -319,32 +319,60 @@ typedef struct _NDIS_TASK_OFFLOAD
 
 
 /* NDIS driver medium (OID_GEN_MEDIA_SUPPORTED / OID_GEN_MEDIA_IN_USE) */
+/* Do not use NdisMediumXXX to avoid any dependency on the SDK version installed */
 static const value_string win32_802_3_medium_vals[] = {
-    { NdisMedium802_3,                  "802.3 (Ethernet)" },  /* might as well be WLAN,... (see NDIS_PHYSICAL_MEDIUM)*/
-    { NdisMedium802_5,                  "802.5 (Token Ring)" },
-    { NdisMediumFddi,                   "FDDI" },
-    { NdisMediumWan,                    "WAN" },
-    { NdisMediumLocalTalk,              "Local Talk" },
-    { NdisMediumDix,                    "Dix" },
-    { NdisMediumArcnetRaw,              "Arcnet Raw" },
-    { NdisMediumArcnet878_2,            "Arcnet 878_2" },
-    { NdisMediumAtm,                    "ATM" },
-    { NdisMediumWirelessWan,            "Wireless WAN" },
-    { NdisMediumIrda,                   "Irda" },
+    { -6 /*WinPcap NdisMediumPpi*/,        "AirPcap 802.11 + PPI" },
+    { -5 /*WinPcap NdisMediumRadio80211*/, "AirPcap 802.11 + Radio" },
+    { -4 /*WinPcap NdisMediumBare80211*/,  "AirPcap 802.11" },
+    { -3 /*WinPcap NdisMediumPPPSerial*/,  "PPP Serial" },
+    { -2 /*WinPcap NdisMediumCHDLC*/,      "CHDLC" },
+    { -1 /*WinPcap NdisMediumNull*/,       "Null/Loopback" },
+    {  0 /*NdisMedium802_3*/,        "802.3 (Ethernet)" },
+    {  1 /*NdisMedium802_5*/,        "802.5 (Token Ring)" },
+    {  2 /*NdisMediumFddi*/,         "FDDI" },
+    {  3 /*NdisMediumWan*/,          "WAN" },
+    {  4 /*NdisMediumLocalTalk*/,    "Local Talk" },
+    {  5 /*NdisMediumDix*/,          "DIX" },
+    {  6 /*NdisMediumArcnetRaw*/,    "Arcnet Raw" },
+    {  7 /*NdisMediumArcnet878_2*/,  "Arcnet 878.2" },
+    {  8 /*NdisMediumAtm*/,          "ATM" },
+    {  9 /*NdisMediumWirelessWan*/,  "Wireless WAN" },
+    { 10 /*NdisMediumIrda*/,         "IrDA" },
+    { 11 /*NdisMediumBpc*/,          "Broadcast PC" },
+    { 12 /*NdisMediumCoWan*/,        "CoWAN" },
+    { 13 /*NdisMedium1394*/,         "IEEE 1394" },
+    { 14 /*NdisMediumInfiniBand*/,   "Infiniband" },
+    { 15 /*NdisMediumTunnel*/,       "Tunnel" },
+    { 16 /*NdisMediumNative802_11*/, "Native 802.11" },
+    { 17 /*NdisMediumLoopback*/,     "Loopback" },
+    { 18 /*NdisMediumWiMAX*/,        "WiMAX" },
+    { 19 /*NdisMediumIP*/,           "IP" },
     { 0, NULL }
 };
 
 /* NDIS physical driver medium (OID_GEN_PHYSICAL_MEDIUM) */
+/* Do not use NdisPhysicalMediumXXX to avoid any dependency on the SDK version installed */
 static const value_string win32_802_3_physical_medium_vals[] = {
-    { NdisPhysicalMediumUnspecified,    "Unspecified" },
-    { NdisPhysicalMediumWirelessLan,    "Wireless LAN" },
-    { NdisPhysicalMediumCableModem,     "Cable Modem (DOCSIS)" },
-    { NdisPhysicalMediumPhoneLine,      "Phone Line" },
-    { NdisPhysicalMediumPowerLine,      "Power Line" },
-    { NdisPhysicalMediumDSL,            "DSL" },
-    { NdisPhysicalMediumFibreChannel,   "Fibre Channel" },
-    { NdisPhysicalMedium1394,           "IEEE 1394" },
-    { NdisPhysicalMediumWirelessWan,    "Wireless WAN" },
+    {  0 /*NdisPhysicalMediumUnspecified*/,  "Unspecified" },
+    {  1 /*NdisPhysicalMediumWirelessLan*/,  "Wireless LAN" },
+    {  2 /*NdisPhysicalMediumCableModem*/,   "Cable Modem (DOCSIS)" },
+    {  3 /*NdisPhysicalMediumPhoneLine*/,    "Phone Line" },
+    {  4 /*NdisPhysicalMediumPowerLine*/,    "Power Line" },
+    {  5 /*NdisPhysicalMediumDSL*/,          "DSL" },
+    {  6 /*NdisPhysicalMediumFibreChannel*/, "Fibre Channel" },
+    {  7 /*NdisPhysicalMedium1394*/,         "IEEE 1394" },
+    {  8 /*NdisPhysicalMediumWirelessWan*/,  "Wireless WAN" },
+    {  9 /*NdisPhysicalMediumNative802_11*/, "Native 802.11" },
+    { 10 /*NdisPhysicalMediumBluetooth*/,    "Bluetooth" },
+    { 11 /*NdisPhysicalMediumInfiniband*/,   "Infiniband" },
+    { 12 /*NdisPhysicalMediumWiMax*/,        "WiMAX" },
+    { 13 /*NdisPhysicalMediumUWB*/,          "Ultra Wideband (UWB)" },
+    { 14 /*NdisPhysicalMedium802_3*/,        "802.3 (Ethernet)" },
+    { 15 /*NdisPhysicalMedium802_5*/,        "802.5 (Token Ring)" },
+    { 16 /*NdisPhysicalMediumIrda*/,         "IrDA" },
+    { 17 /*NdisPhysicalMediumWiredWAN*/,     "Wired WAN" },
+    { 18 /*NdisPhysicalMediumWiredCoWan*/,   "Wired CoWAN" },
+    { 19 /*NdisPhysicalMediumOther*/,        "Other" },
     { 0, NULL }
 };
 
@@ -1890,12 +1918,12 @@ capture_if_details_general(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPAD
         i = 0;
         while (uint_array_size--) {
             tmp_str = val_to_str_wmem(NULL, uint_array[i], win32_802_3_medium_vals, "(0x%x)");
-            add_string_to_grid(grid, row, "Medium in use", tmp_str);
+            add_string_to_grid(grid, row, "Media in use", tmp_str);
             wmem_free(NULL, tmp_str);
             i++;
         }
     } else {
-        add_string_to_grid(grid, row, "Medium in use", "-");
+        add_string_to_grid(grid, row, "Media in use", "-");
     }
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_PHYSICAL_MEDIUM, &physical_medium)) {
