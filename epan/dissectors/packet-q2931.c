@@ -602,16 +602,16 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 /*
  * Dissect an ATM traffic descriptor information element.
  */
-#define	Q2931_ATM_CR_FW_PEAK_CLP_0	0x82	/* Forward peak cell rate (CLP = 0) */
-#define	Q2931_ATM_CR_BW_PEAK_CLP_0	0x83	/* Backward peak cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_FW_PEAK_CLP_0		0x82	/* Forward peak cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_BW_PEAK_CLP_0		0x83	/* Backward peak cell rate (CLP = 0) */
 #define	Q2931_ATM_CR_FW_PEAK_CLP_0_1	0x84	/* Forward peak cell rate (CLP = 0 + 1) */
 #define	Q2931_ATM_CR_BW_PEAK_CLP_0_1	0x85	/* Backward peak cell rate (CLP = 0 + 1) */
-#define	Q2931_ATM_CR_FW_SUST_CLP_0	0x88	/* Forward sustainable cell rate (CLP = 0) */
-#define	Q2931_ATM_CR_BW_SUST_CLP_0	0x89	/* Backward sustainable cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_FW_SUST_CLP_0		0x88	/* Forward sustainable cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_BW_SUST_CLP_0		0x89	/* Backward sustainable cell rate (CLP = 0) */
 #define	Q2931_ATM_CR_FW_SUST_CLP_0_1	0x90	/* Forward sustainable cell rate (CLP = 0 + 1) */
 #define	Q2931_ATM_CR_BW_SUST_CLP_0_1	0x91	/* Backward sustainable cell rate (CLP = 0 + 1) */
-#define	Q2931_ATM_CR_FW_MAXB_CLP_0	0xA0	/* Forward maximum burst size (CLP = 0) */
-#define	Q2931_ATM_CR_BW_MAXB_CLP_0	0xA1	/* Backward maximum burst size (CLP = 0) */
+#define	Q2931_ATM_CR_FW_MAXB_CLP_0		0xA0	/* Forward maximum burst size (CLP = 0) */
+#define	Q2931_ATM_CR_BW_MAXB_CLP_0		0xA1	/* Backward maximum burst size (CLP = 0) */
 #define	Q2931_ATM_CR_FW_MAXB_CLP_0_1	0xB0	/* Forward maximum burst size (CLP = 0 + 1) */
 #define	Q2931_ATM_CR_BW_MAXB_CLP_0_1	0xB1	/* Backward maximum burst size (CLP = 0 + 1) */
 #define	Q2931_ATM_CR_BEST_EFFORT_IND	0xBE	/* Best effort indicator */
@@ -2502,7 +2502,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_atm_identifier,
 		  { "Identifier", "q2931.atm_identifier",
-		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, VALS(q2931_atm_td_subfield_vals), 0x0,
+		    FT_UINT8, BASE_HEX, VALS(q2931_atm_td_subfield_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_atm_identifier_value,
