@@ -81,6 +81,7 @@ static int hf_dvb_s2_modeadapt_acm = -1;
 static int hf_dvb_s2_modeadapt_acm_fecframe = -1;
 static int hf_dvb_s2_modeadapt_acm_pilot = -1;
 static int hf_dvb_s2_modeadapt_acm_modcod = -1;
+static int hf_dvb_s2_modeadapt_acm_modcod_s2x = -1;
 static int hf_dvb_s2_modeadapt_cni = -1;
 static int hf_dvb_s2_modeadapt_frameno = -1;
 
@@ -91,7 +92,8 @@ static int hf_dvb_s2_bb_matype1_mis = -1;
 static int hf_dvb_s2_bb_matype1_acm = -1;
 static int hf_dvb_s2_bb_matype1_issyi = -1;
 static int hf_dvb_s2_bb_matype1_npd = -1;
-static int hf_dvb_s2_bb_matype1_ro = -1;
+static int hf_dvb_s2_bb_matype1_high_ro = -1;
+static int hf_dvb_s2_bb_matype1_low_ro = -1;
 static int hf_dvb_s2_bb_matype2 = -1;
 static int hf_dvb_s2_bb_upl = -1;
 static int hf_dvb_s2_bb_dfl = -1;
@@ -140,8 +142,12 @@ static expert_field ei_dvb_s2_bb_npd_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_upl_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_reserved = EI_INIT;
 
+static unsigned char _use_low_rolloff_value = 0;
 
-/* *** DVB-S2 Mode Adaptation Header *** */
+/* Offset in SYNC MARKER */
+#define DVB_S2_OFFS_SYNCBYTE 0
+
+/* *** DVB-S2 Modeadaption Header *** */
 
 /* first byte */
 #define DVB_S2_MODEADAPT_OFFS_SYNCBYTE          0
@@ -150,6 +156,7 @@ static expert_field ei_dvb_s2_bb_reserved = EI_INIT;
 /* second byte */
 #define DVB_S2_MODEADAPT_OFFS_ACMBYTE         1
 #define DVB_S2_MODEADAPT_MODCODS_MASK   0x1F
+#define DVB_S2_MODEADAPT_MODCODS_S2X_MASK   0xDF
 static const value_string modeadapt_modcods[] = {
     { 0, "DUMMY PLFRAME"},
     { 1, "QPSK 1/4"},
@@ -183,6 +190,230 @@ static const value_string modeadapt_modcods[] = {
     {29, "reserved"},
     {30, "reserved"},
     {31, "reserved"},
+    {32, "QPSK 1/3 SF48"},
+    {33, "QPSK 1/2 SF48"},
+    {34, "QPSK 1/4 SF12"},
+    {35, "QPSK 1/3 SF12"},
+    {36, "QPSK 1/2 SF12"},
+    {37, "QPSK 1/3 SF6"},
+    {38, "QPSK 1/2 SF6"},
+    {39, "QPSK 1/3 SF3"},
+    {40, "QPSK 2/5 SF3"},
+    {41, "QPSK 1/3 SF2"},
+    {42, "QPSK 2/5 SF2"},
+    {43, "QPSK 1/2 SF2"},
+    {44, "QPSK 1/3 SF1"},
+    {45, "QPSK 2/5 SF1"},
+    {46, "QPSK 1/2 SF1"},
+    {47, "reserved"},
+    {48, "reserved"},
+    {49, "reserved"},
+    {50, "reserved"},
+    {51, "reserved"},
+    {52, "reserved"},
+    {53, "reserved"},
+    {54, "reserved"},
+    {55, "reserved"},
+    {56, "reserved"},
+    {57, "reserved"},
+    {58, "reserved"},
+    {59, "reserved"},
+    {60, "reserved"},
+    {61, "reserved"},
+    {62, "reserved"},
+    {63, "reserved"},
+    {64, "reserved"},
+    {65, "reserved"},
+    {66, "reserved"},
+    {67, "reserved"},
+    {68, "reserved"},
+    {69, "reserved"},
+    {70, "reserved"},
+    {71, "reserved"},
+    {72, "reserved"},
+    {73, "reserved"},
+    {74, "reserved"},
+    {75, "reserved"},
+    {76, "reserved"},
+    {77, "reserved"},
+    {78, "reserved"},
+    {79, "reserved"},
+    {80, "reserved"},
+    {81, "reserved"},
+    {82, "reserved"},
+    {83, "reserved"},
+    {84, "reserved"},
+    {85, "reserved"},
+    {86, "reserved"},
+    {87, "reserved"},
+    {88, "reserved"},
+    {89, "reserved"},
+    {90, "reserved"},
+    {91, "reserved"},
+    {92, "reserved"},
+    {93, "reserved"},
+    {94, "reserved"},
+    {95, "reserved"},
+    {96, "reserved"},
+    {97, "reserved"},
+    {98, "reserved"},
+    {99, "reserved"},
+    {100, "reserved"},
+    {101, "reserved"},
+    {102, "reserved"},
+    {103, "reserved"},
+    {104, "reserved"},
+    {105, "reserved"},
+    {106, "reserved"},
+    {107, "reserved"},
+    {108, "reserved"},
+    {109, "reserved"},
+    {110, "reserved"},
+    {111, "reserved"},
+    {112, "reserved"},
+    {113, "reserved"},
+    {114, "reserved"},
+    {115, "reserved"},
+    {116, "reserved"},
+    {117, "reserved"},
+    {118, "reserved"},
+    {119, "reserved"},
+    {120, "reserved"},
+    {121, "reserved"},
+    {122, "reserved"},
+    {123, "reserved"},
+    {124, "reserved"},
+    {125, "reserved"},
+    {126, "reserved"},
+    {127, "reserved"},
+    {128, "reserved"},
+    {129, "reserved"},
+    {130, "reserved"},
+    {131, "reserved"},
+    {132, "QPSK 13/45"},
+    {133, "reserved"},
+    {134, "QPSK 9/20"},
+    {135, "reserved"},
+    {136, "QPSK 11/20"},
+    {137, "reserved"},
+    {138, "8PSK 5/9-L"},
+    {139, "reserved"},
+    {140, "8PSK 26/45-L"},
+    {141, "reserved"},
+    {142, "8PSK 23/36"},
+    {143, "reserved"},
+    {144, "8PSK 25/36"},
+    {145, "reserved"},
+    {146, "8PSK 13/18"},
+    {147, "reserved"},
+    {148, "16APSK 1/2-L"},
+    {149, "reserved"},
+    {150, "16APSK 8/15-L"},
+    {151, "reserved"},
+    {152, "16APSK 5/9-L"},
+    {153, "reserved"},
+    {154, "16APSK 26/45"},
+    {155, "reserved"},
+    {156, "16APSK 3/5"},
+    {157, "reserved"},
+    {158, "16APSK 3/5-L"},
+    {159, "reserved"},
+    {160, "16APSK 28/45"},
+    {161, "reserved"},
+    {162, "16APSK 23/36"},
+    {163, "reserved"},
+    {164, "16APSK 2/3-L"},
+    {165, "reserved"},
+    {166, "16APSK 25/36"},
+    {167, "reserved"},
+    {168, "16APSK 13/18"},
+    {169, "reserved"},
+    {170, "16APSK 7/9"},
+    {171, "reserved"},
+    {172, "16APSK 77/90"},
+    {173, "reserved"},
+    {174, "32APSK 2/3-L"},
+    {175, "reserved"},
+    {176, "reserved"},
+    {177, "reserved"},
+    {178, "32APSK 32/45"},
+    {179, "reserved"},
+    {180, "32APSK 11/15"},
+    {181, "reserved"},
+    {182, "32APSK 7/9"},
+    {183, "reserved"},
+    {184, "64APSK 32/45-L"},
+    {185, "reserved"},
+    {186, "64APSK 11/15"},
+    {187, "reserved"},
+    {188, "reserved"},
+    {189, "reserved"},
+    {190, "64APSK 7/9"},
+    {191, "reserved"},
+    {192, "reserved"},
+    {193, "reserved"},
+    {194, "64APSK 4/5"},
+    {195, "reserved"},
+    {196, "reserved"},
+    {197, "reserved"},
+    {198, "64APSK 5/6"},
+    {199, "reserved"},
+    {200, "128APSK 3/4"},
+    {201, "reserved"},
+    {202, "128APSK 7/9"},
+    {203, "reserved"},
+    {204, "256APSK 29/45-L"},
+    {205, "reserved"},
+    {206, "256APSK 2/3-L"},
+    {207, "reserved"},
+    {208, "256APSK 31/45-L"},
+    {209, "reserved"},
+    {210, "256APSK 32/45"},
+    {211, "reserved"},
+    {212, "256APSK 11/15-L"},
+    {213, "reserved"},
+    {214, "256APSK 3/4"},
+    {215, "reserved"},
+    {216, "QPSK 11/45"},
+    {217, "reserved"},
+    {218, "QPSK 4/15"},
+    {219, "reserved"},
+    {220, "QPSK 14/45"},
+    {221, "reserved"},
+    {222, "QPSK 7/15"},
+    {223, "reserved"},
+    {224, "QPSK 8/15"},
+    {225, "reserved"},
+    {226, "QPSK 32/45"},
+    {227, "reserved"},
+    {228, "8PSK 7/15"},
+    {229, "reserved"},
+    {230, "8PSK 8/15"},
+    {231, "reserved"},
+    {232, "8PSK 26/45"},
+    {233, "reserved"},
+    {234, "8PSK 32/45"},
+    {235, "reserved"},
+    {236, "16APSK 7/15"},
+    {237, "reserved"},
+    {238, "16APSK 8/15"},
+    {239, "reserved"},
+    {240, "16APSK 26/45"},
+    {241, "reserved"},
+    {242, "16APSK 3/5"},
+    {243, "reserved"},
+    {244, "16APSK 32/45"},
+    {245, "reserved"},
+    {246, "32APSK 2/3"},
+    {247, "reserved"},
+    {248, "32APSK 32/45"},
+    {249, "reserved"},
+    {250, "reserved"},
+    {251, "reserved"},
+    {252, "reserved"},
+    {253, "reserved"},
+    {254, "reserved"},
+    {255, "reserved"},
     { 0, NULL}
 };
 static value_string_ext modeadapt_modcods_ext = VALUE_STRING_EXT_INIT(modeadapt_modcods);
@@ -511,13 +742,22 @@ static const true_false_string tfs_bb_npd = {
 };
 
 #define DVB_S2_BB_RO_MASK       0x03
-static const value_string bb_ro[] = {
+static const value_string bb_high_ro[] = {
     {0, "0,35"},
     {1, "0,25"},
     {2, "0,20"},
-    {3, "<0,20 / reserved"},
+    {3, "Low rolloff flag"},
     {0, NULL}
 };
+
+static const value_string bb_low_ro[] = {
+    {0, "0,15"},
+    {1, "0,10"},
+    {2, "0,05"},
+    {3, "Low rolloff flag"},
+    {0, NULL}
+};
+
 
 #define DVB_S2_BB_OFFS_MATYPE2          1
 #define DVB_S2_BB_OFFS_UPL              2
@@ -771,7 +1011,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
         &hf_dvb_s2_bb_matype1_acm,
         &hf_dvb_s2_bb_matype1_issyi,
         &hf_dvb_s2_bb_matype1_npd,
-        &hf_dvb_s2_bb_matype1_ro,
+        &hf_dvb_s2_bb_matype1_low_ro,
         NULL
     };
 
@@ -790,6 +1030,22 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
     proto_tree_add_bitmask_with_flags(dvb_s2_bb_tree, tvb, cur_off + DVB_S2_BB_OFFS_MATYPE1, hf_dvb_s2_bb_matype1,
         ett_dvb_s2_bb_matype1, bb_header_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+
+    input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_MATYPE1);
+
+    if ((pinfo->fd->num == 1) && (_use_low_rolloff_value != 0)) {
+        _use_low_rolloff_value = 0;
+    }
+    if (((input8 & 0x03) == 3) && !_use_low_rolloff_value) {
+      _use_low_rolloff_value = 1;
+    }
+    if (_use_low_rolloff_value) {
+       proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_matype1_low_ro, tvb,
+                           cur_off + DVB_S2_BB_OFFS_MATYPE1, 1, ENC_BIG_ENDIAN);
+    } else {
+       proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_matype1_high_ro, tvb,
+                           cur_off + DVB_S2_BB_OFFS_MATYPE1, 1, ENC_BIG_ENDIAN);
+    }
 
     input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_MATYPE2);
     new_off += 1;
@@ -885,9 +1141,11 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     int         cur_off = 0, modeadapt_len, modeadapt_type, matched_headers = 0;
 
-    proto_item *ti;
+    proto_item *ti, *tf;
     proto_tree *dvb_s2_modeadapt_tree;
+    proto_tree *dvb_s2_modeadapt_acm_tree;
 
+    unsigned int modcod, mc;
     static int * const modeadapt_acm_bitfields[] = {
         &hf_dvb_s2_modeadapt_acm_fecframe,
         &hf_dvb_s2_modeadapt_acm_pilot,
@@ -969,8 +1227,25 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
-            proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
-                ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+            mc = tvb_get_guint8(tvb, 1);
+            //mc = tvb_get_letohs(tvb, 0);
+            if (mc & 0x80) {
+                modcod = 0x80;
+                modcod |= ((mc & 0x1F) << 2);
+                modcod |= ((mc & 0x40) >> 5);
+                tf = proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_acm, tvb,
+                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+
+                dvb_s2_modeadapt_acm_tree = proto_item_add_subtree(tf, ett_dvb_s2_modeadapt_acm);
+
+                proto_tree_add_item(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_pilot, tvb,
+                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_uint_format_value(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_modcod_s2x, tvb,
+                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, mc, "DVBS2X %s(%d)", modeadapt_modcods[modcod].strptr, modcod);
+            } else {
+                proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
+                        ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+            }
             cur_off++;
         }
 
@@ -1023,6 +1298,11 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_modcods_ext, DVB_S2_MODEADAPT_MODCODS_MASK,
                 "Modcod", HFILL}
         },
+        {&hf_dvb_s2_modeadapt_acm_modcod_s2x, {
+                "Modcod indicator", "dvb-s2_modeadapt.acmcmd.modcod",
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_modcods_ext, DVB_S2_MODEADAPT_MODCODS_S2X_MASK,
+                "Modcod S2X", HFILL}
+        },
         {&hf_dvb_s2_modeadapt_cni, {
                 "Carrier to Noise [dB]", "dvb-s2_modeadapt.cni",
                 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_esno_ext, 0x0,
@@ -1072,9 +1352,14 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_BOOLEAN, 8, TFS(&tfs_bb_npd), DVB_S2_BB_NPD_MASK,
                 "Null-packet deletion enabled", HFILL}
         },
-        {&hf_dvb_s2_bb_matype1_ro, {
+        {&hf_dvb_s2_bb_matype1_high_ro, {
                 "RO", "dvb-s2_bb.matype1.ro",
-                FT_UINT8, BASE_DEC, VALS(bb_ro), DVB_S2_BB_RO_MASK,
+                FT_UINT8, BASE_DEC, VALS(bb_high_ro), DVB_S2_BB_RO_MASK,
+                "Transmission Roll-off factor", HFILL}
+        },
+        {&hf_dvb_s2_bb_matype1_low_ro, {
+                "RO", "dvb-s2_bb.matype1.ro",
+                FT_UINT8, BASE_DEC, VALS(bb_low_ro), DVB_S2_BB_RO_MASK,
                 "Transmission Roll-off factor", HFILL}
         },
         {&hf_dvb_s2_bb_matype2, {
