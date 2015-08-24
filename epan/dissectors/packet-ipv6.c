@@ -987,7 +987,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 if (segments == 1) {
                     struct e_in6_addr addr;
 
-                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                     /* Display Full Address */
                     memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                     tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
