@@ -2294,26 +2294,12 @@ void MainWindow::openPacketDialog(bool from_reference)
 
         connect(this, SIGNAL(monospaceFontChanged(QFont)),
                 packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
-        connect(packet_dialog, SIGNAL(packetDialogClosed(QDialog *)),
-                this, SLOT(packetDialogClosed(QDialog *)));
+        connect(this, SIGNAL(closePacketDialogs()),
+                packet_dialog, SLOT(close()));
         zoomText(); // Emits monospaceFontChanged
 
-        packet_dialogs_.append(packet_dialog);
         packet_dialog->show();
     }
-}
-
-void MainWindow::closePacketDialogs()
-{
-    QList<QDialog *> packet_dialogs_copy(packet_dialogs_);
-    foreach(QDialog *packet_dialog, packet_dialogs_copy) {
-        packet_dialog->close();
-    }
-}
-
-void MainWindow::packetDialogClosed(QDialog *packet_dialog)
-{
-    packet_dialogs_.removeOne(packet_dialog);
 }
 
 void MainWindow::on_actionViewShowPacketInNewWindow_triggered()
