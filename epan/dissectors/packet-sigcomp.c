@@ -6630,7 +6630,7 @@ proto_register_sigcomp(void)
         { &hf_sigcomp_illegal_escape_code, { "Illegal escape code", "sigcomp.illegal_escape_code", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sigcomp_end_of_sigcomp_message_indication_found, { "End of SigComp message indication found", "sigcomp.end_of_sigcomp_message_indication_found", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sigcomp_addr_value, { "Addr", "sigcomp.addr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_sigcomp_copying_bytes_literally, { "Copying bytes literally", "sigcomp.copying_bytes_literally", FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_copying_bytes_literally, { "Copying bytes literally", "sigcomp.copying_bytes_literally", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sigcomp_data_for_sigcomp_dissector, { "Data handed to the Sigcomp dissector", "sigcomp.data_for_sigcomp_dissector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sigcomp_remaining_sigcomp_message, { "Remaining SigComp message", "sigcomp.remaining_sigcomp_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sigcomp_sha1buff, { "sha1buff", "sigcomp.sha1buff", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
