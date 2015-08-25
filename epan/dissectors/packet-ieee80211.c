@@ -9298,13 +9298,13 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
     case VHT_ACT_GROUP_ID_MANAGEMENT:{
       ti = proto_tree_add_item(tree, hf_ieee80211_vht_group_id_management, tvb,
-                          offset, -1, ENC_NA);    
+                          offset, -1, ENC_NA);
       ti_tree = proto_item_add_subtree(ti, ett_vht_grpidmgmt);
 
-      proto_tree_add_item(ti, hf_ieee80211_vht_membership_status_array, tvb,
+      proto_tree_add_item(ti_tree, hf_ieee80211_vht_membership_status_array, tvb,
                                 offset, 8, ENC_NA);
       offset += 8;
-      proto_tree_add_item(ti, hf_ieee80211_vht_user_position_array, tvb,
+      proto_tree_add_item(ti_tree, hf_ieee80211_vht_user_position_array, tvb,
                                 offset, 16, ENC_NA);
       /*expert_add_info(pinfo, ti, &ei_ieee80211_vht_action); */
       offset += tvb_reported_length_remaining(tvb, offset);
@@ -16929,8 +16929,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
           if (tree) {
-            proto_item *feedback_seg_retrans_bitmap;
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -16941,8 +16940,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             offset += 6;
 
-            feedback_seg_retrans_bitmap = proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap,
-                                                              tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap, tvb, offset, 1, ENC_NA);
           }
         break;
         }
