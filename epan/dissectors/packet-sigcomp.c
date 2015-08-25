@@ -112,6 +112,44 @@ static int hf_sigcomp_nack_memory_size              = -1;
 static int hf_sigcomp_nack_cycles_per_bit           = -1;
 static int hf_sigcomp_decompress_instruction        = -1;
 static int hf_sigcomp_loading_result                = -1;
+static int hf_sigcomp_byte_copy                     = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_sigcomp_accessing_state = -1;
+static int hf_sigcomp_getting_value = -1;
+static int hf_sigcomp_load_bytecode_into_udvm_start = -1;
+static int hf_sigcomp_instruction_code = -1;
+static int hf_sigcomp_current_instruction = -1;
+static int hf_sigcomp_decompression_failure = -1;
+static int hf_sigcomp_wireshark_udvm_diagnostic = -1;
+static int hf_sigcomp_calculated_sha_1 = -1;
+static int hf_sigcomp_copying_value = -1;
+static int hf_sigcomp_storing_value = -1;
+static int hf_sigcomp_loading_value = -1;
+static int hf_sigcomp_set_hu = -1;
+static int hf_sigcomp_loading_h = -1;
+static int hf_sigcomp_state_value = -1;
+static int hf_sigcomp_output_value = -1;
+static int hf_sigcomp_num_state_create = -1;
+static int hf_sigcomp_sha1_digest = -1;
+static int hf_sigcomp_creating_state = -1;
+static int hf_sigcomp_sigcomp_message_decompressed = -1;
+static int hf_sigcomp_starting_to_remove_escape_digits = -1;
+static int hf_sigcomp_escape_digit_found = -1;
+static int hf_sigcomp_illegal_escape_code = -1;
+static int hf_sigcomp_end_of_sigcomp_message_indication_found = -1;
+static int hf_sigcomp_addr_value = -1;
+static int hf_sigcomp_copying_bytes_literally = -1;
+static int hf_sigcomp_data_for_sigcomp_dissector = -1;
+static int hf_sigcomp_remaining_sigcomp_message = -1;
+static int hf_sigcomp_sha1buff = -1;
+static int hf_sigcomp_udvm_instruction = -1;
+static int hf_sigcomp_remaining_bytes = -1;
+static int hf_sigcomp_max_udvm_cycles = -1;
+static int hf_sigcomp_used_udvm_cycles = -1;
+static int hf_sigcomp_udvm_execution_stated = -1;
+static int hf_sigcomp_message_length = -1;
+static int hf_sigcomp_byte_code_length = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_sigcomp             = -1;
@@ -121,6 +159,13 @@ static gint ett_raw_text            = -1;
 
 static expert_field ei_sigcomp_nack_failed_op_code = EI_INIT;
 static expert_field ei_sigcomp_invalid_instruction = EI_INIT;
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_sigcomp_tcp_fragment = EI_INIT;
+static expert_field ei_sigcomp_decompression_failure = EI_INIT;
+static expert_field ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic = EI_INIT;
+static expert_field ei_sigcomp_all_remaining_parameters_zero = EI_INIT;
+static expert_field ei_sigcomp_sigcomp_message_decompression_failure = EI_INIT;
+static expert_field ei_sigcomp_execution_of_this_instruction_is_not_implemented = EI_INIT;
 
 static dissector_handle_t sip_handle;
 /* set the udp ports */
@@ -275,7 +320,7 @@ static value_string_ext sigcomp_nack_reason_code_vals_ext =
     VALUE_STRING_EXT_INIT(sigcomp_nack_reason_code_vals);
 
 
-static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, guint destination);
+static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree, guint destination);
 
 static int dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
                                           gint offset,gboolean is_addr,gint *start_offset,
@@ -943,7 +988,7 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint1
         n++;
     }
     partial_state_str = bytes_to_str(wmem_packet_scope(), partial_state, p_id_length);
-    proto_tree_add_text(tree,tvb, 0, -1,"### Accessing state ###");
+    proto_tree_add_item(tree, hf_sigcomp_accessing_state, tvb, 0, -1, ENC_NA);
     proto_tree_add_string(tree,hf_id, tvb, 0, 0, partial_state_str);
 
     /* Debug
@@ -1103,12 +1148,10 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length) {
     partial_state_str = bytes_to_str(NULL, partial_state, p_id_length);
     /* TODO Implement a state create counter before actually freeing states
      * Hmm is it a good idea to free the buffer at all?
+     * g_warning("State-free on  %s ",partial_state_str);
      */
-    g_warning("State-free on  %s ",partial_state_str);
     dummy_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
-    if ( dummy_buff == NULL ) {
-        g_warning("State-free, state not found  %s",partial_state_str);
-    } else {
+    if ( dummy_buff != NULL ) {
         g_hash_table_remove (state_buffer_table, partial_state_str);
         g_free(dummy_buff);
     }
@@ -1649,7 +1692,7 @@ decomp_dispatch_get_bits(
         {
             octet = tvb_get_guint8(message_tvb, *input_address);
             if (print_level_1 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, *input_address , 1,
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_getting_value, message_tvb, *input_address, 1, octet,
                                     "               Getting value: %u (0x%x) From Addr: %u", octet, octet, *input_address);
             }
             *input_address = *input_address + 1;
@@ -1862,16 +1905,18 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
      */
     maximum_UDVM_cycles = (( 8 * (header_len + msg_end) ) + 1000) * cycles_per_bit;
 
-    proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Message Length: %u,Byte code length: %u, Maximum UDVM cycles: %u",msg_end,code_length,maximum_UDVM_cycles);
+    proto_tree_add_uint(udvm_tree, hf_sigcomp_message_length, bytecode_tvb, offset, 1, msg_end);
+    proto_tree_add_uint(udvm_tree, hf_sigcomp_byte_code_length, bytecode_tvb, offset, 1, code_length);
+    proto_tree_add_uint(udvm_tree, hf_sigcomp_max_udvm_cycles, bytecode_tvb, offset, 1, maximum_UDVM_cycles);
 
     /* Load bytecode into UDVM starting at "udvm_mem_dest" */
     i = udvm_mem_dest;
     if ( print_level_3 )
-        proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Load bytecode into UDVM starting at %u",i);
+        proto_tree_add_uint(udvm_tree, hf_sigcomp_load_bytecode_into_udvm_start, bytecode_tvb, offset, 1, i);
     while ( code_length > offset && i < UDVM_MEMORY_SIZE ) {
         buff[i] = tvb_get_guint8(bytecode_tvb, offset);
         if ( print_level_3 )
-            proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
+            proto_tree_add_uint_format(udvm_tree, hf_sigcomp_instruction_code, bytecode_tvb, offset, 1, buff[i],
                                 "              Addr: %u Instruction code(0x%02x) ", i, buff[i]);
 
         i++;
@@ -1882,8 +1927,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     current_address = udvm_start_ip;
     input_address = 0;
 
-    proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"UDVM EXECUTION STARTED at Address: %u Message size %u",
-                        current_address, msg_end);
+    proto_tree_add_uint_format(udvm_tree, hf_sigcomp_udvm_execution_stated, bytecode_tvb, offset, 1, current_address,
+                        "UDVM EXECUTION STARTED at Address: %u Message size %u", current_address, msg_end);
 
     /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
     out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
@@ -1901,7 +1946,7 @@ execute_next_instruction:
     current_instruction = buff[current_address & 0xffff];
 
     if (show_instr_detail_level == 2 ) {
-        addr_item = proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
+        addr_item = proto_tree_add_uint_format(udvm_tree, hf_sigcomp_current_instruction, bytecode_tvb, offset, 1, current_instruction,
                             "Addr: %u ## %s(%d)", current_address,
                             val_to_str_ext_const(current_instruction, &udvm_instruction_code_vals_ext, "INVALID INSTRUCTION"),
                             current_instruction);
@@ -1912,11 +1957,10 @@ execute_next_instruction:
     case SIGCOMP_INSTR_DECOMPRESSION_FAILURE:
         if ( result_code == 0 )
             result_code = 9;
-        proto_tree_add_text(udvm_tree, NULL, 0, 0,
-                            "Addr: %u ## DECOMPRESSION-FAILURE(0)",
+        proto_tree_add_uint_format(udvm_tree, hf_sigcomp_decompression_failure, NULL, 0, 0,
+                            current_address, "Addr: %u ## DECOMPRESSION-FAILURE(0)",
                             current_address);
-        proto_tree_add_text(udvm_tree, NULL, 0, 0,"Wireshark UDVM diagnostic: %s.",
-                            val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+        proto_tree_add_uint(udvm_tree, hf_sigcomp_wireshark_udvm_diagnostic, NULL, 0, 0, result_code);
         if ( output_address > 0 ) {
             /* At least something got decompressed, show it */
             decomp_tvb = tvb_new_child_real_data(message_tvb, out_buff,output_address,output_address);
@@ -1929,7 +1973,7 @@ execute_next_instruction:
              * is cleaned up.
              */
             add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message(Incomplete)");
-            proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompression failure");
+            proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_sigcomp_message_decompression_failure, decomp_tvb, 0, -1);
             return decomp_tvb;
         }
         g_free(out_buff);
@@ -2369,7 +2413,7 @@ execute_next_instruction:
         if (show_instr_detail_level == 2 ) {
             proto_item_append_text(addr_item, " (start, n, k))");
         }
-        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
+        proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0, -1);
         /*
          *      used_udvm_cycles =  1 + k * (ceiling(log2(k)) + n)
          */
@@ -2379,7 +2423,7 @@ execute_next_instruction:
         if (show_instr_detail_level == 2 ) {
             proto_item_append_text(addr_item, " (start, n, k))");
         }
-        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
+        proto_tree_add_expert(udvm_tree, pinfo, &ei_sigcomp_execution_of_this_instruction_is_not_implemented, bytecode_tvb, 0, -1);
         /*
          *      used_udvm_cycles =  1 + k * (ceiling(log2(k)) + n)
          */
@@ -2424,8 +2468,8 @@ execute_next_instruction:
         byte_copy_left = byte_copy_left | buff[65];
 
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
-                                "byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, 0, -1,
+                                NULL, "byte_copy_right = %u", byte_copy_right);
         }
 
         sha1_starts( &ctx );
@@ -2466,9 +2510,8 @@ execute_next_instruction:
         }
 
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
-                                "Calculated SHA-1: %s",
-                                bytes_to_str(wmem_packet_scope(), sha1_digest_buf, STATE_BUFFER_SIZE));
+            proto_tree_add_bytes_with_length(udvm_tree, hf_sigcomp_calculated_sha_1, message_tvb, 0, -1,
+                                sha1_digest_buf, STATE_BUFFER_SIZE);
         }
 
         current_address = next_operand_address;
@@ -2735,15 +2778,15 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                "               byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1,
+                                NULL, "               byte_copy_right = %u", byte_copy_right);
         }
 
         while ( n < length ) {
             buff[k] = buff[position];
             if (print_level_2 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                    "               Copying value: %u (0x%x) to Addr: %u",
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_copying_value, message_tvb, input_address, 1,
+                                    buff[position], "               Copying value: %u (0x%x) to Addr: %u",
                                     buff[position], buff[position], k);
             }
             position = ( position + 1 ) & 0xffff;
@@ -2827,15 +2870,15 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                "               byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1,
+                                NULL, "               byte_copy_right = %u", byte_copy_right);
         }
         while ( n < length ) {
 
             buff[k] = buff[position];
             if (print_level_2 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                    "               Copying value: %u (0x%x) to Addr: %u",
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_copying_value, message_tvb, input_address, 1,
+                                    buff[position], "               Copying value: %u (0x%x) to Addr: %u",
                                     buff[position], buff[position], k);
             }
             position = ( position + 1 ) & 0xffff;
@@ -2936,8 +2979,8 @@ execute_next_instruction:
         }
 
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                "               byte_copy_left = %u byte_copy_right = %u position= %u",
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1,
+                                NULL, "               byte_copy_left = %u byte_copy_right = %u position= %u",
                                 byte_copy_left, byte_copy_right, position);
         }
         /* The COPY-OFFSET instruction then behaves as a COPY-LITERAL
@@ -2961,14 +3004,14 @@ execute_next_instruction:
         n = 0;
         k = ref_destination;
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1, NULL,
                                 "               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
         }
         while ( n < length ) {
             buff[k] = buff[position];
             if (print_level_2 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                    "               Copying value: %5u (0x%x) from Addr: %u to Addr: %u",
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_copying_value, message_tvb, input_address, 1,
+                                    buff[position], "               Copying value: %5u (0x%x) from Addr: %u to Addr: %u",
                                     buff[position], buff[position],(position), k);
             }
             n++;
@@ -3054,7 +3097,7 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1, NULL,
                                 "               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
         }
         while ( n < length ) {
@@ -3063,8 +3106,8 @@ execute_next_instruction:
             }
             buff[k] = (start_value + ( n * multy_offset)) & 0xff;
             if (print_level_2 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                    "     Storing value: %u (0x%x) at Addr: %u",
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_storing_value, message_tvb, input_address, 1,
+                                    buff[k], "     Storing value: %u (0x%x) at Addr: %u",
                                     buff[k], buff[k], k);
             }
             k = ( k + 1 ) & 0xffff;
@@ -3369,8 +3412,8 @@ execute_next_instruction:
         result = 0;
 
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
-                                "byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, 0, -1,
+                                NULL, "byte_copy_right = %u", byte_copy_right);
         }
 
         while (n<length) {
@@ -3483,8 +3526,8 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_1 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                "               byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1,
+                                NULL, "               byte_copy_right = %u", byte_copy_right);
         }
         /* clear out remaining bits if any */
         remaining_bits = 0;
@@ -3503,8 +3546,8 @@ execute_next_instruction:
             octet = tvb_get_guint8(message_tvb, input_address);
             buff[k] = octet;
             if (print_level_1 ) {
-                proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-                                    "               Loading value: %u (0x%x) at Addr: %u", octet, octet, k);
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_loading_value, message_tvb, input_address, 1,
+                                    octet, "               Loading value: %u (0x%x) at Addr: %u", octet, octet, k);
             }
             input_address++;
             /*
@@ -3780,7 +3823,8 @@ execute_next_instruction:
                 oldH = H;
                 H = (H << bits_n) | k;
                 if (print_level_3 ) {
-                    proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Set H(%u) := H(%u) * 2^bits_j(%u) + k(%u)",
+                    proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_set_hu, bytecode_tvb, 0, -1, NULL,
+                                        "               Set H(%u) := H(%u) * 2^bits_j(%u) + k(%u)",
                                         H ,oldH, 1<<bits_n,k);
                 }
 
@@ -3799,7 +3843,7 @@ execute_next_instruction:
                      * memory address specified by the destination operand.
                      */
                     if (print_level_2 ) {
-                        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+                        proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_set_hu, bytecode_tvb, 0, -1, NULL,
                                             "               H(%u) = H(%u) + uncompressed_n(%u) - lower_bound_n(%u)",
                                             (H + uncompressed_n - lower_bound_n ),H, uncompressed_n, lower_bound_n);
                     }
@@ -3811,7 +3855,7 @@ execute_next_instruction:
                     buff[destination] = msb;
                     buff[(destination + 1) & 0xffff]=lsb;
                     if (print_level_1 ) {
-                        proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+                        proto_tree_add_uint_format(udvm_tree, hf_sigcomp_loading_h, message_tvb, input_address, 1, H,
                                             "               Loading H: %u (0x%x) at Addr: %u,j = %u remaining_bits: %u",
                                             H, H, destination,( n - m + 1 ), remaining_bits);
                     }
@@ -3913,7 +3957,7 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_2 ) {
-            proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, message_tvb, input_address, 1, NULL,
                                 "               byte_copy_right = %u, byte_copy_left = %u", byte_copy_right,byte_copy_left);
         }
 
@@ -4041,7 +4085,7 @@ execute_next_instruction:
             string[0]= buff[k];
             string[1]= '\0';
             if (print_level_3 ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_state_value, bytecode_tvb, 0, 0, buff[k],
                                     "               Addr: %5u State value: %u (0x%x) ASCII(%s)",
                                     k,buff[k],buff[k],format_text(string, 1));
             }
@@ -4150,8 +4194,8 @@ execute_next_instruction:
         byte_copy_left = buff[64] << 8;
         byte_copy_left = byte_copy_left | buff[65];
         if (print_level_3 ) {
-            proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-                                "               byte_copy_right = %u", byte_copy_right);
+            proto_tree_add_bytes_format(udvm_tree, hf_sigcomp_byte_copy, bytecode_tvb, 0, -1,
+                                NULL, "               byte_copy_right = %u", byte_copy_right);
         }
         while ( n < output_length ) {
 
@@ -4162,7 +4206,7 @@ execute_next_instruction:
             string[0]= buff[k];
             string[1]= '\0';
             if (print_level_3 ) {
-                proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_output_value, bytecode_tvb, 0, -1, buff[k],
                                     "               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
                                     buff[k],buff[k],format_text(string,1), k,output_address);
             }
@@ -4275,7 +4319,7 @@ execute_next_instruction:
 
         /* Execute the instruction
          */
-        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"no_of_state_create %u",no_of_state_create);
+        proto_tree_add_uint(udvm_tree, hf_sigcomp_num_state_create, bytecode_tvb, 0, 0, no_of_state_create);
         if ( no_of_state_create != 0 ) {
             memset(sha1_digest_buf, 0, STATE_BUFFER_SIZE);
             n = 1;
@@ -4294,10 +4338,7 @@ execute_next_instruction:
                 sha1buff[6] = state_minimum_access_length_buff[n] >> 8;
                 sha1buff[7] = state_minimum_access_length_buff[n] & 0xff;
                 if (print_level_3 ) {
-                    for ( x=0; x < 8; x++) {
-                        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"sha1buff %u 0x%x",
-                                            x,sha1buff[x]);
-                    }
+                    proto_tree_add_bytes_with_length(udvm_tree, hf_sigcomp_sha1buff, bytecode_tvb, 0, -1, sha1buff, 8);
                 }
                 k = state_address_buff[n];
                 for ( x=0; x < state_length_buff[n]; x++)
@@ -4313,7 +4354,7 @@ execute_next_instruction:
                 sha1_update( &ctx, (guint8 *) sha1buff, state_length_buff[n] + 8);
                 sha1_finish( &ctx, sha1_digest_buf );
                 if (print_level_3 ) {
-                    proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s", bytes_to_str(wmem_packet_scope(), sha1_digest_buf, STATE_BUFFER_SIZE));
+                    proto_tree_add_bytes_with_length(udvm_tree, hf_sigcomp_sha1_digest, bytecode_tvb, 0, -1, sha1_digest_buf, STATE_BUFFER_SIZE);
 
                 }
 /* begin partial state-id change cco@iptel.org */
@@ -4322,7 +4363,7 @@ execute_next_instruction:
 #endif
                 udvm_state_create(sha1buff, sha1_digest_buf, STATE_MIN_ACCESS_LEN);
 /* end partial state-id change cco@iptel.org */
-                proto_tree_add_text(udvm_tree,bytecode_tvb, 0, -1,"### Creating state ###");
+                proto_tree_add_item(udvm_tree, hf_sigcomp_creating_state, bytecode_tvb, 0, -1, ENC_NA);
                 proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(wmem_packet_scope(), sha1_digest_buf, STATE_MIN_ACCESS_LEN));
 
                 n++;
@@ -4340,12 +4381,11 @@ execute_next_instruction:
         tvb_set_free_cb( decomp_tvb, g_free );
 
         add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message");
-        /*
-          proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompressed");
-        */
-        used_udvm_cycles = used_udvm_cycles + state_length;
-        proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"maximum_UDVM_cycles %u used_udvm_cycles %u",
-                            maximum_UDVM_cycles, used_udvm_cycles);
+        proto_tree_add_item(udvm_tree, hf_sigcomp_sigcomp_message_decompressed, decomp_tvb, 0, -1, ENC_NA);
+
+        used_udvm_cycles += state_length;
+        proto_tree_add_uint(udvm_tree, hf_sigcomp_max_udvm_cycles, bytecode_tvb, 0, 0, maximum_UDVM_cycles);
+        proto_tree_add_uint(udvm_tree, hf_sigcomp_used_udvm_cycles, bytecode_tvb, 0, 0, used_udvm_cycles);
         return decomp_tvb;
         break;
 
@@ -4358,8 +4398,8 @@ execute_next_instruction:
     return NULL;
 decompression_failure:
 
-    proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
-                        val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+    proto_tree_add_expert_format(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0, -1,
+                        "DECOMPRESSION FAILURE: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
     g_free(out_buff);
     THROW(ReportedBoundsError);
     return NULL;
@@ -4431,7 +4471,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
      return offset;
 
     /* Search for delimiter 0xffff in the remain tvb buffer */
-    length = tvb_ensure_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     for (i=0; i<(length-1); ++i) {
         /* Loop end criteria is (length-1) because we take 2 bytes each loop */
         data = tvb_get_ntohs(tvb, offset+i);
@@ -4464,7 +4504,7 @@ try_again:
     end_off_message = FALSE;
     buff = (guint8 *)wmem_alloc(pinfo->pool, length-offset);
     if (udvm_print_detail_level>2)
-        proto_tree_add_text(sigcomp_tree, tvb, offset, -1,"Starting to remove escape digits");
+        proto_tree_add_item(sigcomp_tree, hf_sigcomp_starting_to_remove_escape_digits, tvb, offset, -1, ENC_NA);
     while ((offset < length) && (end_off_message == FALSE)) {
         octet = tvb_get_guint8(tvb,offset);
         if ( octet == 0xff ) {
@@ -4474,7 +4514,7 @@ try_again:
                 continue;
             }
             if (udvm_print_detail_level>2)
-                proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+                proto_tree_add_none_format(sigcomp_tree, hf_sigcomp_escape_digit_found, tvb, offset, 2,
                     "              Escape digit found (0xFF)");
             octet = tvb_get_guint8(tvb, offset+1);
             if ( octet == 0) {
@@ -4485,14 +4525,14 @@ try_again:
             }
             if ((octet > 0x7f) && (octet < 0xff )) {
                 if (udvm_print_detail_level>2)
-                    proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+                    proto_tree_add_none_format(sigcomp_tree, hf_sigcomp_illegal_escape_code, tvb, offset, 2,
                         "              Illegal escape code");
                 offset += tvb_captured_length_remaining(tvb,offset);
                 return offset;
             }
             if ( octet == 0xff) {
                 if (udvm_print_detail_level>2)
-                    proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+                    proto_tree_add_none_format(sigcomp_tree, hf_sigcomp_end_of_sigcomp_message_indication_found, tvb, offset, 2,
                         "              End of SigComp message indication found (0xFFFF)");
                 end_off_message = TRUE;
                 offset = offset+2;
@@ -4500,20 +4540,20 @@ try_again:
             }
             buff[i] = 0xff;
             if (udvm_print_detail_level>2)
-                proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+                proto_tree_add_uint_format(sigcomp_tree, hf_sigcomp_addr_value, tvb, offset, 1, buff[i],
                             "              Addr: %u tvb value(0x%0x) ", i, buff[i]);
             i++;
             offset = offset+2;
             if (udvm_print_detail_level>2)
-            proto_tree_add_text(sigcomp_tree, tvb, offset, octet,
-                        "              Copying %u bytes literally",octet);
+            proto_tree_add_bytes_format(sigcomp_tree, hf_sigcomp_copying_bytes_literally, tvb, offset, octet,
+                        NULL, "              Copying %u bytes literally",octet);
             if ( offset+octet >= length)
                 /* if the tvb is short don't copy further than the end */
                 octet = length - offset;
             for ( n=0; n < octet; n++ ) {
                 buff[i] = tvb_get_guint8(tvb, offset);
                 if (udvm_print_detail_level>2)
-                    proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+                    proto_tree_add_uint_format(sigcomp_tree, hf_sigcomp_addr_value, tvb, offset, 1, buff[i],
                                 "                  Addr: %u tvb value(0x%0x) ", i, buff[i]);
                 i++;
                 offset++;
@@ -4522,7 +4562,7 @@ try_again:
         }
         buff[i] = octet;
         if (udvm_print_detail_level>2)
-            proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+            proto_tree_add_uint_format(sigcomp_tree, hf_sigcomp_addr_value, tvb, offset, 1, buff[i],
                         "              Addr: %u tvb value(0x%0x) ", i, buff[i]);
 
         i++;
@@ -4532,11 +4572,11 @@ try_again:
 
     add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
-    proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dissector");
+    proto_tree_add_item(sigcomp_tree, hf_sigcomp_data_for_sigcomp_dissector, unescaped_tvb, 0, -1, ENC_NA);
     if (end_off_message == TRUE) {
         dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
     } else {
-        proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"TCP Fragment, no end mark found");
+        proto_tree_add_expert(sigcomp_tree, pinfo, &ei_sigcomp_tcp_fragment, unescaped_tvb, 0, -1);
     }
     if ( offset < length) {
         goto try_again;
@@ -4782,10 +4822,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 /* end partial state-id change cco@iptel.org */
             if ( result_code != 0 ) {
-                proto_item *ti;
-                ti = proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
-                                         val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_tree_add_expert_format(sigcomp_tree, pinfo, &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, tvb, 0, -1,
+                                                                                         "Failed to Access state Wireshark UDVM diagnostic: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
                 return tvb_captured_length(tvb);
             }
 
@@ -4915,14 +4953,12 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             udvm_tvb = tvb_new_subset_length(tvb, offset, len);
             if ( dissect_udvm_code )
-                dissect_udvm_bytecode(udvm_tvb, sigcomp_udvm_tree, destination);
+                dissect_udvm_bytecode(udvm_tvb, pinfo, sigcomp_udvm_tree, destination);
 
             offset = offset + len;
             msg_len = tvb_reported_length_remaining(tvb, offset);
             if (msg_len>0) {
-                proto_item *ti = proto_tree_add_text(sigcomp_tree, tvb, offset, -1,
-                                                     "Remaining SigComp message %u bytes",
-                                                     tvb_reported_length_remaining(tvb, offset));
+                proto_item *ti = proto_tree_add_item(sigcomp_tree, hf_sigcomp_remaining_sigcomp_message, tvb, offset, -1, ENC_NA);
                 PROTO_ITEM_SET_GENERATED(ti);
             }
             if ( decompress ) {
@@ -4962,7 +4998,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 }
 
 static void
-dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint start_address)
+dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree,guint start_address)
 {
     guint       instruction;
     gint        offset         = 0;
@@ -4982,8 +5018,8 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
         instruction_no ++;
         UDVM_address = start_address + offset;
 
-        item = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, 1,
-                    "######### UDVM instruction %u at UDVM-address %u (0x%x) #########",
+        item = proto_tree_add_uint_format(sigcomp_udvm_tree, hf_sigcomp_udvm_instruction, udvm_tvb, offset, 1,
+                    instruction_no, "######### UDVM instruction %u at UDVM-address %u (0x%x) #########",
                     instruction_no,UDVM_address,UDVM_address);
         PROTO_ITEM_SET_GENERATED(item);
         proto_tree_add_item(sigcomp_udvm_tree, hf_sigcomp_udvm_instr, udvm_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5798,9 +5834,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
              */
             /* %requested_feedback_location */
             if ((msg_length-1) < offset) {
-                item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, 0, -1,
-                        "All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
-                PROTO_ITEM_SET_GENERATED(item2);
+                proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, 0, -1);
                 return;
             }
             offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
@@ -5809,9 +5843,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
                 udvm_tvb, start_offset, len, value);
             /* returned_parameters_location */
             if ((msg_length-1) < offset) {
-                item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset-1, -1,
-                        "All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
-                PROTO_ITEM_SET_GENERATED(item2);
+                proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, offset-1, -1);
                 return;
             }
             offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
@@ -5865,14 +5897,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_ret_pri,
                     udvm_tvb, start_offset, len, value);
             } else {
-                item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, 1,
-                        "state_retention_priority = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
+                item2 = proto_tree_add_uint_format_value(sigcomp_udvm_tree, hf_udvm_state_ret_pri, udvm_tvb, offset, 1, 0,
+                        "0 (Not in the uploaded code as UDVM buffer initialized to Zero");
                 PROTO_ITEM_SET_GENERATED(item2);
             }
             if ( tvb_reported_length_remaining(udvm_tvb, offset) != 0 ) {
                 len = tvb_reported_length_remaining(udvm_tvb, offset);
                 UDVM_address = start_address + offset;
-                proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, len,
+                proto_tree_add_bytes_format(sigcomp_udvm_tree, hf_sigcomp_remaining_bytes, udvm_tvb, offset, len, NULL,
                         "Remaining %u bytes starting at UDVM addr %u (0x%x)- State information ?",len, UDVM_address, UDVM_address);
             }
             offset = offset + tvb_reported_length_remaining(udvm_tvb, offset);
@@ -6568,6 +6600,47 @@ proto_register_sigcomp(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_sigcomp_byte_copy,
+            { "byte copy", "sigcomp.byte_copy",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_sigcomp_accessing_state, { "### Accessing state ###", "sigcomp.accessing_state", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_getting_value, { "Getting value", "sigcomp.getting_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_load_bytecode_into_udvm_start, { "Load bytecode into UDVM starting at", "sigcomp.load_bytecode_into_udvm_start", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_instruction_code, { "Instruction code", "sigcomp.instruction_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_current_instruction, { "Addr", "sigcomp.current_instruction", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &udvm_instruction_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_decompression_failure, { "DECOMPRESSION-FAILURE", "sigcomp.decompression_failure", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_wireshark_udvm_diagnostic, { "Wireshark UDVM diagnostic", "sigcomp.wireshark_udvm_diagnostic", FT_UINT32, BASE_DEC, VALS(result_code_vals), 0x0, NULL, HFILL }},
+        { &hf_sigcomp_calculated_sha_1, { "Calculated SHA-1", "sigcomp.calculated_sha_1", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_copying_value, { "Copying value", "sigcomp.copying_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_storing_value, { "Storing value", "sigcomp.storing_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_loading_value, { "Loading value", "sigcomp.loading_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_set_hu, { "Set Hu", "sigcomp.set_hu", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_loading_h, { "Loading H", "sigcomp.loading_h", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_state_value, { "Addr", "sigcomp.state_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_output_value, { "Output value", "sigcomp.output_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_num_state_create, { "no_of_state_create", "sigcomp.num_state_create", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_sha1_digest, { "SHA1 digest", "sigcomp.sha1_digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_creating_state, { "### Creating state ###", "sigcomp.creating_state", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_sigcomp_message_decompressed, { "SigComp message Decompressed", "sigcomp.message_decompressed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_starting_to_remove_escape_digits, { "Starting to remove escape digits", "sigcomp.starting_to_remove_escape_digits", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_escape_digit_found, { "Escape digit found", "sigcomp.escape_digit_found", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_illegal_escape_code, { "Illegal escape code", "sigcomp.illegal_escape_code", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_end_of_sigcomp_message_indication_found, { "End of SigComp message indication found", "sigcomp.end_of_sigcomp_message_indication_found", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_addr_value, { "Addr", "sigcomp.addr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_copying_bytes_literally, { "Copying bytes literally", "sigcomp.copying_bytes_literally", FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_data_for_sigcomp_dissector, { "Data handed to the Sigcomp dissector", "sigcomp.data_for_sigcomp_dissector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_remaining_sigcomp_message, { "Remaining SigComp message", "sigcomp.remaining_sigcomp_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_sha1buff, { "sha1buff", "sigcomp.sha1buff", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_udvm_instruction, { "UDVM instruction", "sigcomp.udvm_instruction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_remaining_bytes, { "Remaining bytes", "sigcomp.remaining_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_max_udvm_cycles, { "maximum_UDVM_cycles", "sigcomp.max_udvm_cycles", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_used_udvm_cycles, { "used_udvm_cycles", "sigcomp.used_udvm_cycles", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_udvm_execution_stated, { "UDVM EXECUTION STARTED", "sigcomp.udvm_execution_stated", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_message_length, { "Message Length", "sigcomp.message_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sigcomp_byte_code_length, { "Byte code length", "sigcomp.byte_code_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
 /* Setup protocol subtree array */
@@ -6583,6 +6656,13 @@ proto_register_sigcomp(void)
     static ei_register_info ei[] = {
         { &ei_sigcomp_nack_failed_op_code, { "sigcomp.nack.failed_op_code.expert", PI_SEQUENCE, PI_WARN, "SigComp NACK", EXPFILL }},
         { &ei_sigcomp_invalid_instruction, { "sigcomp.invalid_instruction", PI_PROTOCOL, PI_WARN, "Invalid instruction", EXPFILL }},
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &ei_sigcomp_sigcomp_message_decompression_failure, { "sigcomp.message_decompression_failure", PI_PROTOCOL, PI_WARN, "SigComp message Decompression failure", EXPFILL }},
+        { &ei_sigcomp_execution_of_this_instruction_is_not_implemented, { "sigcomp.execution_of_this_instruction_is_not_implemented", PI_UNDECODED, PI_WARN, "Execution of this instruction is NOT implemented", EXPFILL }},
+        { &ei_sigcomp_decompression_failure, { "sigcomp.decompression_failure", PI_PROTOCOL, PI_WARN, "DECOMPRESSION FAILURE", EXPFILL }},
+        { &ei_sigcomp_tcp_fragment, { "sigcomp.tcp_fragment", PI_MALFORMED, PI_ERROR, "TCP Fragment", EXPFILL }},
+        { &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, { "sigcomp.failed_to_access_state_wireshark_udvm_diagnostic", PI_PROTOCOL, PI_WARN, "Failed to Access state Wireshark UDVM diagnostic", EXPFILL }},
+        { &ei_sigcomp_all_remaining_parameters_zero, { "sigcomp.all_remaining_parameters", PI_PROTOCOL, PI_NOTE, "All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero", EXPFILL }},
     };
 
     module_t *sigcomp_module;
