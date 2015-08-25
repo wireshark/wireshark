@@ -826,6 +826,7 @@ static int dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_
 					      tvbuff_t *tvb, int optoff, int optend);
 static int dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					      tvbuff_t *tvb, int optoff, int optend);
+static gboolean test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend);
 static int dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					    tvbuff_t *tvb, int optoff, int optend);
 static int dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
@@ -1730,8 +1731,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			ampiplen = tvb_find_guint8(tvb, optoff+nameorglen+1, optlen-nameorglen-1, ',') - (optoff+nameorglen+1);
 			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_ampip, tvb, optoff+nameorglen+1, ampiplen, ENC_ASCII|ENC_NA);
 			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_password, tvb, optoff+nameorglen+1+ampiplen+1, optlen-(nameorglen+1+ampiplen+1), ENC_ASCII|ENC_NA);
-		} else if (s_option==58 || s_option==64 || s_option==65
-			|| s_option==66 || s_option==67) {
+		} else if ((s_option==58 || s_option==64 || s_option==65
+			|| s_option==66 || s_option==67)
+			&& test_encapsulated_vendor_options(tvb, optoff, optoff+optlen)) {
 			/* Note that this is a rather weak (permissive) heuristic, */
 			/* but since it comes last, I guess this is OK. */
 			/* Add any stronger (less permissive) heuristics before this! */
@@ -3396,6 +3398,38 @@ static const value_string option43_alcatel_app_type_vals[] = {
 	{ 1, "SIP" },
 	{ 0, NULL}
 };
+
+/* Look for 'encapsulated vendor-specific options' */
+static gboolean
+test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend)
+{
+	guint8	subopt;
+	guint8	subopt_len;
+
+	while (optoff < optend) {
+		subopt = tvb_get_guint8(tvb, optoff);
+		optoff++;
+
+		/* Skip padding */
+		if (subopt == 0)
+			continue;
+		/* We are done, skip any remaining bytes */
+		if (subopt == 255)
+			break;
+
+		/* We expect a length byte next */
+		if (optoff >= optend)
+			return FALSE;
+		subopt_len = tvb_get_guint8(tvb, optoff);
+		optoff++;
+
+		/* Check remaining room for suboption in option */
+		if (optoff + subopt_len > optoff)
+			return FALSE;
+		optoff += subopt_len;
+	}
+	return TRUE;
+}
 
 static int
 dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
