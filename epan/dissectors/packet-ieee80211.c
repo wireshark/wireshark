@@ -13460,7 +13460,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
     sub_tag_length = tvb_get_guint8 (tvb, offset);
     proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
-    sub_tag_tvb = tvb_new_subset(tvb, offset, sub_tag_length, -1);
+    sub_tag_tvb = tvb_new_subset_length(tvb, offset, sub_tag_length);
 
     switch (sub_tag_id) {
       case NR_SUB_ID_TSF_INFO:
@@ -18178,7 +18178,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
-          msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
+          msdu_tvb = tvb_new_subset_length(next_tvb, msdu_offset, msdu_length);
           call_dissector(llc_handle, msdu_tvb, pinfo, subframe_tree);
           msdu_offset = roundup2(msdu_offset+msdu_length, 4);
         } while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
