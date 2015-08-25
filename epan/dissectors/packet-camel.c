@@ -573,15 +573,17 @@ static int hf_camel_smsReferenceNumber = -1;      /* CallReferenceNumber */
 static int hf_camel_calledPartyNumber_01 = -1;    /* ISDN_AddressString */
 static int hf_camel_sMSEvents = -1;               /* SEQUENCE_SIZE_1_bound__numOfSMSEvents_OF_SMSEvent */
 static int hf_camel_sMSEvents_item = -1;          /* SMSEvent */
+static int hf_camel_extensions_01 = -1;           /* SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField */
+static int hf_camel_extensions_item = -1;         /* ExtensionField */
+static int hf_camel_na_info = -1;                 /* NA_Info */
 static int hf_camel_naCarrierInformation = -1;    /* NACarrierInformation */
 static int hf_camel_naCarrierId = -1;             /* NAEA_CIC */
 static int hf_camel_naCICSelectionType = -1;      /* NACarrierSelectionInfo */
+static int hf_camel_naChargeNumber = -1;          /* NAChargeNumber */
 static int hf_camel_timeDurationCharging_01 = -1;  /* T_timeDurationCharging_01 */
 static int hf_camel_releaseIfdurationExceeded_01 = -1;  /* ReleaseIfDurationExceeded */
 static int hf_camel_tariffSwitchInterval = -1;    /* INTEGER_1_86400 */
 static int hf_camel_tone_01 = -1;                 /* BOOLEAN */
-static int hf_camel_extensions_01 = -1;           /* SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField */
-static int hf_camel_extensions_item = -1;         /* ExtensionField */
 static int hf_camel_local = -1;                   /* T_local */
 static int hf_camel_global = -1;                  /* T_global */
 static int hf_camel_invoke = -1;                  /* Invoke */
@@ -618,6 +620,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 static int dissect_camel_CAMEL_AChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_camel_CAMEL_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_camel_EstablishTemporaryConnectionArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* XXX - can we get rid of these and always do the SRT work? */
 static gboolean gcamel_HandleSRT=FALSE;
@@ -819,12 +822,14 @@ static gint ett_camel_InitialDPSMSArg = -1;
 static gint ett_camel_RequestReportSMSEventArg = -1;
 static gint ett_camel_SEQUENCE_SIZE_1_bound__numOfSMSEvents_OF_SMSEvent = -1;
 static gint ett_camel_ResetTimerSMSArg = -1;
+static gint ett_camel_EstablishTemporaryConnectionArgV2 = -1;
+static gint ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField = -1;
 static gint ett_camel_InitialDPArgExtensionV2 = -1;
 static gint ett_camel_NACarrierInformation = -1;
+static gint ett_camel_NA_Info = -1;
 static gint ett_camel_CAMEL_AChBillingChargingCharacteristicsV2 = -1;
 static gint ett_camel_T_timeDurationCharging_01 = -1;
 static gint ett_camel_ReleaseIfDurationExceeded = -1;
-static gint ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField = -1;
 static gint ett_camel_Code = -1;
 static gint ett_camel_ROS = -1;
 static gint ett_camel_Invoke = -1;
@@ -837,7 +842,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 145 "../../asn1/camel/packet-camel-template.c"
+#line 146 "../../asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1184,7 +1189,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 307 "../../asn1/camel/packet-camel-template.c"
+#line 308 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1274,7 +1279,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 309 "../../asn1/camel/packet-camel-template.c"
+#line 310 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -5624,8 +5629,14 @@ static const ber_sequence_t EstablishTemporaryConnectionArg_sequence[] = {
 
 static int
 dissect_camel_EstablishTemporaryConnectionArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+  if(camel_ver==2){
+    return dissect_camel_EstablishTemporaryConnectionArgV2(implicit_tag, tvb, offset, actx, tree, hf_index);
+  }
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EstablishTemporaryConnectionArg_sequence, hf_index, ett_camel_EstablishTemporaryConnectionArg);
+
+
 
   return offset;
 }
@@ -6302,6 +6313,19 @@ dissect_camel_CAP_U_ABORT_REASON(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
+static const ber_sequence_t SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of[1] = {
+  { &hf_camel_extensions_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_camel_ExtensionField },
+};
+
+static int
+dissect_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of, hf_index, ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField);
+
+  return offset;
+}
+
+
 
 static int
 dissect_camel_NACarrierSelectionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -6327,6 +6351,51 @@ dissect_camel_NACarrierInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static int
+dissect_camel_NAChargeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NA_Info_sequence[] = {
+  { &hf_camel_naCarrierInformation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NACarrierInformation },
+  { &hf_camel_naOliInfo     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NAOliInfo },
+  { &hf_camel_naChargeNumber, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NAChargeNumber },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_NA_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NA_Info_sequence, hf_index, ett_camel_NA_Info);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EstablishTemporaryConnectionArgV2_sequence[] = {
+  { &hf_camel_assistingSSPIPRoutingAddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_camel_AssistingSSPIPRoutingAddress },
+  { &hf_camel_correlationID , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CorrelationID },
+  { &hf_camel_scfID         , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ScfID },
+  { &hf_camel_extensions_01 , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField },
+  { &hf_camel_serviceInteractionIndicatorsTwo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ServiceInteractionIndicatorsTwo },
+  { &hf_camel_na_info       , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NA_Info },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_EstablishTemporaryConnectionArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EstablishTemporaryConnectionArgV2_sequence, hf_index, ett_camel_EstablishTemporaryConnectionArgV2);
+
+  return offset;
+}
+
+
 static const ber_sequence_t InitialDPArgExtensionV2_sequence[] = {
   { &hf_camel_naCarrierInformation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NACarrierInformation },
   { &hf_camel_gmscAddress   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
@@ -6337,19 +6406,6 @@ static int
 dissect_camel_InitialDPArgExtensionV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    InitialDPArgExtensionV2_sequence, hf_index, ett_camel_InitialDPArgExtensionV2);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of[1] = {
-  { &hf_camel_extensions_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_camel_ExtensionField },
-};
-
-static int
-dissect_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of, hf_index, ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField);
 
   return offset;
 }
@@ -7114,7 +7170,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 417 "../../asn1/camel/packet-camel-template.c"
+#line 418 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7321,7 +7377,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 419 "../../asn1/camel/packet-camel-template.c"
+#line 420 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8066,6 +8122,7 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
   if(parent_tree){
      item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, ENC_NA);
      tree = proto_item_add_subtree(item, ett_camel);
+	 proto_item_append_text(item, "-V2");
   }
   /* camelsrt reset counter, and initialise global pointer
      to store service response time related data */
@@ -8246,7 +8303,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1336 "../../asn1/camel/packet-camel-template.c"
+#line 1338 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10230,6 +10287,18 @@ void proto_register_camel(void) {
       { "SMSEvent", "camel.SMSEvent_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_camel_extensions_01,
+      { "extensions", "camel.extensions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField", HFILL }},
+    { &hf_camel_extensions_item,
+      { "ExtensionField", "camel.ExtensionField_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_camel_na_info,
+      { "na-info", "camel.na_info_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_camel_naCarrierInformation,
       { "naCarrierInformation", "camel.naCarrierInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10242,6 +10311,10 @@ void proto_register_camel(void) {
       { "naCICSelectionType", "camel.naCICSelectionType",
         FT_BYTES, BASE_NONE, NULL, 0,
         "NACarrierSelectionInfo", HFILL }},
+    { &hf_camel_naChargeNumber,
+      { "naChargeNumber", "camel.naChargeNumber",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_camel_timeDurationCharging_01,
       { "timeDurationCharging", "camel.timeDurationCharging_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10258,14 +10331,6 @@ void proto_register_camel(void) {
       { "tone", "camel.tone",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_camel_extensions_01,
-      { "extensions", "camel.extensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField", HFILL }},
-    { &hf_camel_extensions_item,
-      { "ExtensionField", "camel.ExtensionField_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_camel_local,
       { "local", "camel.local",
         FT_INT32, BASE_DEC, VALS(camel_opr_code_strings), 0,
@@ -10360,7 +10425,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1509 "../../asn1/camel/packet-camel-template.c"
+#line 1511 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10558,12 +10623,14 @@ void proto_register_camel(void) {
     &ett_camel_RequestReportSMSEventArg,
     &ett_camel_SEQUENCE_SIZE_1_bound__numOfSMSEvents_OF_SMSEvent,
     &ett_camel_ResetTimerSMSArg,
+    &ett_camel_EstablishTemporaryConnectionArgV2,
+    &ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField,
     &ett_camel_InitialDPArgExtensionV2,
     &ett_camel_NACarrierInformation,
+    &ett_camel_NA_Info,
     &ett_camel_CAMEL_AChBillingChargingCharacteristicsV2,
     &ett_camel_T_timeDurationCharging_01,
     &ett_camel_ReleaseIfDurationExceeded,
-    &ett_camel_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField,
     &ett_camel_Code,
     &ett_camel_ROS,
     &ett_camel_Invoke,
@@ -10576,7 +10643,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1526 "../../asn1/camel/packet-camel-template.c"
+#line 1528 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

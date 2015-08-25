@@ -689,6 +689,14 @@ proto_tree *subtree;
   subtree = proto_item_add_subtree(actx->created_item, ett_camel_additionalcallingpartynumber);
   dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
+# I don't know how to "access" the EstablishTemporaryConnectionArg-PDU which would have been cleaner.
+#.FN_BODY EstablishTemporaryConnectionArg
+
+  if(camel_ver==2){
+    return dissect_camel_EstablishTemporaryConnectionArgV2(implicit_tag, tvb, offset, actx, tree, hf_index);
+  }
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = BASE_NONE
