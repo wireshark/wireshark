@@ -16,7 +16,7 @@ are saved to a capture file, it's helpful to know a bit about the capture file
 contents.
 
 Wireshark uses the
-link:https://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html[pcapng] file
+link:https://github.com/pcapng/pcapng[pcapng] file
 format as the default format to save captured packets. It is very flexible
 but other tools may not support it.
 

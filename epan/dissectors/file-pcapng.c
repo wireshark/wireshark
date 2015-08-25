@@ -1,6 +1,6 @@
 /* file-pcapng.c
  * Routines for PCAPNG File Format
- * http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+ * https://github.com/pcapng/pcapng
  *
  * Copyright 2015, Michal Labedzki for Tieto Corporation
  *

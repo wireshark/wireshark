@@ -21,9 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* File format reference:
- *   https://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
- * File format specification:
+/* File format specification:
  *   https://github.com/pcapng/pcapng
  * Related Wiki page:
  *   https://wiki.wireshark.org/Development/PcapNg
