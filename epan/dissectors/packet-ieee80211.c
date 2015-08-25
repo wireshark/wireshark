@@ -17519,6 +17519,16 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           guint16             msdu_length;
           proto_tree         *subframe_tree;
 
+          /*
+           * IEEE Std 802.11-2012 says, in section 8.3.2.2 "A-MSDU format":
+           *
+           *  The A-MSDU subframe header contains three fields: DA, SA, and
+           *  Length. The order of these fields and the bits within these
+           *  fields are the same as the IEEE 802.3 frame format.
+           *
+           * which means that the length field is big-endian, not
+           * little-endian.
+           */
           msdu_length = tvb_get_ntohs (next_tvb, msdu_offset+12);
 
           parent_item = proto_tree_add_item(mpdu_tree, hf_ieee80211_amsdu_subframe, next_tvb,
