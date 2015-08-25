@@ -235,9 +235,6 @@ WS_DLL_PUBLIC gint tvb_captured_length_remaining(const tvbuff_t *tvb, const gint
 WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
     const gint offset);
 
-/* DEPRECATED, do not use in new code, call tvb_ensure_captured_length_remaining directly! */
-#define tvb_ensure_length_remaining tvb_ensure_captured_length_remaining
-
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
 WS_DLL_PUBLIC gboolean tvb_bytes_exist(const tvbuff_t *tvb, const gint offset,

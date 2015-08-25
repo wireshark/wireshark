@@ -56,8 +56,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
 	col_set_str(pinfo->cinfo, COL_DEF_SRC,
 			    pinfo->pseudo_header->l1event.uton? "TE" : "NT");
-	len = tvb_find_line_end(tvb, 0, tvb_ensure_length_remaining(tvb, 0),
-					&next_offset, FALSE);
+	len = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
 	if(len>0)
 		col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, 0, len));
 
@@ -76,9 +75,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			 * as "iso-10646-ucs-2", or might require other
 			 * special processing.
 			 */
-			len = tvb_find_line_end(tvb, offset,
-					tvb_ensure_length_remaining(tvb, offset),
-					&next_offset, FALSE);
+			len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 			if (len == -1)
 				break;
 

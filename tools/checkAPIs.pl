@@ -145,7 +145,6 @@ my %APIs = (
         # once they've been removed from all existing code.
         'soft-deprecated' => { 'count_errors' => 0, 'functions' => [
                 'tvb_length_remaining', # replaced with tvb_captured_length_remaining
-                'tvb_ensure_length_remaining', # replaced with tvb_ensure_captured_length_remaining
                 'tvb_get_string', # replaced with tvb_get_string_enc
                 'tvb_get_stringz', # replaced with tvb_get_stringz_enc
                 'proto_tree_add_text', # replaced with proto_tree_add_subtree[_format], expert_add_info[_format], or proto_tree_add_expert[_format]

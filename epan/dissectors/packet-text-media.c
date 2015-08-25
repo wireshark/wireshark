@@ -108,9 +108,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			 * as "iso-10646-ucs-2", or might require other
 			 * special processing.
 			 */
-			len = tvb_find_line_end(tvb, offset,
-					tvb_ensure_length_remaining(tvb, offset),
-					&next_offset, FALSE);
+			len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 			if (len == -1)
 				break;
 

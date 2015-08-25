@@ -1706,19 +1706,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(msg_type, message_types, "Unknown (%02x)"));
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        /*
-         * We use "tvb_ensure_length_remaining()" to make sure there actually
-         * *is* data remaining.  The protocol we're handling could conceivably
-         * consists of a sequence of fixed-length PDUs, and therefore the
-         * "get_pdu_len" routine might not actually fetch anything from
-         * the tvbuff, and thus might not cause an exception to be thrown if
-         * we've run past the end of the tvbuff.
-         *
-         * This means we're guaranteed that "length_remaining" is positive.
-         */
-        length_remaining = tvb_ensure_length_remaining(tvb, offset);
-
+    while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
         /*
          * Can we do reassembly?
          */

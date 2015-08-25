@@ -2442,9 +2442,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *tds_item = NULL;
     proto_tree *tds_tree = NULL;
 
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
-        length_remaining = tvb_ensure_length_remaining(tvb, offset);
-
+    while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
         /*
          * Can we do reassembly?
          */

@@ -298,7 +298,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * That's what we want.  (See "tcp_dissect_pdus()", which is
      * similar.)
      */
-    length_remaining = tvb_ensure_length_remaining(tvb, offset);
+    length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
     /*
      * Can we do reassembly?
@@ -737,9 +737,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" call won't throw an exception.
      */
-    first_linelen = tvb_find_line_end(tvb, offset,
-        tvb_ensure_length_remaining(tvb, offset), &next_offset,
-        FALSE);
+    first_linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
     /*
      * Is the first line a request or response?
@@ -851,9 +849,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /*
          * Find the end of the line.
          */
-        linelen = tvb_find_line_end(tvb, offset,
-            tvb_ensure_length_remaining(tvb, offset), &next_offset,
-            FALSE);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen < 0)
             return -1;
         line_end_offset = offset + linelen;

@@ -517,9 +517,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			gboolean is_digest_line;
 			guint digest_type_len;
 
-			linelen = tvb_find_line_end(tvb, offset,
-						    tvb_ensure_length_remaining(tvb, offset), &next_offset,
-						    FALSE);
+			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			/* Include new-line in line */
 			line = (guint8 *)tvb_memdup(NULL, tvb, offset, linelen+1); /* XXX - memory leak? */

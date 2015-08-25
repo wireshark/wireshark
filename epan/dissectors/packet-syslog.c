@@ -252,7 +252,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     lev = pri & PRIORITY_MASK;
   }
 
-  msg_len = tvb_ensure_length_remaining(tvb, msg_off);
+  msg_len = tvb_ensure_captured_length_remaining(tvb, msg_off);
   msg_str = tvb_format_text(tvb, msg_off, msg_len);
   reported_msg_len = tvb_reported_length_remaining(tvb, msg_off);
 
