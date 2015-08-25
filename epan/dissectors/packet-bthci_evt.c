@@ -5315,9 +5315,9 @@ proto_register_bthci_evt(void)
             "SCO Flow Control Enable", HFILL }
         },
         { &hf_bthci_evt_window,
-          { "Interval", "bthci_evt.window",
+          { "Window", "bthci_evt.window",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Window", HFILL }
+            NULL, HFILL }
         },
         { &hf_bthci_evt_input_unused,
           { "Unused bits", "bthci_evt.voice.unused",
