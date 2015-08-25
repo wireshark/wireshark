@@ -155,8 +155,9 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
     sd.setDetailedText(secondary_msg);
 
 #if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
-    QCheckBox *cb = new QCheckBox();
+    QCheckBox *cb = NULL;
     if (notagain) {
+        cb = new QCheckBox();
         cb->setChecked(true);
         cb->setText(QObject::tr("Don't show this message again."));
         sd.setCheckBox(cb);
@@ -166,7 +167,7 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
     sd.exec();
 
 #if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
-    if (notagain) {
+    if (notagain && cb) {
         *notagain = cb->isChecked();
     }
 #endif
@@ -674,7 +675,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         return;
     }
 
-    if (!testCaptureFileClose(TRUE, *new QString(" before quitting"))) {
+    QString before_what(tr(" before quitting"));
+    if (!testCaptureFileClose(TRUE, before_what)) {
         event->ignore();
         return;
     }
@@ -967,7 +969,8 @@ void MainWindow::mergeCaptureFile()
 void MainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
-    if (!testCaptureFileClose(FALSE, *new QString(tr(" before importing a new capture"))))
+    QString before_what(tr(" before importing a new capture"));
+    if (!testCaptureFileClose(FALSE, before_what))
         return;
 
     import_dlg.exec();
