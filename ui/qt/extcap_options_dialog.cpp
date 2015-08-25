@@ -165,11 +165,12 @@ void ExtcapOptionsDialog::updateWidgets()
         walker = walker->next;
     }
 
-    if ( counter > 0 )
+    if ( counter > 0 ) {
         ui->verticalLayout->addLayout(layout);
-
-    if ( counter > 0 )
         ui->verticalLayout->addSpacerItem(new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    } else {
+        delete layout;
+    }
 }
 
 // Not sure why we have to do this manually.
