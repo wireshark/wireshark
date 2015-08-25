@@ -79,11 +79,11 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
     for (int i = 0; i < 256; i++) {
         temp.id = i;
         temp.row = i;
-        sprintf(buf, "%d", i);
-        strcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"));
+        g_snprintf(buf, sizeof buf, "%d", i);
+        g_strlcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"), sizeof temp.name);
         if (strcmp(temp.name, "NA") == 0) {
             temp.hide = 1;
-            strcpy(temp.name, buf);
+            g_strlcpy(temp.name, buf, sizeof temp.name);
         } else {
             temp.hide = 0;
         }
@@ -147,8 +147,10 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
             token = strtok(line, ",");
             /* Get rid of the quotation marks */
             QString ch = QString(token).mid(1, (int)strlen(token)-2);
-            strcpy(id, qPrintable(ch));
+            g_strlcpy(id, qPrintable(ch), sizeof id);
             temp.id = atoi(id);
+            temp.hide = 0;
+            temp.name[0] = '\0';
             while(token != NULL) {
                 token = strtok(NULL, ",");
                 if (token) {
@@ -158,7 +160,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
                         temp.hide = 0;
                     } else {
                         QString ch = QString(token).mid(1, (int)strlen(token)-2);
-                        strcpy(temp.name, qPrintable(ch));
+                        g_strlcpy(temp.name, qPrintable(ch), sizeof temp.name);
                     }
                 }
             }
@@ -234,7 +236,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     char str[40];
 
     for (int i = 0; i < chunks.size(); i++) {
-        sprintf(str, "\"%d\",\"%s\",\"%s\"\n", chunks.value(i).id, chunks.value(i).name, (chunks.value(i).hide==0?"Show":"Hide"));
+        g_snprintf(str, sizeof str, "\"%d\",\"%s\",\"%s\"\n", chunks.value(i).id, chunks.value(i).name, (chunks.value(i).hide==0?"Show":"Hide"));
         fputs(str, fp);
         void *rec = g_malloc0(uat->record_size);
         uat_add_record(uat, rec, TRUE);
