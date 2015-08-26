@@ -76,6 +76,7 @@ my $repo_branch = "unknown";
 my $git_description = undef;
 my $get_vcs = 0;
 my $set_vcs = 0;
+my $print_vcs = 0;
 my $set_version = 0;
 my $set_release = 0;
 my %version_pref = (
@@ -374,6 +375,8 @@ Commit ID       : $commit_id
 Revision source : $info_source
 Release stamp   : $package_string
 Fin
+	} elsif ($print_vcs) {
+		print new_version_h();
 	}
 }
 
@@ -625,12 +628,9 @@ sub update_versioned_files
 	&update_cmake_lib_releases;
 }
 
-# Print the version control system's version to $version_file.
-# Don't change the file if it is not needed.
-sub print_VCS_REVISION
+sub new_version_h
 {
 	my $VCS_REVISION;
-	my $needs_update = 1;
 
 	if ($git_description) {
 		$VCS_REVISION = "#define VCSVERSION \"" .
@@ -645,6 +645,16 @@ sub print_VCS_REVISION
 			" Rev Unknown\"\n" .
 			"#define VCSBRANCH \"unknown\"\n";
 	}
+
+	return $VCS_REVISION;
+}
+
+# Print the version control system's version to $version_file.
+# Don't change the file if it is not needed.
+sub print_VCS_REVISION
+{
+	my $VCS_REVISION = new_version_h();
+	my $needs_update = 1;
 	if (open(OLDREV, "<$version_file")) {
 		my $old_VCS_REVISION = <OLDREV> . <OLDREV>;
 		if ($old_VCS_REVISION eq $VCS_REVISION) {
@@ -677,13 +687,14 @@ sub get_config {
 		   "help|h", \$show_help,
 		   "get-vcs|get-svn|g", \$get_vcs,
 		   "set-vcs|set-svn|s", \$set_vcs,
+		   "print-vcs", \$print_vcs,
 		   "set-version|v", \$set_version,
 		   "set-release|r|package-version|p", \$set_release
 		   ) || pod2usage(2);
 
 	if ($show_help) { pod2usage(1); }
 
-	if ( !( $show_help || $get_vcs || $set_vcs || $set_version || $set_release ) ) {
+	if ( !( $show_help || $get_vcs || $set_vcs || $print_vcs || $set_version || $set_release ) ) {
 		$set_vcs = 1;
 	}
 
@@ -753,6 +764,7 @@ make-version.pl [options] [source directory]
     --help, -h                 This help message
     --get-vcs, -g              Print the VCS revision and source.
     --set-vcs, -s              Set the information in version.h
+    --print-vcs                Print the vcs version to standard output
     --set-version, -v          Set the major, minor, and micro versions in
                                configure.ac, config.nmake, debian/changelog,
 			       and docbook/asciidoc.conf.

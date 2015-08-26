@@ -214,8 +214,6 @@ add_library(wsutil ${LINK_MODE_LIB}
 	${CMAKE_BINARY_DIR}/image/libwsutil.rc
 )
 
-add_dependencies(wsutil gitversion)
-
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(wsutil PROPERTIES
