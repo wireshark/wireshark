@@ -2604,7 +2604,7 @@
   </action>
   <action name="actionAnalyzeEnabledProtocols">
    <property name="text">
-    <string>Enable Protocols…</string>
+    <string>Enabled Protocols…</string>
    </property>
    <property name="toolTip">
     <string>Enable and disable specific protocols</string>

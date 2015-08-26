@@ -64,8 +64,6 @@ public:
     void setPane(PreferencesPane start_pane);
     void setPane(const QString module_name);
 
-    const QList<WiresharkApplication::AppSignal> appSignals() const { return app_signals_; }
-
 protected:
     void showEvent(QShowEvent *evt);
     void keyPressEvent(QKeyEvent *evt);
@@ -81,7 +79,6 @@ private:
     QString saved_string_pref_;
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
-    QList<WiresharkApplication::AppSignal> app_signals_;
 
 private slots:
     void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);

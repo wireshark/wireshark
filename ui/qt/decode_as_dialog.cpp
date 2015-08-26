@@ -587,7 +587,7 @@ void DecodeAsDialog::applyChanges()
         delete(dissector_info);
     }
 
-    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+    wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
 void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)

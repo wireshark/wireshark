@@ -842,14 +842,11 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
-    /* Now destroy the "Preferences" dialog. */
-//    window_destroy(GTK_WIDGET(parent_w));
-
     if (must_redissect) {
         /* Redissect all the packets, and re-evaluate the display filter. */
-        app_signals_ << WiresharkApplication::PacketDissectionChanged;
+        wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
-    app_signals_ << WiresharkApplication::PreferencesChanged;
+    wsApp->queueAppSignal(WiresharkApplication::PreferencesChanged);
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()

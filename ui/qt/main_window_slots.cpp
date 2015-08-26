@@ -1972,11 +1972,9 @@ void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_
     pref_dialog.setPane(start_pane);
     pref_dialog.exec();
 
-    // Emitting PacketDissectionChanged directly from PreferencesDialog
-    // can cause problems. Queue them up and emit them here.
-    foreach (WiresharkApplication::AppSignal app_signal, pref_dialog.appSignals()) {
-        wsApp->emitAppSignal(app_signal);
-    }
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
 }
 
 void MainWindow::showPreferencesDialog(QString module_name)
@@ -1986,11 +1984,9 @@ void MainWindow::showPreferencesDialog(QString module_name)
     pref_dialog.setPane(module_name);
     pref_dialog.exec();
 
-    // Emitting PacketDissectionChanged directly from PreferencesDialog
-    // can cause problems. Queue them up and emit them here.
-    foreach (WiresharkApplication::AppSignal app_signal, pref_dialog.appSignals()) {
-        wsApp->emitAppSignal(app_signal);
-    }
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
 }
 
 void MainWindow::on_actionEditPreferences_triggered()
@@ -2369,6 +2365,9 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
     UatDialog uat_dlg(parentWidget(), dfm_uat);
 
     uat_dlg.exec();
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
 }
 
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
@@ -2466,6 +2465,10 @@ void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
 {
     EnabledProtocolsDialog enable_proto_dialog(this);
     enable_proto_dialog.exec();
+
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
 }
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
@@ -2480,6 +2483,10 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             &da_dialog, SLOT(setCaptureFile(capture_file*)));
     da_dialog.exec();
+
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
 }
 
 #ifdef HAVE_LUA

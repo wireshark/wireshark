@@ -661,6 +661,26 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     }
 }
 
+// Flush any collected app signals.
+//
+// On OS X emitting PacketDissectionChanged from a dialog can
+// render the application unusable:
+// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11361
+// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11448
+// Work around the problem by queueing up app signals and emitting them
+// after the dialog is closed.
+//
+// The following bugs might be related although they don't describe the
+// exact behavior we're working around here:
+// https://bugreports.qt.io/browse/QTBUG-38512
+// https://bugreports.qt.io/browse/QTBUG-38600
+void WiresharkApplication::flushAppSignals()
+{
+    while (!app_signals_.isEmpty()) {
+        wsApp->emitAppSignal(app_signals_.takeFirst());
+    }
+}
+
 void WiresharkApplication::emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata)
 {
     emit openStatCommandDialog(menu_path, arg, userdata);

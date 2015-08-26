@@ -72,6 +72,13 @@ public:
 
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
+    // Emitting app signals (PacketDissectionChanged in particular) from
+    // dialogs on OS X can be problematic. Dialogs should call queueAppSignal
+    // instead.
+    void queueAppSignal(AppSignal signal) { app_signals_ << signal; }
+    // Flush queued app signals. Should be called from the main window after
+    // each dialog that calls queueAppSignal closes.
+    void flushAppSignals();
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
     void addDynamicMenuGroupItem(int group, QAction *sg_action);
@@ -121,6 +128,7 @@ private:
     QIcon normal_icon_;
     QIcon capture_icon_;
     static QString window_title_separator_;
+    QList<AppSignal> app_signals_;
 
 protected:
     bool event(QEvent *event);

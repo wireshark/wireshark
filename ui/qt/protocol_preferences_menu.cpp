@@ -101,6 +101,9 @@ public:
     void showUatDialog() {
         UatDialog uat_dlg(parentWidget(), pref_->varp.uat);
         uat_dlg.exec();
+        // Emitting PacketDissectionChanged directly from a QDialog can cause
+        // problems on OS X.
+        wsApp->flushAppSignals();
     }
 
 private:

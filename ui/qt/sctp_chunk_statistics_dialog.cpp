@@ -289,6 +289,10 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 
     UatDialog *uatdialog = new UatDialog(this, pref->varp.uat);
     uatdialog->exec();
+    // Emitting PacketDissectionChanged directly from a QDialog can cause
+    // problems on OS X.
+    wsApp->flushAppSignals();
+
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
     ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));

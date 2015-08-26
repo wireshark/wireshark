@@ -46,6 +46,7 @@ enum
     heuristic_type_ = 1002
 };
 
+#include <QDebug>
 class EnableProtocolTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -245,11 +246,11 @@ bool EnabledProtocolsDialog::applyChanges()
 
         if ((*it)->checkState(PROTOCOL_COLUMN) == Qt::Checked)
         {
-            redissect |= it_cast->applyValue(TRUE);
+            redissect |= it_cast->applyValue(true);
         }
         else
         {
-            redissect |= it_cast->applyValue(FALSE);
+            redissect |= it_cast->applyValue(false);
         }
         ++it;
     }
@@ -311,10 +312,13 @@ void EnabledProtocolsDialog::on_buttonBox_accepted()
     if (applyChanges())
     {
         writeChanges();
-        wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+        wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
 }
 
+#if 0
+// If we ever find and fix the bug behind queueAppSignal we can re-enable
+// this.
 void EnabledProtocolsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
@@ -328,8 +332,8 @@ void EnabledProtocolsDialog::on_buttonBox_clicked(QAbstractButton *button)
             wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
         }
     }
-
 }
+#endif
 
 void EnabledProtocolsDialog::on_buttonBox_helpRequested()
 {

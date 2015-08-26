@@ -47,7 +47,9 @@ private slots:
     void on_disable_all_button__clicked();
     void on_search_line_edit__textChanged(const QString &search_re);
     void on_buttonBox_accepted();
+#if 0
     void on_buttonBox_clicked(QAbstractButton *button);
+#endif
     void on_buttonBox_helpRequested();
 
 private:
