@@ -381,6 +381,17 @@ static int hf_isis_lsp_area_address = -1;
 static int hf_isis_lsp_clv_nlpid = -1;
 static int hf_isis_lsp_ip_authentication = -1;
 static int hf_isis_lsp_authentication = -1;
+static int hf_isis_lsp_area_address_str = -1;
+static int hf_isis_lsp_is_virtual = -1;
+static int hf_isis_lsp_group = -1;
+static int hf_isis_lsp_default = -1;
+static int hf_isis_lsp_default_support = -1;
+static int hf_isis_lsp_delay = -1;
+static int hf_isis_lsp_delay_support = -1;
+static int hf_isis_lsp_expense = -1;
+static int hf_isis_lsp_expense_support = -1;
+static int hf_isis_lsp_error = -1;
+static int hf_isis_lsp_error_support = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -451,7 +462,7 @@ static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
 static expert_field ei_isis_lsp_clv_mt = EI_INIT;
 static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
-
+static expert_field ei_isis_lsp_reserved_not_zero = EI_INIT;
 
 static const value_string isis_lsp_istype_vals[] = {
     { ISIS_LSP_TYPE_UNUSED0,    "Unused 0x0 (invalid)"},
@@ -592,27 +603,29 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
  *    proto_tree * : protocol display tree to fill out.  May be NULL
  *    int : offset into packet data where we are.
  *    guint8 : value of the metric.
- *    char * : string giving type of the metric.
+ *    int : hf of the metric.
+ *    int : hf_support of the metric.
  *    int : force supported.  True is the supported bit MUST be zero.
  *
  * Output:
  *    void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_metric(tvbuff_t *tvb, proto_tree *tree,    int offset, guint8 value,
-    const char *pstr, int force_supported )
+dissect_metric(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, guint8 value,
+    int hf, int hf_support, int force_supported )
 {
     int s;
-
-    if ( !tree ) return;
+    proto_item *item, *support_item;
 
     s = ISIS_LSP_CLV_METRIC_SUPPORTED(value);
-    proto_tree_add_text(tree, tvb, offset, 1,
-        "%s Metric: %s%s %s%d:%d", pstr,
-        s ? "Not supported" : "Supported",
-        (s && force_supported) ? "(but is required to be)":"",
-        ISIS_LSP_CLV_METRIC_RESERVED(value) ? "(reserved bit != 0)":"",
-        ISIS_LSP_CLV_METRIC_VALUE(value), value );
+    item = proto_tree_add_uint(tree, hf, tvb, offset, 1, value);
+    support_item = proto_tree_add_uint(tree, hf_support, tvb, offset, 1, value);
+
+    if (s && force_supported)
+        proto_item_append_text(support_item, " (but is required to be)");
+
+    if (ISIS_LSP_CLV_METRIC_RESERVED(value))
+        expert_add_info(pinfo, item, &ei_isis_lsp_reserved_not_zero);
 }
 
 /*
@@ -1471,7 +1484,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
             }
             len += 1 + subclvs_len;
         } else {
-            proto_tree_add_text (subtree, tvb, offset+4, len, "no sub-TLVs present");
+            proto_tree_add_uint_format(subtree, hf_isis_lsp_ext_ip_reachability_subclvs_len, tvb, offset, len, 0, "no sub-TLVs present");
         }
         offset += len;
         length -= len;
@@ -1735,8 +1748,7 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
 
         /*************************/
         if (sublen != (num_trees * VLAN_ID_TUPLE_LEN)) {
-            proto_tree_add_text( subtree, tvb, subofs, 0,
-                                 "SubTLV length doesn't match number of trees");
+            proto_tree_add_expert_format( subtree, pinfo, &ei_isis_lsp_short_packet, tvb, subofs, 0, "SubTLV length doesn't match number of trees");
             return;
         }
         while (sublen > 0 && num_trees > 0) {
@@ -2220,8 +2232,7 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if ( tree ) {
             if ( show_virtual ) {
                 /* virtual path flag */
-                proto_tree_add_text ( tree, tvb, offset, 1,
-                   tvb_get_guint8(tvb, offset) ? "IsVirtual" : "IsNotVirtual" );
+                proto_tree_add_item( tree, hf_isis_lsp_is_virtual, tvb, offset, 1, ENC_NA);
             } else {
                 proto_tree_add_item(tree, hf_isis_lsp_eis_neighbors_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
@@ -2378,7 +2389,7 @@ dissect_subclv_admin_group (tvbuff_t *tvb, proto_tree *tree, int offset) {
     mask = 1;
     for (i = 0 ; i < 32 ; i++) {
         if ( (clv_value & mask) != 0 ) {
-            proto_tree_add_text (ntree, tvb, offset, 4, "group %d", i);
+            proto_tree_add_uint_format(ntree, hf_isis_lsp_group, tvb, offset, 4, clv_value & mask, "group %d", i);
         }
         mask <<= 1;
     }
@@ -3026,14 +3037,14 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
         return;
     }
     if ( tree ) {
-        dissect_metric (tvb, tree, offset,
-            tvb_get_guint8(tvb, offset), "Default", TRUE );
-        dissect_metric (tvb, tree, offset+1,
-            tvb_get_guint8(tvb, offset+1), "Delay", FALSE );
-        dissect_metric (tvb, tree, offset+2,
-            tvb_get_guint8(tvb, offset+2), "Expense", FALSE );
-        dissect_metric (tvb, tree, offset+3,
-            tvb_get_guint8(tvb, offset+3), "Error", FALSE );
+        dissect_metric (tvb, pinfo, tree, offset,
+            tvb_get_guint8(tvb, offset), hf_isis_lsp_default, hf_isis_lsp_default_support, TRUE );
+        dissect_metric (tvb, pinfo, tree, offset+1,
+            tvb_get_guint8(tvb, offset+1), hf_isis_lsp_delay, hf_isis_lsp_delay_support, FALSE );
+        dissect_metric (tvb, pinfo, tree, offset+2,
+            tvb_get_guint8(tvb, offset+2), hf_isis_lsp_expense, hf_isis_lsp_expense_support, FALSE );
+        dissect_metric (tvb, pinfo, tree, offset+3,
+            tvb_get_guint8(tvb, offset+3), hf_isis_lsp_error, hf_isis_lsp_error_support, FALSE );
     }
     offset += 4;
     length -= 4;
@@ -3057,10 +3068,8 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
          */
         sbuf =  print_area( tvb, offset+1, mylen );
         /* and spit it out */
-        if ( tree ) {
-            proto_tree_add_text ( tree, tvb, offset, mylen + 1,
-                "Area address (%d): %s", mylen, sbuf );
-        }
+        proto_tree_add_string( tree, hf_isis_lsp_area_address_str, tvb, offset, mylen + 1, sbuf);
+
         offset += mylen + 1;
         length -= mylen;    /* length already adjusted for len fld*/
     }
@@ -4771,6 +4780,61 @@ proto_register_isis_lsp(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_area_address_str,
+            { "Area address", "isis.lsp.area_address_str",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_is_virtual,
+            { "IsVirtual", "isis.lsp.is_virtual",
+              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_group,
+          { "Group", "isis.lsp.group",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_default,
+          { "Default", "isis.lsp.default",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_default_support,
+          { "Default", "isis.lsp.default_support",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_delay,
+          { "Delay", "isis.lsp.delay",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_delay_support,
+          { "Delay", "isis.lsp.delay_support",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_expense,
+          { "Expense", "isis.lsp.expense",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_expense_support,
+          { "Expense", "isis.lsp.expense_support",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_error,
+          { "Error", "isis.lsp.error",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_error_support,
+          { "Error", "isis.lsp.error_support",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -4844,6 +4908,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
+        { &ei_isis_lsp_reserved_not_zero, { "isis.lsp.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserve bit not 0", EXPFILL }},
     };
 
     expert_module_t* expert_isis_lsp;
