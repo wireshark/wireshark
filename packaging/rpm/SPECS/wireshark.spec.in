@@ -3,6 +3,7 @@
 # configure options: @CONFIG_ARGS@
 
 %bcond_with    qt
+%bcond_without qt5
 %bcond_without gtk2
 %bcond_with    gtk3
 
@@ -121,16 +122,39 @@ transferred over HTTP or CIFS, or play back an RTP audio stream.
 This package contains command-line utilities, plugins, and documentation for
 Wireshark. A Qt and a GTK+ graphical user interface are packaged separately.
 
-%if %{with qt}
+%if %{with qt} || %{with qt5}
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
+%if %{with qt5}
+%if 0%{?suse_version}
+Requires: libQt5Core5
+Requires: libQt5Gui5
+Requires: libQt5Widgets5
+Requires: libQt5PrintSupport5
+Requires: libQt5Multimedia5
+BuildRequires: libQt5Core-devel
+BuildRequires: libQt5Gui-devel
+BuildRequires: libQt5Widgets-devel
+BuildRequires: libQt5PrintSupport-devel
+BuildRequires: libqt5-qtmultimedia-devel
+%else
+Requires:	qt5-qtbase
+Requires:	qt5-qtbase-gui
+Requires:	qt5-qtmultimedia
+BuildRequires:	qt5-qtbase-devel
+BuildRequires:	qt5-qtmultimedia-devel
+%endif
+%else
+%if %{with qt}
 %if 0%{?suse_version}
 Requires:	libqt4 >= @QT_MIN_VERSION@
 BuildRequires:	libqt4-devel >= @QT_MIN_VERSION@
 %else
 Requires:	qt >= @QT_MIN_VERSION@
 BuildRequires:	qt-devel >= @QT_MIN_VERSION@
+%endif
+%endif
 %endif
 Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
@@ -211,9 +235,13 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
   --with-portaudio \
 %endif
 %if %{with qt}
-  --with-qt \
+  --with-qt=4 \
+%else
+%if %{with qt5}
+  --with-qt=5 \
 %else
   --without-qt \
+%endif
 %endif
 %if %{with gtk2}
   --with-gtk2 \
@@ -249,11 +277,11 @@ make DESTDIR=$RPM_BUILD_ROOT install
 	echo %{_libdir} > $RPM_BUILD_ROOT/etc/ld.so.conf.d/wireshark.conf
 %endif
 
-%if %{with qt}
+%if %{with qt} || %{with qt5}
 # Change the program name for 'alternatives'
 mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-qt
 %endif
-%if %{with qt} || %{with gtk2} || %{with gtk3}
+%if %{with qt} || %{with qt5} || %{with gtk2} || %{with gtk3}
 # Create the 'alternative' file
 touch %{buildroot}%{_bindir}/wireshark
 %if 0%{?suse_version}
@@ -286,7 +314,7 @@ fi
 
 %postun -p /sbin/ldconfig
 
-%if %{with qt}
+%if %{with qt} || %{with qt5}
 %post qt
 update-desktop-database %{_datadir}/applications &> /dev/null || :
 update-mime-database %{_datadir}/mime &> /dev/null || :
@@ -368,7 +396,7 @@ fi
 /etc/ld.so.conf.d/wireshark.conf
 %endif
 
-%if %{with qt}
+%if %{with qt} || %{with qt5}
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
@@ -395,6 +423,9 @@ fi
 %endif
 
 %changelog
+* Sat Sep 12 2015 Jeffrey Smith
+- Begin support for Qt5
+
 * Thu Jan 22 2015 Jeff Morriss
 - Add appdata file.
 
