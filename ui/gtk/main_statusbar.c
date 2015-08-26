@@ -1033,6 +1033,10 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_rescan_finished):
         statusbar_cf_file_read_finished_cb((capture_file *)data);
         break;
+    case(cf_cb_file_retap_started):
+        break;
+    case(cf_cb_file_retap_finished):
+        break;
     case(cf_cb_file_fast_save_finished):
         break;
     case(cf_cb_packet_selected):

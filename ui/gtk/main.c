@@ -1801,6 +1801,12 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan finished");
         main_cf_cb_file_rescan_finished(cf);
         break;
+    case(cf_cb_file_retap_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap started");
+        break;
+    case(cf_cb_file_retap_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap finished");
+        break;
     case(cf_cb_file_fast_save_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Fast save finished");
         main_cf_cb_file_rescan_finished(cf);
