@@ -68,7 +68,7 @@ public:
      */
     const QString fileName();
 
-    /** Re;load the capture file
+    /** Reload the capture file
      */
     void reload();
 

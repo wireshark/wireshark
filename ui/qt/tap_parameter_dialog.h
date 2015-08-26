@@ -110,7 +110,6 @@ private:
 private slots:
     // Called by the constructor. The subclass should tap packets here.
     virtual void fillTree() = 0;
-    void fillTreeWrapper();
 
     void on_applyFilterButton_clicked();
     void on_actionCopyToClipboard_triggered();

@@ -26,12 +26,17 @@
  * @file General dialog base class
  *
  * Base class which provides convenience methods for dialogs that handle
- * capture files. "General" is a misnomer but we already have a class named
- * "CaptureFileDialog". Suggestions for a better name from
- * https://code.wireshark.org/review/#/c/9739/:
- * BaseCaptureDialog, CaptureHelperDialog (or rename CaptureFileDialog to something else - WiresharkFileDialog).
- * TapDialog might make sense as well.
+ * capture files.
+ *
+ * This class attempts to destroy itself when closed. Doing this safely and
+ * properly can be a bit tricky while scanning and tapping packets since
  */
+
+// "General" is a misnomer but we already have a class named
+// "CaptureFileDialog". Suggestions for a better name from
+// https://code.wireshark.org/review/#/c/9739/:
+// BaseCaptureDialog, CaptureHelperDialog (or rename CaptureFileDialog to something else - WiresharkFileDialog).
+// TapDialog might make sense as well.
 
 #include "capture_file.h"
 

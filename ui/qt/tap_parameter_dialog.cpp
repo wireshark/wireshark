@@ -197,7 +197,7 @@ void TapParameterDialog::setRetapOnShow(bool retap)
 {
     show_timer_->stop();
     if (retap) {
-        show_timer_->singleShot(0, this, SLOT(fillTreeWrapper()));
+        show_timer_->singleShot(0, this, SLOT(on_applyFilterButton_clicked()));
     }
 }
 
@@ -429,13 +429,6 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     return ba;
 }
 
-void TapParameterDialog::fillTreeWrapper()
-{
-    ui->applyFilterButton->setEnabled(false);
-    fillTree();
-    ui->applyFilterButton->setEnabled(true);
-}
-
 void TapParameterDialog::drawTreeItems()
 {
     if (ui->statsTreeWidget->model()->rowCount() < expand_all_threshold_) {
@@ -523,12 +516,24 @@ void TapParameterDialog::updateWidgets()
 
 void TapParameterDialog::on_applyFilterButton_clicked()
 {
+    beginRetapPackets();
     if (!ui->displayFilterLineEdit->checkFilter())
         return;
 
     QString filter = ui->displayFilterLineEdit->text();
-    emit updateFilter(filter, true);
-    fillTreeWrapper();
+    emit updateFilter(filter, false);
+    // If we wanted to be fancy we could add an isRetapping function to
+    // either WiresharkDialog or CaptureFile and use it in updateWidgets
+    // to enable and disable the apply button as needed.
+    // For now we use more simple but less useful logic.
+    bool df_enabled = ui->displayFilterLineEdit->isEnabled();
+    bool af_enabled = ui->applyFilterButton->isEnabled();
+    ui->displayFilterLineEdit->setEnabled(false);
+    ui->applyFilterButton->setEnabled(false);
+    fillTree();
+    ui->applyFilterButton->setEnabled(af_enabled);
+    ui->displayFilterLineEdit->setEnabled(df_enabled);
+    endRetapPackets();
 }
 
 void TapParameterDialog::on_actionCopyToClipboard_triggered()

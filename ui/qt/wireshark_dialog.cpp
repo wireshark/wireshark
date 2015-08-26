@@ -37,6 +37,7 @@
 // To do:
 // - Use a dynamic property + Q_PROPERTY for the subtitle.
 // - Save and load recent geometry.
+// - Make our nested event loop more robust. See tryDeleteLater for details.
 
 WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     QDialog(NULL, Qt::Window),
@@ -49,7 +50,7 @@ WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     setWindowTitleFromSubtitle();
 
     connect(&cap_file_, SIGNAL(captureFileRetapStarted()), this, SLOT(beginRetapPackets()));
-    connect(&cap_file_, SIGNAL(captureFileRetapFinished()), this, SLOT(endsRetapPackets()));
+    connect(&cap_file_, SIGNAL(captureFileRetapFinished()), this, SLOT(endRetapPackets()));
     connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
     connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosing()));
 }
@@ -93,13 +94,17 @@ void WiresharkDialog::setWindowTitleFromSubtitle()
 // See if we can destroy ourselves. The user may have clicked "Close" while
 // we were deep in the bowels of a routine that retaps packets. Track our
 // tapping state using retap_depth_ and our closed state using dialog_closed_.
+//
+// The Delta Object Rules (http://delta.affinix.com/dor/) page on nested
+// event loops effectively says "don't do that." However, we don't really
+// have a choice if we want to have a usable application that retaps packets.
+
 void WiresharkDialog::tryDeleteLater()
 {
-    // In many of our subclasses, if the user clicks "Apply" followed by
-    // "Close" we can end up calling fillTree after calling tryDeleteLater.
-    // Disconnecting our slots here prevents that (in Qt5 at least).
-    disconnect();
-    if (retap_depth_ < 1 && dialog_closed_) deleteLater();
+    if (retap_depth_ < 1 && dialog_closed_) {
+        disconnect();
+        deleteLater();
+    }
 }
 
 void WiresharkDialog::updateWidgets()

@@ -392,6 +392,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileRescanStarted()));
     connect(&capture_file_, SIGNAL(captureFileRescanFinished()),
             this, SLOT(captureFileReadFinished()));
+    connect(&capture_file_, SIGNAL(captureFileRetapStarted()),
+            this, SLOT(captureFileRetapStarted()));
+    connect(&capture_file_, SIGNAL(captureFileRetapFinished()),
+            this, SLOT(captureFileRetapFinished()));
     connect(&capture_file_, SIGNAL(captureFileClosing()),
             this, SLOT(captureFileClosing()));
     connect(&capture_file_, SIGNAL(captureFileClosed()),

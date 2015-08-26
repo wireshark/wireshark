@@ -235,6 +235,8 @@ public slots:
     void captureFileReadFinished();
     void captureFileReloadStarted() { captureFileReadStarted(tr("Reloading")); }
     void captureFileRescanStarted() { captureFileReadStarted(tr("Rescanning")); }
+    void captureFileRetapStarted();
+    void captureFileRetapFinished();
     void captureFileClosing();
     void captureFileClosed();
     void captureFileSaveStarted(const QString &file_path);

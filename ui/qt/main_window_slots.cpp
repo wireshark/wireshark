@@ -677,6 +677,19 @@ void MainWindow::captureFileReadFinished() {
     emit setDissectedCaptureFile(capture_file_.capFile());
 }
 
+void MainWindow::captureFileRetapStarted()
+{
+    // XXX Push a status message?
+    main_ui_->actionFileClose->setEnabled(false);
+    main_ui_->actionViewReload->setEnabled(false);
+}
+
+void MainWindow::captureFileRetapFinished()
+{
+    main_ui_->actionFileClose->setEnabled(true);
+    main_ui_->actionViewReload->setEnabled(true);
+}
+
 void MainWindow::captureFileClosing() {
     setMenusForCaptureFile(true);
     setForCapturedPackets(false);
