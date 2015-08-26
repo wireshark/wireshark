@@ -64,13 +64,13 @@ typedef struct _gog_statements {
 } gog_statement_t;
 
 typedef struct _transf_match_t {
-    avpl_match_mode match_mode;
-    AVPL* avpl;
+	avpl_match_mode match_mode;
+	AVPL* avpl;
 } transf_match_t;
 
 typedef struct _transf_action_t {
-    avpl_replace_mode replace_mode;
-    AVPL* avpl;
+	avpl_replace_mode replace_mode;
+	AVPL* avpl;
 } transf_action_t;
 
 static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
@@ -135,7 +135,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 		v = 0;
 		switch ( strlen(vec[i]) ) {
 		 case 2:
-		    c = vec[i][1];
+			c = vec[i][1];
 			vec[i][1] = vec[i][0];
 			vec[i][0] = c;
 			if (vec[i][0] >= '0' && vec[i][0] <= '9') {
@@ -354,7 +354,7 @@ transform_decl(A) ::= TRANSFORM_KW NAME(B) transform_body(C) SEMICOLON. {
 transform_body(A) ::= OPEN_BRACE transform_statements(B) CLOSE_BRACE. { A = B; }
 
 transform_statements(A) ::= transform_statements(C) transform_statement(B). {
-    AVPL_Transf* c;
+	AVPL_Transf* c;
 
 	for ( c = C; c->next; c = c->next ) ;
 	c->next = B;
@@ -368,27 +368,27 @@ transform_statement(A) ::= transform_match(Match) transform_action(Action) SEMIC
 }
 
 transform_match(A) ::= MATCH_KW  match_mode(Mode) avpl(Avpl). {
-    A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
-    A->match_mode = Mode;
-    A->avpl = Avpl;
+	A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
+	A->match_mode = Mode;
+	A->avpl = Avpl;
 }
 
 transform_match(A) ::= . {
-    A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
-    A->match_mode = AVPL_STRICT;
-    A->avpl = new_avpl("");
+	A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
+	A->match_mode = AVPL_STRICT;
+	A->avpl = new_avpl("");
 
 }
 
 transform_action(A) ::= . {
-    A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
-    A->replace_mode = AVPL_INSERT;
-    A->avpl = new_avpl("");
+	A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
+	A->replace_mode = AVPL_INSERT;
+	A->avpl = new_avpl("");
 }
 transform_action(A) ::= action_mode(Mode) avpl(Avpl). {
-    A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
-    A->replace_mode = Mode;
-    A->avpl = Avpl;
+	A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
+	A->replace_mode = Mode;
+	A->avpl = Avpl;
 }
 
 match_mode(A) ::=  . { A = AVPL_STRICT; }
@@ -404,16 +404,16 @@ action_mode(A) ::= . { A = AVPL_INSERT; }
 */
 
 pdu_decl ::=
-    PDU_KW NAME(Name) PROTO_KW field(Field) TRANSPORT_KW proto_stack(Stack)
-        OPEN_BRACE
-            payload_statement(Payload)
-            extraction_statements(Extraction)
-            transform_list_statement(Transform)
-            criteria_statement(Criteria)
-            pdu_drop_unassigned_statement(DropUnassigned)
-            discard_pdu_data_statement(DistcardPduData)
-            last_extracted_statement(LastExtracted)
-        CLOSE_BRACE SEMICOLON.
+	PDU_KW NAME(Name) PROTO_KW field(Field) TRANSPORT_KW proto_stack(Stack)
+		OPEN_BRACE
+			payload_statement(Payload)
+			extraction_statements(Extraction)
+			transform_list_statement(Transform)
+			criteria_statement(Criteria)
+			pdu_drop_unassigned_statement(DropUnassigned)
+			discard_pdu_data_statement(DistcardPduData)
+			last_extracted_statement(LastExtracted)
+		CLOSE_BRACE SEMICOLON.
 {
 
 	mate_cfg_pdu* cfg  = new_pducfg(Name);
@@ -523,18 +523,18 @@ field(A) ::= NAME(B). {
 */
 
 gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPEN_BRACE
-        gop_start_statement(Start)
-        gop_stop_statement(Stop)
-        extra_statement(Extra)
-        transform_list_statement(Transform)
-        gop_expiration_statement(Expiration)
-        idle_timeout_statement(IdleTimeout)
-        lifetime_statement(Lifetime)
-        gop_drop_unassigned_statement(DropUnassigned)
-        show_goptree_statement(TreeMode)
-        show_times_statement(ShowTimes)
-    CLOSE_BRACE SEMICOLON. {
-	mate_cfg_gop* cfg;
+		gop_start_statement(Start)
+		gop_stop_statement(Stop)
+		extra_statement(Extra)
+		transform_list_statement(Transform)
+		gop_expiration_statement(Expiration)
+		idle_timeout_statement(IdleTimeout)
+		lifetime_statement(Lifetime)
+		gop_drop_unassigned_statement(DropUnassigned)
+		show_goptree_statement(TreeMode)
+		show_times_statement(ShowTimes)
+	CLOSE_BRACE SEMICOLON. {
+		mate_cfg_gop* cfg;
 
 	if (g_hash_table_lookup(mc->gopcfgs,Name)) configuration_error(mc,"A Gop Named '%s' exists already.",Name);
 	if (g_hash_table_lookup(mc->gops_by_pduname,PduName) ) configuration_error(mc,"Gop for Pdu '%s' exists already",PduName);
@@ -557,7 +557,7 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 
 	merge_avpl(cfg->extra,Extra,TRUE);
 	delete_avpl(Extra,TRUE);
-    }
+}
 
 gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; }
 gop_drop_unassigned_statement(A) ::= . { A =  mc->defaults.gop.drop_unassigned; }
@@ -583,10 +583,10 @@ idle_timeout_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 lifetime_statement(A) ::= LIFETIME_KW time_value(B) SEMICOLON. { A = B; }
 lifetime_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 
-gop_tree_mode(A) ::= NO_TREE_KW.    { A = (gop_tree_mode_t)GOP_NO_TREE; }
-gop_tree_mode(A) ::= PDU_TREE_KW.   { A = (gop_tree_mode_t)GOP_PDU_TREE; }
-gop_tree_mode(A) ::= FRAME_TREE_KW. { A = (gop_tree_mode_t)GOP_FRAME_TREE; }
-gop_tree_mode(A) ::= BASIC_TREE_KW. { A = (gop_tree_mode_t)GOP_BASIC_PDU_TREE; }
+gop_tree_mode(A) ::= NO_TREE_KW.	{ A = (gop_tree_mode_t)GOP_NO_TREE; }
+gop_tree_mode(A) ::= PDU_TREE_KW.	{ A = (gop_tree_mode_t)GOP_PDU_TREE; }
+gop_tree_mode(A) ::= FRAME_TREE_KW.	{ A = (gop_tree_mode_t)GOP_FRAME_TREE; }
+gop_tree_mode(A) ::= BASIC_TREE_KW.	{ A = (gop_tree_mode_t)GOP_BASIC_PDU_TREE; }
 
 true_false(A) ::= TRUE_KW. { A = TRUE; }
 true_false(A) ::= FALSE_KW. { A = FALSE; }
@@ -613,29 +613,29 @@ time_value(A) ::= INTEGER(B). {
 */
 
 gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
-    gog_key_statements(Keys)
-    extra_statement(Extra)
-    transform_list_statement(Transforms)
-    gog_expiration_statement(Expiration)
-    gog_goptree_statement(Tree)
-    show_times_statement(ShowTimes)
-    CLOSE_BRACE SEMICOLON. {
-	mate_cfg_gog* cfg = NULL;
+	gog_key_statements(Keys)
+	extra_statement(Extra)
+	transform_list_statement(Transforms)
+	gog_expiration_statement(Expiration)
+	gog_goptree_statement(Tree)
+	show_times_statement(ShowTimes)
+	CLOSE_BRACE SEMICOLON. {
+		mate_cfg_gog* cfg = NULL;
 
-	if ( g_hash_table_lookup(mc->gogcfgs,Name) ) {
-		configuration_error(mc,"Gog '%s' exists already ",Name);
-	}
+		if ( g_hash_table_lookup(mc->gogcfgs,Name) ) {
+			configuration_error(mc,"Gog '%s' exists already ",Name);
+		}
 
-	cfg = new_gogcfg(Name);
+		cfg = new_gogcfg(Name);
 
-	cfg->expiration = Expiration;
-	cfg->gop_tree_mode = Tree;
-	cfg->transforms = Transforms;
-	cfg->keys = Keys;
-	cfg->show_times = ShowTimes;
+		cfg->expiration = Expiration;
+		cfg->gop_tree_mode = Tree;
+		cfg->transforms = Transforms;
+		cfg->keys = Keys;
+		cfg->show_times = ShowTimes;
 
-	merge_avpl(cfg->extra,Extra,TRUE);
-	delete_avpl(Extra,TRUE);
+		merge_avpl(cfg->extra,Extra,TRUE);
+		delete_avpl(Extra,TRUE);
 }
 
 gog_goptree_statement(A) ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { A = B; }

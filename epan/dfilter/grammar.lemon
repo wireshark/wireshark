@@ -16,7 +16,7 @@
 #ifdef _WIN32
 #pragma warning(disable:4671)
 #endif
-	
+
 /* End of C code */
 }
 
@@ -73,7 +73,7 @@ any "error" symbols are shifted, if possible. */
 	}
 
 	switch(stnode_type_id(TOKEN)) {
-	        case STTYPE_UNINITIALIZED:
+		case STTYPE_UNINITIALIZED:
 			dfilter_fail(dfw, "Syntax error.");
 			break;
 		case STTYPE_TEST:
@@ -127,8 +127,8 @@ shifting 3 more symbols. */
 %right TEST_NOT.
 
 /* Top-level targets */
-sentence ::= expr(X).  		{ dfw->st_root = X; }
-sentence ::= .  		{ dfw->st_root = NULL; }
+sentence ::= expr(X).		{ dfw->st_root = X; }
+sentence ::= .			{ dfw->st_root = NULL; }
 
 expr(X) ::= relation_test(R).	{ X = R; }
 expr(X) ::= logical_test(L).	{ X = L; }
@@ -198,7 +198,7 @@ drnode(D) ::= INTEGER(X) COLON INTEGER(Y).
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
 	drange_node_set_length(D, stnode_value(Y));
-	
+
 	stnode_free(X);
 	stnode_free(Y);
 }
@@ -209,7 +209,7 @@ drnode(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
 	drange_node_set_end_offset(D, stnode_value(Y));
-	
+
 	stnode_free(X);
 	stnode_free(Y);
 }
@@ -291,14 +291,14 @@ rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
 /* A function can have one or more parameters */
 entity(E) ::= FUNCTION(F) LPAREN funcparams(P) RPAREN.
 {
-    E = F;
+	E = F;
 	sttype_function_set_params(E, P);
 }
 
 /* A function can have zero parameters. */
 entity(E) ::= FUNCTION(F) LPAREN RPAREN.
 {
-    E = F;
+	E = F;
 }
 
 funcparams(P) ::= entity(E).
