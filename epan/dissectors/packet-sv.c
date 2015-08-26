@@ -7,7 +7,7 @@
 
 #line 1 "../../asn1/sv/packet-sv-template.c"
 /* packet-sv.c
- * Routines for IEC 61850 Sampled Vales packet dissection
+ * Routines for IEC 61850 Sampled Values packet dissection
  * Michael Bernhard 2008
  *
  * Wireshark - Network traffic analyzer
@@ -363,23 +363,19 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* APPID */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 2)
-		proto_tree_add_item(tree, hf_sv_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sv_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Length */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 4)
-		proto_tree_add_item(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
 	/* Reserved 1 */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 6)
-		proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
 	/* Reserved 2 */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 8)
-		proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
 	offset = 8;
-	while (tree && tvb_reported_length_remaining(tvb, offset) > 0){
+	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
@@ -513,7 +509,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 210 "../../asn1/sv/packet-sv-template.c"
+#line 206 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -530,7 +526,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 218 "../../asn1/sv/packet-sv-template.c"
+#line 214 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {
