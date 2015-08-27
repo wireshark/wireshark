@@ -42,7 +42,7 @@ class PacketListRecord
 public:
     PacketListRecord(frame_data *frameData);
     // Return the string value for a column. Data is cached if possible.
-    const QVariant columnString(capture_file *cap_file, int column);
+    const QByteArray columnString(capture_file *cap_file, int column, bool colorized = false);
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
@@ -75,7 +75,6 @@ private:
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);
-
 };
 
 #endif // PACKET_LIST_RECORD_H

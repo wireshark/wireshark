@@ -52,7 +52,7 @@ enum StatusContext {
     STATUS_CTX_FIELD,
     STATUS_CTX_BYTE,
     STATUS_CTX_FILTER,
-    STATUS_CTX_BUSY,
+    STATUS_CTX_PROGRESS,
     STATUS_CTX_TEMPORARY
 };
 
@@ -339,20 +339,37 @@ void MainStatusBar::pushProfileName()
 
 void MainStatusBar::pushBusyStatus(const QString &message, const QString &messagetip)
 {
-    info_status_.pushText(message, STATUS_CTX_BUSY);
+    info_status_.pushText(message, STATUS_CTX_PROGRESS);
     info_status_.setToolTip(messagetip);
     progress_frame_.showBusy(true, false, NULL);
 }
 
 void MainStatusBar::popBusyStatus()
 {
-    info_status_.popText(STATUS_CTX_BUSY);
+    info_status_.popText(STATUS_CTX_PROGRESS);
     info_status_.setToolTip(QString());
     progress_frame_.hide();
 }
 
 void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
+}
+
+void MainStatusBar::pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop, gboolean *stop_flag)
+{
+    info_status_.pushText(message, STATUS_CTX_PROGRESS);
+    progress_frame_.showProgress(animate, terminate_is_stop, stop_flag);
+}
+
+void MainStatusBar::updateProgressStatus(int value)
+{
+    progress_frame_.setValue(value);
+}
+
+void MainStatusBar::popProgressStatus()
+{
+    info_status_.popText(STATUS_CTX_PROGRESS);
+    progress_frame_.hide();
 }
 
 void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)

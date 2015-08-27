@@ -66,6 +66,7 @@ struct epan_column_info {
   gint               *col_last;             /**< Last column number with a given format */
   col_expr_t          col_expr;             /**< Column expressions and values */
   gboolean            writable;             /**< writable or not @todo Are we still writing to the columns? */
+  GRegex             *prime_regex;          /**< Used to prime custom columns */
 };
 
 #ifdef __cplusplus

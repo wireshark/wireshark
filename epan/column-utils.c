@@ -63,6 +63,8 @@ col_setup(column_info *cinfo, const gint num_cols)
     cinfo->col_first[i] = -1;
     cinfo->col_last[i] = -1;
   }
+  cinfo->prime_regex = g_regex_new(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
+    G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED, NULL);
 }
 
 static void
@@ -113,6 +115,7 @@ col_cleanup(column_info *cinfo)
    */
   g_free((gchar **)cinfo->col_expr.col_expr);
   g_free(cinfo->col_expr.col_expr_val);
+  g_regex_unref(cinfo->prime_regex);
 }
 
 /* Initialize the data structures for constructing column data. */
@@ -336,8 +339,9 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
         gchar  **fields;
         guint    i_field = 0;
 
-        fields = g_regex_split_simple(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
-                col_item->col_custom_field, G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+        /* Not using a GRegex here would improve performance. */
+        fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_field,
+                G_REGEX_MATCH_ANCHORED);
 
         for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
             if (fields[i_field] && *fields[i_field]) {

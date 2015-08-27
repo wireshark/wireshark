@@ -48,7 +48,8 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
     size_hint_enabled_(true),
     row_height_(-1),
-    line_spacing_(0)
+    line_spacing_(0),
+    last_sort_column_(-1)
 {
     setCaptureFile(cf);
     connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
@@ -122,6 +123,7 @@ void PacketListModel::resetColumns()
     }
     dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
     headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    last_sort_column_ = -1;
 }
 
 void PacketListModel::resetColorized()
@@ -254,33 +256,67 @@ QElapsedTimer busy_timer_;
 const int busy_timeout_ = 65; // ms, approximately 15 fps
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
+    // packet_list_store.c:packet_list_dissect_and_cache_all
     if (!cap_file_ || visible_rows_.count() < 1) return;
-    if (column < 0) return;
+    if (column < 0 || column == last_sort_column_) return;
 
     sort_column_ = column;
     text_sort_column_ = PacketListRecord::textColumn(column);
     sort_order_ = order;
     sort_cap_file_ = cap_file_;
 
-    beginResetModel();
+    gboolean stop_flag = FALSE;
     QString col_title = get_column_title(column);
+
+    busy_timer_.start();
+    emit pushProgressStatus(tr("Dissecting"), true, true, &stop_flag);
+    int row_num = 0;
+    foreach (PacketListRecord *row, physical_rows_) {
+        row->columnString(sort_cap_file_, column);
+        row_num++;
+        if (busy_timer_.elapsed() > busy_timeout_) {
+            if (stop_flag) {
+                emit popProgressStatus();
+                return;
+            }
+            emit updateProgressStatus(row_num * 100 / physical_rows_.count());
+            // What's the least amount of processing that we can do which will draw
+            // the progress indicator?
+            wsApp->processEvents(QEventLoop::AllEvents, 1);
+            busy_timer_.restart();
+        }
+    }
+    emit popProgressStatus();
+
+    // XXX Use updateProgress instead. We'd have to switch from std::sort to
+    // something we can interrupt.
     if (!col_title.isEmpty()) {
         QString busy_msg = tr("Sorting \"%1\"").arg(col_title);
         emit pushBusyStatus(busy_msg);
-        busy_timer_.start();
     }
-    std::sort(visible_rows_.begin(), visible_rows_.end(), recordLessThan);
-    for (int i = 0; i < visible_rows_.count(); i++) {
-        number_to_row_[visible_rows_[i]->frameData()->num] = i;
+
+    busy_timer_.restart();
+    std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
+
+    beginResetModel();
+    visible_rows_.clear();
+    number_to_row_.clear();
+    foreach (PacketListRecord *record, physical_rows_) {
+        if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
+            visible_rows_ << record;
+            number_to_row_[record->frameData()->num] = visible_rows_.count() - 1;
+        }
     }
+    endResetModel();
+
     if (!col_title.isEmpty()) {
         emit popBusyStatus();
     }
-    endResetModel();
 
     if (cap_file_->current_frame) {
         emit goToPacket(cap_file_->current_frame->num);
     }
+    last_sort_column_ = column;
 }
 
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
@@ -291,11 +327,11 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     // _packet_list_compare_records, and packet_list_compare_custom from
     // gtk/packet_list_store.c into one function
 
-    // What's the least amount of processing that we can do which will draw
-    // the busy indicator?
     if (busy_timer_.elapsed() > busy_timeout_) {
-        busy_timer_.restart();
+        // What's the least amount of processing that we can do which will draw
+        // the busy indicator?
         wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+        busy_timer_.restart();
     }
     if (sort_column_ < 0) {
         // No column.
@@ -304,7 +340,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         // Column comes directly from frame data
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.columns[sort_column_].col_fmt);
     } else  {
-        if (r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData() == r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData()) {
+        if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
             cmp_val = 0;
         } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
             header_field_info *hfi;
@@ -322,7 +358,8 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                         (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                         (hfi->type == FT_RELATIVE_TIME)))
             {
-                /* Attempt to convert to numbers */
+                // Attempt to convert to numbers.
+                // XXX This is slow. Can we avoid doing this?
                 bool ok_r1, ok_r2;
                 double num_r1 = r1->columnString(sort_cap_file_, sort_column_).toDouble(&ok_r1);
                 double num_r2 = r2->columnString(sort_cap_file_, sort_column_).toDouble(&ok_r2);
@@ -335,14 +372,14 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                     cmp_val = 1;
                 }
             } else {
-                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData());
+                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
             }
         } else {
-            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).toByteArray().constData(), r2->columnString(sort_cap_file_, sort_column_).toByteArray().constData());
+            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
         }
 
         if (cmp_val == 0) {
-            // Last resort. Compare column numbers.
+            // All else being equal, compare column numbers.
             cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);
         }
     }
@@ -435,7 +472,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     case Qt::DisplayRole:
     {
         int column = d_index.column();
-        QVariant column_string = record->columnString(cap_file_, column);
+        QByteArray column_string = record->columnString(cap_file_, column, true);
         // We don't know an item's sizeHint until we fetch its text here.
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
@@ -514,7 +551,7 @@ void PacketListModel::ensureRowColorized(int row)
     if (!record)
         return;
     if (!record->colorized()) {
-        record->columnString(cap_file_, 1);
+        record->columnString(cap_file_, 1, true);
     }
 }
 

@@ -503,6 +503,12 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(pushBusyStatus(QString)));
     connect(packet_list_->packetListModel(), SIGNAL(popBusyStatus()),
             main_ui_->statusBar, SLOT(popBusyStatus()));
+    connect(packet_list_->packetListModel(), SIGNAL(pushProgressStatus(QString,bool,bool,gboolean*)),
+            main_ui_->statusBar, SLOT(pushProgressStatus(QString,bool,bool,gboolean*)));
+    connect(packet_list_->packetListModel(), SIGNAL(updateProgressStatus(int)),
+            main_ui_->statusBar, SLOT(updateProgressStatus(int)));
+    connect(packet_list_->packetListModel(), SIGNAL(popProgressStatus()),
+            main_ui_->statusBar, SLOT(popProgressStatus()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(const QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(const QString&)));

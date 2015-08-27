@@ -765,10 +765,6 @@ void PacketList::clear() {
     create_near_overlay_ = true;
     create_far_overlay_ = true;
 
-    /* XXX is this correct in all cases?
-     * Reset the sort column, use packetlist as model in case the list is frozen.
-     */
-    sortByColumn(-1, Qt::AscendingOrder);
     setColumnVisibility();
 }
 

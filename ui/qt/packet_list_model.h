@@ -77,6 +77,10 @@ signals:
     void pushBusyStatus(const QString &status);
     void popBusyStatus();
 
+    void pushProgressStatus(const QString &status, bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    void updateProgressStatus(int value);
+    void popProgressStatus();
+
 public slots:
     void setMonospaceFont(const QFont &mono_font, int row_height);
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
@@ -93,6 +97,7 @@ private:
     int row_height_;
     int line_spacing_;
 
+    int last_sort_column_;
     static int sort_column_;
     static int text_sort_column_;
     static Qt::SortOrder sort_order_;

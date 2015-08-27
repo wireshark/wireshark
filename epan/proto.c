@@ -339,6 +339,12 @@ static gpa_hfinfo_t gpa_hfinfo;
 /* Hash table of abbreviations and IDs */
 static GHashTable *gpa_name_map = NULL;
 static header_field_info *same_name_hfinfo;
+/*
+ * We're called repeatedly with the same field name when sorting a column.
+ * Cache our last gpa_name_map hit for faster lookups.
+ */
+static char *last_field_name = NULL;
+static header_field_info *last_hfinfo;
 
 static void save_same_name_hfinfo(gpointer data)
 {
@@ -528,6 +534,8 @@ proto_cleanup(void)
 		g_hash_table_destroy(gpa_name_map);
 		gpa_name_map = NULL;
 	}
+	g_free(last_field_name);
+	last_field_name = NULL;
 
 	while (protocols) {
 		protocol_t        *protocol = (protocol_t *)protocols->data;
@@ -870,6 +878,7 @@ proto_initialize_all_prefixes(void) {
  * it tries to find and call an initializer in the prefixes
  * table and if so it looks again.
  */
+
 header_field_info *
 proto_registrar_get_byname(const char *field_name)
 {
@@ -879,10 +888,18 @@ proto_registrar_get_byname(const char *field_name)
 	if (!field_name)
 		return NULL;
 
+	if (g_strcmp0(field_name, last_field_name) == 0) {
+		return last_hfinfo;
+	}
+
 	hfinfo = (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
 
-	if (hfinfo)
+	if (hfinfo) {
+		g_free(last_field_name);
+		last_field_name = g_strdup(field_name);
+		last_hfinfo = hfinfo;
 		return hfinfo;
+	}
 
 	if (!prefixes)
 		return NULL;
@@ -894,7 +911,14 @@ proto_registrar_get_byname(const char *field_name)
 		return NULL;
 	}
 
-	return (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
+	hfinfo = (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
+
+	if (hfinfo) {
+		g_free(last_field_name);
+		last_field_name = g_strdup(field_name);
+		last_hfinfo = hfinfo;
+	}
+	return hfinfo;
 }
 
 int
@@ -4365,6 +4389,9 @@ hfinfo_same_name_get_prev(const header_field_info *hfinfo)
 static void
 hfinfo_remove_from_gpa_name_map(const header_field_info *hfinfo)
 {
+    g_free(last_field_name);
+    last_field_name = NULL;
+
     if (!hfinfo->same_name_next && hfinfo->same_name_prev_id == -1) {
         /* No hfinfo with the same name */
         g_hash_table_steal(gpa_name_map, hfinfo->abbrev);
@@ -5301,6 +5328,9 @@ proto_deregister_protocol(const char *short_name)
     g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[proto_id]);
     g_hash_table_steal(gpa_name_map, protocol->filter_name);
 
+    g_free(last_field_name);
+    last_field_name = NULL;
+
     return TRUE;
 }
 
@@ -5712,6 +5742,9 @@ proto_deregister_field (const int parent, gint hf_id)
 	header_field_info *hfi;
 	protocol_t       *proto;
 	guint             i;
+
+	g_free(last_field_name);
+	last_field_name = NULL;
 
 	if (hf_id == -1 || hf_id == 0)
 		return;

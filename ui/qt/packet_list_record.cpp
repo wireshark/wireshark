@@ -47,17 +47,18 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
 {
 }
 
-const QVariant PacketListRecord::columnString(capture_file *cap_file, int column)
+const QByteArray PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
 {
     // packet_list_store.c:packet_list_get_value
     g_assert(fdata_);
 
     if (!cap_file || column < 0 || column > cap_file->cinfo.num_cols) {
-        return QVariant();
+        return QByteArray();
     }
 
-    if (column >= col_text_.size() || col_text_[column].isNull() || data_ver_ != col_data_ver_ || !colorized_) {
-        dissect(cap_file, !colorized_);
+    bool dissect_color = colorized && !colorized_;
+    if (column >= col_text_.size() || col_text_[column].isNull() || data_ver_ != col_data_ver_ || dissect_color) {
+        dissect(cap_file, dissect_color);
     }
 
     return col_text_.value(column, QByteArray());
@@ -243,7 +244,9 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
             break;
         }
 #else // MINIMIZE_STRING_COPYING
-        // XXX Use QContiguousCache?
+        // XXX The GTK+ code uses GStringChunk for string storage. It
+        // doesn't appear to be that much faster, but it probably uses
+        // less memory.
         QByteArray col_text;
         if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
             /* Use the unresolved value in col_expr_val */
