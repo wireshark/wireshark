@@ -33,4 +33,10 @@ typedef struct _icmp_transaction_t {
     nstime_t resp_time;
 } icmp_transaction_t;
 
+/* ICMP info ... used by sequence analysis tap and stored in pinfo with p_add_proto_data */
+typedef struct {
+    guint8 type;
+    guint8 code;
+} icmp_info_t;
+
 #endif

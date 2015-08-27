@@ -32,6 +32,7 @@
 #include "epan/packet.h"
 #include "epan/tap.h"
 #include "epan/dissectors/packet-tcp.h"
+#include "epan/dissectors/packet-icmp.h"
 
 #include "ui/alert_box.h"
 
@@ -82,8 +83,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         gchar *protocol = NULL;
         gchar *colinfo = NULL;
         seq_analysis_item_t *sai = NULL;
-        gchar **strings = NULL;
-        gchar **stringsPart = NULL;
+        icmp_info_t *p_icmp_info;
 
         if (sainfo->any_addr) {
             if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
@@ -133,30 +133,10 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         }
 
         if (colinfo != NULL) {
+            sai->frame_label = g_strdup(colinfo);
             if (protocol != NULL) {
-                sai->frame_label = g_strdup(colinfo);
                 sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
-                if ((!sai->port_src && !sai->port_dst) || strcmp(protocol, g_strdup("ICMP")) == 0 || strcmp(protocol, g_strdup("ICMPv6")) == 0) {
-                    guint32 type = 0;
-                    guint32 code = 0;
-                    sai->protocol = g_strdup(g_strdup_printf("%s", protocol));
-                    strings = g_strsplit(colinfo,", ", -1);
-                    for (i = 0; strings[i] != NULL; i++) {
-                        if (g_str_has_prefix(strings[i], "Type=") == TRUE) {
-                            stringsPart = g_strsplit(strings[i], "=", -1);
-                            type = (guint32)g_ascii_strtoull(stringsPart[1], NULL, 10);
-                        }
-                        if (g_str_has_prefix(strings[i], "Code=") == TRUE) {
-                            stringsPart = g_strsplit(strings[i], "=", -1);
-                            code = (guint32)g_ascii_strtoull(stringsPart[1], NULL, 10);
-                        }
-                    }
-                    sai->port_src = 0;
-                    sai->port_dst = type * 256 + code;
-
-                }
             } else {
-                sai->frame_label = g_strdup(colinfo);
                 sai->comment = g_strdup(colinfo);
             }
         } else {
@@ -167,10 +147,24 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
             }
         }
 
+        if (pinfo->ptype == PT_NONE) {
+            if ((p_icmp_info = (icmp_info_t *)p_get_proto_data(wmem_file_scope(),
+                    pinfo, proto_get_id_by_short_name("ICMP"), 0)) != NULL) {
+                g_free(sai->protocol);
+                sai->protocol = g_strdup("ICMP");
+                sai->port_src = 0;
+                sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
+            } else if ((p_icmp_info = (icmp_info_t *)p_get_proto_data(wmem_file_scope(),
+                    pinfo, proto_get_id_by_short_name("ICMPv6"), 0)) != NULL) {
+                g_free(sai->protocol);
+                sai->protocol = g_strdup("ICMPv6");
+                sai->port_src = 0;
+                sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
+            }
+        }
+
         g_free(protocol);
         g_free(colinfo);
-        g_free(strings);
-        g_free(stringsPart);
 
         sai->line_style=1;
         sai->conv_num=0;

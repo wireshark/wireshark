@@ -4114,10 +4114,16 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         } /* switch (icmp6_type) */
     } /* if (1) */
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        icmp_info_t *p_icmp_info = wmem_new(wmem_file_scope(), icmp_info_t);
+        p_icmp_info->type = icmp6_type;
+        p_icmp_info->code = icmp6_code;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_icmpv6, 0, p_icmp_info);
+    }
+
     if (trans)
         tap_queue_packet(icmpv6_tap, pinfo, trans);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Type=%d, Code=%d", icmp6_type, icmp6_code);
     return offset;
 }
 
