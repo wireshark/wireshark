@@ -84,7 +84,7 @@ libqtui_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) \
-	$(LIBGNUTLS_CFLAGS) $(PIE_CFLAGS)
+	$(LIBGNUTLS_CFLAGS)
 
 AM_CXXFLAGS = $(AM_CLEAN_CFLAGS)
 

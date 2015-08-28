@@ -2064,6 +2064,34 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 	fi
 ])
 
+AC_DEFUN([AC_WIRESHARK_QT_ADD_PIC_IF_NEEDED],
+[
+    AC_LANG_PUSH([C++])
+	save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $Qt_CFLAGS"
+	AC_MSG_CHECKING([whether Qt works without -fPIC])
+	AC_PREPROC_IFELSE(
+		[AC_LANG_SOURCE([[#include <QtCore>]])],
+		[AC_MSG_RESULT(yes)],
+		[
+			AC_MSG_RESULT(no)
+			AC_MSG_CHECKING([whether Qt works with -fPIC])
+			CPPFLAGS="$CPPFLAGS -fPIC"
+			AC_PREPROC_IFELSE(
+				[AC_LANG_SOURCE([[#include <QtCore>]])],
+				[
+					AC_MSG_RESULT(yes)
+					Qt_CFLAGS="$Qt_CFLAGS -fPIC"
+				],
+				[
+					AC_MSG_RESULT(no)
+					AC_MSG_ERROR(Couldn't compile Qt without -fPIC nor with -fPIC)
+				])
+		])
+	CPPFLAGS="$save_CPPFLAGS"
+    AC_LANG_POP([C++])
+])
+
 dnl AC_WIRESHARK_QT_CHECK([MINIMUM-VERSION, REQUESTED-MAJOR_VERSION,
 dnl     [ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]]])
 dnl Test for Qt and define Qt_CFLAGS and Qt_LIBS.
@@ -2120,6 +2148,8 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		#
 		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1, $qt_version_to_check,
 			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras]))
+
+		AC_WIRESHARK_QT_ADD_PIC_IF_NEEDED
 
 		AC_SUBST(Qt_LIBS)
 
