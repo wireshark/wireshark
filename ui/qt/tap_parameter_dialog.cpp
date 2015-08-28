@@ -107,7 +107,7 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
 
     if (!ui->displayFilterLineEdit->text().isEmpty()) {
         QString filter = ui->displayFilterLineEdit->text();
-        emit updateFilter(filter, true);
+        emit updateFilter(filter);
     }
     show_timer_ = new QTimer(this);
     setRetapOnShow(true);
@@ -521,7 +521,7 @@ void TapParameterDialog::on_applyFilterButton_clicked()
         return;
 
     QString filter = ui->displayFilterLineEdit->text();
-    emit updateFilter(filter, false);
+    emit updateFilter(filter);
     // If we wanted to be fancy we could add an isRetapping function to
     // either WiresharkDialog or CaptureFile and use it in updateWidgets
     // to enable and disable the apply button as needed.

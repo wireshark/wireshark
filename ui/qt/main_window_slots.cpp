@@ -1521,8 +1521,8 @@ void MainWindow::openTapParameterDialog(const QString cfg_str, const QString arg
 
     connect(tp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
             this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
-    connect(tp_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(tp_dialog, SIGNAL(updateFilter(QString)),
+            df_combo_box_->lineEdit(), SLOT(setText(QString)));
     tp_dialog->show();
 }
 

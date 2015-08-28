@@ -77,7 +77,7 @@ public:
 
 signals:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
-    void updateFilter(QString &filter, bool force = false);
+    void updateFilter(QString filter);
 
 public slots:
 
