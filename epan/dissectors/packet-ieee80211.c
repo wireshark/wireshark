@@ -369,7 +369,7 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
  * Test bits in the flags field.
  */
 /*
- * XXX - Only HAVE_FRAGMENTS, IS_PROTECTED, and IS_STRICTLY_ORDERED
+ * XXX - Only HAVE_FRAGMENTS, IS_PROTECTED, and HAS_HT_CONTROL
  * are in use.  Should the rest be removed?
  */
 #define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
@@ -379,7 +379,8 @@ static gboolean is_80211ad(proto_node * pnode, gpointer data) {
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
 #define IS_PROTECTED(x)        ((x) & FLAG_PROTECTED)
-#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
+#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER) /* non-QoS data frames */
+#define HAS_HT_CONTROL(x)      ((x) & FLAG_ORDER) /* management and QoS data frames */
 
 /*
  * Extract subfields from the flags field.
@@ -5211,87 +5212,6 @@ extra_one_mul_two_base_custom(gchar *result, guint32 value)
 }
 
 /* ************************************************************************* */
-/*            Return the length of the current header (in bytes)             */
-/* ************************************************************************* */
-static int
-find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
-{
-  int     len;
-  guint16 cw_fcf;
-
-  switch (FCF_FRAME_TYPE (fcf)) {
-
-  case MGT_FRAME:
-    if (is_ht && IS_STRICTLY_ORDERED(FCF_FLAGS(fcf)))
-      return MGT_FRAME_HDR_LEN + 4;
-
-    return MGT_FRAME_HDR_LEN;
-
-  case CONTROL_FRAME:
-    if (COMPOSE_FRAME_TYPE(fcf) == CTRL_CONTROL_WRAPPER) {
-      len = 6;
-      cw_fcf = ctrl_fcf;
-    } else {
-      len = 0;
-      cw_fcf = fcf;
-    }
-    switch (COMPOSE_FRAME_TYPE (cw_fcf)) {
-
-    case CTRL_CTS:
-    case CTRL_ACKNOWLEDGEMENT:
-      return len + 10;
-
-    case CTRL_VHT_NDP_ANNC:
-      len += 17;
-      /* TODO: for now we only consider a single STA, add support for more */
-      len += 2;
-      return len;
-
-    case CTRL_POLL:
-      return len + 18;
-    case CTRL_SPR:
-    case CTRL_GRANT:
-    case CTRL_GRANT_ACK:
-      return len + 23;
-    case CTRL_DMG_CTS:
-      return len + 16;
-    case CTRL_DMG_DTS:
-    case CTRL_SSW:
-      return len + 22;
-    case CTRL_SSW_FEEDBACK:
-    case CTRL_SSW_ACK:
-      return len + 24;
-    case CTRL_RTS:
-    case CTRL_PS_POLL:
-    case CTRL_CFP_END:
-    case CTRL_CFP_ENDACK:
-    case CTRL_BLOCK_ACK_REQ:
-    case CTRL_BLOCK_ACK:
-      return len + 16;
-    }
-    return len + 4;  /* XXX */
-
-  case DATA_FRAME:
-    len = (FCF_ADDR_SELECTOR(fcf) ==
-      DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
-
-    if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
-      len += 2;
-      if (is_ht && IS_STRICTLY_ORDERED(FCF_FLAGS(fcf))) {
-        len += 4;
-      }
-    }
-
-    return len;
-  case EXTENSION_FRAME:
-    return 10;
-
-  default:
-    return 4;  /* XXX */
-  }
-}
-
-/* ************************************************************************* */
 /* Mesh Control field helper functions
  *
  * Per IEEE 802.11s Draft 12.0 section 7.2.2.1:
@@ -5554,8 +5474,7 @@ add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb
 /* ************************************************************************* */
 static void
 capture_ieee80211_common (const guchar * pd, int offset, int len,
-                          packet_counts * ld, gboolean fixed_length_header,
-                          gboolean datapad, gboolean is_ht)
+                          packet_counts * ld, gboolean datapad)
 {
   guint16 fcf, hdr_length;
 
@@ -5573,29 +5492,56 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   switch (COMPOSE_FRAME_TYPE (fcf)) {
 
-    case DATA:          /* We got a data frame */
-    case DATA_CF_ACK:   /* Data with ACK */
+    case DATA:
+    case DATA_CF_ACK:
     case DATA_CF_POLL:
     case DATA_CF_ACK_POLL:
     case DATA_QOS_DATA:
+    case DATA_QOS_DATA_CF_ACK:
+    case DATA_QOS_DATA_CF_POLL:
+    case DATA_QOS_DATA_CF_ACK_POLL:
     {
-      if (fixed_length_header) {
-        hdr_length = DATA_LONG_HDR_LEN;
-      } else {
-        hdr_length = find_header_length (fcf, 0, is_ht);
-        /* adjust the header length depending on the Mesh Control field */
-        if ((FCF_FRAME_TYPE(fcf) == DATA_FRAME) &&
-            DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
+      /* Data frames that actually contain *data* */
+      hdr_length = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
-          guint8  mesh_flags = pd[hdr_length];
-          guint16 qosoff     = hdr_length - 2;
-          qosoff -= (is_ht ? 4 : 0);
-          if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
-            hdr_length += find_mesh_control_length(mesh_flags);
-          }
+      if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
+        /* QoS frame */
+        guint16 qosoff;  /* Offset of the 2-byte QoS field */
+        guint8 mesh_flags;
+
+        qosoff = hdr_length;
+        hdr_length += 2; /* Include the QoS field in the header length */
+
+        if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+          /* Frame has a 4-byte HT Control field */
+          hdr_length += 4;
         }
-        if (datapad)
+
+        /*
+         * Does it look as if we have a mesh header?
+         * Look at the Mesh Control subfield of the QoS field and at the
+         * purported mesh flag fields.
+         */
+        if (!BYTES_ARE_IN_FRAME(offset, hdr_length, 1)) {
+          ld->other += 1;
+          return;
+        }
+        mesh_flags = pd[hdr_length];
+        if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
+          /* Yes, add the length of that in as well. */
+          hdr_length += find_mesh_control_length(mesh_flags);
+        }
+
+        if (datapad) {
+          /*
+           * Add in Atheros padding between the 802.11 header and body.
+           *
+           * XXX - would the mesh header be part of the header or the body
+           * from the point of view of the Atheros adapters that insert
+           * the padding, assuming they even recognize a mesh header?
+           */
           hdr_length = roundup2(hdr_length, 4);
+        }
       }
       /* I guess some bridges take Netware Ethernet_802_3 frames,
          which are 802.3 frames (with a length field rather than
@@ -5668,7 +5614,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 void
 capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld)
 {
-  capture_ieee80211_common (pd, offset, len, ld, FALSE, FALSE, FALSE);
+  capture_ieee80211_common (pd, offset, len, ld, FALSE);
 }
 
 /*
@@ -5678,26 +5624,7 @@ void
 capture_ieee80211_datapad (const guchar * pd, int offset, int len,
                            packet_counts * ld)
 {
-  capture_ieee80211_common (pd, offset, len, ld, FALSE, TRUE, FALSE);
-}
-
-/*
- * Handle 802.11 with a fixed-length link-layer header (padded to the
- * maximum length).
- */
-void
-capture_ieee80211_fixed (const guchar * pd, int offset, int len, packet_counts * ld)
-{
-  capture_ieee80211_common (pd, offset, len, ld, TRUE, FALSE, FALSE);
-}
-
-/*
- * Handle an HT 802.11 with a variable-length link-layer header.
- */
-void
-capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld)
-{
-  capture_ieee80211_common (pd, offset, len, ld, FALSE, FALSE, TRUE);
+  capture_ieee80211_common (pd, offset, len, ld, TRUE);
 }
 
 
@@ -7136,7 +7063,7 @@ add_ff_mesh_control(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int
     offset += 6;
     break;
   case 3:
-    proto_item_append_text(tree, "Unknown Address Extension Mode");
+    proto_item_append_text(tree, " Unknown Address Extension Mode");
     break;
   default:
     /* no default action */
@@ -12365,22 +12292,30 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 /* 802.11n-D1.10 and 802.11n-D2.0, 7.1.3.5a */
 
 /*
- * 7.1.3.1.10 says:
- * "The Order field is 1 bit in length and is set to 1 in any non-QoS Data
- * frame that contains an MSDU, or fragment thereof, which is being
- * transferred using the StrictlyOrdered service class. The presence of the
- * HT Control field in frames is indicated by setting the Order field to 1
- * in any Data type or Management type frame that  is transmitted with a
- * value of HT_GF or HT_MM for the FORMAT parameter of the TXVECTOR except
- * a non-QoS Data frame or a Control Wrapper frame. The Order field is set
- * to 0 in all other frames. All non-HT QoS STAs set the Order field to 0."
+ * 8.2.4.1.10 "Order field" says:
  *
- * ...so does this mean that we can check for the presence of +HTC by
- * looking for QoS frames with the Order bit set, or do we need extra
- * information from the PHY (which would be monumentally silly)?
+ *  The Order field is 1 bit in length. It is used for two purposes:
  *
- * At any rate, it doesn't look like any equipment we have produces
- * +HTC frames, so the code is completely untested.
+ *    -- It is set to 1 in a non-QoS data frame transmitted by a non-QoS
+ *       STA to indicate that the frame contains an MSDU, or fragment
+ *       thereof, that is being transferred using the StrictlyOrdered
+ *       service class.
+ *
+ *    -- It is set to 1 in a QoS data or management frame transmitted
+ *       with a value of HT_GF or HT_MF for the FORMAT parameter of the
+ *       TXVECTOR to indicate that the frame contains an HT Control field.
+ *
+ * 802.11ac changes the second of those clauses to say "HT_GF, HT_MF,
+ * or VHT", indicates that bit B0 of the field is 0 for HT and 1 for
+ * VHT (stealing a reserved bit from the Link Adaptation Control field),
+ * and that everything except for "AC Constraint" and "RDG/More Cowbell^W
+ * PPDU" is different for the VHT version.
+ *
+ * I read this as meaning that management frames and QoS data frames that
+ * aren't HT or VHT frames should never have the Order field set, and
+ * those that *are* HT or VHT frames should have it set only if there's
+ * an HT Control field, so there's no need to check the radio information
+ * to see whether the frame is an HT or VHT frame or not.
  */
 
 static void
@@ -15817,11 +15752,12 @@ typedef enum {
 
 static void
 dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, gboolean fixed_length_header, gint fcs_len,
+                          proto_tree *tree, gint fcs_len,
                           gboolean wlan_broken_fc, gboolean datapad,
-                          gboolean is_ht, gboolean is_centrino)
+                          gboolean is_centrino)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
+  guint16          cw_fcf;
   guint16          seq_control;
   guint32          seq_number, frag_number;
   gboolean         more_frags;
@@ -15879,11 +15815,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   else
     ctrl_fcf = 0;
 
-  if (fixed_length_header)
-    hdr_len = DATA_LONG_HDR_LEN;
-  else
-    hdr_len = find_header_length (fcf, ctrl_fcf, is_ht);
-
   fts_str = val_to_str_ext_const(frame_type_subtype, &frame_type_subtype_vals_ext,
                                  "Unrecognized (Reserved frame)");
   col_set_str (pinfo->cinfo, COL_INFO, fts_str);
@@ -15898,25 +15829,116 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  if (is_ht && IS_STRICTLY_ORDERED(flags) &&
-      ((FCF_FRAME_TYPE(fcf) == MGT_FRAME) ||
-       ((FCF_FRAME_TYPE(fcf) == DATA_FRAME) && DATA_FRAME_IS_QOS(frame_type_subtype)))) {
-    htc_len = 4;
-  }
+  switch (FCF_FRAME_TYPE (fcf)) {
 
-  /* adjust the header length depending on the Mesh Control field */
-  if ((FCF_FRAME_TYPE(fcf) == DATA_FRAME) &&
-      DATA_FRAME_IS_QOS(frame_type_subtype)) {
-        qosoff = hdr_len - htc_len - 2;
-        qos_control = tvb_get_letohs(tvb, qosoff);
-        if (tvb_length(tvb) > hdr_len) {
-            meshoff = hdr_len;
-            mesh_flags = tvb_get_guint8 (tvb, hdr_len);
-            if (has_mesh_control(fcf, qos_control, mesh_flags)) {
-              meshctl_len = find_mesh_control_length(mesh_flags);
-              hdr_len += meshctl_len;
-            }
+  case MGT_FRAME:
+    hdr_len = MGT_FRAME_HDR_LEN;
+    if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+      /* Frame has a 4-byte HT Control field */
+      hdr_len += 4;
+      htc_len = 4;
+    }
+    break;
+
+  case CONTROL_FRAME:
+    if (COMPOSE_FRAME_TYPE(fcf) == CTRL_CONTROL_WRAPPER) {
+      hdr_len = 6;
+      cw_fcf = ctrl_fcf;
+    } else {
+      hdr_len = 0;
+      cw_fcf = fcf;
+    }
+    switch (COMPOSE_FRAME_TYPE (cw_fcf)) {
+
+    case CTRL_VHT_NDP_ANNC:
+      hdr_len += 17;
+      /* TODO: for now we only consider a single STA, add support for more */
+      hdr_len += 2;
+      break;
+
+    case CTRL_CTS:
+    case CTRL_ACKNOWLEDGEMENT:
+      hdr_len += 10;
+      break;
+
+    case CTRL_POLL:
+      hdr_len += 18;
+      break;
+
+    case CTRL_SPR:
+    case CTRL_GRANT:
+    case CTRL_GRANT_ACK:
+      hdr_len += 23;
+      break;
+
+    case CTRL_DMG_CTS:
+      hdr_len += 16;
+      break;
+
+    case CTRL_DMG_DTS:
+    case CTRL_SSW:
+      hdr_len += 22;
+      break;
+
+    case CTRL_SSW_FEEDBACK:
+    case CTRL_SSW_ACK:
+      hdr_len += 24;
+      break;
+
+    case CTRL_RTS:
+    case CTRL_PS_POLL:
+    case CTRL_CFP_END:
+    case CTRL_CFP_ENDACK:
+    case CTRL_BLOCK_ACK_REQ:
+    case CTRL_BLOCK_ACK:
+      hdr_len += 16;
+      break;
+
+    default:
+      hdr_len += 4;  /* XXX */
+      break;
+    }
+    break;
+
+  case DATA_FRAME:
+    hdr_len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
+
+    if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
+      /* QoS frame */
+      qosoff = hdr_len;
+      hdr_len += 2; /* Include the QoS field in the header length */
+
+      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+        /* Frame has a 4-byte HT Control field */
+        hdr_len += 4;
+        htc_len = 4;
+      }
+
+      /*
+       * Does it look as if we have a mesh header?
+       * Look at the Mesh Control subfield of the QoS field and at the
+       * purported mesh flag fields.
+       */
+      qos_control = tvb_get_letohs(tvb, qosoff);
+      if (tvb_bytes_exist(tvb, hdr_len, 1)) {
+        meshoff = hdr_len;
+        mesh_flags = tvb_get_guint8 (tvb, meshoff);
+        if (has_mesh_control(fcf, qos_control, mesh_flags)) {
+          /* Yes, add the length of that in as well. */
+          meshctl_len = find_mesh_control_length(mesh_flags);
+          hdr_len += meshctl_len;
         }
+      }
+    }
+    break;
+
+  case EXTENSION_FRAME:
+    hdr_len = 10;
+    break;
+
+  default:
+    hdr_len = 4;  /* XXX */
+    break;
   }
 
   /*
@@ -15927,8 +15949,16 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
    * of recalculating it every time we need it.
    */
   ohdr_len = hdr_len;
-  if (datapad)
+  if (datapad) {
+    /*
+     * Add in Atheros padding between the 802.11 header and body.
+     *
+     * XXX - would the mesh header be part of the header or the body
+     * from the point of view of the Atheros adapters that insert
+     * the padding, assuming they even recognize a mesh header?
+     */
     hdr_len = roundup2(hdr_len, 4);
+  }
 
   /* Add the FC and duration/id to the current tree */
   ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
@@ -16102,7 +16132,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
       /*
        * Start shoving in other fields if needed.
-       * XXX - Should we look for is_ht as well?
        */
       if ((frame_type_subtype == CTRL_CONTROL_WRAPPER) && tree) {
         cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
@@ -17640,8 +17669,9 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree,
+                            pinfo->pseudo_header->ieee_802_11.fcs_len,
+                            FALSE, FALSE, FALSE);
 }
 
 /*
@@ -17651,7 +17681,7 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, 4, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -17661,7 +17691,7 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -17670,8 +17700,9 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE, TRUE);
+  dissect_ieee80211_common (tvb, pinfo, tree,
+                            pinfo->pseudo_header->ieee_802_11.fcs_len,
+                            FALSE, FALSE, TRUE);
 }
 
 /*
@@ -17681,8 +17712,9 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree,
+                            pinfo->pseudo_header->ieee_802_11.fcs_len,
+                            FALSE, TRUE, FALSE);
 }
 
 /*
@@ -17692,7 +17724,7 @@ dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_datapad_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, 4, FALSE, TRUE, FALSE);
 }
 
 /*
@@ -17702,7 +17734,7 @@ dissect_ieee80211_datapad_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_ieee80211_datapad_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, FALSE, TRUE, FALSE);
 }
 
 /*
@@ -17713,29 +17745,7 @@ dissect_ieee80211_datapad_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void
 dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, TRUE, FALSE, FALSE, FALSE);
-}
-
-/*
- * Dissect 802.11 with a fixed-length link-layer header (padded to the
- * maximum length) and no FCS.
- */
-static void
-dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, 0, FALSE, FALSE, FALSE, FALSE);
-}
-
-/*
- * Dissect an HT 802.11 frame with a variable-length link-layer header.
- * XXX - Can we tell if a frame is +HTC just by looking at the MAC header?
- * If so, we can dispense with this.
- */
-static void
-dissect_ieee80211_ht (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, TRUE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, TRUE, FALSE, FALSE);
 }
 
 static void
@@ -25971,12 +25981,10 @@ proto_register_ieee80211 (void)
   register_dissector("wlan",                    dissect_ieee80211,                    proto_wlan);
   register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
-  register_dissector("wlan_fixed",              dissect_ieee80211_fixed,              proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
   register_dissector("wlan_datapad",            dissect_ieee80211_datapad,            proto_wlan);
   register_dissector("wlan_datapad_withfcs",    dissect_ieee80211_datapad_withfcs,    proto_wlan);
   register_dissector("wlan_datapad_withoutfcs", dissect_ieee80211_datapad_withoutfcs, proto_wlan);
-  register_dissector("wlan_ht",                 dissect_ieee80211_ht,                 proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);

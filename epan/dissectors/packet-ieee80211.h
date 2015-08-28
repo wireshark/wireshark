@@ -30,8 +30,6 @@
 WS_DLL_PUBLIC
 void capture_ieee80211 (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
-void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
-void capture_ieee80211_ht (const guchar *, int, int, packet_counts *);
 
 WS_DLL_PUBLIC
 void capture_prism(const guchar *, int, int, packet_counts *);

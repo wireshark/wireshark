@@ -336,7 +336,7 @@ static expert_field ei_ppi_invalid_length = EI_INIT;
 static dissector_handle_t ppi_handle;
 
 static dissector_handle_t data_handle;
-static dissector_handle_t ieee80211_ht_handle;
+static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
 
@@ -392,9 +392,7 @@ void
 capture_ppi(const guchar *pd, int len, packet_counts *ld)
 {
     guint32  dlt;
-    guint    ppi_len, data_type, data_len;
-    guint    offset = PPI_V0_HEADER_LEN;
-    gboolean is_htc = FALSE;
+    guint    ppi_len;
 
     ppi_len = pletoh16(pd+2);
     if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len)) {
@@ -404,28 +402,13 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
 
     dlt = pletoh32(pd+4);
 
-    /* Figure out if we're +HTC */
-    while (offset < ppi_len) {
-        data_type = pletoh16(pd+offset);
-        data_len = pletoh16(pd+offset+2) + 4;
-        offset += data_len;
-
-        if (data_type == PPI_80211N_MAC || data_type == PPI_80211N_MAC_PHY) {
-            is_htc = TRUE;
-            break;
-        }
-    }
-
     /* XXX - We should probably combine this with capture_info.c:capture_info_packet() */
     switch(dlt) {
         case 1: /* DLT_EN10MB */
             capture_eth(pd, ppi_len, len, ld);
             return;
         case 105: /* DLT_DLT_IEEE802_11 */
-            if (is_htc)
-                capture_ieee80211_ht(pd, ppi_len, len, ld);
-            else
-                capture_ieee80211(pd, ppi_len, len, ld);
+            capture_ieee80211(pd, ppi_len, len, ld);
             return;
         default:
             break;
@@ -1002,7 +985,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_text(agg_tree, next_tvb, 0, -1, "%s", mpdu_str);
                         ampdu_tree = proto_item_add_subtree(ti, ett_ampdu_segment);
                     }
-                    call_dissector(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree);
+                    call_dissector(ieee80211_handle, next_tvb, pinfo, ampdu_tree);
                 }
                 fd_head = fd_head->next;
             }
@@ -1018,12 +1001,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (is_ht) { /* We didn't hit the reassembly code */
-        call_dissector(ieee80211_ht_handle, next_tvb, pinfo, tree);
-    } else {
-        dissector_try_uint(wtap_encap_dissector_table,
-            wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
-    }
+    dissector_try_uint(wtap_encap_dissector_table,
+        wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
 }
 
 /* Establish our beachead */
@@ -1390,7 +1369,7 @@ void
 proto_reg_handoff_ppi(void)
 {
     data_handle = find_dissector("data");
-    ieee80211_ht_handle = find_dissector("wlan_ht");
+    ieee80211_handle = find_dissector("wlan");
     ppi_gps_handle = find_dissector("ppi_gps");
     ppi_vector_handle = find_dissector("ppi_vector");
     ppi_sensor_handle = find_dissector("ppi_sensor");
