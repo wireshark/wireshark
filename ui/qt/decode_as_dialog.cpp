@@ -41,6 +41,8 @@
 // - Ranges
 // - Add DCERPC support (or make DCERPC use a regular dissector table?)
 // - Fix string (BER) selectors
+// - Use a StyledItemDelegate to edit entries instead of managing widgets
+//   by hand. See the coloring rules dialog for an example.
 
 const int table_col_    = 0;
 const int selector_col_ = 1;
@@ -508,22 +510,27 @@ void DecodeAsDialog::curProtoDestroyed()
     cur_proto_combo_box_ = NULL;
 }
 
-void DecodeAsDialog::resetChangedList(const gchar *table_name,
-        ftenum_t selector_type, gpointer key, gpointer, gpointer)
+typedef QPair<const char *, guint32> UintPair;
+typedef QPair<const char *, const char *> CharPtrPair;
+
+void DecodeAsDialog::gatherChangedEntries(const gchar *table_name,
+        ftenum_t selector_type, gpointer key, gpointer, gpointer user_data)
 {
-/*    DecodeAsDialog *da_dlg = (DecodeAsDialog *)user_data; */
+    DecodeAsDialog *da_dlg = qobject_cast<DecodeAsDialog*>((DecodeAsDialog *)user_data);
+    if (!da_dlg) return;
+
     switch (selector_type) {
     case FT_UINT8:
     case FT_UINT16:
     case FT_UINT24:
     case FT_UINT32:
-        dissector_reset_uint(table_name, GPOINTER_TO_UINT(key));
+        da_dlg->changed_uint_entries_ << UintPair(table_name, GPOINTER_TO_UINT(key));
         break;
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        dissector_reset_string(table_name, (gchar *) key);
+        da_dlg->changed_string_entries_ << CharPtrPair(table_name, (const char *) key);
         break;
     default:
         break;
@@ -532,9 +539,24 @@ void DecodeAsDialog::resetChangedList(const gchar *table_name,
 
 void DecodeAsDialog::applyChanges()
 {
-    /* Reset all dissector tables, then apply all rules from GUI */
+    // Reset all dissector tables, then apply all rules from GUI.
 
-    dissector_all_tables_foreach_changed(resetChangedList, this);
+    // We can't call g_hash_table_removed from g_hash_table_foreach, which
+    // means we can't call dissector_reset_{string,uint} from
+    // dissector_all_tables_foreach_changed. Collect changed entries in
+    // lists and remove them separately.
+    //
+    // If dissector_all_tables_remove_changed existed we could call it
+    // instead.
+    dissector_all_tables_foreach_changed(gatherChangedEntries, this);
+    foreach (UintPair uint_entry, changed_uint_entries_) {
+        dissector_reset_uint(uint_entry.first, uint_entry.second);
+    }
+    changed_uint_entries_.clear();
+    foreach (CharPtrPair char_ptr_entry, changed_string_entries_) {
+        dissector_reset_string(char_ptr_entry.first, char_ptr_entry.second);
+    }
+    changed_string_entries_.clear();
 
     for (int i = 0; i < ui->decodeAsTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem   *item = ui->decodeAsTreeWidget->topLevelItem(i);
@@ -561,7 +583,7 @@ void DecodeAsDialog::applyChanges()
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    selector_value = GUINT_TO_POINTER(g_ascii_strtoull(item->text(selector_col_).toUtf8().constData(), NULL, 0));
+                    selector_value = GUINT_TO_POINTER(item->text(selector_col_).toUInt());
                     break;
                 case FT_STRING:
                 case FT_STRINGZ:

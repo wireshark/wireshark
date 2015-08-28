@@ -58,9 +58,11 @@ private:
     QComboBox *selector_combo_box_;
     QComboBox *cur_proto_combo_box_;
     QMap<QString, const char *> ui_name_to_name_;
+    QList<QPair<const char *, guint32> > changed_uint_entries_;
+    QList<QPair<const char *, const char *> > changed_string_entries_;
 
     QString entryString(const gchar *table_name, gpointer value);
-    static void resetChangedList(const gchar *table_name, ftenum_t selector_type,
+    static void gatherChangedEntries(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
     static void buildChangedList(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
