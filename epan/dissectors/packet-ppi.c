@@ -744,7 +744,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar         *mpdu_str;
     gboolean       first_mpdu  = TRUE;
     guint          last_frame  = 0;
-    gboolean       is_ht       = FALSE;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
@@ -797,13 +796,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case PPI_80211N_MAC:
                 dissect_80211n_mac(tvb, pinfo, ppi_tree, offset, data_len,
                     TRUE, &n_ext_flags, &ampdu_id);
-                is_ht = TRUE;
                 break;
 
             case PPI_80211N_MAC_PHY:
                 dissect_80211n_mac_phy(tvb, pinfo, ppi_tree, offset,
                     data_len, &n_ext_flags, &ampdu_id);
-                is_ht = TRUE;
                 break;
 
             case PPI_SPECTRUM_MAP:
