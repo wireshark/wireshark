@@ -56,6 +56,7 @@ public:
     void enableTaskbarUpdates(bool enable = true) { update_taskbar_ = enable; }
 #endif
     static void addToButtonBox(QDialogButtonBox *button_box, QObject *main_window);
+    void captureFileClosing();
 
 public slots:
     struct progdlg *showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value = 0);

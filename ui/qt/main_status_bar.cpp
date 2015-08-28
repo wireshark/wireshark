@@ -196,8 +196,9 @@ void MainStatusBar::showExpert() {
     expertUpdate();
 }
 
-void MainStatusBar::hideExpert() {
+void MainStatusBar::captureFileClosing() {
     expert_status_.hide();
+    progress_frame_.captureFileClosing();
 }
 
 void MainStatusBar::expertUpdate() {

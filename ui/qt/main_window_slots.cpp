@@ -697,7 +697,7 @@ void MainWindow::captureFileClosing() {
     setForCaptureInProgress(false);
 
     // Reset expert information indicator
-    main_ui_->statusBar->hideExpert();
+    main_ui_->statusBar->captureFileClosing();
     main_ui_->searchFrame->animatedHide();
 //    gtk_widget_show(expert_info_none);
     emit setCaptureFile(NULL);
@@ -711,7 +711,7 @@ void MainWindow::captureFileClosed() {
     setMenusForFileSet(false);
 
     // Reset expert information indicator
-    main_ui_->statusBar->hideExpert();
+    main_ui_->statusBar->captureFileClosing();
 
     main_ui_->statusBar->popFileStatus();
 

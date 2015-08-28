@@ -44,7 +44,7 @@ class MainStatusBar : public QStatusBar
 public:
     explicit MainStatusBar(QWidget *parent = 0);
     void showExpert();
-    void hideExpert();
+    void captureFileClosing();
     void expertUpdate();
     void setFileName(CaptureFile &cf);
 

@@ -211,6 +211,18 @@ void ProgressFrame::addToButtonBox(QDialogButtonBox *button_box, QObject *main_w
             main_progress_frame, SIGNAL(stopLoading()));
 }
 
+void ProgressFrame::captureFileClosing()
+{
+    // Hide any paired ProgressFrames and disconnect from them.
+    emit setHidden();
+    disconnect(SIGNAL(showRequested(bool,bool,gboolean*)));
+    disconnect(SIGNAL(maximumValueChanged(int)));
+    disconnect(SIGNAL(valueChanged(int)));
+
+    connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
+            this, SLOT(show(bool,bool,gboolean*)));
+}
+
 void ProgressFrame::setValue(int value)
 {
     ui->progressBar->setValue(value);
