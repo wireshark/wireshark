@@ -16576,7 +16576,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         hdr_len += 4;
         htc_len = 4;
       }
-  
+
       /*
        * Does it look as if we have a mesh header?
        * Look at the Mesh Control subfield of the QoS field and at the
