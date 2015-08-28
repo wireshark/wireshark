@@ -33,6 +33,7 @@ since version 1.99.8:
    via `-z ...`.
 ** Most dialogs now have a cancellable progress bar.
 ** Many packet list and packet detail context menus items have been added.
+** Lua plugins can be reloaded from the Analyze menu.
 ** Many bug fixes and improvements.
 
 The following features are new (or have been significantly updated)
