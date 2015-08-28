@@ -3424,7 +3424,7 @@ test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend)
 		optoff++;
 
 		/* Check remaining room for suboption in option */
-		if (optoff + subopt_len > optoff)
+		if (optoff + subopt_len > optend)
 			return FALSE;
 		optoff += subopt_len;
 	}
