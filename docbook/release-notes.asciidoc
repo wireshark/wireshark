@@ -25,7 +25,15 @@ The following features are new (or have been significantly updated)
 since version 1.99.8:
 
 * Qt port:
+** The UDP multicast statistics dialog has been added.
+** The WLAN statistics dialog has been added.
+** The display filter macros dialog has been added.
+** The capture file properties dialog now includes packet comments.
+** Many more statistics dialogs can be opened from the command line
+   via `-z ...`.
 ** Most dialogs now have a cancellable progress bar.
+** Many packet list and packet detail context menus items have been added.
+** Many bug fixes and improvements.
 
 The following features are new (or have been significantly updated)
 since version 1.99.7:
