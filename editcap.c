@@ -893,8 +893,8 @@ main(int argc, char *argv[])
     GString      *comp_info_str;
     GString      *runtime_info_str;
     wtap         *wth;
-    int           i, j, err;
-    gchar        *err_info;
+    int           i, j, read_err, write_err;
+    gchar        *read_err_info, *write_err_info;
     int           opt;
 DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
@@ -1268,14 +1268,14 @@ DIAG_ON(cast-qual)
         exit(1);
     }
 
-    wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+    wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
         fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
-                wtap_strerror(err));
-        if (err_info != NULL) {
-            fprintf(stderr, "(%s)\n", err_info);
-            g_free(err_info);
+                wtap_strerror(read_err));
+        if (read_err_info != NULL) {
+            fprintf(stderr, "(%s)\n", read_err_info);
+            g_free(read_err_info);
         }
         exit(2);
     }
@@ -1311,7 +1311,7 @@ DIAG_ON(cast-qual)
         }
 
         /* Read all of the packets in turn */
-        while (wtap_read(wth, &err, &err_info, &data_offset)) {
+        while (wtap_read(wth, &read_err, &read_err_info, &data_offset)) {
             read_count++;
 
             phdr = wtap_phdr(wth);
@@ -1335,11 +1335,11 @@ DIAG_ON(cast-qual)
 
                 pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                        FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+                                        FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
 
                 if (pdh == NULL) {
                     fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                            filename, wtap_strerror(err));
+                            filename, wtap_strerror(write_err));
                     goto error_on_exit;
                 }
             } /* first packet only handling */
@@ -1362,9 +1362,9 @@ DIAG_ON(cast-qual)
                            || (phdr->ts.secs - block_start.secs == secs_per_block
                                && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
-                        if (!wtap_dump_close(pdh, &err)) {
+                        if (!wtap_dump_close(pdh, &write_err)) {
                             fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                    filename, wtap_strerror(err));
+                                    filename, wtap_strerror(write_err));
                             goto error_on_exit;
                         }
                         block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
@@ -1377,11 +1377,11 @@ DIAG_ON(cast-qual)
 
                         pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                                 snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                                FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+                                                FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
 
                         if (pdh == NULL) {
                             fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                                    filename, wtap_strerror(err));
+                                    filename, wtap_strerror(write_err));
                             goto error_on_exit;
                         }
                     }
@@ -1391,9 +1391,9 @@ DIAG_ON(cast-qual)
             if (split_packet_count > 0) {
                 /* time for the next file? */
                 if (written_count > 0 && written_count % split_packet_count == 0) {
-                    if (!wtap_dump_close(pdh, &err)) {
+                    if (!wtap_dump_close(pdh, &write_err)) {
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                filename, wtap_strerror(err));
+                                filename, wtap_strerror(write_err));
                         goto error_on_exit;
                     }
 
@@ -1406,10 +1406,10 @@ DIAG_ON(cast-qual)
 
                     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+                                            FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                                filename, wtap_strerror(err));
+                                filename, wtap_strerror(write_err));
                         goto error_on_exit;
                     }
                 }
@@ -1686,8 +1686,8 @@ DIAG_ON(cast-qual)
                 }
 
                 /* Attempt to dump out current frame to the output file */
-                if (!wtap_dump(pdh, phdr, buf, &err, &err_info)) {
-                    switch (err) {
+                if (!wtap_dump(pdh, phdr, buf, &write_err, &write_err_info)) {
+                    switch (write_err) {
                     case WTAP_ERR_UNWRITABLE_ENCAP:
                         /*
                          * This is a problem with the particular frame we're
@@ -1738,13 +1738,13 @@ DIAG_ON(cast-qual)
                                 "editcap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
                                 read_count, argv[optind],
                                 wtap_file_type_subtype_string(out_file_type_subtype),
-                                err_info != NULL ? err_info : "no information supplied");
-                        g_free(err_info);
+                                write_err_info != NULL ? write_err_info : "no information supplied");
+                        g_free(write_err_info);
                         break;
 
                     default:
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                filename, wtap_strerror(err));
+                                filename, wtap_strerror(write_err));
                         break;
                     }
                     goto error_on_exit;
@@ -1757,15 +1757,15 @@ DIAG_ON(cast-qual)
         g_free(fprefix);
         g_free(fsuffix);
 
-        if (err != 0) {
+        if (read_err != 0) {
             /* Print a message noting that the read failed somewhere along the
              * line. */
             fprintf(stderr,
                     "editcap: An error occurred while reading \"%s\": %s.\n",
-                    argv[optind], wtap_strerror(err));
-            if (err_info != NULL) {
-                fprintf(stderr, "(%s)\n", err_info);
-                g_free(err_info);
+                    argv[optind], wtap_strerror(read_err));
+            if (read_err_info != NULL) {
+                fprintf(stderr, "(%s)\n", read_err_info);
+                g_free(read_err_info);
             }
         }
 
@@ -1777,10 +1777,10 @@ DIAG_ON(cast-qual)
 
             pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-                                    FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+                                    FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                        filename, wtap_strerror(err));
+                        filename, wtap_strerror(write_err));
                 goto error_on_exit;
             }
         }
@@ -1788,9 +1788,9 @@ DIAG_ON(cast-qual)
         g_free(idb_inf);
         idb_inf = NULL;
 
-        if (!wtap_dump_close(pdh, &err)) {
+        if (!wtap_dump_close(pdh, &write_err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
-                    wtap_strerror(err));
+                    wtap_strerror(write_err));
             goto error_on_exit;
         }
         wtap_free_shb(shb_hdr);
