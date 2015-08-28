@@ -2161,7 +2161,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 static gboolean
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
 {
-    int block_read;
+    guint32 block_read;
     guint32 block_total_length;
 #ifdef HAVE_PLUGINS
     block_handler *handler;
