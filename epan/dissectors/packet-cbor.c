@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_cbor(void);
+void proto_reg_handoff_cbor(void);
+
 static int proto_cbor				= -1;
 
 static int hf_cbor_type_uints			= -1;
