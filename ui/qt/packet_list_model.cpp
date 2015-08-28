@@ -48,8 +48,7 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
     size_hint_enabled_(true),
     row_height_(-1),
-    line_spacing_(0),
-    last_sort_column_(-1)
+    line_spacing_(0)
 {
     setCaptureFile(cf);
     connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
@@ -96,6 +95,7 @@ guint PacketListModel::recreateVisibleRows()
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
     }
+
     endResetModel();
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (record, physical_rows_) {
@@ -123,7 +123,6 @@ void PacketListModel::resetColumns()
     }
     dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
     headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
-    last_sort_column_ = -1;
 }
 
 void PacketListModel::resetColorized()
@@ -258,7 +257,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 {
     // packet_list_store.c:packet_list_dissect_and_cache_all
     if (!cap_file_ || visible_rows_.count() < 1) return;
-    if (column < 0 || column == last_sort_column_) return;
+    if (column < 0) return;
 
     sort_column_ = column;
     text_sort_column_ = PacketListRecord::textColumn(column);
@@ -316,7 +315,6 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     if (cap_file_->current_frame) {
         emit goToPacket(cap_file_->current_frame->num);
     }
-    last_sort_column_ = column;
 }
 
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)

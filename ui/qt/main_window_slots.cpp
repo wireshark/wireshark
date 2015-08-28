@@ -2138,7 +2138,7 @@ void MainWindow::setNameResolution()
     gbl_resolv_flags.transport_name = main_ui_->actionViewNameResolutionTransport->isChecked() ? TRUE : FALSE;
 
     if (packet_list_) {
-        packet_list_->redrawVisiblePackets();
+        packet_list_->columnsChanged();
     }
 }
 

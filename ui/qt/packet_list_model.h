@@ -97,7 +97,6 @@ private:
     int row_height_;
     int line_spacing_;
 
-    int last_sort_column_;
     static int sort_column_;
     static int text_sort_column_;
     static Qt::SortOrder sort_order_;
