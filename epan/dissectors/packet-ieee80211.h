@@ -34,8 +34,6 @@ extern "C" {
 WS_DLL_PUBLIC
 void capture_ieee80211 (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
-void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
-void capture_ieee80211_ht (const guchar *, int, int, packet_counts *);
 
 WS_DLL_PUBLIC
 void capture_prism(const guchar *, int, int, packet_counts *);
@@ -140,7 +138,7 @@ gboolean is_broadcast_bssid(const address *bssid);
  * Test bits in the flags field.
  */
 /*
- * XXX - Only HAVE_FRAGMENTS, IS_PROTECTED, and IS_STRICTLY_ORDERED
+ * XXX - Only HAVE_FRAGMENTS, IS_PROTECTED, and HAS_HT_CONTROL
  * are in use.  Should the rest be removed?
  */
 #define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
@@ -150,7 +148,8 @@ gboolean is_broadcast_bssid(const address *bssid);
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
 #define IS_PROTECTED(x)        ((x) & FLAG_PROTECTED)
-#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
+#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER) /* non-QoS data frames */
+#define HAS_HT_CONTROL(x)      ((x) & FLAG_ORDER) /* management and QoS data frames */
 
 /*
  * Extract subfields from the flags field.
