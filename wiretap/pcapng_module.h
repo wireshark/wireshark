@@ -24,7 +24,7 @@
 /*
  * Reader and writer routines for pcap-ng block types.
  */
-typedef gboolean (*block_reader)(FILE_T, int, gboolean, struct wtap_pkthdr *,
+typedef gboolean (*block_reader)(FILE_T, guint32, gboolean, struct wtap_pkthdr *,
                                  Buffer *, int *, gchar **);
 typedef gboolean (*block_writer)(wtap_dumper *, const struct wtap_pkthdr *,
                                  const guint8 *, int *);
