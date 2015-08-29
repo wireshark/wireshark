@@ -1760,8 +1760,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                      */
                     memcpy(&v4_addr,
                            ws_buffer_start_ptr(&nrb_rec), 4);
-                    if (pn->byte_swapped)
-                        v4_addr = GUINT32_SWAP_LE_BE(v4_addr);
+                    /* IPv4 address is in big-endian order in the file always, which is how we store
+                       it internally as well, so don't byte-swap it */
                     for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
                          record_len != 0;
                          namep += namelen, record_len -= namelen) {
