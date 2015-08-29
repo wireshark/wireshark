@@ -53,6 +53,9 @@
  * Destination Preference Attribute for BGP (work in progress)
  * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing
  */
+/* (c) Copyright 2015, Pratik Yeole <pyeole@ncsu.edu>
+   -  Fixed incorrect decoding of Network Layer Reachability Information (NLRI) in BGP UPDATE message with add-path support
+ */
 
 #include "config.h"
 
@@ -1718,6 +1721,9 @@ detect_add_path_prefix4(tvbuff_t *tvb, gint offset, gint end) {
     /* Must NOT be compatible with standard BGP */
     for (o = offset; o < end; ) {
         prefix_len = tvb_get_guint8(tvb, o);
+        if( prefix_len == 0) {
+            return 1; /* prefix length is zero (i.e. matching all IP prefixes) and remaining bytes within the NLRI is greater than or equal to 1 - may be BGP add-path */
+        }
         if( prefix_len > 32) {
             return 1; /* invalid prefix length - may be BGP add-path */
         }
