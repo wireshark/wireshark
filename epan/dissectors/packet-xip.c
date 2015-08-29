@@ -44,6 +44,7 @@ void proto_reg_handoff_xip(void);
 
 /* Next dissector handles. */
 static dissector_handle_t data_handle;
+static dissector_handle_t xip_serval_handle;
 
 static gint proto_xip			= -1;
 
@@ -453,6 +454,42 @@ construct_dag(tvbuff_t *tvb, proto_tree *xip_tree,
 		XIA_NODE_SIZE * num_nodes, dag_str, "%s", dag_str);
 }
 
+static gint
+dissect_xip_sink_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	gint offset, guint8 sink_node)
+{
+	tvbuff_t *next_tvb;
+
+	switch (sink_node) {
+	/* Serval XID types. */
+	case XIDTYPE_FLOWID:
+	case XIDTYPE_SRVCID:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		return call_dissector(xip_serval_handle, next_tvb, pinfo, tree);
+	/* No special sink processing. */
+	default:
+		return 0;
+	}
+}
+
+static gint
+dissect_xip_next_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	proto_item *next_ti, gint offset)
+{
+	tvbuff_t *next_tvb;
+	guint8 next_header = tvb_get_guint8(tvb, XIPH_NXTH);
+
+	switch (next_header) {
+	case XIA_NEXT_HEADER_DATA:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		return call_dissector(data_handle, next_tvb, pinfo, tree);
+	default:
+		expert_add_info_format(pinfo, next_ti, &ei_xip_next_header,
+		 "Unrecognized next header type: 0x%02x", next_header);
+		return 0;
+	}
+}
+
 static void
 display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -463,11 +500,9 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *next_ti = NULL;
 	proto_item *num_ti = NULL;
 
-	tvbuff_t *next_tvb;
-
+	gint offset;
 	guint16 xiph_len, payload_len;
-	guint8 num_dst_nodes, num_src_nodes, last_node,
-		next_header, next_header_offset;
+	guint8 num_dst_nodes, num_src_nodes, last_node;
 
 	num_dst_nodes = tvb_get_guint8(tvb, XIPH_NDST);
 	num_src_nodes = tvb_get_guint8(tvb, XIPH_NSRC);
@@ -539,20 +574,15 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			num_src_nodes,
 			XIPH_DSTD + num_dst_nodes * XIA_NODE_SIZE);
 
-	next_header_offset = XIPH_DSTD + XIA_NODE_SIZE *
-		(num_dst_nodes + num_src_nodes);
+	/* First byte after XIP header. */
+	offset = XIPH_DSTD + XIA_NODE_SIZE * (num_dst_nodes + num_src_nodes);
 
-	next_header = tvb_get_guint8(tvb, XIPH_NXTH);
-	switch (next_header) {
-	case XIA_NEXT_HEADER_DATA:
-		next_tvb = tvb_new_subset(tvb, next_header_offset, -1, -1);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
-		break;
-	default:
-		expert_add_info_format(pinfo, next_ti, &ei_xip_next_header,
-		 "Unrecognized next header type: 0x%02x", next_header);
-		break;
-	}
+	/* Dissect other headers according to the sink node, if needed. */
+	offset += dissect_xip_sink_node(tvb, pinfo, tree, offset,
+			tvb_get_ntohl(tvb, XIPH_DSTD +
+			(num_dst_nodes - 1) * XIA_NODE_SIZE));
+
+	dissect_xip_next_header(tvb, pinfo, tree, next_ti, offset);
 }
 
 static gint
@@ -669,6 +699,7 @@ proto_reg_handoff_xip(void)
 	xip_handle = new_create_dissector_handle(dissect_xip, proto_xip);
 	dissector_add_uint("ethertype", ETHERTYPE_XIP, xip_handle);
 
+	xip_serval_handle = find_dissector("xipserval");
 	data_handle = find_dissector("data");
 }
 

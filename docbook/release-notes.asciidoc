@@ -243,6 +243,7 @@ Windows Search Protocol (MS-WSP)
 Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
 Time Division Multiplexing over Packet Network (TDMoP)
 Concise Binary Object Representation (CBOR) (RFC 7049)
+XIP Serval
 --sort-and-group--
 
 === Updated Protocol Support

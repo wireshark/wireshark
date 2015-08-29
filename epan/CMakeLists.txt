@@ -1433,6 +1433,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-xcsl.c
 	dissectors/packet-xdmcp.c
 	dissectors/packet-xip.c
+	dissectors/packet-xip-serval.c
 	dissectors/packet-xmcp.c
 	dissectors/packet-xml.c
 	dissectors/packet-xmpp-conference.c

@@ -1344,6 +1344,7 @@ DISSECTOR_SRC = \
 	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xip.c		\
+	packet-xip-serval.c	\
 	packet-xmcp.c		\
 	packet-xml.c		\
 	packet-xmpp-conference.c	\
