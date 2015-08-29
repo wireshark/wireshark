@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2015-05-30"
-$Win32CurrentTag = "2015-05-30"
+$Win64CurrentTag = "2015-08-29"
+$Win32CurrentTag = "2015-08-29"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -141,7 +141,7 @@ $Win32Archives = @{
 
 # Lua
 
-if ( @("12", "11", "10") -contains $VSVersion ) {
+if ( @("14", "12", "11", "10") -contains $VSVersion ) {
     $Win64Archives["lua-5.2.3_Win64_dll$($VSVersion)_lib.zip"] = "lua5.2.3"
     $Win32Archives["lua-5.2.3_Win32_dll$($VSVersion)_lib.zip"] = "lua5.2.3"
 }
