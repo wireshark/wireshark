@@ -45,6 +45,8 @@ public:
     explicit FunnelTextDialog();
     ~FunnelTextDialog();
 
+    void reject();
+
     // Funnel ops
     static struct _funnel_text_window_t *textWindowNew(const QString title);
     void setText(const QString text);
