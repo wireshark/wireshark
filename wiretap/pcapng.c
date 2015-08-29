@@ -1719,8 +1719,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
         }
         switch (nrb.record_type) {
             case NRES_ENDOFRECORD:
-                /* There shouldn't be any more data */
-                to_read = 0;
+                /* There shouldn't be any more data - but there MAY be options */
+                goto read_options;
                 break;
             case NRES_IP4RECORD:
                 /*
@@ -1855,6 +1855,10 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 break;
         }
     }
+
+
+read_options:
+    to_read -= block_read;
 
     /* Options
      * opt_comment    1
