@@ -834,7 +834,7 @@ main(int argc, char *argv[])
 {
     wtap         *wth;
     int           i, j, read_err, write_err;
-    gchar        *read_err_info, *write_err_info;
+    gchar        *read_err_info;
     int           opt;
 
     char         *p;
