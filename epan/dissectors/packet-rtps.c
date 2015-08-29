@@ -96,6 +96,7 @@ static int hf_rtps_app_id_app_kind              = -1;
 static int hf_rtps_sm_id                        = -1;
 static int hf_rtps_sm_idv2                      = -1;
 static int hf_rtps_sm_flags                     = -1;
+static int hf_rtps_sm_flags2                    = -1;
 static int hf_rtps_sm_octets_to_next_header     = -1;
 static int hf_rtps_sm_guid_prefix               = -1;
 static int hf_rtps_sm_host_id                   = -1;
@@ -259,6 +260,72 @@ static int hf_rtps_param_product_version_release_as_char        = -1;
 static int hf_rtps_param_product_version_revision               = -1;
 static int hf_rtps_param_acknowledgment_kind                    = -1;
 
+static int hf_rtps_encapsulation_id                             = -1;
+static int hf_rtps_encapsulation_kind                           = -1;
+static int hf_rtps_octets_to_inline_qos                         = -1;
+static int hf_rtps_filter_signature                             = -1;
+static int hf_rtps_bitmap                                       = -1;
+static int hf_rtps_property_name                                = -1;
+static int hf_rtps_property_value                               = -1;
+static int hf_rtps_union                                        = -1;
+static int hf_rtps_union_case                                   = -1;
+static int hf_rtps_struct                                       = -1;
+static int hf_rtps_member_name                                  = -1;
+static int hf_rtps_sequence                                     = -1;
+static int hf_rtps_array                                        = -1;
+static int hf_rtps_bitfield                                     = -1;
+static int hf_rtps_datatype                                     = -1;
+static int hf_rtps_sequence_size                                = -1;
+static int hf_rtps_guid                                         = -1;
+static int hf_rtps_heartbeat_count                              = -1;
+static int hf_rtps_encapsulation_options                        = -1;
+static int hf_rtps_serialized_key                               = -1;
+static int hf_rtps_serialized_data                              = -1;
+
+/* Flag bits */
+static int hf_rtps_flag_reserved80                              = -1;
+static int hf_rtps_flag_reserved40                              = -1;
+static int hf_rtps_flag_reserved20                              = -1;
+static int hf_rtps_flag_reserved10                              = -1;
+static int hf_rtps_flag_reserved08                              = -1;
+static int hf_rtps_flag_reserved04                              = -1;
+static int hf_rtps_flag_reserved02                              = -1;
+static int hf_rtps_flag_reserved8000                            = -1;
+static int hf_rtps_flag_reserved4000                            = -1;
+static int hf_rtps_flag_reserved2000                            = -1;
+static int hf_rtps_flag_reserved1000                            = -1;
+static int hf_rtps_flag_reserved0800                            = -1;
+static int hf_rtps_flag_reserved0400                            = -1;
+static int hf_rtps_flag_reserved0200                            = -1;
+static int hf_rtps_flag_reserved0100                            = -1;
+static int hf_rtps_flag_reserved0080                            = -1;
+static int hf_rtps_flag_reserved0040                            = -1;
+static int hf_rtps_flag_unregister                              = -1;
+static int hf_rtps_flag_inline_qos_v1                           = -1;
+static int hf_rtps_flag_hash_key                                = -1;
+static int hf_rtps_flag_alive                                   = -1;
+static int hf_rtps_flag_data_present_v1                         = -1;
+static int hf_rtps_flag_endianness                              = -1;
+static int hf_rtps_flag_status_info                             = -1;
+static int hf_rtps_flag_data_present_v2                         = -1;
+static int hf_rtps_flag_inline_qos_v2                           = -1;
+static int hf_rtps_flag_final                                   = -1;
+static int hf_rtps_flag_hash_key_rti                            = -1;
+static int hf_rtps_flag_liveliness                              = -1;
+static int hf_rtps_flag_multicast                               = -1;
+static int hf_rtps_flag_data_serialized_key                     = -1;
+static int hf_rtps_flag_data_frag_serialized_key                = -1;
+static int hf_rtps_flag_timestamp                               = -1;
+static int hf_rtps_flag_no_virtual_guids                        = -1;
+static int hf_rtps_flag_multiple_writers                        = -1;
+static int hf_rtps_flag_multiple_virtual_guids                  = -1;
+static int hf_rtps_flag_serialize_key16                         = -1;
+static int hf_rtps_flag_invalid_sample                          = -1;
+static int hf_rtps_flag_data_present16                          = -1;
+static int hf_rtps_flag_offsetsn_present                        = -1;
+static int hf_rtps_flag_inline_qos16_v2                         = -1;
+static int hf_rtps_flag_timestamp_present                       = -1;
+
 /* Subtree identifiers */
 static gint ett_rtps                            = -1;
 static gint ett_rtps_default_mapping            = -1;
@@ -301,6 +368,8 @@ static gint ett_rtps_transport_info                             = -1;
 static gint ett_rtps_app_ack_virtual_writer_list                = -1;
 static gint ett_rtps_app_ack_virtual_writer                     = -1;
 static gint ett_rtps_product_version                            = -1;
+static gint ett_rtps_property_list                              = -1;
+static gint ett_rtps_property                                   = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -766,299 +835,292 @@ static const value_string ndds_transport_class_id_vals[] = {
   { 0, NULL }
 };
 
-/* Flag Decoding defintions ***********************************************/
-struct Flag_definition {
-  const char letter;
-  const char *description;
+static const int* PAD_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-#define RESERVEDFLAG_CHAR               ('_')
-#define RESERVEDFLAG_STRING             ("reserved bit")
-
-static const struct Flag_definition PAD_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* DATA_FLAGSv1[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_unregister,                     /* Bit 5 */
+  &hf_rtps_flag_inline_qos_v1,                  /* Bit 4 */
+  &hf_rtps_flag_hash_key,                       /* Bit 3 */
+  &hf_rtps_flag_alive,                          /* Bit 2 */
+  &hf_rtps_flag_data_present_v1,                /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
+  NULL
 };
 
-static const struct Flag_definition DATA_FLAGSv1[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { 'U', "Unregister flag" },                   /* Bit 5 */
-  { 'Q', "Inline QoS" },                        /* Bit 4 */
-  { 'H', "Hash key flag" },                     /* Bit 3 */
-  { 'A', "Alive flag" },                        /* Bit 2 */
-  { 'D', "Data present" },                      /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* DATA_FLAGSv2[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_status_info,                    /* Bit 4 */
+  &hf_rtps_flag_hash_key,                       /* Bit 3 */
+  &hf_rtps_flag_data_present_v2,                /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition DATA_FLAGSv2[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { 'I', "Status info flag" },                  /* Bit 4 */
-  { 'H', "Hash key flag" },                     /* Bit 3 */
-  { 'D', "Data present" },                      /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* NOKEY_DATA_FRAG_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition NOKEY_DATA_FRAG_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* NOKEY_DATA_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition NOKEY_DATA_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* ACKNACK_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_final,                          /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition ACKNACK_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* NACK_FRAG_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition NACK_FRAG_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* GAP_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition GAP_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* HEARTBEAT_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_liveliness,                     /* Bit 2 */
+  &hf_rtps_flag_final,                          /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition HEARTBEAT_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { 'L', "Liveliness flag" },                   /* Bit 2 */
-  { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* HEARTBEAT_BATCH_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_liveliness,                     /* Bit 2 */
+  &hf_rtps_flag_final,                          /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition HEARTBEAT_BATCH_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { 'L', "Liveliness flag" },                   /* Bit 2 */
-  { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* HEARTBEAT_FRAG_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition HEARTBEAT_FRAG_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* RTPS_DATA_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_data_serialized_key,            /* Bit 3 */
+  &hf_rtps_flag_data_present_v2,                /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition RTPS_DATA_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { 'K', "Serialized Key"  },                   /* Bit 3 */
-  { 'D', "Data present" },                      /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* RTPS_DATA_FRAG_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_data_frag_serialized_key,       /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition RTPS_DATA_FRAG_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { 'K', "Serialized Key"  },                   /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* RTPS_DATA_BATCH_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition RTPS_DATA_BATCH_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* RTPS_SAMPLE_INFO_FLAGS16[] = {
+  &hf_rtps_flag_reserved8000,                   /* Bit 15 */
+  &hf_rtps_flag_reserved4000,                   /* Bit 14 */
+  &hf_rtps_flag_reserved2000,                   /* Bit 13 */
+  &hf_rtps_flag_reserved1000,                   /* Bit 12 */
+  &hf_rtps_flag_reserved0800,                   /* Bit 11 */
+  &hf_rtps_flag_reserved0400,                   /* Bit 10 */
+  &hf_rtps_flag_reserved0200,                   /* Bit 9 */
+  &hf_rtps_flag_reserved0100,                   /* Bit 8 */
+  &hf_rtps_flag_reserved0080,                   /* Bit 7 */
+  &hf_rtps_flag_reserved0040,                   /* Bit 6 */
+  &hf_rtps_flag_serialize_key16,                /* Bit 5 */
+  &hf_rtps_flag_invalid_sample,                 /* Bit 4 */
+  &hf_rtps_flag_data_present16,                 /* Bit 3 */
+  &hf_rtps_flag_offsetsn_present,               /* Bit 2 */
+  &hf_rtps_flag_inline_qos16_v2,                /* Bit 1 */
+  &hf_rtps_flag_timestamp_present,              /* Bit 0 */
 };
 
-static const struct Flag_definition RTPS_SAMPLE_INFO_FLAGS16[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 15 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 14 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 13 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 12 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 11 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 10 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 9 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 8 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { 'K', "Serialized Key" },                    /* Bit 5 */
-  { 'I', "Invalid sample" },                    /* Bit 4 */
-  { 'D', "Data present" },                      /* Bit 3 */
-  { 'O', "OffsetSN present" },                  /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'T', "Timestamp present" }                  /* Bit 0 */
+static const int* INFO_TS_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_timestamp,                      /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition INFO_TS_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'T', "Timestamp flag" },                    /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* INFO_SRC_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition INFO_SRC_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* INFO_REPLY_IP4_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_multicast,                      /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition INFO_REPLY_IP4_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'M', "Multicast flag" },                    /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* INFO_DST_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
-static const struct Flag_definition INFO_DST_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
-};
-
-static const struct Flag_definition INFO_REPLY_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'M', "Multicast flag" },                    /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* INFO_REPLY_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_multicast,                      /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 
 
 /* Vendor specific: RTI */
-static const struct Flag_definition APP_ACK_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* APP_ACK_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 /* Vendor specific: RTI */
-static const struct Flag_definition APP_ACK_CONF_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* APP_ACK_CONF_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
+  NULL
 };
 /* Vendor specific: RTI */
-static const struct Flag_definition HEARTBEAT_VIRTUAL_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { 'N', "No virtual GUIDs flag" },             /* Bit 3 */
-  { 'W', "Multiple writers flag" },             /* Bit 2 */
-  { 'V', "Multiple virtual GUIDs flag" },       /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* HEARTBEAT_VIRTUAL_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_no_virtual_guids,               /* Bit 3 */
+  &hf_rtps_flag_multiple_writers,               /* Bit 2 */
+  &hf_rtps_flag_multiple_virtual_guids,         /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 /* Vendor specific: RTI */
-static const struct Flag_definition DATA_FRAG_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { 'H', "Hash key flag" },                     /* Bit 2 */
-  { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* DATA_FRAG_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_hash_key_rti,                   /* Bit 2 */
+  &hf_rtps_flag_inline_qos_v2,                  /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 #if 0
 /* Vendor specific: RTI */
-static const struct Flag_definition NACK_FLAGS[] = {
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
-  { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianness bit" }                     /* Bit 0 */
+static const int* NACK_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_final,                          /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
 };
 #endif
 
@@ -2070,8 +2132,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
 #endif
 
         /* Add the entry of the union in the tree */
-        proto_tree_add_text(tree, tvb, original_offset, retVal,
-                    "%sunion %s (%s%s%s) {",
+        proto_tree_add_string_format(tree, hf_rtps_union, tvb, original_offset, retVal, struct_name, "%sunion %s (%s%s%s) {",
                     indent_string, struct_name, discriminator_name,
                     (discriminator_enum_name ? " " : ""),
                     (discriminator_enum_name ? discriminator_enum_name : ""));
@@ -2121,14 +2182,16 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
           offset += 4;
 
           for (j = 0; j < member_label_count; ++j) {
+            proto_item* case_item;
             /* Label count */
             LONG_ALIGN(offset);
             member_label = NEXT_guint32(tvb, offset, little_endian);
             offset += 4;
 
             /* Add the entry of the union in the tree */
-            proto_tree_add_text(tree, tvb, field_offset_begin, retVal,
-                    "%s  case %d:", indent_string, member_label);
+            case_item = proto_tree_add_uint_format(tree, hf_rtps_union_case, tvb, field_offset_begin, 1, member_label,
+                                                    "%s  case %d:", indent_string, member_label);
+            proto_item_set_len(case_item, retVal);
           }
 
           offset += rtps_util_add_typecode(tree, tvb, offset, little_endian,
@@ -2237,8 +2300,8 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
           break;
         }
         /* Prints it */
-        proto_tree_add_text(tree, tvb, original_offset, retVal, "%s%s %s {",
-                    indent_string, typecode_name, struct_name);
+        proto_tree_add_string_format(tree, hf_rtps_struct, tvb, original_offset, retVal, struct_name,
+                                     "%s%s %s {", indent_string, typecode_name, struct_name);
 
         /* PAD align */
         LONG_ALIGN(offset);
@@ -2280,8 +2343,8 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
             ordinal_number = NEXT_guint32(tvb, offset, little_endian);
             offset += 4;
 
-            proto_tree_add_text(tree, tvb, field_offset_begin, (offset-field_offset_begin),
-                  "%s  %s = %d;", indent_string, member_name, ordinal_number);
+            proto_tree_add_string_format(tree, hf_rtps_member_name, tvb, field_offset_begin, (offset-field_offset_begin), member_name,
+                                            "%s  %s = %d;", indent_string, member_name, ordinal_number);
           } else {
             /* Structs */
             guint16 member_bitfield;
@@ -2441,9 +2504,8 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
   /* Sequence print */
   if (seq_max_len != -1) {
-    proto_tree_add_text(tree, tvb, offset_begin, (offset-offset_begin),
-                  "%ssequence<%s, %d> %s%s;%s",
-                  indent_string, type_name, seq_max_len,
+    proto_tree_add_string_format(tree, hf_rtps_sequence, tvb, offset_begin, (offset-offset_begin), type_name,
+                  "%ssequence<%s, %d> %s%s;%s", indent_string, type_name, seq_max_len,
                   is_pointer ? "*" : "",
                   name ? name : "",
                   is_key ? KEY_COMMENT : "");
@@ -2461,24 +2523,22 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
         break;
       }
     }
-    proto_tree_add_text(tree, tvb, offset_begin, (offset-offset_begin),
-                  "%s%s %s%s;%s",
-                  indent_string, type_name, name ? name : "",
+    proto_tree_add_string_format(tree, hf_rtps_array, tvb, offset_begin, (offset-offset_begin), type_name,
+                  "%s%s %s%s;%s", indent_string, type_name, name ? name : "",
                   wmem_strbuf_get_str(dim_str), is_key ? KEY_COMMENT : "");
     return retVal;
   }
 
   /* Bitfield print */
   if (bitfield != 0xffff && name != NULL && is_pointer == 0) {
-    proto_tree_add_text(tree, tvb, offset_begin, (offset-offset_begin),
-                  "%s%s %s:%d;%s",
-                  indent_string, type_name, name ? name : "",
+    proto_tree_add_string_format(tree, hf_rtps_bitfield, tvb, offset_begin, (offset-offset_begin), type_name,
+                  "%s%s %s:%d;%s", indent_string, type_name, name ? name : "",
                   bitfield, is_key ? KEY_COMMENT : "");
     return retVal;
   }
 
   /* Everything else */
-  proto_tree_add_text(tree, tvb, offset_begin, (offset-offset_begin),
+  proto_tree_add_string_format(tree, hf_rtps_datatype, tvb, offset_begin, (offset-offset_begin), type_name,
                   "%s%s%s%s%s;%s", indent_string, type_name,
                   name ? " " : "",
                   is_pointer ? "*" : "",
@@ -2501,7 +2561,7 @@ void rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
   seq_length = NEXT_guint32(tvb, offset, little_endian);
 
-  ti = proto_tree_add_text(tree, tvb, offset, 4, "sequenceSize: %d octects", seq_length);
+  ti = proto_tree_add_uint_format_value(tree, hf_rtps_sequence_size, tvb, offset, 4, seq_length, "%d octets", seq_length);
 
   offset += 4;
   if (param_length < 4 + (int)seq_length) {
@@ -2570,12 +2630,8 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   }
 
   if (wmem_strbuf_get_len(temp_buff) > 0) {
-    proto_tree_add_text(bitmap_tree,
-                        tvb,
-                        original_offset + 12,
-                        offset - original_offset - 12,
-                        "bitmap: %s",
-                        wmem_strbuf_get_str(temp_buff));
+    proto_tree_add_bytes_format_value(bitmap_tree, hf_rtps_bitmap, tvb, original_offset + 12, offset - original_offset - 12,
+                                       NULL, "%s", wmem_strbuf_get_str(temp_buff));
   }
 
   proto_item_set_len(ti, offset-original_offset);
@@ -2669,81 +2725,12 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   proto_tree_add_uint(bitmap_tree, hf_rtps_fragment_number_num_bits, tvb, original_offset + base_size, 4, num_bits);
 
   if (wmem_strbuf_get_len(temp_buff) > 0) {
-    proto_tree_add_text(bitmap_tree, tvb,
-                        original_offset + base_size + 4,
-                        offset - original_offset - base_size - 4,
-                        "bitmap: %s", wmem_strbuf_get_str(temp_buff));
+    proto_tree_add_bytes_format_value(bitmap_tree, hf_rtps_bitmap, tvb, original_offset + base_size + 4, offset - original_offset - base_size - 4,
+                                        NULL, "%s", wmem_strbuf_get_str(temp_buff));
   }
 
   proto_item_set_len(ti, offset-original_offset);
   return offset;
-}
-
-/* ------------------------------------------------------------------------- */
-/* Decode the submessage flags
- */
-static void rtps_util_decode_flags(proto_tree *tree, tvbuff_t *tvb, gint offset,
-                        guint8 flags, const struct Flag_definition *flag_def) {
-
-  proto_item *ti;
-  proto_tree *flags_tree;
-  int i, j;
-  char flags_str[20];
-
-  ti = proto_tree_add_uint(tree, hf_rtps_sm_flags, tvb, offset, 1, flags);
-  proto_item_append_text(ti, " ( ");
-  for (i = 0; i < 8; ++i) {
-    proto_item_append_text(ti, "%c ", ((flags & (1<<(7-i))) ? flag_def[i].letter : RESERVEDFLAG_CHAR));
-  }
-  proto_item_append_text(ti, ")");
-
-  flags_tree = proto_item_add_subtree(ti, ett_rtps_flags);
-
-  for (i = 0; i < 8; ++i) {
-    int is_set = (flags & (1U << (7-i)));
-
-    for (j = 0; j < 8; ++j) {
-      flags_str[j] = (i == j) ? (is_set ? '1' : '0') : '.';
-    }
-    flags_str[8] = '\0';
-
-    proto_tree_add_text(flags_tree, tvb, offset, 1, "%s = %s: %s",
-                        flags_str, flag_def[i].description,
-                        is_set ? "Set" : "Not set");
-  }
-
-}
-
-static void rtps_util_decode_flags_16bit(proto_tree *tree, tvbuff_t *tvb, gint offset,
-                        guint16 flags, const struct Flag_definition *flag_def) {
-
-  proto_item *ti;
-  proto_tree *flags_tree;
-  int i, j;
-  char flags_str[20];
-
-  ti = proto_tree_add_uint(tree, hf_rtps_sm_flags, tvb, offset, 2, flags);
-  proto_item_append_text(ti, " ( ");
-  for (i = 0; i < 16; ++i) {
-    proto_item_append_text(ti, "%c ", ((flags & (1<<(15-i))) ? flag_def[i].letter : RESERVEDFLAG_CHAR));
-  }
-  proto_item_append_text(ti, ")");
-
-  flags_tree = proto_item_add_subtree(ti, ett_rtps_flags);
-
-  for (i = 0; i < 16; ++i) {
-    guint is_set = (flags & (1U << (15-i)));
-
-    for (j = 0; j < 16; ++j) {
-      flags_str[j] = (i == j) ? (is_set ? '1' : '0') : '.';
-    }
-    flags_str[16] = '\0';
-
-    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s = %s: %s",
-                        flags_str,
-                        flag_def[i].description,
-                        is_set ? "Set" : "Not set");
-  }
 }
 
 /* *********************************************************************** */
@@ -3809,30 +3796,31 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_PROPERTY_LIST_OLD:
       ENSURE_LENGTH(4);
       {
-        guint32 prev_offset, temp_offset, prop_size;
+        guint32 temp_offset, prop_size;
         const guint8 *propName, *propValue;
+        proto_item *list_item, *item;
+        proto_tree *property_list_tree, *property_tree;
         guint32 seq_size = NEXT_guint32(tvb, offset, little_endian);
+        int start_offset = offset, str_length;
+
         proto_item_append_text( parameter_item, " (%d properties)", seq_size );
         if (seq_size > 0) {
-          proto_tree_add_text(rtps_parameter_tree, tvb, offset, 0,
-                    /*  123456789012345678901234567890|123456789012345678901234567890 */
-                    "        Property Name         |       Property Value");
-
-          proto_tree_add_text(rtps_parameter_tree, tvb, offset, 0,
-                    /*  123456789012345678901234567890|123456789012345678901234567890 */
-                    "------------------------------|------------------------------");
+          property_list_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, -1, ett_rtps_property_list, &list_item, "Property List");
 
           temp_offset = offset+4;
           while(seq_size-- > 0) {
-            prev_offset = temp_offset;
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
             if (prop_size > 0) {
               propName = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
             } else {
               propName = (const guint8 *)"";
             }
+
             /* NDDS align strings at 4-bytes word. */
-            temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
+            str_length = (4 + ((prop_size + 3) & 0xfffffffc));
+            item = proto_tree_add_string(property_list_tree, hf_rtps_property_name, tvb, temp_offset, str_length, propName);
+            property_tree = proto_item_add_subtree(item, ett_rtps_property);
+            temp_offset += str_length;
 
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
             if (prop_size > 0) {
@@ -3840,14 +3828,14 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             } else {
               propValue = (const guint8 *)"";
             }
-            /* NDDS align strings at 4-bytes word. */
-            temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
 
-            proto_tree_add_text(rtps_parameter_tree, tvb, prev_offset,
-                        temp_offset - prev_offset, "%-29s | %-29s",
-                        propName,
-                        propValue);
+            /* NDDS align strings at 4-bytes word. */
+            str_length = (4 + ((prop_size + 3) & 0xfffffffc));
+            proto_tree_add_string(property_tree, hf_rtps_property_value, tvb, temp_offset, str_length, propValue);
+            temp_offset += str_length;
           }
+
+          proto_item_set_len(list_item, temp_offset-start_offset);
         }
       }
       break;
@@ -3895,9 +3883,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
           temp_offset += 4;
           fs[3] = NEXT_guint32(tvb, temp_offset, little_endian);
           temp_offset += 4;
-          proto_tree_add_text(rtps_parameter_tree, tvb, prev_offset,
-                          temp_offset - prev_offset,
-                          "filterSignature: %08x %08x %08x %08x",
+          proto_tree_add_bytes_format_value(rtps_parameter_tree, hf_rtps_filter_signature, tvb, prev_offset, temp_offset - prev_offset, NULL, "%08x %08x %08x %08x",
                           fs[0], fs[1], fs[2], fs[3]);
       }
 
@@ -4173,7 +4159,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
     case PID_KEY_HASH: {
     guint8   guidPart;
     int i;
-    ti = proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length, "guid: ");
+    ti = proto_tree_add_bytes_format(rtps_parameter_tree, hf_rtps_guid, tvb, offset, param_length, NULL, "guid: ");
     for (i = 0; i < param_length; ++i) {
       guidPart = tvb_get_guint8(tvb, offset+i);
       proto_item_append_text(ti, "%02x", guidPart);
@@ -4239,11 +4225,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
         temp_offset += 4;
         fs[3] = NEXT_guint32(tvb, temp_offset, little_endian);
         temp_offset += 4;
-        proto_tree_add_text(rtps_parameter_tree,
-                        tvb,
-                        prev_offset,
-                        temp_offset - prev_offset,
-                        "filterSignature: %08x %08x %08x %08x",
+        proto_tree_add_bytes_format_value(rtps_parameter_tree, hf_rtps_filter_signature, tvb, prev_offset, temp_offset - prev_offset, NULL, "%08x %08x %08x %08x",
                         fs[0], fs[1], fs[2], fs[3]);
       }
 
@@ -4497,7 +4479,7 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   gint original_offset; /* Offset to the readerEntityId */
   guint32 virtual_writer_count;
   proto_item *octet_item;
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, APP_ACK_CONF_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, APP_ACK_CONF_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
     offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -4694,7 +4676,7 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
   guint32 virtual_writer_count;
   guint32 wid;                  /* Writer EntityID */
   proto_item *octet_item;
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, APP_ACK_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, APP_ACK_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
       offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -4886,7 +4868,7 @@ void dissect_PAD(tvbuff_t *tvb,
    */
   proto_item *item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, PAD_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, PAD_FLAGS, flags);
 
   item = proto_tree_add_item(tree,
                           hf_rtps_sm_octets_to_next_header,
@@ -4970,7 +4952,7 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   guint32 wid;                  /* Writer EntityID */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, DATA_FLAGSv1);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, DATA_FLAGSv1, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5118,7 +5100,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   proto_item *octet_item;
   gboolean from_builtin_writer;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, DATA_FLAGSv2);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, DATA_FLAGSv2, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5235,7 +5217,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   proto_item *octet_item;
   guint32 wid;
   gboolean from_builtin_writer;
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, DATA_FRAG_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, DATA_FRAG_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5401,7 +5383,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   gint old_offset = offset;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, NOKEY_DATA_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, NOKEY_DATA_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5496,7 +5478,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   gboolean from_builtin_writer;
   gint old_offset = offset;
   proto_item *octet_item;
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, NOKEY_DATA_FRAG_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, NOKEY_DATA_FRAG_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5599,7 +5581,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   gint original_offset; /* Offset to the readerEntityId */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, ACKNACK_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, ACKNACK_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree,
                         hf_rtps_sm_octets_to_next_header,
@@ -5696,7 +5678,7 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
    */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, NACK_FRAG_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, NACK_FRAG_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5786,7 +5768,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   guint32 counter;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, HEARTBEAT_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, HEARTBEAT_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree,
                         hf_rtps_sm_octets_to_next_header,
@@ -5827,7 +5809,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   /* Counter: it was not present in RTPS 1.0 */
   if (version >= 0x0101) {
     counter = NEXT_guint32(tvb, offset, little_endian);
-    proto_tree_add_text(tree, tvb, offset, 4, "count: %u", counter);
+    proto_tree_add_uint(tree, hf_rtps_heartbeat_count, tvb, offset, 4, counter);
   }
 }
 
@@ -5866,7 +5848,7 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
    */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, HEARTBEAT_BATCH_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, HEARTBEAT_BATCH_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -5997,7 +5979,7 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, gin
     gint writer_id_offset, virtual_guid_offset = 0, old_offset;
     proto_item *octet_item, *ti;
 
-    rtps_util_decode_flags(tree, tvb, offset + 1, flags, HEARTBEAT_VIRTUAL_FLAGS);
+    proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, HEARTBEAT_VIRTUAL_FLAGS, flags);
 
     octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
       offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6206,7 +6188,7 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
    */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, HEARTBEAT_FRAG_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, HEARTBEAT_FRAG_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6314,7 +6296,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   gboolean from_builtin_writer;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, RTPS_DATA_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6340,8 +6322,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   offset += 2;
 
   /* octetsToInlineQos */
-  proto_tree_add_text(tree, tvb, offset, 2, "Octets to inline QoS: %d",
-                        NEXT_guint16(tvb, offset, little_endian));
+  proto_tree_add_uint(tree, hf_rtps_octets_to_inline_qos, tvb, offset, 2, NEXT_guint16(tvb, offset, little_endian));
   offset += 2;
 
   /* readerEntityId */
@@ -6397,8 +6378,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       /* Encapsulation ID */
       encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
 
-      proto_tree_add_text(rtps_pm_tree, tvb, offset, 2, "encapsulation kind: %s",
-                        val_to_str(encapsulation_id, encapsulation_id_vals, "unknown (%02x)"));
+      proto_tree_add_uint(rtps_pm_tree, hf_rtps_encapsulation_kind, tvb, offset, 2, encapsulation_id);
       offset += 2;
 
 #if 0 /* XXX: encapsulation_little_endian not actually used anywhere ?? */
@@ -6411,8 +6391,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       /* Encapsulation length (or option) */
       encapsulation_len =  NEXT_guint16(tvb, offset, FALSE);    /* Always big endian */
-      proto_tree_add_text(rtps_pm_tree, tvb, offset, 2,
-                        "encapsulation options: %04x", encapsulation_len);
+      proto_tree_add_uint(rtps_pm_tree, hf_rtps_encapsulation_options, tvb, offset, 2, encapsulation_len);
       offset += 2;
 
       guid_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
@@ -6423,8 +6402,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       /* Kind */
       kind =  NEXT_guint32(tvb, offset, FALSE);   /* Always big endian */
-      proto_tree_add_text(guid_tree, tvb, offset, 4, "kind: %s",
-            val_to_str(kind, participant_message_data_kind, "unknown (%04x)"));
+      proto_tree_add_uint(guid_tree, hf_rtps_encapsulation_kind, tvb, offset, 4, kind);
       offset += 4;
 
       rtps_util_add_seq_octets(rtps_pm_tree, pinfo, tvb, offset, little_endian,
@@ -6498,7 +6476,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   guint32 status_info = 0xffffffff;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, RTPS_DATA_FRAG_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_FRAG_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6519,7 +6497,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   offset += 2;
 
   /* octetsToInlineQos */
-  proto_tree_add_text(tree, tvb, offset, 2, "Octets to inline QoS: %d",
+  proto_tree_add_uint(tree, hf_rtps_octets_to_inline_qos, tvb, offset, 2,
                         NEXT_guint16(tvb, offset, little_endian));
   offset += 2;
 
@@ -6670,7 +6648,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
           sample_info_max = rtps_max_batch_samples_dissected;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, RTPS_DATA_BATCH_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_BATCH_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6691,7 +6669,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   offset += 2;
 
   /* octetsToInlineQos */
-  proto_tree_add_text(tree, tvb, offset, 2, "Octets to inline QoS: %d",
+  proto_tree_add_uint(tree, hf_rtps_octets_to_inline_qos, tvb, offset, 2,
                         NEXT_guint16(tvb, offset, little_endian));
   offset += 2;
 
@@ -6776,7 +6754,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
       flags2 = NEXT_guint16(tvb, offset, FALSE); /* Flags are always big endian */
       sample_info_flags[sample_info_count] = flags2;
-      rtps_util_decode_flags_16bit(si_tree, tvb, offset, flags2, RTPS_SAMPLE_INFO_FLAGS16);
+      proto_tree_add_bitmask_value(si_tree, tvb, offset, hf_rtps_sm_flags2, ett_rtps_flags, RTPS_SAMPLE_INFO_FLAGS16, flags2);
       offset += 2;
       proto_tree_add_item(tree, hf_rtps_data_batch_octets_to_inline_qos, tvb,
                         offset, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6825,9 +6803,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
   /* Encapsulation ID for the entire data sequence */
   encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
-  proto_tree_add_text(tree, tvb, offset, 2,
-                        "encapsulation kind: %s",
-                        val_to_str(encapsulation_id, encapsulation_id_vals, "unknown (%02x)"));
+  proto_tree_add_uint(tree, hf_rtps_encapsulation_id, tvb, offset, 2, encapsulation_id);
   offset += 2;
 
   /* The next two bytes are ignored */
@@ -6849,7 +6825,6 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     proto_item *ti;
     proto_tree *sil_tree;
     gint count = 0;
-    const char *label;
 
     sil_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_sample_batch_list, &ti, "Serialized Sample List");
     for (count = 0; count < sample_info_count; ++count) {
@@ -6860,11 +6835,10 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       }
 
       if ((sample_info_flags[count] & FLAG_SAMPLE_INFO_K) != 0) {
-        label = "serializedKey[%d]";
+        proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_key, tvb, offset, sample_info_length[count], NULL, "serializedKey[%d]", count);
       } else {
-        label = "serializedData[%d]";
+        proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_data, tvb, offset, sample_info_length[count], NULL, "serializedData[%d]", count);
       }
-      proto_tree_add_text(sil_tree, tvb, offset, sample_info_length[count], label, count);
       offset += sample_info_length[count];
     }
   }
@@ -6914,7 +6888,7 @@ static void dissect_GAP(tvbuff_t *tvb, packet_info *pinfo, gint offset,
    */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, GAP_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, GAP_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -6977,7 +6951,7 @@ void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flag
   int min_len;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_TS_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, INFO_TS_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree,
                         hf_rtps_sm_octets_to_next_header,
@@ -7043,7 +7017,7 @@ void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 fla
   guint32 ip;
   guint16 version;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_SRC_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, INFO_SRC_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -7129,7 +7103,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb, packet_info *pinfo, gint offse
   int min_len;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_IP4_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, INFO_REPLY_IP4_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree,
                         hf_rtps_sm_octets_to_next_header,
@@ -7190,7 +7164,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
    */
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_DST_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, INFO_DST_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -7248,7 +7222,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   int min_len;
   proto_item *octet_item;
 
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_FLAGS);
+  proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, INFO_REPLY_FLAGS, flags);
 
   octet_item = proto_tree_add_item(tree,
                         hf_rtps_sm_octets_to_next_header,
@@ -7814,6 +7788,16 @@ void proto_register_rtps(void) {
         "Flags",
         "rtps.sm.flags",
         FT_UINT8,
+        BASE_HEX,
+        NULL,
+        0,
+        "bitmask representing the flags associated with a submessage",
+        HFILL }
+    },
+    { &hf_rtps_sm_flags2, {
+        "Flags",
+        "rtps.sm.flags",
+        FT_UINT16,
         BASE_HEX,
         NULL,
         0,
@@ -8951,6 +8935,280 @@ void proto_register_rtps(void) {
         FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
     },
 
+    { &hf_rtps_encapsulation_id, {
+        "encapsulation id", "rtps.encapsulation_id",
+        FT_UINT16, BASE_HEX, VALS(encapsulation_id_vals), 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_encapsulation_kind, {
+        "kind", "rtps.encapsulation_kind",
+        FT_UINT16, BASE_HEX, VALS(participant_message_data_kind), 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_octets_to_inline_qos, {
+        "Octets to inline QoS", "rtps.octets_to_inline_qos",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_filter_signature, {
+        "filterSignature", "rtps.filter_signature",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_bitmap, {
+        "bitmap", "rtps.bitmap",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_property_name, {
+        "Property Name", "rtps.property_name",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_property_value, {
+        "Value", "rtps.property_value",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_union, {
+        "union", "rtps.union",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_union_case, {
+        "case", "rtps.union_case",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_struct, {
+        "struct", "rtps.struct",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_member_name, {
+        "member_name", "rtps.member_name",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_sequence, {
+        "sequence", "rtps.sequence",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_array, {
+        "array", "rtps.array",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_bitfield, {
+        "bitfield", "rtps.bitfield",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_datatype, {
+        "datatype", "rtps.datatype",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_sequence_size, {
+        "sequenceSize", "rtps.sequence_size",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_guid, {
+        "guid", "rtps.guid",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_heartbeat_count, {
+        "count", "rtps.heartbeat_count",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_encapsulation_options, {
+        "Encapsulation options", "rtps.encapsulation_options",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_serialized_key, {
+        "serializedKey", "rtps.serialized_key",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_serialized_data, {
+        "serializedData", "rtps.serialized_data",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    /* Flag bits */
+    { &hf_rtps_flag_reserved80, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved40, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved20, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved10, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved08, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved04, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved02, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved8000, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved4000, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved2000, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x2000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved1000, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x1000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0800, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0800, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0400, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0400, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0200, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0200, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0100, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0100, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0080, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0080, NULL, HFILL }
+    },
+    { &hf_rtps_flag_reserved0040, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0040, NULL, HFILL }
+    },
+    { &hf_rtps_flag_unregister, {
+        "Unregister flag", "rtps.flag.unregister",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20, NULL, HFILL }
+    },
+    { &hf_rtps_flag_inline_qos_v1, {
+        "Inline QoS", "rtps.flag.inline_qos",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_hash_key, {
+        "Hash key flag", "rtps.flag.hash_key",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_hash_key_rti, {
+        "Hash key flag", "rtps.flag.hash_key",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_alive, {
+        "Alive flag", "rtps.flag.alive",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_data_present_v1, {
+        "Data present", "rtps.flag.data_present",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endianness, {
+        "Endianness bit", "rtps.flag.endianness",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_inline_qos_v2, {
+        "Inline QoS", "rtps.flag.inline_qos",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_data_present_v2, {
+        "Data present", "rtps.flag.data_present",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_status_info, {
+        "Status info flag", "rtps.flag.status_info",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_final, {
+        "Final flag", "rtps.flag.final",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_liveliness, {
+        "Liveliness flag", "rtps.flag.liveliness",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_multicast, {
+        "Multicast flag", "rtps.flag.multicast",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_data_serialized_key, {
+        "Serialized Key", "rtps.flag.data.serialized_key",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_data_frag_serialized_key, {
+        "Serialized Key", "rtps.flag.data_frag.serialized_key",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_timestamp, {
+        "Timestamp flag", "rtps.flag.timestamp",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_no_virtual_guids, {
+        "No virtual GUIDs flag", "rtps.flag.no_virtual_guids",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_multiple_writers, {
+        "Multiple writers flag", "rtps.flag.multiple_writers",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_multiple_virtual_guids, {
+        "Multiple virtual GUIDs flag", "rtps.flag.multiple_virtual_guids",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_serialize_key16, {
+        "Serialized Key", "rtps.flag.serialize_key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0020, NULL, HFILL }
+    },
+    { &hf_rtps_flag_invalid_sample, {
+        "Invalid sample", "rtps.flag.invalid_sample",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0010, NULL, HFILL }
+    },
+    { &hf_rtps_flag_data_present16, {
+        "Data present", "rtps.flag.data_present",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_offsetsn_present, {
+        "OffsetSN present", "rtps.flag.offsetsn_present",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_inline_qos16_v2, {
+        "Inline QoS", "rtps.flag.inline_qos",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_timestamp_present, {
+        "Timestamp present", "rtps.flag.offsetsn_present",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+    },
   };
 
   static gint *ett[] = {
@@ -8994,7 +9252,9 @@ void proto_register_rtps(void) {
     &ett_rtps_app_ack_virtual_writer,
     &ett_rtps_app_ack_virtual_writer_interval_list,
     &ett_rtps_app_ack_virtual_writer_interval,
-    &ett_rtps_transport_info
+    &ett_rtps_transport_info,
+    &ett_rtps_property_list,
+    &ett_rtps_property,
   };
 
   static ei_register_info ei[] = {
