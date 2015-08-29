@@ -182,11 +182,15 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     iface.snap = wtapng_if_descr.snap_len;
     iface.has_snap = (iface.snap != 65535);
     iface.encap_type = wtapng_if_descr.wtap_encap;
+    iface.isb_comment = NULL;
     if(wtapng_if_descr.num_stat_entries == 1){
       /* dumpcap only writes one ISB, only handle that for now */
       if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
-      iface.drops_known = TRUE;
-      iface.drops = if_stats->isb_ifdrop;
+      if (if_stats->isb_ifdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
+        iface.drops_known = TRUE;
+        iface.drops = if_stats->isb_ifdrop;
+      }
+      /* XXX: this doesn't get used, and might need to be g_strdup'ed when it does */
       iface.isb_comment = if_stats->opt_comment;
     }
     g_array_append_val(st->ifaces, iface);
