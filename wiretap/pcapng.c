@@ -1384,11 +1384,12 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         /*
          * The captured length is not a field in the SPB; it can be
          * calculated as the minimum of the snapshot length from the
-	 * IDB and the packet length, as per the pcap-ng spec.
+         * IDB and the packet length, as per the pcap-ng spec. An IDB
+         * snapshot length of 0 means no limit.
          */
         simple_packet.cap_len = simple_packet.packet_len;
-        if (simple_packet.cap_len > iface_info.snap_len)
-                simple_packet.cap_len = iface_info.snap_len;
+        if (simple_packet.cap_len > iface_info.snap_len && iface_info.snap_len != 0)
+            simple_packet.cap_len = iface_info.snap_len;
 
         /*
          * How much padding is there at the end of the packet data?
