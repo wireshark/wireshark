@@ -245,6 +245,7 @@ Time Division Multiplexing over Packet Network (TDMoP)
 Concise Binary Object Representation (CBOR) (RFC 7049)
 XIP Serval
 TCP based Robot Operating System protocol (TCPROS)
+Neighborhood Watch Protocol (NWP)
 --sort-and-group--
 
 === Updated Protocol Support

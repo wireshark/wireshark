@@ -185,6 +185,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_BPQ,                  "AX.25"},
 	{ ETHERTYPE_CMD,                  "CiscoMetaData"},
 	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol"},
+	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol"},
 	{ 0, NULL }
 };
 

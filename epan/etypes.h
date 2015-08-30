@@ -558,6 +558,10 @@ extern "C" {
 #define ETHERTYPE_XIP			0xC0DE	/* eXpressive Internet Protocol (not officially registered) */
 #endif
 
+#ifndef ETHERTYPE_NWP
+#define ETHERTYPE_NWP			0xC0DF	/* Neighborhood Watch Protocol (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_TDMOE
 #define ETHERTYPE_TDMOE			0xD00D	/* Digium TDMoE packets (not officially registered) */
 #endif
