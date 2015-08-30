@@ -3320,6 +3320,8 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv6, ipv6_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP6, ipv6_handle);
 
+    dissector_add_for_decode_as("udp.port", ipv6_handle);
+
     ipv6_hopopts_handle = new_create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
     dissector_add_uint("ipv6.nxt", IP_PROTO_HOPOPTS, ipv6_hopopts_handle);
     ipv6_routing_handle = new_create_dissector_handle(dissect_routing6, proto_ipv6_routing );
