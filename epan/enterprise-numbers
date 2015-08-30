@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-08-21)
+(last updated 2015-08-29)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -19062,9 +19062,9 @@ Decimal
     Nathan Grant
       nathan.grant&trafficmaster.co.uk
 4768
-  E.ON AG
-    Marco Thelen
-      marco.thelen&eon.com
+  E.ON SE (formerly 'E.ON AG')
+    Florian Dietrich, Peter Marschall
+      pki&eon.com
 4769
   IBM Corporation
     Victor Sample
@@ -19255,8 +19255,8 @@ Decimal
       Todd.Meadows&hbfuller.com
 4816
   Pacific Gas & Electric Company
-    Jerry Sanders
-      jls1&pge.com
+    Eric Vo
+      EXVQ&pge.com
 4817
   Innovative Technologies & Consulting, Inc.
     Milan Habijanac
@@ -61329,7 +61329,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 15444
   Saffron Solutions, Inc
     Jason Parsons
-      jparsons-iana&saffron.net
+      registry&saffron.net
 15445
   SBS
     MyungKook Yang
@@ -177441,8 +177441,8 @@ Decentralization / Helenic Public Administra
       mats.sjostrom&edgeguide.com
 44465
   Cataleya Pte Ltd
-    David Vercande
-      d.vercande&cataleya.com
+    Miguel Lopes
+      m.lopes&cataleya.com
 44466
   FOP Tumakha Yuriy Volodymyrovych
     Yuriy Tumakha
@@ -185131,6 +185131,130 @@ Decentralization / Helenic Public Administra
   Drift
     Sedelkova Daria
       dasha.sede&gmail.com
+46388
+  Taygeta Scientific Inc.
+    Everett Carter
+      office&taygeta.com
+46389
+  VESTA
+    Luke Young
+      Luke.Young&airbus-dscomm.com
+46390
+  Clarke Technical Services, Inc.
+    Carlos Clarke
+      carlos&ptdprolog.net
+46391
+  jddev
+    Jakub Dohnal
+      jak.doh&gmail.com
+46392
+  Donostian Belgie
+    Albert Narain
+      donostianbe&yahoo.com
+46393
+  Programlabbet AB
+    Johan Persson
+      johan&programlabbet.se
+46394
+  BLITSC
+    Bernhard Lang
+      Bernhard.Lang&blitsc.de
+46395
+  FirstRand Group
+    Vincent Andrew
+      vincent.andrew99&gmail.com
+46396
+  Marotta Controls, Inc.
+    Carlos Clarke
+      cclarke&marotta.com
+46397
+  iSecway Inc.
+    Veda Wang
+      isecway&163.com
+46398
+  Regional Cancer Care Associates Hope Community Cancer Center Division
+    Pauline Flaville
+      pflaville&regionalcancercare.org
+46399
+  iSIGHT Partners
+    Matt Shelton
+      mshelton&isightpartners.com
+46400
+  NorQuest College
+    Kevin Nikiforuk
+      kevin.nikiforuk&norquest.ca
+46401
+  Marshall B. Ketchum University
+    Jeremy Bascom
+      dnsadmin&ketchum.edu
+46402
+  NSF Telecom Ab
+    Joonas Harjumäki
+      joonas.harjumaki&nsftele.com
+46403
+  QA2
+    Daniel Dent
+      iana-qa2-oid&contactdaniel.net
+46404
+  DOT Systems Sp. z o.o.
+    Klaudiusz Kobylecki
+      info&dotsystems.pl
+46405
+  superChic
+    Michael Hacker
+      mh&superchic.at
+46406
+  Foundation Pärnu Hospital
+    Vegard Kruusla
+      vegard.kruusla&ph.ee
+46407
+  TECNOLOGIAS EOS SA DE CV
+    CARLOS ENRIQUEZ
+      carlos.enriquez&tec-eos.com
+46408
+  PKP Polskie Linie Kolejowe S.A.
+    Daniel Kozłowski
+      daniel.kozlowski&plk-sa.pl
+46409
+  BSP Consulting spol. s r.o. 
+    Martin Rublík
+      martin.rublik&bspc.sk
+46410
+  SEGGER Microcontroller GmbH & Co. KG
+    Oliver Olligs
+      iana_pen&segger.com
+46411
+  Art2Wave Canada Inc.
+    Sergey Plotnikov
+      sergey.plotnikov&art2wave.com
+46412
+  Andrew Sheret Ltd.
+    David Manning
+      david.manning&sheret.com
+46413
+  Table25, Inc.
+    Mike Adair
+      r.mike.adair&gmail.com
+46414
+  William Oliver
+    William Oliver
+      Woliver1&gmail.com
+46415
+  Open Banking Foundation
+    Vedran Čačić
+      veky&opensourcebank.net
+46416
+  The National Archives of Latvia
+    Haralds Krūmiņš
+      Haralds.Krumins&arhivi.gov.lv
+46417
+  Emerald Coast Cancer Center
+    Cynthia Vinson
+      cancercenter1&yahoo.com
+46418
+  Agile Ingeniería y Consultoría Ltda.
+    CLAUDIO DELGADO
+      claudio.delgado&agile.cl
 
 
 End of Document
