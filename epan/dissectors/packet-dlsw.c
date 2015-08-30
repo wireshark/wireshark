@@ -115,6 +115,7 @@ static gint ett_dlsw_sap_list_support = -1;
 
 static expert_field ei_dlsw_dlc_header_length = EI_INIT;
 static expert_field ei_dlsw_not_used_for_capex = EI_INIT;
+static expert_field ei_dlsw_vec_len_invalid = EI_INIT;
 
 #define  CANUREACH               0x03
 #define  ICANREACH               0x04
@@ -286,7 +287,7 @@ static const value_string dlsw_refuse_vals[] = {
 #define DLSW_CMD_HEADER           72
 
 static void
-dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti);
+dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ti2);
 
 static int
 dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -393,7 +394,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   switch (mtype)
   {
     case CAP_EXCHANGE:
-      dissect_dlsw_capex(tvb_new_subset(tvb, hlen, mlen, -1), dlsw_data_tree,ti2);
+      dissect_dlsw_capex(tvb_new_subset(tvb, hlen, mlen, -1), pinfo, dlsw_data_tree, ti2);
       break;
     case IFCM:
     case INFOFRAME:
@@ -426,7 +427,7 @@ dlsw_fmt_version( gchar *result, guint32 revision )
 }
 
 static void
-dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
+dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ti2)
 {
   int vlen,vtype,i=0;
   guint8 tmp8;
@@ -445,7 +446,10 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
     case DLSW_GDSID_SEND:
       while (offset < mlen){
         vlen=tvb_get_guint8(tvb,offset);
-        if (vlen < 3) THROW(ReportedBoundsError);
+        if (vlen < 3) {
+          proto_tree_add_expert(tree, pinfo, &ei_dlsw_vec_len_invalid, tvb, offset, 1);
+          return;
+        }
         vtype=tvb_get_guint8(tvb,offset+1);
         dlsw_vector_tree=proto_tree_add_subtree (tree,tvb,offset,vlen,ett_dlsw_vector,NULL,
                                 val_to_str_const(vtype,dlsw_vector_vals,"Unknown vector type"));
@@ -663,6 +667,7 @@ proto_register_dlsw(void)
   static ei_register_info ei[] = {
     { &ei_dlsw_dlc_header_length, { "dlsw.dlc_header_length.bogus", PI_PROTOCOL, PI_WARN, "DLC Header Length bogus", EXPFILL }},
     { &ei_dlsw_not_used_for_capex, { "dlsw.not_used_for_capex", PI_PROTOCOL, PI_NOTE, "Not used for CapEx", EXPFILL }},
+    { &ei_dlsw_vec_len_invalid, { "dlsw.vec_len_invalid", PI_MALFORMED, PI_ERROR, "Invalid vector length (must be >=3)", EXPFILL }}
   };
 
   expert_module_t* expert_dlsw;
