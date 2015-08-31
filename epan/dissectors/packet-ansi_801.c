@@ -187,6 +187,9 @@ static int hf_ansi_801_loc_calc_cap = -1;
 static int hf_ansi_801_toa = -1;
 static int hf_ansi_801_data = -1;
 static int hf_ansi_801_proprietary_data = -1;
+static int hf_ansi_801_time_ref_ms = -1;
+static int hf_ansi_801_time_of_almanac = -1;
+static int hf_ansi_801_gps_week_number = -1;
 
 
 static expert_field ei_ansi_801_extraneous_data = EI_INIT;
@@ -500,36 +503,26 @@ for_pr_gps_sense_ass(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 	proto_tree_add_item(tree, hf_ansi_801_data_records, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_text(tree, tvb, offset, (len - (offset - saved_offset)),
-			    "Data records (LSB) + Reserved");
-
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
 
 static void
 for_pr_gps_almanac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
-	guint8	num_sv;
-	guint32	value;
-	guint32	saved_offset;
-
-	saved_offset = offset;
+	guint32	saved_offset = offset;
+	const gint *fields[] = {
+		&hf_ansi_801_num_sv_p32,
+		&hf_ansi_801_week_num,
+		&hf_ansi_801_toa,
+		&hf_ansi_801_part_num32,
+		&hf_ansi_801_total_parts32,
+		NULL
+	};
 
 	SHORT_DATA_CHECK(len, 4);
 
-	value  = tvb_get_ntohl(tvb, offset);
-	num_sv = (value & 0xfc000000) >> 26;
-
-	proto_tree_add_item(tree, hf_ansi_801_num_sv_p32, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_week_num, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_toa, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_part_num32, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_total_parts32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 4, fields, ENC_BIG_ENDIAN);
 	offset += 4;
-
-	proto_tree_add_text(tree, tvb, offset, (len - (offset - saved_offset)),
-			    "%u Data records + Reserved",
-			    num_sv);
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
@@ -537,25 +530,18 @@ for_pr_gps_almanac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint le
 static void
 for_pr_gps_nav_msg_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
-	guint8	num_sv;
-	guint32	value;
-	guint32	saved_offset;
-
-	saved_offset = offset;
+	guint32	saved_offset = offset;
+	const gint *fields[] = {
+		&hf_ansi_801_num_sv_p16,
+		&hf_ansi_801_part_num16,
+		&hf_ansi_801_total_parts16,
+		NULL
+	};
 
 	SHORT_DATA_CHECK(len, 2);
 
-	value  = tvb_get_ntohs(tvb, offset);
-	num_sv = (value & 0xfc00) >> 10;
-
-	proto_tree_add_item(tree, hf_ansi_801_num_sv_p16, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_part_num16, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_ansi_801_total_parts16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 2, fields, ENC_BIG_ENDIAN);
 	offset += 2;
-
-	proto_tree_add_text(tree, tvb, offset, (len - (offset - saved_offset)),
-			    "%u SUBF_4_5_INCL ... Data records + Reserved",
-			    num_sv);
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
@@ -891,17 +877,20 @@ static void
 rev_req_gps_alm_correction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
 	guint32	saved_offset;
+	guint8	oct;
 
 	SHORT_DATA_CHECK(len, 2);
 
 	saved_offset = offset;
 
-	proto_tree_add_text(tree, tvb, offset, 1,
-			    "Time of almanac (in units of 4096 seconds)");
+	oct = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format_value(tree, hf_ansi_801_time_of_almanac, tvb, offset, 1, oct,
+			    "%d (in units of 4096 seconds)", oct);
 
 	offset++;
-	proto_tree_add_text(tree, tvb, offset, 1,
-			    "GPS week number (8 least significant bits)");
+	oct = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format_value(tree, hf_ansi_801_gps_week_number, tvb, offset, 1, oct,
+			    "%d (8 least significant bits)", oct);
 
 	offset++;
 
@@ -1020,8 +1009,8 @@ rev_pr_time_off_meas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 	SHORT_DATA_CHECK(len, 6);
 
-	proto_tree_add_text(tree, tvb, offset, 3,
-			    "TIME_REF_MS:  The time of validity of the parameters reported in this response element.");
+	proto_tree_add_uint_format_value(tree, hf_ansi_801_time_ref_ms, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
+			    "The time of validity of the parameters reported in this response element.");
 	offset += 3;
 
 	proto_tree_add_item(tree, hf_ansi_801_ref_pn, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -2248,8 +2237,22 @@ proto_register_ansi_801(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_ansi_801_time_ref_ms,
+		  { "TIME_REF_MS", "ansi_801.time_ref_ms",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_time_of_almanac,
+		  { "Time of almanac", "ansi_801.time_of_almanac",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_week_number,
+		  { "GPS week number", "ansi_801.gps_week_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
-
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	3
