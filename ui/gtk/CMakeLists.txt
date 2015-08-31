@@ -224,7 +224,6 @@ set(WIRESHARK_TAP_SRC
 	tcp_graph.c
 	voip_calls_dlg.c
 	wlan_stat_dlg.c
-	wsp_stat.c
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 

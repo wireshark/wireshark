@@ -840,6 +840,10 @@ on those calls that match that filter.
 Example: B<-z "mgcp,srt,ip.addr==1.2.3.4"> will collect stats only for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+=item B<-z> mtp3,msus[,<filter>]
+
+Show MTP3 MSU statistics.
+
 =item B<-z> multicast,stat[,<filter>]
 
 Show UDP multicast stream statistics.
@@ -938,6 +942,10 @@ Example: B<-z voip,calls>
 =item B<-z> wlan,stat[,<filter>]
 
 Show IEEE 802.11 network and station statistics.
+
+=item B<-z> wsp,stat[,<filter>]
+
+Show WSP packet counters.
 
 =item --disable-protocol E<lt>proto_nameE<gt>
 
