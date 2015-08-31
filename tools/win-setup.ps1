@@ -101,14 +101,14 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2015-08-29"
-$Win32CurrentTag = "2015-08-29"
+$Win64CurrentTag = "2015-08-31"
+$Win32CurrentTag = "2015-08-31"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
     "c-ares-1.9.1-1-win64ws.zip" = "";
-    "GeoIP-1.5.1-2-win64ws.zip" = "GeoIP-1.5.1-2-win64ws";
+    "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
     "gnutls-3.2.15-2.9-win64ws.zip" = "";
     "gtk+-bundle_2.24.23-3.39_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
@@ -125,7 +125,7 @@ $Win64Archives = @{
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
     "c-ares-1.9.1-1-win32ws.zip" = "";
-    "GeoIP-1.5.1-2-win32ws.zip" = "GeoIP-1.5.1-2-win32ws";
+    "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
     "gnutls-3.2.15-2.7-win32ws.zip" = "";
     "gtk+-bundle_2.24.23-1.1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
@@ -189,7 +189,7 @@ $CleanupItems = @(
     "zlib-1.2.5"
     "zlib-1.2.8"
     "AirPcap_Devpack_4_1_0_1622"
-    "GeoIP-1.5.1-*-win??ws"
+    "GeoIP-1.*-win??ws"
     "WinSparkle-0.3-44-g2c8d9d3-win??ws"
     "WpdPack"
     "current-tag.txt"

@@ -253,7 +253,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2015-08-29
+DOWNLOAD_TAG=2015-08-31
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -505,10 +505,7 @@ SMI_PKG=svn-40773
 # Optional: GeoIP, IP address database lookups
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
-# GeoIP 1.5.1-2 does not work with MSVC2015 currently (2015-08-13)
-!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
-GEOIP_PKG=1.5.1-2
-!ENDIF
+GEOIP_PKG=1.6.6
 
 #
 # Optional: WinSparkle, software updates
@@ -518,7 +515,7 @@ GEOIP_PKG=1.5.1-2
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2015-08-29
+DOWNLOAD_TAG=2015-08-31
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -763,10 +760,7 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP 1.5.1-2 does not work with MSVC2015 currently (2015-08-13)
-!IF "$(MSVC_VARIANT)" != "MSVC2015" &&  "$(MSVC_VARIANT)" != "MSVC2015CE"
-GEOIP_PKG=1.5.1-2
-!ENDIF
+GEOIP_PKG=1.6.6
 
 #
 # Optional: WinSparkle, software updates

@@ -1179,10 +1179,7 @@ clean_setup:
 	rm -r -f AirPcap_Devpack_4_0_0_1480
 	rm -r -f AirPcap_Devpack_4_1_0_1622
 	rm -r -f GeoIP-1.4.5ws
-	rm -r -f GeoIP-1.4.6-win??ws
-	rm -r -f GeoIP-1.4.8-win??ws
-	rm -r -f GeoIP-1.4.8-*-win??ws
-	rm -r -f GeoIP-1.5.1-*-win??ws
+	rm -r -f GeoIP-1.*-win??ws
 	rm -r -f WinSparkle-0.3-44-g2c8d9d3-win??ws
 	rm -r -f WpdPack
 	cd "$(MAKEDIR)"
