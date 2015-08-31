@@ -290,7 +290,6 @@ dtls_parse_old_keys(void)
         gchar *path = uat_esc(parts[3], (guint)strlen(parts[3]));
         uat_entry = ep_strdup_printf("\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
                         parts[0], parts[1], parts[2], path);
-        g_free(path);
         if (!uat_load_str(dtlsdecrypt_uat, uat_entry, &err)) {
           ssl_debug_printf("dtls_parse: Can't load UAT string %s: %s\n",
                            uat_entry, err);
