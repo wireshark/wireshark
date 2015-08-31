@@ -294,7 +294,7 @@ selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the B<-T fields> option is
 selected. Column names may be used prefixed with "_ws.col."
 
-Example: B<-e frame.number -e ip.addr -e udp -e _ws.col.info>
+Example: B<-e frame.number -e ip.addr -e udp -e _ws.col.Info>
 
 Giving a protocol rather than a single field will print multiple items
 of data about the protocol as a single field.  Fields are separated by
