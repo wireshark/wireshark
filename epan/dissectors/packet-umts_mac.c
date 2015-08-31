@@ -373,6 +373,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16        tctf_len, chan;
     proto_tree    *fach_tree = NULL;
     proto_item    *channel_type;
+    tvbuff_t *next_tvb;
     umts_mac_info *macinf;
     fp_info       *fpinf;
     rlc_info      *rlcinf;
@@ -410,7 +411,6 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     chan = fpinf->cur_chan;
     switch (tctf) {
-        tvbuff_t *next_tvb;
         case TCTF_CCCH_FACH_FDD:
             proto_item_append_text(ti, " (CCCH)");
             channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_CCCH);
