@@ -160,7 +160,6 @@ WIRESHARK_TAP_SRC = \
 	lbm_uimflow_dlg.c	\
 	mac_lte_stat_dlg.c	\
 	mcast_stream_dlg.c	\
-	mtp3_stat.c	\
 	mtp3_summary.c	\
 	rlc_lte_graph.c	\
 	rlc_lte_stat_dlg.c	\
@@ -251,7 +250,6 @@ noinst_HEADERS = \
 	main_welcome_private.h	\
 	manual_addr_resolv.h	\
 	mcast_stream_dlg.h	\
-	mtp3_stat.h	\
 	network_icons.h	\
 	old-gtk-compat.h	\
 	packet_history.h	\

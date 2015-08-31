@@ -528,12 +528,19 @@
      <property name="title">
       <string>GSM</string>
      </property>
-     <addaction name="actionTelephonyANSIPlaceholder"/>
+     <addaction name="actionTelephonyGSMPlaceholder"/>
+    </widget>
+    <widget class="QMenu" name="menuMTP3">
+     <property name="title">
+      <string>MTP3</string>
+     </property>
+     <addaction name="actionTelephonyMTP3Placeholder"/>
     </widget>
     <addaction name="actionTelephonyVoipCalls"/>
     <addaction name="menuANSI"/>
     <addaction name="menuGSM"/>
     <addaction name="actionTelephonyISUPMessages"/>
+    <addaction name="menuMTP3"/>
     <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
     <addaction name="menuTelephonySCTP"/>
@@ -2361,6 +2368,14 @@
     <string>GSM MAP summary statistics</string>
    </property>
   </action>
+  <action name="actionTelephonyMtp3Summary">
+   <property name="text">
+    <string>MTP3 Summary</string>
+   </property>
+   <property name="toolTip">
+    <string>MTP3 summary statistics</string>
+   </property>
+  </action>
   <action name="actionTelephonyVoipCalls">
    <property name="text">
     <string>&amp;VoIP Calls</string>
@@ -2485,6 +2500,22 @@
    </property>
    <property name="text">
     <string>No ANSI statistics registered</string>
+   </property>
+  </action>
+  <action name="actionTelephonyGSMPlaceholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No GSM statistics registered</string>
+   </property>
+  </action>
+  <action name="actionTelephonyMTP3Placeholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No MTP3 statistics registered</string>
    </property>
   </action>
   <action name="actionStatisticsResolvedAddresses">

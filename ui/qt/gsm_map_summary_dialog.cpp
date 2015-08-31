@@ -80,7 +80,7 @@ QString GsmMapSummaryDialog::summaryToHtml()
     QString section_tmpl;
     QString table_begin, table_end;
     QString table_row_begin, table_ul_row_begin, table_row_end;
-    QString table_vheader_tmpl, table_hheader20_tmpl, table_hheader25_tmpl;
+    QString table_vheader_tmpl;
     QString table_data_tmpl;
 
     section_tmpl = "<p><strong>%1</strong></p>\n";
@@ -90,11 +90,9 @@ QString GsmMapSummaryDialog::summaryToHtml()
     table_ul_row_begin = "<tr style=\"border-bottom: 1px solid gray;\">\n";
     table_row_end = "</tr>\n";
     table_vheader_tmpl = "<td width=\"50%\">%1:</td>"; // <th align="left"> looked odd
-    table_hheader20_tmpl = "<td width=\"20%\"><u>%1</u></td>";
-    table_hheader25_tmpl = "<td width=\"25%\"><u>%1</u></td>";
     table_data_tmpl = "<td>%1</td>";
 
-    if (!file_closed_) {
+    if (cap_file_.isValid()) {
         /* initial computations */
         summary_fill_in(cap_file_.capFile(), &summary);
 #ifdef HAVE_LIBPCAP

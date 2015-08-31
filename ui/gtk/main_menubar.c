@@ -1087,7 +1087,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='LTE_RLC_Graph' action='/Telephony/LTE/RLCGraph'/>\n"
 "      </menu>\n"
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
-"        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>\n"
 "        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>\n"
 "      </menu>\n"
 "      <menu name= 'RTPmenu' action='/Telephony/RTP'>\n"
@@ -1509,7 +1508,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/LTE",                  NULL,                       "_LTE",                     NULL, NULL, NULL },
    { "/Telephony/LTE/RLCGraph",         NULL,                       "RLC _Graph...",            NULL,                       NULL,               G_CALLBACK(rlc_lte_graph_cb) },
    { "/Telephony/MTP3",                 NULL,                       "_MTP3",                    NULL, NULL, NULL },
-   { "/Telephony/MTP3/MSUs",            NULL,                       "MSUs",                     NULL,                       NULL,               G_CALLBACK(mtp3_stat_gtk_cb) },
    { "/Telephony/MTP3/MSUSummary",      NULL,                       "MSU Summary",              NULL,                       NULL,               G_CALLBACK(mtp3_sum_gtk_sum_cb) },
    { "/Telephony/RTP",                  NULL,                       "_RTP",                     NULL, NULL, NULL },
    { "/Telephony/RTP/StreamAnalysis",   NULL,                       "Stream Analysis...",       NULL,                       NULL,               G_CALLBACK(rtp_analysis_cb) },
@@ -3540,6 +3538,7 @@ stat_group_name(register_stat_group_t group)
         {REGISTER_STAT_GROUP_TELEPHONY_ANSI,         "/Menubar/TelephonyMenu|Telephony/ANSI|Telephony#ANSI"},                                      /* ANSI-specific */
         {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                        /* GSM-specific */
         {REGISTER_STAT_GROUP_TELEPHONY_LTE,          "/Menubar/TelephonyMenu|Telephony/LTEmenu|Telephony#LTE"},                                    /* LTE-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_MTP3,         "/Menubar/TelephonyMenu|Telephony/MTP3menu|Telephony#MTP3"},                                  /* MTP3-specific */
         {REGISTER_STAT_GROUP_TELEPHONY_SCTP,         "/Menubar/TelephonyMenu|Telephony/SCTPmenu|Telephony#SCTP"},                                  /* SCTP-specific */
         {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
         {0, NULL}

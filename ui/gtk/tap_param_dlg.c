@@ -116,6 +116,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
     case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
     case REGISTER_STAT_GROUP_TELEPHONY_GSM:
     case REGISTER_STAT_GROUP_TELEPHONY_LTE:
+    case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
     case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
         break;
 

@@ -247,6 +247,7 @@ FORMS += \
     main_window_preferences_frame.ui \
     manage_interfaces_dialog.ui \
     module_preferences_scroll_area.ui \
+    mtp3_summary_dialog.ui \
     packet_comment_dialog.ui \
     packet_dialog.ui \
     packet_format_group_box.ui \
@@ -323,6 +324,7 @@ HEADERS += $$HEADERS_WS_C \
     main_window_preferences_frame.h \
     manage_interfaces_dialog.h \
     module_preferences_scroll_area.h \
+    mtp3_summary_dialog.h \
     multicast_statistics_dialog.h \
     overlay_scroll_bar.h \
     packet_comment_dialog.h \
@@ -710,6 +712,7 @@ SOURCES += \
     main_window_slots.cpp \
     manage_interfaces_dialog.cpp \
     module_preferences_scroll_area.cpp \
+    mtp3_summary_dialog.cpp \
     multicast_statistics_dialog.cpp \
     overlay_scroll_bar.cpp \
     packet_comment_dialog.cpp \

@@ -209,7 +209,6 @@ set(WIRESHARK_TAP_SRC
 	lbm_uimflow_dlg.c
 	mac_lte_stat_dlg.c
 	mcast_stream_dlg.c
-	mtp3_stat.c
 	mtp3_summary.c
 	rlc_lte_graph.c
 	rlc_lte_stat_dlg.c

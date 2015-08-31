@@ -1991,6 +1991,7 @@ static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
             << REGISTER_STAT_GROUP_TELEPHONY_ANSI
             << REGISTER_STAT_GROUP_TELEPHONY_GSM
             << REGISTER_STAT_GROUP_TELEPHONY_LTE
+            << REGISTER_STAT_GROUP_TELEPHONY_MTP3
             << REGISTER_STAT_GROUP_TELEPHONY_SCTP
             << REGISTER_TOOLS_GROUP_UNSORTED;
 
@@ -2015,6 +2016,9 @@ void MainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
             break;
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->addAction(action);
+            break;
+        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
+            main_ui_->menuMTP3->addAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
@@ -2078,6 +2082,9 @@ void MainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->removeAction(action);
             break;
+        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
+            main_ui_->menuMTP3->removeAction(action);
+            break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
             // Allow removal of submenus.
@@ -2108,6 +2115,7 @@ void MainWindow::addDynamicMenus()
 {
     // Manual additions
     wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
+    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
 
     // Fill in each menu
     foreach (register_stat_group_t menu_group, menu_groups) {
@@ -2123,6 +2131,12 @@ void MainWindow::addDynamicMenus()
     }
     if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
         main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
+    }
+    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
+        main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
+    }
+    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
+        main_ui_->actionTelephonyMTP3Placeholder->setVisible(false);
     }
 }
 

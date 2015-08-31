@@ -18,8 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef __PACKET_MTP3_H_
-#define __PACKET_MTP3_H_
+#ifndef __PACKET_MTP3_H__
+#define __PACKET_MTP3_H__
 
 #include "ws_symbol_export.h"
 
@@ -74,6 +74,10 @@ typedef struct _mtp3_tap_rec_t {
 #define JAPAN_PC_LENGTH   2
 #define JAPAN_PC_MASK     0xffff
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 WS_DLL_PUBLIC void     mtp3_addr_to_str_buf(const mtp3_addr_pc_t *addr_pc_p, gchar *buf, int buf_len);
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
@@ -126,4 +130,8 @@ WS_DLL_PUBLIC const value_string mtp3_service_indicator_code_short_vals[];
 #define MTP3_NI_NAT1 0x3
 WS_DLL_PUBLIC const value_string mtp3_network_indicator_vals[];
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __PACKET_MTP3_H__ */

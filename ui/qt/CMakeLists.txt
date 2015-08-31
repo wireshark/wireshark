@@ -84,6 +84,7 @@ set(WIRESHARK_QT_HEADERS
 	main_window_preferences_frame.h
 	manage_interfaces_dialog.h
 	module_preferences_scroll_area.h
+	mtp3_summary_dialog.h
 	multicast_statistics_dialog.h
 	overlay_scroll_bar.h
 	packet_comment_dialog.h
@@ -290,6 +291,7 @@ set(WIRESHARK_QT_TAP_SRC
 	funnel_statistics.cpp
 	gsm_map_summary_dialog.cpp
 	io_graph_dialog.cpp
+	mtp3_summary_dialog.cpp
 	multicast_statistics_dialog.cpp
 	rtp_stream_dialog.cpp
 	sctp_all_assocs_dialog.cpp
@@ -342,6 +344,7 @@ set(WIRESHARK_QT_UI
 	main_window_preferences_frame.ui
 	manage_interfaces_dialog.ui
 	module_preferences_scroll_area.ui
+	mtp3_summary_dialog.ui
 	packet_comment_dialog.ui
 	packet_dialog.ui
 	packet_format_group_box.ui

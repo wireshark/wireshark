@@ -38,6 +38,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
@@ -768,6 +769,182 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   mtp3_standard = pref_mtp3_standard;
 }
 
+/* TAP STAT INFO */
+
+typedef enum
+{
+  OPC_COLUMN,
+  DPC_COLUMN,
+  SI_COLUMN,
+  NUM_MSUS_COLUMN,
+  NUM_BYTES_COLUMN,
+  AVG_BYTES_COLUMN
+} mtp3_stat_columns;
+
+static stat_tap_table_item mtp3_stat_fields[] = {
+  {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "OPC", "%-25s"},
+  {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "DPC", "%-25s"},
+  {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "SI", "%-25s"},
+  {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "MSUs", "%d"},
+  {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Bytes", "%d"},
+  {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%f"},
+};
+
+static void mtp3_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+  int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
+  new_stat_tap_table* table;
+
+  table = new_stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+  new_stat_tap_add_table(new_stat, table);
+}
+
+static gboolean
+mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *m3tr_ptr)
+{
+  new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+  const mtp3_tap_rec_t  *m3tr = (const mtp3_tap_rec_t *)m3tr_ptr;
+  gboolean found = FALSE;
+  guint element;
+  new_stat_tap_table* table;
+  stat_tap_table_item_type* item_data;
+  guint msu_count;
+  guint byte_count;
+  double avg_bytes = 0.0;
+
+  if (m3tr->mtp3_si_code >= MTP3_NUM_SI_CODE)
+  {
+    /*
+     * we thought this si_code was not used ?
+     * is MTP3_NUM_SI_CODE out of date ?
+     */
+    return(FALSE);
+  }
+
+  /*
+   * look for opc/dpc pair
+   */
+  table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+  for (element = 0; element < table->num_elements; element++)
+  {
+    stat_tap_table_item_type *opc_data, *dpc_data, *si_data;
+    opc_data = new_stat_tap_get_field_data(table, element, OPC_COLUMN);
+    dpc_data = new_stat_tap_get_field_data(table, element, DPC_COLUMN);
+    si_data = new_stat_tap_get_field_data(table, element, SI_COLUMN);
+
+    if (memcmp(&m3tr->addr_opc, opc_data->user_data.ptr_value, sizeof(mtp3_addr_pc_t)) == 0)
+    {
+      if (memcmp(&m3tr->addr_dpc, dpc_data->user_data.ptr_value, sizeof(mtp3_addr_pc_t)) == 0)
+      {
+        if (m3tr->mtp3_si_code == si_data->user_data.uint_value)
+        {
+          found = TRUE;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!found) {
+    /* Add a new row */
+    /* XXX The old version added a row per SI. */
+    int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
+    stat_tap_table_item_type items[sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item)];
+    char str[256];
+    const char *sis;
+    char *col_str;
+
+    memset(items, 0, sizeof(items));
+
+    items[OPC_COLUMN].type = TABLE_ITEM_STRING;
+    items[DPC_COLUMN].type = TABLE_ITEM_STRING;
+    items[SI_COLUMN].type = TABLE_ITEM_STRING;
+    items[NUM_MSUS_COLUMN].type = TABLE_ITEM_UINT;
+    items[NUM_BYTES_COLUMN].type = TABLE_ITEM_UINT;
+    items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
+
+    new_stat_tap_init_table_row(table, element, num_fields, items);
+
+    item_data = new_stat_tap_get_field_data(table, element, OPC_COLUMN);
+    mtp3_addr_to_str_buf(&m3tr->addr_opc, str, 256);
+    item_data->value.string_value = g_strdup(str);
+    item_data->user_data.ptr_value = g_memdup(&m3tr->addr_opc, sizeof(mtp3_tap_rec_t));
+    new_stat_tap_set_field_data(table, element, OPC_COLUMN, item_data);
+
+    item_data = new_stat_tap_get_field_data(table, element, DPC_COLUMN);
+    mtp3_addr_to_str_buf(&m3tr->addr_dpc, str, 256);
+    item_data->value.string_value = g_strdup(str);
+    item_data->user_data.ptr_value = g_memdup(&m3tr->addr_dpc, sizeof(mtp3_tap_rec_t));
+    new_stat_tap_set_field_data(table, element, DPC_COLUMN, item_data);
+
+    sis = try_val_to_str(m3tr->mtp3_si_code, mtp3_service_indicator_code_short_vals);
+    if (sis) {
+      col_str = g_strdup(sis);
+    } else {
+      col_str = g_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
+    }
+
+    item_data = new_stat_tap_get_field_data(table, element, SI_COLUMN);
+    item_data->value.string_value = col_str;
+    item_data->user_data.uint_value = m3tr->mtp3_si_code;
+    new_stat_tap_set_field_data(table, element, SI_COLUMN, item_data);
+  }
+
+  item_data = new_stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
+  item_data->value.uint_value++;
+  msu_count = item_data->value.uint_value;
+  new_stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
+
+  item_data = new_stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
+  item_data->value.uint_value += m3tr->size;
+  byte_count = item_data->value.uint_value;
+  new_stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
+
+  if (msu_count > 0) {
+    avg_bytes = (double) byte_count / msu_count;
+  }
+  item_data = new_stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
+  item_data->value.float_value = avg_bytes;
+  new_stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
+
+  return TRUE;
+}
+
+static void
+mtp3_stat_reset(new_stat_tap_table* table)
+{
+  guint element;
+  stat_tap_table_item_type* item_data;
+
+  for (element = 0; element < table->num_elements; element++)
+  {
+    item_data = new_stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
+    item_data->value.uint_value = 0;
+    new_stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
+
+    item_data = new_stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
+    item_data->value.uint_value = 0;
+    new_stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
+  }
+}
+
+static void
+mtp3_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+  switch(column) {
+    case OPC_COLUMN:
+    case DPC_COLUMN:
+      g_free((char*)field_data->user_data.ptr_value);
+      /* Fall through */
+    case SI_COLUMN:
+      g_free((char*)field_data->value.string_value);
+      break;
+    default:
+      break;
+  }
+}
+
+
 void
 proto_register_mtp3(void)
 {
@@ -849,6 +1026,25 @@ proto_register_mtp3(void)
     { NULL,   NULL,   0 }
   };
 
+  static tap_param mtp3_stat_params[] = {
+    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+  };
+
+  static new_stat_tap_ui mtp3_stat_table = {
+    REGISTER_STAT_GROUP_TELEPHONY_MTP3,
+    "MTP3 Statistics",
+    "mtp3",
+    "mtp3,msus",
+    mtp3_stat_init,
+    mtp3_stat_packet,
+    mtp3_stat_reset,
+    mtp3_stat_free_table_item,
+    NULL,
+    sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item), mtp3_stat_fields,
+    sizeof(mtp3_stat_params)/sizeof(tap_param), mtp3_stat_params,
+    NULL
+  };
+
  /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
                "MTP3", "mtp3");
@@ -902,6 +1098,7 @@ proto_register_mtp3(void)
          "Decode the spare bits of the SIO as the MSU priority (a national option in ITU)",
          &mtp3_show_itu_priority);
 
+  register_new_stat_tap_ui(&mtp3_stat_table);
 }
 
 void

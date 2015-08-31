@@ -1,7 +1,8 @@
-/* mtp3_stat.h
+/* mtp3_summary_dialog.h
  *
- * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
- * In association with Telos Technology Inc.
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,32 +23,43 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __MTP3_STAT_H__
-#define __MTP3_STAT_H__
+#ifndef MTP3_SUMMARY_DIALOG_H
+#define MTP3_SUMMARY_DIALOG_H
 
-/** @file
- *  Statistics for MTP3.
- *  @todo Could someone with more knowledge of this comment it for doxygen?
- */
+#include "wireshark_dialog.h"
 
-typedef struct _mtp3_stat_si_code_t {
-    int			num_msus;
-    int			size;
-} mtp3_stat_si_code_t;
+namespace Ui {
+class Mtp3SummaryDialog;
+}
 
-typedef struct _mtp3_stat_t {
-    mtp3_addr_pc_t		addr_opc;
-    mtp3_addr_pc_t		addr_dpc;
-    mtp3_stat_si_code_t		mtp3_si_code[MTP3_NUM_SI_CODE];
-} mtp3_stat_t;
+class Mtp3SummaryDialog : public WiresharkDialog
+{
+    Q_OBJECT
+
+public:
+    explicit Mtp3SummaryDialog(QWidget &parent, CaptureFile& capture_file);
+    ~Mtp3SummaryDialog();
+
+private:
+    Ui::Mtp3SummaryDialog *ui;
+
+    QString summaryToHtml();
+
+private slots:
+    void updateWidgets();
+};
+
+#endif // MTP3_SUMMARY_DIALOG_H
 
 /*
- * I don't like it but I don't have time to create
- * the code for a dynamic size solution
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
-#define	MTP3_MAX_NUM_OPC_DPC	50
-
-extern mtp3_stat_t		mtp3_stat[];
-extern guint8			mtp3_num_used;
-
-#endif /* __MTP3_STAT_H__ */

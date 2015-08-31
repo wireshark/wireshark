@@ -208,6 +208,8 @@ manage_interfaces_dialog.$(OBJEXT): ui_manage_interfaces_dialog.h
 
 module_preferences_scroll_area.$(OBJEXT): ui_module_preferences_scroll_area.h
 
+mtp3_summary_dialog.$(OBJEXT): ui_mtp3_summary_dialog.h
+
 packet_comment_dialog.$(OBJEXT): ui_packet_comment_dialog.h
 
 packet_dialog.$(OBJEXT): ui_packet_dialog.h

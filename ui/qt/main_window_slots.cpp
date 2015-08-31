@@ -109,6 +109,7 @@
 #include "lbm_uimflow_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
+#include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
 #include "packet_dialog.h"
@@ -2969,6 +2970,12 @@ void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
 {
     GsmMapSummaryDialog *gms_dialog = new GsmMapSummaryDialog(*this, capture_file_);
     gms_dialog->show();
+}
+
+void MainWindow::on_actionTelephonyMtp3Summary_triggered()
+{
+    Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
+    mtp3s_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyISUPMessages_triggered()
