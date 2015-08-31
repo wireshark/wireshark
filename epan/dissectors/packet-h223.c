@@ -1111,11 +1111,9 @@ attempt_mux_level0_header_parse(guint32 nbytes _U_, guint32 hdr _U_, guint32 *mi
 }
 
 static gboolean
-attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
+attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen )
 {
     /* this is untested */
-    DISSECTOR_ASSERT_NOT_REACHED();
-
     if(nbytes < 2)
         return FALSE;
 
