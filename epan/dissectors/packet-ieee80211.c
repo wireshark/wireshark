@@ -3048,6 +3048,8 @@ static int hf_ieee80211_addr_ta = -1;  /* Transmitter address subfield */
 static int hf_ieee80211_addr_ta_resolved = -1;  /* Txm addr subfield resolved*/
 static int hf_ieee80211_addr_bssid = -1;  /* address is bssid */
 static int hf_ieee80211_addr_bssid_resolved = -1;  /* bssid resolved*/
+static int hf_ieee80211_addr_staa = -1;  /* address is station address */
+static int hf_ieee80211_addr_staa_resolved = -1;  /* station address resolved*/
 
 static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
 static int hf_ieee80211_addr_resolved = -1;/*Src/dst address subfield resolved*/
@@ -16428,6 +16430,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   guint16          htc_len     = 0;
   gboolean         has_fcs, fcs_good, fcs_bad;
   gint             len, reported_len, ivlen;
+  gint             sta_addr_offset = 0;
+  gchar           *station_name;
   gboolean         is_amsdu    = 0;
   gboolean         save_fragmented;
   guint32          addr_type;
@@ -16479,6 +16483,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   col_set_str (pinfo->cinfo, COL_INFO, fts_str);
 
 
+# define FROM_TO_DS 3
   flags = FCF_FLAGS (fcf);
   more_frags = HAVE_FRAGMENTS (flags);
 
@@ -16712,6 +16717,18 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 16, 6, bssid_name);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
+	/* FIXME: With mgmt frames FROM_TO_DS is always 0, perhaps compare address to bssid instead? */
+	if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
+	  sta_addr_offset = 4;
+	} else if ((flags & FROM_TO_DS) == FLAG_TO_DS) { /* Transmitter address */
+	  sta_addr_offset = 10;
+	}
+	if (sta_addr_offset > 0) {
+          proto_tree_add_item (hdr_tree, hf_ieee80211_addr_staa, tvb, sta_addr_offset, 6, ENC_NA);
+          station_name = tvb_get_ether_name(tvb, sta_addr_offset);
+          hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_staa_resolved, tvb, sta_addr_offset, 6, station_name);
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
         /* add items for wlan.addr filter */
         hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -17379,6 +17396,17 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, bssid_offset, 6, bssid_name);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
 
+            if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
+              sta_addr_offset = ra_offset;
+            } else if ((flags & FROM_TO_DS) == FLAG_TO_DS) { /* Transmitter address */
+              sta_addr_offset = ta_offset;
+            }
+            if (sta_addr_offset > 0) {
+              proto_tree_add_item (hdr_tree, hf_ieee80211_addr_staa, tvb, sta_addr_offset, 6, ENC_NA);
+              station_name = tvb_get_ether_name(tvb, sta_addr_offset);
+              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_staa_resolved, tvb, sta_addr_offset, 6, station_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
             proto_tree_add_item (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
 
@@ -19006,6 +19034,15 @@ proto_register_ieee80211 (void)
     { &hf_ieee80211_addr_bssid_resolved,
       {"BSS Id (resolved)", "wlan.bssid_resolved", FT_STRING, BASE_NONE, NULL,
         0x0, "Basic Service Set ID (resolved)", HFILL }},
+
+    {&hf_ieee80211_addr_staa,
+     {"STA address", "wlan.staa",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      "Station Hardware Address", HFILL }},
+
+    { &hf_ieee80211_addr_staa_resolved,
+      {"STA address (resolved)", "wlan.staa_resolved", FT_STRING, BASE_NONE, NULL,
+        0x0, "Station Hardware Address (resolved)", HFILL }},
 
     {&hf_ieee80211_frag_number,
      {"Fragment number", "wlan.frag",
