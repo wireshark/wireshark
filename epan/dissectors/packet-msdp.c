@@ -383,7 +383,6 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
          * correctly. Ugly.
          */
         switch (error) {
-                tvbuff_t *next_tvb;
         case SA_REQUEST_ERROR:
                 add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_group_address);
                 break;
@@ -420,7 +419,8 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 }
                 /* Fall through */
         case MESSAGE_HEADER_ERROR:
-        case NOTIFICATION:
+        case NOTIFICATION: {
+                tvbuff_t *next_tvb;
                 /* Data contains the message that had an error. Even a
                  * broken Notification message causes a Notification
                  * message with Error Code set to Notification to be
@@ -428,6 +428,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                  */
                 next_tvb = tvb_new_subset_remaining(tvb, *offset);
                 dissect_msdp(next_tvb, pinfo, tree);
+                }
                 break;
         case FSM_ERROR:
         case HOLD_TIMER_EXPIRED:
