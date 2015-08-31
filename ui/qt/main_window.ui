@@ -511,6 +511,13 @@
      <addaction name="actionTelephonyRTPStreams"/>
      <addaction name="actionTelephonyRTPStreamAnalysis"/>
     </widget>
+    <widget class="QMenu" name="menuTelephonySCTP">
+     <property name="title">
+      <string>SCTP</string>
+     </property>
+     <addaction name="actionSCTPAnalyseThisAssociation"/>
+     <addaction name="actionSCTPShowAllAssociations"/>
+    </widget>
     <widget class="QMenu" name="menuANSI">
      <property name="title">
       <string>ANSI</string>
@@ -529,6 +536,7 @@
     <addaction name="actionTelephonyISUPMessages"/>
     <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
+    <addaction name="menuTelephonySCTP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
     <addaction name="actionTelephonySipFlows"/>
