@@ -2073,7 +2073,7 @@ void MainWindow::setTimestampFormat(QAction *action)
             cf_timestamp_auto_precision(capture_file_.capFile());
         }
         if (packet_list_) {
-            packet_list_->redrawVisiblePackets();
+            packet_list_->columnsChanged();
         }
     }
 }
@@ -2095,7 +2095,7 @@ void MainWindow::setTimestampPrecision(QAction *action)
             cf_timestamp_auto_precision(capture_file_.capFile());
         }
         if (packet_list_) {
-            packet_list_->redrawVisiblePackets();
+            packet_list_->columnsChanged();
         }
     }
 }
@@ -2114,7 +2114,7 @@ void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bo
         cf_timestamp_auto_precision(capture_file_.capFile());
     }
     if (packet_list_) {
-        packet_list_->redrawVisiblePackets();
+        packet_list_->columnsChanged();
     }
 }
 
