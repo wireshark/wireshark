@@ -244,7 +244,7 @@ static int hf_rsvp_3gpp_obj_pf_dst_ipv6 = -1;
 static int hf_rsvp_3gpp_obj_pf_ipv6_prefix_length = -1;
 static int hf_rsvp_3gpp_obj_pf_prot_next = -1;
 static int hf_rsvp_3gpp_obj_pf_dst_port = -1;
-/* static int hf_rsvp_3gpp_obj_pf_src_port = -1; */
+static int hf_rsvp_3gpp_obj_pf_src_port = -1;
 static int hf_rsvp_3gpp_obj_pf_ipsec_spi = -1;
 static int hf_rsvp_3gpp_obj_pf_tos_tc = -1;
 static int hf_rsvp_3gpp_obj_pf_flow_lbl = -1;
@@ -533,10 +533,43 @@ static int hf_rsvp_detour_plr_id = -1;
 static int hf_rsvp_restart_cap_recovery_time = -1;
 static int hf_rsvp_extended_tunnel = -1;
 static int hf_rsvp_call_attributes_endpont_id = -1;
+static int hf_rsvp_isis_area_id = -1;
+static int hf_rsvp_adspec_type = -1;
+static int hf_rsvp_adspec_len = -1;
+static int hf_rsvp_adspec_uint = -1;
+static int hf_rsvp_adspec_float = -1;
+static int hf_rsvp_adspec_bytes = -1;
+static int hf_rsvp_wavelength_grid = -1;
+static int hf_rsvp_wavelength_channel_spacing = -1;
+static int hf_rsvp_wavelength_n = -1;
+static int hf_rsvp_wavelength_freq = -1;
+static int hf_rsvp_wavelength_wavelength = -1;
+static int hf_rsvp_sonet_s = -1;
+static int hf_rsvp_sonet_u = -1;
+static int hf_rsvp_sonet_k = -1;
+static int hf_rsvp_sonet_l = -1;
+static int hf_rsvp_sonet_m = -1;
+static int hf_rsvp_g709_t3 = -1;
+static int hf_rsvp_g709_t2 = -1;
+static int hf_rsvp_g709_t1 = -1;
+static int hf_rsvp_label_set_type = -1;
+static int hf_rsvp_label_set_subchannel = -1;
+static int hf_rsvp_nsap_address = -1;
+static int hf_rsvp_class_diversity = -1;
+static int hf_rsvp_egress_label_type = -1;
+static int hf_rsvp_egress_label = -1;
+static int hf_rsvp_source_transport_network_addr = -1;
+static int hf_rsvp_ie_data = -1;
+static int hf_rsvp_3gpp_obj_pf_dst_port_range = -1;
+static int hf_rsvp_3gpp_obj_pf_src_port_range = -1;
 
 static expert_field ei_rsvp_invalid_length = EI_INIT;
 static expert_field ei_rsvp_packet_filter_component = EI_INIT;
 static expert_field ei_rsvp_bundle_component_msg = EI_INIT;
+static expert_field ei_rsvp_parameter = EI_INIT;
+static expert_field ei_rsvp_adspec_type = EI_INIT;
+static expert_field ei_rsvp_call_id_address_type = EI_INIT;
+static expert_field ei_rsvp_session_type = EI_INIT;
 
 static int rsvp_tap = -1;
 
@@ -718,6 +751,10 @@ enum {
     TT_3GPP_OBJ_QOS_SUB_BLOB,
     TT_3GPP_OBJ_T2,
     TT_3GPP_OBJ_HO,
+    TT_ADSPEC_TYPE_SUBTREE,
+    TT_WAVELENGTH,
+    TT_SONET_SDH,
+    TT_G709,
 
     TT_MAX
 };
@@ -2781,8 +2818,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
             proto_tree_add_uint_format_value(rsvp_ifid_subtree, hf_rsvp_type, tvb, offset+tlv_off, 2,
                                 tlv_type, "%d (%sISIS-Area)", tlv_type, tlv_name);
             proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_length, tvb, offset+tlv_off+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
-                                "IS-IS Area Identifier: %s", ip_str);
+            proto_tree_add_string(rsvp_ifid_subtree, hf_rsvp_isis_area_id, tvb, offset+tlv_off+4, 4, ip_str);
             proto_item_append_text(ti, "%sISIS-Area: %s. ", tlv_name, ip_str);
             break;
 
@@ -3528,7 +3564,7 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
 
         while (mylen > 0) {
             guint8 service_num;
-            guint8 param_id, param_flags;
+            guint8 param_id;
             guint param_len, raw_len;
             guint param_len_processed;
             guint length;
@@ -3547,28 +3583,18 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
             param_len_processed = 0;
             while (param_len_processed < length) {
                 param_id = tvb_get_guint8(tvb, offset2);
-                param_flags = tvb_get_guint8(tvb, offset2+1);
+                ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_parameter, tvb, offset2, 1, ENC_NA);
                 raw_len = tvb_get_ntohs(tvb, offset2+2);
                 param_len = raw_len + 1;
-                if (param_len < 1)
-                    THROW(ReportedBoundsError);
                 switch(param_id) {
                 case 127:
                     /* Token Bucket */
-                    tspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), &ti2,
-                                              "Token Bucket TSpec: ");
+                    proto_item_set_len(ti2, param_len*4);
+                    tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
 
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: 0x%02x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id, raw_len);
+                    proto_tree_add_item(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
                     proto_tree_add_item(tspec_tree, hf_rsvp_tspec_token_bucket_rate, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tspec_tree, hf_rsvp_tspec_token_bucket_size, tvb, offset2+8, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tspec_tree, hf_rsvp_tspec_peak_data_rate, tvb, offset2+12, 4, ENC_BIG_ENDIAN);
@@ -3586,20 +3612,12 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
 
                 case 128:
                     /* Null Service (RFC2997) */
-                    tspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), &ti2,
-                                              "Null Service TSpec: ");
+                    proto_item_set_len(ti2, param_len*4);
+                    tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
 
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: %x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id, raw_len);
+                    proto_tree_add_item(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
                     proto_tree_add_item(tspec_tree, hf_rsvp_maximum_packet_size, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, "Null Service. M=%u",
                                            tvb_get_ntohl(tvb, offset2+4));
@@ -3609,20 +3627,12 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
 
                 case 126:
                     /* Compression hint (RFC3006) */
-                    tspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), &ti2,
-                                              "Compression Hint: ");
+                    proto_item_set_len(ti2, param_len*4);
+                    tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
 
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: %x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id, raw_len);
+                    proto_tree_add_item(tspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(tspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
                     proto_tree_add_item(tspec_tree, hf_rsvp_tspec_hint, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tspec_tree, hf_rsvp_compression_factor, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, "Compression Hint. Hint=%u, Factor=%u",
@@ -3634,10 +3644,8 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
                     break;
 
                 default:
-                    ti2 = proto_tree_add_uint_format(rsvp_object_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "param_id, Unknown parameter %d, %d words",
-                                        param_id, param_len);
                     proto_item_set_len(ti2, param_len*4);
+                    expert_add_info_format(pinfo, ti2, &ei_rsvp_parameter, "Unknown parameter %d, %d words", param_id, param_len);
                     break;
                 }
                 param_len_processed += param_len;
@@ -3780,7 +3788,7 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
         while (mylen > 0) {
             guint8 service_num;
             guint length;
-            guint8 param_id, param_flags;
+            guint8 param_id;
             guint param_len, raw_len;
             guint param_len_processed;
 
@@ -3806,29 +3814,19 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
             /* Process all known service headers as a set of parameters */
             param_len_processed = 0;
             while (param_len_processed < length) {
+                ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_parameter, tvb, offset2, 1, ENC_NA);
                 param_id = tvb_get_guint8(tvb, offset2);
-                param_flags = tvb_get_guint8(tvb, offset2+1);
                 raw_len = tvb_get_ntohs(tvb, offset2+2);
                 param_len = raw_len + 1;
-                if (param_len < 1)
-                    THROW(ReportedBoundsError);
                 switch(param_id) {
                 case 127:
                     /* Token Bucket */
-                    flowspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4,
-                                              TREE(TT_FLOWSPEC_SUBTREE), &ti2, "Token Bucket: ");
+                    proto_item_set_len(ti2, param_len*4);
+                    flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
 
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: 0x%02x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id, raw_len);
+                    proto_tree_add_item(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
                     proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_token_bucket_rate, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_token_bucket_size, tvb, offset2+8, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_peak_data_rate, tvb, offset2+12, 4, ENC_BIG_ENDIAN);
@@ -3846,19 +3844,12 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
 
                 case 130:
                     /* Guaranteed-rate RSpec */
-                    flowspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), &ti2,
-                                              "Guaranteed-Rate RSpec: ");
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: %x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id, raw_len);
+                    proto_item_set_len(ti2, param_len*4);
+                    flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
+
+                    proto_tree_add_item(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
 
                     proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_rate, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_slack_term, tvb, offset2+8, 4, ENC_BIG_ENDIAN);
@@ -3871,21 +3862,12 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
 
                 case 128:
                     /* Null Service (RFC2997) */
-                    flowspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), &ti2,
-                                              "Null Service Flowspec: ");
+                    proto_item_set_len(ti2, param_len*4);
+                    flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
 
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter, tvb, offset2, 1,
-                                        param_id, "Parameter %u - %s",
-                                        param_id,
-                                        val_to_str_ext_const(param_id, &svc_vals_ext, "Unknown"));
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1,
-                                        param_flags, "Parameter %u flags: %x",
-                                        param_id, param_flags);
-                    proto_tree_add_uint_format(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
-                                        raw_len, "Parameter %u data length: %u words, not including header",
-                                        param_id,
-                                        raw_len);
+                    proto_tree_add_item(flowspec_tree, hf_rsvp_parameter_flags, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_uint_format_value(flowspec_tree, hf_rsvp_parameter_length, tvb, offset2+2, 2,
+                                        raw_len, "%u words, not including header", raw_len);
                     proto_tree_add_item(flowspec_tree, hf_rsvp_maximum_packet_size, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, "Null Service. M=%u",
                                            tvb_get_ntohl(tvb, offset2+4));
@@ -3894,9 +3876,7 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
                     break;
 
                 default:
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4,
-                                        "Unknown parameter %d, %d words",
-                                        param_id, param_len);
+                    expert_add_info_format(pinfo, ti2, &ei_rsvp_parameter, "Unknown parameter %d, %d words", param_id, param_len);
                     break;
                 }
                 param_len_processed += param_len;
@@ -4005,14 +3985,15 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
  * ADSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_adspec(proto_item *ti _U_, proto_tree *rsvp_object_tree,
+dissect_rsvp_adspec(proto_item *ti _U_, packet_info* pinfo, proto_tree *rsvp_object_tree,
                     tvbuff_t *tvb,
                     int offset, int obj_length,
                     int rsvp_class _U_, int type)
 {
     int         offset2 = offset + 4;
     int         mylen, i;
-    proto_tree *adspec_tree;
+    proto_tree *adspec_tree, *adspec_type_tree;
+    proto_item *ti2;
 
     proto_tree_add_uint(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, type);
     mylen = obj_length - 4;
@@ -4043,11 +4024,12 @@ dissect_rsvp_adspec(proto_item *ti _U_, proto_tree *rsvp_object_tree,
         offset2 += 4;
         i = length*4;
         while (i > 0) {
-            guint8 id;
-            guint phdr_length;
+            guint id, phdr_length;
 
-            id = tvb_get_guint8(tvb, offset2);
-            phdr_length = tvb_get_ntohs(tvb, offset2+2);
+            ti2 = proto_tree_add_item_ret_uint(adspec_tree, hf_rsvp_adspec_type, tvb, offset2, 1, ENC_NA, &id);
+            adspec_type_tree = proto_item_add_subtree(ti2, TREE(TT_ADSPEC_TYPE_SUBTREE));
+            proto_tree_add_item_ret_uint(adspec_type_tree, hf_rsvp_adspec_len, tvb, offset2+2, 2, ENC_BIG_ENDIAN, &phdr_length);
+            proto_item_set_len(ti2, phdr_length);
             str = try_val_to_str_ext(id, &adspec_params_ext);
             if (str) {
                 switch(id) {
@@ -4059,36 +4041,21 @@ dissect_rsvp_adspec(proto_item *ti _U_, proto_tree *rsvp_object_tree,
                 case 135:
                 case 136:
                     /* 32-bit unsigned integer */
-                    proto_tree_add_text(adspec_tree, tvb, offset2,
-                                        (phdr_length+1)<<2,
-                                        "%s - %u (type %u, length %u)",
-                                        str,
-                                        tvb_get_ntohl(tvb, offset2+4),
-                                        id, phdr_length);
+                    proto_tree_add_uint_format(adspec_type_tree, hf_rsvp_adspec_uint, tvb, offset2, (phdr_length+1)<<2, tvb_get_ntohl(tvb, offset2+4),
+                                        "%s: %u", str, tvb_get_ntohl(tvb, offset2+4));
                     break;
 
                 case 6:
                     /* IEEE float */
-                    proto_tree_add_text(adspec_tree, tvb, offset2,
-                                        (phdr_length+1)<<2,
-                                        "%s - %.10g (type %u, length %u)",
-                                        str,
-                                        tvb_get_ntohieee_float(tvb, offset2+4),
-                                        id, phdr_length);
+                    proto_tree_add_float_format(adspec_type_tree, hf_rsvp_adspec_float, tvb, offset2, (phdr_length+1)<<2, tvb_get_ntohieee_float(tvb, offset2+4),
+                                        "%s: %.10g", str, tvb_get_ntohieee_float(tvb, offset2+4));
                     break;
                 default:
-                    proto_tree_add_text(adspec_tree, tvb, offset2,
-                                        (phdr_length+1)<<2,
-                                        "%s (type %u, length %u)",
-                                        str,
-                                        id, phdr_length);
+                    proto_tree_add_bytes_format(adspec_tree, hf_rsvp_adspec_bytes, tvb, offset2, (phdr_length+1)<<2, NULL, "%s", str);
                     break;
                 }
             } else {
-                proto_tree_add_text(adspec_tree, tvb, offset2,
-                                    (phdr_length+1)<<2,
-                                    "Unknown (type %u, length %u)",
-                                    id, phdr_length);
+                expert_add_info(pinfo, ti2, &ei_rsvp_adspec_type);
             }
             offset2 += (phdr_length+1)<<2;
             i -= (phdr_length+1)<<2;
@@ -4261,6 +4228,12 @@ dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
    |Grid | C.S   |    Reserved     |              n                |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+static const value_string lambda_grid_vals[] = {
+    {   1, "DWDM"},
+    {   2, "CWDM"},
+    {   0, NULL }
+};
+
 static void
 dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                       tvbuff_t *tvb,
@@ -4269,12 +4242,30 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
     float   freq       = 0.0f;
     guint32 wavelength = 0;
     float   cs_thz     = 0.0f;
+    proto_tree* wavelength_tree;
+    guint8 grid, cs;
+    gint16 n;
+    static const value_string grid1_cs_vals[] = {
+        {   1, "100GHz"},
+        {   2, "50GHz"},
+        {   3, "25GHz"},
+        {   4, "12.5GHz"},
+        {   0, NULL }
+    };
+    static const value_string grid2_cs_vals[] = {
+        {   1, "20nm"},
+        {   0, NULL }
+    };
 
-    guint8 grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
-    guint8 cs   = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
-    gint16 n    = tvb_get_ntohs(tvb, offset + 2);
+    wavelength_tree = proto_tree_add_subtree(rsvp_object_tree, tvb, offset, 4, TREE(TT_WAVELENGTH), NULL, "Wavelength Label");
+    proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_grid, tvb, offset, 1, ENC_NA);
 
-    if (grid == 1) {
+    grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
+    cs   = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
+    n    = tvb_get_ntohs(tvb, offset + 2);
+
+    switch(grid) {
+    case 1:
         /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
         cs_thz =
             cs == 1 ? 0.1f :
@@ -4283,80 +4274,32 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
             cs == 4 ? 0.0125f :
         0.0f;
         freq = 193.1f + (n * cs_thz);
-        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                            "Wavelength Label: "
-                            "grid=%s, "
-                            "channel spacing=%s, "
-                            "n=%d, "
-                            "freq=%.2fTHz",
-                            /* grid */
-                            "DWDM",
-                            /* channel spacing */
-                            cs == 1 ? "100GHz" :
-                            cs == 2 ? "50GHz" :
-                            cs == 3 ? "25GHz" :
-                            cs == 4 ? "12.5GHz" :
-                            "unknown",
-                            /* n */
-                            n,
-                            /* frequency */
-                            freq);
-        proto_item_append_text(ti, ": Wavelength: "
-                               "grid=%s, "
-                               "channel spacing=%s, "
-                               "n=%d, "
-                               "freq=%.2fTHz",
-                               "DWDM",
-                               cs == 1 ? "100GHz" :
-                               cs == 2 ? "50GHz" :
-                               cs == 3 ? "25GHz" :
-                               cs == 4 ? "12.5GHz" :
-                               "unknown",
-                               n,
-                               freq);
-    } else if (grid == 2) {
+        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, tvb_get_guint8(tvb, offset),
+                                            "%s", val_to_str_const(cs, grid1_cs_vals, "Unknown"));
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_float_format_value(wavelength_tree, hf_rsvp_wavelength_freq, tvb, offset, 4, freq, "%.2fTHz", freq);
+
+        proto_item_append_text(ti, ": Wavelength: grid=DWDM, channel spacing=%s, n=%d, freq=%.2fTHz",
+                               val_to_str_const(cs, grid1_cs_vals, "Unknown"), n, freq);
+        break;
+    case 2:
         /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
         wavelength = 1471 + (n * 20);
-        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                            "Wavelength Label: "
-                            "grid=%s, "
-                            "channel spacing=%s, "
-                            "n=%d, "
-                            "wavelength=%unm",
-                            /* grid */
-                            "CWDM",
-                            /* channel spacing */
-                            cs == 1 ? "20nm" :
-                            "unknown",
-                            /* n */
-                            n,
-                            /* wavelength */
-                            wavelength);
-        proto_item_append_text(ti, ": Wavelength: "
-                               "grid=%s, "
-                               "channel spacing=%s, "
-                               "n=%d, "
-                               "wavelength=%unm",
-                               "CWDM",
-                               cs == 1 ? "20nm" :
-                               "unknown",
-                               n,
-                               wavelength);
-    } else {
+        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, tvb_get_guint8(tvb, offset),
+                                            "%s", val_to_str_const(cs, grid2_cs_vals, "Unknown"));
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_wavelength, tvb, offset, 4, wavelength, "%unm", wavelength);
+
+        proto_item_append_text(ti, ": Wavelength: grid=CWDM, channel spacing=%s, n=%d, wavelength=%unm",
+                               val_to_str_const(cs, grid2_cs_vals, "Unknown"), n, wavelength);
+        break;
+    default:
         /* unknown grid: */
-        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                            "Wavelength Label: "
-                            "grid=%u, "
-                            "channel spacing=%u, "
-                            "n=%d",
-                            grid, cs, n);
-        proto_item_append_text(ti, ": Wavelength: "
-                               "grid=%u, "
-                               "channel spacing=%u, "
-                               "n=%d",
-                               grid, cs, n);
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, ": Wavelength: grid=%u, channel spacing=%u, n=%d", grid, cs, n);
+        break;
     }
-    return;
 }
 
 /*
@@ -4373,26 +4316,23 @@ dissect_glabel_sdh(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                    tvbuff_t *tvb,
                    int offset)
 {
-    guint16 s = tvb_get_ntohs(tvb, offset);
-    guint8 u = ((tvb_get_guint8(tvb, offset + 2) & 0xF0) >> 4);
-    guint8 k = ((tvb_get_guint8(tvb, offset + 2) & 0x0F) >> 0);
-    guint8 l = ((tvb_get_guint8(tvb, offset + 3) & 0xF0) >> 4);
-    guint8 m = ((tvb_get_guint8(tvb, offset + 3) & 0x0F) >> 0);
+    guint16 s;
+    guint8 u, k, l, m;
+    proto_tree* sonet_tree;
 
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                        "SONET/SDH Label: "
-                        "S=%u, "
-                        "U=%u, "
-                        "K=%u, "
-                        "L=%u, "
-                        "M=%u",
-                        s, u, k, l, m);
-    proto_item_append_text(ti, ": SONET/SDH: "
-                           "S=%u, "
-                           "U=%u, "
-                           "K=%u, "
-                           "L=%u, "
-                           "M=%u",
+    sonet_tree = proto_tree_add_subtree(rsvp_object_tree, tvb, offset, 4, TREE(TT_SONET_SDH), NULL, "SONET/SDH Label");
+    proto_tree_add_item(sonet_tree, hf_rsvp_sonet_s, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sonet_tree, hf_rsvp_sonet_u, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sonet_tree, hf_rsvp_sonet_k, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sonet_tree, hf_rsvp_sonet_l, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sonet_tree, hf_rsvp_sonet_m, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
+    s = tvb_get_ntohs(tvb, offset);
+    u = ((tvb_get_guint8(tvb, offset + 2) & 0xF0) >> 4);
+    k = ((tvb_get_guint8(tvb, offset + 2) & 0x0F) >> 0);
+    l = ((tvb_get_guint8(tvb, offset + 3) & 0xF0) >> 4);
+    m = ((tvb_get_guint8(tvb, offset + 3) & 0x0F) >> 0);
+    proto_item_append_text(ti, ": SONET/SDH: S=%u, U=%u, K=%u, L=%u, M=%u",
                            s, u, k, l, m);
 }
 
@@ -4410,18 +4350,19 @@ dissect_glabel_g709(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                     tvbuff_t *tvb,
                     int offset)
 {
-    guint8 t2 = ((tvb_get_guint8(tvb, offset + 3) & 0x0E) >> 1);
-    guint8 t1 = ((tvb_get_guint8(tvb, offset + 3) & 0x01) >> 0);
+    guint8 t1, t2, t3;
+    proto_tree* g709_tree;
 
-    guint8 t3 = ((tvb_get_guint8(tvb, offset + 2) & 0x03) << 4);
+    g709_tree = proto_tree_add_subtree(rsvp_object_tree, tvb, offset, 4, TREE(TT_G709), NULL, "G.709 ODUk Label");
+    proto_tree_add_item(g709_tree, hf_rsvp_g709_t3, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(g709_tree, hf_rsvp_g709_t2, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(g709_tree, hf_rsvp_g709_t1, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
+    t2 = ((tvb_get_guint8(tvb, offset + 3) & 0x0E) >> 1);
+    t1 = ((tvb_get_guint8(tvb, offset + 3) & 0x01) >> 0);
+    t3 = ((tvb_get_guint8(tvb, offset + 2) & 0x03) << 4);
     t3 |= ((tvb_get_guint8(tvb, offset + 3) & 0xF0) >> 4);
 
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                        "G.709 ODUk Label: "
-                        "t3=%u, "
-                        "t2=%u, "
-                        "t1=%u",
-                        t3, t2, t1);
     proto_item_append_text(ti, ": G.709 ODUk: "
                         "t3=%u, "
                         "t2=%u, "
@@ -4545,16 +4486,15 @@ dissect_rsvp_label_set(proto_item *ti, proto_tree *rsvp_object_tree,
                            val_to_str(tvb_get_guint8(tvb, offset+4),
                            action_type_vals, "Unknown (%u)"));
     label_type = tvb_get_guint8 (tvb, offset+7);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1, "Label type: %s",
-                        (label_type == 1) ? "Packet Label" : "Generalized Label");
+    proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_label_set_type, tvb, offset+7, 1, label_type,
+                                     "%s", (label_type == 1) ? "Packet Label" : "Generalized Label");
     proto_item_append_text(ti, ", %s",
                            (label_type == 1) ? "Packet Label: " : "Generalized Label: ");
 
     for (i = 0; i < len/4; i++) {
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2+i*4, 4,
-                            "Subchannel %u: %u (0x%x)", i+1,
-                            tvb_get_ntohl(tvb, offset2+i*4),
-                            tvb_get_ntohl(tvb, offset2+i*4));
+        guint32 subchannel = tvb_get_ntohl(tvb, offset2+i*4);
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_label_set_subchannel, tvb, offset2+i*4, 4, subchannel,
+                                            "Subchannel %u: %u (0x%x)", i+1, subchannel, subchannel);
 
         if (i<5) {
             if (i!=0)
@@ -5768,7 +5708,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                      rsvp_conversation_info *rsvph)
 {
     int         offset2 = offset + 4;
-    int         mylen, i, j, k, l, m;
+    int         mylen, i, j, k, l;
     proto_item *ti2= NULL, *len_item;
     proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
     int         s_len, s_class, s_type, sobj_len, nsap_len;
@@ -5844,9 +5784,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                                         k, "3 (NSAP)");
                     proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_class_length, tvb, offset2+l, 2, sobj_len);
                     proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_nsap_length, tvb, offset2+l+4, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+5,
-                                        sobj_len-4,
-                                        "NSAP address: %s",
+                    proto_tree_add_string(rsvp_gen_uni_subtree, hf_rsvp_nsap_address, tvb, offset2+l+5, sobj_len-4,
                                         print_nsap_net(tvb, offset2+l+5, nsap_len));
                     if (i < 4) {
                         proto_item_append_text(ti, "%s NSAP TNA: %s", c,
@@ -5883,10 +5821,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                                         j, "%d (Diversity)", j);
                     proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_type, tvb, offset2+l+3, 1, k);
                     proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_class_length, tvb, offset2+l, 2, sobj_len);
-                    m = tvb_get_guint8(tvb, offset2+l+4) >> 4;
-                    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
-                                        "Diversity: %d - %s", m,
-                                        val_to_str_const(m, ouni_guni_diversity_str, "Unknown"));
+                    proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_class_diversity, tvb, offset2+l+4, 1, ENC_NA);
                     s_len = tvb_get_ntohs(tvb, offset2+l+8);
                     s_class = tvb_get_guint8(tvb, offset2+l+10);
                     s_type = tvb_get_guint8(tvb, offset2+l+11);
@@ -5948,8 +5883,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                 proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_class_length, tvb, offset2+l, 2, sobj_len);
                 proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_gen_uni_direction,
                              tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+7, 1,
-                                    "Label type: %u", tvb_get_guint8(tvb, offset2+l+7));
+                proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_egress_label_type, tvb, offset2+l+7, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_gen_uni_logical_port_id, tvb, offset2+l+8, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti2, ": %s, Label type %d, Port ID %d, Label ",
                                        tvb_get_guint8(tvb, offset2+l+4) & 0x80 ?
@@ -5957,8 +5891,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                                        tvb_get_guint8(tvb, offset2+l+7),
                                        tvb_get_ntohl(tvb, offset2+l+8));
                 for (j=12; j < sobj_len; j+=4) {
-                        proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+j, 4,
-                                            "Label: %u", tvb_get_ntohl(tvb, offset2+l+j));
+                        proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_egress_label, tvb, offset2+l+j, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(ti2, "%u ", tvb_get_ntohl(tvb, offset2+l+j));
                 }
                 if (i < 4) {
@@ -6038,7 +5971,7 @@ static const value_string address_type_vals[] = {
 };
 
 static void
-dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
+dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
                      tvbuff_t *tvb,
                      int offset, int obj_length,
                      int rsvp_class _U_, int c_type)
@@ -6047,6 +5980,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
     const char *str;
     int         offset2 = offset + 4;
     int         offset3, offset4, len;
+    proto_tree *ti2 = NULL;
 
     proto_item_set_text(ti, "CALL-ID: ");
     switch(c_type) {
@@ -6065,7 +5999,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
             len = obj_length - 16;
             proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                                 c_type, "1 (operator specific)");
-            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
+            ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_reserved, tvb, offset2+1, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, "Operator-Specific. Addr Type: %s. ",
                                    val_to_str(type, address_type_vals, "Unknown (%u)"));
@@ -6075,7 +6009,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
             len = obj_length - 28;
             proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                                 c_type, "2 (globally unique)");
-            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
+            ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
             str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2 + 1, 3, ENC_ASCII);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
@@ -6103,8 +6037,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
         case 3:
             offset4 = offset3 + 20;
             str = print_nsap_net(tvb, offset3, 20);
-            proto_tree_add_text(rsvp_object_tree, tvb, offset3, 20,
-                                "Source Transport Network addr: %s", str);
+            proto_tree_add_string(rsvp_object_tree, hf_rsvp_source_transport_network_addr, tvb, offset3, 20, str);
             break;
 
         case 4:
@@ -6122,8 +6055,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
         default:
             offset4 = offset3 + len;
             str = "???";
-            proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Unknown Transport Network type: %d",
-                                type);
+            expert_add_info(pinfo, ti2, &ei_rsvp_call_id_address_type);
             break;
         }
 
@@ -6375,19 +6307,19 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, packet_info* pinfo, proto_tree *rsv
                             pf_cont_len-=5;
                             break;
                         case 65: /* Destination Port range */
-                            proto_tree_add_text(rsvp_object_tree, tvb, offset, 4, "Destination Port range %u-%u",
-                                tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
+                            proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_3gpp_obj_pf_dst_port_range, tvb, offset, 4,
+                                                            tvb_get_ntohs(tvb,offset), "%u-%u", tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
                             offset+=4;
                             break;
                         case 80: /* Single Source Port */
-                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset+=2;
                             /* Items length (2 + 3)*/
                             pf_cont_len-=5;
                             break;
                         case 81: /* Source Port range */
-                            proto_tree_add_text(rsvp_object_tree, tvb, offset, 4, "Source Port range %u-%u",
-                                tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
+                            proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_3gpp_obj_pf_src_port_range, tvb, offset, 4,
+                                                            tvb_get_ntohs(tvb,offset), "Source Port range %u-%u", tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
                             offset+=4;
                             /* Items length (4 + 3)*/
                             pf_cont_len-=7;
@@ -6565,7 +6497,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, packet_info* pinfo, proto_tree *rsv
                         }
                     }
                 }else{
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_ie_data, tvb, offset, length-2, ENC_NA);
                 }
                 obj_length = obj_length - length;
             }
@@ -7313,7 +7245,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_ADSPEC:
-            dissect_rsvp_adspec(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            dissect_rsvp_adspec(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_INTEGRITY:
@@ -7403,7 +7335,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_CALL_ID:
-            dissect_rsvp_call_id(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            dissect_rsvp_call_id(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_3GPP2_OBJECT:
@@ -7528,9 +7460,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
             col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
     }
 
-    if (tree) {
-        dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph, e2ei);
-    }
+    dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph, e2ei);
 
     /* ACK, SREFRESH and HELLO messages don't have any associated SESSION and,
        therefore, no conversation */
@@ -7592,7 +7522,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         break;
     default:
         /* This should never happen. */
-        proto_tree_add_text(tree, tvb, 0, 0, "Unknown session type");
+        proto_tree_add_expert(tree, pinfo, &ei_rsvp_session_type, tvb, 0, 0);
         break;
     }
 
@@ -7758,7 +7688,7 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_parameter,
          { "Parameter", "rsvp.parameter",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
+           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &svc_vals_ext, 0x0,
            NULL, HFILL }
         },
 
@@ -9010,13 +8940,11 @@ proto_register_rsvp(void)
            FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-#if 0
         { &hf_rsvp_3gpp_obj_pf_src_port,
          { "Single Source Port", "rsvp.3gpp_obj.pf_src_port",
            FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-#endif
         { &hf_rsvp_3gpp_obj_pf_ipsec_spi,
          { "IPsec SPI", "rsvp.3gpp_obj.pf_ipsec_spi",
            FT_UINT32, BASE_DEC, NULL, 0,
@@ -9552,13 +9480,45 @@ proto_register_rsvp(void)
       { &hf_rsvp_detour_avoid_node_id, { "Avoid Node ID", "rsvp.detour.avoid_node_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_checksum, { "Message Checksum", "rsvp.message_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_call_attributes_endpont_id, { "Endpoint ID", "rsvp.call_attributes.endpoint_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
+      { &hf_rsvp_isis_area_id, { "IS-IS Area Identifier", "rsvp.isis_area_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_adspec_type, { "Adspec Type", "rsvp.adspec.type", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &adspec_params_ext, 0x0, NULL, HFILL }},
+      { &hf_rsvp_adspec_len, { "Length", "rsvp.adspec.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_adspec_uint, { "Adspec uint", "rsvp.adspec.uint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_adspec_float, { "Adspec float", "rsvp.adspec.float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_adspec_bytes, { "Adspec bytes", "rsvp.adspec.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_freq, { "Freq", "rsvp.wavelength.freq", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_grid, { "Grid", "rsvp.wavelength.grid", FT_UINT8, BASE_DEC, VALS(lambda_grid_vals), 0xE0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_channel_spacing, { "Channel Spacing", "rsvp.wavelength.channel_spacing", FT_UINT8, BASE_DEC, NULL, 0x1E, NULL, HFILL }},
+      { &hf_rsvp_wavelength_n, { "n", "rsvp.wavelength.n", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_wavelength, { "Wavelength", "rsvp.wavelength.wavelength", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_sonet_s, { "S", "rsvp.sonet.s", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_sonet_u, { "U", "rsvp.sonet.u", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+      { &hf_rsvp_sonet_k, { "K", "rsvp.sonet.k", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+      { &hf_rsvp_sonet_l, { "L", "rsvp.sonet.l", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+      { &hf_rsvp_sonet_m, { "M", "rsvp.sonet.m", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+      { &hf_rsvp_g709_t3, { "t3", "rsvp.g709.t3", FT_UINT16, BASE_DEC, NULL, 0x03F0, NULL, HFILL }},
+      { &hf_rsvp_g709_t2, { "t2", "rsvp.g709.t2", FT_UINT8, BASE_DEC, NULL, 0x0E, NULL, HFILL }},
+      { &hf_rsvp_g709_t1, { "t1", "rsvp.g709.t1", FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+      { &hf_rsvp_label_set_type, { "Label type", "rsvp.label_set.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_label_set_subchannel, { "Subchannel", "rsvp.label_set.subchannel", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_nsap_address, { "NSAP address", "rsvp.nsap_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_class_diversity, { "Diversity", "rsvp.class_diversity", FT_UINT8, BASE_DEC, VALS(ouni_guni_diversity_str), 0xF0, NULL, HFILL }},
+      { &hf_rsvp_egress_label_type, { "Label type", "rsvp.egress.label_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_egress_label, { "Label", "rsvp.egress.label", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_source_transport_network_addr, { "Source Transport Network addr", "rsvp.source_transport_network_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_ie_data, { "IE Data", "rsvp.ie_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_3gpp_obj_pf_dst_port_range, { "Destination Port range", "rsvp.3gpp_obj.pf_dst_port_range", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_3gpp_obj_pf_src_port_range, { "Source Port range", "rsvp.3gpp_obj.pf_src_port_range", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
         { &ei_rsvp_invalid_length, { "rsvp.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_rsvp_packet_filter_component, { "rsvp.packet_filter_component", PI_UNDECODED, PI_WARN, "Not dissected Packet filter component", EXPFILL }},
         { &ei_rsvp_bundle_component_msg, { "rsvp.bundle_component_msg", PI_UNDECODED, PI_WARN, "Bundle Component Messages Not Dissected", EXPFILL }},
+        { &ei_rsvp_parameter, { "rsvp.parameter.unknown", PI_PROTOCOL, PI_WARN, "Unknown parameter", EXPFILL }},
+        { &ei_rsvp_adspec_type, { "rsvp.adspec.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown type", EXPFILL }},
+        { &ei_rsvp_call_id_address_type, { "rsvp.call_id.address_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Transport Network type", EXPFILL }},
+        { &ei_rsvp_session_type, { "rsvp.session_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown session type", EXPFILL }},
     };
 
     expert_module_t* expert_rsvp;
@@ -9570,8 +9530,8 @@ proto_register_rsvp(void)
         ett_treelist[i] = -1;
         ett_tree[i] = &(ett_treelist[i]);
     }
-    proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)",
-                                         "RSVP", "rsvp");
+    proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "RSVP", "rsvp");
+
     proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
     proto_register_subtree_array(ett_tree, array_length(ett_tree));
     expert_rsvp = expert_register_protocol(proto_rsvp);
