@@ -4967,13 +4967,9 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
         proto_tree_add_item(scr_subtree, hf_ansi_a_is2000_scr_socr_fch_frame_size_support_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(scr_subtree, hf_ansi_a_is2000_scr_socr_for_fch_rc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        value = (oct & 0x01) << 4;
-
         curr_offset += 1;
 
         oct = tvb_get_guint8(tvb, curr_offset);
-
-        value |= (oct & 0xf0) >> 4;
 
         proto_tree_add_item(scr_subtree, hf_ansi_a_is2000_scr_socr_rev_fch_rc, tvb, curr_offset - 1, 2, ENC_BIG_ENDIAN);
         bit_mask = 0x08;
