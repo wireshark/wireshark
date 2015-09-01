@@ -219,8 +219,10 @@ void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
         switch (event->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return:
-        case Qt::Key_Escape:
         case Qt::Key_Tab:
+            focusNextChild();
+            break;
+        case Qt::Key_Escape:
         case Qt::Key_Backtab:
             event->ignore();
             return;

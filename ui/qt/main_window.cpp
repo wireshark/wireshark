@@ -359,6 +359,8 @@ MainWindow::MainWindow(QWidget *parent) :
     updatePreferenceActions();
     setForCaptureInProgress(false);
 
+    setTabOrder(df_combo_box_, packet_list_);
+
     connect(&capture_file_, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
     connect(&capture_file_, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
@@ -626,7 +628,6 @@ void MainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process
     connect(pipe_notifier_, SIGNAL(destroyed()), this, SLOT(pipeNotifierDestroyed()));
 #endif
 }
-
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 
