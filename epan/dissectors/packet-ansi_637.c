@@ -1960,7 +1960,8 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 {
     guint8      oct, oct2, odd;
     gboolean    email_addr;
-    guint32     i, saved_offset, required_octs, num_fields;
+    guint32     i, saved_offset, required_octs;
+    guint64     num_fields;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -1984,19 +1985,15 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
                 "%s (%u)",
                 val_to_str_const((oct & 0x38) >> 3, trans_param_addr_data_net_ton_strings, "Reserved"), (oct & 0x38) >> 3);
 
-            offset += 1;
-
-            oct2 = tvb_get_guint8(tvb, offset);
-            num_fields = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
-
-            proto_tree_add_bits_item(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+3, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_ret_val(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+5, 8, &num_fields, ENC_BIG_ENDIAN);
             if (num_fields == 0) return;
+            offset += 1;
+            oct = tvb_get_guint8(tvb, offset);;
 
             SHORT_DATA_CHECK(len - 2, num_fields);
 
             proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, offset*8, 3, ENC_NA);
             offset += 1;
-            oct = oct2;
 
             i = 0;
             while (i < num_fields)
@@ -2009,20 +2006,20 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
             if (email_addr)
             {
-                proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, num_fields + 1,
+                proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, (gint)num_fields + 1,
                     ansi_637_bigbuf,
                     "Number: %s",
                     ansi_637_bigbuf);
             }
             else
             {
-                proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset - 1, num_fields + 1,
+                proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset - 1, (gint)num_fields + 1,
                     (guint8 *) ansi_637_bigbuf);
             }
 
-            offset += (num_fields - 1);
+            offset += ((guint32)num_fields - 1);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, (offset*8)+3, 5, ENC_NA);
+            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 5, ENC_NA);
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_07, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         else
@@ -2036,22 +2033,19 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
                 "%s (%u)",
                 val_to_str_const((oct & 0x38) >> 3, ansi_a_ms_info_rec_num_type_vals, "Reserved"), (oct & 0x38) >> 3);
 
-            oct2 = tvb_get_guint8(tvb, offset + 1);
-
             proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_plan, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+            offset += 1;
 
-            num_fields =  tvb_get_ntohs(tvb, offset) & 0x07f8;
-            proto_tree_add_bits_item(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+3, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_ret_val(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+1, 8, &num_fields, ENC_BIG_ENDIAN);
+            offset += 1;
 
             if (num_fields == 0) return;
 
             SHORT_DATA_CHECK(len - 3, num_fields);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, offset*8, 7, ENC_NA);
-
+            proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, (offset*8)+1, 7, ENC_NA);
+            oct = tvb_get_guint8(tvb, offset);
             offset += 1;
-            oct = oct2;
 
             i = 0;
             while (i < num_fields)
@@ -2062,32 +2056,28 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             }
             ansi_637_bigbuf[i] = '\0';
 
-            proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, num_fields + 1,
+            proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, (gint)num_fields + 1,
                 ansi_637_bigbuf,
                 "Number: %s",
                 ansi_637_bigbuf);
 
-            offset += (num_fields - 1);
+            offset += ((guint32)num_fields - 1);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, (offset*8)+7, 1, ENC_NA);
+            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 1, ENC_NA);
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_7f, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
     }
     else
     {
+        proto_tree_add_bits_ret_val(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+2, 8, &num_fields, ENC_BIG_ENDIAN);
         offset += 1;
 
-        oct2 = tvb_get_guint8(tvb, offset);
-        num_fields = ((oct & 0x3f) << 2) | ((oct2 & 0xc0) >> 6);
-
-        proto_tree_add_bits_item(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+6, 8, ENC_BIG_ENDIAN);
-
-        oct = oct2;
+        oct = tvb_get_guint8(tvb, offset);
         odd = FALSE;
 
         if (num_fields > 0)
         {
-            i = (num_fields - 1) * 4;
+            i = ((guint32)num_fields - 1) * 4;
             required_octs = (i / 8) + ((i % 8) ? 1 : 0);
 
             SHORT_DATA_CHECK(len - 2, required_octs);
@@ -2160,7 +2150,7 @@ trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     SHORT_DATA_CHECK(len - 2, num_fields);
 
-    proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, offset*8, 4, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, (offset*8)+12, 4, ENC_NA);
     offset += 2;
 
     oct = value & 0x000f;
@@ -2178,7 +2168,7 @@ trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     offset += (num_fields - 1);
 
-    proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, (offset*8)+4, 4, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 4, ENC_NA);
 
     proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_0f, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
