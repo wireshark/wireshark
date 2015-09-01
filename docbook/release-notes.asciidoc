@@ -25,6 +25,8 @@ The following features are new (or have been significantly updated)
 since version 1.99.8:
 
 * Qt port:
+** The MTP3 statistics and summary dialogs have been added.
+** The WAP-WSP statistics dialog has been added.
 ** The UDP multicast statistics dialog has been added.
 ** The WLAN statistics dialog has been added.
 ** The display filter macros dialog has been added.
