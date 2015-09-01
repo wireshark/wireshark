@@ -311,8 +311,8 @@ mtp3_summary_reset(
 static gboolean
 mtp3_summary_packet(
     void            *tapdata,
-    packet_info     *pinfo _U_,
-    epan_dissect_t  *edt _U_,
+    packet_info     *,
+    epan_dissect_t  *,
     const void      *data)
 {
     mtp3_stat_t           (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = (mtp3_stat_t(*)[MTP3_MAX_NUM_OPC_DPC])tapdata;
