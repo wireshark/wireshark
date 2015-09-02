@@ -38,7 +38,7 @@ static const value_string ipproto_val[] = {
 #if 0
     { IP_PROTO_IP,  "IPv4" },
 #endif
-    { IP_PROTO_HOPOPTS, "IPv6 hop-by-hop option" }, /* 0 HOPOPT IPv6 Hop-by-Hop Option [RFC1883] */
+    { IP_PROTO_HOPOPTS, "IPv6 Hop-by-Hop Option" }, /* 0 HOPOPT IPv6 Hop-by-Hop Option [RFC1883] */
     { IP_PROTO_ICMP,    "ICMP" },                   /* 1 ICMP Internet Control Message [RFC792]  */
     { IP_PROTO_IGMP,    "IGMP" },                   /* 2 IGMP Internet Group Management [RFC1112]  */
     { IP_PROTO_GGP,     "GGP" },                    /* 3 GGP Gateway-to-Gateway [RFC823] */
@@ -81,8 +81,8 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IL,      "IL" },                     /* 40 IL IL Transport Protocol [Dave_Presotto] */
     { IP_PROTO_IPV6,    "IPv6" },                   /* 41 IPv6 IPv6 encapsulation [RFC2473] */
     { IP_PROTO_SDRP,    "Source demand routing" },  /* 42 SDRP Source Demand Routing Protocol [Deborah_Estrin] */
-    { IP_PROTO_ROUTING, "IPv6 routing" },           /* 43 IPv6-Route Routing Header for IPv6 [Steve_Deering] */
-    { IP_PROTO_FRAGMENT,"IPv6 fragment" },          /* 44 IPv6-Frag Fragment Header for IPv6 [Steve_Deering] */
+    { IP_PROTO_ROUTING, "Routing Header for IPv6" }, /* 43 IPv6-Route Routing Header for IPv6 [Steve_Deering] */
+    { IP_PROTO_FRAGMENT,"Fragment Header for IPv6" }, /* 44 IPv6-Frag Fragment Header for IPv6 [Steve_Deering] */
     { IP_PROTO_IDRP,    "Inter-Domain Routing Protocol" }, /* 45 IDRP Inter-Domain Routing Protocol [Sue_Hares] */
     { IP_PROTO_RSVP,    "Reservation Protocol" },   /* 46 RSVP Reservation Protocol [Bob_Braden] */
     { IP_PROTO_GRE,     "Generic Routing Encapsulation" }, /* 47 GRE General Routing Encapsulation [Tony_Li] */
@@ -97,8 +97,8 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_TLSP,    "TLSP Kryptonet" },         /* 56 TLSP Transport Layer Security Protocol using Kryptonet key management [Christer_Oberg] */
     { IP_PROTO_SKIP,    "SKIP" },                   /* 57 SKIP SKIP [Tom_Markson] */
     { IP_PROTO_ICMPV6,  "ICMPv6" },                 /* 58 IPv6-ICMP ICMP for IPv6 [RFC1883] */
-    { IP_PROTO_NONE,    "IPv6 no next header" },    /* 59 IPv6-NoNxt No Next Header for IPv6 [RFC1883] */
-    { IP_PROTO_DSTOPTS, "IPv6 destination option" },/* 60 IPv6-Opts Destination Options for IPv6 [RFC1883] */
+    { IP_PROTO_NONE,    "No Next Header for IPv6" }, /* 59 IPv6-NoNxt No Next Header for IPv6 [RFC1883] */
+    { IP_PROTO_DSTOPTS, "Destination Options for IPv6" }, /* 60 IPv6-Opts Destination Options for IPv6 [RFC1883] */
     { 61, "any host internal protocol" },           /* 61  any host internal protocol [Internet_Assigned_Numbers_Authority] */
     { IP_PROTO_MIPV6_OLD, "Mobile IPv6 (old)" },    /* 62 CFTP CFTP [Forsdick, H., "CFTP", Network Message, Bolt Beranek and Newman, January 1982.][Harry_Forsdick] */
     { 63, "any local network" },                    /* 63  any local network [Internet_Assigned_Numbers_Authority] */
