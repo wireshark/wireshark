@@ -133,7 +133,7 @@ void proto_reg_handoff_bgp(void);
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
-/* https://www.iana.org/assignments/capability-codes/ (last updated 2013-11-19) */
+/* https://www.iana.org/assignments/capability-codes/ (last updated 2015-07-23) */
 /* BGP capability code */
 #define BGP_CAPABILITY_RESERVED                     0   /* RFC2434 */
 #define BGP_CAPABILITY_MULTIPROTOCOL                1   /* RFC2858 */
@@ -146,8 +146,10 @@ void proto_reg_handoff_bgp(void);
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY           67  /* draft-ietf-idr-dynamic-cap */
 #define BGP_CAPABILITY_MULTISESSION                 68  /* draft-ietf-idr-bgp-multisession */
 #define BGP_CAPABILITY_ADDITIONAL_PATHS             69  /* draft-ietf-idr-add-paths */
-#define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH       70  /* draft-ietf-idr-bgp-enhanced-route-refresh */
+#define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH       70  /* [RFC7313] */
 #define BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART  71  /* draft-uttaro-idr-bgp-persistence */
+#define BGP_CAPABILITY_CP_ORF                       72  /* [RFC7543] */
+#define BGP_CAPABILITY_FQDN                         73  /* [draft-walton-bgp-hostname-capability] */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
 #define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
 
@@ -1012,6 +1014,8 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_ADDITIONAL_PATHS,              "Support for Additional Paths" },
     { BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH,        "Enhanced route refresh capability" },
     { BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART,   "Long-Lived Graceful Restart (LLGR) Capability" },
+    { BGP_CAPABILITY_CP_ORF,                        "CP-ORF Capability" },
+    { BGP_CAPABILITY_FQDN,                          "FQDN Capability" },
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability" },
     { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability" },
     { 0, NULL }
@@ -1214,6 +1218,10 @@ static int hf_bgp_cap_orf_safi = -1;
 static int hf_bgp_cap_orf_number = -1;
 static int hf_bgp_cap_orf_type = -1;
 static int hf_bgp_cap_orf_sendreceive = -1;
+static int hf_bgp_cap_fqdn_hostname_len = -1;
+static int hf_bgp_cap_fqdn_hostname = -1;
+static int hf_bgp_cap_fqdn_domain_name_len = -1;
+static int hf_bgp_cap_fqdn_domain_name = -1;
 
 /* BGP update global header field */
 static int hf_bgp_update_withdrawn_routes_length = -1;
@@ -4815,9 +4823,30 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
             break;
 
+        case BGP_CAPABILITY_FQDN:{
+            guint8 hostname_len, domain_name_len;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname_len, tvb, offset, 1, ENC_NA);
+            hostname_len = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname, tvb, offset, hostname_len, ENC_ASCII|ENC_NA);
+            offset += hostname_len;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name_len, tvb, offset, 1, ENC_NA);
+            domain_name_len = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name, tvb, offset, domain_name_len, ENC_ASCII|ENC_NA);
+            offset += domain_name_len;
+
+            }
+            break;
+
         case BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH:
         case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
         case BGP_CAPABILITY_ROUTE_REFRESH:
+        case BGP_CAPABILITY_CP_ORF:
             if (clen != 0) {
                 expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u wrong, must be = 0", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
@@ -6980,6 +7009,18 @@ proto_register_bgp(void)
       { &hf_bgp_cap_orf_sendreceive,
         { "Send Receive", "bgp.cap.orf.sendreceive", FT_UINT8, BASE_DEC,
           VALS(orf_send_recv_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_fqdn_hostname_len,
+        { "Hostname Length", "bgp.cap.orf.fqdn.hostname.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_fqdn_hostname,
+        { "Hostname", "bgp.cap.orf.fqdn.hostname", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_fqdn_domain_name_len,
+        { "Domain Name Length", "bgp.cap.orf.fqdn.domain_name.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_fqdn_domain_name,
+        { "Domain Name", "bgp.cap.orf.fqdn.domain_name", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
       /* BGP update */
 
       { &hf_bgp_update_withdrawn_routes_length,
