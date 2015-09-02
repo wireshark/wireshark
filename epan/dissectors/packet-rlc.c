@@ -43,10 +43,6 @@
  * - use sub_num in fragment identification?
  */
 
-#define DEBUG_FRAME(number, msg) {if (pinfo->fd->num == number) printf("%u: %s\n", number, msg);}
-
-#define ROL16(a,b) (guint16)((a<<b)|(a>>(16-b)))
-
 void proto_register_rlc(void);
 void proto_reg_handoff_rlc(void);
 
@@ -119,6 +115,9 @@ static int hf_rlc_channel = -1;
 static int hf_rlc_channel_rbid = -1;
 static int hf_rlc_channel_dir = -1;
 static int hf_rlc_channel_ueid = -1;
+static int hf_rlc_sequence_number = -1;
+static int hf_rlc_length = -1;
+static int hf_rlc_bitmap_string = -1;
 
 /* subtrees */
 static int ett_rlc = -1;
@@ -148,6 +147,7 @@ static expert_field ei_rlc_li_too_many = EI_INIT;
 static expert_field ei_rlc_header_only = EI_INIT;
 static expert_field ei_rlc_ciphered_data = EI_INIT;
 static expert_field ei_rlc_no_per_frame_data = EI_INIT;
+static expert_field ei_rlc_incomplete_sequence = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -1211,19 +1211,16 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     if (!rlc_frag_equal(&lookup, sdu->reassembled_in)) return NULL;
 #endif
 
-    if (tree) {
-        frag = sdu->frags;
-        while (frag->next) {
-            if (frag->next->seq - frag->seq > 1) {
-                proto_item *pi = proto_tree_add_text(tree, tvb, 0, 0,
-                    "Error: Incomplete sequence");
-                PROTO_ITEM_SET_GENERATED(pi);
-                tree_add_fragment_list_incomplete(sdu, tvb, tree);
-                return NULL;
-            }
-            frag = frag->next;
+    frag = sdu->frags;
+    while (frag->next) {
+        if (frag->next->seq - frag->seq > 1) {
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_incomplete_sequence, tvb, 0, 0);
+            tree_add_fragment_list_incomplete(sdu, tvb, tree);
+            return NULL;
         }
+        frag = frag->next;
     }
+
     sdu->tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->len, sdu->len);
     add_new_data_source(pinfo, sdu->tvb, "Reassembled RLC Message");
 
@@ -1854,8 +1851,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!fpinf || !rlcinf) {
-        proto_tree_add_text(tree, tvb, 0, -1,
-            "Cannot dissect RLC frame because per-frame info is missing");
+        proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
         return;
     }
 
@@ -2004,7 +2000,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                             j += g_snprintf(&buff[j], BUFF_SIZE-j, "    ,");
                         }
                     }
-                    proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
+                    proto_tree_add_string_format(bitmap_tree, hf_rlc_bitmap_string, tvb, bit_offset/8, 1, buff, "%s", buff);
                     bit_offset += 8;
                 }
                 proto_item_append_text(ti, " (%u SNs)", number_of_bitmap_entries);
@@ -2030,8 +2026,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                     expert_add_info(pinfo, tree, &ei_rlc_sufi_cw);
                 } else {
                     rlist_tree = proto_tree_add_subtree(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, ett_rlc_rlist, NULL, "Decoded list:");
-                    proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+4)/8, 12/8,
-                                        "Sequence Number = %u (AMD PDU not correctly received)",(unsigned)sn);
+                    proto_tree_add_uint_format_value(rlist_tree, hf_rlc_sequence_number, tvb, (previous_bit_offset+4)/8, 12/8, (guint32)sn, "%u (AMD PDU not correctly received)", (unsigned)sn);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " RLIST=(%u", (unsigned)sn);
 
                     for (i=0, isErrorBurstInd=FALSE, j=0, previous_sn=(guint16)sn, value=0; i<len; i++) {
@@ -2043,7 +2038,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                             if (cw[i] & 0x01) {
                                 if (isErrorBurstInd) {
                                     previous_sn = (previous_sn + value) & 0xfff;
-                                    ti = proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Length: %u", value);
+                                    ti = proto_tree_add_uint(rlist_tree, hf_rlc_length, tvb, (previous_bit_offset+16+4*i)/8, 1, value);
                                     if (value) {
                                         proto_item_append_text(ti, "  (all consecutive AMD PDUs up to SN %u not correctly received)", previous_sn);
                                         col_append_fstr(pinfo->cinfo, COL_INFO, " ->%u", previous_sn);
@@ -2051,7 +2046,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                                     isErrorBurstInd = FALSE;
                                 } else {
                                     value = (value + previous_sn) & 0xfff;
-                                    proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Sequence Number = %u (AMD PDU not correctly received)",value);
+                                    proto_tree_add_uint_format_value(rlist_tree, hf_rlc_sequence_number, tvb, (previous_bit_offset+16+4*i)/8, 1, value, "%u (AMD PDU not correctly received)",value);
                                     col_append_fstr(pinfo->cinfo, COL_INFO, " %u", value);
                                     previous_sn = value;
                                 }
@@ -2889,8 +2884,21 @@ proto_register_rlc(void)
         { &hf_rlc_channel_ueid,
           { "User Equipment ID", "rlc.channel.ueid",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
-        }
+        },
+        { &hf_rlc_sequence_number,
+          { "Sequence Number", "rlc.sequence_number",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_length,
+          { "Length", "rlc.length",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_bitmap_string,
+          { "Bitmap string", "rlc.bitmap_string",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
     };
+
     static gint *ett[] = {
         &ett_rlc,
         &ett_rlc_frag,
@@ -2920,6 +2928,7 @@ proto_register_rlc(void)
         { &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
         { &ei_rlc_ciphered_data, { "rlc.ciphered_data", PI_UNDECODED, PI_WARN, "Cannot dissect RLC frame because it is ciphered", EXPFILL }},
         { &ei_rlc_no_per_frame_data, { "rlc.no_per_frame_data", PI_PROTOCOL, PI_WARN, "Can't dissect RLC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_rlc_incomplete_sequence, { "rlc.incomplete_sequence", PI_MALFORMED, PI_ERROR, "Error: Incomplete sequence", EXPFILL }},
     };
 
     proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");

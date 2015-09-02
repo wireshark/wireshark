@@ -4843,6 +4843,12 @@ static int hf_BACnetRestartReason = -1;
 static int hf_bacapp_tag_IPV4 = -1;
 static int hf_bacapp_tag_IPV6 = -1;
 static int hf_bacapp_tag_PORT = -1;
+static int hf_bacapp_tag_mac_address_broadcast = -1;
+static int hf_bacapp_reserved_ashrea = -1;
+static int hf_bacapp_unused_bits = -1;
+static int hf_bacapp_bit = -1;
+static int hf_bacapp_complete_bitstring = -1;
+
 /* some more variables for segmented messages */
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
@@ -4866,6 +4872,7 @@ static gint ett_bacapp_value = -1;
 
 static expert_field ei_bacapp_bad_length = EI_INIT;
 static expert_field ei_bacapp_bad_tag = EI_INIT;
+static expert_field ei_bacapp_opening_tag = EI_INIT;
 
 static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
@@ -5946,7 +5953,7 @@ fAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     offset = fUnsignedTag(tvb, pinfo, tree, offset, "network-number");
     offs   = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (lvt == 0) {
-        proto_tree_add_text(tree, tvb, offset, offs, "MAC-address: broadcast");
+        proto_tree_add_item(tree, hf_bacapp_tag_mac_address_broadcast, tvb, offset, offs, ENC_NA);
         offset += offs;
     } else
         offset  = fMacAddress(tvb, pinfo, tree, offset, "MAC-address: ", lvt);
@@ -6398,8 +6405,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
                                   "%s(Bit String)", label);
 
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
-    proto_tree_add_text(subtree, tvb, offset, 1,
-                "Unused bits: %u", unused);
+    proto_tree_add_item(subtree, hf_bacapp_unused_bits, tvb, offset, 1, ENC_NA);
     memset(bf_arr, 0, 256);
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
@@ -6407,20 +6413,10 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
         if (i == numberOfBytes-1) { skip = unused; }
         for (j = 0; j < 8-skip; j++) {
             if (src != NULL) {
-                if (tmp & (1 << (7 - j)))
-                    proto_tree_add_text(subtree, tvb,
-                        offset+i+1, 1,
-                        "%s = TRUE",
-                        val_to_str((guint) (i*8 +j),
-                            src,
-                            ASHRAE_Reserved_Fmt));
-                else
-                    proto_tree_add_text(subtree, tvb,
-                        offset+i+1, 1,
-                        "%s = FALSE",
-                        val_to_str((guint) (i*8 +j),
-                            src,
-                            ASHRAE_Reserved_Fmt));
+                proto_tree_add_boolean_format(subtree, hf_bacapp_bit, tvb, offset+i+1, 1,
+                                            (tmp & (1 << (7 - j))), "%s = %s",
+                                            val_to_str((guint) (i*8 +j), src, ASHRAE_Reserved_Fmt),
+                                            (tmp & (1 << (7 - j))) ? "TRUE" : "FALSE");
             } else {
                 bf_arr[MIN(255, (i*8)+j)] = tmp & (1 << (7 - j)) ? '1' : '0';
             }
@@ -6429,7 +6425,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 
     if (src == NULL) {
         bf_arr[MIN(255, numberOfBytes*8-unused)] = 0;
-        proto_tree_add_text(subtree, tvb, offset, lvt, "B'%s'", bf_arr);
+        proto_tree_add_bytes_format(subtree, hf_bacapp_complete_bitstring, tvb, offset, lvt, NULL, "B'%s'", bf_arr);
     }
 
     offset += lvt;
@@ -6500,7 +6496,7 @@ fApplicationTypesEnumeratedSplit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             case 13: /* reserved for ASHRAE */
             case 14:
             case 15:
-                proto_tree_add_text(tree, tvb, offset, lvt+tag_len, "%s'reserved for ASHRAE'", label);
+                proto_tree_add_bytes_format(tree, hf_bacapp_reserved_ashrea, tvb, offset, lvt+tag_len, NULL, "%s'reserved for ASHRAE'", label);
                 offset += lvt + tag_len;
                 break;
             default:
@@ -7039,8 +7035,7 @@ fPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
                                      &tag_no, &tag_info, &lvt);
         }
     } else {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length(tvb) - offset,
-                            "expected Opening Tag!");
+        proto_tree_add_expert(tree, pinfo, &ei_bacapp_opening_tag, tvb, offset, -1);
         offset = tvb_reported_length(tvb);
     }
 
@@ -11238,6 +11233,26 @@ proto_register_bacapp(void)
           { "Port",           "bacapp.Port",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
+        { &hf_bacapp_tag_mac_address_broadcast,
+          { "MAC-address: broadcast",           "bacapp.mac_address_broadcast",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_bacapp_reserved_ashrea,
+          { "reserved for ASHRAE",           "bacapp.reserved_ashrea",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_bacapp_unused_bits,
+          { "Unused bits",           "bacapp.unused_bits",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_bacapp_bit,
+          { "bit",           "bacapp.bit",
+            FT_BOOLEAN, 8, NULL, 0, NULL, HFILL }
+        },
+        { &hf_bacapp_complete_bitstring,
+          { "Complete bitstring",           "bacapp.complete_bitstring",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
         {&hf_msg_fragments,
          {"Message fragments", "bacapp.fragments",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -11285,6 +11300,7 @@ proto_register_bacapp(void)
     static ei_register_info ei[] = {
         { &ei_bacapp_bad_length, { "bacapp.bad_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated", EXPFILL }},
         { &ei_bacapp_bad_tag, { "bacapp.bad_tag", PI_MALFORMED, PI_ERROR, "Wrong tag found", EXPFILL }},
+        { &ei_bacapp_opening_tag, { "bacapp.bad_opening_tag", PI_MALFORMED, PI_ERROR, "Expected Opening Tag!", EXPFILL }},
     };
 
     expert_module_t* expert_bacapp;

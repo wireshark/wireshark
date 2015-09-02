@@ -189,6 +189,13 @@ static int hf_bssgp_pdu_data = -1;
 static int hf_bssgp_rrlp_apdu = -1;
 static int hf_bssgp_dtm_handover_command_data = -1;
 static int hf_bssgp_message_elements = -1;
+static int hf_bssgp_spare = -1;
+static int hf_bssgp_si = -1;
+static int hf_bssgp_psi = -1;
+static int hf_bssgp_peak_bit_rate = -1;
+static int hf_bssgp_sys_info_type3_msg = -1;
+static int hf_bssgp_trace_type_data = -1;
+static int hf_bssgp_si_item = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -206,6 +213,12 @@ static expert_field ei_bssgp_extraneous_data = EI_INIT;
 static expert_field ei_bssgp_missing_mandatory_element = EI_INIT;
 static expert_field ei_bssgp_not_dissected_yet = EI_INIT;
 static expert_field ei_bssgp_erroneous_app_container = EI_INIT;
+static expert_field ei_bssgp_si_item = EI_INIT;
+static expert_field ei_bssgp_unknown_rim_app_id_data = EI_INIT;
+static expert_field ei_bssgp_unknown_app_container = EI_INIT;
+static expert_field ei_bssgp_ra_discriminator = EI_INIT;
+static expert_field ei_bssgp_unknown_rim_app_id = EI_INIT;
+static expert_field ei_bssgp_msg_type = EI_INIT;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -591,7 +604,7 @@ de_bssgp_aligment_octets(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "%u Spare octet(s)",len);
+    proto_tree_add_item(tree, hf_bssgp_spare, tvb, curr_offset, len, ENC_NA);
 
     return(len);
 }
@@ -1117,7 +1130,7 @@ static const value_string bssgp_precedence_dl[] = {
 static guint16
 de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_item *pi, *pre_item;
+    proto_item *pre_item;
     guint32 curr_offset;
     guint16 peak_bit_rate;
     guint8  rate_gran, precedence;
@@ -1131,27 +1144,30 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     link_dir = pinfo->link_dir;
 
     peak_bit_rate = tvb_get_ntohs(tvb, curr_offset);
-    pi = proto_tree_add_text(tree, tvb, curr_offset, 1, "Peak bit rate: ");
     if (peak_bit_rate == 0) {
-        proto_item_append_text(pi, "Best effort");
+        proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate, "Best effort");
     }else{
         rate_gran = tvb_get_guint8(tvb, curr_offset+2)&0xc0;
         switch(rate_gran){
             case 0:
                 /* 100 bits/s increments */
-                proto_item_append_text(pi, "%u bits/s", peak_bit_rate * 100);
+                proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate,
+                                                 "%u bits/s", peak_bit_rate * 100);
                 break;
             case 1:
                 /* 1000 bits/s increments */
-                proto_item_append_text(pi, "%u kbits/s", peak_bit_rate);
+                proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate,
+                                                 "%u kbits/s", peak_bit_rate);
                 break;
             case 2:
                 /* 10000 bits/s increments */
-                proto_item_append_text(pi, "%u kbits/s", peak_bit_rate * 10);
+                proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate,
+                                                 "%u kbits/s", peak_bit_rate * 10);
                 break;
             case 3:
                 /* 100000 bits/s increments */
-                proto_item_append_text(pi, "%u kbits/s", peak_bit_rate * 100);
+                proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate,
+                                                 "%u kbits/s", peak_bit_rate * 100);
                 break;
             default:
                 break;
@@ -1333,12 +1349,9 @@ de_bssgp_trace_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_bssgp_trace_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    guint32 curr_offset = offset;
 
-    curr_offset = offset;
-
-
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Trace Type data ( Coding unknown (Specification withdrawn) 3GPP TS 32.008)");
+    proto_tree_add_item(tree, hf_bssgp_trace_type_data, tvb, curr_offset, len, ENC_NA);
 
     return(len);
 }
@@ -1783,7 +1796,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
             curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
             break;
         default :
-            proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identity");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_unknown_rim_app_id, tvb, curr_offset, len);
             curr_offset+=len;
             break;
     }
@@ -1850,17 +1863,17 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                 gint            ett_tree;
                 int             hf_idx;
                 const gchar     *msg_str;
-                proto_item      *si_item;
+                proto_item      *si_item, *si_item2;
                 proto_tree      *si_tree;
 
                 for (i=0; i < num_items; i++){
                     oct = tvb_get_guint8(tvb,curr_offset);
                     get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
-                    proto_tree_add_text(tree, tvb, curr_offset, 21, "SI item %u ",i+1);
+                    si_item2 = proto_tree_add_bytes_format(tree, hf_bssgp_si_item, tvb, curr_offset, 21, NULL, "SI item %u ",i+1);
                     si_item = proto_tree_add_item(tree, hf_idx, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                     si_tree = proto_item_add_subtree(si_item, ett_tree);
                     if (msg_fcn_p == NULL){
-                        proto_tree_add_text(si_tree, tvb, curr_offset, 21, "Unknown SI message");
+                        expert_add_info(pinfo, si_item2, &ei_bssgp_si_item);
                     }else{
                         (*msg_fcn_p)(tvb, si_tree, pinfo, curr_offset+1, 20);
                     }
@@ -1881,7 +1894,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * The message is 21 octets long.
              * dtap_rr_sys_info_3(tvb, tree, curr_offset, len-7)
              */
-            proto_tree_add_text(tree, tvb, curr_offset, 1, "SYSTEM INFORMATION type 3 message");
+            proto_tree_add_item(tree, hf_bssgp_sys_info_type3_msg, tvb, curr_offset, 1, ENC_NA);
             curr_offset++;
             break;
         case 3:
@@ -1940,7 +1953,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
             break;
 
         default :
-            proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identitys Data");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_unknown_rim_app_id_data, tvb, curr_offset, len);
             curr_offset+=len;
             break;
     }
@@ -2043,7 +2056,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bssgp_utra_si_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             break;
         default :
-            proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown Application Error Container");
+            proto_tree_add_expert(tree, pinfo, &ei_bssgp_unknown_app_container, tvb, curr_offset, len);
             break;
     }
     return(len);
@@ -2228,6 +2241,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     guint16 rnc_id;
     tvbuff_t *new_tvb = NULL;
     guint32 curr_offset;
+    proto_item* ti;
 
     curr_offset = offset;
 
@@ -2237,7 +2251,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 
     /* RIM Routing Address discriminator */
     oct  = tvb_get_guint8(tvb,curr_offset);
-    proto_tree_add_item(tree, hf_bssgp_ra_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_bssgp_ra_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     switch(oct){
         case 0:
@@ -2274,7 +2288,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
             dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
             break;
         default:
-            proto_tree_add_text(tree, tvb, curr_offset, 3, "Unknown RIM Routing Address discriminator");
+            expert_add_info(pinfo, ti, &ei_bssgp_ra_discriminator);
             return len;
     }
 
@@ -2912,8 +2926,7 @@ de_bssgp_sipsi_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     oct = tvb_get_guint8(tvb, curr_offset);
     num = oct >>1;
     type = oct & 1;
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-               "Number of SI/PSI: %u",num);
+    proto_tree_add_item(tree, hf_bssgp_num_si_psi, tvb, curr_offset, 1, ENC_NA);
 
     /* Type */
     proto_tree_add_item(tree, hf_bssgp_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2921,13 +2934,13 @@ de_bssgp_sipsi_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     if (type==0){
         /* BCCH (3GPP TS 44.018) */
         for (i = 0; i < num; i++) {
-            proto_tree_add_text(tree, tvb, curr_offset, 21, "SI (%u)", i + 1);
+            proto_tree_add_bytes_format(tree, hf_bssgp_si, tvb, curr_offset, 21, NULL, "SI (%u)", i + 1);
             curr_offset+=21;
         }
     }else{
         /* PBCCH (3GPP TS 44.060) */
         for (i = 0; i < num; i++) {
-            proto_tree_add_text(tree, tvb, curr_offset, 22, "PSI (%u)", i + 1);
+            proto_tree_add_bytes_format(tree, hf_bssgp_psi, tvb, curr_offset, 22, NULL, "PSI (%u)", i + 1);
             curr_offset+=22;
         }
     }
@@ -3238,7 +3251,7 @@ de_bssgp_redir_attempt_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 1,"Spare");
+    proto_tree_add_item(tree, hf_bssgp_spare, tvb, curr_offset, 1, ENC_NA);
     curr_offset += 1;
 
     return(curr_offset-offset);
@@ -6394,10 +6407,8 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     g_pdu_type = tvb_get_guint8(tvb,offset);
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
-        bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-    }
+    ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
+    bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
 
     /* Messge type IE*/
     msg_fcn_p = NULL;
@@ -6410,7 +6421,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(msg_str){
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }else{
-        proto_tree_add_text(bssgp_tree, tvb, offset, 1,"Unknown message 0x%x",g_pdu_type);
+        expert_add_info_format(pinfo, ti, &ei_bssgp_msg_type, "Unknown message 0x%x", g_pdu_type);
         return;
     }
 
@@ -6941,6 +6952,41 @@ proto_register_bssgp(void)
           { "Message Elements", "bssgp.message_elements",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }},
+
+        { &hf_bssgp_spare,
+          { "Spare octet(s)", "bssgp.spare",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_si,
+          { "SI", "bssgp.si",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_psi,
+          { "PSI", "bssgp.psi",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_peak_bit_rate,
+          { "Peak bit rate", "bssgp.peak_bit_rate",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_sys_info_type3_msg,
+          { "SYSTEM INFORMATION type 3 message", "bssgp.sys_info_type3_msg",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_trace_type_data,
+          { "Trace Type data ( Coding unknown (Specification withdrawn) 3GPP TS 32.008)", "bssgp.trace_type_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_bssgp_si_item,
+          { "SI item", "bssgp.si_item",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -6954,6 +7000,12 @@ proto_register_bssgp(void)
         { &ei_bssgp_missing_mandatory_element, { "bssgp.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
         { &ei_bssgp_not_dissected_yet, { "bssgp.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
         { &ei_bssgp_erroneous_app_container, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Erroneous Application Container including IEI and LI", EXPFILL }},
+        { &ei_bssgp_si_item, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Unknown SI message", EXPFILL }},
+        { &ei_bssgp_unknown_rim_app_id_data, { "bssgp.rim_app_id_data.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identitys Data", EXPFILL }},
+        { &ei_bssgp_unknown_app_container, { "bssgp.unknown_app_container", PI_PROTOCOL, PI_WARN, "Unknown Application Error Container", EXPFILL }},
+        { &ei_bssgp_ra_discriminator, { "bssgp.ra_discriminator.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Routing Address discriminator", EXPFILL }},
+        { &ei_bssgp_unknown_rim_app_id, { "bssgp.rim_app_id.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identity", EXPFILL }},
+        { &ei_bssgp_msg_type, { "bssgp.msg_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown message", EXPFILL }},
     };
 
     expert_module_t* expert_bssgp;
