@@ -68,6 +68,11 @@ static int hf_per_octet_aligned = -1; /* T_octet_aligned */
 static int hf_per_arbitrary = -1; /* T_arbitrary */
 static int hf_per_integer_length = -1; /* Show integer length if "show internal per fields" */
 /* static int hf_per_debug_pos = -1; */
+static int hf_per_internal_range = -1;
+static int hf_per_internal_num_bits = -1;
+static int hf_per_internal_bitstring = -1;
+static int hf_per_internal_min = -1;
+static int hf_per_internal_value = -1;
 
 static gint ett_per_open_type = -1;
 static gint ett_per_containing = -1;
@@ -83,6 +88,10 @@ static expert_field ei_per_sequence_extension_unknown = EI_INIT;
 static expert_field ei_per_encoding_error = EI_INIT;
 static expert_field ei_per_oid_not_implemented = EI_INIT;
 static expert_field ei_per_undecoded = EI_INIT;
+static expert_field ei_per_field_not_integer = EI_INIT;
+static expert_field ei_per_external_type = EI_INIT;
+static expert_field ei_per_open_type = EI_INIT;
+static expert_field ei_per_dissect_per_constrained_sequence_of = EI_INIT;
 
 static dissector_table_t per_oid_dissector_table = NULL;
 
@@ -239,7 +248,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 				break;
 		}
 	} else {
-		actx->created_item = proto_tree_add_text(tree, tvb, offset>>3, BLEN(offset, end_offset), "Unknown Open Type");
+		actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_open_type, tvb, offset>>3, BLEN(offset, end_offset));
 	}
 
 	return end_offset;
@@ -867,7 +876,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 			 * followed by the component values
 			 * TODO: Handle extension
 			 */
-			proto_tree_add_text(parent_tree, tvb, (offset>>3), 1, "dissect_per_constrained_sequence_of with extension is not handled");
+			proto_tree_add_expert(parent_tree, actx->pinfo, &ei_per_dissect_per_constrained_sequence_of, tvb, (offset>>3), 1);
 		}
 	}
 
@@ -1108,7 +1117,8 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	} else if (IS_FT_UINT(hfi->type)) {
 		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
-		proto_tree_add_text(tree, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_field_not_integer, tvb, (offset>>3)-(length+1), length+1,
+										"Field is not an integer: %s", hfi->abbrev);
 		REPORT_DISSECTOR_BUG("PER integer field that's not an FT_INT* or FT_UINT*");
 	}
 
@@ -1161,7 +1171,8 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	} else if (IS_FT_UINT(hfi->type)) {
 		it=proto_tree_add_uint64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
-		proto_tree_add_text(tree, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_field_not_integer, tvb, (offset>>3)-(length+1), length+1,
+										"Field is not an integer: %s", hfi->abbrev);
 		REPORT_DISSECTOR_BUG("PER integer field that's not an FT_INT* or FT_UINT*");
 	}
 
@@ -1285,7 +1296,11 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		if (display_internal_per_fields){
 			str = decode_bits_in_field((offset&0x07),num_bits,val);
-			proto_tree_add_text(tree, tvb, val_start,val_length,"MIN %u Range = %u Bitfield length %u, %s: %s value: %u",min, range, num_bits, hfi->name, str, val+min);
+			proto_tree_add_uint(tree, hf_per_internal_min, tvb, val_start,val_length, min);
+			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
+			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start, val_length, num_bits);
+			proto_tree_add_string(tree, hf_per_internal_bitstring, tvb, val_start, val_length, str);
+			proto_tree_add_uint_format(tree, hf_per_internal_value, tvb, val_start, val_length, val+min, "%s: value: %u", hfi->name, val+min);
 		}
 		/* The actual value */
 		val+=min;
@@ -1484,8 +1499,11 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
-		if (display_internal_per_fields)
-			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = (%" G_GINT64_MODIFIER "u) Bitfield length %u, %s",range, num_bits, str);
+		if (display_internal_per_fields) {
+			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
+			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start,val_length, num_bits);
+			proto_tree_add_string(tree, hf_per_internal_bitstring, tvb, val_start, val_length, str);
+		}
 	} else if(range==256){
 		/* 10.5.7.2 */
 
@@ -2468,7 +2486,7 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_t
 		if (actx->external.u.per.type_cb) {
 			actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
 		} else {
-			actx->created_item = proto_tree_add_text(tree, actx->external.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
+			actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_external_type, actx->external.octet_aligned, 0, -1);
 		}
 	}
 	return offset;
@@ -2485,7 +2503,7 @@ dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree 
 		if (actx->external.u.per.type_cb) {
 			actx->external.u.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
 		} else {
-			actx->created_item = proto_tree_add_text(tree, actx->external.arbitrary, 0, -1, "Unknown EXTERNAL Type");
+			actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_external_type, actx->external.arbitrary, 0, -1);
 		}
 	}
 	return offset;
@@ -2680,7 +2698,28 @@ proto_register_per(void)
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
 #endif
+		{ &hf_per_internal_range,
+		  { "Range", "per.internal.range",
+		    FT_UINT64, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
+		{ &hf_per_internal_num_bits,
+		  { "Bitfield length", "per.internal.num_bits",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
+		{ &hf_per_internal_bitstring,
+		  { "arbitrary", "per.internal.bitstring",
+		    FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }},
+		{ &hf_per_internal_min,
+		  { "MIN", "per.internal.min",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
+		{ &hf_per_internal_value,
+		  { "Value", "per.internal.value",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
 	};
+
 	static gint *ett[] = {
 		&ett_per_open_type,
 		&ett_per_containing,
@@ -2705,6 +2744,14 @@ proto_register_per(void)
 		  { "per.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "PER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
 		{ &ei_per_undecoded,
 		  { "per.error.undecoded", PI_UNDECODED, PI_WARN, "PER: Something unknown here", EXPFILL }},
+		{ &ei_per_field_not_integer,
+		  { "per.field_not_integer", PI_PROTOCOL, PI_ERROR, "Field is not an integer", EXPFILL }},
+		{ &ei_per_external_type,
+		  { "per.external_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown EXTERNAL Type", EXPFILL }},
+		{ &ei_per_open_type,
+		  { "per.open_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Open Type", EXPFILL }},
+		{ &ei_per_dissect_per_constrained_sequence_of,
+		  { "per.dissect_per_constrained_sequence_of", PI_UNDECODED, PI_WARN, "dissect_per_constrained_sequence_of with extension is not handled", EXPFILL }},
 	};
 
 	module_t *per_module;
