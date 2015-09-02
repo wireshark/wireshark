@@ -212,7 +212,7 @@ typedef struct link_row_tag {
     gint dlt;
 } link_row;
 
-#ifdef WIN32
+#ifdef _WIN32
 #define INVALID_EXTCAP_PID INVALID_HANDLE_VALUE
 #else
 #define INVALID_EXTCAP_PID (GPid)-1

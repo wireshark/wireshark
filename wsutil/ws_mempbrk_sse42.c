@@ -25,7 +25,7 @@
 #include <glib.h>
 #include "ws_cpuid.h"
 
-#ifdef WIN32
+#ifdef _WIN32
   #include <tmmintrin.h>
 #endif
 

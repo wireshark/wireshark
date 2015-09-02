@@ -424,7 +424,7 @@ GtkWidget * capture_get_if_icon(interface_t *device)
     return pixbuf_to_widget(network_wired_pb_data);
 #ifdef HAVE_EXTCAP
   case IF_EXTCAP:
-#ifdef WIN32
+#ifdef _WIN32
     if (strncmp(device->friendly_name, "USBPcap", 7) == 0) {
       return pixbuf_to_widget(network_usb_pb_data);
     }

@@ -470,7 +470,7 @@ static int rint(double );   /* compiler template for Windows */
 static struct irect zoomrect;
 
 /*
- * Uncomment the following define to revert WIN32 to
+ * Uncomment the following define to revert Windows to
  * use original mouse button controls
  */
 

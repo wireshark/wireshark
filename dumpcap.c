@@ -2666,7 +2666,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
 /* XXX - opening Winsock on tshark? */
 
-    /* Initialize Windows Socket if we are in a WIN32 OS
+    /* Initialize Windows Socket if we are in a Win32 OS
        This needs to be done before querying the interface for network/netmask */
 #ifdef _WIN32
     /* XXX - do we really require 1.1 or earlier?
@@ -3574,7 +3574,7 @@ pcap_read_handler(void* arg)
 static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-#ifdef WIN32
+#ifdef _WIN32
     DWORD              upd_time, cur_time; /* GetTickCount() returns a "DWORD" (which is 'unsigned long') */
 #else
     struct timeval     upd_time, cur_time;
@@ -3710,7 +3710,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     }
 
     /* init the time values */
-#ifdef WIN32
+#ifdef _WIN32
     upd_time = GetTickCount();
 #else
     gettimeofday(&upd_time, NULL);
@@ -3812,7 +3812,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
          */
 #define DUMPCAP_UPD_TIME 500
 
-#ifdef WIN32
+#ifdef _WIN32
         cur_time = GetTickCount();  /* Note: wraps to 0 if sys runs for 49.7 days */
         if ((cur_time - upd_time) > DUMPCAP_UPD_TIME) { /* wrap just causes an extra update */
 #else

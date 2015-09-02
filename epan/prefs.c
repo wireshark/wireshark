@@ -2074,7 +2074,7 @@ prefs_register_modules(void)
      */
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
-                       "Open a console window (WIN32 only)",
+                       "Open a console window (Windows only)",
                        (gint*)(void*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
 
     prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");

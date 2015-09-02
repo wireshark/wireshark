@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <process.h>
 #include <time.h>
@@ -139,7 +139,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
     const gchar *file;
     gboolean keep_going;
     gchar **argv;
-#ifdef WIN32
+#ifdef _WIN32
     gchar **dll_search_envp;
     gchar *progfile_dir;
 #endif
@@ -148,7 +148,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 
     argv = (gchar **) g_malloc0(sizeof(gchar *) * (argc + 2));
 
-#ifdef WIN32
+#ifdef _WIN32
     /*
      * Make sure executables can find dependent DLLs and that they're *our*
      * DLLs: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682586.aspx
@@ -162,7 +162,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 #endif
 
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL) {
-#ifdef WIN32
+#ifdef _WIN32
         dirname = g_strescape(dirname,NULL);
 #endif
         while (keep_going && (file = g_dir_read_name(dir)) != NULL ) {
@@ -177,7 +177,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 
             /* full path to extcap binary */
             extcap_string = g_string_new("");
-#ifdef WIN32
+#ifdef _WIN32
             g_string_printf(extcap_string, "%s\\\\%s",dirname,file);
             extcap = g_string_free(extcap_string, FALSE);
             envp = dll_search_envp;
@@ -207,7 +207,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
         g_dir_close(dir);
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     g_strfreev(dll_search_envp);
 #endif
     g_free(argv);
@@ -469,7 +469,7 @@ void extcap_cleanup(capture_options * capture_opts) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                 "Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts.name,
                 interface_opts.extcap_fifo, interface_opts.extcap_pid);
-#ifdef WIN32
+#ifdef _WIN32
         if (pipe_h)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
@@ -500,7 +500,7 @@ void extcap_cleanup(capture_options * capture_opts) {
 
         if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
         {
-#ifdef WIN32
+#ifdef _WIN32
             TerminateProcess(interface_opts.extcap_pid, 0);
 #endif
             g_spawn_close_pid(interface_opts.extcap_pid);
@@ -654,7 +654,7 @@ extcaps_init_initerfaces(capture_options *capture_opts)
         capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
         g_array_insert_val(capture_opts->ifaces, i, interface_opts);
 
-#ifdef WIN32
+#ifdef _WIN32
         /* On Windows, wait for extcap to connect to named pipe.
          * Some extcaps will present UAC screen to user.
          * 30 second timeout should be reasonable timeout for extcap to
@@ -727,7 +727,7 @@ extcaps_init_initerfaces(capture_options *capture_opts)
     return TRUE;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 /* called by capture_sync to get the CreatNamedPipe handle*/
 HANDLE
 extcap_get_win32_handle()
@@ -738,7 +738,7 @@ extcap_get_win32_handle()
 
 gboolean extcap_create_pipe(char ** fifo)
 {
-#ifdef WIN32
+#ifdef _WIN32
     gchar timestr[ 14+1 ];
     time_t current_time;
 
