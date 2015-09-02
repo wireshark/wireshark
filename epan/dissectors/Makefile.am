@@ -45,7 +45,7 @@ libdissectors_la_SOURCES = \
 libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # include pidl in the source tarball. But nothing to build...
-DIST_SUBDIRS = pidl
+DIST_SUBDIRS = pidl dcerpc
 
 SUBDIRS = dcerpc
 

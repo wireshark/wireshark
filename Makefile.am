@@ -1638,6 +1638,7 @@ checkapi: checkapi_local
 ##	cd epan/ftypes && $(MAKE) checkapi
 ##	cd epan/wslua && $(MAKE) checkapi
 	cd epan/dissectors && $(MAKE) checkapi
+	cd epan/dissectors/dcerpc && $(MAKE) checkapi
 	cd plugins && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
 
