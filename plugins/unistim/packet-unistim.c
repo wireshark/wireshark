@@ -2211,6 +2211,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    /*Select Adjustable Rx Volume*/
          proto_tree_add_item(msg_tree,hf_audio_default_rx_vol_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
+         offset+=1;
          break;
       case 0x21:
    /*Set APB's Rx Volume Level*/
@@ -2233,11 +2234,13 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    /*Adjust Default Rx Volume(quieter)*/
          proto_tree_add_item(msg_tree,hf_audio_default_rx_vol_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
+         offset+=1;
          break;
       case 0x25:
    /*Adjust Default Rx Volume(louder)*/
          proto_tree_add_item(msg_tree,hf_audio_default_rx_vol_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
+         offset+=1;
          break;
       case 0x28:
    /*APB Download*/
