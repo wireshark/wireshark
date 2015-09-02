@@ -2053,7 +2053,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     if (g_ip_dscp_actif) {
       tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_dsfield, tvb, offset + 1,
-        1, iph->ip_tos, "0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x: %s)", iph->ip_tos,
+        1, iph->ip_tos, "0x%02x (DSCP 0x%02x: %s; ECN 0x%02x: %s)", iph->ip_tos,
         IPDSFIELD_DSCP(iph->ip_tos), val_to_str_ext_const(IPDSFIELD_DSCP(iph->ip_tos),
                                                           &dscp_vals_ext, "Unknown DSCP"),
         IPDSFIELD_ECN(iph->ip_tos), val_to_str_const(IPDSFIELD_ECN(iph->ip_tos),
