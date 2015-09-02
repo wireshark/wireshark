@@ -284,9 +284,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
 	elseif(MSVC14)
-		# /Zo                               Enhanced debugging of optimised codem for VS2013 Update 3 and beyond,
-		#                                   Assume all VS2013 builds are at least Update 3.
-		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
+		# /Zo                               Enhanced debugging of optimised code
+		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
 	endif()
 
