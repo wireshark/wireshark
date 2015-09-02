@@ -28,12 +28,7 @@
 #include "packet-tcp.h"
 
 #define OPTO_FRAME_HEADER_LEN 8
-#define OPTOMMP_DEST_ID 0x0000
-#define OPTOMMP_RT 0x0
-#define OPTOMMP_HIGH_TCODE 0x7
-#define OPTOMMP_PRIORITY 0x0
 #define OPTOMMP_MIN_LENGTH 12
-#define OPTOMMP_MIN_HEURISTIC 0x4
 
 #define OPTOMMP_WRITE_QUADLET_REQUEST 0
 #define OPTOMMP_WRITE_BLOCK_REQUEST 1
@@ -47,6 +42,9 @@
 static gint proto_optommp = -1;
 static dissector_handle_t optommp_tcp_handle;
 static dissector_handle_t optommp_udp_handle;
+static gint hf_optommp_nodest_id = -1;
+static gint hf_optommp_dest_id = -1;
+static gint hf_optommp_boot_id = -1;
 static gint hf_optommp_tl = -1;
 static gint hf_optommp_tcode = -1;
 static gint hf_optommp_source_ID = -1;
@@ -58,6 +56,7 @@ static gint hf_optommp_data_block_byte  = -1;
 static gint hf_optommp_data_block_quadlet  = -1;
 /* Initialize the subtree pointers */
 static gint ett_optommp = -1;
+static gint ett_dest_id = -1;
 static gint ett_data_block_q = -1;
 static gint ett_data_block_b = -1;
 /* PORT_PREF */
@@ -230,6 +229,8 @@ static gint dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data);
 static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     *tree, void * data _U_);
+static void dissect_optommp_dest_id(proto_tree *tree,
+    tvbuff_t *tvb, guint *poffset);
 static void dissect_optommp_write_quadlet_request(proto_item **ti,
     proto_tree *tree, tvbuff_t *tvb, guint *poffset);
 static void dissect_optommp_write_block_request(proto_item **ti,
@@ -350,7 +351,7 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     col_clear(pinfo->cinfo, COL_INFO);
     if( tvb_reported_length(tvb) >= OPTOMMP_MIN_LENGTH)
     {
-        /* the tcode is the most sig nibble of the 3 byte */
+        /* the tcode is the most sig nibble of the 3rd byte */
         tcode = tvb_get_guint8(tvb, 3) >> 4;
         if( optommp_has_destination_offset(tcode) != 0 &&
             tvb_reported_length(tvb) >= 12)
@@ -394,8 +395,8 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             /* Add an expansion to the tree */
             optommp_tree = proto_item_add_subtree(root_ti, ett_optommp);
-            /* Skip destination_ID */
-            offset += 2;
+            /* The destination id is the first two bytes of the packet */
+            dissect_optommp_dest_id(optommp_tree, tvb, &offset);
             /* Dissect transaction label */
             ti = proto_tree_add_item(optommp_tree, hf_optommp_tl, tvb, offset,
                 1, ENC_BIG_ENDIAN);
@@ -441,6 +442,38 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     return tvb_captured_length(tvb);
+}
+
+/****************************************************************************
+function:       dissect_optommp_dest_id()
+parameters:     tree:       The subtree to append nodes to
+                tvb:        The data of the current node
+                poffset:    Keeps track of our location in the tree
+purpose:        Dissect destination id and boot id
+****************************************************************************/
+static void dissect_optommp_dest_id(proto_tree *tree,
+    tvbuff_t *tvb, guint *poffset)
+{
+    proto_tree *dest_id_tree = NULL;
+    guint16 dest_id = 0;
+
+    /* Check whether boot id present */
+    dest_id = tvb_get_ntohs(tvb, *poffset);
+    if( (dest_id & 0x8000) == 0x8000 )
+    {
+        dest_id_tree = proto_tree_add_subtree(tree, tvb, *poffset,
+            2, ett_dest_id, NULL, "destination_ID");
+        proto_tree_add_item(dest_id_tree, hf_optommp_dest_id,
+            tvb, *poffset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dest_id_tree, hf_optommp_boot_id,
+            tvb, *poffset, 2, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_optommp_nodest_id,
+            tvb, *poffset, 2, ENC_BIG_ENDIAN);
+    }
+    *poffset += 2;
 }
 
 /****************************************************************************
@@ -779,6 +812,25 @@ void proto_register_optommp(void)
     /* The fields */
     static hf_register_info hf[] =
     {
+        /* When MSB not set, dest_ID is 0 */
+        { &hf_optommp_nodest_id,
+            { "destination_ID", "optommp.destination_ID",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_optommp_dest_id,
+            { "destination_ID", "optommp.destination_ID",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_optommp_boot_id,
+            { "boot_ID", "optommp.boot_ID",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x7FFF,
+            NULL, HFILL }
+        },
         { &hf_optommp_tl,
             { "tl", "optommp.tl",
             FT_UINT8, BASE_HEX,
@@ -839,6 +891,7 @@ void proto_register_optommp(void)
     static gint *ett[] =
     {
         &ett_optommp,
+        &ett_dest_id,
         &ett_data_block_q,
         &ett_data_block_b
     };
@@ -852,7 +905,7 @@ void proto_register_optommp(void)
     optommp_module = prefs_register_protocol(proto_optommp,
         proto_reg_handoff_optommp);
     prefs_register_uint_preference(optommp_module, "tcp.port",
-        "OptoMMP TCP Port", " OptoMMP TCP port if other than the default",
+        "OptoMMP TCP or UDP Port", " OptoMMP TCP or UDP port if other than the default",
         10, &gOPTOMMP_PORT_PREF);
 }
 
