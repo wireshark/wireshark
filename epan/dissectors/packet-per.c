@@ -70,7 +70,6 @@ static int hf_per_integer_length = -1; /* Show integer length if "show internal 
 /* static int hf_per_debug_pos = -1; */
 static int hf_per_internal_range = -1;
 static int hf_per_internal_num_bits = -1;
-static int hf_per_internal_bitstring = -1;
 static int hf_per_internal_min = -1;
 static int hf_per_internal_value = -1;
 
@@ -1299,8 +1298,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			proto_tree_add_uint(tree, hf_per_internal_min, tvb, val_start,val_length, min);
 			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
 			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start, val_length, num_bits);
-			proto_tree_add_string(tree, hf_per_internal_bitstring, tvb, val_start, val_length, str);
-			proto_tree_add_uint_format(tree, hf_per_internal_value, tvb, val_start, val_length, val+min, "%s: value: %u", hfi->name, val+min);
+			proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val+min, "%s decimal value: %u", str, val+min);
 		}
 		/* The actual value */
 		val+=min;
@@ -1441,7 +1439,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
-		int i, bit, length, str_length, str_index;
+		int i, bit, length, str_length, str_index = 0;
 		guint64 mask,mask2;
 		/* We only handle 64 bit integers */
 		mask  = G_GUINT64_CONSTANT(0x8000000000000000);
@@ -1461,10 +1459,9 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 			num_bits=1;
 		}
 
-		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
-		str_length = 512+128+(int)strlen(hfi->name)+2;
+		/* prepare the string (max number of bits + quartet separators) */
+		str_length = 512+128;
 		str = (char *)wmem_alloc(wmem_packet_scope(), str_length+1);
-		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
 				if (str_index < str_length) str[str_index++] = ' ';
@@ -1502,7 +1499,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		if (display_internal_per_fields) {
 			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
 			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start,val_length, num_bits);
-			proto_tree_add_string(tree, hf_per_internal_bitstring, tvb, val_start, val_length, str);
+			proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val, "%s decimal value: %" G_GINT64_MODIFIER "u", str, val);
 		}
 	} else if(range==256){
 		/* 10.5.7.2 */
@@ -2706,17 +2703,13 @@ proto_register_per(void)
 		  { "Bitfield length", "per.internal.num_bits",
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
-		{ &hf_per_internal_bitstring,
-		  { "arbitrary", "per.internal.bitstring",
-		    FT_STRING, BASE_NONE, NULL, 0,
-		    NULL, HFILL }},
 		{ &hf_per_internal_min,
-		  { "MIN", "per.internal.min",
+		  { "Min", "per.internal.min",
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
 		{ &hf_per_internal_value,
-		  { "Value", "per.internal.value",
-		    FT_UINT32, BASE_DEC, NULL, 0,
+		  { "Bits", "per.internal.value",
+		    FT_UINT64, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
 	};
 
