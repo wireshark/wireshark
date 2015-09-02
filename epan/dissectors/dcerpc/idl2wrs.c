@@ -877,7 +877,7 @@ static void parseheader(void)
 		}
 	}
 	if(!token_list){
-		fprintf(stderr, "ERROR: ran outof tokens inside header\n");
+		fprintf(stderr, "ERROR: ran out of tokens inside header\n");
 		Exit(10);
 	}
 	/* interface */
@@ -886,6 +886,10 @@ static void parseheader(void)
 		Exit(10);
 	}
 	token_list=token_list->next;
+	if (!token_list){
+		fprintf(stderr, "ERROR: ran out of tokens\n");
+		Exit(10);
+	}
 	/* interface name */
 	ifname=token_list->str;
 	token_list=token_list->next;
@@ -3129,7 +3133,7 @@ readcnffile(FILE *fh)
 			char *str, *name;
 
 			str=cnfline+6;
-			str=str_read_string(str, &name);
+			str_read_string(str, &name);
 			nei=(no_emit_item_t*)g_malloc(sizeof(no_emit_item_t));
 			if (!nei) {
 				fprintf(stderr, "Can't allocate memory. Exit.\n");
@@ -3152,7 +3156,7 @@ readcnffile(FILE *fh)
 			str=str_read_string(str, &base_type);
 			str=str_read_string(str, &mask);
 			str=str_read_string(str, &valsstring);
-			str=str_read_string(str, &al);
+			str_read_string(str, &al);
 			alignment=atoi(al);
 
 			FPRINTF(NULL, "TYPE : X%s,%sX\n", name, dissectorname);
@@ -3163,7 +3167,7 @@ readcnffile(FILE *fh)
 
 			str=cnfline+11;
 			str=str_read_string(str, &dissectorname);
-			str=str_read_string(str, &value);
+			str_read_string(str, &value);
 
 			FPRINTF(NULL, "PARAM_VALUE : %s=%s\n", dissectorname,value);
 			register_dissector_param_value(dissectorname, value);
@@ -3180,7 +3184,7 @@ readcnffile(FILE *fh)
 			str=str_read_string(str, &base_type);
 			str=str_read_string(str, &valsstring);
 			str=str_read_string(str, &mask);
-			str=str_read_string(str, &blurb);
+			str_read_string(str, &blurb);
 			FPRINTF(NULL, "HF_FIELD: %s \"%s\"\n", hf_index, title);
 			register_hf_field(hf_index, title, filter_name, ft_type, base_type, valsstring, mask, blurb);
 		} else if(!strncmp(cnfline, "HF_RENAME", 9)){
@@ -3189,7 +3193,7 @@ readcnffile(FILE *fh)
 
 			str=cnfline+9;
 			str=str_read_string(str, &old_name);
-			str=str_read_string(str, &new_name);
+			str_read_string(str, &new_name);
 			FPRINTF(NULL, "HF_RENAME: %s -> %s\n", old_name, new_name);
 			register_hf_rename(old_name, new_name);
 		} else if(!strncmp(cnfline, "UNION_TAG_SIZE", 14)){
@@ -3200,7 +3204,7 @@ readcnffile(FILE *fh)
 
 			str=cnfline+14;
 			str=str_read_string(str, &union_name);
-			str=str_read_string(str, &union_tag);
+			str_read_string(str, &union_tag);
 			union_tag_size=atoi(union_tag);
 			FPRINTF(NULL, "UNION_TAG_SIZE: %s == %d\n", union_name, union_tag_size);
 			utsi=(union_tag_size_item_t*)g_malloc(sizeof(union_tag_size_item_t));
@@ -3217,7 +3221,7 @@ readcnffile(FILE *fh)
 			char *str;
 
 			str=cnfline+12;
-			str=str_read_string(str, &prefix_name);
+			str_read_string(str, &prefix_name);
 			FPRINTF(NULL, "STRIP_PREFIX: %s\n", prefix_name);
 			preparetrimprefix(prefix_name);
 		} else {
