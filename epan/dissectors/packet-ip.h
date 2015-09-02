@@ -42,15 +42,26 @@ typedef struct _ws_ip
     address ip_dst;
 } ws_ip;
 
+/* Differentiated Services Codepoint  */
+#define IPDSFIELD_DSCP_MASK     0xFC
+#define IPDSFIELD_DSCP(dsfield) (((dsfield) & IPDSFIELD_DSCP_MASK) >> 2)
+
+/* Explicit Congestion Notification */
+#define IPDSFIELD_ECN_MASK      0x03
+#define IPDSFIELD_ECN(dsfield)  ((dsfield) & IPDSFIELD_ECN_MASK)
+
 void capture_ip(const guchar *, int, int, packet_counts *);
 
 gboolean ip_try_dissect(gboolean heur_first, tvbuff_t *tvb,
                         packet_info *pinfo, proto_tree *tree, ws_ip *iph);
 
-/* Export the DSCP extended value-string table for other protocols */
+/* Export the DSCP/ECN extended value-string table for other protocols */
 WS_DLL_PUBLIC value_string_ext dscp_vals_ext;
+WS_DLL_PUBLIC value_string_ext ecn_vals_ext;
+WS_DLL_PUBLIC value_string_ext dscp_short_vals_ext;
+WS_DLL_PUBLIC value_string_ext ecn_short_vals_ext;
 
-#endif
+#endif /* __PACKET_IP_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

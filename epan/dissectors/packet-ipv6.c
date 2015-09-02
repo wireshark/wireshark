@@ -86,36 +86,6 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_RTALERT_RSVP             1       /* Datagram contains RSVP msg */
 #define IP6OPT_RTALERT_ACTNET           2       /* Datagram contains ACTNET msg */
 
-/* Differentiated Services Field. See RFCs 2474, 2597 and 2598. */
-#define IPDSFIELD_DSCP_MASK     0xFC
-#define IPDSFIELD_ECN_MASK      0x03
-#define IPDSFIELD_DSCP_SHIFT    2
-#define IPDSFIELD_DSCP(dsfield) (((dsfield)&IPDSFIELD_DSCP_MASK)>>IPDSFIELD_DSCP_SHIFT)
-#define IPDSFIELD_ECN(dsfield)  ((dsfield)&IPDSFIELD_ECN_MASK)
-#define IPDSFIELD_DSCP_DEFAULT  0x00
-#define IPDSFIELD_DSCP_CS1      0x08
-#define IPDSFIELD_DSCP_CS2      0x10
-#define IPDSFIELD_DSCP_CS3      0x18
-#define IPDSFIELD_DSCP_CS4      0x20
-#define IPDSFIELD_DSCP_CS5      0x28
-#define IPDSFIELD_DSCP_CS6      0x30
-#define IPDSFIELD_DSCP_CS7      0x38
-#define IPDSFIELD_DSCP_AF11     0x0A
-#define IPDSFIELD_DSCP_AF12     0x0C
-#define IPDSFIELD_DSCP_AF13     0x0E
-#define IPDSFIELD_DSCP_AF21     0x12
-#define IPDSFIELD_DSCP_AF22     0x14
-#define IPDSFIELD_DSCP_AF23     0x16
-#define IPDSFIELD_DSCP_AF31     0x1A
-#define IPDSFIELD_DSCP_AF32     0x1C
-#define IPDSFIELD_DSCP_AF33     0x1E
-#define IPDSFIELD_DSCP_AF41     0x22
-#define IPDSFIELD_DSCP_AF42     0x24
-#define IPDSFIELD_DSCP_AF43     0x26
-#define IPDSFIELD_DSCP_EF       0x2E
-#define IPDSFIELD_ECT_MASK      0x02
-#define IPDSFIELD_CE_MASK       0x01
-
 /* RPL Routing header */
 #define IP6RRPL_BITMASK_CMPRI     0xF0000000
 #define IP6RRPL_BITMASK_CMPRE     0x0F000000
@@ -145,7 +115,9 @@ static int proto_ipv6_dstopts                   = -1;
 
 static int hf_ipv6_version                      = -1;
 static int hf_ip_version                        = -1;
-static int hf_ipv6_class                        = -1;
+static int hf_ipv6_tclass                       = -1;
+static int hf_ipv6_tclass_dscp                  = -1;
+static int hf_ipv6_tclass_ecn                   = -1;
 static int hf_ipv6_flow                         = -1;
 static int hf_ipv6_plen                         = -1;
 static int hf_ipv6_nxt                          = -1;
@@ -292,9 +264,6 @@ static int hf_ipv6_shim6_opt_fii        = -1;
 static int hf_ipv6_shim6_validator      = -1;
 static int hf_ipv6_shim6_cga_parameter_data_structure = -1;
 static int hf_ipv6_shim6_cga_signature  = -1;
-static int hf_ipv6_traffic_class_dscp   = -1;
-static int hf_ipv6_traffic_class_ect    = -1;
-static int hf_ipv6_traffic_class_ce     = -1;
 
 #ifdef HAVE_GEOIP_V6
 static int hf_geoip_country             = -1;
@@ -1971,10 +1940,10 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *ipv6_tree, *ipv6_tc_tree;
-    proto_item    *ipv6_item, *ipv6_tc, *ti, *pi;
+    proto_tree    *ipv6_tree, *pt;
+    proto_item    *ipv6_item, *ti, *pi;
     proto_item    *ti_ipv6_plen = NULL, *ti_ipv6_version;
-    guint8         nxt;
+    guint8         nxt, tfc;
     int            advance;
     guint32        plen;
     gboolean       frag;
@@ -2031,7 +2000,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(IPv6_HDR_TCLS(ipv6)));
+    tfc = IPv6_HDR_TCLS(ipv6);
+    col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(tfc));
 
     /* Get extension header and payload length */
     plen = g_ntohs(ipv6->ip6_plen);
@@ -2045,18 +2015,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META, ipv6_info);
 
     if (tree) {
-        /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
-        ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
-                                      offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
+        /* !!! warning: (4-bit) version, (6-bit) DSCP, (2-bit) ECN and (20-bit) Flow */
 
-        ipv6_tc_tree = proto_item_add_subtree(ipv6_tc, ett_ipv6_traffic_class);
-
-        proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_dscp, tvb,
+        /* _format_value() used to elide leading zeros from hex representation for IPv6 Traffic Class */
+        ti = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_tclass, tvb,
+                            offset + IP6H_CTL_FLOW, 4, g_ntohl(ipv6->ip6_flow), "0x%02x", tfc);
+        proto_item_append_text(ti, " (DSCP: %s, ECN: %s)",
+                            val_to_str_ext_const(IPDSFIELD_DSCP(tfc), &dscp_short_vals_ext, "Unknown"),
+                            val_to_str_ext_const(IPDSFIELD_ECN(tfc), &ecn_short_vals_ext, "Unknown"));
+        pt = proto_item_add_subtree(ti, ett_ipv6_traffic_class);
+        proto_tree_add_item(pt, hf_ipv6_tclass_dscp, tvb,
                             offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ect, tvb,
-                            offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
-
-        proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ce, tvb,
+        proto_tree_add_item(pt, hf_ipv6_tclass_ecn, tvb,
                             offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ipv6_tree, hf_ipv6_flow, tvb,
@@ -2430,9 +2400,15 @@ proto_register_ipv6(void)
         { &hf_ip_version,
           { "Version",              "ip.version",
             FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
-        { &hf_ipv6_class,
-          { "Traffic class",        "ipv6.class",
+        { &hf_ipv6_tclass,
+          { "Traffic class",        "ipv6.tclass",
             FT_UINT32, BASE_HEX, NULL, 0x0FF00000, NULL, HFILL }},
+        { &hf_ipv6_tclass_dscp,
+          { "Differentiated Services Codepoint", "ipv6.tclass.dscp",
+            FT_UINT32, BASE_DEC | BASE_EXT_STRING, &dscp_vals_ext, 0x0FC00000, NULL, HFILL }},
+        { &hf_ipv6_tclass_ecn,
+          { "Explicit Congestion Notification", "ipv6.tclass.ecn",
+            FT_UINT32, BASE_DEC | BASE_EXT_STRING, &ecn_vals_ext, 0x00300000, NULL, HFILL }},
         { &hf_ipv6_flow,
           { "Flowlabel",            "ipv6.flow",
             FT_UINT32, BASE_HEX, NULL, 0x000FFFFF, NULL, HFILL }},
@@ -3150,18 +3126,6 @@ proto_register_ipv6(void)
           { "CGA Signature", "ipv6.shim6.cga_signature",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-
-        { &hf_ipv6_traffic_class_dscp,
-          { "Differentiated Services Field", "ipv6.traffic_class.dscp",
-            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &dscp_vals_ext, 0x0FC00000, NULL, HFILL }},
-
-        { &hf_ipv6_traffic_class_ect,
-          { "ECN-Capable Transport (ECT)", "ipv6.traffic_class.ect",
-            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0200000, NULL, HFILL }},
-
-        { &hf_ipv6_traffic_class_ce,
-          { "ECN-CE",               "ipv6.traffic_class.ce",
-            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0100000, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_ipv6,
