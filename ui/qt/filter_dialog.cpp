@@ -51,12 +51,13 @@ enum {
     filter_col_
 };
 
-FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type) :
+FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QString new_filter) :
     QDialog(parent),
     ui(new Ui::FilterDialog),
     filter_type_(filter_type),
 //    syntax_worker_(NULL),
-    filter_tree_delegate_(new FilterTreeDelegate(this, filter_type))
+    filter_tree_delegate_(new FilterTreeDelegate(this, filter_type)),
+    new_filter_(new_filter)
 {
     ui->setupUi(this);
     setWindowIcon(wsApp->normalIcon());
@@ -86,7 +87,6 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type) :
     }
 
     ui->filterTreeWidget->setItemDelegateForColumn(filter_col_, filter_tree_delegate_);
-
 }
 
 FilterDialog::~FilterDialog()
@@ -110,6 +110,11 @@ void FilterDialog::showEvent(QShowEvent *event)
         if (!fl_data->name || !fl_data->strval) continue;
 
         addFilter(fl_data->name, fl_data->strval);
+    }
+
+    if (!new_filter_.isEmpty()) {
+        addFilter(tr("New filter"), new_filter_, true);
+        new_filter_.clear();
     }
 
     ui->filterTreeWidget->resizeColumnToContents(name_col_);

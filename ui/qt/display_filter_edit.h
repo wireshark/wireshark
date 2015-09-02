@@ -25,7 +25,7 @@
 #include "syntax_line_edit.h"
 
 class QEvent;
-class QToolButton;
+class StockIconToolButton;
 
 class DisplayFilterEdit : public SyntaxLineEdit
 {
@@ -34,9 +34,7 @@ public:
     explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = true);
 
 protected:
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
     void paintEvent(QPaintEvent *evt);
-#endif
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
     void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
@@ -48,17 +46,21 @@ public slots:
     void displayFilterSuccess(bool success);
 
 private slots:
-    void checkFilter(const QString &text);
-    void bookmarkClicked();
+    void checkFilter(const QString &filter_text);
     void clearFilter();
     void changeEvent(QEvent* event);
+
+    void saveFilter();
+    void removeFilter();
+    void showFilters();
+    void prepareFilter();
 
 private:
     bool plain_;
     QString placeholder_text_;
-    QToolButton *bookmark_button_;
-    QToolButton *clear_button_;
-    QToolButton *apply_button_;
+    StockIconToolButton *bookmark_button_;
+    StockIconToolButton *clear_button_;
+    StockIconToolButton *apply_button_;
 
     void buildCompletionList(const QString& field_word);
 
@@ -67,7 +69,6 @@ signals:
     void popFilterSyntaxStatus();
     void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString& new_filter, bool force);
-    void addBookmark(QString filter);
 };
 
 #endif // DISPLAYFILTEREDIT_H

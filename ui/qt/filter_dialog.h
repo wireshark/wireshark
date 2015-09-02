@@ -37,7 +37,7 @@ class FilterDialog : public QDialog
 
 public:
     enum FilterType { CaptureFilter, DisplayFilter };
-    explicit FilterDialog(QWidget *parent = 0, FilterType filter_type = CaptureFilter);
+    explicit FilterDialog(QWidget *parent = 0, FilterType filter_type = CaptureFilter, const QString new_filter = QString());
     ~FilterDialog();
 
 protected:
@@ -49,9 +49,9 @@ private:
     enum FilterType filter_type_;
 //    CaptureFilterSyntaxWorker *syntax_worker_;
     FilterTreeDelegate *filter_tree_delegate_;
+    QString new_filter_;
 
     void addFilter(QString name, QString filter, bool start_editing = false);
-
 
 private slots:
     void updateWidgets();

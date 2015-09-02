@@ -59,10 +59,10 @@
 
 QString path_pfx_ = ":/icons/toolbar/";
 
-StockIcon::StockIcon(const char *icon_name) :
+StockIcon::StockIcon(const QString icon_name) :
     QIcon()
 {
-    if (strcmp(icon_name, "document-open") == 0) {
+    if (icon_name.compare("document-open") == 0) {
         QIcon dir_icon = fromTheme(icon_name, wsApp->style()->standardIcon(QStyle::SP_DirIcon));
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         swap(dir_icon);
@@ -77,15 +77,27 @@ StockIcon::StockIcon(const char *icon_name) :
 #endif
         return;
     } else {
-        QStringList types = QStringList() << "12x12" << "16x16" << "24x24";
+        QStringList types = QStringList() << "12x12" << "14x14" << "16x16" << "24x14" << "24x24";
         foreach (QString type, types) {
             QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
             if (QFile::exists(icon_path)) {
                 addFile(icon_path);
             }
 
-            // Along with each name check for "<name>.on" to use for the on (checked) state.
-            // XXX Add checks for each combination of QIcon::Mode + QIcon::State
+            // Along with each name check for "<name>.active" and
+            // "<name>.selected" for the Active and Selected modes, and
+            // "<name>.on" to use for the on (checked) state.
+            // XXX Allow more (or all) combinations.
+            QString icon_path_active = path_pfx_ + QString("%1/%2.active.png").arg(type).arg(icon_name);
+            if (QFile::exists(icon_path_active)) {
+                addFile(icon_path_active, QSize(), QIcon::Active, QIcon::On);
+            }
+
+            QString icon_path_selected = path_pfx_ + QString("%1/%2.selected.png").arg(type).arg(icon_name);
+            if (QFile::exists(icon_path_selected)) {
+                addFile(icon_path_selected, QSize(), QIcon::Selected, QIcon::On);
+            }
+
             QString icon_path_on = path_pfx_ + QString("%1/%2.on.png").arg(type).arg(icon_name);
             if (QFile::exists(icon_path_on)) {
                 addFile(icon_path_on, QSize(), QIcon::Normal, QIcon::On);

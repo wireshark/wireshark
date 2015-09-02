@@ -909,7 +909,6 @@ EXTRA_DIST = \
 	image/dfilter_erase_selected.png	\
 	image/dfilter_refresh_active.png	\
 	image/dfilter_refresh_normal.png	\
-	image/display_filter.qrc		\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/expert_chat.png	\

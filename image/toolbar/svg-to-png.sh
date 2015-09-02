@@ -62,6 +62,19 @@ ICONS="
     x-capture-start
     x-capture-stop
     x-colorize-packets
+    x-filter-apply
+    x-filter-apply.active
+    x-filter-apply.selected
+    x-filter-bookmark
+    x-filter-bookmark.active
+    x-filter-bookmark.selected
+    x-filter-clear
+    x-filter-clear.active
+    x-filter-clear.selected
+    x-filter-dropdown
+    x-filter-matching-bookmark
+    x-filter-matching-bookmark.active
+    x-filter-matching-bookmark.selected
     x-resize-columns
     x-stay-last
     zoom-in
@@ -71,15 +84,18 @@ ICONS="
 
 QRC_FILES=""
 
-# XXX Add support for 16 pixel icons.
-for SIZE in 12 16 24 ; do
-    SIZE_DIR=${SIZE}x${SIZE}
+for SIZE in 12x12 14x14 16x16 24x14 24x14 ; do
+    WIDTH=${SIZE/x*/}
+    HEIGHT=${SIZE/*x/}
+    SIZE_DIR=${SIZE}
 
-    TWO_X_SIZE=`expr $SIZE \* 2`
-    ONE_X_ARGS="--export-width=${SIZE} --export-height=${SIZE}"
-    TWO_X_ARGS="--export-width=${TWO_X_SIZE} --export-height=${TWO_X_SIZE}"
+    TWO_X_WIDTH=`expr $WIDTH \* 2`
+    TWO_X_HEIGHT=`expr $HEIGHT \* 2`
+    ONE_X_ARGS="--export-width=${WIDTH} --export-height=${HEIGHT}"
+    TWO_X_ARGS="--export-width=${TWO_X_WIDTH} --export-height=${TWO_X_HEIGHT}"
 
-    cd $SIZE_DIR
+    echo "Converting $SIZE_DIR"
+    cd $SIZE_DIR || exit 1
 
     for ICON in $ICONS ; do
         set_source_svgs $ICON
@@ -94,12 +110,12 @@ for SIZE in 12 16 24 ; do
 
         if [ $ONE_X_SVG -nt $ONE_X_PNG ] ; then
             inkscape $COMMON_ARGS $ONE_X_ARGS \
-                --file=$ONE_X_SVG --export-png=$ONE_X_PNG || exit 1
+                --file="$PWD/$ONE_X_SVG" --export-png="$PWD/$ONE_X_PNG" || exit 1
         fi
 
         if [ $TWO_X_SVG -nt $TWO_X_PNG ] ; then
             inkscape $COMMON_ARGS $TWO_X_ARGS \
-                --file=$TWO_X_SVG --export-png=$TWO_X_PNG || exit 1
+                --file="$PWD/$TWO_X_SVG" --export-png="$PWD/$TWO_X_PNG" || exit 1
         fi
 
         QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${ONE_X_PNG} ${SIZE_DIR}/${TWO_X_PNG}"

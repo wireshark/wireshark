@@ -11,6 +11,26 @@
     <qresource prefix="/icons">
         <file>toolbar/12x12/media-playback-start.png</file>
         <file>toolbar/12x12/media-playback-start@2x.png</file>
+        <file>toolbar/14x14/x-filter-clear.png</file>
+        <file>toolbar/14x14/x-filter-clear@2x.png</file>
+        <file>toolbar/14x14/x-filter-clear.active.png</file>
+        <file>toolbar/14x14/x-filter-clear.active@2x.png</file>
+        <file>toolbar/14x14/x-filter-clear.selected.png</file>
+        <file>toolbar/14x14/x-filter-clear.selected@2x.png</file>
+        <file>toolbar/14x14/x-filter-bookmark.png</file>
+        <file>toolbar/14x14/x-filter-bookmark@2x.png</file>
+        <file>toolbar/14x14/x-filter-bookmark.active.png</file>
+        <file>toolbar/14x14/x-filter-bookmark.active@2x.png</file>
+        <file>toolbar/14x14/x-filter-bookmark.selected.png</file>
+        <file>toolbar/14x14/x-filter-bookmark.selected@2x.png</file>
+        <file>toolbar/14x14/x-filter-dropdown.png</file>
+        <file>toolbar/14x14/x-filter-dropdown@2x.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark@2x.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark.active.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark.active@2x.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark.selected.png</file>
+        <file>toolbar/14x14/x-filter-matching-bookmark.selected@2x.png</file>
         <file>toolbar/16x16/edit-find.png</file>
         <file>toolbar/16x16/edit-find@2x.png</file>
         <file>toolbar/16x16/go-first.png</file>
@@ -51,6 +71,12 @@
         <file>toolbar/16x16/zoom-original@2x.png</file>
         <file>toolbar/16x16/zoom-out.png</file>
         <file>toolbar/16x16/zoom-out@2x.png</file>
+        <file>toolbar/24x14/x-filter-apply.png</file>
+        <file>toolbar/24x14/x-filter-apply@2x.png</file>
+        <file>toolbar/24x14/x-filter-apply.active.png</file>
+        <file>toolbar/24x14/x-filter-apply.active@2x.png</file>
+        <file>toolbar/24x14/x-filter-apply.selected.png</file>
+        <file>toolbar/24x14/x-filter-apply.selected@2x.png</file>
         <file>toolbar/24x24/edit-find.png</file>
         <file>toolbar/24x24/edit-find@2x.png</file>
         <file>toolbar/24x24/go-first.png</file>

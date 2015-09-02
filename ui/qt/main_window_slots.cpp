@@ -1481,33 +1481,6 @@ void MainWindow::on_actionDisplayFilterExpression_triggered()
 // On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make
 // the main window obnoxiously wide.
 
-// We might want to do something different here. We should probably merge
-// the dfilter and gui.filter_expressions code first.
-void MainWindow::addDisplayFilterButton(QString df_text)
-{
-    struct filter_expression *cur_fe = *pfilter_expression_head;
-    struct filter_expression *fe = g_new0(struct filter_expression, 1);
-
-    QFontMetrics fm = main_ui_->displayFilterToolBar->fontMetrics();
-    QString label = fm.elidedText(df_text, Qt::ElideMiddle, fm.height() * 15);
-
-    fe->enabled = TRUE;
-    fe->label = qstring_strdup(label);
-    fe->expression = qstring_strdup(df_text);
-
-    if (!cur_fe) {
-        *pfilter_expression_head = fe;
-    } else {
-        while (cur_fe->next) {
-            cur_fe = cur_fe->next;
-        }
-        cur_fe->next = fe;
-    }
-
-    prefs_main_write();
-    filterExpressionsChanged();
-}
-
 void MainWindow::displayFilterButtonClicked()
 {
     QAction *dfb_action = qobject_cast<QAction*>(sender());

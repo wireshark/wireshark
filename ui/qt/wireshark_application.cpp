@@ -484,7 +484,6 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     setApplicationName("Wireshark");
 
     Q_INIT_RESOURCE(about);
-    Q_INIT_RESOURCE(display_filter);
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(layout);
     Q_INIT_RESOURCE(status);

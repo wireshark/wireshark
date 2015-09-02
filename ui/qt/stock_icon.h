@@ -38,7 +38,7 @@
 class StockIcon : public QIcon
 {
 public:
-    explicit StockIcon(const char *icon_name);
+    explicit StockIcon(const QString icon_name);
 
     static QIcon colorIcon(const QRgb bg_color, const QRgb fg_color, const QString glyph = QString());
 };
