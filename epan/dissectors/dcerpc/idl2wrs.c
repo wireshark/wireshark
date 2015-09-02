@@ -2903,7 +2903,7 @@ static void parsetypedefenum(void)
 				fprintf(stderr, "ERROR: typedefenum value is not a number\n");
 				Exit(10);
 			}
-			el->val=val;
+			el->val=(int)val;
 			ti=ti->next;
 		} else {
 			el->val=eval;
