@@ -3751,13 +3751,6 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 #endif
 
-	/* check if it is part of a Call */
-	if (edt.pi.circuit_id == 0) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please select a Call packet.");
-		return;
-	}
-
 	/* ok, it is a IAX2 frame, so let's get the ip and port values */
 	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src));
 	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst));
