@@ -1,4 +1,4 @@
-/* rtp_analysis_dialog.cpp
+/* iax2_analysis_dialog.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,20 +19,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "rtp_analysis_dialog.h"
-#include "ui_rtp_analysis_dialog.h"
+#include "iax2_analysis_dialog.h"
+#include "ui_iax2_analysis_dialog.h"
 
 #include "file.h"
 #include "frame_tvbuff.h"
 
-#include "epan/epan_dissect.h"
-#include "epan/rtp_pt.h"
+#include <epan/epan_dissect.h>
+#include <epan/rtp_pt.h>
 
-#include "epan/dfilter/dfilter.h"
+#include <epan/dfilter/dfilter.h>
 
-#include "epan/dissectors/packet-rtp.h"
+#include <epan/dissectors/packet-iax2.h>
 
 #include "ui/help_url.h"
+#ifdef IAX2_RTP_STREAM_CHECK
+#include "ui/rtp_stream.h"
+#endif
 #include "ui/utf8_entities.h"
 
 #include <wsutil/g711.h>
@@ -62,66 +65,46 @@
 
 enum {
     packet_col_,
-    sequence_col_,
     delta_col_,
     jitter_col_,
-    skew_col_,
     bandwidth_col_,
-    marker_col_,
-    status_col_
+    status_col_,
+    length_col_
 };
 
-static const QRgb color_cn_ = 0xbfbfff;
 static const QRgb color_rtp_warn_ = 0xffdbbf;
-static const QRgb color_pt_event_ = 0xefffff;
 
-enum { rtp_analysis_type_ = 1000 };
-class RtpAnalysisTreeWidgetItem : public QTreeWidgetItem
+enum { iax2_analysis_type_ = 1000 };
+class Iax2AnalysisTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RtpAnalysisTreeWidgetItem(QTreeWidget *tree, tap_rtp_stat_t *statinfo, packet_info *pinfo, const struct _rtp_info *rtpinfo) :
-        QTreeWidgetItem(tree, rtp_analysis_type_)
+    Iax2AnalysisTreeWidgetItem(QTreeWidget *tree, tap_iax2_stat_t *statinfo, packet_info *pinfo) :
+        QTreeWidgetItem(tree, iax2_analysis_type_)
     {
         frame_num_ = pinfo->fd->num;
-        sequence_num_ = rtpinfo->info_seq_num;
         pkt_len_ = pinfo->fd->pkt_len;
         flags_ = statinfo->flags;
         if (flags_ & STAT_FLAG_FIRST) {
             delta_ = 0.0;
             jitter_ = 0.0;
-            skew_ = 0.0;
         } else {
             delta_ = statinfo->delta;
             jitter_ = statinfo->jitter;
-            skew_ = statinfo->skew;
         }
         bandwidth_ = statinfo->bandwidth;
-        marker_ = rtpinfo->info_marker_set ? true : false;
         ok_ = false;
 
         QColor bg_color = QColor();
         QString status;
 
-        if (statinfo->pt == PT_CN) {
-            status = "Comfort noise (PT=13, RFC 3389)";
-            bg_color = color_cn_;
-        } else if (statinfo->pt == PT_CN_OLD) {
-            status = "Comfort noise (PT=19, reserved)";
-            bg_color = color_cn_;
-        } else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
-            status = "Wrong sequence number";
+        if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
+            status = QObject::tr("Wrong sequence number");
             bg_color = ColorUtils::expert_color_error;
-        } else if (statinfo->flags & STAT_FLAG_DUP_PKT) {
-            status = "Suspected duplicate (MAC address) only delta time calculated";
-            bg_color = color_rtp_warn_;
         } else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
-            status = QString("Payload changed to PT=%1").arg(statinfo->pt);
-            if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-                status.append(" telephone/event");
-            }
+            status = QObject::tr("Payload changed to PT=%1").arg(statinfo->pt);
             bg_color = color_rtp_warn_;
         } else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
-            status = "Incorrect timestamp";
+            status = QObject::tr("Incorrect timestamp");
             /* color = COLOR_WARNING; */
             bg_color = color_rtp_warn_;
         } else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
@@ -129,12 +112,8 @@ public:
             &&  !(statinfo->flags & STAT_FLAG_PT_CN)
             &&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
             &&  !(statinfo->flags & STAT_FLAG_MARKER)) {
-            status = "Marker missing?";
+            status = QObject::tr("Marker missing?");
             bg_color = color_rtp_warn_;
-        } else if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-            status = QString("PT=%u telephone/event").arg(statinfo->pt);
-            /* XXX add color? */
-            bg_color = color_pt_event_;
         } else {
             if (statinfo->flags & STAT_FLAG_MARKER) {
                 bg_color = color_rtp_warn_;
@@ -147,23 +126,17 @@ public:
         }
 
         setText(packet_col_, QString::number(frame_num_));
-        setText(sequence_col_, QString::number(sequence_num_));
         setText(delta_col_, QString::number(delta_, 'f', 2));
         setText(jitter_col_, QString::number(jitter_, 'f', 2));
-        setText(skew_col_, QString::number(skew_, 'f', 2));
         setText(bandwidth_col_, QString::number(bandwidth_, 'f', 2));
-        if (marker_) {
-            setText(marker_col_, UTF8_BULLET);
-        }
         setText(status_col_, status);
+        setText(length_col_, QString::number(pkt_len_));
 
         setTextAlignment(packet_col_, Qt::AlignRight);
-        setTextAlignment(sequence_col_, Qt::AlignRight);
         setTextAlignment(delta_col_, Qt::AlignRight);
         setTextAlignment(jitter_col_, Qt::AlignRight);
-        setTextAlignment(skew_col_, Qt::AlignRight);
         setTextAlignment(bandwidth_col_, Qt::AlignRight);
-        setTextAlignment(marker_col_, Qt::AlignCenter);
+        setTextAlignment(length_col_, Qt::AlignRight);
 
         if (bg_color.isValid()) {
             for (int col = 0; col < columnCount(); col++) {
@@ -183,21 +156,18 @@ public:
         if (marker_) marker_str = "SET";
 
         return QList<QVariant>()
-                << frame_num_ << sequence_num_ << delta_ << jitter_ << skew_ << bandwidth_
-                << marker_str << status_str;
+                << frame_num_ << delta_ << jitter_ << bandwidth_
+                << status_str << pkt_len_;
     }
 
     bool operator< (const QTreeWidgetItem &other) const
     {
-        if (other.type() != rtp_analysis_type_) return QTreeWidgetItem::operator< (other);
-        const RtpAnalysisTreeWidgetItem *other_row = static_cast<const RtpAnalysisTreeWidgetItem *>(&other);
+        if (other.type() != iax2_analysis_type_) return QTreeWidgetItem::operator< (other);
+        const Iax2AnalysisTreeWidgetItem *other_row = static_cast<const Iax2AnalysisTreeWidgetItem *>(&other);
 
         switch (treeWidget()->sortColumn()) {
         case (packet_col_):
             return frame_num_ < other_row->frame_num_;
-            break;
-        case (sequence_col_):
-            return sequence_num_ < other_row->sequence_num_;
             break;
         case (delta_col_):
             return delta_ < other_row->delta_;
@@ -205,11 +175,11 @@ public:
         case (jitter_col_):
             return jitter_ < other_row->jitter_;
             break;
-        case (skew_col_):
-            return skew_ < other_row->skew_;
-            break;
         case (bandwidth_col_):
             return bandwidth_ < other_row->bandwidth_;
+            break;
+        case (length_col_):
+            return pkt_len_ < other_row->pkt_len_;
             break;
         default:
             break;
@@ -220,12 +190,10 @@ public:
     }
 private:
     guint32 frame_num_;
-    guint32 sequence_num_;
     guint32 pkt_len_;
     guint32 flags_;
     double delta_;
     double jitter_;
-    double skew_;
     double bandwidth_;
     bool marker_;
     bool ok_;
@@ -234,25 +202,21 @@ private:
 enum {
     fwd_jitter_graph_,
     fwd_diff_graph_,
-    fwd_delta_graph_,
     rev_jitter_graph_,
     rev_diff_graph_,
-    rev_delta_graph_,
     num_graphs_
 };
 
-RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
+Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
-    ui(new Ui::RtpAnalysisDialog),
+    ui(new Ui::Iax2AnalysisDialog),
     port_src_fwd_(0),
     port_dst_fwd_(0),
-    ssrc_fwd_(0),
     port_src_rev_(0),
-    port_dst_rev_(0),
-    ssrc_rev_(0)
+    port_dst_rev_(0)
 {
     ui->setupUi(this);
-    setWindowSubtitle(tr("RTP Stream Analysis"));
+    setWindowSubtitle(tr("IAX2 Stream Analysis"));
 
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
@@ -295,8 +259,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     memset(&dst_rev_, 0, sizeof(address));
 
     QList<QCheckBox *> graph_cbs = QList<QCheckBox *>()
-            << ui->fJitterCheckBox << ui->fDiffCheckBox << ui->fDeltaCheckBox
-            << ui->rJitterCheckBox << ui->rDiffCheckBox << ui->rDeltaCheckBox;
+            << ui->fJitterCheckBox << ui->fDiffCheckBox
+            << ui->rJitterCheckBox << ui->rDiffCheckBox;
 
     for (int i = 0; i < num_graphs_; i++) {
         QCPGraph *graph = ui->streamGraph->addGraph();
@@ -311,10 +275,10 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     // We keep our temp files open for the lifetime of the dialog. The GTK+
     // UI opens and closes at various points.
-    QString tempname = QString("%1/wireshark_rtp_f").arg(QDir::tempPath());
+    QString tempname = QString("%1/wireshark_iax2_f").arg(QDir::tempPath());
     fwd_tempfile_ = new QTemporaryFile(tempname, this);
     fwd_tempfile_->open();
-    tempname = QString("%1/wireshark_rtp_r").arg(QDir::tempPath());
+    tempname = QString("%1/wireshark_iax2_r").arg(QDir::tempPath());
     rev_tempfile_ = new QTemporaryFile(tempname, this);
     rev_tempfile_->open();
 
@@ -337,12 +301,12 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addAction(ui->actionSaveGraph);
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
-    const gchar *filter_text = "rtp && rtp.version && rtp.ssrc && (ip || ipv6)";
+    const gchar *filter_text = "iax2 && (ip || ipv6)";
     dfilter_t *sfcode;
     gchar *err_msg;
 
     if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        QMessageBox::warning(this, tr("No RTP packets found"), QString("%1").arg(err_msg));
+        QMessageBox::warning(this, tr("No IAX2 packets found"), QString("%1").arg(err_msg));
         g_free(err_msg);
         close();
     }
@@ -364,14 +328,14 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     if (!dfilter_apply_edt(sfcode, &edt)) {
         epan_dissect_cleanup(&edt);
         dfilter_free(sfcode);
-        err_str_ = tr("Please select an RTP packet");
+        err_str_ = tr("Please select an IAX2 packet");
         updateWidgets();
         return;
     }
 
     dfilter_free(sfcode);
 
-    /* OK, it is an RTP frame. Let's get the IP and port values */
+    /* ok, it is a IAX2 frame, so let's get the ip and port values */
     COPY_ADDRESS(&(src_fwd_), &(edt.pi.src));
     COPY_ADDRESS(&(dst_fwd_), &(edt.pi.dst));
     port_src_fwd_ = edt.pi.srcport;
@@ -383,43 +347,40 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     port_src_rev_ = edt.pi.destport;
     port_dst_rev_ = edt.pi.srcport;
 
-    /* Check if it is RTP Version 2 */
-    unsigned int  version_fwd;
+#if 0
+    /* check if it is Voice or MiniPacket */
     bool ok;
-    version_fwd = getIntFromProtoTree(edt.tree, "rtp", "rtp.version", &ok);
-    if (!ok || version_fwd != 2) {
-        err_str_ = tr("RTP version %1 found. Only version 2 is supported.").arg(version_fwd);
-        updateWidgets();
-        return;
-    }
-
-    /* now we need the SSRC value of the current frame */
-    ssrc_fwd_ = getIntFromProtoTree(edt.tree, "rtp", "rtp.ssrc", &ok);
+    getIntFromProtoTree(edt.tree, "iax2", "iax2.call", &ok);
     if (!ok) {
-        err_str_ = tr("SSRC value not found.");
+        err_str_ = tr("Please select an IAX2 packet.");
         updateWidgets();
         return;
     }
+#endif
+
+#ifdef IAX2_RTP_STREAM_CHECK
+    rtpstream_tapinfot tapinfo;
 
     /* Register the tap listener */
-    memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
-    tapinfo_.tap_data = this;
-    tapinfo_.mode = TAP_ANALYSE;
+    memset(&tapinfo, 0, sizeof(rtpstream_tapinfot));
+    tapinfo.tap_data = this;
+    tapinfo.mode = TAP_ANALYSE;
 
-//    register_tap_listener_rtp_stream(&tapinfo_, NULL);
+//    register_tap_listener_rtp_stream(&tapinfo, NULL);
     /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo_, cap_file_.capFile(), NULL);
+    rtpstream_scan(&tapinfo, cap_file_.capFile(), NULL);
 
-    num_streams_ = 0;
+    int num_streams = 0;
     GList *filtered_list = NULL;
-    for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
+    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
         rtp_stream_info_t * strinfo = (rtp_stream_info_t*)(strinfo_list->data);
+                 << address_to_qstring(&strinfo->dest_addr) << address_to_qstring(&src_rev_) << address_to_qstring(&dst_rev_);
         if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_fwd_))
             && (strinfo->src_port == port_src_fwd_)
             && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_fwd_)))
             && (strinfo->dest_port == port_dst_fwd_))
         {
-            ++num_streams_;
+            ++num_streams;
             filtered_list = g_list_prepend(filtered_list, strinfo);
         }
 
@@ -428,16 +389,15 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_rev_)))
             && (strinfo->dest_port == port_dst_rev_))
         {
-            ++num_streams_;
+            ++num_streams;
             filtered_list = g_list_append(filtered_list, strinfo);
-            if (ssrc_rev_ == 0)
-                ssrc_rev_ = strinfo->ssrc;
         }
     }
 
-    if (num_streams_ < 1) {
-        err_str_ = tr("No streams found.");
+    if (num_streams > 1) {
+        // Open the RTP streams dialog.
     }
+#endif
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(updateWidgets()));
@@ -449,29 +409,28 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(updateWidgets()));
     updateWidgets();
 
-    registerTapListener("rtp", this, NULL, 0, tapReset, tapPacket, tapDraw);
+    registerTapListener("IAX2", this, NULL, 0, tapReset, tapPacket, tapDraw);
     cap_file_.retapPackets();
     removeTapListeners();
 
     updateStatistics();
 }
 
-RtpAnalysisDialog::~RtpAnalysisDialog()
+Iax2AnalysisDialog::~Iax2AnalysisDialog()
 {
     delete ui;
-//    remove_tap_listener_rtp_stream(&tapinfo_);
+//    remove_tap_listener_rtp_stream(&tapinfo);
     delete fwd_tempfile_;
     delete rev_tempfile_;
 }
 
-void RtpAnalysisDialog::updateWidgets()
+void Iax2AnalysisDialog::updateWidgets()
 {
     bool enable_tab = false;
     QString hint = err_str_;
 
     if (hint.isEmpty()) {
         enable_tab = true;
-        hint = tr("%1 streams found.").arg(num_streams_);
     }
 
     bool enable_nav = false;
@@ -507,20 +466,20 @@ void RtpAnalysisDialog::updateWidgets()
     ui->hintLabel->setText(hint);
 }
 
-void RtpAnalysisDialog::on_actionGoToPacket_triggered()
+void Iax2AnalysisDialog::on_actionGoToPacket_triggered()
 {
     if (file_closed_) return;
     QTreeWidget *cur_tree = qobject_cast<QTreeWidget *>(ui->tabWidget->currentWidget());
     if (!cur_tree || cur_tree->selectedItems().length() < 1) return;
 
     QTreeWidgetItem *ti = cur_tree->selectedItems()[0];
-    if (ti->type() != rtp_analysis_type_) return;
+    if (ti->type() != iax2_analysis_type_) return;
 
-    RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
+    Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
     emit goToPacket(ra_ti->frameNum());
 }
 
-void RtpAnalysisDialog::on_actionNextProblem_triggered()
+void Iax2AnalysisDialog::on_actionNextProblem_triggered()
 {
     QTreeWidget *cur_tree = qobject_cast<QTreeWidget *>(ui->tabWidget->currentWidget());
     if (!cur_tree || cur_tree->topLevelItemCount() < 2) return;
@@ -531,11 +490,11 @@ void RtpAnalysisDialog::on_actionNextProblem_triggered()
     }
 
     QTreeWidgetItem *sel_ti = cur_tree->selectedItems()[0];
-    if (sel_ti->type() != rtp_analysis_type_) return;
+    if (sel_ti->type() != iax2_analysis_type_) return;
     QTreeWidgetItem *test_ti = cur_tree->itemBelow(sel_ti);
     while (test_ti != sel_ti) {
         if (!test_ti) test_ti = cur_tree->topLevelItem(0);
-        RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)test_ti);
+        Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)test_ti);
         if (!ra_ti->frameStatus()) {
             cur_tree->setCurrentItem(ra_ti);
             break;
@@ -545,73 +504,61 @@ void RtpAnalysisDialog::on_actionNextProblem_triggered()
     }
 }
 
-void RtpAnalysisDialog::on_fJitterCheckBox_toggled(bool checked)
+void Iax2AnalysisDialog::on_fJitterCheckBox_toggled(bool checked)
 {
     ui->streamGraph->graph(fwd_jitter_graph_)->setVisible(checked);
     updateGraph();
 }
 
-void RtpAnalysisDialog::on_fDiffCheckBox_toggled(bool checked)
+void Iax2AnalysisDialog::on_fDiffCheckBox_toggled(bool checked)
 {
     ui->streamGraph->graph(fwd_diff_graph_)->setVisible(checked);
     updateGraph();
 }
 
-void RtpAnalysisDialog::on_fDeltaCheckBox_toggled(bool checked)
-{
-    ui->streamGraph->graph(fwd_delta_graph_)->setVisible(checked);
-    updateGraph();
-}
-
-void RtpAnalysisDialog::on_rJitterCheckBox_toggled(bool checked)
+void Iax2AnalysisDialog::on_rJitterCheckBox_toggled(bool checked)
 {
     ui->streamGraph->graph(rev_jitter_graph_)->setVisible(checked);
     updateGraph();
 }
 
-void RtpAnalysisDialog::on_rDiffCheckBox_toggled(bool checked)
+void Iax2AnalysisDialog::on_rDiffCheckBox_toggled(bool checked)
 {
     ui->streamGraph->graph(rev_diff_graph_)->setVisible(checked);
     updateGraph();
 }
 
-void RtpAnalysisDialog::on_rDeltaCheckBox_toggled(bool checked)
-{
-    ui->streamGraph->graph(rev_delta_graph_)->setVisible(checked);
-    updateGraph();
-}
-
-void RtpAnalysisDialog::on_actionSaveAudio_triggered()
+void Iax2AnalysisDialog::on_actionSaveAudio_triggered()
 {
     saveAudio(dir_both_);
 }
 
-void RtpAnalysisDialog::on_actionSaveForwardAudio_triggered()
+void Iax2AnalysisDialog::on_actionSaveForwardAudio_triggered()
 {
     saveAudio(dir_forward_);
 }
 
-void RtpAnalysisDialog::on_actionSaveReverseAudio_triggered()
+void Iax2AnalysisDialog::on_actionSaveReverseAudio_triggered()
 {
     saveAudio(dir_reverse_);
 }
 
-void RtpAnalysisDialog::on_actionSaveCsv_triggered()
+void Iax2AnalysisDialog::on_actionSaveCsv_triggered()
 {
     saveCsv(dir_both_);
 }
 
-void RtpAnalysisDialog::on_actionSaveForwardCsv_triggered()
+void Iax2AnalysisDialog::on_actionSaveForwardCsv_triggered()
 {
     saveCsv(dir_forward_);
 }
 
-void RtpAnalysisDialog::on_actionSaveReverseCsv_triggered()
+void Iax2AnalysisDialog::on_actionSaveReverseCsv_triggered()
 {
     saveCsv(dir_reverse_);
 }
 
-void RtpAnalysisDialog::on_actionSaveGraph_triggered()
+void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
 {
     ui->tabWidget->setCurrentWidget(ui->graphTab);
 
@@ -657,65 +604,65 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
     }
 }
 
-void RtpAnalysisDialog::on_buttonBox_helpRequested()
+void Iax2AnalysisDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_RTP_ANALYSIS_DIALOG);
+    wsApp->helpTopicAction(HELP_IAX2_ANALYSIS_DIALOG);
 }
 
-void RtpAnalysisDialog::tapReset(void *tapinfo_ptr)
+void Iax2AnalysisDialog::tapReset(void *tapinfoptr)
 {
-    RtpAnalysisDialog *rtp_analysis_dialog = dynamic_cast<RtpAnalysisDialog *>((RtpAnalysisDialog*)tapinfo_ptr);
-    if (!rtp_analysis_dialog) return;
+    Iax2AnalysisDialog *iax2_analysis_dialog = dynamic_cast<Iax2AnalysisDialog *>((Iax2AnalysisDialog*)tapinfoptr);
+    if (!iax2_analysis_dialog) return;
 
-    rtp_analysis_dialog->resetStatistics();
+    iax2_analysis_dialog->resetStatistics();
 }
 
-gboolean RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
+gboolean Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, struct epan_dissect *, const void *iax2info_ptr)
 {
-    RtpAnalysisDialog *rtp_analysis_dialog = dynamic_cast<RtpAnalysisDialog *>((RtpAnalysisDialog*)tapinfo_ptr);
-    if (!rtp_analysis_dialog) return FALSE;
+    Iax2AnalysisDialog *iax2_analysis_dialog = dynamic_cast<Iax2AnalysisDialog *>((Iax2AnalysisDialog*)tapinfoptr);
+    if (!iax2_analysis_dialog) return FALSE;
 
-    const struct _rtp_info *rtpinfo = (const struct _rtp_info *)rtpinfo_ptr;
-    if (!rtpinfo) return FALSE;
+    const iax2_info_t *iax2info = (const iax2_info_t *)iax2info_ptr;
+    if (!iax2info) return FALSE;
 
     /* we ignore packets that are not displayed */
     if (pinfo->fd->flags.passed_dfilter == 0)
         return FALSE;
-    /* also ignore RTP Version != 2 */
-    else if (rtpinfo->info_version != 2)
-        return FALSE;
-    /* is it the forward direction?  */
-    else if (rtp_analysis_dialog->ssrc_fwd_ == rtpinfo->info_sync_src
-         && (CMP_ADDRESS(&(rtp_analysis_dialog->src_fwd_), &(pinfo->src)) == 0)
-         && (rtp_analysis_dialog->port_src_fwd_ == pinfo->srcport)
-         && (CMP_ADDRESS(&(rtp_analysis_dialog->dst_fwd_), &(pinfo->dst)) == 0)
-         && (rtp_analysis_dialog->port_dst_fwd_ == pinfo->destport))  {
 
-        rtp_analysis_dialog->addPacket(true, pinfo, rtpinfo);
+    /* we ignore packets that carry no data */
+    if (iax2info->payload_len < 1)
+        return FALSE;
+
+    /* is it the forward direction?  */
+    else if ((CMP_ADDRESS(&(iax2_analysis_dialog->src_fwd_), &(pinfo->src)) == 0)
+         && (iax2_analysis_dialog->port_src_fwd_ == pinfo->srcport)
+         && (CMP_ADDRESS(&(iax2_analysis_dialog->dst_fwd_), &(pinfo->dst)) == 0)
+         && (iax2_analysis_dialog->port_dst_fwd_ == pinfo->destport))  {
+
+        iax2_analysis_dialog->addPacket(true, pinfo, iax2info);
     }
     /* is it the reversed direction? */
-    else if (rtp_analysis_dialog->ssrc_rev_ == rtpinfo->info_sync_src
-         && (CMP_ADDRESS(&(rtp_analysis_dialog->src_rev_), &(pinfo->src)) == 0)
-         && (rtp_analysis_dialog->port_src_rev_ == pinfo->srcport)
-         && (CMP_ADDRESS(&(rtp_analysis_dialog->dst_rev_), &(pinfo->dst)) == 0)
-         && (rtp_analysis_dialog->port_dst_rev_ == pinfo->destport))  {
+    else if ((CMP_ADDRESS(&(iax2_analysis_dialog->src_rev_), &(pinfo->src)) == 0)
+         && (iax2_analysis_dialog->port_src_rev_ == pinfo->srcport)
+         && (CMP_ADDRESS(&(iax2_analysis_dialog->dst_rev_), &(pinfo->dst)) == 0)
+         && (iax2_analysis_dialog->port_dst_rev_ == pinfo->destport))  {
 
-        rtp_analysis_dialog->addPacket(false, pinfo, rtpinfo);
+        iax2_analysis_dialog->addPacket(false, pinfo, iax2info);
     }
     return FALSE;
 }
 
-void RtpAnalysisDialog::tapDraw(void *tapinfo_ptr)
+void Iax2AnalysisDialog::tapDraw(void *tapinfoptr)
 {
-    RtpAnalysisDialog *rtp_analysis_dialog = dynamic_cast<RtpAnalysisDialog *>((RtpAnalysisDialog*)tapinfo_ptr);
-    if (!rtp_analysis_dialog) return;
-    rtp_analysis_dialog->updateStatistics();
+    Iax2AnalysisDialog *iax2_analysis_dialog = dynamic_cast<Iax2AnalysisDialog *>((Iax2AnalysisDialog*)tapinfoptr);
+    if (!iax2_analysis_dialog) return;
+    iax2_analysis_dialog->updateStatistics();
 }
 
-void RtpAnalysisDialog::resetStatistics()
+void Iax2AnalysisDialog::resetStatistics()
 {
-    memset(&fwd_statinfo_, 0, sizeof(tap_rtp_stat_t));
-    memset(&rev_statinfo_, 0, sizeof(tap_rtp_stat_t));
+    memset(&fwd_statinfo_, 0, sizeof(fwd_statinfo_));
+    memset(&rev_statinfo_, 0, sizeof(rev_statinfo_));
 
     fwd_statinfo_.first_packet = TRUE;
     rev_statinfo_.first_packet = TRUE;
@@ -732,50 +679,45 @@ void RtpAnalysisDialog::resetStatistics()
     fwd_time_vals_.clear();
     fwd_jitter_vals_.clear();
     fwd_diff_vals_.clear();
-    fwd_delta_vals_.clear();
     rev_time_vals_.clear();
     rev_jitter_vals_.clear();
     rev_diff_vals_.clear();
-    rev_delta_vals_.clear();
 
     fwd_tempfile_->resize(0);
     rev_tempfile_->resize(0);
 }
 
-void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_info *rtpinfo)
+void Iax2AnalysisDialog::addPacket(bool forward, packet_info *pinfo, const struct _iax2_info_t *iax2info)
 {
     /* add this RTP for future listening using the RTP Player*/
 //    add_rtp_packet(rtpinfo, pinfo);
 
     if (forward) {
-        rtp_packet_analyse(&fwd_statinfo_, pinfo, rtpinfo);
-        new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo, rtpinfo);
+        iax2_packet_analyse(&fwd_statinfo_, pinfo, iax2info);
+        new Iax2AnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo);
 
-        fwd_time_vals_.append((fwd_statinfo_.time - fwd_statinfo_.start_time) / 1000);
+        fwd_time_vals_.append((fwd_statinfo_.time - fwd_statinfo_.start_time));
         fwd_jitter_vals_.append(fwd_statinfo_.jitter * 1000);
         fwd_diff_vals_.append(fwd_statinfo_.diff * 1000);
-        fwd_delta_vals_.append(fwd_statinfo_.delta * 1000);
 
-        savePayload(fwd_tempfile_, &fwd_statinfo_, pinfo, rtpinfo);
+        savePayload(fwd_tempfile_, pinfo, iax2info);
     } else {
-        rtp_packet_analyse(&rev_statinfo_, pinfo, rtpinfo);
-        new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo, rtpinfo);
+        iax2_packet_analyse(&rev_statinfo_, pinfo, iax2info);
+        new Iax2AnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo);
 
-        rev_time_vals_.append((rev_statinfo_.time - rev_statinfo_.start_time) / 1000);
+        rev_time_vals_.append((rev_statinfo_.time - rev_statinfo_.start_time));
         rev_jitter_vals_.append(rev_statinfo_.jitter * 1000);
         rev_diff_vals_.append(rev_statinfo_.diff * 1000);
-        rev_delta_vals_.append(rev_statinfo_.delta * 1000);
 
-        savePayload(rev_tempfile_, &rev_statinfo_, pinfo, rtpinfo);
+        savePayload(rev_tempfile_, pinfo, iax2info);
     }
 
 }
 
-// rtp_analysis.c:rtp_packet_save_payload
-const unsigned int max_silence_ticks_ = 1000000;
+// iax2_analysis.c:rtp_packet_save_payload
 const guint8 silence_pcmu_ = 0xff;
 const guint8 silence_pcma_ = 0x55;
-void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *statinfo, packet_info *pinfo, const _rtp_info *rtpinfo)
+void Iax2AnalysisDialog::savePayload(QTemporaryFile *tmpfile, packet_info *pinfo, const struct _iax2_info_t *iax2info)
 {
     /* Is this the first packet we got in this direction? */
 //    if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -792,84 +734,20 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     /* If there was already an error, we quit */
     if (!tmpfile->isOpen() || tmpfile->error() != QFile::NoError) return;
 
-    /* Quit if the captured length and packet length aren't equal or
-     * if the RTP dissector thinks there is some information missing
+    /* Quit if the captured length and packet length aren't equal.
      */
-    if ((pinfo->fd->pkt_len != pinfo->fd->cap_len)
-        && (!rtpinfo->info_all_data_present)) {
+    if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: Wrong length of captured packets.");
         return;
     }
 
-    /* If padding bit is set but the padding count is bigger
-     * then the whole RTP data - error with padding count
-     */
-    if ( (rtpinfo->info_padding_set != FALSE)
-         && (rtpinfo->info_padding_count > rtpinfo->info_payload_len) ) {
-        tmpfile->close();
-        err_str_ = tr("Can't save in a file: RTP data with padding.");
-        return;
-    }
-
-    /* Do we need to insert some silence? */
-    if ((rtpinfo->info_marker_set)
-        && ! (statinfo->flags & STAT_FLAG_FIRST)
-        && ! (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP)
-        && (statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
-        /* the amount of silence should be the difference between
-        * the last timestamp and the current one minus x
-        * x should equal the amount of information in the last frame
-        * XXX not done yet */
-        for (unsigned int i = 0;
-             (i < (statinfo->delta_timestamp - rtpinfo->info_payload_len - rtpinfo->info_padding_count))
-                 && (i < max_silence_ticks_);
-             i++) {
-            guint8 tmp;
-            size_t nchars;
-
-            switch (statinfo->reg_pt) {
-            case PT_PCMU:
-                tmp = silence_pcmu_;
-                break;
-            case PT_PCMA:
-                tmp = silence_pcma_;
-                break;
-            default:
-                tmp = 0;
-                break;
-            }
-            nchars = tmpfile->write((char *)&tmp, 1);
-            if (nchars != 1) {
-                /* Write error or short write */
-                tmpfile->close();
-                err_str_ = tr("Can't save in a file: File I/O problem.");
-                return;
-            }
-        }
-    }
-
-
-    if ((rtpinfo->info_payload_type == PT_CN)
-        || (rtpinfo->info_payload_type == PT_CN_OLD)) {
-    } else { /* All other payloads */
-        const char *data;
+    if (iax2info->payload_len > 0) {
+        const char *data = (const char *) iax2info->payload_data;
         size_t nchars;
 
-        if (!rtpinfo->info_all_data_present) {
-            /* Not all the data was captured. */
-            tmpfile->close();
-            err_str_ = tr("Can't save in a file: Not all data in all packets was captured.");
-            return;
-        }
-
-        /* We put the pointer at the beginning of the RTP
-         * payload, that is, at the beginning of the RTP data
-         * plus the offset of the payload from the beginning
-         * of the RTP data */
-        data   = (const char *) rtpinfo->info_data + rtpinfo->info_payload_offset;
-        nchars = tmpfile->write(data, rtpinfo->info_payload_len - rtpinfo->info_padding_count);
-        if (nchars != (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) {
+        nchars = tmpfile->write(data, iax2info->payload_len);
+        if (nchars != (iax2info->payload_len)) {
             /* Write error or short write */
             err_str_ = tr("Can't save in a file: File I/O problem.");
             tmpfile->close();
@@ -880,39 +758,16 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     return;
 }
 
-void RtpAnalysisDialog::updateStatistics()
+void Iax2AnalysisDialog::updateStatistics()
 {
-    unsigned int f_clock_rate = fwd_statinfo_.clock_rate;
-    unsigned int r_clock_rate = rev_statinfo_.clock_rate;
-    unsigned int f_expected = (fwd_statinfo_.stop_seq_nr + fwd_statinfo_.cycles*65536)
-            - fwd_statinfo_.start_seq_nr + 1;
-    unsigned int r_expected = (rev_statinfo_.stop_seq_nr + rev_statinfo_.cycles*65536)
-            - rev_statinfo_.start_seq_nr + 1;
-    unsigned int f_total_nr = fwd_statinfo_.total_nr;
-    unsigned int r_total_nr = rev_statinfo_.total_nr;
-    int f_lost = f_expected - f_total_nr;
-    int r_lost = r_expected - r_total_nr;
-    double f_sumt = fwd_statinfo_.sumt;
-    double f_sumTS = fwd_statinfo_.sumTS;
-    double f_sumt2 = fwd_statinfo_.sumt2;
-    double f_sumtTS = fwd_statinfo_.sumtTS;
-    double r_sumt = rev_statinfo_.sumt;
-    double r_sumTS = rev_statinfo_.sumTS;
-    double r_sumt2 = rev_statinfo_.sumt2;
-    double r_sumtTS = rev_statinfo_.sumtTS;
-    double f_perc, r_perc;
-    double f_clock_drift = 1.0;
-    double r_clock_drift = 1.0;
-    double f_duration = fwd_statinfo_.time - fwd_statinfo_.start_time;
+    double f_duration = fwd_statinfo_.time - fwd_statinfo_.start_time; // s
     double r_duration = rev_statinfo_.time - rev_statinfo_.start_time;
-
-    if (f_clock_rate == 0) {
-        f_clock_rate = 1;
-    }
-
-    if (r_clock_rate == 0) {
-        r_clock_rate = 1;
-    }
+#if 0 // Marked as "TODO" in tap-iax2-analysis.c:128
+    unsigned int f_expected = fwd_statinfo_.stop_seq_nr - fwd_statinfo_.start_seq_nr + 1;
+    unsigned int r_expected = rev_statinfo_.stop_seq_nr - rev_statinfo_.start_seq_nr + 1;
+    int f_lost = f_expected - fwd_statinfo_.total_nr;
+    int r_lost = r_expected - rev_statinfo_.total_nr;
+    double f_perc, r_perc;
 
     if (f_expected) {
         f_perc = (double)(f_lost*100)/(double)f_expected;
@@ -924,13 +779,7 @@ void RtpAnalysisDialog::updateStatistics()
     } else {
         r_perc = 0;
     }
-
-    if ((f_total_nr >0) && (f_sumt2 > 0)) {
-        f_clock_drift = (f_total_nr * f_sumtTS - f_sumt * f_sumTS) / (f_total_nr * f_sumt2 - f_sumt * f_sumt);
-    }
-    if ((r_total_nr >0) && (r_sumt2 > 0)) {
-        r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
-    }
+#endif
 
     QString stats_tables = "<html><head></head><body>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
@@ -941,8 +790,6 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(port_dst_fwd_);
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
-            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(fwd_statinfo_.max_delta, 0, 'f', 2)
             .arg(fwd_statinfo_.max_nr);
@@ -950,28 +797,22 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(fwd_statinfo_.max_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</tr>")
             .arg(fwd_statinfo_.mean_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</tr>")
-            .arg(fwd_statinfo_.max_skew, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</tr>")
-            .arg(f_total_nr);
+    stats_tables += QString("<tr><th align=\"left\">IAX2 Packets</th><td>%1</tr>")
+            .arg(fwd_statinfo_.total_nr);
+#if 0
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</tr>")
             .arg(f_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</tr>")
             .arg(f_lost).arg(f_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</tr>")
             .arg(fwd_statinfo_.sequence);
+#endif
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</tr>")
-            .arg(f_duration / 1000.0, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</tr>")
-            .arg(f_duration * (f_clock_drift - 1.0), 0, 'f', 0);
-    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</tr>") // XXX Terminology?
-            .arg(f_clock_drift * f_clock_rate, 0, 'f', 0).arg(100.0 * (f_clock_drift - 1.0), 0, 'f', 2);
+            .arg(f_duration, 0, 'f', 2);
     stats_tables += "</table></p>\n";
 
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += "<p><table>\n";
-    stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</tr>")
-            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(rev_statinfo_.max_delta, 0, 'f', 2)
             .arg(rev_statinfo_.max_nr);
@@ -979,22 +820,18 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(rev_statinfo_.max_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</tr>")
             .arg(rev_statinfo_.mean_jitter, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</tr>")
-            .arg(rev_statinfo_.max_skew, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</tr>")
-            .arg(r_total_nr);
+    stats_tables += QString("<tr><th align=\"left\">IAX2 Packets</th><td>%1</tr>")
+            .arg(rev_statinfo_.total_nr);
+#if 0
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</tr>")
             .arg(r_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</tr>")
             .arg(r_lost).arg(r_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</tr>")
             .arg(rev_statinfo_.sequence);
+#endif
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</tr>")
-            .arg(r_duration / 1000.0, 0, 'f', 2);
-    stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</tr>")
-            .arg(r_duration * (r_clock_drift - 1.0), 0, 'f', 0);
-    stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</tr>") // XXX Terminology?
-            .arg(r_clock_drift * r_clock_rate, 0, 'f', 0).arg(100.0 * (r_clock_drift - 1.0), 0, 'f', 2);
+            .arg(r_duration, 0, 'f', 2);
     stats_tables += "</table></p></body>\n";
 
     ui->statisticsLabel->setText(stats_tables);
@@ -1006,17 +843,15 @@ void RtpAnalysisDialog::updateStatistics()
 
     graphs_[fwd_jitter_graph_]->setData(fwd_time_vals_, fwd_jitter_vals_);
     graphs_[fwd_diff_graph_]->setData(fwd_time_vals_, fwd_diff_vals_);
-    graphs_[fwd_delta_graph_]->setData(fwd_time_vals_, fwd_delta_vals_);
     graphs_[rev_jitter_graph_]->setData(rev_time_vals_, rev_jitter_vals_);
     graphs_[rev_diff_graph_]->setData(rev_time_vals_, rev_diff_vals_);
-    graphs_[rev_delta_graph_]->setData(rev_time_vals_, rev_delta_vals_);
 
     updateGraph();
 
     updateWidgets();
 }
 
-void RtpAnalysisDialog::updateGraph()
+void Iax2AnalysisDialog::updateGraph()
 {
     for (int i = 0; i < ui->streamGraph->graphCount(); i++) {
         if (ui->streamGraph->graph(i)->visible()) {
@@ -1026,9 +861,9 @@ void RtpAnalysisDialog::updateGraph()
     ui->streamGraph->replot();
 }
 
-// rtp_analysis.c:copy_file
+// iax2_analysis.c:copy_file
 enum { save_audio_none_, save_audio_au_, save_audio_raw_ };
-void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
+void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction)
 {
     if (!fwd_tempfile_->isOpen() || !rev_tempfile_->isOpen()) return;
 
@@ -1301,7 +1136,7 @@ copy_file_err:
 }
 
 // XXX The GTK+ UI saves the length and timestamp.
-void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
+void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
 {
     QString caption;
 
@@ -1332,8 +1167,8 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
 
         for (int row = 0; row < ui->forwardTreeWidget->topLevelItemCount(); row++) {
             QTreeWidgetItem *ti = ui->forwardTreeWidget->topLevelItem(row);
-            if (ti->type() != rtp_analysis_type_) continue;
-            RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
+            if (ti->type() != iax2_analysis_type_) continue;
+            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
             QStringList values;
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {
@@ -1356,8 +1191,8 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
 
         for (int row = 0; row < ui->forwardTreeWidget->topLevelItemCount(); row++) {
             QTreeWidgetItem *ti = ui->forwardTreeWidget->topLevelItem(row);
-            if (ti->type() != rtp_analysis_type_) continue;
-            RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
+            if (ti->type() != iax2_analysis_type_) continue;
+            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
             QStringList values;
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {
@@ -1374,8 +1209,9 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
     }
 }
 
-// Adapted from rtp_analysis.c:process_node
-guint32 RtpAnalysisDialog::processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar *proto_field, bool *ok)
+#if 0
+// Adapted from iax2_analysis.c:process_node
+guint32 Iax2AnalysisDialog::processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar *proto_field, bool *ok)
 {
     field_info        *finfo;
     proto_node        *proto_sibling_node;
@@ -1422,8 +1258,8 @@ guint32 RtpAnalysisDialog::processNode(proto_node *ptree_node, header_field_info
     }
 }
 
-// Adapted from rtp_analysis.c:get_int_value_from_proto_tree
-guint32 RtpAnalysisDialog::getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok)
+// Adapted from iax2_analysis.c:get_int_value_from_proto_tree
+guint32 Iax2AnalysisDialog::getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok)
 {
     proto_node *ptree_node;
     header_field_info *hfinformation;
@@ -1442,8 +1278,9 @@ guint32 RtpAnalysisDialog::getIntFromProtoTree(proto_tree *protocol_tree, const 
 
     return processNode(ptree_node, hfinformation, proto_field, ok);
 }
+#endif
 
-bool RtpAnalysisDialog::eventFilter(QObject *, QEvent *event)
+bool Iax2AnalysisDialog::eventFilter(QObject *, QEvent *event)
 {
     if (event->type() != QEvent::KeyPress) return false;
 
@@ -1462,7 +1299,7 @@ bool RtpAnalysisDialog::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
+void Iax2AnalysisDialog::graphClicked(QMouseEvent *event)
 {
     updateWidgets();
     if (event->button() == Qt::RightButton) {
@@ -1470,7 +1307,7 @@ void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
     }
 }
 
-void RtpAnalysisDialog::showStreamMenu(QPoint pos)
+void Iax2AnalysisDialog::showStreamMenu(QPoint pos)
 {
     QTreeWidget *cur_tree = qobject_cast<QTreeWidget *>(ui->tabWidget->currentWidget());
     if (!cur_tree) return;

@@ -235,6 +235,7 @@ FORMS += \
     funnel_string_dialog.ui \
     funnel_text_dialog.ui \
     gsm_map_summary_dialog.ui \
+    iax2_analysis_dialog.ui \
     import_text_dialog.ui \
     io_graph_dialog.ui \
     layout_preferences_frame.ui \
@@ -616,6 +617,7 @@ HEADERS += \
     display_filter_edit.h \
     file_set_dialog.h \
     filter_dialog.h \
+    iax2_analysis_dialog.h \
     import_text_dialog.h \
     interface_tree.h \
     io_graph_dialog.h \
@@ -695,6 +697,7 @@ SOURCES += \
     funnel_text_dialog.cpp \
     funnel_statistics.cpp \
     gsm_map_summary_dialog.cpp \
+    iax2_analysis_dialog.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \
     io_graph_dialog.cpp \

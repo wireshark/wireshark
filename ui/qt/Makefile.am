@@ -182,6 +182,8 @@ funnel_text_dialog.$(OBJEXT): ui_funnel_text_dialog.h
 
 gsm_map_summary_dialog.$(OBJEXT): ui_gsm_map_summary_dialog.h
 
+iax2_analysis_dialog.$(OBJEXT): ui_iax2_analysis_dialog.h
+
 import_text_dialog.$(OBJEXT): ui_import_text_dialog.h
 
 io_graph_dialog.$(OBJEXT): ui_io_graph_dialog.h
@@ -226,10 +228,6 @@ print_dialog.$(OBJEXT): ui_print_dialog.h
 
 progress_frame.$(OBJEXT): ui_progress_frame.h
 
-rtp_analysis_dialog.$(OBJEXT): ui_rtp_analysis_dialog.h
-
-rtp_stream_dialog.$(OBJEXT): ui_rtp_stream_dialog.h
-
 profile_dialog.$(OBJEXT): ui_profile_dialog.h
 
 protocol_hierarchy_dialog.$(OBJEXT): ui_protocol_hierarchy_dialog.h
@@ -239,6 +237,8 @@ remote_capture_dialog.$(OBJEXT): ui_remote_capture_dialog.h
 remote_settings_dialog.$(OBJEXT): ui_remote_settings_dialog.h
 
 resolved_addresses_dialog.$(OBJEXT): ui_resolved_addresses_dialog.h
+
+rtp_analysis_dialog.$(OBJEXT): ui_rtp_analysis_dialog.h
 
 rtp_stream_dialog.$(OBJEXT): ui_rtp_stream_dialog.h
 

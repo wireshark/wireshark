@@ -38,6 +38,13 @@ The RTP Stream Analysis window further provides the option to save the RTP
 payload (as raw data or, if in a PCM encoding, in an Audio file). Other options
 a to export and plot various statistics on the RTP streams.
 
+[[ChTelIAX2Analysis]]
+
+=== IAX2 Analysis
+
+The ``IAX2 Analysis'' dialog shows statistics for the forward and reverse
+streams of a selected IAX2 call along with a graph.
+
 [[ChTelVoipCalls]]
 
 === VoIP Calls

@@ -39,16 +39,9 @@
  *  @todo what's this?
  */
 
-void iax2_analysis(
-        address *ip_src_fwd,
-        guint16 port_src_fwd,
-        address *ip_dst_fwd,
-        guint16 port_dst_fwd,
-        address *ip_src_rev,
-        guint16 port_src_rev,
-        address *ip_dst_rev,
-        guint16 port_dst_rev
-        );
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
@@ -86,8 +79,8 @@ typedef struct _tap_iax2_stat_t {
     guint16 stop_seq_nr;
     guint32 total_nr;
     guint32 sequence;
-    gboolean under;
-    gint cycles;
+    gboolean under; /* Unused? */
+    gint cycles; /* Unused? */
     guint16 pt;
     int reg_pt;
 } tap_iax2_stat_t;
@@ -104,14 +97,14 @@ typedef struct _tap_iax2_stat_t {
 #define STAT_FLAG_REG_PT_CHANGE		0x040
 #define STAT_FLAG_WRONG_TIMESTAMP	0x080
 
-/* forward */
-struct _rtp_info;
-
 /* function for analysing an IAX2 packet. Called from iax2_analysis. */
 extern void iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         packet_info *pinfo,
         const struct _iax2_info_t *iax2info);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __TAP_IAX2_ANALYSIS_H__ */
 

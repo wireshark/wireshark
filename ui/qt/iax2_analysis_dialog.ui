@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RtpAnalysisDialog</class>
- <widget class="QDialog" name="RtpAnalysisDialog">
+ <class>Iax2AnalysisDialog</class>
+ <widget class="QDialog" name="Iax2AnalysisDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -71,11 +71,6 @@
         </column>
         <column>
          <property name="text">
-          <string>Sequence</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
           <string>Delta (ms)</string>
          </property>
         </column>
@@ -86,22 +81,17 @@
         </column>
         <column>
          <property name="text">
-          <string>Skew</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
           <string>Bandwidth</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>Marker</string>
+          <string>Status</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>Status</string>
+          <string>Length</string>
          </property>
         </column>
        </widget>
@@ -130,7 +120,7 @@
           <widget class="QCustomPlot" name="streamGraph" native="true"/>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="forwardHorizontalLayout" stretch="0,0,0,0,0,1">
+          <layout class="QHBoxLayout" name="forwardHorizontalLayout" stretch="0,0,0,1">
            <item>
             <widget class="QCheckBox" name="fJitterCheckBox">
              <property name="toolTip">
@@ -165,29 +155,6 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="fDeltaCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Forward Delta</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -203,7 +170,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="reverseHorizontalLayout" stretch="0,0,0,0,0,1">
+          <layout class="QHBoxLayout" name="reverseHorizontalLayout" stretch="0,0,0,1">
            <item>
             <widget class="QCheckBox" name="rJitterCheckBox">
              <property name="toolTip">
@@ -234,29 +201,6 @@
              </property>
              <property name="text">
               <string>Reverse Difference</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="rDeltaCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reverse Delta</string>
              </property>
             </widget>
            </item>
@@ -411,7 +355,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>RtpAnalysisDialog</receiver>
+   <receiver>Iax2AnalysisDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -427,7 +371,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>RtpAnalysisDialog</receiver>
+   <receiver>Iax2AnalysisDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

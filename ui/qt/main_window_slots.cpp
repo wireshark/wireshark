@@ -104,6 +104,7 @@
 #include "filter_dialog.h"
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
+#include "iax2_analysis_dialog.h"
 #include "io_graph_dialog.h"
 #include "lbm_stream_dialog.h"
 #include "lbm_uimflow_dialog.h"
@@ -2954,15 +2955,23 @@ void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
     gms_dialog->show();
 }
 
-void MainWindow::on_actionTelephonyMtp3Summary_triggered()
+void MainWindow::on_actionTelephonyIax2StreamAnalysis_triggered()
 {
-    Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
-    mtp3s_dialog->show();
+    Iax2AnalysisDialog *iax2_analysis_dialog = new  Iax2AnalysisDialog(*this, capture_file_);
+    connect(iax2_analysis_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    iax2_analysis_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyISUPMessages_triggered()
 {
     openStatisticsTreeDialog("isup_msg");
+}
+
+void MainWindow::on_actionTelephonyMtp3Summary_triggered()
+{
+    Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
+    mtp3s_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyRTPStreams_triggered()

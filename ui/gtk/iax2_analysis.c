@@ -3482,7 +3482,7 @@ get_int_value_from_proto_tree(proto_tree *protocol_tree,
 #endif
 
 /****************************************************************************/
-void
+static void
 iax2_analysis(
 	address *ip_src_fwd,
 	guint16 port_src_fwd,
@@ -3608,7 +3608,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	guint16 port_dst_rev;
 	/* unsigned int ptype; */
 
-	gchar	      filter_text[256];
+	const gchar  *filter_text = "iax2 && (ip || ipv6)";
 	dfilter_t    *sfcode;
 	gchar        *err_msg;
 	capture_file *cf;
@@ -3620,7 +3620,6 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	rtp_stream_info_t *strinfo;
 
 	/* Try to compile the filter. */
-	g_strlcpy(filter_text,"iax2 && (ip || ipv6)",256);
 	if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
 		g_free(err_msg);

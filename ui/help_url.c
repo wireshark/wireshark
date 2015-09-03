@@ -347,6 +347,8 @@ topic_action_url(topic_action_e action)
         break;
     case(HELP_NEW_PACKET_DIALOG):
         return user_guide_url("ChapterWork.html#ChWorkPacketSepView");
+    case(HELP_IAX2_ANALYSIS_DIALOG):
+        url = user_guide_url("ChTelIAX2Analysis.html");
 
     case(TOPIC_ACTION_NONE):
     default:

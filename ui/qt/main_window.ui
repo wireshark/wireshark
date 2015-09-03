@@ -545,6 +545,7 @@
     <addaction name="actionTelephonyVoipCalls"/>
     <addaction name="menuANSI"/>
     <addaction name="menuGSM"/>
+    <addaction name="actionTelephonyIax2StreamAnalysis"/>
     <addaction name="actionTelephonyISUPMessages"/>
     <addaction name="menuLTE"/>
     <addaction name="menuMTP3"/>
@@ -2642,10 +2643,18 @@
   </action>
   <action name="actionTelephonyRTPStreamAnalysis">
    <property name="text">
-    <string>Analyze RTP Stream</string>
+    <string>Stream Analysis</string>
    </property>
    <property name="toolTip">
     <string>RTP Stream Analysis</string>
+   </property>
+  </action>
+  <action name="actionTelephonyIax2StreamAnalysis">
+   <property name="text">
+    <string>IAX2 Stream Analysis</string>
+   </property>
+   <property name="toolTip">
+    <string>IAX2 Stream Analysis</string>
    </property>
   </action>
   <action name="actionViewEditResolvedName">
