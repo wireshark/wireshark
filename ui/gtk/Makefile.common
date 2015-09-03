@@ -228,7 +228,6 @@ noinst_HEADERS = \
 	gui_utils.h	\
 	help_dlg.h	\
 	hostlist_table.h \
-	iax2_analysis.h	\
 	keys.h		\
 	layouts.h	\
 	lbm_stream_dlg.h	\

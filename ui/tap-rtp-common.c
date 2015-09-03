@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include <math.h>
 #include "globals.h"
 
@@ -405,7 +407,8 @@ get_dyn_pt_clock_rate(const gchar *payload_type_str)
 }
 
 /****************************************************************************/
-int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
+void
+rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		       packet_info *pinfo,
 		       const struct _rtp_info *rtpinfo)
 {
@@ -453,7 +456,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
 		statinfo->first_packet = FALSE;
-		return 0;
+		return;
 	}
 
 	/* Reset flags */
@@ -464,7 +467,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		if(!ADDRESSES_EQUAL(&(statinfo->first_packet_mac_addr), &(pinfo->dl_src))){
 			statinfo->flags |= STAT_FLAG_DUP_PKT;
 			statinfo->delta = current_time-(statinfo->time);
-			return 0;
+			return;
 		}
 	}
 
@@ -543,7 +546,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->pt = rtpinfo->info_payload_type;
 
 	/*
-	 * Return 0 for unknown payload types
+	 * Return for unknown payload types
 	 * Ignore jitter calculation for clockrate = 0
 	 */
 	if (statinfo->pt < 96 ){
@@ -689,7 +692,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->stop_seq_nr = rtpinfo->info_seq_num;
 	statinfo->total_nr++;
 
-	return 0;
+	return;
 }
 
 /*

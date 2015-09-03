@@ -1,4 +1,4 @@
-/* rtp_analysis.h
+/* tap-rtp-analysis.h
  * RTP analysis addition for Wireshark
  *
  * Copyright 2003, Alcatel Business Systems
@@ -27,10 +27,9 @@
  * Foundation,  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __RTP_ANALYSIS_H__
-#define __RTP_ANALYSIS_H__
+#ifndef __TAP_RTP_ANALYSIS_H__
+#define __TAP_RTP_ANALYSIS_H__
 
-#include <glib.h>
 #include <epan/address.h>
 #include <epan/packet_info.h>
 
@@ -127,7 +126,7 @@ typedef struct _tap_rtp_stat_t {
 struct _rtp_info;
 
 /* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
-extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
+extern void rtp_packet_analyse(tap_rtp_stat_t *statinfo,
                               packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);
 
@@ -135,7 +134,7 @@ extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 }
 #endif /* __cplusplus */
 
-#endif /* __RTP_ANALYSIS_H__ */
+#endif /* __TAP_RTP_ANALYSIS_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

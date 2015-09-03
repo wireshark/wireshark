@@ -28,8 +28,8 @@
 
 #include "epan/address.h"
 
-#include "ui/rtp_analysis.h"
 #include "ui/rtp_stream.h"
+#include "ui/tap-rtp-analysis.h"
 
 #include <QAbstractButton>
 #include <QMenu>

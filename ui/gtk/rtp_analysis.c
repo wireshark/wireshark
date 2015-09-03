@@ -78,8 +78,8 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/pixmap_save.h"
 #include "ui/gtk/main.h"
-#include "ui/rtp_analysis.h"
 #include "ui/rtp_stream.h"
+#include "ui/tap-rtp-analysis.h"
 #include "ui/gtk/rtp_stream_dlg.h"
 #include "ui/gtk/stock_icons.h"
 

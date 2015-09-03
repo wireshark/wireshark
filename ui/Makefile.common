@@ -70,6 +70,7 @@ WIRESHARK_UI_SRC = \
 	software_update.c	\
 	ssl_key_export.c	\
 	tap_export_pdu.c	\
+	tap-iax2-analysis.c	\
 	tap-rtp-common.c	\
 	tap-sctp-analysis.c \
 	tap-sequence-analysis.c	\
@@ -106,13 +107,14 @@ noinst_HEADERS = \
 	proto_hier_stats.h	\
 	recent.h		\
 	recent_utils.h		\
-	rtp_analysis.h		\
 	rtp_stream.h		\
 	service_response_time.h	\
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\
 	tap_export_pdu.h	\
+	tap-iax2-analysis.h	\
+	tap-rtp-analysis.h	\
 	tap-rtp-common.h	\
 	tap-sctp-analysis.h  \
 	tap-sequence-analysis.h	\

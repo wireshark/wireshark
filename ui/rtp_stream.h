@@ -35,7 +35,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "rtp_analysis.h"
+#include "tap-rtp-analysis.h"
 #include <glib.h>
 #include <stdio.h>
 

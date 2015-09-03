@@ -1,4 +1,4 @@
-/* iax2_analysis.h
+/* tap-iax2-analysis.h
  * IAX2 analysis addition for Wireshark
  *
  * based on rtp_analysis.c
@@ -28,10 +28,9 @@
  * Foundation,  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __IAX2_ANALYSIS_H__
-#define __IAX2_ANALYSIS_H__
+#ifndef __TAP_IAX2_ANALYSIS_H__
+#define __TAP_IAX2_ANALYSIS_H__
 
-#include <glib.h>
 #include <epan/address.h>
 #include <epan/packet_info.h>
 
@@ -41,56 +40,56 @@
  */
 
 void iax2_analysis(
-		address *ip_src_fwd,
-		guint16 port_src_fwd,
-		address *ip_dst_fwd,
-		guint16 port_dst_fwd,
-		address *ip_src_rev,
-		guint16 port_src_rev,
-		address *ip_dst_rev,
-		guint16 port_dst_rev
-		);
+        address *ip_src_fwd,
+        guint16 port_src_fwd,
+        address *ip_dst_fwd,
+        guint16 port_dst_fwd,
+        address *ip_src_rev,
+        guint16 port_src_rev,
+        address *ip_dst_rev,
+        guint16 port_dst_rev
+        );
 
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
 typedef struct _iax2_bw_history_item {
-        double time;
-        guint32 bytes;
+    double time;
+    guint32 bytes;
 } iax2_bw_history_item;
 
 #define BUFF_BW 300
 
 typedef struct _tap_iax2_stat_t {
-	gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
-	                           /* use (flags & STAT_FLAG_FIRST) instead */
-	/* all of the following fields will be initialized after
-	 rtp_packet_analyse has been called */
-	guint32 flags;             /* see STAT_FLAG-defines below */
-	guint16 seq_num;
-	guint32 timestamp;
-	guint32 delta_timestamp;
-	double bandwidth;
-	iax2_bw_history_item bw_history[BUFF_BW];
-	guint16 bw_start_index;
-	guint16 bw_index;
-	guint32 total_bytes;
-	double delta;
-	double jitter;
-	double diff;
-	double time;
-	double start_time;
-	double max_delta;
-	double max_jitter;
-	double mean_jitter;
-	guint32 max_nr;
-	guint16 start_seq_nr;
-	guint16 stop_seq_nr;
-	guint32 total_nr;
-	guint32 sequence;
-	gboolean under;
-	gint cycles;
-	guint16 pt;
-	int reg_pt;
+    gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
+    /* use (flags & STAT_FLAG_FIRST) instead */
+    /* all of the following fields will be initialized after
+       rtp_packet_analyse has been called */
+    guint32 flags;             /* see STAT_FLAG-defines below */
+    guint16 seq_num;
+    guint32 timestamp;
+    guint32 delta_timestamp;
+    double bandwidth;
+    iax2_bw_history_item bw_history[BUFF_BW];
+    guint16 bw_start_index;
+    guint16 bw_index;
+    guint32 total_bytes;
+    double delta;
+    double jitter;
+    double diff;
+    double time;
+    double start_time;
+    double max_delta;
+    double max_jitter;
+    double mean_jitter;
+    guint32 max_nr;
+    guint16 start_seq_nr;
+    guint16 stop_seq_nr;
+    guint32 total_nr;
+    guint32 sequence;
+    gboolean under;
+    gint cycles;
+    guint16 pt;
+    int reg_pt;
 } tap_iax2_stat_t;
 
 #define PT_UNDEFINED -1
@@ -108,10 +107,23 @@ typedef struct _tap_iax2_stat_t {
 /* forward */
 struct _rtp_info;
 
-/* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
-extern int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
+/* function for analysing an IAX2 packet. Called from iax2_analysis. */
+extern void iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         packet_info *pinfo,
         const struct _iax2_info_t *iax2info);
 
 
-#endif /* __IAX2_ANALYSIS_H__ */
+#endif /* __TAP_IAX2_ANALYSIS_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
