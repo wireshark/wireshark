@@ -201,7 +201,7 @@ WS_DLL_PUBLIC void	col_clear_fence(column_info *cinfo, const gint col);
  *
  * @return the text string
  */
-extern const gchar *col_get_text(column_info *cinfo, const gint col);
+WS_DLL_PUBLIC const gchar *col_get_text(column_info *cinfo, const gint col);
 
 /** Clears the text of a column element.
  *
