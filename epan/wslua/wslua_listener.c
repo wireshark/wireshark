@@ -286,7 +286,7 @@ WSLUA_METHOD Listener_remove(lua_State* L) {
     /* Removes a tap `Listener`. */
     Listener tap = checkListener(L,1);
 
-    if (g_ptr_array_remove(listeners, tap)) {
+    if (listeners && g_ptr_array_remove(listeners, tap)) {
         deregister_Listener(L, tap);
     }
 
