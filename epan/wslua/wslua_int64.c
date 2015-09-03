@@ -51,6 +51,11 @@ either expressed or implied, of the FreeBSD Project.
 
 #define LUATYPE64_STRING_SIZE 21  /* string to hold 18446744073709551615 */
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define IS_LITTLE_ENDIAN TRUE
+#else
+#define IS_LITTLE_ENDIAN FALSE
+#endif
 
 WSLUA_CLASS_DEFINE_BASE(Int64,NOP,NOP,0);
 /*
@@ -111,7 +116,7 @@ WSLUA_METHOD Int64_encode(lua_State* L) {
                                               if false then big-endian; if missing/nil,
                                               native host endian. */
     luaL_Buffer b;
-    gboolean asLittleEndian = (G_BYTE_ORDER == G_LITTLE_ENDIAN)? TRUE : FALSE;
+    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
 
     if (lua_gettop(L) >= WSLUA_OPTARG_Int64_encode_ENDIAN) {
         if (lua_type(L,WSLUA_OPTARG_Int64_encode_ENDIAN) == LUA_TBOOLEAN)
@@ -156,7 +161,7 @@ WSLUA_CONSTRUCTOR Int64_decode(lua_State* L) {
 #define WSLUA_OPTARG_Int64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                               if false then big-endian; if missing/nil, native
                                               host endian. */
-    gboolean asLittleEndian = (G_BYTE_ORDER == G_LITTLE_ENDIAN)? TRUE : FALSE;
+    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
     size_t len = 0;
     const gchar *s = luaL_checklstring(L, WSLUA_ARG_Int64_decode_STRING, &len);
 
@@ -663,7 +668,7 @@ WSLUA_METHOD UInt64_encode(lua_State* L) {
                                                if false then big-endian; if missing/nil,
                                                native host endian. */
     luaL_Buffer b;
-    gboolean asLittleEndian = (G_BYTE_ORDER == G_LITTLE_ENDIAN)? TRUE : FALSE;
+    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
 
     if (lua_gettop(L) >= 2) {
         if (lua_type(L,2) == LUA_TBOOLEAN)
@@ -708,7 +713,7 @@ WSLUA_CONSTRUCTOR UInt64_decode(lua_State* L) {
 #define WSLUA_OPTARG_UInt64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                                if false then big-endian; if missing/nil,
                                                native host endian. */
-    gboolean asLittleEndian = (G_BYTE_ORDER == G_LITTLE_ENDIAN)? TRUE : FALSE;
+    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
     size_t len = 0;
     const gchar *s = luaL_checklstring(L, WSLUA_ARG_UInt64_decode_STRING, &len);
 
