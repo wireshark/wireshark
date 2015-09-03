@@ -1346,7 +1346,7 @@ opensafety_parse_scm_udid ( tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree,
 
     scm_udid_test = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, 6, ':' );
 
-    if ( scm_udid_test != NULL && strlen ( scm_udid_test ) == 17 )
+    if ( scm_udid_test != NULL && strlen( scm_udid_test ) == 17 )
     {
         if ( g_strcmp0("00:00:00:00:00:00", scm_udid_test ) != 0 )
         {
@@ -1806,7 +1806,7 @@ dissect_opensafety_message(opensafety_packet_info *packet,
 
         }
 
-        if ( strlen ( (local_scm_udid != NULL ? local_scm_udid : global_scm_udid) ) > 0  && scmUDID->len == 6 )
+        if ( strlen( (local_scm_udid != NULL ? local_scm_udid : global_scm_udid) ) > 0  && scmUDID->len == 6 )
         {
             if ( local_scm_udid != NULL )
             {

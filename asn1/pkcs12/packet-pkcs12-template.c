@@ -113,7 +113,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   if (pw == NULL)
     pwlen = 0;
   else
-    pwlen = strlen (pw);
+    pwlen = strlen(pw);
 
   if (pwlen > 63 / 2)
     {

@@ -357,7 +357,7 @@ get_ndmp_protocol_version(void)
 
 struct ndmp_header {
 	guint32	seq;
-	guint32 time;
+	guint32 timestamp;
 	guint32 type;
 	guint32 msg;
 	guint32 rep_seq;
@@ -2900,7 +2900,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset += 4;
 
 	/* timestamp */
-	ns.secs=nh->time;
+	ns.secs=nh->timestamp;
 	ns.nsecs=0;
 	proto_tree_add_time(tree, hf_ndmp_timestamp, tvb, offset, 4, &ns);
 	offset += 4;
@@ -3201,7 +3201,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 
 	nh.seq = tvb_get_ntohl(new_tvb, offset);
-	nh.time = tvb_get_ntohl(new_tvb, offset+4);
+	nh.timestamp = tvb_get_ntohl(new_tvb, offset+4);
 	nh.type = tvb_get_ntohl(new_tvb, offset+8);
 	nh.msg = tvb_get_ntohl(new_tvb, offset+12);
 	nh.rep_seq = tvb_get_ntohl(new_tvb, offset+16);

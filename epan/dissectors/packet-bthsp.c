@@ -92,7 +92,7 @@ typedef struct _fragment_t {
     guint32                  dlci;
     guint32                  role;
 
-    guint                    index;
+    guint                    idx;
     guint                    length;
     guint8                  *data;
     struct _fragment_t      *previous_fragment;
@@ -830,7 +830,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         fragment->chandle           = chandle;
         fragment->dlci              = dlci;
         fragment->role              = role;
-        fragment->index             = previous_fragment ? previous_fragment->index + previous_fragment->length : 0;
+        fragment->idx             = previous_fragment ? previous_fragment->idx + previous_fragment->length : 0;
         fragment->reassemble_state  = REASSEMBLE_FRAGMENT;
         fragment->length            = tvb_reported_length(tvb);
         fragment->data              = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
@@ -889,7 +889,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragment->dlci == dlci &&
                     fragment->role == role) {
                 i_fragment = fragment;
-                while (i_fragment && i_fragment->index > 0) {
+                while (i_fragment && i_fragment->idx > 0) {
                     i_fragment = i_fragment->previous_fragment;
                 }
 
@@ -958,8 +958,8 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8    *at_data;
         guint      i_data_offset;
 
-        i_data_offset = fragment->index + fragment->length;
-        at_data = (guint8 *) wmem_alloc(pinfo->pool, fragment->index + fragment->length);
+        i_data_offset = fragment->idx + fragment->length;
+        at_data = (guint8 *) wmem_alloc(pinfo->pool, fragment->idx + fragment->length);
 
         i_fragment = fragment;
 
@@ -971,7 +971,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (i_fragment) {
-            while (i_fragment && i_fragment->index > 0) {
+            while (i_fragment && i_fragment->idx > 0) {
                 i_data_offset -= i_fragment->length;
                 memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->length);
                 i_fragment = i_fragment->previous_fragment;
@@ -987,11 +987,11 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        if (fragment->index > 0 && fragment->length > 0) {
+        if (fragment->idx > 0 && fragment->length > 0) {
             proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
                                 tvb_reported_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
             reassembled_tvb = tvb_new_child_real_data(tvb, at_data,
-                    fragment->index + fragment->length, fragment->index + fragment->length);
+                    fragment->idx + fragment->length, fragment->idx + fragment->length);
             add_new_data_source(pinfo, reassembled_tvb, "Reassembled HSP");
         }
 

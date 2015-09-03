@@ -340,7 +340,7 @@ typedef struct
     lbm_uint8_t transport;
     lbm_uint8_t tlen;
     lbm_uint16_t ttl;
-    lbm_uint32_t index;
+    lbm_uint32_t idx;
 } lbmr_tir_t;
 #define O_LBMR_TIR_T_TRANSPORT OFFSETOF(lbmr_tir_t, transport)
 #define L_LBMR_TIR_T_TRANSPORT SIZEOF(lbmr_tir_t, transport)
@@ -348,8 +348,8 @@ typedef struct
 #define L_LBMR_TIR_T_TLEN SIZEOF(lbmr_tir_t, tlen)
 #define O_LBMR_TIR_T_TTL OFFSETOF(lbmr_tir_t, ttl)
 #define L_LBMR_TIR_T_TTL SIZEOF(lbmr_tir_t, ttl)
-#define O_LBMR_TIR_T_INDEX OFFSETOF(lbmr_tir_t, index)
-#define L_LBMR_TIR_T_INDEX SIZEOF(lbmr_tir_t, index)
+#define O_LBMR_TIR_T_INDEX OFFSETOF(lbmr_tir_t, idx)
+#define L_LBMR_TIR_T_INDEX SIZEOF(lbmr_tir_t, idx)
 #define L_LBMR_TIR_T (gint) sizeof(lbmr_tir_t)
 
 /* LBMR topic information record TCP option data */
@@ -2707,7 +2707,7 @@ struct tir_node_t_stct
 {
     char * topic;
     char * source_string;
-    guint32 index;
+    guint32 idx;
     struct tir_node_t_stct * next;
 };
 typedef struct tir_node_t_stct tir_node_t;
@@ -2821,7 +2821,7 @@ static void add_contents_tir(lbmr_contents_t * contents, const char * topic, cha
     node = wmem_new(wmem_packet_scope(), tir_node_t);
     node->topic = wmem_strdup(wmem_packet_scope(), topic);
     node->source_string = source;
-    node->index = topic_index;
+    node->idx = topic_index;
     node->next = contents->contents.topic.tir;
     contents->contents.topic.tir = node;
     contents->contents.topic.tir_count++;
@@ -5072,7 +5072,7 @@ static void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * c
                     tir_tap->size = (guint16) sizeof(lbm_lbmr_topic_advertisement_tap_info_t);
                     tir_tap->topic_length = (guint8)strlen(tir->topic);
                     tir_tap->source_length = (guint8)strlen(tir->source_string);
-                    tir_tap->topic_index = tir->index;
+                    tir_tap->topic_index = tir->idx;
                     memcpy(tir_tap->topic, tir->topic, tir_tap->topic_length);
                     memcpy(tir_tap->source, tir->source_string, tir_tap->source_length);
                     tap_queue_packet(lbmr_topic_advertisement_tap_handle, pinfo, (void *) tir_tap);

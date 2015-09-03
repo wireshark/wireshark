@@ -54,7 +54,7 @@ typedef struct value_data_s {
 	gchar *host;
 	gint host_off;
 	gint host_len;
-	guint64 time;
+	guint64 time_value;
 	gint time_off;
 	guint64 interval;
 	gint interval_off;
@@ -76,7 +76,7 @@ typedef struct notify_data_s {
 	gchar *host;
 	gint host_off;
 	gint host_len;
-	guint64 time;
+	guint64 time_value;
 	gint time_off;
 	guint64 severity;
 	gint severity_off;
@@ -311,7 +311,7 @@ collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
 				vdispatch->type_instance_len,
 				vdispatch->type_instance);
 
-	nstime = collectd_time_to_nstime (vdispatch->time);
+	nstime = collectd_time_to_nstime (vdispatch->time_value);
 	proto_tree_add_time (subtree, hf_collectd_data_time, tvb,
 			vdispatch->time_off, /* length = */ 8, &nstime);
 
@@ -337,7 +337,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 			ndispatch->host_off, ndispatch->host_len,
 			STR_NONNULL (ndispatch->host));
 
-	nstime = collectd_time_to_nstime (ndispatch->time);
+	nstime = collectd_time_to_nstime (ndispatch->time_value);
 	proto_tree_add_time (subtree, hf_collectd_data_time, tvb,
 			ndispatch->time_off, /* length = */ 8, &nstime);
 
@@ -1168,7 +1168,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					hf_collectd_data_time,
 					offset,
 					&vdispatch.time_off,
-					&vdispatch.time,
+					&vdispatch.time_value,
 					collectd_tree, &pi);
 			if (status != 0)
 				pkt_errors++;

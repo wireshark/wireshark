@@ -2687,8 +2687,8 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   } else {
     mts_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, dmp.mts_id_length);
   }
-  proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen (mts_id));
-  mts_id = format_text (mts_id, strlen (mts_id));
+  proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen(mts_id));
+  mts_id = format_text (mts_id, strlen(mts_id));
   if (subject) {
     proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
@@ -2738,8 +2738,8 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   } else {
     ipm_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ipm_id_length);
   }
-  proto_item_append_text (tf, " (%zu bytes decompressed)", strlen (ipm_id));
-  ipm_id = format_text (ipm_id, strlen (ipm_id));
+  proto_item_append_text (tf, " (%zu bytes decompressed)", strlen(ipm_id));
+  ipm_id = format_text (ipm_id, strlen(ipm_id));
   if (subject) {
     proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
@@ -3205,7 +3205,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   offset += len;
 
   if (dmp.struct_id) {
-    proto_item_append_text (en, ", Id: %s", format_text (dmp.struct_id, strlen (dmp.struct_id)));
+    proto_item_append_text (en, ", Id: %s", format_text (dmp.struct_id, strlen(dmp.struct_id)));
   }
 
   proto_item_set_len (en, offset - boffset);
@@ -4068,10 +4068,10 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   } else if (dmp.struct_id) {
     if (dmp_align && !retrans_or_dup_ack) {
       col_append_fstr (pinfo->cinfo, COL_INFO, "  Body Id: %s",
-                       format_text (dmp.struct_id, strlen (dmp.struct_id)));
+                       format_text (dmp.struct_id, strlen(dmp.struct_id)));
     } else {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Body Id: %s",
-                       format_text (dmp.struct_id, strlen (dmp.struct_id)));
+                       format_text (dmp.struct_id, strlen(dmp.struct_id)));
     }
   }
   if (dmp.checksum && (checksum1 != checksum2)) {

@@ -2160,7 +2160,7 @@ typedef struct
     lbm_uint8_t flags;
     lbm_uint8_t type;
     lbm_uint32_t domain_id;
-    lbm_uint8_t index[8];
+    lbm_uint8_t idx[8];
 } lbmc_cntl_pattern_interest_hdr_t;
 #define O_LBMC_CNTL_PATTERN_INTEREST_HDR_T_NEXT_HDR OFFSETOF(lbmc_cntl_pattern_interest_hdr_t, next_hdr)
 #define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T_NEXT_HDR SIZEOF(lbmc_cntl_pattern_interest_hdr_t, next_hdr)
@@ -2172,8 +2172,8 @@ typedef struct
 #define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T_TYPE SIZEOF(lbmc_cntl_pattern_interest_hdr_t, type)
 #define O_LBMC_CNTL_PATTERN_INTEREST_HDR_T_DOMAIN_ID OFFSETOF(lbmc_cntl_pattern_interest_hdr_t, domain_id)
 #define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T_DOMAIN_ID SIZEOF(lbmc_cntl_pattern_interest_hdr_t, domain_id)
-#define O_LBMC_CNTL_PATTERN_INTEREST_HDR_T_INDEX OFFSETOF(lbmc_cntl_pattern_interest_hdr_t, index)
-#define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T_INDEX SIZEOF(lbmc_cntl_pattern_interest_hdr_t, index)
+#define O_LBMC_CNTL_PATTERN_INTEREST_HDR_T_INDEX OFFSETOF(lbmc_cntl_pattern_interest_hdr_t, idx)
+#define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T_INDEX SIZEOF(lbmc_cntl_pattern_interest_hdr_t, idx)
 #define L_LBMC_CNTL_PATTERN_INTEREST_HDR_T (gint) sizeof(lbmc_cntl_pattern_interest_hdr_t)
 
 /* LBMC control advertisement header */
@@ -2897,7 +2897,7 @@ typedef struct
     lbm_uint8_t type;
     lbm_uint16_t domain_count;
     lbm_uint16_t res1;
-    lbm_uint8_t index[8];
+    lbm_uint8_t idx[8];
 } lbmc_cntl_pattern_md_interest_hdr_t;
 #define O_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_NEXT_HDR OFFSETOF(lbmc_cntl_pattern_md_interest_hdr_t, next_hdr)
 #define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_NEXT_HDR SIZEOF(lbmc_cntl_pattern_md_interest_hdr_t, next_hdr)
@@ -2911,8 +2911,8 @@ typedef struct
 #define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_DOMAIN_COUNT SIZEOF(lbmc_cntl_pattern_md_interest_hdr_t, domain_count)
 #define O_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_RES1 OFFSETOF(lbmc_cntl_pattern_md_interest_hdr_t, res1)
 #define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_RES1 SIZEOF(lbmc_cntl_pattern_md_interest_hdr_t, res1)
-#define O_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_INDEX OFFSETOF(lbmc_cntl_pattern_md_interest_hdr_t, index)
-#define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_INDEX SIZEOF(lbmc_cntl_pattern_md_interest_hdr_t, index)
+#define O_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_INDEX OFFSETOF(lbmc_cntl_pattern_md_interest_hdr_t, idx)
+#define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T_INDEX SIZEOF(lbmc_cntl_pattern_md_interest_hdr_t, idx)
 #define L_LBMC_CNTL_PATTERN_MD_INTEREST_HDR_T (gint) sizeof(lbmc_cntl_pattern_md_interest_hdr_t)
 
 /* LBMC control TNWG keepalive header */
@@ -2921,7 +2921,7 @@ typedef struct
     lbm_uint8_t next_hdr;
     lbm_uint8_t hdr_len;
     lbm_uint16_t flags;
-    lbm_uint32_t index;
+    lbm_uint32_t idx;
     lbm_uint8_t ts_seconds[8];
     lbm_uint32_t ts_microseconds;
     lbm_uint32_t reserved_1;
@@ -2937,8 +2937,8 @@ typedef struct
 #define L_LBMC_CNTL_TNWG_KA_HDR_T_HDR_LEN SIZEOF(lbmc_cntl_tnwg_ka_hdr_t, hdr_len)
 #define O_LBMC_CNTL_TNWG_KA_HDR_T_FLAGS OFFSETOF(lbmc_cntl_tnwg_ka_hdr_t, flags)
 #define L_LBMC_CNTL_TNWG_KA_HDR_T_FLAGS SIZEOF(lbmc_cntl_tnwg_ka_hdr_t, flags)
-#define O_LBMC_CNTL_TNWG_KA_HDR_T_INDEX OFFSETOF(lbmc_cntl_tnwg_ka_hdr_t, index)
-#define L_LBMC_CNTL_TNWG_KA_HDR_T_INDEX SIZEOF(lbmc_cntl_tnwg_ka_hdr_t, index)
+#define O_LBMC_CNTL_TNWG_KA_HDR_T_INDEX OFFSETOF(lbmc_cntl_tnwg_ka_hdr_t, idx)
+#define L_LBMC_CNTL_TNWG_KA_HDR_T_INDEX SIZEOF(lbmc_cntl_tnwg_ka_hdr_t, idx)
 #define O_LBMC_CNTL_TNWG_KA_HDR_T_TS_SECONDS OFFSETOF(lbmc_cntl_tnwg_ka_hdr_t, ts_seconds)
 #define L_LBMC_CNTL_TNWG_KA_HDR_T_TS_SECONDS SIZEOF(lbmc_cntl_tnwg_ka_hdr_t, ts_seconds)
 #define O_LBMC_CNTL_TNWG_KA_HDR_T_TS_MICROSECONDS OFFSETOF(lbmc_cntl_tnwg_ka_hdr_t, ts_microseconds)

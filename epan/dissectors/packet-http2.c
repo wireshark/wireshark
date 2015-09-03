@@ -79,7 +79,7 @@ typedef struct {
             guint datalen;
             /* name index or name/value index if type is one of
                HTTP2_HD_INDEXED and HTTP2_HD_*_INDEXED_NAMEs */
-            guint index;
+            guint idx;
         } data;
         /* header table size if type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE */
         guint header_table_size;
@@ -685,7 +685,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
                 out->type = header_repr_info->type;
                 out->length = rv;
-                out->table.data.index = header_repr_info->integer;
+                out->table.data.idx = header_repr_info->integer;
 
                 out->table.data.datalen = (guint)(4 + nv.namelen + 4 + nv.valuelen);
 
@@ -820,7 +820,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
            in->type == HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME) {
-            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->table.data.index);
+            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->table.data.idx);
         }
 
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
