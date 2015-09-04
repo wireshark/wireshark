@@ -66,7 +66,7 @@ public:
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
-    const QString &getFilterFromRowAndColumn();
+    QString getFilterFromRowAndColumn();
     void resetColorized();
     QString packetComment();
     void setPacketComment(QString new_comment);

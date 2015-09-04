@@ -799,10 +799,10 @@ bool PacketList::contextMenuActive()
     return ctx_column_ >= 0 ? true : false;
 }
 
-const QString &PacketList::getFilterFromRowAndColumn()
+QString PacketList::getFilterFromRowAndColumn()
 {
     frame_data *fdata;
-    QString &filter = *new QString();
+    QString filter;
     int row = currentIndex().row();
 
     if (!cap_file_ || !packet_list_model_ || ctx_column_ < 0 || ctx_column_ >= cap_file_->cinfo.num_cols) return filter;
