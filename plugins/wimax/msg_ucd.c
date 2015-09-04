@@ -265,6 +265,10 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 
 		while(offset < tvb_len)
 		{
+			proto_tree *tlv_tree;
+			proto_item *tlv_item1;
+			guint ul_burst_uiuc;
+			guint utemp;
 			/* get the TLV information */
 			init_tlv_info(&tlv_info, tvb, offset);
 			/* get the TLV type */
@@ -333,11 +337,6 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			}
 			switch (tlv_type)
 			{
-				proto_tree *tlv_tree;
-				proto_item *tlv_item1;
-				guint ul_burst_uiuc;
-				guint utemp;
-
 				case UCD_UPLINK_BURST_PROFILE:
 				{
 					/* get the UIUC */
@@ -363,7 +362,6 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 
 						switch (tlv_type)
 						{
-							proto_item *tlv_item2;
 							case UCD_BURST_FEC:
 							{
 								add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_fec, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
@@ -371,6 +369,7 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 							}
 							case UCD_BURST_RANGING_DATA_RATIO:
 							{
+								proto_item *tlv_item2;
 								tlv_item2 = add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_ranging_data_ratio, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
 								proto_item_append_text(tlv_item2, " dB");
 								break;
@@ -378,6 +377,7 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 #if 0 /* for OFDM */
 							case UCD_BURST_POWER_BOOST:
 							{
+								proto_item *tlv_item2;
 								tlv_item2 = add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
 								proto_item_append_text(tlv_item2, " dB");
 								break;
