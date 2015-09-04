@@ -33,6 +33,8 @@
 
 #include "qt_ui_utils.h"
 
+#include "wireshark_application.h"
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 // Qt::escape
 #include <QTextDocument>
@@ -45,7 +47,8 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
     ui(new Ui::PreferenceEditorFrame),
     module_(NULL),
-    pref_(NULL)
+    pref_(NULL),
+    new_range_(NULL)
 {
     ui->setupUi(this);
 }
@@ -128,7 +131,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
     }
 
     bool ok;
-    uint new_uint = new_str.toUInt(&ok);
+    uint new_uint = new_str.toUInt(&ok, 0);
     if (ok) {
         new_uint_ = new_uint;
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
@@ -215,6 +218,11 @@ void PreferenceEditorFrame::on_okButton_clicked()
         }
     }
     on_cancelButton_clicked();
+    // Emit signals once UI is hidden
+    if (apply) {
+        wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+        wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+    }
 }
 
 void PreferenceEditorFrame::on_cancelButton_clicked()

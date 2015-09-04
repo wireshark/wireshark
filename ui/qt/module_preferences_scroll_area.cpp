@@ -394,7 +394,7 @@ void ModulePreferencesScrollArea::uintLineEditTextEdited(const QString &new_str)
     if (!pref) return;
 
     bool ok;
-    uint new_uint = new_str.toUInt(&ok);
+    uint new_uint = new_str.toUInt(&ok, 0);
     if (ok) {
         pref->stashed_val.uint = new_uint;
     }
