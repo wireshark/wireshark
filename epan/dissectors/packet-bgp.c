@@ -6747,7 +6747,7 @@ proto_register_bgp(void)
         { "Prefix Length", "bgp.prefix_length", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_rd,
-        { "Router Distinguer", "bgp.rd", FT_STRING, BASE_NONE,
+        { "Route Distinguisher", "bgp.rd", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_continuation,
         { "Continuation", "bgp.continuation", FT_NONE, BASE_NONE,
