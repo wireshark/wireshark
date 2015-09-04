@@ -25,10 +25,10 @@
 
 void *codec_g711u_init(void);
 void  codec_g711u_release(void *ctx);
-int   codec_g711u_get_channels(void *ctx);
-int   codec_g711u_get_frequency(void *ctx);
-int   codec_g711u_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
-        int *outputSizeBytes);
+unsigned codec_g711u_get_channels(void *ctx);
+unsigned codec_g711u_get_frequency(void *ctx);
+size_t codec_g711u_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
+        size_t *outputSizeBytes);
 
 #endif /* G711udecode.h */
 

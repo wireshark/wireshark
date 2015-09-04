@@ -39,25 +39,25 @@ codec_g711u_release(void *ctx _U_)
 
 }
 
-int
+unsigned
 codec_g711u_get_channels(void *ctx _U_)
 {
     return 1;
 }
 
-int
+unsigned
 codec_g711u_get_frequency(void *ctx _U_)
 {
     return 8000;
 }
 
-int
-codec_g711u_decode(void *ctx _U_, const void *input, int inputSizeBytes, void *output,
-        int *outputSizeBytes)
+size_t
+codec_g711u_decode(void *ctx _U_, const void *input, size_t inputSizeBytes, void *output,
+        size_t *outputSizeBytes)
 {
     const guint8 *dataIn = (const guint8 *) input;
     gint16       *dataOut = (gint16 *) output;
-    int           i;
+    size_t       i;
 
     if (!output || !outputSizeBytes) {
         return inputSizeBytes * 2;

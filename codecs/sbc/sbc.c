@@ -53,7 +53,7 @@ codec_sbc_release(void *ctx)
     g_free(sbc);
 }
 
-int
+unsigned
 codec_sbc_get_channels(void *ctx)
 {
     sbc_t *sbc = (sbc_t *) ctx;
@@ -63,7 +63,7 @@ codec_sbc_get_channels(void *ctx)
     return 2;
 }
 
-int
+unsigned
 codec_sbc_get_frequency(void *ctx)
 {
     sbc_t *sbc = (sbc_t *) ctx;
@@ -92,15 +92,15 @@ codec_sbc_get_frequency(void *ctx)
     return frequency;
 }
 
-int
-codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
-        int *outputSizeBytes)
+size_t
+codec_sbc_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
+        size_t *outputSizeBytes)
 {
     size_t         size_in = (size_t) inputSizeBytes;
     size_t         size_out = SBC_BUFFER;
     size_t         len;
-    int            framelen;
-    int            xframe_pos = 0;
+    size_t         framelen;
+    size_t         xframe_pos = 0;
     const guint8  *data_in  = (const guint8 *) input;
     guint8        *data_out = (guint8 *) output;
     sbc_t         *sbc = (sbc_t *) ctx;

@@ -42,10 +42,10 @@ typedef struct codec_handle *codec_handle_t;
 
 typedef void *(*codec_init_fn)(void);
 typedef void (*codec_release_fn)(void *context);
-typedef int (*codec_get_channels_fn)(void *context);
-typedef int (*codec_get_frequency_fn)(void *context);
-typedef int (*codec_decode_fn)(void *context, const void *input, int inputSizeBytes,
-        void *output, int *outputSizeBytes);
+typedef unsigned (*codec_get_channels_fn)(void *context);
+typedef unsigned (*codec_get_frequency_fn)(void *context);
+typedef size_t (*codec_decode_fn)(void *context, const void *input, size_t inputSizeBytes,
+        void *output, size_t *outputSizeBytes);
 
 extern gboolean register_codec(const char *name, codec_init_fn init_fn,
         codec_release_fn release_fn, codec_get_channels_fn channels_fn,
@@ -53,10 +53,10 @@ extern gboolean register_codec(const char *name, codec_init_fn init_fn,
 extern codec_handle_t find_codec(const char *name);
 extern void *codec_init(codec_handle_t codec);
 extern void codec_release(codec_handle_t codec, void *context);
-extern int codec_get_channels(codec_handle_t codec, void *context);
-extern int codec_get_frequency(codec_handle_t codec, void *context);
-extern int codec_decode(codec_handle_t codec, void *context, const void *input,
-        int inputSizeBytes, void *output, int *outputSizeBytes);
+extern unsigned codec_get_channels(codec_handle_t codec, void *context);
+extern unsigned codec_get_frequency(codec_handle_t codec, void *context);
+extern size_t codec_decode(codec_handle_t codec, void *context, const void *input,
+        size_t inputSizeBytes, void *output, size_t *outputSizeBytes);
 
 #ifdef __cplusplus
 }
