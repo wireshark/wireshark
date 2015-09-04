@@ -616,7 +616,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
     // Application-wide style sheet
     QString app_style_sheet = qApp->styleSheet();
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC) && QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     // Qt uses the HITheme API to draw splitters. In recent versions of OS X
     // this looks particularly bad: https://bugreports.qt.io/browse/QTBUG-43425
     // This doesn't look native but it looks better than Yosemite's bit-rotten
