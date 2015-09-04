@@ -204,13 +204,15 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     if (action != ACTION_WEB_LOOKUP && action != ACTION_COPY) {
         char *msg;
-        if (0 /*procedure->fvalue_value==NULL*/) {
+#if 0
+        if (procedure->fvalue_value==NULL) {
             if (action != ACTION_FIND_FRAME && action != ACTION_FIND_NEXT && action != ACTION_FIND_PREVIOUS) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.",
                               procedure->entries[1]);
                 return;
             }
         }
+#endif
         msg = (char *)g_malloc(escape_string_len(procedure->entries[1]));
         escape_string(msg, procedure->entries[1]);
         switch(type){
