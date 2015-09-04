@@ -596,6 +596,10 @@ static int hf_nfs4_ffda_minorversion = -1;
 static int hf_nfs4_ffda_tightly_coupled = -1;
 static int hf_nfs4_ffda_rsize = -1;
 static int hf_nfs4_ffda_wsize = -1;
+static int hf_nfs4_fattr_clone_blocksize = -1;
+static int hf_nfs4_fattr_space_freed = -1;
+static int hf_nfs4_fattr_change_attr_type = -1;
+
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
 static gint ett_nfs_fh_mount = -1;
@@ -6016,6 +6020,12 @@ static const value_string fattr4_names[] = {
 	{	FATTR4_SUPPATTR_EXCLCREAT, "Suppattr_ExclCreat"	},
 #define FATTR4_FS_CHARSET_CAP      76
 	{	FATTR4_FS_CHARSET_CAP,     "FS_Charset_Cap"		},
+#define FATTR4_CLONE_BLOCKSIZE     77
+	{	FATTR4_CLONE_BLOCKSIZE,    "Clone_Block_Size"		},
+#define FATTR4_SPACE_FREED         78
+	{	FATTR4_SPACE_FREED,        "Space_Freed"		},
+#define FATTR4_CHANGE_ATTR_TYPE    79
+	{	FATTR4_CHANGE_ATTR_TYPE,   "Change_Attr_Type"		},
 #define FATTR4_SECURITY_LABEL      80
 	{	FATTR4_SECURITY_LABEL,     "Security_Label"		},
 	{	0,	NULL	}
@@ -6614,6 +6624,21 @@ dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
  */
 #define MAX_BITMAPS 100
 
+static const value_string names_nfs_change_attr_types[] =
+{
+#define CHANGE_TYPE_IS_MONOTONIC_INCR 1
+	{	CHANGE_TYPE_IS_MONOTONIC_INCR,	"CHANGE_TYPE_IS_MONOTONIC_INCR"	},
+#define CHANGE_TYPE_IS_VERSION_COUNTER 2
+	{	CHANGE_TYPE_IS_VERSION_COUNTER,	"CHANGE_TYPE_IS_VERSION_COUNTER"	},
+#define CHANGE_TYPE_IS_VERSION_COUNTER_NOPNFS 3
+	{	CHANGE_TYPE_IS_VERSION_COUNTER_NOPNFS,	"CHANGE_TYPE_IS_VERSION_COUNTER_NOPNFS"	},
+#define CHANGE_TYPE_IS_TIME_METADATA 4
+	{	CHANGE_TYPE_IS_TIME_METADATA,	"CHANGE_TYPE_IS_TIME_METADATA"	},
+#define CHANGE_TYPE_IS_UNDEFINED 5
+	{	CHANGE_TYPE_IS_UNDEFINED,	"CHANGE_TYPE_IS_UNDEFINED"	},
+	{	0,	NULL	}
+};
+
 /* Display each attrmask bitmap and optionally dissect the value.
 */
 static int
@@ -6965,6 +6990,21 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 					case FATTR4_LAYOUT_BLKSIZE:
 						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_layout_blksize,
+									offset);
+						break;
+
+					case FATTR4_CLONE_BLOCKSIZE:
+						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_clone_blocksize,
+									offset);
+						break;
+
+					case FATTR4_SPACE_FREED:
+						offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_fattr_space_freed,
+									offset);
+						break;
+
+					case FATTR4_CHANGE_ATTR_TYPE:
+						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_change_attr_type,
 									offset);
 						break;
 
@@ -7549,7 +7589,6 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	return offset;
 }
-
 
 static int
 dissect_nfs4_change_info(tvbuff_t *tvb, int offset,
@@ -12346,6 +12385,18 @@ proto_register_nfs(void)
                         "tightly coupled", "nfs.ffda_tightly_coupled",
 			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
 			NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_clone_blocksize, {
+			"clone block size", "nfs.fattr4.clone_block_size", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_space_freed, {
+			"space freed", "nfs.fattr4.space_freed", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_change_attr_type, {
+			"change attr type", "nfs.fattr4.change_attr_type", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_change_attr_types), 0, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
