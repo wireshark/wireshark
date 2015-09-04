@@ -242,11 +242,13 @@ void MainStatusBar::expertUpdate() {
 // ui/gtk/main_statusbar.c
 void MainStatusBar::setFileName(CaptureFile &cf)
 {
-    popFileStatus();
-    QString msgtip = QString("%1 (%2)")
-            .arg(cf.capFile()->filename)
-            .arg(file_size_to_qstring(cf.capFile()->f_datalen));
-    pushFileStatus(cf.fileName(), msgtip);
+    if (cf.isValid()) {
+        popFileStatus();
+        QString msgtip = QString("%1 (%2)")
+                .arg(cf.capFile()->filename)
+                .arg(file_size_to_qstring(cf.capFile()->f_datalen));
+        pushFileStatus(cf.fileName(), msgtip);
+    }
 }
 
 void MainStatusBar::setCaptureFile(capture_file *cf)
