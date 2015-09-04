@@ -184,6 +184,10 @@ void proto_reg_handoff_6lowpan(void);
 /* 6LoWPAN First Fragment Header */
 #define LOWPAN_FRAG_DGRAM_SIZE_BITS     11
 
+/* Uncompressed IPv6 Option types */
+#define IP6OPT_PAD1                     0x00
+#define IP6OPT_PADN                     0x01
+
 /* Compressed port number offset. */
 #define LOWPAN_PORT_8BIT_OFFSET         0xf000
 #define LOWPAN_PORT_12BIT_OFFSET        (LOWPAN_PORT_8BIT_OFFSET | 0xb0)
@@ -289,6 +293,7 @@ static gint ett_6lopwan_traffic_class = -1;
 static expert_field ei_6lowpan_hc1_more_bits = EI_INIT;
 static expert_field ei_6lowpan_illegal_dest_addr_mode = EI_INIT;
 static expert_field ei_6lowpan_bad_ipv6_header_length = EI_INIT;
+static expert_field ei_6lowpan_bad_ext_header_length = EI_INIT;
 
 /* Subdissector handles. */
 static dissector_handle_t       handle_6lowpan;
@@ -1873,6 +1878,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         guint8          ext_hlen;
         guint8          ext_len;
         guint8          ext_proto;
+        proto_item      *ti_ext_len = NULL;
 
         /* Parse the IPv6 extension header protocol. */
         ext_proto = lowpan_parse_nhc_proto(tvb, offset);
@@ -1912,9 +1918,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             /* Get and display the extension header length. */
             ext_hlen = (guint8)sizeof(struct ip6_ext);
             ext_len = tvb_get_guint8(tvb, offset);
-            if (tree) {
-                proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_length, tvb, offset, 1, ext_len);
-            }
+            ti_ext_len = proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_length, tvb, offset, 1, ext_len);
             offset += 1;
 
             /* Compute the length of the extension header padded to an 8-byte alignment. */
@@ -1959,6 +1963,22 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Copy the extension header into the struct. */
         tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + ext_hlen, offset, ext_len);
         offset += ext_len;
+
+        /* Add padding option */
+        if (length > ext_hlen + ext_len) {
+            guint8 padding = length - (ext_hlen + ext_len);
+            guint8 *pad_ptr = LOWPAN_NHDR_DATA(nhdr) + ext_hlen + ext_len;
+            if (ext_proto != IP_PROTO_HOPOPTS && ext_proto != IP_PROTO_DSTOPTS) {
+                expert_add_info(pinfo, ti_ext_len, &ei_6lowpan_bad_ext_header_length);
+            }
+            if (padding == 1) {
+                pad_ptr[0] = IP6OPT_PAD1;
+            } else {
+                pad_ptr[0] = IP6OPT_PADN;
+                pad_ptr[1] = padding - 2;
+                /* No need to write pad data, as buffer is zero-initialised */
+            }
+        }
 
         if (ext_flags & LOWPAN_NHC_EXT_NHDR) {
             /*
@@ -2796,6 +2816,7 @@ proto_register_6lowpan(void)
         { &ei_6lowpan_hc1_more_bits, { "6lowpan.hc1_more_bits", PI_MALFORMED, PI_ERROR, "HC1 more bits expected for illegal next header type.", EXPFILL }},
         { &ei_6lowpan_illegal_dest_addr_mode, { "6lowpan.illegal_dest_addr_mode", PI_MALFORMED, PI_ERROR, "Illegal destination address mode", EXPFILL }},
         { &ei_6lowpan_bad_ipv6_header_length, { "6lowpan.bad_ipv6_header_length", PI_MALFORMED, PI_ERROR, "Length is less than IPv6 header length", EXPFILL }},
+        { &ei_6lowpan_bad_ext_header_length, { "6lowpan.bad_ext_header_length", PI_MALFORMED, PI_ERROR, "Extension header not 8-octet aligned", EXPFILL }},
     };
 
     int         i;
