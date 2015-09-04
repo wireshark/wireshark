@@ -152,6 +152,7 @@
 #define NFS4_OP_CB_WANTS_CANCELLED          12
 #define NFS4_OP_CB_NOTIFY_LOCK              13
 #define NFS4_OP_CB_NOTIFY_DEVICEID          14
+#define NFS4_OP_CB_OFFLOAD                  15
 #define NFS4_OP_CB_ILLEGAL               10044
 
 /* for write */

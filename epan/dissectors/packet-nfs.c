@@ -617,6 +617,7 @@ static int hf_nfs4_synchronous = -1;
 static int hf_nfs4_io_hints_mask = -1;
 static int hf_nfs4_io_hint_count = -1;
 static int hf_nfs4_io_advise_hint = -1;
+static int hf_nfs4_bytes_copied = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -10441,6 +10442,7 @@ static const value_string names_nfs_cb_operation[] = {
 	{ NFS4_OP_CB_WANTS_CANCELLED,	   "CB_WANTS_CANCELLED" },
 	{ NFS4_OP_CB_NOTIFY_LOCK,	   "CB_NOTIFY_LOCK" },
 	{ NFS4_OP_CB_NOTIFY_DEVICEID,	   "CB_NOTIFY_DEVICEID" },
+	{ NFS4_OP_CB_OFFLOAD,		   "CB_OFFLOAD" },
 	{ NFS4_OP_CB_ILLEGAL,		   "CB_ILLEGAL"},
 	{ 0,	NULL }
 };
@@ -10519,6 +10521,7 @@ static int
 dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
 	guint32	    ops, ops_counter;
+	guint32	    status;
 	guint	    opcode;
 	proto_item *fitem;
 	proto_tree *ftree;
@@ -10539,7 +10542,7 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		offset += 4;
 
 	/* the opcodes are not contiguous */
-		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_NOTIFY_DEVICEID) &&
+		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_OFFLOAD) &&
 		    (opcode != NFS4_OP_CB_ILLEGAL))
 		  	break;
 
@@ -10580,6 +10583,16 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_NOTIFY_LOCK:
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
 		  	break;
+		case NFS4_OP_CB_OFFLOAD:
+			offset = dissect_nfs4_fh(tvb, offset, pinfo, newftree, "filehandle", NULL, civ);
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
+			offset = dissect_nfs4_status(tvb, offset, newftree, &status);
+			if (status == NFS4_OK) {
+				offset = dissect_nfs4_write_response(tvb, offset, newftree);
+			} else {
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_bytes_copied, offset);
+			}
+			break;
 		case NFS4_OP_ILLEGAL:
 		  	break;
 		default:
@@ -10628,7 +10641,7 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		opcode = tvb_get_ntohl(tvb, offset);
 
 		/* sanity check for bogus packets */
-		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_NOTIFY_DEVICEID) &&
+		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_OFFLOAD) &&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
@@ -10676,6 +10689,7 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_WANTS_CANCELLED:
 		case NFS4_OP_CB_NOTIFY_LOCK:
 		case NFS4_OP_CB_NOTIFY_DEVICEID:
+		case NFS4_OP_CB_OFFLOAD:
 		   	break;
 		case NFS4_OP_ILLEGAL:
 			break;
@@ -12889,6 +12903,10 @@ proto_register_nfs(void)
 		{ &hf_nfs4_io_advise_hint, {
 			"Hint", "nfs.hint.hint", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
 			&io_advise_names_ext, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_bytes_copied, {
+			"bytes copied", "nfs.bytes_copied", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
