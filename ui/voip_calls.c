@@ -309,13 +309,14 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
         return;
     }
 
-    gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+    gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     gai->fd = pinfo->fd;
     COPY_ADDRESS(&(gai->src_addr),src_addr);
     COPY_ADDRESS(&(gai->dst_addr),dst_addr);
 
     gai->port_src=pinfo->srcport;
     gai->port_dst=pinfo->destport;
+    gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
 
     if (frame_label != NULL)
         gai->frame_label = g_strdup(frame_label);
@@ -429,13 +430,14 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
     gboolean  inserted;
     gchar     time_str[COL_MAX_LEN];
 
-    new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+    new_gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     new_gai->fd = packet_list_get_row_data(frame_num);
     COPY_ADDRESS(&(new_gai->src_addr),src_addr);
     COPY_ADDRESS(&(new_gai->dst_addr),dst_addr);
 
     new_gai->port_src=pinfo->srcport;
     new_gai->port_dst=pinfo->destport;
+    new_gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
     if (frame_label != NULL)
         new_gai->frame_label = g_strdup(frame_label);
     else
@@ -694,7 +696,7 @@ rtp_draw(void *tap_offset_ptr)
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);
             } else {
-                new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+                new_gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
                 new_gai->fd = rtp_listinfo->start_fd;
                 COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
                 COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
@@ -775,12 +777,13 @@ rtp_packet_draw(void *tap_offset_ptr)
 
                     /* add the RTP item to the graph if was not there*/
                     if (rtp_listinfo->start_fd->num<gai->fd->num || !voip_calls_graph_list) {
-                        new_gai = g_malloc(sizeof(seq_analysis_item_t));
+                        new_gai = g_malloc0(sizeof(seq_analysis_item_t));
                         new_gai->fd = rtp_listinfo->start_fd;
                         COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
                         COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
                         new_gai->port_src = rtp_listinfo->src_port;
                         new_gai->port_dst = rtp_listinfo->dest_port;
+                        new_gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
                         duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
                         new_gai->frame_label = g_strdup_printf("%s (%s) %s",
                                                                (rtp_listinfo->is_srtp)?"SRTP":"RTP",

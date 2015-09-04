@@ -163,12 +163,13 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
         epb = stream_info->endpoint_a;
         epa = stream_info->endpoint_b;
     }
-    item = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+    item = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     COPY_ADDRESS(&(item->src_addr), &(pinfo->src));
     COPY_ADDRESS(&(item->dst_addr), &(pinfo->dst));
     item->fd = pinfo->fd;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
+    item->protocol = g_strdup(port_type_to_str(pinfo->ptype));
     if (stream_info->description == NULL)
     {
         item->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);
