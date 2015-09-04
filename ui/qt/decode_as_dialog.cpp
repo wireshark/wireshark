@@ -583,7 +583,7 @@ void DecodeAsDialog::applyChanges()
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    selector_value = GUINT_TO_POINTER(item->text(selector_col_).toUInt());
+                    selector_value = GUINT_TO_POINTER(item->text(selector_col_).toUInt(0, 0));
                     break;
                 case FT_STRING:
                 case FT_STRINGZ:
