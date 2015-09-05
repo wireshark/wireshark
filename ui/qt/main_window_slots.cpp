@@ -3252,7 +3252,8 @@ void MainWindow::on_actionCaptureStart_triggered()
     }
 
     /* XXX - will closing this remove a temporary file? */
-    if (testCaptureFileClose(FALSE, *new QString(" before starting a new capture"))) {
+    QString before_what(tr(" before starting a new capture"));
+    if (testCaptureFileClose(FALSE, before_what)) {
         startCapture();
     } else {
         // simply clicking the button sets it to 'checked' even though we've
