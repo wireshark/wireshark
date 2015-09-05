@@ -1840,7 +1840,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Create a tree for the IPv6 extension header. */
         if (tree) {
             nhc_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_6lowpan_nhc_ext, &ti, "IPv6 extension header");
-            /* Display the NHC-UDP pattern. */
+            /* Display the IPv6 Extension Header NHC ID pattern. */
             proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, ENC_BIG_ENDIAN);
         }
 
@@ -1886,7 +1886,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Create a tree for the IPv6 extension header. */
         if (tree) {
             nhc_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_6lowpan_nhc_ext, NULL, "IPv6 extension header");
-            /* Display the NHC-UDP pattern. */
+            /* Display the IPv6 Extension Header NHC ID pattern. */
             proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, ENC_BIG_ENDIAN);
         }
 
@@ -2019,7 +2019,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Create a tree for the UDP header. */
         if (tree) {
             nhc_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_6lowpan_nhc_udp, NULL, "UDP header compression");
-            /* Display the NHC-UDP pattern. */
+            /* Display the UDP NHC ID pattern. */
             proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_UDP_BITS, ENC_BIG_ENDIAN);
         }
 
