@@ -888,7 +888,7 @@ void PacketList::setPacketComment(QString new_comment)
 {
     int row = currentIndex().row();
     frame_data *fdata;
-    gchar *new_packet_comment = new_comment.toUtf8().data();
+    gchar *new_packet_comment;
 
     if (!cap_file_ || !packet_list_model_) return;
 
@@ -899,9 +899,12 @@ void PacketList::setPacketComment(QString new_comment)
     /* Check if we are clearing the comment */
     if(new_comment.isEmpty()) {
         new_packet_comment = NULL;
+    } else {
+        new_packet_comment = qstring_strdup(new_comment);
     }
 
     cf_set_user_packet_comment(cap_file_, fdata, new_packet_comment);
+    g_free(new_packet_comment);
 
     redrawVisiblePackets();
 }

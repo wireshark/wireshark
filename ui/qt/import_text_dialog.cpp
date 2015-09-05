@@ -41,6 +41,7 @@
 
 #include <ui_import_text_dialog.h>
 #include "wireshark_application.h"
+#include "qt_ui_utils.h"
 
 #include <QFileDialog>
 #include <QDebug>
@@ -213,7 +214,7 @@ int ImportTextDialog::exec() {
         return result();
     }
 
-    import_info_.import_text_filename = g_strdup(ti_ui_->textFileLineEdit->text().toUtf8().data());
+    import_info_.import_text_filename = qstring_strdup(ti_ui_->textFileLineEdit->text());
     import_info_.import_text_file = ws_fopen(import_info_.import_text_filename, "rb");
     if (!import_info_.import_text_file) {
         open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
@@ -227,7 +228,7 @@ int ImportTextDialog::exec() {
         ti_ui_->octalOffsetButton->isChecked()   ? OFFSET_OCT :
         OFFSET_NONE;
     import_info_.date_timestamp = ti_ui_->dateTimeLineEdit->text().length() > 0;
-    import_info_.date_timestamp_format = g_strdup(ti_ui_->dateTimeLineEdit->text().toUtf8().data());
+    import_info_.date_timestamp_format = qstring_strdup(ti_ui_->dateTimeLineEdit->text());
 
     encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
     import_info_.dummy_header_type = HEADER_NONE;

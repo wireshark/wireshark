@@ -911,20 +911,23 @@ void MainWindow::mergeCaptureFile()
         tmpname = NULL;
         if (merge_dlg.mergeType() == 0) {
             /* chronological order */
-            in_filenames[0] = capture_file_.capFile()->filename;
-            in_filenames[1] = file_name.toUtf8().data();
+            in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
+            in_filenames[1] = qstring_strdup(file_name);
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
         } else if (merge_dlg.mergeType() <= 0) {
             /* prepend file */
-            in_filenames[0] = file_name.toUtf8().data();
-            in_filenames[1] = capture_file_.capFile()->filename;
+            in_filenames[0] = qstring_strdup(file_name);
+            in_filenames[1] = g_strdup(capture_file_.capFile()->filename);
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
         } else {
             /* append file */
-            in_filenames[0] = capture_file_.capFile()->filename;
-            in_filenames[1] = file_name.toUtf8().data();
+            in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
+            in_filenames[1] = qstring_strdup(file_name);
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
         }
+
+        g_free(in_filenames[0]);
+        g_free(in_filenames[1]);
 
         if (merge_status != CF_OK) {
             if (rfcode != NULL)
