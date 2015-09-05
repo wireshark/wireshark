@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-csn1.h"
 
 void proto_register_gmr1_bcch(void);
@@ -40,6 +41,7 @@ static int proto_gmr1_bcch = -1;
 /* GMR-1 BCCH sub tree */
 static gint ett_gmr1_bcch = -1;
 
+static expert_field ei_unknown_segment = EI_INIT;
 
 /* ------------------------------------------------------------------------ */
 /* CSN1 fields                                                              */
@@ -91,10 +93,19 @@ static int hf_seg2a_lainfo_imsi_attach_detach_ind = -1;
 static int hf_seg2a_lainfo_ecsc_indication = -1;
 static int hf_seg2a_lainfo_si_update_ind = -1;
 
+static int hf_seg2a_class_type = -1;
+static int hf_seg2a_segment_type_a = -1;
+static int hf_seg2a_segment_type_abis = -1;
+
 /* Segment 2B fields */
+static int hf_seg2b_segment_type_b = -1;
 /* Segment 2Bbis fields */
+static int hf_seg2b_segment_type_bbis = -1;
 
 /* Segment 3A fields - [1] 11.5.2.71 */
+static int hf_seg3a_class_type = -1;
+static int hf_seg3a_segment_type_a = -1;
+static int hf_seg3a_lai_dissector = -1;
 static int hf_seg3a_lai_mcc = -1;
 static int hf_seg3a_lai_mnc = -1;
 static int hf_seg3a_lai_lac = -1;
@@ -114,6 +125,33 @@ static int hf_seg3a_beam_longitude = -1;
 static int hf_seg3a_miscinfo_sb_reselection_timer = -1;
 
 static int hf_seg3a_spare = -1;
+
+static int hf_seg3b_segment_type_b = -1;
+static int hf_seg3b_segment_type_bbis = -1;
+static int hf_seg3c_segment_type_c = -1;
+static int hf_seg3d_segment_type_d = -1;
+static int hf_seg3e_segment_type_e = -1;
+static int hf_seg3e_segment_type_ebis = -1;
+static int hf_seg3f_segment_type_f = -1;
+static int hf_seg3g_segment_type_g = -1;
+static int hf_seg3g_segment_type_gbis = -1;
+static int hf_seg3h_segment_type_h = -1;
+static int hf_seg3i_segment_type_i = -1;
+static int hf_seg3j_segment_type_j = -1;
+static int hf_seg3j_segment_type_jbis = -1;
+static int hf_seg3k_segment_type_kbis = -1;
+static int hf_seg4a_class_type = -1;
+static int hf_seg4a_segment_type_a = -1;
+static int hf_seg4b_segment_type_b = -1;
+static int hf_seg4c_segment_type_c = -1;
+static int hf_seg4d_segment_type_d = -1;
+static int hf_seg4e_segment_type_e = -1;
+static int hf_seg4f_segment_type_f = -1;
+static int hf_seg4g_segment_type_g = -1;
+static int hf_seg4h_segment_type_h = -1;
+static int hf_seg4i_segment_type_i = -1;
+static int hf_seg4j_segment_type_j = -1;
+static int hf_seg4k_segment_type_k = -1;
 
 /* Segment 3B fields */
 /* Segment 3Bbis fields */
@@ -144,6 +182,7 @@ static int hf_seg3a_spare = -1;
 /* Segment 4K fields */
 
 /* System Information fields [1] 10.1.31 & 10.1.32 */
+static int hf_si1_segment_choice = -1;
 static int hf_si_protocol_version = -1;
 static int hf_si_block_type = -1;
 static int hf_si_spare = -1;
@@ -567,8 +606,8 @@ CSN_DESCR_END  (Seg2A_LAInfo_t)
 
 static const
 CSN_DESCR_BEGIN(Segment2A_t)
-  M_FIXED_LABEL(Segment2A_t, 2, 0x2, "= Class type: 2"),
-  M_FIXED_LABEL(Segment2A_t, 4, 0x0, "= Segment type: A"),
+  M_FIXED_LABEL(Segment2A_t, 2, 0x2, "Class type: 2", &hf_seg2a_class_type),
+  M_FIXED_LABEL(Segment2A_t, 4, 0x0, "Segment type: A", &hf_seg2a_segment_type_a),
   M_UINT       (Segment2A_t, Class_4_version, 3, &hf_seg2a_class_4_version),
   M_TYPE_LABEL (Segment2A_t, SyncInfo, Seg2A_SyncInfo_t, "Synchronization Info Class 2"),
   M_TYPE_LABEL (Segment2A_t, SelectionCriterion, Seg2A_SelectionCriterion_t, "Selection Criterion"),
@@ -578,8 +617,8 @@ CSN_DESCR_END  (Segment2A_t)
 
 static const
 CSN_DESCR_BEGIN(Segment2Abis_t)
-  M_FIXED_LABEL(Segment2Abis_t, 2, 0x2, "= Class type: 2"),
-  M_FIXED_LABEL(Segment2Abis_t, 4, 0x0, "= Segment type: Abis"),
+  M_FIXED_LABEL(Segment2Abis_t, 2, 0x2, "Class type: 2", &hf_seg2a_class_type),
+  M_FIXED_LABEL(Segment2Abis_t, 4, 0x0, "Segment type: Abis", &hf_seg2a_segment_type_abis),
   M_UINT       (Segment2Abis_t, Class_4_version, 3, &hf_seg2a_class_4_version),
   M_TYPE_LABEL (Segment2Abis_t, SyncInfo, Seg2A_SyncInfo_t, "Synchronization Info Class 2"),
   M_TYPE_LABEL (Segment2Abis_t, SelectionCriterion, Seg2A_SelectionCriterion_t, "Selection Criterion"),
@@ -589,14 +628,14 @@ CSN_DESCR_END  (Segment2Abis_t)
 
 static const
 CSN_DESCR_BEGIN(Segment2B_t)
-  M_FIXED_LABEL(Segment2B_t, 2, 0x2, "= Class type: 2"),
-  M_FIXED_LABEL(Segment2B_t, 4, 0x1, "= Segment type: B"),
+  M_FIXED_LABEL(Segment2B_t, 2, 0x2, "Class type: 2", &hf_seg2a_class_type),
+  M_FIXED_LABEL(Segment2B_t, 4, 0x1, "Segment type: B", &hf_seg2b_segment_type_b),
 CSN_DESCR_END  (Segment2B_t)
 
 static const
 CSN_DESCR_BEGIN(Segment2Bbis_t)
-  M_FIXED_LABEL(Segment2Bbis_t, 2, 0x2, "= Class type: 2"),
-  M_FIXED_LABEL(Segment2Bbis_t, 4, 0x1, "= Segment type: B bis"),
+  M_FIXED_LABEL(Segment2Bbis_t, 2, 0x2, "Class type: 2", &hf_seg2a_class_type),
+  M_FIXED_LABEL(Segment2Bbis_t, 4, 0x1, "Segment type: B bis", &hf_seg2b_segment_type_bbis),
 CSN_DESCR_END  (Segment2Bbis_t)
 
 	/* Segment 3A - [1] 11.5.2.71 */
@@ -663,9 +702,9 @@ CSN_DESCR_END  (Seg3A_MiscInfo_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3A_t)
-  M_FIXED_LABEL(Segment3A_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3A_t, 4, 0x0, "= Segment type: A"),
-  M_SERIALIZE  (Segment3A_t, LAI, 0, Seg3A_LAI_Dissector),
+  M_FIXED_LABEL(Segment3A_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3A_t, 4, 0x0, "Segment type: A", &hf_seg3a_segment_type_a),
+  M_SERIALIZE  (Segment3A_t, LAI, 0, &hf_seg3a_lai_dissector, Seg3A_LAI_Dissector),
   M_TYPE_LABEL (Segment3A_t, System, Seg3A_System_t, "System"),
   M_TYPE_LABEL (Segment3A_t, SatellitePosition, Seg3A_SatellitePosition_t, "Satellite Position"),
   M_TYPE_LABEL (Segment3A_t, BeamPosition, Seg3A_BeamPosition_t, "Beam Center Position"),
@@ -675,168 +714,168 @@ CSN_DESCR_END  (Segment3A_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3B_t)
-  M_FIXED_LABEL(Segment3B_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3B_t, 4, 0x1, "= Segment type: B"),
+  M_FIXED_LABEL(Segment3B_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3B_t, 4, 0x1, "Segment type: B", &hf_seg3b_segment_type_b),
 CSN_DESCR_END  (Segment3B_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3Bbis_t)
-  M_FIXED_LABEL(Segment3Bbis_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3Bbis_t, 4, 0x1, "= Segment type: B bis"),
+  M_FIXED_LABEL(Segment3Bbis_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3Bbis_t, 4, 0x1, "Segment type: B bis", &hf_seg3b_segment_type_bbis),
 CSN_DESCR_END  (Segment3Bbis_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3C_t)
-  M_FIXED_LABEL(Segment3C_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3C_t, 4, 0x2, "= Segment type: C"),
+  M_FIXED_LABEL(Segment3C_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3C_t, 4, 0x2, "Segment type: C", &hf_seg3c_segment_type_c),
 CSN_DESCR_END  (Segment3C_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3D_t)
-  M_FIXED_LABEL(Segment3D_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3D_t, 4, 0x3, "= Segment type: D"),
+  M_FIXED_LABEL(Segment3D_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3D_t, 4, 0x3, "Segment type: D", &hf_seg3d_segment_type_d),
 CSN_DESCR_END  (Segment3D_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3E_t)
-  M_FIXED_LABEL(Segment3E_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3E_t, 4, 0x4, "= Segment type: E"),
+  M_FIXED_LABEL(Segment3E_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3E_t, 4, 0x4, "Segment type: E", &hf_seg3e_segment_type_e),
 CSN_DESCR_END  (Segment3E_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3Ebis_t)
-  M_FIXED_LABEL(Segment3Ebis_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3Ebis_t, 4, 0x4, "= Segment type: E bis"),
+  M_FIXED_LABEL(Segment3Ebis_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3Ebis_t, 4, 0x4, "Segment type: E bis", &hf_seg3e_segment_type_ebis),
 CSN_DESCR_END  (Segment3Ebis_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3F_t)
-  M_FIXED_LABEL(Segment3F_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3F_t, 4, 0x5, "= Segment type: F"),
+  M_FIXED_LABEL(Segment3F_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3F_t, 4, 0x5, "Segment type: F", &hf_seg3f_segment_type_f),
 CSN_DESCR_END  (Segment3F_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3G_t)
-  M_FIXED_LABEL(Segment3G_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3G_t, 4, 0x6, "= Segment type: G"),
+  M_FIXED_LABEL(Segment3G_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3G_t, 4, 0x6, "Segment type: G", &hf_seg3g_segment_type_g),
 CSN_DESCR_END  (Segment3G_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3Gbis_t)
-  M_FIXED_LABEL(Segment3Gbis_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3Gbis_t, 4, 0x6, "= Segment type: G bis"),
+  M_FIXED_LABEL(Segment3Gbis_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3Gbis_t, 4, 0x6, "Segment type: G bis", &hf_seg3g_segment_type_gbis),
 CSN_DESCR_END  (Segment3Gbis_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3H_t)
-  M_FIXED_LABEL(Segment3H_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3H_t, 4, 0x7, "= Segment type: H"),
+  M_FIXED_LABEL(Segment3H_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3H_t, 4, 0x7, "Segment type: H", &hf_seg3h_segment_type_h),
 CSN_DESCR_END  (Segment3H_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3I_t)
-  M_FIXED_LABEL(Segment3I_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3I_t, 4, 0x9, "= Segment type: I"),
+  M_FIXED_LABEL(Segment3I_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3I_t, 4, 0x9, "Segment type: I", &hf_seg3i_segment_type_i),
 CSN_DESCR_END  (Segment3I_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3J_t)
-  M_FIXED_LABEL(Segment3J_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3J_t, 4, 0xa, "= Segment type: J"),
+  M_FIXED_LABEL(Segment3J_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3J_t, 4, 0xa, "Segment type: J", &hf_seg3j_segment_type_j),
 CSN_DESCR_END  (Segment3J_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3Jbis_t)
-  M_FIXED_LABEL(Segment3Jbis_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3Jbis_t, 4, 0xa, "= Segment type: J bis"),
+  M_FIXED_LABEL(Segment3Jbis_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3Jbis_t, 4, 0xa, "Segment type: J bis", &hf_seg3j_segment_type_jbis),
 CSN_DESCR_END  (Segment3Jbis_t)
 
 static const
 CSN_DESCR_BEGIN(Segment3Kbis_t)
-  M_FIXED_LABEL(Segment3Kbis_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3Kbis_t, 4, 0xb, "= Segment type: K bis"),
+  M_FIXED_LABEL(Segment3Kbis_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3Kbis_t, 4, 0xb, "Segment type: K bis", &hf_seg3k_segment_type_kbis),
 CSN_DESCR_END  (Segment3Kbis_t)
 
 #if 0
 static const
 CSN_DESCR_BEGIN(Segment3L_t)
-  M_FIXED_LABEL(Segment3L_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3L_t, 4, 0xc, "= Segment type: L"),
+  M_FIXED_LABEL(Segment3L_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3L_t, 4, 0xc, "Segment type: L", &hf_seg3l_segment_type_l),
 CSN_DESCR_END  (Segment3L_t)
 #endif
 
 #if 0
 static const
 CSN_DESCR_BEGIN(Segment3M_t)
-  M_FIXED_LABEL(Segment3M_t, 1, 0x0, "= Class type: 3"),
-  M_FIXED_LABEL(Segment3M_t, 4, 0xd, "= Segment type: M"),
+  M_FIXED_LABEL(Segment3M_t, 1, 0x0, "Class type: 3", &hf_seg3a_class_type),
+  M_FIXED_LABEL(Segment3M_t, 4, 0xd, "Segment type: M", &hf_seg3m_segment_type_m),
 CSN_DESCR_END  (Segment3M_t)
 #endif
 
 static const
 CSN_DESCR_BEGIN(Segment4A_t)
-  M_FIXED_LABEL(Segment4A_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4A_t, 4, 0x0, "= Segment type: A"),
+  M_FIXED_LABEL(Segment4A_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4A_t, 4, 0x0, "Segment type: A", &hf_seg4a_segment_type_a),
 CSN_DESCR_END  (Segment4A_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4B_t)
-  M_FIXED_LABEL(Segment4B_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4B_t, 4, 0x1, "= Segment type: B"),
+  M_FIXED_LABEL(Segment4B_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4B_t, 4, 0x1, "Segment type: B", &hf_seg4b_segment_type_b),
 CSN_DESCR_END  (Segment4B_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4C_t)
-  M_FIXED_LABEL(Segment4C_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4C_t, 4, 0x2, "= Segment type: C"),
+  M_FIXED_LABEL(Segment4C_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4C_t, 4, 0x2, "Segment type: C", &hf_seg4c_segment_type_c),
 CSN_DESCR_END  (Segment4C_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4D_t)
-  M_FIXED_LABEL(Segment4D_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4D_t, 4, 0x3, "= Segment type: D"),
+  M_FIXED_LABEL(Segment4D_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4D_t, 4, 0x3, "Segment type: D", &hf_seg4d_segment_type_d),
 CSN_DESCR_END  (Segment4D_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4E_t)
-  M_FIXED_LABEL(Segment4E_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4E_t, 4, 0x4, "= Segment type: E"),
+  M_FIXED_LABEL(Segment4E_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4E_t, 4, 0x4, "Segment type: E", &hf_seg4e_segment_type_e),
 CSN_DESCR_END  (Segment4E_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4F_t)
-  M_FIXED_LABEL(Segment4F_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4F_t, 4, 0x5, "= Segment type: F"),
+  M_FIXED_LABEL(Segment4F_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4F_t, 4, 0x5, "Segment type: F", &hf_seg4f_segment_type_f),
 CSN_DESCR_END  (Segment4F_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4G_t)
-  M_FIXED_LABEL(Segment4G_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4G_t, 4, 0x6, "= Segment type: G"),
+  M_FIXED_LABEL(Segment4G_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4G_t, 4, 0x6, "Segment type: G", &hf_seg4g_segment_type_g),
 CSN_DESCR_END  (Segment4G_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4H_t)
-  M_FIXED_LABEL(Segment4H_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4H_t, 4, 0x7, "= Segment type: H"),
+  M_FIXED_LABEL(Segment4H_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4H_t, 4, 0x7, "Segment type: H", &hf_seg4h_segment_type_h),
 CSN_DESCR_END  (Segment4H_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4I_t)
-  M_FIXED_LABEL(Segment4I_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4I_t, 4, 0x8, "= Segment type: I"),
+  M_FIXED_LABEL(Segment4I_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4I_t, 4, 0x8, "Segment type: I", &hf_seg4i_segment_type_i),
 CSN_DESCR_END  (Segment4I_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4J_t)
-  M_FIXED_LABEL(Segment4J_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4J_t, 4, 0x9, "= Segment type: J"),
+  M_FIXED_LABEL(Segment4J_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4J_t, 4, 0x9, "Segment type: J", &hf_seg4j_segment_type_j),
 CSN_DESCR_END  (Segment4J_t)
 
 static const
 CSN_DESCR_BEGIN(Segment4K_t)
-  M_FIXED_LABEL(Segment4K_t, 3, 0x6, "= Class type: 4"),
-  M_FIXED_LABEL(Segment4K_t, 4, 0xa, "= Segment type: K"),
+  M_FIXED_LABEL(Segment4K_t, 3, 0x6, "Class type: 4", &hf_seg4a_class_type),
+  M_FIXED_LABEL(Segment4K_t, 4, 0xa, "Segment type: K", &hf_seg4k_segment_type_k),
 CSN_DESCR_END  (Segment4K_t)
 
 
@@ -879,14 +918,14 @@ CSN_ChoiceElement_t SI1_SegmentChoice[] =
   {7, 0x68, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4I,    Segment4I_t,    "Segment 4I")},
   {7, 0x69, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4J,    Segment4J_t,    "Segment 4J")},
   {7, 0x6a, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4K,    Segment4K_t,    "Segment 4K")},
-  {0, 0x00, 1, CSN_ERROR(SystemInformation1_t, "Unknown segment !", -1)},
+  {0, 0x00, 1, CSN_ERROR(SystemInformation1_t, "Unknown segment !", -1, &ei_unknown_segment)},
 };
 
 static const
 CSN_DESCR_BEGIN(SystemInformation1_t)
   M_TYPE_LABEL (SystemInformation1_t, Block_Header, SI1_Block_Header_t, "Block Header"),
   M_TYPE_LABEL (SystemInformation1_t, Segment1A, Segment1A_t, "Segment 1A"),
-  M_CHOICE_IL  (SystemInformation1_t, SegmentType, SI1_SegmentChoice, ElementsOf(SI1_SegmentChoice)),
+  M_CHOICE_IL  (SystemInformation1_t, SegmentType, SI1_SegmentChoice, ElementsOf(SI1_SegmentChoice), &hf_si1_segment_choice),
 CSN_DESCR_END  (SystemInformation1_t)
 
 	/* System Information type 2 - [1] 10.1.32 */
@@ -906,13 +945,13 @@ CSN_ChoiceElement_t SI2_SegmentChoice[] =
   {5, 0x04, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3E, Segment3E_t, "Segment 3E")},
   {5, 0x06, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3G, Segment3G_t, "Segment 3G")},
   {5, 0x0a, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3J, Segment3J_t, "Segment 3J")},
-  {0, 0x00, 1, CSN_ERROR(SystemInformation2_t, "Unknown segment !", -1)},
+  {0, 0x00, 1, CSN_ERROR(SystemInformation2_t, "Unknown segment !", -1, &ei_unknown_segment)},
 };
 
 static const
 CSN_DESCR_BEGIN(SystemInformation2_t)
   M_TYPE_LABEL (SystemInformation2_t, Block_Header, SI2_Block_Header_t, "Block Header"),
-  M_CHOICE_IL  (SystemInformation2_t, SegmentType, SI2_SegmentChoice, ElementsOf(SI2_SegmentChoice)),
+  M_CHOICE_IL  (SystemInformation2_t, SegmentType, SI2_SegmentChoice, ElementsOf(SI2_SegmentChoice), &hf_si1_segment_choice),
 CSN_DESCR_END  (SystemInformation2_t)
 
 
@@ -1039,7 +1078,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	);
 	bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch);
 
-	csnStreamInit(&ar, 0, tvb_captured_length(tvb)*8);
+	csnStreamInit(&ar, 0, tvb_captured_length(tvb)*8, pinfo);
 
 	/* SI1 or SI2 */
 	if (is_si1) {
@@ -1318,8 +1357,48 @@ proto_register_gmr1_bcch(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x00,
 		    "Flag for BACH reorganization. Value changes after each reorganization", HFILL }
 		},
+		{ &hf_seg2a_class_type,
+		  { "Class type: 2", "gmr1.bcch.seg2a.class_type",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg2a_segment_type_a,
+		  { "Segment type: A", "gmr1.bcch.seg2a.segment_type_a",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg2a_segment_type_abis,
+		  { "Segment type: Abis", "gmr1.bcch.seg2a.segment_type_abis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg2b_segment_type_b,
+		  { "Segment type: B", "gmr1.bcch.seg2b.segment_type_b",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg2b_segment_type_bbis,
+		  { "Segment type: B bis", "gmr1.bcch.seg2b.segment_type_bbis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
 
 		/* Segment 3A - [1] 11.5.2.71 */
+		{ &hf_seg3a_class_type,
+		  { "Class type: 3", "gmr1.bcch.seg3a.class_type",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3a_segment_type_a,
+		  { "Segment type: A", "gmr1.bcch.seg3a.segment_type_a",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3a_lai_dissector,
+		  { "LAI Dissector length", "gmr1.bcch.seg3a.lai_dissector",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
 		{ &hf_seg3a_lai_mcc,
 		  { "Mobile Country Code (MCC)", "gmr1.bcch.seg3a.lai.mcc",
 		    FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -1391,7 +1470,144 @@ proto_register_gmr1_bcch(void)
 		    NULL, HFILL }
 		},
 
+		{ &hf_seg3b_segment_type_b,
+		  { "Segment type: B", "gmr1.bcch.seg3b.segment_type_b",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3b_segment_type_bbis,
+		  { "Segment type: B bis", "gmr1.bcch.seg3b.segment_type_bbis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3c_segment_type_c,
+		  { "Segment type: C", "gmr1.bcch.seg3c.segment_type_c",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3d_segment_type_d,
+		  { "Segment type: D", "gmr1.bcch.seg3d.segment_type_d",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3e_segment_type_e,
+		  { "Segment type: E", "gmr1.bcch.seg3e.segment_type_e",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3e_segment_type_ebis,
+		  { "Segment type: E bis", "gmr1.bcch.seg3e.segment_type_ebis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3f_segment_type_f,
+		  { "Segment type: F", "gmr1.bcch.seg3f.segment_type_f",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3g_segment_type_g,
+		  { "Segment type: G", "gmr1.bcch.seg3g.segment_type_g",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3g_segment_type_gbis,
+		  { "Segment type: G bis", "gmr1.bcch.seg3g.segment_type_gbis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3h_segment_type_h,
+		  { "Segment type: H", "gmr1.bcch.seg3h.segment_type_h",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3i_segment_type_i,
+		  { "Segment type: I", "gmr1.bcch.seg3i.segment_type_i",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3j_segment_type_j,
+		  { "Segment type: J", "gmr1.bcch.seg3j.segment_type_j",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3j_segment_type_jbis,
+		  { "Segment type: J bis", "gmr1.bcch.seg3j.segment_type_jbis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg3k_segment_type_kbis,
+		  { "Segment type: K bis", "gmr1.bcch.seg3k.segment_type_kbis",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+
+		{ &hf_seg4a_class_type,
+		  { "Class type: 4", "gmr1.bcch.seg4a.class_type",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4a_segment_type_a,
+		  { "Segment type: A", "gmr1.bcch.seg3a.segment_type_a",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4b_segment_type_b,
+		  { "Segment type: B", "gmr1.bcch.seg3b.segment_type_b",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4c_segment_type_c,
+		  { "Segment type: C", "gmr1.bcch.seg3c.segment_type_c",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4d_segment_type_d,
+		  { "Segment type: D", "gmr1.bcch.seg3d.segment_type_d",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4e_segment_type_e,
+		  { "Segment type: E", "gmr1.bcch.seg3e.segment_type_e",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4f_segment_type_f,
+		  { "Segment type: F", "gmr1.bcch.seg3f.segment_type_f",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4g_segment_type_g,
+		  { "Segment type: G", "gmr1.bcch.seg3g.segment_type_g",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4h_segment_type_h,
+		  { "Segment type: H", "gmr1.bcch.seg3h.segment_type_h",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4i_segment_type_i,
+		  { "Segment type: I", "gmr1.bcch.seg3i.segment_type_i",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4j_segment_type_j,
+		  { "Segment type: J", "gmr1.bcch.seg3j.segment_type_j",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_seg4k_segment_type_k,
+		  { "Segment type: K", "gmr1.bcch.seg3k.segment_type_k",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+
 		/* System Information fields - [1] 10.1.31 & 10.1.32 */
+		{ &hf_si1_segment_choice,
+		  { "Segment Choice", "gmr1.bcch.si.segment_choice",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
 		{ &hf_si_protocol_version,
 		  { "Protocol version", "gmr1.bcch.si.protocol_version",
 		    FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -1418,10 +1634,18 @@ proto_register_gmr1_bcch(void)
 		&ett_gmr1_bcch,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_unknown_segment, { "gmr1.bcch.unknown_segment", PI_PROTOCOL, PI_WARN, "Unknown segment!", EXPFILL }},
+	};
+
+	expert_module_t* expert_gmr1_bcch;
+
 	proto_gmr1_bcch = proto_register_protocol("GEO-Mobile Radio (1) BCCH", "GMR-1 BCCH", "gmr1.bcch");
 
 	proto_register_field_array(proto_gmr1_bcch, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gmr1_bcch = expert_register_protocol(proto_gmr1_bcch);
+	expert_register_field_array(expert_gmr1_bcch, ei, array_length(ei));
 
 	register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
 }

@@ -29,6 +29,18 @@
 #include <epan/to_str.h>
 #include "packet-csn1.h"
 
+void proto_register_csn1(void);
+
+int hf_null_data = -1;
+
+static expert_field ei_csn1_more_bits_to_unpack = EI_INIT;
+static expert_field ei_csn1_general = EI_INIT;
+static expert_field ei_csn1_not_implemented = EI_INIT;
+static expert_field ei_csn1_union_index = EI_INIT;
+static expert_field ei_csn1_script_error = EI_INIT;
+static expert_field ei_csn1_more32bits = EI_INIT;
+static expert_field ei_csn1_fixed_not_matched = EI_INIT;
+
 #define pvDATA(_pv, _offset) ((void*) ((unsigned char*)_pv + _offset))
 #define pui8DATA(_pv, _offset) ((guint8*) pvDATA(_pv, _offset))
 #define pui16DATA(_pv, _offset) ((guint16*) pvDATA(_pv, _offset))
@@ -41,6 +53,7 @@
 
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
+static gint proto_csn1 = -1;
 
 /* Returns no_of_bits (up to 8) masked with 0x2B */
 static guint8
@@ -73,38 +86,18 @@ tvb_get_masked_bits8(tvbuff_t *tvb, gint bit_offset,  const gint no_of_bits)
  * ================================================================================================
  */
 void
-csnStreamInit(csnStream_t* ar, gint bit_offset, gint remaining_bits_len)
+csnStreamInit(csnStream_t* ar, gint bit_offset, gint remaining_bits_len, packet_info* pinfo)
 {
   ar->remaining_bits_len  = remaining_bits_len;
   ar->bit_offset          = bit_offset;
+  ar->pinfo               = pinfo;
 }
 
-static const char* ErrCodes[] =
-{
-  "General 0",
-  "General -1",
-  "DATA_NOT VALID",
-  "IN SCRIPT",
-  "INVALID UNION INDEX",
-  "NEED_MORE BITS TO UNPACK",
-  "ILLEGAL BIT VALUE",
-  "Internal",
-  "STREAM_NOT_SUPPORTED",
-  "MESSAGE_TOO_LONG"
-};
-
 static gint16
-ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, const unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
+ProcessError(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, gint bit_offset, gint16 err, expert_field* err_field, const CSN_DESCR* pDescr)
 {
-  gint16 i = MIN(-err, ((gint16) ElementsOf(ErrCodes)-1));
-  if (i >= 0)
-  {
-    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s %s (%s)", sz, ErrCodes[i], pDescr?pDescr->sz:"-");
-  }
-  else
-  {
-    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s (%s)", sz, pDescr?pDescr->sz:"-");
-  }
+  if (err_field != NULL)
+    proto_tree_add_expert_format(tree, pinfo, err_field, tvb, bit_offset>>3, 1, "%s (%s)", expert_get_summary(err_field), pDescr?pDescr->sz:"-");
 
   return err;
 }
@@ -194,20 +187,18 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           pui8  = pui8DATA(data, pDescr->offset);
 
           *pui8 = tvb_get_bits8(tvb, bit_offset, 1);
-          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                     pDescr->sz);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
           /* end add the bit value to protocol tree */
         }
         else if(pDescr->may_be_null)
         {
             *pui8 = 0;
-            proto_tree_add_text(tree, tvb, 0, 0, "[NULL data]: %s Not Present", pDescr->sz);
+            proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", proto_registrar_get_name(*(pDescr->hf_ptr)));
         }
         else
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
         }
 
         pDescr++;
@@ -234,25 +225,25 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 16)
           {
             guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16;
-            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 32)
           {
             guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32;
-            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
           }
         remaining_bits_len -= no_of_bits;
         bit_offset += no_of_bits;
@@ -274,11 +265,11 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               pui32      = pui32DATA(data, pDescr->offset);
               *pui32     = 0;
             }
-            proto_tree_add_text(tree, tvb, 0, 0, "[NULL data]: %s Not Present", pDescr->sz);
+            proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", proto_registrar_get_name(*(pDescr->hf_ptr)));
         }
         else
         {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
         }
 
         pDescr++;
@@ -297,10 +288,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8 + (guint8)pDescr->descr.value;
 
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui8),
-                                       pDescr->sz, ui8);
-
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 16)
           {
@@ -308,9 +296,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui16),
-                                       pDescr->sz, ui16);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 32)
           {
@@ -318,18 +304,16 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui32),
-                                       pDescr->sz, ui32);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
           }
         }
         else
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
         }
 
         remaining_bits_len -= no_of_bits;
@@ -349,17 +333,17 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
           }
           else
           {/* Maybe we should support more than 8 bits ? */
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
           }
         }
         else
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
         }
 
         remaining_bits_len -= no_of_bits;
@@ -373,7 +357,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           guint8 no_of_value_bits = (guint8) pDescr->i;
           guint64 value;
 
-          proto_tree_add_split_bits_item_ret_val(tree, *pDescr->format_p.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
+          proto_tree_add_split_bits_item_ret_val(tree, *pDescr->hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
           if (no_of_value_bits <= 8)
           {
             pui8      = pui8DATA(data, pDescr->offset);
@@ -391,7 +375,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
           }
 
           pDescr++;
@@ -402,7 +386,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           if (remaining_bits_len >= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length)
           {
-             proto_tree_add_split_bits_crumb(tree, *pDescr->format_p.hf_ptr, tvb, bit_offset,
+             proto_tree_add_split_bits_crumb(tree, *pDescr->hf_ptr, tvb, bit_offset,
                                              pDescr->descr.crumb_spec, pDescr->i);
 
           remaining_bits_len -= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length;
@@ -410,7 +394,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
 
           pDescr++;
@@ -423,7 +407,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         guint16 nCount = (guint16)pDescr->descr.value; /* nCount supplied by value i.e. M_UINT_ARRAY(...) */
         int i =0;
 
-        if (pDescr->format_p.value != 0)
+        if (pDescr->value != 0)
         { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
           nCount = *pui16DATA(data, nCount);
         }
@@ -436,31 +420,27 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             do
             {
               *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s[%d]",
-                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
-                                         pDescr->sz,
-                                         i++);
+              proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
               remaining_bits_len -= no_of_bits;
               bit_offset += no_of_bits;
             } while (--nCount > 0);
           }
           else if (no_of_bits <= 16)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOTIMPLEMENTED", 999, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, 999, &ei_csn1_not_implemented, pDescr);
           }
           else if (no_of_bits <= 32)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOTIMPLEMENTED", 999, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, 999, &ei_csn1_not_implemented, pDescr);
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
           }
         }
         else
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
         }
         pDescr++;
         break;
@@ -473,7 +453,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         gint16      Status;
         csnStream_t arT    = *ar;
         gint16      nCount = pDescr->i;
-        guint16      nSize  = (guint16)(gint32)pDescr->format_p.value;
+        guint16      nSize  = (guint16)(gint32)pDescr->value;
         int i =0;
 
         pui8 = pui8DATA(data, pDescr->offset);
@@ -496,7 +476,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]",pDescr->sz, i++);
 
-          csnStreamInit(&arT, bit_offset, remaining_bits_len);
+          csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
           Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pui8, ett_csn1);
           if (Status >= 0)
           {
@@ -526,19 +506,15 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           if (no_of_bits <= 32)
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN)),
-                                     pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 64)
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits64(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN)),
-                                     pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOT IMPLEMENTED", 999, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, 999, &ei_csn1_not_implemented, pDescr);
           }
 
           remaining_bits_len -= no_of_bits;
@@ -560,7 +536,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s", pDescr->sz);
 
-        csnStreamInit(&arT, bit_offset, remaining_bits_len);
+        csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
         Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
         if (Status >= 0)
@@ -605,9 +581,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             *pui8         = i;
 
             if (pDescr->sz) {
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s Choice: %s (%d)",
-                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
-                                         pDescr->sz, value);
+              proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             }
 
             if (!pChoice->keep_bits) {
@@ -621,7 +595,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               test_tree = tree;
             }
 
-            csnStreamInit(&arT, bit_offset, remaining_bits_len);
+            csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
             Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)descr, tvb, data, ett_csn1);
 
             if (Status >= 0)
@@ -660,9 +634,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         if (length_len) {
           length = tvb_get_bits8(tvb, bit_offset, length_len);
 
-          proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+length_len-1)>>3)-(bit_offset>>3)+1, "%s %s length: %d",
-                              decode_bits_in_field(bit_offset, length_len, length),
-                              pDescr->sz, length);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, length_len, ENC_BIG_ENDIAN);
 
           bit_offset += length_len;
           remaining_bits_len -= length_len;
@@ -672,7 +644,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
         }
 
-        csnStreamInit(&arT, bit_offset, length > 0 ? length : remaining_bits_len);
+        csnStreamInit(&arT, bit_offset, length > 0 ? length : remaining_bits_len, ar->pinfo);
         Status = serialize(test_tree, &arT, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
         if (Status >= 0)
@@ -707,14 +679,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         pDescrNext += count + 1; /* now this is next after the union */
         if ((count <= 0) || (count > 16))
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_INVALID_UNION_INDEX, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_INVALID_UNION_INDEX, &ei_csn1_union_index, pDescr);
         }
 
         /* Now get the bits to extract the index */
         Bits = ixBitsTab[count];
-        proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+Bits-1)>>3)-(bit_offset>>3)+1, "%s Union:%s",
-                                   decode_bits_in_field(bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits)),
-                                   pDescr->sz);
+        proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits), " (Union)");
         t_index = 0;
 
         while (Bits > 0)
@@ -751,9 +721,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           {
             pui8  = pui8DATA(data, pDescr->offset);
 
-            proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                   pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
             *pui8 = 0x00;
             if (tvb_get_bits8(tvb, bit_offset, 1) > 0)
@@ -783,7 +751,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
                 pui8      = pui8DATA(data, pDescr->offset);
                 *pui8     = ui8;
-                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
               }
               else if (no_of_bits <= 16)
@@ -791,24 +759,24 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui16       = pui16DATA(data, pDescr->offset);
                 *pui16      = ui16;
-                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               }
               else if (no_of_bits <= 32)
               {
                 guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui32       = pui32DATA(data, pDescr->offset);
                 *pui32      = ui32;
-                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
               }
               else
               {
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
               }
             }
             else
             {
-              return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+              return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
             }
 
             remaining_bits_len -= no_of_bits;
@@ -824,40 +792,34 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             if (remaining_bits_len >= no_of_bits)
             {
               if (no_of_bits <= 8)
-            {
-              guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-              pui8      = pui8DATA(data, pDescr->offset);
-              *pui8     = ui8 + (guint8)pDescr->descr.value;
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui8),
-                                         pDescr->sz, ui8);
-            }
-            else if (no_of_bits <= 16)
-            {
-              guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
-              pui16       = pui16DATA(data, pDescr->offset);
-              *pui16      = ui16 + (guint16)pDescr->descr.value;
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui16),
-                                         pDescr->sz, ui16);
-            }
-              else if (no_of_bits <= 32)
-            {
-              guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
-              pui32       = pui32DATA(data, pDescr->offset);
-              *pui32      = ui32 + (guint16)pDescr->descr.value;
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s (%d)",
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui32),
-                                         pDescr->sz, ui32);
+              {
+                guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+                pui8      = pui8DATA(data, pDescr->offset);
+                *pui8     = ui8 + (guint8)pDescr->descr.value;
+                proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui8, "%d", ui8);
+              }
+              else if (no_of_bits <= 16)
+              {
+                guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                pui16       = pui16DATA(data, pDescr->offset);
+                *pui16      = ui16 + (guint16)pDescr->descr.value;
+                proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui16, "%d", ui16);
+              }
+                else if (no_of_bits <= 32)
+              {
+                guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                pui32       = pui32DATA(data, pDescr->offset);
+                *pui32      = ui32 + (guint16)pDescr->descr.value;
+                proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui32, "%d", ui32);
               }
               else
               {
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
               }
             }
             else
             {
-              return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+              return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
             }
 
             remaining_bits_len -= no_of_bits;
@@ -877,16 +839,16 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
                 pui8      = pui8DATA(data, pDescr->offset);
                 *pui8     = ui8;
-                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               }
               else
               { /* Maybe we should support more than 8 bits ? */
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+                ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
               }
             }
             else
             {
-              return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+              return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
             }
 
             remaining_bits_len -= no_of_bits;
@@ -901,7 +863,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint16 nCount = (guint16)pDescr->descr.value; /* nCount supplied by value i.e. M_UINT_ARRAY(...) */
             gint i = 0;
 
-            if (pDescr->format_p.value != 0)
+            if (pDescr->value != 0)
             { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
               nCount = *pui16DATA(data, nCount);
             }
@@ -915,10 +877,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 while (nCount > 0)
                 {
                   *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-                  proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s[%d]",
-                                             decode_bits_in_field(bit_offset, no_of_bits, *pui8),
-                                             pDescr->sz,
-                                             i++);
+                  proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
                   pui8++;
                   remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
@@ -932,10 +891,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 while (nCount > 0)
                 {
                   *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
-                  proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s[%d]",
-                                             decode_bits_in_field(bit_offset, no_of_bits, *pui16),
-                                             pDescr->sz,
-                                             i++);
+                  proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui16, " (Count %d)", i++);
                   remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
                   nCount--;
@@ -943,16 +899,16 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               }
               else if (no_of_bits <= 32)
               { /* not supported */
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOT IMPLEMENTED", 999, pDescr);
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, 999, &ei_csn1_not_implemented, pDescr);
               }
               else
               {
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_GENERAL, &ei_csn1_general, pDescr);
               }
             }
             else
             {
-              return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+              return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
             }
 
             pDescr++;
@@ -966,7 +922,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             gint16      Status;
             csnStream_t arT    = *ar;
             guint16      nCount = (guint16) pDescr->i;
-            guint16      nSize  = (guint16)(guint32)pDescr->format_p.value;
+            guint16      nSize  = (guint16)(guint32)pDescr->value;
             gint i = 0;
 
             pui8  = pui8DATA(data, pDescr->offset);
@@ -988,7 +944,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
               test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]",pDescr->sz, i++);
 
-              csnStreamInit(&arT, bit_offset, remaining_bits_len);
+              csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
               Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pui8, ett_csn1);
               if (Status >= 0)
               {
@@ -1013,15 +969,13 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             if (no_of_bits > 0)
             { /* a non empty bitmap */
-              proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
-                                         pDescr->sz);
+              proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               remaining_bits_len -= no_of_bits;
               bit_offset += no_of_bits;
 
               if (remaining_bits_len < 0)
               {
-                return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
               }
 
             }
@@ -1040,7 +994,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
 
-            csnStreamInit(&arT, bit_offset, remaining_bits_len);
+            csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
             Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
             if (Status >= 0)
             {
@@ -1059,7 +1013,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           default:
           { /* descriptions of union elements other than above are illegal */
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_IN_SCRIPT, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_IN_SCRIPT, &ei_csn1_script_error, pDescr);
           }
         }
 
@@ -1074,15 +1028,15 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         pui8  = pui8DATA(data, pDescr->offset);
 
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "Exist:%s",pDescr->sz);
-
         if (CSN_EXIST_LH == pDescr->type)
         {
           fExist = tvb_get_masked_bits8(tvb, bit_offset, 1);
+          proto_tree_add_uint(tree, *(pDescr->hf_ptr), tvb, bit_offset>>3, 1, fExist);
         }
         else
         {
           fExist = tvb_get_bits8(tvb, bit_offset, 1);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         }
 
         *pui8 = fExist;
@@ -1119,9 +1073,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST description element */
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                   pDescr->sz);
+        proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
         fExist = 0x00;
         if (tvb_get_bits8(tvb, bit_offset, 1))
@@ -1161,9 +1113,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST_LH description element */
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                   pDescr->sz);
+        proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
         fExist = tvb_get_masked_bits8(tvb, bit_offset, 1);
 
@@ -1202,12 +1152,11 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
-          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s",
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)));
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
 
           { /* extract bits */
@@ -1258,27 +1207,23 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           if (no_of_bits <= 32)
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN)),
-                                     pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 64)
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits64(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN)),
-                                     pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %u bits",
-                                     pDescr->sz, no_of_bits);
+            proto_tree_add_uint_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, no_of_bits, "%u bits",
+                                     no_of_bits);
           }
           bit_offset += no_of_bits;
           remaining_bits_len -= no_of_bits;
 
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
         }
 
@@ -1305,16 +1250,14 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               {
                  bits_to_handle -= (bit_offset%8);
               }
-              proto_tree_add_text(padding_tree, tvb, bit_offset>>3, ((bit_offset+bits_to_handle-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                       decode_bits_in_field(bit_offset, bits_to_handle, tvb_get_bits(tvb, bit_offset, bits_to_handle, ENC_BIG_ENDIAN)),
-                                       pDescr->sz);
+              proto_tree_add_bits_item(padding_tree, *(pDescr->hf_ptr), tvb, bit_offset, bits_to_handle, ENC_BIG_ENDIAN);
               bit_offset += bits_to_handle;
               remaining_bits_len -= bits_to_handle;
             }
          }
          if (remaining_bits_len < 0)
          {
-           return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+           return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
          }
 
          /* Padding was successfully extracted or it was empty */
@@ -1337,16 +1280,14 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
 
           pui8 = pui8DATA(data, pDescr->offset);
 
           while (count > 0)
           {
-            proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
-                                       decode_bits_in_field(bit_offset, 8, tvb_get_bits8(tvb, bit_offset, 8)),
-                                       pDescr->sz);
+            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 8, ENC_BIG_ENDIAN);
             *pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
             bit_offset += 8;
             remaining_bits_len -= 8;
@@ -1374,9 +1315,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                     pDescr->sz);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_exist_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
           bit_offset++;
           remaining_bits_len--;
 
@@ -1386,19 +1325,15 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
 
-          proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
-                                     pDescr->sz);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           bit_offset += no_of_bits;
           remaining_bits_len -= no_of_bits;
         }
 
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                   pDescr->sz);
+        proto_tree_add_bits_item(tree, *(pDescr->hf_exist_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
         /* existNextElement() returned FALSE, 1 bit consumed */
         bit_offset++;
@@ -1417,14 +1352,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          *  M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
          */
-        gint16 nSizeElement = (gint16)(gint32)pDescr->format_p.value;
+        gint16 nSizeElement = (gint16)(gint32)pDescr->value;
         guint8  ElementCount = 0;
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                     pDescr->sz);
+          proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
           /* existNextElement() returned TRUE, 1 bit consumed */
           bit_offset++;
@@ -1439,7 +1372,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
 
-            csnStreamInit(&arT, bit_offset, remaining_bits_len);
+            csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
             Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
             if (Status >= 0)
@@ -1457,7 +1390,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
         }
 
@@ -1487,7 +1420,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          * M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
          */
-        gint16      nSizeElement = (gint16)(gint32)pDescr->format_p.value;
+        gint16      nSizeElement = (gint16)(gint32)pDescr->value;
         guint8       ElementCount = 0;
         csnStream_t arT          = *ar;
         gboolean     EndOfList    = FALSE;
@@ -1502,7 +1435,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]", pDescr->sz, ElementCount-1);
 
-          csnStreamInit(&arT, bit_offset, remaining_bits_len);
+          csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
           Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
           if (Status >= 0)
@@ -1519,13 +1452,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           if (remaining_bits_len < 0)
           {
-            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
           }
 
           /* control of next element's tag */
-          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s[%d]",
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
-                                     pDescr->sz, ElementCount);
+          proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1), "%s[%d]",
+                                     proto_registrar_get_name(*(pDescr->hf_ptr)), ElementCount);
           EndOfList         = !(existNextElement(tvb, bit_offset, Tag));
 
           bit_offset++;
@@ -1559,15 +1491,13 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
         else
         {
-          return ProcessError(tree, tvb, bit_offset,"no_of_bits > 32", -1, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, -1, &ei_csn1_more32bits, pDescr);
         }
         if (ui32 != (unsigned)(gint32)pDescr->offset)
         {
-          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector FIXED value does not match", -1, pDescr);
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, -1, &ei_csn1_fixed_not_matched, pDescr);
         }
-        proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, "%s %s",
-                                   decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
-                                   pDescr->sz);
+        proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
         remaining_bits_len   -= no_of_bits;
         bit_offset += no_of_bits;
@@ -1589,7 +1519,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
       case CSN_TRAP_ERROR:
       {
-        return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", pDescr->i, pDescr);
+        return ProcessError(tree, ar->pinfo, tvb, bit_offset, -1, pDescr->error, pDescr);
       }
 
       case CSN_END:
@@ -1609,7 +1539,39 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
   } while (remaining_bits_len >= 0);
 
-  return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+  return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
+}
+
+void
+proto_register_csn1(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_null_data,
+            { "NULL data", "csn1.null_data",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_csn1_more_bits_to_unpack, { "csn1.more_bits_to_unpack", PI_MALFORMED, PI_ERROR, "NEED_MORE BITS TO UNPACK", EXPFILL }},
+        { &ei_csn1_general, { "csn1.general_error", PI_PROTOCOL, PI_WARN, "General -1", EXPFILL }},
+        { &ei_csn1_not_implemented, { "csn1.not_implemented", PI_UNDECODED, PI_WARN, "NOT IMPLEMENTED", EXPFILL }},
+        { &ei_csn1_union_index, { "csn1.union_index_invalid", PI_PROTOCOL, PI_WARN, "INVALID UNION INDEX", EXPFILL }},
+        { &ei_csn1_script_error, { "csn1.script_error", PI_MALFORMED, PI_ERROR, "ERROR IN SCRIPT", EXPFILL }},
+        { &ei_csn1_more32bits, { "csn1.more32bits", PI_PROTOCOL, PI_WARN, "no_of_bits > 32", EXPFILL }},
+        { &ei_csn1_fixed_not_matched, { "csn1.fixed_not_matched", PI_PROTOCOL, PI_WARN, "FIXED value does not match", EXPFILL }},
+    };
+
+    expert_module_t* expert_csn1;
+
+    proto_csn1 = proto_register_protocol("CSN.1", "CSN1", "csn1");
+
+	proto_register_field_array(proto_csn1, hf, array_length(hf));
+    expert_csn1 = expert_register_protocol(proto_csn1);
+    expert_register_field_array(expert_csn1, ei, array_length(ei));
+
+    proto_set_cant_toggle(proto_csn1);
 }
 
 /*
