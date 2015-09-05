@@ -1376,7 +1376,7 @@ finished_fwd:
         }
 
         /* Check for spurious retransmission. If the current seq + segment length
-         * is less then the receivers lastask, the packet contains duplicated
+         * is less then the receivers lastack, the packet contains duplicated
          * data and may be considered spurious.
          */
         if ( seq + seglen < tcpd->rev->lastack ) {
@@ -1430,9 +1430,14 @@ finished_checking_retransmission_type:
     }
 
     /* Store the highest continuous seq number seen so far for 'max seq to be acked',
-     so we can detect TCP_A_ACK_LOST_PACKET condition
+     so we can detect TCP_A_ACK_LOST_PACKET condition.
+     Notes:
+        A retransmitted segment can include additional data not previously seen.
+        XXX: It seems that the additional data may never be dissected (by a sub-dissector)
+             since the whole segment is marked as being a retransmission.
      */
-    if(EQ_SEQ(seq, tcpd->fwd->maxseqtobeacked) || !tcpd->fwd->maxseqtobeacked) {
+    if((LE_SEQ(seq, tcpd->fwd->maxseqtobeacked) && GT_SEQ(tcpd->fwd->nextseq, tcpd->fwd->maxseqtobeacked))
+       || !tcpd->fwd->maxseqtobeacked) {
         if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ) {
             tcpd->fwd->maxseqtobeacked=tcpd->fwd->nextseq;
         }
