@@ -359,6 +359,7 @@ void ProtoTree::goToField(int hf_id)
 }
 
 void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
+    static const QString emptyQString;
 
     if (item) {
         field_info *fi;
@@ -384,7 +385,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
                 item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
-            emit protoItemSelected(*new QString());
+            emit protoItemSelected(emptyQString);
             emit protoItemSelected(NULL);
             emit protoItemSelected(item_info);
             emit protoItemSelected(fi);
@@ -410,7 +411,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
          */
 
     } else {
-        emit protoItemSelected(*new QString());
+        emit protoItemSelected(emptyQString);
         emit protoItemSelected(NULL);
     }
 }
