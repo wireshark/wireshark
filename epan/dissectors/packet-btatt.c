@@ -5082,10 +5082,9 @@ proto_register_btatt(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: FT_UINT40 */
         {&hf_btatt_system_id_manufacturer_identifier,
             {"Manufacturer Identifier", "btatt.system_id.manufacturer_identifier",
-            FT_UINT64, BASE_HEX, NULL, 0x0,
+            FT_UINT40, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_system_id_organizationally_unique_identifier,

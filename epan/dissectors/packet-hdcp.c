@@ -262,9 +262,8 @@ proto_register_hdcp(void)
         { &hf_hdcp_resp_to,
             { "Response To", "hdcp.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
                 "This is the response to the request in this frame", HFILL }},
-        /* actually, the KSVs are only 40bits, but there's no FT_UINT40 type */
         { &hf_hdcp_a_ksv,
-            { "Transmitter's key selection vector", "hdcp.a_ksv", FT_UINT64,
+            { "Transmitter's key selection vector", "hdcp.a_ksv", FT_UINT40,
                 BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_hdcp_b_ksv,
             { "Receiver's key selection vector", "hdcp.b_ksv", FT_UINT64,
