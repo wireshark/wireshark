@@ -50,9 +50,6 @@ static int hf_ocsp_responseType_id = -1;
 static gint ett_ocsp = -1;
 #include "packet-ocsp-ett.c"
 
-static const char *responseType_id;
-
-
 #include "packet-ocsp-fn.c"
 
 
@@ -105,7 +102,7 @@ void proto_register_ocsp(void) {
   /* List of fields */
   static hf_register_info hf[] = {
     { &hf_ocsp_responseType_id,
-      { "ResponseType Id", "x509af.responseType.id",
+      { "ResponseType Id", "ocsp.responseType.id",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 #include "packet-ocsp-hfarr.c"

@@ -139,9 +139,6 @@ static gint ett_ocsp_CrlID = -1;
 /*--- End of included file: packet-ocsp-ett.c ---*/
 #line 52 "../../asn1/ocsp/packet-ocsp-template.c"
 
-static const char *responseType_id;
-
-
 
 /*--- Included file: packet-ocsp-fn.c ---*/
 #line 1 "../../asn1/ocsp/packet-ocsp-fn.c"
@@ -306,7 +303,12 @@ dissect_ocsp_OCSPResponseStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_ocsp_responseType_id, &responseType_id);
+#line 40 "../../asn1/ocsp/ocsp.cnf"
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_ocsp_responseType_id, &actx->external.direct_reference);
+
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+
+
 
   return offset;
 }
@@ -315,7 +317,7 @@ dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "../../asn1/ocsp/ocsp.cnf"
+#line 44 "../../asn1/ocsp/ocsp.cnf"
   gint8 appclass;
   gboolean pc, ind;
   gint32 tag;
@@ -323,7 +325,9 @@ dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(responseType_id, tvb, offset, actx->pinfo, tree, NULL);
+  if (actx->external.direct_ref_present) {
+    offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+  }
 
 
 
@@ -671,7 +675,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-ocsp-fn.c ---*/
-#line 57 "../../asn1/ocsp/packet-ocsp-template.c"
+#line 54 "../../asn1/ocsp/packet-ocsp-template.c"
 
 
 static int
@@ -723,7 +727,7 @@ void proto_register_ocsp(void) {
   /* List of fields */
   static hf_register_info hf[] = {
     { &hf_ocsp_responseType_id,
-      { "ResponseType Id", "x509af.responseType.id",
+      { "ResponseType Id", "ocsp.responseType.id",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
@@ -939,7 +943,7 @@ void proto_register_ocsp(void) {
         "GeneralizedTime", HFILL }},
 
 /*--- End of included file: packet-ocsp-hfarr.c ---*/
-#line 112 "../../asn1/ocsp/packet-ocsp-template.c"
+#line 109 "../../asn1/ocsp/packet-ocsp-template.c"
   };
 
   /* List of subtrees */
@@ -969,7 +973,7 @@ void proto_register_ocsp(void) {
     &ett_ocsp_CrlID,
 
 /*--- End of included file: packet-ocsp-ettarr.c ---*/
-#line 118 "../../asn1/ocsp/packet-ocsp-template.c"
+#line 115 "../../asn1/ocsp/packet-ocsp-template.c"
   };
 
   /* Register protocol */
@@ -1005,6 +1009,6 @@ void proto_reg_handoff_ocsp(void) {
 
 
 /*--- End of included file: packet-ocsp-dis-tab.c ---*/
-#line 141 "../../asn1/ocsp/packet-ocsp-template.c"
+#line 138 "../../asn1/ocsp/packet-ocsp-template.c"
 }
 

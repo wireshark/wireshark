@@ -36,8 +36,9 @@ Version
 
 #.FIELD_RENAME
 
-#.FN_PARS ResponseBytes/responseType
-  FN_VARIANT = _str  HF_INDEX = hf_ocsp_responseType_id  VAL_PTR = &responseType_id
+#.FN_BODY ResponseBytes/responseType FN_VARIANT = _str HF_INDEX = hf_ocsp_responseType_id VAL_PTR = &actx->external.direct_reference
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY ResponseBytes/response
   gint8 appclass;
@@ -47,6 +48,8 @@ Version
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(responseType_id, tvb, offset, actx->pinfo, tree, NULL);
+  if (actx->external.direct_ref_present) {
+    offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+  }
 
 #.END
