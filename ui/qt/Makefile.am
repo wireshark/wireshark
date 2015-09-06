@@ -294,5 +294,4 @@ EXTRA_DIST = \
 	Makefile.common			\
 	Makefile_custom.common		\
 	Wireshark.pro			\
-	display_filter_16.svg		\
 	gpl-template.txt
