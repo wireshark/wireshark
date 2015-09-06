@@ -1518,6 +1518,7 @@ set(FTYPE_FILES
 	ftypes/ftypes.c
 	ftypes/ftype-bytes.c
 	ftypes/ftype-double.c
+	ftypes/ftype-ieee-11073-float.c
 	ftypes/ftype-integer.c
 	ftypes/ftype-ipv4.c
 	ftypes/ftype-ipv6.c

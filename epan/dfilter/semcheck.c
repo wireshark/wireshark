@@ -68,6 +68,8 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_DOUBLE:		/* XXX - should be able to compare with INT */
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
@@ -202,6 +204,8 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, char *s)
 		case FT_PROTOCOL:
 		case FT_FLOAT:
 		case FT_DOUBLE:
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
@@ -351,6 +355,8 @@ is_bytes_type(enum ftenum type)
 		case FT_PROTOCOL:
 		case FT_FLOAT:
 		case FT_DOUBLE:
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:

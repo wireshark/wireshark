@@ -34,6 +34,7 @@ ftype_register(enum ftenum ftype, ftype_t *ft);
  * that I don't mind doing it by hand for now. */
 void ftype_register_bytes(void);
 void ftype_register_double(void);
+void ftype_register_ieee_11073_float(void);
 void ftype_register_fc(void);
 void ftype_register_integers(void);
 void ftype_register_ipv4(void);

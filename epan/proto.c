@@ -2126,7 +2126,26 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
+		case FT_IEEE_11073_SFLOAT:
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
+			if (length != 2) {
+				length_error = length < 2 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a IEEE 11073 SFLOAT", length, length_error);
+			}
 
+			fvalue_set_uinteger(&new_fi->value, tvb_get_guint16(tvb, start, encoding));
+
+			break;
+		case FT_IEEE_11073_FLOAT:
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
+			if (length != 4) {
+				length_error = length < 4 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a IEEE 11073 FLOAT", length, length_error);
+			}
+
+			break;
 		default:
 			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
 					new_fi->hfinfo->type,
@@ -4859,6 +4878,28 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 								size-offset_r);
 						break;
 
+					case FT_IEEE_11073_SFLOAT:
+					{
+						guint8 buf[240];
+						fvalue_to_string_repr(&finfo->value, FTREPR_DISPLAY, hfinfo->display, buf);
+							g_snprintf(result+offset_r, size-offset_r,
+										"%s: %s",
+										hfinfo->name, buf);
+					}
+						offset_r = (int)strlen(result);
+						break;
+
+                    case FT_IEEE_11073_FLOAT:
+					{
+						guint8 buf[240];
+						fvalue_to_string_repr(&finfo->value, FTREPR_DISPLAY, hfinfo->display, buf);
+							g_snprintf(result+offset_r, size-offset_r,
+										"%s: %s",
+										hfinfo->name, buf);
+					}
+						offset_r = (int)strlen(result);
+						break;
+
 					case FT_IPXNET: /*XXX really No column custom ?*/
 					case FT_PCRE:
 					default:
@@ -5974,7 +6015,8 @@ static const value_string hf_display[] = {
 	{ BASE_DEC_HEX|BASE_VAL64_STRING, "BASE_DEC_HEX|BASE_VAL64_STRING" },
 	{ BASE_HEX_DEC|BASE_VAL64_STRING, "BASE_HEX_DEC|BASE_VAL64_STRING" },
 	{ BASE_CUSTOM|BASE_VAL64_STRING,  "BASE_CUSTOM|BASE_VAL64_STRING"  },
-	/* { STR_ASCII,			  "STR_ASCII" }, */
+	/* Alias: BASE_NONE { BASE_FLOAT,			"BASE_FLOAT" }, */
+	/* Alias: BASE_NONE { STR_ASCII,			  "STR_ASCII" }, */
 	{ STR_UNICODE,			  "STR_UNICODE" },
 	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
 	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
@@ -6868,6 +6910,25 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZPAD:
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			label_fill(label_str, 0, hfinfo, hfinfo_format_text(hfinfo, bytes));
+			break;
+
+		case FT_IEEE_11073_SFLOAT:
+		{
+			guint8 buf[240];
+			fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfinfo->display, buf);
+				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+							"%s: %s",
+							hfinfo->name, buf);
+		}
+			break;
+		case FT_IEEE_11073_FLOAT:
+		{
+			guint8 buf[240];
+			fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfinfo->display, buf);
+				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+							"%s: %s",
+							hfinfo->name, buf);
+		}
 			break;
 
 		default:

@@ -52,6 +52,8 @@ enum ftenum {
 	FT_INT48, /* same as for UINT48 */
 	FT_INT56, /* same as for UINT56 */
 	FT_INT64,
+	FT_IEEE_11073_SFLOAT,
+	FT_IEEE_11073_FLOAT,
 	FT_FLOAT,
 	FT_DOUBLE,
 	FT_ABSOLUTE_TIME,
@@ -214,6 +216,8 @@ typedef struct _fvalue_t {
 		nstime_t	time;
 		tvbuff_t	*tvb;
 		GRegex	        *re;
+		guint16		sfloat_ieee_11073;
+		guint32		float_ieee_11073;
 	} value;
 
 	/* The following is provided for private use

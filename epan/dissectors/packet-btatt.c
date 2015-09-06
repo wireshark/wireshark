@@ -8453,16 +8453,14 @@ proto_register_btatt(void)
             FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_glucose_concentration_kg_per_l,
             {"Glucose Concentration [kg/l]", "btatt.glucose_measurement.glucose_concentration.kg_per_l",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_glucose_concentration_mol_per_l,
             {"Glucose Concentration [mol/l]", "btatt.glucose_measurement.glucose_concentration.mol_per_l",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_type_and_sample_location,
@@ -8710,16 +8708,14 @@ proto_register_btatt(void)
             FT_UINT8, BASE_HEX, VALS(temperature_measurement_flags_temperature_unit_vals), 0x01,
             NULL, HFILL}
         },
-/* TODO: This field should be FLOAT: IEEE-11073 32-bit SFLOAT */
         {&hf_btatt_temperature_measurement_value_celsius,
             {"Value [Celsius]", "btatt.temperature_measurement.value.celsius",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+            FT_IEEE_11073_FLOAT, BASE_FLOAT, NULL, 0x00,
             NULL, HFILL}
         },
-/* TODO: This field should be FLOAT: IEEE-11073 32-bit SFLOAT */
         {&hf_btatt_temperature_measurement_value_fahrenheit,
             {"Value [Fahrenheit]", "btatt.temperature_measurement.value.fahrenheit",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+            FT_IEEE_11073_FLOAT, BASE_FLOAT, NULL, 0x00,
             NULL, HFILL}
         },
         {&hf_btatt_temperature_measurement_timestamp,
@@ -8792,10 +8788,9 @@ proto_register_btatt(void)
             FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_carbohydrate_id_vals), 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_context_carbohydrate_kg,
             {"Carbohydrate [kg]", "btatt.glucose_measurement_context.carbohydrate.kg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_meal,
@@ -8833,22 +8828,19 @@ proto_register_btatt(void)
             FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_medication_id_vals), 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_context_medication_l,
             {"Medication [l]", "btatt.glucose_measurement_context.medication.l",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_context_medication_kg,
             {"Medication [kg]", "btatt.glucose_measurement_context.medication.kg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_glucose_measurement_context_hba1c,
             {"HbA1c", "btatt.glucose_measurement_context.hba1c",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_blood_pressure_measurement_flags,
@@ -8886,40 +8878,34 @@ proto_register_btatt(void)
             FT_UINT8, BASE_HEX, VALS(blood_pressure_measurement_unit_vals), 0x01,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_systolic_kpa,
             {"Systolic [kPa]", "btatt.blood_pressure_measurement.compound_value.systolic.kpa",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_diastolic_kpa,
             {"Diastolic [kPa]", "btatt.blood_pressure_measurement.compound_value.diastolic.kpa",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_kpa,
             {"Arterial Pressure [kPa]", "btatt.blood_pressure_measurement.compound_value.arterial_pressure.kpa",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_systolic_mmhg,
             {"Systolic [mmHg]", "btatt.blood_pressure_measurement.compound_value.systolic.mmhg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_diastolic_mmhg,
             {"Diastolic [mmHg]", "btatt.blood_pressure_measurement.compound_value.diastolic.mmhg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_mmhg,
             {"Arterial Pressure [mmHg]", "btatt.blood_pressure_measurement.compound_value.arterial_pressure.mmhg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_blood_pressure_measurement_timestamp,
@@ -8927,10 +8913,9 @@ proto_register_btatt(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_blood_pressure_measurement_pulse_rate,
             {"Pulse Rate", "btatt.blood_pressure_measurement.pulse_rate",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_blood_pressure_measurement_user_id,
@@ -10315,10 +10300,9 @@ proto_register_btatt(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_measurement_glucose_concentration,
             {"Glucose Concentration", "btatt.cgm_measurement.glucose_concentration",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cgm_measurement_time_offset,
@@ -10456,16 +10440,14 @@ proto_register_btatt(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_measurement_trend_information,
             {"Trend Information", "btatt.cgm_measurement.trend_information",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_measurement_quality,
             {"Quality", "btatt.cgm_measurement.quality",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cgm_e2e_crc,
@@ -10618,10 +10600,9 @@ proto_register_btatt(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_specific_ops_control_point_calibration_glucose_concentration,
             {"Calibration Glucose Concentration", "btatt.cgm_specific_ops_control_point.operand.calibration_glucose_concentration",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cgm_specific_ops_control_point_calibration_time,
@@ -10669,16 +10650,14 @@ proto_register_btatt(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_specific_ops_control_point_operand_alert_level,
             {"Alert Level [mg/dL]", "btatt.cgm_specific_ops_control_point.operand.alert_level",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
-/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
         {&hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate,
             {"Alert Level Rate [mg/dL/min]", "btatt.cgm_specific_ops_control_point.operand.alert_level_rate",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cgm_specific_ops_control_point_request_opcode,

@@ -30,6 +30,7 @@ NONGENERATED_C_FILES = \
 	ftypes.c	\
 	ftype-bytes.c	\
 	ftype-double.c	\
+	ftype-ieee-11073-float.c	\
 	ftype-integer.c	\
 	ftype-ipv4.c	\
 	ftype-ipv6.c	\

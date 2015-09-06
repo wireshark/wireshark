@@ -510,6 +510,9 @@ typedef enum {
 	BASE_HEX_DEC = 5,   /**< hexadecimal (decimal) */
 	BASE_CUSTOM  = 6,   /**< call custom routine (in ->strings) to format */
 
+/* Float types */
+	BASE_FLOAT   = BASE_NONE, /**< decimal-format float */
+
 /* String types */
 	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
 	/* XXX, support for format_text_wsp() ? */

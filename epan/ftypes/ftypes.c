@@ -34,6 +34,7 @@ ftypes_initialize(void)
 {
 	ftype_register_bytes();
 	ftype_register_double();
+	ftype_register_ieee_11073_float();
 	ftype_register_integers();
 	ftype_register_ipv4();
 	ftype_register_ipv6();
