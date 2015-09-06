@@ -73,4 +73,12 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	sv_data.smpMod = value;
 #.END
 
+#.FN_BODY Data
+	if (sv_decode_data_as_phsmeas) {
+		offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+	} else {
+		offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+	}
+#.END
+
 #.END_OF_CNF

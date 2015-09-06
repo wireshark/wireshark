@@ -27,6 +27,7 @@
 #include <epan/asn1.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -77,6 +78,21 @@ static int hf_sv_appid = -1;
 static int hf_sv_length = -1;
 static int hf_sv_reserve1 = -1;
 static int hf_sv_reserve2 = -1;
+static int hf_sv_phmeas_instmag_i = -1;
+static int hf_sv_phsmeas_q = -1;
+static int hf_sv_phsmeas_q_validity = -1;
+static int hf_sv_phsmeas_q_overflow = -1;
+static int hf_sv_phsmeas_q_outofrange = -1;
+static int hf_sv_phsmeas_q_badreference = -1;
+static int hf_sv_phsmeas_q_oscillatory = -1;
+static int hf_sv_phsmeas_q_failure = -1;
+static int hf_sv_phsmeas_q_olddata = -1;
+static int hf_sv_phsmeas_q_inconsistent = -1;
+static int hf_sv_phsmeas_q_inaccurate = -1;
+static int hf_sv_phsmeas_q_source = -1;
+static int hf_sv_phsmeas_q_test = -1;
+static int hf_sv_phsmeas_q_operatorblocked = -1;
+static int hf_sv_phsmeas_q_derived = -1;
 
 #include "packet-sv-hf.c"
 
@@ -89,6 +105,81 @@ static int ett_phsmeas_q = -1;
 
 static expert_field ei_sv_mal_utctime = EI_INIT;
 static expert_field ei_sv_zero_pdu = EI_INIT;
+
+static gboolean sv_decode_data_as_phsmeas = FALSE;
+
+static const value_string sv_q_validity_vals[] = {
+	{ 0, "good" },
+	{ 1, "invalid" },
+	{ 3, "questionable" },
+	{ 0, NULL }
+};
+
+static const value_string sv_q_source_vals[] = {
+	{ 0, "process" },
+	{ 1, "substituted" },
+	{ 0, NULL }
+};
+
+static int
+dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id _U_)
+{
+	gint8 ber_class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	proto_tree *subtree;
+	gint32 value;
+	guint32 qual;
+	guint32 i;
+
+	static const int *q_flags[] = {
+		&hf_sv_phsmeas_q_validity,
+		&hf_sv_phsmeas_q_overflow,
+		&hf_sv_phsmeas_q_outofrange,
+		&hf_sv_phsmeas_q_badreference,
+		&hf_sv_phsmeas_q_oscillatory,
+		&hf_sv_phsmeas_q_failure,
+		&hf_sv_phsmeas_q_olddata,
+		&hf_sv_phsmeas_q_inconsistent,
+		&hf_sv_phsmeas_q_inaccurate,
+		&hf_sv_phsmeas_q_source,
+		&hf_sv_phsmeas_q_test,
+		&hf_sv_phsmeas_q_operatorblocked,
+		&hf_sv_phsmeas_q_derived,
+		NULL
+		};
+
+	if (!implicit_tag) {
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		len=tvb_reported_length_remaining(tvb, offset);
+	}
+
+	subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_phsmeas, NULL, "PhsMeas1");
+
+	sv_data.num_phsMeas = 0;
+	for (i = 0; i < len/8; i++) {
+		if (tree && subtree) {
+			value = tvb_get_ntohl(tvb, offset);
+			qual = tvb_get_ntohl(tvb, offset + 4);
+
+			proto_tree_add_item(subtree, hf_sv_phmeas_instmag_i, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_bitmask(subtree, tvb, offset + 4, hf_sv_phsmeas_q, ett_phsmeas_q, q_flags, ENC_BIG_ENDIAN);
+
+			if (i < IEC61850_SV_MAX_PHSMEAS_ENTRIES) {
+				sv_data.phsMeas[i].value = value;
+				sv_data.phsMeas[i].qual = qual;
+				sv_data.num_phsMeas++;
+			}
+		}
+
+		offset += 8;
+	}
+
+	return offset;
+}
 
 #include "packet-sv-fn.c"
 
@@ -155,7 +246,7 @@ void proto_register_sv(void) {
 
 		{ &hf_sv_reserve2,
 		{ "Reserved 2",	"sv.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-#if 0
+
 		{ &hf_sv_phmeas_instmag_i,
 		{ "value", "sv.meas_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
@@ -200,7 +291,7 @@ void proto_register_sv(void) {
 
 		{ &hf_sv_phsmeas_q_derived,
 		{ "derived", "sv.meas_quality.derived", FT_BOOLEAN, 32, NULL, Q_DERIVED, NULL, HFILL}},
-#endif
+
 
 #include "packet-sv-hfarr.c"
 	};
@@ -219,6 +310,7 @@ void proto_register_sv(void) {
 	};
 
 	expert_module_t* expert_sv;
+	module_t *sv_module;
 
 	/* Register protocol */
 	proto_sv = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -229,6 +321,10 @@ void proto_register_sv(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_sv = expert_register_protocol(proto_sv);
 	expert_register_field_array(expert_sv, ei, array_length(ei));
+	sv_module = prefs_register_protocol(proto_sv, NULL);
+	prefs_register_bool_preference(sv_module, "decode_data_as_phsmeas",
+		"Force decoding of seqData as PhsMeas",
+		NULL, &sv_decode_data_as_phsmeas);
 
 	/* Register tap */
 	sv_tap = register_tap("sv");
