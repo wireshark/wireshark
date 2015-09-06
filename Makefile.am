@@ -895,20 +895,6 @@ EXTRA_DIST = \
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
 	image/copy-8.png			\
-	image/dfilter_apply_disabled.png	\
-	image/dfilter_apply_hover.png		\
-	image/dfilter_apply_normal.png		\
-	image/dfilter_apply_pressed.png		\
-	image/dfilter_bookmark_disabled.png	\
-	image/dfilter_bookmark_hover.png	\
-	image/dfilter_bookmark_normal.png	\
-	image/dfilter_bookmark_pressed.png	\
-	image/dfilter_dropdown.png		\
-	image/dfilter_erase_active.png		\
-	image/dfilter_erase_normal.png		\
-	image/dfilter_erase_selected.png	\
-	image/dfilter_refresh_active.png	\
-	image/dfilter_refresh_normal.png	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/expert_chat.png	\
