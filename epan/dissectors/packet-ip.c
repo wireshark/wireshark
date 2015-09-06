@@ -2018,7 +2018,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-  proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
+  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
+  if (hi_nibble(iph->ip_v_hl) != 4) {
+    col_add_fstr(pinfo->cinfo, COL_INFO,
+                 "Bogus IPv4 version (%u, must be 4)", hi_nibble(iph->ip_v_hl));
+    expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_version, "Bogus IPv4 version");
+    return;
+  }
 
   /* if IP is not referenced from any filters we don't need to worry about
      generating any tree items.  We must do this after we created the actual
@@ -3148,12 +3154,14 @@ void
 proto_reg_handoff_ip(void)
 {
   dissector_handle_t ip_handle;
+  dissector_handle_t ipv4_handle;
 
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
+  ipv4_handle = create_dissector_handle(dissect_ip_v4, proto_ip);
 
-  dissector_add_uint("ethertype", ETHERTYPE_IP, ip_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_IP, ipv4_handle);
   dissector_add_uint("erf.types.type", ERF_TYPE_IPV4, ip_handle);
   dissector_add_uint("ppp.protocol", PPP_IP, ip_handle);
   dissector_add_uint("ppp.protocol", ETHERTYPE_IP, ip_handle);

@@ -53,7 +53,7 @@ static dissector_handle_t data_handle;
 static int proto_ethertype = -1;
 
 const value_string etype_vals[] = {
-	{ ETHERTYPE_IP,                   "IP" },
+	{ ETHERTYPE_IP,                   "IPv4" },
 	{ ETHERTYPE_IPv6,                 "IPv6" },
 	{ ETHERTYPE_VLAN,                 "802.1Q Virtual LAN" },
 	{ ETHERTYPE_ARP,                  "ARP" },
