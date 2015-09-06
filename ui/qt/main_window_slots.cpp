@@ -935,6 +935,15 @@ void MainWindow::stopCapture() {
     packet_list_->setAutoScroll(false);
 }
 
+// Keep focus rects from showing through the welcome screen. Primarily for
+// OS X.
+void MainWindow::mainStackChanged(int)
+{
+    for (int i = 0; i < main_ui_->mainStack->count(); i++) {
+        main_ui_->mainStack->widget(i)->setEnabled(i == main_ui_->mainStack->currentIndex());
+    }
+}
+
 // XXX - Copied from ui/gtk/menus.c
 
 /**

@@ -435,6 +435,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(fieldsChanged()),
             this, SLOT(fieldsChanged()));
 
+    connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
+            this, SLOT(mainStackChanged(int)));
+
     connect(main_welcome_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),

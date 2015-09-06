@@ -257,6 +257,7 @@ private slots:
 
     void loadWindowGeometry();
     void saveWindowGeometry();
+    void mainStackChanged(int);
     void updateRecentFiles();
     void recentActionTriggered();
     void setMenusForSelectedPacket();
