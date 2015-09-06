@@ -58,6 +58,7 @@ void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);
 
 #define IPv6_HDR_SIZE   40
+#define IPv6_ADDR_SIZE  16
 
 #define IPv6_HDR_TCLS(ipv6)     ((guint8)(g_ntohl((ipv6)->ip6_flow) >> 20))
 
@@ -168,6 +169,7 @@ static int hf_ipv6_opt_qs_ttl_diff              = -1;
 static int hf_ipv6_opt_qs_unused                = -1;
 static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
+static int hf_ipv6_opt_mipv6_home_address       = -1;
 static int hf_ipv6_opt_rpl_flag                 = -1;
 static int hf_ipv6_opt_rpl_flag_o               = -1;
 static int hf_ipv6_opt_rpl_flag_r               = -1;
@@ -194,12 +196,11 @@ static int hf_ipv6_hopopts_length               = -1;
 static int hf_ipv6_unknown_hdr                  = -1;
 static int hf_ipv6_unknown_hdr_nxt              = -1;
 static int hf_ipv6_unknown_hdr_length           = -1;
-static int hf_ipv6_routing_hdr_opt              = -1;
-static int hf_ipv6_routing_hdr_nxt              = -1;
-static int hf_ipv6_routing_hdr_length           = -1;
-static int hf_ipv6_routing_hdr_type             = -1;
-static int hf_ipv6_routing_hdr_left             = -1;
-static int hf_ipv6_routing_hdr_addr             = -1;
+static int hf_ipv6_routing                      = -1;
+static int hf_ipv6_routing_nxt                  = -1;
+static int hf_ipv6_routing_length               = -1;
+static int hf_ipv6_routing_type                 = -1;
+static int hf_ipv6_routing_segleft              = -1;
 static int hf_ipv6_fraghdr                      = -1;
 static int hf_ipv6_fraghdr_nxt                  = -1;
 static int hf_ipv6_fraghdr_reserved_octet       = -1;
@@ -220,15 +221,19 @@ static int hf_ipv6_reassembled_length           = -1;
 static int hf_ipv6_reassembled_data             = -1;
 static int hf_ipv6_padding                      = -1;
 
-static int hf_ipv6_mipv6_home_address           = -1;
+static int hf_ipv6_routing_src_reserved         = -1;
+static int hf_ipv6_routing_src_addr             = -1;
 
-static int hf_ipv6_routing_hdr_rpl_cmprI  = -1;
-static int hf_ipv6_routing_hdr_rpl_cmprE  = -1;
-static int hf_ipv6_routing_hdr_rpl_pad    = -1;
-static int hf_ipv6_routing_hdr_rpl_reserved = -1;
-static int hf_ipv6_routing_hdr_rpl_segments = -1;
-static int hf_ipv6_routing_hdr_rpl_addr = -1;
-static int hf_ipv6_routing_hdr_rpl_fulladdr = -1;
+static int hf_ipv6_routing_mipv6_reserved       = -1;
+static int hf_ipv6_routing_mipv6_home_address   = -1;
+
+static int hf_ipv6_routing_rpl_cmprI            = -1;
+static int hf_ipv6_routing_rpl_cmprE            = -1;
+static int hf_ipv6_routing_rpl_pad              = -1;
+static int hf_ipv6_routing_rpl_reserved         = -1;
+static int hf_ipv6_routing_rpl_segments         = -1;
+static int hf_ipv6_routing_rpl_addr             = -1;
+static int hf_ipv6_routing_rpl_fulladdr         = -1;
 
 static int hf_ipv6_shim6                = -1;
 static int hf_ipv6_shim6_nxt            = -1;
@@ -300,6 +305,7 @@ static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
 static gint ett_ipv6_fraghdr            = -1;
+static gint ett_ipv6_routing            = -1;
 static gint ett_ipv6_shim6              = -1;
 static gint ett_ipv6_shim6_option       = -1;
 static gint ett_ipv6_shim6_locators     = -1;
@@ -318,13 +324,16 @@ static gint ett_ipv6_traffic_class      = -1;
 static gint ett_geoip_info              = -1;
 #endif /* HAVE_GEOIP_V6 */
 
+static expert_field ei_ipv6_routing_invalid_length = EI_INIT;
+static expert_field ei_ipv6_routing_invalid_segleft = EI_INIT;
 static expert_field ei_ipv6_dst_addr_not_multicast = EI_INIT;
 static expert_field ei_ipv6_src_route_list_mult_inst_same_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_src_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_dst_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_multicast_addr = EI_INIT;
-static expert_field ei_ipv6_cmpri_cmpre_pad = EI_INIT;
-static expert_field ei_ipv6_routing_hdr_rpl_reserved = EI_INIT;
+static expert_field ei_ipv6_routing_rpl_cmpri_cmpre_pad = EI_INIT;
+static expert_field ei_ipv6_routing_rpl_segments_ge0 = EI_INIT;
+static expert_field ei_ipv6_routing_rpl_reserved = EI_INIT;
 static expert_field ei_ipv6_opt_tel_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_missing = EI_INIT;
@@ -337,7 +346,6 @@ static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_mipv6_home_address_invalid_len = EI_INIT;
 static expert_field ei_ipv6_shim6_opt_elemlen_invalid = EI_INIT;
 static expert_field ei_ipv6_shim6_checksum_bad = EI_INIT;
-static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_length = EI_INIT;
 static expert_field ei_ipv6_bogus_payload_length = EI_INIT;
@@ -805,11 +813,12 @@ static const value_string routing_header_type[] = {
 static int
 dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     struct ip6_rthdr  rt;
-    guint             len, seg_left;
+    guint             len;
     proto_tree       *rthdr_tree;
-    proto_item       *ti, *ti_len;
+    proto_item       *pi, *ti, *ti_len, *ti_seg;
     int               offset = 0;
-    guint8            buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
+    struct e_in6_addr addr;
+    guint8            addr_count;
     ipv6_meta_t      *ipv6_info;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
@@ -819,59 +828,84 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;
 
-    /* Assigning seg_left and the if (seg_left) {} blocks of code that follow,
+    /* The if (segleft) {} blocks of code that follow,
      * along with any expert_add_info() calls, all need to execute when
      * appropriate, regardless of whether the tree is NULL or not. */
     if (1) {
         /* !!! specify length */
-        ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
-                                        offset, len, rt.ip6r_type,
-                                        "Routing Header, Type: %s (%u)",
-                                        val_to_str_const(rt.ip6r_type, routing_header_type, "Unknown"),
-                                        rt.ip6r_type);
-        rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+        pi = proto_tree_add_item(tree, hf_ipv6_routing, tvb, offset, len, ENC_NA);
+        proto_item_append_text(pi, " (%s)", val_to_str(rt.ip6r_type, routing_header_type, "Unknown type %u"));
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_nxt, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1, ENC_BIG_ENDIAN);
+        rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing);
 
-        ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_length, tvb,
-                                     offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_type, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_type), 1, ENC_BIG_ENDIAN);
+        ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti_len, " (%d bytes)", len);
+        offset += 1;
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_left, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_segleft), 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-        seg_left = tvb_get_guint8(tvb, offset + (int)offsetof(struct ip6_rthdr, ip6r_segleft));
+        ti_seg = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_segleft, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-        if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING && len <= sizeof(buf)) {
-            struct e_in6_addr *a;
-            int n;
-            struct ip6_rthdr0 *rt0;
+        /* IPv6 Source Routing Header (Type 0) */
+        if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING) {
+            int offlim;
 
-            tvb_memcpy(tvb, buf, offset, len);
-            rt0 = (struct ip6_rthdr0 *)buf;
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_reserved, tvb, offset, 4, ENC_NA);
+            offset += 4;
 
-            for (a = rt0->ip6r0_addr, n = 0;
-                 a < (struct e_in6_addr *)(buf + len); a++, n++) {
-
-                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_addr, tvb,
-                                    offset + (int)(offsetof(struct ip6_rthdr0, ip6r0_addr)
-                                                   + n * sizeof(struct e_in6_addr)),
-                                    (int)sizeof(struct e_in6_addr), ENC_NA);
-                if (seg_left)
-                    TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6, tvb,
-                                    offset + (int)offsetof(struct ip6_rthdr0, ip6r0_addr) + n * (int)sizeof(struct e_in6_addr), 16);
+            if (rt.ip6r_len % 2 != 0) {
+                expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
+                    "IPv6 Routing Header extension header length must not be odd");
+            } else {
+                addr_count = rt.ip6r_len / 2;
+                if (rt.ip6r_segleft > addr_count) {
+                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                        "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", addr_count);
+                }
+                offlim = offset + addr_count * IPv6_ADDR_SIZE;
+                for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
+                    ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
+                                        offset, IPv6_ADDR_SIZE, ENC_NA);
+                    tvb_get_ipv6(tvb, offset, &addr);
+                    if (in6_is_addr_multicast(&addr)) {
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                    }
+                }
+                if (rt.ip6r_segleft)
+                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, &addr);
             }
         }
+
+        /* Mobile IPv6 Routing Header (Type 2) */
         if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
-            proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb,
-                                offset + 8, 16, ENC_NA);
-            if (seg_left)
-                TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6, tvb, offset + 8, 16);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            if (rt.ip6r_len != 2) {
+                expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
+                    "IPv6 Type 2 Routing Header extension header length must equal 2");
+            } else {
+                if (rt.ip6r_segleft != 1) {
+                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                        "IPv6 Type 2 Routing Header segments left field must equal 1");
+                }
+                ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
+                                        offset, IPv6_ADDR_SIZE, ENC_NA);
+                tvb_get_ipv6(tvb, offset, &addr);
+                if (in6_is_addr_multicast(&addr)) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                }
+                if (rt.ip6r_segleft)
+                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, &addr);
+            }
         }
+
+        /* RPL Source Routing Header (Type 3) */
         if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
             guint8 cmprI;
             guint8 cmprE;
@@ -883,18 +917,18 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             struct e_in6_addr dstAddr;
             /* IPv6 source address used for strict checking */
             struct e_in6_addr srcAddr;
-            offset += 4;
+
             memcpy((guint8 *)&dstAddr, pinfo->dst.data, pinfo->dst.len);
             memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
 
             /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
             if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){
-                expert_add_info(pinfo, ti, &ei_ipv6_dst_addr_not_multicast);
+                expert_add_info(pinfo, pi, &ei_ipv6_dst_addr_not_multicast);
             }
 
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
 
             cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
             cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -906,38 +940,41 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
             /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
             if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
-                expert_add_info_format(pinfo, ti, &ei_ipv6_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
             }
 
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
             reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
 
             if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
-                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_hdr_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
             }
 
             /* from RFC6554:
                n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
             segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
-            ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_hdr_rpl_segments, tvb, offset, 2, segments);
+            ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_rpl_segments, tvb, offset, 2, segments);
             PROTO_ITEM_SET_GENERATED(ti);
 
             if (segments < 0) {
                 /* This error should always be reported */
-                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_hdr_rpl_segments_ge0, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_segments_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", segments);
             } else {
+
+                if (rt.ip6r_segleft > (guint)segments) {
+                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                        "IPv6 RPL Routing Header segments left field must not exceed address count (%u)", (guint)segments);
+                }
 
                 offset += 4;
 
                 /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
                 while(segments > 1) {
-                    struct e_in6_addr addr;
-
-                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                     /* Display Full Address */
                     memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                     tvb_memcpy(tvb, (guint8 *)&addr + cmprI, offset, (16-cmprI));
-                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
+                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
                     PROTO_ITEM_SET_GENERATED(ti);
                     offset += (16-cmprI);
                     segments--;
@@ -992,13 +1029,11 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
                 /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
                 if (segments == 1) {
-                    struct e_in6_addr addr;
-
-                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
+                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                     /* Display Full Address */
                     memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                     tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
-                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
+                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
                     PROTO_ITEM_SET_GENERATED(ti);
                     /* offset += (16-cmprE); */
 
@@ -1250,15 +1285,17 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 break;
             }
             case IP6OPT_HOME_ADDRESS:
+            {
                 if (opt_len != 16) {
                     expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
                                            "Home Address: Invalid length (%u bytes)", opt_len);
                 }
-                proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb,
                                     offset, 16, ENC_NA);
                 TVB_SET_ADDRESS(&pinfo->src, AT_IPv6, tvb, offset, 16);
                 offset += 16;
                 break;
+            }
             case IP6OPT_CALIPSO:
             {
                 guint8 cmpt_length;
@@ -2739,6 +2776,10 @@ proto_register_ipv6(void)
           { "Reserved",             "ipv6.opt.qs_reserved",
             FT_UINT32, BASE_HEX, NULL, 0x0003,
             NULL, HFILL }},
+        { &hf_ipv6_opt_mipv6_home_address,
+          { "MIPv6 Home Address", "ipv6.opt.mipv6.home_address",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_ipv6_opt_rpl_flag,
           { "Flag",                 "ipv6.opt.rpl.flag",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -2806,30 +2847,6 @@ proto_register_ipv6(void)
           { "Unknown Option Payload","ipv6.opt.unknown",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_ipv6_routing_hdr_opt,
-          { "Routing Header, Type","ipv6.routing_hdr",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Routing Header Option", HFILL }},
-        { &hf_ipv6_routing_hdr_type,
-          { "Type",                 "ipv6.routing_hdr.type",
-            FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
-            "Routing Header Type", HFILL }},
-        { &hf_ipv6_routing_hdr_nxt,
-          { "Next Header",          "ipv6.routing_hdr.nxt",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
-            NULL, HFILL }},
-        { &hf_ipv6_routing_hdr_length,
-          { "Length",                 "ipv6.routing_hdr.length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ipv6_routing_hdr_left,
-          { "Segments Left",        "ipv6.routing_hdr.left",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Routing Header Segments Left", HFILL }},
-        { &hf_ipv6_routing_hdr_addr,
-          { "Address",              "ipv6.routing_hdr.addr",
-            FT_IPv6, BASE_NONE, NULL, 0x0,
-            "Routing Header Address", HFILL }},
         { &hf_ipv6_fraghdr,
           { "Fragment Header",      "ipv6.fraghdr",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2919,47 +2936,89 @@ proto_register_ipv6(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        /* IPv6 Routing Header */
+        { &hf_ipv6_routing,
+          { "Routing Header",       "ipv6.routing",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_routing_nxt,
+          { "Next Header",          "ipv6.routing.nxt",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_routing_length,
+          { "Length",               "ipv6.routing.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Extension Header Length", HFILL }},
+
+        { &hf_ipv6_routing_type,
+          { "Type",                 "ipv6.routing.type",
+            FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
+            "Routing Header Type", HFILL }},
+
+        { &hf_ipv6_routing_segleft,
+          { "Segments Left",        "ipv6.routing.segleft",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Routing Header Segments Left", HFILL }},
+
+        /* Source Routing Header */
+        { &hf_ipv6_routing_src_reserved,
+          { "Reserved",             "ipv6.routing.src.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Must be zero", HFILL }},
+
+        { &hf_ipv6_routing_src_addr,
+          { "Address",              "ipv6.routing.src.addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            "Source Routing Header Address", HFILL }},
+
+        /* Mobile IPv6 */
+        { &hf_ipv6_routing_mipv6_reserved,
+          { "Reserved",             "ipv6.routing.mipv6.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Must be zero", HFILL }},
+
+        { &hf_ipv6_routing_mipv6_home_address,
+          { "Home Address",         "ipv6.routing.mipv6.home_address",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         /* RPL Routing Header */
-        { &hf_ipv6_routing_hdr_rpl_cmprI,
-          { "Compressed Internal Octets (CmprI)", "ipv6.routing_hdr.rpl.cmprI",
+        { &hf_ipv6_routing_rpl_cmprI,
+          { "Compressed Internal Octets (CmprI)", "ipv6.routing.rpl.cmprI",
             FT_UINT32, BASE_DEC, NULL, IP6RRPL_BITMASK_CMPRI,
             "Elided octets from all but last segment", HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_cmprE,
-          { "Compressed Final Octets (CmprE)", "ipv6.routing_hdr.rpl.cmprE",
+        { &hf_ipv6_routing_rpl_cmprE,
+          { "Compressed Final Octets (CmprE)", "ipv6.routing.rpl.cmprE",
             FT_UINT32, BASE_DEC, NULL, IP6RRPL_BITMASK_CMPRE,
             "Elided octets from last segment address", HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_pad,
-          { "Padding Bytes", "ipv6.routing_hdr.rpl.pad",
+        { &hf_ipv6_routing_rpl_pad,
+          { "Padding Bytes", "ipv6.routing.rpl.pad",
             FT_UINT32, BASE_DEC, NULL, IP6RRPL_BITMASK_PAD,
             NULL, HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_reserved,
-          { "Reserved", "ipv6.routing_hdr.rpl.reserved",
+        { &hf_ipv6_routing_rpl_reserved,
+          { "Reserved", "ipv6.routing.rpl.reserved",
             FT_UINT32, BASE_DEC, NULL, IP6RRPL_BITMASK_RESERVED,
             "Must be Zero", HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_segments,
-          { "Total Segments", "ipv6.routing_hdr.rpl.segments",
+        { &hf_ipv6_routing_rpl_segments,
+          { "Total Address Count", "ipv6.routing.rpl.segments",
             FT_INT32, BASE_DEC, NULL, 0,
             NULL, HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_addr,
-          { "Address", "ipv6.routing_hdr.rpl.address",
+        { &hf_ipv6_routing_rpl_addr,
+          { "Address", "ipv6.routing.rpl.address",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
-        { &hf_ipv6_routing_hdr_rpl_fulladdr,
-          { "Full Address", "ipv6.routing_hdr.rpl.full_address",
+        { &hf_ipv6_routing_rpl_fulladdr,
+          { "Full Address", "ipv6.routing.rpl.full_address",
             FT_IPv6, BASE_NONE, NULL, 0,
             "Uncompressed IPv6 Address", HFILL }},
-
-        /* Mobile IPv6 */
-        { &hf_ipv6_mipv6_home_address,
-          { "Home Address", "ipv6.mipv6_home_address",
-            FT_IPv6, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
 
         /* SHIM6 */
         { &hf_ipv6_shim6,
@@ -3168,6 +3227,7 @@ proto_register_ipv6(void)
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
         &ett_ipv6_fraghdr,
+        &ett_ipv6_routing,
         &ett_ipv6_shim6,
         &ett_ipv6_shim6_option,
         &ett_ipv6_shim6_locators,
@@ -3191,8 +3251,9 @@ proto_register_ipv6(void)
         { &ei_ipv6_src_route_list_src_addr, { "ipv6.src_route_list.src_addr", PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list", EXPFILL }},
         { &ei_ipv6_src_route_list_dst_addr, { "ipv6.src_route_list.dst_addr", PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list", EXPFILL }},
         { &ei_ipv6_src_route_list_multicast_addr, { "ipv6.src_route_list.multicast_addr", PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list", EXPFILL }},
-        { &ei_ipv6_cmpri_cmpre_pad, { "ipv6.routing_hdr.rpl.cmprI.cmprE.pad", PI_PROTOCOL, PI_WARN, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was X", EXPFILL }},
-        { &ei_ipv6_routing_hdr_rpl_reserved, { "ipv6.routing_hdr.rpl.reserved.not0", PI_PROTOCOL, PI_WARN, "Reserved field must equal 0 but instead was X", EXPFILL }},
+        { &ei_ipv6_routing_rpl_cmpri_cmpre_pad, { "ipv6.routing.rpl.cmprI_cmprE_pad", PI_PROTOCOL, PI_WARN, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was X", EXPFILL }},
+        { &ei_ipv6_routing_rpl_segments_ge0, { "ipv6.routing.rpl.segments_ge0", PI_MALFORMED, PI_ERROR, "Calculated total address count must be greater than or equal to 0, instead was X", EXPFILL }},
+        { &ei_ipv6_routing_rpl_reserved, { "ipv6.routing.rpl.reserved_not0", PI_PROTOCOL, PI_WARN, "Reserved field must equal 0 but instead was X", EXPFILL }},
         { &ei_ipv6_opt_tel_invalid_len, { "ipv6.opt.tel.invalid_len", PI_MALFORMED, PI_ERROR, "Tunnel Encapsulation Limit: Invalid length", EXPFILL }},
         { &ei_ipv6_opt_jumbo_invalid_len, { "ipv6.opt.jumbo.invalid_len", PI_MALFORMED, PI_ERROR, "Jumbo Payload: Invalid length", EXPFILL }},
         { &ei_ipv6_opt_jumbo_missing, { "ipv6.opt.jumbo.missing", PI_PROTOCOL, PI_ERROR, "IPv6 payload length equals 0 and Hop-By-Hop present and Jumbo Payload option missing", EXPFILL }},
@@ -3205,12 +3266,13 @@ proto_register_ipv6(void)
         { &ei_ipv6_mipv6_home_address_invalid_len, { "ipv6.mipv6_home_address.invalid_len", PI_MALFORMED, PI_ERROR, "Home Address: Invalid length", EXPFILL }},
         { &ei_ipv6_shim6_opt_elemlen_invalid, { "ipv6.shim6.opt.elemlen.invalid", PI_MALFORMED, PI_ERROR, "Invalid element length", EXPFILL }},
         { &ei_ipv6_shim6_checksum_bad, { "ipv6.shim6.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_ipv6_routing_hdr_rpl_segments_ge0, { "ipv6.routing_hdr.rpl.segments.ge0", PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was X", EXPFILL }},
         { &ei_ipv6_hopopts_not_first, { "ipv6.hopopts.not_first", PI_PROTOCOL, PI_ERROR, "IPv6 Hop-by-Hop extension header must appear immediately after IPv6 header", EXPFILL }},
         { &ei_ipv6_bogus_ipv6_length, { "ipv6.bogus_ipv6_length", PI_PROTOCOL, PI_ERROR, "Bogus IPv6 length", EXPFILL }},
         { &ei_ipv6_bogus_payload_length, { "ipv6.bogus_payload_length", PI_PROTOCOL, PI_WARN, "IPv6 payload length does not match expected framing length", EXPFILL }},
         { &ei_ipv6_bogus_ipv6_version, { "ipv6.bogus_ipv6_version", PI_PROTOCOL, PI_ERROR, "Bogus IP version", EXPFILL }},
         { &ei_ipv6_invalid_header, { "ipv6.invalid_header", PI_MALFORMED, PI_ERROR, "IPv6 header must be exactly 40 bytes", EXPFILL }},
+        { &ei_ipv6_routing_invalid_length, { "ipv6.routing.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid IPv6 Routing header length", EXPFILL }},
+        { &ei_ipv6_routing_invalid_segleft, { "ipv6.routing.invalid_segleft", PI_PROTOCOL, PI_ERROR, "IPv6 Routing Header segments left field must not exceed address count", EXPFILL }},
     };
 
     /* Decode As handling */
@@ -3234,11 +3296,10 @@ proto_register_ipv6(void)
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
     proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hopopts");
-    proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing_hdr");
+    proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
     proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dstopts");
-    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt",
-      "IPv6 Next Header", FT_UINT32, BASE_DEC);
+    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC);
 
     /* Register configuration options */
     ipv6_module = prefs_register_protocol(proto_ipv6, NULL);

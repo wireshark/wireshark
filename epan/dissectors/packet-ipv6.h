@@ -93,7 +93,8 @@ struct ip6_rthdr0 {
     guint8 ip6r0_segleft;   /* segments left */
     guint8 ip6r0_reserved;  /* reserved field */
     guint8 ip6r0_slmap[3];  /* strict/loose bit map */
-    struct e_in6_addr  ip6r0_addr[1];   /* up to 23 addresses */
+    /* followed by up to 127 addresses */
+    struct e_in6_addr ip6r0_addr[1];
 };
 
 /* Fragment header */
