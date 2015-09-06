@@ -91,25 +91,30 @@ public:
     }
 
 protected:
-    virtual void enterEvent(QEvent *evt) {
-        if (isEnabled()) {
-            setIconMode(QIcon::Active);
+    virtual bool event(QEvent *event) {
+        switch (event->type()) {
+            case QEvent::Enter:
+            // XXX We lose leave events if a tooltip appears, at least OS X.
+            // If we really want to enable the tooltips below we will likely
+            // have to add a timer to periodically check the mouse position.
+            if (isEnabled()) {
+                setIconMode(QIcon::Active);
+            }
+            break;
+        case QEvent::MouseButtonPress:
+            if (isEnabled()) {
+                setIconMode(QIcon::Selected);
+            }
+            break;
+        case QEvent::Leave:
+        case QEvent::MouseButtonRelease:
+            setIconMode();
+            break;
+        default:
+            break;
         }
-        QToolButton::enterEvent(evt);
-    }
-    virtual void leaveEvent(QEvent *evt) {
-        setIconMode();
-        QToolButton::leaveEvent(evt);
-    }
-    virtual void mousePressEvent(QMouseEvent *evt) {
-        if (isEnabled()) {
-            setIconMode(QIcon::Selected);
-        }
-        QToolButton::mousePressEvent(evt);
-    }
-    virtual void mouseReleaseEvent(QMouseEvent *evt) {
-        setIconMode();
-        QToolButton::mouseReleaseEvent(evt);
+
+        return QToolButton::event(event);
     }
 
 private:
@@ -195,9 +200,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
         bookmark_button_->setCursor(Qt::ArrowCursor);
         bookmark_button_->setMenu(new QMenu());
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
-        bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
+//        bookmark_button_->setToolTip(tr("Manage saved bookmarks.")); // Disabled for now. Interferes with leave events.
         bookmark_button_->setIconSize(QSize(14, 14));
-        bookmark_button_->setAutoRaise(true);
         bookmark_button_->setStyleSheet(
                 "QToolButton {"
                 "  border: none;"
@@ -211,9 +215,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     if (!plain_) {
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
-        clear_button_->setToolTip(tr("Clear the filter string and update the display."));
         clear_button_->setIconSize(QSize(14, 14));
-        clear_button_->setAutoRaise(true);
         clear_button_->setStyleSheet(
                 "QToolButton {"
                 "  border: none;"
@@ -231,9 +233,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
         apply_button_ = new StockIconToolButton(this, "x-filter-apply");
         apply_button_->setCursor(Qt::ArrowCursor);
         apply_button_->setEnabled(false);
-        apply_button_->setToolTip(tr("Apply this filter string to the display."));
+//        apply_button_->setToolTip(tr("Apply this filter string to the display."));  // Disabled for now. Interferes with leave events.
         apply_button_->setIconSize(QSize(24, 14));
-        apply_button_->setAutoRaise(true);
         apply_button_->setStyleSheet(
                 "QToolButton {"
                 "  border: none;"

@@ -75,9 +75,8 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "  left: 1px;"
             "}"
             );
-#ifndef QT_NO_TOOLTIP
-    setToolTip(tr("Select from previously used filters"));
-#endif // QT_NO_TOOLTIP
+    // XXX This applies to the whole control, not just the drop-down arrow.
+//    setToolTip(tr("Select from previously used filters"));
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateMaxCount()));
 }
