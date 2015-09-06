@@ -958,6 +958,36 @@ EXTRA_DIST = \
 	image/toolbar/12x12/media-playback-start.png	\
 	image/toolbar/12x12/media-playback-start.svg	\
 	image/toolbar/12x12/media-playback-start@2x.png	\
+	image/toolbar/14x14/x-filter-bookmark.active.png \
+	image/toolbar/14x14/x-filter-bookmark.active.svg \
+	image/toolbar/14x14/x-filter-bookmark.active@2x.png \
+	image/toolbar/14x14/x-filter-bookmark.png \
+	image/toolbar/14x14/x-filter-bookmark.selected.png \
+	image/toolbar/14x14/x-filter-bookmark.selected.svg \
+	image/toolbar/14x14/x-filter-bookmark.selected@2x.png \
+	image/toolbar/14x14/x-filter-bookmark.svg \
+	image/toolbar/14x14/x-filter-bookmark@2x.png \
+	image/toolbar/14x14/x-filter-clear.active.png \
+	image/toolbar/14x14/x-filter-clear.active.svg \
+	image/toolbar/14x14/x-filter-clear.active@2x.png \
+	image/toolbar/14x14/x-filter-clear.png \
+	image/toolbar/14x14/x-filter-clear.selected.png \
+	image/toolbar/14x14/x-filter-clear.selected.svg \
+	image/toolbar/14x14/x-filter-clear.selected@2x.png \
+	image/toolbar/14x14/x-filter-clear.svg \
+	image/toolbar/14x14/x-filter-clear@2x.png \
+	image/toolbar/14x14/x-filter-dropdown.png \
+	image/toolbar/14x14/x-filter-dropdown.svg \
+	image/toolbar/14x14/x-filter-dropdown@2x.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.active.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.active.svg \
+	image/toolbar/14x14/x-filter-matching-bookmark.active@2x.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.selected.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.selected.svg \
+	image/toolbar/14x14/x-filter-matching-bookmark.selected@2x.png \
+	image/toolbar/14x14/x-filter-matching-bookmark.svg \
+	image/toolbar/14x14/x-filter-matching-bookmark@2x.png \
 	image/toolbar/16x16/edit-find.png		\
 	image/toolbar/16x16/edit-find.svg		\
 	image/toolbar/16x16/edit-find@2x.png		\
@@ -1027,6 +1057,15 @@ EXTRA_DIST = \
 	image/toolbar/16x16/zoom-out.png		\
 	image/toolbar/16x16/zoom-out.svg		\
 	image/toolbar/16x16/zoom-out@2x.png		\
+	image/toolbar/24x14/x-filter-apply.active.png \
+	image/toolbar/24x14/x-filter-apply.active.svg \
+	image/toolbar/24x14/x-filter-apply.active@2x.png \
+	image/toolbar/24x14/x-filter-apply.png \
+	image/toolbar/24x14/x-filter-apply.selected.png \
+	image/toolbar/24x14/x-filter-apply.selected.svg \
+	image/toolbar/24x14/x-filter-apply.selected@2x.png \
+	image/toolbar/24x14/x-filter-apply.svg \
+	image/toolbar/24x14/x-filter-apply@2x.png \
 	image/toolbar/24x24/edit-find.png	\
 	image/toolbar/24x24/edit-find.svg	\
 	image/toolbar/24x24/edit-find@2x.png	\
@@ -1108,7 +1147,13 @@ EXTRA_DIST = \
 	image/toolbar/capture_ethernet_16.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
 	image/toolbar/capture_interfaces_16.png	\
+	image/toolbar/capture_interfaces_16.svg \
 	image/toolbar/capture_interfaces_24.png	\
+	image/toolbar/capture_interfaces_24.svg \
+	image/toolbar/capture_pause_16.png	\
+	image/toolbar/capture_pause_16.svg	\
+	image/toolbar/capture_pause_24.png	\
+	image/toolbar/capture_pause_24.svg	\
 	image/toolbar/capture_prepare_16.xpm	\
 	image/toolbar/checkbox_16.xpm		\
 	image/toolbar/colorize_24.xpm		\
@@ -1150,12 +1195,15 @@ EXTRA_DIST = \
 	image/toolbar/remote_sat_16.png	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/svg-to-png.sh	\
+	image/toolbar/svg/x-filter-apply.svg	\
+	image/toolbar/svg/x-filter-bookmark.svg	\
+	image/toolbar/svg/x-filter-clear.svg	\
 	image/toolbar/telephone_16.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
 	image/toolbar/voip_flow_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
-	image/toolbar/wep_closed_24.xpm \
+	image/toolbar/wep_closed_24.xpm	\
 	image/tshark.rc.in	\
 	image/voip_select.xpm	\
 	image/wireshark.exe.manifest.in \
