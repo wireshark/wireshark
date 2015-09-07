@@ -27,6 +27,9 @@
 
 #include <epan/prefs.h>
 
+#include <QHelpEvent>
+#include <QStyleOptionComboBox>
+
 #include "display_filter_edit.h"
 #include "display_filter_combo.h"
 #include "wireshark_application.h"
@@ -62,7 +65,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "QComboBox::drop-down {"
             "  subcontrol-origin: padding;"
             "  subcontrol-position: top right;"
-            "  width: 16px;"
+            "  width: 14px;"
             "  border-left-width: 0px;"
             " }"
 
@@ -75,8 +78,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "  left: 1px;"
             "}"
             );
-    // XXX This applies to the whole control, not just the drop-down arrow.
-//    setToolTip(tr("Select from previously used filters."));
+    setToolTip(tr("Select from previously used filters."));
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateMaxCount()));
 }
@@ -97,6 +99,27 @@ void DisplayFilterCombo::writeRecent(FILE *rf) {
             fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter.constData());
         }
     }
+}
+
+bool DisplayFilterCombo::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ToolTip:
+    {
+        // Only show a tooltip for the arrow.
+        QHelpEvent *he = (QHelpEvent *) event;
+        QStyleOptionComboBox opt;
+        initStyleOption(&opt);
+        QRect scr = style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, this);
+        if (!scr.contains(he->pos())) {
+            return false;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return QComboBox::event(event);
 }
 
 bool DisplayFilterCombo::checkDisplayFilter()
