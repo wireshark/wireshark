@@ -176,6 +176,13 @@ WS_DLL_PUBLIC expert_module_t *expert_register_protocol(int id);
  */
 WS_DLL_PUBLIC void expert_deregister_protocol (expert_module_t *module);
 
+/**
+ * Get summary text of an expert_info field.
+ * This is intended for use in expert_add_info_format or proto_tree_add_expert_format
+ * to get the "base" string to then append additional information
+ */
+WS_DLL_PUBLIC const gchar* expert_get_summary(expert_field *eiindex);
+
 /** Register a expert field array.
  @param module the protocol handle from expert_register_protocol()
  @param ei the ei_register_info array
