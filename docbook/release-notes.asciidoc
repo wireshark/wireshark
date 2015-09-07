@@ -263,7 +263,7 @@ Netscaler 3.5
 === New and Updated Capture Interfaces support
 
 --sort-and-group--
-Androiddump - provide interfaces to capture (Logcat and Bluetooth) from connected Android devices
+Androiddump - provide interfaces to capture (Logcat, Bluetooth and WiFi) from connected Android devices
 --sort-and-group--
 
 === Major API Changes
