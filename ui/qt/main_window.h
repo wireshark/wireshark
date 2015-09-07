@@ -551,9 +551,9 @@ private slots:
     void on_actionTelephonyUCPMessages_triggered();
     void on_actionTelephonySipFlows_triggered();
 
-    void on_actionATT_Server_Attributes_triggered();
-    void on_actionDevices_triggered();
-    void on_actionHCI_Summary_triggered();
+    void on_actionBluetoothATT_Server_Attributes_triggered();
+    void on_actionBluetoothDevices_triggered();
+    void on_actionBluetoothHCI_Summary_triggered();
 
     void externalMenuItem_triggered();
 
