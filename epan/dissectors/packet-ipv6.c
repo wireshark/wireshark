@@ -59,6 +59,8 @@ void proto_reg_handoff_ipv6(void);
 
 #define IPv6_HDR_SIZE   40
 
+#define IPv6_HDR_TCLS(ipv6)     ((guint8)(g_ntohl((ipv6)->ip6_flow) >> 20))
+
 /* Option types and related macros */
 #define IP6OPT_PAD1                     0x00    /* 00 0 00000 */
 #define IP6OPT_PADN                     0x01    /* 00 0 00001 */
@@ -2031,6 +2033,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     memset(&iph, 0, sizeof(iph));
     ipv6 = (struct ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(struct ip6_hdr));
+    col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(IPv6_HDR_TCLS(ipv6)));
 
     /* Get extension header and payload length */
     plen = g_ntohs(ipv6->ip6_plen);
