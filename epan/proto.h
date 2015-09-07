@@ -742,6 +742,8 @@ typedef proto_node proto_item;
 #define PI_SECURITY             0x0a000000
 /** The protocol field indicates a packet comment */
 #define PI_COMMENTS_GROUP       0x0b000000
+/** The protocol field indicates a decryption problem */
+#define PI_DECRYPTION           0x0c000000
 
 /* add more, see https://wiki.wireshark.org/Development/ExpertInfo */
 

@@ -80,6 +80,7 @@ const value_string expert_group_vals[] = {
 	{ PI_PROTOCOL,          "Protocol" },
 	{ PI_SECURITY,          "Security" },
 	{ PI_COMMENTS_GROUP,    "Comment" },
+	{ PI_DECRYPTION,        "Decryption" },
 	{ 0, NULL }
 };
 
