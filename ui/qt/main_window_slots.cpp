@@ -3087,7 +3087,7 @@ void MainWindow::on_actionTelephonySipFlows_triggered()
 
 // Bluetooth Menu
 
-void MainWindow::on_actionATT_Server_Attributes_triggered()
+void MainWindow::on_actionBluetoothATT_Server_Attributes_triggered()
 {
     BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
     connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
@@ -3097,7 +3097,7 @@ void MainWindow::on_actionATT_Server_Attributes_triggered()
     bluetooth_att_sever_attributes_dialog->show();
 }
 
-void MainWindow::on_actionDevices_triggered()
+void MainWindow::on_actionBluetoothDevices_triggered()
 {
     BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_);
     connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
@@ -3107,7 +3107,7 @@ void MainWindow::on_actionDevices_triggered()
     bluetooth_devices_dialog->show();
 }
 
-void MainWindow::on_actionHCI_Summary_triggered()
+void MainWindow::on_actionBluetoothHCI_Summary_triggered()
 {
     BluetoothHciSummaryDialog *bluetooth_hci_summary_dialog = new BluetoothHciSummaryDialog(*this, capture_file_);
     connect(bluetooth_hci_summary_dialog, SIGNAL(goToPacket(int)),

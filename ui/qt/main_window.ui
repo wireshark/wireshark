@@ -612,9 +612,9 @@
     <property name="title">
      <string>&amp;Wireless</string>
     </property>
-    <addaction name="actionATT_Server_Attributes"/>
-    <addaction name="actionDevices"/>
-    <addaction name="actionHCI_Summary"/>
+    <addaction name="actionBluetoothATT_Server_Attributes"/>
+    <addaction name="actionBluetoothDevices"/>
+    <addaction name="actionBluetoothHCI_Summary"/>
     <addaction name="separator"/>
     <addaction name="actionWirelessWlanStatistics"/>
    </widget>
@@ -2494,19 +2494,19 @@
     <string>Edit the packet list coloring rules.</string>
    </property>
   </action>
-  <action name="actionATT_Server_Attributes">
+  <action name="actionBluetoothATT_Server_Attributes">
    <property name="text">
     <string>Bluetooth ATT Server Attributes</string>
    </property>
   </action>
-  <action name="actionDevices">
+  <action name="actionBluetoothDevices">
    <property name="text">
-    <string>Devices</string>
+    <string>Bluetooth Devices</string>
    </property>
   </action>
-  <action name="actionHCI_Summary">
+  <action name="actionBluetoothHCI_Summary">
    <property name="text">
-    <string>HCI Summary</string>
+    <string>Bluetooth HCI Summary</string>
    </property>
   </action>
   <action name="actionViewShowPacketInNewWindow">
