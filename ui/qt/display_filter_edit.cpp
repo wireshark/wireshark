@@ -117,9 +117,11 @@ protected:
         case QEvent::Timer:
         {
             // We can lose QEvent::Leave, QEvent::HoverLeave and underMouse()
-            // if a tooltip appears, at least OS X. Work around the issue by
-            // periodically checking the mouse position and scheduling a fake
-            // leave event when the mouse moves away.
+            // if a tooltip appears, at least OS X:
+            // https://bugreports.qt.io/browse/QTBUG-46379
+            // Work around the issue by periodically checking the mouse
+            // position and scheduling a fake leave event when the mouse
+            // moves away.
             QTimerEvent *te = (QTimerEvent *) event;
             bool under_mouse = rect().contains(mapFromGlobal(QCursor::pos()));
             if (te->timerId() == leave_timer_ && !under_mouse) {
