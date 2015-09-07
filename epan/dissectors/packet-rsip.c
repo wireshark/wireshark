@@ -1112,7 +1112,7 @@ proto_register_rsip(void)
 		},
 		{ &hf_rsip_parameter_address_ipv4_netmask,
 			{ "IPv4 Netmask",	"rsip.parameter.netmask",
-			  FT_IPv4, BASE_NONE, NULL, 0x0,
+			  FT_IPv4, BASE_NETMASK, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_rsip_parameter_address_ipv6,

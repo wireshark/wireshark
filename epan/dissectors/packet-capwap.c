@@ -5424,7 +5424,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_fortinet_cfg_mask,
             { "Mask", "capwap.control.fortinet.cfg.mask",
-              FT_IPv4, BASE_NONE, NULL, 0x0,
+              FT_IPv4, BASE_NETMASK, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_fortinet_split_tun_cfg_enable_local_subnet,
@@ -5583,7 +5583,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_cisco_ap_static_ip_netmask,
             { "Netmask", "capwap.control.cisco.ap_static_ip.netmask",
-              FT_IPv4, BASE_NONE, NULL, 0x0,
+              FT_IPv4, BASE_NETMASK, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_cisco_ap_static_ip_gateway,

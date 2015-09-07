@@ -672,7 +672,7 @@ proto_register_opsi(void)
 		},
 		{ &hf_framed_netmask_att,
 			{ "Framed netmask",		"opsi.attr.framed_netmask",
-			FT_IPv4, BASE_NONE, NULL, 0x00,
+			FT_IPv4, BASE_NETMASK, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_framed_routing_att,

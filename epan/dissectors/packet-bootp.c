@@ -6258,7 +6258,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option_subnet_mask,
 		  { "Subnet Mask", "bootp.option.subnet_mask",
-		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    FT_IPv4, BASE_NETMASK, NULL, 0x00,
 		    "Option 1: Subnet Mask", HFILL }},
 
 		{ &hf_bootp_option_time_offset,
@@ -6358,7 +6358,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option_policy_filter_subnet_mask,
 		  { "Subnet Mask", "bootp.option.policy_filter.subnet_mask",
-		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    FT_IPv4, BASE_NETMASK, NULL, 0x00,
 		    "Option 21: Subnet Mask", HFILL }},
 
 		{ &hf_bootp_option_non_local_source_routing,

@@ -108,7 +108,7 @@ static header_field_info hfi_rip_ip RIP_HFI_INIT = {
     NULL, 0, NULL, HFILL};
 
 static header_field_info hfi_rip_netmask RIP_HFI_INIT = {
-    "Netmask", "rip.netmask", FT_IPv4, BASE_NONE,
+    "Netmask", "rip.netmask", FT_IPv4, BASE_NETMASK,
     NULL, 0, NULL, HFILL};
 
 static header_field_info hfi_rip_next_hop RIP_HFI_INIT = {

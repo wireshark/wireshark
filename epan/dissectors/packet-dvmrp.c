@@ -745,7 +745,7 @@ proto_register_dvmrp(void)
 			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_netmask,
-			{ "Netmask", "dvmrp.netmask", FT_IPv4, BASE_NONE,
+			{ "Netmask", "dvmrp.netmask", FT_IPv4, BASE_NETMASK,
 			  NULL, 0, "DVMRP Netmask", HFILL }},
 
 		{ &hf_metric,

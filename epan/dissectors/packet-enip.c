@@ -2917,7 +2917,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_ic_subnet_mask,
         { "Subnet Mask", "cip.tcpip.subnet_mask",
-          FT_IPv4, BASE_NONE, NULL, 0,
+          FT_IPv4, BASE_NETMASK, NULL, 0,
           NULL, HFILL }},
 
       { &hf_tcpip_ic_gateway,

@@ -520,7 +520,11 @@ typedef enum {
 	SEP_DOT = 8,        /**< hexadecimal bytes with a period (.) between each byte */
 	SEP_DASH  = 9,      /**< hexadecimal bytes with a dash (-) between each byte */
 	SEP_COLON = 10,     /**< hexadecimal bytes with a colon (:) between each byte */
-	SEP_SPACE  = 11     /**< hexadecimal bytes with a space between each byte */
+	SEP_SPACE  = 11,     /**< hexadecimal bytes with a space between each byte */
+
+/* Address types */
+	BASE_NETMASK  = 12   /**< Used for IPv4 address that shouldn't be resolved (like for netmasks) */
+
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector

@@ -138,6 +138,13 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   a separator between bytes.
                   BASE_NONE has no separator between bytes
 
+                --For FT_IPv4:
+
+                  BASE_NETMASK - Used for IPv4 address that should never
+                                 attempted to be resolved (like netmasks)
+                  otherwise:
+                    (must be) BASE_NONE
+
                 --For all other types:
 
                   BASE_NONE

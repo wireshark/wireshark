@@ -1175,7 +1175,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_static_bp_netmask,
-		{ "STATIC-BP-NETMASK", "wassp.static.bp.netmask", FT_IPv4, BASE_NONE, NULL,
+		{ "STATIC-BP-NETMASK", "wassp.static.bp.netmask", FT_IPv4, BASE_NETMASK, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_static_bp_gateway,
@@ -1235,7 +1235,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_ap_netmask,
-		{ "AP-NETMASK", "wassp.ap.netmask", FT_IPv4, BASE_NONE, NULL,
+		{ "AP-NETMASK", "wassp.ap.netmask", FT_IPv4, BASE_NETMASK, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ap_gateway,

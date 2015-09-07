@@ -565,7 +565,7 @@ proto_register_adwin_config(void)
 		},
 		{ &hf_adwin_config_netmask,
 		  { "Netmask", "adwin_config.netmask",
-		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    FT_IPv4, BASE_NETMASK, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_config_netmask_count,

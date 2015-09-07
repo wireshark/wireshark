@@ -816,7 +816,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsr_netmask,
       { "Netmask", "olsr.netmask",
-        FT_IPv4, BASE_NONE, NULL, 0,
+        FT_IPv4, BASE_NETMASK, NULL, 0,
         NULL, HFILL
       }
     },

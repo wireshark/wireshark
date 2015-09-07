@@ -1033,7 +1033,7 @@ proto_register_smcr(void)
 		{ &hf_smcr_proposal_outgoing_interface_subnet_mask, {
 		"Outgoing Interface Subnet Mask",
 		"smcr.outgoing.interface.subnet.mask",
-		FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		FT_IPv4, BASE_NETMASK, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_proposal_outgoing_subnet_mask_signifcant_bits, {
 		"Outgoing Interface Subnet Mask Number of Significant Bits",

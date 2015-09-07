@@ -250,7 +250,7 @@ static void mark_lval_deprecated(const char *s);
 
 
 
-[-[:alnum:]_\.:]+\/[[:digit:]]+  {
+[-[:alnum:]_\.:]*\/[[:digit:]]+  {
         /* CIDR */
         return set_lval(TOKEN_UNPARSED, yytext);
 }

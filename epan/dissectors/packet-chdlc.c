@@ -360,7 +360,7 @@ proto_register_slarp(void)
     /* XXX - need an FT_ for netmasks, which is like FT_IPV4 but doesn't
        get translated to a host name. */
     { &hf_slarp_netmask,
-      { "Netmask", "slarp.netmask", FT_IPv4, BASE_NONE,
+      { "Netmask", "slarp.netmask", FT_IPv4, BASE_NETMASK,
         NULL, 0x0, NULL, HFILL }},
     { &hf_slarp_mysequence,
       { "Outgoing sequence number", "slarp.mysequence", FT_UINT32, BASE_DEC,

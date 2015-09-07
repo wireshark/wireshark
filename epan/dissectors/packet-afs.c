@@ -3444,7 +3444,7 @@ proto_register_afs(void)
 	{ &hf_afs_cm_ipaddr, { "IP Address", "afs.cm.ipaddr",
 		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_cm_netmask, { "Netmask", "afs.cm.netmask",
-		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
+		FT_IPv4, BASE_NETMASK, 0, 0, NULL, HFILL }},
 	{ &hf_afs_cm_mtu, { "MTU", "afs.cm.mtu",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 

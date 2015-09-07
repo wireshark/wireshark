@@ -3898,7 +3898,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_snm,
 			{ "SubnetMask", "epl.asnd.ires.subnet",
-				FT_IPv4, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_IPv4, BASE_NETMASK, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_gtw,
 			{ "DefaultGateway", "epl.asnd.ires.gateway",

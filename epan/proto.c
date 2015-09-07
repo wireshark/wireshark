@@ -6174,6 +6174,22 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					ftype_name(hfinfo->type));
 			break;
 
+		case FT_IPv4:
+			switch (hfinfo->display) {
+				case BASE_NONE:
+				case BASE_NETMASK:
+					break;
+
+				default:
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					g_error("Field '%s' (%s) is an IPv4 value (%s)"
+						" but is being displayed as %s\n",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+					wmem_free(NULL, tmp_str);
+					break;
+			}
+			break;
 		default:
 			if (hfinfo->display != BASE_NONE) {
 				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
@@ -6659,7 +6675,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = 4;
 			addr.data = &n_addr;
 
-			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
+			if (hfinfo->display == BASE_NETMASK)
+			{
+				addr_str = (char*)address_to_str(NULL, &addr);
+			}
+			else
+			{
+				addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
+			}
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);

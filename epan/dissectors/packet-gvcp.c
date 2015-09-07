@@ -2566,7 +2566,7 @@ void proto_register_gvcp(void)
 
 		{ &hf_gvcp_forceip_static_subnet_mask,
 		{ "Subnet Mask", "gvcp.cmd.forceip.subnetmask",
-		FT_IPv4, BASE_NONE, NULL, 0x0,
+		FT_IPv4, BASE_NETMASK, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_gvcp_forceip_static_default_gateway,
@@ -2847,7 +2847,7 @@ void proto_register_gvcp(void)
 
 		{ &hf_gvcp_current_subnet_mask,
 		{ "Subnet Mask", "gvcp.bootstrap.currentsubnetmask",
-		FT_IPv4, BASE_NONE, NULL, 0x0,
+		FT_IPv4, BASE_NETMASK, NULL, 0x0,
 		NULL, HFILL }},
 
 		/* GVCP_CURRENT_DEFAULT_GATEWAY_0, 1, 2, 3 */
@@ -2933,7 +2933,7 @@ void proto_register_gvcp(void)
 
 		{& hf_gvcp_persistent_subnet,
 		{ "Persistent Subnet Mask", "gvcp.bootstrap.persistentsubnetmask",
-		FT_IPv4, BASE_NONE, NULL, 0x0,
+		FT_IPv4, BASE_NETMASK, NULL, 0x0,
 		NULL, HFILL
 		}},
 
