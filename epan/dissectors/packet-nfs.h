@@ -132,6 +132,7 @@
 #define NFS4_OP_IO_ADVISE                   63
 #define NFS4_OP_OFFLOAD_CANCEL              66
 #define NFS4_OP_OFFLOAD_STATUS              67
+#define NFS4_OP_READ_PLUS                   68
 #define NFS4_OP_SEEK                        69
 #define NFS4_OP_CLONE                       71
 #define NFS4_LAST_OP                        71

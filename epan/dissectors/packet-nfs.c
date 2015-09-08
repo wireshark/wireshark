@@ -618,6 +618,9 @@ static int hf_nfs4_io_hints_mask = -1;
 static int hf_nfs4_io_hint_count = -1;
 static int hf_nfs4_io_advise_hint = -1;
 static int hf_nfs4_bytes_copied = -1;
+static int hf_nfs4_read_plus_content_type = -1;
+static int hf_nfs4_read_plus_content_count = -1;
+static int hf_nfs4_read_plus_content_index = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -810,6 +813,8 @@ static gint ett_nfs4_clone = -1;
 static gint ett_nfs4_offload_cancel = -1;
 static gint ett_nfs4_offload_status = -1;
 static gint ett_nfs4_io_advise = -1;
+static gint ett_nfs4_read_plus = -1;
+static gint ett_nfs4_read_plus_content_sub = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -7481,6 +7486,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_IO_ADVISE,             "IO_ADVISE"  },
 	{	NFS4_OP_OFFLOAD_CANCEL,        "OFFLOAD_CANCEL"  },
 	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
+	{	NFS4_OP_READ_PLUS,             "READ_PLUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
 	{	NFS4_OP_CLONE,                 "CLONE"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
@@ -7558,7 +7564,7 @@ static gint *nfs4_operation_ett[] =
 	 NULL,
 	 &ett_nfs4_offload_cancel,
 	 &ett_nfs4_offload_status,
-	 NULL,
+	 &ett_nfs4_read_plus,
 	 &ett_nfs4_seek,
 	 NULL,
 	 &ett_nfs4_clone,
@@ -8057,6 +8063,60 @@ dissect_nfs4_locker(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static const value_string read_plus_content_names[] = {
+#define NFS4_CONTENT_DATA                 0
+	{	NFS4_CONTENT_DATA,    "Data"	},
+#define NFS4_CONTENT_HOLE             1
+	{	NFS4_CONTENT_HOLE,    "Hole"	},
+	{	0,	NULL	}
+};
+static value_string_ext read_plus_content_names_ext = VALUE_STRING_EXT_INIT(read_plus_content_names);
+
+static int
+dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_item *sub_fitem;
+	proto_tree *ss_tree;
+	proto_tree *subtree;
+	proto_item *ss_fitem;
+	guint       i;
+	guint       count;
+	guint       type;
+
+	count = tvb_get_ntohl(tvb, offset);
+	sub_fitem = proto_tree_add_item(tree, hf_nfs4_read_plus_content_count,
+					tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_read_plus_content_sub);
+	for (i = 0; i < count; i++) {
+		ss_fitem = proto_tree_add_uint_format(subtree, hf_nfs4_read_plus_content_index,
+							tvb, offset+0, 4, i, "Content [%u]", i);
+		ss_tree = proto_item_add_subtree(ss_fitem,
+						 ett_nfs4_read_plus_content_sub);
+		offset += 4;
+
+		type = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint(ss_tree, hf_nfs4_read_plus_content_type, tvb, offset, 0, type);
+		offset += 4;
+
+		switch (type) {
+		case NFS4_CONTENT_DATA:
+			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
+			dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_read_data_length, offset); /* don't change offset */
+			offset = dissect_nfsdata(tvb, offset, ss_tree, hf_nfs_data);
+			break;
+		case NFS4_CONTENT_HOLE:
+			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
+			offset = dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_count, offset);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return offset;
+}
 
 static int
 dissect_nfs4_client_id(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -8909,6 +8969,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 63, NFS4_OP_IO_ADVISE */,
 		 1 /* 66, NFS4_OP_OFFLOAD_CANCEL */,
 		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
+		 1 /* 68, NFS4_OP_READ_PLUS */,
 		 1 /* 69, NFS4_OP_SEEK */,
 		 1 /* 71, NFS4_OP_CLONE */,
 };
@@ -9544,6 +9605,18 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash);
 			break;
 
+		case NFS4_OP_READ_PLUS:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length = tvb_get_ntohl(tvb, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count, offset);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					sid_hash, file_offset, length);
+			break;
+
 		case NFS4_OP_SEEK:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			file_offset = tvb_get_ntoh64(tvb, offset);
@@ -10022,6 +10095,13 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_OFFLOAD_STATUS:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
+			break;
+
+		case NFS4_OP_READ_PLUS:
+			if (status == NFS4_OK) {
+				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
+				offset = dissect_nfs4_read_plus_content(tvb, offset, newftree);
+			}
 			break;
 
 		case NFS4_OP_SEEK:
@@ -12908,6 +12988,18 @@ proto_register_nfs(void)
 			"bytes copied", "nfs.bytes_copied", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_read_plus_content_type, {
+			"Content Type", "nfs.content.type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&read_plus_content_names_ext, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_read_plus_content_count, {
+			"Content count", "nfs.content.count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_read_plus_content_index, {
+			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
@@ -13122,7 +13214,9 @@ proto_register_nfs(void)
 		&ett_nfs4_clone,
 		&ett_nfs4_offload_cancel,
 		&ett_nfs4_offload_status,
-		&ett_nfs4_io_advise
+		&ett_nfs4_io_advise,
+		&ett_nfs4_read_plus,
+		&ett_nfs4_read_plus_content_sub
 	};
 
 	static ei_register_info ei[] = {
