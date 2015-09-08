@@ -111,23 +111,30 @@ filter_save_cb(GtkWidget *w _U_, GtkWindow *parent_w)
 }
 
 static void
-plugin_if_filter_apply(gconstpointer filter_text)
+plugin_if_filter_apply(gconstpointer user_data)
 {
     /* code is derived from voip_calls_dlg.c::voip_calls_on_filter */
 
-    int pos = 0;
     size_t filter_length;
     size_t max_filter_length = 2048;
     gchar *filter_string;
 
     if ( main_display_filter_widget != 0 )
     {
-        filter_string = g_strndup((const char *)filter_text, max_filter_length);
-        filter_length = strlen(filter_string);
-        pos = (int)filter_length;
 
-        if ( filter_length < max_filter_length )
-            gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string, -1, &pos);
+        GHashTable * dataSet = (GHashTable *) user_data;
+
+        if ( g_hash_table_lookup_extended(dataSet, "filter_string", NULL, NULL ) )
+        {
+            filter_string = g_strndup((const char *)g_hash_table_lookup(dataSet, "filter_string"), max_filter_length);
+            filter_length = strlen(filter_string);
+
+            if ( filter_length < max_filter_length )
+            {
+                gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+                main_filter_packets(&cfile, filter_string, FALSE);
+            }
+        }
     }
 }
 

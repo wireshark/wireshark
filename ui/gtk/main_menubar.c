@@ -151,6 +151,8 @@ static void colorize_cb(GtkWidget *w, gpointer d);
 static void rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences,
         GtkUIManager *ui_menu, const char *path);
 
+static void plugin_if_menubar_preference(gconstpointer user_data);
+
 
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
     http://developer.gnome.org/projects/gup/hig/1.0/index.html
@@ -2547,6 +2549,8 @@ main_menu_new(GtkAccelGroup ** table)
 
     if (table)
         *table = grp;
+
+    plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_menubar_preference);
 
     return menubar;
 }
@@ -5521,6 +5525,27 @@ ws_menubar_external_menus(void)
         /* Iterate Loop */
         user_menu = g_list_next (user_menu);
         cnt++;
+    }
+}
+
+void plugin_if_menubar_preference(gconstpointer user_data)
+{
+    if ( user_data != NULL )
+    {
+        GHashTable * dataSet = (GHashTable *) user_data;
+        const char * module_name;
+        const char * pref_name;
+        const char * pref_value;
+        if ( g_hash_table_lookup_extended(dataSet, "pref_module", NULL, (void**)&module_name ) &&
+                g_hash_table_lookup_extended(dataSet, "pref_key", NULL, (void**)&pref_name ) &&
+                g_hash_table_lookup_extended(dataSet, "pref_value", NULL, (void**)&pref_value ) )
+        {
+            if ( prefs_store_ext(module_name, pref_name, pref_value) )
+            {
+                redissect_packets();
+                redissect_all_packet_windows();
+            }
+        }
     }
 }
 
