@@ -126,6 +126,8 @@
 #define NFS4_OP_RECLAIM_COMPLETE            58
 /* Minor version 2 */
 #define NFS4_OP_ALLOCATE                    59
+#define NFS4_OP_COPY                        60
+#define NFS4_OP_COPY_NOTIFY                 61
 #define NFS4_OP_DEALLOCATE                  62
 #define NFS4_OP_SEEK                        69
 #define NFS4_LAST_OP                        69
@@ -177,6 +179,13 @@
 #define LAYOUT4_OSD2_OBJECTS              2
 #define LAYOUT4_BLOCK_VOLUME              3
 #define LAYOUT4_FLEX_FILES                4
+
+/* NFSv4.2 */
+
+/* netloc types */
+#define NL4_NAME    1
+#define NL4_URL     2
+#define NL4_NETADDR 3
 
 extern gboolean nfs_file_name_snooping;
 extern void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len,
