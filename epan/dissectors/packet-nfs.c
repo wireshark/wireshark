@@ -591,14 +591,18 @@ static int hf_nfs4_huge_bitmap_length = -1;
 static int hf_nfs4_universal_address_ipv4 = -1;
 static int hf_nfs4_universal_address_ipv6 = -1;
 static int hf_nfs4_getdevinfo = -1;
-static int hf_nfs4_ffda_version = -1;
-static int hf_nfs4_ffda_minorversion = -1;
-static int hf_nfs4_ffda_tightly_coupled = -1;
-static int hf_nfs4_ffda_rsize = -1;
-static int hf_nfs4_ffda_wsize = -1;
+static int hf_nfs4_ff_version = -1;
+static int hf_nfs4_ff_minorversion = -1;
+static int hf_nfs4_ff_tightly_coupled = -1;
+static int hf_nfs4_ff_rsize = -1;
+static int hf_nfs4_ff_wsize = -1;
 static int hf_nfs4_fattr_clone_blocksize = -1;
 static int hf_nfs4_fattr_space_freed = -1;
 static int hf_nfs4_fattr_change_attr_type = -1;
+static int hf_nfs4_ff_layout_flags = -1;
+static int hf_nfs4_ff_layout_flags_no_layoutcommit = -1;
+static int hf_nfs4_ff_synthetic_owner = -1;
+static int hf_nfs4_ff_synthetic_owner_group = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -782,6 +786,7 @@ static gint ett_nfs4_deallocate = -1;
 static gint ett_nfs4_seek = -1;
 static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
+static gint ett_nfs4_ff_layout_flags = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -8188,14 +8193,14 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset += 4;
 
 	for (i = 0; i < num_vers; i++) {
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_version, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_minorversion,
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ff_version, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ff_minorversion,
 				    offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_rsize,
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ff_rsize,
 				    offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_wsize,
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ff_wsize,
 				    offset);
-		offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ffda_tightly_coupled,
+		offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ff_tightly_coupled,
 				  offset);
 	}
 
@@ -8361,7 +8366,7 @@ dissect_rpc_secparms4(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
+dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
 	guint	    layout_type;
 	guint	    sub_num;
@@ -8370,6 +8375,11 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	proto_tree *newtree;
 	proto_item *sub_fitem;
 	proto_tree *subtree;
+
+	static const int * layout_flags[] = {
+		&hf_nfs4_ff_layout_flags_no_layoutcommit,
+		NULL
+	};
 
 	lo_seg_count = tvb_get_ntohl(tvb, offset);
 
@@ -8403,7 +8413,7 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 			sub_num = tvb_get_ntohl(tvb, offset); /* Len of FH list */
 
 			sub_fitem = proto_tree_add_item(newtree, hf_nfs4_nfl_fhs,
-					tvb, offset, 4, sub_num);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			subtree = proto_item_add_subtree(sub_fitem,
@@ -8462,13 +8472,16 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 							pinfo, ds_tree, "fh", NULL, civ);
 
 					offset = dissect_nfs_utf8string(tvb, offset,
-							ds_tree, hf_nfs4_fattr_owner,
+							ds_tree, hf_nfs4_ff_synthetic_owner,
 							NULL);
 					offset = dissect_nfs_utf8string(tvb, offset,
-							ds_tree, hf_nfs4_fattr_owner_group,
+							ds_tree, hf_nfs4_ff_synthetic_owner_group,
 							NULL);
 				}
 			}
+
+			proto_tree_add_bitmask(newtree, tvb, offset, hf_nfs4_ff_layout_flags,
+						ett_nfs4_ff_layout_flags, layout_flags, ENC_BIG_ENDIAN);
 		} else {
 			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs4_layout);
 			continue;
@@ -9551,7 +9564,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_return_on_close,
 									  offset);
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
-			offset = dissect_nfs4_layout(tvb, offset, pinfo, newftree, civ);
+			offset = dissect_nfs4_layoutget(tvb, offset, pinfo, newftree, civ);
 			break;
 
 		case NFS4_OP_LAYOUTCOMMIT:
@@ -12365,26 +12378,42 @@ proto_register_nfs(void)
 			"dev info", "nfs.devinfo", FT_BYTES,
 			BASE_NONE, NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_ffda_version, {
-			"version", "nfs.ffda_version", FT_UINT32, BASE_DEC,
+		{ &hf_nfs4_ff_version, {
+			"version", "nfs.ff.version", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_ffda_minorversion, {
-			"minorversion", "nfs.ffda_minorversion", FT_UINT32,
+		{ &hf_nfs4_ff_minorversion, {
+			"minorversion", "nfs.ff.minorversion", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_ffda_rsize, {
-			"max_rsize", "nfs.ffda_rsize", FT_UINT32,
+		{ &hf_nfs4_ff_rsize, {
+			"max_rsize", "nfs.ff.rsize", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_ffda_wsize, {
-			"max_wsize", "nfs.ffda_wsize", FT_UINT32,
+		{ &hf_nfs4_ff_wsize, {
+			"max_wsize", "nfs.ff.wsize", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_ffda_tightly_coupled, {
-                        "tightly coupled", "nfs.ffda_tightly_coupled",
+		{ &hf_nfs4_ff_tightly_coupled, {
+                        "tightly coupled", "nfs.ff.tightly_coupled",
 			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
 			NULL, HFILL }},
+
+		{ &hf_nfs4_ff_layout_flags, {
+			"layout flags", "nfs.ff.layout_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_synthetic_owner, {
+			"synthetic owner", "nfs.ff.synthetic_owner", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_synthetic_owner_group, {
+			"synthetic group", "nfs.ff.synthetic_owner_group", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_layout_flags_no_layoutcommit, {
+			"FLAG_NO_LAYOUTCOMMIT", "nfs.ff.layout_flags.no_layoutcommit", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), 0x00000001, NULL, HFILL}},
 
 		{ &hf_nfs4_fattr_clone_blocksize, {
 			"clone block size", "nfs.fattr4.clone_block_size", FT_UINT32, BASE_DEC,
@@ -12603,7 +12632,8 @@ proto_register_nfs(void)
 		&ett_nfs4_chan_attrs,
 		&ett_nfs4_create_session_flags,
 		&ett_nfs4_sequence_status_flags,
-		&ett_nfs4_want_notify_flags
+		&ett_nfs4_want_notify_flags,
+		&ett_nfs4_ff_layout_flags
 	};
 
 	static ei_register_info ei[] = {
