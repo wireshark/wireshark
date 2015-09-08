@@ -218,11 +218,13 @@ proto_reg_handoff_PROTOABBREV(void)
     PROTOABBREV_tcp_handle = new_create_dissector_handle(dissect_PROTOABBREV_tcp,
                                                          proto_PROTOABBREV);
     PROTOABBREV_pdu_handle = new_create_dissector_handle(dissect_PROTOABBREV_pdu,
-                                                     proto_PROTOABBREV);
+                                                         proto_PROTOABBREV);
 
     /* register as heuristic dissector for both TCP and UDP */
-    heur_dissector_add("tcp", dissect_PROTOABBREV_tcp_heur, proto_PROTOABBREV);
-    heur_dissector_add("udp", dissect_PROTOABBREV_udp_heur, proto_PROTOABBREV);
+    heur_dissector_add("tcp", dissect_PROTOABBREV_tcp_heur, "PROTOABBREV over TCP",
+                       "PROTOABBREV_tcp", proto_PROTOABBREV, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_PROTOABBREV_udp_heur, "PROTOABBREV over UDP",
+                       "PROTOABBREV_udp", proto_PROTOABBREV, HEURISTIC_ENABLE);
 
 #ifdef OPTIONAL
     /* It's possible to write a dissector to be a dual heuristic/normal dissector */
