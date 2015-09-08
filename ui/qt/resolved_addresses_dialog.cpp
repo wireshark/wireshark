@@ -153,15 +153,15 @@ wka_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     gchar *name = (gchar *)value;
-    gint64 eth_as_gint64 = *(gint64*)key;
+    guint8 *eth_addr = (guint8*)key;
 
     QString entry = QString("%1:%2:%3:%4:%5:%6 %7")
-            .arg((eth_as_gint64 >> 40 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint64 >> 32 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint64 >> 24 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint64 >> 16 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint64 >>  8 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint64 & 0xff), 2, 16, QChar('0'))
+            .arg(eth_addr[0], 2, 16, QChar('0'))
+            .arg(eth_addr[1], 2, 16, QChar('0'))
+            .arg(eth_addr[2], 2, 16, QChar('0'))
+            .arg(eth_addr[3], 2, 16, QChar('0'))
+            .arg(eth_addr[4], 2, 16, QChar('0'))
+            .arg(eth_addr[5], 2, 16, QChar('0'))
             .arg(name);
 
     *string_list << entry;
