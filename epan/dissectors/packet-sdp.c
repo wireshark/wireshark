@@ -1911,6 +1911,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     gint        start_transport_info_count = 0;
     transport_info_t* transport_info = NULL;
     disposable_media_info_t media_info;
+    int establish_frame = 0;
 
     struct srtp_info *srtp_info = NULL;
 
@@ -2086,6 +2087,13 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     if (!delay || ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
         (transport_info->sdp_status == SDP_EXCHANGE_OFFER))) {
 
+        /* If no request_frame number has been found use this frame's number */
+        if (request_frame == 0) {
+            establish_frame = pinfo->fd->num;
+        } else {
+            establish_frame = request_frame;
+        }
+
         for (n = 0; n <= transport_info->media_count; n++) {
           guint32 current_rtp_port = 0;
 
@@ -2108,7 +2116,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                     DINDENT();
                     /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
                        because that's where the RTP flow started, and thus conversation needs to check against */
-                    srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
+                    srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
                                     (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                      transport_info->media[n].rtp_dyn_payload, srtp_info);
                     DENDENT();
@@ -2116,7 +2124,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                     DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
                             n, transport_info->media_port[n]));
                     DINDENT();
-                    rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
+                    rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
                                     (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                     transport_info->media[n].rtp_dyn_payload);
                     DENDENT();
@@ -2130,13 +2138,13 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                         DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
                                 n, transport_info->media_port[n]+1));
                         DINDENT();
-                        srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame, srtp_info);
+                        srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame, srtp_info);
                         DENDENT();
                      } else {
                         DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
                                 n, transport_info->media_port[n]+1));
                         DINDENT();
-                        rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame);
+                        rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame);
                         DENDENT();
                      }
                 }
