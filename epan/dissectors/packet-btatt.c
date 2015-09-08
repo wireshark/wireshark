@@ -986,6 +986,21 @@ static int hf_btatt_plx_features_supported_features_timestamp_storage_for_spot_c
 static int hf_btatt_plx_features_supported_features_measurement_storage_for_spot_check = -1;
 static int hf_btatt_plx_features_supported_features_device_and_sensor_status = -1;
 static int hf_btatt_plx_features_supported_features_measurement_status = -1;
+static int hf_btatt_regulatory_certification_data_list_count = -1;
+static int hf_btatt_regulatory_certification_data_list_length = -1;
+static int hf_btatt_regulatory_certification_data_list_item = -1;
+static int hf_btatt_regulatory_certification_data_list_item_body = -1;
+static int hf_btatt_regulatory_certification_data_list_item_body_structure_type = -1;
+static int hf_btatt_regulatory_certification_data_list_item_body_structure_length = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_major_ig_version = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_minor_ig_version = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list = -1;
+static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certified_device_class = -1;
+static int hf_btatt_regulatory_certification_data_list_item_regulation_bit_field_type = -1;
+static int hf_btatt_regulatory_certification_data_list_item_data = -1;
 static int hf_gatt_nordic_uart_tx = -1;
 static int hf_gatt_nordic_uart_rx = -1;
 static int hf_gatt_nordic_dfu_packet = -1;
@@ -3450,6 +3465,12 @@ static const value_string ots_filter_vals[] = {
     {0, NULL }
 };
 
+static const value_string regulatory_certification_data_list_item_body_structure_type_vals[] = {
+    { 0x01, "Authorizing Body" },
+    { 0x02, "Continua Regulatory" },
+    {0, NULL }
+};
+
 
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
@@ -5320,7 +5341,9 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
-    case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
+    case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */ {
+        guint16  count;
+
         if (service_uuid.bt_uuid == GATT_SERVICE_DEVICE_INFORMATION) {
             if (is_readable_request(att_data->opcode))
                 break;
@@ -5332,10 +5355,85 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
 
+        proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        while (count--) {
+            proto_item  *authorizing_body_data_item;
+            proto_tree  *authorizing_body_data_tree;
+            guint8       item_type;
+            guint16      item_length;
+            guint16      certification_data_list_count = 0;
+            guint16      certification_data_list_length = 0;
+
+            sub_item = proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_item, tvb, offset, 0, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_type, tvb, offset, 1, ENC_NA);
+            item_type = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            if (item_type == 0x01) {
+                authorizing_body_data_item = proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data, tvb, offset, item_length, ENC_NA);
+                authorizing_body_data_tree = proto_item_add_subtree(authorizing_body_data_item, ett_btatt_list);
+
+                if (item_length > 0) {
+                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_major_ig_version, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                if (item_length > 1) {
+                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_minor_ig_version, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                if (item_length > 2) {
+                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    certification_data_list_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                if (item_length > 4) {
+                    proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    certification_data_list_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+
+                if (item_length > 6 && certification_data_list_count) {
+                    proto_item  *certification_data_list_item;
+                    proto_tree  *certification_data_list_tree;
+
+                    certification_data_list_item = proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list, tvb, offset, certification_data_list_length, ENC_NA);
+                    certification_data_list_tree = proto_item_add_subtree(certification_data_list_item, ett_btatt_list);
+
+                    while (certification_data_list_count--) {
+                        proto_tree_add_item(certification_data_list_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certified_device_class, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+                    }
+                }
+
+                proto_item_set_len(sub_item, 1 + 1 + 2 + item_length);
+            } else if (item_type == 0x02) {
+                proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_regulation_bit_field_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            } else {
+                proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_data, tvb, offset, item_length, ENC_NA);
+                offset += item_length;
+            }
+        }
+        }
         break;
     case 0x2A2C: /* Magnetic Declination */
         if (service_uuid.bt_uuid == GATT_SERVICE_ENVIRONMENTAL_SENSING) {
@@ -14886,6 +14984,81 @@ proto_register_btatt(void)
         },
         {&hf_btatt_valid_range_upper_inclusive_value,
             {"Upper Inclusive Value", "btatt.valid_range.upper_inclusive_value",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_count,
+            {"Count", "btatt.regulatory_certification_data_list.count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_length,
+            {"Length", "btatt.regulatory_certification_data_list.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item,
+            {"Item", "btatt.regulatory_certification_data_list.item",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_body,
+            {"Authorizing Body", "btatt.regulatory_certification_data_list.item.authorization_body",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_body_structure_type,
+            {"Authorizing Body Structure Type", "btatt.regulatory_certification_data_list.item.authorization_body_structure_type",
+            FT_UINT8, BASE_DEC, VALS(regulatory_certification_data_list_item_body_structure_type_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_body_structure_length,
+            {"Authorizing Body Structure Length", "btatt.regulatory_certification_data_list.item.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data,
+            {"Authorizing Body Data", "btatt.regulatory_certification_data_list.item.authorizing_body_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_major_ig_version,
+            {"Major IG Version", "btatt.regulatory_certification_data_list.item.authorizing_body_data.major_ig_version",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_minor_ig_version,
+            {"Minor IG Version", "btatt.regulatory_certification_data_list.item.authorizing_body_data.minor_ig_version",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count,
+            {"Certification Data List LCount", "btatt.regulatory_certification_data_list.item.certified_device_class_list.count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length,
+            {"Certification Data List Length", "btatt.regulatory_certification_data_list.item.certified_device_class_list.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list,
+            {"Certification Data List", "btatt.regulatory_certification_data_list.item.certified_device_class_list",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certified_device_class,
+            {"Certified Device Class", "btatt.regulatory_certification_data_list.item.certified_device_class_list.entry",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_regulation_bit_field_type,
+            {"Regulation Bit Field Type", "btatt.regulatory_certification_data_list.item.regulation_bit_field_type",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            NULL, HFILL}
+        },
+        {&hf_btatt_regulatory_certification_data_list_item_data,
+            {"Data", "btatt.regulatory_certification_data_list.item.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
