@@ -621,6 +621,12 @@ static int hf_nfs4_bytes_copied = -1;
 static int hf_nfs4_read_plus_content_type = -1;
 static int hf_nfs4_read_plus_content_count = -1;
 static int hf_nfs4_read_plus_content_index = -1;
+static int hf_nfs4_block_size = -1;
+static int hf_nfs4_block_count = -1;
+static int hf_nfs4_reloff_blocknum = -1;
+static int hf_nfs4_blocknum = -1;
+static int hf_nfs4_reloff_pattern = -1;
+static int hf_nfs4_pattern_hash = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -815,6 +821,7 @@ static gint ett_nfs4_offload_status = -1;
 static gint ett_nfs4_io_advise = -1;
 static gint ett_nfs4_read_plus = -1;
 static gint ett_nfs4_read_plus_content_sub = -1;
+static gint ett_nfs4_write_same = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -7488,6 +7495,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
 	{	NFS4_OP_READ_PLUS,             "READ_PLUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
+	{	NFS4_OP_WRITE_SAME,            "WRITE_SAME"  },
 	{	NFS4_OP_CLONE,                 "CLONE"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
 	{	0, NULL  }
@@ -7566,7 +7574,7 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_offload_status,
 	 &ett_nfs4_read_plus,
 	 &ett_nfs4_seek,
-	 NULL,
+	 &ett_nfs4_write_same,
 	 &ett_nfs4_clone,
 };
 
@@ -8304,6 +8312,40 @@ dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 static int
+dissect_nfs4_app_data_block(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *hash)
+{
+	proto_item *fitem;
+
+	guint32     pattern_hash;
+        guint8     *pattern_array;
+        guint       pattern_len;
+
+
+	offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_offset, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_block_size, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_block_count, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_reloff_blocknum, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_blocknum, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_reloff_pattern, offset);
+
+	pattern_len = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	pattern_array = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, pattern_len, ENC_ASCII);
+	pattern_hash = crc32_ccitt(pattern_array, pattern_len);
+	fitem = proto_tree_add_uint(tree, hf_nfs4_pattern_hash, tvb, offset, pattern_len, pattern_hash);
+	PROTO_ITEM_SET_GENERATED(fitem);
+	proto_item_set_len(fitem, pattern_len);
+
+	offset += pattern_len;
+
+	if (hash)
+		*hash = pattern_hash;
+
+	return offset;
+}
+
+static int
 dissect_nfs4_layoutreturn(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint returntype;
@@ -8971,6 +9013,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
 		 1 /* 68, NFS4_OP_READ_PLUS */,
 		 1 /* 69, NFS4_OP_SEEK */,
+		 1 /* 70, NFS4_OP_WRITE_SAME */,
 		 1 /* 71, NFS4_OP_CLONE */,
 };
 
@@ -9012,6 +9055,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	guint32	    last_fh_hash    = 0;
 	guint32	    saved_fh_hash   = 0;
 	guint32	    length;
+	guint32	    hash;
 	guint64	    length64;
 	guint64	    file_offset;
 	proto_item *fitem;
@@ -9630,6 +9674,15 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset);
 			break;
 
+		case NFS4_OP_WRITE_SAME:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			offset = dissect_nfs4_stable_how(tvb, offset, newftree, "stable");
+			offset = dissect_nfs4_app_data_block(tvb, offset, newftree, &hash);
+			wmem_strbuf_append_printf(op_summary[ops_counter].optext,
+				"Pattern Hash: 0x%08x", hash);
+
+			break;
+
 		case NFS4_OP_CLONE:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &dst_sid_hash);
@@ -10107,6 +10160,12 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		case NFS4_OP_SEEK:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			break;
+
+		case NFS4_OP_WRITE_SAME:
+			if (status == NFS4_OK) {
+				offset = dissect_nfs4_write_response(tvb, offset, newftree);
+			}
 			break;
 
 		case NFS4_OP_CLONE:
@@ -13000,6 +13059,30 @@ proto_register_nfs(void)
 			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_block_size, {
+			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_block_count, {
+			"Number of Blocks", "nfs.adb.block.count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_reloff_blocknum, {
+			"Relative Offset Block Number", "nfs.adb.block.reloff_num", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_blocknum, {
+			"Block Number", "nfs.adb.block.num", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_reloff_pattern, {
+			"Relative Offset Pattern", "nfs.adb.pattern.reloff", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_pattern_hash, {
+			"hash (CRC-32)", "nfs.adb.pattern_hash", FT_UINT32, BASE_HEX,
+			NULL, 0, "ADB pattern hash", HFILL }},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
@@ -13216,7 +13299,8 @@ proto_register_nfs(void)
 		&ett_nfs4_offload_status,
 		&ett_nfs4_io_advise,
 		&ett_nfs4_read_plus,
-		&ett_nfs4_read_plus_content_sub
+		&ett_nfs4_read_plus_content_sub,
+		&ett_nfs4_write_same
 	};
 
 	static ei_register_info ei[] = {
