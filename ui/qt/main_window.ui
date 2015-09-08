@@ -1128,6 +1128,9 @@
    <property name="toolTip">
     <string>Refresh interfaces</string>
    </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
   </action>
   <action name="actionCaptureRestart">
    <property name="text">
