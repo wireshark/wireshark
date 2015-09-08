@@ -1919,7 +1919,7 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	if (fhlen != 36)
 		return;
 
-	ident = tvb_get_string_enc(NULL, tvb, offset, 4, ENC_ASCII);
+	ident = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
 	if (strncmp(":OGL", ident, 4))
 		return;
 	offset += 4;
@@ -2124,9 +2124,8 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		guint8 *fh_array;
 		proto_item *fh_item = NULL;
 
-		fh_array = tvb_get_string_enc(NULL, tvb, offset, fhlen, ENC_ASCII);
+		fh_array = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, fhlen, ENC_ASCII);
 		fhhash = crc32_ccitt(fh_array, fhlen);
-		g_free(fh_array);
 
 		if (hidden) {
 			fh_item = proto_tree_add_uint(tree, hf_nfs_fh_hash, NULL, 0,
@@ -7626,9 +7625,8 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	newftree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_nfs4_stateid, &fitem, "stateid");
 
-	sidh_array = tvb_get_string_enc(NULL, tvb, offset, 16, ENC_ASCII);
+	sidh_array = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII);
 	sid_hash = crc16_ccitt(sidh_array, 16);
-	g_free(sidh_array);
 
 	sh_item = proto_tree_add_uint(newftree, hf_nfs4_stateid_hash, tvb, offset, 16, sid_hash);
 	PROTO_ITEM_SET_GENERATED(sh_item);
