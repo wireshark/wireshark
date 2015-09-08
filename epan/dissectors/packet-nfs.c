@@ -603,6 +603,15 @@ static int hf_nfs4_ff_layout_flags = -1;
 static int hf_nfs4_ff_layout_flags_no_layoutcommit = -1;
 static int hf_nfs4_ff_synthetic_owner = -1;
 static int hf_nfs4_ff_synthetic_owner_group = -1;
+static int hf_nfs4_ff_bytes_completed = -1;
+static int hf_nfs4_ff_bytes_not_delivered = -1;
+static int hf_nfs4_ff_bytes_requested = -1;
+static int hf_nfs4_ff_local = -1;
+static int hf_nfs4_ff_ops_completed = -1;
+static int hf_nfs4_ff_ops_requested = -1;
+static int hf_nfs4_io_bytes = -1;
+static int hf_nfs4_io_count = -1;
+static int hf_nfs4_layoutstats = -1;
 
 static int hf_nfs4_callback_stateids = -1;
 static int hf_nfs4_callback_stateids_index = -1;
@@ -811,6 +820,10 @@ static gint ett_nfs4_seek = -1;
 static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
 static gint ett_nfs4_ff_layout_flags = -1;
+static gint ett_nfs4_layoutstats = -1;
+static gint ett_nfs4_io_info = -1;
+static gint ett_nfs4_io_latency = -1;
+static gint ett_nfs4_io_time = -1;
 static gint ett_nfs4_callback_stateids_sub = -1;
 static gint ett_nfs4_source_servers_sub = -1;
 static gint ett_nfs4_copy = -1;
@@ -7491,6 +7504,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_COPY_NOTIFY,           "COPY_NOTIFY"  },
 	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
 	{	NFS4_OP_IO_ADVISE,             "IO_ADVISE"  },
+	{	NFS4_OP_LAYOUTSTATS,           "LAYOUTSTATS"  },
 	{	NFS4_OP_OFFLOAD_CANCEL,        "OFFLOAD_CANCEL"  },
 	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
 	{	NFS4_OP_READ_PLUS,             "READ_PLUS"  },
@@ -7569,7 +7583,7 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_deallocate,
 	 &ett_nfs4_io_advise,
 	 NULL,
-	 NULL,
+	 &ett_nfs4_layoutstats,
 	 &ett_nfs4_offload_cancel,
 	 &ett_nfs4_offload_status,
 	 &ett_nfs4_read_plus,
@@ -8734,6 +8748,98 @@ dissect_rpc_secparms4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static int
+dissect_nfs4_io_time(tvbuff_t *tvb, int offset, proto_tree *tree, const char *timer_mode)
+{
+	proto_tree *newtree;
+
+	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nfs4_io_time, NULL, "%s", timer_mode);
+	offset = dissect_nfs4_nfstime(tvb, offset, newtree);
+
+	return offset;
+}
+
+static int
+dissect_nfs4_io_latency(tvbuff_t *tvb, int offset, proto_tree *tree, const char *io_mode)
+{
+	proto_tree *newtree;
+
+	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nfs4_io_latency, NULL, "%s Latency", io_mode);
+
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ops_requested, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_bytes_requested, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ops_completed, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_bytes_completed, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_bytes_not_delivered, offset);
+
+	offset = dissect_nfs4_io_time(tvb, offset, newtree, "Busy time");
+	offset = dissect_nfs4_io_time(tvb, offset, newtree, "Completion time");
+
+	return offset;
+}
+
+static int
+dissect_nfs4_io_info(tvbuff_t *tvb, int offset, proto_tree *tree, const char *io_mode)
+{
+	proto_tree *newtree;
+
+	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nfs4_io_info, NULL, "%s Info", io_mode);
+
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_io_count, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_io_bytes, offset);
+
+	return offset;
+}
+
+static int
+dissect_nfs4_layoutstats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
+{
+	guint	    layout_type;
+	proto_tree *netaddr;
+	proto_item *fitem;
+	int	    old_offset;
+	guint32	    last_fh_hash    = 0;
+
+	/* FIXME: Are these here or in the caller? Check for layoutcommit */
+	offset = dissect_nfs4_io_info(tvb, offset, tree, "Read");
+	offset = dissect_nfs4_io_info(tvb, offset, tree, "Write");
+	offset = dissect_nfs4_deviceid(tvb, offset, tree);
+
+	layout_type = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
+
+	/* If not flex files layout type eat the rest and move on.. */
+	if (layout_type == LAYOUT4_FLEX_FILES) {
+		/* NFS Flex Files */
+		offset += 4; /* Skip past opaque count */
+
+		/* The netaddr */
+		old_offset = offset;
+		netaddr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "DS address");
+
+		offset = dissect_nfs4_clientaddr(tvb, offset, netaddr);
+		proto_item_set_len(fitem, offset - old_offset);
+
+		/* The file handle */
+		offset = dissect_nfs4_fh(tvb, offset, pinfo, tree, "Filehandle", &last_fh_hash, civ);
+
+		/* Read Latency */
+		offset = dissect_nfs4_io_latency(tvb, offset, tree, "Read");
+
+		/* Write Latency */
+		offset = dissect_nfs4_io_latency(tvb, offset, tree, "Write");
+
+		/* Duration */
+		offset = dissect_nfs4_io_time(tvb, offset, tree, "Duration");
+
+		/* Local? */
+		offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ff_local, offset);
+	} else {
+		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs4_layoutstats);
+	}
+
+	return offset;
+}
 
 static int
 dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
@@ -9009,6 +9115,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 61, NFS4_OP_COPY_NOTIFY */,
 		 1 /* 62, NFS4_OP_DEALLOCATE */,
 		 1 /* 63, NFS4_OP_IO_ADVISE */,
+		 1 /* 65, NFS4_OP_LAYOUTSTATS */,
 		 1 /* 66, NFS4_OP_OFFLOAD_CANCEL */,
 		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
 		 1 /* 68, NFS4_OP_READ_PLUS */,
@@ -9661,6 +9768,19 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset, length);
 			break;
 
+		case NFS4_OP_LAYOUTSTATS:
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length = tvb_get_ntohl(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					sid_hash, file_offset, length);
+			offset = dissect_nfs4_layoutstats(tvb, offset, pinfo, newftree, civ);
+			break;
+
 		case NFS4_OP_SEEK:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			file_offset = tvb_get_ntoh64(tvb, offset);
@@ -10155,6 +10275,9 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
 				offset = dissect_nfs4_read_plus_content(tvb, offset, newftree);
 			}
+			break;
+
+		case NFS4_OP_LAYOUTSTATS:
 			break;
 
 		case NFS4_OP_SEEK:
@@ -13083,6 +13206,42 @@ proto_register_nfs(void)
 			"hash (CRC-32)", "nfs.adb.pattern_hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "ADB pattern hash", HFILL }},
 
+		{ &hf_nfs4_ff_local, {
+			"client used cache?", "nfs.ff.local", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
+		{ &hf_nfs4_io_count, {
+			"count", "nfs.io_count", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_io_bytes, {
+			"bytes", "nfs.io_bytes", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_ops_requested, {
+			"ops requested", "nfs.ff.ops_requested", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_bytes_requested, {
+			"bytes requested", "nfs.ff.bytes_requested", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_ops_completed, {
+			"ops completed", "nfs.ff.ops_completed", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_bytes_completed, {
+			"bytes completed", "nfs.ff.bytes_completed", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ff_bytes_not_delivered, {
+			"bytes not delivered", "nfs.ff.bytes_not_delivered", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_layoutstats, {
+			"layout", "nfs.layoutstats", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
@@ -13290,6 +13449,10 @@ proto_register_nfs(void)
 		&ett_nfs4_sequence_status_flags,
 		&ett_nfs4_want_notify_flags,
 		&ett_nfs4_ff_layout_flags,
+		&ett_nfs4_layoutstats,
+		&ett_nfs4_io_info,
+		&ett_nfs4_io_latency,
+		&ett_nfs4_io_time,
 		&ett_nfs4_callback_stateids_sub,
 		&ett_nfs4_source_servers_sub,
 		&ett_nfs4_copy,
