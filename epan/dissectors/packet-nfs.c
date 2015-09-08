@@ -803,6 +803,8 @@ static gint ett_nfs4_source_servers_sub = -1;
 static gint ett_nfs4_copy = -1;
 static gint ett_nfs4_copy_notify = -1;
 static gint ett_nfs4_clone = -1;
+static gint ett_nfs4_offload_cancel = -1;
+static gint ett_nfs4_offload_status = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -7470,6 +7472,8 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_COPY,                  "COPY"  },
 	{	NFS4_OP_COPY_NOTIFY,           "COPY_NOTIFY"  },
 	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
+	{	NFS4_OP_OFFLOAD_CANCEL,        "OFFLOAD_CANCEL"  },
+	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
 	{	NFS4_OP_CLONE,                 "CLONE"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
@@ -7545,8 +7549,8 @@ static gint *nfs4_operation_ett[] =
 	 NULL,
 	 NULL,
 	 NULL,
-	 NULL,
-	 NULL,
+	 &ett_nfs4_offload_cancel,
+	 &ett_nfs4_offload_status,
 	 NULL,
 	 &ett_nfs4_seek,
 	 NULL,
@@ -8768,6 +8772,8 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 60, NFS4_OP_COPY */,
 		 1 /* 61, NFS4_OP_COPY_NOTIFY */,
 		 1 /* 62, NFS4_OP_DEALLOCATE */,
+		 1 /* 66, NFS4_OP_OFFLOAD_CANCEL */,
+		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
 		 1 /* 69, NFS4_OP_SEEK */,
 		 1 /* 71, NFS4_OP_CLONE */,
 };
@@ -9372,6 +9378,22 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset, length64);
 			break;
 
+		case NFS4_OP_OFFLOAD_CANCEL:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x",
+					sid_hash);
+			break;
+
+		case NFS4_OP_OFFLOAD_STATUS:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x",
+					sid_hash);
+			break;
+
 		case NFS4_OP_SEEK:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			file_offset = tvb_get_ntoh64(tvb, offset);
@@ -9839,6 +9861,13 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_DEALLOCATE:
+			break;
+
+		case NFS4_OP_OFFLOAD_CANCEL:
+			break;
+
+		case NFS4_OP_OFFLOAD_STATUS:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
 			break;
 
 		case NFS4_OP_SEEK:
@@ -12907,7 +12936,9 @@ proto_register_nfs(void)
 		&ett_nfs4_source_servers_sub,
 		&ett_nfs4_copy,
 		&ett_nfs4_copy_notify,
-		&ett_nfs4_clone
+		&ett_nfs4_clone,
+		&ett_nfs4_offload_cancel,
+		&ett_nfs4_offload_status
 	};
 
 	static ei_register_info ei[] = {
