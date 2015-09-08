@@ -130,7 +130,8 @@
 #define NFS4_OP_COPY_NOTIFY                 61
 #define NFS4_OP_DEALLOCATE                  62
 #define NFS4_OP_SEEK                        69
-#define NFS4_LAST_OP                        69
+#define NFS4_OP_CLONE                       71
+#define NFS4_LAST_OP                        71
 #define NFS4_OP_ILLEGAL                  10044
 
 /*

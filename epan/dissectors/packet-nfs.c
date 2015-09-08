@@ -802,6 +802,7 @@ static gint ett_nfs4_callback_stateids_sub = -1;
 static gint ett_nfs4_source_servers_sub = -1;
 static gint ett_nfs4_copy = -1;
 static gint ett_nfs4_copy_notify = -1;
+static gint ett_nfs4_clone = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -7469,7 +7470,8 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_COPY,                  "COPY"  },
 	{	NFS4_OP_COPY_NOTIFY,           "COPY_NOTIFY"  },
 	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
-	{       NFS4_OP_SEEK,                  "SEEK"  },
+	{	NFS4_OP_SEEK,                  "SEEK"  },
+	{	NFS4_OP_CLONE,                 "CLONE"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
 	{	0, NULL  }
 };
@@ -7547,6 +7549,8 @@ static gint *nfs4_operation_ett[] =
 	 NULL,
 	 NULL,
 	 &ett_nfs4_seek,
+	 NULL,
+	 &ett_nfs4_clone,
 };
 
 
@@ -8765,6 +8769,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 61, NFS4_OP_COPY_NOTIFY */,
 		 1 /* 62, NFS4_OP_DEALLOCATE */,
 		 1 /* 69, NFS4_OP_SEEK */,
+		 1 /* 71, NFS4_OP_CLONE */,
 };
 
 #define NFS4_OPERATION_TIER(op) \
@@ -9380,6 +9385,29 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset);
 			break;
 
+		case NFS4_OP_CLONE:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &dst_sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			dst_file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" Src StateID: 0x%04x"
+					" Offset: %" G_GINT64_MODIFIER "u"
+					" Len: %" G_GINT64_MODIFIER "u",
+					sid_hash, file_offset, length64);
+
+			if (dst_sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" Dst StateID: 0x%04x"
+					" Offset: %" G_GINT64_MODIFIER "u",
+					dst_sid_hash, dst_file_offset);
+			break;
+
 		/* In theory, it's possible to get this opcode */
 		case NFS4_OP_ILLEGAL:
 			break;
@@ -9816,6 +9844,9 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		case NFS4_OP_SEEK:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			break;
+
+		case NFS4_OP_CLONE:
 			break;
 
 		default:
@@ -12875,7 +12906,8 @@ proto_register_nfs(void)
 		&ett_nfs4_callback_stateids_sub,
 		&ett_nfs4_source_servers_sub,
 		&ett_nfs4_copy,
-		&ett_nfs4_copy_notify
+		&ett_nfs4_copy_notify,
+		&ett_nfs4_clone
 	};
 
 	static ei_register_info ei[] = {
