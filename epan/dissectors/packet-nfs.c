@@ -837,6 +837,7 @@ static gint ett_nfs4_source_servers_sub = -1;
 static gint ett_nfs4_copy = -1;
 static gint ett_nfs4_copy_notify = -1;
 static gint ett_nfs4_device_errors_sub = -1;
+static gint ett_nfs4_layouterror = -1;
 static gint ett_nfs4_ff_ioerrs_sub = -1;
 static gint ett_nfs4_ff_iostats_sub = -1;
 static gint ett_nfs4_clone = -1;
@@ -7515,6 +7516,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_COPY_NOTIFY,           "COPY_NOTIFY"  },
 	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
 	{	NFS4_OP_IO_ADVISE,             "IO_ADVISE"  },
+	{	NFS4_OP_LAYOUTERROR,           "LAYOUTERROR"  },
 	{	NFS4_OP_LAYOUTSTATS,           "LAYOUTSTATS"  },
 	{	NFS4_OP_OFFLOAD_CANCEL,        "OFFLOAD_CANCEL"  },
 	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
@@ -7593,7 +7595,7 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_copy_notify,
 	 &ett_nfs4_deallocate,
 	 &ett_nfs4_io_advise,
-	 NULL,
+	 &ett_nfs4_layouterror,
 	 &ett_nfs4_layoutstats,
 	 &ett_nfs4_offload_cancel,
 	 &ett_nfs4_offload_status,
@@ -8481,10 +8483,8 @@ dissect_nfs4_ff_io_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_nfs4_ff_io_error(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_device_errors(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree *newtree;
-
 	proto_item *sub_fitem;
 	proto_tree *ss_tree;
 	proto_tree *subtree;
@@ -8494,14 +8494,8 @@ dissect_nfs4_ff_io_error(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	guint	    opcode;
 
-	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nfs4_io_latency, NULL, "IO errors");
-
-	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ioerrs_offset, offset);
-	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ioerrs_length, offset);
-	offset = dissect_nfs4_stateid(tvb, offset, newtree, NULL);
-
 	count = tvb_get_ntohl(tvb, offset);
-	sub_fitem = proto_tree_add_item(newtree, hf_nfs4_device_error_count,
+	sub_fitem = proto_tree_add_item(tree, hf_nfs4_device_error_count,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
@@ -8518,6 +8512,23 @@ dissect_nfs4_ff_io_error(tvbuff_t *tvb, int offset, proto_tree *tree)
 		proto_tree_add_uint(ss_tree, hf_nfs4_io_error_op, tvb, offset, 4, opcode);
 		offset += 4;
 	}
+
+	return offset;
+}
+
+static int
+dissect_nfs4_ff_io_error(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree *newtree;
+
+	/* FIXME */
+	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nfs4_io_latency, NULL, "IO errors");
+
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ioerrs_offset, offset);
+	offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_ff_ioerrs_length, offset);
+	offset = dissect_nfs4_stateid(tvb, offset, newtree, NULL);
+
+	offset = dissect_nfs4_device_errors(tvb, offset, newtree);
 
 	return offset;
 }
@@ -9238,6 +9249,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 61, NFS4_OP_COPY_NOTIFY */,
 		 1 /* 62, NFS4_OP_DEALLOCATE */,
 		 1 /* 63, NFS4_OP_IO_ADVISE */,
+		 1 /* 64, NFS4_OP_LAYOUTERROR */,
 		 1 /* 65, NFS4_OP_LAYOUTSTATS */,
 		 1 /* 66, NFS4_OP_OFFLOAD_CANCEL */,
 		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
@@ -9888,6 +9900,19 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset, length);
 			break;
 
+		case NFS4_OP_LAYOUTERROR:
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length = tvb_get_ntohl(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					sid_hash, file_offset, length);
+			offset = dissect_nfs4_device_errors(tvb, offset, newftree);
+			break;
+
 		case NFS4_OP_LAYOUTSTATS:
 			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
@@ -10395,6 +10420,9 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
 				offset = dissect_nfs4_read_plus_content(tvb, offset, newftree);
 			}
+			break;
+
+		case NFS4_OP_LAYOUTERROR:
 			break;
 
 		case NFS4_OP_LAYOUTSTATS:
@@ -13180,7 +13208,6 @@ proto_register_nfs(void)
 			"universal_address", "nfs.universal_address.ipv6", FT_IPv6, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
-
 		{ &hf_nfs4_getdevinfo, {
 			"dev info", "nfs.devinfo", FT_BYTES,
 			BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -13359,7 +13386,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_layoutstats, {
-			"layout", "nfs.layoutstats", FT_BYTES, BASE_NONE,
+			"Layout Stats", "nfs.layoutstats", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_device_error_count, {
@@ -13614,6 +13641,7 @@ proto_register_nfs(void)
 		&ett_nfs4_copy,
 		&ett_nfs4_copy_notify,
 		&ett_nfs4_device_errors_sub,
+		&ett_nfs4_layouterror,
 		&ett_nfs4_ff_ioerrs_sub,
 		&ett_nfs4_ff_iostats_sub,
 		&ett_nfs4_clone,
