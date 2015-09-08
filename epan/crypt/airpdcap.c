@@ -328,6 +328,11 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     }else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
         /* AES */
         key_bytes_len = pntoh16(pEAPKey->key_data_len);
+
+        /* AES keys must be at least 128 bits = 16 bytes. */
+        if (key_bytes_len < 16) {
+            return;
+        }
     }
 
     if (key_bytes_len > TKIP_GROUP_KEYBYTES_LEN_MAX || key_bytes_len == 0) { /* Don't read past the end of pEAPKey->ie */
