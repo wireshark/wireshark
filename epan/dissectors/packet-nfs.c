@@ -614,6 +614,9 @@ static int hf_nfs4_nl_url = -1;
 static int hf_nfs4_source_server_index = -1;
 static int hf_nfs4_source_servers = -1;
 static int hf_nfs4_synchronous = -1;
+static int hf_nfs4_io_hints_mask = -1;
+static int hf_nfs4_io_hint_count = -1;
+static int hf_nfs4_io_advise_hint = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -805,10 +808,12 @@ static gint ett_nfs4_copy_notify = -1;
 static gint ett_nfs4_clone = -1;
 static gint ett_nfs4_offload_cancel = -1;
 static gint ett_nfs4_offload_status = -1;
+static gint ett_nfs4_io_advise = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
 static expert_field ei_protocol_violation = EI_INIT;
+static expert_field ei_nfs_too_many_bitmaps = EI_INIT;
 
 
 /* Types of fhandles we can dissect */
@@ -7472,6 +7477,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_COPY,                  "COPY"  },
 	{	NFS4_OP_COPY_NOTIFY,           "COPY_NOTIFY"  },
 	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
+	{	NFS4_OP_IO_ADVISE,             "IO_ADVISE"  },
 	{	NFS4_OP_OFFLOAD_CANCEL,        "OFFLOAD_CANCEL"  },
 	{	NFS4_OP_OFFLOAD_STATUS,        "OFFLOAD_STATUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
@@ -7546,7 +7552,7 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_copy,
 	 &ett_nfs4_copy_notify,
 	 &ett_nfs4_deallocate,
-	 NULL,
+	 &ett_nfs4_io_advise,
 	 NULL,
 	 NULL,
 	 &ett_nfs4_offload_cancel,
@@ -8108,6 +8114,133 @@ dissect_nfs4_newoffset(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static const value_string io_advise_names[] = {
+#define IO_ADVISE4_NORMAL                 0
+	{	IO_ADVISE4_NORMAL,    "Normal"	},
+#define IO_ADVISE4_SEQUENTIAL             1
+	{	IO_ADVISE4_SEQUENTIAL,    "Sequential"	},
+#define IO_ADVISE4_SEQUENTIAL_BACKWARDS   2
+	{	IO_ADVISE4_SEQUENTIAL_BACKWARDS,    "Sequential Backwards"	},
+#define IO_ADVISE4_RANDOM                 3
+	{	IO_ADVISE4_RANDOM,    "Random"	},
+#define IO_ADVISE4_WILLNEED               4
+	{	IO_ADVISE4_WILLNEED,    "Will Need"	},
+#define IO_ADVISE4_WILLNEED_OPPORTUNISTIC 5
+	{	IO_ADVISE4_WILLNEED_OPPORTUNISTIC,    "Will Need Opportunistic"	},
+#define IO_ADVISE4_DONTNEED               6
+	{	IO_ADVISE4_DONTNEED,    "Don't Need"	},
+#define IO_ADVISE4_NOREUSE                7
+	{	IO_ADVISE4_NOREUSE,    "No Reuse"	},
+#define IO_ADVISE4_READ                   8
+	{	IO_ADVISE4_READ,    "Read"	},
+#define IO_ADVISE4_WRITE                  9
+	{	IO_ADVISE4_WRITE,    "Write"	},
+#define IO_ADVISE4_INIT_PROXIMITY         10
+	{	IO_ADVISE4_INIT_PROXIMITY,    "Init Proximity"	},
+	{	0,	NULL	}
+};
+static value_string_ext io_advise_names_ext = VALUE_STRING_EXT_INIT(io_advise_names);
+
+static int
+dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	int	  hints_mask_offset = 0;
+	guint32	  i, j;
+	guint32	  num_bitmaps;
+	guint32	  count		   = 0;
+	guint32	  hint_num;
+	guint32	 *bitmaps	   = NULL;
+	guint32	  bitmap, sl;
+	gboolean  first_hint	   = TRUE;
+	gboolean  no_idx	   = FALSE;
+
+	proto_item *bitmap_item = NULL;
+	proto_tree *bitmap_tree = NULL;
+	proto_item *hitem = NULL;
+
+	num_bitmaps = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	if (!num_bitmaps)
+		return offset;
+
+	if (num_bitmaps > MAX_BITMAPS) {
+		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
+		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
+	}
+
+	bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
+	hints_mask_offset = offset;
+
+	/* Load the array with the bitmap(s) */
+	for (i = 0; i < num_bitmaps; i++) {
+		bitmaps[i] = tvb_get_ntohl(tvb, hints_mask_offset + (i*4));
+		if (bitmaps[i] > 0)
+			count++;
+	}
+
+	/* If there is only one non-zero bitmap, don't display the bitmap index "[x]". */
+	if (count <= 1)
+		no_idx = TRUE;
+
+	offset += (num_bitmaps * 4);
+
+	for (i = 0; i < num_bitmaps; i++) {
+		bitmap = bitmaps[i];
+
+		if (bitmap) {
+			if (tree) {
+				/*
+				* Display the current Attr_mask bitmap (as of RFC 5661 NVSv4.1, there are up to 3) */
+				if (no_idx)
+					bitmap_item = proto_tree_add_uint_format_value(tree, hf_nfs4_io_hints_mask, tvb,
+						hints_mask_offset, 4, bitmap, "0x%08x", bitmap);
+				else
+					bitmap_item = proto_tree_add_uint_format(tree, hf_nfs4_io_hints_mask, tvb,
+						hints_mask_offset, 4, bitmap, "Hints mask[%u]: 0x%08x", i, bitmap);
+
+				bitmap_tree = proto_item_add_subtree(bitmap_item, ett_nfs4_bitmap);
+				first_hint = TRUE;
+
+				/* Count the number of hint bits set */
+				for (count=0; bitmap; bitmap >>= 1)
+					count += (bitmap & 1);
+				bitmap = bitmaps[i];
+				hitem = proto_tree_add_uint_format(bitmap_tree, hf_nfs4_io_hint_count, tvb, hints_mask_offset, 4, count, "%u hint%s", count, plurality(count, "", "s"));
+				PROTO_ITEM_SET_HIDDEN(hitem);
+				PROTO_ITEM_SET_GENERATED(hitem);
+			}
+		} else {
+			hints_mask_offset += 4;
+			continue;
+		}
+
+		sl = 0x00000001;
+
+		for (j = 0; j < 32; j++) {
+			hint_num = 32*i + j;
+
+			if (bitmap & sl) {
+				if (bitmap_tree) {
+					/*
+					* Append this attribute name to the 'Hints mask' header line */
+					proto_item_append_text (bitmap_tree, (first_hint ? " (%s" : ", %s"),
+						val_to_str_ext(hint_num, &io_advise_names_ext, "Unknown: %u"));
+					first_hint = FALSE;
+
+					proto_tree_add_uint(bitmap_tree, hf_nfs4_io_advise_hint, tvb, offset, 0, hint_num);
+				}
+			}
+			sl <<= 1;
+		} /* End of inner loop: test the next bit in this mask */
+
+		if (bitmap_tree)
+			proto_item_append_text(bitmap_tree, ")");
+		hints_mask_offset += 4;
+	} /* End of outer loop, read the next mask */
+
+	return offset;
+}
 
 static int
 dissect_nfs4_layoutreturn(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -8772,6 +8905,7 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 60, NFS4_OP_COPY */,
 		 1 /* 61, NFS4_OP_COPY_NOTIFY */,
 		 1 /* 62, NFS4_OP_DEALLOCATE */,
+		 1 /* 63, NFS4_OP_IO_ADVISE */,
 		 1 /* 66, NFS4_OP_OFFLOAD_CANCEL */,
 		 1 /* 67, NFS4_OP_OFFLOAD_STATUS */,
 		 1 /* 69, NFS4_OP_SEEK */,
@@ -9378,6 +9512,21 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					sid_hash, file_offset, length64);
 			break;
 
+		case NFS4_OP_IO_ADVISE:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x"
+					" Offset: %" G_GINT64_MODIFIER "u"
+					" Len: %" G_GINT64_MODIFIER "u",
+					sid_hash, file_offset, length64);
+			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, tree);
+			break;
+
 		case NFS4_OP_OFFLOAD_CANCEL:
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			if (sid_hash != 0)
@@ -9864,6 +10013,10 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_OFFLOAD_CANCEL:
+			break;
+
+		case NFS4_OP_IO_ADVISE:
+			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, tree);
 			break;
 
 		case NFS4_OP_OFFLOAD_STATUS:
@@ -12725,6 +12878,18 @@ proto_register_nfs(void)
 			"copy synchronous?", "nfs.synchronous", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
+		{ &hf_nfs4_io_hints_mask, {
+			"Hint mask", "nfs.hint.mask", FT_UINT32, BASE_HEX,
+			NULL, 0, "ACL attribute mask", HFILL }},
+
+		{ &hf_nfs4_io_hint_count, {
+			"Hint count", "nfs.hint.count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_io_advise_hint, {
+			"Hint", "nfs.hint.hint", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&io_advise_names_ext, 0, NULL, HFILL }},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
@@ -12938,7 +13103,8 @@ proto_register_nfs(void)
 		&ett_nfs4_copy_notify,
 		&ett_nfs4_clone,
 		&ett_nfs4_offload_cancel,
-		&ett_nfs4_offload_status
+		&ett_nfs4_offload_status,
+		&ett_nfs4_io_advise
 	};
 
 	static ei_register_info ei[] = {
@@ -12946,6 +13112,7 @@ proto_register_nfs(void)
 		{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
 		{ &ei_protocol_violation, { "nfs.protocol_violation", PI_PROTOCOL, PI_WARN,
 			"Per RFCs 3530 and 5661 an attribute mask is required but was not provided.", EXPFILL }},
+		{ &ei_nfs_too_many_bitmaps, { "nfs.too_many_bitmaps", PI_PROTOCOL, PI_NOTE, "Too many bitmap array items", EXPFILL }},
 	};
 
 	module_t *nfs_module;

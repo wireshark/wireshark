@@ -129,6 +129,7 @@
 #define NFS4_OP_COPY                        60
 #define NFS4_OP_COPY_NOTIFY                 61
 #define NFS4_OP_DEALLOCATE                  62
+#define NFS4_OP_IO_ADVISE                   63
 #define NFS4_OP_OFFLOAD_CANCEL              66
 #define NFS4_OP_OFFLOAD_STATUS              67
 #define NFS4_OP_SEEK                        69
