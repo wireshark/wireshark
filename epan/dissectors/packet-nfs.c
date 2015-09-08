@@ -5851,6 +5851,13 @@ static const value_string names_nfs4_status[] = {
 	{	10085,	"NFS4ERR_REJECT_DELEG"		    },
 	{	10086,	"NFS4ERR_RETURNCONFLICT"	    },
 	{	10087,	"NFS4ERR_DELEG_REVOKED"		    },
+	{	10088,	"NFS4ERR_PARTNER_NOTSUPP"	    },
+	{	10089,	"NFS4ERR_PARTNER_NO_AUTH"	    },
+	{	10090,	"NFS4ERR_UNION_NOTSUPP"		    },
+	{	10091,	"NFS4ERR_OFFLOAD_DENIED"	    },
+	{	10092,	"NFS4ERR_WRONG_LFS"		    },
+	{	10093,	"NFS4ERR_BADLABEL"		    },
+	{	10094,	"NFS4ERR_OFFLOAD_NO_REQS"	    },
 	{	0,	NULL }
 };
 static value_string_ext names_nfs4_status_ext = VALUE_STRING_EXT_INIT(names_nfs4_status);
@@ -9867,6 +9874,13 @@ static const value_string names_nfs_nfsstat[] = {
 	{ 10085, "ERR_REJECT_DELEG"		     },
 	{ 10086, "ERR_RETURNCONFLICT"		     },
 	{ 10087, "ERR_DELEG_REVOKED"		     },
+	{ 10088, "ERR_PARTNER_NOTSUPP"		     },
+	{ 10089, "ERR_PARTNER_NO_AUTH"		     },
+	{ 10090, "ERR_UNION_NOTSUPP"		     },
+	{ 10091, "ERR_OFFLOAD_DENIED"		     },
+	{ 10092, "ERR_WRONG_LFS"		     },
+	{ 10093, "ERR_BADLABEL"			     },
+	{ 10094, "ERR_OFFLOAD_NO_REQS"		     },
 	{ 0,	NULL }
 };
 static value_string_ext names_nfs_nfsstat_ext = VALUE_STRING_EXT_INIT(names_nfs_nfsstat);

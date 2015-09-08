@@ -45,9 +45,10 @@
 /*
  * NFSv4 error codes used in code, as opposed to UI
  */
-#define NFS4_OK                0
-#define NFS4ERR_DENIED     10010
-#define NFS4ERR_CLID_INUSE 10017
+#define NFS4_OK                      0
+#define NFS4ERR_DENIED	         10010
+#define NFS4ERR_CLID_INUSE       10017
+#define NFS4ERR_OFFLOAD_NO_REQS  10094
 
 /*
  * NFSv4 file types
