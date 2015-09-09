@@ -530,6 +530,12 @@
      </property>
      <addaction name="actionTelephonyGSMPlaceholder"/>
     </widget>
+    <widget class="QMenu" name="menuLTE">
+     <property name="title">
+      <string>LTE</string>
+     </property>
+     <addaction name="actionTelephonyLTEPlaceholder"/>
+    </widget>
     <widget class="QMenu" name="menuMTP3">
      <property name="title">
       <string>MTP3</string>
@@ -540,6 +546,7 @@
     <addaction name="menuANSI"/>
     <addaction name="menuGSM"/>
     <addaction name="actionTelephonyISUPMessages"/>
+    <addaction name="menuLTE"/>
     <addaction name="menuMTP3"/>
     <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
@@ -2508,6 +2515,14 @@
    </property>
    <property name="text">
     <string>No GSM statistics registered</string>
+   </property>
+  </action>
+  <action name="actionTelephonyLTEPlaceholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No LTE statistics registered</string>
    </property>
   </action>
   <action name="actionTelephonyMTP3Placeholder">

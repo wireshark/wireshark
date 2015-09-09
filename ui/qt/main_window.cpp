@@ -2041,6 +2041,9 @@ void MainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->addAction(action);
             break;
+        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
+            main_ui_->menuLTE->addAction(action);
+            break;
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
             main_ui_->menuMTP3->addAction(action);
             break;
@@ -2106,6 +2109,9 @@ void MainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->removeAction(action);
             break;
+        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
+            main_ui_->menuLTE->removeAction(action);
+            break;
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
             main_ui_->menuMTP3->removeAction(action);
             break;
@@ -2158,6 +2164,9 @@ void MainWindow::addDynamicMenus()
     }
     if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
         main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
+    }
+    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_LTE).length() > 0) {
+        main_ui_->actionTelephonyLTEPlaceholder->setVisible(false);
     }
     if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
         main_ui_->actionTelephonyMTP3Placeholder->setVisible(false);
