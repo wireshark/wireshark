@@ -346,11 +346,6 @@ else()
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
-		-fsanitize=undefined # compile and runtime checks
-		# -fsanitize=float-divide-by-zero
-		# -fsanitize=float-cast-overflow
-		# -fsanitize=address
-		# -fno-sanitize-recover # Abort during runtime
 		-Wvla
 		-Waddress
 		-Wattributes
@@ -465,6 +460,10 @@ else()
 		# and no yet all leak is fixed...
 		# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
 		-fsanitize=address
+		-fsanitize=undefined # compile and runtime checks
+		# -fsanitize=float-divide-by-zero
+		# -fsanitize=float-cast-overflow
+		# -fno-sanitize-recover # Abort during runtime
 	)
 
 	if(ENABLE_ASAN)
