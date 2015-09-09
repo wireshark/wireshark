@@ -824,8 +824,8 @@ static value_string_ext giop_code_set_vals_ext = VALUE_STRING_EXT_INIT(giop_code
 static const guint GIOP_MAJOR =  1;
 static const guint GIOP_MINOR =  2;
 
-/* 1 Mb  Used as a sanity check to ensure correct endian of message size field */
-#define GIOP_MAX_MESSAGE_SIZE             1024*1000
+/* 10 MB  Used as a sanity check to ensure correct endian of message size field */
+static guint giop_max_message_size = 10*1048576;
 
 
 static const value_string reply_status_types[] = {
@@ -4754,7 +4754,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 message_size);
 
   ti = proto_tree_add_uint(header_tree, hf_giop_message_size, tvb, 8, 4, message_size);
-  if (message_size > GIOP_MAX_MESSAGE_SIZE)
+  if (message_size > giop_max_message_size)
   {
       expert_add_info_format(pinfo, ti, &ei_giop_message_size_too_big,
             "Message size %u is too big, perhaps it's an endian issue?", message_size);
@@ -4854,7 +4854,7 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
     message_size = tvb_get_letohl(tvb, 8);
 
   /* Make sure the size is reasonable, otherwise just take the header */
-  if (message_size > GIOP_MAX_MESSAGE_SIZE)
+  if (message_size > giop_max_message_size)
       return GIOP_HEADER_SIZE;
 
   return message_size + GIOP_HEADER_SIZE;
@@ -5410,6 +5410,10 @@ proto_register_giop (void)
     "Whether the GIOP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &giop_desegment);
+  prefs_register_uint_preference(giop_module, "max_message_size",
+                                 "Maximum allowed message size",
+                                 "Maximum allowed message size in bytes (default=10485760)",
+                                 10, &giop_max_message_size);
   prefs_register_filename_preference(giop_module, "ior_txt", "Stringified IORs",
     "File containing stringified IORs, one per line.", &giop_ior_file);
 
