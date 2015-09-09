@@ -1251,10 +1251,30 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
     }
 
     uuid.size = size;
-    tvb_memcpy(tvb, uuid.data, offset, size);
+    if (size == 2) {
+        uuid.data[0] = tvb_get_guint8(tvb, offset + 1);
+        uuid.data[1] = tvb_get_guint8(tvb, offset);
+    } else if (size == 16) {
+        uuid.data[0] = tvb_get_guint8(tvb, offset + 15);
+        uuid.data[1] = tvb_get_guint8(tvb, offset + 14);
+        uuid.data[2] = tvb_get_guint8(tvb, offset + 13);
+        uuid.data[3] = tvb_get_guint8(tvb, offset + 12);
+        uuid.data[4] = tvb_get_guint8(tvb, offset + 11);
+        uuid.data[5] = tvb_get_guint8(tvb, offset + 10);
+        uuid.data[6] = tvb_get_guint8(tvb, offset + 9);
+        uuid.data[7] = tvb_get_guint8(tvb, offset + 8);
+        uuid.data[8] = tvb_get_guint8(tvb, offset + 7);
+        uuid.data[9] = tvb_get_guint8(tvb, offset + 6);
+        uuid.data[10] = tvb_get_guint8(tvb, offset + 5);
+        uuid.data[11] = tvb_get_guint8(tvb, offset + 4);
+        uuid.data[12] = tvb_get_guint8(tvb, offset + 3);
+        uuid.data[13] = tvb_get_guint8(tvb, offset + 2);
+        uuid.data[14] = tvb_get_guint8(tvb, offset + 1);
+        uuid.data[15] = tvb_get_guint8(tvb, offset);
+    }
 
     if (size == 2) {
-        uuid.bt_uuid = uuid.data[0] | uuid.data[1] << 8;
+        uuid.bt_uuid = uuid.data[1] | uuid.data[0] << 8;
     } else {
         if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00 &&
                 uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
@@ -1265,6 +1285,35 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
     }
 
     return uuid;
+}
+
+gchar *
+print_numeric_uuid(bluetooth_uuid_t *uuid)
+{
+    if (!(uuid && uuid->size > 0))
+        return NULL;
+
+    if (uuid->size != 16) {
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+    } else {
+        gchar *text;
+
+        text = (gchar *) wmem_alloc(wmem_packet_scope(), 38);
+        bytes_to_hexstr(&text[0], uuid->data, 4);
+        text[8] = '-';
+        bytes_to_hexstr(&text[9], uuid->data + 4, 2);
+        text[13] = '-';
+        bytes_to_hexstr(&text[14], uuid->data + 4 + 2 * 1, 2);
+        text[18] = '-';
+        bytes_to_hexstr(&text[19], uuid->data + 4 + 2 * 2, 2);
+        text[23] = '-';
+        bytes_to_hexstr(&text[24], uuid->data + 4 + 2 * 3, 6);
+        text[36] = '\0';
+
+        return text;
+    }
+
+    return NULL;
 }
 
 gchar *
@@ -1289,19 +1338,9 @@ print_uuid(bluetooth_uuid_t *uuid)
             i_uuid += 1;
         }
 
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+        return print_numeric_uuid(uuid);
     }
 }
-
-gchar *
-print_numeric_uuid(bluetooth_uuid_t *uuid)
-{
-    if (uuid && uuid->size > 0)
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
-
-    return NULL;
-}
-
 
 static bluetooth_data_t *
 dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

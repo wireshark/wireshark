@@ -40,12 +40,40 @@ static const int column_number_handle = 0;
 static const int column_number_uuid = 1;
 static const int column_number_uuid_name = 2;
 
+static gchar *
+bt_print_numeric_uuid(bluetooth_uuid_t *uuid)
+{
+    if (!(uuid && uuid->size > 0))
+        return NULL;
+
+    if (uuid->size != 16) {
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+    } else {
+        gchar *text;
+
+        text = (gchar *) wmem_alloc(wmem_packet_scope(), 38);
+        bytes_to_hexstr(&text[0], uuid->data, 4);
+        text[8] = '-';
+        bytes_to_hexstr(&text[9], uuid->data + 4, 2);
+        text[13] = '-';
+        bytes_to_hexstr(&text[14], uuid->data + 4 + 2 * 1, 2);
+        text[18] = '-';
+        bytes_to_hexstr(&text[19], uuid->data + 4 + 2 * 2, 2);
+        text[23] = '-';
+        bytes_to_hexstr(&text[24], uuid->data + 4 + 2 * 3, 6);
+        text[36] = '\0';
+
+        return text;
+    }
+
+    return NULL;
+}
 
 static const gchar *
 bt_print_uuid(bluetooth_uuid_t *uuid)
 {
     if (uuid->bt_uuid) {
-        return val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown");
+        return val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "<Unknown>");
     } else {
         guint i_uuid;
 
@@ -63,20 +91,9 @@ bt_print_uuid(bluetooth_uuid_t *uuid)
             i_uuid += 1;
         }
 
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+        return "<Unknown>";
     }
 }
-
-
-static gchar *
-bt_print_numeric_uuid(bluetooth_uuid_t *uuid)
-{
-    if (uuid && uuid->size > 0)
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
-
-    return NULL;
-}
-
 
 static gboolean
 btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
@@ -254,7 +271,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
     }
 
     handle.sprintf("0x%04x", tap_handles->handle);
-    uuid.sprintf("0x%s", bt_print_numeric_uuid(&tap_handles->uuid));
+    uuid = QString(bt_print_numeric_uuid(&tap_handles->uuid));
     uuid_name = QString(bt_print_uuid(&tap_handles->uuid));
 
     if (dialog->ui->removeDuplicatesCheckBox->checkState() == Qt::Checked) {

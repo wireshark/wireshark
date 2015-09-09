@@ -5773,8 +5773,8 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (strlen(pinfo->current_proto) > 7) {
         uuid.size = 2;
         uuid.bt_uuid = (guint16) g_ascii_strtoull(pinfo->current_proto + strlen(pinfo->current_proto) - 7, NULL, 16);
-        uuid.data[0] = uuid.bt_uuid & 0xFF;
-        uuid.data[1] = (uuid.bt_uuid >> 8) & 0xFF;
+        uuid.data[1] = uuid.bt_uuid & 0xFF;
+        uuid.data[0] = (uuid.bt_uuid >> 8) & 0xFF;
     } else {
         uuid.size = 2;
         uuid.bt_uuid = 0;

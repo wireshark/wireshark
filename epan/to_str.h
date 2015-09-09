@@ -164,6 +164,9 @@ WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int 
  */
 WS_DLL_PUBLIC const gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
 
+WS_DLL_PUBLIC char *
+bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
