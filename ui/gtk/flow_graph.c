@@ -128,7 +128,7 @@ toggle_select_srcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 {
 	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(src_dst_rb))) {
-		graph_analysis->any_addr = TRUE;
+		graph_analysis->any_addr = FALSE;
 	}
 }
 
