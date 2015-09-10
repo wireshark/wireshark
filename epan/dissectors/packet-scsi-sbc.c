@@ -674,6 +674,35 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_sbc_writeatomic16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                           guint offset, gboolean isreq, gboolean iscdb,
+                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    static const int *rdwr16_fields[] = {
+        &hf_scsi_sbc_wrprotect,
+        &hf_scsi_sbc_dpo,
+        &hf_scsi_sbc_fua,
+        NULL
+    };
+
+    if (isreq && iscdb) {
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+                tvb_get_ntoh64 (tvb, offset+1),
+                tvb_get_ntohs (tvb, offset+11));
+    }
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+                ett_scsi_rdwr, rdwr16_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+11, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
 dissect_sbc_orwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -1639,6 +1668,7 @@ static const value_string scsi_sbc_vals[] = {
     /* 0x91 */    {SCSI_SBC_SYNCCACHE16       , "Synchronize Cache(16)"},
     /* 0x92 */    {SCSI_SBC_LOCKUNLKCACHE16   , "Lock Unlock Cache(16)"},
     /* 0x93 */    {SCSI_SBC_WRITESAME16       , "Write Same(16)"},
+    /* 0x9C */    {SCSI_SBC_WRITEATOMIC16     , "Write Atomic(16)"},
     /* 0x9E */    {SCSI_SBC_SERVICEACTIONIN16 , "Service Action In(16)"},
     /* 0x9F */    {SCSI_SBC_SERVICEACTIONOUT16, "Service Action Out(16)"},
     /* 0xA0 */    {SCSI_SPC_REPORTLUNS        , "Report LUNs"},
@@ -1810,7 +1840,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x99*/{NULL},
 /*SBC 0x9a*/{NULL},
 /*SBC 0x9b*/{NULL},
-/*SBC 0x9c*/{NULL},
+/*SBC 0x9c*/{dissect_sbc_writeatomic16},
 /*SBC 0x9d*/{NULL},
 /*SBC 0x9e*/{dissect_sbc_serviceactionin16},
 /*SBC 0x9f*/{dissect_sbc_serviceactionout16},
