@@ -214,8 +214,8 @@ static int hf_ipv6_opt_mpl_seed_id              = -1;
 static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown_data             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
-static int hf_ipv6_dst_opt                      = -1;
-static int hf_ipv6_hop_opt                      = -1;
+static int hf_ipv6_dstopts                      = -1;
+static int hf_ipv6_hopopts                      = -1;
 static int hf_ipv6_unk_hdr                      = -1;
 static int hf_ipv6_routing_hdr_opt              = -1;
 static int hf_ipv6_routing_hdr_nxt              = -1;
@@ -1134,7 +1134,7 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item, ws_ip* iph)
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_exthdr_item, ws_ip* iph)
 {
     int         len;
     int         offset_end, offset_opt_end;
@@ -1146,14 +1146,14 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
     gboolean    hopopts = FALSE;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
-    hopopts = (hf_option_item == hf_ipv6_hop_opt);
+    hopopts = (hf_exthdr_item == hf_ipv6_hopopts);
 
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
     offset_end = offset + len;
 
     if (tree) {
         /* !!! specify length */
-        ti = proto_tree_add_item(tree, hf_option_item, tvb, offset, len, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_exthdr_item, tvb, offset, len, ENC_NA);
 
         if (hopopts && ipv6_info->exthdr_count > 0) {
             /* IPv6 Hop-by-Hop must appear immediately after IPv6 header (RFC 2460) */
@@ -1418,7 +1418,7 @@ dissect_hopopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 hop-by-hop options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_hop_opt, iph);
+    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_hopopts, iph);
 }
 
 static int
@@ -1428,7 +1428,7 @@ dissect_dstopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 destination options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_dst_opt, iph);
+    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_dstopts, iph);
 }
 
 /* START SHIM6 PART */
@@ -2653,13 +2653,12 @@ proto_register_ipv6(void)
             NULL, HFILL }},
 #endif /* HAVE_GEOIP_V6 */
 
-
-        { &hf_ipv6_dst_opt,
-          { "Destination Option",   "ipv6.dst_opt",
+        { &hf_ipv6_dstopts,
+          { "Destination Options",   "ipv6.dstopts",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_ipv6_hop_opt,
-          { "Hop-by-Hop Option",    "ipv6.hop_opt",
+        { &hf_ipv6_hopopts,
+          { "Hop-by-Hop Options",    "ipv6.hopopts",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ipv6_unk_hdr,
@@ -3248,10 +3247,10 @@ proto_register_ipv6(void)
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
     proto_ipv6_nxt = proto_register_protocol("IPv6 Next Header", "IPv6 Next Header", "ipv6.nxt");
-    proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hop_opt");
+    proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hopopts");
     proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing_hdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
-    proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dst_opt");
+    proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dstopts");
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt",
       "IPv6 Next Header", FT_UINT32, BASE_DEC);
 
