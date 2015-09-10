@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2012, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2015, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -579,6 +579,7 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 #define GTPV2_DELETE_BEARER_RESPONSE    100
 #define GTPV2_CONTEXT_RESPONSE          131
 #define GTPV2_FORWARD_RELOCATION_REQ    133
+#define GTPV2_FORWARD_RELOCATION_RESP   134
 #define GTPV2_FORWARD_CTX_NOTIFICATION  137
 #define GTPV2_RAN_INFORMATION_RELAY     152
 
@@ -4172,7 +4173,39 @@ static const value_string gtpv2_cause_type_vals[] = {
 static value_string_ext gtpv2_cause_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_type_vals);
 
 static void
-dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_s1ap_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 cause_type)
+{
+
+    switch (cause_type) {
+    case 0:
+        /* CauseRadioNetwork */
+        proto_tree_add_item(tree, hf_gtpv2_CauseRadioNetwork, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    case 1:
+        /* CauseTransport */
+        proto_tree_add_item(tree, hf_gtpv2_CauseTransport, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    case 2:
+        /* CauseNas */
+        proto_tree_add_item(tree, hf_gtpv2_CauseNas, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    case 3:
+        /* CauseProtocol */
+        proto_tree_add_item(tree, hf_gtpv2_CauseProtocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    case 4:
+        /* CauseMisc */
+        proto_tree_add_item(tree, hf_gtpv2_CauseMisc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    default:
+        break;
+    }
+
+    return;
+
+}
+static void
+dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, guint8 instance)
 {
     int    offset = 0;
     guint8 cause_type;
@@ -4192,32 +4225,8 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
             proto_tree_add_item(tree, hf_gtpv2_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             cause_type = tvb_get_guint8(tvb, offset);
             offset += 1;
-            switch (cause_type) {
-            case 0:
-                /* CauseRadioNetwork */
-                proto_tree_add_item(tree, hf_gtpv2_CauseRadioNetwork, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 1:
-                /* CauseTransport */
-                proto_tree_add_item(tree, hf_gtpv2_CauseTransport, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 2:
-                /* CauseNas */
-                proto_tree_add_item(tree, hf_gtpv2_CauseNas, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 3:
-                /* CauseProtocol */
-                proto_tree_add_item(tree, hf_gtpv2_CauseProtocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 4:
-                /* CauseMisc */
-                proto_tree_add_item(tree, hf_gtpv2_CauseMisc, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            default:
-                break;
-            }
+            dissect_gtpv2_s1ap_cause(tvb, pinfo, tree, offset, cause_type);
             return;
-            break;
         case 1:
             proto_item_append_text(item, "[RANAP Cause]");
             break;
@@ -4228,6 +4237,31 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
             break;
         }
     }
+    else if (message_type == GTPV2_FORWARD_RELOCATION_RESP) {
+        /* Table 7.3.2-1: Information Elements in a Forward Relocation Response */
+        switch (instance) {
+        case 0:
+            /* Instance 0 S1-AP Cause */
+            proto_item_append_text(item, "[S1-AP Cause]");
+            proto_tree_add_item(tree, hf_gtpv2_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            cause_type = tvb_get_guint8(tvb, offset);
+            offset++;
+            dissect_gtpv2_s1ap_cause(tvb, pinfo, tree, offset, cause_type);
+            return;
+        case 1:
+            /* Instance 1 RANAP Cause */
+            proto_item_append_text(item, "[RANAP Cause]");
+            break;
+        case 2:
+            /* Instance 2 BSSGP Cause */
+            proto_item_append_text(item, "[BSSGP Cause]");
+            break;
+        default:
+            break;
+        }
+
+    }/* GTPV2_FORWARD_RELOCATION_RESP */
+
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 
 }
