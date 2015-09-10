@@ -374,7 +374,6 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	int stream;
 	asn1_ctx_t asn1_ctx;
 	gint offset = 0;
-	const char *s;
 
 	if (!tvb_bytes_exist(tvb, 0, 3))
 		return FALSE;	/* not enough bytes for a PES prefix */
@@ -386,9 +385,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	stream = tvb_get_guint8(tvb, 3);
-	s = try_val_to_str(stream, mpeg_pes_T_stream_vals);
-	if (s != NULL)
-		col_set_str(pinfo->cinfo, COL_INFO, s);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(stream, mpeg_pes_T_stream_vals, "Unknown stream: %d"));
 
 #if 0
 	if (tree == NULL)
@@ -402,9 +399,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		int frame_type;
 
 		frame_type = tvb_get_guint8(tvb, 5) >> 3 & 0x07;
-		s = try_val_to_str(frame_type, mpeg_pes_T_frame_type_vals);
-		if (s != NULL)
-			col_set_str(pinfo->cinfo, COL_INFO, s);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(frame_type, mpeg_pes_T_frame_type_vals, "Unknown frame type: %d"));
 
 		offset = dissect_mpeg_pes_Picture(tvb, offset, &asn1_ctx,
 				tree, hf_mpeg_video_picture);
