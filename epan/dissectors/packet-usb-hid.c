@@ -1348,7 +1348,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
         offset += 1;
 
         proto_tree_add_item(tree, hf_usb_hid_bDescriptorIndex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        usb_trans_info->u.get_descriptor.index = tvb_get_guint8(tvb, offset);
+        usb_trans_info->u.get_descriptor.usb_index = tvb_get_guint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_usb_hid_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);

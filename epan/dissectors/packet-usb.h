@@ -72,7 +72,7 @@ typedef struct _usb_trans_info_t {
     union {
         struct {
             guint8 type;
-            guint8 index;
+            guint8 usb_index;
         } get_descriptor;
     } u;
 

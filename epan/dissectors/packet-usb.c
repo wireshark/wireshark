@@ -1606,7 +1606,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         return offset;
     }
 
-    if (!usb_trans_info->u.get_descriptor.index) {
+    if (!usb_trans_info->u.get_descriptor.usb_index) {
         /* list of languanges */
         while (offset >= old_offset && len > (offset - old_offset)) {
             /* wLANGID */
@@ -2106,7 +2106,7 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
 
     /* descriptor index */
     proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    usb_trans_info->u.get_descriptor.index = tvb_get_guint8(tvb, offset);
+    usb_trans_info->u.get_descriptor.usb_index = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     /* descriptor type */
