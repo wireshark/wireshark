@@ -324,7 +324,6 @@ static gint ett_ipv6                    = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
-static gint ett_ipv6_version            = -1;
 static gint ett_ipv6_shim6              = -1;
 static gint ett_ipv6_shim6_option       = -1;
 static gint ett_ipv6_shim6_locators     = -1;
@@ -1972,9 +1971,9 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *ipv6_tree, *ipv6_tc_tree, *pt;
+    proto_tree    *ipv6_tree, *ipv6_tc_tree;
     proto_item    *ipv6_item, *ipv6_tc, *ti, *pi;
-    proto_item    *ti_ipv6_plen = NULL;
+    proto_item    *ti_ipv6_plen = NULL, *ti_ipv6_version;
     guint8         nxt;
     int            advance;
     guint32        plen;
@@ -2001,23 +2000,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset = 0;
 
-    version = tvb_get_guint8(tvb, 0) >> 4;
-    if(version != 6){
-        /* Bogus IPv6 version */
-        ti = proto_tree_add_protocol_format(tree, proto_ipv6, tvb, 0, 1, "Internet Protocol, bogus version (%u)", version);
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
-        ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
-        pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb, 0, 1, ENC_NA);
-        expert_add_info(pinfo, pi, &ei_ipv6_bogus_ipv6_version);
-        pt = proto_item_add_subtree(pi, ett_ipv6_version);
-        pi = proto_tree_add_item(pt, hf_ip_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(pi, " (This field makes the filter match on \"ip.version\" possible)");
-        PROTO_ITEM_SET_GENERATED(pi);
-        return;
-    }
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
     col_clear(pinfo->cinfo, COL_INFO);
     ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
@@ -2034,6 +2016,21 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     memset(&iph, 0, sizeof(iph));
     ipv6 = (struct ip6_hdr*)tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(struct ip6_hdr));
+
+    version = hi_nibble(ipv6->ip6_vfc);
+    ti_ipv6_version = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
+                                 offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(ipv6_tree, hf_ip_version, tvb,
+                                 offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(pi, " [This field makes the filter match on \"ip.version == 6\" possible]");
+    PROTO_ITEM_SET_HIDDEN(pi);
+    if (version != 6) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                 "Bogus IPv6 version (%u, must be 6)", version);
+        expert_add_info_format(pinfo, ti_ipv6_version, &ei_ipv6_bogus_ipv6_version, "Bogus IPv6 version");
+        return;
+    }
+
     col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(IPv6_HDR_TCLS(ipv6)));
 
     /* Get extension header and payload length */
@@ -2049,14 +2046,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
-        pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
-                                 offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
-        pt = proto_item_add_subtree(pi,ett_ipv6_version);
-        pi = proto_tree_add_item(pt, hf_ip_version, tvb,
-                                 offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(pi, " (This field makes the filter \"ip.version == 6\" possible)");
-        PROTO_ITEM_SET_GENERATED(pi);
-
         ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
                                       offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
 
@@ -2440,8 +2429,7 @@ proto_register_ipv6(void)
             FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
         { &hf_ip_version,
           { "Version",              "ip.version",
-            FT_UINT8, BASE_DEC, NULL, 0xF0,
-            "This field makes the filter \"ip.version == 6\" possible", HFILL }},
+            FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
         { &hf_ipv6_class,
           { "Traffic class",        "ipv6.class",
             FT_UINT32, BASE_HEX, NULL, 0x0FF00000, NULL, HFILL }},
@@ -3180,7 +3168,6 @@ proto_register_ipv6(void)
         &ett_ipv6_opt,
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
-        &ett_ipv6_version,
         &ett_ipv6_shim6,
         &ett_ipv6_shim6_option,
         &ett_ipv6_shim6_locators,
