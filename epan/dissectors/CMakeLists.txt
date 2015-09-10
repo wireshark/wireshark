@@ -1506,6 +1506,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pppoe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-protobuf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-proxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-prp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptpip.c
