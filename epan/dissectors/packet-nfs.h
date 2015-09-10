@@ -184,6 +184,7 @@
 #define NFS_ACCESS_MASK_EXECUTE     0x20
 
 /* pNFS layout types */
+#define LAYOUT4_NO_LAYOUT_TYPE            0
 #define LAYOUT4_NFSV4_1_FILES             1
 #define LAYOUT4_OSD2_OBJECTS              2
 #define LAYOUT4_BLOCK_VOLUME              3

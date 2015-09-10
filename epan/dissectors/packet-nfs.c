@@ -8418,7 +8418,7 @@ dissect_nfs4_io_info(tvbuff_t *tvb, int offset, proto_tree *tree, const char *io
 static int
 dissect_nfs4_layoutstats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ, gboolean has_layout_type)
 {
-	guint	    layout_type;
+	guint	    layout_type = LAYOUT4_NO_LAYOUT_TYPE;
 	proto_tree *netaddr;
 	proto_item *fitem;
 	int	    old_offset;
