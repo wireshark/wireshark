@@ -1137,7 +1137,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 {
     int         len;
     int         offset_end, offset_opt_end;
-    proto_tree *dstopt_tree, *opt_tree;
+    proto_tree *exthdr_tree, *opt_tree;
     proto_item *ti, *ti_len, *ti_opt, *ti_opt_len;
     guint8      opt_len, opt_type;
     ipv6_meta_t *ipv6_info;
@@ -1159,12 +1159,12 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             expert_add_info(pinfo, ti, &ei_ipv6_hopopts_not_first);
         }
 
-        dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
+        exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_item(dstopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(exthdr_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_len = proto_tree_add_item(dstopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti_len = proto_tree_add_item(exthdr_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
         offset += 1;
 
@@ -1172,7 +1172,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             /* there are more options */
 
             /* IPv6 Option */
-            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
+            ti_opt = proto_tree_add_item(exthdr_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
             opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
 
             /* Option type */
