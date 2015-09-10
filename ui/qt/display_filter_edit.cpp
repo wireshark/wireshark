@@ -31,23 +31,17 @@
 
 #include "display_filter_edit.h"
 #include "filter_dialog.h"
-#include "stock_icon.h"
+#include "stock_icon_tool_button.h"
 #include "syntax_line_edit.h"
 
 #include <QAction>
 #include <QAbstractItemView>
-#include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
 #include <QEvent>
-#include <QIcon>
-#include <QPixmap>
 #include <QMenu>
-#include <QMouseEvent>
 #include <QPainter>
 #include <QStringListModel>
-#include <QStyleOptionFrame>
-#include <QToolButton>
 
 #include "ui/utf8_entities.h"
 
@@ -56,94 +50,6 @@
 // - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
 // - Add a separator or otherwise distinguish between recent items and fields
 //   in the completion dropdown.
-
-// We want nice icons that render correctly, and that are responsive
-// when the user hovers and clicks them.
-// Using setIcon renders correctly on normal and retina displays. It is
-// not completely responsive, particularly on OS X.
-// Calling setStyleSheet is responsive, but does not render correctly on
-// retina displays: https://bugreports.qt.io/browse/QTBUG-36825
-// Subclass QToolButton, which lets us catch events and set icons as needed.
-
-class StockIconToolButton : public QToolButton
-{
-public:
-    explicit StockIconToolButton(QWidget * parent = 0, QString stock_icon_name = QString()) :
-        QToolButton(parent),
-        leave_timer_(0)
-    {
-        if (!stock_icon_name.isEmpty()) {
-            setStockIcon(stock_icon_name);
-        }
-    }
-
-    void setIconMode(QIcon::Mode mode = QIcon::Normal) {
-        QIcon mode_icon;
-        QList<QIcon::State> states = QList<QIcon::State>() << QIcon::Off << QIcon::On;
-        foreach (QIcon::State state, states) {
-            foreach (QSize size, base_icon_.availableSizes(mode, state)) {
-                mode_icon.addPixmap(base_icon_.pixmap(size, mode, state), mode, state);
-            }
-        }
-        setIcon(mode_icon);
-    }
-
-    void setStockIcon(QString icon_name) {
-        base_icon_ = StockIcon(icon_name);
-        setIconMode();
-    }
-
-protected:
-    virtual bool event(QEvent *event) {
-        switch (event->type()) {
-            case QEvent::Enter:
-            if (isEnabled()) {
-                setIconMode(QIcon::Active);
-                if (leave_timer_ > 0) killTimer(leave_timer_);
-                leave_timer_ = startTimer(leave_interval_);
-            }
-            break;
-        case QEvent::MouseButtonPress:
-            if (isEnabled()) {
-                setIconMode(QIcon::Selected);
-            }
-            break;
-        case QEvent::Leave:
-            if (leave_timer_ > 0) killTimer(leave_timer_);
-            leave_timer_ = 0;
-        case QEvent::MouseButtonRelease:
-            setIconMode();
-            break;
-        case QEvent::Timer:
-        {
-            // We can lose QEvent::Leave, QEvent::HoverLeave and underMouse()
-            // if a tooltip appears, at least OS X:
-            // https://bugreports.qt.io/browse/QTBUG-46379
-            // Work around the issue by periodically checking the mouse
-            // position and scheduling a fake leave event when the mouse
-            // moves away.
-            QTimerEvent *te = (QTimerEvent *) event;
-            bool under_mouse = rect().contains(mapFromGlobal(QCursor::pos()));
-            if (te->timerId() == leave_timer_ && !under_mouse) {
-                killTimer(leave_timer_);
-                leave_timer_ = 0;
-                QMouseEvent *me = new QMouseEvent(QEvent::Leave, mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-                QApplication::postEvent(this, me);
-            }
-            break;
-        }
-        default:
-            break;
-        }
-
-        return QToolButton::event(event);
-    }
-
-private:
-    QIcon base_icon_;
-    int leave_timer_;
-    static const int leave_interval_ = 500; // ms
-};
 
 #if defined(Q_OS_MAC) && 0
 // http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html

@@ -641,6 +641,7 @@ HEADERS += \
     sequence_dialog.h \
     simple_dialog.h \
     sparkline_delegate.h \
+    stock_icon_tool_button.h \
     syntax_line_edit.h \
     tap_parameter_dialog.h \
     time_shift_dialog.h \
@@ -760,6 +761,7 @@ SOURCES += \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \
     stock_icon.cpp \
+    stock_icon_tool_button.cpp \
     syntax_line_edit.cpp \
     tap_parameter_dialog.cpp \
     tcp_stream_dialog.cpp \

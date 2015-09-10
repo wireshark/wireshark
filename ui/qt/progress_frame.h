@@ -71,8 +71,8 @@ signals:
     void setHidden();
     void stopLoading();
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 protected:
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     void timerEvent(QTimerEvent *event);
 #endif
 
@@ -93,7 +93,7 @@ private:
 #endif
 
 private slots:
-    void on_pushButton_clicked();
+    void on_stopButton_clicked();
 
     void show(bool animate, bool terminate_is_stop, gboolean *stop_flag);
     void setMaximumValue(int value);

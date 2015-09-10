@@ -40,7 +40,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="StockIconToolButton" name="stopButton">
      <property name="text">
       <string/>
      </property>
@@ -50,13 +50,17 @@
        <height>12</height>
       </size>
      </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>stock_icon_tool_button.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

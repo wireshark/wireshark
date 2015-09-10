@@ -33,6 +33,7 @@
 
 #include "capture_filter_edit.h"
 #include "capture_filter_syntax_worker.h"
+#include "stock_icon_tool_button.h"
 #include "wireshark_application.h"
 
 #include <QComboBox>
@@ -124,90 +125,54 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     setPlaceholderText(placeholder_text_);
 #endif
 
-    //   DFCombo
-    //     Bookmark (star)
-    //     DispalyFilterEdit
-    //     Clear button
-    //     Apply (right arrow) + Cancel (x) + Reload (arrowed circle)
-    //     Combo drop-down
-
-    // XXX - Move bookmark and apply buttons to the toolbar a la Firefox, Chrome & Safari?
-    // XXX - Use native buttons on OS X?
+    // These are fully implemented in DisplayFilterEdit but not here.
 
     if (!plain_) {
-        bookmark_button_ = new QToolButton(this);
+        bookmark_button_ = new StockIconToolButton(this, "x-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
-        bookmark_button_->setStyleSheet(QString(
-            "QToolButton { /* all types of tool button */"
-            "  border 0 0 0 0;"
-#ifdef Q_OS_MAC
-            "  border-right: %1px solid gray;"
-#else
-            "  border-right: %1px solid palette(shadow);"
-#endif
-            "  border-top-left-radius: 3px;"
-            "  border-bottom-left-radius: 3px;"
-            "  padding-left: 1px;"
-            "  image: url(:/dfilter/dfilter_bookmark_normal.png) center;"
-            "}"
-
-            "QToolButton:hover {"
-            "  image: url(:/dfilter/dfilter_bookmark_hover.png) center;"
-            "}"
-            "QToolButton:pressed {"
-            "  image: url(:/dfilter/dfilter_bookmark_pressed.png) center;"
-            "}"
-            "QToolButton:disabled {"
-            "  image: url(:/dfilter/dfilter_bookmark_disabled.png) center;"
-            "}"
-            ).arg(plain_ ? 0 : 1)
+        bookmark_button_->setPopupMode(QToolButton::InstantPopup);
+        bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
+        bookmark_button_->setIconSize(QSize(14, 14));
+        bookmark_button_->setStyleSheet(
+                    "QToolButton {"
+                    "  border: none;"
+                    "  background: transparent;" // Disables platform style on Windows.
+                    "  padding: 0 0 0 0;"
+                    "}"
+                    "QToolButton::menu-indicator { image: none; }"
             );
         connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
     }
 
     if (!plain_) {
-        clear_button_ = new QToolButton(this);
+        clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
+        clear_button_->setToolTip(QString());
+        clear_button_->setIconSize(QSize(14, 14));
         clear_button_->setStyleSheet(
-            "QToolButton {"
-            "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
-            "  border: none;"
-            "  width: 16px;"
-            "}"
-            "QToolButton:hover {"
-            "  image: url(:/dfilter/dfilter_erase_active.png) center;"
-            "}"
-            "QToolButton:pressed {"
-            "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
-            "}"
-            );
-        clear_button_->hide();
+                "QToolButton {"
+                "  border: none;"
+                "  background: transparent;" // Disables platform style on Windows.
+                "  padding: 0 0 0 0;"
+                "  margin-left: 1px;"
+                "}"
+                );
         connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
     }
 
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
     if (!plain_) {
-        apply_button_ = new QToolButton(this);
+        apply_button_ = new StockIconToolButton(this, "x-filter-apply");
         apply_button_->setCursor(Qt::ArrowCursor);
         apply_button_->setEnabled(false);
+        apply_button_->setToolTip(tr("Apply this filter string to the display."));
+        apply_button_->setIconSize(QSize(24, 14));
         apply_button_->setStyleSheet(
-                "QToolButton { /* all types of tool button */"
-                "  border 0 0 0 0;"
-                "  border-top-right-radius: 3px;"
-                "  border-bottom-right-radius: 3px;"
-                "  padding-right: 1px;"
-                "  image: url(:/dfilter/dfilter_apply_normal.png) center;"
-                "}"
-
-                "QToolButton:hover {"
-                "  image: url(:/dfilter/dfilter_apply_hover.png) center;"
-                "}"
-                "QToolButton:pressed {"
-                "  image: url(:/dfilter/dfilter_apply_pressed.png) center;"
-                "}"
-                "QToolButton:disabled {"
-                "  image: url(:/dfilter/dfilter_apply_disabled.png) center;"
+                "QToolButton {"
+                "  border: none;"
+                "  background: transparent;" // Disables platform style on Windows.
+                "  padding: 0 0 0 0;"
                 "}"
                 );
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyCaptureFilter()));
@@ -244,6 +209,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             this, SLOT(setFilterSyntaxState(QString,bool,QString)));
     connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
     syntax_thread->start();
+
+    checkFilter();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
@@ -285,14 +252,17 @@ void CaptureFilterEdit::resizeEvent(QResizeEvent *)
     if (clear_button_) {
         clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
                             contentsRect().top());
+        clear_button_->setMinimumHeight(contentsRect().height());
         clear_button_->setMaximumHeight(contentsRect().height());
     }
     if (apply_button_) {
         apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
                             contentsRect().top());
+        apply_button_->setMinimumHeight(contentsRect().height());
         apply_button_->setMaximumHeight(contentsRect().height());
     }
     if (bookmark_button_) {
+        bookmark_button_->setMinimumHeight(contentsRect().height());
         bookmark_button_->setMaximumHeight(contentsRect().height());
     }
 }

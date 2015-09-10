@@ -27,6 +27,7 @@
 #include "syntax_line_edit.h"
 
 class CaptureFilterSyntaxWorker;
+class StockIconToolButton;
 
 class CaptureFilterEdit : public SyntaxLineEdit
 {
@@ -56,9 +57,9 @@ private:
     bool plain_;
     bool field_name_only_;
     QString placeholder_text_;
-    QToolButton *bookmark_button_;
-    QToolButton *clear_button_;
-    QToolButton *apply_button_;
+    StockIconToolButton *bookmark_button_;
+    StockIconToolButton *clear_button_;
+    StockIconToolButton *apply_button_;
     CaptureFilterSyntaxWorker *syntax_worker_;
 
     void buildCompletionList(const QString& primitive_word);

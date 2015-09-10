@@ -31,7 +31,7 @@
 #include <QBoxLayout>
 #include <QPropertyAnimation>
 
-#include "stock_icon.h"
+#include "stock_icon_tool_button.h"
 #include "wireshark_application.h"
 
 // To do:
@@ -126,26 +126,20 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "  background: transparent;"
             "}"));
 
-    int one_em = fontMetrics().height();
-    ui->pushButton->setIconSize(QSize(one_em, one_em));
-    ui->pushButton->setStyleSheet(QString(
-            "QPushButton {"
-            "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
+    ui->stopButton->setStockIcon("x-filter-clear");
+    ui->stopButton->setIconSize(QSize(14, 14));
+    ui->stopButton->setStyleSheet(
+            "QToolButton {"
+            "  border: none;"
+            "  background: transparent;" // Disables platform style on Windows.
+            "  padding: 0px;"
+            "  margin: 0px;"
             "  min-height: 0.8em;"
             "  max-height: 1em;"
             "  min-width: 0.8em;"
             "  max-width: 1em;"
-            "  border: 0px;"
-            "  padding: 0px;"
-            "  margin: 0px;"
-            "  background: transparent;"
             "}"
-            "QPushButton:hover {"
-            "  image: url(:/dfilter/dfilter_erase_active.png) center;"
-            "}"
-            "QPushButton:pressed {"
-            "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
-            "}"));
+            );
     connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
             this, SLOT(show(bool,bool,gboolean*)));
     hide();
@@ -267,7 +261,7 @@ void ProgressFrame::hide()
 #endif
 }
 
-void ProgressFrame::on_pushButton_clicked()
+void ProgressFrame::on_stopButton_clicked()
 {
     emit stopLoading();
 }
@@ -279,9 +273,9 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_fl
     stop_flag_ = stop_flag;
 
     if (stop_flag) {
-        ui->pushButton->show();
+        ui->stopButton->show();
     } else {
-        ui->pushButton->hide();
+        ui->stopButton->hide();
     }
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
