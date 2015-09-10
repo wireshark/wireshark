@@ -451,9 +451,9 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
 
         /* Update time range */
         if (te->stats.UL_frames == 0) {
-            te->stats.UL_time_start = si->time;
+            te->stats.UL_time_start = si->mac_lte_time;
         }
-        te->stats.UL_time_stop = si->time;
+        te->stats.UL_time_stop = si->mac_lte_time;
 
         te->stats.UL_frames++;
 
@@ -503,9 +503,9 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
 
         /* Update time range */
         if (te->stats.DL_frames == 0) {
-            te->stats.DL_time_start = si->time;
+            te->stats.DL_time_start = si->mac_lte_time;
         }
-        te->stats.DL_time_stop = si->time;
+        te->stats.DL_time_stop = si->mac_lte_time;
 
         te->stats.DL_frames++;
 

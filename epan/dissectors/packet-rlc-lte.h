@@ -72,7 +72,7 @@ typedef struct rlc_lte_tap_info {
     guint16         pduLength;
     guint8          UMSequenceNumberLength;
 
-    nstime_t        time;
+    nstime_t        rlc_lte_time;
     guint8          loggedInMACFrame;
     guint16         sequenceNumber;
     guint8          isResegmented;

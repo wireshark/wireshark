@@ -458,9 +458,9 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     if (si->direction == DIRECTION_UPLINK) {
         /* Update time range */
         if (te->stats.UL_frames == 0) {
-            te->stats.UL_time_start = si->time;
+            te->stats.UL_time_start = si->rlc_lte_time;
         }
-        te->stats.UL_time_stop = si->time;
+        te->stats.UL_time_stop = si->rlc_lte_time;
 
         te->stats.UL_frames++;
         te->stats.UL_total_bytes += si->pduLength;
@@ -468,9 +468,9 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     else {
         /* Update time range */
         if (te->stats.DL_frames == 0) {
-            te->stats.DL_time_start = si->time;
+            te->stats.DL_time_start = si->rlc_lte_time;
         }
-        te->stats.DL_time_stop = si->time;
+        te->stats.DL_time_stop = si->rlc_lte_time;
 
         te->stats.DL_frames++;
         te->stats.DL_total_bytes += si->pduLength;
@@ -514,9 +514,9 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     if (si->direction == DIRECTION_UPLINK) {
         /* Update time range */
         if (channel_stats->UL_frames == 0) {
-            channel_stats->UL_time_start = si->time;
+            channel_stats->UL_time_start = si->rlc_lte_time;
         }
-        channel_stats->UL_time_stop = si->time;
+        channel_stats->UL_time_stop = si->rlc_lte_time;
 
         channel_stats->UL_frames++;
         channel_stats->UL_bytes += si->pduLength;
@@ -532,9 +532,9 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     else {
         /* Update time range */
         if (channel_stats->DL_frames == 0) {
-            channel_stats->DL_time_start = si->time;
+            channel_stats->DL_time_start = si->rlc_lte_time;
         }
-        channel_stats->DL_time_stop = si->time;
+        channel_stats->DL_time_stop = si->rlc_lte_time;
 
         channel_stats->DL_frames++;
         channel_stats->DL_bytes += si->pduLength;

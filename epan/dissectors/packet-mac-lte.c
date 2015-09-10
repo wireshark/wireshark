@@ -5854,7 +5854,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     tap_info->crcStatus = p_mac_lte_info->crcStatus;
     tap_info->direction = p_mac_lte_info->direction;
 
-    tap_info->time = pinfo->fd->abs_ts;
+    tap_info->mac_lte_time = pinfo->fd->abs_ts;
 
     /* Add hidden item to filter on */
     hidden_root_ti = proto_tree_add_string_format(tree,

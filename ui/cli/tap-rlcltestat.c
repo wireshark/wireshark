@@ -240,9 +240,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     if (si->direction == DIRECTION_UPLINK) {
         /* Update time range */
         if (te->stats.UL_frames == 0) {
-            te->stats.UL_time_start = si->time;
+            te->stats.UL_time_start = si->rlc_lte_time;
         }
-        te->stats.UL_time_stop = si->time;
+        te->stats.UL_time_stop = si->rlc_lte_time;
 
         te->stats.UL_frames++;
         te->stats.UL_total_bytes += si->pduLength;
@@ -250,9 +250,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     else {
         /* Update time range */
         if (te->stats.DL_frames == 0) {
-            te->stats.DL_time_start = si->time;
+            te->stats.DL_time_start = si->rlc_lte_time;
         }
-        te->stats.DL_time_stop = si->time;
+        te->stats.DL_time_stop = si->rlc_lte_time;
 
         te->stats.DL_frames++;
         te->stats.DL_total_bytes += si->pduLength;

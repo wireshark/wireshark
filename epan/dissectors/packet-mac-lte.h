@@ -199,7 +199,7 @@ typedef struct mac_lte_tap_info {
     guint8   isPHYRetx;
     guint16  ueInTTI;
 
-    nstime_t time;
+    nstime_t mac_lte_time;
 
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;
