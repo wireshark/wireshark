@@ -142,6 +142,7 @@ static int proto_ipv6_hopopts                   = -1;
 static int proto_ipv6_routing                   = -1;
 static int proto_ipv6_shim6                     = -1;
 static int proto_ipv6_dstopts                   = -1;
+
 static int hf_ipv6_version                      = -1;
 static int hf_ip_version                        = -1;
 static int hf_ipv6_class                        = -1;
