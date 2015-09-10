@@ -556,6 +556,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     if (new_tvb) {
         /* ti = */ proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
         mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
+    } else {
+        col_set_str(pinfo->cinfo, COL_INFO, "[MP2T fragment of a reassembled packet]");
     }
 
     pinfo->fragmented = save_fragmented;
@@ -731,6 +733,10 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
 
         while (remaining_len > 0) {
+            /* Don't like subsequent packets overwrite the Info column */
+            col_append_str(pinfo->cinfo, COL_INFO, " ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+
             /* Skip stuff bytes */
             stuff_len = 0;
             while ((tvb_get_guint8(tvb, offset + stuff_len) == 0xFF)) {
