@@ -6855,7 +6855,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_MCMemberRecord_JoinState, {
                 "JoinState", "infiniband.mcmemberrecord.joinstate",
-                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}
         },
         { &hf_infiniband_MCMemberRecord_ProxyJoin, {
                 "ProxyJoin", "infiniband.mcmemberrecord.proxyjoin",
