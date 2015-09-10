@@ -47,6 +47,8 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
 {
 }
 
+// We might want to return a const char * instead. This would keep us from
+// creating excessive QByteArrays, e.g. in PacketListModel::recordLessThan.
 const QByteArray PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
 {
     // packet_list_store.c:packet_list_get_value
@@ -57,7 +59,7 @@ const QByteArray PacketListRecord::columnString(capture_file *cap_file, int colu
     }
 
     bool dissect_color = colorized && !colorized_;
-    if (column >= col_text_.size() || col_text_[column].isNull() || data_ver_ != col_data_ver_ || dissect_color) {
+    if (column >= col_text_.size() || !col_text_[column] || data_ver_ != col_data_ver_ || dissect_color) {
         dissect(cap_file, dissect_color);
     }
 
@@ -172,6 +174,14 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     ws_buffer_free(&buf);
 }
 
+// This assumes only one packet list. We might want to move this to
+// PacketListModel (or replace this with a wmem allocator).
+struct _GStringChunk *PacketListRecord::string_pool_ = g_string_chunk_new(1 * 1024 * 1024);
+void PacketListRecord::clearStringPool()
+{
+    g_string_chunk_clear(string_pool_);
+}
+
 //#define MINIMIZE_STRING_COPYING 1
 void PacketListRecord::cacheColumnStrings(column_info *cinfo)
 {
@@ -244,23 +254,27 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
             break;
         }
 #else // MINIMIZE_STRING_COPYING
-        // XXX The GTK+ code uses GStringChunk for string storage. It
-        // doesn't appear to be that much faster, but it probably uses
-        // less memory.
-        QByteArray col_text;
+        const char *col_str;
         if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
             /* Use the unresolved value in col_expr_val */
-            col_text = cinfo->col_expr.col_expr_val[column];
+            col_str = cinfo->col_expr.col_expr_val[column];
         } else {
             int text_col = cinfo_column_.value(column, -1);
 
             if (text_col < 0) {
                 col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
             }
-            col_text = cinfo->columns[column].col_data;
+            col_str = cinfo->columns[column].col_data;
         }
-        col_text_.append(col_text);
-        col_lines += col_text.count('\n');
+        // g_string_chunk_insert_const manages a hash table of pointers to
+        // strings:
+        // https://git.gnome.org/browse/glib/tree/glib/gstringchunk.c
+        // We might be better off adding the equivalent functionality to
+        // wmem_tree.
+        col_text_.append(g_string_chunk_insert_const(string_pool_, col_str));
+        for (int i = 0; col_str[i]; i++) {
+            if (col_str[i] == '\n') col_lines++;
+        }
         if (col_lines > lines_) {
             lines_ = col_lines;
             line_count_changed_ = true;

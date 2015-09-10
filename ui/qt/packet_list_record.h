@@ -36,6 +36,7 @@
 #include <QVariant>
 
 struct conversation;
+struct _GStringChunk;
 
 class PacketListRecord
 {
@@ -55,9 +56,11 @@ public:
     inline int lineCount() { return lines_; }
     inline int lineCountChanged() { return line_count_changed_; }
 
+    static void clearStringPool();
+
 private:
     /** The column text for some columns */
-    QList<QByteArray> col_text_;
+    QList<const char *> col_text_;
 
     frame_data *fdata_;
     int lines_;
@@ -75,6 +78,9 @@ private:
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);
+
+    static struct _GStringChunk *string_pool_;
+
 };
 
 #endif // PACKET_LIST_RECORD_H

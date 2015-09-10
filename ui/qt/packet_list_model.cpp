@@ -51,6 +51,7 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     line_spacing_(0)
 {
     setCaptureFile(cf);
+    PacketListRecord::clearStringPool();
     connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
             this, SLOT(emitItemHeightChanged(QModelIndex)),
             Qt::QueuedConnection);
@@ -114,6 +115,7 @@ void PacketListModel::clear() {
     physical_rows_.clear();
     visible_rows_.clear();
     number_to_row_.clear();
+    PacketListRecord::clearStringPool();
     endResetModel();
 }
 
