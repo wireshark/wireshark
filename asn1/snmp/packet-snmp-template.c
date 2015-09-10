@@ -1759,10 +1759,10 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	iv[1] = (p->boots & 0x00ff0000) >> 16;
 	iv[2] = (p->boots & 0x0000ff00) >> 8;
 	iv[3] = (p->boots & 0x000000ff);
-	iv[4] = (p->time & 0xff000000) >> 24;
-	iv[5] = (p->time & 0x00ff0000) >> 16;
-	iv[6] = (p->time & 0x0000ff00) >> 8;
-	iv[7] = (p->time & 0x000000ff);
+	iv[4] = (p->snmp_time & 0xff000000) >> 24;
+	iv[5] = (p->snmp_time & 0x00ff0000) >> 16;
+	iv[6] = (p->snmp_time & 0x0000ff00) >> 8;
+	iv[7] = (p->snmp_time & 0x000000ff);
 	tvb_memcpy(p->priv_tvb,&(iv[8]),0,8);
 
 	cryptgrm_len = tvb_captured_length(encryptedData);
@@ -1907,7 +1907,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	usm_p.authenticated = FALSE;
 	usm_p.encrypted = FALSE;
 	usm_p.boots = 0;
-	usm_p.time = 0;
+	usm_p.snmp_time = 0;
 	usm_p.authOK = FALSE;
 
 	/*

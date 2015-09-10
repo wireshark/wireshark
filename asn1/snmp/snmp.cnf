@@ -88,7 +88,7 @@ gint pdu_type=-1;
 
 #.FN_PARS UsmSecurityParameters/msgAuthoritativeEngineTime
 
-	VAL_PTR = &usm_p.time
+	VAL_PTR = &usm_p.snmp_time
 
 #.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
 
