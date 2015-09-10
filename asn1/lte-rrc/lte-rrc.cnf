@@ -106,7 +106,7 @@ SI-OrPSI-GERAN TYPE_PREFIX
 %(DEFAULT_BODY)s
   if ((nas_eps_tvb)&&(nas_eps_handle)) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dedicatedInfoNAS);
-    call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
   }
 
 #.FN_BODY UE-CapabilityRAT-Container
@@ -332,18 +332,18 @@ if(ue_cap_tvb){
     case T_targetRAT_Type_utra:
       /* utra */
       if (rrc_irat_ho_to_utran_cmd_handle)
-        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
       break;
     case T_targetRAT_Type_geran:
       /* geran */
       byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
       if (byte == 0x06) {
         if (gsm_a_dtap_handle) {
-          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+          lte_rrc_call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       } else {
         if (gsm_rlcmac_dl_handle) {
-          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+          lte_rrc_call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       }
       break;
@@ -411,13 +411,13 @@ if(ue_cap_tvb){
         tvb_composite_append(si_tvb, sys_info_list_tvb);
         tvb_composite_finalize(si_tvb);
         add_new_data_source(actx->pinfo, si_tvb, "System Information");
-        call_dissector(gsm_a_dtap_handle, si_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(gsm_a_dtap_handle, si_tvb, actx->pinfo, subtree);
       }
       break;
     case SI_OrPSI_GERAN_psi:
       /* PSI message */
       if (gsm_rlcmac_dl_handle) {
-        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
       break;
     default:
@@ -465,7 +465,7 @@ if(ue_cap_tvb){
 %(DEFAULT_BODY)s
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 #.FN_BODY CellInfoUTRA-TDD-r9/utra-BCCH-Container-r9 VAL_PTR = &utra_bcch_cont_tvb
@@ -474,7 +474,7 @@ if(ue_cap_tvb){
 %(DEFAULT_BODY)s
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 #.FN_BODY CellInfoUTRA-TDD-r10/utra-BCCH-Container-r10 VAL_PTR = &utra_bcch_cont_tvb
@@ -483,7 +483,7 @@ if(ue_cap_tvb){
 %(DEFAULT_BODY)s
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 #.TYPE_ATTR

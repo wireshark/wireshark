@@ -34,6 +34,8 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-per.h"
 #include "packet-rrc.h"
@@ -2145,6 +2147,18 @@ static const true_false_string lte_rrc_transmissionModeList_r12_val = {
   "NeighCellsInfo applies",
   "NeighCellsInfo does not apply"
 };
+
+static void
+lte_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  TRY {
+    call_dissector(handle, tvb, pinfo, tree);
+  }
+  CATCH_BOUNDS_ERRORS {
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
+}
 
 /*****************************************************************************/
 /* Packet private data                                                       */

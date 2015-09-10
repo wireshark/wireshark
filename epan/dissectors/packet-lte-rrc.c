@@ -42,6 +42,8 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-per.h"
 #include "packet-rrc.h"
@@ -196,7 +198,7 @@ typedef enum _SI_OrPSI_GERAN_enum {
 } SI_OrPSI_GERAN_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 77 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 79 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -3020,7 +3022,7 @@ static int hf_lte_rrc_reserved_r12 = -1;          /* BIT_STRING_SIZE_19 */
 static int dummy_hf_lte_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 82 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 84 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -4578,7 +4580,7 @@ static gint ett_lte_rrc_SBCCH_SL_BCH_Message = -1;
 static gint ett_lte_rrc_MasterInformationBlock_SL = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 264 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 266 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -6463,6 +6465,18 @@ static const true_false_string lte_rrc_transmissionModeList_r12_val = {
   "NeighCellsInfo applies",
   "NeighCellsInfo does not apply"
 };
+
+static void
+lte_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  TRY {
+    call_dissector(handle, tvb, pinfo, tree);
+  }
+  CATCH_BOUNDS_ERRORS {
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
+}
 
 /*****************************************************************************/
 /* Packet private data                                                       */
@@ -29533,7 +29547,7 @@ dissect_lte_rrc_DedicatedInfoNAS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   if ((nas_eps_tvb)&&(nas_eps_handle)) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dedicatedInfoNAS);
-    call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
   }
 
 
@@ -29908,18 +29922,18 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
     case T_targetRAT_Type_utra:
       /* utra */
       if (rrc_irat_ho_to_utran_cmd_handle)
-        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
       break;
     case T_targetRAT_Type_geran:
       /* geran */
       byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
       if (byte == 0x06) {
         if (gsm_a_dtap_handle) {
-          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+          lte_rrc_call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       } else {
         if (gsm_rlcmac_dl_handle) {
-          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+          lte_rrc_call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       }
       break;
@@ -29981,13 +29995,13 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
         tvb_composite_append(si_tvb, sys_info_list_tvb);
         tvb_composite_finalize(si_tvb);
         add_new_data_source(actx->pinfo, si_tvb, "System Information");
-        call_dissector(gsm_a_dtap_handle, si_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(gsm_a_dtap_handle, si_tvb, actx->pinfo, subtree);
       }
       break;
     case SI_OrPSI_GERAN_psi:
       /* PSI message */
       if (gsm_rlcmac_dl_handle) {
-        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
+        lte_rrc_call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
       break;
     default:
@@ -31574,7 +31588,7 @@ dissect_lte_rrc_T_utra_BCCH_Container_r9(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 
@@ -31621,7 +31635,7 @@ dissect_lte_rrc_T_utra_BCCH_Container_r9_01(tvbuff_t *tvb _U_, int offset _U_, a
 
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 
@@ -31668,7 +31682,7 @@ dissect_lte_rrc_T_utra_BCCH_Container_r10(tvbuff_t *tvb _U_, int offset _U_, asn
 
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+    lte_rrc_call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
 
@@ -44380,7 +44394,7 @@ static int dissect_UE_EUTRA_Capability_v9a0_IEs_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2654 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2668 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -55813,7 +55827,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_19", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2830 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2844 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -57900,7 +57914,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MasterInformationBlock_SL,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3541 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3555 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -57978,7 +57992,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3602 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3616 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);
