@@ -2801,6 +2801,20 @@ dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 static void
+dissect_lte_rrc_SBCCH_SL_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC SBCCH_SL_BCH");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_SBCCH_SL_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+}
+
+static void
 lte_rrc_init_protocol(void)
 {
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -3590,6 +3604,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
   register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
   register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
+  register_dissector("lte_rrc.sbcch_sl_bch", dissect_lte_rrc_SBCCH_SL_BCH, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
