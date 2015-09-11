@@ -1359,20 +1359,13 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 {
   guint8 oct;
   guint32 curr_offset;
-  static char a_bigbuf[1024];
 
   curr_offset = offset;
   oct = tvb_get_guint8(tvb, curr_offset);
 
   *cause_value = oct & 0x7f;
 
-  other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-  proto_tree_add_uint_format(tree, hf_cause_value,
-                             tvb, curr_offset, 1, *cause_value,
-                             "%s : %s",
-                             a_bigbuf,
-                             val_to_str(*cause_value, camel_RP_Cause_values,
-                                        "Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
+  proto_tree_add_uint(tree, hf_cause_value, tvb, curr_offset, 1, oct);
   curr_offset++;
 
   if ((oct & 0x80)) {
@@ -7170,7 +7163,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 418 "../../asn1/camel/packet-camel-template.c"
+#line 411 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7377,7 +7370,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 420 "../../asn1/camel/packet-camel-template.c"
+#line 413 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8303,7 +8296,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1338 "../../asn1/camel/packet-camel-template.c"
+#line 1331 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -8356,7 +8349,7 @@ void proto_register_camel(void) {
         "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
     { &hf_camel_RP_Cause,
       { "RP Cause",  "camel.RP_Cause",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(camel_RP_Cause_values), 0x7F,
         "RP Cause Value", HFILL }},
 
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
@@ -10425,7 +10418,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1511 "../../asn1/camel/packet-camel-template.c"
+#line 1504 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10643,7 +10636,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1528 "../../asn1/camel/packet-camel-template.c"
+#line 1521 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

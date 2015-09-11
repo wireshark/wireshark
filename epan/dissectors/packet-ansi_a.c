@@ -1725,22 +1725,13 @@ content_fill_aux(
     int                 hf_content,
     int                 hf_content_fill_bits)
 {
-    static guint8       lo_masks[8] = { 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
-    guint8              oct;
-
     proto_tree_add_item(tree, hf_content, tvb, offset, content_len, ENC_NA);
 
     offset += content_len;
 
     if (fill_bits)
     {
-        oct = tvb_get_guint8(tvb, offset - 1);
-
-        other_decode_bitfield_value(a_bigbuf, oct, lo_masks[fill_bits-1], 8);
-        proto_tree_add_uint_format(tree, hf_content_fill_bits, tvb, offset - 1, 1,
-            oct & lo_masks[fill_bits-1],
-            "%s = Fill Bits",
-            a_bigbuf);
+        proto_tree_add_bits_item(tree, hf_content_fill_bits, tvb, (offset - 1)*8, fill_bits-1, ENC_NA);
     }
 }
 

@@ -386,20 +386,13 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 {
   guint8 oct;
   guint32 curr_offset;
-  static char a_bigbuf[1024];
 
   curr_offset = offset;
   oct = tvb_get_guint8(tvb, curr_offset);
 
   *cause_value = oct & 0x7f;
 
-  other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-  proto_tree_add_uint_format(tree, hf_cause_value,
-                             tvb, curr_offset, 1, *cause_value,
-                             "%s : %s",
-                             a_bigbuf,
-                             val_to_str(*cause_value, camel_RP_Cause_values,
-                                        "Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
+  proto_tree_add_uint(tree, hf_cause_value, tvb, curr_offset, 1, oct);
   curr_offset++;
 
   if ((oct & 0x80)) {
@@ -1387,7 +1380,7 @@ void proto_register_camel(void) {
         "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
     { &hf_camel_RP_Cause,
       { "RP Cause",  "camel.RP_Cause",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(camel_RP_Cause_values), 0x7F,
         "RP Cause Value", HFILL }},
 
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,

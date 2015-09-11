@@ -3487,6 +3487,41 @@ proto_tree_set_boolean(field_info *fi, guint64 value)
 	proto_tree_set_uint64(fi, value);
 }
 
+/* Generate, into "buf", a string showing the bits of a bitfield.
+   Return a pointer to the character after that string. */
+/*XXX this needs a buf_len check */
+static char *
+other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
+{
+	int i;
+	guint64 bit;
+	char *p;
+
+	i = 0;
+	p = buf;
+	bit = G_GUINT64_CONSTANT(1) << (width - 1);
+	for (;;) {
+		if (mask & bit) {
+			/* This bit is part of the field.  Show its value. */
+			if (val & bit)
+				*p++ = '1';
+			else
+				*p++ = '0';
+		} else {
+			/* This bit is not part of the field. */
+			*p++ = '.';
+		}
+		bit >>= 1;
+		i++;
+		if (i >= width)
+			break;
+		if (i % 4 == 0)
+			*p++ = ' ';
+	}
+	*p = '\0';
+	return p;
+}
+
 static char *
 decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
 {
