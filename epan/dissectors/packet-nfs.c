@@ -2371,7 +2371,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		guint8 *fh_array;
 		proto_item *fh_item = NULL;
 
-		fh_array = tvb_get_string(wmem_packet_scope(), tvb, offset, fhlen);
+		fh_array = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, fhlen);
 		fhhash = crc32_ccitt(fh_array, fhlen);
 
 		if (hidden) {
