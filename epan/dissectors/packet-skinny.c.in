@@ -199,9 +199,9 @@ get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static void
 dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32 length, guint32 maxlength)
 {
-  proto_item         *item;
-  proto_tree         *subtree;
-  dissector_handle_t handle;
+  proto_item         *item       = NULL;
+  proto_tree         *subtree    = NULL;
+  dissector_handle_t handle      = NULL;
   proto_tree         *tree       = ptvcursor_tree(cursor);
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
@@ -245,7 +245,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     guint32 ip_address;
     src_addr.type = AT_IPv4;
     src_addr.len = 4;
-    src_addr.data = &ip_address;
+    src_addr.data = (guint8 *)&ip_address;
     ip_address = tvb_get_ipv4(tvb, offset);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
@@ -257,7 +257,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     struct e_in6_addr IPv6;
     src_addr.type = AT_IPv6;
     src_addr.len = 16;
-    src_addr.data = &IPv6;
+    src_addr.data = (guint8 *)&IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
@@ -273,15 +273,15 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
 static void
 dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
 {
-  proto_item    *item;
+  proto_item    *item             = NULL;
   proto_tree    *tree             = ptvcursor_tree(cursor);
   guint32       offset            = ptvcursor_current_offset(cursor);
   tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
-  wmem_strbuf_t *wmem_new;
-  gchar         *disp_string;
-  const gchar   *replacestr;
+  wmem_strbuf_t *wmem_new         = NULL;
+  gchar         *disp_string      = NULL;
+  const gchar   *replacestr       = NULL;
   gboolean      show_replaced_str = FALSE;
-  gint          x;
+  gint          x                 = 0;
 
   if (length == 0) {
     length = tvb_strnlen(tvb, offset, -1);
@@ -542,19 +542,18 @@ proto_reg_handoff_skinny(void)
   media_type_dissector_table = find_dissector_table("media_type");
   skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
-
   ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
 }
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 2
- * tab-width: 8
+ * tab-width: 2
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
+ * :indentSize=2:tabSize=2:noTabs=true:
  */

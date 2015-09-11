@@ -250,6 +250,7 @@ static const value_string  message_id[] = {
   { 0x0154, "StartMediaTransmissionAck" },
   { 0x0155, "StartMultiMediaTransmissionAck" },
   { 0x0156, "CallHistoryInfo" },
+  { 0x0156, "LocationInfo" },
   { 0x0158, "MwiResponse" },
   { 0x015a, "EnhancedAlarm" },
   { 0x015e, "CallCountReq" },
@@ -602,6 +603,7 @@ static const value_string DeviceType[] = {
   { 0x07550, "SCCPGwVirtualPhone" },
   { 0x07553, "IP_STE" },
   { 0x08cc9, "CiscoTelePresenceConductor" },
+  { 0x08d7b, "InteractiveVoiceResponse" },
   { 0x13880, "Cisco SPA 521S" },
   { 0x13883, "Cisco SPA 502G" },
   { 0x13884, "Cisco SPA 504G" },
@@ -722,6 +724,7 @@ static value_string_ext DeviceStimulus_ext = VALUE_STRING_EXT_INIT(DeviceStimulu
 #define MEDIA_PAYLOAD_G726_16K                 0x00054 /* audio */
 #define MEDIA_PAYLOAD_ILBC                     0x00056 /* audio */
 #define MEDIA_PAYLOAD_ISAC                     0x00059 /* audio */
+#define MEDIA_PAYLOAD_OPUS                     0x0005a /* audio */
 #define MEDIA_PAYLOAD_AMR                      0x00061 /* audio */
 #define MEDIA_PAYLOAD_AMR_WB                   0x00062 /* audio */
 #define MEDIA_PAYLOAD_H261                     0x00064 /* video */
@@ -747,6 +750,7 @@ static value_string_ext DeviceStimulus_ext = VALUE_STRING_EXT_INIT(DeviceStimulu
 #define MEDIA_PAYLOAD_DYNAMIC_PAYLOAD_PASSTHRU 0x00103 /* data */
 #define MEDIA_PAYLOAD_DTMF_OOB                 0x00104 /* data */
 #define MEDIA_PAYLOAD_INBAND_DTMF_RFC2833      0x00105 /* data */
+#define MEDIA_PAYLOAD_CFB_TONES                0x00106 /* data */
 #define MEDIA_PAYLOAD_NOAUDIO                  0x0012b /* data */
 #define MEDIA_PAYLOAD_V150_LC_MODEMRELAY       0x0012c /* data */
 #define MEDIA_PAYLOAD_V150_LC_SPRT             0x0012d /* data */
@@ -789,6 +793,7 @@ static const value_string Media_PayloadType[] = {
   { MEDIA_PAYLOAD_G726_16K, "Media_Payload_G726_16K" },
   { MEDIA_PAYLOAD_ILBC, "Media_Payload_ILBC" },
   { MEDIA_PAYLOAD_ISAC, "Media_Payload_ISAC" },
+  { MEDIA_PAYLOAD_OPUS, "Media_Payload_OPUS" },
   { MEDIA_PAYLOAD_AMR, "Media_Payload_AMR" },
   { MEDIA_PAYLOAD_AMR_WB, "Media_Payload_AMR_WB" },
   { MEDIA_PAYLOAD_H261, "Media_Payload_H261" },
@@ -814,6 +819,7 @@ static const value_string Media_PayloadType[] = {
   { MEDIA_PAYLOAD_DYNAMIC_PAYLOAD_PASSTHRU, "Media_Payload_Dynamic_Payload_PassThru" },
   { MEDIA_PAYLOAD_DTMF_OOB, "Media_Payload_DTMF_OOB" },
   { MEDIA_PAYLOAD_INBAND_DTMF_RFC2833, "Media_Payload_Inband_DTMF_RFC2833" },
+  { MEDIA_PAYLOAD_CFB_TONES, "Media_Payload_CFB_Tones" },
   { MEDIA_PAYLOAD_NOAUDIO, "Media_Payload_NoAudio" },
   { MEDIA_PAYLOAD_V150_LC_MODEMRELAY, "Media_Payload_v150_LC_ModemRelay" },
   { MEDIA_PAYLOAD_V150_LC_SPRT, "Media_Payload_v150_LC_SPRT" },
@@ -1311,7 +1317,17 @@ static const value_string DeviceTone[] = {
   { 0x0007d, "TUA" },
   { 0x0007e, "GONE" },
   { 0x0007f, "NoTone" },
-  { 0x00080, "MAX" },
+  { 0x00080, "MeetMe_Greeting" },
+  { 0x00081, "MeetMe_NumberInvalid" },
+  { 0x00082, "MeetMe_NumberFailed" },
+  { 0x00083, "MeetMe_EnterPIN" },
+  { 0x00084, "MeetMe_InvalidPIN" },
+  { 0x00085, "MeetMe_FailedPIN" },
+  { 0x00086, "MeetMe_CFB_Failed" },
+  { 0x00087, "MeetMe_EnterAccessCode" },
+  { 0x00088, "MeetMe_AccessCodeInvalid" },
+  { 0x00089, "MeetMe_AccessCodeFailed" },
+  { 0x0008a, "MAX" },
   { 0x00000, NULL }
 };
 static value_string_ext DeviceTone_ext = VALUE_STRING_EXT_INIT(DeviceTone);
@@ -1379,6 +1395,8 @@ static const value_string MediaEncryptionAlgorithmType[] = {
   { 0x00002, "CCM_AES_CM_128_HMAC_SHA1_80" },
   { 0x00003, "CCM_F8_128_HMAC_SHA1_32" },
   { 0x00004, "CCM_F8_128_HMAC_SHA1_80" },
+  { 0x00005, "CCM_AEAD_AES_128_GCM" },
+  { 0x00006, "CCM_AEAD_AES_256_GCM" },
   { 0x00000, NULL }
 };
 static value_string_ext MediaEncryptionAlgorithmType_ext = VALUE_STRING_EXT_INIT(MediaEncryptionAlgorithmType);
@@ -1880,6 +1898,7 @@ static int hf_skinny_compressionType = -1;
 static int hf_skinny_confServiceNum = -1;
 static int hf_skinny_conferenceID = -1;
 static int hf_skinny_conferenceName = -1;
+static int hf_skinny_configVersionStamp = -1;
 static int hf_skinny_confirmRequired = -1;
 static int hf_skinny_country = -1;
 static int hf_skinny_customMaxBRandCPB = -1;
@@ -1961,6 +1980,7 @@ static int hf_skinny_lineInstance = -1;
 static int hf_skinny_lineNumber = -1;
 static int hf_skinny_lineTextLabel = -1;
 static int hf_skinny_locale = -1;
+static int hf_skinny_locationInfo = -1;
 static int hf_skinny_longTermPictureIndex = -1;
 static int hf_skinny_macAddress = -1;
 static int hf_skinny_matrixConfPartyID = -1;
@@ -2159,6 +2179,7 @@ static int hf_skinny_wMonth = -1;
 static int hf_skinny_wSecond = -1;
 static int hf_skinny_wYear = -1;
 static int hf_skinny_waitTimeBeforeNextReq = -1;
+static int hf_skinny_xmldata = -1;
 
 static dissector_table_t media_type_dissector_table;
 
@@ -2196,9 +2217,9 @@ get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static void
 dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32 length, guint32 maxlength)
 {
-  proto_item         *item;
-  proto_tree         *subtree;
-  dissector_handle_t handle;
+  proto_item         *item       = NULL;
+  proto_tree         *subtree    = NULL;
+  dissector_handle_t handle      = NULL;
   proto_tree         *tree       = ptvcursor_tree(cursor);
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
@@ -2242,7 +2263,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     guint32 ip_address;
     src_addr.type = AT_IPv4;
     src_addr.len = 4;
-    src_addr.data = &ip_address;
+    src_addr.data = (guint8 *)&ip_address;
     ip_address = tvb_get_ipv4(tvb, offset);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
@@ -2254,7 +2275,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     struct e_in6_addr IPv6;
     src_addr.type = AT_IPv6;
     src_addr.len = 16;
-    src_addr.data = &IPv6;
+    src_addr.data = (guint8 *)&IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
@@ -2270,15 +2291,15 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
 static void
 dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
 {
-  proto_item    *item;
+  proto_item    *item             = NULL;
   proto_tree    *tree             = ptvcursor_tree(cursor);
   guint32       offset            = ptvcursor_current_offset(cursor);
   tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
-  wmem_strbuf_t *wmem_new;
-  gchar         *disp_string;
-  const gchar   *replacestr;
+  wmem_strbuf_t *wmem_new         = NULL;
+  gchar         *disp_string      = NULL;
+  const gchar   *replacestr       = NULL;
   gboolean      show_replaced_str = FALSE;
-  gint          x;
+  gint          x                 = 0;
 
   if (length == 0) {
     length = tvb_strnlen(tvb, offset, -1);
@@ -2378,6 +2399,9 @@ handle_RegisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_stationIpV6Addr, 16, ENC_NA);
     ptvcursor_add(cursor, hf_skinny_ipV6AddressScope, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_firmwareLoadName, 32, ENC_ASCII|ENC_NA);
+  }
+  if (hdr_data_length > 190) {
+    ptvcursor_add(cursor, hf_skinny_configVersionStamp, 48, ENC_ASCII|ENC_NA);
   }
 }
 
@@ -2883,7 +2907,7 @@ handle_DeviceToUserDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: deviceToUserData */
   }
@@ -2911,7 +2935,7 @@ handle_DeviceToUserDataResponseMessage(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: deviceToUserData */
   }
@@ -3446,7 +3470,7 @@ handle_DeviceToUserDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: deviceToUserDataVersion1 */
   }
@@ -3479,7 +3503,7 @@ handle_DeviceToUserDataResponseMessageVersion1(ptvcursor_t *cursor, packet_info 
     ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: deviceToUserDataVersion1 */
   }
@@ -5600,7 +5624,7 @@ handle_UserToDeviceDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: userToDeviceData */
   }
@@ -6755,7 +6779,7 @@ handle_UserToDeviceDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
-    dissect_skinny_xml(cursor, hf_skinny_data, pinfo, dataLength, 2000);
+    dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
     /* end struct: userToDeviceDataVersion1 */
   }
@@ -7406,6 +7430,20 @@ handle_CallHistoryInfoMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 }
 
 /*
+ * Message:   LocationInfoMessage
+ * Opcode:    0x0156
+ * Type:      RegistrationAndManagement
+ * Direction: pbx2dev
+ * VarLength: no
+ * Comment: Sent by wifi devices, contains xml information about connected SSID
+ */
+static void
+handle_LocationInfoMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
+{
+  ptvcursor_add(cursor, hf_skinny_locationInfo, 2401, ENC_ASCII|ENC_NA);
+}
+
+/*
  * Message:   MwiResponseMessage
  * Opcode:    0x0158
  * Type:      RegistrationAndManagement
@@ -7429,7 +7467,7 @@ handle_MwiResponseMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_EnhancedAlarmMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
-  dissect_skinny_xml(cursor, hf_skinny_alarmInfo, pinfo, 0, 2000);
+  dissect_skinny_xml(cursor, hf_skinny_alarmInfo, pinfo, 0, 2048);
 }
 
 /*
@@ -7700,6 +7738,7 @@ static const struct opcode2handler {
   {0x0154, handle_StartMediaTransmissionAckMessage        , "StartMediaTransmissionAckMessage"},
   {0x0155, handle_StartMultiMediaTransmissionAckMessage   , "StartMultiMediaTransmissionAckMessage"},
   {0x0156, handle_CallHistoryInfoMessage                  , "CallHistoryInfoMessage"},
+  {0x0156, handle_LocationInfoMessage                     , "LocationInfoMessage"},
   {0x0158, handle_MwiResponseMessage                      , "MwiResponseMessage"},
   {0x015a, handle_EnhancedAlarmMessage                    , "EnhancedAlarmMessage"},
   {0x015e, NULL                                           , "CallCountReqMessage"},
@@ -9125,6 +9164,10 @@ proto_register_skinny(void)
       {
         "waitTimeBeforeNextReq", "skinny.waitTimeBeforeNextReq", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_xmldata,
+      {
+        "xmldata", "skinny.xmldata", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     {&hf_skinny_AlternateCallingParty,
       {
         "AlternateCallingParty", "skinny.AlternateCallingParty", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -9253,6 +9296,10 @@ proto_register_skinny(void)
       {
         "conferenceName", "skinny.conferenceName", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    {&hf_skinny_configVersionStamp,
+      {
+        "configVersionStamp", "skinny.configVersionStamp", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     {&hf_skinny_data,
       {
         "Statistics", "skinny.data", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -9372,6 +9419,10 @@ proto_register_skinny(void)
     {&hf_skinny_lineTextLabel,
       {
         "lineTextLabel", "skinny.lineTextLabel", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    {&hf_skinny_locationInfo,
+      {
+        "locationInfo", "skinny.locationInfo", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     {&hf_skinny_mediaPathCapabilities,
       {
@@ -9661,19 +9712,18 @@ proto_reg_handoff_skinny(void)
   media_type_dissector_table = find_dissector_table("media_type");
   skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
-
   ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
 }
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 2
- * tab-width: 8
+ * tab-width: 2
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
+ * :indentSize=2:tabSize=2:noTabs=true:
  */

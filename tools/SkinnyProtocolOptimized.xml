@@ -382,6 +382,7 @@
       <entry comment="" name="DeviceType_ISDNBRIPhone" text="ISDNBRIPhone" value="0x0754c"/>
       <entry comment="" name="DeviceType_SCCPGwVirtualPhone" text="SCCPGwVirtualPhone" value="0x07550"/>
       <entry comment="" name="DeviceType_IP_STE" text="IP_STE" value="0x07553"/>
+      <entry comment="" name="DeviceType_InteractiveVoiceResponse" text="InteractiveVoiceResponse" value="0x8d7b"/>
       <entry comment="Cisco 7910" name="DeviceType_Cisco_7910" text="Cisco 7910" value="0x00006"/>
       <entry comment="Cisco 7925" name="DeviceType_Cisco_7925" text="Cisco 7925" value="0x001e4"/>
       <entry comment="Cisco 7931" name="DeviceType_Cisco_7931" text="Cisco 7931" value="0x0015c"/>
@@ -474,7 +475,7 @@
       </bitfield>
       <integer comment="Maximum Number of Concurrent Conferences" longcomment="Indicates the maximum number of simultansous Conferences, which this client/appliance can handle" name="maxConferences" type="uint32"/>
     </fields>
-    <fields beginversion="0" endversion="22" size_gt="100">
+    <fields size_gt="100">
       <integer comment="Active Conferences" longcomment="Active Conferences at Registration" name="activeConferences" type="uint32"/>
       <ether comment="Mac Address" longcomment="Ethernet/Mac Address" name="macAddress" size="12" type="ether"/>
       <integer comment="IPv4 Address Scope" name="ipV4AddressScope" type="uint32"/>
@@ -482,6 +483,9 @@
       <ip comment="IPv6 Address" endianness="big" name="stationIpV6Addr" type="ipv6"/>
       <integer comment="IPv6 Address Scope" name="ipV6AddressScope" type="uint32"/>
       <string comment="Firmware Load Name" name="firmwareLoadName" size="32" type="char"/>
+    </fields>
+    <fields beginversion="0" endversion="22" size_gt="190">
+      <string comment="" name="configVersionStamp" size="48" type="char"/>
     </fields>
   </message>
   <enum name="KeyPadButton">
@@ -658,6 +662,7 @@
       <entry comment="" name="Media_Payload_G726_16K" text="Media_Payload_G726_16K" value="0x0054"/>
       <entry comment="" name="Media_Payload_ILBC" text="Media_Payload_ILBC" value="0x0056"/>
       <entry comment="" name="Media_Payload_ISAC" text="Media_Payload_ISAC" value="0x0059"/>
+      <entry comment="" name="Media_Payload_OPUS" text="Media_Payload_OPUS" value="0x005a"/>
       <entry comment="" name="Media_Payload_AMR" text="Media_Payload_AMR" value="0x0061"/>
       <entry comment="" name="Media_Payload_AMR_WB" text="Media_Payload_AMR_WB" value="0x0062"/>
     </entries>
@@ -687,6 +692,7 @@
       <entry comment="" name="Media_Payload_Dynamic_Payload_PassThru" text="Media_Payload_Dynamic_Payload_PassThru" value="0x0103"/>
       <entry comment="" name="Media_Payload_DTMF_OOB" text="Media_Payload_DTMF_OOB" value="0x0104"/>
       <entry comment="" name="Media_Payload_Inband_DTMF_RFC2833" text="Media_Payload_Inband_DTMF_RFC2833" value="0x0105"/>
+      <entry comment="" name="Media_Payload_CFB_Tones" text="Media_Payload_CFB_Tones" value="0x0106"/>
       <entry comment="" name="Media_Payload_NoAudio" text="Media_Payload_NoAudio" value="0x012b"/>
       <entry comment="" name="Media_Payload_v150_LC_ModemRelay" text="Media_Payload_v150_LC_ModemRelay" value="0x012c"/>
       <entry comment="" name="Media_Payload_v150_LC_SPRT" text="Media_Payload_v150_LC_SPRT" value="0x012d"/>
@@ -1038,7 +1044,7 @@
           <integer comment="CallId" name="callReference" type="uint32"/>
           <integer comment="" name="transactionID" type="uint32"/>
           <integer comment="" declare="yes" name="dataLength" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -1052,7 +1058,7 @@
           <integer comment="CallId" name="callReference" type="uint32"/>
           <integer comment="" name="transactionID" type="uint32"/>
           <integer comment="" declare="yes" name="dataLength" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -1385,7 +1391,7 @@
           <integer comment="Conference ID" name="conferenceID" type="uint32"/>
           <integer comment="" name="appInstanceID" type="uint32"/>
           <integer comment="" name="routingID" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -1404,7 +1410,7 @@
           <integer comment="Conference ID" name="conferenceID" type="uint32"/>
           <integer comment="" name="appInstanceID" type="uint32"/>
           <integer comment="" name="routingID" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -2060,7 +2066,17 @@
       <entry comment="" name="DeviceTone_TUA" text="TUA" value="0x007d"/>
       <entry comment="" name="DeviceTone_GONE" text="GONE" value="0x007e"/>
       <entry comment="" name="DeviceTone_NoTone" text="NoTone" value="0x007f"/>
-      <entry comment="" name="DeviceTone_MAX" text="MAX" value="0x0080"/>
+      <entry comment="" name="DeviceTone_MeetMe_Greeting" text="MeetMe_Greeting" value="0x0080"/>
+      <entry comment="" name="DeviceTone_MeetMe_NumberInvalid" text="MeetMe_NumberInvalid" value="0x0081"/>
+      <entry comment="" name="DeviceTone_MeetMe_NumberFailed" text="MeetMe_NumberFailed" value="0x0082"/>
+      <entry comment="" name="DeviceTone_MeetMe_EnterPIN" text="MeetMe_EnterPIN" value="0x0083"/>
+      <entry comment="" name="DeviceTone_MeetMe_InvalidPIN" text="MeetMe_InvalidPIN" value="0x0084"/>
+      <entry comment="" name="DeviceTone_MeetMe_FailedPIN" text="MeetMe_FailedPIN" value="0x0085"/>
+      <entry comment="" name="DeviceTone_MeetMe_CFB_Failed" text="MeetMe_CFB_Failed" value="0x0086"/>
+      <entry comment="" name="DeviceTone_MeetMe_EnterAccessCode" text="MeetMe_EnterAccessCode" value="0x0087"/>
+      <entry comment="" name="DeviceTone_MeetMe_AccessCodeInvalid" text="MeetMe_AccessCodeInvalid" value="0x0088"/>
+      <entry comment="" name="DeviceTone_MeetMe_AccessCodeFailed" text="MeetMe_AccessCodeFailed" value="0x0089"/>
+      <entry comment="" name="DeviceTone_MAX" text="MAX" value="0x008A"/>
     </entries>
   </enum>
   <enum name="ToneOutputDirection">
@@ -2162,6 +2178,8 @@
       <entry comment="" name="MediaEncryptionAlgorithmType_CCM_AES_CM_128_HMAC_SHA1_80" text="CCM_AES_CM_128_HMAC_SHA1_80" value="0x0002"/>
       <entry comment="" name="MediaEncryptionAlgorithmType_CCM_F8_128_HMAC_SHA1_32" text="CCM_F8_128_HMAC_SHA1_32" value="0x0003"/>
       <entry comment="" name="MediaEncryptionAlgorithmType_CCM_F8_128_HMAC_SHA1_80" text="CCM_F8_128_HMAC_SHA1_80" value="0x0004"/>
+      <entry comment="" name="MediaEncryptionAlgorithmType_CCM_AEAD_AES_128_GCM" text="CCM_AEAD_AES_128_GCM" value="0x0005"/>
+      <entry comment="" name="MediaEncryptionAlgorithmType_CCM_AEAD_AES_256_GCM" text="CCM_AEAD_AES_256_GCM" value="0x0006"/>
     </entries>
   </enum>
   <message comment="" direction="pbx2dev" dynamic="no" name="StartMediaTransmissionMessage" opcode="0x008a" priority="send_immediate" status="no" type="MediaControl">
@@ -3051,7 +3069,7 @@
           <integer comment="CallId" name="callReference" type="uint32"/>
           <integer comment="" name="transactionID" type="uint32"/>
           <integer comment="" declare="yes" name="dataLength" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -3700,7 +3718,7 @@
           <integer comment="Conference ID" name="conferenceID" type="uint32"/>
           <integer comment="" name="appInstanceID" type="uint32"/>
           <integer comment="" name="routingID" type="uint32"/>
-          <xml comment="" maxsize="2000" name="data" size_fieldname="dataLength" type="xml"/>
+          <xml comment="" maxsize="2000" name="xmldata" size_fieldname="dataLength" type="xml"/>
         </fields>
       </struct>
     </fields>
@@ -4035,6 +4053,11 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
+  <message comment="Sent by wifi devices, contains xml information about connected SSID" direction="pbx2dev" dynamic="no" name="LocationInfoMessage" opcode="0x0156" status="no" type="RegistrationAndManagement">
+    <fields alignment="4" beginversion="0" endversion="22">
+      <string comment="" name="locationInfo" size="2401" type="char"/>
+    </fields>
+  </message>
   <enum name="MwiNotificationResult">
     <entries>
       <entry comment="" name="MwiNotificationResult_Ok" text="Ok" value="0x0000"/>
@@ -4054,7 +4077,7 @@
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="EnhancedAlarmMessage" opcode="0x015a" status="no" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
-      <xml comment="" name="alarmInfo" size="2000" type="xml"/>
+      <xml comment="" name="alarmInfo" size="2048" type="xml"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="CallCountReqMessage" opcode="0x015e" status="no" type="CallControl"/>
