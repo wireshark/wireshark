@@ -229,6 +229,13 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         emit captureFileSaveStopped();
         break;
 
+    case cf_cb_file_export_specified_packets_started:
+    case cf_cb_file_export_specified_packets_finished:
+    case cf_cb_file_export_specified_packets_failed:
+    case cf_cb_file_export_specified_packets_stopped:
+        // Ignored for now
+        break;
+
     default:
         g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
         g_warning("CaptureFile::captureFileCallback: event %u unknown", event);

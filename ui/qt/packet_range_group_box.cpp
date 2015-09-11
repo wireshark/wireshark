@@ -322,10 +322,22 @@ void PacketRangeGroupBox::on_rangeButton_toggled(bool checked)
 
 void PacketRangeGroupBox::on_capturedButton_toggled(bool checked)
 {
-    if (checked) updateCounts();
+    if (checked) {
+        if (range_) range_->process_filtered = FALSE;
+        updateCounts();
+    }
 }
 
 void PacketRangeGroupBox::on_displayedButton_toggled(bool checked)
 {
-    if (checked) updateCounts();
+    if (checked) {
+        if (range_) range_->process_filtered = TRUE;
+        updateCounts();
+    }
+}
+
+void PacketRangeGroupBox::on_ignoredCheckBox_toggled(bool checked)
+{
+    if (range_) range_->remove_ignored = checked ? TRUE : FALSE;
+    updateCounts();
 }
