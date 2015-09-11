@@ -161,7 +161,7 @@ const char *FunnelStatistics::displayFilter()
     return display_filter_.constData();
 }
 
-void FunnelStatistics::emitSetDisplayFilter(const QString &filter)
+void FunnelStatistics::emitSetDisplayFilter(const QString filter)
 {
     emit setDisplayFilter(filter);
 }
@@ -176,7 +176,7 @@ void FunnelStatistics::emitApplyDisplayFilter()
     emit applyDisplayFilter();
 }
 
-void FunnelStatistics::emitOpenCaptureFile(QString &cf_path, QString &filter)
+void FunnelStatistics::emitOpenCaptureFile(QString cf_path, QString filter)
 {
     emit openCaptureFile(cf_path, filter);
 }

@@ -57,7 +57,7 @@ private:
 
 signals:
     void startCapture();
-    void recentFileActivated(QString& cfile);
+    void recentFileActivated(QString cfile);
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);

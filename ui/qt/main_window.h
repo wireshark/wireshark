@@ -169,7 +169,7 @@ private:
     void exportDissections(export_type_e export_type);
 
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
-    bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
+    bool testCaptureFileClose(bool from_quit = false, QString before_what = QString());
     void captureStop();
 
     void initMainToolbarIcons();
@@ -215,9 +215,9 @@ public slots:
      * @return True on success, false on failure.
      */
     // XXX We might want to return a cf_read_status_t or a CaptureFile.
-    bool openCaptureFile(QString& cf_path, QString& display_filter, unsigned int type);
-    bool openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
-    void filterPackets(QString& new_filter = *new QString(), bool force = false);
+    bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
+    bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
+    void filterPackets(QString new_filter = QString(), bool force = false);
     void updateForUnsavedChanges();
     void layoutPanes();
     void applyRecentPaneGeometry();

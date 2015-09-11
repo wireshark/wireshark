@@ -769,8 +769,8 @@ DIAG_ON(cast-qual)
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
-            main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
+            main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */

@@ -40,16 +40,16 @@ public:
     void retapPackets();
     struct progdlg *progressDialogNew(const gchar *task_title, const gchar *item_title, gboolean terminate_is_stop, gboolean *stop_flag);
     const char *displayFilter();
-    void emitSetDisplayFilter(const QString &filter);
+    void emitSetDisplayFilter(const QString filter);
     void reloadPackets();
     void emitApplyDisplayFilter();
-    void emitOpenCaptureFile(QString &cf_path, QString &filter);
+    void emitOpenCaptureFile(QString cf_path, QString filter);
     static const QString &actionName() { return action_name_; }
 
 signals:
-    void setDisplayFilter(const QString &filter);
+    void setDisplayFilter(const QString filter);
     void applyDisplayFilter();
-    void openCaptureFile(QString &cf_path, QString &filter);
+    void openCaptureFile(QString cf_path, QString filter);
 
 public slots:
     void funnelActionTriggered();

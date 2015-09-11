@@ -156,7 +156,7 @@ static const char *dfe_property_ = "display filter expression"; //TODO : Fix Tra
 // We're too lazy to sublcass QAction.
 static const char *color_number_property_ = "color number";
 
-bool MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigned int type)
+bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
@@ -265,7 +265,7 @@ bool MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
     return true;
 }
 
-void MainWindow::filterPackets(QString& new_filter, bool force)
+void MainWindow::filterPackets(QString new_filter, bool force)
 {
     cf_status_t cf_status;
 
@@ -1137,7 +1137,7 @@ void MainWindow::setMenusForSelectedPacket()
         QString filter;
         if (capture_file_.capFile()->edt) {
             enable = color_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
-            filter = color_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
+            filter = gchar_free_to_qstring(color_filter->build_filter_string(&capture_file_.capFile()->edt->pi));
         }
         conv_action->setEnabled(enable);
         conv_action->setData(filter);

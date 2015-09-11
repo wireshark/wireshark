@@ -37,6 +37,8 @@ class ProgressFrame;
 
 class ProgressFrame;
 class QDialogButtonBox;
+class QGraphicsOpacityEffect;
+class QPropertyAnimation;
 
 // Define the structure describing a progress dialog.
 struct progdlg {
@@ -86,6 +88,8 @@ private:
     gboolean *stop_flag_;
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     int show_timer_;
+    QGraphicsOpacityEffect *effect_;
+    QPropertyAnimation *animation_;
 #endif
 #ifdef QWINTASKBARPROGRESS_H
     bool update_taskbar_;

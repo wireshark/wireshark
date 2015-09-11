@@ -68,7 +68,7 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void pushFilterSyntaxWarning(const QString&);
-    void filterPackets(QString& new_filter, bool force);
+    void filterPackets(QString new_filter, bool force);
 };
 
 #endif // DISPLAYFILTEREDIT_H

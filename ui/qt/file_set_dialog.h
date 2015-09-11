@@ -50,7 +50,7 @@ public:
     void addFile(fileset_entry *entry = NULL);
 
 signals:
-    void fileSetOpenCaptureFile(QString &);
+    void fileSetOpenCaptureFile(QString);
 
 private slots:
     void on_buttonBox_helpRequested();

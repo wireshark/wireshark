@@ -193,7 +193,7 @@ void WiresharkApplication::refreshRecentFiles(void) {
             continue;
         }
 
-        rf_status = new RecentFileStatus(ri->filename);
+        rf_status = new RecentFileStatus(ri->filename, this);
 
         connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)),
                 this, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
@@ -981,7 +981,7 @@ QList<recent_item_status *> WiresharkApplication::recentItems() const {
     return recent_items_;
 }
 
-void WiresharkApplication::addRecentItem(const QString &filename, qint64 size, bool accessible) {
+void WiresharkApplication::addRecentItem(const QString filename, qint64 size, bool accessible) {
     recent_item_status *ri = new(recent_item_status);
 
     ri->filename = filename;

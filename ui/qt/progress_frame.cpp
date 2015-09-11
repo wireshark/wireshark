@@ -105,6 +105,8 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
   , stop_flag_(NULL)
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
   , show_timer_(-1)
+  , effect_(NULL)
+  , animation_(NULL)
 #endif
 #ifdef QWINTASKBARPROGRESS_H
   , update_taskbar_(false)
@@ -140,6 +142,12 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "  max-width: 1em;"
             "}"
             );
+
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+    effect_ = new QGraphicsOpacityEffect(this);
+    animation_ = new QPropertyAnimation(effect_, "opacity", this);
+#endif
+
     connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
             this, SLOT(show(bool,bool,gboolean*)));
     hide();
@@ -230,16 +238,13 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
         killTimer(show_timer_);
         show_timer_ = -1;
 
-        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
-        this->setGraphicsEffect(effect);
+        this->setGraphicsEffect(effect_);
 
-        QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
-
-        animation->setDuration(750);
-        animation->setStartValue(0.1);
-        animation->setEndValue(1.0);
-        animation->setEasingCurve(QEasingCurve::InOutQuad);
-        animation->start();
+        animation_->setDuration(750);
+        animation_->setStartValue(0.1);
+        animation_->setEndValue(1.0);
+        animation_->setEasingCurve(QEasingCurve::InOutQuad);
+        animation_->start();
 
         QFrame::show();
     }

@@ -280,14 +280,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(const QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
-    connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
+    connect(df_edit, SIGNAL(filterPackets(QString,bool)), this, SLOT(filterPackets(QString,bool)));
     connect(wsApp, SIGNAL(preferencesChanged()), df_edit, SLOT(checkFilter()));
 
     connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));
     connect(funnel_statistics_, SIGNAL(setDisplayFilter(QString)), df_edit, SLOT(setText(QString)));
     connect(funnel_statistics_, SIGNAL(applyDisplayFilter()), df_combo_box_, SLOT(applyDisplayFilter()));
-    connect(funnel_statistics_, SIGNAL(openCaptureFile(QString&,QString&)),
-            this, SLOT(openCaptureFile(QString&,QString&)));
+    connect(funnel_statistics_, SIGNAL(openCaptureFile(QString,QString)),
+            this, SLOT(openCaptureFile(QString,QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     initMainToolbarIcons();
@@ -455,8 +455,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(main_welcome_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));
-    connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
-            this, SLOT(openCaptureFile(QString&)));
+    connect(main_welcome_, SIGNAL(recentFileActivated(QString)),
+            this, SLOT(openCaptureFile(QString)));
     connect(main_welcome_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
     connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
@@ -554,8 +554,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
-    connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
-            this, SLOT(openCaptureFile(QString&)));
+    connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
+            this, SLOT(openCaptureFile(QString)));
 
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
@@ -1437,7 +1437,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     }
 }
 
-bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
+bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what) {
     bool capture_in_progress = FALSE;
 
     if (!capture_file_.capFile() || capture_file_.capFile()->state == FILE_CLOSED)

@@ -47,7 +47,7 @@ AccordionFrame::AccordionFrame(QWidget *parent) :
                 "}"
                 );
     setStyleSheet(subframe_style);
-    animation_ = new QPropertyAnimation(this, "maximumHeight");
+    animation_ = new QPropertyAnimation(this, "maximumHeight", this);
     animation_->setDuration(duration_);
     animation_->setEasingCurve(QEasingCurve::InOutQuad);
     connect(animation_, SIGNAL(finished()), this, SLOT(animationFinished()));

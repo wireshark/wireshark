@@ -65,7 +65,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setAccessibleName(tr("Welcome screen list"));
 
-    setItemDelegateForColumn(IFTREE_COL_STATS, new SparkLineDelegate());
+    setItemDelegateForColumn(IFTREE_COL_STATS, new SparkLineDelegate(this));
     setDisabled(true);
 
     ti = new QTreeWidgetItem();
