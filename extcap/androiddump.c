@@ -2350,7 +2350,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     while (endless_loop) {
         char *i_position;
         errno = 0;
-        length = recv(sock, data + used_buffer_length, PACKET_LENGTH - used_buffer_length, 0);
+        length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH - used_buffer_length), 0);
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             continue;
         else if (errno != 0) {
@@ -2389,7 +2389,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
      */
     filter_buffer_length=0;
     while (endless_loop) {
-        guint i = 0,read_offset,j=0;
+        gssize i = 0,read_offset,j=0;
        /*Filter the received data to get rid of unwanted 0DOA*/
         for (i = 0; i < (used_buffer_length - 1); i++) {
             if (data[i] == 0x0d && data[i + 1] == 0x0a) {
@@ -2431,7 +2431,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
                     p_header.orig_len = GUINT32_SWAP_LE_BE(*(guint32*)(packet +12));
                 }
 
-                if (p_header.incl_len + PCAP_RECORD_HEADER_LENGTH <= filter_buffer_length) {
+                if ((gssize)(p_header.incl_len + PCAP_RECORD_HEADER_LENGTH) <= filter_buffer_length) {
 
                     /*
                      * It was observed that some times tcpdump reports the length of packet as '0' and that leads to the
@@ -2462,7 +2462,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         /*Get the data from the tcpdump process running in the android device*/
         while (endless_loop) {
             errno = 0;
-            length = recv(sock, data + used_buffer_length,PACKET_LENGTH -(used_buffer_length + filter_buffer_length), 0);
+            length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH -(used_buffer_length + filter_buffer_length)), 0);
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 continue;
             }
