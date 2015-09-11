@@ -1366,7 +1366,7 @@ void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
     frame->elem = curr;
 
     while (curr) {
-        pi = proto_tree_add_text(frame->tree,curr->tvb,curr->offset,curr->len,"%s",tvb_format_text(curr->tvb,curr->offset,curr->len));
+        pi = proto_tree_add_format_text(frame->tree,curr->tvb,curr->offset,curr->len);
 
         if(curr->sub) {
             frame->elem = curr;

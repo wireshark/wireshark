@@ -284,7 +284,7 @@ dvb_add_chartbl(proto_tree *tree, int hf,
     if (length==0) {
         proto_item *pi;
 
-        pi = proto_tree_add_text(tree, NULL, 0, 0,
+        pi = proto_tree_add_bytes_format(tree, hf, tvb, 0, 0, NULL,
                 "Default character table (Latin)");
         PROTO_ITEM_SET_GENERATED(pi);
     }

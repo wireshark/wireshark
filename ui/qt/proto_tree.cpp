@@ -392,7 +392,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
         } // else the GTK+ version pushes an empty string as described below.
         /*
          * Don't show anything if the field name is zero-length;
-         * the pseudo-field for "proto_tree_add_text()" is such
+         * the pseudo-field for text-only items is such
          * a field, and we don't want "Text (text)" showing up
          * on the status line if you've selected such a field.
          *
@@ -404,10 +404,9 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
          * but we'd have to add checks for null pointers in some
          * places if we did that.
          *
-         * Or perhaps protocol tree items added with
-         * "proto_tree_add_text()" should have -1 as the field index,
-         * with no pseudo-field being used, but that might also
-         * require special checks for -1 to be added.
+         * Or perhaps text-only items should have -1 as the field
+         * index, with no pseudo-field being used, but that might
+         * also require special checks for -1 to be added.
          */
 
     } else {

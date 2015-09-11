@@ -75,8 +75,7 @@ WS_DLL_PUBLIC guint8* tpg_ipv6(tvbparse_elem_t*);
 #define TPG_ADD_UINT(tpg,  hfid, elem, value) proto_tree_add_uint(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_IPV4(tpg,  hfid, elem, value) proto_tree_add_ipv4(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_IPV6(tpg,  hfid, elem, value) proto_tree_add_ipv6(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
-#define TPG_ADD_TEXT(tpg, elem) proto_tree_add_text(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), (elem)->tvb, (elem)->offset, (elem)->len, \
-                                                             "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))
+#define TPG_ADD_TEXT(tpg, elem) proto_tree_add_format_text(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), (elem)->tvb, (elem)->offset, (elem)->len)
 
 #define TPG_SET_TEXT(pi, elem) proto_item_set_text((pi), "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))
 
