@@ -93,11 +93,8 @@ guint PacketListModel::recreateVisibleRows()
     beginResetModel();
     visible_rows_.clear();
     number_to_row_.clear();
-    if (cap_file_) {
-        PacketListRecord::resetColumns(&cap_file_->cinfo);
-    }
-
     endResetModel();
+
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (record, physical_rows_) {
         if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {

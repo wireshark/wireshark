@@ -636,10 +636,9 @@ void PacketList::columnsChanged()
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
-    packet_list_model_->recreateVisibleRows(); // Calls PacketListRecord::resetColumns
     setColumnVisibility();
     create_far_overlay_ = true;
-    redrawVisiblePackets();
+    packet_list_model_->resetColumns();
 }
 
 // Fields have changed, update custom columns
@@ -648,6 +647,7 @@ void PacketList::fieldsChanged(capture_file *cf)
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cf->cinfo);
     build_column_format_array(&cf->cinfo, prefs.num_cols, FALSE);
+    // call packet_list_model_->resetColumns() ?
 }
 
 // Column widths should
