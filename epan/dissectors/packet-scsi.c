@@ -721,13 +721,17 @@ static int hf_scsi_recv_copy_held_data_gran = -1;
 static int hf_scsi_recv_copy_implemented_desc_list_len = -1;
 static int hf_scsi_segment_descriptor_length = -1;
 static int hf_scsi_designator = -1;
-static int hf_scsi_wwn = -1;
 static int hf_scsi_inline_data = -1;
 static int hf_scsi_reserved_8 = -1;
 static int hf_scsi_reserved_16 = -1;
 static int hf_scsi_reserved_24 = -1;
 static int hf_scsi_reserved_32 = -1;
 static int hf_scsi_reserved_64 = -1;
+static int hf_scsi_naa_type = -1;
+static int hf_scsi_naa_locally_assigned = -1;
+static int hf_scsi_naa_ieee_company_id = -1;
+static int hf_scsi_naa_vendor_specific = -1;
+static int hf_scsi_naa_vendor_specific_extension = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -763,6 +767,8 @@ static gint ett_scsi_xcopy_segs = -1;
 static gint ett_scsi_xcopy_seg = -1;
 static gint ett_scsi_xcopy_seg_param = -1;
 static gint ett_scsi_cscd_desc = -1;
+static gint ett_scsi_naa = -1;
+static gint ett_scsi_designation_descriptor = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_scsi_unknown_scsi_exchange = EI_INIT;
@@ -947,6 +953,18 @@ static const value_string scsi_log_pc_val[] = {
     {0, NULL},
 };
 
+#define NAA_TYPE_IEEE_EXTENDED            2
+#define NAA_TYPE_LOCALLY_ASSIGNED         3
+#define NAA_TYPE_IEEE_REGISTERED          5
+#define NAA_TYPE_IEEE_REGISTERED_EXTENDED 6
+static const value_string scsi_naa_designator_type_val[] = {
+    {2, "IEEE Extended" },
+    {3, "Locally Assigned" },
+    {5, "IEEE Registered" },
+    {6, "IEEE Registered Extended" },
+    {0, NULL},
+};
+
 #define SCSI_NUM_PROCEDURES 256
 typedef struct scsistat_tap_data
 {
@@ -1004,7 +1022,7 @@ scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 static guint
 scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
 {
-    guint pos = 0;
+    int pos = 0;
     int program;
     scsistat_tap_data_t* tap_data;
 
@@ -2182,13 +2200,13 @@ static const value_string scsi_devid_assoc_val[] = {
 };
 
 #define DEVID_TYPE_VEND_ID_VEND_SPEC_ID 1
-#define DEVID_TYPE_WWN 3
+#define DEVID_TYPE_NAA                  3
 
 const value_string scsi_devid_idtype_val[] = {
     {0, "Vendor-specific ID (non-globally unique)"},
     {DEVID_TYPE_VEND_ID_VEND_SPEC_ID, "Vendor-ID + vendor-specific ID (globally unique)"},
     {2, "EUI-64 ID"},
-    {DEVID_TYPE_WWN, "WWN"},
+    {DEVID_TYPE_NAA, "NAA"},
     {4, "4-byte Binary Number/Reserved"},
     {0, NULL},
 };
@@ -2797,6 +2815,47 @@ static cmdset_t *get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl);
 static dissector_handle_t data_handle;
 
 static void
+dissect_naa_designator(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len)
+{
+        proto_tree *naa_tree;
+        guint8 naa_type;
+        guint64 vs;
+
+        naa_type = tvb_get_guint8(tvb, offset) >> 4;
+
+        naa_tree = proto_tree_add_subtree_format(tree, tvb, offset, len,
+                        ett_scsi_naa, NULL, "NAA Designator: %s",
+                        val_to_str(naa_type,
+                                   scsi_naa_designator_type_val,
+                                   "Unknown (0x%08x)"));
+
+        proto_tree_add_item(naa_tree, hf_scsi_naa_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        switch(naa_type) {
+        case NAA_TYPE_IEEE_EXTENDED:
+            vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset, 2, (vs >> 48) & 0x0fff);
+            proto_tree_add_item(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset + 2, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 5, 3, vs & 0x00ffffff);
+            break;
+        case NAA_TYPE_LOCALLY_ASSIGNED:
+            proto_tree_add_item(naa_tree, hf_scsi_naa_locally_assigned, tvb, offset + 1, len - 1, ENC_NA);
+            break;
+        case NAA_TYPE_IEEE_REGISTERED:
+            vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (vs >> 36) & 0x00ffffff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, vs & 0x0fffffff);
+            break;
+        case NAA_TYPE_IEEE_REGISTERED_EXTENDED:
+            vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (vs >> 36) & 0x00ffffff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, vs & 0x0fffffff);
+            proto_tree_add_item(naa_tree, hf_scsi_naa_vendor_specific_extension, tvb, offset + 8, 8, ENC_NA);
+            break;
+        }
+}
+
+
+static void
 dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                   guint offset, guint tot_len _U_)
 {
@@ -2804,6 +2863,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_item *ti;
     guint       pcode, plen, i, idlen;
     guint8      codeset, identifier_type;
+    proto_tree *des_tree;
 
     if (tree) {
         pcode = tvb_get_guint8(tvb, offset+1);
@@ -2818,7 +2878,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item(evpd_tree, hf_scsi_inq_devtype, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         proto_tree_add_item(evpd_tree, hf_scsi_inquiry_evpd_page, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_page_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_page_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         offset += 4;
         switch (pcode) {
         case SCSI_EVPD_SUPPPG:
@@ -2829,11 +2889,18 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         case SCSI_EVPD_DEVID:
             i = 0;
             while (plen != 0) {
+                idlen = tvb_get_guint8(tvb, offset + 3);
+
+                des_tree = proto_tree_add_subtree_format(evpd_tree,
+                        tvb, offset, idlen, ett_scsi_designation_descriptor,
+                        NULL, "Designation Descriptor");
+
                 i++;
-                codeset = tvb_get_guint8(tvb, offset) & 0x0F;
-                ti = proto_tree_add_uint(evpd_tree, hf_scsi_inq_evpd_identifier_number, tvb, offset, 0, i);
+                ti = proto_tree_add_uint(des_tree, hf_scsi_inq_evpd_identifier_number, tvb, offset, 0, i);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_code_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                codeset = tvb_get_guint8(tvb, offset) & 0x0F;
+                ti = proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_code_set, tvb, offset, 1, ENC_BIG_ENDIAN);
                 plen -= 1;
                 offset += 1;
 
@@ -2842,9 +2909,9 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     break;
                 }
 
-                proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_association, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_association, tvb, offset, 1, ENC_BIG_ENDIAN);
                 identifier_type = tvb_get_guint8(tvb, offset);
-                ti = proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                 plen -= 1;
                 offset += 1;
 
@@ -2860,8 +2927,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     expert_add_info(pinfo, ti, &ei_scsi_product_data_goes_past_end_of_page);
                     break;
                 }
-                idlen = tvb_get_guint8(tvb, offset);
-                ti = proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                 plen -= 1;
                 offset += 1;
 
@@ -2872,19 +2938,19 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     }
                     if (codeset == CODESET_ASCII) {
                         if (identifier_type == DEVID_TYPE_VEND_ID_VEND_SPEC_ID) {
-                            proto_tree_add_item(evpd_tree, hf_scsi_inq_vendor_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
-                            proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset + 8, idlen - 8, ENC_NA|ENC_ASCII);
+                            proto_tree_add_item(des_tree, hf_scsi_inq_vendor_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+                            proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset + 8, idlen - 8, ENC_NA|ENC_ASCII);
                         } else {
-                            proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
+                            proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
                         }
-                    } else if (codeset == CODESET_BINARY && identifier_type == DEVID_TYPE_WWN) {
-                            proto_tree_add_item(evpd_tree, hf_scsi_wwn, tvb, offset, plen, ENC_NA);
+                    } else if (codeset == CODESET_BINARY && identifier_type == DEVID_TYPE_NAA) {
+                        dissect_naa_designator(des_tree, tvb, offset, idlen);
                     } else {
                         /*
                          * XXX - decode this based on the identifier type,
                          * if the codeset is CODESET_BINARY?
                          */
-                        proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_bytes, tvb, offset, idlen, ENC_NA);
+                        proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_bytes, tvb, offset, idlen, ENC_NA);
                     }
                     plen -= idlen;
                     offset += idlen;
@@ -3534,8 +3600,8 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         des_len = tvb_get_guint8(tvb, offset);
                                         offset += 1;
                                         proto_tree_add_bytes_format(cscd_desc_tree, hf_scsi_designator, tvb, offset, 20, NULL, "Designator (20 bytes, zero padded, used length %u)", des_len);
-                                        if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_WWN) { /* des_type 3 = WWN */
-                                                proto_tree_add_item(cscd_desc_tree, hf_scsi_wwn, tvb, offset, des_len, ENC_NA);
+                                        if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_NAA) { /* des_type 3 = NAA */
+                                            dissect_naa_designator(cscd_tree, tvb, offset, des_len);
                                         }
                                         offset += 20;
                                         dev_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 4, ett_scsi_xcopy_dev_params, NULL, "Device type specific parameters");
@@ -7280,7 +7346,7 @@ proto_register_scsi(void)
                 NULL, 0x01, NULL, HFILL}},
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_scsi_inq_evpd_page_length, { "Page Length", "scsi.inquiry.evpd.pagelength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_inq_evpd_page_length, { "Page Length", "scsi.inquiry.evpd.pagelength", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_supported_page, { "Supported Page", "scsi.inquiry.evpd.supported_page", FT_UINT8, BASE_HEX, VALS(scsi_evpd_pagecode_val), 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_code_set, { "Code Set", "scsi.inquiry.evpd.devid.code_set", FT_UINT8, BASE_HEX, VALS(scsi_devid_codeset_val), 0x0F, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_association, { "Association", "scsi.inquiry.evpd.devid.association", FT_UINT8, BASE_HEX, VALS(scsi_devid_assoc_val), 0x30, NULL, HFILL }},
@@ -7616,7 +7682,6 @@ proto_register_scsi(void)
       { &hf_scsi_recv_copy_inline_data_gran, { "Inline data granularity", "scsi.recv_copy.inline_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_held_data_gran, { "Held data granularity", "scsi.recv_copy.held_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_implemented_desc_list_len, { "Implemented description list length", "scsi.recv_copy.implemented_desc_list_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_wwn, { "WWN", "scsi.wwn", FT_FCWWN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_designator, { "Designator", "scsi.designator", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_segment_descriptor_length, { "Segment descriptor length (bytes)", "scsi.segment_descriptor_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inline_data, { "Inline data", "scsi.inline_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7624,8 +7689,12 @@ proto_register_scsi(void)
       { &hf_scsi_reserved_16, { "Reserved (2 bytes)", "scsi.reserved2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_reserved_24, { "Reserved (3 bytes)", "scsi.reserved3", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_reserved_32, { "Reserved (4 bytes)", "scsi.reserved4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_reserved_64, { "Reserved (8 bytes)", "scsi.reserved8", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }}
-
+      { &hf_scsi_reserved_64, { "Reserved (8 bytes)", "scsi.reserved8", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_naa_type, { "NAA Designator Type", "scsi.naa.type", FT_UINT8, BASE_DEC, VALS(scsi_naa_designator_type_val), 0xF0, NULL, HFILL }},
+      { &hf_scsi_naa_locally_assigned, { "Locally Assigned", "scsi.naa.locally_assigned", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_naa_ieee_company_id, { "IEEE Company ID", "scsi.naa.ieee_company_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_naa_vendor_specific, { "Vendor Specific Identifier", "scsi.naa.vendor_specific", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_naa_vendor_specific_extension, { "Vendor Specific Identifier Extension", "scsi.naa.vendor_specific", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -7664,6 +7733,8 @@ proto_register_scsi(void)
         &ett_scsi_xcopy_seg_param,
         &ett_xcopy_param_byte,
         &ett_scsi_cscd_desc,
+        &ett_scsi_designation_descriptor,
+        &ett_scsi_naa,
     };
 
     static ei_register_info ei[] = {
@@ -7720,7 +7791,7 @@ proto_reg_handoff_scsi(void)
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
- * End:
+ * End:hf_scsi_naa_vendor_specific_a
  *
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
