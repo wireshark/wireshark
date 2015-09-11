@@ -2675,11 +2675,9 @@ dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_CCCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2706,11 +2704,9 @@ dissect_lte_rrc_UL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_CCCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2722,11 +2718,9 @@ dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_DCCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2738,11 +2732,9 @@ dissect_lte_rrc_BCCH_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC BCCH_BCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2754,8 +2746,6 @@ dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  /* Dissect regardless of whether tree is set, so that we can track whether
-     systemInfoValue has changed */
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
   dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
@@ -2784,11 +2774,9 @@ dissect_lte_rrc_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC MCCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_MCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_MCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2805,11 +2793,9 @@ dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, pro
   col_set_str(pinfo->cinfo, COL_INFO, "HandoverPreparationInformation");
   col_set_writable(pinfo->cinfo, FALSE);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_lte_rrc_HandoverPreparationInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_lte_rrc_HandoverPreparationInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 
   col_set_writable(pinfo->cinfo, TRUE);
 }
