@@ -354,6 +354,9 @@ static int hf_scsi_block_limits_oug             = -1;
 static int hf_scsi_block_limits_ugavalid        = -1;
 static int hf_scsi_block_limits_uga             = -1;
 static int hf_scsi_block_limits_mwsl            = -1;
+static int hf_scsi_block_limits_matl            = -1;
+static int hf_scsi_block_limits_aa              = -1;
+static int hf_scsi_block_limits_atlg            = -1;
 static int hf_scsi_prevent_allow_flags          = -1;
 static int hf_scsi_prevent_allow_prevent        = -1;
 static int hf_scsi_mpi_service_action           = -1;
@@ -2949,7 +2952,16 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset += 4;
 
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_mwsl, tvb, offset, 8, ENC_BIG_ENDIAN);
-            /*offset += 8;*/
+            offset += 8;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_block_limits_matl, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_block_limits_aa, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_block_limits_atlg, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
             break;
         case SCSI_EVPD_LBP:
@@ -7134,6 +7146,15 @@ proto_register_scsi(void)
            NULL, HFILL}},
         { &hf_scsi_block_limits_mwsl,
           {"Maximum Write Same Length", "scsi_sbc.bl.mwsl", FT_UINT64, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+        { &hf_scsi_block_limits_matl,
+          {"Maximum Atomic Transfer Length", "scsi_sbc.bl.matl", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+        { &hf_scsi_block_limits_aa,
+          {"Atomic Alignment", "scsi_sbc.bl.aa", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+        { &hf_scsi_block_limits_atlg,
+          {"Atomic Transfer Length Granularity", "scsi_sbc.bl.atlg", FT_UINT32, BASE_DEC, NULL, 0,
            NULL, HFILL}},
         { &hf_scsi_modepage_ps,
           {"PS", "scsi.spc.modepage.ps", FT_BOOLEAN, 8, NULL, 0x80,
