@@ -186,8 +186,14 @@ static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown_data             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dstopts                      = -1;
+static int hf_ipv6_dstopts_nxt                  = -1;
+static int hf_ipv6_dstopts_length               = -1;
 static int hf_ipv6_hopopts                      = -1;
-static int hf_ipv6_unk_hdr                      = -1;
+static int hf_ipv6_hopopts_nxt                  = -1;
+static int hf_ipv6_hopopts_length               = -1;
+static int hf_ipv6_unknown_hdr                  = -1;
+static int hf_ipv6_unknown_hdr_nxt              = -1;
+static int hf_ipv6_unknown_hdr_length           = -1;
 static int hf_ipv6_routing_hdr_opt              = -1;
 static int hf_ipv6_routing_hdr_nxt              = -1;
 static int hf_ipv6_routing_hdr_length           = -1;
@@ -1079,24 +1085,24 @@ static const value_string rtalertvals[] = {
 };
 
 static int
-dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_unknown_exthdr(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     int         len;
-    proto_tree *unkopt_tree;
+    proto_tree *unkhdr_tree;
     proto_item *ti, *ti_len;
 
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
 
     if (tree) {
         /* !!! specify length */
-        ti = proto_tree_add_item(tree, hf_ipv6_unk_hdr, tvb, offset, len, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_ipv6_unknown_hdr, tvb, offset, len, ENC_NA);
 
-        unkopt_tree = proto_item_add_subtree(ti, ett_ipv6);
+        unkhdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_item(unkopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(unkhdr_tree, hf_ipv6_unknown_hdr_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_len = proto_tree_add_item(unkopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti_len = proto_tree_add_item(unkhdr_tree, hf_ipv6_unknown_hdr_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
         /* offset += 1; */
     }
@@ -1110,6 +1116,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
     int         offset_end, offset_opt_end;
     proto_tree *exthdr_tree, *opt_tree;
     proto_item *ti, *ti_len, *ti_opt, *ti_opt_len;
+    int         hf_exthdr_item_nxt, hf_exthdr_item_length;
     guint8      opt_len, opt_type;
     ipv6_meta_t *ipv6_info;
     guint32     plen_jumbo;
@@ -1132,10 +1139,20 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
         exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_item(exthdr_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (hf_exthdr_item == hf_ipv6_hopopts) {
+            hf_exthdr_item_nxt = hf_ipv6_hopopts_nxt;
+            hf_exthdr_item_length = hf_ipv6_hopopts_length;
+        } else if (hf_exthdr_item == hf_ipv6_dstopts) {
+            hf_exthdr_item_nxt = hf_ipv6_dstopts_nxt;
+            hf_exthdr_item_length = hf_ipv6_dstopts_length;
+        } else {
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
+
+        proto_tree_add_item(exthdr_tree, hf_exthdr_item_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_len = proto_tree_add_item(exthdr_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti_len = proto_tree_add_item(exthdr_tree, hf_exthdr_item_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
         offset += 1;
 
@@ -2343,7 +2360,7 @@ again:
 
         default:
             if (ipv6_exthdr_check(nxt) && !dissector_get_uint_handle(ip_dissector_table, nxt)) {
-                advance = dissect_unknown_option(tvb, offset, ipv6_tree);
+                advance = dissect_unknown_exthdr(tvb, offset, ipv6_tree);
                 nxt = tvb_get_guint8(tvb, offset);
                 offset += advance;
                 plen -= advance;
@@ -2607,29 +2624,53 @@ proto_register_ipv6(void)
 #endif /* HAVE_GEOIP_V6 */
 
         { &hf_ipv6_dstopts,
-          { "Destination Options",   "ipv6.dstopts",
+          { "Destination Options",  "ipv6.dstopts",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_ipv6_dstopts_nxt,
+          { "Next Header",          "ipv6.dstopts.nxt",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL, HFILL }},
+        { &hf_ipv6_dstopts_length,
+          { "Length",               "ipv6.dstopts.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Extension Header Length", HFILL }},
         { &hf_ipv6_hopopts,
-          { "Hop-by-Hop Options",    "ipv6.hopopts",
+          { "Hop-by-Hop Options",   "ipv6.hopopts",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_ipv6_unk_hdr,
-          { "Unknown Extension Header",     "ipv6.unknown_hdr",
+        { &hf_ipv6_hopopts_nxt,
+          { "Next Header",          "ipv6.hopopts.nxt",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL, HFILL }},
+        { &hf_ipv6_hopopts_length,
+          { "Length",               "ipv6.hopopts.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Extension Header Length", HFILL }},
+        { &hf_ipv6_unknown_hdr,
+          { "Unknown Extension Header", "ipv6.unknown_hdr",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_ipv6_unknown_hdr_nxt,
+          { "Next Header",          "ipv6.unknown_hdr.nxt",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL, HFILL }},
+        { &hf_ipv6_unknown_hdr_length,
+          { "Length",               "ipv6.unknown_hdr.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Extension Header Length", HFILL }},
         { &hf_ipv6_opt,
           { "IPv6 Option",          "ipv6.opt",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Option", HFILL }},
         { &hf_ipv6_opt_type,
-          { "Type",                   "ipv6.opt.type",
+          { "Type",                 "ipv6.opt.type",
             FT_UINT8, BASE_DEC, VALS(ipv6_opt_vals), 0x0,
-            "Options type", HFILL }},
+            "Option type", HFILL }},
         { &hf_ipv6_opt_length,
-          { "Length",                 "ipv6.opt.length",
+          { "Length",               "ipv6.opt.length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Length in units of 8 octets", HFILL }},
+            "Option length in octets", HFILL }},
         { &hf_ipv6_opt_pad1,
           { "Pad1",                 "ipv6.opt.pad1",
             FT_NONE, BASE_NONE, NULL, 0x0,
