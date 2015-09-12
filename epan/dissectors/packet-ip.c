@@ -2210,7 +2210,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
         item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                           offset + 10, 2, iph->ip_sum,
-                                          "0x%04x"
+                                          "0x%04x "
                                           "[incorrect, should be 0x%04x "
                                           "(may be caused by \"IP checksum "
                                           "offload\"?)]", iph->ip_sum,
