@@ -6283,6 +6283,11 @@ static int hf_iter_position = -1;
 static int hf_iter_search = -1;
 static int hf_iter_other = -1;
 static int hf_nds_oid = -1;
+static int hf_sap_name = -1;
+static int hf_os_name = -1;
+static int hf_vendor_name = -1;
+static int hf_hardware_name = -1;
+static int hf_no_request_record_found = -1;
 
 static expert_field ei_ncp_file_rights_change = EI_INIT;
 static expert_field ei_ncp_completion_code = EI_INIT;
@@ -6300,6 +6305,8 @@ static expert_field ei_ncp_connection_status = EI_INIT;
 static expert_field ei_ncp_op_lock_handle = EI_INIT;
 static expert_field ei_ncp_effective_rights = EI_INIT;
 static expert_field ei_ncp_server = EI_INIT;
+static expert_field ei_ncp_invalid_offset = EI_INIT;
+static expert_field ei_ncp_address_type = EI_INIT;
 """)
 
     # Look at all packet types in the packets collection, and cull information
@@ -6664,7 +6671,7 @@ proto_register_ncp2222(void)
 #endif
 
     { &hf_nds_tree_name,
-    { "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "NDS Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     /*
      * XXX - the page at
@@ -8159,8 +8166,20 @@ proto_register_ncp2222(void)
     { &hf_nds_oid,
     { "Object ID", "ncp.nds_oid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_sap_name,
+    { "SAP Name", "ncp.sap_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_os_name,
+    { "OS Name", "ncp.os_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_vendor_name,
+    { "Vendor Name", "ncp.vendor_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_hardware_name,
+    { "Hardware Name", "ncp.harware_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_no_request_record_found,
+    { "No request record found. Parsing is impossible.", "ncp.no_request_record_found", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 """)
     # Print the registration code for the hf variables
@@ -8199,6 +8218,8 @@ proto_register_ncp2222(void)
         { &ei_ncp_connection_status, { "ncp.connection_status.bad", PI_RESPONSE_CODE, PI_ERROR, "Error: Bad Connection Status", EXPFILL }},
         { &ei_ncp_connection_destroyed, { "ncp.connection_destroyed", PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed", EXPFILL }},
         { &ei_ncp_no_request_record_found, { "ncp.no_request_record_found", PI_SEQUENCE, PI_NOTE, "No request record found.", EXPFILL }},
+        { &ei_ncp_invalid_offset, { "ncp.invalid_offset", PI_MALFORMED, PI_ERROR, "Invalid offset", EXPFILL }},
+        { &ei_ncp_address_type, { "ncp.address_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Address Type", EXPFILL }},
     };
 
     expert_module_t* expert_ncp;
