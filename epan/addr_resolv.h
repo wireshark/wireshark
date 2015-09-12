@@ -60,6 +60,12 @@ typedef struct _e_addr_resolve {
   gboolean load_hosts_file_from_profile_only; /**< Whether to only load the hosts in the current profile, not hosts files */
 } e_addr_resolve;
 
+#define ADDR_RESOLV_MACADDR(at) \
+    (((at)->type == AT_ETHER))
+
+#define ADDR_RESOLV_NETADDR(at) \
+    (((at)->type == AT_IPv4) || ((at)->type == AT_IPv6) || ((at)->type == AT_IPX))
+
 struct hashether;
 typedef struct hashether hashether_t;
 

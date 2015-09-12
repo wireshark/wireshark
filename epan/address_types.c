@@ -1048,8 +1048,11 @@ gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *ad
         return wmem_strdup(scope, "");
 
     /* No name resolution support, just return address string */
-    if (at->addr_name_res_str == NULL)
+    if ((at->addr_name_res_str == NULL) ||
+            (ADDR_RESOLV_MACADDR(addr) && !gbl_resolv_flags.mac_name) ||
+            (ADDR_RESOLV_NETADDR(addr) && !gbl_resolv_flags.network_name)) {
         return address_to_str(scope, addr);
+    }
 
     len = at->addr_name_res_len() + at->addr_str_len(addr) + 4; /* For format of %s (%s) */
 
