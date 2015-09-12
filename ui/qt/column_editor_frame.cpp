@@ -25,6 +25,9 @@
 
 #include <epan/column-info.h>
 #include <epan/column.h>
+#include <epan/prefs.h>
+
+#include <ui/preference_utils.h>
 
 #include "column_editor_frame.h"
 #include <ui_column_editor_frame.h>
@@ -123,6 +126,9 @@ void ColumnEditorFrame::on_okButton_clicked()
             if (!ui->occurrenceLineEdit->text().isEmpty()) {
                 set_column_custom_occurrence(cur_column_, ui->occurrenceLineEdit->text().toInt());
             }
+        }
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
         }
         emit columnEdited();
     }

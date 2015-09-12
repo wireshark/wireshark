@@ -515,7 +515,7 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*,pref_module*)));
     connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
     connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
-            packet_list_, SLOT(redrawVisiblePackets()));
+            packet_list_, SLOT(columnsChanged()));
     connect(packet_list_, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(openPacketDialog()));
     connect(packet_list_, SIGNAL(packetListScrolled(bool)),
