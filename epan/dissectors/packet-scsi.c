@@ -3027,7 +3027,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset += 4;
 
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_atlg, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+            /*offset += 4;*/
 
             break;
         case SCSI_EVPD_LBP:
