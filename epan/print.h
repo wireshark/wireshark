@@ -88,7 +88,7 @@ typedef struct _output_fields output_fields_t;
 WS_DLL_PUBLIC output_fields_t* output_fields_new(void);
 WS_DLL_PUBLIC void output_fields_free(output_fields_t* info);
 WS_DLL_PUBLIC void output_fields_add(output_fields_t* info, const gchar* field);
-WS_DLL_PUBLIC gboolean output_fields_valid(output_fields_t* info);
+WS_DLL_PUBLIC GSList * output_fields_valid(output_fields_t* info);
 WS_DLL_PUBLIC gsize output_fields_num_fields(output_fields_t* info);
 WS_DLL_PUBLIC gboolean output_fields_set_option(output_fields_t* info, gchar* option);
 WS_DLL_PUBLIC void output_fields_list_options(FILE *fh);

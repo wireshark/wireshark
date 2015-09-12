@@ -2030,11 +2030,19 @@ DIAG_ON(cast-qual)
   /* At this point MATE will have registered its field array so we can
      check if the fields specified by the user are all good.
    */
-  if (!output_fields_valid(output_fields)) {
-    cmdarg_err("Some fields aren't valid");
-    return 1;
-  }
+  {
+    GSList* it = NULL;
+    GSList *invalid_fields = output_fields_valid(output_fields);
+    if (invalid_fields != NULL) {
 
+      cmdarg_err("Some fields aren't valid:");
+      for (it=invalid_fields; it != NULL; it = g_slist_next(it)) {
+        cmdarg_err_cont("\t%s", (gchar *)it->data);
+      }
+      g_slist_free(invalid_fields);
+      return 1;
+    }
+  }
 #ifdef HAVE_LIBPCAP
   /* We currently don't support taps, or printing dissected packets,
      if we're writing to a pipe. */

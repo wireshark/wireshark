@@ -1075,30 +1075,28 @@ static void
 output_field_check(void *data, void *user_data)
 {
     gchar *field = (gchar *)data;
-    gboolean *all_valid = (gboolean *)user_data;
+    GSList **invalid_fields = (GSList **)user_data;
 
     if (!strncmp(field, COLUMN_FIELD_FILTER, strlen(COLUMN_FIELD_FILTER)))
         return;
 
     if (!proto_registrar_get_byname(field)) {
-        g_warning("'%s' isn't a valid field!", field);
-        *all_valid = FALSE;
+        *invalid_fields = g_slist_prepend(*invalid_fields, field);
     }
 
 }
 
-gboolean
+GSList *
 output_fields_valid(output_fields_t *fields)
 {
-    gboolean all_valid = TRUE;
-
+    GSList *invalid_fields = NULL;
     if (fields->fields == NULL) {
-        return TRUE;
+        return NULL;
     }
 
-    g_ptr_array_foreach(fields->fields, output_field_check, &all_valid);
+    g_ptr_array_foreach(fields->fields, output_field_check, &invalid_fields);
 
-    return all_valid;
+    return invalid_fields;
 }
 
 gboolean output_fields_set_option(output_fields_t *info, gchar *option)
