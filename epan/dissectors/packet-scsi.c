@@ -2833,22 +2833,22 @@ dissect_naa_designator(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len)
         switch(naa_type) {
         case NAA_TYPE_IEEE_EXTENDED:
             vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset, 2, (vs >> 48) & 0x0fff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset, 2, (guint)((vs >> 48) & 0x0fff));
             proto_tree_add_item(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset + 2, 3, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 5, 3, vs & 0x00ffffff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 5, 3, (guint)(vs & 0x00ffffff));
             break;
         case NAA_TYPE_LOCALLY_ASSIGNED:
             proto_tree_add_item(naa_tree, hf_scsi_naa_locally_assigned, tvb, offset + 1, len - 1, ENC_NA);
             break;
         case NAA_TYPE_IEEE_REGISTERED:
             vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (vs >> 36) & 0x00ffffff);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, vs & 0x0fffffff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (guint)((vs >> 36) & 0x00ffffff));
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, (guint)(vs & 0x0fffffff));
             break;
         case NAA_TYPE_IEEE_REGISTERED_EXTENDED:
             vs = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (vs >> 36) & 0x00ffffff);
-            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, vs & 0x0fffffff);
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_ieee_company_id, tvb, offset, 4, (guint)((vs >> 36) & 0x00ffffff));
+            proto_tree_add_uint(naa_tree, hf_scsi_naa_vendor_specific, tvb, offset + 3, 4, (guint)(vs & 0x0fffffff));
             proto_tree_add_item(naa_tree, hf_scsi_naa_vendor_specific_extension, tvb, offset + 8, 8, ENC_NA);
             break;
         }
