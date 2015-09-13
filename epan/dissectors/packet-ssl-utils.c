@@ -5770,15 +5770,11 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     switch (cert_type) {
     case CERT_RPK:
         {
-            guint32 cert_length;
-            cert_length = tvb_get_ntoh24(tvb, offset);
-
             proto_tree_add_item(tree, hf->hf.hs_certificate_len,
                                 tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
             dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf->hf.hs_certificate);
-            offset += cert_length;
 
             break;
         }
