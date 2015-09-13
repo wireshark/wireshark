@@ -2319,6 +2319,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
             g_fprintf(stderr,
                 "ERROR: Error while setting adb transport for <%s>\n",
                 adb_transport);
+            closesocket(sock);
             return 1;
         }
     } else {
@@ -2332,6 +2333,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
                 g_fprintf(stderr,
                         "ERROR: Error while setting adb transport for <%s>\n",
                         helpful_packet);
+            closesocket(sock);
             return 1;
         }
     }
@@ -2343,6 +2345,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
             g_fprintf(stderr,
                     "ERROR: Error while starting capture by sending command: %s\n",
                     adb_shell_tcpdump);
+        closesocket(sock);
         return 1;
     }
 
