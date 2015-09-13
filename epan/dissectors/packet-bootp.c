@@ -2800,7 +2800,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			else {
 				if (wmem_strbuf_get_len(avaya_param_buf) > 0) {
 					dissect_vendor_avaya_param(o242avaya_v_tree, pinfo, vti, tvb, optoff, avaya_param_buf);
-					optoff += wmem_strbuf_get_len(avaya_param_buf) + 1;
+					optoff += (int)wmem_strbuf_get_len(avaya_param_buf) + 1;
 					wmem_strbuf_truncate(avaya_param_buf, 0);
 				}
 				wmem_strbuf_append(avaya_param_buf, field);
@@ -3171,10 +3171,10 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 		tvbuff_t *tvb, int optoff, wmem_strbuf_t *avaya_param_buf)
 {
 	const gchar *field;
-	gsize len;
+	int len;
 
 	field = wmem_strbuf_get_str(avaya_param_buf);
-	len = wmem_strbuf_get_len(avaya_param_buf);
+	len = (int)wmem_strbuf_get_len(avaya_param_buf);
 
 	if((strncmp(field, "TLSSRVR=", 8) == 0) && ( len > 8 )) {
 		proto_tree_add_string(tree, hf_bootp_option242_avaya_tlssrvr, tvb, optoff, len, field + 8);
