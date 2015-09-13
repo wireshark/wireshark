@@ -81,6 +81,7 @@ bool StockIconToolButton::event(QEvent *event)
     case QEvent::Leave:
         if (leave_timer_ > 0) killTimer(leave_timer_);
         leave_timer_ = 0;
+        // Fall through
     case QEvent::MouseButtonRelease:
         setIconMode();
         break;
