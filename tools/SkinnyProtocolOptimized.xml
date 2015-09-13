@@ -812,7 +812,7 @@
   <message comment="" direction="dev2pbx" dynamic="no" name="OpenReceiveChannelAckMessage" opcode="0x0022" status="no" type="MediaControl">
     <fields>
       <enum comment="" name="openReceiveChannelStatus" subtype="MediaStatus" type="uint32"/>
-      <ipv4or6 comment="" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
+      <ipv4or6 comment="" name="ipAddr" subtype="IPV4orV6Address" type="ipaddr"/>
       <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
     </fields>
@@ -2186,7 +2186,7 @@
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
-      <ipv4or6 comment="" name="remoteIpAddr" subtype="IpAddress" type="ipaddr"/>
+      <ipv4or6 comment="" name="remoteIpAddr" subtype="IPV4orV6Address" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
@@ -2540,14 +2540,23 @@
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="ServerResMessage" opcode="0x009e" status="no" type="RegistrationAndManagement">
-    <fields beginversion="0" endversion="22">
+    <fields>
       <struct comment="" name="server" size="5" subtype="ServerIdentifier" type="struct">
         <fields>
           <string comment="" name="ServerName" size="48" type="char"/>
         </fields>
       </struct>
       <integer comment="" name="serverTcpListenPort" size="5" type="uint32"/>
-      <struct comment="" name="serverIpAddr" size="5" subtype="IpAddress" type="struct">
+    </fields>
+    <fields size_lt="293">
+      <struct comment="Server IPv4 Address" name="serverIpAddr" size="5" subtype="IPv4Address" type="struct">
+        <fields>
+          <ip comment="ipaddress in big endian" endianness="big" name="stationIpAddr" type="ipv4"/>
+        </fields>
+      </struct>
+    </fields>
+    <fields beginversion="0" endversion="22" size_gt="292">
+      <struct comment="Server IP Address (IPv4or6)" name="serverIpAddr" size="5" subtype="IPV4orV6Address" type="struct">
         <fields>
           <ipv4or6 comment="ipaddress in big endian" endianness="big" name="stationIpAddr" size="16" subtype="uint8" type="ipaddr"/>
         </fields>
@@ -2707,7 +2716,7 @@
     <fields beginversion="11">
       <integer comment="" name="mixingMode" type="uint32"/>
       <integer comment="" name="partyDirection" type="uint32"/>
-      <ipv4or6 comment="" name="sourceIpAddr" subtype="IpAddress" type="ipaddr"/>
+      <ipv4or6 comment="" name="sourceIpAddr" subtype="IPV4orV6Address" type="ipaddr"/>
       <integer comment="" name="sourcePortNumber" subtype="uint32" type="ipport" use_param="sourceIpAddr"/>
     </fields>
     <fields beginversion="16">

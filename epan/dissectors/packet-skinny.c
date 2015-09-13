@@ -4880,6 +4880,8 @@ handle_RegisterRejectMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_ServerResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
+  guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
+
   {
     /* start struct : server / size: 48 */
     guint32 counter_1 = 0;
@@ -4901,18 +4903,35 @@ handle_ServerResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     }
     ptvcursor_pop_subtree(cursor); /* end for loop tree: serverTcpListenPort */
   }
-  {
-    /* start struct : serverIpAddr / size: 20 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [max:5]");
-    for (counter_1 = 0; counter_1 < 5; counter_1++) {
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [%d / %d]", counter_1 + 1, 5);
-      dissect_skinny_ipv4or6(cursor, hf_skinny_stationIpAddr_ipv4, hf_skinny_stationIpAddr_ipv6, pinfo);
+  if (hdr_data_length < 293) {
+    {
+      /* start struct : serverIpAddr / size: 4 */
+      guint32 counter_2 = 0;
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [max:5]");
+      for (counter_2 = 0; counter_2 < 5; counter_2++) {
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [%d / %d]", counter_2 + 1, 5);
+        ptvcursor_add(cursor, hf_skinny_stationIpAddr, 4, ENC_BIG_ENDIAN);
+        ptvcursor_pop_subtree(cursor);
+        /* end for loop tree: serverIpAddr */
+      }
       ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: serverIpAddr */
+      /* end struct: serverIpAddr */
     }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: serverIpAddr */
+  }
+  if (hdr_data_length > 292) {
+    {
+      /* start struct : serverIpAddr / size: 20 */
+      guint32 counter_2 = 0;
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [max:5]");
+      for (counter_2 = 0; counter_2 < 5; counter_2++) {
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [%d / %d]", counter_2 + 1, 5);
+        dissect_skinny_ipv4or6(cursor, hf_skinny_stationIpAddr_ipv4, hf_skinny_stationIpAddr_ipv6, pinfo);
+        ptvcursor_pop_subtree(cursor);
+        /* end for loop tree: serverIpAddr */
+      }
+      ptvcursor_pop_subtree(cursor);
+      /* end struct: serverIpAddr */
+    }
   }
 }
 

@@ -174,6 +174,11 @@ def xml2obj(src):
                 ret += self.indent_out("{\n")
                 self.incr_indent()
                 for fields in self.fields:
+                    if fields.size_lt:
+                        if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
+                            ret += self.indent_out("guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
+                            self.basemessage.declared.append("hdr_data_length")
+                            declarations += 1
                     if fields.size_gt:
                         if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
                             ret += self.indent_out("guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
@@ -232,6 +237,10 @@ def xml2obj(src):
                     ret += 'hdr_version <= V%s_MSG_TYPE) {\n' %self.endversion
                 self.incr_indent()
 
+            if self.size_lt:
+                ret += self.indent_out('if (hdr_data_length < %s) {\n' %self.size_lt)
+                self.incr_indent()
+
             if self.size_gt:
                 ret += self.indent_out('if (hdr_data_length > %s) {\n' %self.size_gt)
                 self.incr_indent()
@@ -239,6 +248,10 @@ def xml2obj(src):
             # generate dissection
             for field in self._children:
                 ret += '%s' %(field.dissect())
+
+            if self.size_lt:
+                self.decr_indent()
+                ret += self.indent_out('}\n')
 
             if self.size_gt:
                 self.decr_indent()
