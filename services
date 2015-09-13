@@ -9089,8 +9089,8 @@ synchronet-rtc   6101/tcp # SynchroNet-rtc [Arne_Haugland] [Arne_Haugland]
 synchronet-rtc   6101/udp # SynchroNet-rtc [Arne_Haugland] [Arne_Haugland]
 synchronet-upd   6102/tcp # SynchroNet-upd [Arne_Haugland] [Arne_Haugland]
 synchronet-upd   6102/udp # SynchroNet-upd [Arne_Haugland] [Arne_Haugland]
-rets             6103/tcp # RETS [Bruce_Toback] [Bruce_Toback]
-rets             6103/udp # RETS [Bruce_Toback] [Bruce_Toback]
+rets             6103/tcp # RETS [Jeremy_Crawford] [Jeremy_Crawford]
+rets             6103/udp # RETS [Jeremy_Crawford] [Jeremy_Crawford]
 dbdb             6104/tcp # DBDB [Aaron_Brick] [Aaron_Brick]
 dbdb             6104/udp # DBDB [Aaron_Brick] [Aaron_Brick]
 primaserver      6105/tcp # Prima Server [Prima_Designs_System] [Prima_Designs_System]
@@ -10699,8 +10699,8 @@ vipera          12012/tcp # Vipera Messaging Service [Silvano_Maffeis_2] [Silvan
 vipera          12012/udp # Vipera Messaging Service [Silvano_Maffeis_2] [Silvano_Maffeis_2] 2005-08
 vipera-ssl      12013/tcp # Vipera Messaging Service over SSL Communication [Silvano_Maffeis_2] [Silvano_Maffeis_2] 2008-01-16
 vipera-ssl      12013/udp # Vipera Messaging Service over SSL Communication [Silvano_Maffeis_2] [Silvano_Maffeis_2] 2008-01-16
-rets-ssl        12109/tcp # RETS over SSL [Bruce_Toback] [Bruce_Toback] 2003-02
-rets-ssl        12109/udp # RETS over SSL [Bruce_Toback] [Bruce_Toback] 2003-02
+rets-ssl        12109/tcp # RETS over SSL [Jeremy_Crawford] [Jeremy_Crawford] 2003-02
+rets-ssl        12109/udp # RETS over SSL [Jeremy_Crawford] [Jeremy_Crawford] 2003-02
 nupaper-ss      12121/tcp # NuPaper Session Service [David_Warden_2] [David_Warden_2] 2005-11
 nupaper-ss      12121/udp # NuPaper Session Service [David_Warden_2] [David_Warden_2] 2005-11
 cawas           12168/tcp # CA Web Access Service [Jon_Press] [Jon_Press] 2005-08
