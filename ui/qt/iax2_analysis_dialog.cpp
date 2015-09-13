@@ -150,10 +150,7 @@ public:
     bool frameStatus() { return ok_; }
 
     QList<QVariant> rowData() {
-        QString marker_str;
         QString status_str = ok_ ? "OK" : text(status_col_);
-
-        if (marker_) marker_str = "SET";
 
         return QList<QVariant>()
                 << frame_num_ << delta_ << jitter_ << bandwidth_
@@ -195,7 +192,6 @@ private:
     double delta_;
     double jitter_;
     double bandwidth_;
-    bool marker_;
     bool ok_;
 };
 
