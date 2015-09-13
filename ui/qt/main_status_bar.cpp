@@ -384,9 +384,10 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 #else
     /* Do we have any packets? */
     if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
-        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
+        packets_str.append(QString(tr("Packets: %1 %5 Displayed: %2 (%3%) %5 Marked: %4"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)
+                          .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 2)
                           .arg(cap_file_->marked_count)
                           .arg(UTF8_MIDDLE_DOT));
         if(cap_file_->drops_known) {
