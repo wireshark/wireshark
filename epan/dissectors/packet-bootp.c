@@ -644,6 +644,9 @@ enum {
 	RFC_3361_ENC_IPADDR
 };
 
+static void dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti,
+		tvbuff_t *tvb, int optoff, wmem_strbuf_t *avaya_param_buf);
+
 /* converts fixpoint presentation into decimal presentation
    also converts values which are out of range to allow decoding of received data */
 static int rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct rfc3825_location_decimal_t *decimal);
@@ -2768,16 +2771,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 	}
 
 	case 242: {	/* Avaya IP Telephone */
-		int fieldlen;
 		proto_tree *o242avaya_v_tree;
 		proto_item *avaya_ti;
 		gchar *avaya_option = NULL;
 		gchar *field = NULL;
-		gchar *value = NULL;
-		gchar *avaya_temp_string = NULL;
-		gchar *avaya_parameter_string = NULL;
-		wmem_list_t *avaya_parameter_list = NULL;
-		wmem_list_frame_t *cur = NULL;
+		wmem_strbuf_t *avaya_param_buf = NULL;
 
 		optend = optoff + optlen;
 		/* minimum length is 5 bytes */
@@ -2789,111 +2787,27 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		avaya_option = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, optoff, optlen, ENC_ASCII);
 		avaya_ti = proto_tree_add_string(v_tree, hf_bootp_option242_avaya, tvb, optoff, optlen, avaya_option);
 		o242avaya_v_tree = proto_item_add_subtree(avaya_ti, ett_bootp_option242_suboption);
-		avaya_parameter_list = wmem_list_new(wmem_packet_scope());
+		avaya_param_buf = wmem_strbuf_new(wmem_packet_scope(), "");
 		for ( field = strtok(avaya_option, ","); field; field = strtok(NULL, ",") ) {
-			if ( !(value = strchr(field, '=')) && (wmem_list_count(avaya_parameter_list) == 0 )) {
-				expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);
-				fieldlen = (int)strlen(field);
-				optoff += fieldlen;
-				break;
+			if (!strchr(field, '=')) {
+				if (wmem_strbuf_get_len(avaya_param_buf) == 0) {
+					expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);
+					optoff += (int)strlen(field);
+					break;
+				}
+				wmem_strbuf_append_printf(avaya_param_buf,",%s", field);
 			}
 			else {
-				if ( !(value = strchr(field, '=')) ) {
-					cur = wmem_list_tail(avaya_parameter_list);
-					avaya_temp_string = wmem_strdup_printf(wmem_packet_scope(), "%s,%s", (gchar*)wmem_list_frame_data(cur), field);
-					wmem_list_remove_frame(avaya_parameter_list, cur);
-					wmem_list_append(avaya_parameter_list, avaya_temp_string);
+				if (wmem_strbuf_get_len(avaya_param_buf) > 0) {
+					dissect_vendor_avaya_param(o242avaya_v_tree, pinfo, vti, tvb, optoff, avaya_param_buf);
+					optoff += wmem_strbuf_get_len(avaya_param_buf) + 1;
+					wmem_strbuf_truncate(avaya_param_buf, 0);
 				}
-				else {
-					avaya_parameter_string = wmem_strdup(wmem_packet_scope(), field);
-					wmem_list_append(avaya_parameter_list, avaya_parameter_string);
-				}
+				wmem_strbuf_append(avaya_param_buf, field);
 			}
 		}
-		if ( wmem_list_count(avaya_parameter_list) > 0 ) {
-			cur = wmem_list_head(avaya_parameter_list);
-			while ( cur ) {
-				field = (gchar*)wmem_list_frame_data(cur);
-				fieldlen = (int)strlen(field);
-				if((strncmp(field, "TLSSRVR=", 8) == 0) && ( fieldlen > 8 )) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_tlssrvr, tvb, optoff, fieldlen, field + 8);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "HTTPSRVR=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_httpsrvr, tvb, optoff, fieldlen, field + 9);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "HTTPDIR=", 8) == 0) && ( fieldlen > 8)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_httpdir, tvb, optoff, fieldlen, field + 8);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "STATIC=", 7) == 0) && ( fieldlen > 7)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_static, tvb, optoff, fieldlen, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_static_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "MCIPADD=", 8) == 0) && ( fieldlen > 8)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_mcipadd, tvb, optoff, fieldlen, field + 8);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "DOT1X=", 6) == 0) && ( fieldlen > 6)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_dot1x, tvb, optoff, fieldlen, field + 6, "%s (%s)", field + 6, str_to_str(field + 6, option242_avaya_dot1x_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "ICMPDU=", 7) == 0) && ( fieldlen > 7)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_icmpdu, tvb, optoff, fieldlen, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_icmpdu_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "ICMPRED=", 8) == 0) && ( fieldlen > 8)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_icmpred, tvb, optoff, fieldlen, field + 8, "%s (%s)", field + 8, str_to_str(field + 8, option242_avaya_icmpred_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "L2Q=", 4) == 0) && ( fieldlen > 4)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_l2q, tvb, optoff, fieldlen, field + 4, "%s (%s)", field + 4, str_to_str(field + 4, option242_avaya_l2q_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "L2QVLAN=", 8) == 0) && ( fieldlen > 8)) {
-					proto_tree_add_int(o242avaya_v_tree, hf_bootp_option242_avaya_l2qvlan, tvb, optoff, fieldlen, atoi(field +8));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "LOGLOCAL=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_loglocal, tvb, optoff, fieldlen, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_loglocal_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "PHY1STAT=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_phy1stat, tvb, optoff, fieldlen, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "PHY2STAT=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_phy2stat, tvb, optoff, fieldlen, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "PROCPSWD=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_procpswd, tvb, optoff, fieldlen, field + 9);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "PROCSTAT=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_string_format_value(o242avaya_v_tree, hf_bootp_option242_avaya_procstat, tvb, optoff, fieldlen, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_procstat_vals, "Unknown (%s)"));
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "SNMPADD=", 8) == 0) && ( fieldlen > 8)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_snmpadd, tvb, optoff, fieldlen, field + 8);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "SNMPSTRING=", 11) == 0) && ( fieldlen > 11)) {
-					proto_tree_add_string(o242avaya_v_tree, hf_bootp_option242_avaya_snmpstring, tvb, optoff, fieldlen, field + 11);
-					optoff += fieldlen;
-				}
-				else if((strncmp(field, "VLANTEST=", 9) == 0) && ( fieldlen > 9)) {
-					proto_tree_add_int(o242avaya_v_tree, hf_bootp_option242_avaya_vlantest, tvb, optoff, fieldlen, atoi(field +9));
-					optoff += fieldlen;
-				}
-				else {
-					expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown Avaya IP Telephone parameter %s", field);
-					optoff += fieldlen;
-				}
-				cur = wmem_list_frame_next(cur);
-				if ( cur ) optoff += 1;
-			}
+		if (wmem_strbuf_get_len(avaya_param_buf) > 0) {
+			dissect_vendor_avaya_param(o242avaya_v_tree, pinfo, vti, tvb, optoff, avaya_param_buf);
 		}
 		break;
 	}
@@ -3250,6 +3164,75 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 
 	optoff += (subopt_len + 2);
 	return optoff;
+}
+
+static void
+dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti,
+		tvbuff_t *tvb, int optoff, wmem_strbuf_t *avaya_param_buf)
+{
+	const gchar *field;
+	gsize len;
+
+	field = wmem_strbuf_get_str(avaya_param_buf);
+	len = wmem_strbuf_get_len(avaya_param_buf);
+
+	if((strncmp(field, "TLSSRVR=", 8) == 0) && ( len > 8 )) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_tlssrvr, tvb, optoff, len, field + 8);
+	}
+	else if((strncmp(field, "HTTPSRVR=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_httpsrvr, tvb, optoff, len, field + 9);
+	}
+	else if((strncmp(field, "HTTPDIR=", 8) == 0) && ( len > 8)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_httpdir, tvb, optoff, len, field + 8);
+	}
+	else if((strncmp(field, "STATIC=", 7) == 0) && ( len > 7)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_static, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_static_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "MCIPADD=", 8) == 0) && ( len > 8)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_mcipadd, tvb, optoff, len, field + 8);
+	}
+	else if((strncmp(field, "DOT1X=", 6) == 0) && ( len > 6)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_dot1x, tvb, optoff, len, field + 6, "%s (%s)", field + 6, str_to_str(field + 6, option242_avaya_dot1x_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "ICMPDU=", 7) == 0) && ( len > 7)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_icmpdu, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_icmpdu_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "ICMPRED=", 8) == 0) && ( len > 8)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_icmpred, tvb, optoff, len, field + 8, "%s (%s)", field + 8, str_to_str(field + 8, option242_avaya_icmpred_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "L2Q=", 4) == 0) && ( len > 4)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_l2q, tvb, optoff, len, field + 4, "%s (%s)", field + 4, str_to_str(field + 4, option242_avaya_l2q_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "L2QVLAN=", 8) == 0) && ( len > 8)) {
+		proto_tree_add_int(tree, hf_bootp_option242_avaya_l2qvlan, tvb, optoff, len, atoi(field +8));
+	}
+	else if((strncmp(field, "LOGLOCAL=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_loglocal, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_loglocal_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "PHY1STAT=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_phy1stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "PHY2STAT=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_phy2stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "PROCPSWD=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_procpswd, tvb, optoff, len, field + 9);
+	}
+	else if((strncmp(field, "PROCSTAT=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_string_format_value(tree, hf_bootp_option242_avaya_procstat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_procstat_vals, "Unknown (%s)"));
+	}
+	else if((strncmp(field, "SNMPADD=", 8) == 0) && ( len > 8)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_snmpadd, tvb, optoff, len, field + 8);
+	}
+	else if((strncmp(field, "SNMPSTRING=", 11) == 0) && ( len > 11)) {
+		proto_tree_add_string(tree, hf_bootp_option242_avaya_snmpstring, tvb, optoff, len, field + 11);
+	}
+	else if((strncmp(field, "VLANTEST=", 9) == 0) && ( len > 9)) {
+		proto_tree_add_int(tree, hf_bootp_option242_avaya_vlantest, tvb, optoff, len, atoi(field + 9));
+	}
+	else {
+		expert_add_info_format(pinfo, vti, &hf_bootp_subopt_unknown_type, "ERROR, Unknown Avaya IP Telephone parameter %s", field);
+	}
 }
 
 /* RFC3825Decoder: http://www.enum.at/rfc3825encoder.529.0.html */
