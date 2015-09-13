@@ -88,7 +88,6 @@ typedef struct _spdy_conv_t {
 #define SPDY_FLAG_SETTINGS_PERSISTED 0x02
 
 #define TCP_PORT_SPDY 6121
-#define SSL_PORT_SPDY 443
 
 static const value_string frame_type_names[] = {
   { SPDY_DATA,          "DATA" },
@@ -1940,7 +1939,8 @@ void proto_register_spdy(void)
 void proto_reg_handoff_spdy(void) {
 
   dissector_add_uint("tcp.port", TCP_PORT_SPDY, spdy_handle);
-  ssl_dissector_add(SSL_PORT_SPDY, "spdy", TRUE);
+  /* Use "0" to avoid overwriting HTTPS port and still offer support over SSL */
+  ssl_dissector_add(0, "spdy", TRUE);
 
   data_handle = find_dissector("data");
   media_handle = find_dissector("media");
