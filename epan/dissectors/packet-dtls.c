@@ -885,10 +885,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       if (ssl&&decrypt_dtls_record(tvb, pinfo, offset,
                                    record_length, content_type, ssl, FALSE))
         ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                            dtls_decrypted_data_avail, offset);
+                            dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
       /* try to retrieve and use decrypted alert record, if any. */
-      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
+      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
       if (decrypted) {
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
                            session);
@@ -910,10 +910,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
                                      record_length, content_type, ssl, FALSE))
         ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                            dtls_decrypted_data_avail, offset);
+                            dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
       /* try to retrieve and use decrypted handshake record, if any. */
-      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
+      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_length(decrypted), session, is_from_server,
@@ -1004,10 +1004,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
                                    record_length, content_type, ssl, FALSE))
       ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                          dtls_decrypted_data_avail, offset);
+                          dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
     /* try to retrieve and use decrypted alert record, if any. */
-    decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
+    decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
                              session, tvb_length (decrypted), TRUE);
