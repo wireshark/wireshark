@@ -7791,7 +7791,7 @@ proto_reg_handoff_scsi(void)
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
- * End:hf_scsi_naa_vendor_specific_a
+ * End:
  *
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
