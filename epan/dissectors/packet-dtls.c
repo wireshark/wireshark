@@ -345,10 +345,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SslDecryptSession *ssl_session;
   SslSession        *session;
   gint               is_from_server;
-  gboolean           conv_first_seen;
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
-  Ssl_private_key_t *private_key;
-#endif
 
   ti                    = NULL;
   dtls_tree             = NULL;
@@ -368,40 +364,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    *       in addition to conv_version
    */
   conversation = find_or_create_conversation(pinfo);
-  conv_first_seen = conversation_get_proto_data(conversation, proto_dtls) == NULL;
   ssl_session = ssl_get_session(conversation, dtls_handle);
-  if (conv_first_seen) {
-    SslService dummy;
-
-    /* we need to know witch side of conversation is speaking */
-    /* XXX: remove this? it looks like a historical leftover since the initial
-     * commit. Since 0f05597ab17ea7fc5161458c670f56a523cb9c42,
-     * ssl_find_private_key is called so this is not needed */
-    if (ssl_packet_from_server(&ssl_session->session, dtls_associations, pinfo)) {
-      dummy.addr = pinfo->src;
-      dummy.port = pinfo->srcport;
-    }
-    else {
-      dummy.addr = pinfo->dst;
-      dummy.port = pinfo->destport;
-    }
-    ssl_debug_printf("dissect_dtls server %s:%d\n",
-                     address_to_str(wmem_packet_scope(), &dummy.addr),dummy.port);
-
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
-    /* try to retrieve private key for this service. Do it now 'cause pinfo
-     * is not always available
-     * Note that with HAVE_LIBGNUTLS undefined private_key is always 0
-     * and thus decryption never engaged*/
-    private_key = (Ssl_private_key_t *)g_hash_table_lookup(dtls_key_hash, &dummy);
-    if (!private_key) {
-      ssl_debug_printf("dissect_dtls can't find private key for this server!\n");
-    }
-    else {
-      ssl_session->private_key = private_key->sexp_pkey;
-    }
-#endif
-  }
   session = &ssl_session->session;
   is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
 
