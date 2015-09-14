@@ -1655,10 +1655,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (ssl&&decrypt_ssl3_record(tvb, pinfo, offset,
                 record_length, content_type, ssl, FALSE))
           ssl_add_record_info(proto_ssl, pinfo, ssl_decrypted_data.data,
-                  ssl_decrypted_data_avail, offset);
+                  ssl_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
         /* try to retrieve and use decrypted alert record, if any. */
-        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset);
         if (decrypted) {
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, session);
@@ -1680,10 +1680,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (ssl && decrypt_ssl3_record(tvb, pinfo, offset,
                 record_length, content_type, ssl, FALSE))
             ssl_add_record_info(proto_ssl, pinfo, ssl_decrypted_data.data,
-                ssl_decrypted_data_avail, offset);
+                ssl_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
         /* try to retrieve and use decrypted handshake record, if any. */
-        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset);
         if (decrypted) {
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
@@ -1743,10 +1743,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (ssl && decrypt_ssl3_record(tvb, pinfo, offset,
                 record_length, content_type, ssl, FALSE))
             ssl_add_record_info(proto_ssl, pinfo, ssl_decrypted_data.data,
-                                ssl_decrypted_data_avail, offset);
+                                ssl_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
 
         /* try to retrieve and use decrypted handshake record, if any. */
-        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset);
         if (decrypted) {
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, session, tvb_reported_length (decrypted), TRUE);
