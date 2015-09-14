@@ -2,15 +2,15 @@
 # @configure_input@
 # configure options: @CONFIG_ARGS@
 
-%bcond_with    qt
-%bcond_without qt5
-%bcond_without gtk2
-%bcond_with    gtk3
+%bcond_with	qt
+%bcond_without	qt5
+%bcond_without	gtk2
+%bcond_with	gtk3
+%bcond_with	lua
 
 # Set these to 1 if you want to ensure your package includes support for them:
 %global with_adns 0
 %global with_c_ares 1
-%global with_lua  1
 %global with_portaudio 0
 
 # Set at most one of these two:
@@ -62,7 +62,7 @@ Requires:	zlib
 BuildRequires:	libcares-devel
 Requires:	libcares2
 %else
-# ... while Redhat uses this one:
+# ... while Red Hat uses this one:
 # (What other RPM-based distros do will have to be determined...)
 BuildRequires:	c-ares-devel
 Requires:	c-ares
@@ -72,9 +72,9 @@ Requires:	c-ares
 BuildRequires:	adns-devel
 Requires:	adns
 %endif
-%if %{with_lua}
-BuildRequires:	lua-devel
-Requires:	lua
+%if %{with lua}
+BuildRequires:	lua-devel < 5.3
+Requires:	lua < 5.3
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -90,7 +90,7 @@ Requires:	lua
 # SuSE's groupadd is in this package:
 Requires(pre):	pwdutils
 %else
-# ... while Redhat's is in this one:
+# ... while Red Hat's is in this one:
 Requires(pre):	shadow-utils
 %endif
 %endif
@@ -228,7 +228,7 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 %if %{with_adns}
   --with-adns \
 %endif
-%if %{with_lua}
+%if %{with lua}
   --with-lua \
 %endif
 %if %{with_portaudio}
@@ -423,6 +423,11 @@ fi
 %endif
 
 %changelog
+* Mon Sep 14 2015 Jeff Morriss
+- Follow ./configure's decision on whether to configure Lua or not rather than
+  forcing it to be enabled (and thus failing on some distros which don't ship
+  a compatible version of Lua any more).
+
 * Sat Sep 12 2015 Jeffrey Smith
 - Begin support for Qt5
 
@@ -491,7 +496,7 @@ fi
 * Thu Feb  7 2013 Jeff Morriss
 - Overhaul to make this file more useful/up to date.  Many changes are based
   on Fedora's .spec file.  Changes include:
-  - Create a separate wireshark-gnome package (like Redhat).
+  - Create a separate wireshark-gnome package (like Red Hat).
   - Control some things with variables set at the top of the file.
     - Allow the user to configure how dumpcap is installed.
     - Allow the user to choose some options including GTK2 or GTK3.

@@ -3061,9 +3061,18 @@ else
 	RPMBUILD_WITH_ARGS="--without gtk2 --without gtk3"
 fi
 if test "x$have_qt" = "xyes" ; then
-	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
+	if test "$qt_version" -eq "5"; then
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt5"
+	else
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
+	fi
 else
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt"
+fi
+if test "x$have_lua" = "xyes" ; then
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with lua"
+else
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without lua"
 fi
 AC_SUBST(RPMBUILD_WITH_ARGS)
 
