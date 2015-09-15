@@ -271,7 +271,6 @@ ansi_tcap_cleanup(void)
 {
         /* Destroy any existing memory chunks / hashes. */
         g_hash_table_destroy(TransactionId_table);
-        TransactionId_table = NULL;
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -1408,7 +1407,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 351 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 350 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1752,7 +1751,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 486 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 485 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1790,7 +1789,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 497 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 496 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {
