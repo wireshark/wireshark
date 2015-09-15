@@ -115,6 +115,9 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
 #.TYPE_ATTR
 CertificateSerialNumber TYPE = FT_INT64
+DSS-Params/p TYPE = FT_BYTES  DISPLAY = BASE_NONE
+DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
+DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS CertificateSerialNumber FN_VARIANT = 64
 

@@ -1222,15 +1222,15 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_p,
       { "p", "x509af.p",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_x509af_q,
       { "q", "x509af.q",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_x509af_g,
       { "g", "x509af.g",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/

@@ -1892,8 +1892,12 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
         if (hf_id >= 0) {
             header_field_info *hfinfo = proto_registrar_get_nth(hf_id);
 
-            proto_tree_add_bytes_format(tree, hf_ber_64bit_uint_as_bytes, tvb, offset, len, NULL,
-                "%s : 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+            /* use the original field only if it is suitable for bytes */
+            if (hfinfo->type != FT_BYTES)
+                hf_id = hf_ber_64bit_uint_as_bytes;
+
+            proto_tree_add_bytes_format(tree, hf_id, tvb, offset, len, NULL,
+                "%s: 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
         }
 
         offset += len;
