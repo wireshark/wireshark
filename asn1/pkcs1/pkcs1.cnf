@@ -31,6 +31,9 @@ ECPoint
 DSA-Sig-Value
 ECDSA-Sig-Value
 
+#.TYPE_ATTR
+RSAPublicKey/modulus TYPE = FT_BYTES  DISPLAY = BASE_NONE
+
 #.END
 
 

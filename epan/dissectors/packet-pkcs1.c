@@ -380,7 +380,7 @@ void proto_register_pkcs1(void) {
         NULL, HFILL }},
     { &hf_pkcs1_modulus,
       { "modulus", "pkcs1.modulus",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_pkcs1_publicExponent,
       { "publicExponent", "pkcs1.publicExponent",

@@ -87,6 +87,32 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   x509af_export_publickey(tvb, actx, orig_offset, offset - orig_offset);
 #.END
 
+#.FN_BODY SubjectPublicKeyInfo/subjectPublicKey
+  tvbuff_t *bs_tvb;
+# proto_tree *subtree;
+
+  dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
+                        NULL, -1, -1, &bs_tvb);
+
+  /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
+   * The contents of subjectPublicKey are always explicitly tagged. */
+  if (!strcmp(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
+    offset += dissect_pkcs1_RSAPublicKey(FALSE, bs_tvb, 0, actx, tree, hf_index);
+
+# TODO: PKCS#1 only defines RSA; DH and DSA are from PKIX1Algorithms2008
+# } else if (!strcmp(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
+#   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
+#   offset += dissect_DSAPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dsa_y);
+#
+# } else if (!strcmp(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
+#   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
+#   offset += dissect_DHPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dh_y);
+#
+  } else {
+    offset = dissect_ber_bitstring(FALSE, actx, tree, tvb, offset,
+                                   NULL, hf_index, -1, NULL);
+  }
+
 #.FN_PARS Extension/extnId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_extension_id  VAL_PTR = &actx->external.direct_reference
 
