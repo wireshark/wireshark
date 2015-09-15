@@ -19,6 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4267)
+#endif
+
 #include "wireshark_application.h"
 
 #include <algorithm>
@@ -79,6 +85,10 @@
 #ifdef Q_OS_WIN
 #include <QDebug>
 #include <QLibrary>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 
 WiresharkApplication *wsApp = NULL;

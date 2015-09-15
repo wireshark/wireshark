@@ -232,11 +232,11 @@ set(CLEAN_FILES
 	${WIRESHARK_TAP_SRC}
 )
 
-if (WERROR)
+if (WERROR_COMMON_FLAGS)
 	set_source_files_properties(
 		${CLEAN_FILES}
 		PROPERTIES
-		COMPILE_FLAGS "-Werror -Wno-error=deprecated-declarations"
+		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} ${NO_ERROR_DEPRECATED_DECLARATIONS_COMPILE_FLAGS}"
 	)
 endif()
 

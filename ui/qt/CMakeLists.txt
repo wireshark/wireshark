@@ -468,20 +468,12 @@ else()
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 endif()
 
-if (WERROR)
+if (WERROR_COMMON_FLAGS)
 	set_source_files_properties(
 		${WIRESHARK_QT_FILES}
 		PROPERTIES
-		COMPILE_FLAGS -Werror
+		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
 	)
-	# The Qt headers generate a ton of shortening errors on 64-bit systems.
-	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set_source_files_properties(
-			${WIRESHARK_QT_FILES}
-			PROPERTIES
-			COMPILE_FLAGS -Wno-shorten-64-to-32
-		)
-	endif()
 endif()
 
 add_definitions(${QT_DEFINITIONS})

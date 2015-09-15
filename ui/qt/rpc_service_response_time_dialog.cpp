@@ -19,6 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4267)
+#endif
+
 #include "rpc_service_response_time_dialog.h"
 
 #include <algorithm>
@@ -34,6 +40,10 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // To do:
 // - Don't assume that the user knows what programs+versions are in the

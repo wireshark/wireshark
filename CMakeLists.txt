@@ -496,12 +496,6 @@ set( CPP_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CPP_ONLY_FLAGS} )
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
-	check_c_compiler_flag(-Werror WERROR)
-else()
-	set(WERROR FALSE)
-endif()
-
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
 foreach(THIS_FLAG ${C_FLAG_TESTS})
 	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
@@ -526,6 +520,21 @@ foreach(THIS_FLAG ${CPP_FLAG_TESTS})
 	endif()
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
+	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+		set(WERROR_COMMON_FLAGS "/WX")
+		set(NO_ERROR_DEPRECATED_DECLARATIONS_COMPILE_FLAGS)
+	else()
+		check_c_compiler_flag(-Werror WERROR)
+		if (WERROR)
+			set(WERROR_COMMON_FLAGS "-Werror")
+			set(NO_ERROR_DEPRECATED_DECLARATIONS_COMPILE_FLAGS "-Wno-error=deprecated-declarations")
+		endif()
+	endif()
+else()
+	set(WERROR_COMMON_FLAGS FALSE)
+endif()
 
 #
 # Try to have the compiler default to hiding symbols, so that only
@@ -915,6 +924,7 @@ endif()
 
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
 
 if(APPLE)
 	#
@@ -2418,11 +2428,11 @@ set(CLEAN_FILES
 	${androiddump_FILES}
 )
 
-if (WERROR)
+if (WERROR_COMMON_FLAGS)
 	set_source_files_properties(
 		${CLEAN_FILES}
 		PROPERTIES
-		COMPILE_FLAGS -Werror
+		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
 	)
 endif()
 
