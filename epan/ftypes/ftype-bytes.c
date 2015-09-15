@@ -56,12 +56,12 @@ bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 }
 
 static int
-bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+bytes_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
 	if (fv->value.bytes->len == 0) {
-		/* Empty array of bytes, so the representation
-		 * is an empty string. */
-		return 0;
+		/* An empty array of bytes is represented as "" in a
+		   display filter and as an empty string otherwise. */
+		return (rtype == FTREPR_DFILTER) ? 2 : 0;
 	} else {
 		/* 3 bytes for each byte of the byte "NN<separator character>" minus 1 byte
 		 * as there's no trailing "<separator character>". */
@@ -138,7 +138,7 @@ system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 }
 
 static void
-bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
+bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 {
 	char separator;
 
@@ -158,8 +158,16 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 		break;
 	}
 
-	if (fv->value.bytes->len)
+	if (fv->value.bytes->len) {
 		buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
+	}
+	else {
+		if (rtype == FTREPR_DFILTER) {
+			/* An empty byte array in a display filter is represented as "" */
+			*buf++ = '"';
+			*buf++ = '"';
+		}
+	}
 	*buf = '\0';
 }
 
