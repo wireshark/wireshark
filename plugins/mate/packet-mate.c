@@ -359,7 +359,7 @@ proto_register_mate(void)
 	static hf_register_info hf[] = {
 		{ &hf_mate_started_at, { "Started at", "mate.started_at", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mate_duration, { "Duration", "mate.duration", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_mate_released_time, { "Release time", "mate.released_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mate_released_time, { "Release time", "mate.released_time", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mate_number_of_pdus, { "Number of Pdus", "mate.number_of_pdus", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mate_gop_key, { "GOP Key", "mate.gop_key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
