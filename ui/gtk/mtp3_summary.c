@@ -47,6 +47,8 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 
+void register_tap_listener_gtk_mtp3_summary(void);
+
 #define SUM_STR_MAX 1024
 
 typedef struct _mtp3_stat_si_code_t {
@@ -455,7 +457,6 @@ mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
     gtk_widget_show_all(sum_open_w);
     window_present(sum_open_w);
 }
-
 
 static void
 mtp3_summary_reset(
