@@ -2902,16 +2902,18 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int		len;
 	conversation_t *conversation;
 
+	conv_data = get_http_conversation_data(pinfo, &conversation);
+	/* Call HTTP2 dissector directly when detected via heuristics, but not
+	 * when it was upgraded (the conversation started with HTTP). */
+	if (conversation_get_proto_data(conversation, proto_http2) &&
+	    conv_data->upgrade != UPGRADE_HTTP2) {
+		return call_dissector_only(http2_handle, tvb, pinfo, tree, NULL);
+	}
+
 	/*
 	 * Check if this is proxied connection and if so, hand of dissection to the
 	 * payload-dissector.
 	 * Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	conv_data = get_http_conversation_data(pinfo, &conversation);
-	if (conversation_get_proto_data(conversation, proto_http2)) {
-		/* HTTP2 heuristic dissector already identified this conversation as being HTTP2 traffic.
-		   Call sub dissector directly. */
-		return call_dissector_only(http2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
-	}
 	if(pinfo->fd->num >= conv_data->startframe &&
 	   conv_data->response_code == 200 &&
 	   conv_data->request_method &&
