@@ -4327,7 +4327,7 @@ ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pi
               (session->srv_port == pinfo->srcport) &&
               ADDRESSES_EQUAL(&session->srv_addr, &pinfo->src);
     } else {
-        ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype == PT_TCP) != 0;
+        ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype != PT_UDP) != 0;
     }
 
     ssl_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");

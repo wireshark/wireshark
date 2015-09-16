@@ -1716,9 +1716,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /* Unknown protocol handle, ssl_starttls_ack was not called before.
              * Try to find an appropriate dissection handle and cache it. */
             SslAssociation *association;
-            association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
-            association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
-            association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype == PT_TCP);
+            association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype != PT_UDP);
+            association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype != PT_UDP);
+            association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype != PT_UDP);
             if (association) session->app_handle = association->handle;
         }
 
