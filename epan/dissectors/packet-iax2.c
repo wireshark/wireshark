@@ -1374,15 +1374,11 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           apparent_addr_family = tvb_get_letohs(tvb, offset+2);
           proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 
-          switch (apparent_addr_family) {
-            case LINUX_AF_INET:
-            {
-              guint32 addr;
-              proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
-              memcpy(&addr, ie_data->peer_address.data, 4);
-              proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, addr);
-              break;
-            }
+          if (apparent_addr_family == LINUX_AF_INET) {
+            guint32 addr;
+            proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
+            memcpy(&addr, ie_data->peer_address.data, 4);
+            proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, addr);
           }
           break;
         }
@@ -1481,8 +1477,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           proto_item_set_text(ti, "Information Element: %s",
                               ie_finfo->rep->representation);
         else {
-          guint8 *ie_val = NULL;
-          ie_val = (guint8 *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
+          guint8 *ie_val = (guint8 *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
