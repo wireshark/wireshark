@@ -213,9 +213,9 @@ static void
 register_dissector_param_value(const char *name, const char *value)
 {
 	dissector_param_value_t *dpv;
-	dpv=(dissector_param_value_t*)g_malloc(sizeof(dissector_param_value_t));
+	dpv=g_new0(dissector_param_value_t, 1);
 	if (!dpv) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	dpv->next=dissector_param_list;
@@ -229,7 +229,7 @@ find_dissector_param_value(char *name)
 {
 	dissector_param_value_t *dpv;
 	for(dpv=dissector_param_list;dpv;dpv=dpv->next){
-		if(!strcmp(name,dpv->name)){
+		if(!g_strcmp0(name,dpv->name)){
 			return dpv->value;
 		}
 	}
@@ -248,9 +248,9 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 	}
 	if(!pi)pi=ptrs;
 	while(num_pointers--){
-		pi=(pointer_item_t*)g_malloc(sizeof(pointer_item_t));
+		pi=g_new0(pointer_item_t, 1);
 		if (!pi) {
-			fprintf(stderr, "Can't allocate memory. Exit.\n");
+			FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 			exit(10);
 		}
 		pi->next=ptrs;
@@ -265,15 +265,15 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 static const char *
 ptr_to_define(const char *pointer_type)
 {
-	if(!strcmp(pointer_type, "unique")){
+	if(!g_strcmp0(pointer_type, "unique")){
 		return "NDR_POINTER_UNIQUE";
-	} else if(!strcmp(pointer_type, "ref")){
+	} else if(!g_strcmp0(pointer_type, "ref")){
 		return "NDR_POINTER_REF";
-	} else if(!strcmp(pointer_type, "ptr")){
+	} else if(!g_strcmp0(pointer_type, "ptr")){
 		return "NDR_POINTER_PTR";
 	}
 
-	fprintf(stderr, "prt_to_define, 	weirdo pointer :%s\n", pointer_type);
+	FPRINTF(stderr, "prt_to_define, 	weirdo pointer :%s\n", pointer_type);
 	exit(10);
 }
 
@@ -282,12 +282,12 @@ get_union_tag_size(char *name)
 {
 	union_tag_size_item_t *utsi;
 	for(utsi=union_tag_size_list;utsi;utsi=utsi->next){
-		if(!strcmp(name, utsi->name)){
+		if(!g_strcmp0(name, utsi->name)){
 			return utsi->size;
 		}
 	}
-	fprintf(stderr, "ERROR: size of tag for union:%s is not known\n", name);
-	fprintf(stderr, "  use the UNION_TAG_SIZE directive to specify it in teh conformance file\n");
+	FPRINTF(stderr, "ERROR: size of tag for union:%s is not known\n", name);
+	FPRINTF(stderr, "  use the UNION_TAG_SIZE directive to specify it in teh conformance file\n");
 	exit(10);
 }
 
@@ -297,9 +297,9 @@ static void
 register_hf_rename(const char *old_name, const char *new_name)
 {
 	hf_rename_item_t *new_item;
-	new_item=(hf_rename_item_t*)g_malloc(sizeof(hf_rename_item_t));
+	new_item=g_new0(hf_rename_item_t, 1);
 	if (!new_item) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	new_item->next=hf_rename_list;
@@ -320,7 +320,7 @@ check_hf_rename_refcount(void)
 	/* dont generate code for renamed hf fields  just return the new name*/
 	for(hri=hf_rename_list;hri;hri=hri->next){
 		if(!hri->refcount){
-			fprintf(stderr, "ERROR: the hf_rename field:%s was never referenced. it is likely the conformance file is stale\n", hri->old_name);
+			FPRINTF(stderr, "ERROR: the hf_rename field:%s was never referenced. it is likely the conformance file is stale\n", hri->old_name);
 			exit(10);
 		}
 	}
@@ -332,12 +332,12 @@ find_hf_field(char *name)
 	hf_field_item_t *hfi;
 
 	for(hfi=hf_field_list;hfi;hfi=hfi->next){
-		if(!strcmp(hfi->name, name)){
+		if(!g_strcmp0(hfi->name, name)){
 			break;
 		}
 	}
 	if (!hfi) {
-		fprintf(stderr, "find_hf_field:  unknown hf_field:%s\n",name);
+		FPRINTF(stderr, "find_hf_field:  unknown hf_field:%s\n",name);
 		Exit(10);
 	}
 
@@ -360,8 +360,8 @@ register_hf_field(const char *hf_name, const char *title, const char *filter_nam
 	for(hri=hf_rename_list;hri;hri=hri->next){
 		if(!strncmp(hf_name, hri->old_name, strlen(hf_name))){
 			hfi=find_hf_field(hri->new_name);
-			if(strncmp(ft_type, hfi->ft_type, strlen(ft_type))){
-				fprintf(stderr, "register_hf_field:  hf_fields %s and %s have different types %s %s\n",hf_name,hfi->name,ft_type,hfi->ft_type);
+			if(g_strcmp0(ft_type, hfi->ft_type)){
+				FPRINTF(stderr, "register_hf_field:  hf_fields %s and %s have different types %s %s\n",hf_name,hfi->name,ft_type,hfi->ft_type);
 				Exit(10);
 			}
 			hri->refcount++;
@@ -369,9 +369,9 @@ register_hf_field(const char *hf_name, const char *title, const char *filter_nam
 		}
 	}
 
-	hfi=(hf_field_item_t*)g_malloc(sizeof(hf_field_item_t));
+	hfi=g_new0(hf_field_item_t, 1);
 	if (!hfi) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	hfi->next=hf_field_list;
@@ -401,7 +401,7 @@ check_if_to_emit(char *name)
 	no_emit_item_t *nel;
 
 	for(nel=no_emit_list;nel;nel=nel->next){
-		if(!strcmp(name, nel->name)){
+		if(!g_strcmp0(name, nel->name)){
 			FPRINTF(NULL, "SKIPPED emitting of %s\n",name);
 			return 0;
 		}
@@ -419,8 +419,8 @@ prune_keywords(char *name)
 		if(!ti->next){
 			break;
 		}
-		if(!strcmp(ti->next->str, name)){
-			if(!strcmp(ti->next->next->str, ",")){
+		if(!g_strcmp0(ti->next->str, name)){
+			if(!g_strcmp0(ti->next->next->str, ",")){
 				ti->next=ti->next->next->next;
 			} else {
 				ti->next=ti->next->next;
@@ -436,7 +436,7 @@ rename_tokens(const char *old_name, const char *new_name)
 	token_item_t *ti;
 
 	for(ti=token_list;ti;ti=ti->next){
-		if(!strncmp(ti->str, old_name, strlen(old_name))){
+		if(!g_strcmp0(ti->str, old_name)){
 			ti->str=g_strndup(new_name, strlen(new_name));
 		}
 	}
@@ -448,11 +448,11 @@ prune_keyword_parameters(const char *name)
 	token_item_t *ti, *tmpti;
 
 	for(ti=token_list;ti;ti=ti->next){
-		if(!strcmp(ti->str, name)){
-			if(!strcmp(ti->next->str, "(")){
+		if(!g_strcmp0(ti->str, name)){
+			if(!g_strcmp0(ti->next->str, "(")){
 				tmpti=ti;
 				while(1){
-					if(!strcmp(tmpti->str, ")")){
+					if(!g_strcmp0(tmpti->str, ")")){
 						ti->next=tmpti->next;
 						break;
 					}
@@ -472,15 +472,15 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 	bracket_item_t *br;
 	type_item_t *type_item;
 
-	if(strcmp(ti->str, "[")){
-		fprintf(stderr, "ERROR: parsebrackets first token is not '['\n");
+	if(g_strcmp0(ti->str, "[")){
+		FPRINTF(stderr, "ERROR: parsebrackets first token is not '['\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	br=(bracket_item_t*)g_malloc(sizeof(bracket_item_t));
+	br=g_new0(bracket_item_t, 1);
 	if (!br) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	*bracket=br;
@@ -489,23 +489,23 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 	br->pointer_list=NULL;
 
 	while(ti){
-		if( !strcmp(ti->str, "{")
-		  ||!strcmp(ti->str, "}")){
-			fprintf(stderr, "ERROR: parsebrackets '{' '}' inside bracket item\n");
+		if( !g_strcmp0(ti->str, "{")
+		  ||!g_strcmp0(ti->str, "}")){
+			FPRINTF(stderr, "ERROR: parsebrackets '{' '}' inside bracket item\n");
 			Exit(10);
 		}
 
-		if(!strcmp(ti->str, "[")){
-			fprintf(stderr, "ERROR: parsebrackets '[' inside bracket item\n");
+		if(!g_strcmp0(ti->str, "[")){
+			FPRINTF(stderr, "ERROR: parsebrackets '[' inside bracket item\n");
 			Exit(10);
 		}
 
 		/* finished */
-		if(!strcmp(ti->str, "]")){
+		if(!g_strcmp0(ti->str, "]")){
 			/* check for [ ... ] [ ...] */
 			ti=ti->next;
 
-			if(!strcmp(ti->str, "[")){
+			if(!g_strcmp0(ti->str, "[")){
 				ti=ti->next;
 				continue;
 			}
@@ -513,18 +513,18 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* just ignore all ',' */
-		if(!strcmp(ti->str, ",")){
+		if(!g_strcmp0(ti->str, ",")){
 			ti=ti->next;
 			continue;
 		}
 
 		/* case '(' tag ')' */
-		if(!strcmp(ti->str, "case")){
+		if(!g_strcmp0(ti->str, "case")){
 			br->flags|=BI_CASE;
 			ti=ti->next;
 
-			if(strcmp(ti->str, "(")){
-				fprintf(stderr, "ERROR: parsebrackets case not followed by '('\n");
+			if(g_strcmp0(ti->str, "(")){
+				FPRINTF(stderr, "ERROR: parsebrackets case not followed by '('\n");
 				Exit(10);
 			}
 			ti=ti->next;
@@ -533,8 +533,8 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			br->case_name=ti->str;
 			ti=ti->next;
 
-			if(strcmp(ti->str, ")")){
-				fprintf(stderr, "ERROR: parsebrackets case does not end with ')'\n");
+			if(g_strcmp0(ti->str, ")")){
+				FPRINTF(stderr, "ERROR: parsebrackets case does not end with ')'\n");
 				Exit(10);
 			}
 			ti=ti->next;
@@ -542,7 +542,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* default */
-		if(!strcmp(ti->str, "default")){
+		if(!g_strcmp0(ti->str, "default")){
 			br->flags|=BI_CASE;
 			br->flags|=BI_CASE_DEFAULT;
 			br->case_name="default";
@@ -552,36 +552,36 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 
 
 		/* in */
-		if(!strcmp(ti->str, "in")){
+		if(!g_strcmp0(ti->str, "in")){
 			br->flags|=BI_IN;
 			ti=ti->next;
 			continue;
 		}
 
 		/* out */
-		if(!strcmp(ti->str, "out")){
+		if(!g_strcmp0(ti->str, "out")){
 			br->flags|=BI_OUT;
 			ti=ti->next;
 			continue;
 		}
 
 		/* public : we dont care about this one */
-		if(!strcmp(ti->str, "public")){
+		if(!g_strcmp0(ti->str, "public")){
 			ti=ti->next;
 			continue;
 		}
 
 		/* gensize : we dont care about this one */
-		if(!strcmp(ti->str, "gensize")){
+		if(!g_strcmp0(ti->str, "gensize")){
 			ti=ti->next;
 			continue;
 		}
 
 		/* switch_is */
-		if(!strcmp(ti->str, "switch_is")){
-			fprintf(stderr, "WARNING: parsebrackets can not handle switch_is properly yet  so we can not verify the tag size\n");
+		if(!g_strcmp0(ti->str, "switch_is")){
+			FPRINTF(stderr, "WARNING: parsebrackets can not handle switch_is properly yet  so we can not verify the tag size\n");
 			while(ti){
-				if(!strcmp(ti->str, ")")){
+				if(!g_strcmp0(ti->str, ")")){
 					ti=ti->next;
 					break;
 				}
@@ -591,9 +591,9 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* switch_is */
-		if(!strcmp(ti->str, "subcontext")){
+		if(!g_strcmp0(ti->str, "subcontext")){
 			while(ti){
-				if(!strcmp(ti->str, ")")){
+				if(!g_strcmp0(ti->str, ")")){
 					ti=ti->next;
 					break;
 				}
@@ -603,21 +603,21 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* value   we dont care about this one so just skip it */
-		if(!strcmp(ti->str, "value")){
+		if(!g_strcmp0(ti->str, "value")){
 			int level;
 			ti=ti->next;
-			if( strcmp(ti->str, "(") ){
-				fprintf(stderr, "WARNING: parsebrackets value was not followed by '('\n");
+			if( g_strcmp0(ti->str, "(") ){
+				FPRINTF(stderr, "WARNING: parsebrackets value was not followed by '('\n");
 				Exit(10);
 			}
 			level=0;
 			while(ti){
-				if(!strcmp(ti->str, "(")){
+				if(!g_strcmp0(ti->str, "(")){
 					ti=ti->next;
 					level++;
 					continue;
 				}
-				if(!strcmp(ti->str, ")")){
+				if(!g_strcmp0(ti->str, ")")){
 					ti=ti->next;
 					level--;
 					if(level){
@@ -631,21 +631,21 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* range   we dont care about this one so just skip it */
-		if(!strcmp(ti->str, "range")){
+		if(!g_strcmp0(ti->str, "range")){
 			int level;
 			ti=ti->next;
-			if( strcmp(ti->str, "(") ){
-				fprintf(stderr, "WARNING: parsebrackets range was not followed by '('\n");
+			if( g_strcmp0(ti->str, "(") ){
+				FPRINTF(stderr, "WARNING: parsebrackets range was not followed by '('\n");
 				Exit(10);
 			}
 			level=0;
 			while(ti){
-				if(!strcmp(ti->str, "(")){
+				if(!g_strcmp0(ti->str, "(")){
 					ti=ti->next;
 					level++;
 					continue;
 				}
-				if(!strcmp(ti->str, ")")){
+				if(!g_strcmp0(ti->str, ")")){
 					ti=ti->next;
 					level--;
 					if(level){
@@ -659,21 +659,21 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* flag   we dont care about this one so just skip it */
-		if(!strcmp(ti->str, "flag")){
+		if(!g_strcmp0(ti->str, "flag")){
 			int level;
 			ti=ti->next;
-			if( strcmp(ti->str, "(") ){
-				fprintf(stderr, "WARNING: parsebrackets flag was not followed by '('\n");
+			if( g_strcmp0(ti->str, "(") ){
+				FPRINTF(stderr, "WARNING: parsebrackets flag was not followed by '('\n");
 				Exit(10);
 			}
 			level=0;
 			while(ti){
-				if(!strcmp(ti->str, "(")){
+				if(!g_strcmp0(ti->str, "(")){
 					ti=ti->next;
 					level++;
 					continue;
 				}
-				if(!strcmp(ti->str, ")")){
+				if(!g_strcmp0(ti->str, ")")){
 					ti=ti->next;
 					level--;
 					if(level){
@@ -687,26 +687,26 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* switch_type */
-		if(!strcmp(ti->str, "switch_type")){
+		if(!g_strcmp0(ti->str, "switch_type")){
 			br->flags|=BI_SWITCH_TYPE;
 			ti=ti->next;
 
-			if(strcmp(ti->str, "(")){
-				fprintf(stderr, "WARNING: parsebrackets switch_type was not followed by '('\n");
+			if(g_strcmp0(ti->str, "(")){
+				FPRINTF(stderr, "WARNING: parsebrackets switch_type was not followed by '('\n");
 				Exit(10);
 			}
 			ti=ti->next;
 
 			type_item=find_type(ti->str);
 			if(!type_item){
-				fprintf(stderr, "ERROR : parsebrackets switch_type unknown type %s\n",ti->str);
+				FPRINTF(stderr, "ERROR : parsebrackets switch_type unknown type %s\n",ti->str);
 				Exit(10);
 			}
 			br->union_tag_size=type_item->alignment;
 			ti=ti->next;
 
-			if(strcmp(ti->str, ")")){
-				fprintf(stderr, "WARNING: parsebrackets switch_type did not end with ')'\n");
+			if(g_strcmp0(ti->str, ")")){
+				FPRINTF(stderr, "WARNING: parsebrackets switch_type did not end with ')'\n");
 				Exit(10);
 			}
 			ti=ti->next;
@@ -715,43 +715,43 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		}
 
 		/* size_is */
-		if(!strcmp(ti->str, "size_is")){
+		if(!g_strcmp0(ti->str, "size_is")){
 			br->flags|=BI_SIZE_IS;
 			ti=ti->next;
 			continue;
 		}
 
 		/* length_is */
-		if(!strcmp(ti->str, "length_is")){
+		if(!g_strcmp0(ti->str, "length_is")){
 			br->flags|=BI_LENGTH_IS;
 			ti=ti->next;
 			continue;
 		}
 
 		/* bitmap8bit */
-		if(!strcmp(ti->str, "bitmap8bit")){
+		if(!g_strcmp0(ti->str, "bitmap8bit")){
 			br->flags|=BI_BITMAP8;
 			ti=ti->next;
 			continue;
 		}
 
 		/* bitmap32bit */
-		if(!strcmp(ti->str, "bitmap32bit")){
+		if(!g_strcmp0(ti->str, "bitmap32bit")){
 			br->flags|=BI_BITMAP32;
 			ti=ti->next;
 			continue;
 		}
 
 		/* ref, unique or ptr */
-		if(!strcmp(ti->str, "ref")
-		|| !strcmp(ti->str, "unique")
-		|| !strcmp(ti->str, "ptr")){
+		if(!g_strcmp0(ti->str, "ref")
+		|| !g_strcmp0(ti->str, "unique")
+		|| !g_strcmp0(ti->str, "ptr")){
 			pointer_item_t *newpi;
 
 			br->flags|=BI_POINTER;
-			newpi=(pointer_item_t*)g_malloc(sizeof(pointer_item_t));
+			newpi=g_new0(pointer_item_t, 1);
 			if (!newpi) {
-				fprintf(stderr, "Can't allocate memory. Exit.\n");
+				FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 				exit(10);
 			}
 			newpi->next=NULL;
@@ -762,7 +762,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
-		fprintf(stderr, "ERROR: parsebrackets should not be reached  unknown tag:%s\n", ti->str);
+		FPRINTF(stderr, "ERROR: parsebrackets should not be reached  unknown tag:%s\n", ti->str);
 		Exit(10);
 	}
 
@@ -777,9 +777,9 @@ register_new_type(const char *name, const char *dissectorname, const char *ft_ty
 
 	FPRINTF(NULL,"XXX new type:%s dissector:%s Type:%s Base:%s Mask:%s Vals:%s alignment:%d\n", name, dissectorname, ft_type, base_type, mask, valsstring, alignment);
 
-	new_type=(type_item_t*)g_malloc(sizeof(type_item_t));
+	new_type=g_new0(type_item_t, 1);
 	if (!new_type) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	new_type->next=type_list;
@@ -801,12 +801,12 @@ register_new_type(const char *name, const char *dissectorname, const char *ft_ty
 static void printtokenlist(int count)
 {
 	token_item_t *ti;
-	fprintf(stderr, "TOKENLIST:\n");
+	FPRINTF(stderr, "TOKENLIST:\n");
 	for(ti=token_list;ti&&count;count--,ti=ti->next){
-		fprintf(stderr, "Token \"%s\"\n",ti->str);
+		FPRINTF(stderr, "Token \"%s\"\n",ti->str);
 	}
 	if(!count){
-		fprintf(stderr, "	 ...\n");
+		FPRINTF(stderr, "	 ...\n");
 	}
 }
 
@@ -832,22 +832,22 @@ static void parseheader(void)
 
 	ti=token_list;
 	if(!ti){
-		fprintf(stderr, "ERROR: no tokens\n");
+		FPRINTF(stderr, "ERROR: no tokens\n");
 		Exit(10);
 	}
 
 	/* first token must be '[' */
-	if( strcmp(ti->str, "[") ){
-		fprintf(stderr, "ERROR: first token is not '['\n");
+	if( g_strcmp0(ti->str, "[") ){
+		FPRINTF(stderr, "ERROR: first token is not '['\n");
 		Exit(10);
 	}
 
 	for(ti=token_list;ti;ti=ti->next){
-		if( !strcmp(ti->str, "[")){
+		if( !g_strcmp0(ti->str, "[")){
 			level++;
 			continue;
 		}
-		if( !strcmp(ti->str, "]")){
+		if( !g_strcmp0(ti->str, "]")){
 			level--;
 			if(!level){
 				token_list=ti->next;
@@ -855,21 +855,21 @@ static void parseheader(void)
 			}
 		}
 		if(level==1){
-			if( !strcmp(ti->str, "uuid")){
+			if( !g_strcmp0(ti->str, "uuid")){
 				uuid=ti->next->next->str;
 				FPRINTF(NULL,"UUID:%s\n",uuid);
 			}
-			if( !strcmp(ti->str, "version")){
+			if( !g_strcmp0(ti->str, "version")){
 				version=ti->next->next->str;
 				FPRINTF(NULL,"VERSION:%s\n",version);
 			}
-			if( !strcmp(ti->str, "pointer_default")){
-				if(!strcmp(ti->next->next->str, "unique")){
+			if( !g_strcmp0(ti->str, "pointer_default")){
+				if(!g_strcmp0(ti->next->next->str, "unique")){
 					pointer_default="unique";
-				} else if(!strcmp(ti->next->next->str, "ptr")){
+				} else if(!g_strcmp0(ti->next->next->str, "ptr")){
 					pointer_default="ptr";
 				} else {
-					fprintf(stderr, "ERROR: unknown pointer type\n");
+					FPRINTF(stderr, "ERROR: unknown pointer type\n");
 					Exit(10);
 				}
 				FPRINTF(NULL,"POINTER_DEFAULT:%s\n",pointer_default);
@@ -877,17 +877,17 @@ static void parseheader(void)
 		}
 	}
 	if(!token_list){
-		fprintf(stderr, "ERROR: ran out of tokens inside header\n");
+		FPRINTF(stderr, "ERROR: ran out of tokens inside header\n");
 		Exit(10);
 	}
 	/* interface */
-	if(strcmp(token_list->str, "interface")){
-		fprintf(stderr, "ERROR: interface not found\n");
+	if(g_strcmp0(token_list->str, "interface")){
+		FPRINTF(stderr, "ERROR: interface not found\n");
 		Exit(10);
 	}
 	token_list=token_list->next;
 	if (!token_list){
-		fprintf(stderr, "ERROR: ran out of tokens\n");
+		FPRINTF(stderr, "ERROR: ran out of tokens\n");
 		Exit(10);
 	}
 	/* interface name */
@@ -909,8 +909,8 @@ static void parseheader(void)
 	FPRINTF(eth_ettarr, "		 &ett_%s,\n", ifname);
 
 	/* the body must start with { */
-	if(strcmp(token_list->str, "{")){
-		fprintf(stderr, "ERROR: body does not start with '{'\n");
+	if(g_strcmp0(token_list->str, "{")){
+		FPRINTF(stderr, "ERROR: body does not start with '{'\n");
 		Exit(10);
 	}
 
@@ -918,7 +918,7 @@ static void parseheader(void)
 	token_list=token_list->next;
 
 	if(!uuid){
-		fprintf(stderr, "ERROR: no uuid found\n");
+		FPRINTF(stderr, "ERROR: no uuid found\n");
 		Exit(10);
 	}
 	FPRINTF(eth_code,"static e_guid_t uuid_dcerpc_%s = {\n", ifname);
@@ -944,9 +944,9 @@ static void parseheader(void)
 static void pushtoken(char *token)
 {
 	token_item_t *new_token_item;
-	new_token_item=(token_item_t*)g_malloc(sizeof(token_item_t));
+	new_token_item=g_new0(token_item_t, 1);
 	if (!new_token_item) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	new_token_item->next=NULL;
@@ -1093,14 +1093,14 @@ find_type(char *name)
 {
 	type_item_t *tmptype;
 	for(tmptype=type_list;tmptype;tmptype=tmptype->next){
-		if(!strcmp(tmptype->name, name)){
+		if(!g_strcmp0(tmptype->name, name)){
 			break;
 		}
 	}
 	/* autogenerate built in types */
 	if(!tmptype){
 		char dissectorname[DISSECTORNAME_MAXLEN];
-		if(!strcmp(name,"uint16")){
+		if(!g_strcmp0(name,"uint16")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1112,7 +1112,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("uint16", dissectorname, "FT_UINT16", "BASE_DEC", "0", "NULL", 2);
-		} else if(!strcmp(name,"int16")){
+		} else if(!g_strcmp0(name,"int16")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1124,7 +1124,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("int16", dissectorname, "FT_INT16", "BASE_DEC", "0", "NULL", 2);
-		} else if(!strcmp(name,"uint32")){
+		} else if(!g_strcmp0(name,"uint32")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1136,8 +1136,8 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("uint32", dissectorname, "FT_UINT32", "BASE_DEC", "0", "NULL", 4);
-		} else if( (!strcmp(name,"int32"))
-			|| (!strcmp(name,"long")) ){
+		} else if( (!g_strcmp0(name,"int32"))
+			|| (!g_strcmp0(name,"long")) ){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1148,11 +1148,11 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			if (!strcmp(name,"int32"))
+			if (!g_strcmp0(name,"int32"))
 				tmptype=register_new_type("int32", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
 			else
 				tmptype=register_new_type("long", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
-		} else if( (!strcmp(name,"uint8")) ){
+		} else if( (!g_strcmp0(name,"uint8")) ){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1164,8 +1164,8 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("uint8", dissectorname, "FT_UINT8", "BASE_DEC", "0", "NULL", 1);
-		} else if( (!strcmp(name,"int8"))
-			|| (!strcmp(name, "char")) ){
+		} else if( (!g_strcmp0(name,"int8"))
+			|| (!g_strcmp0(name, "char")) ){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1176,11 +1176,11 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			if (!strcmp(name,"int8"))
+			if (!g_strcmp0(name,"int8"))
 				tmptype=register_new_type("int8", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
 			else
 				tmptype=register_new_type("char", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
-		} else if(!strcmp(name,"bool8")){
+		} else if(!g_strcmp0(name,"bool8")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1192,7 +1192,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("bool8", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
-		} else if(!strcmp(name,"unistr")){
+		} else if(!g_strcmp0(name,"unistr")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1204,7 +1204,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("unistr", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
-		} else if(!strcmp(name,"ascstr")){
+		} else if(!g_strcmp0(name,"ascstr")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1216,8 +1216,8 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("ascstr", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
-		} else if(!strcmp(name,"GUID")
-			||!strcmp(name,"uuid_t")){
+		} else if(!g_strcmp0(name,"GUID")
+			||!g_strcmp0(name,"uuid_t")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1229,7 +1229,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type(name, dissectorname, "FT_GUID", "BASE_NONE", "0", "NULL", 4);
-		} else if(!strcmp(name,"policy_handle")){
+		} else if(!g_strcmp0(name,"policy_handle")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1247,7 +1247,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("policy_handle", dissectorname, "FT_BYTES", "BASE_NONE", "0", "NULL", 4);
-		} else if(!strcmp(name,"NTTIME")){
+		} else if(!g_strcmp0(name,"NTTIME")){
 			/* 8 bytes, aligned to 4 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1262,7 +1262,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("NTTIME", dissectorname, "FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", "0", "NULL", 4);
-		} else if(!strcmp(name,"NTTIME_hyper")){
+		} else if(!g_strcmp0(name,"NTTIME_hyper")){
 			/* 8 bytes, aligned to 8 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1278,7 +1278,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("NTTIME_hyper", dissectorname, "FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", "0", "NULL", 4);
-		} else if(!strcmp(name,"NTTIME_1sec")){
+		} else if(!g_strcmp0(name,"NTTIME_1sec")){
 			/* 8 bytes, aligned to 8 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1294,7 +1294,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("NTTIME_1sec", dissectorname, "FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", "0", "NULL", 4);
-		} else if(!strcmp(name,"udlong")){
+		} else if(!g_strcmp0(name,"udlong")){
 			/* 8 bytes, aligned to 4 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1309,7 +1309,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("udlong", dissectorname, "FT_UINT64", "BASE_DEC", "0", "NULL", 4);
-		} else if(!strcmp(name,"dlong")){
+		} else if(!g_strcmp0(name,"dlong")){
 			/* 8 bytes, aligned to 4 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1324,7 +1324,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("dlong", dissectorname, "FT_INT64", "BASE_DEC", "0", "NULL", 4);
-		} else if(!strcmp(name,"uint64")){
+		} else if(!g_strcmp0(name,"uint64")){
 			/* 8 bytes, aligned to 8 bytes */
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1340,7 +1340,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("uint64", dissectorname, "FT_UINT64", "BASE_DEC", "0", "NULL", 8);
-		} else if(!strcmp(name,"time_t")){
+		} else if(!g_strcmp0(name,"time_t")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1354,7 +1354,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("time_t", dissectorname, "FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", "0", "NULL", 4);
-		} else if(!strcmp(name,"SID")){
+		} else if(!g_strcmp0(name,"SID")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1368,7 +1368,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("SID", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
-		} else if(!strcmp(name,"WERROR")){
+		} else if(!g_strcmp0(name,"WERROR")){
 			g_snprintf(dissectorname, DISSECTORNAME_MAXLEN, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
 			FPRINTF(eth_code, "\n");
@@ -1396,11 +1396,11 @@ static void skipdeclare(void)
 
 	/* first must be the keyword const */
 	ti=token_list;
-	if(strcmp(ti->str, "declare")){
-		fprintf(stderr, "ERROR: skipdeclare  first token is not 'declare'\n");
+	if(strncmp(ti->str, "declare", 7)){
+		FPRINTF(stderr, "ERROR: skipdeclare  first token is not 'declare'\n");
 		Exit(10);
 	}
-	while(strcmp(ti->str, ";")){
+	while(ti->str[0] != ';'){
 		ti=ti->next;
 	}
 	ti=ti->next;
@@ -1422,8 +1422,8 @@ static void parseconst(void)
 
 	/* first must be the keyword const */
 	ti=token_list;
-	if(strcmp(ti->str, "const")){
-		fprintf(stderr, "ERROR: const  first token is not 'const'\n");
+	if(strncmp(ti->str, "const", 5)){
+		FPRINTF(stderr, "ERROR: const  first token is not 'const'\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -1433,15 +1433,15 @@ static void parseconst(void)
 
 	/* third is a variable and not a type */
 	if(find_type(ti->str)){
-		fprintf(stderr, "ERROR: const, not a variable name:%s\n", ti->str);
+		FPRINTF(stderr, "ERROR: const, not a variable name:%s\n", ti->str);
 		Exit(10);
 	}
 	name=ti->str;
 	ti=ti->next;
 
 	/* fourth is '=' */
-	if(strcmp(ti->str, "=")){
-		fprintf(stderr, "ERROR: const  fourth token is not '='\n");
+	if(ti->str[0] != '='){
+		FPRINTF(stderr, "ERROR: const  fourth token is not '='\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -1451,8 +1451,8 @@ static void parseconst(void)
 	ti=ti->next;
 
 	/* sixth is ';' */
-	if(strcmp(ti->str, ";")){
-		fprintf(stderr, "ERROR: const  sixth token is not ';'\n");
+	if(ti->str[0] != ';'){
+		FPRINTF(stderr, "ERROR: const  sixth token is not ';'\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -1494,47 +1494,47 @@ static void parsetypedefstruct(int pass)
 	int empty_struct = 0;
 
 	ti=token_list;
-	if(strcmp(ti->str, "typedef")){
-		fprintf(stderr, "ERROR: typedefstruct  first token is not 'typedef'\n");
+	if(g_strcmp0(ti->str, "typedef")){
+		FPRINTF(stderr, "ERROR: typedefstruct  first token is not 'typedef'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(!strcmp(ti->str, "[")){
+	if(!g_strcmp0(ti->str, "[")){
 		ti=parsebrackets(ti, &bi);
 	}
 	/* check that we know how to handle the bracket thing */
 	if(bi){
 		if(bi->flags){
-			fprintf(stderr, "ERROR: typedefstruct unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			FPRINTF(stderr, "ERROR: typedefstruct unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 	}
 
-	if(strcmp(ti->str, "struct")){
-		fprintf(stderr, "ERROR: typedefstruct  second token is not 'struct'\n");
+	if(g_strcmp0(ti->str, "struct")){
+		FPRINTF(stderr, "ERROR: typedefstruct  second token is not 'struct'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(strcmp(ti->str, "{")){
-		fprintf(stderr, "ERROR: typedefstruct  third token is not '{'\n");
+	if(g_strcmp0(ti->str, "{")){
+		FPRINTF(stderr, "ERROR: typedefstruct  third token is not '{'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
 	/* Check if the struct is empty (search if there is no end bracket) */
-	if(strcmp(ti->str, "}") == 0){
+	if(g_strcmp0(ti->str, "}") == 0){
 		empty_struct = 1;
 	}
 
 	/* search forward until the '}' so we can find the name of the struct */
 	for(tmpti=ti,level=0;tmpti;tmpti=tmpti->next){
-		if(!strcmp(tmpti->str, "{")){
+		if(!g_strcmp0(tmpti->str, "{")){
 			level++;
 			continue;
 		}
-		if(!strcmp(tmpti->str, "}")){
+		if(!g_strcmp0(tmpti->str, "}")){
 			if(!level){
 				break;
 			}
@@ -1543,7 +1543,7 @@ static void parsetypedefstruct(int pass)
 		}
 	}
 	if(!tmpti || !tmpti->next){
-		fprintf(stderr, "ERROR: typedefstruct  missing matching '}'\n");
+		FPRINTF(stderr, "ERROR: typedefstruct  missing matching '}'\n");
 		Exit(10);
 	}
 
@@ -1596,7 +1596,7 @@ static void parsetypedefstruct(int pass)
 			FPRINTF(eth_code, "\n");
 			break;
 		default:
-			fprintf(stderr, "ERROR: can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 		FPRINTF(eth_code, "    old_offset=offset;\n");
@@ -1612,12 +1612,12 @@ static void parsetypedefstruct(int pass)
 	/* scan the struct and create all subdissectors */
 	level=0;
 	while(ti){
-		if(!strcmp(ti->str, "{")){
+		if(!g_strcmp0(ti->str, "{")){
 			level++;
 			ti=ti->next;
 			continue;
 		}
-		if(!strcmp(ti->str, "}")){
+		if(!g_strcmp0(ti->str, "}")){
 			if(!level){
 				break;
 			}
@@ -1625,7 +1625,7 @@ static void parsetypedefstruct(int pass)
 			ti=ti->next;
 			continue;
 		}
-		if(!strcmp(ti->str, "[")){
+		if(!g_strcmp0(ti->str, "[")){
 			ti=parsebrackets(ti, &bi);
 			continue;
 		}
@@ -1633,7 +1633,7 @@ static void parsetypedefstruct(int pass)
 		/* check that we know how to handle the bracket thing */
 		if(bi){
 			if(bi->flags&(~(BI_SIZE_IS|BI_LENGTH_IS|BI_POINTER))){
-				fprintf(stderr, "ERROR: typedefstruct unknown bracket flags encountered : 0x%08x\n",bi->flags);
+				FPRINTF(stderr, "ERROR: typedefstruct unknown bracket flags encountered : 0x%08x\n",bi->flags);
 				Exit(10);
 			}
 		}
@@ -1641,12 +1641,12 @@ static void parsetypedefstruct(int pass)
 		/* handle the type, verify that we KNOW this type */
 		type_item=find_type(ti->str);
 		if(!type_item){
-			fprintf(stderr, "ERROR : typedefstruct unknown type %s\n",ti->str);
+			FPRINTF(stderr, "ERROR : typedefstruct unknown type %s\n",ti->str);
 			Exit(10);
 		}
 		ti=ti->next;
 		/* count the levels of pointers */
-		for(num_pointers=0;!strcmp(ti->str, "*");ti=ti->next){
+		for(num_pointers=0;!g_strcmp0(ti->str, "*");ti=ti->next){
 			num_pointers++;
 			/* poitners are aligned at 4 byte boundaries */
 			if(alignment<4){
@@ -1669,7 +1669,7 @@ static void parsetypedefstruct(int pass)
 		/* see if it is a fixed array */
 		fixed_array_size=0;
 		is_array_of_pointers=0;
-		if(!strcmp(ti->str, "[")){
+		if(!g_strcmp0(ti->str, "[")){
 			char fss[BASE_BUFFER_SIZE];
 
 			/* this might be a fixed array */
@@ -1678,24 +1678,24 @@ static void parsetypedefstruct(int pass)
 			fixed_array_size=atoi(ti->str);
 			g_snprintf(fss, BASE_BUFFER_SIZE, "%d", fixed_array_size);
 
-			if(!strcmp("]", ti->str)){
+			if(!g_strcmp0("]", ti->str)){
 				/* this is just a normal [] array */
 				fixed_array_size=0;
-			} else if(!strcmp("*", ti->str)){
+			} else if(!g_strcmp0("*", ti->str)){
 				pi=prepend_pointer_list(pi, num_pointers+1);
 				fixed_array_size=0;
 				is_array_of_pointers=1;
 				ti=ti->next;
-			} else if(strcmp(fss, ti->str)){
-				fprintf(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
+			} else if(g_strcmp0(fss, ti->str)){
+				FPRINTF(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
 				ti=ti->next;
 				Exit(10);
 			} else {
 				ti=ti->next;
 			}
 
-			if(strcmp(ti->str, "]")){
-				fprintf(stderr, "ERROR: typedefstruct  fixed array does not end with ']' it ended with %s\n",ti->str);
+			if(g_strcmp0(ti->str, "]")){
+				FPRINTF(stderr, "ERROR: typedefstruct  fixed array does not end with ']' it ended with %s\n",ti->str);
 				Exit(10);
 			}
 			ti=ti->next;
@@ -1813,7 +1813,7 @@ static void parsetypedefstruct(int pass)
 				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
 				break;
 			  default:
-				fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
+				FPRINTF(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
 				Exit(10);
 			  }
 			}
@@ -1872,7 +1872,7 @@ static void parsetypedefstruct(int pass)
 				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
 				break;
 			  default:
-				fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
+				FPRINTF(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
 				Exit(10);
 			  }
 			}
@@ -1889,8 +1889,8 @@ static void parsetypedefstruct(int pass)
 			FPRINTF(eth_code, "\n");
 		}
 
-		if(strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: field does not en with ';'\n");
+		if(g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: field does not en with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -1913,8 +1913,8 @@ typedef_struct_finished:
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(!ti || strcmp(ti->str,"}")){
-			fprintf(stderr, "ERROR: struct does not end with '}'\n");
+		if(!ti || g_strcmp0(ti->str,"}")){
+			FPRINTF(stderr, "ERROR: struct does not end with '}'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -1922,8 +1922,8 @@ typedef_struct_finished:
 		/* just skip the name */
 		ti=ti->next;
 
-		if(!ti || strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: struct does not end with ';'\n");
+		if(!ti || g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: struct does not end with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -1954,21 +1954,21 @@ static void parsetypedefbitmap(int pass)
 	bracket_item_t *bi=NULL;
 
 	ti=token_list;
-	if(strcmp(ti->str, "typedef")){
-		fprintf(stderr, "ERROR: typedefbitmap  first token is not 'typedef'\n");
+	if(g_strcmp0(ti->str, "typedef")){
+		FPRINTF(stderr, "ERROR: typedefbitmap  first token is not 'typedef'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
 	alignment=4;  /* default size is 32 bits */
 
-	if(!strcmp(ti->str, "[")){
+	if(!g_strcmp0(ti->str, "[")){
 		ti=parsebrackets(ti, &bi);
 	}
 	/* check that we know how to handle the bracket thing */
 	if(bi){
 		if(bi->flags&(~(BI_BITMAP32|BI_BITMAP8))){
-			fprintf(stderr, "ERROR: typedefbitmap unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			FPRINTF(stderr, "ERROR: typedefbitmap unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 		if(bi->flags&BI_BITMAP32){
@@ -1980,30 +1980,30 @@ static void parsetypedefbitmap(int pass)
 	}
 
 
-	if(strcmp(ti->str, "bitmap")){
-		fprintf(stderr, "ERROR: typedefbitmap  second token is not 'bitmap'\n");
+	if(g_strcmp0(ti->str, "bitmap")){
+		FPRINTF(stderr, "ERROR: typedefbitmap  second token is not 'bitmap'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(strcmp(ti->str, "{")){
-		fprintf(stderr, "ERROR: typedefbitmap  third token is not '{'\n");
+	if(g_strcmp0(ti->str, "{")){
+		FPRINTF(stderr, "ERROR: typedefbitmap  third token is not '{'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
 	/* search forward until the '}' so we can find the name of the bitmap */
 	for(tmpti=ti;tmpti;tmpti=tmpti->next){
-		if(!strcmp(tmpti->str, "{")){
-			fprintf(stderr, "ERROR: typedefbitmap '{' encountered inside bitmap\n");
+		if(!g_strcmp0(tmpti->str, "{")){
+			FPRINTF(stderr, "ERROR: typedefbitmap '{' encountered inside bitmap\n");
 			Exit(10);
 		}
-		if(!strcmp(tmpti->str, "}")){
+		if(!g_strcmp0(tmpti->str, "}")){
 			break;
 		}
 	}
 	if (!tmpti || !tmpti->next){
-		fprintf(stderr, "ERROR: typedefbitmap missing matching '}'\n");
+		FPRINTF(stderr, "ERROR: typedefbitmap missing matching '}'\n");
 		Exit(10);
 	}
 	bitmap_name=tmpti->next->str;
@@ -2033,7 +2033,7 @@ static void parsetypedefbitmap(int pass)
 			FPRINTF(eth_code, "    ALIGN_TO_4_BYTES;\n");
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 		FPRINTF(eth_code, "\n");
@@ -2052,7 +2052,7 @@ static void parsetypedefbitmap(int pass)
 			FPRINTF(eth_code, "\n");
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 		FPRINTF(eth_code, "\n");
@@ -2060,11 +2060,11 @@ static void parsetypedefbitmap(int pass)
 
 	/* scan the struct and create call for all bits */
 	while(ti){
-		if(!strcmp(ti->str, "}")){
+		if(!g_strcmp0(ti->str, "}")){
 			break;
 		}
-		if(!strcmp(ti->str, "[")){
-			fprintf(stderr, "ERROR: typedefbitmap can not handle '[' yet\n");
+		if(!g_strcmp0(ti->str, "[")){
+			FPRINTF(stderr, "ERROR: typedefbitmap can not handle '[' yet\n");
 			Exit(10);
 		}
 
@@ -2072,8 +2072,8 @@ static void parsetypedefbitmap(int pass)
 		ti=ti->next;
 		g_snprintf(hf_bitname, BASE_BUFFER_SIZE, "hf_%s_%s_%s", ifname, bitmap_name, name);
 
-		if(strcmp(ti->str, "=")){
-			fprintf(stderr, "ERROR: typedefbitmap i expected a '=' here\n");
+		if(g_strcmp0(ti->str, "=")){
+			FPRINTF(stderr, "ERROR: typedefbitmap i expected a '=' here\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2084,12 +2084,12 @@ static void parsetypedefbitmap(int pass)
 		if(!strncmp(value, "0x", 2)){
 			sscanf(value, "0x%x", &val);
 		} else {
-			fprintf(stderr, "ERROR: typedefbitmap can only handle hexadecimal constants\n");
+			FPRINTF(stderr, "ERROR: typedefbitmap can only handle hexadecimal constants\n");
 			Exit(10);
 		}
 
 		if( val&(val-1) ){
-			fprintf(stderr, "ERROR: typedefbitmap can only handle single bit fields\n");
+			FPRINTF(stderr, "ERROR: typedefbitmap can only handle single bit fields\n");
 			Exit(10);
 		}
 
@@ -2117,7 +2117,7 @@ static void parsetypedefbitmap(int pass)
 			FPRINTF(eth_code, "\n");
 		}
 
-		if(!strcmp(ti->str, ",")){
+		if(!g_strcmp0(ti->str, ",")){
 			ti=ti->next;
 			continue;
 		}
@@ -2138,7 +2138,7 @@ static void parsetypedefbitmap(int pass)
 			register_new_type(bitmap_name, dissectorname, "FT_UINT32", "BASE_HEX", "0", "NULL", alignment);
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefbitmap can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 	}
@@ -2149,8 +2149,8 @@ static void parsetypedefbitmap(int pass)
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(!ti || strcmp(ti->str,"}")){
-			fprintf(stderr, "ERROR: bitmap does not end with '}'\n");
+		if(!ti || g_strcmp0(ti->str,"}")){
+			FPRINTF(stderr, "ERROR: bitmap does not end with '}'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2158,8 +2158,8 @@ static void parsetypedefbitmap(int pass)
 		/* just skip the name */
 		ti=ti->next;
 
-		if(!ti || strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: bitmap does not end with ';'\n");
+		if(!ti || g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: bitmap does not end with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2206,42 +2206,42 @@ static void parsetypedefunion(int pass)
 	int tag_alignment, item_alignment;
 
 	ti=token_list;
-	if(strcmp(ti->str, "typedef")){
-		fprintf(stderr, "ERROR: typedefunion  first token is not 'typedef'\n");
+	if(g_strcmp0(ti->str, "typedef")){
+		FPRINTF(stderr, "ERROR: typedefunion  first token is not 'typedef'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(!strcmp(ti->str, "[")){
+	if(!g_strcmp0(ti->str, "[")){
 		ti=parsebrackets(ti, &bi);
 	}
 	/* check that we know how to handle the bracket thing */
 	if(bi){
 		if(bi->flags&(~(BI_SWITCH_TYPE))){
-			fprintf(stderr, "ERROR: typedefunion unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			FPRINTF(stderr, "ERROR: typedefunion unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 	}
 
-	if(strcmp(ti->str, "union")){
-		fprintf(stderr, "ERROR: typedefunion  second token is not 'union'\n");
+	if(g_strcmp0(ti->str, "union")){
+		FPRINTF(stderr, "ERROR: typedefunion  second token is not 'union'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(strcmp(ti->str, "{")){
-		fprintf(stderr, "ERROR: typedefunion  third token is not '{'\n");
+	if(g_strcmp0(ti->str, "{")){
+		FPRINTF(stderr, "ERROR: typedefunion  third token is not '{'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
 	/* search forward until the '}' so we can find the name of the union */
 	for(tmpti=ti,level=0;tmpti;tmpti=tmpti->next){
-		if(!strcmp(tmpti->str, "{")){
+		if(!g_strcmp0(tmpti->str, "{")){
 			level++;
 			continue;
 		}
-		if(!strcmp(tmpti->str, "}")){
+		if(!g_strcmp0(tmpti->str, "}")){
 			if(!level){
 				break;
 			}
@@ -2251,7 +2251,7 @@ static void parsetypedefunion(int pass)
 	}
 
 	if (!tmpti || !tmpti->next){
-		fprintf(stderr, "ERROR: typedefunion  missing matching '}'\n");
+		FPRINTF(stderr, "ERROR: typedefunion  missing matching '}'\n");
 		Exit(10);
 	}
 	union_name=tmpti->next->str;
@@ -2305,7 +2305,7 @@ static void parsetypedefunion(int pass)
 			FPRINTF(eth_code, "\n");
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefunion 1 can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefunion 1 can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 		FPRINTF(eth_code, "    old_offset=offset;\n");
@@ -2325,7 +2325,7 @@ static void parsetypedefunion(int pass)
 			FPRINTF(eth_code, " 							 di, drep, hf_index, &level);\n");
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefunion 2 can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefunion 2 can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 		FPRINTF(eth_code, "\n");
@@ -2335,12 +2335,12 @@ static void parsetypedefunion(int pass)
 	/* scan the struct and create all subdissectors */
 	level=0;
 	while(ti){
-		if(!strcmp(ti->str, "{")){
+		if(!g_strcmp0(ti->str, "{")){
 			ti=ti->next;
 			level++;
 			continue;
 		}
-		if(!strcmp(ti->str, "}")){
+		if(!g_strcmp0(ti->str, "}")){
 			if(!level){
 				break;
 			}
@@ -2348,13 +2348,13 @@ static void parsetypedefunion(int pass)
 			level--;
 			continue;
 		}
-		if(!strcmp(ti->str, "[")){
+		if(!g_strcmp0(ti->str, "[")){
 			ti=parsebrackets(ti, &bi);
 			continue;
 		}
 
 		if(!bi){
-			fprintf(stderr, "ERROR : typedefunion no brackets found for case\n");
+			FPRINTF(stderr, "ERROR : typedefunion no brackets found for case\n");
 			Exit(10);
 		}
 		/* make sure we catch when we havent implemented everything
@@ -2362,18 +2362,18 @@ static void parsetypedefunion(int pass)
 		   we currently only know about CASE and CASE_DEFAULT flags
 		*/
 		if(bi->flags&(~(BI_CASE|BI_CASE_DEFAULT|BI_POINTER))){
-			fprintf(stderr, "ERROR: typedefunion unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			FPRINTF(stderr, "ERROR: typedefunion unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 		if(!(bi->flags&BI_CASE)){
-			fprintf(stderr, "ERROR : typedefunion no case found in brackets\n");
+			FPRINTF(stderr, "ERROR : typedefunion no case found in brackets\n");
 			Exit(10);
 		}
 #ifdef g_removeD
 		/* only empty default cases for now */
 		if(bi->flags&BI_CASE_DEFAULT){
-			if(strcmp(ti->str,";")){
-				fprintf(stderr, "ERROR: default tag is not empty\n");
+			if(g_strcmp0(ti->str,";")){
+				FPRINTF(stderr, "ERROR: default tag is not empty\n");
 				Exit(10);
 			}
 			ti=ti->next;
@@ -2382,7 +2382,7 @@ static void parsetypedefunion(int pass)
 #endif
 
 		/* just skip all and any 'empty' arms */
-		if(!strcmp(ti->str, ";")){
+		if(!g_strcmp0(ti->str, ";")){
 			ti=ti->next;
 			continue;
 		}
@@ -2390,12 +2390,12 @@ static void parsetypedefunion(int pass)
 		/* handle the type, verify that we KNOW this type */
 		type_item=find_type(ti->str);
 		if(!type_item){
-			fprintf(stderr, "ERROR : typedefunion unknown type %s\n",ti->str);
+			FPRINTF(stderr, "ERROR : typedefunion unknown type %s\n",ti->str);
 			Exit(10);
 		}
 		ti=ti->next;
 		/* count the levels of pointers */
-		for(num_pointers=0;!strcmp(ti->str, "*");ti=ti->next){
+		for(num_pointers=0;!g_strcmp0(ti->str, "*");ti=ti->next){
 			num_pointers++;
 		}
 
@@ -2474,7 +2474,7 @@ static void parsetypedefunion(int pass)
 				FPRINTF(eth_code, " 	   ALIGN_TO_8_BYTES;\n");
 				break;
 			default:
-				fprintf(stderr, "ERROR: typedefunion 3 can not handle alignment:%d\n",item_alignment);
+				FPRINTF(stderr, "ERROR: typedefunion 3 can not handle alignment:%d\n",item_alignment);
 				Exit(10);
 			}
 			FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, di, drep);\n", ptmpstr);
@@ -2483,8 +2483,8 @@ static void parsetypedefunion(int pass)
 		}
 		ti=ti->next;
 
-		if(strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: field does not end with ';'\n");
+		if(g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: field does not end with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2505,7 +2505,7 @@ static void parsetypedefunion(int pass)
 			register_new_type(union_name, dissectorname, "FT_UINT32", "BASE_DEC", "0", "NULL", alignment);
 			break;
 		default:
-			fprintf(stderr, "ERROR: typedefunion 4 can not handle alignment:%d\n",alignment);
+			FPRINTF(stderr, "ERROR: typedefunion 4 can not handle alignment:%d\n",alignment);
 			Exit(10);
 		}
 	}
@@ -2516,8 +2516,8 @@ static void parsetypedefunion(int pass)
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(!ti || strcmp(ti->str,"}")){
-			fprintf(stderr, "ERROR: union does not end with '}'\n");
+		if(!ti || g_strcmp0(ti->str,"}")){
+			FPRINTF(stderr, "ERROR: union does not end with '}'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2525,8 +2525,8 @@ static void parsetypedefunion(int pass)
 		/* just skip the name */
 		ti=ti->next;
 
-		if(!ti || strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: union does not end with ';'\n");
+		if(!ti || g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: union does not end with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2561,8 +2561,8 @@ static void parsefunction(int pass)
 	char hf_index[BASE_BUFFER_SIZE];
 
 	ti=token_list;
-	if(strcmp(ti->str, "WERROR")){
-		fprintf(stderr, "ERROR: function  first token is not 'WERROR'\n");
+	if(g_strcmp0(ti->str, "WERROR")){
+		FPRINTF(stderr, "ERROR: function  first token is not 'WERROR'\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -2570,8 +2570,8 @@ static void parsefunction(int pass)
 	function_name=ti->str;
 	ti=ti->next;
 
-	if(strcmp(ti->str, "(")){
-		fprintf(stderr, "ERROR: function  third token is not '('\n");
+	if(g_strcmp0(ti->str, "(")){
+		FPRINTF(stderr, "ERROR: function  third token is not '('\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -2596,12 +2596,12 @@ static void parsefunction(int pass)
 	/* scan the struct and create all subdissectors */
 	level=0;
 	while(ti){
-		if(!strcmp(ti->str, "(")){
+		if(!g_strcmp0(ti->str, "(")){
 			ti=ti->next;
 			level++;
 			continue;
 		}
-		if(!strcmp(ti->str, ")")){
+		if(!g_strcmp0(ti->str, ")")){
 			if(!level){
 				break;
 			}
@@ -2609,13 +2609,13 @@ static void parsefunction(int pass)
 			level--;
 			continue;
 		}
-		if(!strcmp(ti->str, "[")){
+		if(!g_strcmp0(ti->str, "[")){
 			ti=parsebrackets(ti, &bi);
 			continue;
 		}
 
 		if(!bi){
-			fprintf(stderr, "ERROR : function no brackets found for case\n");
+			FPRINTF(stderr, "ERROR : function no brackets found for case\n");
 			Exit(10);
 		}
 
@@ -2624,23 +2624,23 @@ static void parsefunction(int pass)
 		   we currently only know about IN and OUT flags
 		*/
 		if(bi->flags&(~(BI_IN|BI_OUT|BI_POINTER|BI_SIZE_IS|BI_LENGTH_IS))){
-			fprintf(stderr, "ERROR: function unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			FPRINTF(stderr, "ERROR: function unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 		if(!(bi->flags&(BI_IN|BI_OUT))){
-			fprintf(stderr, "ERROR : function  parameter is neither in nor out\n");
+			FPRINTF(stderr, "ERROR : function  parameter is neither in nor out\n");
 			Exit(10);
 		}
 
 		/* handle the type, verify that we KNOW this type */
 		type_item=find_type(ti->str);
 		if(!type_item){
-			fprintf(stderr, "ERROR : function unknown type %s\n",ti->str);
+			FPRINTF(stderr, "ERROR : function unknown type %s\n",ti->str);
 			Exit(10);
 		}
 		ti=ti->next;
 		/* count the levels of pointers */
-		for(num_pointers=0;!strcmp(ti->str, "*");ti=ti->next){
+		for(num_pointers=0;!g_strcmp0(ti->str, "*");ti=ti->next){
 			num_pointers++;
 		}
 
@@ -2700,7 +2700,7 @@ static void parsefunction(int pass)
 				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
 				break;
 			  default:
-				fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
+				FPRINTF(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
 				Exit(10);
 			  }
 			}
@@ -2740,7 +2740,7 @@ static void parsefunction(int pass)
 				ptmpstr=g_strndup(tmpstr, strlen(tmpstr));
 				break;
 			  default:
-				fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
+				FPRINTF(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
 				Exit(10);
 			  }
 			}
@@ -2767,7 +2767,7 @@ static void parsefunction(int pass)
 		ti=ti->next;
 
 
-		if(!strcmp(ti->str,",")){
+		if(!g_strcmp0(ti->str,",")){
 			ti=ti->next;
 			continue;
 		}
@@ -2789,14 +2789,14 @@ static void parsefunction(int pass)
 	   ti now points to the ')' token
 	*/
 	if(pass==2){
-		if(!ti || strcmp(ti->str,")")){
-			fprintf(stderr, "ERROR: function does not end with ')'\n");
+		if(!ti || g_strcmp0(ti->str,")")){
+			FPRINTF(stderr, "ERROR: function does not end with ')'\n");
 			Exit(10);
 		}
 		ti=ti->next;
 
-		if(!ti || strcmp(ti->str,";")){
-			fprintf(stderr, "ERROR: function does not end with ';'\n");
+		if(!ti || g_strcmp0(ti->str,";")){
+			FPRINTF(stderr, "ERROR: function does not end with ';'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2826,24 +2826,24 @@ static void parsetypedefenum(void)
 	enumsize=16;
 
 	ti=token_list;
-	if(strcmp(ti->str, "typedef")){
-		fprintf(stderr, "ERROR: typedefenum  first token is not 'typedef'\n");
+	if(g_strcmp0(ti->str, "typedef")){
+		FPRINTF(stderr, "ERROR: typedefenum  first token is not 'typedef'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
 	/* this could be a [ v1_enum ] */
-	if(!strcmp(ti->str, "[")){
+	if(!g_strcmp0(ti->str, "[")){
 		ti=ti->next;
 
-		if(strcmp(ti->str, "v1_enum")){
-			fprintf(stderr, "ERROR: typedefenum  not 'v1_enum' inside brackets\n");
+		if(g_strcmp0(ti->str, "v1_enum")){
+			FPRINTF(stderr, "ERROR: typedefenum  not 'v1_enum' inside brackets\n");
 			Exit(10);
 		}
 		ti=ti->next;
 
-		if(strcmp(ti->str, "]")){
-			fprintf(stderr, "ERROR: typedefenum  'v1_enum' is not followed by ']'\n");
+		if(g_strcmp0(ti->str, "]")){
+			FPRINTF(stderr, "ERROR: typedefenum  'v1_enum' is not followed by ']'\n");
 			Exit(10);
 		}
 		ti=ti->next;
@@ -2852,14 +2852,14 @@ static void parsetypedefenum(void)
 	}
 
 
-	if(strcmp(ti->str, "enum")){
-		fprintf(stderr, "ERROR: typedefenum  second token is not 'enum'\n");
+	if(g_strcmp0(ti->str, "enum")){
+		FPRINTF(stderr, "ERROR: typedefenum  second token is not 'enum'\n");
 		Exit(10);
 	}
 	ti=ti->next;
 
-	if(strcmp(ti->str, "{")){
-		fprintf(stderr, "ERROR: typedefenum  third token is not '{'\n");
+	if(g_strcmp0(ti->str, "{")){
+		FPRINTF(stderr, "ERROR: typedefenum  third token is not '{'\n");
 		Exit(10);
 	}
 	ti=ti->next;
@@ -2870,7 +2870,7 @@ static void parsetypedefenum(void)
 	lastel=NULL;
 	while(1){
 		/* check for '}' */
-		if(!strcmp(ti->str,"}")){
+		if(!g_strcmp0(ti->str,"}")){
 			ti=ti->next;
 			break;
 		}
@@ -2881,9 +2881,9 @@ static void parsetypedefenum(void)
 		 * 3, CONST = value}
 		 * 4, CONST}
 		 */
-		el=(enum_list_t*)g_malloc(sizeof(enum_list_t));
+		el=g_new0(enum_list_t, 1);
 		if (!el) {
-			fprintf(stderr, "Can't allocate memory. Exit.\n");
+			FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 			exit(10);
 		}
 		el->next=NULL;
@@ -2899,12 +2899,12 @@ static void parsetypedefenum(void)
 		ti=ti->next;
 
 		/* grab separator */
-		if(!strcmp(ti->str,"=")){
+		if(!g_strcmp0(ti->str,"=")){
 			ti=ti->next;
 			/* grab value */
 			val=strtol(ti->str,&p,0);
 			if (p==ti->str||*p) {
-				fprintf(stderr, "ERROR: typedefenum value is not a number\n");
+				FPRINTF(stderr, "ERROR: typedefenum value is not a number\n");
 				Exit(10);
 			}
 			el->val=(int)val;
@@ -2915,24 +2915,24 @@ static void parsetypedefenum(void)
 		eval=el->val+1;
 
 		/* check for ',' */
-		if(!strcmp(ti->str,",")){
+		if(!g_strcmp0(ti->str,",")){
 			ti=ti->next;
 			continue;
 		}
 
 		/* check for '}' */
-		if(!strcmp(ti->str,"}")){
+		if(!g_strcmp0(ti->str,"}")){
 			ti=ti->next;
 			break;
 		}
 
-		fprintf(stderr,"ERROR: typedefenum should not be reached\n");
+		FPRINTF(stderr,"ERROR: typedefenum should not be reached\n");
 		Exit(10);
 	}
 
 	/* verify that it ends with a ';' */
-	if(strcmp(ti->next->str,";")){
-		fprintf(stderr,"ERROR enum terminator is not ';'\n");
+	if(g_strcmp0(ti->next->str,";")){
+		FPRINTF(stderr,"ERROR enum terminator is not ';'\n");
 		Exit(10);
 	}
 
@@ -2971,7 +2971,7 @@ static void parsetypedefenum(void)
 		FPRINTF(eth_code, "    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);\n");
 		break;
 	default:
-		fprintf(stderr,"ERROR enum unknown size\n");
+		FPRINTF(stderr,"ERROR enum unknown size\n");
 		Exit(10);
 	}
 
@@ -2989,7 +2989,7 @@ static void parsetypedefenum(void)
 		register_new_type(ti->str, dissectorname, "FT_INT32", "BASE_DEC", "0", hfvalsstring, 4);
 		break;
 	default:
-		fprintf(stderr,"ERROR enum unknown size\n");
+		FPRINTF(stderr,"ERROR enum unknown size\n");
 		Exit(10);
 	}
 
@@ -3008,9 +3008,9 @@ static trimmed_prefixes_t *prefixes_to_trim=NULL;
 static void preparetrimprefix(char *prefix_name)
 {
 	trimmed_prefixes_t *new_prefix;
-	new_prefix=(trimmed_prefixes_t*)g_malloc(sizeof(trimmed_prefixes_t));
+	new_prefix=g_new0(trimmed_prefixes_t, 1);
 	if (!new_prefix) {
-		fprintf(stderr, "Can't allocate memory. Exit.\n");
+		FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 		exit(10);
 	}
 	new_prefix->next=prefixes_to_trim;
@@ -3037,7 +3037,7 @@ trimprefix(void)
 
 static int Exit(int code)
 {
-	fprintf(stderr, "The tokens remaining when aborting:\n");
+	FPRINTF(stderr, "The tokens remaining when aborting:\n");
 	printtokenlist(10);
 
 	exit(code);
@@ -3045,7 +3045,7 @@ static int Exit(int code)
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: idl2wrs <interface>\n");
+	FPRINTF(stderr, "Usage: idl2wrs <interface>\n");
 }
 
 static void
@@ -3053,7 +3053,7 @@ mergefile(const char *name, FILE *outfile)
 {
 	FILE *infile;
 
-	fprintf(outfile, "\n\n/* INCLUDED FILE : %s */\n", name);
+	FPRINTF(outfile, "\n\n/* INCLUDED FILE : %s */\n", name);
 	infile=g_fopen(name, "r");
 	while(!feof(infile)){
 		int ch;
@@ -3063,7 +3063,7 @@ mergefile(const char *name, FILE *outfile)
 		}
 	}
 	fclose(infile);
-	fprintf(outfile, "/* END OF INCLUDED FILE : %s */\n\n\n", name);
+	FPRINTF(outfile, "/* END OF INCLUDED FILE : %s */\n\n\n", name);
 }
 
 
@@ -3134,9 +3134,9 @@ readcnffile(FILE *fh)
 
 			str=cnfline+6;
 			str_read_string(str, &name);
-			nei=(no_emit_item_t*)g_malloc(sizeof(no_emit_item_t));
+			nei=g_new0(no_emit_item_t, 1);
 			if (!nei) {
-				fprintf(stderr, "Can't allocate memory. Exit.\n");
+				FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 				exit(10);
 			}
 			nei->next=no_emit_list;
@@ -3207,9 +3207,9 @@ readcnffile(FILE *fh)
 			str_read_string(str, &union_tag);
 			union_tag_size=atoi(union_tag);
 			FPRINTF(NULL, "UNION_TAG_SIZE: %s == %d\n", union_name, union_tag_size);
-			utsi=(union_tag_size_item_t*)g_malloc(sizeof(union_tag_size_item_t));
+			utsi=g_new0(union_tag_size_item_t, 1);
 			if (!utsi) {
-				fprintf(stderr, "Can't allocate memory. Exit.\n");
+				FPRINTF(stderr, "Can't allocate memory. Exit.\n");
 				exit(10);
 			}
 			utsi->next=union_tag_size_list;
@@ -3225,7 +3225,7 @@ readcnffile(FILE *fh)
 			FPRINTF(NULL, "STRIP_PREFIX: %s\n", prefix_name);
 			preparetrimprefix(prefix_name);
 		} else {
-			fprintf(stderr, "ERROR: could not parse cnf directive:%s\n",cnfline);
+			FPRINTF(stderr, "ERROR: could not parse cnf directive:%s\n",cnfline);
 			exit(10);
 		}
 	}
@@ -3263,7 +3263,7 @@ int main(int argc, char *argv[])
 	g_snprintf(idlfile, BASE_BUFFER_SIZE, "%s.idl", argv[1]);
 	fh=g_fopen(idlfile,"r");
 	if(!fh){
-		fprintf(stderr, "ERROR: could not open idl-file:%s\n", idlfile);
+		FPRINTF(stderr, "ERROR: could not open idl-file:%s\n", idlfile);
 		Exit(0);
 	}
 
@@ -3293,44 +3293,44 @@ int main(int argc, char *argv[])
 	*/
 	while(1) {
 		/* just skip any [ ] that starts a new construct */
-		if( !strcmp(token_list->str, "[") ){
+		if( !g_strcmp0(token_list->str, "[") ){
 			token_list=parsebrackets(token_list, &bi);
 			continue;
 		}
 
 		/* typedef enum { */
-		if( !strcmp(token_list->str,"typedef")
-		  &&!strcmp(token_list->next->str,"enum") ){
+		if( !g_strcmp0(token_list->str,"typedef")
+		  &&!g_strcmp0(token_list->next->str,"enum") ){
 			parsetypedefenum();
 			continue;
 		}
 
 		/* typedef [ v1_enum ] enum { */
-		if( !strcmp(token_list->str,"typedef")
-		  &&!strcmp(token_list->next->str,"[")
-		  &&!strcmp(token_list->next->next->str,"v1_enum")
-		  &&!strcmp(token_list->next->next->next->str,"]")
-		  &&!strcmp(token_list->next->next->next->next->str,"enum") ){
+		if( !g_strcmp0(token_list->str,"typedef")
+		  &&!g_strcmp0(token_list->next->str,"[")
+		  &&!g_strcmp0(token_list->next->next->str,"v1_enum")
+		  &&!g_strcmp0(token_list->next->next->next->str,"]")
+		  &&!g_strcmp0(token_list->next->next->next->next->str,"enum") ){
 			parsetypedefenum();
 			continue;
 		}
 
 		/* const */
-		if( !strcmp(token_list->str,"const") ){
+		if( !g_strcmp0(token_list->str,"const") ){
 			parseconst();
 			continue;
 		}
 
 		/* typedef struct { */
-		if( !strcmp(token_list->str,"typedef") ){
+		if( !g_strcmp0(token_list->str,"typedef") ){
 			token_item_t *tmpti;
 
 			tmpti=token_list->next;
-			if( !strcmp(tmpti->str, "[") ){
+			if( !g_strcmp0(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
 				/* do some sanity checks here of bi->flags */
 			}
-			if( !strcmp(tmpti->str, "struct") ){
+			if( !g_strcmp0(tmpti->str, "struct") ){
 				parsetypedefstruct(0);
 				parsetypedefstruct(1);
 				continue;
@@ -3338,15 +3338,15 @@ int main(int argc, char *argv[])
 		}
 
 		/* typedef union { */
-		if( !strcmp(token_list->str,"typedef") ){
+		if( !g_strcmp0(token_list->str,"typedef") ){
 			token_item_t *tmpti;
 
 			tmpti=token_list->next;
-			if( !strcmp(tmpti->str, "[") ){
+			if( !g_strcmp0(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
 				/* do some sanity checks here of bi->flags */
 			}
-			if( !strcmp(tmpti->str, "union") ){
+			if( !g_strcmp0(tmpti->str, "union") ){
 				parsetypedefunion(0);
 				parsetypedefunion(1);
 				continue;
@@ -3354,15 +3354,15 @@ int main(int argc, char *argv[])
 		}
 
 		/* typedef bitmap { */
-		if( !strcmp(token_list->str,"typedef") ){
+		if( !g_strcmp0(token_list->str,"typedef") ){
 			token_item_t *tmpti;
 
 			tmpti=token_list->next;
-			if( !strcmp(tmpti->str, "[") ){
+			if( !g_strcmp0(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
 				/* do some sanity checks here of bi->flags */
 			}
-			if( !strcmp(tmpti->str, "bitmap") ){
+			if( !g_strcmp0(tmpti->str, "bitmap") ){
 				parsetypedefbitmap(0);
 				parsetypedefbitmap(1);
 				continue;
@@ -3370,8 +3370,8 @@ int main(int argc, char *argv[])
 		}
 
 		/* functions:  WERROR function '(' */
-		if( !strcmp(token_list->str,"WERROR")
-		  &&!strcmp(token_list->next->next->str,"(") ){
+		if( !g_strcmp0(token_list->str,"WERROR")
+		  &&!g_strcmp0(token_list->next->next->str,"(") ){
 			parsefunction(0);
 			parsefunction(1);
 			parsefunction(2);
@@ -3379,7 +3379,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* declare ... ; */
-		if( !strcmp(token_list->str,"declare") ){
+		if( !g_strcmp0(token_list->str,"declare") ){
 			skipdeclare();
 			continue;
 		}
@@ -3401,8 +3401,8 @@ int main(int argc, char *argv[])
 	/* unless the token_list now only contains a single token : '}'
 	   we have failed to compile the idl file properly
 		*/
-	if( strcmp(token_list->str, "}") || token_list->next){
-		fprintf(stderr, "ERROR: we did not process all tokens. Compiler is incomplete.\n===========================================\n");
+	if( g_strcmp0(token_list->str, "}") || token_list->next){
+		FPRINTF(stderr, "ERROR: we did not process all tokens. Compiler is incomplete.\n===========================================\n");
 		printtokenlist(10);
 		exit(10);
 	}
@@ -3415,7 +3415,7 @@ int main(int argc, char *argv[])
 	g_snprintf(tmplfile, BASE_BUFFER_SIZE, "packet-dcerpc-%s-template.c", argv[1]);
 	tfh=g_fopen(tmplfile, "r");
 	if(!tfh){
-		fprintf(stderr, "ERROR: could not find %s\n", tmplfile);
+		FPRINTF(stderr, "ERROR: could not find %s\n", tmplfile);
 		exit(10);
 	}
 	while(!feof(tfh)){
@@ -3451,7 +3451,7 @@ int main(int argc, char *argv[])
 	g_snprintf(tmplfile, BASE_BUFFER_SIZE, "packet-dcerpc-%s-template.h", argv[1]);
 	tfh=g_fopen(tmplfile, "r");
 	if(!tfh){
-		fprintf(stderr, "ERROR: could not find %s\n", tmplfile);
+		FPRINTF(stderr, "ERROR: could not find %s\n", tmplfile);
 		exit(10);
 	}
 	while(!feof(tfh)){
@@ -3480,19 +3480,36 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("%s was successfully compiled\n", ifname);
+	g_print("%s was successfully compiled\n", ifname);
 
 	fclose(fh);
 	fclose(tfh);
 
-	g_remove("ETH_CODE");
-	g_remove("ETH_HDR");
-	g_remove("ETH_HFARR");
-	g_remove("ETH_HF");
-	g_remove("ETH_ETTARR");
-	g_remove("ETH_ETT");
-	g_remove("ETH_FT");
-	g_remove("ETH_HANDOFF");
+	if (g_remove("ETH_CODE") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_HDR") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_HFARR") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_HF") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_ETTARR") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_ETT") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_FT") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+	if (g_remove("ETH_HANDOFF") == -1) {
+		FPRINTF(stderr, "Can't remove ETH_CODE");
+	}
+
 
 	return 0;
 }
