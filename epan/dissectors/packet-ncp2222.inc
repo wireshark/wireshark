@@ -1605,6 +1605,246 @@ static const value_string kernel_type_vals[] = {
     { 0,  NULL }
 };
 
+static const int * ncp_pingflags1[] = {
+    &hf_bit1pingflags1,
+    &hf_bit2pingflags1,
+    &hf_bit3pingflags1,
+    &hf_bit4pingflags1,
+    &hf_bit5pingflags1,
+    &hf_bit6pingflags1,
+    &hf_bit7pingflags1,
+    &hf_bit8pingflags1,
+    &hf_bit9pingflags1,
+    &hf_bit10pingflags1,
+    &hf_bit11pingflags1,
+    &hf_bit12pingflags1,
+    &hf_bit13pingflags1,
+    &hf_bit14pingflags1,
+    &hf_bit15pingflags1,
+    &hf_bit16pingflags1,
+    NULL
+};
+
+static const int * ncp_pingflags2[] = {
+    &hf_bit1pingflags2,
+    &hf_bit2pingflags2,
+    &hf_bit3pingflags2,
+    &hf_bit4pingflags2,
+    &hf_bit5pingflags2,
+    &hf_bit6pingflags2,
+    &hf_bit7pingflags2,
+    &hf_bit8pingflags2,
+    &hf_bit9pingflags2,
+    &hf_bit10pingflags2,
+    &hf_bit11pingflags2,
+    &hf_bit12pingflags2,
+    &hf_bit13pingflags2,
+    &hf_bit14pingflags2,
+    &hf_bit15pingflags2,
+    &hf_bit16pingflags2,
+    NULL
+};
+
+static const int * ncp_pingvflags1[] = {
+    &hf_bit1pingvflags1,
+    &hf_bit2pingvflags1,
+    &hf_bit3pingvflags1,
+    &hf_bit4pingvflags1,
+    &hf_bit5pingvflags1,
+    &hf_bit6pingvflags1,
+    &hf_bit7pingvflags1,
+    &hf_bit8pingvflags1,
+    &hf_bit9pingvflags1,
+    &hf_bit10pingvflags1,
+    &hf_bit11pingvflags1,
+    &hf_bit12pingvflags1,
+    &hf_bit13pingvflags1,
+    &hf_bit14pingvflags1,
+    &hf_bit15pingvflags1,
+    &hf_bit16pingvflags1,
+    NULL
+};
+
+static const int * ncp_pingpflags1[] = {
+    &hf_bit1pingpflags1,
+    &hf_bit2pingpflags1,
+    &hf_bit3pingpflags1,
+    &hf_bit4pingpflags1,
+    &hf_bit5pingpflags1,
+    &hf_bit6pingpflags1,
+    &hf_bit7pingpflags1,
+    &hf_bit8pingpflags1,
+    &hf_bit9pingpflags1,
+    &hf_bit10pingpflags1,
+    &hf_bit11pingpflags1,
+    &hf_bit12pingpflags1,
+    &hf_bit13pingpflags1,
+    &hf_bit14pingpflags1,
+    &hf_bit15pingpflags1,
+    &hf_bit16pingpflags1,
+    NULL
+};
+
+static const int * ndsprotflags[] = {
+    &hf_ndsprot1flag,
+    &hf_ndsprot2flag,
+    &hf_ndsprot3flag,
+    &hf_ndsprot4flag,
+    &hf_ndsprot5flag,
+    &hf_ndsprot6flag,
+    &hf_ndsprot7flag,
+    &hf_ndsprot8flag,
+    &hf_ndsprot9flag,
+    &hf_ndsprot10flag,
+    &hf_ndsprot11flag,
+    &hf_ndsprot12flag,
+    &hf_ndsprot13flag,
+    &hf_ndsprot14flag,
+    &hf_ndsprot15flag,
+    &hf_ndsprot16flag,
+    NULL
+};
+
+static const int * ncp_infoflagsl[] = {
+    &hf_bit1infoflagsl,
+    &hf_bit2infoflagsl,
+    &hf_bit3infoflagsl,
+    &hf_bit4infoflagsl,
+    &hf_bit5infoflagsl,
+    &hf_bit6infoflagsl,
+    &hf_bit7infoflagsl,
+    &hf_bit8infoflagsl,
+    &hf_bit9infoflagsl,
+    &hf_bit10infoflagsl,
+    &hf_bit11infoflagsl,
+    &hf_bit12infoflagsl,
+    &hf_bit13infoflagsl,
+    &hf_bit14infoflagsl,
+    &hf_bit15infoflagsl,
+    &hf_bit16infoflagsl,
+    NULL
+};
+
+static const int * ncp_infoflagsh[] = {
+    &hf_bit1infoflagsh,
+    &hf_bit2infoflagsh,
+    &hf_bit3infoflagsh,
+    &hf_bit4infoflagsh,
+    &hf_bit5infoflagsh,
+    &hf_bit6infoflagsh,
+    &hf_bit7infoflagsh,
+    &hf_bit8infoflagsh,
+    &hf_bit9infoflagsh,
+    &hf_bit10infoflagsh,
+    &hf_bit11infoflagsh,
+    &hf_bit12infoflagsh,
+    &hf_bit13infoflagsh,
+    &hf_bit14infoflagsh,
+    &hf_bit15infoflagsh,
+    &hf_bit16infoflagsh,
+    NULL
+};
+
+static const int * ncp_retinfoflagsh[] = {
+    &hf_bit1retinfoflagsh,
+    &hf_bit2retinfoflagsh,
+    &hf_bit3retinfoflagsh,
+    &hf_bit4retinfoflagsh,
+    &hf_bit5retinfoflagsh,
+    &hf_bit6retinfoflagsh,
+    &hf_bit7retinfoflagsh,
+    &hf_bit8retinfoflagsh,
+    &hf_bit9retinfoflagsh,
+    &hf_bit10retinfoflagsh,
+    &hf_bit11retinfoflagsh,
+    &hf_bit12retinfoflagsh,
+    &hf_bit13retinfoflagsh,
+    &hf_bit14retinfoflagsh,
+    &hf_bit15retinfoflagsh,
+    &hf_bit16retinfoflagsh,
+    NULL
+};
+
+static const int * ncp_eflags[] = {
+    &hf_bit1eflags,
+    &hf_bit2eflags,
+    &hf_bit3eflags,
+    &hf_bit4eflags,
+    &hf_bit5eflags,
+    &hf_bit6eflags,
+    &hf_bit7eflags,
+    &hf_bit8eflags,
+    &hf_bit9eflags,
+    &hf_bit10eflags,
+    &hf_bit11eflags,
+    &hf_bit12eflags,
+    &hf_bit13eflags,
+    &hf_bit14eflags,
+    &hf_bit15eflags,
+    &hf_bit16eflags,
+    NULL
+};
+
+static const int * ncp_cflags[] = {
+    &hf_bit1cflags,
+    &hf_bit2cflags,
+    &hf_bit3cflags,
+    &hf_bit4cflags,
+    &hf_bit5cflags,
+    &hf_bit6cflags,
+    &hf_bit7cflags,
+    &hf_bit8cflags,
+    &hf_bit9cflags,
+    &hf_bit10cflags,
+    &hf_bit11cflags,
+    &hf_bit12cflags,
+    &hf_bit13cflags,
+    &hf_bit14cflags,
+    &hf_bit15cflags,
+    &hf_bit16cflags,
+    NULL
+};
+
+static const int * ncp_outflags[] = {
+    &hf_bit1outflags,
+    &hf_bit2outflags,
+    &hf_bit3outflags,
+    &hf_bit4outflags,
+    &hf_bit5outflags,
+    &hf_bit6outflags,
+    &hf_bit7outflags,
+    &hf_bit8outflags,
+    &hf_bit9outflags,
+    &hf_bit10outflags,
+    &hf_bit11outflags,
+    &hf_bit12outflags,
+    &hf_bit13outflags,
+    &hf_bit14outflags,
+    &hf_bit15outflags,
+    &hf_bit16outflags,
+    NULL
+};
+
+static const int * ncp_vflags[] = {
+    &hf_bit1vflags,
+    &hf_bit2vflags,
+    &hf_bit3vflags,
+    &hf_bit4vflags,
+    &hf_bit5vflags,
+    &hf_bit6vflags,
+    &hf_bit7vflags,
+    &hf_bit8vflags,
+    &hf_bit9vflags,
+    &hf_bit10vflags,
+    &hf_bit11vflags,
+    &hf_bit12vflags,
+    &hf_bit13vflags,
+    &hf_bit14vflags,
+    &hf_bit15vflags,
+    &hf_bit16vflags,
+    NULL
+};
+
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
                     gboolean *req_cond_results, gboolean really_decode,
@@ -2989,14 +3229,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
     proto_item      *aditem;
     proto_tree      *adtree;
     const char      *valuestr = NULL;
-    guint16         rtype = 0;
-    guint16         rstate = 0;
-    guint16         rnum = 0;
-    guint16         revent = 0;
     gint            length_remaining;
     nstime_t        ns;
     gboolean        entry_rights = FALSE;
-    nds_val         temp_values;
 
     voffset = vvalues->voffset;
 #if 0
@@ -3215,19 +3450,11 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
                                   value2, vvalues->vstring);
             voffset = voffset+value2;
             voffset += align_4(tvb, voffset);
-            rtype = tvb_get_letohs(tvb, voffset); /* replica type */
-            valuestr = val_to_str_const(rtype, nds_replica_type, "(Unknown Replica Type)");
-            proto_tree_add_string(nvtree, hf_replica_type, tvb, voffset,
-                                  2, valuestr);
+            proto_tree_add_item(nvtree, hf_replica_type, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
             voffset = voffset+2;
-            rstate = tvb_get_letohs(tvb, voffset); /* replica state */
-            valuestr = val_to_str_const(rstate, nds_replica_state, "(Unknown Replica State)");
-            proto_tree_add_string(nvtree, hf_replica_state, tvb, voffset,
-                                  2, valuestr);
+            proto_tree_add_item(nvtree, hf_replica_state, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
             voffset = voffset+2;
-            value3 = tvb_get_letohl(tvb, voffset); /* Replica number */
-            proto_tree_add_uint_format(nvtree, hf_replica_number, tvb, voffset,
-                                       4, value3, "Replica Number %d", value3);
+            proto_tree_add_item(nvtree, hf_replica_number, tvb, voffset, 4, ENC_LITTLE_ENDIAN);
             voffset = voffset+4;
             if((vvalues->pflags & 0x8000) | (vvalues->pflags & 0x4000))
             {
@@ -3313,83 +3540,56 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
                                   value3, vvalues->vstring);
             voffset = voffset + value3;
             voffset += align_4(tvb, voffset);
-            temp_values.vvalue = tvb_get_letohl(tvb, voffset); /* Entry or Attribute Privileges */
-            temp_values.vlength = 2;
-            temp_values.hfname = hf_nds_vflags;
-            temp_values.voffset = voffset;
-            temp_values.vdesc = "Privileges";
+            /* Entry or Attribute Privileges */
             if (entry_rights) {
                 /* if Entries then use these bits */
-                temp_values.bit1 = "Compare Attributes";
-                temp_values.bit1hfname = hf_nds_compare_attributes;
-                temp_values.bit2 = "Read Attribute";
-                temp_values.bit2hfname = hf_nds_read_attribute;
-                temp_values.bit3 = "Write, Add, Delete Attribute";
-                temp_values.bit3hfname = hf_nds_write_add_delete_attribute;
-                temp_values.bit4 = "Add/Delete Self";
-                temp_values.bit4hfname = hf_nds_add_delete_self;
-                temp_values.bit5 = "Attribute Privilege Not Defined";
-                temp_values.bit5hfname = hf_nds_privilege_not_defined;
-                temp_values.bit6 = "Supervisor";
-                temp_values.bit6hfname = hf_nds_supervisor;
-                temp_values.bit7 = "Inheritance Control";
-                temp_values.bit7hfname = hf_nds_inheritance_control;
-                temp_values.bit8 = "Not Defined";
-                temp_values.bit8hfname = hf_bit8vflags;
-                temp_values.bit9 = "Not Defined";
-                temp_values.bit9hfname = hf_bit9vflags;
-                temp_values.bit10 = "Not Defined";
-                temp_values.bit10hfname = hf_bit10vflags;
-                temp_values.bit11 = "Not Defined";
-                temp_values.bit11hfname = hf_bit11vflags;
-                temp_values.bit12 = "Not Defined";
-                temp_values.bit12hfname = hf_bit12vflags;
-                temp_values.bit13 = "Not Defined";
-                temp_values.bit13hfname = hf_bit13vflags;
-                temp_values.bit14 = "Not Defined";
-                temp_values.bit14hfname = hf_bit14vflags;
-                temp_values.bit15 = "Not Defined";
-                temp_values.bit15hfname = hf_bit15vflags;
-                temp_values.bit16 = "Not Defined";
-                temp_values.bit16hfname = hf_bit16vflags;
+                static const int * entries[] = {
+                    &hf_nds_compare_attributes,
+                    &hf_nds_read_attribute,
+                    &hf_nds_write_add_delete_attribute,
+                    &hf_nds_add_delete_self,
+                    &hf_nds_privilege_not_defined,
+                    &hf_nds_supervisor,
+                    &hf_nds_inheritance_control,
+                    &hf_bit8vflags,
+                    &hf_bit9vflags,
+                    &hf_bit10vflags,
+                    &hf_bit11vflags,
+                    &hf_bit12vflags,
+                    &hf_bit13vflags,
+                    &hf_bit14vflags,
+                    &hf_bit15vflags,
+                    &hf_bit16vflags,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(nvtree, tvb, voffset, hf_nds_privileges, ett_ncp, entries, ENC_LITTLE_ENDIAN);
             }
             else
             {
                 /* if attribute rights then do these bits */
-                temp_values.bit1 = "Browse";
-                temp_values.bit1hfname = hf_nds_browse_entry;
-                temp_values.bit2 = "Add";
-                temp_values.bit2hfname = hf_nds_add_entry;
-                temp_values.bit3 = "Delete";
-                temp_values.bit3hfname = hf_nds_delete_entry;
-                temp_values.bit4 = "Rename";
-                temp_values.bit4hfname = hf_nds_rename_entry;
-                temp_values.bit5 = "Supervisor";
-                temp_values.bit5hfname = hf_nds_supervisor_entry;
-                temp_values.bit6 = "Entry Privilege Not Defined";
-                temp_values.bit6hfname = hf_nds_entry_privilege_not_defined;
-                temp_values.bit7 = "Inheritance Control";
-                temp_values.bit7hfname = hf_nds_inheritance_control;
-                temp_values.bit8 = "Not Defined";
-                temp_values.bit8hfname = hf_bit8vflags;
-                temp_values.bit9 = "Not Defined";
-                temp_values.bit9hfname = hf_bit9vflags;
-                temp_values.bit10 = "Not Defined";
-                temp_values.bit10hfname = hf_bit10vflags;
-                temp_values.bit11 = "Not Defined";
-                temp_values.bit11hfname = hf_bit11vflags;
-                temp_values.bit12 = "Not Defined";
-                temp_values.bit12hfname = hf_bit12vflags;
-                temp_values.bit13 = "Not Defined";
-                temp_values.bit13hfname = hf_bit13vflags;
-                temp_values.bit14 = "Not Defined";
-                temp_values.bit14hfname = hf_bit14vflags;
-                temp_values.bit15 = "Not Defined";
-                temp_values.bit15hfname = hf_bit15vflags;
-                temp_values.bit16 = "Not Defined";
-                temp_values.bit16hfname = hf_bit16vflags;
+                static const int * rights[] = {
+                    &hf_nds_browse_entry,
+                    &hf_nds_add_entry,
+                    &hf_nds_delete_entry,
+                    &hf_nds_rename_entry,
+                    &hf_nds_supervisor_entry,
+                    &hf_nds_entry_privilege_not_defined,
+                    &hf_nds_inheritance_control,
+                    &hf_bit8vflags,
+                    &hf_bit9vflags,
+                    &hf_bit10vflags,
+                    &hf_bit11vflags,
+                    &hf_bit12vflags,
+                    &hf_bit13vflags,
+                    &hf_bit14vflags,
+                    &hf_bit15vflags,
+                    &hf_bit16vflags,
+                    NULL
+                };
+
+				proto_tree_add_bitmask(nvtree, tvb, voffset, hf_nds_privileges, ett_ncp, rights, ENC_LITTLE_ENDIAN);
             }
-            process_bitfield(nvtree, tvb, &temp_values);
             voffset = voffset+4;
             voffset += align_4(tvb, voffset);
             break;
@@ -3403,13 +3603,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
             proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4,
                 &ns, "Timestamp: %s", abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
             voffset = voffset + 4;
-            rnum = tvb_get_letohs(tvb, voffset); /* replica number */
-            proto_tree_add_uint_format(nvtree, hf_nds_rnum, tvb, voffset,
-                                       2, rnum, "Replica Number: %d", rnum);
+            proto_tree_add_item(nvtree, hf_nds_rnum, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
             voffset = voffset+2;
-            revent = tvb_get_letohs(tvb, voffset); /* Event */
-            proto_tree_add_uint_format(nvtree, hf_nds_revent, tvb, voffset,
-                                       2, revent, "Event: %d", revent);
+            proto_tree_add_item(nvtree, hf_nds_revent, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
             voffset = voffset+2;
             voffset += align_4(tvb, voffset);
             break;
@@ -3715,9 +3911,9 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         case 3: /* Hinted */
             break;
         case 4: /* Tuned */
-            value2 = tvb_get_letohl(tvb, ioffset);   /* Count */
-            proto_tree_add_uint(nestree, hf_es_rdn_count, tvb, ioffset,
-                                4, value2);
+            /* Count */
+            proto_tree_add_item_ret_uint(nestree, hf_es_rdn_count, tvb, ioffset,
+                                4, ENC_LITTLE_ENDIAN, &value2);
             ioffset = ioffset + 4;
             for (r = 1 ; r <= value2; r++ )
             {
@@ -3770,10 +3966,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                   r, "NDS Referral Record #%u", r);
             sub1tree = proto_item_add_subtree(sub1item, ett_nds);
 
-            value1 = tvb_get_letohl(tvb, ioffset);
-
-            proto_tree_add_uint_format(sub1tree, hf_referral_addcount, tvb, ioffset, 4,
-                                       value1, "Number of Addresses in Referral - %u", value1);
+            proto_tree_add_item_ret_uint(sub1tree, hf_referral_addcount, tvb, ioffset, 4, ENC_LITTLE_ENDIAN, &value1);
 
             ioffset = ioffset + 4;
             for (i = 1 ; i <= value1; i++ )
@@ -3854,9 +4047,9 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         case 3: /* Hinted */
             break;
         case 4: /* Tuned */
-            value2 = tvb_get_letohl(tvb, ioffset);   /* Count */
-            proto_tree_add_uint(nestree, hf_es_rdn_count, tvb, ioffset,
-                                4, value2);
+            /* Count */
+            proto_tree_add_item_ret_uint(nestree, hf_es_rdn_count, tvb, ioffset,
+                                4, ENC_LITTLE_ENDIAN, &value2);
             ioffset = ioffset + 4;
             for (r = 1 ; r <= value2; r++ )
             {
@@ -4295,85 +4488,9 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
 
     if (iter_flags & DSI_OUTPUT_FIELDS) { /* Output Flags */
-        values->vvalue = tvb_get_letohs(tvb, ioffset);
-        values->vdesc = "Return Information Flags (low) Byte:";
-        values->vlength = 2;
-        values->hfname = hf_nds_rflags;
-        values->voffset = ioffset;
-        values->bit1 = "Output Flags";
-        values->bit1hfname = hf_bit1infoflagsl;
-        values->bit2 = "Entry ID";
-        values->bit2hfname = hf_bit2infoflagsl;
-        values->bit3 = "Entry Flags";
-        values->bit3hfname = hf_bit3infoflagsl;
-        values->bit4 = "Subordinate Count";
-        values->bit4hfname = hf_bit4infoflagsl;
-        values->bit5 = "Modification Time";
-        values->bit5hfname = hf_bit5infoflagsl;
-        values->bit6 = "Modification Timestamp";
-        values->bit6hfname = hf_bit6infoflagsl;
-        values->bit7 = "Creation Timestamp";
-        values->bit7hfname = hf_bit7infoflagsl;
-        values->bit8 = "Partition Root ID";
-        values->bit8hfname = hf_bit8infoflagsl;
-        values->bit9 = "Parent ID";
-        values->bit9hfname = hf_bit9infoflagsl;
-        values->bit10 = "Revision Count";
-        values->bit10hfname = hf_bit10infoflagsl;
-        values->bit11 = "Replica Type";
-        values->bit11hfname = hf_bit11infoflagsl;
-        values->bit12 = "Base Class";
-        values->bit12hfname = hf_bit12infoflagsl;
-        values->bit13 = "Relative Distinguished Name";
-        values->bit13hfname = hf_bit13infoflagsl;
-        values->bit14 = "Distinguished Name";
-        values->bit14hfname = hf_bit14infoflagsl;
-        values->bit15 = "Root Distinguished Name";
-        values->bit15hfname = hf_bit15infoflagsl;
-        values->bit16 = "Parent Distinguished Name";
-        values->bit16hfname = hf_bit16infoflagsl;
-        process_bitfield(it_tree, tvb, values);
+        proto_tree_add_bitmask(it_tree, tvb, ioffset, hf_retinfoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
         ioffset = ioffset+2;
-
-        values->vvalue = tvb_get_letohs(tvb, ioffset);
-        values->vtype = VTYPE_BITFIELD;
-        values->vdesc = "Return Information Flags (high) Byte:";
-        values->vlength = 2;
-        values->hfname= hf_nds_rflags;
-        values->voffset = ioffset;
-        values->bit1 = "Purge Time";
-        values->bit1hfname = hf_bit1infoflagsh;
-        values->bit2 = "Dereference Base Class";
-        values->bit2hfname = hf_bit2infoflagsh;
-        values->bit3 = "Replica Number";
-        values->bit3hfname = hf_bit3infoflagsh;
-        values->bit4 = "Replica State";
-        values->bit4hfname = hf_bit4infoflagsh;
-        values->bit5 = "Federation Boundary";
-        values->bit5hfname = hf_bit5infoflagsh;
-        values->bit6 = "Schema Boundary";
-        values->bit6hfname = hf_bit6infoflagsh;
-        values->bit7 = "Federation Boundary ID";
-        values->bit7hfname = hf_bit7infoflagsh;
-        values->bit8 = "Schema Boundary ID";
-        values->bit8hfname = hf_bit8infoflagsh;
-        values->bit9 = "Current Subcount";
-        values->bit9hfname = hf_bit9infoflagsh;
-        values->bit10 = "Local Entry Flags";
-        values->bit10hfname = hf_bit10infoflagsh;
-        values->bit11 = "Not Defined";
-        values->bit11hfname = hf_bit11infoflagsh;
-        values->bit12 = "Not Defined";
-        values->bit12hfname = hf_bit12infoflagsh;
-        values->bit13 = "Not Defined";
-        values->bit13hfname = hf_bit13infoflagsh;
-        values->bit14 = "Not Defined";
-        values->bit14hfname = hf_bit14infoflagsh;
-        values->bit15 = "Not Defined";
-        values->bit15hfname = hf_bit15infoflagsh;
-        values->bit16 = "Not Defined";
-        values->bit16hfname = hf_bit16infoflagsh;
-        process_bitfield(it_tree, tvb, values);
+        proto_tree_add_bitmask(it_tree, tvb, ioffset, hf_retinfoflagsh, ett_ncp, ncp_retinfoflagsh, ENC_LITTLE_ENDIAN);
         ioffset = ioffset+2;
     }
     if (iter_flags & DSI_ENTRY_ID) { /* Entry ID */
@@ -4383,45 +4500,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + 4;
     }
     if (iter_flags & DSI_ENTRY_FLAGS) { /* Entry Flags */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vtype = VTYPE_BITFIELD;
-        values->vdesc = "Entry Flags:";
-        values->vlength = 2;
-        values->hfname= hf_nds_eflags;
-        values->voffset = ioffset;
-        values->bit1 = "Alias Entry";
-        values->bit1hfname = hf_bit1eflags;
-        values->bit2 = "Partition Root";
-        values->bit2hfname = hf_bit2eflags;
-        values->bit3 = "Container Entry";
-        values->bit3hfname = hf_bit3eflags;
-        values->bit4 = "Container Alias";
-        values->bit4hfname = hf_bit4eflags;
-        values->bit5 = "Matches List Filter";
-        values->bit5hfname = hf_bit5eflags;
-        values->bit6 = "Reference Entry";
-        values->bit6hfname = hf_bit6eflags;
-        values->bit7 = "40x Reference Entry";
-        values->bit7hfname = hf_bit7eflags;
-        values->bit8 = "Back Linked";
-        values->bit8hfname = hf_bit8eflags;
-        values->bit9 = "New Entry";
-        values->bit9hfname = hf_bit9eflags;
-        values->bit10 = "Temporary Reference";
-        values->bit10hfname = hf_bit10eflags;
-        values->bit11 = "Audited";
-        values->bit11hfname = hf_bit11eflags;
-        values->bit12 = "Entry Not Present";
-        values->bit12hfname = hf_bit12eflags;
-        values->bit13 = "Entry Verify CTS";
-        values->bit13hfname = hf_bit13eflags;
-        values->bit14 = "Entry Damaged";
-        values->bit14hfname = hf_bit14eflags;
-        values->bit15 = "Not Defined";
-        values->bit15hfname = hf_bit15eflags;
-        values->bit16 = "Not Defined";
-        values->bit16hfname = hf_bit16eflags;
-        process_bitfield(it_tree, tvb, values);
+        proto_tree_add_bitmask(it_tree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
         ioffset = ioffset+4;
     }
     if (iter_flags & DSI_SUBORDINATE_COUNT) { /* Subordinate Count */
@@ -4484,13 +4563,10 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     }
     if (iter_flags & DSI_REPLICA_TYPE) { /* Replica Type */
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0x00ff;
-        values->vstring = val_to_str_const(values->vvalue, nds_replica_type, "No Replica Type Found");
-        proto_tree_add_string(it_tree, hf_replica_type, tvb, ioffset,
-        4, values->vstring);
+        proto_tree_add_uint(it_tree, hf_replica_type, tvb, ioffset, 4, values->vvalue);
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0xff00;
         values->vstring = val_to_str_const(values->vvalue, nds_replica_state, "No Replica State Found");
-        proto_tree_add_string(it_tree, hf_replica_state, tvb, ioffset,
-        4, values->vstring);
+        proto_tree_add_uint(it_tree, hf_replica_state, tvb, ioffset, 4, values->vvalue);
         ioffset = ioffset + 4;
     }
     if (iter_flags & DSI_BASE_CLASS) { /* Base Class */
@@ -4558,16 +4634,14 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + values->vvalue;
     }
     if (iter_flags & DSI_REPLICA_NUMBER) { /* Replica Number */
-        values->vvalue = tvb_get_letohl(tvb, ioffset); /* Replica number */
-        proto_tree_add_uint_format(it_tree, hf_replica_number, tvb, ioffset,
-                 4, values->vvalue, "Replica Number %d", values->vvalue);
+        proto_tree_add_item_ret_uint(it_tree, hf_replica_number, tvb, ioffset,
+                 4, ENC_LITTLE_ENDIAN, &values->vvalue);
         ioffset = ioffset+4;
     }
     if (iter_flags & DSI_REPLICA_STATE) { /* Replica State */
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0xff00;
         values->vstring = val_to_str_const(values->vvalue, nds_replica_state, "No Replica State Found");
-        proto_tree_add_string(it_tree, hf_replica_state, tvb, ioffset,
-        4, values->vstring);
+        proto_tree_add_uint(it_tree, hf_replica_state, tvb, ioffset, 4, values->vvalue);
         ioffset = ioffset + 2;
     }
     if (iter_flags & DSI_FEDERATION_BOUNDARY) { /* Federation Boundary */
@@ -4601,45 +4675,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset+4;
     }
     if (iter_flags & DSI_LOCAL_ENTRY_FLAGS) { /* Local Entry Flags */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vtype = VTYPE_BITFIELD;
-        values->vdesc = "Local Entry Flags:";
-        values->vlength = 2;
-        values->hfname= hf_nds_eflags;
-        values->voffset = ioffset;
-        values->bit1 = "Alias Entry";
-        values->bit1hfname = hf_bit1eflags;
-        values->bit2 = "Partition Root";
-        values->bit2hfname = hf_bit2eflags;
-        values->bit3 = "Container Entry";
-        values->bit3hfname = hf_bit3eflags;
-        values->bit4 = "Container Alias";
-        values->bit4hfname = hf_bit4eflags;
-        values->bit5 = "Matches List Filter";
-        values->bit5hfname = hf_bit5eflags;
-        values->bit6 = "Reference Entry";
-        values->bit6hfname = hf_bit6eflags;
-        values->bit7 = "40x Reference Entry";
-        values->bit7hfname = hf_bit7eflags;
-        values->bit8 = "Back Linked";
-        values->bit8hfname = hf_bit8eflags;
-        values->bit9 = "New Entry";
-        values->bit9hfname = hf_bit9eflags;
-        values->bit10 = "Temporary Reference";
-        values->bit10hfname = hf_bit10eflags;
-        values->bit11 = "Audited";
-        values->bit11hfname = hf_bit11eflags;
-        values->bit12 = "Entry Not Present";
-        values->bit12hfname = hf_bit12eflags;
-        values->bit13 = "Entry Verify CTS";
-        values->bit13hfname = hf_bit13eflags;
-        values->bit14 = "Entry Damaged";
-        values->bit14hfname = hf_bit14eflags;
-        values->bit15 = "Not Defined";
-        values->bit15hfname = hf_bit15eflags;
-        values->bit16 = "Not Defined";
-        values->bit16hfname = hf_bit16eflags;
-        process_bitfield(it_tree, tvb, values);
+        proto_tree_add_bitmask(it_tree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
         ioffset = ioffset+4;
     }
     values->voffset = ioffset;
@@ -4650,7 +4686,7 @@ static void
 dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, guint32 it_verb, guint32 request_flags, guint32 ioffset, gboolean request_reply)
 {
     guint32     rcode, i, number_of_items, number_to_get;
-    const char  *error_string, *verb_string;
+    const char  *error_string;
     nds_val     values;
     proto_tree  *it_subtree, *it_subtree1;
     proto_item  *it_subitem;
@@ -4668,10 +4704,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
 
 
     while (TRUE) {
-        verb_string = val_to_str_const(it_verb, iterator_subverbs, "(No Iteration Verb Found)");
-        it_subitem = proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
-            it_verb, "Iterator Verb: %d, (0x%04x), %s",
-            it_verb, it_verb, verb_string);
+        it_subitem = proto_tree_add_uint(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4, it_verb);
 
         it_subtree = proto_item_add_subtree(it_subitem, ett_nds);
 
@@ -4803,11 +4836,9 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
         }
         else    /* Reply Packets */
         {                                           /* All replies include a completion code first */
-            rcode = tvb_get_letohl(tvb, ioffset);
+            expert_item = proto_tree_add_item_ret_uint(it_subtree, hf_iter_verb_completion_code, tvb, ioffset,
+                    4, ENC_LITTLE_ENDIAN, &rcode);
             error_string = val_to_str_const(rcode, nds_reply_errors, "Unknown Interation Verb Completion Code");
-            expert_item = proto_tree_add_uint_format(it_subtree, hf_iter_verb_completion_code, tvb, ioffset,
-                    4, rcode, "Completion Code: 0x%08x, %s",
-                    rcode, error_string );
 
             if (rcode != 0 && ncp_echo_err) {
                 expert_add_info_format(pinfo, expert_item, &ei_iter_verb_completion_code, "Iteration Verb Error: 0x%08x %s", rcode, error_string);
@@ -4908,10 +4939,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
         it_verb = tvb_get_letohl(tvb, ioffset);
         ioffset += 4;
         if (it_verb == IT_DONE || tvb_captured_length_remaining(tvb, ioffset) < 4) {
-            verb_string = val_to_str_const(it_verb, iterator_subverbs, "Internal error processing NDS iteration verbs");
-            proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
-                it_verb, "Iterator Verb: %d, (0x%04x), %s",
-                it_verb, it_verb, verb_string);
+            proto_tree_add_uint(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4, it_verb);
             break;
         }
     }
@@ -5043,9 +5071,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 for (r = 1 ; r <= value3; r++ )
                 {
                     ioffset += 4;   /* Length = 4 */
-                    value4 = tvb_get_letohl(tvb, ioffset);
-                    proto_tree_add_uint(ntree, hf_nds_privileges, tvb, ioffset,
-                                        values->vlength, value4);
+                    proto_tree_add_item(ntree, hf_nds_privileges, tvb, ioffset,
+                                        values->vlength, ENC_LITTLE_ENDIAN);
 
                     ioffset = ioffset+4;
                 }
@@ -5077,44 +5104,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 for (r = 1 ; r <= value3; r++ )
                 {
                     ioffset += align_4(tvb, ioffset);
-                    temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    temp_values.vlength = 2;
-                    temp_values.hfname = hf_nds_vflags;
-                    temp_values.voffset = ioffset;
-                    temp_values.vdesc = "Value Flags";
-                    temp_values.bit1 = "Naming";
-                    temp_values.bit1hfname = hf_bit1vflags;
-                    temp_values.bit2 = "Base Class";
-                    temp_values.bit2hfname = hf_bit2vflags;
-                    temp_values.bit3 = "Present";
-                    temp_values.bit3hfname = hf_bit3vflags;
-                    temp_values.bit4 = "Value Damaged";
-                    temp_values.bit4hfname = hf_bit4vflags;
-                    temp_values.bit5 = "Not Defined";
-                    temp_values.bit5hfname = hf_bit5vflags;
-                    temp_values.bit6 = "Not Defined";
-                    temp_values.bit6hfname = hf_bit6vflags;
-                    temp_values.bit7 = "Not Defined";
-                    temp_values.bit7hfname = hf_bit7vflags;
-                    temp_values.bit8 = "Not Defined";
-                    temp_values.bit8hfname = hf_bit8vflags;
-                    temp_values.bit9 = "Not Defined";
-                    temp_values.bit9hfname = hf_bit9vflags;
-                    temp_values.bit10 = "Not Defined";
-                    temp_values.bit10hfname = hf_bit10vflags;
-                    temp_values.bit11 = "Not Defined";
-                    temp_values.bit11hfname = hf_bit11vflags;
-                    temp_values.bit12 = "Not Defined";
-                    temp_values.bit12hfname = hf_bit12vflags;
-                    temp_values.bit13 = "Not Defined";
-                    temp_values.bit13hfname = hf_bit13vflags;
-                    temp_values.bit14 = "Not Defined";
-                    temp_values.bit14hfname = hf_bit14vflags;
-                    temp_values.bit15 = "Not Defined";
-                    temp_values.bit15hfname = hf_bit15vflags;
-                    temp_values.bit16 = "Not Defined";
-                    temp_values.bit16hfname = hf_bit16vflags;
-                    process_bitfield(atree, tvb, &temp_values);
+                    proto_tree_add_bitmask(atree, tvb, ioffset, hf_vflags, ett_ncp, ncp_vflags, ENC_LITTLE_ENDIAN);
                     ioffset = ioffset + 4;
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
@@ -5163,44 +5153,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 for (r = 1 ; r <= value3; r++ )
                 {
                     ioffset += align_4(tvb, ioffset);
-                    temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    temp_values.vlength = 2;
-                    temp_values.hfname = hf_nds_vflags;
-                    temp_values.voffset = ioffset;
-                    temp_values.vdesc = "Value Flags";
-                    temp_values.bit1 = "Naming";
-                    temp_values.bit1hfname = hf_bit1vflags;
-                    temp_values.bit2 = "Base Class";
-                    temp_values.bit2hfname = hf_bit2vflags;
-                    temp_values.bit3 = "Present";
-                    temp_values.bit3hfname = hf_bit3vflags;
-                    temp_values.bit4 = "Value Damaged";
-                    temp_values.bit4hfname = hf_bit4vflags;
-                    temp_values.bit5 = "Not Defined";
-                    temp_values.bit5hfname = hf_bit5vflags;
-                    temp_values.bit6 = "Not Defined";
-                    temp_values.bit6hfname = hf_bit6vflags;
-                    temp_values.bit7 = "Not Defined";
-                    temp_values.bit7hfname = hf_bit7vflags;
-                    temp_values.bit8 = "Not Defined";
-                    temp_values.bit8hfname = hf_bit8vflags;
-                    temp_values.bit9 = "Not Defined";
-                    temp_values.bit9hfname = hf_bit9vflags;
-                    temp_values.bit10 = "Not Defined";
-                    temp_values.bit10hfname = hf_bit10vflags;
-                    temp_values.bit11 = "Not Defined";
-                    temp_values.bit11hfname = hf_bit11vflags;
-                    temp_values.bit12 = "Not Defined";
-                    temp_values.bit12hfname = hf_bit12vflags;
-                    temp_values.bit13 = "Not Defined";
-                    temp_values.bit13hfname = hf_bit13vflags;
-                    temp_values.bit14 = "Not Defined";
-                    temp_values.bit14hfname = hf_bit14vflags;
-                    temp_values.bit15 = "Not Defined";
-                    temp_values.bit15hfname = hf_bit15vflags;
-                    temp_values.bit16 = "Not Defined";
-                    temp_values.bit16hfname = hf_bit16vflags;
-                    process_bitfield(ntree, tvb, &temp_values);
+                    proto_tree_add_bitmask(ntree, tvb, ioffset, hf_vflags, ett_ncp, ncp_vflags, ENC_LITTLE_ENDIAN);
                     ioffset = ioffset + 4;
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
@@ -5284,44 +5237,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     switch(bvalue)
                     {
                     case 0x00000001:                /*p3values.bit1 = "Output Flags"*/
-                        temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-                        temp_values.vlength = 2;
-                        temp_values.hfname = hf_nds_rflags;
-                        temp_values.voffset = ioffset;
-                        temp_values.vdesc = "Output Flags";
-                        temp_values.bit1 = values->bit1;
-                        temp_values.bit1hfname = hf_bit1outflags;
-                        temp_values.bit2 = values->bit2;
-                        temp_values.bit2hfname = hf_bit2outflags;
-                        temp_values.bit3 = values->bit3;
-                        temp_values.bit3hfname = hf_bit3outflags;
-                        temp_values.bit4 = values->bit4;
-                        temp_values.bit4hfname = hf_bit4outflags;
-                        temp_values.bit5 = values->bit5;
-                        temp_values.bit5hfname = hf_bit5outflags;
-                        temp_values.bit6 = values->bit6;
-                        temp_values.bit6hfname = hf_bit6outflags;
-                        temp_values.bit7 = values->bit7;
-                        temp_values.bit7hfname = hf_bit7outflags;
-                        temp_values.bit8 = values->bit8;
-                        temp_values.bit8hfname = hf_bit8outflags;
-                        temp_values.bit9 = values->bit9;
-                        temp_values.bit9hfname = hf_bit9outflags;
-                        temp_values.bit10 = "Not Defined";
-                        temp_values.bit10hfname = hf_bit10outflags;
-                        temp_values.bit11 = "Not Defined";
-                        temp_values.bit11hfname = hf_bit11outflags;
-                        temp_values.bit12 = "Not Defined";
-                        temp_values.bit12hfname = hf_bit12outflags;
-                        temp_values.bit13 = "Not Defined";
-                        temp_values.bit13hfname = hf_bit13outflags;
-                        temp_values.bit14 = "Not Defined";
-                        temp_values.bit14hfname = hf_bit14outflags;
-                        temp_values.bit15 = "Not Defined";
-                        temp_values.bit15hfname = hf_bit15outflags;
-                        temp_values.bit16 = "Not Defined";
-                        temp_values.bit16hfname = hf_bit16outflags;
-                        process_bitfield(ntree, tvb, &temp_values);
+                        proto_tree_add_bitmask(ntree, tvb, ioffset, hf_outflags, ett_ncp, ncp_outflags, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000002:                /*p3values.bit2 = "Entry ID"*/
@@ -5331,10 +5247,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000004:                /*p3values.bit3 = "Replica State"*/
-                        value1 = tvb_get_letohl(tvb, ioffset);
+                        proto_tree_add_item_ret_uint(ntree, hf_replica_state, tvb, ioffset,
+                                              4, ENC_LITTLE_ENDIAN, &value1);
                         temp_values.vstring = val_to_str_const(value1, nds_replica_state, "No Replica State Found");
-                        proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
-                                              4, temp_values.vstring);
                         ioffset = ioffset + 4;
                         break;
                     case 0x0000008:                 /*p3values.bit4 = "Modification Timestamp"*/
@@ -5358,9 +5273,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000020:                /*p3values.bit6 = "Local Partition ID"*/
-                        value1 = tvb_get_letohl(tvb, ioffset);
-                        proto_tree_add_uint_format(ntree, hf_nds_local_partition, tvb, ioffset,
-                                                   4, value1, "Local Partition ID %08x", value1);
+                        proto_tree_add_item(ntree, hf_nds_local_partition, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000040:                /*p3values.bit7 = "Distinguished Name"*/
@@ -5374,13 +5287,10 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000080:                /*p3values.bit8 = "Replica Type & State"*/
                         value1 = tvb_get_letohl(tvb, ioffset);
                         value2 = value1 & 0x00ff;
-                        temp_values.vstring = val_to_str_const(value2, nds_replica_type, "No Replica Type Found");
-                        proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset,
-                                              4, temp_values.vstring);
+                        proto_tree_add_uint(ntree, hf_replica_type, tvb, ioffset, 4, value2);
                         value3 = value1 & 0xff00;
                         temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
-                        proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
-                                              4, temp_values.vstring);
+                        proto_tree_add_uint(ntree, hf_replica_state, tvb, ioffset, 4, value3);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000100:                /*p3values.bit9 = "Partition Busy"*/
@@ -5452,10 +5362,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                                r, "NDS Referral Record #%u", r);
             atree = proto_item_add_subtree(aitem, ett_nds);
 
-            value1 = tvb_get_letohl(tvb, ioffset);
-
-            proto_tree_add_uint_format(atree, hf_referral_addcount, tvb, ioffset, 4,
-                                       value1, "Number of Addresses in Referral - %u", value1);
+            proto_tree_add_item_ret_uint(atree, hf_referral_addcount, tvb, ioffset, 4, ENC_LITTLE_ENDIAN, &value1);
 
             ioffset = ioffset + 4;
             for (i = 1 ; i <= value1; i++ )
@@ -5629,86 +5536,10 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     switch(bvalue)
                     {
                     case 0x00000001:                /* Information Flags */
-                        temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
-                        temp_values.vtype = VTYPE_BITFIELD;
-                        temp_values.vdesc = "Information Flags (low) Byte:";
-                        temp_values.vlength = 2;
-                        temp_values.hfname= hf_nds_rflags;
-                        temp_values.voffset = ioffset;
-                        temp_values.bit1 = "Output Flags";
-                        temp_values.bit1hfname = hf_bit1infoflagsl;
-                        temp_values.bit2 = "Entry ID";
-                        temp_values.bit2hfname = hf_bit2infoflagsl;
-                        temp_values.bit3 = "Entry Flags";
-                        temp_values.bit3hfname = hf_bit3infoflagsl;
-                        temp_values.bit4 = "Subordinate Count";
-                        temp_values.bit4hfname = hf_bit4infoflagsl;
-                        temp_values.bit5 = "Modification Time";
-                        temp_values.bit5hfname = hf_bit5infoflagsl;
-                        temp_values.bit6 = "Modification Timestamp";
-                        temp_values.bit6hfname = hf_bit6infoflagsl;
-                        temp_values.bit7 = "Creation Timestamp";
-                        temp_values.bit7hfname = hf_bit7infoflagsl;
-                        temp_values.bit8 = "Partition Root ID";
-                        temp_values.bit8hfname = hf_bit8infoflagsl;
-                        temp_values.bit9 = "Parent ID";
-                        temp_values.bit9hfname = hf_bit9infoflagsl;
-                        temp_values.bit10 = "Revision Count";
-                        temp_values.bit10hfname = hf_bit10infoflagsl;
-                        temp_values.bit11 = "Replica Type";
-                        temp_values.bit11hfname = hf_bit11infoflagsl;
-                        temp_values.bit12 = "Base Class";
-                        temp_values.bit12hfname = hf_bit12infoflagsl;
-                        temp_values.bit13 = "Relative Distinguished Name";
-                        temp_values.bit13hfname = hf_bit13infoflagsl;
-                        temp_values.bit14 = "Distinguished Name";
-                        temp_values.bit14hfname = hf_bit14infoflagsl;
-                        temp_values.bit15 = "Root Distinguished Name";
-                        temp_values.bit15hfname = hf_bit15infoflagsl;
-                        temp_values.bit16 = "Parent Distinguished Name";
-                        temp_values.bit16hfname = hf_bit16infoflagsl;
-                        process_bitfield(ntree, tvb, &temp_values);
-                        ioffset = ioffset+2;
-                        temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
-                        temp_values.vtype = VTYPE_BITFIELD;
-                        temp_values.vdesc = "Information Flags (high) Byte:";
-                        temp_values.vlength = 2;
-                        temp_values.hfname= hf_nds_rflags;
-                        temp_values.voffset = ioffset;
-                        temp_values.bit1 = "Purge Time";
-                        temp_values.bit1hfname = hf_bit1infoflagsh;
-                        temp_values.bit2 = "Dereference Base Class";
-                        temp_values.bit2hfname = hf_bit2infoflagsh;
-                        temp_values.bit3 = "Not Defined";
-                        temp_values.bit3hfname = hf_bit3infoflagsh;
-                        temp_values.bit4 = "Not Defined";
-                        temp_values.bit4hfname = hf_bit4infoflagsh;
-                        temp_values.bit5 = "Not Defined";
-                        temp_values.bit5hfname = hf_bit5infoflagsh;
-                        temp_values.bit6 = "Not Defined";
-                        temp_values.bit6hfname = hf_bit6infoflagsh;
-                        temp_values.bit7 = "Not Defined";
-                        temp_values.bit7hfname = hf_bit7infoflagsh;
-                        temp_values.bit8 = "Not Defined";
-                        temp_values.bit8hfname = hf_bit8infoflagsh;
-                        temp_values.bit9 = "Not Defined";
-                        temp_values.bit9hfname = hf_bit9infoflagsh;
-                        temp_values.bit10 = "Not Defined";
-                        temp_values.bit10hfname = hf_bit10infoflagsh;
-                        temp_values.bit11 = "Not Defined";
-                        temp_values.bit11hfname = hf_bit11infoflagsh;
-                        temp_values.bit12 = "Not Defined";
-                        temp_values.bit12hfname = hf_bit12infoflagsh;
-                        temp_values.bit13 = "Not Defined";
-                        temp_values.bit13hfname = hf_bit13infoflagsh;
-                        temp_values.bit14 = "Not Defined";
-                        temp_values.bit14hfname = hf_bit14infoflagsh;
-                        temp_values.bit15 = "Not Defined";
-                        temp_values.bit15hfname = hf_bit15infoflagsh;
-                        temp_values.bit16 = "Not Defined";
-                        temp_values.bit16hfname = hf_bit16infoflagsh;
-                        process_bitfield(ntree, tvb, &temp_values);
-                        ioffset = ioffset+2;
+                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+                        ioffset += 2;
+                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+                        ioffset += 2;
                         break;
                     case 0x00000002:                /* Entry ID */
                         value1 = tvb_get_letohl(tvb, ioffset);
@@ -5717,45 +5548,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000004:                /* Entry Flags */
-                        temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-                        temp_values.vtype = VTYPE_BITFIELD;
-                        temp_values.vdesc = "Entry Flags:";
-                        temp_values.vlength = 2;
-                        temp_values.hfname= hf_nds_eflags;
-                        temp_values.voffset = ioffset;
-                        temp_values.bit1 = "Alias Entry";
-                        temp_values.bit1hfname = hf_bit1eflags;
-                        temp_values.bit2 = "Partition Root";
-                        temp_values.bit2hfname = hf_bit2eflags;
-                        temp_values.bit3 = "Container Entry";
-                        temp_values.bit3hfname = hf_bit3eflags;
-                        temp_values.bit4 = "Container Alias";
-                        temp_values.bit4hfname = hf_bit4eflags;
-                        temp_values.bit5 = "Matches List Filter";
-                        temp_values.bit5hfname = hf_bit5eflags;
-                        temp_values.bit6 = "Reference Entry";
-                        temp_values.bit6hfname = hf_bit6eflags;
-                        temp_values.bit7 = "40x Reference Entry";
-                        temp_values.bit7hfname = hf_bit7eflags;
-                        temp_values.bit8 = "Back Linked";
-                        temp_values.bit8hfname = hf_bit8eflags;
-                        temp_values.bit9 = "New Entry";
-                        temp_values.bit9hfname = hf_bit9eflags;
-                        temp_values.bit10 = "Temporary Reference";
-                        temp_values.bit10hfname = hf_bit10eflags;
-                        temp_values.bit11 = "Audited";
-                        temp_values.bit11hfname = hf_bit11eflags;
-                        temp_values.bit12 = "Entry Not Present";
-                        temp_values.bit12hfname = hf_bit12eflags;
-                        temp_values.bit13 = "Entry Verify CTS";
-                        temp_values.bit13hfname = hf_bit13eflags;
-                        temp_values.bit14 = "Entry Damaged";
-                        temp_values.bit14hfname = hf_bit14eflags;
-                        temp_values.bit15 = "Not Defined";
-                        temp_values.bit15hfname = hf_bit15eflags;
-                        temp_values.bit16 = "Not Defined";
-                        temp_values.bit16hfname = hf_bit16eflags;
-                        process_bitfield(ntree, tvb, &temp_values);
+                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset+4;
                         break;
                     case 0x0000008:                 /* Subordinate Count */
@@ -5807,27 +5600,20 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000100:                /* Parent ID */
-                        value1 = tvb_get_letohl(tvb, ioffset);
-                        proto_tree_add_uint_format(ntree, hf_nds_parent, tvb, ioffset,
-                                                   4, value1, "Parent ID %08x", value1);
+                        proto_tree_add_item(ntree, hf_nds_parent, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000200:                /* Revision Count */
-                        value1 = tvb_get_letohl(tvb, ioffset);
-                        proto_tree_add_uint_format(ntree, hf_nds_revision, tvb, ioffset,
-                                                   4, value1, "Revision Count %u", value1);
+                        proto_tree_add_item(ntree, hf_nds_revision, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000400:                /* Replica Type & State */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         value2 = value1 & 0x00ff;
-                        temp_values.vstring = val_to_str_const(value2, nds_replica_type, "No Replica Type Found");
-                        proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset,
-                                              4, temp_values.vstring);
+                        proto_tree_add_uint(ntree, hf_replica_type, tvb, ioffset, 4, value2);
                         value3 = value1 & 0xff00;
                         temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
-                        proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
-                                              4, temp_values.vstring);
+                        proto_tree_add_uint(ntree, hf_replica_state, tvb, ioffset, 4, value3);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000800:                /* Base Class */
@@ -5926,45 +5712,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             if(values->vflags != 0)
             {
-                temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-                temp_values.vtype = VTYPE_BITFIELD;
-                temp_values.vdesc = "Class Flags:";
-                temp_values.vlength = 2;
-                temp_values.hfname= hf_nds_cflags;
-                temp_values.voffset = ioffset;
-                temp_values.bit1 = "Container";
-                temp_values.bit1hfname = hf_bit1cflags;
-                temp_values.bit2 = "Effective";
-                temp_values.bit2hfname = hf_bit2cflags;
-                temp_values.bit3 = "Class Definition Cannot be Removed";
-                temp_values.bit3hfname = hf_bit3cflags;
-                temp_values.bit4 = "Ambiguous Naming";
-                temp_values.bit4hfname = hf_bit4cflags;
-                temp_values.bit5 = "Ambiguous Containment";
-                temp_values.bit5hfname = hf_bit5cflags;
-                temp_values.bit6 = "Auxiliary";
-                temp_values.bit6hfname = hf_bit6cflags;
-                temp_values.bit7 = "Operational";
-                temp_values.bit7hfname = hf_bit7cflags;
-                temp_values.bit8 = "Sparse Required";
-                temp_values.bit8hfname = hf_bit8cflags;
-                temp_values.bit9 = "Sparse Operational";
-                temp_values.bit9hfname = hf_bit9cflags;
-                temp_values.bit10 = "Not Defined";
-                temp_values.bit10hfname = hf_bit10cflags;
-                temp_values.bit11 = "Not Defined";
-                temp_values.bit11hfname = hf_bit11cflags;
-                temp_values.bit12 = "Not Defined";
-                temp_values.bit12hfname = hf_bit12cflags;
-                temp_values.bit13 = "Not Defined";
-                temp_values.bit13hfname = hf_bit13cflags;
-                temp_values.bit14 = "Not Defined";
-                temp_values.bit14hfname = hf_bit14cflags;
-                temp_values.bit15 = "Not Defined";
-                temp_values.bit15hfname = hf_bit15cflags;
-                temp_values.bit16 = "Not Defined";
-                temp_values.bit16hfname = hf_bit16cflags;
-                process_bitfield(sub1tree, tvb, &temp_values);
+                proto_tree_add_bitmask(sub1tree, tvb, ioffset, hf_cflags, ett_ncp, ncp_cflags, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset+4;
                 if(values->vflags != 5)
                 {
@@ -6266,9 +6014,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             break;
         }
         ioffset += align_4(tvb, ioffset);
-        value1 = tvb_get_letohl(tvb, ioffset);
-        proto_tree_add_uint_format(ntree, hf_nds_att_del, tvb, ioffset,
-                                   4, value1, "Attribute Names to Delete %u", value1);
+        proto_tree_add_item_ret_uint(ntree, hf_nds_att_del, tvb, ioffset, 4, ENC_LITTLE_ENDIAN, &value1);
         ioffset = ioffset + 4;
         for (i = 1 ; i <= value1; i++ )   /* Attribute Names to delete*/
         {
@@ -6285,9 +6031,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             break;
         }
         ioffset += align_4(tvb, ioffset);
-        value1 = tvb_get_letohl(tvb, ioffset);
-        proto_tree_add_uint_format(ntree, hf_nds_acl_add, tvb, ioffset,
-                                   4, value1, "ACL Templates to Add %u", value1);
+        proto_tree_add_item_ret_uint(ntree, hf_nds_acl_add, tvb, ioffset, 4, ENC_LITTLE_ENDIAN, &value1);
         ioffset = ioffset + 4;
         for (i = 1 ; i <= value1; i++ )   /* ACL templates to add*/
         {
@@ -6306,9 +6050,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                   value2, values->vstring);
             ioffset = ioffset + value2;
             ioffset += align_4(tvb, ioffset);
-            value1 = tvb_get_letohl(tvb, ioffset);
-            proto_tree_add_uint_format(ntree, hf_nds_privileges, tvb, ioffset,
-                                       4, value1, "Privileges 0x%08x", value1);
+            proto_tree_add_item(ntree, hf_nds_privileges, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
             ioffset = ioffset + 4;
         }
         if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
@@ -6316,9 +6058,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             break;
         }
         ioffset += align_4(tvb, ioffset);
-        value1 = tvb_get_letohl(tvb, ioffset);
-        proto_tree_add_uint_format(ntree, hf_nds_acl_del, tvb, ioffset,
-                                   4, value1, "ACL Templates to Delete %u", value1);
+        proto_tree_add_item_ret_uint(ntree, hf_nds_acl_del, tvb, ioffset,
+                                   4, ENC_LITTLE_ENDIAN, &value1);
         ioffset = ioffset + 4;
         for (i = 1 ; i <= value1; i++ )   /* ACL templates to delete*/
         {
@@ -6338,8 +6079,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset = ioffset + value2;
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);  /* Privileges */
-            proto_tree_add_uint_format(ntree, hf_nds_privileges, tvb, ioffset,
-                                       4, value1, "Privileges 0x%08x", value1);
+            proto_tree_add_item(ntree, hf_nds_privileges, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
             ioffset = ioffset + 4;
         }
         break;
@@ -6443,88 +6183,12 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         temp_values.vstring = val_to_str_const(temp_values.vvalue, nds_info_type, "No Info Type Set");
         /*g_strdup(value)*/
         proto_tree_add_string(ntree, hf_nds_info_type, tvb, ioffset, 4, temp_values.vstring);
-        ioffset = ioffset + 4;
-        temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
-        value5 = tvb_get_letohl(tvb, ioffset);
-        temp_values.vdesc = "Information Flags (low) Byte:";
-        temp_values.vlength = 2;
-        temp_values.hfname = hf_nds_rflags;
-        temp_values.voffset = ioffset;
-        temp_values.bit1 = "Output Flags";
-        temp_values.bit1hfname = hf_bit1infoflagsl;
-        temp_values.bit2 = "Entry ID";
-        temp_values.bit2hfname = hf_bit2infoflagsl;
-        temp_values.bit3 = "Entry Flags";
-        temp_values.bit3hfname = hf_bit3infoflagsl;
-        temp_values.bit4 = "Subordinate Count";
-        temp_values.bit4hfname = hf_bit4infoflagsl;
-        temp_values.bit5 = "Modification Time";
-        temp_values.bit5hfname = hf_bit5infoflagsl;
-        temp_values.bit6 = "Modification Timestamp";
-        temp_values.bit6hfname = hf_bit6infoflagsl;
-        temp_values.bit7 = "Creation Timestamp";
-        temp_values.bit7hfname = hf_bit7infoflagsl;
-        temp_values.bit8 = "Partition Root ID";
-        temp_values.bit8hfname = hf_bit8infoflagsl;
-        temp_values.bit9 = "Parent ID";
-        temp_values.bit9hfname = hf_bit9infoflagsl;
-        temp_values.bit10 = "Revision Count";
-        temp_values.bit10hfname = hf_bit10infoflagsl;
-        temp_values.bit11 = "Replica Type";
-        temp_values.bit11hfname = hf_bit11infoflagsl;
-        temp_values.bit12 = "Base Class";
-        temp_values.bit12hfname = hf_bit12infoflagsl;
-        temp_values.bit13 = "Relative Distinguished Name";
-        temp_values.bit13hfname = hf_bit13infoflagsl;
-        temp_values.bit14 = "Distinguished Name";
-        temp_values.bit14hfname = hf_bit14infoflagsl;
-        temp_values.bit15 = "Root Distinguished Name";
-        temp_values.bit15hfname = hf_bit15infoflagsl;
-        temp_values.bit16 = "Parent Distinguished Name";
-        temp_values.bit16hfname = hf_bit16infoflagsl;
-        process_bitfield(ntree, tvb, &temp_values);
-        ioffset = ioffset+2;
-        temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
-        temp_values.vtype = VTYPE_BITFIELD;
-        temp_values.vdesc = "Information Flags (high) Byte:";
-        temp_values.vlength = 2;
-        temp_values.hfname= hf_nds_rflags;
-        temp_values.voffset = ioffset;
-        temp_values.bit1 = "Purge Time";
-        temp_values.bit1hfname = hf_bit1infoflagsh;
-        temp_values.bit2 = "Dereference Base Class";
-        temp_values.bit2hfname = hf_bit2infoflagsh;
-        temp_values.bit3 = "Replica Number";
-        temp_values.bit3hfname = hf_bit3infoflagsh;
-        temp_values.bit4 = "Replica State";
-        temp_values.bit4hfname = hf_bit4infoflagsh;
-        temp_values.bit5 = "Federation Boundary";
-        temp_values.bit5hfname = hf_bit5infoflagsh;
-        temp_values.bit6 = "Schema Boundary";
-        temp_values.bit6hfname = hf_bit6infoflagsh;
-        temp_values.bit7 = "Federation Boundary ID";
-        temp_values.bit7hfname = hf_bit7infoflagsh;
-        temp_values.bit8 = "Schema Boundary ID";
-        temp_values.bit8hfname = hf_bit8infoflagsh;
-        temp_values.bit9 = "Current Subcount";
-        temp_values.bit9hfname = hf_bit9infoflagsh;
-        temp_values.bit10 = "Local Entry Flags";
-        temp_values.bit10hfname = hf_bit10infoflagsh;
-        temp_values.bit11 = "Not Defined";
-        temp_values.bit11hfname = hf_bit11infoflagsh;
-        temp_values.bit12 = "Not Defined";
-        temp_values.bit12hfname = hf_bit12infoflagsh;
-        temp_values.bit13 = "Not Defined";
-        temp_values.bit13hfname = hf_bit13infoflagsh;
-        temp_values.bit14 = "Not Defined";
-        temp_values.bit14hfname = hf_bit14infoflagsh;
-        temp_values.bit15 = "Not Defined";
-        temp_values.bit15hfname = hf_bit15infoflagsh;
-        temp_values.bit16 = "Not Defined";
-        temp_values.bit16hfname = hf_bit16infoflagsh;
-        ioffset = ioffset+2;
-        process_bitfield(ntree, tvb, &temp_values);
         ioffset += 4;
+        value5 = tvb_get_letohl(tvb, ioffset);
+        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+        ioffset += 2;
+        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+        ioffset += 2;
         proto_tree_add_item(ntree, hf_nds_time_filter, tvb, ioffset, 4, ENC_BIG_ENDIAN);
         ioffset += 4;
         proto_tree_add_item(ntree, hf_nds_all_attr, tvb, ioffset, 4, ENC_BIG_ENDIAN);
@@ -7751,8 +7415,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case NCP_SERVICE_REQUEST:
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-                                       func, "Function: %u (0x%02X), %s",
+            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 1,
+                                       func, "%u (0x%02X), %s",
                                        func, func, ncp_rec ? ncp_rec->name : "Unknown");
             break;
 
@@ -7770,15 +7434,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 proto_tree_add_item(ncp_tree, hf_ncp_length, tvb, 7,
                                     2, ENC_BIG_ENDIAN);
-                proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 9, 1,
-                                           subfunc, "SubFunction: %u (0x%02x)",
-                                           subfunc, subfunc);
+                proto_tree_add_uint(ncp_tree, hf_ncp_subfunc, tvb, 9, 1, subfunc);
                 ptvc = ptvcursor_new(ncp_tree, tvb, 10);
             }
             else {
-                proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
-                                           subfunc, "SubFunction: %u (0x%02x)",
-                                           subfunc, subfunc);
+                proto_tree_add_uint(ncp_tree, hf_ncp_subfunc, tvb, 7, 1, subfunc);
                 ptvc = ptvcursor_new(ncp_tree, tvb, 8);
             }
         }
@@ -7789,7 +7449,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         /* The group is not part of the packet, but it's useful
          * information to display anyway. Put it in the tree for filtering and tap use*/
         if (ncp_rec) {
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "Group: %s", ncp_groups[ncp_rec->group]);
+            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "%s", ncp_groups[ncp_rec->group]);
         }
 
         exception_code = 0;
@@ -8017,7 +7677,6 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32    nds_offset;
     guint32    bvalue;
     guint32    nds_flags;
-    nds_val    pvalues[9];
     int        i;
     nstime_t   ns;
 
@@ -8042,90 +7701,9 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                 switch(bvalue)
                 {
                 case 0x00000001:   /* Supported Fields */
-                    pvalues[0].vvalue = tvb_get_letohs(tvb, nds_offset);
-                    pvalues[0].vtype = VTYPE_BITFIELD;
-                    pvalues[0].vstring = "";
-                    pvalues[0].vdesc = "Ping (low) Flags:";
-                    pvalues[0].vlength = 2;
-                    pvalues[0].hfname= hf_nds_rflags;
-                    pvalues[0].voffset = nds_offset;
-                    pvalues[0].bit1 = "Supported Fields";
-                    pvalues[0].bit1hfname = hf_bit1pingflags1;
-                    pvalues[0].bit2 = "Depth";
-                    pvalues[0].bit2hfname = hf_bit2pingflags1;
-                    pvalues[0].bit3 = "Build Number";
-                    pvalues[0].bit3hfname = hf_bit3pingflags1;
-                    pvalues[0].bit4 = "Flags";
-                    pvalues[0].bit4hfname = hf_bit4pingflags1;
-                    pvalues[0].bit5 = "Verification Flags";
-                    pvalues[0].bit5hfname = hf_bit5pingflags1;
-                    pvalues[0].bit6 = "Letter Version";
-                    pvalues[0].bit6hfname = hf_bit6pingflags1;
-                    pvalues[0].bit7 = "OS Version";
-                    pvalues[0].bit7hfname = hf_bit7pingflags1;
-                    pvalues[0].bit8 = "License Flags";
-                    pvalues[0].bit8hfname = hf_bit8pingflags1;
-                    pvalues[0].bit9 = "DS Time";
-                    pvalues[0].bit9hfname = hf_bit9pingflags1;
-                    pvalues[0].bit10 = "Server Time";
-                    pvalues[0].bit10hfname = hf_bit10pingflags1;
-                    pvalues[0].bit11 = "Create Time";
-                    pvalues[0].bit11hfname = hf_bit11pingflags1;
-                    pvalues[0].bit12 = "Not Defined";
-                    pvalues[0].bit12hfname = hf_bit12pingflags1;
-                    pvalues[0].bit13 = "Not Defined";
-                    pvalues[0].bit13hfname = hf_bit13pingflags1;
-                    pvalues[0].bit14 = "Not Defined";
-                    pvalues[0].bit14hfname = hf_bit14pingflags1;
-                    pvalues[0].bit15 = "Not Defined";
-                    pvalues[0].bit15hfname = hf_bit15pingflags1;
-                    pvalues[0].bit16 = "Not Defined";
-                    pvalues[0].bit16hfname = hf_bit16pingflags1;
-
-                    process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                    proto_tree_add_bitmask(ncp_tree, tvb, nds_offset, hf_pingflags1, ett_ncp, ncp_pingflags1, ENC_LITTLE_ENDIAN);
                     nds_offset += 2;
-
-                    pvalues[0].vvalue = tvb_get_letohs(tvb, nds_offset);
-                    pvalues[0].vtype = VTYPE_BITFIELD;
-                    pvalues[0].vstring = "";
-                    pvalues[0].vdesc = "Ping (high) Flags:";
-                    pvalues[0].vlength = 2;
-                    pvalues[0].hfname= hf_nds_rflags;
-                    pvalues[0].voffset = nds_offset;
-                    pvalues[0].bit1 = "Sap Name";
-                    pvalues[0].bit1hfname = hf_bit1pingflags2;
-                    pvalues[0].bit2 = "Tree Name";
-                    pvalues[0].bit2hfname = hf_bit2pingflags2;
-                    pvalues[0].bit3 = "OS Name";
-                    pvalues[0].bit3hfname = hf_bit3pingflags2;
-                    pvalues[0].bit4 = "Hardware Name";
-                    pvalues[0].bit4hfname = hf_bit4pingflags2;
-                    pvalues[0].bit5 = "Vendor Name";
-                    pvalues[0].bit5hfname = hf_bit5pingflags2;
-                    pvalues[0].bit6 = "Not Defined";
-                    pvalues[0].bit6hfname = hf_bit6pingflags2;
-                    pvalues[0].bit7 = "Not Defined";
-                    pvalues[0].bit7hfname = hf_bit7pingflags2;
-                    pvalues[0].bit8 = "Not Defined";
-                    pvalues[0].bit8hfname = hf_bit8pingflags2;
-                    pvalues[0].bit9 = "Not Defined";
-                    pvalues[0].bit9hfname = hf_bit9pingflags2;
-                    pvalues[0].bit10 = "Not Defined";
-                    pvalues[0].bit10hfname = hf_bit10pingflags2;
-                    pvalues[0].bit11 = "Not Defined";
-                    pvalues[0].bit11hfname = hf_bit11pingflags2;
-                    pvalues[0].bit12 = "Not Defined";
-                    pvalues[0].bit12hfname = hf_bit12pingflags2;
-                    pvalues[0].bit13 = "Not Defined";
-                    pvalues[0].bit13hfname = hf_bit13pingflags2;
-                    pvalues[0].bit14 = "Not Defined";
-                    pvalues[0].bit14hfname = hf_bit14pingflags2;
-                    pvalues[0].bit15 = "Not Defined";
-                    pvalues[0].bit15hfname = hf_bit15pingflags2;
-                    pvalues[0].bit16 = "Not Defined";
-                    pvalues[0].bit16hfname = hf_bit16pingflags2;
-
-                    process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                    proto_tree_add_bitmask(ncp_tree, tvb, nds_offset, hf_pingflags2, ett_ncp, ncp_pingflags2, ENC_LITTLE_ENDIAN);
                     nds_offset += 2;
                     break;
                 case 0x00000002:
@@ -8137,91 +7715,11 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += 4;
                     break;
                 case 0x00000008:
-                    pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                    pvalues[0].vtype = VTYPE_BITFIELD;
-                    pvalues[0].vstring = "";
-                    pvalues[0].vdesc = "Pong Data Flags:";
-                    pvalues[0].vlength = 4;
-                    pvalues[0].hfname= hf_nds_rflags;
-                    pvalues[0].voffset = nds_offset;
-                    pvalues[0].bit1 = "Root Most Master Replica";
-                    pvalues[0].bit1hfname = hf_bit1pingpflags1;
-                    pvalues[0].bit2 = "Time Synchronized?";
-                    pvalues[0].bit2hfname = hf_bit2pingpflags1;
-                    pvalues[0].bit3 = "Time Valid?";
-                    pvalues[0].bit3hfname = hf_bit3pingpflags1;
-                    pvalues[0].bit4 = "DS Time Synchronized?";
-                    pvalues[0].bit4hfname = hf_bit4pingpflags1;
-                    pvalues[0].bit5 = "Agent Has All Replicas?";
-                    pvalues[0].bit5hfname = hf_bit5pingpflags1;
-                    pvalues[0].bit6 = "Not Defined";
-                    pvalues[0].bit6hfname = hf_bit6pingpflags1;
-                    pvalues[0].bit7 = "Not Defined";
-                    pvalues[0].bit7hfname = hf_bit7pingpflags1;
-                    pvalues[0].bit8 = "Not Defined";
-                    pvalues[0].bit8hfname = hf_bit8pingpflags1;
-                    pvalues[0].bit9 = "Not Defined";
-                    pvalues[0].bit9hfname = hf_bit9pingpflags1;
-                    pvalues[0].bit10 = "Not Defined";
-                    pvalues[0].bit10hfname = hf_bit10pingpflags1;
-                    pvalues[0].bit11 = "Not Defined";
-                    pvalues[0].bit11hfname = hf_bit11pingpflags1;
-                    pvalues[0].bit12 = "Not Defined";
-                    pvalues[0].bit12hfname = hf_bit12pingpflags1;
-                    pvalues[0].bit13 = "Not Defined";
-                    pvalues[0].bit13hfname = hf_bit13pingpflags1;
-                    pvalues[0].bit14 = "Not Defined";
-                    pvalues[0].bit14hfname = hf_bit14pingpflags1;
-                    pvalues[0].bit15 = "Not Defined";
-                    pvalues[0].bit15hfname = hf_bit15pingpflags1;
-                    pvalues[0].bit16 = "Not Defined";
-                    pvalues[0].bit16hfname = hf_bit16pingpflags1;
-
-                    process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                    proto_tree_add_bitmask(ncp_tree, tvb, nds_offset, hf_pingpflags1, ett_ncp, ncp_pingpflags1, ENC_LITTLE_ENDIAN);
                     nds_offset += 4;
                     break;
                 case 0x00000010:
-                    pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                    pvalues[0].vtype = VTYPE_BITFIELD;
-                    pvalues[0].vstring = "";
-                    pvalues[0].vdesc = "Verification Flags:";
-                    pvalues[0].vlength = 4;
-                    pvalues[0].hfname= hf_nds_rflags;
-                    pvalues[0].voffset = nds_offset;
-                    pvalues[0].bit1 = "Checksum Verification";
-                    pvalues[0].bit1hfname = hf_bit1pingvflags1;
-                    pvalues[0].bit2 = "CRC32 Verification";
-                    pvalues[0].bit2hfname = hf_bit2pingvflags1;
-                    pvalues[0].bit3 = "Server Verification Enforced";
-                    pvalues[0].bit3hfname = hf_bit3pingvflags1;
-                    pvalues[0].bit4 = "Not Defined";
-                    pvalues[0].bit4hfname = hf_bit4pingvflags1;
-                    pvalues[0].bit5 = "Not Defined";
-                    pvalues[0].bit5hfname = hf_bit5pingvflags1;
-                    pvalues[0].bit6 = "Not Defined";
-                    pvalues[0].bit6hfname = hf_bit6pingvflags1;
-                    pvalues[0].bit7 = "Not Defined";
-                    pvalues[0].bit7hfname = hf_bit7pingvflags1;
-                    pvalues[0].bit8 = "Not Defined";
-                    pvalues[0].bit8hfname = hf_bit8pingvflags1;
-                    pvalues[0].bit9 = "Not Defined";
-                    pvalues[0].bit9hfname = hf_bit9pingvflags1;
-                    pvalues[0].bit10 = "Not Defined";
-                    pvalues[0].bit10hfname = hf_bit10pingvflags1;
-                    pvalues[0].bit11 = "Not Defined";
-                    pvalues[0].bit11hfname = hf_bit11pingvflags1;
-                    pvalues[0].bit12 = "Not Defined";
-                    pvalues[0].bit12hfname = hf_bit12pingvflags1;
-                    pvalues[0].bit13 = "Not Defined";
-                    pvalues[0].bit13hfname = hf_bit13pingvflags1;
-                    pvalues[0].bit14 = "Not Defined";
-                    pvalues[0].bit14hfname = hf_bit14pingvflags1;
-                    pvalues[0].bit15 = "Not Defined";
-                    pvalues[0].bit15hfname = hf_bit15pingvflags1;
-                    pvalues[0].bit16 = "Not Defined";
-                    pvalues[0].bit16hfname = hf_bit16pingvflags1;
-
-                    process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                    proto_tree_add_bitmask(ncp_tree, tvb, nds_offset, hf_pingvflags1, ett_ncp, ncp_pingvflags1, ENC_LITTLE_ENDIAN);
                     nds_offset += 4;
                     break;
                 case 0x00000020:
@@ -8329,8 +7827,6 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                   conversation_t *conversation)
 {
     guint32                         nds_offset;
-    guint32                         nds_reply_buffer;
-    guint32                         nds_frag;
     proto_item                      *expert_item;
     const char                      *verb_string;
     nds_val                         pvalues[9];
@@ -8345,13 +7841,11 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
 
     nds_offset = 8;
 
-    nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
-    proto_tree_add_uint(ncp_tree, hf_ncp_fragment_size, tvb, nds_offset,
-                        4, nds_reply_buffer);
+    proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, nds_offset,
+                        4, ENC_LITTLE_ENDIAN);
     nds_offset += 4;
-    nds_frag = tvb_get_letohl(tvb, nds_offset);
-    proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, nds_offset,
-                        4, nds_frag);
+    proto_tree_add_item(ncp_tree, hf_ncp_fragment_handle, tvb, nds_offset,
+                        4, ENC_LITTLE_ENDIAN);
     nds_offset += 4;
     /*
      * Is the possibly-reassembled reply large enough to have a completion
@@ -8893,10 +8387,10 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         }
         if(request_value->nds_request_verb != 0)
         {
-            proto_tree_add_uint_format(ncp_tree,
+            proto_tree_add_uint_format_value(ncp_tree,
                                        hf_ncp_nds_verb, tvb, 6, 0,
                                        request_value->nds_request_verb,
-                                       "NDS Verb: %d, %s",
+                                       "%d, %s",
                                        request_value->nds_request_verb, verb_string);
         }
         /* NDS Entry ID's (EID) is identified in the reply
@@ -8972,10 +8466,6 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_string_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
                                              pvalues[i].vlength, pvalues[i].vstring, pvalues[i].vdesc,
                                              pvalues[i].vstring);
-                break;
-
-            case VTYPE_BITFIELD:
-                process_bitfield(ncp_tree, tvb, &pvalues[i]);
                 break;
 
             case VTYPE_MULTIVALUE_UINT32:
@@ -9161,19 +8651,17 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
          * or ncp.subfunc will find both the requests and the replies.
          */
         if (ncp_rec) {
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 0,
-                                       ncp_rec->func, "Function: %u (0x%02X), %s",
+            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 0,
+                                       ncp_rec->func, "%u (0x%02X), %s",
                                        ncp_rec->func, ncp_rec->func, ncp_rec->name);
             if (ncp_requires_subfunc(ncp_rec->func)) {
-                proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 6, 0,
-                                           ncp_rec->subfunc, "SubFunction: %u (0x%02x)",
-                                           ncp_rec->subfunc, ncp_rec->subfunc);
+                proto_tree_add_uint(ncp_tree, hf_ncp_subfunc, tvb, 6, 0, ncp_rec->subfunc);
             }
         }
     }
 
-    expert_item = proto_tree_add_uint_format(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
-                                             completion_code, "Completion Code: %d (0x89%02x), %s",
+    expert_item = proto_tree_add_uint_format_value(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
+                                             completion_code, "%d (0x89%02x), %s",
                                              completion_code, completion_code, error_string);
     if ((completion_code != 0 || type == NCP_POSITIVE_ACK) && ncp_echo_err) {
         expert_add_info_format(pinfo, expert_item, &ei_ncp_completion_code,
@@ -9338,7 +8826,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     const char              *verb_string = "";
     guint32                  nds_frag = 0;
     gboolean                 added_arrow;
-    nds_val                  pvalues[9], prot_flags[1];
+    nds_val                  pvalues[9];
     guint8                   nds_version = 0;
     guint32                  foffset = 0;
     char                     global_object_name[256];
@@ -10596,7 +10084,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset += align_4(tvb, foffset);
             pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_syntax, "No Syntax Found");
-            pvalues[3].vtype = VTYPE_STRING;
+            pvalues[3].vtype = VTYPE_UINT32;
             pvalues[3].vdesc = "Syntax: %s";
             pvalues[3].vlength = 4;
             pvalues[3].voffset = foffset;
@@ -11083,7 +10571,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset = foffset+pvalues[2].vlength;
             pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_replica_type, "No Replica Type Found");
-            pvalues[3].vtype = VTYPE_STRING;
+            pvalues[3].vtype = VTYPE_UINT32;
             pvalues[3].vdesc = "Replica Type: %s";
             pvalues[3].vlength = 4;
             pvalues[3].voffset = foffset;
@@ -11753,13 +11241,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 clear_repeat_vars();
                 process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
             }
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-                                       func, "Function: %d (0x%02X), %s",
+            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 1,
+                                       func, "%d (0x%02X), %s",
                                        func, func, ncp_rec ? ncp_rec->name : "Unknown");
 
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
-                                       subfunc, "SubFunction: %d (0x%02x)",
-                                       subfunc, subfunc);
+            proto_tree_add_uint(ncp_tree, hf_ncp_subfunc, tvb, 7, 1, subfunc);
 
             proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
                                 nds_frag);
@@ -11770,56 +11256,16 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 
                 proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, ENC_LITTLE_ENDIAN);
 
-                nds_prot_flags = tvb_get_letohs(tvb, 22);
-                prot_flags[0].vvalue = nds_prot_flags;
-                prot_flags[0].vtype = VTYPE_BITFIELD;
-                prot_flags[0].vdesc = "NDS Protocol Flags:";
-                prot_flags[0].vlength = 2;
-                prot_flags[0].hfname= hf_ncp_nds_flag;
-                prot_flags[0].voffset = 22;
-                prot_flags[0].bit1 = "Not Defined";
-                prot_flags[0].bit1hfname = hf_ndsprot1flag;
-                prot_flags[0].bit2 = "Not Defined";
-                prot_flags[0].bit2hfname = hf_ndsprot2flag;
-                prot_flags[0].bit3 = "Not Defined";
-                prot_flags[0].bit3hfname = hf_ndsprot3flag;
-                prot_flags[0].bit4 = "Not Defined";
-                prot_flags[0].bit4hfname = hf_ndsprot4flag;
-                prot_flags[0].bit5 = "Not Defined";
-                prot_flags[0].bit5hfname = hf_ndsprot5flag;
-                prot_flags[0].bit6 = "Not Defined";
-                prot_flags[0].bit6hfname = hf_ndsprot6flag;
-                prot_flags[0].bit7 = "Not Defined";
-                prot_flags[0].bit7hfname = hf_ndsprot7flag;
-                prot_flags[0].bit8 = "Not Defined";
-                prot_flags[0].bit8hfname = hf_ndsprot8flag;
-                prot_flags[0].bit9 = "Not Defined";
-                prot_flags[0].bit9hfname = hf_ndsprot9flag;
-                prot_flags[0].bit10 = "Not Defined";
-                prot_flags[0].bit10hfname = hf_ndsprot10flag;
-                prot_flags[0].bit11= "Not Defined";
-                prot_flags[0].bit11hfname = hf_ndsprot11flag;
-                prot_flags[0].bit12 = "Not Defined";
-                prot_flags[0].bit12hfname = hf_ndsprot12flag;
-                prot_flags[0].bit13 = "Not Defined";
-                prot_flags[0].bit13hfname = hf_ndsprot13flag;
-                prot_flags[0].bit14 = "Not Defined";
-                prot_flags[0].bit14hfname = hf_ndsprot14flag;
-                prot_flags[0].bit15 = "Include CRC in NDS Header";
-                prot_flags[0].bit15hfname = hf_ndsprot15flag;
-                prot_flags[0].bit16 = "Client is a Server";
-                prot_flags[0].bit16hfname = hf_ndsprot16flag;
-
-                process_bitfield(ncp_tree, tvb, &prot_flags[0]);
+                proto_tree_add_bitmask(ncp_tree, tvb, 22, hf_ncp_nds_flag, ett_ncp, ndsprotflags, ENC_LITTLE_ENDIAN);
 
                 if (nds_version == 0) {
-                    proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 24, 4,
-                                               nds_verb, "NDS Verb: %d, (0x%02x), %s",
+                    proto_tree_add_uint_format_value(ncp_tree, hf_ncp_nds_verb, tvb, 24, 4,
+                                               nds_verb, "%d, (0x%02x), %s",
                                                nds_verb, nds_verb, verb_string);
                 }
                 else {
-                    proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 32, 4,
-                                               nds_verb, "NDS Verb: %d, (0x%02x), %s",
+                    proto_tree_add_uint_format_value(ncp_tree, hf_ncp_nds_verb, tvb, 32, 4,
+                                               nds_verb, "%d, (0x%02x), %s",
                                                nds_verb, nds_verb, verb_string);
                 }
                 added_arrow = FALSE;
@@ -11962,21 +11408,12 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
     gint                 length_remaining = 0;
     guint32              nds_flags;
     guint32              ping_version;
-    nds_val              pvalue;
 
 #ifdef FAKE_TREE_IS_VISIBLE
     if (ncp_tree) {
         PTREE_DATA(ncp_tree)->visible=1;
     }
 #endif
-
-    pvalue.vvalue = 0;
-    pvalue.vlength = 0;
-    pvalue.voffset = 0;
-    pvalue.hfname = 0;
-    pvalue.vdesc = "";
-    pvalue.vstring = NULL;
-    pvalue.mvtype = 0;
 
     func = tvb_get_guint8(tvb, 6);
     subfunc = tvb_get_guint8(tvb, 7);
@@ -12052,13 +11489,11 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case NCP_SERVICE_REQUEST:
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-                                       func, "Function: %u (0x%02X), %s",
+            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 1,
+                                       func, "%u (0x%02X), %s",
                                        func, func, ncp_rec ? ncp_rec->name : "Unknown");
 
-            proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
-                                       subfunc, "SubFunction: %u (0x%02x)",
-                                       subfunc, subfunc);
+            proto_tree_add_uint(ncp_tree, hf_ncp_subfunc, tvb, 7, 1, subfunc);
 
             length_remaining = tvb_reported_length_remaining(tvb, 8);
 
@@ -12077,89 +11512,8 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 pi = proto_tree_add_uint(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0, 240);
                 PROTO_ITEM_SET_HIDDEN(pi);
 
-                pvalue.vvalue = tvb_get_letohs(tvb, 12);
-                pvalue.vtype = VTYPE_BITFIELD;
-                pvalue.vstring = "";
-                pvalue.vdesc = "Ping (low) Request Flags:";
-                pvalue.vlength = 2;
-                pvalue.hfname= hf_nds_rflags;
-                pvalue.voffset = 12;
-                pvalue.bit1 = "Supported Fields";   /* 0x0001 */
-                pvalue.bit1hfname = hf_bit1pingflags1;
-                pvalue.bit2 = "Depth";              /* 0x0002 */
-                pvalue.bit2hfname = hf_bit2pingflags1;
-                pvalue.bit3 = "Build Number";       /* 0x0004 */
-                pvalue.bit3hfname = hf_bit3pingflags1;
-                pvalue.bit4 = "Flags";              /* 0x0008 */
-                pvalue.bit4hfname = hf_bit4pingflags1;
-                pvalue.bit5 = "Verification Flags"; /* 0x0010 */
-                pvalue.bit5hfname = hf_bit5pingflags1;
-                pvalue.bit6 = "Letter Version";     /* 0x0020 */
-                pvalue.bit6hfname = hf_bit6pingflags1;
-                pvalue.bit7 = "OS Version";         /* 0x0040 */
-                pvalue.bit7hfname = hf_bit7pingflags1;
-                pvalue.bit8 = "Not Defined";        /* 0x0080 */
-                pvalue.bit8hfname = hf_bit8pingflags1;
-                pvalue.bit9 = "License Flags";      /* 0x0100 */
-                pvalue.bit9hfname = hf_bit9pingflags1;
-                pvalue.bit10 = "DS Time";           /* 0x0200 */
-                pvalue.bit10hfname = hf_bit10pingflags1;
-                pvalue.bit11 = "Server Time";       /* 0x0400 */
-                pvalue.bit11hfname = hf_bit11pingflags1;
-                pvalue.bit12 = "Create Time";       /* 0x0800 */
-                pvalue.bit12hfname = hf_bit12pingflags1;
-                pvalue.bit13 = "Not Defined";
-                pvalue.bit13hfname = hf_bit13pingflags1;
-                pvalue.bit14 = "Not Defined";
-                pvalue.bit14hfname = hf_bit14pingflags1;
-                pvalue.bit15 = "Not Defined";
-                pvalue.bit15hfname = hf_bit15pingflags1;
-                pvalue.bit16 = "Not Defined";
-                pvalue.bit16hfname = hf_bit16pingflags1;
-
-                process_bitfield(ncp_tree, tvb, &pvalue);
-
-                pvalue.vvalue = tvb_get_letohs(tvb, 14);
-                pvalue.vtype = VTYPE_BITFIELD;
-                pvalue.vstring = "";
-                pvalue.vdesc = "Ping (high) Request Flags:";
-                pvalue.vlength = 2;
-                pvalue.hfname= hf_nds_rflags;
-                pvalue.voffset = 14;
-                pvalue.bit1 = "Sap Name";           /* 0x0001 */
-                pvalue.bit1hfname = hf_bit1pingflags2;
-                pvalue.bit2 = "Tree Name";          /* 0x0002 */
-                pvalue.bit2hfname = hf_bit2pingflags2;
-                pvalue.bit3 = "OS Name";            /* 0x0004 */
-                pvalue.bit3hfname = hf_bit3pingflags2;
-                pvalue.bit4 = "Hardware Name";      /* 0x0008 */
-                pvalue.bit4hfname = hf_bit4pingflags2;
-                pvalue.bit5 = "Vendor Name";        /* 0x0010 */
-                pvalue.bit5hfname = hf_bit5pingflags2;
-                pvalue.bit6 = "Not Defined";
-                pvalue.bit6hfname = hf_bit6pingflags2;
-                pvalue.bit7 = "Not Defined";
-                pvalue.bit7hfname = hf_bit7pingflags2;
-                pvalue.bit8 = "Not Defined";
-                pvalue.bit8hfname = hf_bit8pingflags2;
-                pvalue.bit9 = "Not Defined";
-                pvalue.bit9hfname = hf_bit9pingflags2;
-                pvalue.bit10 = "Not Defined";
-                pvalue.bit10hfname = hf_bit10pingflags2;
-                pvalue.bit11 = "Not Defined";
-                pvalue.bit11hfname = hf_bit11pingflags2;
-                pvalue.bit12 = "Not Defined";
-                pvalue.bit12hfname = hf_bit12pingflags2;
-                pvalue.bit13 = "Not Defined";
-                pvalue.bit13hfname = hf_bit13pingflags2;
-                pvalue.bit14 = "Not Defined";
-                pvalue.bit14hfname = hf_bit14pingflags2;
-                pvalue.bit15 = "Not Defined";
-                pvalue.bit15hfname = hf_bit15pingflags2;
-                pvalue.bit16 = "Not Defined";
-                pvalue.bit16hfname = hf_bit16pingflags2;
-
-                process_bitfield(ncp_tree, tvb, &pvalue);
+                proto_tree_add_bitmask(ncp_tree, tvb, 12, hf_pingflags1, ett_ncp, ncp_pingflags1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_bitmask(ncp_tree, tvb, 14, hf_pingflags2, ett_ncp, ncp_pingflags2, ENC_LITTLE_ENDIAN);
             }
             break;
 

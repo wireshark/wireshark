@@ -5933,6 +5933,7 @@ static int hf_nds_bit13 = -1;
 static int hf_nds_bit14 = -1;
 static int hf_nds_bit15 = -1;
 static int hf_nds_bit16 = -1;
+static int hf_outflags = -1;
 static int hf_bit1outflags = -1;
 static int hf_bit2outflags = -1;
 static int hf_bit3outflags = -1;
@@ -5981,6 +5982,7 @@ static int hf_bit13rflags = -1;
 static int hf_bit14rflags = -1;
 static int hf_bit15rflags = -1;
 static int hf_bit16rflags = -1;
+static int hf_cflags = -1;
 static int hf_bit1cflags = -1;
 static int hf_bit2cflags = -1;
 static int hf_bit3cflags = -1;
@@ -6013,6 +6015,7 @@ static int hf_bit13acflags = -1;
 static int hf_bit14acflags = -1;
 static int hf_bit15acflags = -1;
 static int hf_bit16acflags = -1;
+static int hf_vflags = -1;
 static int hf_bit1vflags = -1;
 static int hf_bit2vflags = -1;
 static int hf_bit3vflags = -1;
@@ -6029,6 +6032,7 @@ static int hf_bit13vflags = -1;
 static int hf_bit14vflags = -1;
 static int hf_bit15vflags = -1;
 static int hf_bit16vflags = -1;
+static int hf_eflags = -1;
 static int hf_bit1eflags = -1;
 static int hf_bit2eflags = -1;
 static int hf_bit3eflags = -1;
@@ -6045,6 +6049,8 @@ static int hf_bit13eflags = -1;
 static int hf_bit14eflags = -1;
 static int hf_bit15eflags = -1;
 static int hf_bit16eflags = -1;
+static int hf_infoflagsl = -1;
+static int hf_retinfoflagsl = -1;
 static int hf_bit1infoflagsl = -1;
 static int hf_bit2infoflagsl = -1;
 static int hf_bit3infoflagsl = -1;
@@ -6061,6 +6067,7 @@ static int hf_bit13infoflagsl = -1;
 static int hf_bit14infoflagsl = -1;
 static int hf_bit15infoflagsl = -1;
 static int hf_bit16infoflagsl = -1;
+static int hf_infoflagsh = -1;
 static int hf_bit1infoflagsh = -1;
 static int hf_bit2infoflagsh = -1;
 static int hf_bit3infoflagsh = -1;
@@ -6077,6 +6084,23 @@ static int hf_bit13infoflagsh = -1;
 static int hf_bit14infoflagsh = -1;
 static int hf_bit15infoflagsh = -1;
 static int hf_bit16infoflagsh = -1;
+static int hf_retinfoflagsh = -1;
+static int hf_bit1retinfoflagsh = -1;
+static int hf_bit2retinfoflagsh = -1;
+static int hf_bit3retinfoflagsh = -1;
+static int hf_bit4retinfoflagsh = -1;
+static int hf_bit5retinfoflagsh = -1;
+static int hf_bit6retinfoflagsh = -1;
+static int hf_bit7retinfoflagsh = -1;
+static int hf_bit8retinfoflagsh = -1;
+static int hf_bit9retinfoflagsh = -1;
+static int hf_bit10retinfoflagsh = -1;
+static int hf_bit11retinfoflagsh = -1;
+static int hf_bit12retinfoflagsh = -1;
+static int hf_bit13retinfoflagsh = -1;
+static int hf_bit14retinfoflagsh = -1;
+static int hf_bit15retinfoflagsh = -1;
+static int hf_bit16retinfoflagsh = -1;
 static int hf_bit1lflags = -1;
 static int hf_bit2lflags = -1;
 static int hf_bit3lflags = -1;
@@ -6232,6 +6256,7 @@ static int hf_nds_child_part_id = -1;
 static int hf_nds_master_part_id = -1;
 static int hf_nds_target_name = -1;
 static int hf_nds_super = -1;
+static int hf_pingflags2 = -1;
 static int hf_bit1pingflags2 = -1;
 static int hf_bit2pingflags2 = -1;
 static int hf_bit3pingflags2 = -1;
@@ -6248,6 +6273,7 @@ static int hf_bit13pingflags2 = -1;
 static int hf_bit14pingflags2 = -1;
 static int hf_bit15pingflags2 = -1;
 static int hf_bit16pingflags2 = -1;
+static int hf_pingflags1 = -1;
 static int hf_bit1pingflags1 = -1;
 static int hf_bit2pingflags1 = -1;
 static int hf_bit3pingflags1 = -1;
@@ -6264,6 +6290,7 @@ static int hf_bit13pingflags1 = -1;
 static int hf_bit14pingflags1 = -1;
 static int hf_bit15pingflags1 = -1;
 static int hf_bit16pingflags1 = -1;
+static int hf_pingpflags1 = -1;
 static int hf_bit1pingpflags1 = -1;
 static int hf_bit2pingpflags1 = -1;
 static int hf_bit3pingpflags1 = -1;
@@ -6280,6 +6307,7 @@ static int hf_bit13pingpflags1 = -1;
 static int hf_bit14pingpflags1 = -1;
 static int hf_bit15pingpflags1 = -1;
 static int hf_bit16pingpflags1 = -1;
+static int hf_pingvflags1 = -1;
 static int hf_bit1pingvflags1 = -1;
 static int hf_bit2pingvflags1 = -1;
 static int hf_bit3pingvflags1 = -1;
@@ -6739,6 +6767,8 @@ static const value_string connection_status_vals[] = {
     { 0,    NULL }
 };
 
+#include "packet-ncp2222.inc"
+
 void
 proto_register_ncp2222(void)
 {
@@ -6754,7 +6784,7 @@ proto_register_ncp2222(void)
     { "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_subfunc,
-    { "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "SubFunction", "ncp.subfunc", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_completion_code,
     { "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -6772,7 +6802,7 @@ proto_register_ncp2222(void)
     { "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_nds_flag,
-    { "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "NDS Protocol Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_nds_verb,
     { "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, NULL, HFILL }},
@@ -6887,6 +6917,9 @@ proto_register_ncp2222(void)
 
     { &hf_nds_bit16,
     { "Not Defined", "ncp.nds_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
+
+    { &hf_outflags,
+    { "Output Flags", "ncp.outflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1outflags,
     { "Output Flags", "ncp.bit1outflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -7032,6 +7065,9 @@ proto_register_ncp2222(void)
     { &hf_bit16rflags,
     { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_eflags,
+    { "Entry Flags", "ncp.eflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1eflags,
     { "Alias Entry", "ncp.bit1eflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7079,6 +7115,12 @@ proto_register_ncp2222(void)
 
     { &hf_bit16eflags,
     { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
+
+    { &hf_infoflagsl,
+    { "Information Flags (low) Byte", "ncp.infoflagsl", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_retinfoflagsl,
+    { "Return Information Flags (low) Byte", "ncp.retinfoflagsl", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1infoflagsl,
     { "Output Flags", "ncp.bit1infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -7128,6 +7170,9 @@ proto_register_ncp2222(void)
     { &hf_bit16infoflagsl,
     { "Parent Distinguished Name", "ncp.bit16infoflagsl", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_infoflagsh,
+    { "Information Flags (high) Byte", "ncp.infoflagsh", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1infoflagsh,
     { "Purge Time", "ncp.bit1infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7175,6 +7220,57 @@ proto_register_ncp2222(void)
 
     { &hf_bit16infoflagsh,
     { "Not Defined", "ncp.bit16infoflagsh", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
+
+    { &hf_retinfoflagsh,
+    { "Return Information Flags (high) Byte", "ncp.retinfoflagsh", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_bit1retinfoflagsh,
+    { "Purge Time", "ncp.bit1retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
+
+    { &hf_bit2retinfoflagsh,
+    { "Dereference Base Class", "ncp.bit2retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
+
+    { &hf_bit3retinfoflagsh,
+    { "Replica Number", "ncp.bit3retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
+
+    { &hf_bit4retinfoflagsh,
+    { "Replica State", "ncp.bit4retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
+
+    { &hf_bit5retinfoflagsh,
+    { "Federation Boundary", "ncp.bit5retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
+
+    { &hf_bit6retinfoflagsh,
+    { "Schema Boundary", "ncp.bit6retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
+
+    { &hf_bit7retinfoflagsh,
+    { "Federation Boundary ID", "ncp.bit7retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
+
+    { &hf_bit8retinfoflagsh,
+    { "Schema Boundary ID", "ncp.bit8retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
+
+    { &hf_bit9retinfoflagsh,
+    { "Current Subcount", "ncp.bit9retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
+
+    { &hf_bit10retinfoflagsh,
+    { "Local Entry Flags", "ncp.bit10retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
+
+    { &hf_bit11retinfoflagsh,
+    { "Not Defined", "ncp.bit11retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
+
+    { &hf_bit12retinfoflagsh,
+    { "Not Defined", "ncp.bit12retinfoflagshs", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
+
+    { &hf_bit13retinfoflagsh,
+    { "Not Defined", "ncp.bit13retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
+
+    { &hf_bit14retinfoflagsh,
+    { "Not Defined", "ncp.bit14retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
+
+    { &hf_bit15retinfoflagsh,
+    { "Not Defined", "ncp.bit15retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
+
+    { &hf_bit16retinfoflagsh,
+    { "Not Defined", "ncp.bit16retinfoflagsh", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
     { &hf_bit1lflags,
     { "List Typeless", "ncp.bit1lflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -7320,6 +7416,9 @@ proto_register_ncp2222(void)
     { &hf_bit16l1flagsh,
     { "Not Defined", "ncp.bit16l1flagsh", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_vflags,
+    { "Value Flags", "ncp.vflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1vflags,
     { "Naming", "ncp.bit1vflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7367,6 +7466,9 @@ proto_register_ncp2222(void)
 
     { &hf_bit16vflags,
     { "Not Defined", "ncp.bit16vflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
+
+    { &hf_cflags,
+    { "Class Flags", "ncp.cflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1cflags,
     { "Container", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -7490,7 +7592,7 @@ proto_register_ncp2222(void)
     { "Referral Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_referral_addcount,
-    { "Address Count", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { "Number of Addresses in Referral", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_port,
     { "Port", "ncp.ndsport", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7595,10 +7697,10 @@ proto_register_ncp2222(void)
     { "Bytes", "ncp.value_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_replica_type,
-    { "Replica Type", "ncp.rtype", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Replica Type", "ncp.rtype", FT_UINT32, BASE_DEC, VALS(nds_replica_type), 0x0, NULL, HFILL }},
 
     { &hf_replica_state,
-    { "Replica State", "ncp.rstate", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Replica State", "ncp.rstate", FT_UINT16, BASE_DEC, VALS(nds_replica_state), 0x0, NULL, HFILL }},
 
     { &hf_nds_rnum,
     { "Replica Number", "ncp.rnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7800,7 +7902,7 @@ proto_register_ncp2222(void)
     { "Attribute Name", "ncp.nds_attribute_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acl_add,
-    { "Access Control Lists to Add", "ncp.nds_acl_add", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { "ACL Templates to Add", "ncp.nds_acl_add", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acl_del,
     { "Access Control Lists to Delete", "ncp.nds_acl_del", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7809,7 +7911,7 @@ proto_register_ncp2222(void)
     { "Attribute to Add", "ncp.nds_att_add", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_att_del,
-    { "Attribute to Delete", "ncp.nds_att_del", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { "Attribute Names to Delete", "ncp.nds_att_del", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_keep,
     { "Delete Original RDN", "ncp.nds_keep", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7835,6 +7937,8 @@ proto_register_ncp2222(void)
     { &hf_nds_target_name,
     { "Target Server Name", "ncp.nds_target_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_pingflags1,
+    { "Ping (low) Request Flags", "ncp.pingflags1", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1pingflags1,
     { "Supported Fields", "ncp.bit1pingflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -7884,6 +7988,9 @@ proto_register_ncp2222(void)
     { &hf_bit16pingflags1,
     { "Not Defined", "ncp.bit16pingflags1", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_pingflags2,
+    { "Ping (high) Request Flags", "ncp.pingflags2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1pingflags2,
     { "Sap Name", "ncp.bit1pingflags2", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7932,6 +8039,9 @@ proto_register_ncp2222(void)
     { &hf_bit16pingflags2,
     { "Not Defined", "ncp.bit16pingflags2", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_pingpflags1,
+    { "Ping Data Flags", "ncp.pingpflags1", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1pingpflags1,
     { "Root Most Master Replica", "ncp.bit1pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7979,6 +8089,9 @@ proto_register_ncp2222(void)
 
     { &hf_bit16pingpflags1,
     { "Not Defined", "ncp.bit16pingpflags1", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
+
+    { &hf_pingvflags1,
+    { "Verification Flags", "ncp.pingvflags1", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1pingvflags1,
     { "Checksum", "ncp.bit1pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -8215,7 +8328,7 @@ proto_register_ncp2222(void)
     { "Number of Items", "ncp.ndsitems", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_nds_iterverb,
-    { "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_HEX, NULL /*VALS(iterator_subverbs)*/, 0x0, NULL, HFILL }},
+    { "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_DEC_HEX, VALS(iterator_subverbs), 0x0, NULL, HFILL }},
 
     { &hf_iter_completion_code,
     { "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8362,8 +8475,6 @@ proto_register_ncp2222(void)
 
     # End of proto_register_ncp2222()
     print("}")
-    print("")
-    print('#include "packet-ncp2222.inc"')
 
 def usage():
     print("Usage: ncp2222.py -o output_file")
