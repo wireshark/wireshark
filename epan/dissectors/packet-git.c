@@ -44,6 +44,10 @@ static gint hf_git_packet_len = -1;
 static gint hf_git_packet_data = -1;
 static gint hf_git_packet_terminator = -1;
 
+#define PNAME  "Git Smart Protocol"
+#define PSNAME "Git"
+#define PFNAME "git"
+
 #define TCP_PORT_GIT    9418
 
 /* desegmentation of Git over TCP */
@@ -83,9 +87,9 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   int offset = 0;
   guint16 plen;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GIT");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  col_set_str(pinfo->cinfo, COL_INFO, "Git Smart Protocol");
+  col_set_str(pinfo->cinfo, COL_INFO, PNAME);
 
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
@@ -140,11 +144,11 @@ proto_register_git(void)
 
   module_t *git_module;
 
-  proto_git = proto_register_protocol("Git Smart Protocol", "GIT", "git");
+  proto_git = proto_register_protocol(PNAME, PSNAME, PFNAME);
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  git_handle = new_register_dissector("git", dissect_git, proto_git);
+  git_handle = new_register_dissector(PFNAME, dissect_git, proto_git);
 
   git_module = prefs_register_protocol(proto_git, NULL);
 
