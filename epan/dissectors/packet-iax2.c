@@ -185,6 +185,7 @@ static gint ett_iax2_trunk_call = -1;
 static expert_field ei_iax_too_many_transfers = EI_INIT;
 static expert_field ei_iax_circuit_id_conflict = EI_INIT;
 static expert_field ei_iax_peer_address_unsupported = EI_INIT;
+static expert_field ei_iax_invalid_len = EI_INIT;
 
 static const fragment_items iax2_fragment_items = {
   &ett_iax2_fragment,
@@ -1250,7 +1251,10 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     /* do non-tree-dependent stuff first */
     switch (ies_type) {
       case IAX_IE_DATAFORMAT:
-        if (ies_len != 4) THROW(ReportedBoundsError);
+        if (ies_len != 4) {
+          proto_tree_add_expert(iax_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+          break;
+        }
         ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
         break;
 
@@ -1321,7 +1325,10 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         {
           proto_tree *codec_tree;
 
-          if (ies_len != 4) THROW(ReportedBoundsError);
+          if (ies_len != 4) {
+            proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+            break;
+          }
 
           ie_item =
             proto_tree_add_item(ies_tree, ie_hf,
@@ -1385,12 +1392,13 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         default:
           if (ie_hf != -1) {
-            /* throw an error if the IE isn't the expected length */
-            enum ftenum type = proto_registrar_get_nth(ie_hf)->type;
-            gint explen = ftype_length(type);
-            if (explen != 0 && ies_len != explen)
-              THROW(ReportedBoundsError);
-            switch (type) {
+            gint explen = proto_registrar_get_length(ie_hf);
+            if (explen != 0 && ies_len != explen) {
+              proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
+              break;
+            }
+
+            switch (proto_registrar_get_ftype(ie_hf)) {
             case FT_UINT8:
             case FT_UINT16:
             case FT_UINT24:
@@ -1463,12 +1471,9 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           break;
       }
 
-      /* by now, we *really* ought to have added an item */
-      DISSECTOR_ASSERT(ie_item != NULL);
-
       /* Retrieve the text from the item we added, and append it to the main IE
        * item */
-      if (!PROTO_ITEM_IS_HIDDEN(ti)) {
+      if (ie_item && !PROTO_ITEM_IS_HIDDEN(ti)) {
         field_info *ie_finfo = PITEM_FINFO(ie_item);
 
         /* if the representation of the item has already been set, use that;
@@ -3176,6 +3181,7 @@ proto_register_iax2(void)
     { &ei_iax_too_many_transfers, { "iax2.too_many_transfers", PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call", EXPFILL }},
     { &ei_iax_circuit_id_conflict, { "iax2.circuit_id_conflict", PI_PROTOCOL, PI_WARN, "Circuit ID conflict", EXPFILL }},
     { &ei_iax_peer_address_unsupported, { "iax2.peer_address_unsupported", PI_PROTOCOL, PI_WARN, "Peer address unsupported", EXPFILL }},
+    { &ei_iax_invalid_len, { "iax2.invalid_len", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }}
   };
 
   expert_module_t* expert_iax;
