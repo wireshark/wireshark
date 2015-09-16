@@ -62,6 +62,13 @@ typedef struct _dissector_info_t {
 
 Q_DECLARE_METATYPE(dissector_info_t *)
 
+typedef struct _table_item_t {
+    const gchar* proto_name;
+    guint8       curr_layer_num;
+} table_item_t;
+
+Q_DECLARE_METATYPE(table_item_t)
+
 DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_new) :
     QDialog(parent),
     ui(new Ui::DecodeAsDialog),
@@ -220,6 +227,7 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
     if (cap_file_ && cap_file_->edt) {
         bool copying = !current_text.isEmpty();
         wmem_list_frame_t * protos = wmem_list_head(cap_file_->edt->pi.layers);
+        guint8 curr_layer_num = 1;
         while (protos != NULL) {
             int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
             const gchar * proto_name = proto_get_protocol_filter_name(proto_id);
@@ -227,7 +235,10 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
                 decode_as_t *entry = (decode_as_t *) cur->data;
                 if (g_strcmp0(proto_name, entry->name) == 0) {
                     QString table_ui_name = get_dissector_table_ui_name(entry->table_name);
-                    table_names_combo_box_->insertItem(0, table_ui_name, entry->table_name);
+                    table_item_t table_item;
+                    table_item.proto_name = proto_name;
+                    table_item.curr_layer_num = curr_layer_num;
+                    table_names_combo_box_->insertItem(0, table_ui_name, QVariant::fromValue<table_item_t>(table_item));
                     da_set.remove(table_ui_name);
                     if (!copying) {
                         current_text = table_ui_name;
@@ -235,6 +246,7 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
                 }
             }
             protos = wmem_list_frame_next(protos);
+            curr_layer_num++;
         }
     }
 
@@ -424,11 +436,21 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
 
     selector_combo_box_->clear();
 
+    QVariant variant = table_names_combo_box_->itemData(table_names_combo_box_->currentIndex());
+    gint8 curr_layer_num_saved = cap_file_->edt->pi.curr_layer_num;
+    const gchar *proto_name = NULL;
+    if (variant.canConvert<table_item_t>()) {
+        table_item_t table_item = variant.value<table_item_t>();
+        cap_file_->edt->pi.curr_layer_num = table_item.curr_layer_num;
+        proto_name = table_item.proto_name;
+    }
+
     QSet<dissector_info_t *> dissector_info_set;
     GList *cur;
     for (cur = decode_as_list; cur; cur = cur->next) {
         decode_as_t *entry = (decode_as_t *) cur->data;
-        if (g_strcmp0(ui_name_to_name_[text], entry->table_name) == 0) {
+        if ((g_strcmp0(proto_name, entry->name) == 0) &&
+            (g_strcmp0(ui_name_to_name_[text], entry->table_name) == 0)) {
             if (cap_file_ && cap_file_->edt) {
                 for (uint ni = 0; ni < entry->num_items; ni++) {
                     if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
@@ -441,6 +463,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
             entry->populate_list(entry->table_name, decodeAddProtocol, &dissector_info_set);
         }
     }
+    cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
     if (selector_combo_box_->count() > 0) {
         selector_combo_box_->setCurrentIndex(0);
     } else {

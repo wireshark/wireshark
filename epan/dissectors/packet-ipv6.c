@@ -107,7 +107,6 @@ typedef struct {
 static int ipv6_tap = -1;
 
 static int proto_ipv6                           = -1;
-static int proto_ipv6_nxt                       = -1;
 static int proto_ipv6_hopopts                   = -1;
 static int proto_ipv6_routing                   = -1;
 static int proto_ipv6_shim6                     = -1;
@@ -340,23 +339,23 @@ static expert_field ei_ipv6_invalid_header = EI_INIT;
 static void ipv6_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE)));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE)));
 }
 
 static gpointer ipv6_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE);
 }
 
 static void ipv6_next_header_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP Next Header %u as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_NXT_HDR)));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR)));
 }
 
 static gpointer ipv6_next_header_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_NXT_HDR);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR);
 }
 
 static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
@@ -2036,12 +2035,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ipv6_tree, hf_ipv6_nxt, tvb, offset + IP6H_CTL_NXT, 1, ENC_NA);
-    }
 
-    /* Needed for Decode As */
-    wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_ipv6_nxt));
-
-    if (tree) {
         proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
                             offset + IP6H_CTL_HLIM, 1, ENC_BIG_ENDIAN);
 
@@ -2237,7 +2231,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* start of the new header (could be a extension header) */
     nxt = tvb_get_guint8(tvb, offset + 6);
     /* Save next header value for Decode As dialog */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER((guint)nxt));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_NXT_HDR, GUINT_TO_POINTER((guint)nxt));
     offset += (int)sizeof(struct ip6_hdr);
     offlg = 0;
     ident = 0;
@@ -2351,7 +2345,7 @@ again:
     proto_item_set_len (ipv6_item, offset);
 
     /* collect packet info */
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE, GUINT_TO_POINTER((guint)nxt));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_layer_num<<8) | IPV6_PROTO_VALUE, GUINT_TO_POINTER((guint)nxt));
     tap_queue_packet(ipv6_tap, pinfo, ipv6);
 
     if (offlg & IP6F_OFF_MASK || (ipv6_reassemble && offlg & IP6F_MORE_FRAG)) {
@@ -3185,7 +3179,7 @@ proto_register_ipv6(void)
 
     static build_valid_func ipv6_next_header_da_build_value[1] = {ipv6_next_header_value};
     static decode_as_value_t ipv6_next_header_da_values = {ipv6_next_header_prompt, 1, ipv6_next_header_da_build_value};
-    static decode_as_t ipv6_next_header_da = {"ipv6.nxt", "IPv6 Next Header", "ipv6.nxt", 1, 0, &ipv6_next_header_da_values, NULL, NULL,
+    static decode_as_t ipv6_next_header_da = {"ipv6", "IPv6 Next Header", "ipv6.nxt", 1, 0, &ipv6_next_header_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     module_t *ipv6_module;
@@ -3197,7 +3191,6 @@ proto_register_ipv6(void)
     expert_ipv6 = expert_register_protocol(proto_ipv6);
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
-    proto_ipv6_nxt = proto_register_protocol("IPv6 Next Header", "IPv6 Next Header", "ipv6.nxt");
     proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hopopts");
     proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing_hdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
