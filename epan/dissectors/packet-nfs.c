@@ -8263,6 +8263,7 @@ dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	if (num_bitmaps > MAX_BITMAPS) {
 		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
 		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
+		return offset;
 	}
 
 	bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
