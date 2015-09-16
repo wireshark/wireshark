@@ -44,6 +44,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_btatt = -1;
+static int proto_btgatt = -1;
 
 static int hf_btatt_opcode = -1;
 static int hf_btatt_handle = -1;
@@ -823,6 +824,16 @@ static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level = -1;
 static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate = -1;
 static int hf_btatt_cgm_specific_ops_control_point_request_opcode = -1;
 static int hf_btatt_cgm_specific_ops_control_point_response_code = -1;
+static int hf_gatt_nordic_uart_tx = -1;
+static int hf_gatt_nordic_uart_rx = -1;
+static int hf_gatt_nordic_dfu_packet = -1;
+static int hf_gatt_nordic_dfu_control_point_opcode = -1;
+static int hf_gatt_nordic_dfu_control_point_init_packet = -1;
+static int hf_gatt_nordic_dfu_control_point_number_of_bytes = -1;
+static int hf_gatt_nordic_dfu_control_point_image_type = -1;
+static int hf_gatt_nordic_dfu_control_point_number_of_packets = -1;
+static int hf_gatt_nordic_dfu_control_point_request_opcode = -1;
+static int hf_gatt_nordic_dfu_control_point_response_value = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -1488,6 +1499,7 @@ static expert_field ei_btatt_consent_out_of_bounds = EI_INIT;
 static expert_field ei_btatt_cgm_size_too_small = EI_INIT;
 static expert_field ei_btatt_opcode_invalid_request = EI_INIT;
 static expert_field ei_btatt_opcode_invalid_response = EI_INIT;
+static expert_field ei_btatt_unexpected_data = EI_INIT;
 static expert_field ei_btatt_undecoded = EI_INIT;
 
 static wmem_tree_t *mtus = NULL;
@@ -1496,6 +1508,7 @@ static wmem_tree_t *fragments = NULL;
 static wmem_tree_t *handle_to_uuid = NULL;
 
 static dissector_handle_t btatt_handle;
+static dissector_handle_t btgatt_handle;
 static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
 static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
 static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
@@ -2780,6 +2793,48 @@ static const value_string cgm_specific_ops_control_point_response_code_vals[] = 
     {0x0, NULL}
 };
 
+static const value_string nordic_dfu_control_point_opcode_vals[] = {
+    { 0x01,   "Start DFU"},
+    { 0x02,   "Initialize DFU Parameters"},
+    { 0x03,   "Receive Firmware Image"},
+    { 0x04,   "Validate Firmware"},
+    { 0x05,   "Activate Image and Reset"},
+    { 0x06,   "Reset System"},
+    { 0x07,   "Report Received Image Size"},
+    { 0x08,   "Packet Receipt Notification Request"},
+    { 0x10,   "Response Code"},
+    { 0x11,   "Packet Receipt Notification"},
+    {0x0, NULL}
+};
+
+static const value_string nordic_dfu_control_point_image_type_vals[] = {
+    { 0x00,   "No Image"},
+    { 0x01,   "SoftDevice"},
+    { 0x02,   "Bootloader"},
+    { 0x03,   "Bootloader+SoftDevice"},
+    { 0x04,   "Application"},
+    { 0x05,   "Other Image Combination - currently not supported"},
+    { 0x06,   "Other Image Combination - currently not supported"},
+    { 0x07,   "Other Image Combination - currently not supported"},
+    {0x0, NULL}
+};
+
+static const value_string nordic_dfu_control_point_init_packet_vals[] = {
+    { 0x00,   "Receive Init Packet"},
+    { 0x01,   "Init Packet Complete"},
+    {0x0, NULL}
+};
+
+static const value_string nordic_dfu_control_point_response_value_vals[] = {
+    { 0x01,   "Success"},
+    { 0x02,   "Invalid State"},
+    { 0x03,   "Not Supported"},
+    { 0x04,   "Data Size Exceeds Limit"},
+    { 0x05,   "CRC Error"},
+    { 0x06,   "Operation Failed"},
+    {0x0, NULL}
+};
+
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
     "Turn Off" };
@@ -2856,6 +2911,9 @@ typedef struct _fragment_data_t {
 
 void proto_register_btatt(void);
 void proto_reg_handoff_btatt(void);
+
+void proto_register_btgatt(void);
+void proto_reg_handoff_btgatt(void);
 
 #define PROTO_DATA_BTATT_HANDLE   0x00
 #define PROTO_DATA_BTATT_UUID16   0x01
@@ -3263,17 +3321,15 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
     }
 
-    if (!uuid.bt_uuid) {
+    if (dissector_try_string(att_uuid128_dissector_table, print_numeric_uuid(&uuid), tvb, pinfo, tree, bluetooth_data))
+        return old_offset + length;
+    else if (dissector_try_uint_new(att_uuid16_dissector_table, uuid.bt_uuid, tvb, pinfo, tree, TRUE, bluetooth_data))
+        return old_offset + length;
+    else if (!uuid.bt_uuid) {
         proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
 
         return old_offset + tvb_captured_length(tvb);
     }
-
-    if (dissector_try_string(att_uuid128_dissector_table, print_uuid(&uuid), tvb, pinfo, tree, bluetooth_data))
-        return old_offset + length;
-
-    if (dissector_try_uint_new(att_uuid16_dissector_table, uuid.bt_uuid, tvb, pinfo, tree, TRUE, bluetooth_data))
-        return old_offset + length;
 
     switch (uuid.bt_uuid) {
     case 0x2800: /* GATT Primary Service Declaration */
@@ -6551,6 +6607,98 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     return offset;
+}
+
+static int
+dissect_btgatt_nordic_uart_tx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_gatt_nordic_uart_tx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII | ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_nordic_uart_rx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_gatt_nordic_uart_rx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII | ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    gint    offset = 0;
+    guint8  opcode;
+    guint8  request_opcode;
+    guint8  status;
+
+    proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_opcode, tvb, offset, 1, ENC_NA);
+    opcode = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    switch (opcode) {
+    case 0x01: /* Start DFU */
+        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_image_type, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x02: /* Initialize DFU Parameters */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_init_packet, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        break;
+    case 0x03: /* Receive Firmware Image */
+    case 0x04: /* Validate Firmware */
+    case 0x05: /* Activate Image and Reset */
+    case 0x06: /* Reset System */
+    case 0x07: /* Report Received Image Size */
+        /* nop */
+
+        break;
+    case 0x08: /* Packet Receipt Notification Request */
+        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_number_of_packets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x10: /* Response Code */
+        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+        request_opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_response_value, tvb, offset, 1, ENC_NA);
+        status = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (request_opcode == 0x07 && status == 0x01) { /* Report Received Image Size && Success */
+            proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_number_of_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        break;
+    case 0x11: /* Packet Receipt Notification */
+        proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_number_of_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        break;
+    }
+
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_expert(tree, pinfo, &ei_btatt_unexpected_data, tvb, offset, -1);
+        offset = tvb_captured_length(tvb);
+    }
+
+    return offset;
+}
+
+
+static int
+dissect_btgatt_nordic_dfu_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_gatt_nordic_dfu_packet, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -10493,8 +10641,7 @@ proto_register_btatt(void)
         &ett_btatt_value,
         &ett_btatt_opcode,
         &ett_btatt_handle,
-        &ett_btatt_characteristic_properties,
-        &ett_btgatt
+        &ett_btatt_characteristic_properties
     };
 
     static ei_register_info ei[] = {
@@ -10506,6 +10653,7 @@ proto_register_btatt(void)
         { &ei_btatt_cgm_size_too_small,     { "btatt.cgm_measurement.size.too_small", PI_PROTOCOL, PI_WARN, "Size too small (6 or geater)", EXPFILL }},
         { &ei_btatt_opcode_invalid_request, { "btatt.opcode.invalid_request" ,        PI_PROTOCOL, PI_WARN, "Invalid request", EXPFILL }},
         { &ei_btatt_opcode_invalid_response,{ "btatt.opcode.invalid_response",        PI_PROTOCOL, PI_WARN, "Invalid response", EXPFILL }},
+        { &ei_btatt_unexpected_data,        { "btatt.unexpected_data",                PI_PROTOCOL, PI_WARN, "Unexpected Data", EXPFILL }},
         { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
     };
 
@@ -10560,7 +10708,23 @@ proto_register_btatt(void)
 void
 proto_reg_handoff_btatt(void)
 {
-    gint i_array;
+    gint                i_array;
+    struct uuid_dissectors_t {
+        const gchar *uuid;
+
+        const gchar *name;
+        const gchar *short_name;
+        const gchar *abbrev_name;
+
+        int (*dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+    } uuid_dissectors[] = {
+        { "6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Tx",           "Nordic UART Tx",           "btgatt.nordic.uart_tx",            dissect_btgatt_nordic_uart_tx},
+        { "6e400003-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Rx",           "Nordic UART Rx",           "btgatt.nordic.uart_rx",            dissect_btgatt_nordic_uart_rx},
+        { "00001531-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Control Point", "Nordic DFU Control Point", "btgatt.nordic.dfu.control_point",  dissect_btgatt_nordic_dfu_control_point},
+        { "00001532-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Packet",        "Nordic DFU Packet",        "btgatt.nordic.dfu.packet",         dissect_btgatt_nordic_dfu_packet},
+
+        { NULL, NULL, NULL, NULL, NULL},
+    };
 
     usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
     usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
@@ -10576,7 +10740,7 @@ proto_reg_handoff_btatt(void)
         gchar *short_name;
         gchar *abbrev;
         dissector_handle_t  handle_tmp;
-        gint proto_tmp = -1;
+        gint                proto_tmp;
 
         if (bluetooth_uuid_vals[i_array].value < 0x1800) {
             continue;
@@ -10598,8 +10762,102 @@ proto_reg_handoff_btatt(void)
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
+
+    i_array = 0;
+
+    while (uuid_dissectors[i_array].uuid) {
+        dissector_handle_t  handle_tmp;
+        gint                proto_tmp;
+
+        if (!uuid_dissectors[i_array].dissect_func) {
+            i_array += 1;
+            continue;
+        }
+
+        proto_tmp  = proto_register_protocol(uuid_dissectors[i_array].name, uuid_dissectors[i_array].short_name, uuid_dissectors[i_array].abbrev_name);
+        handle_tmp = new_register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
+
+        dissector_add_string("btatt.uuid128", uuid_dissectors[i_array].uuid, handle_tmp);
+        dissector_add_for_decode_as("btatt.handle", handle_tmp);
+        i_array += 1;
+    }
 }
 
+
+void
+proto_register_btgatt(void)
+{
+    static hf_register_info hf[] = {
+        {&hf_gatt_nordic_uart_tx,
+            {"UART Tx", "btgatt.nordic.uart_tx.text",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_uart_rx,
+            {"UART Rx", "btgatt.nordic.uart_rx.text",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_packet,
+            {"Packet", "btgatt.nordic.dfu.packet",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_opcode,
+            {"Opcode", "btgatt.nordic.dfu.control_point.opcode",
+            FT_UINT8, BASE_DEC, VALS(nordic_dfu_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_init_packet,
+            {"Init Packet", "btgatt.nordic.dfu.control_point.init_packet",
+            FT_UINT8, BASE_HEX, VALS(nordic_dfu_control_point_init_packet_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_image_type,
+            {"Image Type", "btgatt.nordic.dfu.control_point.image_type",
+            FT_UINT8, BASE_HEX, VALS(nordic_dfu_control_point_image_type_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_number_of_bytes,
+            {"Number of Bytes of Firmware Image Received", "btgatt.nordic.dfu.control_point.number_of_bytes",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_number_of_packets,
+            {"Number of Packets", "btgatt.nordic.dfu.control_point.number_of_packets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_request_opcode,
+            {"Request Opcode", "btgatt.nordic.dfu.control_point.request_opcode",
+            FT_UINT8, BASE_DEC, VALS(nordic_dfu_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_nordic_dfu_control_point_response_value,
+            {"Response Value", "btgatt.nordic.dfu.control_point.response_value",
+            FT_UINT8, BASE_DEC, VALS(nordic_dfu_control_point_response_value_vals), 0x0,
+            NULL, HFILL}
+        }
+    };
+
+
+    static gint *ett[] = {
+        &ett_btgatt
+    };
+
+    proto_btgatt = proto_register_protocol("Bluetooth GATT Attribute Protocol", "BT GATT", "btgatt");
+
+    btgatt_handle = new_register_dissector("btgatt", dissect_btgatt, proto_btgatt);
+
+    proto_register_field_array(proto_btgatt, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_btgatt(void)
+{
+
+}
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
