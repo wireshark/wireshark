@@ -1846,9 +1846,9 @@ static const int * ncp_vflags[] = {
 };
 
 static void
-process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
+process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *rec,
                     gboolean *req_cond_results, gboolean really_decode,
-                    const ncp_record *ncp_rec);
+                    const ncp_record *ncp_rec, gboolean request);
 
 /* NCP packets come in request/reply pairs. The request packets tell the type
  * of NCP request and give a sequence ID. The response, unfortunately, only
@@ -2151,13 +2151,6 @@ get_finfo_value_string(field_info *finfo)
 {
     return (char *)fvalue_get(&finfo->value);
 }
-#if 0
-static char *
-get_item_string(proto_item *item)
-{
-    return get_finfo_value_string(PITEM_FINFO(item));
-}
-#endif
 
 static const char *
 get_item_name(proto_item *item)
@@ -2299,7 +2292,7 @@ padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
     return
         ptvcursor_add(ptvc, *rec->hf_ptr,
                       rec->length,
-                      rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                      rec->endianness);
 }
 
 static proto_item*
@@ -2310,7 +2303,7 @@ padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length,
-                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                         rec->endianness);
 
     if (item) {
         uint_to_nwdate(get_item_value(item), &nw_date);
@@ -2330,7 +2323,7 @@ padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length,
-                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                         rec->endianness);
 
     if (item) {
         uint_to_nwtime(get_item_value(item), &nw_time);
@@ -2357,7 +2350,7 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length,
-                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                         rec->endianness);
 
     if (item) {
         proto_item_set_text(item, "%s", get_item_name(item));
@@ -2387,7 +2380,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 
         /* Add the item */
         item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
-                             rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                             rec->endianness);
 
         ett = *rec->sub_ptvc_rec->ett;
 
@@ -2404,7 +2397,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
             DISSECTOR_ASSERT(!sub_rec->sub_ptvc_rec);
             ptvcursor_add_no_advance(sub_ptvc, *sub_rec->hf_ptr,
                                      sub_rec->length,
-                                     sub_rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                                     sub_rec->endianness);
             sub_rec++;
         }
 
@@ -2420,9 +2413,9 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 
 /* Process a sub-ptvc_record that points to a "struct" ptvc_record. */
 static void
-process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
+process_struct_sub_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *rec,
                                gboolean *req_cond_results, gboolean really_decode,
-                               const ncp_record *ncp_rec)
+                               const ncp_record *ncp_rec, gboolean request)
 {
     const ptvc_record   *sub_rec;
     gint                ett;
@@ -2443,7 +2436,7 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
     /* Get the ptvc_record for the struct and call our caller
      * to process it. */
     sub_rec = rec->sub_ptvc_rec->ptvc_rec;
-    process_ptvc_record(ptvc, sub_rec, req_cond_results, really_decode, ncp_rec);
+    process_ptvc_record(ptvc, pinfo, sub_rec, req_cond_results, really_decode, ncp_rec, request);
 
     /* Re-set the tree */
     if (rec->sub_ptvc_rec->descr) {
@@ -2458,9 +2451,9 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 /* Run through the table of ptvc_record's and add info to the tree. This
  * is the work-horse of process_ptvc_record(). */
 static void
-_process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
+_process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *rec,
                      gboolean *req_cond_results, gboolean really_decode,
-                     const ncp_record *ncp_rec)
+                     const ncp_record *ncp_rec, gboolean request)
 {
     proto_item  *item;
     guint       i, repeat_count;
@@ -2470,9 +2463,9 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
         /* Repeat this? */
         if (rec->repeat_index >= NO_REPEAT) {
             if (rec->hf_ptr == PTVC_STRUCT) {
-                process_struct_sub_ptvc_record(ptvc, rec,
+                process_struct_sub_ptvc_record(ptvc, pinfo, rec,
                                                req_cond_results, really_decode,
-                                               ncp_rec);
+                                               ncp_rec, request);
             }
             else {
                 process_bitfield_sub_ptvc_record(ptvc, rec,
@@ -2483,9 +2476,9 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
             repeat_count = repeat_vars[rec->repeat_index];
             for (i = 0; i < repeat_count; i++ ) {
                 if (rec->hf_ptr == PTVC_STRUCT) {
-                    process_struct_sub_ptvc_record(ptvc, rec,
+                    process_struct_sub_ptvc_record(ptvc, pinfo, rec,
                                                    req_cond_results, really_decode,
-                                                   ncp_rec);
+                                                   ncp_rec, request);
                 }
                 else {
                     process_bitfield_sub_ptvc_record(ptvc, rec,
@@ -2577,11 +2570,15 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 /* Run through the table of ptvc_record's and add info to the tree.
  * Honor a request condition result. */
 static void
-process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
+process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *rec,
                     gboolean *req_cond_results, gboolean really_decode,
-                    const ncp_record *ncp_rec)
+                    const ncp_record *ncp_rec, gboolean request)
 {
     gboolean decode;
+    ptvcursor_t *expert_ptvc;
+    proto_tree* expert_tree = ptvcursor_tree(ptvc);
+    tvbuff_t* expert_tvb = ptvcursor_tvbuff(ptvc);
+    gint expert_offset = ptvcursor_current_offset(ptvc);
 
     while(rec->hf_ptr != NULL) {
         decode = really_decode;
@@ -2595,9 +2592,18 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
             }
         }
         if (decode || ncp_rec->req_cond_size_type == REQ_COND_SIZE_CONSTANT) {
-            _process_ptvc_record(ptvc, rec, req_cond_results, decode, ncp_rec);
+            _process_ptvc_record(ptvc, pinfo, rec, req_cond_results, decode, ncp_rec, request);
         }
         rec++;
+    }
+
+    /* Collect any potential expert info that would have been collected over
+       these records */
+    if (ncp_rec->expert_handler_func)
+    {
+        expert_ptvc = ptvcursor_new(expert_tree, expert_tvb, expert_offset);
+        ncp_rec->expert_handler_func(expert_ptvc, pinfo, ncp_rec, request);
+        ptvcursor_free(expert_ptvc);
     }
 }
 
@@ -2633,19 +2639,19 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 { 0x1, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
 
 static const ncp_record ncp5555_request =
 { 0x5, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
 
 static const ncp_record ncpbbbb_request =
 { 0xb, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
 
 static const ncp_record ncplip_echo =
 { 0x1f, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
 
 /* Wrapper around proto_tree_free() */
 static void free_proto_tree(void *tree)
@@ -2957,259 +2963,214 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
     }
 }
 
-/* NCP data from python code can't be accessed directly. Parse the ncp tree and find the items
- * and their associated values. Store results in passed buffer.
- */
-static void
-build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
-                  size_t buffer_size, int repeat_lookup,
-                  gboolean search_structs)
+/* Echo the NDS EID and name for NCP 22,51 replies to expert tap */
+static void ncp1633_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, gboolean request)
 {
-    proto_tree     *tree_pointer;
-    proto_tree     *tree_loc;
-    proto_tree     *struct_tree_pointer = NULL;
-    char            temp_buffer[256]="\0";
-    gboolean        in_struct=FALSE;
+    if (nds_echo_eid && !request) {
+        guint32 object_id;
+        guint8  volume_name_len;
+        gchar*  volume_name;
 
-    buffer[0] = '\0';
-    tree_loc = ncp_tree->first_child;
-    for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
-    {
-        /* We currently only go one structure deep in our search for values */
-        if (tree_pointer->first_child && !in_struct && search_structs) {
-            struct_tree_pointer = tree_pointer;
-            tree_pointer = tree_pointer->first_child;
-            in_struct=TRUE;
-        }
-        if (strcmp(PTREE_FINFO(tree_pointer)->hfinfo->abbrev, hf_name)==0)
-        {
-            switch (PTREE_FINFO(tree_pointer)->hfinfo->type)
-            {
-            case 3:                /* uint8 */
-                g_snprintf(buffer, (gulong) buffer_size, "%02x", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
-                break;
-            case 4:                /* uint16 */
-                g_snprintf(buffer, (gulong) buffer_size, "%u", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
-                break;
+        object_id = tvb_get_letohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+126);
+        ptvcursor_advance(ptvc, 134);
+        volume_name_len = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 1);
+        volume_name = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                ptvcursor_current_offset(ptvc), volume_name_len, ENC_ASCII);
 
-            case 6:             /* uint32 */
-                g_snprintf(buffer, (gulong) buffer_size, "%08x", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
-                break;
-            case 17:
-            case 18:
-            case 19:
-            case 20:            /* string */
-                uni_to_string(get_finfo_value_string(PTREE_FINFO(tree_pointer)), MIN(get_finfo_length(PTREE_FINFO(tree_pointer)), (guint) buffer_size), buffer);
-                if (repeat_lookup > 0) {
-                    if (strlen(temp_buffer) + strlen(buffer) < 250) {
-                        g_strlcat(temp_buffer, buffer, 256);
-                        repeat_lookup--;
-                        if (repeat_lookup == 0) {
-                            g_strlcpy(buffer, temp_buffer, buffer_size);
-                            break;
-                        }
-                        else
-                        {
-                            g_strlcat(temp_buffer, "/", 256);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            case 21:
-            case 22:             /* Bytes */
-                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_str(wmem_packet_scope(), get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer))));
-                break;
-            default:             /* Dont currently handle. Only need string, integers, and bytes */
-                g_snprintf(buffer, (gulong) buffer_size, "Unsupported Expert Type");
-                return;
-            }
-            if (repeat_lookup ==0) {
-                break;
-            }
-        }
-        if (tree_pointer->next==NULL && in_struct && search_structs) {
-                tree_pointer = struct_tree_pointer;
-                in_struct=FALSE;
-        }
+        expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
+                                    "EID (%08x) = %s", object_id, volume_name);
     }
-    if (strlen(buffer)==0) {
-        g_snprintf(buffer, (gulong) buffer_size, "No Value");
-    }
-    return;
 }
 
-/* Some NCP data may be desirable to echo to the expert table.
- * But to extract we must have visability to the tree
- * This means that to extract the data we can only perform
- * this code path on the first dissection or a redissect.
- *
- * Should the dissector store this info in memory so that
- * the data can be reported wihout a complete redissection?
- */
-static void
-trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record *ncp_rec, int request_reply)
+/* The following allows for specific NCP server info to be echoed to the expert tap. */
+static void ncp1711_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, gboolean request)
 {
-    if (ncp_rec == NULL)
-        return;
-    /* Request == 0, Reply == 1 */
-    if (request_reply==0) {
-        if (ncp_echo_file) {
-            /* The following allows for Update file handle rights echoed to expert tap. */
-            if (ncp_rec->func == 66) {
-                char p_filehandle[15]="\0";
+    if (ncp_echo_server && !request) {
+        guint8* fsname;
+        guint8 maj_ver, min_ver, os_lang, serv_type, kernel;
+        guint16 prod_rev;
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle,
-                                  sizeof p_filehandle, 0, FALSE);
+        fsname = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                ptvcursor_current_offset(ptvc), 48, ENC_ASCII);
+        ptvcursor_advance(ptvc, 48);
+        maj_ver = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 1);
+        min_ver = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 25); /* Skip unimportant fields */
+        prod_rev = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 2);
+        os_lang = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 2);
+        serv_type = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 1);
+        kernel = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 1);
 
-                expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "Close file handle %s", p_filehandle);
-            }
-            /* The following allows for oplock level 1 file opens echoed to expert tap. */
-            if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 1 || ncp_rec->subfunc == 30 || ncp_rec->subfunc == 32 || ncp_rec->subfunc == 33)) {
-                char oaction[3]="\0";
-                char p_filename[256]="\0";
-                char p_rights[3]="\0";
-                char p_path_count[3]="\0";
-
-                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction,
-                                  sizeof oaction, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.desired_access_rights",
-                                  p_rights, sizeof p_rights, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.path_count", p_path_count,
-                                  sizeof p_path_count, 0, FALSE);
-
-                if (ncp_rec->func == 87) {
-                    build_expert_data(ncp_tree, "ncp.path", p_filename,
-                                      sizeof p_filename,  atoi(p_path_count),
-                                      FALSE);
-                }
-                else
-                {
-                    build_expert_data(ncp_tree, "ncp.path16", p_filename,
-                                      sizeof p_filename,  atoi(p_path_count),
-                                      FALSE);
-                }
-
-                expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights,
-                                       "Op-lock open, mode %s for filename %s with rights %s",
-                                       val_to_str((guint32)(strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
-                                       p_filename,
-                                       val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
-            }
-            /* The following allows for oplock ack's and level 2 request echoed to expert tap. */
-            if (ncp_rec->func == 87 && ncp_rec->subfunc == 34) {
-                char cc_function[3]="\0";
-                char p_filehandle[15]="\0";
-
-                build_expert_data(ncp_tree, "ncp.cc_file_handle",
-                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.cc_function",
-                                  cc_function, sizeof cc_function, 0, FALSE);
-
-                expert_add_info_format(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %s - %s", p_filehandle,
-                                       val_to_str(atoi(cc_function), ncp_cc_function_vals, "Unknown: %d"));
-            }
-            /* The following allows for Update file handle rights echoed to expert tap. */
-            if (ncp_rec->func == 87 && ncp_rec->subfunc == 44) {
-                char p_rights[20]="\0";
-                char n_rights[20]="\0";
-                char p_filehandle[15]="\0";
-
-                build_expert_data(ncp_tree, "ncp.file_handle",
-                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.access_rights_mask_word",
-                                  p_rights, sizeof p_rights, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.new_access_rights_mask",
-                                  n_rights, sizeof n_rights, 0, FALSE);
-                expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
-                                       p_filehandle,
-                                       val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"),
-                                       val_to_str((atoi(n_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
-            }
-        }
+        expert_add_info_format(pinfo, NULL, &ei_ncp_server, "Server %s, version %d.%d, support pack %d, language %d, server type %s, kernel %s", fsname,
+                                maj_ver, min_ver, prod_rev, os_lang, val_to_str(serv_type & 0x01, serv_type_vals, "Unknown: %d"),
+                                val_to_str(kernel & 0x01, kernel_type_vals, "Unknown: %d") );
     }
-    else
-    {
+}
 
-        if (ncp_echo_file) { /* Echo File System Data */
-            /* The following allows for oplock level 1 file opens echoed to expert tap. */
+/* The following allows for Update file handle rights echoed to expert tap. */
+static void ncp42_request_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, gboolean request)
+{
+    if (ncp_echo_file && request) {
+        gchar* filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                                ptvcursor_current_offset(ptvc)+1, 6);
+
+        expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "Close file handle %s", filehandle);
+    }
+}
+
+/* The following allows for oplock level 1 file opens echoed to expert tap. */
+static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec, gboolean request)
+{
+    if (ncp_echo_file) {
+        if (request) {
+            guint8 oaction = 0, path_count = 0;
+            guint16 rights = 0;
+            gchar* filename = (gchar*)"";
+
+            if (ncp_rec->func == 87) {
+                switch(ncp_rec->subfunc)
+                {
+                case 1:
+                case 32:
+                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
+                    ptvcursor_advance(ptvc, 12);
+                    rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 8);
+                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 1);
+                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
+                    break;
+                case 33:
+                case 30:
+                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
+                    ptvcursor_advance(ptvc, 16);
+                    rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 8);
+                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 1);
+                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
+                    break;
+                }
+            } else if (ncp_rec->func == 89) {
+                switch(ncp_rec->subfunc)
+                {
+                case 1:
+                case 32:
+                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
+                    ptvcursor_advance(ptvc, 12);
+                    rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 14);
+                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 1);
+                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
+                    break;
+                case 33:
+                case 30:
+                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
+                    ptvcursor_advance(ptvc, 16);
+                    rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 14);
+                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    ptvcursor_advance(ptvc, 1);
+                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
+                    break;
+                }
+            }
+
+            expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights,
+                                "Op-lock open, mode %s for filename %s with rights %s",
+                                val_to_str(oaction & 0xeb, open_create_mode_vals, "Unknown: %d"),
+                                filename,
+                                val_to_str(rights & 0x5f, ncp_rights_vals, "Unknown: %d"));
+        } else {
             if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 32 || ncp_rec->subfunc == 1)) {
-                char oaction[3]="\0";
-                char oplockflg[3]="\0";
-                char p_filehandle[15]="\0";
+                guint8 oaction, oplockflg;
+                gchar* filehandle;
 
-                build_expert_data(ncp_tree, "ncp.open_create_action",
-                                  oaction, sizeof oaction, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.file_handle",
-                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
+                filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                                ptvcursor_current_offset(ptvc), 4);
+                ptvcursor_advance(ptvc, 4);
+                oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
 
                 if (ncp_rec->subfunc == 1) {
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s",
-                                           val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
-                                           p_filehandle);
+                                           val_to_str(oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
+                                           filehandle);
                 }
                 else
                 {
-                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags",
-                                      oplockflg, sizeof oplockflg, 0, FALSE);
+                    ptvcursor_advance(ptvc, 1);
+                    oplockflg = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s, %s",
-                                           val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
-                                           p_filehandle,
-                                           val_to_str(atoi(oplockflg), ncp_o_c_ret_flags_vals, "Unknown: %d"));
+                                           val_to_str(oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
+                                           filehandle,
+                                           val_to_str(oplockflg, ncp_o_c_ret_flags_vals, "Unknown: %d"));
                 }
             }
-            /* The following allows for Update file handle rights echoed to expert tap. */
-            if (ncp_rec->func == 87 && ncp_rec->subfunc == 44) {
-                char p_rights[20]="\0";
-                char p_filehandle[15]="\0";
-
-                build_expert_data(ncp_tree, "ncp.file_handle",
-                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.effective_rights",
-                                  p_rights, sizeof p_rights, 0, FALSE);
-                expert_add_info_format(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", p_filehandle,
-                                       val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
-            }
-        }
-        /* The following allows for specific NCP server info to be echoed to the expert tap. */
-        if (ncp_rec->func == 23 && ncp_rec->subfunc == 17 && ncp_echo_server) {
-            char fsname[50]="\0";
-            char p_maj_ver[3]="\0";
-            char p_min_ver[3]="\0";
-            char p_rev[3]="\0";
-            char p_lang[3]="\0";
-            char p_serv_type[3]="\0";
-            char p_kernel[3]="\0";
-
-            /* Get Server name and version info */
-            build_expert_data(ncp_tree, "ncp.server_name",
-                              fsname, sizeof fsname, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_major_version",
-                              p_maj_ver, sizeof p_maj_ver, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_minor_version",
-                              p_min_ver, sizeof p_min_ver, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_revision_version",
-                              p_rev, sizeof p_rev, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.os_language_id",
-                              p_lang, sizeof p_lang, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.oes_server",
-                              p_serv_type, sizeof p_serv_type, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.oeslinux_or_netware",
-                              p_kernel, sizeof p_kernel, 0, FALSE);
-
-            expert_add_info_format(pinfo, NULL, &ei_ncp_server, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s", fsname,
-                                   p_maj_ver, p_min_ver, p_rev, p_lang, val_to_str((atoi(p_serv_type) & 0x01), serv_type_vals, "Unknown: %d"), val_to_str((atoi(p_kernel) & 0x01), kernel_type_vals, "Unknown: %d") );
         }
     }
 }
 
+/* The following allows for oplock ack's and level 2 request echoed to expert tap. */
+static void ncp5722_request_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, gboolean request)
+{
+    if (ncp_echo_file && request) {
+        guint32 filehandle;
+        guint8 cc_function;
+
+        filehandle = tvb_get_ntohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        ptvcursor_advance(ptvc, 4);
+        cc_function = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+
+        expert_add_info_format(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %08x - %s", filehandle,
+                                val_to_str(cc_function, ncp_cc_function_vals, "Unknown: %d"));
+    }
+}
+
+/* The following allows for Update file handle rights echoed to expert tap. */
+static void ncp572c_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, gboolean request)
+{
+    if (ncp_echo_file) {
+        gchar* filehandle;
+
+        if (request) {
+            guint16 access_rights, new_rights;
+
+            access_rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+8);
+            ptvcursor_advance(ptvc, 10);
+            new_rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+            ptvcursor_advance(ptvc, 2);
+            filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                                    ptvcursor_current_offset(ptvc), 4);
+
+            expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
+                                   filehandle,
+                                   val_to_str(access_rights & 0x1ff, access_rights_vals, "Unknown: %d"),
+                                   val_to_str(new_rights & 0x1ff, access_rights_vals, "Unknown: %d"));
+
+        } else {
+            guint32 rights;
+
+            filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                                    ptvcursor_current_offset(ptvc), 4);
+            ptvcursor_advance(ptvc, 4);
+            rights = tvb_get_ntohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+8);
+
+            expert_add_info_format(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", filehandle,
+                                    val_to_str(rights & 0x1ff, access_rights_vals, "Unknown: %d"));
+        }
+    }
+}
 
 static void
 print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 syntax_type, nds_val *vvalues)
@@ -6525,7 +6486,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
 }
 
 static void
-dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
+dissect_ncp_8x20reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *volatile ncp_tree,
                       const ncp_record *ncp_rec, ncp_req_hash_value *request_value)
 {
     guint16             x;
@@ -6568,8 +6529,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Attributes");
 
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_attributes_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_attributes_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 6;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6613,8 +6574,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         if (request_value->req_mask & 0x0020 && !ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Extended Attributes");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_ea_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 12;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6630,8 +6591,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Extended Attributes");
 
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_ea_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_ea_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 12;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6646,8 +6607,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         if (request_value->req_mask & 0x0040) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Archive");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_archive_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_archive_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6663,8 +6624,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Modification");
 
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_modify_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_modify_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 10;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6679,8 +6640,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         if (request_value->req_mask & 0x0100 && !ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Creation");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_creation_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6695,8 +6656,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         if (request_value->req_mask & 0x0100 && ncp_newstyle) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Creation");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_creation_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_creation_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6722,8 +6683,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         if (request_value->req_mask & 0x0400) {
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Directory Entry");
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_dir_entry_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_dir_entry_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 12;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6737,8 +6698,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         /* Rights Information */
         if (request_value->req_mask & 0x0800) {
             ptvc = ptvcursor_new(atree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_rights_info_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_rights_info_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 2;
         }
@@ -6806,8 +6767,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         /* Flush Time */
         if (request_value->req_mask_ext & 0x0004 && ncp_newstyle) {
             ptvc = ptvcursor_new(atree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_flush_time_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_flush_time_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 4;
         }
@@ -6836,8 +6797,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "Mac Date");
 
             ptvc = ptvcursor_new(btree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_mac_time_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_mac_time_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 8;
             proto_item_set_end(bitem, tvb, loffset);
@@ -6845,8 +6806,8 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
         /* Last Access */
         if (request_value->req_mask_ext & 0x0100 && ncp_newstyle) {
             ptvc = ptvcursor_new(atree, tvb, loffset);
-            process_ptvc_record(ptvc, ptvc_struct_last_access_time_struct,
-                    NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ptvc_struct_last_access_time_struct,
+                    NULL, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
             loffset += 2;
         }
@@ -6880,14 +6841,14 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
 static void
 dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 {
-    char value_format[2]="\0";
-    char param_string[256]="\0";
+    guint8 cmd_type;
+    guint8* param_string;
+    gint ret_len;
 
-    build_expert_data(ncp_tree, "ncp.set_cmd_type",
-                      value_format, sizeof value_format, 0, FALSE);
-    build_expert_data(ncp_tree, "ncp.set_cmd_name",
-                      param_string, sizeof param_string, 0, FALSE);
-    switch (atoi(value_format)) {
+    cmd_type = tvb_get_guint8(tvb, 8+16);
+    param_string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, 8+24, &ret_len, ENC_ASCII);
+
+    switch (cmd_type) {
     case 0:   /* { 0x00, "Numeric Value" }, */
     case 2:   /* { 0x02, "Ticks Value" },   */
     case 4:   /* { 0x04, "Time Value" },    */
@@ -7466,7 +7427,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
              * tests.
              */
             TRY {
-                process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+                process_ptvc_record(ptvc, pinfo, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec, TRUE);
             } CATCH_ALL {
                 exception_code = EXCEPT_CODE;
                 message = GET_MESSAGE;
@@ -7625,16 +7586,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Store NCP request specific flags for manual dissection */
         if ((func == 0x57 || func == 0x59) && subfunc == 0x14 && ncp_tree && request_value) {
-            char ret_info_string[16];
-            char ret_info_string_ext[16];
-
-            build_expert_data(ncp_tree, "ncp.ret_info_mask",
-                              ret_info_string, sizeof ret_info_string, 0, FALSE);
-            request_value->req_mask = (guint32) atoi(ret_info_string);
-            build_expert_data(ncp_tree, "ncp.ext_info",
-                              ret_info_string_ext, sizeof ret_info_string_ext,
-                              0, FALSE);
-            request_value->req_mask_ext = (guint32) atoi(ret_info_string_ext);
+            request_value->req_mask = tvb_get_letohs(tvb, 8+4);
+            request_value->req_mask_ext = tvb_get_letohs(tvb, 8+6);
         }
         /* NCP function 89/6 passes either ASCII or UTF8 data */
         /* Decode manually since it is not possible to SREC the request */
@@ -7657,8 +7610,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ncp_8x20req(tvb, ncp_tree, 28, ncp_rec->func);
             }
         }
-        /* Check to see if we need to report to the expert table */
-        trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 0);
         /* Free the temporary proto_tree */
         CLEANUP_CALL_AND_POP_PFX(xx);
 
@@ -8712,7 +8663,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         }
         /* Due to lack of group repeat fields in reply structure, decode this ncp 87/20 reply manually here. */
         if ((ncp_rec->func == 0x57 || ncp_rec->func == 0x59) && ncp_rec->subfunc == 0x14) {
-            dissect_ncp_8x20reply(tvb, ncp_tree, ncp_rec, request_value);
+            dissect_ncp_8x20reply(tvb, pinfo, ncp_tree, ncp_rec, request_value);
         }
         if (ncp_rec->func == 5 && ncp_echo_conn) {
             expert_add_info(pinfo, NULL, &ei_ncp_connection_destroyed);
@@ -8751,29 +8702,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             }
             clear_repeat_vars();
             ptvc = ptvcursor_new(ncp_tree, tvb, 8);
-            process_ptvc_record(ptvc, ncp_rec->reply_ptvc,
-                                req_cond_results, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ncp_rec->reply_ptvc,
+                                req_cond_results, TRUE, ncp_rec, FALSE);
             ptvcursor_free(ptvc);
 
-            /* Echo the NDS EID and name for NCP 22,51 replies to expert tap */
-            if (!pinfo->fd->flags.visited && ncp_rec->func == 0x16 && ncp_rec->subfunc == 0x33) {
-
-                char    eid_string[10];
-                char    global_object_name[256];
-
-                build_expert_data(ncp_tree, "ncp.directory_services_object_id",
-                                  eid_string, sizeof eid_string,
-                                  0, TRUE);
-                build_expert_data(ncp_tree, "ncp.volume_name_len",
-                                  global_object_name, sizeof global_object_name,
-                                  0, FALSE);
-
-                /* Echo EID data to expert Chat window */
-                if (nds_echo_eid) {
-                    expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
-                                           "EID (%s) = %s", eid_string, global_object_name);
-                }
-            }
             /* Process ncp 123/17 address records manually to format correctly. */
             if (ncp_rec->func == 0x7b && ncp_rec->subfunc == 0x11) {
                 dissect_ncp_123_17_reply(tvb, pinfo, ncp_tree);
@@ -8796,8 +8728,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             }
 
         }
-        /* Check to see if we need to report to the expert table */
-        trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 1);
     } else {
         if (tvb_reported_length(tvb) > 8) {
             expert_item = proto_tree_add_item(ncp_tree, hf_no_request_record_found, tvb, 8, -1, ENC_NA);
@@ -8856,6 +8786,54 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Check to see if this is a fragment packet */
     nds_frag = tvb_get_letohl(tvb, 8);
+
+    /* Keep track of the address and connection whence the request
+       came, and the address and connection to which the request
+       is being sent, so that we can match up calls with replies.
+       (We don't include the sequence number, as we may want
+       to have all packets over the same connection treated
+       as being part of a single conversation so that we can
+       let the user select that conversation to be displayed.) */
+
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                     PT_NCP, nw_connection, nw_connection, 0);
+    if (conversation == NULL) {
+        /* It's not part of any conversation - create a new one. */
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                        PT_NCP, nw_connection, nw_connection, 0);
+    }
+
+    if (!pinfo->fd->flags.visited) {
+        request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->fd->num);
+        request_value->req_frame_num = pinfo->fd->num;
+        request_value->req_frame_time=pinfo->fd->abs_ts;
+
+        /* If this is the first time we're examining the packet,
+         * check to see if this NCP type uses a "request condition".
+         * If so, we have to build a proto_tree because request conditions
+         * use display filters to work, and without a proto_tree,
+         * display filters can't possibly work. If we already have
+         * a proto_tree, then wonderful. If we don't, we need to build
+         * one. */
+        if (ncp_rec && !ncp_tree) {
+            run_req_cond = TRUE;
+        }
+        /* Keep track of the Fragment number in the request for defrag logic */
+        request_value->nds_frag_num = nds_frag;
+    }
+
+    /* If we have to handle a request condition, or have to
+       add to the Info column, we need to construct a protocol
+       tree.  If we already have a proto_tree, then wonderful.
+       If we don't, we need to build one. */
+    if ((run_info_str || run_req_cond) && !ncp_tree) {
+        proto_item *ti;
+
+        temp_tree = proto_tree_create_root(pinfo);
+        proto_tree_set_visible(temp_tree, FALSE);
+        ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, ENC_NA);
+        ncp_tree = proto_item_add_subtree(ti, ett_ncp);
+    }
 
     /* Get NDS Verb */
     if (nds_frag == 0xffffffff) {
@@ -11147,6 +11125,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
     }
+
     /* Fill in the INFO column. */
     if (ncp_rec) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
@@ -11162,54 +11141,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         col_add_fstr(pinfo->cinfo, COL_INFO,
                         "C Unknown Function %d (0x%02x)",
                         func, func);
-    }
-
-    /* Keep track of the address and connection whence the request
-       came, and the address and connection to which the request
-       is being sent, so that we can match up calls with replies.
-       (We don't include the sequence number, as we may want
-       to have all packets over the same connection treated
-       as being part of a single conversation so that we can
-       let the user select that conversation to be displayed.) */
-
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                     PT_NCP, nw_connection, nw_connection, 0);
-    if (conversation == NULL) {
-        /* It's not part of any conversation - create a new one. */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                        PT_NCP, nw_connection, nw_connection, 0);
-    }
-
-    if (!pinfo->fd->flags.visited) {
-        request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->fd->num);
-        request_value->req_frame_num = pinfo->fd->num;
-        request_value->req_frame_time=pinfo->fd->abs_ts;
-
-        /* If this is the first time we're examining the packet,
-         * check to see if this NCP type uses a "request condition".
-         * If so, we have to build a proto_tree because request conditions
-         * use display filters to work, and without a proto_tree,
-         * display filters can't possibly work. If we already have
-         * a proto_tree, then wonderful. If we don't, we need to build
-         * one. */
-        if (ncp_rec && !ncp_tree) {
-            run_req_cond = TRUE;
-        }
-        /* Keep track of the Fragment number in the request for defrag logic */
-        request_value->nds_frag_num = nds_frag;
-    }
-
-    /* If we have to handle a request condition, or have to
-       add to the Info column, we need to construct a protocol
-       tree.  If we already have a proto_tree, then wonderful.
-       If we don't, we need to build one. */
-    if ((run_info_str || run_req_cond) && !ncp_tree) {
-        proto_item *ti;
-
-        temp_tree = proto_tree_create_root(pinfo);
-        proto_tree_set_visible(temp_tree, FALSE);
-        ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, ENC_NA);
-        ncp_tree = proto_item_add_subtree(ti, ett_ncp);
     }
 
     if (ncp_tree) {
@@ -11239,7 +11170,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             if (ncp_rec && ncp_rec->request_ptvc)
             {
                 clear_repeat_vars();
-                process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+                process_ptvc_record(ptvc, pinfo, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec, TRUE);
             }
             proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 1,
                                        func, "%d (0x%02X), %s",
@@ -11375,13 +11306,13 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     request_value->req_nds_prot_flags = nds_prot_flags;
                 }
             }
+            ptvcursor_free(ptvc);
             break;
 
         default:
             ; /* nothing */
             break;
         }
-        ptvcursor_free(ptvc);
 
         /* Free the temporary proto_tree */
         CLEANUP_CALL_AND_POP;
@@ -11524,7 +11455,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         ptvc = ptvcursor_new(ncp_tree, tvb, 7);
         if (ncp_rec && ncp_rec->request_ptvc) {
             clear_repeat_vars();
-            process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+            process_ptvc_record(ptvc, pinfo, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec, TRUE);
         }
         ptvcursor_free(ptvc);
 
