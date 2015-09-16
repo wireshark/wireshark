@@ -59,13 +59,6 @@ static int hf_pkcs1_RSASSA_PSS_params_PDU = -1;   /* RSASSA_PSS_params */
 static int hf_pkcs1_ECParameters_PDU = -1;        /* ECParameters */
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
-static int hf_pkcs1_version = -1;                 /* Version */
-static int hf_pkcs1_privateExponent = -1;         /* INTEGER */
-static int hf_pkcs1_prime1 = -1;                  /* INTEGER */
-static int hf_pkcs1_prime2 = -1;                  /* INTEGER */
-static int hf_pkcs1_exponent1 = -1;               /* INTEGER */
-static int hf_pkcs1_exponent2 = -1;               /* INTEGER */
-static int hf_pkcs1_coefficient = -1;             /* INTEGER */
 static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier */
 static int hf_pkcs1_digest = -1;                  /* Digest */
 static int hf_pkcs1_p = -1;                       /* INTEGER */
@@ -91,7 +84,6 @@ static int hf_pkcs1_s = -1;                       /* INTEGER */
 /*--- Included file: packet-pkcs1-ett.c ---*/
 #line 1 "../../asn1/pkcs1/packet-pkcs1-ett.c"
 static gint ett_pkcs1_RSAPublicKey = -1;
-static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 static gint ett_pkcs1_DSA_Params = -1;
 static gint ett_pkcs1_DomainParameters = -1;
@@ -128,38 +120,6 @@ int
 dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
-
-  return offset;
-}
-
-
-
-static int
-dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t RSAPrivateKey_sequence[] = {
-  { &hf_pkcs1_version       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_Version },
-  { &hf_pkcs1_modulus       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_publicExponent, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_privateExponent, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_prime1        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_prime2        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_exponent1     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_exponent2     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { &hf_pkcs1_coefficient   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
-  { NULL, 0, 0, 0, NULL }
-};
-
-int
-dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
   return offset;
 }
@@ -426,34 +386,6 @@ void proto_register_pkcs1(void) {
       { "publicExponent", "pkcs1.publicExponent",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-    { &hf_pkcs1_version,
-      { "version", "pkcs1.version",
-        FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_pkcs1_privateExponent,
-      { "privateExponent", "pkcs1.privateExponent",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
-    { &hf_pkcs1_prime1,
-      { "prime1", "pkcs1.prime1",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
-    { &hf_pkcs1_prime2,
-      { "prime2", "pkcs1.prime2",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
-    { &hf_pkcs1_exponent1,
-      { "exponent1", "pkcs1.exponent1",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
-    { &hf_pkcs1_exponent2,
-      { "exponent2", "pkcs1.exponent2",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
-    { &hf_pkcs1_coefficient,
-      { "coefficient", "pkcs1.coefficient",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
     { &hf_pkcs1_digestAlgorithm,
       { "digestAlgorithm", "pkcs1.digestAlgorithm_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -529,7 +461,6 @@ void proto_register_pkcs1(void) {
 /*--- Included file: packet-pkcs1-ettarr.c ---*/
 #line 1 "../../asn1/pkcs1/packet-pkcs1-ettarr.c"
     &ett_pkcs1_RSAPublicKey,
-    &ett_pkcs1_RSAPrivateKey,
     &ett_pkcs1_DigestInfo,
     &ett_pkcs1_DSA_Params,
     &ett_pkcs1_DomainParameters,

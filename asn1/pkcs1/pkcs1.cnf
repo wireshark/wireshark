@@ -5,7 +5,6 @@
 
 #.EXPORTS
 
-RSAPrivateKey
 RSAPublicKey
 DigestInfo
 

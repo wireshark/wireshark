@@ -111,20 +111,6 @@ PKIXAlgs-2009 { iso(1) identified-organization(3) dod(6)
 
 -- Wireshark additions to ensure compatibility with the original PKCS1.asn
 
-RSAPrivateKey ::= SEQUENCE {
-     version Version,
-     modulus INTEGER, -- n
-     publicExponent INTEGER, -- e
-     privateExponent INTEGER, -- d
-     prime1 INTEGER, -- p
-     prime2 INTEGER, -- q
-     exponent1 INTEGER, -- d mod (p-1)
-     exponent2 INTEGER, -- d mod (q-1)
-     coefficient INTEGER -- (inverse of q) mod p 
-}
-
-Version ::= INTEGER
-
 DigestInfo ::= SEQUENCE {
      digestAlgorithm DigestAlgorithmIdentifier,
      digest Digest 
