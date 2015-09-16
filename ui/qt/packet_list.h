@@ -74,6 +74,7 @@ public:
     void recolorPackets();
     void setAutoScroll(bool enabled = true);
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
+    void captureFileReadFinished();
 
 protected:
     void showEvent(QShowEvent *);
@@ -158,6 +159,7 @@ private slots:
     void columnVisibilityTriggered();
     void sectionResized(int col, int, int new_width);
     void sectionMoved(int, int, int);
+    void rowHeightsVary();
     void copySummary();
     void vScrollBarActionTriggered(int);
     void drawFarOverlay();

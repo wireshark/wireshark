@@ -46,7 +46,7 @@
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
-    size_hint_enabled_(true),
+    uniform_row_heights_(true),
     row_height_(-1),
     line_spacing_(0)
 {
@@ -88,7 +88,6 @@ int PacketListModel::packetNumberToRow(int packet_num) const
 guint PacketListModel::recreateVisibleRows()
 {
     int pos = visible_rows_.count();
-    PacketListRecord *record;
 
     beginResetModel();
     visible_rows_.clear();
@@ -96,7 +95,7 @@ guint PacketListModel::recreateVisibleRows()
     endResetModel();
 
     beginInsertRows(QModelIndex(), pos, pos);
-    foreach (record, physical_rows_) {
+    foreach (PacketListRecord *record, physical_rows_) {
         if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
             visible_rows_ << record;
             number_to_row_[record->frameData()->num] = visible_rows_.count() - 1;
@@ -114,6 +113,7 @@ void PacketListModel::clear() {
     number_to_row_.clear();
     PacketListRecord::clearStringPool();
     endResetModel();
+    uniform_row_heights_ = true;
 }
 
 void PacketListModel::resetColumns()
@@ -389,8 +389,13 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     }
 }
 
+// ::data is const so we have to make changes here.
 void PacketListModel::emitItemHeightChanged(const QModelIndex &ih_index)
 {
+    if (uniform_row_heights_) {
+        uniform_row_heights_ = false;
+        emit rowHeightsVary();
+    }
     emit dataChanged(ih_index, ih_index);
 }
 
@@ -475,20 +480,16 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
         // fetch of SizeHintRole and DisplayRole) in the next event loop.
-        if (column == 0 && record->lineCountChanged())
+        if (column == 0 && record->lineCountChanged()) {
             emit itemHeightChanged(d_index);
+        }
         return column_string;
     }
     case Qt::SizeHintRole:
     {
-        if (size_hint_enabled_) {
-            // We assume that inter-line spacing is 0.
-            QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
-            return size;
-        } else {
-            // Used by PacketList::sizeHintForColumn
-            return QVariant();
-        }
+        // We assume that inter-line spacing is 0.
+        QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
+        return size;
     }
     default:
         return QVariant();
@@ -514,21 +515,42 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
+void PacketListModel::flushVisibleRows()
+{
+    gint pos = visible_rows_.count();
+
+    if (new_visible_rows_.count() > 0) {
+        beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
+        foreach (PacketListRecord *record, new_visible_rows_) {
+            frame_data *fdata = record->frameData();
+
+            visible_rows_ << record;
+            number_to_row_[fdata->num] = visible_rows_.count() - 1;
+        }
+        endInsertRows();
+        new_visible_rows_.clear();
+    }
+}
+
+// XXX Pass in cinfo from packet_list_append so that we can fill in
+// line counts?
 gint PacketListModel::appendPacket(frame_data *fdata)
 {
     PacketListRecord *record = new PacketListRecord(fdata);
-    gint pos = visible_rows_.count();
+    gint pos = -1;
 
     physical_rows_ << record;
 
     if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
-        beginInsertRows(QModelIndex(), pos, pos);
-        visible_rows_ << record;
-        number_to_row_[fdata->num] = visible_rows_.count() - 1;
-        endInsertRows();
-    } else {
-        pos = -1;
+        new_visible_rows_ << record;
+        if (new_visible_rows_.count() < 2) {
+            // This is the first queued packet. Schedule an insertion for
+            // the next UI update.
+            QTimer::singleShot(0, this, SLOT(flushVisibleRows()));
+        }
+        pos = visible_rows_.count() + new_visible_rows_.count() - 1;
     }
+
     return pos;
 }
 

@@ -374,6 +374,7 @@ PacketList::PacketList(QWidget *parent) :
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
+    connect(packet_list_model_, SIGNAL(rowHeightsVary()), this, SLOT(rowHeightsVary()));
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
 
@@ -728,6 +729,13 @@ void PacketList::setAutoScroll(bool enabled)
     }
 }
 
+// Called when we finish reading, reloading, rescanning, and retapping
+// packets.
+void PacketList::captureFileReadFinished()
+{
+    packet_list_model_->flushVisibleRows();
+}
+
 void PacketList::freeze()
 {
     setUpdatesEnabled(false);
@@ -765,6 +773,7 @@ void PacketList::clear() {
     create_near_overlay_ = true;
     create_far_overlay_ = true;
 
+    setUniformRowHeights(true);
     setColumnVisibility();
 }
 
@@ -1224,6 +1233,14 @@ void PacketList::sectionMoved(int, int, int)
     }
 
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
+}
+
+void PacketList::rowHeightsVary()
+{
+    // This impairs performance considerably for large numbers of packets.
+    // We should probably move a bunch of the code in ::data to
+    // RelatedPacketDelegate and make it the delegate for everything.
+    setUniformRowHeights(false);
 }
 
 void PacketList::copySummary()

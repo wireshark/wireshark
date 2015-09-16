@@ -676,6 +676,8 @@ void MainWindow::captureFileReadFinished() {
 
     main_ui_->statusBar->setFileName(capture_file_);
 
+    packet_list_->captureFileReadFinished();
+
     emit setDissectedCaptureFile(capture_file_.capFile());
 }
 
