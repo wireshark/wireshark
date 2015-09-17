@@ -2528,7 +2528,7 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
-    connect(fsd, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
+    connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 
     fsd->show();
@@ -2553,8 +2553,8 @@ void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
 void MainWindow::openSCTPAllAssocsDialog()
 {
     SCTPAllAssocsDialog *sctp_dialog = new SCTPAllAssocsDialog(this, capture_file_.capFile());
-    connect(sctp_dialog, SIGNAL(filterPackets(QString&,bool)),
-            this, SLOT(filterPackets(QString&,bool)));
+    connect(sctp_dialog, SIGNAL(filterPackets(QString,bool)),
+            this, SLOT(filterPackets(QString,bool)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             sctp_dialog, SLOT(setCaptureFile(capture_file*)));
     sctp_dialog->fillTable();
@@ -2580,8 +2580,8 @@ void MainWindow::on_actionSCTPShowAllAssociations_triggered()
 void MainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
 {
     SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, NULL, capture_file_.capFile());
-    connect(sctp_analyse, SIGNAL(filterPackets(QString&,bool)),
-            this, SLOT(filterPackets(QString&,bool)));
+    connect(sctp_analyse, SIGNAL(filterPackets(QString,bool)),
+            this, SLOT(filterPackets(QString,bool)));
 
     if (sctp_analyse->isMinimized() == true)
     {

@@ -81,7 +81,7 @@ private:
 
 
 signals:
-    void filterPackets(QString& new_filter, bool force);
+    void filterPackets(QString new_filter, bool force);
 };
 
 #endif // SCTP_ASSOC_ANALYSE_DIALOG_H

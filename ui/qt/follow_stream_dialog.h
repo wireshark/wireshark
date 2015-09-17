@@ -97,7 +97,7 @@ private slots:
     void on_buttonBox_rejected();
 
 signals:
-    void updateFilter(QString &filter, bool force);
+    void updateFilter(QString filter, bool force);
     void goToPacket(int packet_num);
 
 private:
