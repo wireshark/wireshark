@@ -1298,7 +1298,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     /* the rest of this stuff only needs doing if we have an iax_tree */
 
     if (iax_tree && ies_type < NUM_HF_IAX2_IES) {
-      proto_item *ti, *ie_item;
+      proto_item *ti, *ie_item = NULL;
       proto_tree *ies_tree;
       int ie_hf = hf_iax2_ies[ies_type];
 
