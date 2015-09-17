@@ -908,8 +908,6 @@ static gboolean display_major_nfs4_ops = TRUE;
 
 static int dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash);
 
-static void reg_callback(int cbprog);
-
 static void nfs_prompt(packet_info *pinfo _U_, gchar* result)
 {
 	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
@@ -7408,10 +7406,8 @@ dissect_nfs4_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree *cb_location;
 	proto_item *fitem;
-	int	    cbprog, old_offset;
+	int	    old_offset;
 
-	cbprog = tvb_get_ntohl(tvb, offset);
-	reg_callback(cbprog);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_cb_program, offset);
 	old_offset = offset;
 	cb_location = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "cb_location");
@@ -9282,7 +9278,6 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	const char *source_name	    = NULL;
 	const char *dest_name	    = NULL;
 	const char *opname	    = NULL;
-	int	    cbprog;
 	guint	    opcode;
 	guint	    highest_tier    = 5;
 	guint	    current_tier    = 5;
@@ -9724,8 +9719,6 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 				hf_nfs4_create_session_flags_csa);
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_fore_chan_attrs");
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_back_chan_attrs");
-			cbprog = tvb_get_ntohl(tvb, offset);
-			reg_callback(cbprog);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_cb_program, offset);
 			offset = dissect_rpc_secparms4(tvb, offset, newftree);
 			break;
@@ -11153,13 +11146,6 @@ static const rpc_prog_vers_info nfs_cb_vers_info[] = {
 	{ 1, nfs_cb_proc, &hf_nfs4_cb_procedure },
 	{ 4, nfs_cb_proc, &hf_nfs4_cb_procedure },
 };
-
-void reg_callback(int cbprog)
-{
-	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfs, cbprog, ett_nfs,
-	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
-}
 
 void
 proto_register_nfs(void)
@@ -13743,6 +13729,10 @@ proto_reg_handoff_nfs(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs,
 	    G_N_ELEMENTS(nfs_vers_info), nfs_vers_info);
+
+	/* Register the CB protocol as RPC */
+	rpc_init_prog(proto_nfs, NFS_CB_PROGRAM, ett_nfs,
+	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
