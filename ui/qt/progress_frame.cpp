@@ -27,6 +27,7 @@
 #include "ui/progress_dlg.h"
 
 #include <QDialogButtonBox>
+#include <QElapsedTimer>
 #include <QGraphicsOpacityEffect>
 #include <QBoxLayout>
 #include <QPropertyAnimation>
@@ -76,10 +77,11 @@ delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_t
 /*
  * Update the progress information of the progress bar box.
  */
+static const int app_update_freq_ = 100; // ms
 void
 update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
 {
-    if (!dlg) return;
+    if (!dlg || dlg->elapsed_timer->elapsed() < app_update_freq_) return;
 
     dlg->progress_frame->setValue(percentage * 100);
 
@@ -87,6 +89,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
      * Flush out the update and process any input events.
      */
     WiresharkApplication::processEvents();
+    dlg->elapsed_timer->restart();
 }
 
 /*
@@ -116,6 +119,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     ui->setupUi(this);
 
     progress_dialog_.progress_frame = this;
+    progress_dialog_.elapsed_timer = new QElapsedTimer();
     progress_dialog_.top_level_window = window();
 
     ui->progressBar->setStyleSheet(QString(
@@ -156,12 +160,14 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 ProgressFrame::~ProgressFrame()
 {
     delete ui;
+    delete progress_dialog_.elapsed_timer;
 }
 
 struct progdlg *ProgressFrame::showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
 {
     setMaximumValue(100);
     ui->progressBar->setValue(value);
+    progress_dialog_.elapsed_timer->start();
     emit showRequested(animate, terminate_is_stop, stop_flag);
     return &progress_dialog_;
 }
@@ -253,6 +259,7 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
 
 void ProgressFrame::hide()
 {
+    progress_dialog_.elapsed_timer->invalidate();
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     show_timer_ = -1;
 #endif
