@@ -2777,7 +2777,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		gchar *field = NULL;
 		wmem_strbuf_t *avaya_param_buf = NULL;
 
-		optend = optoff + optlen;
 		/* minimum length is 5 bytes */
 		if (optlen < 5) {
 			expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "Avaya IP Telephone option length isn't >= 5");
