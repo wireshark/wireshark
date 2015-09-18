@@ -265,7 +265,8 @@ toolbar_auto_scroll_live_changed(gboolean auto_scroll_live_lcl) {
 }
 #endif
 
-void plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
+static void
+plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
 {
     if ( user_data != NULL )
     {
