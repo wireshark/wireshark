@@ -507,7 +507,7 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
         setDisplayFilter(filter);
     }
 
-    connect(statsTreeWidget(), SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+    connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
             this, SLOT(updateHeaderLabels()));
 }
 
