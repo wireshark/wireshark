@@ -136,6 +136,7 @@ packet_list_select_last_row(void)
 gboolean
 packet_list_select_row_from_data(frame_data *fdata_needle)
 {
+    gbl_cur_packet_list->packetListModel()->flushVisibleRows();
     int row = gbl_cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
     if (row >= 0) {
         gbl_cur_packet_list->setCurrentIndex(gbl_cur_packet_list->packetListModel()->index(row,0));
