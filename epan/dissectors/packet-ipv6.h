@@ -160,7 +160,6 @@ struct ip6_shim {
 };
 
 #define IP6F_OFF_MASK           0xfff8 /* mask out offset from _offlg */
-#define IP6F_OFF_SHIFT          0x0007 /* right-shift offset by this many bits */
 #define IP6F_RESERVED_MASK      0x0006 /* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG          0x0001 /* more-fragments flag */
 
