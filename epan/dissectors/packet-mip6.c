@@ -44,6 +44,7 @@
  * RFC 6602, Bulk Binding Update Support for Proxy Mobile IPv6
  * RFC 6705, Localized Routing for Proxy Mobile IPv6
  * RFC 6757, Access Network Identifier (ANI) Option for Proxy Mobile IPv6
+ * RFC 7148, Prefix Delegation Support for Proxy Mobile IPv6
  *
  */
 
@@ -175,7 +176,8 @@ typedef enum {
     MIP6_ALT_IP4_CO= 49,        /* 49 Alternate IPv4 Care-of Address [RFC6463] */
     MIP6_MNG       = 50,        /* 50 Mobile Node Group Identifier [RFC6602] */
     MIP6_MAG_IPv6  = 51,        /* 51 MAG IPv6 Address [RFC6705] */
-    MIP6_ACC_NET_ID= 52         /* 52 Access Network Identifier [RFC6757] */
+    MIP6_ACC_NET_ID= 52,        /* 52 Access Network Identifier [RFC6757] */
+    MIP6_DMNP      = 55         /* 55 Delegated Mobile Network Prefix Option [RFC7148] */
 
 } optTypes;
 
@@ -237,6 +239,7 @@ static const value_string mip6_mobility_options[] = {
     { MIP6_MNG,        "Mobile Node Group Identifier"},                 /* RFC6602 */
     { MIP6_MAG_IPv6,   "MAG IPv6 Address"},                             /* RFC6705 */
     { MIP6_ACC_NET_ID, "Access Network Identifier"},                    /* RFC6757 */
+    { MIP6_DMNP,       "Delegated Mobile Network Prefix"},              /* RFC7148 */
 
     { 0, NULL }
 };
@@ -381,6 +384,9 @@ static const value_string mip6_ba_status_value[] = {
     { 174, "Invalid Care-of Address" },                             /* [RFC6275] */
     { 175, "INVALID_MOBILE_NODE_GROUP_IDENTIFIER" },                /* [RFC6602] */
     { 176, "REINIT_SA_WITH_HAC" },                                  /* [RFC6618] */
+    { 177, "NOT_AUTHORIZED_FOR_DELEGATED_MNP" },                    /* [RFC7148] */
+    { 178, "REQUESTED_DMNP_IN_USE" },                               /* [RFC7148] */
+
 
     {   0, NULL }
 };
@@ -617,6 +623,12 @@ static const value_string pmip6_lra_status_vals[] = {
     { 128,   "Localized Routing Not Allowed"},
     { 129,   "MN Not Attached"},
     { 0,        NULL},
+};
+
+/* Delegated Mobile Network Prefix V Flag Values */
+static const true_false_string mip6_dmnp_v_flag_value = {
+    "IPv4 Prefix",
+    "IPv6 Prefix"
 };
 
 /* Message lengths */
@@ -888,7 +900,7 @@ static const value_string pmip6_lra_status_vals[] = {
 
 #define MIP6_IPV4COA_LEN           6
 
-#define PMIP6_GREK_LEN             6
+#define PMIP6_GREK_MIN_LEN         2
 #define PMIP6_GREK_ID_OFF          4
 #define PMIP6_GREK_ID_LEN          4
 
@@ -936,6 +948,8 @@ static const value_string pmip6_lra_status_vals[] = {
 #define MIP6_MAG_IPv6_LEN    16
 
 #define MIP6_ACC_NET_ID_MIN_LEN    3
+
+#define MIP6_DMNP_MIN_LEN     6
 
 static dissector_table_t ip_dissector_table;
 
@@ -1189,6 +1203,13 @@ static int hf_mip6_opt_acc_net_id_sub_opt_op_id = -1;
 
 static int hf_pmip6_opt_lila_lla = -1;
 
+/* Delegated Mobile Network Prefix Option */
+static int hf_mip6_opt_dmnp_v_flag = -1;
+static int hf_mip6_opt_dmnp_reserved = -1;
+static int hf_mip6_opt_dmnp_prefix_len = -1;
+static int hf_mip6_opt_dmnp_dmnp_ipv4 = -1;
+static int hf_mip6_opt_dmnp_dmnp_ipv6 = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_mip6 = -1;
 static gint ett_mip6_opt_pad1 = -1;
@@ -1243,6 +1264,7 @@ static gint ett_mip6_opt_mng = -1;
 static gint ett_mip6_opt_mag_ipv6 = -1;
 static gint ett_mip6_opt_acc_net_id = -1;
 static gint ett_mip6_sub_opt_acc_net_id = -1;
+static gint ett_mip6_opt_dmnp = -1;
 
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
 static expert_field ei_mip6_ani_type_not_dissected = EI_INIT;
@@ -2049,13 +2071,17 @@ dissect_mip6_nemo_opt_mnp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
+    guint8 prefix_len;
 
     field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
     proto_tree_add_item(opt_tree, hf_mip6_nemo_mnp_pfl, tvb,
             offset + MIP6_NEMO_MNP_PL_OFF, 1, ENC_BIG_ENDIAN);
+    prefix_len = tvb_get_guint8(tvb, offset + MIP6_NEMO_MNP_PL_OFF);
 
     proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_mnp, tvb,
             offset + MIP6_NEMO_MNP_MNP_OFF, MIP6_NEMO_MNP_MNP_LEN, ENC_NA);
+    proto_item_append_text(hdr_item, ": %s/%u",
+            tvb_ip6_to_str(tvb, offset + MIP6_NEMO_MNP_MNP_OFF), prefix_len);
 }
 
 /* 7 Mobility Header Link-Layer Address option [RFC5568] */
@@ -2654,12 +2680,13 @@ dissect_pmip6_opt_grek(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_reserved, tvb,
             offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
 
-    proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
-            offset, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN);
-
-    proto_item_append_text(hdr_item, ": %u", tvb_get_ntohl(tvb,offset));
+    if (optlen == 8) {
+        offset += 2;
+        proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
+                            offset, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN);
+        proto_item_append_text(hdr_item, ": %u", tvb_get_ntohl(tvb,offset));
+    }
 
 
 }
@@ -3349,6 +3376,73 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
 
 }
 
+/* 55 Delegated Mobile Network Prefix Option [RFC7148]
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |      Type     |   Length      |V|  Reserved   | Prefix Length |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    .                                                               .
+    +           IPv4 or IPv6 Delegated Mobile Network Prefix        +
+    |                         (DMNP)                                |
+    +                                                               +
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+
+static void
+dissect_mip6_opt_dmnp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+                      guint optlen, packet_info *pinfo _U_,
+                      proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+    int len = tvb_reported_length(tvb);
+    guint8 prefix_len;
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_v_flag, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_reserved, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_prefix_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    prefix_len = tvb_get_guint8(tvb, offset);
+
+    offset++;
+
+    switch (optlen) {
+    case 8:
+        /* IPv4 Prefix */
+        proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_dmnp_ipv4, tvb,
+                            offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(hdr_item, ": %s/%u",
+                               tvb_ip_to_str(tvb, offset), prefix_len);
+            break;
+
+    case 20:
+        /* IPv6 Prefix */
+        proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_dmnp_ipv6, tvb,
+                            offset, 16, ENC_NA);
+        proto_item_append_text(hdr_item, ": %s/%u",
+                               tvb_ip6_to_str(tvb, offset), prefix_len);
+        break;
+
+    default:
+        proto_tree_add_expert(opt_tree, pinfo, &ei_mip6_opt_len_invalid,
+                              tvb, offset, len);
+        break;
+    }
+}
+
 static const mip6_opt mip6_opts[] = {
 {
     MIP6_PAD1,                  /* 0 Pad1 [RFC3775] */
@@ -3626,8 +3720,8 @@ static const mip6_opt mip6_opts[] = {
     MIP6_GREK,                  /* 33 GRE Key Option [RFC5845]  */
     "GRE Key",
     &ett_pmip6_opt_grek,
-    OPT_LEN_FIXED_LENGTH,
-    PMIP6_GREK_LEN,
+    OPT_LEN_VARIABLE_LENGTH,
+    PMIP6_GREK_MIN_LEN,
     dissect_pmip6_opt_grek
 },
 
@@ -3768,6 +3862,15 @@ static const mip6_opt mip6_opts[] = {
     OPT_LEN_VARIABLE_LENGTH,
     MIP6_ACC_NET_ID_MIN_LEN,
     dissect_pmip6_opt_acc_net_id
+},
+
+{
+    MIP6_DMNP,         /* 55 Delegated Mobile Network Prefix Option [RFC7148] */
+    "Delegated Mobile Network Prefix",
+    &ett_mip6_opt_dmnp,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_DMNP_MIN_LEN,
+    dissect_mip6_opt_dmnp
 },
 
 };
@@ -5140,6 +5243,34 @@ proto_register_mip6(void)
         NULL, HFILL }
     },
 
+    { &hf_mip6_opt_dmnp_v_flag,
+      { "IPv4 Prefix (V) flag", "mip6.dmnp.v_flag",
+        FT_BOOLEAN, 8, TFS(&mip6_dmnp_v_flag_value), 0x80,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_dmnp_reserved,
+      { "Reserved", "mip6.dmnp.reserved",
+        FT_UINT8, BASE_DEC, NULL, 0x7F,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_dmnp_prefix_len,
+      { "Prefix Length", "mip6.dmnp.prefix_len",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_dmnp_dmnp_ipv4,
+      { "IPv4 Delegated Mobile Network Prefix", "mip6.dmnp.dmnp_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_dmnp_dmnp_ipv6,
+      { "IPv6 Delegated Mobile Network Prefix", "mip6.dmnp.dmnp_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+
 };
 
     /* Setup protocol subtree array */
@@ -5197,6 +5328,7 @@ proto_register_mip6(void)
         &ett_mip6_opt_mag_ipv6,
         &ett_mip6_opt_acc_net_id,
         &ett_mip6_sub_opt_acc_net_id,
+        &ett_mip6_opt_dmnp,
     };
 
     static ei_register_info ei[] = {
