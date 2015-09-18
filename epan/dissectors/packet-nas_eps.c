@@ -4760,13 +4760,14 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_tree_add_item(tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-
     /*
      * decode elements
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
+        if (tvb_reported_length_remaining(tvb, offset)) {
+            proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
+        }
     }
     else
     {
@@ -4832,13 +4833,14 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_tree_add_item(tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-
     /*
      * decode elements
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
+        if (tvb_reported_length_remaining(tvb, offset)) {
+            proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
+        }
     }
     else
     {
