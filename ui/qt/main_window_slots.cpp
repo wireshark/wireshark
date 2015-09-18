@@ -2941,8 +2941,8 @@ void MainWindow::openVoipCallsDialog(bool all_flows)
     VoipCallsDialog *voip_calls_dialog = new VoipCallsDialog(*this, capture_file_, all_flows);
     connect(voip_calls_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(voip_calls_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(voip_calls_dialog, SIGNAL(updateFilter(QString, bool)),
+            this, SLOT(filterPackets(QString, bool)));
     voip_calls_dialog->show();
 }
 

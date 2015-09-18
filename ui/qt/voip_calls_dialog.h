@@ -53,7 +53,7 @@ public:
 public slots:
 
 signals:
-    void updateFilter(QString &filter, bool force = false);
+    void updateFilter(QString filter, bool force = false);
     void captureFileChanged(struct _capture_file *cf);
     void goToPacket(int packet_num);
 
