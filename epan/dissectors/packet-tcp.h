@@ -51,12 +51,34 @@ extern "C" {
 #define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
 #define EQ_SEQ(x, y) (x) == (y)
 
+/* mh as in mptcp header */
+struct mptcpheader {
+
+	gboolean mh_mpc;         /* true if seen an mp_capable option */
+	gboolean mh_join;        /* true if seen an mp_join option */
+	gboolean mh_dss;         /* true if seen a dss */
+	gboolean mh_fastclose;   /* true if seen a fastclose */
+	gboolean mh_fail;        /* true if seen an MP_FAIL */
+
+	guint8  mh_capable_flags; /* to get hmac version for instance */
+	guint8  mh_dss_flags; /* data sequence signal flag */
+	guint32 mh_dss_ssn; /* DSS Subflow Sequence Number */
+	guint64 mh_dss_rawdsn; /* DSS Data Sequence Number */
+	guint64 mh_dss_rawack; /* DSS raw data ack */
+	guint16 mh_dss_length;  /* mapping/DSS length */
+
+	guint64 mh_key; /* Sender key in MP_CAPABLE */
+	guint32 mh_token; /* seen in MP_JOIN. Should be a hash of the initial key */
+
+	guint32 mh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
+};
+
 /* the tcp header structure, passed to tap listeners */
 typedef struct tcpheader {
 	guint32 th_seq;
 	guint32 th_ack;
 	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
-	guint32 th_seglen;
+	guint32 th_seglen;  /* in bytes */
 	guint32 th_win;   /* make it 32 bits so we can handle some scaling */
 	guint16 th_sport;
 	guint16 th_dport;
@@ -71,6 +93,9 @@ typedef struct tcpheader {
 	guint8  num_sack_ranges;
 	guint32 sack_left_edge[MAX_TCP_SACK_RANGES];
 	guint32 sack_right_edge[MAX_TCP_SACK_RANGES];
+
+	/* header for TCP option Multipath Operation */
+	struct mptcpheader *th_mptcp;
 } tcp_info_t;
 
 /*
@@ -147,8 +172,67 @@ struct tcp_multisegment_pdu {
 #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
 };
 
+
+/* Should basically look like a_tcp_flow_t but for mptcp with 64bit sequence number.
+The meta is specific to a direction of the communication and aggregates information of
+all the subflows
+*/
+typedef struct _mptcp_meta_flow_t {
+
+	guint8 static_flags;	/* remember which fields are set */
+
+	/* flags exchanged between hosts during 3WHS. Gives checksum/extensiblity/hmac information */
+	guint8 flags;
+
+	guint64 base_dsn;	/* should be taken by master base data seq number (used by relative sequence numbers) or 0 if not yet known. */
+	guint64 nextseq;	/* highest seen nextseq */
+
+	guint8 version;  /* negociated mptcp version */
+
+	guint64 key;    /* if it was set */
+	guint32 token;  /* expected token sha1 digest of keys, truncated to 32 most significant bits derived from key. Stored to speed up subflow/MPTCP connection mapping */
+
+	guint64 expected_idsn;  /* sha1 digest of keys, truncated to 64 LSB */
+	guint32 nextseqframe;	/* frame number for segment with highest sequence number */
+
+	guint64 maxseqtobeacked; /* highest seen continuous seq number (without hole in the stream)  */
+
+	guint32 fin;		/* frame number of the final dataFIN */
+
+	/* First subflow addresses serve to identify the connection even though mptcp
+	 * may use multiple subflows and multiple IPs
+	 */
+	address ip_src;
+	address ip_dst;
+	guint32 sport;
+	guint32 dport;
+} mptcp_meta_flow_t;
+
+/* MPTCP data specific to this subflow direction */
+struct mptcp_subflow {
+	guint8 static_flags; /* flags stating which of the flow */
+	guint32 nonce;       /* used only for MP_JOIN */
+	guint8 address_id;   /* sent during an MP_JOIN */
+
+	/* meta flow to which it is attached. Helps setting forward and backward meta flow */
+	mptcp_meta_flow_t *meta;
+};
+
+
+typedef enum {
+	MPTCP_HMAC_NOT_SET = 0,
+	MPTCP_HMAC_SHA1 = 1,
+	MPTCP_HMAC_LAST,
+} mptcp_hmac_algorithm_t;
+
+
+#define MPTCP_CAPABLE_CRYPTO_MASK           0x3F
+
+#define MPTCP_CHECKSUM_MASK                 0x80
+
+
 typedef struct _tcp_flow_t {
-	gboolean base_seq_set; /* true if base seq set */
+	guint8 static_flags; /* true if base seq set */
 	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
 	tcp_unacked_t *segments;
 	guint32 fin;		/* frame number of the final FIN */
@@ -192,8 +276,29 @@ typedef struct _tcp_flow_t {
 	guint32 process_pid;    /* PID of local process */
 	gchar *username;	/* Username of the local process */
 	gchar *command;         /* Local process name + path + args */
+
+	/* MPTCP subflow intel */
+	struct mptcp_subflow *mptcp_subflow;
 } tcp_flow_t;
 
+/* Stores common information between both hosts of the MPTCP connection*/
+struct mptcp_analysis {
+
+	guint16 mp_flags; /* MPTCP meta analysis related, see MPTCP_META_* in packet-tcp.c */
+
+	/*
+	 * For other subflows, they link the meta via mptcp_subflow_t::meta_flow
+	 * according to the validity of the token.
+	 */
+	mptcp_meta_flow_t meta_flow[2];
+
+	guint32 stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
+	guint8 hmac_algo;  /* hmac decided after negociation */
+	GSList* subflows;	/* List of subflows, (tcp_analysis)*/
+
+	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
+	struct tcp_analysis *master;
+};
 
 struct tcp_analysis {
 	/* These two structs are managed based on comparing the source
@@ -260,6 +365,12 @@ struct tcp_analysis {
 	 * help determine which dissector to call
 	 */
 	guint16 server_port;
+
+	/* allocated only when mptcp enabled
+	 * several tcp_analysis may refer to the same mptcp_analysis
+	 * can exist without any meta
+	 */
+	struct mptcp_analysis* mptcp_analysis;
 };
 
 /* Structure that keeps per packet data. First used to be able
@@ -301,6 +412,12 @@ extern void add_tcp_process_info(guint32 frame_num, address *local_addr, address
  * @return The number of TCP streams
  */
 WS_DLL_PUBLIC guint32 get_tcp_stream_count(void);
+
+/** Get the current number of MPTCP streams
+ *
+ * @return The number of MPTCP streams
+ */
+WS_DLL_PUBLIC guint32 get_mptcp_stream_count(void);
 
 #ifdef __cplusplus
 }
