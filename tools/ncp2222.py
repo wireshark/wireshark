@@ -64,6 +64,7 @@ REC_ENDIANNESS  = 3
 REC_VAR         = 4
 REC_REPEAT      = 5
 REC_REQ_COND    = 6
+REC_INFO_STR    = 7
 
 NO_VAR          = -1
 NO_REPEAT       = -1
@@ -173,7 +174,7 @@ class NamedList:
 class PTVC(NamedList):
     """ProtoTree TVBuff Cursor List ("PTVC List") Class"""
 
-    def __init__(self, name, records):
+    def __init__(self, name, records, code):
         "Constructor"
         NamedList.__init__(self, name, [])
 
@@ -190,6 +191,7 @@ class PTVC(NamedList):
             length = record[REC_LENGTH]
             field = record[REC_FIELD]
             endianness = record[REC_ENDIANNESS]
+            info_str = record[REC_INFO_STR]
 
             # Variable
             var_name = record[REC_VAR]
@@ -223,7 +225,7 @@ class PTVC(NamedList):
             if req_cond != NO_REQ_COND:
                 global_req_cond[req_cond] = None
 
-            ptvc_rec = PTVCRecord(field, length, endianness, var, repeat, req_cond)
+            ptvc_rec = PTVCRecord(field, length, endianness, var, repeat, req_cond, info_str, code)
 
             if expected_offset == None:
                 expected_offset = offset
@@ -274,7 +276,7 @@ class PTVC(NamedList):
         x =  "static const ptvc_record %s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
         return x
 
@@ -291,7 +293,7 @@ class PTVCBitfield(PTVC):
 
         for var in vars:
             ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness(),
-                    NO_VAR, NO_REPEAT, NO_REQ_COND)
+                    NO_VAR, NO_REPEAT, NO_REQ_COND, None, 0)
             self.list.append(ptvc_rec)
 
     def Code(self):
@@ -301,7 +303,7 @@ class PTVCBitfield(PTVC):
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
@@ -313,7 +315,7 @@ class PTVCBitfield(PTVC):
 
 
 class PTVCRecord:
-    def __init__(self, field, length, endianness, var, repeat, req_cond):
+    def __init__(self, field, length, endianness, var, repeat, req_cond, info_str, code):
         "Constructor"
         self.field      = field
         self.length     = length
@@ -321,6 +323,8 @@ class PTVCRecord:
         self.var        = var
         self.repeat     = repeat
         self.req_cond   = req_cond
+        self.req_info_str  = info_str
+        self.__code__  = code
 
     def __cmp__(self, other):
         "Comparison operator"
@@ -358,6 +362,10 @@ class PTVCRecord:
         else:
             return self.RegularCode(var, repeat, req_cond)
 
+    def InfoStrName(self):
+        "Returns a C symbol based on the NCP function code, for the info_str"
+        return "info_str_0x%x" % (self.__code__)
+
     def RegularCode(self, var, repeat, req_cond):
         "String representation"
         endianness = 'ENC_BIG_ENDIAN'
@@ -387,10 +395,14 @@ class PTVCRecord:
         if sub_ptvc_name != "NULL":
             sub_ptvc_name = "&%s" % (sub_ptvc_name,)
 
+        if self.req_info_str:
+            req_info_str = "&" + self.InfoStrName() + "_req"
+        else:
+            req_info_str = "NULL"
 
-        return "{ &%s, %s, %s, %s, %s, %s, %s, %s }" % \
+        return "{ &%s, %s, %s, %s, %s, %s, %s, %s, %s }" % \
                 (self.field.HFName(), length, sub_ptvc_name,
-                endianness, var, repeat, req_cond,
+                req_info_str, endianness, var, repeat, req_cond,
                 self.field.SpecialFmt())
 
     def Offset(self):
@@ -495,7 +507,7 @@ class NCP:
                 self.CheckRecords(size, records, "Request", 8)
         else:
             self.CheckRecords(size, records, "Request", 7)
-        self.ptvc_request = self.MakePTVC(records, "request")
+        self.ptvc_request = self.MakePTVC(records, "request", self.__code__)
 
         if "info_str" in kwargs:
             self.req_info_str = kwargs["info_str"]
@@ -504,7 +516,7 @@ class NCP:
         self.reply_size = size
         self.reply_records = records
         self.CheckRecords(size, records, "Reply", 8)
-        self.ptvc_reply = self.MakePTVC(records, "reply")
+        self.ptvc_reply = self.MakePTVC(records, "reply", self.__code__)
 
     def CheckRecords(self, size, records, descr, min_hdr_length):
         "Simple sanity check"
@@ -544,13 +556,19 @@ class NCP:
             sys.exit(1)
 
 
-    def MakePTVC(self, records, name_suffix):
+    def MakePTVC(self, records, name_suffix, code):
         """Makes a PTVC out of a request or reply record list. Possibly adds
         it to the global list of PTVCs (the global list is a UniqueCollection,
         so an equivalent PTVC may already be in the global list)."""
 
         name = "%s_%s" % (self.CName(), name_suffix)
-        ptvc = PTVC(name, records)
+        #if any individual record has an info_str, bubble it up to the top
+        #so an info_string_t can be created for it
+        for record in records:
+            if record[REC_INFO_STR]:
+                self.req_info_str = record[REC_INFO_STR]
+
+        ptvc = PTVC(name, records, code)
         return ptvc_lists.Add(ptvc)
 
     def CName(self):
@@ -692,8 +710,12 @@ def _rec(start, length, field, endianness, kw):
     else:
         req_cond = NO_REQ_COND
 
-    return [start, length, field, endianness, var, repeat, req_cond]
+    if "info_str" in kw:
+        req_info_str = kw["info_str"]
+    else:
+        req_info_str = None
 
+    return [start, length, field, endianness, var, repeat, req_cond, req_info_str]
 
 
 
@@ -801,7 +823,7 @@ class struct(PTVC, Type):
                 assert 0, "Item %s item not handled." % (item,)
 
             ptvc_rec = PTVCRecord(field, length, endianness, var,
-                    repeat, req_cond)
+                    repeat, req_cond, None, 0)
             self.list.append(ptvc_rec)
             self.bytes = self.bytes + field.Length()
 
@@ -814,7 +836,7 @@ class struct(PTVC, Type):
         return vars
 
     def ReferenceString(self, var, repeat, req_cond):
-        return "{ PTVC_STRUCT, NO_LENGTH, &%s, NO_ENDIANNESS, %s, %s, %s, NCP_FMT_NONE }" % \
+        return "{ PTVC_STRUCT, NO_LENGTH, &%s, NULL, NO_ENDIANNESS, %s, %s, %s, NCP_FMT_NONE }" % \
                 (self.name, var, repeat, req_cond)
 
     def Code(self):
@@ -823,7 +845,7 @@ class struct(PTVC, Type):
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, NO_LENGTH, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
@@ -5878,7 +5900,6 @@ static int ptvc_struct_int_storage;
 
     if global_highest_var > -1:
         print("#define NUM_REPEAT_VARS    %d" % (global_highest_var + 1))
-        print("static guint repeat_vars[NUM_REPEAT_VARS];")
     else:
         print("#define NUM_REPEAT_VARS    0")
         print("static guint *repeat_vars = NULL;")
@@ -6599,6 +6620,18 @@ static expert_field ei_ncp_address_type = EI_INIT;
 
     ett_list.sort()
 
+    # Print info string structures
+    print("/* Info Strings */")
+    for pkt in packets:
+        if pkt.req_info_str:
+            name = pkt.InfoStrName() + "_req"
+            var = pkt.req_info_str[0]
+            print("static const info_string_t %s = {" % (name,))
+            print("    &%s," % (var.HFName(),))
+            print('    "%s",' % (pkt.req_info_str[1],))
+            print('    "%s"' % (pkt.req_info_str[2],))
+            print("};\n")
+
     # Print regular PTVC's
     print("/* PTVC records. These are re-used to save space. */")
     for ptvc in ptvc_lists.Members():
@@ -6653,18 +6686,6 @@ static expert_field ei_ncp_address_type = EI_INIT;
 
     # Functions without length parameter
     funcs_without_length = {}
-
-    # Print info string structures
-    print("/* Info Strings */")
-    for pkt in packets:
-        if pkt.req_info_str:
-            name = pkt.InfoStrName() + "_req"
-            var = pkt.req_info_str[0]
-            print("static const info_string_t %s = {" % (name,))
-            print("    &%s," % (var.HFName(),))
-            print('    "%s",' % (pkt.req_info_str[1],))
-            print('    "%s"' % (pkt.req_info_str[2],))
-            print("};\n")
 
     print("/* Forward declaration of expert info functions defined in ncp2222.inc */")
     for pkt in packets:
@@ -6727,21 +6748,16 @@ static expert_field ei_ncp_address_type = EI_INIT;
                         % (pkt.CName(),))
                 sys.exit(1)
 
-        if pkt.req_info_str:
-            req_info_str = "&" + pkt.InfoStrName() + "_req"
-        else:
-            req_info_str = "NULL"
-
         if pkt.expert_func:
             expert_func = "&" + pkt.expert_func + "_expert_func"
         else:
             expert_func = "NULL"
 
-        print('        %s, %s, %s, %s, %s, %s, %s },\n' % \
+        print('        %s, %s, %s, %s, %s, %s },\n' % \
                 (ptvc_request, ptvc_reply, errors.Name(), req_conds,
-                req_cond_size, req_info_str, expert_func))
+                req_cond_size, expert_func))
 
-    print('    { 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE, NULL, NULL }')
+    print('    { 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE, NULL }')
     print("};\n")
 
     print("/* ncp funcs that require a subfunc */")
@@ -8629,8 +8645,8 @@ def define_ncp2222():
     pkt.Request( (11, 138), [
             rec( 7, 1, LockFlag ),
             rec( 8, 2, TimeoutLimit, ENC_BIG_ENDIAN ),
-            rec( 10, (1, 128), LogicalRecordName ),
-    ], info_str=(LogicalRecordName, "Log Logical Record: %s", ", %s"))
+            rec( 10, (1, 128), LogicalRecordName, info_str=(LogicalRecordName, "Log Logical Record: %s", ", %s")),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xfe0d, 0xff1a])
     # 2222/0A, 10
@@ -8644,15 +8660,15 @@ def define_ncp2222():
     # 2222/0B, 11
     pkt = NCP(0x0B, "Clear Logical Record", 'sync')
     pkt.Request( (8, 135), [
-            rec( 7, (1, 128), LogicalRecordName ),
-    ], info_str=(LogicalRecordName, "Clear Logical Record: %s", ", %s"))
+            rec( 7, (1, 128), LogicalRecordName, info_str=(LogicalRecordName, "Clear Logical Record: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xff1a])
     # 2222/0C, 12
     pkt = NCP(0x0C, "Release Logical Record", 'sync')
     pkt.Request( (8, 135), [
-            rec( 7, (1, 128), LogicalRecordName ),
-    ], info_str=(LogicalRecordName, "Release Logical Record: %s", ", %s"))
+            rec( 7, (1, 128), LogicalRecordName, info_str=(LogicalRecordName, "Release Logical Record: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xff1a])
     # 2222/0D, 13
@@ -8672,8 +8688,8 @@ def define_ncp2222():
     # 2222/1100, 17/00
     pkt = NCP(0x1100, "Write to Spool File", 'print')
     pkt.Request( (11, 16), [
-            rec( 10, ( 1, 6 ), Data ),
-    ], info_str=(Data, "Write to Spool File: %s", ", %s"))
+            rec( 10, ( 1, 6 ), Data, info_str=(Data, "Write to Spool File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0104, 0x8000, 0x8101, 0x8701, 0x8800,
                          0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9400, 0x9500,
@@ -8709,8 +8725,8 @@ def define_ncp2222():
     pkt = NCP(0x1103, "Spool A Disk File", 'print')
     pkt.Request( (12, 23), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1, 12), Data ),
-    ], info_str=(Data, "Spool a Disk File: %s", ", %s"))
+            rec( 11, (1, 12), Data, info_str=(Data, "Spool a Disk File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8701, 0x8800, 0x8d00,
                          0x8e00, 0x8f00, 0x9001, 0x9300, 0x9400, 0x9500,
@@ -8736,8 +8752,8 @@ def define_ncp2222():
     pkt = NCP(0x1109, "Create Spool File", 'print')
     pkt.Request( (12, 23), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1, 12), Data ),
-    ], info_str=(Data, "Create Spool File: %s", ", %s"))
+            rec( 11, (1, 12), Data, info_str=(Data, "Create Spool File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8400, 0x8701, 0x8d00,
                          0x8f00, 0x9001, 0x9400, 0x9600, 0x9804, 0x9900,
@@ -8758,8 +8774,8 @@ def define_ncp2222():
     # 2222/12, 18
     pkt = NCP(0x12, "Get Volume Info with Number", 'file')
     pkt.Request( 8, [
-            rec( 7, 1, VolumeNumber )
-    ],info_str=(VolumeNumber, "Get Volume Information for Volume %d", ", %d"))
+            rec( 7, 1, VolumeNumber,info_str=(VolumeNumber, "Get Volume Information for Volume %d", ", %d") )
+    ])
     pkt.Reply( 36, [
             rec( 8, 2, SectorsPerCluster, ENC_BIG_ENDIAN ),
             rec( 10, 2, TotalVolumeClusters, ENC_BIG_ENDIAN ),
@@ -8798,8 +8814,8 @@ def define_ncp2222():
     pkt.Request((13, 70), [
             rec( 10, 1, ClientListLen, var="x" ),
             rec( 11, 1, TargetClientList, repeat="x" ),
-            rec( 12, (1, 58), TargetMessage ),
-    ], info_str=(TargetMessage, "Send Broadcast Message: %s", ", %s"))
+            rec( 12, (1, 58), TargetMessage, info_str=(TargetMessage, "Send Broadcast Message: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 1, ClientListLen, var="x" ),
             rec( 9, 1, SendStatus, repeat="x" )
@@ -8829,8 +8845,8 @@ def define_ncp2222():
     # 2222/1509, 21/09
     pkt = NCP(0x1509, "Broadcast To Console", 'message')
     pkt.Request((11, 68), [
-            rec( 10, (1, 58), TargetMessage )
-    ], info_str=(TargetMessage, "Broadcast to Console: %s", ", %s"))
+            rec( 10, (1, 58), TargetMessage, info_str=(TargetMessage, "Broadcast to Console: %s", ", %s") )
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000])
 
@@ -8839,8 +8855,8 @@ def define_ncp2222():
     pkt.Request((17, 74), [
             rec( 10, 2, ClientListCount, ENC_LITTLE_ENDIAN, var="x" ),
             rec( 12, 4, ClientList, ENC_LITTLE_ENDIAN, repeat="x" ),
-            rec( 16, (1, 58), TargetMessage ),
-    ], info_str=(TargetMessage, "Send Broadcast Message: %s", ", %s"))
+            rec( 16, (1, 58), TargetMessage, info_str=(TargetMessage, "Send Broadcast Message: %s", ", %s") ),
+    ])
     pkt.Reply(14, [
             rec( 8, 2, ClientListCount, ENC_LITTLE_ENDIAN, var="x" ),
             rec( 10, 4, ClientCompFlag, ENC_LITTLE_ENDIAN, repeat="x" ),
@@ -8871,8 +8887,8 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, TargetDirHandle ),
             rec( 11, 1, DirHandle ),
-            rec( 12, (1, 255), Path ),
-    ], info_str=(Path, "Set Directory Handle to: %s", ", %s"))
+            rec( 12, (1, 255), Path, info_str=(Path, "Set Directory Handle to: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9b03, 0x9c03, 0xa100, 0xfa00,
                          0xfd00, 0xff00])
@@ -8881,8 +8897,8 @@ def define_ncp2222():
     # 2222/1601, 22/1
     pkt = NCP(0x1601, "Get Directory Path", 'file')
     pkt.Request(11, [
-            rec( 10, 1, DirHandle ),
-    ],info_str=(DirHandle, "Get Directory Path for Directory Handle %d", ", %d"))
+            rec( 10, 1, DirHandle,info_str=(DirHandle, "Get Directory Path for Directory Handle %d", ", %d") ),
+    ])
     pkt.Reply((9,263), [
             rec( 8, (1,255), Path ),
     ])
@@ -8893,8 +8909,8 @@ def define_ncp2222():
     pkt.Request((14,268), [
             rec( 10, 1, DirHandle ),
             rec( 11, 2, StartingSearchNumber, ENC_BIG_ENDIAN ),
-            rec( 13, (1, 255), Path ),
-    ], info_str=(Path, "Scan Directory Information: %s", ", %s"))
+            rec( 13, (1, 255), Path, info_str=(Path, "Scan Directory Information: %s", ", %s") ),
+    ])
     pkt.Reply(36, [
             rec( 8, 16, DirectoryPath ),
             rec( 24, 2, CreationDate, ENC_BIG_ENDIAN ),
@@ -8911,8 +8927,8 @@ def define_ncp2222():
     pkt = NCP(0x1603, "Get Effective Directory Rights", 'file')
     pkt.Request((12,266), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1, 255), Path ),
-    ], info_str=(Path, "Get Effective Directory Rights: %s", ", %s"))
+            rec( 11, (1, 255), Path, info_str=(Path, "Get Effective Directory Rights: %s", ", %s") ),
+    ])
     pkt.Reply(9, [
             rec( 8, 1, AccessRightsMask ),
     ])
@@ -8925,8 +8941,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 1, RightsGrantMask ),
             rec( 12, 1, RightsRevokeMask ),
-            rec( 13, (1, 255), Path ),
-    ], info_str=(Path, "Modify Maximum Rights Mask: %s", ", %s"))
+            rec( 13, (1, 255), Path, info_str=(Path, "Modify Maximum Rights Mask: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x9600, 0x9804, 0x9b03, 0x9c03, 0xa100, 0xfa00,
                          0xfd00, 0xff00])
@@ -8934,8 +8950,8 @@ def define_ncp2222():
     # 2222/1605, 22/5
     pkt = NCP(0x1605, "Get Volume Number", 'file')
     pkt.Request((11, 265), [
-            rec( 10, (1,255), VolumeNameLen ),
-    ], info_str=(VolumeNameLen, "Get Volume Number for: %s", ", %s"))
+            rec( 10, (1,255), VolumeNameLen, info_str=(VolumeNameLen, "Get Volume Number for: %s", ", %s") ),
+    ])
     pkt.Reply(9, [
             rec( 8, 1, VolumeNumber ),
     ])
@@ -8944,8 +8960,8 @@ def define_ncp2222():
     # 2222/1606, 22/6
     pkt = NCP(0x1606, "Get Volume Name", 'file')
     pkt.Request(11, [
-            rec( 10, 1, VolumeNumber ),
-    ],info_str=(VolumeNumber, "Get Name for Volume %d", ", %d"))
+            rec( 10, 1, VolumeNumber,info_str=(VolumeNumber, "Get Name for Volume %d", ", %d") ),
+    ])
     pkt.Reply((9, 263), [
             rec( 8, (1,255), VolumeNameLen ),
     ])
@@ -8956,8 +8972,8 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, AccessRightsMask ),
-            rec( 12, (1, 255), Path ),
-    ], info_str=(Path, "Create Directory: %s", ", %s"))
+            rec( 12, (1, 255), Path, info_str=(Path, "Create Directory: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8400, 0x9600, 0x9804, 0x9900, 0x9b03, 0x9c03,
                          0x9e00, 0xa100, 0xfd00, 0xff00])
@@ -8967,8 +8983,8 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, Reserved ),
-            rec( 12, (1, 255), Path ),
-    ], info_str=(Path, "Delete Directory: %s", ", %s"))
+            rec( 12, (1, 255), Path, info_str=(Path, "Delete Directory: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8a00, 0x9600, 0x9804, 0x9b03, 0x9c03,
                          0x9f00, 0xa000, 0xa100, 0xfd00, 0xff00])
@@ -8978,8 +8994,8 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, TrusteeSetNumber ),
-            rec( 12, (1, 255), Path ),
-    ], info_str=(Path, "Scan Directory for Trustees: %s", ", %s"))
+            rec( 12, (1, 255), Path, info_str=(Path, "Scan Directory for Trustees: %s", ", %s") ),
+    ])
     pkt.Reply(57, [
             rec( 8, 16, DirectoryPath ),
             rec( 24, 2, CreationDate, ENC_BIG_ENDIAN ),
@@ -9005,8 +9021,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 4, TrusteeID, ENC_BIG_ENDIAN ),
             rec( 15, 1, AccessRightsMask ),
-            rec( 16, (1, 255), Path ),
-    ], info_str=(Path, "Add Trustee to Directory: %s", ", %s"))
+            rec( 16, (1, 255), Path, info_str=(Path, "Add Trustee to Directory: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x9600, 0x9804, 0x9900, 0x9b03, 0x9c03,
                          0xa100, 0xfc06, 0xfd00, 0xff00])
@@ -9017,8 +9033,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 4, TrusteeID, ENC_BIG_ENDIAN ),
             rec( 15, 1, Reserved ),
-            rec( 16, (1, 255), Path ),
-    ], info_str=(Path, "Delete Trustee from Directory: %s", ", %s"))
+            rec( 16, (1, 255), Path, info_str=(Path, "Delete Trustee from Directory: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x9600, 0x9804, 0x9900, 0x9b03, 0x9c03,
                          0xa100, 0xfc06, 0xfd00, 0xfe07, 0xff00])
@@ -9027,9 +9043,9 @@ def define_ncp2222():
     pkt = NCP(0x160F, "Rename Directory", 'file')
     pkt.Request((13, 521), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1, 255), Path ),
+            rec( 11, (1, 255), Path, info_str=(Path, "Rename Directory: %s", ", %s") ),
             rec( -1, (1, 255), NewPath ),
-    ], info_str=(Path, "Rename Directory: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8b00, 0x9200, 0x9600, 0x9804, 0x9b03, 0x9c03,
                          0x9e00, 0xa100, 0xef00, 0xfd00, 0xff00])
@@ -9043,8 +9059,8 @@ def define_ncp2222():
     # 2222/1611, 22/17
     pkt = NCP(0x1611, "Recover Erased File", 'file')
     pkt.Request(11, [
-            rec( 10, 1, DirHandle ),
-    ],info_str=(DirHandle, "Recover Erased File from Directory Handle %d", ", %d"))
+            rec( 10, 1, DirHandle,info_str=(DirHandle, "Recover Erased File from Directory Handle %d", ", %d") ),
+    ])
     pkt.Reply(38, [
             rec( 8, 15, OldFileName ),
             rec( 23, 15, NewFileName ),
@@ -9056,8 +9072,8 @@ def define_ncp2222():
     pkt.Request((13, 267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, DirHandleName ),
-            rec( 12, (1,255), Path ),
-    ], info_str=(Path, "Allocate Permanent Directory Handle: %s", ", %s"))
+            rec( 12, (1,255), Path, info_str=(Path, "Allocate Permanent Directory Handle: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 1, DirHandle ),
             rec( 9, 1, AccessRightsMask ),
@@ -9069,8 +9085,8 @@ def define_ncp2222():
     pkt.Request((13, 267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, DirHandleName ),
-            rec( 12, (1,255), Path ),
-    ], info_str=(Path, "Allocate Temporary Directory Handle: %s", ", %s"))
+            rec( 12, (1,255), Path, info_str=(Path, "Allocate Temporary Directory Handle: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 1, DirHandle ),
             rec( 9, 1, AccessRightsMask ),
@@ -9080,15 +9096,15 @@ def define_ncp2222():
     # 2222/1614, 22/20
     pkt = NCP(0x1614, "Deallocate Directory Handle", 'file')
     pkt.Request(11, [
-            rec( 10, 1, DirHandle ),
-    ],info_str=(DirHandle, "Deallocate Directory Handle %d", ", %d"))
+            rec( 10, 1, DirHandle,info_str=(DirHandle, "Deallocate Directory Handle %d", ", %d") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9b03])
     # 2222/1615, 22/21
     pkt = NCP(0x1615, "Get Volume Info with Handle", 'file')
     pkt.Request( 11, [
-            rec( 10, 1, DirHandle )
-    ],info_str=(DirHandle, "Get Volume Information with Handle %d", ", %d"))
+            rec( 10, 1, DirHandle,info_str=(DirHandle, "Get Volume Information with Handle %d", ", %d") )
+    ])
     pkt.Reply( 36, [
             rec( 8, 2, SectorsPerCluster, ENC_BIG_ENDIAN ),
             rec( 10, 2, TotalVolumeClusters, ENC_BIG_ENDIAN ),
@@ -9104,8 +9120,8 @@ def define_ncp2222():
     pkt.Request((13, 267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, DirHandleName ),
-            rec( 12, (1,255), Path ),
-    ], info_str=(Path, "Allocate Special Temporary Directory Handle: %s", ", %s"))
+            rec( 12, (1,255), Path, info_str=(Path, "Allocate Special Temporary Directory Handle: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 1, DirHandle ),
             rec( 9, 1, AccessRightsMask ),
@@ -9115,8 +9131,8 @@ def define_ncp2222():
     # 2222/1617, 22/23
     pkt = NCP(0x1617, "Extract a Base Handle", 'file')
     pkt.Request(11, [
-            rec( 10, 1, DirHandle ),
-    ],info_str=(DirHandle, "Extract a Base Handle from Directory Handle %d", ", %d"))
+            rec( 10, 1, DirHandle, info_str=(DirHandle, "Extract a Base Handle from Directory Handle %d", ", %d") ),
+    ])
     pkt.Reply(22, [
             rec( 8, 10, ServerNetworkAddress ),
             rec( 18, 4, DirHandleLong ),
@@ -9142,8 +9158,8 @@ def define_ncp2222():
             rec( 13, 2, CreationTime ),
             rec( 15, 4, CreatorID, ENC_BIG_ENDIAN ),
             rec( 19, 1, AccessRightsMask ),
-            rec( 20, (1,255), Path ),
-    ], info_str=(Path, "Set Directory Information: %s", ", %s"))
+            rec( 20, (1,255), Path, info_str=(Path, "Set Directory Information: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x9600, 0x9804, 0x9b03, 0x9c00, 0xa100,
                          0xff16])
@@ -9198,9 +9214,9 @@ def define_ncp2222():
     pkt.Request((17,525), [
             rec( 10, 1, DirHandle ),
             rec( 11, 4, SequenceNumber ),
-            rec( 15, (1, 255), FileName ),
+            rec( 15, (1, 255), FileName, info_str=(FileName, "Recover File: %s", ", %s") ),
             rec( -1, (1, 255), NewFileNameLen ),
-    ], info_str=(FileName, "Recover File: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8401, 0x9c03, 0xfe02])
     # 2222/161D, 22/29
@@ -9217,8 +9233,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 1, DOSFileAttributes ),
             rec( 12, 4, SequenceNumber ),
-            rec( 16, (1, 255), SearchPattern ),
-    ], info_str=(SearchPattern, "Scan a Directory: %s", ", %s"))
+            rec( 16, (1, 255), SearchPattern, info_str=(SearchPattern, "Scan a Directory: %s", ", %s") ),
+    ])
     pkt.Reply(140, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 4, Subdirectory ),
@@ -9344,8 +9360,8 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, DirHandle ),
             rec( 11, 1, SequenceByte ),
-            rec( 12, (1, 255), Path ),
-    ], info_str=(Path, "Scan for Extended Trustees: %s", ", %s"))
+            rec( 12, (1, 255), Path, info_str=(Path, "Scan for Extended Trustees: %s", ", %s") ),
+    ])
     pkt.Reply(91, [
             rec( 8, 1, NumberOfEntries, var="x" ),
             rec( 9, 4, ObjectID ),
@@ -9377,8 +9393,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 4, ObjectID, ENC_BIG_ENDIAN ),
             rec( 15, 2, TrusteeRights ),
-            rec( 17, (1, 255), Path ),
-    ], info_str=(Path, "Add Extended Trustee: %s", ", %s"))
+            rec( 17, (1, 255), Path, info_str=(Path, "Add Extended Trustee: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9000])
     # 2222/1628, 22/40
@@ -9387,8 +9403,8 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 1, SearchAttributes ),
             rec( 12, 4, SequenceNumber ),
-            rec( 16, (1, 255), SearchPattern ),
-    ], info_str=(SearchPattern, "Scan Directory Disk Space: %s", ", %s"))
+            rec( 16, (1, 255), SearchPattern, info_str=(SearchPattern, "Scan Directory Disk Space: %s", ", %s") ),
+    ])
     pkt.Reply((148), [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 4, Subdirectory ),
@@ -9439,8 +9455,8 @@ def define_ncp2222():
     pkt = NCP(0x162A, "Get Effective Rights for Directory Entry", 'file')
     pkt.Request((12,266), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1, 255), Path ),
-    ], info_str=(Path, "Get Effective Rights: %s", ", %s"))
+            rec( 11, (1, 255), Path, info_str=(Path, "Get Effective Rights: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 2, AccessRightsMaskWord ),
     ])
@@ -9451,15 +9467,15 @@ def define_ncp2222():
             rec( 10, 1, DirHandle ),
             rec( 11, 4, ObjectID, ENC_BIG_ENDIAN ),
             rec( 15, 1, Unused ),
-            rec( 16, (1, 255), Path ),
-    ], info_str=(Path, "Remove Extended Trustee from %s", ", %s"))
+            rec( 16, (1, 255), Path, info_str=(Path, "Remove Extended Trustee from %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9002, 0x9c03, 0xfe0f, 0xff09])
     # 2222/162C, 22/44
     pkt = NCP(0x162C, "Get Volume and Purge Information", 'file')
     pkt.Request( 11, [
-            rec( 10, 1, VolumeNumber )
-    ],info_str=(VolumeNumber, "Get Volume and Purge Information for Volume %d", ", %d"))
+            rec( 10, 1, VolumeNumber, info_str=(VolumeNumber, "Get Volume and Purge Information for Volume %d", ", %d") )
+    ])
     pkt.Reply( (38,53), [
             rec( 8, 4, TotalBlocks ),
             rec( 12, 4, FreeBlocks ),
@@ -9493,11 +9509,11 @@ def define_ncp2222():
             rec( 10, 1, SourceDirHandle ),
             rec( 11, 1, SearchAttributes ),
             rec( 12, 1, SourcePathComponentCount ),
-            rec( 13, (1,255), SourcePath ),
+            rec( 13, (1,255), SourcePath, info_str=(SourcePath, "Rename or Move: %s", ", %s") ),
             rec( -1, 1, DestDirHandle ),
             rec( -1, 1, DestPathComponentCount ),
             rec( -1, (1,255), DestPath ),
-    ], info_str=(SourcePath, "Rename or Move: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8701, 0x8b00, 0x8d00, 0x8e00,
                          0x8f00, 0x9001, 0x9101, 0x9201, 0x9a00, 0x9b03,
@@ -9505,8 +9521,8 @@ def define_ncp2222():
     # 2222/162F, 22/47
     pkt = NCP(0x162F, "Get Name Space Information", 'file')
     pkt.Request( 11, [
-            rec( 10, 1, VolumeNumber )
-    ],info_str=(VolumeNumber, "Get Name Space Information for Volume %d", ", %d"))
+            rec( 10, 1, VolumeNumber, info_str=(VolumeNumber, "Get Name Space Information for Volume %d", ", %d") )
+    ])
     pkt.Reply( (15,523), [
             #
             # XXX - why does this not display anything at all
@@ -9563,8 +9579,8 @@ def define_ncp2222():
             rec( 11, 1, DirHandle ),
             rec( 12, 1, AttributesDef ),
             rec( 13, 1, OpenRights ),
-            rec( 14, (1, 255), FileName ),
-    ], info_str=(FileName, "Open Data Stream: %s", ", %s"))
+            rec( 14, (1, 255), FileName, info_str=(FileName, "Open Data Stream: %s", ", %s") ),
+    ])
     pkt.Reply( 12, [
             rec( 8, 4, CCFileHandle, ENC_BIG_ENDIAN ),
     ])
@@ -9574,8 +9590,8 @@ def define_ncp2222():
     pkt.Request( (16,270), [
             rec( 10, 4, ObjectID, ENC_BIG_ENDIAN ),
             rec( 14, 1, DirHandle ),
-            rec( 15, (1, 255), Path ),
-    ], info_str=(Path, "Get Object Effective Rights: %s", ", %s"))
+            rec( 15, (1, 255), Path, info_str=(Path, "Get Object Effective Rights: %s", ", %s") ),
+    ])
     pkt.Reply( 10, [
             rec( 8, 2, TrusteeRights ),
     ])
@@ -9583,8 +9599,8 @@ def define_ncp2222():
     # 2222/1633, 22/51
     pkt = NCP(0x1633, "Get Extended Volume Information", 'file')
     pkt.Request( 11, [
-            rec( 10, 1, VolumeNumber ),
-    ],info_str=(VolumeNumber, "Get Extended Volume Information for Volume %d", ", %d"))
+            rec( 10, 1, VolumeNumber, info_str=(VolumeNumber, "Get Extended Volume Information for Volume %d", ", %d") ),
+    ])
     pkt.Reply( (139,266), [
             rec( 8, 2, VolInfoReplyLen ),
             rec( 10, 128, VolInfoStructure),
@@ -9690,9 +9706,9 @@ def define_ncp2222():
     # 2222/1700, 23/00
     pkt = NCP(0x1700, "Login User", 'connection')
     pkt.Request( (12, 58), [
-            rec( 10, (1,16), UserName ),
+            rec( 10, (1,16), UserName, info_str=(UserName, "Login User: %s", ", %s") ),
             rec( -1, (1,32), Password ),
-    ], info_str=(UserName, "Login User: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc501, 0xd700,
                          0xd900, 0xda00, 0xdb00, 0xde00, 0xdf00, 0xe800,
@@ -9701,18 +9717,18 @@ def define_ncp2222():
     # 2222/1701, 23/01
     pkt = NCP(0x1701, "Change User Password", 'bindery')
     pkt.Request( (13, 90), [
-            rec( 10, (1,16), UserName ),
+            rec( 10, (1,16), UserName, info_str=(UserName, "Change Password for User: %s", ", %s") ),
             rec( -1, (1,32), Password ),
             rec( -1, (1,32), NewPassword ),
-    ], info_str=(UserName, "Change Password for User: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xd600, 0xf001, 0xf101, 0xf501,
                          0xfc06, 0xfe07, 0xff00])
     # 2222/1702, 23/02
     pkt = NCP(0x1702, "Get User Connection List", 'connection')
     pkt.Request( (11, 26), [
-            rec( 10, (1,16), UserName ),
-    ], info_str=(UserName, "Get User Connection: %s", ", %s"))
+            rec( 10, (1,16), UserName, info_str=(UserName, "Get User Connection: %s", ", %s") ),
+    ])
     pkt.Reply( (9, 136), [
             rec( 8, (1, 128), ConnectionNumberList ),
     ])
@@ -9720,8 +9736,8 @@ def define_ncp2222():
     # 2222/1703, 23/03
     pkt = NCP(0x1703, "Get User Number", 'bindery')
     pkt.Request( (11, 26), [
-            rec( 10, (1,16), UserName ),
-    ], info_str=(UserName, "Get User Number: %s", ", %s"))
+            rec( 10, (1,16), UserName, info_str=(UserName, "Get User Number: %s", ", %s") ),
+    ])
     pkt.Reply( 12, [
             rec( 8, 4, ObjectID, ENC_BIG_ENDIAN ),
     ])
@@ -9729,8 +9745,8 @@ def define_ncp2222():
     # 2222/1705, 23/05
     pkt = NCP(0x1705, "Get Station's Logged Info", 'connection')
     pkt.Request( 11, [
-            rec( 10, 1, TargetConnectionNumber ),
-    ],info_str=(TargetConnectionNumber, "Get Station's Logged Information on Connection %d", ", %d"))
+            rec( 10, 1, TargetConnectionNumber, info_str=(TargetConnectionNumber, "Get Station's Logged Information on Connection %d", ", %d") ),
+    ])
     pkt.Reply( 266, [
             rec( 8, 16, UserName16 ),
             rec( 24, 7, LoginTime ),
@@ -9761,8 +9777,8 @@ def define_ncp2222():
     # 2222/170D, 23/13
     pkt = NCP(0x170D, "Log Network Message", 'file')
     pkt.Request( (11, 68), [
-            rec( 10, (1, 58), TargetMessage ),
-    ], info_str=(TargetMessage, "Log Network Message: %s", ", %s"))
+            rec( 10, (1, 58), TargetMessage, info_str=(TargetMessage, "Log Network Message: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8100, 0x8800, 0x8d00, 0x8e00, 0x8f00,
                          0x9001, 0x9400, 0x9600, 0x9804, 0x9900, 0x9b00, 0xa100,
@@ -9787,8 +9803,8 @@ def define_ncp2222():
             rec( 10, 2, LastSearchIndex ),
             rec( 12, 1, DirHandle ),
             rec( 13, 1, SearchAttributes ),
-            rec( 14, (1, 255), FileName ),
-    ], info_str=(FileName, "Scan File Information: %s", ", %s"))
+            rec( 14, (1, 255), FileName, info_str=(FileName, "Scan File Information: %s", ", %s") ),
+    ])
     pkt.Reply( 102, [
             rec( 8, 2, NextSearchIndex ),
             rec( 10, 14, FileName14 ),
@@ -9820,8 +9836,8 @@ def define_ncp2222():
             rec( 32, 56, Reserved56 ),
             rec( 88, 1, DirHandle ),
             rec( 89, 1, SearchAttributes ),
-            rec( 90, (1, 255), FileName ),
-    ], info_str=(FileName, "Set Information for File: %s", ", %s"))
+            rec( 90, (1, 255), FileName, info_str=(FileName, "Set Information for File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x8c00, 0x8e00, 0x9400, 0x9600, 0x9804,
                          0x9b03, 0x9c00, 0xa100, 0xa201, 0xfc06, 0xfd00, 0xfe07,
@@ -9871,8 +9887,8 @@ def define_ncp2222():
     # 2222/1713, 23/19
     pkt = NCP(0x1713, "Get Internet Address", 'connection')
     pkt.Request(11, [
-            rec( 10, 1, TargetConnectionNumber ),
-    ],info_str=(TargetConnectionNumber, "Get Internet Address for Connection %d", ", %d"))
+            rec( 10, 1, TargetConnectionNumber, info_str=(TargetConnectionNumber, "Get Internet Address for Connection %d", ", %d") ),
+    ])
     pkt.Reply(20, [
             rec( 8, 4, NetworkAddress, ENC_BIG_ENDIAN ),
             rec( 12, 6, NetworkNodeAddress ),
@@ -9883,9 +9899,9 @@ def define_ncp2222():
     pkt = NCP(0x1714, "Login Object", 'connection')
     pkt.Request( (14, 60), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,16), ClientName ),
+            rec( 12, (1,16), ClientName, info_str=(ClientName, "Login Object: %s", ", %s") ),
             rec( -1, (1,32), Password ),
-    ], info_str=(UserName, "Login Object: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc501, 0xd600, 0xd700,
                          0xd900, 0xda00, 0xdb00, 0xde00, 0xdf00, 0xe800, 0xec00,
@@ -9895,8 +9911,8 @@ def define_ncp2222():
     pkt = NCP(0x1715, "Get Object Connection List", 'connection')
     pkt.Request( (13, 28), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,16), ObjectName ),
-    ], info_str=(UserName, "Get Object Connection List: %s", ", %s"))
+            rec( 12, (1,16), ObjectName, info_str=(ObjectName, "Get Object Connection List: %s", ", %s") ),
+    ])
     pkt.Reply( (9, 136), [
             rec( 8, (1, 128), ConnectionNumberList ),
     ])
@@ -9926,8 +9942,8 @@ def define_ncp2222():
     pkt.Request( (21, 68), [
             rec( 10, 8, LoginKey ),
             rec( 18, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 20, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Keyed Object Login: %s", ", %s"))
+            rec( 20, (1,48), ObjectName, info_str=(ObjectName, "Keyed Object Login: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd904, 0xda00,
                          0xdb00, 0xdc00, 0xde00, 0xff00])
@@ -9944,8 +9960,8 @@ def define_ncp2222():
     pkt.Request( (17,64), [
             rec( 10, 4, SearchConnNumber ),
             rec( 14, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 16, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Get Object Connection List: %s", ", %s"))
+            rec( 16, (1,48), ObjectName, info_str=(ObjectName, "Get Object Connection List: %s", ", %s") ),
+    ])
     pkt.Reply( (13), [
             rec( 8, 1, ConnListLen, var="x" ),
             rec( 9, 4, ConnectionNumber, ENC_LITTLE_ENDIAN, repeat="x" ),
@@ -9995,8 +10011,8 @@ def define_ncp2222():
             rec( 14, 2, ObjectType, ENC_BIG_ENDIAN ),
     rec( 16, 2, Reserved2 ),
             rec( 18, 4, InfoFlags ),
-            rec( 22, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Scan Bindery Object: %s", ", %s"))
+            rec( 22, (1,48), ObjectName, info_str=(ObjectName, "Scan Bindery Object: %s", ", %s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, ObjectInfoReturnCount ),
             rec( 12, 4, NextObjectID, ENC_BIG_ENDIAN ),
@@ -10033,8 +10049,8 @@ def define_ncp2222():
             rec( 10, 1, ObjectFlags ),
             rec( 11, 1, ObjectSecurity ),
             rec( 12, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 14, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Create Bindery Object: %s", ", %s"))
+            rec( 14, (1,48), ObjectName, info_str=(ObjectName, "Create Bindery Object: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xe700, 0xee00, 0xef00, 0xf101, 0xf501,
                          0xfc06, 0xfe07, 0xff00])
@@ -10042,8 +10058,8 @@ def define_ncp2222():
     pkt = NCP(0x1733, "Delete Bindery Object", 'bindery')
     pkt.Request( (13,60), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Delete Bindery Object: %s", ", %s"))
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Delete Bindery Object: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xf000, 0xf200, 0xf400, 0xf600, 0xfb00,
                          0xfc06, 0xfe07, 0xff00])
@@ -10051,17 +10067,17 @@ def define_ncp2222():
     pkt = NCP(0x1734, "Rename Bindery Object", 'bindery')
     pkt.Request( (14,108), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Rename Bindery Object: %s", ", %s") ),
             rec( -1, (1,48), NewObjectName ),
-    ], info_str=(ObjectName, "Rename Bindery Object: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xee00, 0xf000, 0xf300, 0xfc06, 0xfe07, 0xff00])
     # 2222/1735, 23/53
     pkt = NCP(0x1735, "Get Bindery Object ID", 'bindery')
     pkt.Request((13,60), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Get Bindery Object: %s", ", %s"))
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Get Bindery Object: %s", ", %s") ),
+    ])
     pkt.Reply(62, [
             rec( 8, 4, ObjectID, ENC_LITTLE_ENDIAN ),
             rec( 12, 2, ObjectType, ENC_BIG_ENDIAN ),
@@ -10084,8 +10100,8 @@ def define_ncp2222():
     pkt.Request((17,64), [
             rec( 10, 4, ObjectID, ENC_BIG_ENDIAN ),
             rec( 14, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 16, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Scan Bindery Object: %s", ", %s"))
+            rec( 16, (1,48), ObjectName, info_str=(ObjectName, "Scan Bindery Object: %s", ", %s") ),
+    ])
     pkt.Reply(65, [
             rec( 8, 4, ObjectID, ENC_BIG_ENDIAN ),
             rec( 12, 2, ObjectType, ENC_BIG_ENDIAN ),
@@ -10101,8 +10117,8 @@ def define_ncp2222():
     pkt.Request((14,61), [
             rec( 10, 1, ObjectSecurity ),
             rec( 11, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 13, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Change Bindery Object Security: %s", ", %s"))
+            rec( 13, (1,48), ObjectName, info_str=(ObjectName, "Change Bindery Object Security: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xf000, 0xf101, 0xf501, 0xfc02, 0xfe01, 0xff00])
     # 2222/1739, 23/57
@@ -10112,8 +10128,8 @@ def define_ncp2222():
             rec( 12, (1,48), ObjectName ),
             rec( -1, 1, PropertyType ),
             rec( -1, 1, ObjectSecurity ),
-            rec( -1, (1,16), PropertyName ),
-    ], info_str=(PropertyName, "Create Property: %s", ", %s"))
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Create Property: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xed00, 0xef00, 0xf000, 0xf101,
                          0xf200, 0xf600, 0xf700, 0xfb00, 0xfc02, 0xfe01,
@@ -10123,8 +10139,8 @@ def define_ncp2222():
     pkt.Request((14,76), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 12, (1,48), ObjectName ),
-            rec( -1, (1,16), PropertyName ),
-    ], info_str=(PropertyName, "Delete Property: %s", ", %s"))
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Delete Property: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xf000, 0xf101, 0xf600, 0xfb00, 0xfc02,
                          0xfe01, 0xff00])
@@ -10134,8 +10150,8 @@ def define_ncp2222():
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 12, (1,48), ObjectName ),
             rec( -1, 1, ObjectSecurity ),
-            rec( -1, (1,16), PropertyName ),
-    ], info_str=(PropertyName, "Change Property Security: %s", ", %s"))
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Change Property Security: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xf000, 0xf101, 0xf200, 0xf600, 0xfb00,
                          0xfc02, 0xfe01, 0xff00])
@@ -10145,8 +10161,8 @@ def define_ncp2222():
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 12, (1,48), ObjectName ),
             rec( -1, 4, LastInstance, ENC_BIG_ENDIAN ),
-            rec( -1, (1,16), PropertyName ),
-    ], info_str=(PropertyName, "Scan Property: %s", ", %s"))
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Scan Property: %s", ", %s") ),
+    ])
     pkt.Reply( 32, [
             rec( 8, 16, PropertyName16 ),
             rec( 24, 1, ObjectFlags ),
@@ -10163,8 +10179,8 @@ def define_ncp2222():
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 12, (1,48), ObjectName ),
             rec( -1, 1, PropertySegment ),
-            rec( -1, (1,16), PropertyName ),
-    ], info_str=(PropertyName, "Read Property Value: %s", ", %s"))
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Read Property Value: %s", ", %s") ),
+    ])
     pkt.Reply(138, [
             rec( 8, 128, PropertyData ),
             rec( 136, 1, PropertyHasMoreSegments ),
@@ -10180,14 +10196,14 @@ def define_ncp2222():
             rec( 12, (1,48), ObjectName ),
             rec( -1, 1, PropertySegment ),
             rec( -1, 1, MoreFlag ),
-            rec( -1, (1,16), PropertyName ),
+            rec( -1, (1,16), PropertyName, info_str=(PropertyName, "Write Property Value: %s", ", %s") ),
             #
             # XXX - don't show this if MoreFlag isn't set?
             # In at least some packages where it's not set,
             # PropertyValue appears to be garbage.
             #
             rec( -1, 128, PropertyValue ),
-    ], info_str=(PropertyName, "Write Property Value: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xe800, 0xec01, 0xf000, 0xf800,
                          0xfb02, 0xfc03, 0xfe01, 0xff00 ])
@@ -10195,9 +10211,9 @@ def define_ncp2222():
     pkt = NCP(0x173F, "Verify Bindery Object Password", 'bindery')
     pkt.Request((14,92), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Verify Bindery Object Password: %s", ", %s") ),
             rec( -1, (1,32), Password ),
-    ], info_str=(ObjectName, "Verify Bindery Object Password: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xe800, 0xec01, 0xf000, 0xf101,
                          0xfb02, 0xfc03, 0xfe01, 0xff00 ])
@@ -10205,10 +10221,10 @@ def define_ncp2222():
     pkt = NCP(0x1740, "Change Bindery Object Password", 'bindery')
     pkt.Request((15,124), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Change Bindery Object Password: %s", ", %s") ),
             rec( -1, (1,32), Password ),
             rec( -1, (1,32), NewPassword ),
-    ], info_str=(ObjectName, "Change Bindery Object Password: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xc501, 0xd701, 0xe800, 0xec01, 0xf001,
                          0xf100, 0xf800, 0xfb02, 0xfc03, 0xfe01, 0xff00])
@@ -10219,8 +10235,8 @@ def define_ncp2222():
             rec( 12, (1,48), ObjectName ),
             rec( -1, (1,16), PropertyName ),
             rec( -1, 2, MemberType, ENC_BIG_ENDIAN ),
-            rec( -1, (1,48), MemberName ),
-    ], info_str=(MemberName, "Add Bindery Object to Set: %s", ", %s"))
+            rec( -1, (1,48), MemberName, info_str=(MemberName, "Add Bindery Object to Set: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xe800, 0xe900, 0xea00, 0xeb00,
                          0xec01, 0xf000, 0xf800, 0xfb02, 0xfc03, 0xfe01,
@@ -10232,8 +10248,8 @@ def define_ncp2222():
             rec( 12, (1,48), ObjectName ),
             rec( -1, (1,16), PropertyName ),
             rec( -1, 2, MemberType, ENC_BIG_ENDIAN ),
-            rec( -1, (1,48), MemberName ),
-    ], info_str=(MemberName, "Delete Bindery Object from Set: %s", ", %s"))
+            rec( -1, (1,48), MemberName, info_str=(MemberName, "Delete Bindery Object from Set: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xeb00, 0xf000, 0xf800, 0xfb02,
                          0xfc03, 0xfe01, 0xff00])
@@ -10244,8 +10260,8 @@ def define_ncp2222():
             rec( 12, (1,48), ObjectName ),
             rec( -1, (1,16), PropertyName ),
             rec( -1, 2, MemberType, ENC_BIG_ENDIAN ),
-            rec( -1, (1,48), MemberName ),
-    ], info_str=(MemberName, "Is Bindery Object in Set: %s", ", %s"))
+            rec( -1, (1,48), MemberName, info_str=(MemberName, "Is Bindery Object in Set: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x9600, 0xea00, 0xeb00, 0xec01, 0xf000,
                          0xfb02, 0xfc03, 0xfe01, 0xff00])
@@ -10301,8 +10317,8 @@ def define_ncp2222():
     pkt.Request((21,68), [
             rec( 10, 8, LoginKey ),
             rec( 18, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 20, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Keyed Verify Password: %s", ", %s"))
+            rec( 20, (1,48), ObjectName, info_str=(ObjectName, "Keyed Verify Password: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xc500, 0xfe01, 0xff0c])
     # 2222/174B, 23/75
@@ -10310,9 +10326,9 @@ def define_ncp2222():
     pkt.Request((22,100), [
             rec( 10, 8, LoginKey ),
             rec( 18, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 20, (1,48), ObjectName ),
+            rec( 20, (1,48), ObjectName, info_str=(ObjectName, "Keyed Change Password: %s", ", %s") ),
             rec( -1, (1,32), Password ),
-    ], info_str=(ObjectName, "Keyed Change Password: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xc500, 0xfe01, 0xff0c])
     # 2222/174C, 23/76
@@ -10320,9 +10336,9 @@ def define_ncp2222():
     pkt.Request((18,80), [
             rec( 10, 4, LastSeen, ENC_BIG_ENDIAN ),
             rec( 14, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 16, (1,48), ObjectName ),
+            rec( 16, (1,48), ObjectName, info_str=(ObjectName, "List Relations of an Object: %s", ", %s") ),
             rec( -1, (1,16), PropertyName ),
-    ], info_str=(ObjectName, "List Relations of an Object: %s", ", %s"))
+    ])
     pkt.Reply(14, [
             rec( 8, 2, RelationsCount, ENC_BIG_ENDIAN, var="x" ),
             rec( 10, 4, ObjectID, ENC_BIG_ENDIAN, repeat="x" ),
@@ -10332,10 +10348,10 @@ def define_ncp2222():
     pkt = NCP(0x1764, "Create Queue", 'qms')
     pkt.Request((15,316), [
             rec( 10, 2, QueueType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), QueueName ),
+            rec( 12, (1,48), QueueName, info_str=(QueueName, "Create Queue: %s", ", %s") ),
             rec( -1, 1, PathBase ),
             rec( -1, (1,255), Path ),
-    ], info_str=(QueueName, "Create Queue: %s", ", %s"))
+    ])
     pkt.Reply(12, [
             rec( 8, 4, QueueID ),
     ])
@@ -10806,8 +10822,8 @@ def define_ncp2222():
     pkt = NCP(0x1796, "Get Current Account Status", 'accounting')
     pkt.Request((13,60), [
             rec( 10, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 12, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Get Current Account Status: %s", ", %s"))
+            rec( 12, (1,48), ObjectName, info_str=(ObjectName, "Get Current Account Status: %s", ", %s") ),
+    ])
     pkt.Reply(264, [
             rec( 8, 4, AccountBalance, ENC_BIG_ENDIAN ),
             rec( 12, 4, CreditLimit, ENC_BIG_ENDIAN ),
@@ -10855,9 +10871,9 @@ def define_ncp2222():
             rec( 16, 4, HoldCancelAmount, ENC_BIG_ENDIAN ),
             rec( 20, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 22, 2, CommentType, ENC_BIG_ENDIAN ),
-            rec( 24, (1,48), ObjectName ),
+            rec( 24, (1,48), ObjectName, info_str=(ObjectName, "Submit Account Charge: %s", ", %s") ),
             rec( -1, (1,255), Comment ),
-    ], info_str=(ObjectName, "Submit Account Charge: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8800, 0x9400, 0x9600, 0xa201,
                          0xc000, 0xc101, 0xc200, 0xc400, 0xe800, 0xea00,
@@ -10867,8 +10883,8 @@ def define_ncp2222():
     pkt.Request((17,64), [
             rec( 10, 4, HoldCancelAmount, ENC_BIG_ENDIAN ),
             rec( 14, 2, ObjectType, ENC_BIG_ENDIAN ),
-            rec( 16, (1,48), ObjectName ),
-    ], info_str=(ObjectName, "Submit Account Hold: %s", ", %s"))
+            rec( 16, (1,48), ObjectName, info_str=(ObjectName, "Submit Account Hold: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8800, 0x9400, 0x9600, 0xa201,
                          0xc000, 0xc101, 0xc200, 0xc400, 0xe800, 0xea00,
@@ -10879,9 +10895,9 @@ def define_ncp2222():
             rec( 10, 2, ServiceType, ENC_BIG_ENDIAN ),
             rec( 12, 2, ObjectType, ENC_BIG_ENDIAN ),
             rec( 14, 2, CommentType, ENC_BIG_ENDIAN ),
-            rec( 16, (1,48), ObjectName ),
+            rec( 16, (1,48), ObjectName, info_str=(ObjectName, "Submit Account Note: %s", ", %s") ),
             rec( -1, (1,255), Comment ),
-    ], info_str=(ObjectName, "Submit Account Note: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x9600, 0xc000, 0xc101, 0xc400,
                          0xe800, 0xea00, 0xeb00, 0xec00, 0xf000, 0xfc06,
@@ -10942,15 +10958,15 @@ def define_ncp2222():
     pkt.Request((13,267), [
             rec( 10, 1, NumberOfStations, var="x" ),
             rec( 11, 1, StationList, repeat="x" ),
-            rec( 12, (1, 255), TargetMessage ),
-    ], info_str=(TargetMessage, "Send Console Broadcast: %s", ", %s"))
+            rec( 12, (1, 255), TargetMessage, info_str=(TargetMessage, "Send Console Broadcast: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
     # 2222/17D2, 23/210
     pkt = NCP(0x17D2, "Clear Connection Number", 'fileserver')
     pkt.Request(11, [
-            rec( 10, 1, ConnectionNumber ),
-    ],info_str=(ConnectionNumber, "Clear Connection Number %d", ", %d"))
+            rec( 10, 1, ConnectionNumber, info_str=(ConnectionNumber, "Clear Connection Number %d", ", %d") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
     # 2222/17D3, 23/211
@@ -11123,8 +11139,8 @@ def define_ncp2222():
     pkt.Request((14,268), [
             rec( 10, 2, LastRecordSeen, ENC_BIG_ENDIAN ),
             rec( 12, 1, DirHandle ),
-            rec( 13, (1,255), Path ),
-    ], info_str=(Path, "Get Connection Using File: %s", ", %s"))
+            rec( 13, (1,255), Path, info_str=(Path, "Get Connection Using File: %s", ", %s") ),
+    ])
     pkt.Reply(30, [
             rec( 8, 2, UseCount, ENC_BIG_ENDIAN ),
             rec( 10, 2, OpenCount, ENC_BIG_ENDIAN ),
@@ -11145,8 +11161,8 @@ def define_ncp2222():
             rec( 12, 2, LastRecordSeen, ENC_BIG_ENDIAN ),
             rec( 14, 1, VolumeNumber ),
             rec( 15, 2, DirectoryID ),
-            rec( 17, 14, FileName14 ),
-    ], info_str=(FileName14, "Get Physical Record Locks by Connection and File: %s", ", %s"))
+            rec( 17, 14, FileName14, info_str=(FileName14, "Get Physical Record Locks by Connection and File: %s", ", %s") ),
+    ])
     pkt.Reply(22, [
             rec( 8, 2, NextRequestRecord ),
             rec( 10, 1, NumberOfLocks, var="x" ),
@@ -11159,8 +11175,8 @@ def define_ncp2222():
     pkt.Request((14,268), [
             rec( 10, 2, TargetConnectionNumber ),
             rec( 12, 1, DirHandle ),
-            rec( 13, (1,255), Path ),
-    ], info_str=(Path, "Get Physical Record Locks by File: %s", ", %s"))
+            rec( 13, (1,255), Path, info_str=(Path, "Get Physical Record Locks by File: %s", ", %s") ),
+    ])
     pkt.Reply(28, [
             rec( 8, 2, NextRequestRecord ),
             rec( 10, 1, NumberOfLocks, var="x" ),
@@ -11184,8 +11200,8 @@ def define_ncp2222():
     pkt = NCP(0x17E0, "Get Logical Record Information", 'fileserver')
     pkt.Request((13,267), [
             rec( 10, 2, LastRecordSeen ),
-            rec( 12, (1,255), LogicalRecordName ),
-    ], info_str=(LogicalRecordName, "Get Logical Record Information: %s", ", %s"))
+            rec( 12, (1,255), LogicalRecordName, info_str=(LogicalRecordName, "Get Logical Record Information: %s", ", %s") ),
+    ])
     pkt.Reply(20, [
             rec( 8, 2, UseCount, ENC_BIG_ENDIAN ),
             rec( 10, 2, ShareableLockCount, ENC_BIG_ENDIAN ),
@@ -11211,8 +11227,8 @@ def define_ncp2222():
     pkt = NCP(0x17E2, "Get Semaphore Information", 'fileserver')
     pkt.Request((13,267), [
             rec( 10, 2, LastRecordSeen ),
-            rec( 12, (1,255), SemaphoreName ),
-    ], info_str=(SemaphoreName, "Get Semaphore Information: %s", ", %s"))
+            rec( 12, (1,255), SemaphoreName, info_str=(SemaphoreName, "Get Semaphore Information: %s", ", %s") ),
+    ])
     pkt.Reply(17, [
             rec( 8, 2, NextRequestRecord, ENC_BIG_ENDIAN ),
             rec( 10, 2, OpenCount, ENC_BIG_ENDIAN ),
@@ -11313,8 +11329,8 @@ def define_ncp2222():
     # 2222/17E9, 23/233
     pkt = NCP(0x17E9, "Get Volume Information", 'fileserver')
     pkt.Request(11, [
-            rec( 10, 1, VolumeNumber ),
-    ],info_str=(VolumeNumber, "Get Information on Volume %d", ", %d"))
+            rec( 10, 1, VolumeNumber, info_str=(VolumeNumber, "Get Information on Volume %d", ", %d") ),
+    ])
     pkt.Reply(48, [
             rec( 8, 4, SystemIntervalMarker, ENC_BIG_ENDIAN ),
             rec( 12, 1, VolumeNumber ),
@@ -11450,8 +11466,8 @@ def define_ncp2222():
     pkt = NCP(0x17F2, "Get Semaphore Information", 'fileserver')
     pkt.Request((13,267), [
             rec( 10, 2, LastRecordSeen ),
-            rec( 12, (1,255), SemaphoreName ),
-    ], info_str=(SemaphoreName, "Get Semaphore Information: %s", ", %s"))
+            rec( 12, (1,255), SemaphoreName, info_str=(SemaphoreName, "Get Semaphore Information: %s", ", %s") ),
+    ])
     pkt.Reply(20, [
             rec( 8, 2, NextRequestRecord ),
             rec( 10, 2, OpenCount ),
@@ -11475,8 +11491,8 @@ def define_ncp2222():
     pkt = NCP(0x17F4, "Convert Path to Dir Entry", 'file')
     pkt.Request((12,266), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1,255), Path ),
-    ], info_str=(Path, "Convert Path to Directory Entry: %s", ", %s"))
+            rec( 11, (1,255), Path, info_str=(Path, "Convert Path to Directory Entry: %s", ", %s") ),
+    ])
     pkt.Reply(13, [
             rec( 8, 1, VolumeNumber ),
             rec( 9, 4, DirectoryNumber ),
@@ -11487,8 +11503,8 @@ def define_ncp2222():
     pkt.Request((16, 270), [
             rec( 10, 1, NumberOfStations, var="x" ),
             rec( 11, 4, StationList, repeat="x" ),
-            rec( 15, (1, 255), TargetMessage ),
-    ], info_str=(TargetMessage, "Send Console Broadcast: %s", ", %s"))
+            rec( 15, (1, 255), TargetMessage, info_str=(TargetMessage, "Send Console Broadcast: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
     # 2222/17FE, 23/254
@@ -11514,9 +11530,9 @@ def define_ncp2222():
             rec( 7, 1, LockFlag ),
             rec( 8, 6, FileHandle ),
             rec( 14, 4, LockAreasStartOffset, ENC_BIG_ENDIAN ),
-            rec( 18, 4, LockAreaLen, ENC_BIG_ENDIAN ),
+            rec( 18, 4, LockAreaLen, ENC_BIG_ENDIAN, info_str=(LockAreaLen, "Lock Record - Length of %d", "%d") ),
             rec( 22, 2, LockTimeout ),
-    ], info_str=(LockAreaLen, "Lock Record - Length of %d", "%d"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff01])
     # 2222/1B, 27
@@ -11533,8 +11549,8 @@ def define_ncp2222():
             rec( 7, 1, Reserved ),
             rec( 8, 6, FileHandle ),
             rec( 14, 4, LockAreasStartOffset ),
-            rec( 18, 4, LockAreaLen ),
-    ], info_str=(LockAreaLen, "Release Lock Record - Length of %d", "%d"))
+            rec( 18, 4, LockAreaLen, info_str=(LockAreaLen, "Release Lock Record - Length of %d", "%d") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
     # 2222/1D, 29
@@ -11550,8 +11566,8 @@ def define_ncp2222():
             rec( 7, 1, Reserved ),
             rec( 8, 6, FileHandle ),
             rec( 14, 4, LockAreasStartOffset, ENC_BIG_ENDIAN ),
-            rec( 18, 4, LockAreaLen, ENC_BIG_ENDIAN ),
-    ], info_str=(LockAreaLen, "Clear Lock Record - Length of %d", "%d"))
+            rec( 18, 4, LockAreaLen, ENC_BIG_ENDIAN, info_str=(LockAreaLen, "Clear Lock Record - Length of %d", "%d") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
     # 2222/1F, 31
@@ -11565,8 +11581,8 @@ def define_ncp2222():
     pkt = NCP(0x2000, "Open Semaphore", 'sync', has_length=0)
     pkt.Request((10,264), [
             rec( 8, 1, InitialSemaphoreValue ),
-            rec( 9, (1,255), SemaphoreName ),
-    ], info_str=(SemaphoreName, "Open Semaphore: %s", ", %s"))
+            rec( 9, (1,255), SemaphoreName, info_str=(SemaphoreName, "Open Semaphore: %s", ", %s") ),
+    ])
     pkt.Reply(13, [
               rec( 8, 4, SemaphoreHandle, ENC_BIG_ENDIAN ),
               rec( 12, 1, SemaphoreOpenCount ),
@@ -11701,8 +11717,8 @@ def define_ncp2222():
             rec( 28, 2, VertLocation ),
             rec( 30, 2, FileDirWindow ),
             rec( 32, 16, Reserved16 ),
-            rec( 48, (1,255), Path ),
-    ], info_str=(Path, "AFP Create Directory: %s", ", %s"))
+            rec( 48, (1,255), Path, info_str=(Path, "AFP Create Directory: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, NewDirectoryID ),
     ])
@@ -11721,8 +11737,8 @@ def define_ncp2222():
             rec( 28, 2, VertLocation, ENC_BIG_ENDIAN ),
             rec( 30, 2, FileDirWindow, ENC_BIG_ENDIAN ),
             rec( 32, 16, Reserved16 ),
-            rec( 48, (1,255), Path ),
-    ], info_str=(Path, "AFP Create File: %s", ", %s"))
+            rec( 48, (1,255), Path, info_str=(Path, "AFP Create File: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, NewDirectoryID ),
     ])
@@ -11735,8 +11751,8 @@ def define_ncp2222():
     pkt.Request((16,270), [
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, BaseDirectoryID ),
-            rec( 15, (1,255), Path ),
-    ], info_str=(Path, "AFP Delete: %s", ", %s"))
+            rec( 15, (1,255), Path, info_str=(Path, "AFP Delete: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8301, 0x8800, 0x8a00, 0x8d00, 0x8e00, 0x8f00,
                          0x9000, 0x9300, 0x9600, 0x9804, 0x9b03, 0x9c03, 0x9e02,
@@ -11746,8 +11762,8 @@ def define_ncp2222():
     pkt.Request((16,270), [
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, BaseDirectoryID ),
-            rec( 15, (1,255), Path ),
-    ], info_str=(Path, "AFP Get Entry from Name: %s", ", %s"))
+            rec( 15, (1,255), Path, info_str=(Path, "AFP Get Entry from Name: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, TargetEntryID, ENC_BIG_ENDIAN ),
     ])
@@ -11759,8 +11775,8 @@ def define_ncp2222():
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, BaseDirectoryID ),
             rec( 15, 2, RequestBitMap, ENC_BIG_ENDIAN ),
-            rec( 17, (1,255), Path ),
-    ], info_str=(Path, "AFP Get File Information: %s", ", %s"))
+            rec( 17, (1,255), Path, info_str=(Path, "AFP Get File Information: %s", ", %s") ),
+    ])
     pkt.Reply(121, [
             rec( 8, 4, AFPEntryID, ENC_BIG_ENDIAN ),
             rec( 12, 4, ParentID, ENC_BIG_ENDIAN ),
@@ -11805,9 +11821,9 @@ def define_ncp2222():
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, MacSourceBaseID, ENC_BIG_ENDIAN ),
             rec( 15, 4, MacDestinationBaseID, ENC_BIG_ENDIAN ),
-            rec( 19, (1,255), Path ),
+            rec( 19, (1,255), Path, info_str=(Path, "AFP Rename: %s", ", %s") ),
             rec( -1, (1,255), NewFileNameLen ),
-    ], info_str=(Path, "AFP Rename: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8301, 0x8401, 0x8800, 0x8b00, 0x8e00,
                          0x9001, 0x9201, 0x9300, 0x9600, 0x9804, 0x9900,
@@ -11819,8 +11835,8 @@ def define_ncp2222():
             rec( 11, 4, MacBaseDirectoryID ),
             rec( 15, 1, ForkIndicator ),
             rec( 16, 1, AccessMode ),
-            rec( 17, (1,255), Path ),
-    ], info_str=(Path, "AFP Open File Fork: %s", ", %s"))
+            rec( 17, (1,255), Path, info_str=(Path, "AFP Open File Fork: %s", ", %s") ),
+    ])
     pkt.Reply(22, [
             rec( 8, 4, AFPEntryID, ENC_BIG_ENDIAN ),
             rec( 12, 4, DataForkLen, ENC_BIG_ENDIAN ),
@@ -11849,8 +11865,8 @@ def define_ncp2222():
             rec( 43, 2, VertLocation ),
             rec( 45, 2, FileDirWindow ),
             rec( 47, 16, Reserved16 ),
-            rec( 63, (1,255), Path ),
-    ], info_str=(Path, "AFP Set File Information: %s", ", %s"))
+            rec( 63, (1,255), Path, info_str=(Path, "AFP Set File Information: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0104, 0x8301, 0x8800, 0x9300, 0x9400,
                          0x9500, 0x9600, 0x9804, 0x9c03, 0xa100, 0xa201,
@@ -11864,8 +11880,8 @@ def define_ncp2222():
             rec( 19, 2, DesiredResponseCount, ENC_BIG_ENDIAN ),
             rec( 21, 2, SearchBitMap, ENC_BIG_ENDIAN ),
             rec( 23, 2, RequestBitMap, ENC_BIG_ENDIAN ),
-            rec( 25, (1,255), Path ),
-    ], info_str=(Path, "AFP Scan File Information: %s", ", %s"))
+            rec( 25, (1,255), Path, info_str=(Path, "AFP Scan File Information: %s", ", %s") ),
+    ])
     pkt.Reply(123, [
             rec( 8, 2, ActualResponseCount, ENC_BIG_ENDIAN, var="x" ),
             rec( 10, 113, AFP10Struct, repeat="x" ),
@@ -11877,8 +11893,8 @@ def define_ncp2222():
     pkt.Request((16,270), [
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, MacBaseDirectoryID ),
-            rec( 15, (1,255), Path ),
-    ], info_str=(Path, "AFP Allocate Temporary Directory Handle: %s", ", %s"))
+            rec( 15, (1,255), Path, info_str=(Path, "AFP Allocate Temporary Directory Handle: %s", ", %s") ),
+    ])
     pkt.Reply(10, [
             rec( 8, 1, DirHandle ),
             rec( 9, 1, AccessRightsMask ),
@@ -11890,8 +11906,8 @@ def define_ncp2222():
     pkt = NCP(0x230C, "AFP Get Entry ID From Path Name", 'afp')
     pkt.Request((12,266), [
             rec( 10, 1, DirHandle ),
-            rec( 11, (1,255), Path ),
-    ], info_str=(Path, "AFP Get Entry ID from Path Name: %s", ", %s"))
+            rec( 11, (1,255), Path, info_str=(Path, "AFP Get Entry ID from Path Name: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, AFPEntryID, ENC_BIG_ENDIAN ),
     ])
@@ -11912,8 +11928,8 @@ def define_ncp2222():
             rec( 30, 2, FileDirWindow ),
             rec( 32, 16, Reserved16 ),
             rec( 48, 6, ProDOSInfo ),
-            rec( 54, (1,255), Path ),
-    ], info_str=(Path, "AFP 2.0 Create Directory: %s", ", %s"))
+            rec( 54, (1,255), Path, info_str=(Path, "AFP 2.0 Create Directory: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, NewDirectoryID ),
     ])
@@ -11934,8 +11950,8 @@ def define_ncp2222():
             rec( 30, 2, FileDirWindow ),
             rec( 32, 16, Reserved16 ),
             rec( 48, 6, ProDOSInfo ),
-            rec( 54, (1,255), Path ),
-    ], info_str=(Path, "AFP 2.0 Create File: %s", ", %s"))
+            rec( 54, (1,255), Path, info_str=(Path, "AFP 2.0 Create File: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, NewDirectoryID ),
     ])
@@ -11950,8 +11966,8 @@ def define_ncp2222():
             rec( 10, 1, VolumeNumber ),
             rec( 11, 4, BaseDirectoryID ),
             rec( 15, 2, RequestBitMap, ENC_BIG_ENDIAN ),
-            rec( 17, (1,255), Path ),
-    ], info_str=(Path, "AFP 2.0 Get Information: %s", ", %s"))
+            rec( 17, (1,255), Path, info_str=(Path, "AFP 2.0 Get Information: %s", ", %s") ),
+    ])
     pkt.Reply(128, [
             rec( 8, 4, AFPEntryID, ENC_BIG_ENDIAN ),
             rec( 12, 4, ParentID, ENC_BIG_ENDIAN ),
@@ -12002,8 +12018,8 @@ def define_ncp2222():
             rec( 45, 2, FileDirWindow ),
             rec( 47, 16, Reserved16 ),
             rec( 63, 6, ProDOSInfo ),
-            rec( 69, (1,255), Path ),
-    ], info_str=(Path, "AFP 2.0 Set File Information: %s", ", %s"))
+            rec( 69, (1,255), Path, info_str=(Path, "AFP 2.0 Set File Information: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0104, 0x8301, 0x8800, 0x9300, 0x9400,
                          0x9500, 0x9600, 0x9804, 0x9c03, 0xa100, 0xa201,
@@ -12017,8 +12033,8 @@ def define_ncp2222():
             rec( 19, 2, DesiredResponseCount, ENC_BIG_ENDIAN ),
             rec( 21, 2, SearchBitMap, ENC_BIG_ENDIAN ),
             rec( 23, 2, RequestBitMap, ENC_BIG_ENDIAN ),
-            rec( 25, (1,255), Path ),
-    ], info_str=(Path, "AFP 2.0 Scan File Information: %s", ", %s"))
+            rec( 25, (1,255), Path, info_str=(Path, "AFP 2.0 Scan File Information: %s", ", %s") ),
+    ])
     pkt.Reply(14, [
             rec( 8, 2, ActualResponseCount, var="x" ),
             rec( 10, 4, AFP20Struct, repeat="x" ),
@@ -12077,8 +12093,8 @@ def define_ncp2222():
     # 2222/2402, 36/02
     pkt = NCP(0x2402, "Get NCP Extension Information by Name", 'extension')
     pkt.Request((11, 265), [
-            rec( 10, (1,255), NCPextensionName ),
-    ], info_str=(NCPextensionName, "Get NCP Extension Information by Name: %s", ", %s"))
+            rec( 10, (1,255), NCPextensionName, info_str=(NCPextensionName, "Get NCP Extension Information by Name: %s", ", %s") ),
+    ])
     pkt.Reply((16,270), [
             rec( 8, 4, NCPextensionNumber ),
             rec( 12, 1, NCPextensionMajorVersion ),
@@ -12140,24 +12156,24 @@ def define_ncp2222():
     pkt = NCP(0x3B, "Commit File", 'file', has_length=0 )
     pkt.Request(14, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
-    ], info_str=(FileHandle, "Commit File - 0x%s", ", %s"))
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Commit File - 0x%s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x9804, 0xff00])
     # 2222/3D, 61
     pkt = NCP(0x3D, "Commit File", 'file', has_length=0 )
     pkt.Request(14, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
-    ], info_str=(FileHandle, "Commit File - 0x%s", ", %s"))
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Commit File - 0x%s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x9804, 0xff00])
     # 2222/3E, 62
     pkt = NCP(0x3E, "File Search Initialize", 'file', has_length=0 )
     pkt.Request((9, 263), [
             rec( 7, 1, DirHandle ),
-            rec( 8, (1,255), Path ),
-    ], info_str=(Path, "Initialize File Search: %s", ", %s"))
+            rec( 8, (1,255), Path, info_str=(Path, "Initialize File Search: %s", ", %s") ),
+    ])
     pkt.Reply(14, [
             rec( 8, 1, VolumeNumber ),
             rec( 9, 2, DirectoryID ),
@@ -12173,8 +12189,8 @@ def define_ncp2222():
             rec( 8, 2, DirectoryID ),
             rec( 10, 2, SequenceNumber, ENC_BIG_ENDIAN ),
             rec( 12, 1, SearchAttributes ),
-            rec( 13, (1,255), Path ),
-    ], info_str=(Path, "File Search Continue: %s", ", %s"))
+            rec( 13, (1,255), Path, info_str=(Path, "File Search Continue: %s", ", %s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             #
             # XXX - don't show this if we got back a non-zero
@@ -12195,8 +12211,8 @@ def define_ncp2222():
             rec( 7, 2, SequenceNumber, ENC_BIG_ENDIAN ),
             rec( 9, 1, DirHandle ),
             rec( 10, 1, SearchAttributes ),
-            rec( 11, (1,255), FileName ),
-    ], info_str=(FileName, "Search for File: %s", ", %s"))
+            rec( 11, (1,255), FileName, info_str=(FileName, "Search for File: %s", ", %s") ),
+    ])
     pkt.Reply(40, [
             rec( 8, 2, SequenceNumber, ENC_BIG_ENDIAN ),
             rec( 10, 2, Reserved2 ),
@@ -12216,8 +12232,8 @@ def define_ncp2222():
     pkt.Request((10, 264), [
             rec( 7, 1, DirHandle ),
             rec( 8, 1, SearchAttributes ),
-            rec( 9, (1,255), FileName ),
-    ], info_str=(FileName, "Open File: %s", ", %s"))
+            rec( 9, (1,255), FileName, info_str=(FileName, "Open File: %s", ", %s") ),
+    ])
     pkt.Reply(44, [
             rec( 8, 6, FileHandle ),
             rec( 14, 2, Reserved2 ),
@@ -12237,8 +12253,8 @@ def define_ncp2222():
     pkt = NCP(0x42, "Close File", 'file')
     pkt.Request(14, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
-    ], info_str=(FileHandle, "Close File - 0x%s", ", %s"))
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Close File - 0x%s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0xff1a])
     pkt.MakeExpert("ncp42_request")
@@ -12247,8 +12263,8 @@ def define_ncp2222():
     pkt.Request((10, 264), [
             rec( 7, 1, DirHandle ),
             rec( 8, 1, AttributesDef ),
-            rec( 9, (1,255), FileName ),
-    ], info_str=(FileName, "Create File: %s", ", %s"))
+            rec( 9, (1,255), FileName, info_str=(FileName, "Create File: %s", ", %s") ),
+    ])
     pkt.Reply(44, [
             rec( 8, 6, FileHandle ),
             rec( 14, 2, Reserved2 ),
@@ -12270,8 +12286,8 @@ def define_ncp2222():
     pkt.Request((10, 264), [
             rec( 7, 1, DirHandle ),
             rec( 8, 1, SearchAttributes ),
-            rec( 9, (1,255), FileName ),
-    ], info_str=(FileName, "Erase File: %s", ", %s"))
+            rec( 9, (1,255), FileName, info_str=(FileName, "Erase File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8a00, 0x8d00, 0x8e00, 0x8f00,
                          0x9001, 0x9600, 0x9804, 0x9b03, 0x9c03,
@@ -12281,10 +12297,10 @@ def define_ncp2222():
     pkt.Request((12, 520), [
             rec( 7, 1, DirHandle ),
             rec( 8, 1, SearchAttributes ),
-            rec( 9, (1,255), FileName ),
+            rec( 9, (1,255), FileName, info_str=(FileName, "Rename File: %s", ", %s") ),
             rec( -1, 1, TargetDirHandle ),
             rec( -1, (1, 255), NewFileNameLen ),
-    ], info_str=(FileName, "Rename File: %s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8701, 0x8b00, 0x8d00, 0x8e00,
                          0x8f00, 0x9001, 0x9101, 0x9201, 0x9600,
@@ -12296,8 +12312,8 @@ def define_ncp2222():
             rec( 7, 1, AttributesDef ),
             rec( 8, 1, DirHandle ),
             rec( 9, 1, SearchAttributes ),
-            rec( 10, (1,255), FileName ),
-    ], info_str=(FileName, "Set File Attributes: %s", ", %s"))
+            rec( 10, (1,255), FileName, info_str=(FileName, "Set File Attributes: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x8d00, 0x8e00, 0x9600,
                          0x9804, 0x9b03, 0x9c03, 0xa100, 0xfd00,
@@ -12306,8 +12322,8 @@ def define_ncp2222():
     pkt = NCP(0x47, "Get Current Size of File", 'file')
     pkt.Request(14, [
     rec(7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
-    ], info_str=(FileHandle, "Get Current Size of File - 0x%s", ", %s"))
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Get Current Size of File - 0x%s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec( 8, 4, FileSize, ENC_BIG_ENDIAN ),
     ])
@@ -12316,10 +12332,10 @@ def define_ncp2222():
     pkt = NCP(0x48, "Read From A File", 'file')
     pkt.Request(20, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Read From File - 0x%s", ", %s") ),
             rec( 14, 4, FileOffset, ENC_BIG_ENDIAN ),
             rec( 18, 2, MaxBytes, ENC_BIG_ENDIAN ),
-    ], info_str=(FileHandle, "Read From File - 0x%s", ", %s"))
+    ])
     pkt.Reply(10, [
             rec( 8, 2, NumBytes, ENC_BIG_ENDIAN ),
     ])
@@ -12328,10 +12344,10 @@ def define_ncp2222():
     pkt = NCP(0x49, "Write to a File", 'file')
     pkt.Request(20, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Write to a File - 0x%s", ", %s") ),
             rec( 14, 4, FileOffset, ENC_BIG_ENDIAN ),
             rec( 18, 2, MaxBytes, ENC_BIG_ENDIAN ),
-    ], info_str=(FileHandle, "Write to a File - 0x%s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0104, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xff1b])
     # 2222/4A, 74
@@ -12353,10 +12369,10 @@ def define_ncp2222():
     pkt = NCP(0x4B, "Set File Time Date Stamp", 'file')
     pkt.Request(18, [
             rec( 7, 1, Reserved ),
-            rec( 8, 6, FileHandle ),
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Set Time and Date Stamp for File - 0x%s", ", %s") ),
             rec( 14, 2, FileTime, ENC_BIG_ENDIAN ),
             rec( 16, 2, FileDate, ENC_BIG_ENDIAN ),
-    ], info_str=(FileHandle, "Set Time and Date Stamp for File - 0x%s", ", %s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8800, 0x9400, 0x9600, 0xfb08])
     # 2222/4C, 76
@@ -12365,8 +12381,8 @@ def define_ncp2222():
             rec( 7, 1, DirHandle ),
             rec( 8, 1, SearchAttributes ),
             rec( 9, 1, AccessRightsMask ),
-            rec( 10, (1,255), FileName ),
-    ], info_str=(FileName, "Open File: %s", ", %s"))
+            rec( 10, (1,255), FileName, info_str=(FileName, "Open File: %s", ", %s") ),
+    ])
     pkt.Reply(44, [
             rec( 8, 6, FileHandle ),
             rec( 14, 2, Reserved2 ),
@@ -12387,8 +12403,8 @@ def define_ncp2222():
     pkt.Request((10, 264), [
             rec( 7, 1, DirHandle ),
             rec( 8, 1, AttributesDef ),
-            rec( 9, (1,255), FileName ),
-    ], info_str=(FileName, "Create File: %s", ", %s"))
+            rec( 9, (1,255), FileName, info_str=(FileName, "Create File: %s", ", %s") ),
+    ])
     pkt.Reply(44, [
             rec( 8, 6, FileHandle ),
             rec( 14, 2, Reserved2 ),
@@ -12411,8 +12427,8 @@ def define_ncp2222():
             rec( 7, 1, AttributesDef ),
             rec( 8, 1, DirHandle ),
             rec( 9, 1, AccessRightsMask ),
-            rec( 10, (1,255), FileName ),
-    ], info_str=(FileName, "Set File Extended Attributes: %s", ", %s"))
+            rec( 10, (1,255), FileName, info_str=(FileName, "Set File Extended Attributes: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8c00, 0x8d00, 0x8e00, 0x9600,
                          0x9804, 0x9b03, 0x9c03, 0xa100, 0xfd00,
@@ -12424,8 +12440,8 @@ def define_ncp2222():
             rec( 8, 1, AttributesDef ),
             rec( 9, 1, AccessRightsMask ),
             rec( 10, 1, ActionFlag ),
-            rec( 11, (1,255), FileName ),
-    ], info_str=(FileName, "Open/Create File: %s", ", %s"))
+            rec( 11, (1,255), FileName, info_str=(FileName, "Open/Create File: %s", ", %s") ),
+    ])
     pkt.Reply(44, [
             rec( 8, 6, FileHandle ),
             rec( 14, 2, Reserved2 ),
@@ -12445,9 +12461,9 @@ def define_ncp2222():
     pkt = NCP(0x55, "Get Sparse File Data Block Bit Map", 'file', has_length=1)
     pkt.Request(19, [
             rec( 7, 2, SubFuncStrucLen, ENC_BIG_ENDIAN ),
-            rec( 9, 6, FileHandle ),
+            rec( 9, 6, FileHandle, info_str=(FileHandle, "Get Sparse File Data Block Bitmap for File - 0x%s", ", %s") ),
             rec( 15, 4, FileOffset ),
-    ], info_str=(FileHandle, "Get Sparse File Data Block Bitmap for File - 0x%s", ", %s"))
+    ])
     pkt.Reply(528, [
             rec( 8, 4, AllocationBlockSize ),
             rec( 12, 4, Reserved4 ),
@@ -12472,9 +12488,9 @@ def define_ncp2222():
             rec( 22, 4, FileOffset ),
             rec( 26, 4, EAAccessFlag ),
             rec( 30, 2, EAValueLength, var='x' ),
-            rec( 32, (2,64), EAKey ),
+            rec( 32, (2,64), EAKey, info_str=(EAKey, "Write Extended Attribute: %s", ", %s") ),
             rec( -1, 1, EAValueRep, repeat='x' ),
-    ], info_str=(EAKey, "Write Extended Attribute: %s", ", %s"))
+    ])
     pkt.Reply(20, [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, EABytesWritten ),
@@ -12490,8 +12506,8 @@ def define_ncp2222():
             rec( 14, 4, ReservedOrDirectoryNumber ),
             rec( 18, 4, FileOffset ),
             rec( 22, 4, InspectSize ),
-            rec( 26, (2,512), EAKey ),
-    ], info_str=(EAKey, "Read Extended Attribute: %s", ", %s"))
+            rec( 26, (2,512), EAKey, info_str=(EAKey, "Read Extended Attribute: %s", ", %s") ),
+    ])
     pkt.Reply((26,536), [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, TtlValuesLength ),
@@ -12509,8 +12525,8 @@ def define_ncp2222():
             rec( 14, 4, ReservedOrDirectoryNumber ),
             rec( 18, 4, InspectSize ),
             rec( 22, 2, SequenceNumber ),
-            rec( 24, (2,512), EAKey ),
-    ], info_str=(EAKey, "Enumerate Extended Attribute: %s", ", %s"))
+            rec( 24, (2,512), EAKey, info_str=(EAKey, "Enumerate Extended Attribute: %s", ", %s") ),
+    ])
     pkt.Reply(28, [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, TtlEAs ),
@@ -12550,8 +12566,8 @@ def define_ncp2222():
             rec( 23, 4, DirectoryBase ),
             rec( 27, 1, HandleFlag ),
             rec( 28, 1, PathCount, var="x" ),
-            rec( 29, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Open or Create: %s", "/%s"))
+            rec( 29, (1,255), Path, repeat="x", info_str=(Path, "Open or Create: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle ),
             rec( 12, 1, OpenCreateAction ),
@@ -12620,8 +12636,8 @@ def define_ncp2222():
             rec( 11, 4, DirectoryBase ),
             rec( 15, 1, HandleFlag ),
             rec( 16, 1, PathCount, var="x" ),
-            rec( 17, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Set Search Pointer to: %s", "/%s"))
+            rec( 17, (1,255), Path, repeat="x", info_str=(Path, "Set Search Pointer to: %s", "/%s") ),
+    ])
     pkt.Reply(17, [
             rec( 8, 1, VolumeNumber ),
             rec( 9, 4, DirectoryNumber ),
@@ -12639,8 +12655,8 @@ def define_ncp2222():
             rec( 12, 2, ReturnInfoMask ),
             rec( 14, 2, ExtendedInfo ),
             rec( 16, 9, SeachSequenceStruct ),
-            rec( 25, (1,255), SearchPattern ),
-    ], info_str=(SearchPattern, "Search for: %s", "/%s"))
+            rec( 25, (1,255), SearchPattern, info_str=(SearchPattern, "Search for: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 9, SeachSequenceStruct ),
             rec( 17, 1, Reserved ),
@@ -12709,9 +12725,9 @@ def define_ncp2222():
             rec( 20, 4, DirectoryBase ),
             rec( 24, 1, HandleFlag ),
             rec( 25, 1, PathCount, var="y" ),
-            rec( 26, (1, 255), Path, repeat="x" ),
+            rec( 26, (1, 255), Path, repeat="x", info_str=(Path, "Rename or Move: %s", "/%s") ),
             rec( -1, (1,255), DestPath, repeat="y" ),
-    ], info_str=(Path, "Rename or Move: %s", "/%s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9100, 0x9200, 0x9600,
@@ -12727,8 +12743,8 @@ def define_ncp2222():
             rec( 17, 4, DirectoryBase ),
             rec( 21, 1, HandleFlag ),
             rec( 22, 1, PathCount, var="x" ),
-            rec( 23, (1, 255), Path, repeat="x" ),
-    ], info_str=(Path, "Scan Trustees for: %s", "/%s"))
+            rec( 23, (1, 255), Path, repeat="x", info_str=(Path, "Scan Trustees for: %s", "/%s") ),
+    ])
     pkt.Reply(20, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 2, ObjectIDCount, var="x" ),
@@ -12749,8 +12765,8 @@ def define_ncp2222():
             rec( 19, 4, DirectoryBase ),
             rec( 23, 1, HandleFlag ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (1,255), Path, repeat="x",),
-    ], info_str=(Path, "Obtain Info for: %s", "/%s"))
+            rec( 25, (1,255), Path, repeat="x", info_str=(Path, "Obtain Info for: %s", "/%s")),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
         srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
         srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
@@ -12835,8 +12851,8 @@ def define_ncp2222():
             rec( 55, 4, DirectoryBase ),
             rec( 59, 1, HandleFlag ),
             rec( 60, 1, PathCount, var="x" ),
-            rec( 61, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Modify DOS Information for: %s", "/%s"))
+            rec( 61, (1,255), Path, repeat="x", info_str=(Path, "Modify DOS Information for: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
@@ -12851,8 +12867,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Delete a File or Subdirectory: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Delete a File or Subdirectory: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
@@ -12868,8 +12884,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Set Short Directory Handle to: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Set Short Directory Handle to: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -12886,9 +12902,9 @@ def define_ncp2222():
             rec( 17, 4, DirectoryBase ),
             rec( 21, 1, HandleFlag ),
             rec( 22, 1, PathCount, var="x" ),
-            rec( 23, (1,255), Path, repeat="x" ),
+            rec( 23, (1,255), Path, repeat="x", info_str=(Path, "Add Trustee Set to: %s", "/%s") ),
             rec( -1, 7, TrusteeStruct, repeat="y" ),
-    ], info_str=(Path, "Add Trustee Set to: %s", "/%s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -12903,9 +12919,9 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Delete Trustee Set from: %s", "/%s") ),
             rec( -1, 7, TrusteeStruct, repeat="y" ),
-    ], info_str=(Path, "Delete Trustee Set from: %s", "/%s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -12920,8 +12936,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Allocate Short Directory Handle to: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Allocate Short Directory Handle to: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
     srec( ReplyLevel2Struct, req_cond="ncp.alloc_reply_lvl2 == TRUE" ),
             srec( ReplyLevel1Struct, req_cond="ncp.alloc_reply_lvl2 == FALSE" ),
@@ -12942,8 +12958,8 @@ def define_ncp2222():
             rec( 19, 4, DirectoryBase ),
             rec( 23, 1, HandleFlag ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Scan for Deleted Files in: %s", "/%s"))
+            rec( 25, (1,255), Path, repeat="x", info_str=(Path, "Scan for Deleted Files in: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 2, DeletedTime ),
@@ -12999,8 +13015,8 @@ def define_ncp2222():
             rec( 10, 4, SequenceNumber ),
             rec( 14, 4, VolumeID ),
             rec( 18, 4, DirectoryBase ),
-            rec( 22, (1,255), FileName ),
-    ], info_str=(FileName, "Recover Deleted File: %s", ", %s"))
+            rec( 22, (1,255), FileName, info_str=(FileName, "Recover Deleted File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -13088,8 +13104,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Get Volume and Directory Base from: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Get Volume and Directory Base from: %s", "/%s") ),
+    ])
     pkt.Reply(17, [
             rec( 8, 4, DirectoryBase ),
             rec( 12, 4, DOSDirectoryBase ),
@@ -13120,8 +13136,8 @@ def define_ncp2222():
     pkt = NCP(0x5718, "Get Name Spaces Loaded List from Volume Number", 'file', has_length=0)
     pkt.Request(11, [
             rec( 8, 2, Reserved2 ),
-            rec( 10, 1, VolumeNumber ),
-    ], info_str=(VolumeNumber, "Get Name Spaces Loaded List from Vol: %d", "/%d"))
+            rec( 10, 1, VolumeNumber, info_str=(VolumeNumber, "Get Name Spaces Loaded List from Vol: %d", "/%d") ),
+    ])
     pkt.Reply(11, [
             rec( 8, 2, NumberOfNSLoaded, var="x" ),
             rec( 10, 1, NameSpace, repeat="x" ),
@@ -13192,8 +13208,8 @@ def define_ncp2222():
             rec( 21, 4, DirectoryBase ),
             rec( 25, 1, HandleFlag ),
             rec( 26, 1, PathCount, var="x" ),
-            rec( 27, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Get Full Path from: %s", "/%s"))
+            rec( 27, (1,255), Path, repeat="x", info_str=(Path, "Get Full Path from: %s", "/%s") ),
+    ])
     pkt.Reply((23,277), [
             rec( 8, 2, PathCookieFlags ),
             rec( 10, 4, Cookie1 ),
@@ -13218,8 +13234,8 @@ def define_ncp2222():
             rec( 17, 4, DirectoryBase ),
             rec( 21, 1, HandleFlag ),
             rec( 22, 1, PathCount, var="x" ),
-            rec( 23, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Get Effective Rights for: %s", "/%s"))
+            rec( 23, (1,255), Path, repeat="x", info_str=(Path, "Get Effective Rights for: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 2, EffectiveRights ),
             srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
@@ -13279,8 +13295,8 @@ def define_ncp2222():
             rec( 27, 4, DirectoryBase ),
             rec( 31, 1, HandleFlag ),
             rec( 32, 1, PathCount, var="x" ),
-            rec( 33, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Open or Create File: %s", "/%s"))
+            rec( 33, (1,255), Path, repeat="x", info_str=(Path, "Open or Create File: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle, ENC_BIG_ENDIAN ),
             rec( 12, 1, OpenCreateAction ),
@@ -13329,9 +13345,9 @@ def define_ncp2222():
     # 2222/571F, 87/31
     pkt = NCP(0x571F, "Get File Information", 'file', has_length=0)
     pkt.Request(15, [
-            rec( 8, 6, FileHandle  ),
+            rec( 8, 6, FileHandle, info_str=(FileHandle, "Get File Information - 0x%s", ", %s")  ),
             rec( 14, 1, HandleInfoLevel ),
-    ], info_str=(FileHandle, "Get File Information - 0x%s", ", %s"))
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, VolumeNumberLong ),
             rec( 12, 4, DirectoryBase ),
@@ -13360,8 +13376,8 @@ def define_ncp2222():
             rec( 23, 4, DirectoryBase ),
             rec( 27, 1, HandleFlag ),
             rec( 28, 1, PathCount, var="x" ),
-            rec( 29, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Open or Create with Op-Lock: %s", "/%s"))
+            rec( 29, (1,255), Path, repeat="x", info_str=(Path, "Open or Create with Op-Lock: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle, ENC_BIG_ENDIAN ),
             rec( 12, 1, OpenCreateAction ),
@@ -13438,8 +13454,8 @@ def define_ncp2222():
             rec( 27, 4, DirectoryBase ),
             rec( 31, 1, HandleFlag ),
             rec( 32, 1, PathCount, var="x" ),
-            rec( 33, (1,255), Path, repeat="x" ),
-    ], info_str=(FilePath, "Open or Create II with Op-Lock: %s", "/%s"))
+            rec( 33, (1,255), Path, repeat="x", info_str=(Path, "Open or Create II with Op-Lock: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle ),
             rec( 12, 1, OpenCreateAction ),
@@ -13521,8 +13537,8 @@ def define_ncp2222():
             rec( 21, 4, DirectoryBase ),
             rec( 25, 1, HandleFlag ),
             rec( 26, 1, PathCount, var="x" ),
-            rec( 27, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Modify DOS Attributes for: %s", "/%s"))
+            rec( 27, (1,255), Path, repeat="x", info_str=(Path, "Modify DOS Attributes for: %s", "/%s") ),
+    ])
     pkt.Reply(24, [
             rec( 8, 4, ItemsChecked ),
             rec( 12, 4, ItemsChanged ),
@@ -13546,8 +13562,8 @@ def define_ncp2222():
             rec( 21, 4, DirectoryBase ),
             rec( 25, 1, HandleFlag ),
             rec( 26, 1, PathCount, var="x" ),
-            rec( 27, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Lock File: %s", "/%s"))
+            rec( 27, (1,255), Path, repeat="x", info_str=(Path, "Lock File: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -13562,8 +13578,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Release Lock on: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Release Lock on: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -13578,8 +13594,8 @@ def define_ncp2222():
             rec( 13, 4, DirectoryBase ),
             rec( 17, 1, HandleFlag ),
             rec( 18, 1, PathCount, var="x" ),
-            rec( 19, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Clear File: %s", "/%s"))
+            rec( 19, (1,255), Path, repeat="x", info_str=(Path, "Clear File: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -13593,8 +13609,8 @@ def define_ncp2222():
             rec( 12, 4, DirectoryBase ),
             rec( 16, 1, HandleFlag ),
             rec( 17, 1, PathCount, var="x" ),
-            rec( 18, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Get Disk Space Restriction for: %s", "/%s"))
+            rec( 18, (1,255), Path, repeat="x", info_str=(Path, "Get Disk Space Restriction for: %s", "/%s") ),
+    ])
     pkt.Reply(18, [
             rec( 8, 1, NumberOfEntries, var="x" ),
             rec( 9, 9, SpaceStruct, repeat="x" ),
@@ -13613,8 +13629,8 @@ def define_ncp2222():
             rec( 14, 2, ExtendedInfo ),
             rec( 16, 2, ReturnInfoCount ),
             rec( 18, 9, SeachSequenceStruct ),
-            rec( 27, (1,255), SearchPattern ),
-    ], info_str=(SearchPattern, "Search for: %s", ", %s"))
+            rec( 27, (1,255), SearchPattern, info_str=(SearchPattern, "Search for: %s", ", %s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 9, SeachSequenceStruct ),
             rec( 17, 1, MoreFlag ),
@@ -13670,8 +13686,8 @@ def define_ncp2222():
             rec( 17, 4, DirectoryBase ),
             rec( 21, 1, HandleFlag ),
             rec( 22, 1, PathCount, var="x" ),
-            rec( 23, (1,255), Path, repeat="x" ),
-    ], info_str=(Path, "Scan Deleted Files: %s", "/%s"))
+            rec( 23, (1,255), Path, repeat="x", info_str=(Path, "Scan Deleted Files: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 4, DirectoryBase ),
@@ -14062,8 +14078,8 @@ def define_ncp2222():
             rec( 28, 1, DataTypeFlag ),
             rec( 29, 5, Reserved5 ),
             rec( 34, 1, PathCount, var="x" ),
-            rec( 35, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Open or Create File or Subdirectory: %s", "/%s"))
+            rec( 35, (2,255), Path16, repeat="x", info_str=(Path16, "Open or Create File or Subdirectory: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle, ENC_BIG_ENDIAN ),
             rec( 12, 1, OpenCreateAction ),
@@ -14135,8 +14151,8 @@ def define_ncp2222():
     rec( 16, 1, DataTypeFlag ),
     rec( 17, 5, Reserved5 ),
             rec( 22, 1, PathCount, var="x" ),
-            rec( 23, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Set Search Pointer to: %s", "/%s"))
+            rec( 23, (2,255), Path16, repeat="x", info_str=(Path16, "Set Search Pointer to: %s", "/%s") ),
+    ])
     pkt.Reply(17, [
             rec( 8, 1, VolumeNumber ),
             rec( 9, 4, DirectoryNumber ),
@@ -14156,8 +14172,8 @@ def define_ncp2222():
             rec( 16, 9, SeachSequenceStruct ),
             rec( 25, 1, DataTypeFlag ),
             # next field is dissected in packet-ncp2222.inc
-            #rec( 26, (2,255), SearchPattern16 ),
-    ], info_str=(SearchPattern16, "Search for: %s", "/%s"))
+            #rec( 26, (2,255), SearchPattern16, info_str=(SearchPattern16, "Search for: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 9, SeachSequenceStruct ),
             rec( 17, 1, Reserved ),
@@ -14226,9 +14242,9 @@ def define_ncp2222():
             rec( 24, 1, PathCount, var="x" ),
             rec( 25, 12, DstEnhNWHandlePathS1 ),
             rec( 37, 1, PathCount, var="y" ),
-            rec( 38, (2, 255), Path16, repeat="x" ),
+            rec( 38, (2, 255), Path16, repeat="x", info_str=(Path16, "Rename or Move: %s", "/%s") ),
             rec( -1, (2,255), DestPath16, repeat="y" ),
-    ], info_str=(Path16, "Rename or Move: %s", "/%s"))
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
@@ -14246,8 +14262,8 @@ def define_ncp2222():
     rec( 22, 1, DataTypeFlag ),
     rec( 23, 5, Reserved5 ),
             rec( 28, 1, PathCount, var="x" ),
-            rec( 29, (2, 255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Scan Trustees for: %s", "/%s"))
+            rec( 29, (2, 255), Path16, repeat="x", info_str=(Path16, "Scan Trustees for: %s", "/%s") ),
+    ])
     pkt.Reply(20, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 2, ObjectIDCount, var="x" ),
@@ -14275,8 +14291,8 @@ def define_ncp2222():
     #rec( 22, 1, DataTypeFlag ),
     #rec( 23, 5, Reserved5 ),
             #rec( 28, 1, PathCount, var="x" ),
-            #rec( 29, (2,255), Path16, repeat="x",),
-    ], info_str=(Path16, "Obtain Info for: %s", "/%s"))
+            #rec( 29, (2,255), Path16, repeat="x", info_str=(Path16, "Obtain Info for: %s", "/%s")),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
         srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
         srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
@@ -14363,8 +14379,8 @@ def define_ncp2222():
     rec( 60, 1, DataTypeFlag ),
     rec( 61, 5, Reserved5 ),
             rec( 66, 1, PathCount, var="x" ),
-            rec( 67, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Modify DOS Information for: %s", "/%s"))
+            rec( 67, (2,255), Path16, repeat="x", info_str=(Path16, "Modify DOS Information for: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x7902, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
@@ -14381,8 +14397,8 @@ def define_ncp2222():
     rec( 18, 1, DataTypeFlag ),
     rec( 19, 5, Reserved5 ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Delete a File or Subdirectory: %s", "/%s"))
+            rec( 25, (2,255), Path16, repeat="x", info_str=(Path16, "Delete a File or Subdirectory: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
@@ -14400,8 +14416,8 @@ def define_ncp2222():
     rec( 18, 1, DataTypeFlag ),
     rec( 19, 5, Reserved5 ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Set Short Directory Handle to: %s", "/%s"))
+            rec( 25, (2,255), Path16, repeat="x", info_str=(Path16, "Set Short Directory Handle to: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -14421,8 +14437,8 @@ def define_ncp2222():
     rec( -1, 1, DataTypeFlag ),
     rec( -1, 5, Reserved5 ),
             rec( -1, 1, PathCount, var="x" ),
-            rec( -1, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Add Trustee Set to: %s", "/%s"))
+            rec( -1, (2,255), Path16, repeat="x", info_str=(Path16, "Add Trustee Set to: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -14440,8 +14456,8 @@ def define_ncp2222():
     rec( 25, 1, DataTypeFlag ),
     rec( 26, 5, Reserved5 ),
             rec( 31, 1, PathCount, var="x" ),
-            rec( 32, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Delete Trustee Set from: %s", "/%s"))
+            rec( 32, (2,255), Path16, repeat="x", info_str=(Path16, "Delete Trustee Set from: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -14458,8 +14474,8 @@ def define_ncp2222():
     rec( 18, 1, DataTypeFlag ),
     rec( 19, 5, Reserved5 ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Allocate Short Directory Handle to: %s", "/%s"))
+            rec( 25, (2,255), Path16, repeat="x", info_str=(Path16, "Allocate Short Directory Handle to: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
     srec( ReplyLevel2Struct, req_cond="ncp.alloc_reply_lvl2 == TRUE" ),
             srec( ReplyLevel1Struct, req_cond="ncp.alloc_reply_lvl2 == FALSE" ),
@@ -14482,8 +14498,8 @@ def define_ncp2222():
     rec( 24, 1, DataTypeFlag ),
     rec( 25, 5, Reserved5 ),
             rec( 30, 1, PathCount, var="x" ),
-            rec( 31, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Scan for Deleted Files in: %s", "/%s"))
+            rec( 31, (2,255), Path16, repeat="x", info_str=(Path16, "Scan for Deleted Files in: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, SequenceNumber ),
             rec( 12, 2, DeletedTime ),
@@ -14556,8 +14572,8 @@ def define_ncp2222():
             rec( 14, 4, VolumeID ),
             rec( 18, 4, DirectoryBase ),
     rec( 22, 1, DataTypeFlag ),
-            rec( 23, (1,255), FileName16 ),
-    ], info_str=(FileName16, "Recover Deleted File: %s", ", %s"))
+            rec( 23, (1,255), FileName16, info_str=(FileName16, "Recover Deleted File: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
                          0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -14624,8 +14640,8 @@ def define_ncp2222():
     rec( 18, 1, DataTypeFlag ),
     rec( 19, 5, Reserved5 ),
             rec( 24, 1, PathCount, var="x" ),
-            rec( 25, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Get Volume and Directory Base from: %s", "/%s"))
+            rec( 25, (2,255), Path16, repeat="x", info_str=(Path16, "Get Volume and Directory Base from: %s", "/%s") ),
+    ])
     pkt.Reply(17, [
             rec( 8, 4, DirectoryBase ),
             rec( 12, 4, DOSDirectoryBase ),
@@ -14664,8 +14680,8 @@ def define_ncp2222():
     rec( 26, 1, DataTypeFlag ),
     rec( 27, 5, Reserved5 ),
             rec( 32, 1, PathCount, var="x" ),
-            rec( 33, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Get Full Path from: %s", "/%s"))
+            rec( 33, (2,255), Path16, repeat="x", info_str=(Path16, "Get Full Path from: %s", "/%s") ),
+    ])
     pkt.Reply((24,277), [
             rec( 8, 2, PathCookieFlags ),
             rec( 10, 4, Cookie1 ),
@@ -14692,8 +14708,8 @@ def define_ncp2222():
     rec( 22, 1, DataTypeFlag ),
     rec( 23, 5, Reserved5 ),
             rec( 28, 1, PathCount, var="x" ),
-            rec( 29, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Get Effective Rights for: %s", "/%s"))
+            rec( 29, (2,255), Path16, repeat="x", info_str=(Path16, "Get Effective Rights for: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 2, EffectiveRights, ENC_LITTLE_ENDIAN ),
             srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
@@ -14756,8 +14772,8 @@ def define_ncp2222():
     rec( 32, 1, DataTypeFlag ),
     rec( 33, 5, Reserved5 ),
             rec( 38, 1, PathCount, var="x" ),
-            rec( 39, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Open or Create File: %s", "/%s"))
+            rec( 39, (2,255), Path16, repeat="x", info_str=(Path16, "Open or Create File: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle, ENC_BIG_ENDIAN ),
             rec( 12, 1, OpenCreateAction ),
@@ -14820,8 +14836,8 @@ def define_ncp2222():
     rec( 28, 1, DataTypeFlag ),
     rec( 29, 5, Reserved5 ),
             rec( 34, 1, PathCount, var="x" ),
-            rec( 35, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Open or Create with Op-Lock: %s", "/%s"))
+            rec( 35, (2,255), Path16, repeat="x", info_str=(Path16, "Open or Create with Op-Lock: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle, ENC_BIG_ENDIAN ),
             rec( 12, 1, OpenCreateAction ),
@@ -14901,8 +14917,8 @@ def define_ncp2222():
     rec( 32, 1, DataTypeFlag ),
     rec( 33, 5, Reserved5 ),
             rec( 38, 1, PathCount, var="x" ),
-            rec( 39, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Open or Create II with Op-Lock: %s", "/%s"))
+            rec( 39, (2,255), Path16, repeat="x", info_str=(Path16, "Open or Create II with Op-Lock: %s", "/%s") ),
+    ])
     pkt.Reply( NO_LENGTH_CHECK, [
             rec( 8, 4, FileHandle ),
             rec( 12, 1, OpenCreateAction ),
@@ -14978,8 +14994,8 @@ def define_ncp2222():
     rec( 26, 1, DataTypeFlag ),
     rec( 27, 5, Reserved5 ),
             rec( 32, 1, PathCount, var="x" ),
-            rec( 33, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Modify DOS Attributes for: %s", "/%s"))
+            rec( 33, (2,255), Path16, repeat="x", info_str=(Path16, "Modify DOS Attributes for: %s", "/%s") ),
+    ])
     pkt.Reply(24, [
             rec( 8, 4, ItemsChecked ),
             rec( 12, 4, ItemsChanged ),
@@ -15000,8 +15016,8 @@ def define_ncp2222():
             rec( 17, 1, DataTypeFlag ),
             rec( 18, 5, Reserved5 ),
             rec( 23, 1, PathCount, var="x" ),
-            rec( 24, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Get Disk Space Restriction for: %s", "/%s"))
+            rec( 24, (2,255), Path16, repeat="x", info_str=(Path16, "Get Disk Space Restriction for: %s", "/%s") ),
+    ])
     pkt.Reply(18, [
             rec( 8, 1, NumberOfEntries, var="x" ),
             rec( 9, 9, SpaceStruct, repeat="x" ),
@@ -15021,8 +15037,8 @@ def define_ncp2222():
             rec( 16, 2, ReturnInfoCount ),
             rec( 18, 9, SeachSequenceStruct ),
     rec( 27, 1, DataTypeFlag ),
-            rec( 28, (2,255), SearchPattern16 ),
-    ], info_str=(SearchPattern16, "Search for: %s", ", %s"))
+            rec( 28, (2,255), SearchPattern16, info_str=(SearchPattern16, "Search for: %s", ", %s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( 8, 9, SeachSequenceStruct ),
             rec( 17, 1, MoreFlag ),
@@ -15080,8 +15096,8 @@ def define_ncp2222():
     rec( 17, 1, DataTypeFlag ),
     rec( 18, 5, Reserved5 ),
             rec( 23, 1, PathCount, var="x" ),
-            rec( 24, (2,255), Path16, repeat="x" ),
-    ], info_str=(Path16, "Get Disk Space Restriction for: %s", "/%s"))
+            rec( 24, (2,255), Path16, repeat="x", info_str=(Path16, "Get Disk Space Restriction for: %s", "/%s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec( -1, 8, MaxSpace64, req_cond = "(ncp.info_level_num == 0)" ),
             rec( -1, 8, MinSpaceLeft64, req_cond = "(ncp.info_level_num == 0)" ),
@@ -15119,9 +15135,9 @@ rec( 9, 4, ObjectID ),
             rec( 26, 4, EAAccessFlag ),
             rec( 30, 1, DataTypeFlag ),
             rec( 31, 2, EAValueLength, var='x' ),
-            rec( 33, (2,64), EAKey ),
+            rec( 33, (2,64), EAKey, info_str=(EAKey, "Write Extended Attribute: %s", ", %s") ),
             rec( -1, 1, EAValueRep, repeat='x' ),
-    ], info_str=(EAKey, "Write Extended Attribute: %s", ", %s"))
+    ])
     pkt.Reply(20, [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, EABytesWritten ),
@@ -15139,8 +15155,8 @@ rec( 9, 4, ObjectID ),
             rec( 22, 4, InspectSize ),
             rec( 26, 1, DataTypeFlag ),
             rec( 27, 2, MaxReadDataReplySize ),
-            rec( 29, (2,512), EAKey ),
-    ], info_str=(EAKey, "Read Extended Attribute: %s", ", %s"))
+            rec( 29, (2,512), EAKey, info_str=(EAKey, "Read Extended Attribute: %s", ", %s") ),
+    ])
     pkt.Reply((26,536), [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, TtlValuesLength ),
@@ -15159,8 +15175,8 @@ rec( 9, 4, ObjectID ),
             rec( 18, 4, InspectSize ),
             rec( 22, 2, SequenceNumber ),
     rec( 24, 1, DataTypeFlag ),
-            rec( 25, (2,512), EAKey ),
-    ], info_str=(EAKey, "Enumerate Extended Attribute: %s", ", %s"))
+            rec( 25, (2,512), EAKey, info_str=(EAKey, "Enumerate Extended Attribute: %s", ", %s") ),
+    ])
     pkt.Reply(28, [
             rec( 8, 4, EAErrorCodes ),
             rec( 12, 4, TtlEAs ),
@@ -15483,9 +15499,9 @@ rec( 9, 4, ObjectID ),
     # 2222/61, 97
     pkt = NCP(0x61, "Get Big Packet NCP Max Packet Size", 'connection')
     pkt.Request(10, [
-            rec( 7, 2, ProposedMaxSize, ENC_BIG_ENDIAN ),
+            rec( 7, 2, ProposedMaxSize, ENC_BIG_ENDIAN, info_str=(ProposedMaxSize, "Get Big Max Packet Size - %d", ", %d") ),
             rec( 9, 1, SecurityFlag ),
-    ],info_str=(ProposedMaxSize, "Get Big Max Packet Size - %d", ", %d"))
+    ])
     pkt.Reply(13, [
             rec( 8, 2, AcceptedMaxSize, ENC_BIG_ENDIAN ),
             rec( 10, 2, EchoSocket, ENC_BIG_ENDIAN ),
@@ -15703,8 +15719,8 @@ rec( 9, 4, ObjectID ),
             rec( 7, 1, DirHandle ),
             rec( 8, 1, LockFlag ),
             rec( 9, 2, TimeoutLimit ),
-            rec( 11, (1, 256), FilePath ),
-    ], info_str=(FilePath, "Log File: %s", "/%s"))
+            rec( 11, (1, 256), FilePath, info_str=(FilePath, "Log File: %s", "/%s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x7f00, 0x8200, 0x9600, 0xfe0d, 0xff01])
     # 2222/6A, 106
@@ -15719,8 +15735,8 @@ rec( 9, 4, ObjectID ),
     pkt.Request( (11, 266), [
             rec( 7, 1, LockFlag ),
             rec( 8, 2, TimeoutLimit ),
-            rec( 10, (1, 256), SynchName ),
-    ], info_str=(SynchName, "Log Logical Record: %s", ", %s"))
+            rec( 10, (1, 256), SynchName, info_str=(SynchName, "Log Logical Record: %s", ", %s") ),
+    ])
     pkt.Reply(8)
     pkt.CompletionCodes([0x0000, 0x7f00, 0x9600, 0xfe0d, 0xff01])
     # 2222/6C, 108
@@ -15754,8 +15770,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x6F00, "Open/Create a Semaphore", 'sync', has_length=0)
     pkt.Request((10,521), [
             rec( 8, 1, InitialSemaphoreValue ),
-            rec( 9, (1, 512), SemaphoreName ),
-    ], info_str=(SemaphoreName, "Open/Create Semaphore: %s", ", %s"))
+            rec( 9, (1, 512), SemaphoreName, info_str=(SemaphoreName, "Open/Create Semaphore: %s", ", %s") ),
+    ])
     pkt.Reply(13, [
               rec( 8, 4, SemaphoreHandle ),
               rec( 12, 1, SemaphoreOpenCount ),
@@ -15821,8 +15837,8 @@ rec( 9, 4, ObjectID ),
             rec( 42, 8, sourceReturnTime ),
             rec( 50, 8, eventOffset ),
             rec( 58, 4, eventTime ),
-            rec( 62, (1,50), ServerNameLen ),
-    ], info_str=(ServerNameLen, "Timesync Exchange Time: %s", ", %s"))
+            rec( 62, (1,50), ServerNameLen, info_str=(ServerNameLen, "Timesync Exchange Time: %s", ", %s") ),
+    ])
     pkt.Reply((64,113), [
             rec( 8, 3, Reserved3 ),
             rec( 11, 4, protocolFlags ),
@@ -16545,8 +16561,8 @@ rec( 9, 4, ObjectID ),
     pkt.Request((15,64), [
             rec(10, 2, ServerType ),
             rec(12, 2, Reserved2 ),
-            rec(14, (1,50), ServerNameLen ),
-    ], info_str=(ServerNameLen, "Get Server Information: %s", ", %s"))
+            rec(14, (1,50), ServerNameLen, info_str=(ServerNameLen, "Get Server Information: %s", ", %s") ),
+    ])
     pkt.Reply(30, [
             rec(8, 4, CurrentServerTime ),
             rec(12, 1, VConsoleVersion ),
@@ -16562,8 +16578,8 @@ rec( 9, 4, ObjectID ),
             rec(10, 4, StartNumber ),
             rec(14, 2, ServerType ),
             rec(16, 2, Reserved2 ),
-            rec(18, (1,50), ServerNameLen ),
-    ], info_str=(ServerNameLen, "Get Server Sources Info: %s", ", %s"))
+            rec(18, (1,50), ServerNameLen, info_str=(ServerNameLen, "Get Server Sources Info: %s", ", %s") ),
+    ])
     pkt.Reply(32, [
             rec(8, 4, CurrentServerTime ),
             rec(12, 1, VConsoleVersion ),
@@ -16629,8 +16645,8 @@ rec( 9, 4, ObjectID ),
     # 2222/7B3E, 123/62
     pkt = NCP(0x7B3E, "Get Server Set Commands Information By Name", 'stats')
     pkt.Request(NO_LENGTH_CHECK, [
-            rec(10, PROTO_LENGTH_UNKNOWN, SetParmName ),
-    ], info_str=(SetParmName, "Get Server Set Command Info for: %s", ", %s"))
+            rec(10, PROTO_LENGTH_UNKNOWN, SetParmName, info_str=(SetParmName, "Get Server Set Command Info for: %s", ", %s") ),
+    ])
     pkt.Reply(NO_LENGTH_CHECK, [
             rec(8, 4, CurrentServerTime ),
             rec(12, 1, VConsoleVersion ),
@@ -16723,8 +16739,8 @@ rec( 9, 4, ObjectID ),
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 4, NLMLoadOptions ),
             rec(14, 16, Reserved16 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, PathAndName ),
-    ], info_str=(PathAndName, "RPC Load NLM: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, PathAndName, info_str=(PathAndName, "RPC Load NLM: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
@@ -16733,8 +16749,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x8302, "RPC Unload an NLM", 'remote')
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 20, Reserved20 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, NLMName ),
-    ], info_str=(NLMName, "RPC Unload NLM: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, NLMName, info_str=(NLMName, "RPC Unload NLM: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
@@ -16743,8 +16759,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x8303, "RPC Mount Volume", 'remote')
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 20, Reserved20 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, VolumeNameStringz ),
-    ], info_str=(VolumeNameStringz, "RPC Mount Volume: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, VolumeNameStringz, info_str=(VolumeNameStringz, "RPC Mount Volume: %s", ", %s") ),
+    ])
     pkt.Reply(32, [
             rec(8, 4, RPCccode),
             rec(12, 16, Reserved16 ),
@@ -16755,8 +16771,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x8304, "RPC Dismount Volume", 'remote')
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 20, Reserved20 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, VolumeNameStringz ),
-    ], info_str=(VolumeNameStringz, "RPC Dismount Volume: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, VolumeNameStringz, info_str=(VolumeNameStringz, "RPC Dismount Volume: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
@@ -16765,8 +16781,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x8305, "RPC Add Name Space To Volume", 'remote')
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 20, Reserved20 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, AddNameSpaceAndVol ),
-    ], info_str=(AddNameSpaceAndVol, "RPC Add Name Space to Volume: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, AddNameSpaceAndVol, info_str=(AddNameSpaceAndVol, "RPC Add Name Space to Volume: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
@@ -16778,11 +16794,11 @@ rec( 9, 4, ObjectID ),
             rec(11, 3, Reserved3 ),
             rec(14, 4, SetCmdValueNum ),
             rec(18, 12, Reserved12 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, SetCmdName ),
+            rec(30, PROTO_LENGTH_UNKNOWN, SetCmdName, info_str=(SetCmdName, "RPC Set Command Value: %s", ", %s") ),
             #
             # XXX - optional string, if SetCmdType is 0
             #
-    ], info_str=(SetCmdName, "RPC Set Command Value: %s", ", %s"))
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
@@ -16791,8 +16807,8 @@ rec( 9, 4, ObjectID ),
     pkt = NCP(0x8307, "RPC Execute NCF File", 'remote')
     pkt.Request(NO_LENGTH_CHECK, [
             rec(10, 20, Reserved20 ),
-            rec(30, PROTO_LENGTH_UNKNOWN, PathAndName ),
-    ], info_str=(PathAndName, "RPC Execute NCF File: %s", ", %s"))
+            rec(30, PROTO_LENGTH_UNKNOWN, PathAndName, info_str=(PathAndName, "RPC Execute NCF File: %s", ", %s") ),
+    ])
     pkt.Reply(12, [
             rec(8, 4, RPCccode ),
     ])
