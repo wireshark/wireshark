@@ -51,7 +51,7 @@ const int default_col_  = 3; // aka "initial"
 const int proto_col_    = 4; // aka "current"
 
 const char *default_table_ = "TCP port";
-const char *default_proto_ = "HTTP";
+const char *default_proto_ = DECODE_AS_NONE;
 const char *default_int_selector_ = "0"; // Arbitrary
 const char *default_str_selector_ = "foo"; // Arbitrary
 
@@ -596,7 +596,7 @@ void DecodeAsDialog::applyChanges()
                     continue;
                 }
 
-                if (item->text(proto_col_) == "(none)" || !dissector_info->dissector_handle) {
+                if (item->text(proto_col_) == DECODE_AS_NONE || !dissector_info->dissector_handle) {
                     decode_as_entry->reset_value(decode_as_entry->table_name, selector_value);
                     break;
                 } else {
