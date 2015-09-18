@@ -65,6 +65,7 @@ WIRESHARK_UI_SRC = \
 	profile.c		\
 	proto_hier_stats.c	\
 	recent.c		\
+	rtp_media.c		\
 	rtp_stream.c		\
 	service_response_time.c	\
 	software_update.c	\
@@ -107,6 +108,7 @@ noinst_HEADERS = \
 	proto_hier_stats.h	\
 	recent.h		\
 	recent_utils.h		\
+	rtp_media.h		\
 	rtp_stream.h		\
 	service_response_time.h	\
 	simple_dialog.h		\

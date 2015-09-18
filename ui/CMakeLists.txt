@@ -44,6 +44,7 @@ set(COMMON_UI_SRC
 	profile.c
 	proto_hier_stats.c
 	recent.c
+	rtp_media.c
 	rtp_stream.c
 	service_response_time.c
 	software_update.c
@@ -63,6 +64,7 @@ set(COMMON_UI_SRC
 
 # Enables visibility in IDEs
 file(GLOB EXTRA_UI_HEADERS
+	rtp_media.h
 	rtp_stream.h
 	tap-iax2-analysis.h
 	tap-rtp-analysis.h
