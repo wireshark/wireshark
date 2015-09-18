@@ -1651,6 +1651,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   cf->prev_cap = NULL;
   cf->cum_bytes = 0;
 
+  cf_callback_invoke(cf_cb_file_rescan_started, cf);
+
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
@@ -1815,6 +1817,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   compute_elapsed(cf, &start_time);
 
   packet_list_thaw();
+
+  cf_callback_invoke(cf_cb_file_rescan_finished, cf);
 
   if (selected_frame_num == -1) {
     /* The selected frame didn't pass the filter. */
