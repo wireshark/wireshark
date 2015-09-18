@@ -760,7 +760,7 @@ dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -2005,6 +2005,9 @@ static gint ett_amqp_1_0_list = -1;
 static gint ett_amqp_1_0_array = -1;
 static gint ett_amqp_1_0_map = -1;
 
+static expert_field ei_amqp_connection_error = EI_INIT;
+static expert_field ei_amqp_channel_error = EI_INIT;
+static expert_field ei_amqp_message_undeliverable = EI_INIT;
 static expert_field ei_amqp_bad_flag_value = EI_INIT;
 static expert_field ei_amqp_unknown_stream_method = EI_INIT;
 static expert_field ei_amqp_unknown_basic_method = EI_INIT;
@@ -7728,7 +7731,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_BASIC_RETURN:
                 dissect_amqp_0_9_method_basic_return(tvb,
-                                                     11, args_tree);
+                                                     pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_BASIC_DELIVER:
                 dissect_amqp_0_9_method_basic_deliver(tvb,
@@ -8279,9 +8282,13 @@ static int
 dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
+    proto_item *tf_code;
+
     /*  reply-code (short)       */
-    proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_close_reply_code,
+    tf_code = proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_close_reply_code,
         tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (tvb_get_ntohs(tvb, offset) > 200)
+        expert_add_info(pinfo, tf_code, &ei_amqp_connection_error);
     offset += 2;
 
     /*  reply-text (shortstr)    */
@@ -8396,9 +8403,13 @@ static int
 dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
+    proto_item *tf_code;
+
     /*  reply-code (short)       */
-    proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_code,
+    tf_code = proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_code,
         tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (tvb_get_ntohs(tvb, offset) > 200)
+        expert_add_info(pinfo, tf_code, &ei_amqp_channel_error);
     offset += 2;
 
     /*  reply-text (shortstr)    */
@@ -9123,12 +9134,16 @@ dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb, packet_info *pinfo,
 /*  Dissection routine for method Basic.Return                            */
 
 static int
-dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
+    proto_item *tf_code;
+
     /*  reply-code (short)       */
-    proto_tree_add_item(args_tree, hf_amqp_method_basic_return_reply_code,
+    tf_code = proto_tree_add_item(args_tree, hf_amqp_method_basic_return_reply_code,
         tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (tvb_get_ntohs(tvb, offset) > 200)
+        expert_add_info(pinfo, tf_code, &ei_amqp_message_undeliverable);
     offset += 2;
 
     /*  reply-text (shortstr)    */
@@ -13654,6 +13669,9 @@ proto_register_amqp(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_amqp_connection_error, { "amqp.connection.error", PI_RESPONSE_CODE, PI_WARN, "Connection error", EXPFILL }},
+        { &ei_amqp_channel_error, { "amqp.channel.error", PI_RESPONSE_CODE, PI_WARN, "Channel error", EXPFILL }},
+        { &ei_amqp_message_undeliverable, { "amqp.message.undeliverable", PI_RESPONSE_CODE, PI_WARN, "Message was not delivered", EXPFILL }},
         { &ei_amqp_bad_flag_value, { "amqp.bad_flag_value", PI_PROTOCOL, PI_WARN, "Bad flag value", EXPFILL }},
         { &ei_amqp_bad_length, { "amqp.bad_length", PI_MALFORMED, PI_ERROR, "Bad frame length", EXPFILL }},
         { &ei_amqp_field_short, { "amqp.field_short", PI_PROTOCOL, PI_ERROR, "Field is cut off by the end of the field table", EXPFILL }},
