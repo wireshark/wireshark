@@ -46,7 +46,7 @@ signals:
     // cf_packet_marked callback to file.[ch] but that's synchronous and
     // might incur too much overhead.
     void packetsMarked();
-    void updateFilter(QString &filter, bool force = false);
+    void updateFilter(QString filter, bool force = false);
     void goToPacket(int packet_num);
 
 protected:

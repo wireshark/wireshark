@@ -2983,8 +2983,8 @@ void MainWindow::on_actionTelephonyRTPStreams_triggered()
             packet_list_, SLOT(redrawVisiblePackets()));
     connect(rtp_stream_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(rtp_stream_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(rtp_stream_dialog, SIGNAL(updateFilter(QString, bool)),
+            this, SLOT(filterPackets(QString, bool)));
     rtp_stream_dialog->show();
 }
 
@@ -3023,8 +3023,8 @@ void MainWindow::on_actionATT_Server_Attributes_triggered()
     BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
     connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString, bool)),
+            this, SLOT(filterPackets(QString, bool)));
     bluetooth_att_sever_attributes_dialog->show();
 }
 
@@ -3033,8 +3033,8 @@ void MainWindow::on_actionDevices_triggered()
     BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_);
     connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString, bool)),
+            this, SLOT(filterPackets(QString, bool)));
     bluetooth_devices_dialog->show();
 }
 
@@ -3043,8 +3043,8 @@ void MainWindow::on_actionHCI_Summary_triggered()
     BluetoothHciSummaryDialog *bluetooth_hci_summary_dialog = new BluetoothHciSummaryDialog(*this, capture_file_);
     connect(bluetooth_hci_summary_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_hci_summary_dialog, SIGNAL(updateFilter(QString&, bool)),
-            this, SLOT(filterPackets(QString&, bool)));
+    connect(bluetooth_hci_summary_dialog, SIGNAL(updateFilter(QString, bool)),
+            this, SLOT(filterPackets(QString, bool)));
     bluetooth_hci_summary_dialog->show();
 }
 
