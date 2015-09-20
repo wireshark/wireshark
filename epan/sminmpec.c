@@ -4989,7 +4989,7 @@ const value_string sminmpec_values[] = {
     {  4966, "AACom" },
     {  4967, "Starwood Hotels & Resorts" },
     {  4968, "Universtiy of North Texas (unofficial)" },
-    {  4969, "Park Air Systems" },
+    {  4969, "Park Air Systems Ltd." },
     {  4970, "National Grid for Learning" },
     {  4971, "Anglers Club" },
     {  4972, "Los Alamos National LaboratoryGiri" },
@@ -46466,6 +46466,16 @@ const value_string sminmpec_values[] = {
     { 46443, "intec GmbH" },
     { 46444, "Zhejiang Huanshun Network Science & Technology Co., Ltd." },
     { 46445, "Unitel Engineering" },
+    { 46446, "OV Corporation SAS" },
+    { 46447, "Embedict " },
+    { 46448, "Telewizja Polsat Spolka z o. o." },
+    { 46449, "Collibra" },
+    { 46450, "Opsmate, Inc." },
+    { 46451, "InfoRelay Online Systems, Inc" },
+    { 46452, "Lanworld Finland Oy" },
+    { 46453, "McKesson IWS" },
+    { 46454, "Goldberg and Mathew Medical Assc P.L.L.C." },
+    { 46455, "Coral Active" },
     {    0, NULL}
 };
 
