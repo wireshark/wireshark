@@ -188,8 +188,11 @@ dissect_soupbintcp_common(
     guint16           expected_len;
     guint8            pkt_type;
     gint              offset          = 0;
-    guint             this_seq        = 0, next_seq;
+    guint             this_seq        = 0, next_seq, key;
     heur_dtbl_entry_t *hdtbl_entry;
+
+    /* Record the start of the packet to use as a sequence number key */
+    key = (guint)tvb_raw_offset(tvb);
 
     /* Get the 16-bit big-endian SOUP packet length */
     expected_len = tvb_get_ntohs(tvb, 0);
@@ -279,10 +282,10 @@ dissect_soupbintcp_common(
                     wmem_file_scope(),
                     sizeof(struct pdu_data));
                 pdu_data->seq_num = this_seq;
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_soupbintcp, 0, pdu_data);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_soupbintcp, key, pdu_data);
             }
         } else {
-            pdu_data = (struct pdu_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_soupbintcp, 0);
+            pdu_data = (struct pdu_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_soupbintcp, key);
             if (pdu_data) {
                 this_seq = pdu_data->seq_num;
             } else {
