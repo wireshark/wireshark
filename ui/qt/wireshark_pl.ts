@@ -1010,12 +1010,12 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="134"/>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished">Zarządzaj zapisanymi zakładkami.</translation>
+        <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="169"/>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished">Zastosuj filtr.</translation>
+        <translation>Zastosuj ten filtr.</translation>
     </message>
 </context>
 <context>
@@ -1785,22 +1785,22 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Kopiuj regułę.</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="73"/>
+        <location filename="decode_as_dialog.cpp" line="80"/>
         <source>Decode As</source>
         <translation>Dekoduj jako</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="360"/>
+        <location filename="decode_as_dialog.cpp" line="372"/>
         <source>String</source>
         <translation>String</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="362"/>
+        <location filename="decode_as_dialog.cpp" line="374"/>
         <source>Integer, base </source>
         <translation>Integer, o podstawie </translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="374"/>
+        <location filename="decode_as_dialog.cpp" line="386"/>
         <source>unknown</source>
         <translation>nieznany</translation>
     </message>
@@ -1815,11 +1815,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="display_filter_combo.cpp" line="81"/>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select from previously used filters</source>
-        <translation type="vanished">Wybierz z uprzednio używanych filtrów</translation>
+        <translation>Wybierz z uprzednio używanych filtrów.</translation>
     </message>
 </context>
 <context>
@@ -1845,10 +1841,6 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <location filename="display_filter_edit.cpp" line="133"/>
         <source>Manage saved bookmarks.</source>
         <translation>Zarządzaj zapisanymi zakładkami.</translation>
-    </message>
-    <message>
-        <source>Clear the filter string and update the display.</source>
-        <translation type="vanished">Usuń filtr i odśwież.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="167"/>
@@ -3484,333 +3476,333 @@ dla plików filtrów: %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="24"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Przewodni&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Powrotny&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Przewodni&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Powrotny&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="65"/>
         <source>Forward</source>
-        <translation type="unfinished">Przewodni</translation>
+        <translation>Przewodni</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="69"/>
         <source>Packet</source>
-        <translation type="unfinished">Pakiet</translation>
+        <translation>Pakiet</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="74"/>
         <source>Delta (ms)</source>
-        <translation type="unfinished">Delta (ms)</translation>
+        <translation>Delta (ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="79"/>
         <source>Jitter (ms)</source>
-        <translation type="unfinished">Jitter</translation>
+        <translation>Jitter (ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="84"/>
         <source>Bandwidth</source>
-        <translation type="unfinished">Pasmo</translation>
+        <translation>Pasmo</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="89"/>
         <source>Status</source>
-        <translation type="unfinished">Status</translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="94"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Długość</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="106"/>
         <source>Reverse</source>
-        <translation type="unfinished">Powrotny</translation>
+        <translation>Powrotny</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="116"/>
         <source>Graph</source>
-        <translation type="unfinished">Wykres</translation>
+        <translation>Wykres</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="127"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="130"/>
         <source>Forward Jitter</source>
-        <translation type="unfinished">Jitter przewodniego</translation>
+        <translation>Jitter przewodniego</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="150"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="153"/>
         <source>Forward Difference</source>
-        <translation type="unfinished">Różnica przewodniego</translation>
+        <translation>Różnica przewodniego</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="180"/>
         <source>Reverse Jitter</source>
-        <translation type="unfinished">Jitter powrotnego</translation>
+        <translation>Jitter powrotnego</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="200"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="203"/>
         <source>Reverse Difference</source>
-        <translation type="unfinished">Różnica powrotnego</translation>
+        <translation>Różnica powrotnego</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="233"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="262"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="265"/>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished">Zapisz dane audio dla obu kanałów.</translation>
+        <translation>Zapisz dane audio obu kanałów.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="270"/>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished">Przewodni strumień audio</translation>
+        <translation>Przewodni strumień audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="273"/>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished">Zapisz dane przewodniego strumienia audio.</translation>
+        <translation>Zapisz dane przewodniego strumienia audio.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="278"/>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished">Powrotny strumień audio</translation>
+        <translation>Powrotny strumień audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="281"/>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished">Zapisz dane powrotnego strumienia audio.</translation>
+        <translation>Zapisz dane powrotnego strumienia audio.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="286"/>
         <source>CSV</source>
-        <translation type="unfinished">CSV</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="289"/>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished">Zapisz obie tabele jako CSV.</translation>
+        <translation>Zapisz obie tabele jako CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="294"/>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished">Strumień przewodni CSV</translation>
+        <translation>Strumień przewodni CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="297"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished">Zapisz tabelę strumienia przewodniego jako CSV.</translation>
+        <translation>Zapisz tabelę strumienia przewodniego jako CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="302"/>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished">Strumień powrotny CSV</translation>
+        <translation>Strumień powrotny CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="305"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished">Zapisz tabelę strumienia powrotnego jako CSV.</translation>
+        <translation>Zapisz tabelę strumienia powrotnego jako CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="310"/>
         <source>Save Graph</source>
-        <translation type="unfinished">Zapisz wykres</translation>
+        <translation>Zapisz wykres</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="313"/>
         <source>Save the graph image.</source>
-        <translation type="unfinished">Zapisz obraz wykresu.</translation>
+        <translation>Zapisz obraz wykresu.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="318"/>
         <source>Go to Packet</source>
-        <translation type="unfinished">Idź do pakietu</translation>
+        <translation>Idź do pakietu</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="321"/>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished">Zaznacz odpowiedni pakiet na liście pakietów.</translation>
+        <translation>Wybierz odpowiedni pakiet z listy pakietów.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="324"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="329"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished">Następny problematyczny pakiet</translation>
+        <translation>Następny problematyczny pakiet</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="332"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished">Idź do następnego pakietu z problemem.</translation>
+        <translation>Idź do następnego pakietu z problemem</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="335"/>
         <source>N</source>
-        <translation type="unfinished">N</translation>
+        <translation>N</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="219"/>
+        <location filename="iax2_analysis_dialog.cpp" line="215"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza strumienia IAX2</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="286"/>
+        <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
-        <translation type="unfinished">Nie można zapisać danych RTP.</translation>
+        <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="309"/>
+        <location filename="iax2_analysis_dialog.cpp" line="305"/>
         <source>No IAX2 packets found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pakietów IAX2.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="331"/>
+        <location filename="iax2_analysis_dialog.cpp" line="327"/>
         <source>Please select an IAX2 packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę wybrać pakiet IAX2</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="355"/>
+        <location filename="iax2_analysis_dialog.cpp" line="351"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę wybrać pakiet IAX2.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="448"/>
+        <location filename="iax2_analysis_dialog.cpp" line="444"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished">G: Idź do pakiety, N: Następny problematyczny pakiet</translation>
+        <translation>G: Idź do pakietu, N: Następny problematyczny pakiet</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="563"/>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation>Dokument PDF (*.pdf)</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="564"/>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation>Obraz PNG (*.png)</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="567"/>
-        <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Dokument PDF (*.pdf)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="568"/>
-        <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Obraz PNG (*.png)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="569"/>
-        <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows (*.bmp)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="571"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">Obraz JPEG (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="582"/>
+        <location filename="iax2_analysis_dialog.cpp" line="578"/>
         <source>Save Graph As</source>
-        <translation type="unfinished">Zapisz wykres jako</translation>
+        <translation>Zapisz wykres jako</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="741"/>
+        <location filename="iax2_analysis_dialog.cpp" line="737"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished">Nie można zapisać pliku: Niepoprawna długość przechwyconych pakietów.</translation>
+        <translation>Nie można zapisać pliku: Niepoprawna długość przechwyconych pakietów.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="752"/>
+        <location filename="iax2_analysis_dialog.cpp" line="748"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished">Nie można zapisać pliku: Problem wejścia/wyjścia.</translation>
+        <translation>Nie można zapisać pliku: Problem wejścia/wyjścia.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="874"/>
+        <location filename="iax2_analysis_dialog.cpp" line="870"/>
         <source>Save forward stream audio</source>
-        <translation type="unfinished">Zapisz przewodni strumień audio</translation>
+        <translation>Zapisz przewodni strumień audio</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="873"/>
+        <source>Save reverse stream audio</source>
+        <translation>Zapisz powrotny strumień audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="877"/>
-        <source>Save reverse stream audio</source>
-        <translation type="unfinished">Zapisz powrotny strumień audio</translation>
+        <source>Save audio</source>
+        <translation>Zapisz audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="881"/>
-        <source>Save audio</source>
-        <translation type="unfinished">Zapisz audio</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished">Sun Audio (*.au)</translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="887"/>
+        <location filename="iax2_analysis_dialog.cpp" line="883"/>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished">;;Surowe dane (*.raw)</translation>
+        <translation>;;Surowe dane (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="904"/>
-        <location filename="iax2_analysis_dialog.cpp" line="919"/>
+        <location filename="iax2_analysis_dialog.cpp" line="900"/>
+        <location filename="iax2_analysis_dialog.cpp" line="915"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="904"/>
+        <location filename="iax2_analysis_dialog.cpp" line="900"/>
         <source>Unable to save in that format</source>
-        <translation type="unfinished">Nie można zapisać w tym formacie</translation>
+        <translation>Nie można zapisać w tym formacie</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="915"/>
+        <source>Unable to save %1</source>
+        <translation>Nie można zapisać %1</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="919"/>
-        <source>Unable to save %1</source>
-        <translation type="unfinished">Nie można zapisać %1</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="923"/>
         <source>Saving %1</source>
-        <translation type="unfinished">Zapisywanie %1</translation>
+        <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1145"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1141"/>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished">Zapisz przewodni strumień jako CSV</translation>
+        <translation>Zapisz przewodni strumień jako CSV</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="1144"/>
+        <source>Save reverse stream CSV</source>
+        <translation>Zapisz powrotny strumień jako CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1148"/>
-        <source>Save reverse stream CSV</source>
-        <translation type="unfinished">Zapisz powrotny strumień jako CSV</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1152"/>
         <source>Save CSV</source>
-        <translation type="unfinished">Zapisz jako CSV</translation>
+        <translation>Zapisz jako CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1158"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1154"/>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished">Wartości rozdzielane przecinkami (*.csv)</translation>
+        <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
 </context>
 <context>
@@ -5661,32 +5653,43 @@ dla plików filtrów: %2.</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="387"/>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation>Pakiety: %1 %4 Wyświetlanych: %2 %4 Zaznaczonych: %3</translation>
+        <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
+        <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
+        <translation type="unfinished">Pakiety: %1 %4 Wyświetlanych: %2 %4 Zaznaczonych: %3</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="393"/>
-        <source> %1 Dropped: %2</source>
-        <translation> %1 Porzuconych: %2</translation>
+        <source> %1 Marked: %2 (%3%)</source>
+        <oldsource> %1 Dropped: %2</oldsource>
+        <translation type="unfinished"> %1 Porzuconych: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="396"/>
+        <location filename="main_status_bar.cpp" line="399"/>
+        <source> %1 Dropped: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="405"/>
+        <source> %1 Ignored: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Ignored: %2</source>
-        <translation> %1 Ignorowanych: %2</translation>
+        <translation type="vanished"> %1 Ignorowanych: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="401"/>
+        <location filename="main_status_bar.cpp" line="413"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Czas ładowania: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="409"/>
-        <location filename="main_status_bar.cpp" line="431"/>
+        <location filename="main_status_bar.cpp" line="421"/>
+        <location filename="main_status_bar.cpp" line="443"/>
         <source>No Packets</source>
         <translation>Brak pakietów</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="427"/>
+        <location filename="main_status_bar.cpp" line="439"/>
         <source>Packets: %1</source>
         <translation>Pakiety: %1</translation>
     </message>
@@ -6505,7 +6508,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="535"/>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="541"/>
@@ -7224,7 +7227,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2526"/>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zarejestrowanych statystyk LTE</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2534"/>
@@ -7234,13 +7237,13 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2646"/>
         <source>Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza strumienia</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2654"/>
         <location filename="main_window.ui" line="2657"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza strumienia IAX2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2705"/>
@@ -8150,10 +8153,6 @@ text-decoration: underline;
         <translation>Ctrl+Spacja</translation>
     </message>
     <message>
-        <source>Analyze RTP Stream</source>
-        <translation type="vanished">Analizuj strumień RTP</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2649"/>
         <source>RTP Stream Analysis</source>
         <translation>Analiza strumienia RTP</translation>
@@ -8341,92 +8340,92 @@ text-decoration: underline;
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="741"/>
+        <location filename="main_window_slots.cpp" line="743"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="784"/>
+        <location filename="main_window_slots.cpp" line="786"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="796"/>
+        <location filename="main_window_slots.cpp" line="798"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="992"/>
+        <location filename="main_window_slots.cpp" line="994"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1475"/>
+        <location filename="main_window_slots.cpp" line="1477"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1626"/>
+        <location filename="main_window_slots.cpp" line="1628"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1628"/>
+        <location filename="main_window_slots.cpp" line="1630"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1685"/>
+        <location filename="main_window_slots.cpp" line="1687"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1686"/>
+        <location filename="main_window_slots.cpp" line="1688"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1692"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>Eksportuj klucze sesji SSL (%1 klucz%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1697"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1832"/>
+        <location filename="main_window_slots.cpp" line="1834"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2223"/>
+        <location filename="main_window_slots.cpp" line="2225"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2346"/>
+        <location filename="main_window_slots.cpp" line="2348"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3236"/>
+        <location filename="main_window_slots.cpp" line="3238"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3243"/>
+        <location filename="main_window_slots.cpp" line="3245"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3446"/>
+        <location filename="main_window_slots.cpp" line="3448"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3447"/>
+        <location filename="main_window_slots.cpp" line="3449"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
@@ -9046,52 +9045,52 @@ text-decoration: underline;
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="334"/>
+        <location filename="packet_list.cpp" line="335"/>
         <source>Summary as Text</source>
         <translation>Podsumowanie jako tekst</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="592"/>
+        <location filename="packet_list.cpp" line="594"/>
         <source>Align Left</source>
         <translation>Wyrównaj do lewej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="593"/>
+        <location filename="packet_list.cpp" line="595"/>
         <source>Align Center</source>
         <translation>Wyrównaj do środka</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="594"/>
+        <location filename="packet_list.cpp" line="596"/>
         <source>Align Right</source>
         <translation>Wyrównaj do prawej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="596"/>
+        <location filename="packet_list.cpp" line="598"/>
         <source>Column Preferences</source>
         <translation>Ustawienia kolumny</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="597"/>
+        <location filename="packet_list.cpp" line="599"/>
         <source>Edit Column</source>
         <translation>Edytuj kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="598"/>
+        <location filename="packet_list.cpp" line="600"/>
         <source>Resize To Contents</source>
         <translation>Dopasuj szerokość do zawartości</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="599"/>
+        <location filename="packet_list.cpp" line="601"/>
         <source>Resolve Names</source>
         <translation>Rozwiązuj nazwy</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="604"/>
+        <location filename="packet_list.cpp" line="606"/>
         <source>Remove This Column</source>
         <translation>Usuń tę kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="926"/>
+        <location filename="packet_list.cpp" line="936"/>
         <source>Frame %1: %2
 
 </source>
@@ -9099,7 +9098,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="930"/>
+        <location filename="packet_list.cpp" line="940"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Długość komentarza przekracza %1. Wstrzymano. ]</translation>
     </message>
@@ -9107,12 +9106,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="274"/>
+        <location filename="packet_list_model.cpp" line="271"/>
         <source>Dissecting</source>
         <translation>Analizowanie</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="293"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Sortowanie &quot;%1&quot;</translation>
     </message>
@@ -9923,22 +9922,22 @@ text-decoration: underline;
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="101"/>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Zły numer sekwencyjny</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="104"/>
         <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ danych zmieniono na PT=%1</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="107"/>
         <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny znacznik czasu</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="115"/>
         <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Brakujący znacznik?</translation>
     </message>
 </context>
 <context>
@@ -10319,22 +10318,22 @@ text-decoration: underline;
     <message>
         <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Open Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądania bez odpowiedzi</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Discarded Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzucone Odpowiedzi</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Repeated Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtórzone Żądania</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Repeated Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtórzone Odpowiedzi</translation>
     </message>
 </context>
 <context>
@@ -10401,7 +10400,7 @@ text-decoration: underline;
         <location filename="rtp_analysis_dialog.ui" line="84"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
-        <translation type="unfinished">Jitter</translation>
+        <translation>Jitter (ms)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="89"/>
@@ -13440,12 +13439,12 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="475"/>
         <source>Probe Reqs</source>
-        <translation type="unfinished"></translation>
+        <translation>Probe Reqs</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="475"/>
         <source>Probe Resp</source>
-        <translation type="unfinished"></translation>
+        <translation>Probe Resp</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="475"/>

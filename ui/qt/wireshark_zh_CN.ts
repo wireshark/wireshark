@@ -1010,12 +1010,12 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="134"/>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished">管理保存的书签。</translation>
+        <translation>管理保存的书签。</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="169"/>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished">应用此筛选器字符串进行显示</translation>
+        <translation>应用此筛选器字符串进行显示。</translation>
     </message>
 </context>
 <context>
@@ -1785,22 +1785,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>复制解析行为。</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="73"/>
+        <location filename="decode_as_dialog.cpp" line="80"/>
         <source>Decode As</source>
         <translation>解码</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="360"/>
+        <location filename="decode_as_dialog.cpp" line="372"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="362"/>
+        <location filename="decode_as_dialog.cpp" line="374"/>
         <source>Integer, base </source>
         <translation>整数，底数 </translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="374"/>
+        <location filename="decode_as_dialog.cpp" line="386"/>
         <source>unknown</source>
         <translation>未知</translation>
     </message>
@@ -1815,11 +1815,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_combo.cpp" line="81"/>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select from previously used filters</source>
-        <translation type="vanished">从前一个使用的筛选器选择</translation>
+        <translation>选择以前使用过的筛选器。</translation>
     </message>
 </context>
 <context>
@@ -1845,10 +1841,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="133"/>
         <source>Manage saved bookmarks.</source>
         <translation>管理保存的书签。</translation>
-    </message>
-    <message>
-        <source>Clear the filter string and update the display.</source>
-        <translation type="vanished">清除过滤器字符串并更新显示。</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="167"/>
@@ -3472,333 +3464,333 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">对话框</translation>
+        <translation>对话框</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="24"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="65"/>
         <source>Forward</source>
-        <translation type="unfinished">正向</translation>
+        <translation>正向</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="69"/>
         <source>Packet</source>
-        <translation type="unfinished">分组</translation>
+        <translation>分组</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="74"/>
         <source>Delta (ms)</source>
-        <translation type="unfinished">Delta (ms)</translation>
+        <translation>延迟 (ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="79"/>
         <source>Jitter (ms)</source>
-        <translation type="unfinished">抖动</translation>
+        <translation>抖动 (ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="84"/>
         <source>Bandwidth</source>
-        <translation type="unfinished">带宽</translation>
+        <translation>带宽</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="89"/>
         <source>Status</source>
-        <translation type="unfinished">状态</translation>
+        <translation>状态</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="94"/>
         <source>Length</source>
-        <translation type="unfinished">长度</translation>
+        <translation>长度</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="106"/>
         <source>Reverse</source>
-        <translation type="unfinished">反向</translation>
+        <translation>反向</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="116"/>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>图表</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="127"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="130"/>
         <source>Forward Jitter</source>
-        <translation type="unfinished">正向抖动</translation>
+        <translation>正向抖动</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="150"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="153"/>
         <source>Forward Difference</source>
-        <translation type="unfinished">正向差异</translation>
+        <translation>正向差异</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="180"/>
         <source>Reverse Jitter</source>
-        <translation type="unfinished">反向抖动</translation>
+        <translation>反向抖动</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="200"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="203"/>
         <source>Reverse Difference</source>
-        <translation type="unfinished">反向差异</translation>
+        <translation>反向差异</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="233"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;一个提示。&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="262"/>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="265"/>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished">保存两个频道的音频数据。</translation>
+        <translation>保存两个频道的音频数据。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="270"/>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished">正向音频流</translation>
+        <translation>正向音频流</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="273"/>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished">保存正向音频流数据。</translation>
+        <translation>保存正向音频流数据。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="278"/>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished">反向音频流</translation>
+        <translation>反向音频流</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="281"/>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished">保存反向音频流数据。</translation>
+        <translation>保存反向音频流数据。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="286"/>
         <source>CSV</source>
-        <translation type="unfinished">CSV</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="289"/>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished">两个表另存为 CSV。</translation>
+        <translation>两个表另存为 CSV。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="294"/>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished">正向流 CSV</translation>
+        <translation>正向流 CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="297"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished">正向表另存为 CSV。</translation>
+        <translation>正向表另存为 CSV。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="302"/>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished">反向流 CSV</translation>
+        <translation>反向流 CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="305"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished">反向表另存为 CSV。</translation>
+        <translation>反向表另存为 CSV。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="310"/>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>保存图表</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="313"/>
         <source>Save the graph image.</source>
-        <translation type="unfinished">保存图表图像。</translation>
+        <translation>保存图表图像。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="318"/>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>跳转到分组</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="321"/>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished">选择分组列表中对应的分组。</translation>
+        <translation>选择分组列表中对应的分组。</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="324"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="329"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished">下一个问题分组</translation>
+        <translation>下一个问题分组</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="332"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished">转至下一个问题分组</translation>
+        <translation>转至下一个问题分组</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="335"/>
         <source>N</source>
-        <translation type="unfinished">N</translation>
+        <translation>N</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="219"/>
+        <location filename="iax2_analysis_dialog.cpp" line="215"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2 流分析</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="286"/>
+        <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
-        <translation type="unfinished">无法保存 RTP 数据。</translation>
+        <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="309"/>
+        <location filename="iax2_analysis_dialog.cpp" line="305"/>
         <source>No IAX2 packets found</source>
-        <translation type="unfinished"></translation>
+        <translation>没有找到 IAX2 分组</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="331"/>
+        <location filename="iax2_analysis_dialog.cpp" line="327"/>
         <source>Please select an IAX2 packet</source>
-        <translation type="unfinished"></translation>
+        <translation>请选择一个 IAX2 分组</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="355"/>
+        <location filename="iax2_analysis_dialog.cpp" line="351"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>请选择一个 IAX2 分组</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="448"/>
+        <location filename="iax2_analysis_dialog.cpp" line="444"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished">G: 转到分组，N: 转到问题分组</translation>
+        <translation>G: 转到分组，N: 转到问题分组</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="563"/>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation>便携式文档格式 (*.pdf)</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="564"/>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation>便携式网络图形格式 (*.png)</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="567"/>
-        <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">便携式文档格式 (*.pdf)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="568"/>
-        <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">便携式网络图形格式 (*.png)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="569"/>
-        <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows 位图 (*.bmp)</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="571"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="582"/>
+        <location filename="iax2_analysis_dialog.cpp" line="578"/>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>图表另存为</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="741"/>
+        <location filename="iax2_analysis_dialog.cpp" line="737"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished">无法保存到一个文件：捕获到的分组长度错误。</translation>
+        <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="752"/>
+        <location filename="iax2_analysis_dialog.cpp" line="748"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished">无法保存到一个文件：文件 I/O 问题。</translation>
+        <translation>无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="874"/>
+        <location filename="iax2_analysis_dialog.cpp" line="870"/>
         <source>Save forward stream audio</source>
-        <translation type="unfinished">保存正向音频流</translation>
+        <translation>保存正向音频流</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="873"/>
+        <source>Save reverse stream audio</source>
+        <translation>保存反向音频流</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="877"/>
-        <source>Save reverse stream audio</source>
-        <translation type="unfinished">保存反向音频流</translation>
+        <source>Save audio</source>
+        <translation>保存音频</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="881"/>
-        <source>Save audio</source>
-        <translation type="unfinished">保存音频</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished">Sun 音频 (*.au)</translation>
+        <translation>Sun 音频 (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="887"/>
+        <location filename="iax2_analysis_dialog.cpp" line="883"/>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished">;;原始数据 (*.raw)</translation>
+        <translation>;;原始数据 (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="904"/>
-        <location filename="iax2_analysis_dialog.cpp" line="919"/>
+        <location filename="iax2_analysis_dialog.cpp" line="900"/>
+        <location filename="iax2_analysis_dialog.cpp" line="915"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="904"/>
+        <location filename="iax2_analysis_dialog.cpp" line="900"/>
         <source>Unable to save in that format</source>
-        <translation type="unfinished">无法保存到该格式</translation>
+        <translation>无法保存到该格式</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="915"/>
+        <source>Unable to save %1</source>
+        <translation>无法保存 %1</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="919"/>
-        <source>Unable to save %1</source>
-        <translation type="unfinished">无法保存 %1</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="923"/>
         <source>Saving %1</source>
-        <translation type="unfinished">正在保存 %1</translation>
+        <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1145"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1141"/>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished">保存正向流 CSV</translation>
+        <translation>保存正向流 CSV</translation>
+    </message>
+    <message>
+        <location filename="iax2_analysis_dialog.cpp" line="1144"/>
+        <source>Save reverse stream CSV</source>
+        <translation>保存反向流 CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1148"/>
-        <source>Save reverse stream CSV</source>
-        <translation type="unfinished">保存反向流 CSV</translation>
-    </message>
-    <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1152"/>
         <source>Save CSV</source>
-        <translation type="unfinished">保存 CSV</translation>
+        <translation>保存 CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1158"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1154"/>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished">逗号分隔值 (*.csv)</translation>
+        <translation>逗号分隔值 (*.csv)</translation>
     </message>
 </context>
 <context>
@@ -5645,32 +5637,43 @@ for filter files: %2.</source>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="387"/>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation>分组: %1 %4 已显示: %2 %4 已标记: %3</translation>
+        <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
+        <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
+        <translation type="unfinished">分组: %1 %4 已显示: %2 %4 已标记: %3</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="393"/>
-        <source> %1 Dropped: %2</source>
-        <translation> %1 已丢弃: %2</translation>
+        <source> %1 Marked: %2 (%3%)</source>
+        <oldsource> %1 Dropped: %2</oldsource>
+        <translation type="unfinished"> %1 已丢弃: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="396"/>
+        <location filename="main_status_bar.cpp" line="399"/>
+        <source> %1 Dropped: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="405"/>
+        <source> %1 Ignored: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Ignored: %2</source>
-        <translation> %1 已忽略: %2</translation>
+        <translation type="vanished"> %1 已忽略: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="401"/>
+        <location filename="main_status_bar.cpp" line="413"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  加载时间: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="409"/>
-        <location filename="main_status_bar.cpp" line="431"/>
+        <location filename="main_status_bar.cpp" line="421"/>
+        <location filename="main_status_bar.cpp" line="443"/>
         <source>No Packets</source>
         <translation>无分组</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="427"/>
+        <location filename="main_status_bar.cpp" line="439"/>
         <source>Packets: %1</source>
         <translation>分组: %1</translation>
     </message>
@@ -6489,7 +6492,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="535"/>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="541"/>
@@ -7208,7 +7211,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2526"/>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>没有 LTE 统计已注册</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2534"/>
@@ -7218,13 +7221,13 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2646"/>
         <source>Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>流分析</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2654"/>
         <location filename="main_window.ui" line="2657"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2 流分析</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2705"/>
@@ -8134,10 +8137,6 @@ text-decoration: underline;
         <translation>Ctrl+空格</translation>
     </message>
     <message>
-        <source>Analyze RTP Stream</source>
-        <translation type="vanished">分析 RTP 流</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2649"/>
         <source>RTP Stream Analysis</source>
         <translation>RTP 流分析</translation>
@@ -8325,92 +8324,92 @@ text-decoration: underline;
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="741"/>
+        <location filename="main_window_slots.cpp" line="743"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="784"/>
+        <location filename="main_window_slots.cpp" line="786"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="796"/>
+        <location filename="main_window_slots.cpp" line="798"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获筛选器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="992"/>
+        <location filename="main_window_slots.cpp" line="994"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1475"/>
+        <location filename="main_window_slots.cpp" line="1477"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1626"/>
+        <location filename="main_window_slots.cpp" line="1628"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1628"/>
+        <location filename="main_window_slots.cpp" line="1630"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>原始数据 (*.bin *.dat *.raw);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1685"/>
+        <location filename="main_window_slots.cpp" line="1687"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1686"/>
+        <location filename="main_window_slots.cpp" line="1688"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1692"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1697"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1832"/>
+        <location filename="main_window_slots.cpp" line="1834"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2223"/>
+        <location filename="main_window_slots.cpp" line="2225"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话筛选器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2346"/>
+        <location filename="main_window_slots.cpp" line="2348"/>
         <source>No filter available. Try another </source>
         <translation>无筛选器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3236"/>
+        <location filename="main_window_slots.cpp" line="3238"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3243"/>
+        <location filename="main_window_slots.cpp" line="3245"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3446"/>
+        <location filename="main_window_slots.cpp" line="3448"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3447"/>
+        <location filename="main_window_slots.cpp" line="3449"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -9030,52 +9029,52 @@ text-decoration: underline;
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="334"/>
+        <location filename="packet_list.cpp" line="335"/>
         <source>Summary as Text</source>
         <translation>摘要为文本</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="592"/>
+        <location filename="packet_list.cpp" line="594"/>
         <source>Align Left</source>
         <translation>左对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="593"/>
+        <location filename="packet_list.cpp" line="595"/>
         <source>Align Center</source>
         <translation>居中对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="594"/>
+        <location filename="packet_list.cpp" line="596"/>
         <source>Align Right</source>
         <translation>右对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="596"/>
+        <location filename="packet_list.cpp" line="598"/>
         <source>Column Preferences</source>
         <translation>列首选项</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="597"/>
+        <location filename="packet_list.cpp" line="599"/>
         <source>Edit Column</source>
         <translation>编辑列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="598"/>
+        <location filename="packet_list.cpp" line="600"/>
         <source>Resize To Contents</source>
         <translation>适应内容</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="599"/>
+        <location filename="packet_list.cpp" line="601"/>
         <source>Resolve Names</source>
         <translation>名称解析</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="604"/>
+        <location filename="packet_list.cpp" line="606"/>
         <source>Remove This Column</source>
         <translation>删除此列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="926"/>
+        <location filename="packet_list.cpp" line="936"/>
         <source>Frame %1: %2
 
 </source>
@@ -9083,7 +9082,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="930"/>
+        <location filename="packet_list.cpp" line="940"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
@@ -9091,12 +9090,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="274"/>
+        <location filename="packet_list_model.cpp" line="271"/>
         <source>Dissecting</source>
         <translation>剖析</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="296"/>
+        <location filename="packet_list_model.cpp" line="293"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>正在排序“%1”</translation>
     </message>
@@ -9907,22 +9906,22 @@ text-decoration: underline;
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="101"/>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>错误的序列号</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="104"/>
         <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
+        <translation>载荷更改为 PT=%1</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="107"/>
         <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>不正确的时间戳</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="115"/>
         <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>标记缺失？</translation>
     </message>
 </context>
 <context>
@@ -10385,7 +10384,7 @@ text-decoration: underline;
         <location filename="rtp_analysis_dialog.ui" line="84"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
-        <translation type="unfinished">抖动</translation>
+        <translation>抖动 (ms)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="89"/>
