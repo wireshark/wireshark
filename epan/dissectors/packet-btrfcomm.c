@@ -863,7 +863,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         if (!dissector_try_uint_new(rfcomm_dlci_dissector_table, (guint32) dlci,
                 next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
-            if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&service_info->uuid),
+            if (service_info->uuid.size == 0 ||
+                !dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&service_info->uuid),
                     next_tvb, pinfo, tree, rfcomm_data)) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {

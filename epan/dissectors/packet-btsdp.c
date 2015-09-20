@@ -1123,6 +1123,8 @@ get_specified_uuid(wmem_array_t  *uuid_array)
             p_uuid = (bluetooth_uuid_t *) wmem_array_index(uuid_array, i_uuid);
             if (p_uuid->size == 16) /* CustomUUID (UUID128) is always ok */
                 break;
+            if (p_uuid->size == 0)
+                continue;
             if (dissector_get_string_handle(bluetooth_uuid_table, print_numeric_uuid(p_uuid)))
                 break;
         }
