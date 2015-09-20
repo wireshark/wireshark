@@ -40,6 +40,7 @@
 #include "wireshark_application.h"
 
 #include <QColor>
+#include <QElapsedTimer>
 #include <QFontMetrics>
 #include <QModelIndex>
 #include <QElapsedTimer>
@@ -48,13 +49,20 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
     uniform_row_heights_(true),
     row_height_(-1),
-    line_spacing_(0)
+    line_spacing_(0),
+    idle_dissection_row_(0)
 {
     setCaptureFile(cf);
     PacketListRecord::clearStringPool();
     connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
             this, SLOT(emitItemHeightChanged(QModelIndex)),
             Qt::QueuedConnection);
+    idle_dissection_timer_ = new QElapsedTimer();
+}
+
+PacketListModel::~PacketListModel()
+{
+    delete idle_dissection_timer_;
 }
 
 void PacketListModel::setCaptureFile(capture_file *cf)
@@ -103,6 +111,7 @@ guint PacketListModel::recreateVisibleRows()
     }
     endInsertRows();
     return visible_rows_.count();
+    idle_dissection_row_ = 0;
 }
 
 void PacketListModel::clear() {
@@ -114,6 +123,7 @@ void PacketListModel::clear() {
     PacketListRecord::clearStringPool();
     endResetModel();
     uniform_row_heights_ = true;
+    idle_dissection_row_ = 0;
 }
 
 void PacketListModel::resetColumns()
@@ -529,6 +539,34 @@ void PacketListModel::flushVisibleRows()
         }
         endInsertRows();
         new_visible_rows_.clear();
+    }
+}
+
+// Fill our column string and colorization cache while the application is
+// idle. Try to be as conservative with the CPU and disk as possible.
+static const int idle_dissection_interval_ = 5; // ms
+void PacketListModel::dissectIdle(bool reset)
+{
+    if (reset) {
+//        qDebug() << "=di reset" << idle_dissection_row_;
+        idle_dissection_row_ = 0;
+    } else if (!idle_dissection_timer_->isValid()) {
+        return;
+    }
+
+    idle_dissection_timer_->restart();
+
+    while (idle_dissection_timer_->elapsed() < idle_dissection_interval_
+           && idle_dissection_row_ < physical_rows_.count()) {
+        ensureRowColorized(idle_dissection_row_);
+        idle_dissection_row_++;
+//        if (idle_dissection_row_ % 1000 == 0) qDebug() << "=di row" << idle_dissection_row_;
+    }
+
+    if (idle_dissection_row_ < physical_rows_.count()) {
+        QTimer::singleShot(idle_dissection_interval_, this, SLOT(dissectIdle()));
+    } else {
+        idle_dissection_timer_->invalidate();
     }
 }
 

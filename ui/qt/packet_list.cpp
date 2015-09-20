@@ -735,6 +735,7 @@ void PacketList::setAutoScroll(bool enabled)
 void PacketList::captureFileReadFinished()
 {
     packet_list_model_->flushVisibleRows();
+    packet_list_model_->dissectIdle(true);
 }
 
 void PacketList::freeze()

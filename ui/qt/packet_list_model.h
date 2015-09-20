@@ -38,11 +38,14 @@
 
 #include "cfile.h"
 
+class QElapsedTimer;
+
 class PacketListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
     explicit PacketListModel(QObject *parent = 0, capture_file *cf = NULL);
+    ~PacketListModel();
     void setCaptureFile(capture_file *cf);
     QModelIndex index(int row, int column,
                       const QModelIndex & = QModelIndex()) const;
@@ -86,6 +89,7 @@ public slots:
     void setMonospaceFont(const QFont &mono_font, int row_height);
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void flushVisibleRows();
+    void dissectIdle(bool reset = false);
 
 private:
     capture_file *cap_file_;
@@ -105,6 +109,10 @@ private:
     static Qt::SortOrder sort_order_;
     static capture_file *sort_cap_file_;
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
+
+    QElapsedTimer *idle_dissection_timer_;
+    int idle_dissection_row_;
+
 
 private slots:
     void emitItemHeightChanged(const QModelIndex &ih_index);
