@@ -1,6 +1,6 @@
 /* packet-ouch.c
  * Routines for OUCH 4.x protocol dissection
- * Copyright 2013 David Arnold <davida@pobox.com>
+ * Copyright (C) 2013, 2015, 2016 David Arnold <d@0x1.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -57,18 +57,22 @@ static const value_string pkt_type_val[] = {
     { 'O', "Enter Order" },
     { 'U', "Replace Order" },
     { 'X', "Cancel Order" },
-    { 'M', "Modify Order" }, /* Not in 4.0 or 4.1 */
+    { 'M', "Modify Order" },
     { 'S', "System Event" },
     { 'A', "Accepted" },
     { 'R', "Replaced" }, /* 'U' on the wire, but use 'R' to disambiguate */
     { 'C', "Canceled" },
     { 'D', "AIQ Canceled" },
     { 'E', "Executed" },
+    { 'F', "Trade Correction" },
+    { 'G', "Executed with Reference Price" },
     { 'B', "Broken Trade" },
     { 'K', "Price Correction" },
     { 'J', "Rejected" },
     { 'P', "Cancel Pending" },
     { 'I', "Cancel Reject" },
+    { 'T', "Order Priority Update" },
+    { 'm', "Order Modified" }, /* 'M' on the wire; 'm' to disambiguate */
     { 0, NULL }
 };
 
@@ -101,12 +105,17 @@ static const value_string ouch_buy_sell_indicator_val[] = {
 };
 
 static const value_string ouch_cancel_reason_val[] = {
-    { 'U', "User requested cancel" },
-    { 'I', "Immediate or Cancel order" },
-    { 'T', "Timeout" },
-    { 'S', "Supervisory" },
+    { 'C', "Cross cancel" },
     { 'D', "Regulatory restriction" },
+    { 'E', "Closed" },
+    { 'H', "Halted" },
+    { 'I', "Immediate or Cancel order" },
+    { 'K', "Market Collars" },
     { 'Q', "Self-match prevention" },
+    { 'S', "Supervisory" },
+    { 'T', "Timeout" },
+    { 'U', "User requested cancel" },
+    { 'X', "Open Protection" },
     { 'Z', "System cancel" },
     { 0, NULL }
 };
@@ -123,7 +132,7 @@ static const value_string ouch_cross_type_val[] = {
     { 'N', "No Cross" },
     { 'O', "Opening Cross" },
     { 'C', "Closing Cross" },
-    { 'I', "Intra-day Cross" },
+    { 'I', "Intra-day Cross" }, /* Seems to have been removed */
     { 'H', "Halt/IPO Cross" },
     { 'R', "Retail" }, /* Not in 4.0 */
     { 'S', "Supplemental Order" },
@@ -147,10 +156,12 @@ static const value_string ouch_display_val[] = {
     { 'O', "Retail Order Type 1" }, /* Not in 4.0 */
     { 'P', "Post-Only" },
     { 'Q', "Retail Price Improvement Order" }, /* Not in 4.0 */
-    { 'R', "Round-Lot Only" },
+    { 'R', "Round-Lot Only" }, /* Seems to have been removed? */
     { 'T', "Retail Order Type 2" }, /* Not in 4.0 */
     { 'W', "Mid-point Peg Post Only" },
     { 'Y', "Anonymous-Price to Comply" },
+    { 'Z', "Entered as displayed bu changed to non-displayed "
+           "(Priced to comply)" }, /* New in 4.2 */
     { 0, NULL}
 };
 
@@ -167,31 +178,39 @@ static const value_string ouch_iso_eligibility_val[] = {
 };
 
 static const value_string ouch_liquidity_flag_val[] = {
-    { 'A', "Added" },
-    { 'R', "Removed" },
-    { 'O', "Opening Cross (billable)" },
-    { 'M', "Opening Cross (non-billable)" },
-    { 'C', "Closing Cross (billable)" },
-    { 'L', "Closing Cross (non-billable)" },
-    { 'H', "Halt/IPO Cross (billable)" },
-    { 'K', "Halt/IPO Cross (non-billable)" },
-    { 'I', "Intraday/Post-Market Cross" },
-    { 'J', "Non-displayed adding liquidity" },
-    { 'm', "Removed liquidity at a midpoint" },
-    { 'k', "Added liquidity via a midpoint order" },
     { '0', "Supplemental Order Execution" },
+    { '4', "Added displayed liquidity in a Group A Symbol" },
+    { '5', "Added non-displayed liquidity in a Group A Symbol" },
+    { '6', "Removed liquidity in a Group A Symbol" },
     { '7', "Displayed, liquidity-adding order improves the NBBO" },
-    { '8', "Displayed, liquidity-adding order sets the QBBO while "
-      "joining the NBBO" },
-    /* Added in 4.1 */
+    { '8', "Displayed, liquidity-adding order sets the QBBO while joining the NBBO" },
+    { 'A', "Added" },
+    { 'C', "Closing Cross" },
+    { 'H', "Halt/IPO Cross" },
+    { 'I', "Intraday/Post-Market Cross" }, /* Seems to have been removed */
+    { 'J', "Non-displayed adding liquidity" },
+    { 'K', "Halt Cross" },
+    { 'L', "Closing Cross (imbalance-only)" },
+    { 'M', "Opening Cross (imbalance-only)" },
+    { 'N', "Halt Cross, orders entered in pilot symbols during the LULD Trading Pause" },
+    { 'O', "Opening Cross" },
+    { 'R', "Removed" },
+    { 'W', "Added post-only" }, /* Removed 4.2 2013/02/05 */
+    { 'a', "Added displayed liquidity in a SCIP Symbol" },
+    { 'b', "Displayed, liquidity-adding order improves the NBBO in pilot symbol during specified LULD Pricing Pilot timeframe" },
+    { 'c', "Added displayed liquidity in a pilot symbol during specified LULD Pricing Pilot timeframe" },
     { 'd', "Retail designated execution that removed liquidity" },
     { 'e', "Retail designated execution that added displayed liquidity" },
     { 'f', "Retail designated execution that added non-displayed liquidity" },
+    { 'g', "Added non-displayed mid-point liquidity in a Group A Symbol" },
+    { 'h', "Removed liquidity in a pilot symbol during specified LULD Pricing Pilot timeframe" },
     { 'j', "RPI (Retail Price Improving) order provides liquidity" },
+    { 'k', "Added liquidity via a midpoint order" },
+    { 'm', "Removed liquidity at a midpoint" },
     { 'r', "Retail Order removes RPI liquidity" },
-    { 't', "Retail Order removes price improving non-displayed liquidity "
-      "other than RPI liquidity" },
-    { '6', "Liquidity Removing Order in designated securities" },
+    { 't', "Retail Order removes price improving non-displayed liquidity other than RPI liquidity" },
+    { 'x', "Displayed, liquidity-adding order improves the NBBO in a SCIP Symbol" },
+    { 'y', "Displayed, liquidity-adding order set the QBBO while joining the NBBO in a SCIP Symbol" },
     { 0, NULL }
 };
 
@@ -209,6 +228,11 @@ static const value_string ouch_price_correction_reason_val[] = {
     { 0, NULL }
 };
 
+static const value_string ouch_reference_price_type_val[] = {
+    { 'I', "Intraday Indicative Value" },
+    { 0, NULL }
+};
+
 static const value_string ouch_reject_reason_val[] = {
     { 'T', "Test Mode" },
     { 'H', "Halted" },
@@ -216,12 +240,14 @@ static const value_string ouch_reject_reason_val[] = {
     { 'S', "Invalid Stock" },
     { 'D', "Invalid Display Type" },
     { 'C', "NASDAQ is Closed" },
-    { 'L', "Requested firm not authorized for requested clearing type on this account" },
+    { 'L', "Requested firm not authorized for requested clearing "
+           "type on this account" },
     { 'M', "Outside of permitted times for requested clearing type" },
     { 'R', "This order is not allowed in this type of cross" },
     { 'X', "Invalid Price" },
     { 'N', "Invalid Minimum Quantity" },
     { 'O', "Other" },
+    { 'W', "Invalid Mid-point Post Only Price" },
     { 'a', "Reject All enabled" },
     { 'b', "Easy to Borrow (ETB) reject" },
     { 'c', "Restricted symbol list reject" },
@@ -237,6 +263,11 @@ static const value_string ouch_reject_reason_val[] = {
     { 'm', "Exceeded shares limit" },
     { 'n', "Exceeded dollar value limit" },
     { 0, NULL}
+};
+
+static const value_string ouch_trade_correction_reason_val[] = {
+    { 'N', "Adjusted to NAV" },
+    { 0, NULL }
 };
 
 
@@ -278,12 +309,15 @@ static int hf_ouch_previous_order_token = -1;
 static int hf_ouch_price = -1;
 static int hf_ouch_price_correction_reason = -1;
 static int hf_ouch_quantity_prevented_from_trading = -1;
+static int hf_ouch_reference_price = -1;
+static int hf_ouch_reference_price_type = -1;
 static int hf_ouch_reject_reason = -1;
 static int hf_ouch_replacement_order_token = -1;
 static int hf_ouch_shares = -1;
 static int hf_ouch_stock = -1;
 static int hf_ouch_tif = -1;
 static int hf_ouch_timestamp = -1;
+static int hf_ouch_trade_correction_reason = -1;
 
 
 /** Format an OUCH timestamp into a useful string
@@ -316,6 +350,16 @@ ouch_tree_add_timestamp(
     proto_tree_add_string(tree, hf, tvb, offset, 8, buf);
 }
 
+static void
+packet_type_format(
+	gchar *buf,
+	guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH,
+               "%s (%c)",
+			   val_to_str_const(value, pkt_type_val, "Unknown"),
+			   value);
+}
 
 /** BASE_CUSTOM formatter for BBO weight indicator code
  *
@@ -501,21 +545,6 @@ format_order_state(
                value);
 }
 
-/** BASE_CUSTOM formatter for the packet type code
- *
- * Displays the code value as a character, not its ASCII value, as
- * would be done by BASE_DEC and friends. */
-static void
-format_packet_type(
-    char *buf,
-    guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value, pkt_type_val, "Unknown"),
-               value);
-}
-
 /** BASE_CUSTOM formatter for prices
  *
  * OUCH prices are integers, with four implicit decimal places.  So we
@@ -525,9 +554,13 @@ format_price(
     char *buf,
     guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "$%u.%04u",
-               value / 10000, value % 10000);
+    if (value == 0x7fffffff) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", "Market");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH,
+                   "$%u.%04u",
+                   value / 10000, value % 10000);
+    }
 }
 
 /** BASE_CUSTOM formatter for price correction reason code
@@ -543,6 +576,23 @@ format_price_correction_reason(
                "%s (%c)",
                val_to_str_const(value,
                                 ouch_price_correction_reason_val,
+                                "Unknown"),
+               value);
+}
+
+/** BASE_CUSTOM formatter for reference price type code
+ *
+ * Displays the code value as a character, not its ASCII value, as
+ * would be done by BASE_DEC and friends. */
+static void
+format_reference_price_type(
+    char *buf,
+    guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH,
+               "%s (%c)",
+               val_to_str_const(value,
+                                ouch_reference_price_type_val,
                                 "Unknown"),
                value);
 }
@@ -603,6 +653,23 @@ format_tif(
     }
 }
 
+/** BASE_CUSTOM formatter for the trade correction reason code
+ *
+ * Displays the code value as a character, not its ASCII value, as
+ * would be done by BASE_DEC and friends. */
+static void
+format_trade_correction_reason(
+    char *buf,
+    guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH,
+               "%s (%c)",
+               val_to_str_const(value,
+                                ouch_trade_correction_reason_val,
+                                "Unknown"),
+               value);
+}
+
 
 static int
 dissect_ouch(
@@ -619,7 +686,7 @@ dissect_ouch(
     int offset = 0;
 
     /* Get the OUCH message type value */
-    pkt_type = tvb_get_guint8(tvb, 0);
+    pkt_type = tvb_get_guint8(tvb, offset);
     reported_len = tvb_reported_length(tvb);
 
     /* OUCH has two messages with the same code: Replace Order and
@@ -630,6 +697,14 @@ dissect_ouch(
      * (like XPRS does). */
     if (pkt_type == 'U' && (reported_len == 79 || reported_len == 80)) {
         pkt_type = 'R';
+    }
+
+    /* OUCH has two messages with the same code: Modify Order and
+     * Modified.  Again, one is sent by clients, the other sent by
+     * NASDAQ.  We change Modified to 'm' for simplicity in the
+     * switch. */
+    if (pkt_type == 'M' && reported_len == 28) {
+        pkt_type = 'm';
     }
 
     /* Since we use the packet name a few times, get and save that value */
@@ -652,11 +727,9 @@ dissect_ouch(
         /* Append the packet name to the sub-tree item */
         proto_item_append_text(ti, ", %s", pkt_name);
 
-        /* Packet type (from the buffer, not the modified one we use
-         * for switching) */
-        proto_tree_add_item(ouch_tree,
-                            hf_ouch_packet_type,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* Packet type (using the cooked value). */
+		proto_tree_add_item(ouch_tree, hf_ouch_packet_type,
+                                  tvb, offset, 1, ENC_NA);
         offset += 1;
 
         switch (pkt_type) {
@@ -733,7 +806,7 @@ dissect_ouch(
                                 ENC_BIG_ENDIAN);
             offset += 1;
 
-            if (reported_len == 49) { /* Added in 4.1 */
+            if (reported_len >= 49) { /* Added in 4.1 */
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_customer_type,
                                     tvb, offset, 1,
@@ -832,7 +905,7 @@ dissect_ouch(
                                 ENC_BIG_ENDIAN);
             offset += 1;
 
-            if (reported_len == 66) { /* Added in 4.2 */
+            if (reported_len >= 66) { /* Added in 4.2 */
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_bbo_weight_indicator,
                                     tvb, offset, 1,
@@ -1034,7 +1107,7 @@ dissect_ouch(
                                 ENC_ASCII|ENC_NA);
             offset += 14;
 
-            if (reported_len == 80) { /* Added in 4.2 */
+            if (reported_len >= 80) { /* Added in 4.2 */
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_bbo_weight_indicator,
                                     tvb, offset, 1,
@@ -1173,6 +1246,98 @@ dissect_ouch(
             offset += 1;
             break;
 
+        case 'F': /* Trade Correction (4.2 onwards) */
+            ouch_tree_add_timestamp(ouch_tree,
+                                    hf_ouch_timestamp,
+                                    tvb, offset);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_order_token,
+                                tvb, offset, 14,
+                                ENC_ASCII|ENC_NA);
+            offset += 14;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_executed_shares,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_execution_price,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_liquidity_flag,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_match_number,
+                                tvb, offset, 8,
+                                ENC_BIG_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_trade_correction_reason,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+
+        case 'G': /* Executed with Reference Price (4.2 onwards) */
+            ouch_tree_add_timestamp(ouch_tree,
+                                    hf_ouch_timestamp,
+                                    tvb, offset);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_order_token,
+                                tvb, offset, 14,
+                                ENC_ASCII|ENC_NA);
+            offset += 14;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_executed_shares,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_execution_price,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_liquidity_flag,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_match_number,
+                                tvb, offset, 8,
+                                ENC_BIG_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_reference_price,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_reference_price_type,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+
         case 'K': /* Price Correction */
             ouch_tree_add_timestamp(ouch_tree,
                                     hf_ouch_timestamp,
@@ -1249,6 +1414,62 @@ dissect_ouch(
             offset += 14;
             break;
 
+        case 'T': /* Order Priority Update (4.2 onwards) */
+            ouch_tree_add_timestamp(ouch_tree,
+                                    hf_ouch_timestamp,
+                                    tvb, offset);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_order_token,
+                                tvb, offset, 14,
+                                ENC_ASCII|ENC_NA);
+            offset += 14;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_price,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_display,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_order_reference_number,
+                                tvb, offset, 8,
+                                ENC_BIG_ENDIAN);
+            offset += 8;
+            break;
+
+        case 'm': /* Order Modified (4.2 onwards) */
+            ouch_tree_add_timestamp(ouch_tree,
+                                    hf_ouch_timestamp,
+                                    tvb, offset);
+            offset += 8;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_order_token,
+                                tvb, offset, 14,
+                                ENC_ASCII|ENC_NA);
+            offset += 14;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_buy_sell_indicator,
+                                tvb, offset, 1,
+                                ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(ouch_tree,
+                                hf_ouch_shares,
+                                tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+
         default:
             /* Unknown */
             proto_tree_add_item(tree,
@@ -1312,6 +1533,12 @@ dissect_ouch_heur(
         }
         break;
 
+    case 'M': /* Modify Order or Order Modified (added 4.2) */
+        if (msg_len != 20 && msg_len != 28) {
+            return FALSE;
+        }
+        break;
+
     case 'S': /* System event */
         if (msg_len != 10) {
             return FALSE;
@@ -1337,6 +1564,18 @@ dissect_ouch_heur(
         break;
     case 'E': /* Executed */
         if (msg_len != 40) {
+            return FALSE;
+        }
+        break;
+
+    case 'F': /* Trade Correction */
+        if (msg_len != 41) {
+            return FALSE;
+        }
+        break;
+
+    case 'G': /* Executed with Reference Price */
+        if (msg_len != 45) {
             return FALSE;
         }
         break;
@@ -1367,6 +1606,12 @@ dissect_ouch_heur(
 
     case 'I': /* Cancel Reject */
         if (msg_len != 23) {
+            return FALSE;
+        }
+        break;
+
+    case 'T': /* Order Priority Update */
+        if (msg_len != 36) {
             return FALSE;
         }
         break;
@@ -1508,7 +1753,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_packet_type,
           { "Packet Type", "ouch.packet_type",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_packet_type), 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(packet_type_format), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_previous_order_token,
@@ -1530,6 +1775,16 @@ proto_register_ouch(void)
           { "Quantity Prevented from Trading",
             "ouch.quantity_prevented_from_trading",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ouch_reference_price,
+          { "Reference Price", "ouch.reference_price",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_price), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ouch_reference_price_type,
+          { "Reference Price Type", "ouch.reference_price_type",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_reference_price_type), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_reject_reason,
@@ -1560,6 +1815,11 @@ proto_register_ouch(void)
         { &hf_ouch_timestamp,
           { "Timestamp", "ouch.timestamp",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ouch_trade_correction_reason,
+          { "Trade Correction Reason", "ouch.trade_correction_reason",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_trade_correction_reason), 0x0,
             NULL, HFILL }}
     };
 
