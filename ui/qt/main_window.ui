@@ -2376,6 +2376,14 @@
     <string>GSM MAP summary statistics</string>
    </property>
   </action>
+  <action name="actionTelephonyLteMacStatistics">
+   <property name="text">
+    <string>MAC Statistics</string>
+   </property>
+   <property name="toolTip">
+    <string>LTE MAC statistics</string>
+   </property>
+  </action>
   <action name="actionTelephonyMtp3Summary">
    <property name="text">
     <string>MTP3 Summary</string>

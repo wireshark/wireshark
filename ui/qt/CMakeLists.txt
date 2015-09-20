@@ -79,6 +79,7 @@ set(WIRESHARK_QT_HEADERS
 	lbm_lbtru_transport_dialog.h
 	lbm_stream_dialog.h
 	lbm_uimflow_dialog.h
+	lte_mac_statistics_dialog.h
 	main_status_bar.h
 	main_welcome.h
 	main_window.h
@@ -295,6 +296,7 @@ set(WIRESHARK_QT_TAP_SRC
 	funnel_statistics.cpp
 	gsm_map_summary_dialog.cpp
 	io_graph_dialog.cpp
+	lte_mac_statistics_dialog.cpp
 	mtp3_summary_dialog.cpp
 	multicast_statistics_dialog.cpp
 	rtp_stream_dialog.cpp

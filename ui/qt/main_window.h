@@ -532,6 +532,8 @@ private slots:
     void openVoipCallsDialog(bool all_flows = false);
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyGsmMapSummary_triggered();
+    void statCommandLteMacStatistics(const char *arg, void *);
+    void on_actionTelephonyLteMacStatistics_triggered();
     void on_actionTelephonyIax2StreamAnalysis_triggered();
     void on_actionTelephonyISUPMessages_triggered();
     void on_actionTelephonyMtp3Summary_triggered();

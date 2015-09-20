@@ -110,6 +110,7 @@
 #include "lbm_uimflow_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
+#include "lte_mac_statistics_dialog.h"
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
@@ -2968,6 +2969,20 @@ void MainWindow::on_actionTelephonyIax2StreamAnalysis_triggered()
 void MainWindow::on_actionTelephonyISUPMessages_triggered()
 {
     openStatisticsTreeDialog("isup_msg");
+}
+
+// -z mac-lte,stat
+void MainWindow::statCommandLteMacStatistics(const char *arg, void *)
+{
+    LteMacStatisticsDialog *lte_mac_stats_dlg = new LteMacStatisticsDialog(*this, capture_file_, arg);
+    connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    lte_mac_stats_dlg->show();
+}
+
+void MainWindow::on_actionTelephonyLteMacStatistics_triggered()
+{
+    statCommandLteMacStatistics(NULL, NULL);
 }
 
 void MainWindow::on_actionTelephonyMtp3Summary_triggered()
