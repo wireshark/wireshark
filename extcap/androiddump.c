@@ -361,6 +361,8 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     socklen_t              length;
     struct sockaddr_in     server;
 
+    memset(&server, 0x0, sizeof(server));
+
     server.sin_family = AF_INET;
     server.sin_port = GINT16_TO_BE(*server_tcp_port);
     server.sin_addr.s_addr = inet_addr(server_ip);
