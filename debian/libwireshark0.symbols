@@ -1047,7 +1047,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_string_format_value@Base 1.9.1
  proto_tree_add_subtree@Base 1.99.0
  proto_tree_add_subtree_format@Base 1.99.0
- proto_tree_add_text@Base 1.9.1
  proto_tree_add_time@Base 1.9.1
  proto_tree_add_time_format@Base 1.9.1
  proto_tree_add_time_format_value@Base 1.9.1

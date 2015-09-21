@@ -147,8 +147,6 @@ my %APIs = (
                 'tvb_length_remaining', # replaced with tvb_captured_length_remaining
                 'tvb_get_string', # replaced with tvb_get_string_enc
                 'tvb_get_stringz', # replaced with tvb_get_stringz_enc
-                'proto_tree_add_text', # replaced with proto_tree_add_subtree[_format], expert_add_info[_format], or proto_tree_add_expert[_format]
-                'proto_tree_add_text_valist', # replaced with proto_tree_add_subtree_format, expert_add_info_format, or proto_tree_add_expert_format
 
                 # Locale-unsafe APIs
                 # These may have unexpected behaviors in some locales (e.g.,
@@ -1343,64 +1341,6 @@ sub findAPIinFile($$$)
         }
 }
 
-sub checkAddTextCalls($$)
-{
-        my ($fileContentsRef, $filename) = @_;
-        my $add_text_count = 0;
-        my $okay_add_text_count = 0;
-        my $add_xxx_count = 0;
-        my $total_count = 0;
-        my $aggressive = 1;
-        my $percentage = 100;
-
-        # The 3 loops here are slow, but trying a single loop with capturing
-        # parenthesis is even slower!
-
-        # First count how many proto_tree_add_text() calls there are in total
-        while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
-                $add_text_count++;
-        }
-        # Then count how many of them are "okay" by virtue of their generate proto_item
-        # being used (e.g., to hang a subtree off of)
-        while (${$fileContentsRef} =~ m/ \W* [a-zA-Z0-9]+ \W* = \W* proto_tree_add_text \W* \( /gox) {
-                $okay_add_text_count++;
-        }
-        # Then count how many proto_tree_add_*() calls there are
-        while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9_]+ \W* \( /gox) {
-                $add_xxx_count++;
-        }
-
-        #printf "add_text_count %d, okay_add_text_count %d\n", $add_text_count, $okay_add_text_count;
-        $add_xxx_count -= $add_text_count;
-        $add_text_count -= $okay_add_text_count;
-
-        $total_count = $add_text_count+$add_xxx_count;
-
-        # Don't bother with files with small counts
-        if (($add_xxx_count < 10 || $add_text_count < 10) && ($total_count < 20)) {
-                return;
-        }
-
-        if ($add_xxx_count > 0) {
-            $percentage = 100*$add_text_count/$add_xxx_count;
-        }
-
-        if ($aggressive > 0) {
-            if ((($total_count <= 50) && ($percentage > 50)) ||
-                (($total_count > 50) && ($total_count <= 100) && ($percentage > 40)) ||
-                (($total_count > 100) && ($total_count <= 200) && ($percentage > 30)) ||
-                (($total_count > 200) && ($percentage > 20))) {
-                    printf STDERR "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
-                        $filename, $add_text_count, $add_xxx_count, $percentage;
-            }
-        } else {
-            if ($percentage > 50) {
-                printf STDERR "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
-                        $filename, $add_text_count, $add_xxx_count, $percentage;
-            }
-        }
-}
-
 # APIs which (generally) should not be called with an argument of tvb_get_ptr()
 my @TvbPtrAPIs = (
         # Use NULL for the value_ptr instead of tvb_get_ptr() (only if the
@@ -2184,10 +2124,6 @@ while ($_ = $ARGV[0])
 
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
-
-        if ($check_addtext && ! $buildbot_flag) {
-                checkAddTextCalls(\$fileContents, $filename);
-        }
 
         $errorCount += check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
 

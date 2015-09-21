@@ -1139,9 +1139,9 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
 	return pi;
 }
 
-/* (DEPRECATED) Add a text-only node to the proto_tree */
+/* (INTERNAL USE ONLY) Add a text-only node to the proto_tree */
 proto_item *
-proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
+proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 		    const char *format, ...)
 {
 	proto_item	  *pi;
@@ -1161,9 +1161,9 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	return pi;
 }
 
-/* (DEPRECATED) Add a text-only node to the proto_tree (va_list version) */
+/* (INTERNAL USE ONLY) Add a text-only node to the proto_tree (va_list version) */
 proto_item *
-proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
+proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, gint start,
 			   gint length, const char *format, va_list ap)
 {
 	proto_item        *pi;
@@ -1181,7 +1181,6 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 }
 
 /* Add a text-only node that creates a subtree underneath.
- * proto_tree_add_text + proto_item_add_subtree
  */
 proto_tree *
 proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *text)
@@ -1190,7 +1189,6 @@ proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 }
 
 /* Add a text-only node that creates a subtree underneath.
- * proto_tree_add_text + proto_item_add_subtree
  */
 proto_tree *
 proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *format, ...)
@@ -1200,7 +1198,7 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint 
 	va_list	    ap;
 
 	va_start(ap, format);
-	pi = proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
+	pi = proto_tree_add_text_valist_internal(tree, tvb, start, length, format, ap);
 	va_end(ap);
 
 	if (tree_item != NULL)
@@ -8609,7 +8607,7 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 	proto_item *item = NULL;
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, len, "%s", name ? name : "");
+		item = proto_tree_add_text_internal(parent_tree, tvb, offset, len, "%s", name ? name : "");
 		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					flags, TRUE, FALSE, FALSE, NULL, 0) && fallback) {
 			/* Still at first item - append 'fallback' text if any */
@@ -8950,7 +8948,7 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hfindex, tvbuff_t *t
 	header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	proto_tree_add_text(tree, tvb,
+	proto_tree_add_text_internal(tree, tvb,
 			    bit_offset >> 3,
 			    ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
 			    "%s crumb %d of %s (decoded above)",

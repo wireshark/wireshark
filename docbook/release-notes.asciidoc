@@ -278,6 +278,7 @@ you want to write dissectors in something other than C, use Lua.
 * Plugins can now create GUI menu items.
 * Heuristic dissectors can now be globally enabled/disabled so
 heur_dissector_add() has a few more parameters to make that possible
+* proto_tree_add_text has been removed.
 
 
 == Getting Wireshark

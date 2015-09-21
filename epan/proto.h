@@ -56,9 +56,7 @@ extern "C" {
 /** @defgroup prototree The Protocol Tree
  *
  * Dissectors use proto_tree_add_* to add items to the protocol tree. In
- * most cases you'll want to use proto_tree_add_item(). In general
- * proto_tree_add_text() should be avoided unless you explicitly don't
- * want to allow filtering.
+ * most cases you'll want to use proto_tree_add_item().
  *
  * @{
  */
@@ -1023,7 +1021,7 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 const gint start, gint length, const guint encoding, guint32 *retval);
 
-/** (DEPRECATED) Add a text-only node to a proto_tree.
+/** (INTERNAL USE ONLY) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -1031,11 +1029,11 @@ const gint start, gint length, const guint encoding, guint32 *retval);
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-WS_DLL_PUBLIC proto_item *
-proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *format,
+proto_item *
+proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *format,
 	...) G_GNUC_PRINTF(5,6);
 
-/** (DEPRECATED) Add a text-only node to a proto_tree using a variable argument list.
+/** (INTERNAL USE ONLY) Add a text-only node to a proto_tree using a variable argument list.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -1044,12 +1042,11 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
  @param ap variable argument list
  @return the newly created item */
 proto_item *
-proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
+proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap)
 	G_GNUC_PRINTF(5, 0);
 
 /** Add a text-only node that creates a subtree underneath.
- proto_tree_add_text + proto_item_add_subtree
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -1062,7 +1059,6 @@ WS_DLL_PUBLIC proto_tree *
 proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *text);
 
 /** Add a text-only node that creates a subtree underneath.
- proto_tree_add_text + proto_item_add_subtree
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
