@@ -386,9 +386,21 @@ static proto_item *
 opensafety_packet_response(tvbuff_t *message_tvb, proto_tree *sub_tree, opensafety_packet_info *packet, gboolean isResponse)
 {
     proto_item *item = NULL;
+    guint8 b_id = 0;
 
-    proto_tree_add_item(sub_tree, hf_oss_msg, message_tvb,
+    if ( packet->msg_type != OPENSAFETY_SPDO_MESSAGE_TYPE )
+    {
+        proto_tree_add_item(sub_tree, hf_oss_msg, message_tvb,
             OSS_FRAME_POS_ID + packet->frame.subframe1, 1, ENC_NA );
+    }
+    else
+    {
+        /* SPDOs code the connection valid bit on offset 0x04. SSDO and SNMT frames use this
+         * bit for messages. Therefore setting a bitmask on the hf-field would not work. */
+        b_id = OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) & 0xF8;
+        proto_tree_add_uint(sub_tree, hf_oss_msg, message_tvb, OSS_FRAME_POS_ID + packet->frame.subframe1, 1, b_id);
+    }
+
     item = proto_tree_add_item(sub_tree, packet->msg_type != OPENSAFETY_SPDO_MESSAGE_TYPE ? hf_oss_msg_direction : hf_oss_spdo_direction,
             message_tvb, OSS_FRAME_POS_ID + packet->frame.subframe1, 1, ENC_NA);
     if ( ! isResponse )
