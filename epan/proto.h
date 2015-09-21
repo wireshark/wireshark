@@ -2251,6 +2251,9 @@ WS_DLL_PUBLIC void proto_registrar_dump_protocols(void);
 /** Dumps a glossary of the field value strings or true/false strings to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_values(void);
 
+/** Dumps the number of protocol and field registrations to STDOUT. */
+WS_DLL_PUBLIC void proto_registrar_dump_fieldcount(void);
+
 /** Dumps a glossary of the protocol and field registrations to STDOUT. */
 WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 

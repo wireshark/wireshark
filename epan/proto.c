@@ -7806,6 +7806,48 @@ proto_registrar_dump_values(void)
 	}
 }
 
+/* Prints the number of registered fields.
+ * Useful for determining an appropriate value for
+ * PROTO_PRE_ALLOC_HF_FIELDS_MEM.
+ */
+void
+proto_registrar_dump_fieldcount(void)
+{
+	guint32			i;
+	header_field_info	*hfinfo;
+	guint32			deregistered_count = 0;
+	guint32			same_name_count = 0;
+	guint32			protocol_count = 0;
+
+	for (i = 0; i < gpa_hfinfo.len; i++) {
+		if (gpa_hfinfo.hfi[i] == NULL) {
+			deregistered_count++;
+			continue; /* This is a deregistered protocol or header field */
+		}
+
+		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
+
+		if (proto_registrar_is_protocol(i))
+			protocol_count++;
+
+		if (hfinfo->same_name_prev_id != -1)
+			same_name_count++;
+	}
+
+	printf("There are %d header fields registered, of which:\n"
+	       "\t%d are deregistered\n"
+	       "\t%d are protocols\n"
+	       "\t%d have the same name as another field\n\n",
+		gpa_hfinfo.len, deregistered_count, protocol_count,
+		same_name_count);
+
+	printf("The header field table consumes %d KiB of memory.\n",
+	       (int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
+	printf("The fields themselves consume %d KiB of memory.\n",
+	       (int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
+}
+
+
 /* Dumps the contents of the registration database to stdout. An independent
  * program can take this output and format it into nice tables or HTML or
  * whatever.
