@@ -22,6 +22,27 @@
 #ifndef PERCENTBARDELEGATE_H
 #define PERCENTBARDELEGATE_H
 
+/*
+ * @file Percent bar delegate.
+ *
+ * QStyledItemDelegate subclass that will draw a percentage value and a
+ * single-item bar chart for the specified value.
+ *
+ * This is intended to be used in QTreeWidgets to show percentage values.
+ * To use it, first call setItemDelegate:
+ *
+ *   myTreeWidget()->setItemDelegateForColumn(col_pct_, new PercentBarDelegate());
+ *
+ * Then, for each QTreeWidgetItem, set a double value using setData:
+ *
+ *   setData(col_pct_, Qt::UserRole, QVariant::fromValue<double>(packets_ * 100.0 / num_packets));
+ *
+ * If the item data cannot be converted to a valid double value or if its
+ * text string is non-empty then it will be rendered normally (i.e. the
+ * percent text and bar will not be drawn). This lets you mix normal and
+ * percent bar rendering between rows.
+ */
+
 #include <QStyledItemDelegate>
 
 class PercentBarDelegate : public QStyledItemDelegate

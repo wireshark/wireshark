@@ -34,9 +34,16 @@ void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItemV4 optv4 = option;
     QStyledItemDelegate::initStyleOption(&optv4, index);
-    double value = index.data(Qt::UserRole).toDouble();
 
     QStyledItemDelegate::paint(painter, option, index);
+
+    bool ok = false;
+    double value = index.data(Qt::UserRole).toDouble(&ok);
+
+    if (!ok || !index.data(Qt::DisplayRole).toString().isEmpty()) {
+        // We don't have a valid value or the item has visible text.
+        return;
+    }
 
     painter->save();
 
