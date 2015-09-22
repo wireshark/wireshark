@@ -34,17 +34,10 @@
 typedef struct _ptvc_record ptvc_record;
 typedef struct _sub_ptvc_record sub_ptvc_record;
 
-typedef struct {
-	int			*hf_ptr;
-	const char		*first_string;
-	const char		*repeat_string;
-} info_string_t;
-
 struct _ptvc_record {
 	int			*hf_ptr;
 	gint			length;
 	const sub_ptvc_record	*sub_ptvc_rec;
-	const info_string_t	*req_info_str;
 	unsigned int	endianness;
 	unsigned int	var_index	: 2;
 	unsigned int	repeat_index	: 2;
@@ -87,6 +80,13 @@ typedef struct {
 	struct epan_dfilter	*dfilter;
 } conditional_record;
 
+typedef struct {
+	int			*hf_ptr;
+	const char		*first_string;
+	const char		*repeat_string;
+} info_string_t;
+
+
 struct novell_tap {
 	int stat;
 	int hdr;
@@ -113,6 +113,7 @@ typedef struct _ncp_record {
 	const error_equivalency	*errors;
 	const int		*req_cond_indexes;
 	unsigned int		req_cond_size_type;
+	const info_string_t	*req_info_str;
 	ncp_expert_handler  *expert_handler_func;
 } ncp_record;
 
