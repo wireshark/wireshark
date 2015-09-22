@@ -54,54 +54,67 @@
 
 #include <QFile>
 #include <QFontMetrics>
+#include <QMap>
 #include <QPainter>
 #include <QStyle>
 
-QString path_pfx_ = ":/icons/toolbar/";
+// XXX We're using icons in more than just the toolbar.
+static const QString path_pfx_ = ":/icons/toolbar/";
+
+// Map FreeDesktop icon names to Qt standard pixmaps.
+static QMap<QString, QStyle::StandardPixmap> icon_name_to_standard_pixmap_;
 
 StockIcon::StockIcon(const QString icon_name) :
     QIcon()
 {
-    if (icon_name.compare("document-open") == 0) {
-        QIcon dir_icon = fromTheme(icon_name, wsApp->style()->standardIcon(QStyle::SP_DirIcon));
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
-        swap(dir_icon);
-#endif
-        return;
+    if (icon_name_to_standard_pixmap_.isEmpty()) {
+        fillIconNameMap();
     }
 
+    // Does our theme contain this icon?
+    // X11 only as per the QIcon documentation.
     if (hasThemeIcon(icon_name)) {
         QIcon theme_icon = fromTheme(icon_name);
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         swap(theme_icon);
 #endif
         return;
-    } else {
-        QStringList types = QStringList() << "12x12" << "14x14" << "16x16" << "24x14" << "24x24";
-        foreach (QString type, types) {
-            QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
-            if (QFile::exists(icon_path)) {
-                addFile(icon_path);
-            }
+    }
 
-            // Along with each name check for "<name>.active" and
-            // "<name>.selected" for the Active and Selected modes, and
-            // "<name>.on" to use for the on (checked) state.
-            // XXX Allow more (or all) combinations.
-            QString icon_path_active = path_pfx_ + QString("%1/%2.active.png").arg(type).arg(icon_name);
-            if (QFile::exists(icon_path_active)) {
-                addFile(icon_path_active, QSize(), QIcon::Active, QIcon::On);
-            }
+    // Is this is an icon we've manually mapped to a standard pixmap below?
+    if (icon_name_to_standard_pixmap_.contains(icon_name)) {
+        QIcon standard_icon = wsApp->style()->standardIcon(icon_name_to_standard_pixmap_[icon_name]);
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+        swap(standard_icon);
+#endif
+        return;
+    }
 
-            QString icon_path_selected = path_pfx_ + QString("%1/%2.selected.png").arg(type).arg(icon_name);
-            if (QFile::exists(icon_path_selected)) {
-                addFile(icon_path_selected, QSize(), QIcon::Selected, QIcon::On);
-            }
+    // Is this one of our locally sourced, cage-free, organic icons?
+    QStringList types = QStringList() << "14x14" << "16x16" << "24x14" << "24x24";
+    foreach (QString type, types) {
+        QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path)) {
+            addFile(icon_path);
+        }
 
-            QString icon_path_on = path_pfx_ + QString("%1/%2.on.png").arg(type).arg(icon_name);
-            if (QFile::exists(icon_path_on)) {
-                addFile(icon_path_on, QSize(), QIcon::Normal, QIcon::On);
-            }
+        // Along with each name check for "<name>.active" and
+        // "<name>.selected" for the Active and Selected modes, and
+        // "<name>.on" to use for the on (checked) state.
+        // XXX Allow more (or all) combinations.
+        QString icon_path_active = path_pfx_ + QString("%1/%2.active.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path_active)) {
+            addFile(icon_path_active, QSize(), QIcon::Active, QIcon::On);
+        }
+
+        QString icon_path_selected = path_pfx_ + QString("%1/%2.selected.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path_selected)) {
+            addFile(icon_path_selected, QSize(), QIcon::Selected, QIcon::On);
+        }
+
+        QString icon_path_on = path_pfx_ + QString("%1/%2.on.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path_on)) {
+            addFile(icon_path_on, QSize(), QIcon::Normal, QIcon::On);
         }
     }
 }
@@ -131,6 +144,16 @@ QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QStri
         color_icon.addPixmap(pm);
     }
     return color_icon;
+}
+
+void StockIcon::fillIconNameMap()
+{
+    // Note that some of Qt's standard pixmaps are awful. We shouldn't add an
+    // entry just because a match can be made.
+    icon_name_to_standard_pixmap_["document-open"] = QStyle::SP_DirIcon;
+    icon_name_to_standard_pixmap_["media-playback-pause"] = QStyle::SP_MediaPause;
+    icon_name_to_standard_pixmap_["media-playback-start"] = QStyle::SP_MediaPlay;
+    icon_name_to_standard_pixmap_["media-playback-stop"] = QStyle::SP_MediaStop;
 }
 
 /*

@@ -52,7 +52,6 @@ ICONS="
     go-last
     go-next
     go-previous
-    media-playback-start
     x-capture-file-close
     x-capture-file-save
     x-capture-file-reload
@@ -84,7 +83,8 @@ ICONS="
 
 QRC_FILES=""
 
-for SIZE in 12x12 14x14 16x16 24x14 24x14 ; do
+# 12x12
+for SIZE in 14x14 16x16 24x14 24x14 ; do
     WIDTH=${SIZE/x*/}
     HEIGHT=${SIZE/*x/}
     SIZE_DIR=${SIZE}
