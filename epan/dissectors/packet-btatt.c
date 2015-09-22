@@ -2965,6 +2965,39 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(requests, key);
     request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
+    if (request_data) do {
+        frame_number = request_data->request_in_frame - 1;
+
+        if (request_data->request_in_frame == pinfo->fd->num)
+            break;
+
+      switch (opcode) {
+      case 0x01: /* Error Response */
+          if (tvb_captured_length_remaining(tvb, offset) < 1)
+              return NULL;
+          opcode = tvb_get_guint8(tvb, 1) + 1;
+          /* No break */
+      case 0x03: /* Exchange MTU Response */
+      case 0x05: /* Find Information Response */
+      case 0x07: /* Find By Type Value Response */
+      case 0x09: /* Read By Type Response */
+      case 0x0b: /* Read Response */
+      case 0x0d: /* Read Blob Response */
+      case 0x0f: /* Read Multiple Response */
+      case 0x11: /* Read By Group Type Response */
+      case 0x13: /* Write Response */
+      case 0x17: /* Prepare Write Response */
+      case 0x19: /* Execute Write Response */
+      case 0x1E: /* Handle Value Confirmation */
+          if (request_data->opcode == opcode -1)
+              return request_data;
+
+          break;
+      }
+    } while(0);
+
+    request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+
     if (!request_data)
         return NULL;
 
