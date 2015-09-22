@@ -2129,7 +2129,7 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, " RSN=%u HFN=%u", (guint16)rsn, (guint32)hfn);
             break;
         default:
-            expert_add_info(pinfo, ti, &ei_rlc_ctrl_type);
+            expert_add_info_format(pinfo, ti, &ei_rlc_ctrl_type, "Invalid RLC AM control type %u", type);
             return; /* invalid */
     }
 }
@@ -2924,7 +2924,7 @@ proto_register_rlc(void)
         { &ei_rlc_sufi_cw, { "rlc.sufi.cw.invalid", PI_PROTOCOL, PI_WARN, "Invalid last codeword", EXPFILL }},
         { &ei_rlc_sufi_type, { "rlc.sufi.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SUFI type", EXPFILL }},
         { &ei_rlc_reserved_bits_not_zero, { "rlc.reserved_bits_not_zero", PI_PROTOCOL, PI_WARN, "reserved bits not zero", EXPFILL }},
-        { &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type %u", EXPFILL }},
+        { &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type", EXPFILL }},
         { &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
         { &ei_rlc_ciphered_data, { "rlc.ciphered_data", PI_UNDECODED, PI_WARN, "Cannot dissect RLC frame because it is ciphered", EXPFILL }},
         { &ei_rlc_no_per_frame_data, { "rlc.no_per_frame_data", PI_PROTOCOL, PI_WARN, "Can't dissect RLC frame because no per-frame info was attached!", EXPFILL }},
