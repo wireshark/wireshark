@@ -299,6 +299,9 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
     QString                           adapter;
     QString  name;
 
+    if (dialog->file_closed_)
+        return FALSE;
+
     name = tr("Unknown");
 
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
@@ -625,7 +628,7 @@ void BluetoothHciSummaryDialog::adapterCurrentIndexChanged(int)
 
 void BluetoothHciSummaryDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
-    if (!cap_file_.isValid())
+    if (file_closed_)
         return;
 
     item_data_t *item_data = item->data(0, Qt::UserRole).value<item_data_t *>();

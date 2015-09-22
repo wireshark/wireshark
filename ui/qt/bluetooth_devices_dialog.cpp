@@ -202,6 +202,9 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
     const gchar                  *manuf;
     QTreeWidgetItem              *item = NULL;
 
+    if (dialog->file_closed_)
+        return FALSE;
+
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
         const char  *interface_name;
@@ -315,7 +318,7 @@ void BluetoothDevicesDialog::showInformationStepsChanged(int)
 
 void BluetoothDevicesDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
-    if (!cap_file_.isValid())
+    if (file_closed_)
         return;
 
     item_data_t *item_data = item->data(0, Qt::UserRole).value<item_data_t *>();
