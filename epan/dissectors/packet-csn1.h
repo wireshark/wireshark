@@ -628,8 +628,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  *- when unpacking the _ElementCountField will be set in runtime
  * - when packing _ElementCountField contains the size of bitmap
  */
-#define M_LEFT_VAR_BMP_1(_STRUCT, _MEMBER, _ElementCountField, _OFFSET)\
-        {CSN_LEFT_ALIGNED_VAR_BMP_1, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, NULL, 0, NULL, NULL, NULL}
+#define M_LEFT_VAR_BMP_1(_STRUCT, _MEMBER, _ElementCountField, _OFFSET, _HF_PTR)\
+        {CSN_LEFT_ALIGNED_VAR_BMP_1, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /* todo: dissect padding bits looking for unexpected extensions */
 #define M_PADDING_BITS(_STRUCT, _HF_PTR)\

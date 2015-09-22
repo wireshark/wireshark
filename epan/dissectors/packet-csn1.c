@@ -1215,7 +1215,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else
           {
-            proto_tree_add_uint_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, no_of_bits, "%u bits",
+            proto_tree_add_uint64_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset>>3, ((bit_offset+no_of_bits-1)>>3)-(bit_offset>>3)+1, no_of_bits, "%u bits",
                                      no_of_bits);
           }
           bit_offset += no_of_bits;

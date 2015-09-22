@@ -231,6 +231,7 @@ static int hf_egprs_acknack_crbb_length = -1;
 static int hf_egprs_acknack_crbb_exist = -1;
 static int hf_egprs_acknack_crbb_starting_color_code = -1;
 static int hf_egprs_acknack_crbb_bitmap = -1;
+static int hf_egprs_acknack_urbb_bitmap = -1;
 static int hf_egprs_acknack_dissector = -1;
 static int hf_egprs_acknack = -1;
 
@@ -1855,7 +1856,7 @@ CSN_DESCR_BEGIN   (EGPRS_AckNack_Desc_t)
   M_UINT          (EGPRS_AckNack_Desc_t,  CRBB_STARTING_COLOR_CODE,  1, &hf_egprs_acknack_crbb_starting_color_code),
   M_LEFT_VAR_BMP  (EGPRS_AckNack_Desc_t,  CRBB, CRBB_LENGTH, 0, &hf_egprs_acknack_crbb_bitmap),
 
-  M_LEFT_VAR_BMP_1(EGPRS_AckNack_Desc_t,  URBB, URBB_LENGTH, 0),
+  M_LEFT_VAR_BMP_1(EGPRS_AckNack_Desc_t,  URBB, URBB_LENGTH, 0, &hf_egprs_acknack_urbb_bitmap),
 CSN_DESCR_END     (EGPRS_AckNack_Desc_t)
 
 /* < EGPRS Ack/Nack Description IE > */
@@ -9143,8 +9144,14 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_egprs_acknack_crbb_bitmap,
-      { "CRBB_BITMP",        "gsm_rlcmac.dl.crbb_bitmap",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "CRBB_BITMAP",        "gsm_rlcmac.dl.crbb_bitmap",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_acknack_urbb_bitmap,
+      { "URBB_BITMAP",        "gsm_rlcmac.dl.urbb_bitmap",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
@@ -9302,7 +9309,7 @@ proto_register_gsm_rlcmac(void)
 /* <IA Rest Octets> */
     { &hf_usf_bitmap,
       { "USF_BITMAP",        "gsm_rlcmac.dl.usf_bitmap",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
@@ -9497,7 +9504,7 @@ proto_register_gsm_rlcmac(void)
 /* < SI 13 Rest Octets > */
     { &hf_si_rest_bitmap,
       { "BITMAP",        "gsm_rlcmac.si.rest_bitmap",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
