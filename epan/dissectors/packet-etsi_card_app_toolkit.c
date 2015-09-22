@@ -929,7 +929,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	tvbuff_t *new_tvb;
 	gboolean ims_event = FALSE;
 	guint length = tvb_length(tvb);
-	gsm_sms_data_t sms_data;
+	gsm_sms_data_t sms_data = {0};
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
