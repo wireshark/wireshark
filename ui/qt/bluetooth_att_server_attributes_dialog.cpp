@@ -222,6 +222,9 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
     QString                              uuid_name;
     gchar                               *addr = NULL;
 
+    if (dialog->file_closed_)
+        return FALSE;
+
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
         const char  *interface_name;
@@ -302,7 +305,7 @@ void BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged(int)
 
 void BluetoothAttServerAttributesDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
-    if (!cap_file_.isValid())
+    if (file_closed_)
         return;
 
     guint32 frame_number = item->data(0, Qt::UserRole).value<guint32>();
