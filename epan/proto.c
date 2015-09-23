@@ -7809,8 +7809,11 @@ proto_registrar_dump_values(void)
 /* Prints the number of registered fields.
  * Useful for determining an appropriate value for
  * PROTO_PRE_ALLOC_HF_FIELDS_MEM.
+ *
+ * Returns FALSE if PROTO_PRE_ALLOC_HF_FIELDS_MEM is larger than or equal to
+ * the number of fields, TRUE otherwise.
  */
-void
+gboolean
 proto_registrar_dump_fieldcount(void)
 {
 	guint32			i;
@@ -7834,17 +7837,24 @@ proto_registrar_dump_fieldcount(void)
 			same_name_count++;
 	}
 
-	printf("There are %d header fields registered, of which:\n"
-	       "\t%d are deregistered\n"
-	       "\t%d are protocols\n"
-	       "\t%d have the same name as another field\n\n",
+	printf ("There are %d header fields registered, of which:\n"
+		"\t%d are deregistered\n"
+		"\t%d are protocols\n"
+		"\t%d have the same name as another field\n\n",
 		gpa_hfinfo.len, deregistered_count, protocol_count,
 		same_name_count);
 
-	printf("The header field table consumes %d KiB of memory.\n",
-	       (int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
-	printf("The fields themselves consume %d KiB of memory.\n",
-	       (int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
+	printf ("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
+		(gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM) ?
+		    "* * Please increase PROTO_PRE_ALLOC_HF_FIELDS_MEM (in epan/proto.c)! * *\n\n" :
+		    "\n");
+
+	printf ("The header field table consumes %d KiB of memory.\n",
+		(int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
+	printf ("The fields themselves consume %d KiB of memory.\n",
+		(int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
+
+	return (gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 }
 
 

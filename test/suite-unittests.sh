@@ -100,6 +100,12 @@ unittests_step_ftsanity() {
 	unittests_step_test
 }
 
+unittests_step_fieldcount() {
+	check_dut tshark
+	ARGS="-G fieldcount"
+	unittests_step_test
+}
+
 unittests_cleanup_step() {
 	rm -f ./testout.txt
 }
@@ -113,6 +119,7 @@ unittests_suite() {
 	test_step_add "tvbtest" unittests_step_tvbtest
 	test_step_add "wmem_test" unittests_step_wmem_test
 	test_step_add "ftsanity.py" unittests_step_ftsanity
+	test_step_add "field count" unittests_step_fieldcount
 }
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

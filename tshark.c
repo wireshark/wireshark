@@ -1276,9 +1276,10 @@ DIAG_ON(cast-qual)
         write_prefs(NULL);
       else if (strcmp(argv[2], "dissector-tables") == 0)
         dissector_dump_dissector_tables();
-      else if (strcmp(argv[2], "fieldcount") == 0)
-        proto_registrar_dump_fieldcount();
-      else if (strcmp(argv[2], "fields") == 0)
+      else if (strcmp(argv[2], "fieldcount") == 0) {
+        /* return value for the test suite */
+        return proto_registrar_dump_fieldcount();
+      } else if (strcmp(argv[2], "fields") == 0)
         proto_registrar_dump_fields();
       else if (strcmp(argv[2], "ftypes") == 0)
         proto_registrar_dump_ftypes();
