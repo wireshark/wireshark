@@ -34,7 +34,7 @@ check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
 check_include_file("netdb.h"             HAVE_NETDB_H)
 # We need to set the path to Wpdpack in order to find Ntddndis.h
 #cmake_push_check_state()
-#set(CMAKE_REQUIRED_INCLUDES %{PCAP_INCLUDE_DIRS})
+#set(CMAKE_REQUIRED_INCLUDES ${PCAP_INCLUDE_DIRS})
 #check_include_file("Ntddndis.h"          HAVE_NTDDNDIS_H)
 #cmake_pop_check_state()
 check_include_file("portaudio.h"         HAVE_PORTAUDIO_H)
