@@ -79,6 +79,7 @@ static int hf_smb2_flags_dfs_op = -1;
 static int hf_smb2_flags_chained = -1;
 static int hf_smb2_flags_signature = -1;
 static int hf_smb2_flags_replay_operation = -1;
+static int hf_smb2_flags_priority_mask = -1;
 static int hf_smb2_chain_offset = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_ioctl_in_data = -1;
@@ -1280,6 +1281,11 @@ static const true_false_string tfs_flags_signature = {
 static const true_false_string tfs_flags_replay_operation = {
 	"This is a REPLAY OPEARATION",
 	"This is NOT a replay operation"
+};
+
+static const true_false_string tfs_flags_priority_mask = {
+	"This pdu contains a PRIORITY",
+	"This pdu does NOT contain a PRIORITY1"
 };
 
 static const true_false_string tfs_cap_dfs = {
@@ -7665,6 +7671,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				&hf_smb2_flags_async_cmd,
 				&hf_smb2_flags_chained,
 				&hf_smb2_flags_signature,
+				&hf_smb2_flags_priority_mask,
 				&hf_smb2_flags_dfs_op,
 				&hf_smb2_flags_replay_operation,
 				NULL
@@ -7963,6 +7970,9 @@ proto_register_smb2(void)
 		{ &hf_smb2_flags_replay_operation,
 		  { "Replay operation", "smb2.flags.replay", FT_BOOLEAN, 32,
 		    TFS(&tfs_flags_replay_operation), SMB2_FLAGS_REPLAY_OPERATION, "Whether this is a replay operation", HFILL }},
+		{ &hf_smb2_flags_priority_mask,
+		  { "Priority", "smb2.flags.priority_mask", FT_BOOLEAN, 32,
+		    TFS(&tfs_flags_priority_mask), SMB2_FLAGS_PRIORITY_MASK, "Priority Mask", HFILL }},
 
 		{ &hf_smb2_tree,
 		  { "Tree", "smb2.tree", FT_STRING, BASE_NONE,
