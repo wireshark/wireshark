@@ -4759,6 +4759,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             offset += 1;
         }
 
+        break;
     case 0x2A6A: /* LN Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_ln_feature, ett_btatt_value, hfx_btatt_ln_feature, ENC_LITTLE_ENDIAN);
         offset += 4;
