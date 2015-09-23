@@ -56,6 +56,7 @@
 #include "qt_ui_utils.h"
 
 #include <QFontMetrics>
+#include <QKeySequence>
 #include <QTextStream>
 #include <QUrl>
 
@@ -116,7 +117,7 @@ const QString AboutDialog::plugins_scan()
     return plugin_table;
 }
 
-AboutDialog::AboutDialog(QWidget *) :
+AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(NULL),
     ui(new Ui::AboutDialog)
 {
@@ -266,6 +267,44 @@ AboutDialog::AboutDialog(QWidget *) :
 
     message += "</table>";
     ui->label_plugins->setText(message);
+
+    /* Shortcuts */
+    bool have_shortcuts = false;
+
+    if (parent) {
+        message = QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
+        message += "<tr><th align=\"left\">Shortcut</th><th align=\"left\">Name</th><th align=\"left\">Description</th></tr>\n";
+
+        QMap<QString, QPair<QString, QString> > shortcuts; // name -> (shortcut, description)
+        foreach (const QWidget *child, parent->findChildren<QWidget *>()) {
+            // Recent items look funny here.
+            if (child->objectName().compare("menuOpenRecentCaptureFile") == 0) continue;
+            foreach (const QAction *action, child->actions()) {
+
+                if (!action->shortcut().isEmpty()) {
+                    QString name = action->text();
+                    name.replace('&', "");
+                    shortcuts[name] = QPair<QString, QString>(action->shortcut().toString(QKeySequence::NativeText), action->toolTip());
+                }
+            }
+        }
+
+        QStringList names = shortcuts.keys();
+        names.sort();
+        foreach (const QString &name, names) {
+            message += QString("<tr><td>%1</td><td>%2</td><td>%3</td></tr>\n")
+                    .arg(shortcuts[name].first)
+                    .arg(name)
+                    .arg(shortcuts[name].second);
+            have_shortcuts = true;
+        }
+
+        message += "</table>";
+        ui->te_shortcuts->setHtml(message);
+
+    }
+
+    ui->te_shortcuts->setVisible(have_shortcuts);
 
     /* License */
 

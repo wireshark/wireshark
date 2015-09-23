@@ -214,6 +214,23 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_shortcuts">
+      <attribute name="title">
+       <string>Keyboard Shortcuts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_shortcuts">
+       <item>
+        <widget class="QTextEdit" name="te_shortcuts">
+         <property name="tabChangesFocus">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_license">
       <attribute name="title">
        <string>License</string>
@@ -243,7 +260,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../image/toolbar.qrc"/>
   <include location="../../image/about.qrc"/>
  </resources>
  <connections>

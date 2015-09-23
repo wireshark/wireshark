@@ -1210,6 +1210,9 @@
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
    </property>
+   <property name="toolTip">
+    <string>Copy this item as a display filter</string>
+   </property>
   </action>
   <action name="actionAnalyzeAAFSelected">
    <property name="text">
