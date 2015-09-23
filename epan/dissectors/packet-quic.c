@@ -620,6 +620,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 proto_tree_add_item(tag_tree, hf_quic_tag_pad, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
                 tag_len -= tag_len;
+            break;
             case TAG_SNI:
                 proto_tree_add_item(tag_tree, hf_quic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA);
                 proto_item_append_text(ti_tag, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA));
