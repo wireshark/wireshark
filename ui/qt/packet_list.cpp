@@ -256,6 +256,7 @@ PacketList::PacketList(QWidget *parent) :
     setItemsExpandable(false);
     setRootIsDecorated(false);
     setSortingEnabled(true);
+    setUniformRowHeights(true);
     setAccessibleName("Packet list");
     setItemDelegateForColumn(0, &related_packet_delegate_);
 
@@ -375,8 +376,8 @@ PacketList::PacketList(QWidget *parent) :
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
-    connect(packet_list_model_, SIGNAL(rowHeightsVary()), this, SLOT(rowHeightsVary()));
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
+    connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
 
     header()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -574,9 +575,7 @@ int PacketList::sizeHintForColumn(int column) const
         // on OS X and Linux. We might want to add Q_OS_... #ifdefs accordingly.
         size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
     }
-    packet_list_model_->setSizeHintEnabled(false);
     size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
-    packet_list_model_->setSizeHintEnabled(true);
     return size_hint;
 }
 
@@ -775,7 +774,6 @@ void PacketList::clear() {
     create_near_overlay_ = true;
     create_far_overlay_ = true;
 
-    setUniformRowHeights(true);
     setColumnVisibility();
 }
 
@@ -963,12 +961,6 @@ void PacketList::setMonospaceFont(const QFont &mono_font)
 {
     setFont(mono_font);
     header()->setFont(wsApp->font());
-
-    // qtreeview.cpp does something similar in Qt 5 so this *should* be
-    // safe...
-    int row_height = itemDelegate()->sizeHint(viewOptions(), QModelIndex()).height();
-    packet_list_model_->setMonospaceFont(mono_font, row_height);
-    redrawVisiblePackets();
 }
 
 void PacketList::goNextPacket(void) {
@@ -1237,12 +1229,20 @@ void PacketList::sectionMoved(int, int, int)
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
 }
 
-void PacketList::rowHeightsVary()
+void PacketList::updateRowHeights(const QModelIndex &ih_index)
 {
-    // This impairs performance considerably for large numbers of packets.
-    // We should probably move a bunch of the code in ::data to
-    // RelatedPacketDelegate and make it the delegate for everything.
-    setUniformRowHeights(false);
+    QStyleOptionViewItem option = viewOptions();
+    int max_height = 0;
+
+    // One of our columns increased the maximum row height. Find out which one.
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        QSize size_hint = itemDelegate()->sizeHint(option, packet_list_model_->index(ih_index.row(), col));
+        max_height = qMax(max_height, size_hint.height());
+    }
+
+    if (max_height > 0) {
+        packet_list_model_->setMaximiumRowHeight(max_height);
+    }
 }
 
 void PacketList::copySummary()

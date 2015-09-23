@@ -143,6 +143,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     // Related packet indicator. Rightward arrow for requests, leftward
     // arrow for responses, circle for others.
+    // XXX These are comically oversized when we have multi-line rows.
     if (related_frames_.contains(fd->num)) {
         painter->setBrush(fg);
         switch (related_frames_[fd->num]) {

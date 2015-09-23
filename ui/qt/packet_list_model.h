@@ -72,12 +72,13 @@ public:
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
-    void setSizeHintEnabled(bool enable) { uniform_row_heights_ = enable; }
+
+    void setMaximiumRowHeight(int height);
 
 signals:
     void goToPacket(int);
-    void itemHeightChanged(const QModelIndex &ih_index) const;
-    void rowHeightsVary();
+    void maxLineCountChanged(const QModelIndex &ih_index) const;
+    void itemHeightChanged(const QModelIndex &ih_index);
     void pushBusyStatus(const QString &status);
     void popBusyStatus();
 
@@ -86,23 +87,20 @@ signals:
     void popProgressStatus();
 
 public slots:
-    void setMonospaceFont(const QFont &mono_font, int row_height);
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void flushVisibleRows();
     void dissectIdle(bool reset = false);
 
 private:
     capture_file *cap_file_;
-    QFont mono_font_;
     QList<QString> col_names_;
     QVector<PacketListRecord *> physical_rows_;
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> new_visible_rows_;
     QMap<int, int> number_to_row_;
 
-    bool uniform_row_heights_;
-    int row_height_;
-    int line_spacing_;
+    int max_row_height_; // px
+    int max_line_count_;
 
     static int sort_column_;
     static int text_sort_column_;

@@ -159,7 +159,7 @@ private slots:
     void columnVisibilityTriggered();
     void sectionResized(int col, int, int new_width);
     void sectionMoved(int, int, int);
-    void rowHeightsVary();
+    void updateRowHeights(const QModelIndex &ih_index);
     void copySummary();
     void vScrollBarActionTriggered(int);
     void drawFarOverlay();

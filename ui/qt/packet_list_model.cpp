@@ -47,14 +47,13 @@
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
-    uniform_row_heights_(true),
-    row_height_(-1),
-    line_spacing_(0),
+    max_row_height_(0),
+    max_line_count_(1),
     idle_dissection_row_(0)
 {
     setCaptureFile(cf);
     PacketListRecord::clearStringPool();
-    connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
+    connect(this, SIGNAL(maxLineCountChanged(QModelIndex)),
             this, SLOT(emitItemHeightChanged(QModelIndex)),
             Qt::QueuedConnection);
     idle_dissection_timer_ = new QElapsedTimer();
@@ -110,8 +109,8 @@ guint PacketListModel::recreateVisibleRows()
         }
     }
     endInsertRows();
-    return visible_rows_.count();
     idle_dissection_row_ = 0;
+    return visible_rows_.count();
 }
 
 void PacketListModel::clear() {
@@ -122,7 +121,8 @@ void PacketListModel::clear() {
     number_to_row_.clear();
     PacketListRecord::clearStringPool();
     endResetModel();
-    uniform_row_heights_ = true;
+    max_row_height_ = 0;
+    max_line_count_ = 1;
     idle_dissection_row_ = 0;
 }
 
@@ -244,13 +244,22 @@ void PacketListModel::unsetAllFrameRefTime()
     dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
+void PacketListModel::setMaximiumRowHeight(int height)
 {
-    QFontMetrics fm(mono_font_);
-    mono_font_ = mono_font;
-    row_height_ = row_height;
-    line_spacing_ = fm.lineSpacing();
+    max_row_height_ = height;
+    // As the QTreeView uniformRowHeights documentation says,
+    // "The height is obtained from the first item in the view. It is
+    //  updated when the data changes on that item."
+    dataChanged(index(0, 0), index(0, columnCount() - 1));
 }
+
+//void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
+//{
+//    QFontMetrics fm(mono_font_);
+//    mono_font_ = mono_font;
+//    row_height_ = row_height;
+//    line_spacing_ = fm.lineSpacing();
+//}
 
 // The Qt MVC documentation suggests using QSortFilterProxyModel for sorting
 // and filtering. That seems like overkill but it might be something we want
@@ -402,11 +411,15 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
 // ::data is const so we have to make changes here.
 void PacketListModel::emitItemHeightChanged(const QModelIndex &ih_index)
 {
-    if (uniform_row_heights_) {
-        uniform_row_heights_ = false;
-        emit rowHeightsVary();
+    if (!ih_index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(ih_index.internalPointer());
+    if (!record) return;
+
+    if (record->lineCount() > max_line_count_) {
+        max_line_count_ = record->lineCount();
+        emit itemHeightChanged(ih_index);
     }
-    emit dataChanged(ih_index, ih_index);
 }
 
 int PacketListModel::rowCount(const QModelIndex &parent) const
@@ -435,8 +448,6 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         return QVariant();
 
     switch (role) {
-    case Qt::FontRole:
-        return mono_font_;
     case Qt::TextAlignmentRole:
         switch(recent_get_column_xalign(d_index.column())) {
         case COLUMN_XALIGN_RIGHT:
@@ -490,16 +501,20 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
         // fetch of SizeHintRole and DisplayRole) in the next event loop.
-        if (column == 0 && record->lineCountChanged()) {
-            emit itemHeightChanged(d_index);
+        if (column == 0 && record->lineCountChanged() && record->lineCount() > max_line_count_) {
+            emit maxLineCountChanged(d_index);
         }
         return column_string;
     }
     case Qt::SizeHintRole:
     {
-        // We assume that inter-line spacing is 0.
-        QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
-        return size;
+        // If this is the first row and column, return the maximum row height...
+        if (d_index.row() < 1 && d_index.column() < 1 && max_row_height_ > 0) {
+            QSize size = QSize(-1, max_row_height_);
+            return size;
+        }
+        // ...otherwise punt so that the item delegate can correctly calculate the item width.
+        return QVariant();
     }
     default:
         return QVariant();
