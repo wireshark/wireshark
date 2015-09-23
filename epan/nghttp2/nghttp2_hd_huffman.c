@@ -48,17 +48,17 @@ static ssize_t huff_encode_sym(nghttp2_bufs *bufs, size_t *avail_ptr,
 
   /* We assume that sym->nbits <= 32 */
   if (rembits > nbits) {
-    nghttp2_bufs_fast_orb_hold(bufs, code << (rembits - nbits));
+    nghttp2_bufs_fast_orb_hold(bufs, (uint8_t)(code << (rembits - nbits)));
     return (ssize_t)(rembits - nbits);
   }
 
   if (rembits == nbits) {
-    nghttp2_bufs_fast_orb(bufs, code);
+    nghttp2_bufs_fast_orb(bufs, (uint8_t)code);
     --*avail_ptr;
     return 8;
   }
 
-  nghttp2_bufs_fast_orb(bufs, code >> (nbits - rembits));
+  nghttp2_bufs_fast_orb(bufs, (uint8_t)(code >> (nbits - rembits)));
   --*avail_ptr;
 
   nbits -= rembits;
@@ -80,34 +80,34 @@ static ssize_t huff_encode_sym(nghttp2_bufs *bufs, size_t *avail_ptr,
 
   /* fast path, since most code is less than 8 */
   if (nbits < 8) {
-    nghttp2_bufs_fast_addb_hold(bufs, code);
+    nghttp2_bufs_fast_addb_hold(bufs, (uint8_t)code);
     *avail_ptr = nghttp2_bufs_cur_avail(bufs);
     return (ssize_t)(8 - nbits);
   }
 
   /* handle longer code path */
   if (nbits > 24) {
-    nghttp2_bufs_fast_addb(bufs, code >> 24);
+    nghttp2_bufs_fast_addb(bufs, (uint8_t)(code >> 24));
     nbits -= 8;
   }
 
   if (nbits > 16) {
-    nghttp2_bufs_fast_addb(bufs, code >> 16);
+    nghttp2_bufs_fast_addb(bufs, (uint8_t)(code >> 16));
     nbits -= 8;
   }
 
   if (nbits > 8) {
-    nghttp2_bufs_fast_addb(bufs, code >> 8);
+    nghttp2_bufs_fast_addb(bufs, (uint8_t)(code >> 8));
     nbits -= 8;
   }
 
   if (nbits == 8) {
-    nghttp2_bufs_fast_addb(bufs, code);
+    nghttp2_bufs_fast_addb(bufs, (uint8_t)code);
     *avail_ptr = nghttp2_bufs_cur_avail(bufs);
     return 8;
   }
 
-  nghttp2_bufs_fast_addb_hold(bufs, code);
+  nghttp2_bufs_fast_addb_hold(bufs, (uint8_t)code);
   *avail_ptr = nghttp2_bufs_cur_avail(bufs);
   return (ssize_t)(8 - nbits);
 }
@@ -145,7 +145,7 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs, const uint8_t *src,
         avail = nghttp2_bufs_cur_avail(bufs);
       }
     }
-    rembits = huff_encode_sym(bufs, &avail, rembits, sym);
+    rembits = huff_encode_sym(bufs, &avail, (size_t)rembits, sym);
     if (rembits < 0) {
       return (int)rembits;
     }
@@ -157,7 +157,7 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs, const uint8_t *src,
     const nghttp2_huff_sym *sym = &huff_sym_table[256];
     assert(avail);
     /* Caution we no longer adjust avail here */
-    nghttp2_bufs_fast_orb(bufs, sym->code >> (sym->nbits - rembits));
+    nghttp2_bufs_fast_orb(bufs, (uint8_t)(sym->code >> (sym->nbits - rembits)));
   }
 
   return 0;

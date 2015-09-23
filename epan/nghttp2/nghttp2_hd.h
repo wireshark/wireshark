@@ -126,15 +126,25 @@ typedef enum {
   NGHTTP2_HD_FLAG_VALUE_GIFT = 1 << 3
 } nghttp2_hd_flags;
 
-typedef struct {
+struct nghttp2_hd_entry;
+typedef struct nghttp2_hd_entry nghttp2_hd_entry;
+
+struct nghttp2_hd_entry {
   nghttp2_nv nv;
+  /* The next entry which shares same bucket in hash table. */
+  nghttp2_hd_entry *next;
+  /* The sequence number.  We will increment it by one whenever we
+     store nghttp2_hd_entry to dynamic header table. */
+  uint32_t seq;
+  /* The hash value for header name (nv.name). */
+  uint32_t hash;
   /* nghttp2_token value for nv.name.  It could be -1 if we have no
      token for that header field name. */
   int token;
   /* Reference count */
   uint8_t ref;
   uint8_t flags;
-} nghttp2_hd_entry;
+};
 
 typedef struct {
   nghttp2_hd_entry **buffer;
@@ -183,14 +193,21 @@ typedef struct {
   size_t hd_table_bufsize;
   /* The effective header table size. */
   size_t hd_table_bufsize_max;
+  /* Next sequence number for nghttp2_hd_entry */
+  uint32_t next_seq;
   /* If inflate/deflate error occurred, this value is set to 1 and
      further invocation of inflate/deflate will fail with
      NGHTTP2_ERR_HEADER_COMP. */
   uint8_t bad;
 } nghttp2_hd_context;
 
+#define HD_MAP_SIZE 128
+
+typedef struct { nghttp2_hd_entry *table[HD_MAP_SIZE]; } nghttp2_hd_map;
+
 struct nghttp2_hd_deflater {
   nghttp2_hd_context ctx;
+  nghttp2_hd_map map;
   /* The upper limit of the header table size the deflater accepts. */
   size_t deflate_hd_table_bufsize_max;
   /* Minimum header table size notified in the next context update */
