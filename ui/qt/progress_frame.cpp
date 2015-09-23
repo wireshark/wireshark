@@ -281,7 +281,10 @@ void ProgressFrame::on_stopButton_clicked()
     emit stopLoading();
 }
 
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 const int show_delay_ = 500; // ms
+#endif
+
 void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
 {
     terminate_is_stop_ = terminate_is_stop;
