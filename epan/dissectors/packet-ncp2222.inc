@@ -341,13 +341,14 @@ static const value_string nds_tags[] = {
     { 0, NULL }
 };
 
-static const value_string nds_info_type[] = {
-    { 0x00000000, "Attribute Names Only / " },
-    { 0x00000001, "Attribute Name & Value / " },
-    { 0x00000002, "Effective Privileges / " },
-    { 0x00000003, "Value Information / " },
-    { 0x00000004, "Abbreviated Value / " },
-    { 0, NULL }
+static const range_string nds_info_type[] = {
+    { 0x00000000, 0x00000000, "Attribute Names Only / " },
+    { 0x00000001, 0x00000001, "Attribute Name & Value / " },
+    { 0x00000002, 0x00000002, "Effective Privileges / " },
+    { 0x00000003, 0x00000003, "Value Information / " },
+    { 0x00000004, 0x00000004, "Abbreviated Value / " },
+    { 0x00000005, 0xFFFFFFFF, "No Info Type Set" },
+    { 0, 0, NULL }
 };
 
 static const value_string nds_kind_of_changes[] = {
@@ -1577,12 +1578,13 @@ static const value_string class_def_type[] = {
     { 0, NULL }
 };
 
-static const value_string nds_search_scope[] = {
-    { 0x0000, "Examine the base object only" },
-    { 0x0001, "Search the immediate subordinates of the base object" },
-    { 0x0002, "Search the base object and all its subordinates" },
-    { 0x0003, "Search the base objects and all objects in its partition (Implemented in NDS 8)" },
-    { 0, NULL }
+static const range_string nds_search_scope[] = {
+    { 0x0000, 0x0000, "Examine the base object only" },
+    { 0x0001, 0x0001, "Search the immediate subordinates of the base object" },
+    { 0x0002, 0x0002, "Search the base object and all its subordinates" },
+    { 0x0003, 0x0003, "Search the base objects and all objects in its partition (Implemented in NDS 8)" },
+    { 0x0004, 0xFFFF, "No Search Scope Defined" },
+    { 0, 0, NULL }
 };
 
 static const value_string nds_verb2b_flag_vals[] = {
@@ -1763,6 +1765,26 @@ static const int * ncp_retinfoflagsh[] = {
     NULL
 };
 
+static const int * ncp_acflags[] = {
+    &hf_bit1acflags,
+    &hf_bit2acflags,
+    &hf_bit3acflags,
+    &hf_bit4acflags,
+    &hf_bit5acflags,
+    &hf_bit6acflags,
+    &hf_bit7acflags,
+    &hf_bit8acflags,
+    &hf_bit9acflags,
+    &hf_bit10acflags,
+    &hf_bit11acflags,
+    &hf_bit12acflags,
+    &hf_bit13acflags,
+    &hf_bit14acflags,
+    &hf_bit15acflags,
+    &hf_bit16acflags,
+    NULL
+};
+
 static const int * ncp_eflags[] = {
     &hf_bit1eflags,
     &hf_bit2eflags,
@@ -1803,6 +1825,66 @@ static const int * ncp_cflags[] = {
     NULL
 };
 
+static const int * ncp_lflags[] = {
+    &hf_bit1lflags,
+    &hf_bit2lflags,
+    &hf_bit3lflags,
+    &hf_bit4lflags,
+    &hf_bit5lflags,
+    &hf_bit6lflags,
+    &hf_bit7lflags,
+    &hf_bit8lflags,
+    &hf_bit9lflags,
+    &hf_bit10lflags,
+    &hf_bit11lflags,
+    &hf_bit12lflags,
+    &hf_bit13lflags,
+    &hf_bit14lflags,
+    &hf_bit15lflags,
+    &hf_bit16lflags,
+    NULL
+};
+
+static const int * ncp_nflags[] = {
+    &hf_bit1nflags,
+    &hf_bit2nflags,
+    &hf_bit3nflags,
+    &hf_bit4nflags,
+    &hf_bit5nflags,
+    &hf_bit6nflags,
+    &hf_bit7nflags,
+    &hf_bit8nflags,
+    &hf_bit9nflags,
+    &hf_bit10nflags,
+    &hf_bit11nflags,
+    &hf_bit12nflags,
+    &hf_bit13nflags,
+    &hf_bit14nflags,
+    &hf_bit15nflags,
+    &hf_bit16nflags,
+    NULL
+};
+
+static const int * ncp_rflags[] = {
+    &hf_bit1rflags,
+    &hf_bit2rflags,
+    &hf_bit3rflags,
+    &hf_bit4rflags,
+    &hf_bit5rflags,
+    &hf_bit6rflags,
+    &hf_bit7rflags,
+    &hf_bit8rflags,
+    &hf_bit9rflags,
+    &hf_bit10rflags,
+    &hf_bit11rflags,
+    &hf_bit12rflags,
+    &hf_bit13rflags,
+    &hf_bit14rflags,
+    &hf_bit15rflags,
+    &hf_bit16rflags,
+    NULL
+};
+
 static const int * ncp_outflags[] = {
     &hf_bit1outflags,
     &hf_bit2outflags,
@@ -1823,6 +1905,26 @@ static const int * ncp_outflags[] = {
     NULL
 };
 
+static const int * ncp_siflags[] = {
+    &hf_bit1siflags,
+    &hf_bit2siflags,
+    &hf_bit3siflags,
+    &hf_bit4siflags,
+    &hf_bit5siflags,
+    &hf_bit6siflags,
+    &hf_bit7siflags,
+    &hf_bit8siflags,
+    &hf_bit9siflags,
+    &hf_bit10siflags,
+    &hf_bit11siflags,
+    &hf_bit12siflags,
+    &hf_bit13siflags,
+    &hf_bit14siflags,
+    &hf_bit15siflags,
+    &hf_bit16siflags,
+    NULL
+};
+
 static const int * ncp_vflags[] = {
     &hf_bit1vflags,
     &hf_bit2vflags,
@@ -1840,6 +1942,66 @@ static const int * ncp_vflags[] = {
     &hf_bit14vflags,
     &hf_bit15vflags,
     &hf_bit16vflags,
+    NULL
+};
+
+static const int * nds_bitflags[] = {
+    &hf_nds_bit1,
+    &hf_nds_bit2,
+    &hf_nds_bit3,
+    &hf_nds_bit4,
+    &hf_nds_bit5,
+    &hf_nds_bit6,
+    &hf_nds_bit7,
+    &hf_nds_bit8,
+    &hf_nds_bit9,
+    &hf_nds_bit10,
+    &hf_nds_bit11,
+    &hf_nds_bit12,
+    &hf_nds_bit13,
+    &hf_nds_bit14,
+    &hf_nds_bit15,
+    &hf_nds_bit16,
+    NULL
+};
+
+static const int * ncp_l1flagsl[] = {
+    &hf_bit1l1flagsl,
+    &hf_bit2l1flagsl,
+    &hf_bit3l1flagsl,
+    &hf_bit4l1flagsl,
+    &hf_bit5l1flagsl,
+    &hf_bit6l1flagsl,
+    &hf_bit7l1flagsl,
+    &hf_bit8l1flagsl,
+    &hf_bit9l1flagsl,
+    &hf_bit10l1flagsl,
+    &hf_bit11l1flagsl,
+    &hf_bit12l1flagsl,
+    &hf_bit13l1flagsl,
+    &hf_bit14l1flagsl,
+    &hf_bit15l1flagsl,
+    &hf_bit16l1flagsl,
+    NULL
+};
+
+static const int * ncp_l1flagsh[] = {
+    &hf_bit1l1flagsh,
+    &hf_bit2l1flagsh,
+    &hf_bit3l1flagsh,
+    &hf_bit4l1flagsh,
+    &hf_bit5l1flagsh,
+    &hf_bit6l1flagsh,
+    &hf_bit7l1flagsh,
+    &hf_bit8l1flagsh,
+    &hf_bit9l1flagsh,
+    &hf_bit10l1flagsh,
+    &hf_bit11l1flagsh,
+    &hf_bit12l1flagsh,
+    &hf_bit13l1flagsh,
+    &hf_bit14l1flagsh,
+    &hf_bit15l1flagsh,
+    &hf_bit16l1flagsh,
     NULL
 };
 
@@ -2815,159 +2977,6 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length)
     }
     dest_buf[i] = '\0';
     return dest_buf;
-}
-
-static void
-process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
-{
-    gchar        flags_str[512];
-    const gchar *sep;
-    proto_item  *tinew;
-    proto_tree  *flags_tree;
-    guint32      i;
-    guint32      bvalue = 0;
-
-    bvalue = 0x00000001;
-    flags_str[0]='\0';
-    sep="";
-    for (i = 0 ; i < (values->vlength*8); i++ ) {
-        if (values->vvalue & bvalue)
-        {
-            g_strlcat(flags_str, sep, 512);
-            switch(bvalue){
-            case 0x00000001:
-                g_strlcat(flags_str, values->bit1, 512);
-                break;
-            case 0x00000002:
-                g_strlcat(flags_str, values->bit2, 512);
-                break;
-            case 0x00000004:
-                g_strlcat(flags_str, values->bit3, 512);
-                break;
-            case 0x00000008:
-                g_strlcat(flags_str, values->bit4, 512);
-                break;
-            case 0x00000010:
-                g_strlcat(flags_str, values->bit5, 512);
-                break;
-            case 0x00000020:
-                g_strlcat(flags_str, values->bit6, 512);
-                break;
-            case 0x00000040:
-                g_strlcat(flags_str, values->bit7, 512);
-                break;
-            case 0x00000080:
-                g_strlcat(flags_str, values->bit8, 512);
-                break;
-            case 0x00000100:
-                g_strlcat(flags_str, values->bit9, 512);
-                break;
-            case 0x00000200:
-                g_strlcat(flags_str, values->bit10, 512);
-                break;
-            case 0x00000400:
-                g_strlcat(flags_str, values->bit11, 512);
-                break;
-            case 0x00000800:
-                g_strlcat(flags_str, values->bit12, 512);
-                break;
-            case 0x00001000:
-                g_strlcat(flags_str, values->bit13, 512);
-                break;
-            case 0x00002000:
-                g_strlcat(flags_str, values->bit14, 512);
-                break;
-            case 0x00004000:
-                g_strlcat(flags_str, values->bit15, 512);
-                break;
-            case 0x00008000:
-                g_strlcat(flags_str, values->bit16, 512);
-                break;
-            default:
-                break;
-            }
-            sep = ", ";
-        }
-        bvalue = bvalue*2;
-    }
-    if(values->vlength==4)
-    {
-        tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
-                                           tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%08x",
-                                           values->vdesc, values->vvalue);
-    }
-    else
-    {
-        tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
-                                           tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%04x",
-                                           values->vdesc, values->vvalue);
-    }
-    if (flags_str[0] != '\0')
-        proto_item_append_text(tinew, " - (%s)", flags_str);
-
-    flags_tree = proto_item_add_subtree(tinew, ett_nds);
-
-    bvalue = 0x00000001;
-
-    for (i = 0 ; i < (values->vlength*8); i++ ) {
-        if (values->vvalue & bvalue)
-        {
-            switch(bvalue)
-            {
-            case 0x00000001:
-                proto_tree_add_item(flags_tree, values->bit1hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000002:
-                proto_tree_add_item(flags_tree, values->bit2hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000004:
-                proto_tree_add_item(flags_tree, values->bit3hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000008:
-                proto_tree_add_item(flags_tree, values->bit4hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000010:
-                proto_tree_add_item(flags_tree, values->bit5hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000020:
-                proto_tree_add_item(flags_tree, values->bit6hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000040:
-                proto_tree_add_item(flags_tree, values->bit7hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000080:
-                proto_tree_add_item(flags_tree, values->bit8hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000100:
-                proto_tree_add_item(flags_tree, values->bit9hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000200:
-                proto_tree_add_item(flags_tree, values->bit10hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000400:
-                proto_tree_add_item(flags_tree, values->bit11hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00000800:
-                proto_tree_add_item(flags_tree, values->bit12hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00001000:
-                proto_tree_add_item(flags_tree, values->bit13hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00002000:
-                proto_tree_add_item(flags_tree, values->bit14hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00004000:
-                proto_tree_add_item(flags_tree, values->bit15hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            case 0x00008000:
-                proto_tree_add_item(flags_tree, values->bit16hfname, tvb, values->voffset, values->vlength, ENC_LITTLE_ENDIAN);
-                break;
-            default:
-                break;
-            }
-        }
-        bvalue = bvalue*2;
-    }
 }
 
 /* Echo the NDS EID and name for NCP 22,51 replies to expert tap */
@@ -4148,10 +4157,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset += align_4(tvb, ioffset);
 
         /* start of DCWPutValue */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-        proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-                                  4, values->vstring);
+        proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
@@ -4194,10 +4200,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     case NDS_SEARCH_VALUE_HAS_FLAG:
         /* start of DCWPutValue */
 #if 0
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-        proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-                              4, values->vstring);
+        proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset = ioffset + 4;
 #endif
         values->vvalue = tvb_get_letohl(tvb, ioffset);
@@ -4233,10 +4236,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset += align_4(tvb, ioffset);
 
         /* start of DCWPutValue */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-        proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-                              4, values->vstring);
+        proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
@@ -4271,10 +4271,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset += align_4(tvb, ioffset);
 
         /* start of DCWPutValue */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-        proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-                              4, values->vstring);
+        proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
@@ -4292,10 +4289,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     case NDS_SEARCH_ENTRY_SUBCOUNT_L:
     case NDS_SEARCH_ENTRY_SUBCOUNT_EQ:
         /* start of DCWPutValue */
-        values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-        proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-                              4, values->vstring);
+        proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
@@ -4381,10 +4375,7 @@ process_search_match(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     ioffset += align_4(tvb, ioffset);
 
     /* start of DCWPutValue */
-    values->vvalue = tvb_get_letohl(tvb, ioffset);
-    values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
-    proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
-    4, values->vstring);
+    proto_tree_add_item(it_tree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
     ioffset = ioffset + 4;
     values->vvalue = tvb_get_letohl(tvb, ioffset);
     ioffset = ioffset + 4;
@@ -4533,7 +4524,6 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0x00ff;
         proto_tree_add_uint(it_tree, hf_replica_type, tvb, ioffset, 4, values->vvalue);
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0xff00;
-        values->vstring = val_to_str_const(values->vvalue, nds_replica_state, "No Replica State Found");
         proto_tree_add_uint(it_tree, hf_replica_state, tvb, ioffset, 4, values->vvalue);
         ioffset = ioffset + 4;
     }
@@ -4733,9 +4723,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 for (i=0; i < number_of_items; i++) {
                     /* Process the attribute tag */
 #if 0
-                    values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    values.vstring = val_to_str_const(values.vvalue, nds_tags, "No Tags Set");
-                    proto_tree_add_string(it_subtree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);
+                    proto_tree_add_item(it_subtree, hf_nds_tag_string, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
 #endif
                     proto_tree_add_item(it_subtree, hf_iter_index, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                     ioffset = ioffset + 4;
@@ -4781,9 +4769,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 number_to_get = tvb_get_letohl(tvb, ioffset);
                 ioffset += 4;
                 if (number_to_get == 0) {
-                    values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    values.vstring = val_to_str_const(values.vvalue, nds_tags, "No Tags Set");
-                    proto_tree_add_string(it_tree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);
+                    proto_tree_add_item(it_tree, hf_nds_tag_string, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                     ioffset = ioffset + 4;
 
                 }
@@ -4840,9 +4826,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
             case IT_PREV:
             case IT_FIRST:
             case IT_LAST:
-                values.vvalue = tvb_get_letohl(tvb, ioffset);
-                values.vstring = val_to_str_const(values.vvalue, nds_info_type, "No Info Type Set");
-                proto_tree_add_string(it_subtree, hf_nds_info_type, tvb, ioffset, 4, values.vstring);
+                proto_tree_add_item(it_subtree, hf_nds_info_type, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset + 4;
                 proto_tree_add_item(it_subtree, hf_data_size, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset += 4;
@@ -4996,10 +4980,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         case 1:
             for (i = 1 ; i <= values->vvalue; i++ )
             {
-                value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
-                proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
-                                      4, values->vstring);
+                proto_tree_add_item(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
@@ -5017,10 +4998,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         case 2:
             for (i = 1 ; i <= values->vvalue; i++ )
             {
-                value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
-                proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
-                                      4, values->vstring);
+                proto_tree_add_item(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
@@ -5049,10 +5027,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         case 3:
             for (i = 1 ; i <= values->vvalue; i++ )
             {
-                value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
-                proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
-                                      4, values->vstring);
+                proto_tree_add_item(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
@@ -5101,10 +5076,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         case 4:
             for (i = 1 ; i <= values->vvalue; i++ )
             {
-                value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
-                proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
-                                      4, values->vstring);
+                proto_tree_add_item(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
@@ -6143,11 +6115,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         break;
 
     case MVTYPE_PROCESS_ITERATOR: /* Process Iterator subverbs. */
-        temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
-
-        temp_values.vstring = val_to_str_const(temp_values.vvalue, nds_info_type, "No Info Type Set");
-        /*g_strdup(value)*/
-        proto_tree_add_string(ntree, hf_nds_info_type, tvb, ioffset, 4, temp_values.vstring);
+        proto_tree_add_item(ntree, hf_nds_info_type, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
         ioffset += 4;
         value5 = tvb_get_letohl(tvb, ioffset);
         proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
@@ -7667,15 +7635,12 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
     guint32                         nds_offset;
     proto_item                      *expert_item;
     const char                      *verb_string;
-    nds_val                         pvalues[9];
     gboolean                        resolve_eid=FALSE;
     guint32                         global_eid=0;
     gboolean                        add_eid = FALSE;
-    char                            global_object_name[256];
+    char                            *global_object_name = NULL;
     ncp_req_eid_hash_value          *request_eid_value = NULL;
-    int                             i;
-
-    global_object_name[0] = '\0';
+    nds_val                         temp_value;
 
     nds_offset = 8;
 
@@ -7701,621 +7666,394 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             expert_add_info_format(pinfo, expert_item, &ei_nds_reply_error, "NDS Error: 0x%08x %s", nds_error_code, nds_error_string);
         }
     }
-    if (request_value && nds_error_code == 0x00000000)
+
+    if ((request_value == NULL) || (nds_error_code != 0))
+        return;
+
+    nds_offset = 20;
+    verb_string = val_to_str_const(request_value->nds_request_verb,
+                                    ncp_nds_verb_vals, "Continuation Fragment");
+    if(request_value->req_nds_prot_flags & 0x4000)
     {
-        nds_offset = 20;
-        for (i = 0; i < 9; i++) {
-            pvalues[i].vtype = 0;
-            pvalues[i].vvalue = 0;
-            pvalues[i].vlength = 0;
-            pvalues[i].voffset = 0;
-            pvalues[i].hfname = 0;
-            pvalues[i].vdesc = "";
-            pvalues[i].vstring = NULL;
-            pvalues[i].mvtype = 0;
-        }
-        verb_string = val_to_str_const(request_value->nds_request_verb,
-                                       ncp_nds_verb_vals, "Continuation Fragment");
-        if(request_value->req_nds_prot_flags & 0x4000)
+        /* CRC is included in the NDS header so justify the offset */
+        proto_tree_add_item(ncp_tree, hf_nds_crc, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+    }
+
+    if(request_value->nds_request_verb != 0)
+    {
+        proto_tree_add_uint_format_value(ncp_tree,
+                                    hf_ncp_nds_verb, tvb, 6, 0,
+                                    request_value->nds_request_verb,
+                                    "%d, %s",
+                                    request_value->nds_request_verb, verb_string);
+    }
+
+    memset(&temp_value, 0, sizeof(temp_value));
+    switch (request_value->nds_request_verb)
+    {
+    case 0x01:
+        proto_tree_add_item_ret_uint(ncp_tree, hf_nds_tag_string, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &temp_value.vvalue);
+        nds_offset += 4;
+
+        switch(temp_value.vvalue)
         {
-            /* CRC is included in the NDS header so justify the offset */
-            proto_tree_add_item(ncp_tree, hf_nds_crc, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
-            nds_offset += 4;
-        }
-        switch (request_value->nds_request_verb)
-        {
-        case 0x01:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vstring = val_to_str_const(pvalues[0].vvalue, nds_tags, "No Tags Set");
-            pvalues[0].vtype = VTYPE_STRING;
-            pvalues[0].vdesc = "Tag: %s";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_tag_string;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            switch(pvalues[0].vvalue)
-            {
-            case NDS_TAG_NO_SUCH_ENTRY:
-                break;
-            case NDS_TAG_LOCAL_ENTRY:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Entry ID: 0x%08x";
-                add_eid = TRUE;
-                resolve_eid = TRUE;
-                g_strlcpy(global_object_name, request_value->object_name, 256);
-                global_eid = pvalues[1].vvalue;
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = nds_offset;
-                pvalues[1].hfname = hf_nds_eid;
-                nds_offset = nds_offset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[2].vdesc = "Referral Records: %u";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = nds_offset;
-                pvalues[2].hfname = hf_nds_referrals;
-                pvalues[2].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
-                break;
-            case NDS_TAG_REMOTE_ENTRY:
-                nds_offset += 4;   /* GUINT32 reserved field */
-                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Entry ID: 0x%08x";
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = nds_offset;
-                pvalues[1].hfname = hf_nds_eid;
-                nds_offset = nds_offset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[2].vdesc = "Referral Records: %u";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = nds_offset;
-                pvalues[2].hfname = hf_nds_referrals;
-                pvalues[2].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
-                break;
-            case NDS_TAG_ALIAS_ENTRY:
-                pvalues[1].vtype = VTYPE_STRING;
-                pvalues[1].vdesc = "Alias Name: %s";
-                pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[1].vvalue = 0;
-                pvalues[1].vlength = tvb_get_letohl(tvb, nds_offset);
-                if (pvalues[1].vlength == 0x00)
-                {
-                    pvalues[1].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[1].voffset = nds_offset+4;
-                nds_offset += 4;
-                pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
-                nds_offset += pvalues[1].vlength;
-                nds_offset += align_4(tvb, nds_offset);
-                pvalues[1].hfname= hf_nds_name;
-                break;
-            case NDS_TAG_REFERRAL_INFORMATION:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Distance Object is From Root: 0x%08x";
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = nds_offset;
-                pvalues[1].hfname = hf_nds_eid;
-                nds_offset = nds_offset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[2].vdesc = "Referral Records: %u";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = nds_offset;
-                pvalues[2].hfname = hf_nds_depth;
-                pvalues[2].mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
-                break;
-            case NDS_TAG_ENTRY_AND_REFERRALS:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Result Flags: 0x%08x";
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = nds_offset;
-                pvalues[1].hfname = hf_nds_result_flags;
-                nds_offset = nds_offset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Entry ID: 0x%08x";
-                add_eid = TRUE;
-                resolve_eid = TRUE;
-                global_eid = pvalues[2].vvalue;
-                g_strlcpy(global_object_name, request_value->object_name, 256);
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = nds_offset;
-                pvalues[2].hfname = hf_nds_eid;
-                nds_offset = nds_offset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
-                pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[3].vdesc = "Referral Records: %u";
-                pvalues[3].vlength = 4;
-                pvalues[3].voffset = nds_offset;
-                pvalues[3].mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
-                pvalues[3].hfname = hf_nds_referrals;
-                break;
-            default:
-                break;
-            }
+        case NDS_TAG_NO_SUCH_ENTRY:
             break;
-        case 0x02:
-            nds_offset -= 4;
-            pvalues[0].vvalue = 1;
-            pvalues[0].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[0].vdesc = "Entry Information";
-            pvalues[0].vlength = 0;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_name;
-            pvalues[0].mvtype = MVTYPE_LIST_PARTITIONS;
-            pvalues[0].vflags = request_value->req_nds_flags;
-            break;
-        case 0x03:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vstring = val_to_str_const(pvalues[1].vvalue, nds_info_type, "No Info Type Set");
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Info Type: %s";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_nds_info_type;
-            nds_offset = nds_offset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[2].vdesc = "Number of Attributes: %u";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = nds_offset;
-            pvalues[2].hfname = hf_nds_attr;
-            pvalues[2].mvtype = MVTYPE_ATTR_REPLY;
-            pvalues[2].vflags = request_value->req_nds_flags;
-            pvalues[2].nds_version = request_value->nds_version;
-            pvalues[2].pflags = request_value->req_nds_prot_flags;
-            break;
-        case 0x04:
-            pvalues[0].vvalue = tvb_get_guint8(tvb, nds_offset);
-            if (pvalues[0].vvalue == 0)
-            {
-                pvalues[0].vstring = "Did Not Match";
-            }
-            else
-            {
-                pvalues[0].vstring = "Matched";
-            }
-            pvalues[0].vtype = VTYPE_STRING;
-            pvalues[0].vdesc = "Compare Values Returned - %s";
-            pvalues[0].vlength = 1;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].mvtype = 0;
-            pvalues[0].hfname= hf_nds_compare_results;
-            nds_offset += pvalues[0].vlength;
-            break;
-        case 0x05:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[1].vdesc = "Entry Information";
-            pvalues[1].vlength = 0;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_nds_name;
-            pvalues[1].mvtype = MVTYPE_LIST_PARTITIONS;
-            pvalues[1].vflags = request_value->req_nds_flags;
-            break;
-        case 0x06:
-            break;
-        case 0x07:
-            break;
-        case 0x08:
-            break;
-        case 0x09:
-            break;
-        case 0x0a:
-            break;
-        case 0x0b:
-            break;
-        case 0x0c:
-            break;
-        case 0x0d:
-            break;
-        case 0x0e:
-            break;
-        case 0x0f:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vstring = val_to_str_const(pvalues[1].vvalue, class_def_type,
-                                                  "No Class Definition Type Set");
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Class Definition Type: %s";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].mvtype = 0;
-            pvalues[1].hfname= hf_nds_class_def_type;
-            nds_offset = nds_offset + pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[2].vdesc = "Class Definitions %u";
-            pvalues[2].vlength = 0;
-            pvalues[2].voffset = nds_offset;
-            pvalues[2].hfname = hf_nds_classes;
-            pvalues[2].mvtype = MVTYPE_CLASS_NAMES;
-            pvalues[2].vflags = request_value->req_nds_flags;
-            break;
-        case 0x10:
-            break;
-        case 0x11:
-            break;
-        case 0x12:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[1].vdesc = "Classes: %u";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].mvtype = MVTYPE_READ_CLASS_REQ;
-            pvalues[1].hfname= hf_nds_classes;
-            break;
-        case 0x13:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Privileges: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_privileges;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            break;
-        case 0x14:
-            break;
-        case 0x15:
-            break;
-        case 0x16:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Server Distinguished Name: %s";
-            pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[1].vvalue = 0;
-            pvalues[1].vlength = tvb_get_letohl(tvb, nds_offset);
-            if (pvalues[1].vlength == 0x00)
-            {
-                pvalues[1].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[1].voffset = nds_offset+4;
-            nds_offset += 4;
-            pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
-            nds_offset += pvalues[1].vlength;
-            nds_offset += align_4(tvb, nds_offset);
-            pvalues[1].hfname= hf_nds_name;
-            nds_offset += align_4(tvb, nds_offset);
-            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[2].vdesc = "Replicas: %u";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = nds_offset;
-            pvalues[2].hfname = hf_nds_replicas;
-            pvalues[2].mvtype = MVTYPE_READ_REPLICAS;
-            pvalues[2].bit1 = "Output Flags";
-            pvalues[2].bit2 = "Entry ID";
-            pvalues[2].bit3 = "Replica State";
-            pvalues[2].bit4 = "Modification Timestamp";
-            pvalues[2].bit5 = "Purge Time";
-            pvalues[2].bit6 = "Local Partition ID";
-            pvalues[2].bit7 = "Distinguished Name";
-            pvalues[2].bit8 = "Replica Type";
-            pvalues[2].bit9 = "Partition Busy";
-            pvalues[2].vflags = request_value->req_nds_flags;
-            break;
-        case 0x17:
-            break;
-        case 0x18:
-            break;
-        case 0x19:
-            break;
-        case 0x1a:
-            break;
-        case 0x1b:
-            pvalues[0].vvalue = tvb_get_ntohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "File Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname = hf_nds_file_handle;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "File Size: %u";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_nds_file_size;
-            nds_offset = nds_offset+pvalues[1].vlength;
-            break;
-        case 0x1c:
-            break;
-        case 0x1d:
-            break;
-        case 0x1e:
-            break;
-        case 0x1f:
-            break;
-        case 0x20:
-            break;
-        case 0x21:
-            break;
-        case 0x22:
-            break;
-        case 0x23:
-            break;
-        case 0x24:
-            break;
-        case 0x25:
-            break;
-        case 0x26:
-            break;
-        case 0x27:
-            break;
-        case 0x28:
-            break;
-        case 0x29:
-            break;
-        case 0x2a:
-            break;
-        case 0x2b:
-            break;
-        case 0x2c:
-            break;
-        case 0x2d:
-            break;
-        case 0x2e:
-            break;
-        case 0x2f:
-            break;
-        case 0x30:
-            break;
-        case 0x31:
-            break;
-        case 0x32:
-            break;
-        case 0x33:
-            break;
-        case 0x34:
-            break;
-        case 0x35:
-            pvalues[0].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[0].vdesc = "Server Name";
-            pvalues[0].mvtype = MVTYPE_PROCESS_TAGS;
-            pvalues[0].vflags = request_value->req_nds_flags;
-            pvalues[0].hfname = hf_nds_svr_dst_name;
-            pvalues[0].vlength = tvb_get_letohl(tvb, nds_offset);
-            if (pvalues[0].vlength == 0x00)
-            {
-                pvalues[0].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[0].voffset = nds_offset;
-            nds_offset += pvalues[0].vlength + 4;
-            nds_offset += align_4(tvb, nds_offset);
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[1].vdesc = "Referral Records: %u";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_nds_referrals;
-            pvalues[1].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
-            break;
-        case 0x36:
-            break;
-        case 0x37:
-            break;
-        case 0x38:
-            break;
-        case 0x39:
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
+        case NDS_TAG_LOCAL_ENTRY:
+            proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &global_eid);
             add_eid = TRUE;
             resolve_eid = TRUE;
-            g_strlcpy(global_object_name, request_value->object_name, 256);
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_nds_eid;
-            nds_offset = nds_offset+pvalues[1].vlength;
-            break;
-        case 0x3a:
-            break;
-        case 0x3b:
-            break;
-        case 0x3c:
-            break;
-        case 0x3d:
-            break;
-        case 0x3e:
-            break;
-        case 0x3f:
-            break;
-        case 0x40:
-            break;
-        case 0x41:
-            break;
-        case 0x42:
-            break;
-        case 0x43:
-            break;
-        case 0x44:
-            break;
-        case 0x45:
-            break;
-        case 0x46:
-            break;
-        case 0x47:
-            break;
-        case 0x48:
-            break;
-        case 0x49:
-            break;
-        case 0x4a:
-            break;
-        case 0x4b:
-            break;
-        case 0x4c:
-            break;
-        case 0x4d:
-            break;
-        case 0x6e:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = nds_offset;
-            pvalues[0].hfname= hf_nds_iteration;
-            nds_offset = nds_offset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vtype = VTYPE_NONE;
-            pvalues[1].vdesc = "Iteration Completion Code: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = nds_offset;
-            pvalues[1].hfname = hf_iter_completion_code;
-            expert_item = proto_tree_add_uint_format(ncp_tree, pvalues[1].hfname, tvb, nds_offset,
-                                                     4, pvalues[1].vvalue, "NDS Iteration Completion Code: 0x%08x, %s",
-                                                     pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
+            global_object_name = request_value->object_name;
+            nds_offset += 4;
 
-            if (pvalues[1].vvalue != 0 && ncp_echo_err) {
-                expert_add_info_format(pinfo, expert_item, &ei_nds_iteration, "NDS Iteration Error: 0x%08x %s",
-                                       pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
-            }
-            nds_offset = nds_offset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[2].vtype = VTYPE_ITEM;
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = nds_offset;
-            pvalues[2].mvtype = MVTYPE_PROCESS_ITERATOR;
-            pvalues[2].hfname = hf_ncp_nds_iterverb;
-            nds_offset = nds_offset + pvalues[2].vlength;
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+            temp_value.vdesc = "Referral Records: %u";
+            temp_value.vlength = 4;
+            temp_value.voffset = nds_offset;
+            temp_value.hfname = hf_nds_referrals;
+            temp_value.mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
+            process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+            break;
+        case NDS_TAG_REMOTE_ENTRY:
+            nds_offset += 4;   /* GUINT32 reserved field */
+            proto_tree_add_item(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+            nds_offset += 4;
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+            temp_value.vdesc = "Referral Records: %u";
+            temp_value.vlength = 4;
+            temp_value.voffset = nds_offset;
+            temp_value.hfname = hf_nds_referrals;
+            temp_value.mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
+            process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+            break;
+        case NDS_TAG_ALIAS_ENTRY:
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            if (temp_value.vvalue == 0x00)
+                break;
+
+            temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+            proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, nds_offset, 4+temp_value.vvalue, temp_value.vstring, "Alias Name: %s", temp_value.vstring);
+            break;
+        case NDS_TAG_REFERRAL_INFORMATION:
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            proto_tree_add_uint_format(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, temp_value.vvalue, "Distance Object is From Root: 0x%08x", temp_value.vvalue);
+            nds_offset += 4;
+
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+            temp_value.vdesc = "Referral Records: %u";
+            temp_value.vlength = 4;
+            temp_value.voffset = nds_offset;
+            temp_value.hfname = hf_nds_referrals;
+            temp_value.mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
+            process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+            break;
+        case NDS_TAG_ENTRY_AND_REFERRALS:
+            proto_tree_add_item(ncp_tree, hf_nds_result_flags, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+            nds_offset += 4;
+            proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+            add_eid = TRUE;
+            resolve_eid = TRUE;
+            global_object_name = request_value->object_name;
+            nds_offset += 4;
+
+            temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+            temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+            temp_value.vdesc = "Referral Records: %u";
+            temp_value.vlength = 4;
+            temp_value.voffset = nds_offset;
+            temp_value.hfname = hf_nds_referrals;
+            temp_value.mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
+            process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
             break;
         default:
             break;
         }
-        if(request_value->nds_request_verb != 0)
+        break;
+    case 0x02:
+        nds_offset -= 4;
+        temp_value.vvalue = 1;
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Entry Information";
+        temp_value.vlength = 0;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_name;
+        temp_value.mvtype = MVTYPE_LIST_PARTITIONS;
+        temp_value.vflags = request_value->req_nds_flags;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x03:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+        proto_tree_add_item(ncp_tree, hf_nds_info_type, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Number of Attributes: %u";
+        temp_value.vlength = 4;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_attr;
+        temp_value.mvtype = MVTYPE_ATTR_REPLY;
+        temp_value.vflags = request_value->req_nds_flags;
+        temp_value.nds_version = request_value->nds_version;
+        temp_value.pflags = request_value->req_nds_prot_flags;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x04:
+        temp_value.vvalue = tvb_get_guint8(tvb, nds_offset);
+        if (temp_value.vvalue == 0)
         {
-            proto_tree_add_uint_format_value(ncp_tree,
-                                       hf_ncp_nds_verb, tvb, 6, 0,
-                                       request_value->nds_request_verb,
-                                       "%d, %s",
-                                       request_value->nds_request_verb, verb_string);
+            proto_tree_add_uint_format_value(ncp_tree, hf_nds_compare_results, tvb, nds_offset, 1, temp_value.vvalue, "Did Not Match");
         }
-        /* NDS Entry ID's (EID) is identified in the reply
-         * packet of an NDS resolve name. We need to store
-         * this EID and its associated name into our hash
-         * so that we can resolve the name for other NDS
-         * requests. */
-        if (!pinfo->fd->flags.visited) {
-            if(add_eid)
-            {
-                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-                if (!request_eid_value) {
-                    request_eid_value = ncp_eid_hash_insert(global_eid);
-                    g_strlcpy(request_eid_value->object_name, global_object_name, 256);
-                }
-            }
+        else
+        {
+            proto_tree_add_uint_format_value(ncp_tree, hf_nds_compare_results, tvb, nds_offset, 1, temp_value.vvalue, "Matched");
         }
-        /* Echo EID data to expert Chat window */
-        if (add_eid && nds_echo_eid) {
-            expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
-                                   "EID (%08x) = %s", global_eid, global_object_name);
+        break;
+    case 0x05:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Entry Information";
+        temp_value.vlength = 0;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_name;
+        temp_value.mvtype = MVTYPE_LIST_PARTITIONS;
+        temp_value.vflags = request_value->req_nds_flags;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x06:
+    case 0x07:
+    case 0x08:
+    case 0x09:
+    case 0x0a:
+    case 0x0b:
+    case 0x0c:
+    case 0x0d:
+    case 0x0e:
+        break;
+    case 0x0f:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+        proto_tree_add_item(ncp_tree, hf_nds_class_def_type, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Class Definitions %u";
+        temp_value.vlength = 0;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_classes;
+        temp_value.mvtype = MVTYPE_CLASS_NAMES;
+        temp_value.vflags = request_value->req_nds_flags;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x10:
+    case 0x11:
+        break;
+    case 0x12:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Classes: %u";
+        temp_value.vlength = 4;
+        temp_value.voffset = nds_offset;
+        temp_value.mvtype = MVTYPE_READ_CLASS_REQ;
+        temp_value.hfname= hf_nds_classes;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x13:
+        proto_tree_add_item(ncp_tree, hf_nds_privileges, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case 0x14:
+    case 0x15:
+        break;
+    case 0x16:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        if (temp_value.vvalue == 0)
+            break;
+
+        temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, nds_offset, 4+temp_value.vvalue, temp_value.vstring, "Server Distinguished Name: %s", temp_value.vstring);
+        nds_offset += 4+temp_value.vvalue;
+        nds_offset += align_4(tvb, nds_offset);
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Replicas: %u";
+        temp_value.vlength = 4;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_replicas;
+        temp_value.mvtype = MVTYPE_READ_REPLICAS;
+        temp_value.bit1 = "Output Flags";
+        temp_value.bit2 = "Entry ID";
+        temp_value.bit3 = "Replica State";
+        temp_value.bit4 = "Modification Timestamp";
+        temp_value.bit5 = "Purge Time";
+        temp_value.bit6 = "Local Partition ID";
+        temp_value.bit7 = "Distinguished Name";
+        temp_value.bit8 = "Replica Type";
+        temp_value.bit9 = "Partition Busy";
+        temp_value.vflags = request_value->req_nds_flags;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x17:
+    case 0x18:
+    case 0x19:
+    case 0x1a:
+        break;
+    case 0x1b:
+        proto_tree_add_item(ncp_tree, hf_nds_file_handle, tvb, nds_offset, 4, ENC_BIG_ENDIAN);
+        nds_offset += 4;
+        proto_tree_add_item(ncp_tree, hf_nds_file_size, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case 0x1c:
+    case 0x1d:
+    case 0x1e:
+    case 0x1f:
+    case 0x20:
+    case 0x21:
+    case 0x22:
+    case 0x23:
+    case 0x24:
+    case 0x25:
+    case 0x26:
+    case 0x27:
+    case 0x28:
+    case 0x29:
+    case 0x2a:
+    case 0x2b:
+    case 0x2c:
+    case 0x2d:
+    case 0x2e:
+    case 0x2f:
+    case 0x30:
+    case 0x31:
+    case 0x32:
+    case 0x33:
+    case 0x34:
+        break;
+    case 0x35:
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Server Name";
+        temp_value.mvtype = MVTYPE_PROCESS_TAGS;
+        temp_value.vflags = request_value->req_nds_flags;
+        temp_value.hfname = hf_nds_svr_dst_name;
+        temp_value.vlength = tvb_get_letohl(tvb, nds_offset);
+        if (temp_value.vlength == 0x00)
+            break;
+
+        temp_value.voffset = nds_offset;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        nds_offset += temp_value.vlength + 4;
+        nds_offset += align_4(tvb, nds_offset);
+
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+        temp_value.vdesc = "Referral Records: %u";
+        temp_value.vlength = 4;
+        temp_value.voffset = nds_offset;
+        temp_value.hfname = hf_nds_referrals;
+        temp_value.mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
+        process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+        break;
+    case 0x36:
+    case 0x37:
+    case 0x38:
+        break;
+    case 0x39:
+        proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+        add_eid = TRUE;
+        resolve_eid = TRUE;
+        global_object_name = request_value->object_name;
+        break;
+    case 0x3a:
+    case 0x3b:
+    case 0x3c:
+    case 0x3d:
+    case 0x3e:
+    case 0x3f:
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x43:
+    case 0x44:
+    case 0x45:
+    case 0x46:
+    case 0x47:
+    case 0x48:
+    case 0x49:
+    case 0x4a:
+    case 0x4b:
+    case 0x4c:
+    case 0x4d:
+        break;
+    case 0x6e:
+        proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        nds_offset += 4;
+        expert_item = proto_tree_add_item_ret_uint(ncp_tree, hf_iter_completion_code, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &temp_value.vvalue);
+        nds_offset += 4;
+
+        if (temp_value.vvalue != 0 && ncp_echo_err) {
+            expert_add_info_format(pinfo, expert_item, &ei_nds_iteration, "NDS Iteration Error: 0x%08x %s",
+                                    temp_value.vvalue, val_to_str(temp_value.vvalue, nds_reply_errors, "Unknown: %d"));
         }
-        /* For NDS requests with just an EID, resolve name
-         * from hash table. */
-        if(resolve_eid)
+        temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
+        temp_value.vtype = VTYPE_ITEM;
+        temp_value.vlength = 4;
+        temp_value.voffset = nds_offset;
+        temp_value.mvtype = MVTYPE_PROCESS_ITERATOR;
+        temp_value.hfname = hf_ncp_nds_iterverb;
+        dissect_nds_iterator(ncp_tree, tvb, pinfo, temp_value.vvalue, 0, nds_offset, FALSE);
+        break;
+    default:
+        break;
+    }
+    /* NDS Entry ID's (EID) is identified in the reply
+        * packet of an NDS resolve name. We need to store
+        * this EID and its associated name into our hash
+        * so that we can resolve the name for other NDS
+        * requests. */
+    if (!pinfo->fd->flags.visited) {
+        if(add_eid)
         {
             request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-            if (request_eid_value) {
-                g_strlcpy(global_object_name, request_eid_value->object_name, 256);
-                proto_tree_add_string_format(ncp_tree,
-                                             hf_nds_name, tvb, 6, 0,
-                                             global_object_name,
-                                             "NDS Name for EID - %s",
-                                             global_object_name);
+            if (!request_eid_value) {
+                request_eid_value = ncp_eid_hash_insert(global_eid);
+                if (global_object_name != NULL)
+                    g_strlcpy(request_eid_value->object_name, global_object_name, 256);
+                else
+                    request_eid_value->object_name[0] = '\0';
             }
         }
-        for (i = 0; i < 9; i++) {
-            switch (pvalues[i].vtype) {
-
-            case VTYPE_NONE: /* no value */
-                break;
-
-            case VTYPE_ITEM:
-                if (pvalues[i].mvtype == MVTYPE_PROCESS_ITERATOR)
-                {
-                    dissect_nds_iterator(ncp_tree, tvb, pinfo, pvalues[i].vvalue, 0, nds_offset, FALSE);
-                }
-                else
-                {
-                    proto_tree_add_item(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                        pvalues[i].vlength, ENC_NA);
-                }
-                break;
-            case VTYPE_UINT8:
-                proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                           pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                           pvalues[i].vtype);
-                break;
-
-            case VTYPE_UINT16:
-                proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                           pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                           pvalues[i].vtype);
-                break;
-
-            case VTYPE_UINT32:
-                proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                           pvalues[i].vlength, pvalues[i].vvalue, pvalues[i].vdesc,
-                                           pvalues[i].vvalue);
-                break;
-
-            case VTYPE_STRING:
-                proto_tree_add_string_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                             pvalues[i].vlength, pvalues[i].vstring, pvalues[i].vdesc,
-                                             pvalues[i].vstring);
-                break;
-
-            case VTYPE_MULTIVALUE_UINT32:
-                process_multivalues(ncp_tree, tvb, pinfo, &pvalues[i]);
-                break;
-
-            default:
-                proto_tree_add_uint_format(ncp_tree, hf_nds_p1type, tvb, pvalues[i].voffset,
-                                           pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                           pvalues[i].vtype);
-                break;
-            }
+    }
+    /* Echo EID data to expert Chat window */
+    if (add_eid && nds_echo_eid) {
+        expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
+                                "EID (%08x) = %s", global_eid, global_object_name);
+    }
+    /* For NDS requests with just an EID, resolve name
+        * from hash table. */
+    if(resolve_eid)
+    {
+        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+        if (request_eid_value) {
+            proto_tree_add_string_format(ncp_tree,
+                                            hf_nds_name, tvb, 6, 0,
+                                            request_eid_value->object_name,
+                                            "NDS Name for EID - %s",
+                                            request_eid_value->object_name);
         }
     }
 }
@@ -8630,7 +8368,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     guint32 nw_connection, guint8 sequence,
                     guint16 type, proto_tree *ncp_tree)
 {
-    guint8                   func, subfunc = 0;
+    guint8                   func, subfunc;
     ncp_req_hash_value      *request_value = NULL;
     ncp_req_eid_hash_value  *request_eid_value = NULL;
     const ncp_record        *ncp_rec = NULL;
@@ -8641,34 +8379,26 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     guint8                   nds_verb = 0;
     const char              *verb_string = "";
     guint32                  nds_frag = 0;
-    gboolean                 added_arrow;
-    nds_val                  pvalues[9];
     guint8                   nds_version = 0;
     guint32                  foffset = 0;
-    char                     global_object_name[256];
+    const char*              global_object_name = NULL;
     guint32                  global_eid=0;
     gboolean                 resolve_eid=FALSE;
     guint32                  global_flags=0, nds_prot_flags=0;
-    int                      i;
-
-    for (i = 0; i < 9; i++) {
-        pvalues[i].vtype = 0;
-        pvalues[i].vvalue = 0;
-        pvalues[i].vlength = 0;
-        pvalues[i].voffset = 0;
-        pvalues[i].hfname = 0;
-        pvalues[i].vdesc = "";
-        pvalues[i].vstring = NULL;
-        pvalues[i].mvtype = 0;
-        pvalues[i].vflags = 0;
-    }
-
-    global_object_name[0] = '\0';
+    guint32                  version, value1;
+    nds_val                  temp_value;
 
     func = tvb_get_guint8(tvb, 6);
     subfunc = tvb_get_guint8(tvb, 7);
 
     ncp_rec = ncp_record_find(func, subfunc);
+    if (ncp_rec) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "C Unknown Function %d (0x%02x)",
+                        func, func);
+    }
 
     /* Check to see if this is a fragment packet */
     nds_frag = tvb_get_letohl(tvb, 8);
@@ -8743,2289 +8473,12 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         foffset = foffset+4;
         verb_string = val_to_str_const(nds_verb, ncp_nds_verb_vals,
                                        "Continuation Fragment");
-        switch(nds_verb) {
 
-        case 0x01:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_BITFIELD;
-            pvalues[1].vdesc = "Flags:";
-            pvalues[1].vlength = 2;
-            pvalues[1].hfname= hf_nds_nflags;
-            pvalues[1].voffset = foffset;
-            pvalues[1].bit1 = "Entry ID";
-            pvalues[1].bit1hfname = hf_bit1nflags;
-            pvalues[1].bit2 = "Readable";
-            pvalues[1].bit2hfname = hf_bit2nflags;
-            pvalues[1].bit3 = "Writeable";
-            pvalues[1].bit3hfname = hf_bit3nflags;
-            pvalues[1].bit4 = "Master";
-            pvalues[1].bit4hfname = hf_bit4nflags;
-            pvalues[1].bit5 = "Create ID";
-            pvalues[1].bit5hfname = hf_bit5nflags;
-            pvalues[1].bit6 = "Walk Tree";
-            pvalues[1].bit6hfname = hf_bit6nflags;
-            pvalues[1].bit7 = "Dereference Alias";
-            pvalues[1].bit7hfname = hf_bit7nflags;
-            pvalues[1].bit8 = "Not Defined";
-            pvalues[1].bit8hfname = hf_bit8nflags;
-            pvalues[1].bit9 = "Not Defined";
-            pvalues[1].bit9hfname = hf_bit9nflags;
-            pvalues[1].bit10 = "Not Defined";
-            pvalues[1].bit10hfname = hf_bit10nflags;
-            pvalues[1].bit11= "Not Defined";
-            pvalues[1].bit11hfname = hf_bit11nflags;
-            pvalues[1].bit12 = "Not Defined";
-            pvalues[1].bit12hfname = hf_bit12nflags;
-            pvalues[1].bit13 = "Not Defined";
-            pvalues[1].bit13hfname = hf_bit13nflags;
-            pvalues[1].bit14 = "Prefer Referrals";
-            pvalues[1].bit14hfname = hf_bit14nflags;
-            pvalues[1].bit15 = "Prefer Only Referrals";
-            pvalues[1].bit15hfname = hf_bit15nflags;
-            pvalues[1].bit16 = "Not Defined";
-            pvalues[1].bit16hfname = hf_bit16nflags;
-            foffset = foffset+4;
-            if (pvalues[0].vvalue == 0 || pvalues[0].vvalue == 1)
-            {
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Scope: %u";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = foffset;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].hfname= hf_nds_scope;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vtype = VTYPE_STRING;
-                pvalues[3].vdesc = "Name: %s";
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[3].vvalue = 0;
-                pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-                if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-                {
-                    pvalues[3].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[3].voffset = foffset+4;
-                foffset = foffset + 4;
-                pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-                g_strlcpy(global_object_name, pvalues[3].vstring, 256);
-                pvalues[3].hfname= hf_nds_name;
-                foffset = foffset+pvalues[3].vlength;
-                foffset += align_4(tvb, foffset);
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[4].vdesc = "Communications Transports: %u";
-                pvalues[4].vlength = 4;
-                pvalues[4].hfname= hf_nds_comm_trans;
-                pvalues[4].voffset = foffset;
-                pvalues[4].mvtype = MVTYPE_ADDR_REFERRAL_REQUEST;
-                foffset = foffset + (pvalues[4].vvalue * 4) + 4;
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[5].vdesc = "Tree Walker Transport Type: %u";
-                pvalues[5].vlength = 4;
-                pvalues[5].mvtype = MVTYPE_ADDR_REFERRAL_REQUEST;
-                pvalues[5].hfname= hf_nds_tree_trans;
-                pvalues[5].voffset = foffset;
-            }
-            else
-            {
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Minimum DS Version: %u";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = foffset;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].hfname= hf_min_nds_ver;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[3].vdesc = "Number of Versions to Include: %u";
-                pvalues[3].vlength = 4;
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST2;
-                pvalues[3].voffset = foffset;
-                pvalues[3].hfname= hf_nds_ver_include;
-                foffset += (pvalues[3].vvalue * 4) + 4;
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[4].vdesc = "Number of Versions to Exclude: %u";
-                pvalues[4].vlength = 4;
-                pvalues[4].mvtype = MVTYPE_ATTR_REQUEST2;
-                pvalues[4].hfname= hf_nds_ver_exclude;
-                pvalues[4].voffset = foffset;
-                foffset += 4;
-                pvalues[5].vtype = VTYPE_UINT32;
-                pvalues[5].vdesc = "DN Output Type: %u";
-                pvalues[5].vlength = 4;
-                pvalues[5].voffset = foffset;
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].hfname= hf_nds_dn_output_type;
-                foffset = foffset+pvalues[5].vlength;
-                pvalues[6].vtype = VTYPE_UINT32;
-                pvalues[6].vdesc = "Nested Output Type: %u";
-                pvalues[6].vlength = 4;
-                pvalues[6].voffset = foffset;
-                pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[6].hfname= hf_nds_nested_output_type;
-                foffset = foffset+pvalues[6].vlength;
-                pvalues[7].vtype = VTYPE_STRING;
-                pvalues[7].vdesc = "Output Delimiter: %s";
-                pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[7].vvalue = 0;
-                pvalues[7].vlength = tvb_get_letohl(tvb, foffset);
-                pvalues[7].voffset = foffset+4;
-                foffset = foffset + 4;
-                pvalues[7].vstring = get_string(tvb, pvalues[7].voffset, pvalues[7].vlength);
-                pvalues[7].hfname= hf_nds_output_delimiter;
-                foffset = foffset+pvalues[7].vlength;
-                foffset += align_4(tvb, foffset);
-                pvalues[8].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[8].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[8].vdesc = "Size of Entry Specifier: %u";
-                pvalues[8].vlength = 4;
-                pvalues[8].mvtype = MVTYPE_PROC_ENTRY_SPECIFIERS;
-                pvalues[8].hfname= hf_nds_output_entry_specifier;
-                pvalues[8].voffset = foffset;
-            }
-            break;
-        case 0x02:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            switch(pvalues[0].vvalue)
-            {
-            case 0:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Entry ID: 0x%08x";
-                pvalues[1].vlength = 4;
-                resolve_eid = TRUE;
-                global_eid = pvalues[1].vvalue;
-                pvalues[1].voffset = foffset;
-                pvalues[1].hfname = hf_nds_eid;
-                /*foffset = foffset+pvalues[1].vlength;*/
-                break;
-            case 1:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_BITFIELD;
-                pvalues[1].vdesc = "Request Flags:";
-                pvalues[1].vlength = 2;
-                pvalues[1].hfname= hf_nds_rflags;
-                pvalues[1].voffset = foffset;
-                pvalues[1].bit1 = "Typeless";
-                pvalues[1].bit1hfname = hf_bit1rflags;
-                pvalues[1].bit2 = "Slashed";
-                pvalues[1].bit2hfname = hf_bit2rflags;
-                pvalues[1].bit3 = "Dotted";
-                pvalues[1].bit3hfname = hf_bit3rflags;
-                pvalues[1].bit4 = "Tuned";
-                pvalues[1].bit4hfname = hf_bit4rflags;
-                pvalues[1].bit5 = "Not Defined";
-                pvalues[1].bit5hfname = hf_bit5rflags;
-                pvalues[1].bit6 = "Not Defined";
-                pvalues[1].bit6hfname = hf_bit6rflags;
-                pvalues[1].bit7 = "Not Defined";
-                pvalues[1].bit7hfname = hf_bit7rflags;
-                pvalues[1].bit8 = "Not Defined";
-                pvalues[1].bit8hfname = hf_bit8rflags;
-                pvalues[1].bit9 = "Not Defined";
-                pvalues[1].bit9hfname = hf_bit9rflags;
-                pvalues[1].bit10 = "Not Defined";
-                pvalues[1].bit10hfname = hf_bit10rflags;
-                pvalues[1].bit11 = "Not Defined";
-                pvalues[1].bit11hfname = hf_bit11rflags;
-                pvalues[1].bit12 = "Not Defined";
-                pvalues[1].bit12hfname = hf_bit12rflags;
-                pvalues[1].bit13 = "Not Defined";
-                pvalues[1].bit13hfname = hf_bit13rflags;
-                pvalues[1].bit14 = "Not Defined";
-                pvalues[1].bit14hfname = hf_bit14rflags;
-                pvalues[1].bit15 = "Not Defined";
-                pvalues[1].bit15hfname = hf_bit15rflags;
-                pvalues[1].bit16 = "Not Defined";
-                pvalues[1].bit16hfname = hf_bit16rflags;
-                if((pvalues[1].vvalue & 0xf000) == 0xc000)
-                {
-                    pvalues[2].vtype = VTYPE_STRING;
-                    pvalues[2].vdesc = "Name Type: %s";
-                    pvalues[2].vstring = "Partial";
-                    pvalues[2].mvtype = 0;
-                    pvalues[2].vvalue = 0;
-                    pvalues[2].vlength = 0;
-                    pvalues[2].voffset = 0;
-                    pvalues[2].hfname= hf_nds_name_type;
-                }
-                else
-                {
-                    pvalues[2].vtype = VTYPE_STRING;
-                    pvalues[2].vdesc = "Name Type: %s";
-                    pvalues[2].vstring = "Full";
-                    pvalues[2].vvalue = 0;
-                    pvalues[2].mvtype = 0;
-                    pvalues[2].vlength = 0;
-                    pvalues[2].voffset = 0;
-                    pvalues[2].hfname= hf_nds_name_type;
-                }
-                foffset = foffset+4;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_UINT32;
-                pvalues[3].vdesc = "Entry ID: 0x%08x";
-                pvalues[3].vlength = 4;
-                pvalues[3].voffset = foffset;
-                resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;
-                pvalues[3].hfname = hf_nds_eid;
-                /*foffset = foffset+pvalues[3].vlength;*/
-                break;
-            case 2:
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_BITFIELD;
-                pvalues[1].vdesc = "Request Flags:";
-                pvalues[1].vlength = 2;
-                pvalues[1].hfname= hf_nds_rflags;
-                pvalues[1].voffset = foffset;
-                pvalues[1].bit1 = "Typeless";
-                pvalues[1].bit1hfname = hf_bit1rflags;
-                pvalues[1].bit2 = "Slashed";
-                pvalues[1].bit2hfname = hf_bit2rflags;
-                pvalues[1].bit3 = "Dotted";
-                pvalues[1].bit3hfname = hf_bit3rflags;
-                pvalues[1].bit4 = "Tuned";
-                pvalues[1].bit4hfname = hf_bit4rflags;
-                pvalues[1].bit5 = "Not Defined";
-                pvalues[1].bit5hfname = hf_bit5rflags;
-                pvalues[1].bit6 = "Not Defined";
-                pvalues[1].bit6hfname = hf_bit6rflags;
-                pvalues[1].bit7 = "Not Defined";
-                pvalues[1].bit7hfname = hf_bit7rflags;
-                pvalues[1].bit8 = "Not Defined";
-                pvalues[1].bit8hfname = hf_bit8rflags;
-                pvalues[1].bit9 = "Not Defined";
-                pvalues[1].bit9hfname = hf_bit9rflags;
-                pvalues[1].bit10 = "Not Defined";
-                pvalues[1].bit10hfname = hf_bit10rflags;
-                pvalues[1].bit11 = "Not Defined";
-                pvalues[1].bit11hfname = hf_bit11rflags;
-                pvalues[1].bit12 = "Not Defined";
-                pvalues[1].bit12hfname = hf_bit12rflags;
-                pvalues[1].bit13 = "Not Defined";
-                pvalues[1].bit13hfname = hf_bit13rflags;
-                pvalues[1].bit14 = "Not Defined";
-                pvalues[1].bit14hfname = hf_bit14rflags;
-                pvalues[1].bit15 = "Not Defined";
-                pvalues[1].bit15hfname = hf_bit15rflags;
-                pvalues[1].bit16 = "Not Defined";
-                pvalues[1].bit16hfname = hf_bit16rflags;
-                if((pvalues[1].vvalue & 0xf000) == 0xc000)
-                {
-                    pvalues[2].vtype = VTYPE_STRING;
-                    pvalues[2].vdesc = "Name Type: %s";
-                    pvalues[2].vstring = "Return Partion Name";
-                    pvalues[2].vvalue = 0;
-                    pvalues[2].vlength = 4;
-                    pvalues[2].voffset = pvalues[1].voffset;
-                    pvalues[2].mvtype = 0;
-                    pvalues[2].hfname= hf_nds_name_type;
-                }
-                else
-                {
-                    pvalues[2].vtype = VTYPE_STRING;
-                    pvalues[2].vdesc = "Name Type: %s";
-                    pvalues[2].vstring = "Return Full Name";
-                    pvalues[2].vvalue = 0;
-                    pvalues[2].vlength = 4;
-                    pvalues[2].mvtype = 0;
-                    pvalues[2].voffset = pvalues[1].voffset;
-                    pvalues[2].hfname= hf_nds_name_type;
-                }
-                foffset = foffset+4;
-                pvalues[3].vvalue = tvb_get_letohs(tvb, foffset);
-                global_flags = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_BITFIELD;
-                pvalues[3].vdesc = "Information Flags (low) Byte:";
-                pvalues[3].vlength = 2;
-                pvalues[3].hfname= hf_nds_rflags;
-                pvalues[3].voffset = foffset;
-                pvalues[3].bit1 = "Output Flags";
-                pvalues[3].bit1hfname = hf_bit1infoflagsl;
-                pvalues[3].bit2 = "Entry ID";
-                pvalues[3].bit2hfname = hf_bit2infoflagsl;
-                pvalues[3].bit3 = "Entry Flags";
-                pvalues[3].bit3hfname = hf_bit3infoflagsl;
-                pvalues[3].bit4 = "Subordinate Count";
-                pvalues[3].bit4hfname = hf_bit4infoflagsl;
-                pvalues[3].bit5 = "Modification Time";
-                pvalues[3].bit5hfname = hf_bit5infoflagsl;
-                pvalues[3].bit6 = "Modification Timestamp";
-                pvalues[3].bit6hfname = hf_bit6infoflagsl;
-                pvalues[3].bit7 = "Creation Timestamp";
-                pvalues[3].bit7hfname = hf_bit7infoflagsl;
-                pvalues[3].bit8 = "Partition Root ID";
-                pvalues[3].bit8hfname = hf_bit8infoflagsl;
-                pvalues[3].bit9 = "Parent ID";
-                pvalues[3].bit9hfname = hf_bit9infoflagsl;
-                pvalues[3].bit10 = "Revision Count";
-                pvalues[3].bit10hfname = hf_bit10infoflagsl;
-                pvalues[3].bit11 = "Replica Type";
-                pvalues[3].bit11hfname = hf_bit11infoflagsl;
-                pvalues[3].bit12 = "Base Class";
-                pvalues[3].bit12hfname = hf_bit12infoflagsl;
-                pvalues[3].bit13 = "Relative Distinguished Name";
-                pvalues[3].bit13hfname = hf_bit13infoflagsl;
-                pvalues[3].bit14 = "Distinguished Name";
-                pvalues[3].bit14hfname = hf_bit14infoflagsl;
-                pvalues[3].bit15 = "Root Distinguished Name";
-                pvalues[3].bit15hfname = hf_bit15infoflagsl;
-                pvalues[3].bit16 = "Parent Distinguished Name";
-                pvalues[3].bit16hfname = hf_bit16infoflagsl;
-                foffset = foffset+2;
-                pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
-                pvalues[4].vtype = VTYPE_BITFIELD;
-                pvalues[4].vdesc = "Information Flags (high) Byte:";
-                pvalues[4].vlength = 2;
-                pvalues[4].hfname= hf_nds_rflags;
-                pvalues[4].voffset = foffset;
-                pvalues[4].bit1 = "Purge Time";
-                pvalues[4].bit1hfname = hf_bit1infoflagsh;
-                pvalues[4].bit2 = "Dereference Base Class";
-                pvalues[4].bit2hfname = hf_bit2infoflagsh;
-                pvalues[4].bit3 = "Replica Number";
-                pvalues[4].bit3hfname = hf_bit3infoflagsh;
-                pvalues[4].bit4 = "Replica State";
-                pvalues[4].bit4hfname = hf_bit4infoflagsh;
-                pvalues[4].bit5 = "Federation Boundary";
-                pvalues[4].bit5hfname = hf_bit5infoflagsh;
-                pvalues[4].bit6 = "Schema Boundary";
-                pvalues[4].bit6hfname = hf_bit6infoflagsh;
-                pvalues[4].bit7 = "Federation Boundary ID";
-                pvalues[4].bit7hfname = hf_bit7infoflagsh;
-                pvalues[4].bit8 = "Schema Boundary ID";
-                pvalues[4].bit8hfname = hf_bit8infoflagsh;
-                pvalues[4].bit9 = "Current Subcount";
-                pvalues[4].bit9hfname = hf_bit9infoflagsh;
-                pvalues[4].bit10 = "Local Entry Flags";
-                pvalues[4].bit10hfname = hf_bit10infoflagsh;
-                pvalues[4].bit11 = "Not Defined";
-                pvalues[4].bit11hfname = hf_bit11infoflagsh;
-                pvalues[4].bit12 = "Not Defined";
-                pvalues[4].bit12hfname = hf_bit12infoflagsh;
-                pvalues[4].bit13 = "Not Defined";
-                pvalues[4].bit13hfname = hf_bit13infoflagsh;
-                pvalues[4].bit14 = "Not Defined";
-                pvalues[4].bit14hfname = hf_bit14infoflagsh;
-                pvalues[4].bit15 = "Not Defined";
-                pvalues[4].bit15hfname = hf_bit15infoflagsh;
-                pvalues[4].bit16 = "Not Defined";
-                pvalues[4].bit16hfname = hf_bit16infoflagsh;
-                foffset = foffset+2;
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].vtype = VTYPE_UINT32;
-                pvalues[5].vdesc = "Entry ID: 0x%08x";
-                pvalues[5].vlength = 4;
-                pvalues[5].voffset = foffset;
-                resolve_eid = TRUE;
-                global_eid = pvalues[5].vvalue;
-                pvalues[5].hfname = hf_nds_eid;
-                /*foffset = foffset+pvalues[5].vlength;*/
-                break;
-            default:
-                break;
-            }
-
-            break;
-        case 0x03:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            if(pvalues[0].vvalue == 0)
-            {
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Iteration Handle: 0x%08x";
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = foffset;
-                pvalues[1].hfname= hf_nds_iteration;
-                foffset = foffset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Entry ID: 0x%08x";
-                pvalues[2].vlength = 4;
-                resolve_eid = TRUE;
-                global_eid = pvalues[2].vvalue;
-                pvalues[2].voffset = foffset;
-                pvalues[2].hfname= hf_nds_eid;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                global_flags = pvalues[3].vvalue;
-                pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_info_type, "No Info Type Set");
-                pvalues[3].vtype = VTYPE_STRING;
-                pvalues[3].vdesc = "Info Type: %s";
-                pvalues[3].vlength = 4;
-                pvalues[3].voffset = foffset;
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[3].hfname= hf_nds_info_type;
-                foffset = foffset + pvalues[3].vlength;
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vtype = VTYPE_UINT32;
-                pvalues[4].vdesc = "All Attributes: %u";
-                pvalues[4].vlength = 4;
-                pvalues[4].voffset = foffset;
-                pvalues[4].hfname= hf_nds_all_attr;
-                foffset = foffset+pvalues[4].vlength;
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[5].vdesc = "Attributes: %u";
-                pvalues[5].vlength = 4;
-                pvalues[5].voffset = foffset;
-                pvalues[5].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[5].hfname= hf_nds_attr;
-            }
-            else
-            {
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vdesc = "Request Flags: 0x%08x";
-                pvalues[1].vlength = 4;
-                pvalues[1].voffset = foffset;
-                pvalues[1].hfname= hf_nds_req_flags;
-                foffset = foffset+pvalues[1].vlength;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = foffset;
-                pvalues[2].hfname= hf_nds_iteration;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_UINT32;
-                pvalues[3].vdesc = "Entry ID: 0x%08x";
-                pvalues[3].vlength = 4;
-                resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;
-                pvalues[3].voffset = foffset;
-                pvalues[3].hfname= hf_nds_eid;
-                foffset = foffset+pvalues[3].vlength;
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                global_flags = pvalues[4].vvalue;
-                pvalues[4].vstring = val_to_str_const(pvalues[4].vvalue, nds_info_type, "No Info Type Set");
-                pvalues[4].vtype = VTYPE_STRING;
-                pvalues[4].vdesc = "Info Type: %s";
-                pvalues[4].vlength = 4;
-                pvalues[4].voffset = foffset;
-                pvalues[4].hfname= hf_nds_info_type;
-                pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
-                foffset = foffset+pvalues[4].vlength;
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].vtype = VTYPE_UINT32;
-                pvalues[5].vdesc = "All Attributes: %u";
-                pvalues[5].vlength = 4;
-                pvalues[5].voffset = foffset;
-                pvalues[5].hfname= hf_nds_all_attr;
-                foffset = foffset+pvalues[5].vlength;
-                pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[6].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[6].vdesc = "Attributes: %u";
-                pvalues[6].vlength = 4;
-                pvalues[6].voffset = foffset;
-                pvalues[6].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[6].hfname= hf_nds_attr;
-            }
-            break;
-        case 0x04:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            if (pvalues[0].vvalue == 1) {
-                /* Version 1 specifies for this offset value to always be a value of 1*/
-                /* No need to display to user */
-                foffset += 4;
-            }
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname = hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
-            foffset += 4;       /* Attribute Count = 1 */
-            pvalues[2].vtype = VTYPE_STRING;
-            pvalues[2].vdesc = "Attribute Name Being Compared: %s";
-            pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[2].vvalue = 0;
-            pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
-            {
-                pvalues[2].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[2].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[2].vstring = get_string(tvb, pvalues[2].voffset, pvalues[2].vlength);
-            g_strlcpy(global_object_name, pvalues[2].vstring, 256);
-            pvalues[2].hfname= hf_nds_name;
-            foffset = foffset+pvalues[2].vlength;
-            foffset += align_4(tvb, foffset);
-            foffset += 4;       /* Attribute Value Count = 1 */
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "Attribute Value: %s";
-            pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[3].vvalue = 0;
-            pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[3].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            pvalues[3].hfname= hf_value_string;
-            /*foffset = foffset+pvalues[3].vlength;*/
-            break;
-        case 0x05:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_BITFIELD;
-            pvalues[1].vdesc = "Request Flags:";
-            pvalues[1].vlength = 2;
-            pvalues[1].hfname= hf_nds_rflags;
-            pvalues[1].voffset = foffset;
-            pvalues[1].bit1 = "List Typeless";
-            pvalues[1].bit1hfname = hf_bit1lflags;
-            pvalues[1].bit2 = "List Containers";
-            pvalues[1].bit2hfname = hf_bit2lflags;
-            pvalues[1].bit3 = "List Slashed";
-            pvalues[1].bit3hfname = hf_bit3lflags;
-            pvalues[1].bit4 = "List Dotted";
-            pvalues[1].bit4hfname = hf_bit4lflags;
-            pvalues[1].bit5 = "Dereference Alias";
-            pvalues[1].bit5hfname = hf_bit5lflags;
-            pvalues[1].bit6 = "List All Containers";
-            pvalues[1].bit6hfname = hf_bit6lflags;
-            pvalues[1].bit7 = "List Obsolete";
-            pvalues[1].bit7hfname = hf_bit7lflags;
-            pvalues[1].bit8 = "List Tuned Output";
-            pvalues[1].bit8hfname = hf_bit8lflags;
-            pvalues[1].bit9 = "List External Reference";
-            pvalues[1].bit9hfname = hf_bit9lflags;
-            pvalues[1].bit10 = "Not Defined";
-            pvalues[1].bit10hfname = hf_bit10lflags;
-            pvalues[1].bit11 = "Not Defined";
-            pvalues[1].bit11hfname = hf_bit11lflags;
-            pvalues[1].bit12 = "Not Defined";
-            pvalues[1].bit12hfname = hf_bit12lflags;
-            pvalues[1].bit13 = "Not Defined";
-            pvalues[1].bit13hfname = hf_bit13lflags;
-            pvalues[1].bit14 = "Not Defined";
-            pvalues[1].bit14hfname = hf_bit14lflags;
-            pvalues[1].bit15 = "Not Defined";
-            pvalues[1].bit15hfname = hf_bit15lflags;
-            pvalues[1].bit16 = "Not Defined";
-            pvalues[1].bit16hfname = hf_bit16lflags;
-            foffset = foffset+pvalues[1].vlength;
-            foffset += 2;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Parent ID: 0x%08x";
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_parent;
-            foffset = foffset+pvalues[3].vlength;
-            pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
-            global_flags = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vtype = VTYPE_BITFIELD;
-            pvalues[4].vdesc = "Information Flags (low) Byte:";
-            pvalues[4].vlength = 2;
-            pvalues[4].hfname= hf_nds_rflags;
-            pvalues[4].voffset = foffset;
-            pvalues[4].bit1 = "Output Flags";
-            pvalues[4].bit1hfname = hf_bit1infoflagsl;
-            pvalues[4].bit2 = "Entry ID";
-            pvalues[4].bit2hfname = hf_bit2infoflagsl;
-            pvalues[4].bit3 = "Entry Flags";
-            pvalues[4].bit3hfname = hf_bit3infoflagsl;
-            pvalues[4].bit4 = "Subordinate Count";
-            pvalues[4].bit4hfname = hf_bit4infoflagsl;
-            pvalues[4].bit5 = "Modification Time";
-            pvalues[4].bit5hfname = hf_bit5infoflagsl;
-            pvalues[4].bit6 = "Modification Timestamp";
-            pvalues[4].bit6hfname = hf_bit6infoflagsl;
-            pvalues[4].bit7 = "Creation Timestamp";
-            pvalues[4].bit7hfname = hf_bit7infoflagsl;
-            pvalues[4].bit8 = "Partition Root ID";
-            pvalues[4].bit8hfname = hf_bit8infoflagsl;
-            pvalues[4].bit9 = "Parent ID";
-            pvalues[4].bit9hfname = hf_bit9infoflagsl;
-            pvalues[4].bit10 = "Revision Count";
-            pvalues[4].bit10hfname = hf_bit10infoflagsl;
-            pvalues[4].bit11 = "Replica Type";
-            pvalues[4].bit11hfname = hf_bit11infoflagsl;
-            pvalues[4].bit12 = "Base Class";
-            pvalues[4].bit12hfname = hf_bit12infoflagsl;
-            pvalues[4].bit13 = "Relative Distinguished Name";
-            pvalues[4].bit13hfname = hf_bit13infoflagsl;
-            pvalues[4].bit14 = "Distinguished Name";
-            pvalues[4].bit14hfname = hf_bit14infoflagsl;
-            pvalues[4].bit15 = "Root Distinguished Name";
-            pvalues[4].bit15hfname = hf_bit15infoflagsl;
-            pvalues[4].bit16 = "Parent Distinguished Name";
-            pvalues[4].bit16hfname = hf_bit16infoflagsl;
-            foffset = foffset+2;
-            pvalues[5].vvalue = tvb_get_letohs(tvb, foffset);
-            pvalues[5].vtype = VTYPE_BITFIELD;
-            pvalues[5].vdesc = "Information Flags (high) Byte:";
-            pvalues[5].vlength = 2;
-            pvalues[5].hfname= hf_nds_rflags;
-            pvalues[5].voffset = foffset;
-            pvalues[5].bit1 = "Purge Time";
-            pvalues[5].bit1hfname = hf_bit1infoflagsh;
-            pvalues[5].bit2 = "Dereference Base Class";
-            pvalues[5].bit2hfname = hf_bit2infoflagsh;
-            pvalues[5].bit3 = "Not Defined";
-            pvalues[5].bit3hfname = hf_bit3infoflagsh;
-            pvalues[5].bit4 = "Not Defined";
-            pvalues[5].bit4hfname = hf_bit4infoflagsh;
-            pvalues[5].bit5 = "Not Defined";
-            pvalues[5].bit5hfname = hf_bit5infoflagsh;
-            pvalues[5].bit6 = "Not Defined";
-            pvalues[5].bit6hfname = hf_bit6infoflagsh;
-            pvalues[5].bit7 = "Not Defined";
-            pvalues[5].bit7hfname = hf_bit7infoflagsh;
-            pvalues[5].bit8 = "Not Defined";
-            pvalues[5].bit8hfname = hf_bit8infoflagsh;
-            pvalues[5].bit9 = "Not Defined";
-            pvalues[5].bit9hfname = hf_bit9infoflagsh;
-            pvalues[5].bit10 = "Not Defined";
-            pvalues[5].bit10hfname = hf_bit10infoflagsh;
-            pvalues[5].bit11 = "Not Defined";
-            pvalues[5].bit11hfname = hf_bit11infoflagsh;
-            pvalues[5].bit12 = "Not Defined";
-            pvalues[5].bit12hfname = hf_bit12infoflagsh;
-            pvalues[5].bit13 = "Not Defined";
-            pvalues[5].bit13hfname = hf_bit13infoflagsh;
-            pvalues[5].bit14 = "Not Defined";
-            pvalues[5].bit14hfname = hf_bit14infoflagsh;
-            pvalues[5].bit15 = "Not Defined";
-            pvalues[5].bit15hfname = hf_bit15infoflagsh;
-            pvalues[5].bit16 = "Not Defined";
-            pvalues[5].bit16hfname = hf_bit16infoflagsh;
-            foffset = foffset+2;
-            pvalues[6].vtype = VTYPE_STRING;
-            pvalues[6].vdesc = "Name Filter: %s";
-            pvalues[6].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[6].vvalue = 0;
-            pvalues[6].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[6].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[6].vstring = get_string(tvb, pvalues[6].voffset, pvalues[6].vlength);
-            pvalues[6].hfname= hf_nds_name_filter;
-            foffset = foffset+pvalues[6].vlength;
-            if(pvalues[0].vvalue == 0)
-            {
-                break;
-            }
-            foffset += align_4(tvb, foffset);
-            pvalues[7].vtype = VTYPE_STRING;
-            pvalues[7].vdesc = "Class Filter: %s";
-            pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[7].vvalue = 0;
-            pvalues[7].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[7].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[7].vstring = get_string(tvb, pvalues[7].voffset, pvalues[7].vlength);
-            pvalues[7].hfname= hf_nds_class_filter;
-            foffset = foffset+pvalues[7].vlength;
-            if(pvalues[0].vvalue == 1)
-            {
-                break;
-            }
-            foffset += align_4(tvb, foffset);
-            pvalues[8].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[8].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[8].vdesc = "Seconds: %u";
-            pvalues[8].vlength = 4;
-            pvalues[8].mvtype = MVTYPE_PRINT_TIMESTAMP;
-            pvalues[8].hfname= hf_nds_time_filter;
-            pvalues[8].voffset = foffset;
-            break;
-        case 0x06:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vstring = "";
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vstring = "";
-            pvalues[1].vdesc = "Request Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname= hf_nds_rflags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+4;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vstring = "";
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Base Entry ID: 0x%08x";
-            pvalues[3].vlength = 4;
-            resolve_eid = FALSE;
-            global_eid = pvalues[3].vvalue;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[3].vlength;
-            pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vstring = val_to_str_const(pvalues[4].vvalue, nds_search_scope, "No Search Scope Defined");
-            pvalues[4].vtype = VTYPE_STRING;
-            pvalues[4].vdesc = "Replica Type: %s";
-            pvalues[4].vlength = 4;
-            pvalues[4].voffset = foffset;
-            pvalues[4].mvtype = 0;
-            pvalues[4].hfname= hf_nds_search_scope;
-            foffset = foffset + pvalues[4].vlength;
-            pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[5].vtype = VTYPE_UINT32;
-            pvalues[5].vdesc = "Number of Objects to Search: 0x%08x";
-            pvalues[5].vlength = 4;
-            pvalues[5].voffset = foffset;
-            pvalues[5].hfname= hf_nds_num_objects;
-            foffset = foffset+pvalues[5].vlength;
-            pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[6].vtype = VTYPE_BITFIELD;
-            pvalues[6].vdesc = "Information Types:";
-            pvalues[6].vlength = 2;
-            pvalues[6].hfname= hf_nds_nflags;
-            pvalues[6].voffset = foffset;
-            pvalues[6].bit1 = "Names";
-            pvalues[6].bit1hfname = hf_bit1siflags;
-            pvalues[6].bit2 = "Names and Values";
-            pvalues[6].bit2hfname = hf_bit2siflags;
-            pvalues[6].bit3 = "Effective Privileges";
-            pvalues[6].bit3hfname = hf_bit3siflags;
-            pvalues[6].bit4 = "Value Info";
-            pvalues[6].bit4hfname = hf_bit4siflags;
-            pvalues[6].bit5 = "Abbreviated Value";
-            pvalues[6].bit5hfname = hf_bit5siflags;
-            pvalues[6].bit6 = "Not Defined";
-            pvalues[6].bit6hfname = hf_bit6siflags;
-            pvalues[6].bit7 = "Not Defined";
-            pvalues[6].bit7hfname = hf_bit7siflags;
-            pvalues[6].bit8 = "Not Defined";
-            pvalues[6].bit8hfname = hf_bit8siflags;
-            pvalues[6].bit9 = "Expanded Class";
-            pvalues[6].bit9hfname = hf_bit9siflags;
-            pvalues[6].bit10 = "Not Defined";
-            pvalues[6].bit10hfname = hf_bit10siflags;
-            pvalues[6].bit11= "Not Defined";
-            pvalues[6].bit11hfname = hf_bit11siflags;
-            pvalues[6].bit12 = "Not Defined";
-            pvalues[6].bit12hfname = hf_bit12siflags;
-            pvalues[6].bit13 = "Not Defined";
-            pvalues[6].bit13hfname = hf_bit13siflags;
-            pvalues[6].bit14 = "Not Defined";
-            pvalues[6].bit14hfname = hf_bit14siflags;
-            pvalues[6].bit15 = "Not Defined";
-            pvalues[6].bit15hfname = hf_bit15siflags;
-            pvalues[6].bit16 = "Not Defined";
-            pvalues[6].bit16hfname = hf_bit16siflags;
-            foffset = foffset+4;
-            if(pvalues[0].vvalue != 2)
-            {
-                pvalues[7].vvalue = tvb_get_letohs(tvb, foffset);
-                global_flags = tvb_get_letohl(tvb, foffset);
-                pvalues[7].vtype = VTYPE_BITFIELD;
-                pvalues[7].vdesc = "Information Flags (low) Byte:";
-                pvalues[7].vlength = 2;
-                pvalues[7].hfname= hf_nds_rflags;
-                pvalues[7].voffset = foffset;
-                pvalues[7].bit1 = "Output Flags";
-                pvalues[7].bit1hfname = hf_bit1infoflagsl;
-                pvalues[7].bit2 = "Entry ID";
-                pvalues[7].bit2hfname = hf_bit2infoflagsl;
-                pvalues[7].bit3 = "Entry Flags";
-                pvalues[7].bit3hfname = hf_bit3infoflagsl;
-                pvalues[7].bit4 = "Subordinate Count";
-                pvalues[7].bit4hfname = hf_bit4infoflagsl;
-                pvalues[7].bit5 = "Modification Time";
-                pvalues[7].bit5hfname = hf_bit5infoflagsl;
-                pvalues[7].bit6 = "Modification Timestamp";
-                pvalues[7].bit6hfname = hf_bit6infoflagsl;
-                pvalues[7].bit7 = "Creation Timestamp";
-                pvalues[7].bit7hfname = hf_bit7infoflagsl;
-                pvalues[7].bit8 = "Partition Root ID";
-                pvalues[7].bit8hfname = hf_bit8infoflagsl;
-                pvalues[7].bit9 = "Parent ID";
-                pvalues[7].bit9hfname = hf_bit9infoflagsl;
-                pvalues[7].bit10 = "Revision Count";
-                pvalues[7].bit10hfname = hf_bit10infoflagsl;
-                pvalues[7].bit11 = "Replica Type";
-                pvalues[7].bit11hfname = hf_bit11infoflagsl;
-                pvalues[7].bit12 = "Base Class";
-                pvalues[7].bit12hfname = hf_bit12infoflagsl;
-                pvalues[7].bit13 = "Relative Distinguished Name";
-                pvalues[7].bit13hfname = hf_bit13infoflagsl;
-                pvalues[7].bit14 = "Distinguished Name";
-                pvalues[7].bit14hfname = hf_bit14infoflagsl;
-                pvalues[7].bit15 = "Root Distinguished Name";
-                pvalues[7].bit15hfname = hf_bit15infoflagsl;
-                pvalues[7].bit16 = "Parent Distinguished Name";
-                pvalues[7].bit16hfname = hf_bit16infoflagsl;
-                foffset = foffset+2;
-                pvalues[8].vvalue = tvb_get_letohs(tvb, foffset);
-                pvalues[8].vtype = VTYPE_BITFIELD;
-                pvalues[8].vdesc = "Information Flags (high) Byte:";
-                pvalues[8].vlength = 2;
-                pvalues[8].hfname= hf_nds_rflags;
-                pvalues[8].voffset = foffset;
-                pvalues[8].bit1 = "Purge Time";
-                pvalues[8].bit1hfname = hf_bit1infoflagsh;
-                pvalues[8].bit2 = "Dereference Base Class";
-                pvalues[8].bit2hfname = hf_bit2infoflagsh;
-                pvalues[8].bit3 = "Not Defined";
-                pvalues[8].bit3hfname = hf_bit3infoflagsh;
-                pvalues[8].bit4 = "Not Defined";
-                pvalues[8].bit4hfname = hf_bit4infoflagsh;
-                pvalues[8].bit5 = "Not Defined";
-                pvalues[8].bit5hfname = hf_bit5infoflagsh;
-                pvalues[8].bit6 = "Not Defined";
-                pvalues[8].bit6hfname = hf_bit6infoflagsh;
-                pvalues[8].bit7 = "Not Defined";
-                pvalues[8].bit7hfname = hf_bit7infoflagsh;
-                pvalues[8].bit8 = "Not Defined";
-                pvalues[8].bit8hfname = hf_bit8infoflagsh;
-                pvalues[8].bit9 = "Not Defined";
-                pvalues[8].bit9hfname = hf_bit9infoflagsh;
-                pvalues[8].bit10 = "Not Defined";
-                pvalues[8].bit10hfname = hf_bit10infoflagsh;
-                pvalues[8].bit11 = "Not Defined";
-                pvalues[8].bit11hfname = hf_bit11infoflagsh;
-                pvalues[8].bit12 = "Not Defined";
-                pvalues[8].bit12hfname = hf_bit12infoflagsh;
-                pvalues[8].bit13 = "Not Defined";
-                pvalues[8].bit13hfname = hf_bit13infoflagsh;
-                pvalues[8].bit14 = "Not Defined";
-                pvalues[8].bit14hfname = hf_bit14infoflagsh;
-                pvalues[8].bit15 = "Not Defined";
-                pvalues[8].bit15hfname = hf_bit15infoflagsh;
-                pvalues[8].bit16 = "Not Defined";
-                pvalues[8].bit16hfname = hf_bit16infoflagsh;
-                /*foffset = foffset+2;*/
-            }
-            break;
-        case 0x07:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vstring = "";
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vstring = "";
-            pvalues[1].vdesc = "Request Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname= hf_nds_rflags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+4;
-            if(pvalues[0].vvalue == 0)
-            {
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vstring = "";
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Parent Entry ID: 0x%08x";
-                pvalues[2].vlength = 4;
-                resolve_eid = FALSE;
-                global_eid = pvalues[2].vvalue;
-                pvalues[2].voffset = foffset;
-                pvalues[2].hfname= hf_nds_eid;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vtype = VTYPE_STRING;
-                pvalues[3].vdesc = "Relative Distinguished Name: %s";
-                pvalues[3].vstring = "";
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[3].vvalue = 0;
-                pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-                if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-                {
-                    pvalues[3].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[3].voffset = foffset+4;
-                foffset = foffset + 4;
-                pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-                g_strlcpy(global_object_name, pvalues[3].vstring, 256);
-                pvalues[3].hfname= hf_nds_relative_dn;
-                foffset = foffset+pvalues[3].vlength;
-                foffset += align_4(tvb, foffset);
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[4].vstring = "";
-                pvalues[4].vdesc = "Attributes: %u";
-                pvalues[4].vlength = 4;
-                pvalues[4].voffset = foffset;
-                pvalues[4].mvtype = MVTYPE_ADD_ATTR_REQUEST;
-                pvalues[4].hfname= hf_nds_attr;
-            }
-            else
-            {
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vstring = "";
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = foffset;
-                pvalues[2].hfname= hf_nds_iteration;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vstring = "";
-                pvalues[3].vtype = VTYPE_UINT32;
-                pvalues[3].vdesc = "Parent Entry ID: 0x%08x";
-                pvalues[3].vlength = 4;
-                resolve_eid = FALSE;
-                global_eid = pvalues[3].vvalue;
-                pvalues[3].voffset = foffset;
-                pvalues[3].hfname= hf_nds_eid;
-                foffset = foffset+pvalues[3].vlength;
-                pvalues[4].vtype = VTYPE_STRING;
-                pvalues[4].vdesc = "Relative Distinguished Name: %s";
-                pvalues[4].vstring = "";
-                pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[4].vvalue = 0;
-                pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
-                if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
-                {
-                    pvalues[4].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[4].voffset = foffset+4;
-                foffset = foffset + 4;
-                pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
-                g_strlcpy(global_object_name, pvalues[4].vstring, 256);
-                pvalues[4].hfname= hf_nds_relative_dn;
-                foffset = foffset+pvalues[4].vlength;
-                foffset += align_4(tvb, foffset);
-                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[5].vstring = "";
-                pvalues[5].vdesc = "Attributes: %u";
-                pvalues[5].vlength = 4;
-                pvalues[5].voffset = foffset;
-                pvalues[5].mvtype = MVTYPE_ADD_ATTR_REQUEST;
-                pvalues[5].hfname= hf_nds_attr;
-            }
-            break;
-        case 0x08:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_eid;
-            /*foffset = foffset+pvalues[1].vlength;*/
-            break;
-        case 0x09:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            if(pvalues[0].vvalue == 0)
-            {
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vstring = "";
-                pvalues[1].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
-                pvalues[1].vlength = 4;
-                pvalues[1].hfname= hf_nds_iteration;
-                pvalues[1].voffset = foffset;
-                foffset = foffset+4;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vstring = "";
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vdesc = "Entry ID: 0x%08x";
-                pvalues[2].vlength = 4;
-                pvalues[2].voffset = foffset;
-                resolve_eid = TRUE;
-                global_eid = pvalues[2].vvalue;
-                pvalues[2].hfname = hf_nds_eid;
-                foffset = foffset+pvalues[2].vlength;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[3].vstring = "";
-                pvalues[3].vdesc = "Number of Attributes to Change %u";
-                pvalues[3].vlength = 4;
-                pvalues[3].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
-                pvalues[3].hfname= hf_nds_number_of_changes;
-                pvalues[3].voffset = foffset;
-            }
-            else
-            {
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[1].vtype = VTYPE_UINT32;
-                pvalues[1].vstring = "";
-                pvalues[1].vdesc = "Request Flags: 0x%08x";  /* always 0 */
-                pvalues[1].vlength = 4;
-                pvalues[1].hfname= hf_nds_rflags;
-                pvalues[1].voffset = foffset;
-                foffset = foffset+4;
-                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[2].vtype = VTYPE_UINT32;
-                pvalues[2].vstring = "";
-                pvalues[2].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
-                pvalues[2].vlength = 4;
-                pvalues[2].hfname= hf_nds_iteration;
-                pvalues[2].voffset = foffset;
-                foffset = foffset+4;
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vstring = "";
-                pvalues[3].vtype = VTYPE_UINT32;
-                pvalues[3].vdesc = "Entry ID: 0x%08x";
-                pvalues[3].vlength = 4;
-                pvalues[3].voffset = foffset;
-                resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;
-                pvalues[3].hfname = hf_nds_eid;
-                foffset = foffset+pvalues[3].vlength;
-                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                pvalues[4].vstring = "";
-                pvalues[4].vdesc = "Number of Attributes to Change %u";
-                pvalues[4].vlength = 4;
-                pvalues[4].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
-                pvalues[4].hfname= hf_nds_number_of_changes;
-                pvalues[4].voffset = foffset;
-            }
-            break;
-        case 0x0a:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname = hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_BOOLEAN;
-            pvalues[2].vdesc = "Keep Original RDN: %s";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].mvtype = 0;
-            pvalues[2].hfname= hf_nds_keep;
-            foffset = foffset+4;
-            foffset += align_4(tvb, foffset);
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "New RDN: %s";
-            pvalues[3].mvtype = 0;
-            pvalues[3].vvalue = 0;
-            pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[3].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            pvalues[3].hfname= hf_nds_new_rdn;
-            /*foffset = foffset+pvalues[3].vlength;*/
-            break;
-        case 0x0b:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohs(tvb, foffset);
-            global_flags = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_BITFIELD;
-            pvalues[1].vdesc = "Attribute Constraints:";
-            pvalues[1].vlength = 2;
-            pvalues[1].hfname= hf_nds_acflags;
-            pvalues[1].voffset = foffset;
-            pvalues[1].bit1 = "Single Valued";
-            pvalues[1].bit1hfname = hf_bit1acflags;
-            pvalues[1].bit2 = "Sized";
-            pvalues[1].bit2hfname = hf_bit2acflags;
-            pvalues[1].bit3 = "Non-Removable";
-            pvalues[1].bit3hfname = hf_bit3acflags;
-            pvalues[1].bit4 = "Read Only";
-            pvalues[1].bit4hfname = hf_bit4acflags;
-            pvalues[1].bit5 = "Hidden";
-            pvalues[1].bit5hfname = hf_bit5acflags;
-            pvalues[1].bit6 = "String";
-            pvalues[1].bit6hfname = hf_bit6acflags;
-            pvalues[1].bit7 = "Synchronize Immediate";
-            pvalues[1].bit7hfname = hf_bit7acflags;
-            pvalues[1].bit8 = "Public Read";
-            pvalues[1].bit8hfname = hf_bit8acflags;
-            pvalues[1].bit9 = "Server Read";
-            pvalues[1].bit9hfname = hf_bit9acflags;
-            pvalues[1].bit10 = "Write Managed";
-            pvalues[1].bit10hfname = hf_bit10acflags;
-            pvalues[1].bit11 = "Per Replica";
-            pvalues[1].bit11hfname = hf_bit11acflags;
-            pvalues[1].bit12 = "Never Schedule Synchronization";
-            pvalues[1].bit12hfname = hf_bit12acflags;
-            pvalues[1].bit13 = "Operational";
-            pvalues[1].bit13hfname = hf_bit13acflags;
-            pvalues[1].bit14 = "Not Defined";
-            pvalues[1].bit14hfname = hf_bit14acflags;
-            pvalues[1].bit15 = "Not Defined";
-            pvalues[1].bit15hfname = hf_bit15acflags;
-            pvalues[1].bit16 = "Not Defined";
-            pvalues[1].bit16hfname = hf_bit16acflags;
-            foffset = foffset+4;
-            pvalues[2].vtype = VTYPE_STRING;
-            pvalues[2].vdesc = "Attribute Name: %s";
-            pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[2].vvalue = 0;
-            pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
-            {
-                pvalues[2].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[2].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[2].vstring = get_string(tvb, pvalues[2].voffset, pvalues[2].vlength);
-            g_strlcpy(global_object_name, pvalues[2].vstring, 256);
-            pvalues[2].hfname= hf_nds_name;
-            foffset = foffset+pvalues[2].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_syntax, "No Syntax Found");
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Syntax: %s";
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_syntax;
-            pvalues[3].mvtype = 0;
-            foffset = foffset+pvalues[3].vlength;
-            pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vtype = VTYPE_UINT32;
-            pvalues[4].vdesc = "Lower Limit Value %u";
-            pvalues[4].vlength = 4;
-            pvalues[4].voffset = foffset;
-            pvalues[4].hfname = hf_nds_lower;
-            foffset += 4;
-            pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[5].vtype = VTYPE_UINT32;
-            pvalues[5].vdesc = "Upper Limit Value %u";
-            pvalues[5].vlength = 4;
-            pvalues[5].voffset = foffset;
-            pvalues[5].hfname = hf_nds_upper;
-            foffset += 4;
-            pvalues[6].vvalue = tvb_get_letohl(tvb, foffset); /* Length of bytes field */
-            foffset += 4;
-            pvalues[6].vtype = VTYPE_BYTES;
-            pvalues[6].vdesc = "ASN.1 ID";
-            pvalues[6].vlength = pvalues[6].vvalue;
-            pvalues[6].voffset = foffset;
-            pvalues[6].hfname = hf_nds_asn1;
-            break;
-        case 0x0c:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x0d:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Attribute Name: %s";
-            pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[1].vvalue = 0;
-            pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
-            {
-                pvalues[1].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[1].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
-            g_strlcpy(global_object_name, pvalues[1].vstring, 256);
-            pvalues[1].hfname= hf_nds_attribute_dn;
-            break;
-        case 0x0e:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x0f:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            global_flags = pvalues[2].vvalue;
-            pvalues[2].vstring = val_to_str_const(pvalues[2].vvalue, class_def_type, "No Class Definition Type Set");
-            pvalues[2].vtype = VTYPE_STRING;
-            pvalues[2].vdesc = "Class Definition Type: %s";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].mvtype = 0;
-            pvalues[2].hfname= hf_nds_class_def_type;
-            foffset = foffset + pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            if (pvalues[3].vvalue == 0x00000000)
-            {
-                pvalues[3].vstring = "Do Not Return All Classes";
-                pvalues[3].mvtype = 0;
-            }
-            else
-            {
-                pvalues[3].vstring = "Return All Classes";
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-            }
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "%s";
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_return_all_classes;
-            foffset = foffset + pvalues[3].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[4].vdesc = "Classes: %u";
-            pvalues[4].vlength = 4;
-            pvalues[4].voffset = foffset;
-            pvalues[4].mvtype = MVTYPE_READ_CLASS_REQ;
-            pvalues[4].hfname= hf_nds_classes;
-            break;
-        case 0x10:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Class Name: %s";
-            pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[1].vvalue = 0;
-            pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
-            {
-                pvalues[1].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[1].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
-            g_strlcpy(global_object_name, pvalues[1].vstring, 256);
-            pvalues[1].hfname= hf_nds_base_class;
-            foffset = foffset+pvalues[1].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[2].vdesc = "Number of Attributes to Add: %u";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].mvtype = MVTYPE_MODIFY_CLASS;
-            pvalues[2].hfname= hf_nds_att_add;
-            break;
-        case 0x11:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vtype = VTYPE_STRING;
-            pvalues[1].vdesc = "Class Name: %s";
-            pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[1].vvalue = 0;
-            pvalues[1].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[1].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[1].vlength))
-            {
-                pvalues[1].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[1].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
-            g_strlcpy(global_object_name, pvalues[1].vstring, 256);
-            pvalues[1].hfname= hf_nds_base;
-            break;
-        case 0x12:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Entry ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[2].vvalue;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_eid;
-            /*foffset = foffset+pvalues[2].vlength;*/
-            break;
-        case 0x13:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vtype = VTYPE_STRING;
-            pvalues[2].vdesc = "Trustee Name: %s";
-            pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[2].vvalue = 0;
-            pvalues[2].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[2].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[2].vlength))
-            {
-                pvalues[2].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[2].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[2].vstring = get_string(tvb, pvalues[2].voffset, pvalues[2].vlength);
-            pvalues[2].hfname= hf_nds_name;
-            foffset = foffset+pvalues[2].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "Attribute to be Checked: %s";
-            pvalues[3].mvtype = 0;
-            pvalues[3].vvalue = 0;
-            pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-            {
-                pvalues[3].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[3].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            pvalues[3].hfname= hf_nds_name;
-            foffset = foffset+pvalues[3].vlength;
-            foffset += align_4(tvb, foffset);
-            if(pvalues[0].vvalue != 0)
-            {
-                pvalues[4].vtype = VTYPE_STRING;
-                pvalues[4].vdesc = "Security Equivalence: %s";
-                pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[4].vvalue = 0;
-                pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
-                if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
-                {
-                    pvalues[4].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[4].voffset = foffset+4;
-                /*foffset = foffset + 4;*/
-                pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
-                pvalues[4].hfname= hf_nds_name;
-                /*foffset = foffset+pvalues[4].vlength;
-                foffset += align_4(tvb, foffset);*/
-            }
-            break;
-        case 0x14:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x15:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x16:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_BITFIELD;
-            pvalues[1].vdesc = "Request Flags:";
-            pvalues[1].vlength = 2;
-            pvalues[1].hfname= hf_nds_rflags;
-            pvalues[1].voffset = foffset;
-            pvalues[1].bit1 = "Typeless";
-            pvalues[1].bit1hfname = hf_nds_bit1;
-            pvalues[1].bit2 = "All Containers";
-            pvalues[1].bit2hfname = hf_nds_bit2;
-            pvalues[1].bit3 = "Slashed";
-            pvalues[1].bit3hfname = hf_nds_bit3;
-            pvalues[1].bit4 = "Dotted";
-            pvalues[1].bit4hfname = hf_nds_bit4;
-            pvalues[1].bit5 = "Tuned";
-            pvalues[1].bit5hfname = hf_nds_bit5;
-            pvalues[1].bit6 = "Not Defined";
-            pvalues[1].bit6hfname = hf_nds_bit6;
-            pvalues[1].bit7 = "Not Defined";
-            pvalues[1].bit7hfname = hf_nds_bit7;
-            pvalues[1].bit8 = "Not Defined";
-            pvalues[1].bit8hfname = hf_nds_bit8;
-            pvalues[1].bit9 = "Not Defined";
-            pvalues[1].bit9hfname = hf_nds_bit9;
-            pvalues[1].bit10 = "Not Defined";
-            pvalues[1].bit10hfname = hf_nds_bit10;
-            pvalues[1].bit11 = "Not Defined";
-            pvalues[1].bit11hfname = hf_nds_bit11;
-            pvalues[1].bit12 = "Not Defined";
-            pvalues[1].bit12hfname = hf_nds_bit12;
-            pvalues[1].bit13 = "Not Defined";
-            pvalues[1].bit13hfname = hf_nds_bit13;
-            pvalues[1].bit14 = "Not Defined";
-            pvalues[1].bit14hfname = hf_nds_bit14;
-            pvalues[1].bit15 = "Not Defined";
-            pvalues[1].bit15hfname = hf_nds_bit15;
-            pvalues[1].bit16 = "Not Defined";
-            pvalues[1].bit16hfname = hf_nds_bit16;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[2].vlength;
-            if(pvalues[0].vvalue == 0)
-            {
-                global_flags = 0x000000c0;
-                break;
-            }
-            pvalues[3].vvalue = tvb_get_letohs(tvb, foffset);
-            pvalues[3].vtype = VTYPE_BITFIELD;
-            pvalues[3].vdesc = "Information Flags (low) Byte:";
-            pvalues[3].vlength = 2;
-            pvalues[3].hfname= hf_nds_rflags;
-            pvalues[3].voffset = foffset;
-            pvalues[3].bit1 = "Output Flags";
-            pvalues[3].bit1hfname = hf_bit1l1flagsl;
-            pvalues[3].bit2 = "Entry ID";
-            pvalues[3].bit2hfname = hf_bit2l1flagsl;
-            pvalues[3].bit3 = "Replica State";
-            pvalues[3].bit3hfname = hf_bit3l1flagsl;
-            pvalues[3].bit4 = "Modification Timestamp";
-            pvalues[3].bit4hfname = hf_bit4l1flagsl;
-            pvalues[3].bit5 = "Purge Time";
-            pvalues[3].bit5hfname = hf_bit5l1flagsl;
-            pvalues[3].bit6 = "Local Partition ID";
-            pvalues[3].bit6hfname = hf_bit6l1flagsl;
-            pvalues[3].bit7 = "Distinguished Name";
-            pvalues[3].bit7hfname = hf_bit7l1flagsl;
-            pvalues[3].bit8 = "Replica Type";
-            pvalues[3].bit8hfname = hf_bit8l1flagsl;
-            pvalues[3].bit9 = "Partition Busy";
-            pvalues[3].bit9hfname = hf_bit9l1flagsl;
-            pvalues[3].bit10 = "Not Defined";
-            pvalues[3].bit10hfname = hf_bit10l1flagsl;
-            pvalues[3].bit11 = "Not Defined";
-            pvalues[3].bit11hfname = hf_bit11l1flagsl;
-            pvalues[3].bit12 = "Not Defined";
-            pvalues[3].bit12hfname = hf_bit12l1flagsl;
-            pvalues[3].bit13 = "Not Defined";
-            pvalues[3].bit13hfname = hf_bit13l1flagsl;
-            pvalues[3].bit14 = "Not Defined";
-            pvalues[3].bit14hfname = hf_bit14l1flagsl;
-            pvalues[3].bit15 = "Not Defined";
-            pvalues[3].bit15hfname = hf_bit15l1flagsl;
-            pvalues[3].bit16 = "Not Defined";
-            pvalues[3].bit16hfname = hf_bit16l1flagsl;
-            global_flags = pvalues[3].vvalue;
-            foffset = foffset+2;
-            pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
-            pvalues[4].vtype = VTYPE_BITFIELD;
-            pvalues[4].vdesc = "Information Flags (high) Byte:";
-            pvalues[4].vlength = 2;
-            pvalues[4].hfname= hf_nds_rflags;
-            pvalues[4].voffset = foffset;
-            pvalues[4].bit1 = "Not Defined";
-            pvalues[4].bit1hfname = hf_bit1l1flagsh;
-            pvalues[4].bit2 = "Not Defined";
-            pvalues[4].bit2hfname = hf_bit2l1flagsh;
-            pvalues[4].bit3 = "Not Defined";
-            pvalues[4].bit3hfname = hf_bit3l1flagsh;
-            pvalues[4].bit4 = "Not Defined";
-            pvalues[4].bit4hfname = hf_bit4l1flagsh;
-            pvalues[4].bit5 = "Not Defined";
-            pvalues[4].bit5hfname = hf_bit5l1flagsh;
-            pvalues[4].bit6 = "Not Defined";
-            pvalues[4].bit6hfname = hf_bit6l1flagsh;
-            pvalues[4].bit7 = "Not Defined";
-            pvalues[4].bit7hfname = hf_bit7l1flagsh;
-            pvalues[4].bit8 = "Not Defined";
-            pvalues[4].bit8hfname = hf_bit8l1flagsh;
-            pvalues[4].bit9 = "Not Defined";
-            pvalues[4].bit9hfname = hf_bit9l1flagsh;
-            pvalues[4].bit10 = "Not Defined";
-            pvalues[4].bit10hfname = hf_bit10l1flagsh;
-            pvalues[4].bit11 = "Not Defined";
-            pvalues[4].bit11hfname = hf_bit11l1flagsh;
-            pvalues[4].bit12 = "Not Defined";
-            pvalues[4].bit12hfname = hf_bit12l1flagsh;
-            pvalues[4].bit13 = "Not Defined";
-            pvalues[4].bit13hfname = hf_bit13l1flagsh;
-            pvalues[4].bit14 = "Not Defined";
-            pvalues[4].bit14hfname = hf_bit14l1flagsh;
-            pvalues[4].bit15 = "Not Defined";
-            pvalues[4].bit15hfname = hf_bit15l1flagsh;
-            pvalues[4].bit16 = "Not Defined";
-            pvalues[4].bit16hfname = hf_bit16l1flagsh;
-            foffset = foffset+2;
-            if(pvalues[0].vvalue == 1)
-            {
-                break;
-            }
-            pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[5].vtype = VTYPE_UINT32;
-            pvalues[5].vdesc = "Partition Root ID: 0x%08x";
-            pvalues[5].vlength = 4;
-            pvalues[5].voffset = foffset;
-            pvalues[5].hfname= hf_nds_partition_root_id;
-            /*foffset = foffset+pvalues[5].vlength;*/
-            break;
-        case 0x17:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "New Partition Root ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_new_part_id;
-            /*foffset = foffset+pvalues[2].vlength;*/
-            break;
-        case 0x18:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Child Partition Root ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_child_part_id;
-            /*foffset = foffset+pvalues[2].vlength;*/
-            break;
-        case 0x19:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Master Partition Root ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_master_part_id;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_replica_type, "No Replica Type Found");
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Replica Type: %s";
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].mvtype = 0;
-            pvalues[3].hfname= hf_replica_type;
-            foffset = foffset + pvalues[3].vlength;
-            pvalues[4].vtype = VTYPE_STRING;
-            pvalues[4].vdesc = "Target Server Name: %s";
-            pvalues[4].mvtype = 0;
-            pvalues[4].vvalue = 0;
-            pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[4].vlength == 0x00 && !tvb_bytes_exist(tvb, foffset, pvalues[4].vlength))
-            {
-                pvalues[4].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[4].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
-            pvalues[4].hfname= hf_nds_target_name;
-            break;
-        case 0x1a:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x1b:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Streams Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_stream_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Entry ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[2].vvalue;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "Stream Name: %s";
-            pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-            pvalues[3].vvalue = 0;
-            pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-            {
-                pvalues[3].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[3].voffset = foffset+4;
-            /*foffset += 4;*/
-            pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            /*foffset += pvalues[3].vlength;
-            foffset += align_4(tvb, foffset);*/
-            pvalues[3].hfname= hf_nds_stream_name;
-            break;
-        case 0x1c:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x1d:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x1e:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x1f:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x20:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x21:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x22:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x23:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x24:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x25:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x26:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Time Delay in Seconds: %u";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_time_delay;
-            foffset = foffset+pvalues[2].vlength;
-            if(pvalues[0].vvalue == 0)
-            {
-                pvalues[3].vtype = VTYPE_STRING;
-                pvalues[3].vdesc = "Root Most Object Name: %s";
-                pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
-                pvalues[3].vvalue = 0;
-                pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-                if (pvalues[3].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-                {
-                    pvalues[3].vtype = VTYPE_NONE;
-                    break;
-                }
-                pvalues[3].voffset = foffset+4;
-                /*foffset += 4;*/
-                pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-                /*foffset += pvalues[3].vlength;
-                foffset += align_4(tvb, foffset);*/
-                pvalues[3].hfname= hf_nds_root_name;
-            }
-            else
-            {
-                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vtype = VTYPE_UINT32;
-                pvalues[3].vdesc = "Entry ID: 0x%08x";
-                pvalues[3].vlength = 4;
-                /*resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;*/
-                pvalues[3].voffset = foffset;
-                pvalues[3].hfname= hf_nds_eid;
-                /*foffset = foffset+pvalues[3].vlength;*/
-                resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;
-            }
-            break;
-        case 0x27:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x28:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x29:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x2a:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Flags: 0x%08x";
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Destination Parent Entry ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            resolve_eid = TRUE;
-            /*global_eid = pvalues[2].vvalue;*/
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[2].vlength;
-            global_eid = pvalues[2].vvalue;
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "New RDN: %s";
-            pvalues[3].mvtype = 0;
-            pvalues[3].vvalue = 0;
-            pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[3].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            pvalues[3].hfname= hf_nds_new_rdn;
-            foffset = foffset+pvalues[3].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[4].vtype = VTYPE_STRING;
-            pvalues[4].vdesc = "Source Server Name: %s";
-            pvalues[4].mvtype = 0;
-            pvalues[4].vvalue = 0;
-            pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[4].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-            {
-                pvalues[4].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[4].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
-            pvalues[4].hfname= hf_nds_target_name;
-            break;
-        case 0x2b:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = val_to_str_const(pvalues[1].vvalue, nds_verb2b_flag_vals, "No Flag Definition Found");
-            pvalues[1].vlength = 4;
-            pvalues[1].hfname = hf_nds_verb2b_req_flags;
-            pvalues[1].voffset = foffset;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Source Entry ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[2].vvalue;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Destination Parent Entry ID: 0x%08x";
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[3].vlength;
-            pvalues[4].vtype = VTYPE_STRING;
-            pvalues[4].vdesc = "New RDN: %s";
-            pvalues[4].mvtype = 0;
-            pvalues[4].vvalue = 0;
-            pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
-            pvalues[4].voffset = foffset+4;
-            foffset = foffset + 4;
-            pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
-            pvalues[4].hfname= hf_nds_new_rdn;
-            foffset = foffset+pvalues[4].vlength;
-            foffset += align_4(tvb, foffset);
-            pvalues[5].vtype = VTYPE_STRING;
-            pvalues[5].vdesc = "Source Server Name: %s";
-            pvalues[5].mvtype = 0;
-            pvalues[5].vvalue = 0;
-            pvalues[5].vlength = tvb_get_letohl(tvb, foffset);
-            if (pvalues[5].vlength == 0x00 || !tvb_bytes_exist(tvb, foffset, pvalues[3].vlength))
-            {
-                pvalues[5].vtype = VTYPE_NONE;
-                break;
-            }
-            pvalues[5].voffset = foffset+4;
-            /*foffset = foffset + 4;*/
-            pvalues[5].vstring = get_string(tvb, pvalues[5].voffset, pvalues[5].vlength);
-            pvalues[5].hfname= hf_nds_target_name;
-            break;
-        case 0x2c:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x2d:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x2e:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x2f:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x30:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x31:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x32:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vtype = VTYPE_STRING;
-            pvalues[3].vdesc = "NDS Verb: %s";
-            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, ncp_nds_verb_vals, "(No Verb Found)");
-            pvalues[3].vlength = 4;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_mv_string;
-            /*foffset = foffset+pvalues[3].vlength;*/
-            break;
-        case 0x33:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x34:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x35:
-            if (nds_version != 0)
-            {
-                pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[0].vtype = VTYPE_UINT32;
-                pvalues[0].vdesc = "Version: %u";
-                pvalues[0].vlength = 4;
-                pvalues[0].hfname = hf_nds_ver;
-                pvalues[0].voffset = foffset;
-                foffset = foffset+pvalues[0].vlength;
-                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                global_flags = pvalues[1].vvalue;
-                pvalues[1].vtype = VTYPE_BITFIELD;
-                pvalues[1].vdesc = "Request Flags:";
-                pvalues[1].vlength = 2;
-                pvalues[1].hfname= hf_nds_rflags;
-                pvalues[1].voffset = foffset;
-                pvalues[1].bit1 = "Typeless";
-                pvalues[1].bit1hfname = hf_bit1rflags;
-                pvalues[1].bit2 = "Slashed";
-                pvalues[1].bit2hfname = hf_bit2rflags;
-                pvalues[1].bit3 = "Dotted";
-                pvalues[1].bit3hfname = hf_bit3rflags;
-                pvalues[1].bit4 = "Tuned";
-                pvalues[1].bit4hfname = hf_bit4rflags;
-                pvalues[1].bit5 = "Not Defined";
-                pvalues[1].bit5hfname = hf_bit5rflags;
-                pvalues[1].bit6 = "Not Defined";
-                pvalues[1].bit6hfname = hf_bit6rflags;
-                pvalues[1].bit7 = "Not Defined";
-                pvalues[1].bit7hfname = hf_bit7rflags;
-                pvalues[1].bit8 = "Not Defined";
-                pvalues[1].bit8hfname = hf_bit8rflags;
-                pvalues[1].bit9 = "Not Defined";
-                pvalues[1].bit9hfname = hf_bit9rflags;
-                pvalues[1].bit10 = "Not Defined";
-                pvalues[1].bit10hfname = hf_bit10rflags;
-                pvalues[1].bit11 = "Not Defined";
-                pvalues[1].bit11hfname = hf_bit11rflags;
-                pvalues[1].bit12 = "Not Defined";
-                pvalues[1].bit12hfname = hf_bit12rflags;
-                pvalues[1].bit13 = "Not Defined";
-                pvalues[1].bit13hfname = hf_bit13rflags;
-                pvalues[1].bit14 = "Not Defined";
-                pvalues[1].bit14hfname = hf_bit14rflags;
-                pvalues[1].bit15 = "Not Defined";
-                pvalues[1].bit15hfname = hf_bit15rflags;
-                pvalues[1].bit16 = "Not Defined";
-                pvalues[1].bit16hfname = hf_bit16rflags;
-            }
-            break;
-        case 0x36:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x37:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x38:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x39:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_eid;
-            /*foffset = foffset+pvalues[1].vlength;*/
-            break;
-        case 0x3a:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Reply Buffer Size: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_buffer_size;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Version: %u";
-            pvalues[1].vlength = 4;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Entry ID: 0x%08x";
-            pvalues[2].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[2].vvalue;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_eid;
-            /*foffset = foffset+pvalues[2].vlength;*/
-            break;
-        case 0x3b:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].voffset = foffset;
-            pvalues[0].hfname= hf_nds_ver;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = "Entry ID: 0x%08x";
-            pvalues[1].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[1].vvalue;
-            pvalues[1].voffset = foffset;
-            pvalues[1].hfname= hf_nds_eid;
-            /*foffset = foffset+pvalues[1].vlength;*/
-            break;
-        case 0x3c:
-            break;
-        case 0x3d:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x3e:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x3f:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x40:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x41:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x42:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x43:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x44:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x45:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x46:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x47:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x48:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x49:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x4a:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x4b:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x4c:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x4d:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        case 0x6e:
-            pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[0].vtype = VTYPE_UINT32;
-            pvalues[0].vdesc = "Version: %u";
-            pvalues[0].vlength = 4;
-            pvalues[0].hfname = hf_nds_ver;
-            pvalues[0].voffset = foffset;
-            foffset = foffset+pvalues[0].vlength;
-            pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-            global_flags = pvalues[1].vvalue;
-            pvalues[1].vtype = VTYPE_BITFIELD;
-            pvalues[1].vdesc = "Request Flags:";
-            pvalues[1].vlength = 2;
-            pvalues[1].hfname= hf_nds_rflags;
-            pvalues[1].voffset = foffset;
-            pvalues[1].bit1 = "Typeless";
-            pvalues[1].bit1hfname = hf_bit1rflags;
-            pvalues[1].bit2 = "Slashed";
-            pvalues[1].bit2hfname = hf_bit2rflags;
-            pvalues[1].bit3 = "Dotted";
-            pvalues[1].bit3hfname = hf_bit3rflags;
-            pvalues[1].bit4 = "Tuned";
-            pvalues[1].bit4hfname = hf_bit4rflags;
-            pvalues[1].bit5 = "Not Defined";
-            pvalues[1].bit5hfname = hf_bit5rflags;
-            pvalues[1].bit6 = "Not Defined";
-            pvalues[1].bit6hfname = hf_bit6rflags;
-            pvalues[1].bit7 = "Not Defined";
-            pvalues[1].bit7hfname = hf_bit7rflags;
-            pvalues[1].bit8 = "Not Defined";
-            pvalues[1].bit8hfname = hf_bit8rflags;
-            pvalues[1].bit9 = "Not Defined";
-            pvalues[1].bit9hfname = hf_bit9rflags;
-            pvalues[1].bit10 = "Not Defined";
-            pvalues[1].bit10hfname = hf_bit10rflags;
-            pvalues[1].bit11 = "Not Defined";
-            pvalues[1].bit11hfname = hf_bit11rflags;
-            pvalues[1].bit12 = "Not Defined";
-            pvalues[1].bit12hfname = hf_bit12rflags;
-            pvalues[1].bit13 = "Not Defined";
-            pvalues[1].bit13hfname = hf_bit13rflags;
-            pvalues[1].bit14 = "Not Defined";
-            pvalues[1].bit14hfname = hf_bit14rflags;
-            pvalues[1].bit15 = "Not Defined";
-            pvalues[1].bit15hfname = hf_bit15rflags;
-            pvalues[1].bit16 = "Not Defined";
-            pvalues[1].bit16hfname = hf_bit16rflags;
-            foffset = foffset+pvalues[1].vlength+2;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[2].vtype = VTYPE_UINT32;
-            pvalues[2].vdesc = "Iteration Handle: 0x%08x";
-            pvalues[2].vlength = 4;
-            pvalues[2].voffset = foffset;
-            pvalues[2].hfname= hf_nds_iteration;
-            foffset = foffset+pvalues[2].vlength;
-            pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vtype = VTYPE_UINT32;
-            pvalues[3].vdesc = "Base Entry ID: 0x%08x";
-            pvalues[3].vlength = 4;
-            resolve_eid = TRUE;
-            global_eid = pvalues[3].vvalue;
-            pvalues[3].voffset = foffset;
-            pvalues[3].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[3].vlength;
-            pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vtype = VTYPE_UINT32;
-            pvalues[4].vdesc = val_to_str_const(pvalues[4].vvalue, nds_scope_vals, "Unknown Scope Defined");
-            pvalues[4].vlength = 4;
-            pvalues[4].hfname = hf_nds_scope;
-            pvalues[4].voffset = foffset;
-            foffset = foffset+pvalues[4].vlength;
-            pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-            pvalues[5].vdesc = "Iterator: 0x%08x";
-            pvalues[5].vlength = 4;
-            pvalues[5].voffset = foffset;
-            pvalues[5].hfname= hf_nds_iterator;
-            pvalues[5].mvtype = MVTYPE_PROCESS_ITERATOR;
-            /*foffset = foffset+pvalues[5].vlength;*/
-            break;
-        default:
-            pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
-            break;
-        }
-    }
-
-    /* Fill in the INFO column. */
-    if (ncp_rec) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-        if (nds_frag != 0xffffffff) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "C Continue NDS Fragment 0x%08x", nds_frag);
-        }
-        else {
+        if (ncp_rec)
             col_add_fstr(pinfo->cinfo, COL_INFO, "C NDS %s", verb_string);
-        }
-    }
-    else {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                        "C Unknown Function %d (0x%02x)",
-                        func, func);
+    } else {
+        if (ncp_rec)
+            col_add_fstr(pinfo->cinfo, COL_INFO, "C Continue NDS Fragment 0x%08x", nds_frag);
     }
 
     if (ncp_tree) {
@@ -11043,20 +8496,18 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         PTREE_DATA(ncp_tree)->visible=1;
 #endif
 
+    if (type == NCP_SERVICE_REQUEST) {
+        memset(&temp_value, 0, sizeof(temp_value));
         request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
-        switch (type) {
-        case NCP_BROADCAST_SLOT:
-            ; /* nothing */
-            break;
 
-        case NCP_SERVICE_REQUEST:
-
+        if (ncp_rec && ncp_rec->request_ptvc)
+        {
             ptvc = ptvcursor_new(ncp_tree, tvb, 7);
-            if (ncp_rec && ncp_rec->request_ptvc)
-            {
-                clear_repeat_vars();
-                process_ptvc_record(ptvc, pinfo, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec, TRUE);
-            }
+            clear_repeat_vars();
+            process_ptvc_record(ptvc, pinfo, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec, TRUE);
+            ptvcursor_free(ptvc);
+        }
+        if (ncp_tree) {
             proto_tree_add_uint_format_value(ncp_tree, hf_ncp_func, tvb, 6, 1,
                                        func, "%d (0x%02X), %s",
                                        func, func, ncp_rec ? ncp_rec->name : "Unknown");
@@ -11065,9 +8516,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 
             proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
                                 nds_frag);
+        }
 
-            if (nds_frag == 0xffffffff) {
+        if (nds_frag == 0xffffffff) {
 
+            if (ncp_tree) {
                 proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 
                 proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, ENC_LITTLE_ENDIAN);
@@ -11076,128 +8529,824 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 
                 if (nds_version == 0) {
                     proto_tree_add_uint_format_value(ncp_tree, hf_ncp_nds_verb, tvb, 24, 4,
-                                               nds_verb, "%d, (0x%02x), %s",
-                                               nds_verb, nds_verb, verb_string);
+                                            nds_verb, "%d, (0x%02x), %s",
+                                            nds_verb, nds_verb, verb_string);
                 }
                 else {
                     proto_tree_add_uint_format_value(ncp_tree, hf_ncp_nds_verb, tvb, 32, 4,
-                                               nds_verb, "%d, (0x%02x), %s",
-                                               nds_verb, nds_verb, verb_string);
-                }
-                added_arrow = FALSE;
-                for (i = 0; i < 9; i++) {
-                    switch (pvalues[i].vtype) {
-
-                    case VTYPE_NONE: /* no value */
-                        break;
-
-                    case VTYPE_UINT8:
-                        proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                                   pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                                   pvalues[i].vtype);
-                        break;
-
-                    case VTYPE_UINT16:
-                        proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                                   pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                                   pvalues[i].vtype);
-                        break;
-
-                    case VTYPE_UINT32:
-                        proto_tree_add_uint_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                                   pvalues[i].vlength, pvalues[i].vvalue, pvalues[i].vdesc,
-                                                   pvalues[i].vvalue);
-                        break;
-
-                    case VTYPE_STRING:
-                        proto_tree_add_string_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                                     pvalues[i].vlength, pvalues[i].vstring, pvalues[i].vdesc, pvalues[i].vstring);
-                        if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST) {
-                            /*
-                             * The "vstring" value is set to the input ES type
-                             * for MVTYPE_PROC_ENTRY_SPECIFIERS,
-                             * to add string to columninfo
-                             */
-                            if (!added_arrow) {
-                                col_append_str(pinfo->cinfo, COL_INFO, " -> ");
-                                added_arrow = TRUE;
-                            }
-                            col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
-                        }
-                        break;
-
-                    case VTYPE_BITFIELD:
-                        process_bitfield(ncp_tree, tvb, &pvalues[i]);
-                        break;
-
-                    case VTYPE_MULTIVALUE_UINT32:
-                        process_multivalues(ncp_tree, tvb, pinfo, &pvalues[i]);
-                        if (pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
-                            /*
-                             * The "vstring" value is set to the input ES type
-                             * by "process_multivalues()".
-                             */
-                            g_strlcpy(global_object_name, mv_resolve_name_string, 256);
-                        }
-                        if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS || pvalues[i].mvtype == MVTYPE_PROCESS_ITERATOR) {
-                            /*
-                             * The "vstring" value is set to the input ES type
-                             * for MVTYPE_PROC_ENTRY_SPECIFIERS,
-                             * and the last string for MVTYPE_ATTR_REQUEST,
-                             * by "process_multivalues()".
-                             */
-                            col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
-                            if (pvalues[i].mvtype != MVTYPE_PROCESS_ITERATOR) {
-                                if (!added_arrow) {
-                                    col_append_str(pinfo->cinfo, COL_INFO, " -> ");
-                                    added_arrow = TRUE;
-                                }
-                                col_append_str(pinfo->cinfo, COL_INFO, mv_resolve_name_string);
-                            }
-                        }
-                        break;
-
-                    case VTYPE_BYTES:
-                        proto_tree_add_item(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset,
-                                             pvalues[i].vlength, ENC_NA);
-                        break;
-
-                    case VTYPE_BOOLEAN:
-                        proto_tree_add_item(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset, pvalues[i].vlength, ENC_LITTLE_ENDIAN);
-                        break;
-
-                    default:
-                        proto_tree_add_uint_format(ncp_tree, hf_nds_p1type, tvb, pvalues[i].voffset,
-                                                   pvalues[i].vlength, pvalues[i].vtype, "NDS Parameter not defined %u",
-                                                   pvalues[i].vtype);
-                        break;
-                    }
-                }
-                /* For NDS requests with just an EID, resolve name from hash table. */
-                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-                if(resolve_eid) {
-                    if (request_eid_value) {
-                        g_strlcpy(global_object_name, request_eid_value->object_name, 256);
-                        col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
-                        col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
-                    }
-                }
-                if (request_value)
-                {
-                    request_value->nds_request_verb = nds_verb;
-                    request_value->nds_version = nds_version;
-                    g_strlcpy(request_value->object_name, global_object_name, 256);
-                    request_value->req_nds_flags = global_flags;
-                    request_value->req_nds_prot_flags = nds_prot_flags;
+                                            nds_verb, "%d, (0x%02x), %s",
+                                            nds_verb, nds_verb, verb_string);
                 }
             }
-            ptvcursor_free(ptvc);
-            break;
 
-        default:
-            ; /* nothing */
+            switch(nds_verb) {
+
+            case 0x01:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_nflags, ett_ncp, ncp_nflags, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                if (version == 0 || version == 1)
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_scope, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    value1 = tvb_get_letohl(tvb, foffset);
+                    if (value1 == 0)
+                        break;
+
+                    global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    proto_tree_add_string(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, global_object_name);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                    foffset += 4+value1;
+                    foffset += align_4(tvb, foffset);
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                    temp_value.vdesc = "Communications Transports: %u";
+                    temp_value.vlength = 4;
+                    temp_value.hfname= hf_nds_comm_trans;
+                    temp_value.voffset = foffset;
+                    temp_value.mvtype = MVTYPE_ADDR_REFERRAL_REQUEST;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                    foffset = foffset + (temp_value.vvalue * 4) + 4;
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vdesc = "Tree Walker Transport Type: %u";
+                    temp_value.hfname= hf_nds_tree_trans;
+                    temp_value.voffset = foffset;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                }
+                else
+                {
+                    proto_tree_add_item(ncp_tree, hf_min_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                    temp_value.vdesc = "Number of Versions to Include: %u";
+                    temp_value.vlength = 4;
+                    temp_value.mvtype = MVTYPE_ATTR_REQUEST2;
+                    temp_value.voffset = foffset;
+                    temp_value.hfname= hf_nds_ver_include;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                    foffset += (temp_value.vvalue * 4) + 4;
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vdesc = "Number of Versions to Exclude: %u";
+                    temp_value.hfname= hf_nds_ver_exclude;
+                    temp_value.voffset = foffset;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                    foffset += (temp_value.vvalue * 4) + 4;
+
+                    proto_tree_add_item(ncp_tree, hf_nds_dn_output_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    proto_tree_add_item(ncp_tree, hf_nds_nested_output_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+
+                    value1 = tvb_get_letohl(tvb, foffset);
+                    global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    proto_tree_add_string(ncp_tree, hf_nds_output_delimiter, tvb, foffset, 4+value1, global_object_name);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                    foffset += 4+value1;
+                    foffset += align_4(tvb, foffset);
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vdesc = "Size of Entry Specifier: %u";
+                    temp_value.mvtype = MVTYPE_PROC_ENTRY_SPECIFIERS;
+                    temp_value.hfname= hf_nds_output_entry_specifier;
+                    temp_value.voffset = foffset;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                }
+                break;
+            case 0x02:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                switch(version)
+                {
+                case 0:
+                    proto_tree_add_item(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    break;
+                case 1:
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_rflags, ENC_LITTLE_ENDIAN);
+                    value1 = tvb_get_letohl(tvb, foffset);
+
+                    if ((value1 & 0xf000) == 0xc000)
+                    {
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Partial");
+                    }
+                    else
+                    {
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Full");
+                    }
+                    foffset += 4;
+
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                    resolve_eid = TRUE;
+                    break;
+                case 2:
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_rflags, ENC_LITTLE_ENDIAN);
+                    value1 = tvb_get_letohl(tvb, foffset);
+                    if ((value1 & 0xf000) == 0xc000)
+                    {
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Partion Name");
+                    }
+                    else
+                    {
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Full Name");
+                    }
+                    foffset += 4;
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+                    global_flags = tvb_get_letohl(tvb, foffset);
+                    foffset += 2;
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+                    foffset += 2;
+
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                    resolve_eid = TRUE;
+                    break;
+                default:
+                    break;
+                }
+                break;
+
+            case 0x03:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+
+                if (version == 0)
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                    resolve_eid = TRUE;
+                    foffset += 4;
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_info_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_flags);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", rval_to_str_const(global_flags, nds_info_type, "No Info Type Set"));
+
+                    foffset += 4;
+                    proto_tree_add_item(ncp_tree, hf_nds_all_attr, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                    temp_value.vdesc = "Attributes: %u";
+                    temp_value.vlength = 4;
+                    temp_value.voffset = foffset;
+                    temp_value.mvtype = MVTYPE_ATTR_REQUEST;
+                    temp_value.hfname= hf_nds_attr;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                }
+                else
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                    resolve_eid = TRUE;
+                    foffset += 4;
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_info_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_flags);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", rval_to_str_const(global_flags, nds_info_type, "No Info Type Set"));
+                    foffset += 4;
+                    proto_tree_add_item(ncp_tree, hf_nds_all_attr, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+
+                    temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                    temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                    temp_value.vdesc = "Attributes: %u";
+                    temp_value.vlength = 4;
+                    temp_value.voffset = foffset;
+                    temp_value.mvtype = MVTYPE_ATTR_REQUEST;
+                    temp_value.hfname= hf_nds_attr;
+                    process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
+               }
+               break;
+            case 0x04:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+
+                if (version == 1)
+                {
+                    /* Version 1 specifies for this offset value to always be a value of 1*/
+                    /* No need to display to user */
+                    foffset += 4;
+                }
+
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                foffset += 4;       /* Attribute Count = 1 */
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, global_object_name, "Attribute Name Being Compared: %s", global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                foffset += 4;       /* Attribute Count = 1 */
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_value_string, tvb, foffset, 4+value1, temp_value.vstring, "Attribute Value: %s", temp_value.vstring);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
+                break;
+            case 0x05:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_lflags, ENC_LITTLE_ENDIAN);
+                foffset += 2;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_parent, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+                foffset += 2;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+                foffset += 2;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_name_filter, tvb, foffset, 4+value1, temp_value.vstring);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                foffset += 4+value1;
+                if (version == 0)
+                    break;
+
+                foffset += align_4(tvb, foffset);
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_class_filter, tvb, foffset, 4+value1, temp_value.vstring);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
+                foffset += 4+value1;
+                if (version == 1)
+                    break;
+
+                foffset += align_4(tvb, foffset);
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vdesc = "Seconds: %u";
+                temp_value.vlength = 4;
+                temp_value.mvtype = MVTYPE_PRINT_TIMESTAMP;
+                temp_value.hfname= hf_nds_time_filter;
+                temp_value.voffset = foffset;
+                process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                break;
+            case 0x06:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = FALSE;
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_search_scope, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_num_objects, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_siflags, ett_ncp, ncp_siflags, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                if (version != 2)
+                {
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+                    foffset += 2;
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+                    foffset += 2;
+                }
+                break;
+            case 0x07:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                if (version != 0)
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                }
+
+                global_eid = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_eid, tvb, foffset, 4, global_eid, "Parent Entry ID: 0x%08x", global_eid);
+                resolve_eid = FALSE;
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_relative_dn, tvb, foffset, 4+value1, global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vstring = "";
+                temp_value.vdesc = "Attributes: %u";
+                temp_value.vlength = 4;
+                temp_value.voffset = foffset;
+                temp_value.mvtype = MVTYPE_ADD_ATTR_REQUEST;
+                temp_value.hfname= hf_nds_attr;
+                process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                break;
+            case 0x08:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                break;
+
+            case 0x09:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+
+                if (version != 0)
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                }
+
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vstring = "";
+                temp_value.vdesc = "Number of Attributes to Change %u";
+                temp_value.vlength = 4;
+                temp_value.mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
+                temp_value.hfname= hf_nds_number_of_changes;
+                temp_value.voffset = foffset;
+                process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                break;
+            case 0x0a:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                proto_tree_add_item(ncp_tree, hf_nds_keep, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                foffset += align_4(tvb, foffset);
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
+                break;
+
+            case 0x0b:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_acflags, ett_ncp, ncp_acflags, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_relative_dn, tvb, foffset, 4+value1, global_object_name, "Attribute Name: %s", global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                proto_tree_add_item(ncp_tree, hf_nds_syntax, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_lower, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_upper, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_asn1, tvb, foffset, value1, ENC_NA);
+                break;
+            case 0x0c: /* Not Defined */
+                break;
+            case 0x0d:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_attribute_dn, tvb, foffset, 4+value1, global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                break;
+            case 0x0e: /* Not Defined */
+                break;
+            case 0x0f:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_class_def_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                {
+                    proto_tree_add_uint_format_value(ncp_tree, hf_nds_return_all_classes, tvb, foffset, 4, value1, "Do Not Return All Classes");
+                }
+                else
+                {
+                    proto_tree_add_uint_format_value(ncp_tree, hf_nds_return_all_classes, tvb, foffset, 4, value1, "Return All Classes");
+                }
+                foffset += 4;
+                foffset += align_4(tvb, foffset);
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vdesc = "Classes: %u";
+                temp_value.vlength = 4;
+                temp_value.mvtype = MVTYPE_READ_CLASS_REQ;
+                temp_value.hfname= hf_nds_classes;
+                temp_value.voffset = foffset;
+                process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                break;
+            case 0x10:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_base_class, tvb, foffset, 4+value1, global_object_name, "Class Name: %s", global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vdesc = "Number of Attributes to Add: %u";
+                temp_value.vlength = 4;
+                temp_value.voffset = foffset;
+                temp_value.mvtype = MVTYPE_MODIFY_CLASS;
+                temp_value.hfname= hf_nds_att_add;
+                break;
+            case 0x11:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                global_object_name = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_base, tvb, foffset, 4+value1, global_object_name, "Class Name: %s", global_object_name);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
+                break;
+            case 0x12:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                break;
+            case 0x13:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Trustee Name: %s", temp_value.vstring);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Attribute to be Checked: %s", temp_value.vstring);
+                foffset += 4+value1;
+                foffset += align_4(tvb, foffset);
+
+                if(version != 0)
+                {
+                    value1 = tvb_get_letohl(tvb, foffset);
+                    if (value1 == 0)
+                        break;
+
+                    temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Security Equivalence: %s", temp_value.vstring);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
+                }
+                break;
+            case 0x14: /* Not Defined */
+            case 0x15:
+                break;
+            case 0x16:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, nds_bitflags, ENC_LITTLE_ENDIAN);
+                foffset += 2;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                if(version == 0)
+                {
+                    global_flags = 0x000000c0;
+                    break;
+                }
+
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_l1flagsl, ett_ncp, ncp_l1flagsl, ENC_LITTLE_ENDIAN);
+                global_flags = tvb_get_letohs(tvb, foffset);
+                foffset += 2;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_l1flagsh, ett_ncp, ncp_l1flagsh, ENC_LITTLE_ENDIAN);
+                foffset += 2;
+
+                if(version == 1)
+                    break;
+
+                proto_tree_add_item(ncp_tree, hf_nds_partition_root_id, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                break;
+            case 0x17:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, value1, "Flags: 0x%08x", value1);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_new_part_id, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                break;
+            case 0x18:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, value1, "Flags: 0x%08x", value1);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_child_part_id, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                break;
+            case 0x19:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, value1, "Flags: 0x%08x", value1);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_master_part_id, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_replica_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
+                break;
+            case 0x1a: /* Not Defined */
+                break;
+            case 0x1b:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_stream_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_stream_name, tvb, foffset, 4+value1, temp_value.vstring);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                break;
+            case 0x1c: /* Not Defined */
+            case 0x1d:
+            case 0x1e:
+            case 0x1f:
+            case 0x20:
+            case 0x21:
+            case 0x22:
+            case 0x23:
+            case 0x24:
+            case 0x25:
+                break;
+            case 0x26:
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &version);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, value1, "Flags: 0x%08x", value1);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_time_delay, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                if(version == 0)
+                {
+                    value1 = tvb_get_letohl(tvb, foffset);
+                    if (value1 == 0)
+                        break;
+
+                    temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    proto_tree_add_string(ncp_tree, hf_nds_root_name, tvb, foffset, 4+value1, temp_value.vstring);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                }
+                else
+                {
+                    global_eid = tvb_get_letohl(tvb, foffset);
+                    proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                    resolve_eid = TRUE;
+                }
+                break;
+            case 0x27: /* Not Defined */
+            case 0x28:
+            case 0x29:
+                break;
+            case 0x2a:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_req_flags, tvb, foffset, 4, value1, "Flags: 0x%08x", value1);
+                foffset += 4;
+                global_eid = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_ver, tvb, foffset, 4, global_eid, "Destination Parent Entry ID: 0x%08x", global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
+                foffset += (4+value1);
+                foffset += align_4(tvb, foffset);
+
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
+                break;
+            case 0x2b:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_verb2b_req_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                global_eid = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_ver, tvb, foffset, 4, global_eid, "Source Entry ID: 0x%08x", global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_ver, tvb, foffset, 4, value1, "Destination Parent Entry ID: 0x%08x", value1);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
+                foffset += (4+value1);
+                foffset += align_4(tvb, foffset);
+                value1 = tvb_get_letohl(tvb, foffset);
+                if (value1 == 0)
+                    break;
+                temp_value.vstring = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
+                break;
+            case 0x2c: /* Not Defined */
+            case 0x2d:
+            case 0x2e:
+            case 0x2f:
+            case 0x30:
+            case 0x31:
+                break;
+            case 0x32:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                value1 = tvb_get_letohl(tvb, foffset);
+                temp_value.vstring = val_to_str_const(value1, ncp_nds_verb_vals, "(No Verb Found)");
+                proto_tree_add_string_format(ncp_tree, hf_mv_string, tvb, foffset, 4+value1, temp_value.vstring, "NDS Verb: %s", temp_value.vstring);
             break;
+            case 0x33: /* Not Defined */
+            case 0x34:
+                break;
+            case 0x35:
+                if (nds_version != 0)
+                {
+                    proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                    foffset += 4;
+                    proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_rflags, ENC_LITTLE_ENDIAN);
+                    global_flags = tvb_get_letohl(tvb, foffset);
+                }
+                break;
+            case 0x36: /* Not Defined */
+            case 0x37:
+            case 0x38:
+                break;
+            case 0x39:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                break;
+            case 0x3a:
+                proto_tree_add_item(ncp_tree, hf_nds_buffer_size, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                break;
+            case 0x3b:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_item_ret_uint(ncp_tree, hf_nds_eid, tvb, foffset, 4, ENC_LITTLE_ENDIAN, &global_eid);
+                resolve_eid = TRUE;
+                break;
+            case 0x3c: /* Not Defined */
+            case 0x3d:
+            case 0x3e:
+            case 0x3f:
+            case 0x40:
+            case 0x41:
+            case 0x42:
+            case 0x43:
+            case 0x44:
+            case 0x45:
+            case 0x46:
+            case 0x47:
+            case 0x48:
+            case 0x49:
+            case 0x4a:
+            case 0x4b:
+            case 0x4c:
+            case 0x4d:
+                break;
+            case 0x6e:
+                proto_tree_add_item(ncp_tree, hf_nds_ver, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_rflags, ENC_LITTLE_ENDIAN);
+                global_flags = tvb_get_letohl(tvb, foffset);
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+                global_eid = tvb_get_letohl(tvb, foffset);
+                proto_tree_add_uint_format(ncp_tree, hf_nds_eid, tvb, foffset, 4, global_eid, "Base Entry ID: 0x%08x", global_eid);
+                resolve_eid = TRUE;
+                foffset += 4;
+                proto_tree_add_item(ncp_tree, hf_nds_scope, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;
+
+                temp_value.vvalue = tvb_get_letohl(tvb, foffset);
+                temp_value.vtype = VTYPE_MULTIVALUE_UINT32;
+                temp_value.vdesc = "Iterator: 0x%08x";
+                temp_value.vlength = 4;
+                temp_value.voffset = foffset;
+                temp_value.hfname= hf_nds_iterator;
+                temp_value.mvtype = MVTYPE_PROCESS_ITERATOR;
+                process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
+                break;
+            default: /* Not Defined */
+                break;
+            }
         }
+
+        /* For NDS requests with just an EID, resolve name from hash table. */
+        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+        if(resolve_eid) {
+            if (request_eid_value) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", Object Name - %s", request_eid_value->object_name);
+            }
+        }
+        if (request_value)
+        {
+            request_value->nds_request_verb = nds_verb;
+            request_value->nds_version = nds_version;
+            if (global_object_name)
+                g_strlcpy(request_value->object_name, global_object_name, 256);
+            else
+                request_value->object_name[0] = '\0';
+            request_value->req_nds_flags = global_flags;
+            request_value->req_nds_prot_flags = nds_prot_flags;
+        }
+    }
 
         /* Free the temporary proto_tree */
         CLEANUP_CALL_AND_POP;

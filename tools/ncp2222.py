@@ -6162,6 +6162,8 @@ static int hf_bit13lflags = -1;
 static int hf_bit14lflags = -1;
 static int hf_bit15lflags = -1;
 static int hf_bit16lflags = -1;
+static int hf_l1flagsl = -1;
+static int hf_l1flagsh = -1;
 static int hf_bit1l1flagsl = -1;
 static int hf_bit2l1flagsl = -1;
 static int hf_bit3l1flagsl = -1;
@@ -6377,6 +6379,7 @@ static int hf_nds_ds_time = -1;
 static int hf_nds_ping_version = -1;
 static int hf_nds_search_scope = -1;
 static int hf_nds_num_objects = -1;
+static int hf_siflags = -1;
 static int hf_bit1siflags = -1;
 static int hf_bit2siflags = -1;
 static int hf_bit3siflags = -1;
@@ -6849,7 +6852,7 @@ proto_register_ncp2222(void)
     { "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_nds_flag,
-    { "NDS Protocol Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "NDS Protocol Flags", "ncp.ndsflag", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ncp_nds_verb,
     { "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, NULL, HFILL }},
@@ -7367,6 +7370,12 @@ proto_register_ncp2222(void)
     { &hf_bit16lflags,
     { "Not Defined", "ncp.bit16lflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
+    { &hf_l1flagsl,
+    { "Information Flags (low) Byte", "ncp.l1flagsl", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_l1flagsh,
+    { "Information Flags (high) Byte", "ncp.l1flagsh", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     { &hf_bit1l1flagsl,
     { "Output Flags", "ncp.bit1l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
@@ -7648,7 +7657,7 @@ proto_register_ncp2222(void)
     { "Attribute Name", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_syntax,
-    { "Attribute Syntax", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Attribute Syntax", "ncp.nds_syntax", FT_UINT32, BASE_DEC, VALS(nds_syntax), 0x0, NULL, HFILL }},
 
     { &hf_value_string,
     { "Value", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7705,10 +7714,10 @@ proto_register_ncp2222(void)
     { "Distance object is from Root", "ncp.nds_depth", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_info_type,
-    { "Info Type", "ncp.nds_info_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Info Type", "ncp.nds_info_type", FT_UINT32, BASE_RANGE_STRING|BASE_DEC, RVALS(nds_info_type), 0x0, NULL, HFILL }},
 
     { &hf_nds_class_def_type,
-    { "Class Definition Type", "ncp.nds_class_def_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Class Definition Type", "ncp.nds_class_def_type", FT_UINT32, BASE_DEC, VALS(class_def_type), 0x0, NULL, HFILL }},
 
     { &hf_nds_all_attr,
     { "All Attributes", "ncp.nds_all_attr", FT_UINT32, BASE_DEC, NULL, 0x0, "Return all Attributes?", HFILL }},
@@ -7738,7 +7747,7 @@ proto_register_ncp2222(void)
     { "Streams Flags", "ncp.nds_stream_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_tag_string,
-    { "Tags", "ncp.nds_tags", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Tags", "ncp.nds_tags", FT_UINT32, BASE_DEC, VALS(nds_tags), 0x0, NULL, HFILL }},
 
     { &hf_value_bytes,
     { "Bytes", "ncp.value_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7759,7 +7768,7 @@ proto_register_ncp2222(void)
     { "Replica Number", "ncp.rnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_min_nds_ver,
-    { "Minimum NDS Version", "ncp.min_nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Minimum NDS Version", "ncp.min_nds_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_ver_include,
     { "Include NDS Version", "ncp.inc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -7784,10 +7793,10 @@ proto_register_ncp2222(void)
 #endif
 
     { &hf_nds_dn_output_type,
-    { "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_nested_output_type,
-    { "Nested Output Entry Specifier Type", "ncp.nds_nested_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Nested Output Entry Specifier Type", "ncp.nds_nested_out_es", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_output_delimiter,
     { "Output Delimiter", "ncp.nds_out_delimiter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7811,7 +7820,7 @@ proto_register_ncp2222(void)
     { "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_compare_results,
-    { "Compare Results", "ncp.nds_compare_results", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Compare Values Returned", "ncp.nds_compare_results", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_parent,
     { "Parent ID", "ncp.nds_parent", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -7934,7 +7943,7 @@ proto_register_ncp2222(void)
     { "ASN.1 ID", "ncp.nds_asn1", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acflags,
-    { "Attribute Constraint Flags", "ncp.nds_acflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Attribute Constraint Flags", "ncp.nds_acflags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_upper,
     { "Upper Limit Value", "ncp.nds_upper", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -8213,11 +8222,13 @@ proto_register_ncp2222(void)
     { "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_search_scope,
-    { "Search Scope", "ncp.nds_search_scope", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { "Search Scope", "ncp.nds_search_scope", FT_UINT32, BASE_DEC|BASE_RANGE_STRING, RVALS(nds_search_scope), 0x0, NULL, HFILL }},
 
     { &hf_nds_num_objects,
     { "Number of Objects to Search", "ncp.nds_num_objects", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_siflags,
+    { "Information Types", "ncp.siflags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_bit1siflags,
     { "Names", "ncp.bit1siflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
@@ -8295,7 +8306,7 @@ proto_register_ncp2222(void)
     { "NDS Fragments", "nds.fragments", FT_NONE, BASE_NONE, NULL, 0x0, "NDPS Fragments", HFILL }},
 
     { &hf_nds_verb2b_req_flags,
-    { "Flags", "ncp.nds_verb2b_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Flags", "ncp.nds_verb2b_flags", FT_UINT32, BASE_HEX, VALS(nds_verb2b_flag_vals), 0x0, NULL, HFILL }},
 
     { &hf_ncp_ip_address,
     { "IP Address", "ncp.ip_addr", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -8378,7 +8389,7 @@ proto_register_ncp2222(void)
     { "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_DEC_HEX, VALS(iterator_subverbs), 0x0, NULL, HFILL }},
 
     { &hf_iter_completion_code,
-    { "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, VALS(nds_reply_errors), 0x0, NULL, HFILL }},
 
 #if 0 /* Unused ? */
     { &hf_nds_iterobj,
