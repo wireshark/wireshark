@@ -38,8 +38,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define PROTO_LENGTH_UNTIL_END -1
-
 gboolean    nds_defragment  = TRUE;
 gboolean    nds_echo_eid    = TRUE;
 gboolean    ncp_echo_err    = TRUE;
@@ -2117,49 +2115,7 @@ ncp_record_find(guint8 func, guint8 subfunc)
     return NULL;
 }
 
-
-/* Given a proto_item*, assume it contains an integer value
- * and return a guint from it. */
-static guint
-get_finfo_value_integer(field_info *finfo)
-{
-    /* XXX the fvalue functions are no longer safe to call directly
-       since we sometimes fake the entries to speed things up.
-       this dissector should not call fvalue_ functions directly.
-    */
-    if(!finfo->value.ftype->get_value_uinteger){
-        return 0;
-    }
-    return fvalue_get_uinteger(&finfo->value);
-}
-static guint
-get_item_value(proto_item *item)
-{
-    return get_finfo_value_integer(PITEM_FINFO(item));
-}
-
-
-static guint
-get_finfo_length(field_info *finfo)
-{
-    return fvalue_length(&finfo->value);
-}
-
-
-static char *
-get_finfo_value_string(field_info *finfo)
-{
-    return (char *)fvalue_get(&finfo->value);
-}
-
-static const char *
-get_item_name(proto_item *item)
-{
-    return PITEM_FINFO(item)->hfinfo->name;
-}
-
-
-typedef proto_item* (*padd_func_t)(ptvcursor_t*, const ptvc_record*);
+typedef proto_item* (*padd_func_t)(packet_info* pinfo, ptvcursor_t*, const ptvc_record*, gboolean request, gboolean repeat, guint* ret_value);
 
 /*
  * XXX - are these just DOS-format dates and times?
@@ -2287,51 +2243,179 @@ uint_to_nwtime(guint data, nw_time_t *nwtime)
 }
 
 static proto_item*
-padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
+padd_normal(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request, gboolean repeat, guint* ret_value)
 {
-    return
-        ptvcursor_add(ptvc, *rec->hf_ptr,
+    header_field_info* hinfo = proto_registrar_get_nth(*rec->hf_ptr);
+
+    if (!repeat && request && rec->req_info_str)
+        col_set_str(pinfo->cinfo, COL_INFO, "C ");
+
+    /* We may want integer values regardless of whether or not the value is displayed in INFO column */
+    if (IS_FT_UINT(hinfo->type) || IS_FT_INT(hinfo->type)) {
+        guint32 value32 = 0;
+        guint64 value64 = 0;
+
+        switch(rec->length)
+        {
+        case 1:
+            value32 = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+            *ret_value = value32;
+            break;
+        case 2:
+            value32 = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            *ret_value = value32;
+            break;
+        case 3:
+            value32 = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            *ret_value = value32;
+            break;
+        case 4:
+            value32 = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            *ret_value = value32;
+            break;
+        case 5:
+            value64 = tvb_get_guint40(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            break;
+        case 6:
+            value64 = tvb_get_guint48(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            break;
+        case 7:
+            value64 = tvb_get_guint56(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            break;
+        case 8:
+            value64 = tvb_get_guint64(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            break;
+        default:
+            DISSECTOR_ASSERT(FALSE);
+            break;
+        }
+
+        if (request && rec->req_info_str) {
+            if (rec->length <= 4) {
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                        (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                        value32);
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                        (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                        value64);
+
+            }
+        }
+    } else if (request && rec->req_info_str) {
+        if (hinfo->type == FT_STRING) {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                                 tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                     ptvcursor_current_offset(ptvc), rec->length, ENC_ASCII));
+        } else if (hinfo->type == FT_STRINGZ) {
+            gint length;
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                                tvb_get_stringz_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc), &length, ENC_ASCII));
+        } else if (hinfo->type == FT_UINT_STRING) {
+            guint32 length = 0;
+
+            switch(rec->length)
+            {
+            case 1:
+                length = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                break;
+            case 2:
+                length = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                break;
+            case 3:
+                length = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                break;
+            case 4:
+                length = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                break;
+            default:
+                DISSECTOR_ASSERT(FALSE);
+                break;
+            }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                                tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc)+rec->length, length, ENC_ASCII));
+        } else if (hinfo->type == FT_BYTES) {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                (const gchar*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
+                                tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                    ptvcursor_current_offset(ptvc), rec->length));
+        }
+    }
+
+    return ptvcursor_add(ptvc, *rec->hf_ptr,
                       rec->length,
                       rec->endianness);
 }
 
+/* XXX - This could be a BASE_CUSTOM extension to the hf_ fields that use it */
 static proto_item*
-padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
+padd_date(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value)
 {
     proto_item  *item;
     nw_date_t   nw_date;
 
-    item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length,
-                         rec->endianness);
-
-    if (item) {
-        uint_to_nwdate(get_item_value(item), &nw_date);
-
-        proto_item_set_text(item, "%s", get_item_name(item));
-        proto_item_append_text(item, ": %04u/%02u/%02u",
-                               nw_date.year, nw_date.month, nw_date.day);
+    switch(rec->length)
+    {
+    case 1:
+        *ret_value = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        break;
+    case 2:
+        *ret_value = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    case 3:
+        *ret_value = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    case 4:
+        *ret_value = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    default:
+        DISSECTOR_ASSERT(FALSE);
     }
+
+    uint_to_nwdate(*ret_value, &nw_date);
+    item = proto_tree_add_uint_format_value(ptvcursor_tree(ptvc), *rec->hf_ptr, ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc),
+                                            rec->length, *ret_value, "%04u/%02u/%02u", nw_date.year, nw_date.month, nw_date.day);
+    ptvcursor_advance(ptvc, rec->length);
+
     return item;
 }
 
+/* XXX - This could be a BASE_CUSTOM extension to the hf_ fields that use it */
 static proto_item*
-padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
+padd_time(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value)
 {
     proto_item  *item;
     nw_time_t   nw_time;
 
-    item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length,
-                         rec->endianness);
-
-    if (item) {
-        uint_to_nwtime(get_item_value(item), &nw_time);
-
-        proto_item_set_text(item, "%s", get_item_name(item));
-        proto_item_append_text(item, ": %02u:%02u:%02u",
-                               nw_time.hour, nw_time.minute, nw_time.second);
+    switch(rec->length)
+    {
+    case 1:
+        *ret_value = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        break;
+    case 2:
+        *ret_value = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    case 3:
+        *ret_value = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    case 4:
+        *ret_value = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+        break;
+    default:
+        DISSECTOR_ASSERT(FALSE);
     }
+
+    uint_to_nwtime(*ret_value, &nw_time);
+    item = proto_tree_add_uint_format_value(ptvcursor_tree(ptvc), *rec->hf_ptr, ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc),
+                                            rec->length, *ret_value, "%02u:%02u:%02u", nw_time.hour, nw_time.minute, nw_time.second);
+    ptvcursor_advance(ptvc, rec->length);
+
     return item;
 }
 
@@ -2341,7 +2425,7 @@ padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
    result returned. */
 /* XXX This prints the proto_item name, but not its value. */
 static proto_item*
-padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
+padd_uni(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value _U_)
 {
     proto_item      *item;
     /* nw_uni_t        nw_uni; */
@@ -2352,12 +2436,12 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
                          rec->length,
                          rec->endianness);
 
-    if (item) {
+/*  if (item) {
         proto_item_set_text(item, "%s", get_item_name(item));
-        /* proto_item_append_text(item, " %s",
-           nw_uni.buffer); */
+           proto_item_append_text(item, " %s",
+           nw_uni.buffer);
     }
-
+*/
     return item;
 }
 
@@ -2428,8 +2512,8 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc
         ett = *rec->sub_ptvc_rec->ett;
         old_tree = ptvcursor_tree(ptvc);
         offset = ptvcursor_current_offset(ptvc);
-        new_tree = proto_tree_add_subtree(old_tree, ptvcursor_tvbuff(ptvc), offset, PROTO_LENGTH_UNTIL_END,
-						ett, &item, rec->sub_ptvc_rec->descr);
+        new_tree = proto_tree_add_subtree(old_tree, ptvcursor_tvbuff(ptvc), offset, -1,
+                                          ett, &item, rec->sub_ptvc_rec->descr);
         ptvcursor_set_tree(ptvc, new_tree);
     }
 
@@ -2455,8 +2539,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                      gboolean *req_cond_results, gboolean really_decode,
                      const ncp_record *ncp_rec, gboolean request)
 {
-    proto_item  *item;
-    guint       i, repeat_count;
+    guint       i, repeat_count, repeat_value;
     padd_func_t func = NULL;
 
     if (rec->sub_ptvc_rec) {
@@ -2509,11 +2592,12 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                 default:
                     DISSECTOR_ASSERT_NOT_REACHED();
                 }
-                item = func(ptvc, rec);
+                repeat_value = 0;
+                func(pinfo, ptvc, rec, request, FALSE, &repeat_value);
 
                 /* Set the value as a 'var' ? */
                 if (rec->var_index != NO_VAR) {
-                    repeat_vars[rec->var_index] = get_item_value(item);
+                    repeat_vars[rec->var_index] = repeat_value;
                 }
             }
             else {
@@ -2553,7 +2637,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                     DISSECTOR_ASSERT_NOT_REACHED();
                 }
                 for (i = 0; i < repeat_count; i++ ) {
-                    func(ptvc, rec);
+                    func(pinfo, ptvc, rec, request, i != 0, &repeat_value);
                 }
             }
             else {
@@ -2639,19 +2723,19 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 { 0x1, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncp5555_request =
 { 0x5, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncpbbbb_request =
 { 0xb, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncplip_echo =
 { 0x1f, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
-  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL, NULL };
+  NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 /* Wrapper around proto_tree_free() */
 static void free_proto_tree(void *tree)
@@ -2731,83 +2815,6 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length)
     }
     dest_buf[i] = '\0';
     return dest_buf;
-}
-
-static void
-uni_to_string(char * data, guint32 str_length, char *dest_buf)
-{
-    gint i;
-    guint16 c_char;
-    gint length_remaining = 0;
-
-    length_remaining = str_length;
-    dest_buf[0] = '\0';
-    if(str_length == 0)
-    {
-        return;
-    }
-    for ( i = 0; i < (gint) str_length; i++ )
-    {
-        c_char = data[i];
-        if (c_char<0x20 || c_char>0x7e)
-        {
-            if (c_char != 0x00)
-            {
-                c_char = '.';
-                dest_buf[i] = c_char & 0xff;
-            }
-            else
-            {
-                i--;
-                str_length--;
-            }
-        }
-        else
-        {
-            dest_buf[i] = c_char & 0xff;
-        }
-        length_remaining--;
-
-        if(length_remaining==0)
-        {
-            if (i+1 < (gint)str_length){
-                dest_buf[i+1] = '\0';
-            } else {
-                dest_buf[i] = '\0';
-            }
-            return;
-        }
-    }
-    if (i < 0) {
-        i = 0;
-    }
-    dest_buf[i] = '\0';
-    return;
-}
-
-/*************************************
- * Return based on % format in request
- * %d = integer in decimal format = 0
- * %x = integer in hex format = 1
- * %s = string = 2
- **************************************/
-static int
-get_info_type(const gchar* check_string)
-{
-    guint length;
-    guint i;
-
-    length =  (guint) strlen(check_string);
-
-    for (i = 0 ; i < length-1 ; i++ ) {
-        if (check_string[i] == 0x25 && check_string[i+1] == 0x64) {   /* %d Digits*/
-            return 0;
-        }
-        if ( check_string[i] == 0x78 && check_string[i+1] == 0x25 && check_string[i+2] == 0x73) {  /* x%s Bytes*/
-            return 1;
-        }
-    }
-    return 2; /* Normal String */
 }
 
 static void
@@ -3549,7 +3556,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
                     NULL
                 };
 
-				proto_tree_add_bitmask(nvtree, tvb, voffset, hf_nds_privileges, ett_ncp, rights, ENC_LITTLE_ENDIAN);
+                proto_tree_add_bitmask(nvtree, tvb, voffset, hf_nds_privileges, ett_ncp, rights, ENC_LITTLE_ENDIAN);
             }
             voffset = voffset+4;
             voffset += align_4(tvb, voffset);
@@ -5210,7 +5217,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000004:                /*p3values.bit3 = "Replica State"*/
                         proto_tree_add_item_ret_uint(ntree, hf_replica_state, tvb, ioffset,
                                               4, ENC_LITTLE_ENDIAN, &value1);
-                        temp_values.vstring = val_to_str_const(value1, nds_replica_state, "No Replica State Found");
                         ioffset = ioffset + 4;
                         break;
                     case 0x0000008:                 /*p3values.bit4 = "Modification Timestamp"*/
@@ -5250,7 +5256,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         value2 = value1 & 0x00ff;
                         proto_tree_add_uint(ntree, hf_replica_type, tvb, ioffset, 4, value2);
                         value3 = value1 & 0xff00;
-                        temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
                         proto_tree_add_uint(ntree, hf_replica_state, tvb, ioffset, 4, value3);
                         ioffset = ioffset + 4;
                         break;
@@ -5573,7 +5578,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         value2 = value1 & 0x00ff;
                         proto_tree_add_uint(ntree, hf_replica_type, tvb, ioffset, 4, value2);
                         value3 = value1 & 0xff00;
-                        temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
                         proto_tree_add_uint(ntree, hf_replica_state, tvb, ioffset, 4, value3);
                         ioffset = ioffset + 4;
                         break;
@@ -7189,11 +7193,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     ptvcursor_t             *volatile ptvc = NULL;
     proto_tree              *temp_tree = NULL;
     volatile gboolean       run_req_cond = FALSE;
-    volatile gboolean       run_info_str = FALSE;
     guint32                 length_remaining;
     guint32                 testvar;
     volatile unsigned long  exception_code;
     const char              *volatile message;
+    proto_item              *ti;
 
 
     /* We're dissecting an ncp2222 request; Compile the dfilters (if not yet done). */
@@ -7266,11 +7270,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Fill in the INFO column. */
     if (ncp_rec) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "C %s", ncp_rec->name);
-        if (ncp_rec->req_info_str) {
-            /* We want to add more stuff to the Info
-                column. */
-            run_info_str = TRUE;
-        }
     }
     else {
         if (requires_subfunc) {
@@ -7324,9 +7323,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
        add to the Info column, we need to construct a protocol
        tree.  If we already have a proto_tree, then wonderful.
        If we don't, we need to build one. */
-    if ((run_info_str || run_req_cond) && !ncp_tree) {
-        proto_item *ti;
-
+    if (run_req_cond && !ncp_tree) {
         temp_tree = proto_tree_create_root(pinfo);
         proto_tree_set_visible(temp_tree, FALSE);
         ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, ENC_NA);
@@ -7362,12 +7359,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 dfilter_prime_proto_tree(dfilter, ncp_tree);
                 needed++;
             }
-        }
-
-        /* Before the dissection, if we need a field for the info_str,
-         * prime the tree. */
-        if (run_info_str) {
-            proto_tree_prime_hfid(ncp_tree, *ncp_rec->req_info_str->hf_ptr);
         }
 
         switch (type) {
@@ -7410,7 +7401,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         /* The group is not part of the packet, but it's useful
          * information to display anyway. Put it in the tree for filtering and tap use*/
         if (ncp_rec) {
-            proto_tree_add_uint_format_value(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "%s", ncp_groups[ncp_rec->group]);
+            ti = proto_tree_add_uint_format_value(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "%s", ncp_groups[ncp_rec->group]);
+            PROTO_ITEM_SET_GENERATED(ti);
         }
 
         exception_code = 0;
@@ -7459,112 +7451,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
              * get to them. */
             request_value->req_cond_results = results;
         }
-        /* Construct the info string if necessary */
-        if (run_info_str) {
-            GPtrArray *parray;
-            char*   byte_string;
-            char    non_uni_string[1024];
-            int i, len;
-            field_info *finfo;
-            int info_type;
 
-            if (!request_value)
-            {
-                conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                                 PT_NCP, nw_connection, nw_connection, 0);
-                if (conversation != NULL) {
-                    /* find the record telling us the request made that caused
-                       this reply */
-                    request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
-                }
-                if (!conversation || !request_value)
-                {
-                    return;
-                }
-            }
-
-            parray = proto_get_finfo_ptr_array(ncp_tree,
-                                               *ncp_rec->req_info_str->hf_ptr);
-            len = g_ptr_array_len(parray);
-
-            if (len > 0) {
-
-                col_set_str(pinfo->cinfo, COL_INFO, "C ");
-
-                finfo = (field_info *)g_ptr_array_index(parray, 0);
-
-                info_type = get_info_type((const gchar*) ncp_rec->req_info_str->first_string);
-
-                if (info_type != 0) {    /* Is this  a string or not? */
-
-                    if (info_type == 1) {   /* Is this bytes? */
-                        byte_string = bytes_to_str(wmem_packet_scope(), get_finfo_value_string(finfo), get_finfo_length(finfo));
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                        (const gchar*) ncp_rec->req_info_str->first_string,
-                                        byte_string);
-                    }
-                    else
-                    {
-                        if (info_type == 2) {   /* Is this a String? */
-                            uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
-                            col_append_fstr(pinfo->cinfo, COL_INFO,
-                                            (const gchar*) ncp_rec->req_info_str->first_string,
-                                            non_uni_string);
-                        }
-                        else
-                        {
-                            col_append_fstr(pinfo->cinfo, COL_INFO,
-                                            (const gchar*) ncp_rec->req_info_str->first_string,
-                                            get_finfo_value_string(finfo));
-                        }
-                    }
-                }
-                else
-                {
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                                    (const gchar*) ncp_rec->req_info_str->first_string,
-                                    get_finfo_value_integer(finfo));
-                }
-            }
-            if (len > 1) {
-                for (i = 1; i < len; i++) {
-                    non_uni_string[0]='\0';
-                    finfo = (field_info *)g_ptr_array_index(parray, i);
-                    info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
-
-                    if (info_type != 0) {    /* Is this  a string or not? */
-                        if (info_type == 1)
-                        {   /* Is this bytes? */
-                            byte_string = bytes_to_str(wmem_packet_scope(), get_finfo_value_string(finfo), get_finfo_length(finfo));
-                            col_append_fstr(pinfo->cinfo, COL_INFO,
-                                            (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                            byte_string);
-                        }
-                        else
-                        {
-                            if (info_type == 2) {   /* Is this a String? */
-                                uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
-                                col_append_fstr(pinfo->cinfo, COL_INFO,
-                                                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                non_uni_string);
-                            }
-                            else
-                            {
-                                col_append_fstr(pinfo->cinfo, COL_INFO,
-                                                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                get_finfo_value_string(finfo));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                        (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                        get_finfo_value_integer(finfo));
-                    }
-                }
-            }
-        }
         if (!request_value)
         {
              conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -8751,7 +8638,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     ptvcursor_t             *ptvc = NULL;
     proto_tree              *temp_tree = NULL;
     gboolean                 run_req_cond = FALSE;
-    gboolean                 run_info_str = FALSE;
     guint8                   nds_verb = 0;
     const char              *verb_string = "";
     guint32                  nds_frag = 0;
@@ -8826,7 +8712,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        add to the Info column, we need to construct a protocol
        tree.  If we already have a proto_tree, then wonderful.
        If we don't, we need to build one. */
-    if ((run_info_str || run_req_cond) && !ncp_tree) {
+    if (run_req_cond && !ncp_tree) {
         proto_item *ti;
 
         temp_tree = proto_tree_create_root(pinfo);
@@ -11135,7 +11021,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         else {
             col_add_fstr(pinfo->cinfo, COL_INFO, "C NDS %s", verb_string);
         }
-        run_info_str = TRUE;
     }
     else {
         col_add_fstr(pinfo->cinfo, COL_INFO,
