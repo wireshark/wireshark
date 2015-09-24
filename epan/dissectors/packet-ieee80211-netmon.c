@@ -117,12 +117,29 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   ti = proto_tree_add_item(tree, proto_netmon_802_11, tvb, 0, length,
                            ENC_NA);
   wlan_tree = proto_item_add_subtree(ti, ett_netmon_802_11);
+
+  /*
+   * XXX - is this the NDIS_OBJECT_HEADER structure:
+   *
+   *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff566588(v=vs.85).aspx
+   *
+   * at the beginning of a DOT11_EXTSTA_RECV_CONTEXT structure:
+   *
+   *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff548626(v=vs.85).aspx
+   *
+   * If so, the byte at an offset of 0 would be the appropriate type for the
+   * structure following it, i.e. NDIS_OBJECT_TYPE_DEFAULT.
+   */
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_version, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   offset += 1;
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_length, tvb, offset, 2,
                       ENC_LITTLE_ENDIAN);
   offset += 2;
+
+  /*
+   * This isn't in the DOT11_EXTSTA_RECV_CONTEXT structure.
+   */
   ti = proto_tree_add_item(wlan_tree, hf_netmon_802_11_op_mode, tvb, offset,
                       4, ENC_LITTLE_ENDIAN);
   opmode_tree = proto_item_add_subtree(ti, ett_netmon_802_11_op_mode);
@@ -135,9 +152,16 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_mon, tvb, offset,
                       4, ENC_LITTLE_ENDIAN);
   offset += 4;
+
+  /*
+   * uReceiveFlags?
+   */
   flags = tvb_get_letohl(tvb, offset);
   offset += 4;
   if (flags != 0xffffffff) {
+    /*
+     * uPhyId?
+     */
     phy_type = tvb_get_letohl(tvb, offset);
     switch (phy_type) {
 
@@ -190,6 +214,10 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_phy_type, tvb, offset, 4,
                         ENC_LITTLE_ENDIAN);
     offset += 4;
+
+    /*
+     * uChCenterFrequency?
+     */
     channel = tvb_get_letohl(tvb, offset);
     if (channel < 1000) {
       if (channel == 0) {
@@ -238,6 +266,14 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       }
     }
     offset += 4;
+
+    /*
+     * usNumberOfMPDUsReceived is missing.
+     */
+
+    /*
+     * lRSSI?
+     */
     rssi = tvb_get_letohl(tvb, offset);
     if (rssi == 0) {
       proto_tree_add_int_format_value(wlan_tree, hf_netmon_802_11_rssi,
@@ -251,6 +287,10 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                       "%d dBm", rssi);
     }
     offset += 4;
+
+    /*
+     * ucDataRate?
+     */
     rate = tvb_get_guint8(tvb, offset);
     if (rate == 0) {
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_datarate,
@@ -266,6 +306,12 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += 1;
   } else
     offset += 13;
+
+  /*
+   * ullTimestamp?
+   *
+   * If so, should this check the presense flag in flags?
+   */
   phdr->presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
   phdr->tsf_timestamp = tvb_get_letoh64(tvb, offset);
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
