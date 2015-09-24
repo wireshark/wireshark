@@ -132,12 +132,13 @@ EXTRA_DIST = \
 	dftestlib/util.py				\
 	extract_asn1_from_spec.pl			\
 	fix-encoding-args.pl				\
-	fix_pragma_wdocumentation.sh	\
+	fix_pragma_wdocumentation.sh			\
 	fixhf.pl					\
 	ftsanity.py					\
 	fuzz-test.sh					\
 	gen-bugnote					\
-	generate-bacnet-vendors.py	\
+	generate-bacnet-vendors.py			\
+	Get-HardenFlags.ps1				\
 	git-compare-abis.sh				\
 	git-export-release.sh				\
 	html2text.py					\
@@ -164,7 +165,7 @@ EXTRA_DIST = \
 	npl/npl.c					\
 	npl/parser.l					\
 	npl/xmem.h					\
-	parse_xml2skinny_dissector.py	\
+	parse_xml2skinny_dissector.py			\
 	pkt-from-core.py				\
 	pre-commit					\
 	process-x11-fields.pl				\

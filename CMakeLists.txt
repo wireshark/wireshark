@@ -2476,6 +2476,33 @@ add_custom_target(test-programs
 )
 set_target_properties(test-programs PROPERTIES FOLDER "Tests")
 
+if (WIN32)
+	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/Get-HardenFlags.ps1 _win_harden_flags)
+	add_custom_target(hardening-check
+		COMMAND ${POWERSHELL_COMMAND} "${_win_harden_flags}" "${CMAKE_BINARY_DIR}"
+		DEPENDS ${PROGLIST}
+		COMMENT "Checking binaries for security features"
+	)
+	set_target_properties(hardening-check PROPERTIES FOLDER "Tests")
+else ()
+	find_program(HARDENING_CHECK_EXECUTABLE hardening-check
+		DOC "Path to the hardening-check utility."
+	)
+	if (NOT "${HARDENING_CHECK_EXECUTABLE}" STREQUAL "HARDENING_CHECK_EXECUTABLE-NOTFOUND")
+		foreach(_prog ${PROGLIST})
+			get_target_property(_prog_dir ${_prog} RUNTIME_OUTPUT_DIRECTORY)
+			if (${_prog_dir} STREQUAL "_prog_dir-NOTFOUND")
+				set(_prog_dir "${CMAKE_BINARY_DIR}/run")
+			endif()
+			set(_prog_paths ${_prog_paths} "${_prog_dir}/${_prog}")
+		endforeach()
+		add_custom_target(hardening-check
+			COMMAND ${HARDENING_CHECK_EXECUTABLE} ${_prog_paths}
+			DEPENDS ${PROGLIST}
+			COMMENT "Checking binaries for security features"
+		)
+	endif()
+endif()
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
