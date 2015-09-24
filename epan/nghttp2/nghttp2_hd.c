@@ -574,7 +574,7 @@ static int value_eq(const nghttp2_nv *a, const nghttp2_nv *b) {
 
 static uint32_t name_hash(const nghttp2_nv *nv) {
   /* 32 bit FNV-1a: http://isthe.com/chongo/tech/comp/fnv/ */
-  uint32_t h = 2166136261;
+  uint32_t h = 2166136261u;
   size_t i;
 
   for (i = 0; i < nv->namelen; ++i) {
