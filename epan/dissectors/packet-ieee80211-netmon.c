@@ -44,10 +44,20 @@ static int proto_netmon_802_11 = -1;
 #define OP_MODE_MON     0x80000000      /* monitor mode */
 
 /* phy_type */
-#define PHY_TYPE_11A    4
-#define PHY_TYPE_11B    5
-#define PHY_TYPE_11G    6
-#define PHY_TYPE_11N    7
+/*
+ * Augmented with phy types from
+ *
+ *    https://msdn.microsoft.com/en-us/library/windows/hardware/ff548741(v=vs.85).aspx
+ */
+#define PHY_TYPE_UNKNOWN     0
+#define PHY_TYPE_FHSS        1
+#define PHY_TYPE_DSSS        2
+#define PHY_TYPE_IR_BASEBAND 3
+#define PHY_TYPE_OFDM        4 /* 802.11a */
+#define PHY_TYPE_HR_DSSS     5 /* 802.11b */
+#define PHY_TYPE_ERP         6 /* 802.11g */
+#define PHY_TYPE_HT          7 /* 802.11n */
+#define PHY_TYPE_VHT         8 /* 802.11ac */
 
 static int hf_netmon_802_11_version = -1;
 static int hf_netmon_802_11_length = -1;
@@ -131,24 +141,46 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     phy_type = tvb_get_letohl(tvb, offset);
     switch (phy_type) {
 
-    case PHY_TYPE_11B:
+    case PHY_TYPE_UNKNOWN:
+        phdr->phy = PHDR_802_11_PHY_UNKNOWN;
+        break;
+
+    case PHY_TYPE_FHSS:
+        phdr->phy = PHDR_802_11_PHY_11_FHSS;
+        phdr->phy_info.info_11_fhss.presence_flags = 0;
+        break;
+
+    case PHY_TYPE_IR_BASEBAND:
+        phdr->phy = PHDR_802_11_PHY_11_IR;
+        break;
+
+    case PHY_TYPE_DSSS:
+        phdr->phy = PHDR_802_11_PHY_11_DSSS;
+        break;
+
+    case PHY_TYPE_HR_DSSS:
         phdr->phy = PHDR_802_11_PHY_11B;
         phdr->phy_info.info_11b.presence_flags = 0;
         break;
 
-    case PHY_TYPE_11A:
+    case PHY_TYPE_OFDM:
         phdr->phy = PHDR_802_11_PHY_11A;
         phdr->phy_info.info_11a.presence_flags = 0;
         break;
 
-    case PHY_TYPE_11G:
+    case PHY_TYPE_ERP:
         phdr->phy = PHDR_802_11_PHY_11G;
         phdr->phy_info.info_11g.presence_flags = 0;
         break;
 
-    case PHY_TYPE_11N:
+    case PHY_TYPE_HT:
         phdr->phy = PHDR_802_11_PHY_11N;
         phdr->phy_info.info_11n.presence_flags = 0;
+        break;
+
+    case PHY_TYPE_VHT:
+        phdr->phy = PHDR_802_11_PHY_11AC;
+        phdr->phy_info.info_11ac.presence_flags = 0;
         break;
 
     default:
@@ -253,10 +285,15 @@ void
 proto_register_netmon_802_11(void)
 {
   static const value_string phy_type[] = {
-    { PHY_TYPE_11A, "802.11a" },
-    { PHY_TYPE_11B, "802.11b" },
-    { PHY_TYPE_11G, "802.11g" },
-    { PHY_TYPE_11N, "802.11n" },
+    { PHY_TYPE_UNKNOWN,     "Unknown" },
+    { PHY_TYPE_FHSS,        "802.11 FHSS" },
+    { PHY_TYPE_DSSS,        "802.11 DSSS" },
+    { PHY_TYPE_IR_BASEBAND, "802.11 IR" },
+    { PHY_TYPE_OFDM,        "802.11a" },
+    { PHY_TYPE_HR_DSSS,     "802.11b" },
+    { PHY_TYPE_ERP,         "802.11g" },
+    { PHY_TYPE_HT,          "802.11n" },
+    { PHY_TYPE_VHT,         "802.11ac" },
     { 0, NULL },
   };
 
