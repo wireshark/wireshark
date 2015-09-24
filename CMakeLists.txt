@@ -346,6 +346,7 @@ else()
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
+		-fPIE
 		-Wvla
 		-Waddress
 		-Wattributes
@@ -566,6 +567,7 @@ endif()
 if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
+		-fPIE -pie
 		# -flto
 		# -fwhopr
 		# -fwhole-program
