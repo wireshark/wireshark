@@ -553,6 +553,9 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     /* Error Code */
                     offset += 4;
                     /* Reason Phrase Length */
+                    if (tvb_captured_length_remaining(tvb, offset) <= 2){
+                        return FALSE;
+                    }
                     len_reason = tvb_get_ntohs(tvb, offset);
                     offset += 2;
                     /* Reason Phrase */
@@ -567,6 +570,9 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     /* Last Good Stream ID */
                     offset += 4;
                     /* Reason Phrase Length */
+                    if (tvb_captured_length_remaining(tvb, offset) <= 2){
+                        return FALSE;
+                    }
                     len_reason = tvb_get_ntohs(tvb, offset);
                     offset += 2;
                     /* Reason Phrase */
@@ -615,7 +621,8 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
 
                 /* Data length */
                 offset += len_data;
-                if ( tvb_captured_length(tvb) <= offset){
+
+                if (tvb_captured_length_remaining(tvb, offset) <= 4){
                     return FALSE;
                 }
 
@@ -645,7 +652,7 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                 offset += 2;
 
                 /* Num Timestamp */
-                if ( tvb_captured_length(tvb) <= offset){
+                if (tvb_captured_length_remaining(tvb, offset) <= 1){
                     return FALSE;
                 }
                 num_timestamp = tvb_get_guint8(tvb, offset);
@@ -664,7 +671,7 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
 
                 if(frame_type & FTFLAGS_ACK_N){
                     /* Num Ranges */
-                    if ( tvb_captured_length(tvb) <= offset){
+                    if (tvb_captured_length_remaining(tvb, offset) <= 1){
                         return FALSE;
                     }
                     num_ranges = tvb_get_guint8(tvb, offset);
@@ -674,7 +681,7 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     offset += num_ranges*(len_missing_packet+1);
 
                     /* Num Revived */
-                    if ( tvb_captured_length(tvb) <= offset){
+                    if (tvb_captured_length_remaining(tvb, offset) <= 1){
                         return FALSE;
                     }
                     num_revived = tvb_get_guint8(tvb, offset);
