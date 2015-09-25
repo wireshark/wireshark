@@ -130,6 +130,7 @@ protected slots:
      * file_closed_.
      */
     virtual void captureFileClosing();
+    virtual void captureFileClosed();
 
 private:
     void setWindowTitleFromSubtitle();

@@ -460,6 +460,8 @@ void Iax2AnalysisDialog::updateWidgets()
     hint.prepend("<small><i>");
     hint.append("</i></small>");
     ui->hintLabel->setText(hint);
+
+    WiresharkDialog::updateWidgets();
 }
 
 void Iax2AnalysisDialog::on_actionGoToPacket_triggered()

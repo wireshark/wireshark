@@ -103,6 +103,8 @@ void CaptureFilePropertiesDialog::updateWidgets()
 
     fillDetails();
     ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_.capFile()));
+
+    WiresharkDialog::updateWidgets();
 }
 
 static const QString section_tmpl_ = "<p><strong>%1</strong></p>\n";

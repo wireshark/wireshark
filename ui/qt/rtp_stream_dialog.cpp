@@ -418,6 +418,8 @@ void RtpStreamDialog::updateWidgets()
     ui->actionCopyAsCsv->setEnabled(has_data);
     ui->actionCopyAsYaml->setEnabled(has_data);
     ui->actionAnalyze->setEnabled(selected);
+
+    WiresharkDialog::updateWidgets();
 }
 
 QList<QVariant> RtpStreamDialog::streamRowData(int row) const

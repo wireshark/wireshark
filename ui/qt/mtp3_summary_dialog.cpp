@@ -293,6 +293,8 @@ QString Mtp3SummaryDialog::summaryToHtml()
 void Mtp3SummaryDialog::updateWidgets()
 {
     ui->summaryTextEdit->setHtml(summaryToHtml());
+
+    WiresharkDialog::updateWidgets();
 }
 
 extern "C" {

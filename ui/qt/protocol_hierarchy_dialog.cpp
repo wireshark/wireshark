@@ -304,6 +304,8 @@ void ProtocolHierarchyDialog::updateWidgets()
     }
     hint += "</i></small>";
     ui->hintLabel->setText(hint);
+
+    WiresharkDialog::updateWidgets();
 }
 
 QList<QVariant> ProtocolHierarchyDialog::protoHierRowData(QTreeWidgetItem *item) const

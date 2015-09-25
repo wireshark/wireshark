@@ -449,6 +449,8 @@ void RtpAnalysisDialog::updateWidgets()
     hint.prepend("<small><i>");
     hint.append("</i></small>");
     ui->hintLabel->setText(hint);
+
+    WiresharkDialog::updateWidgets();
 }
 
 void RtpAnalysisDialog::on_actionGoToPacket_triggered()

@@ -150,6 +150,7 @@ SequenceDialog::~SequenceDialog()
 
 void SequenceDialog::updateWidgets()
 {
+    WiresharkDialog::updateWidgets();
 }
 
 void SequenceDialog::showEvent(QShowEvent *)
