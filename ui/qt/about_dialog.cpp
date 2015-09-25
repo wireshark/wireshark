@@ -272,7 +272,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     bool have_shortcuts = false;
 
     if (parent) {
-        message = QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
+        message = "<h3>Main Window Keyboard Shortcuts</h3>\n";
+        message += QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
         message += "<tr><th align=\"left\">Shortcut</th><th align=\"left\">Name</th><th align=\"left\">Description</th></tr>\n";
 
         QMap<QString, QPair<QString, QString> > shortcuts; // name -> (shortcut, description)

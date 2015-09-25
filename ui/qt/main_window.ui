@@ -789,6 +789,9 @@
    <property name="text">
     <string>&amp;Contents</string>
    </property>
+   <property name="toolTip">
+    <string>Help contents</string>
+   </property>
    <property name="shortcut">
     <string>F1</string>
    </property>
@@ -1173,6 +1176,9 @@
    <property name="text">
     <string>Description</string>
    </property>
+   <property name="toolTip">
+    <string>Copy this item's description</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
    </property>
@@ -1191,6 +1197,9 @@
    <property name="text">
     <string>Field Name</string>
    </property>
+   <property name="toolTip">
+    <string>Copy this item's field name</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>
    </property>
@@ -1198,6 +1207,9 @@
   <action name="actionEditCopyValue">
    <property name="text">
     <string>Value</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy this item's value</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+V</string>
@@ -2004,6 +2016,9 @@
    <property name="text">
     <string>Zoom Out</string>
    </property>
+   <property name="toolTip">
+    <string>Shrink the main window text</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
    </property>
@@ -2011,6 +2026,9 @@
   <action name="actionViewNormalSize">
    <property name="text">
     <string>Normal Size</string>
+   </property>
+   <property name="toolTip">
+    <string>Return the main window text to its normal size</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
