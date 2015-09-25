@@ -392,6 +392,8 @@ private slots:
     void on_actionViewColorizeNewConversationRule_triggered();
     void on_actionViewResizeColumns_triggered();
 
+    void on_actionViewInternalsDissectorTables_triggered();
+
     void openPacketDialog(bool from_reference = false);
     void on_actionViewShowPacketInNewWindow_triggered();
     void on_actionContextShowLinkedPacketInNewWindow_triggered();

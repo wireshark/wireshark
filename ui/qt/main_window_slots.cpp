@@ -93,6 +93,7 @@
 #include "decode_as_dialog.h"
 #include "display_filter_edit.h"
 #include "display_filter_expression_dialog.h"
+#include "dissector_tables_dialog.h"
 #include "endpoint_dialog.h"
 #include "expert_info_dialog.h"
 #include "export_object_dialog.h"
@@ -2313,6 +2314,12 @@ void MainWindow::openPacketDialog(bool from_reference)
 
         packet_dialog->show();
     }
+}
+
+void MainWindow::on_actionViewInternalsDissectorTables_triggered()
+{
+    DissectorTablesDialog *dissector_tables_dlg = new DissectorTablesDialog(this);
+    dissector_tables_dlg->show();
 }
 
 void MainWindow::on_actionViewShowPacketInNewWindow_triggered()

@@ -43,6 +43,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_compiled_filter_output.h		\
 	ui_decode_as_dialog.h	\
 	ui_display_filter_expression_dialog.h	\
+	ui_dissector_tables_dialog.h	\
 	ui_enabled_protocols_dialog.h	\
 	ui_expert_info_dialog.h	\
 	ui_export_object_dialog.h	\
@@ -164,6 +165,7 @@ MOC_HDRS =	\
 	display_filter_combo.h	\
 	display_filter_edit.h	\
 	display_filter_expression_dialog.h	\
+	dissector_tables_dialog.h	\
 	elided_label.h	\
 	enabled_protocols_dialog.h	\
 	endpoint_dialog.h	\
@@ -276,6 +278,7 @@ UI_FILES =	\
 	compiled_filter_output.ui \
 	decode_as_dialog.ui	\
 	display_filter_expression_dialog.ui	\
+	dissector_tables_dialog.ui	\
 	enabled_protocols_dialog.ui	\
 	expert_info_dialog.ui	\
 	export_object_dialog.ui	\
@@ -411,6 +414,7 @@ WIRESHARK_QT_SRC =	\
 	display_filter_combo.cpp	\
 	display_filter_edit.cpp	\
 	display_filter_expression_dialog.cpp	\
+	dissector_tables_dialog.cpp	\
 	elided_label.cpp	\
 	enabled_protocols_dialog.cpp	\
 	endpoint_dialog.cpp	\

@@ -531,7 +531,7 @@ populate_heur_dissector_table_entries(const char *table_name _U_,
 }
 
 static void
-populate_heur_dissector_tables(const char *table_name, heur_dissector_list_t *list, gpointer w)
+populate_heur_dissector_tables(const char *table_name, struct heur_dissector_list *list, gpointer w)
 {
   if (list) {
     heur_dissector_table_foreach(table_name, populate_heur_dissector_table_entries, w);

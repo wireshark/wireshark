@@ -730,7 +730,7 @@ sort_dissector_table_entries(const char *table_name _U_,
 }
 
 static void
-sort_heur_dissector_tables(const char *table_name, heur_dissector_list_t *list, gpointer w)
+sort_heur_dissector_tables(const char *table_name, struct heur_dissector_list *list, gpointer w)
 {
   if (list) {
     heur_dissector_table_foreach(table_name, sort_dissector_table_entries, w);

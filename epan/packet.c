@@ -2279,7 +2279,7 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value
 	heur_dissector_foreach_table_info_t *info;
 
 	info = (heur_dissector_foreach_table_info_t *)user_data;
-	(*info->caller_func)((gchar*)key, (heur_dissector_list_t *)value, info->caller_data);
+    (*info->caller_func)((gchar*)key, (struct heur_dissector_list *)value, info->caller_data);
 }
 
 /*
@@ -2289,10 +2289,10 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value
 static void
 dissector_all_heur_tables_foreach_list_func (gpointer key, gpointer user_data)
 {
-	heur_dissector_list_t               *list;
+    struct heur_dissector_list          *list;
 	heur_dissector_foreach_table_info_t *info;
 
-	list = (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, key);
+    list = (struct heur_dissector_list *)g_hash_table_lookup(heur_dissector_lists, key);
 	info = (heur_dissector_foreach_table_info_t *)user_data;
 	(*info->caller_func)((gchar*)key, list, info->caller_data);
 }
@@ -2337,7 +2337,7 @@ display_heur_dissector_table_entries(const char *table_name,
 }
 
 static void
-dissector_dump_heur_decodes_display(const gchar *table_name, heur_dissector_list_t *listptr _U_, const gpointer user_data _U_)
+dissector_dump_heur_decodes_display(const gchar *table_name, struct heur_dissector_list *listptr _U_, const gpointer user_data _U_)
 {
 	heur_dissector_table_foreach(table_name, display_heur_dissector_table_entries, NULL);
 }

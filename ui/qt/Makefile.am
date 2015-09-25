@@ -156,6 +156,8 @@ decode_as_dialog.$(OBJEXT): ui_decode_as_dialog.h
 
 display_filter_expression_dialog.$(OBJEXT): ui_display_filter_expression_dialog.h
 
+dissector_tables_dialog.$(OBJEXT): ui_dissector_tables_dialog.h
+
 enabled_protocols_dialog.$(OBJEXT): ui_enabled_protocols_dialog.h
 
 expert_info_dialog.$(OBJEXT): ui_expert_info_dialog.h

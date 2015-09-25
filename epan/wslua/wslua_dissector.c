@@ -259,7 +259,7 @@ WSLUA_CONSTRUCTOR DissectorTable_list (lua_State *L) {
 /* this is the DATFunc_heur_table function used for dissector_all_heur_tables_foreach_table()
    so we can get all heuristic dissector list names. This pushes the name into a table at stack index 1 */
 static void
-heur_dissector_tables_list_func(const gchar *table_name, heur_dissector_list_t *table _U_, gpointer user_data) {
+heur_dissector_tables_list_func(const gchar *table_name, struct heur_dissector_list *table _U_, gpointer user_data) {
     dissector_tables_foreach_table_info_t *data = (dissector_tables_foreach_table_info_t*) user_data;
     lua_pushstring(data->L, table_name);
     lua_rawseti(data->L, 1, data->num);

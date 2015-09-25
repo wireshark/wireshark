@@ -50,6 +50,7 @@ set(WIRESHARK_QT_HEADERS
 	display_filter_combo.h
 	display_filter_edit.h
 	display_filter_expression_dialog.h
+	dissector_tables_dialog.h
 	elided_label.h
 	enabled_protocols_dialog.h
 	endpoint_dialog.h
@@ -192,6 +193,7 @@ set(WIRESHARK_QT_SRC
 	display_filter_combo.cpp
 	display_filter_edit.cpp
 	display_filter_expression_dialog.cpp
+	dissector_tables_dialog.cpp
 	elided_label.cpp
 	enabled_protocols_dialog.cpp
 	endpoint_dialog.cpp
@@ -326,6 +328,7 @@ set(WIRESHARK_QT_UI
 	compiled_filter_output.ui
 	decode_as_dialog.ui
 	display_filter_expression_dialog.ui
+	dissector_tables_dialog.ui
 	enabled_protocols_dialog.ui
 	expert_info_dialog.ui
 	export_object_dialog.ui

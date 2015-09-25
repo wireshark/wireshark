@@ -378,7 +378,7 @@ struct heur_dissector_list;
 typedef struct heur_dissector_list *heur_dissector_list_t;
 
 
-typedef struct {
+typedef struct heur_dtbl_entry {
 	heur_dissector_t dissector;
 	protocol_t *protocol; /* this entry's protocol */
 	gchar *list_name;     /* the list name this entry is in the list of */
@@ -395,9 +395,9 @@ typedef struct {
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name);
 
 typedef void (*DATFunc_heur) (const gchar *table_name,
-    heur_dtbl_entry_t *entry, gpointer user_data);
-typedef void (*DATFunc_heur_table) (const gchar *table_name,
-    heur_dissector_list_t *table, gpointer user_data);
+    struct heur_dtbl_entry *entry, gpointer user_data);
+typedef void (*DATFunc_heur_table) (const char *table_name,
+    struct heur_dissector_list *table, gpointer user_data);
 
 /** Iterate over heuristic dissectors in a table.
  *

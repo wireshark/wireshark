@@ -303,6 +303,12 @@
      <addaction name="actionViewColorizeResetColorization"/>
      <addaction name="actionViewColorizeNewConversationRule"/>
     </widget>
+    <widget class="QMenu" name="menuInternals">
+     <property name="title">
+      <string>Internals</string>
+     </property>
+     <addaction name="actionViewInternalsDissectorTables"/>
+    </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
@@ -326,6 +332,8 @@
     <addaction name="menuColorizeConversation"/>
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
+    <addaction name="separator"/>
+    <addaction name="menuInternals"/>
     <addaction name="separator"/>
     <addaction name="actionViewShowPacketInNewWindow"/>
     <addaction name="actionViewReload"/>
@@ -2347,6 +2355,14 @@
    </property>
    <property name="toolTip">
     <string>Show or hide the packet bytes</string>
+   </property>
+  </action>
+  <action name="actionViewInternalsDissectorTables">
+   <property name="text">
+    <string>Dissector Tables</string>
+   </property>
+   <property name="toolTip">
+    <string>Show each dissector table and its entries</string>
    </property>
   </action>
   <action name="actionContextCopyBytesHexTextDump">

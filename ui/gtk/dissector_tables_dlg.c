@@ -113,7 +113,7 @@ proto_add_to_list(dissector_tables_tree_info_t *tree_info,
 
 static void
 decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
-                          gpointer key, gpointer value _U_, gpointer user_data)
+                          gpointer key, gpointer value, gpointer user_data)
 {
     GtkTreeStore       *store;
     const gchar        *proto_name;
@@ -180,7 +180,7 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
 
 static void
 display_heur_dissector_table_entries(const char *table_name _U_,
-    heur_dtbl_entry_t *dtbl_entry, gpointer user_data)
+    struct heur_dtbl_entry *dtbl_entry, gpointer user_data)
 {
     dissector_tables_tree_info_t *tree_info  = (dissector_tables_tree_info_t*)user_data;
     GtkTreeStore                 *store;
@@ -199,7 +199,7 @@ display_heur_dissector_table_entries(const char *table_name _U_,
 }
 
 static void
-display_heur_dissector_table_names(const char *table_name, heur_dissector_list_t *list, gpointer w)
+display_heur_dissector_table_names(const char *table_name, struct heur_dissector_list *list, gpointer w)
 {
     dissector_tables_trees_t      *dis_tbl_trees;
     dissector_tables_tree_info_t  *tree_info;
@@ -216,7 +216,7 @@ display_heur_dissector_table_names(const char *table_name, heur_dissector_list_t
 }
 
 static void
-display_dissector_table_names(const char *table_name, const char *ui_name, gpointer w)
+display_dissector_table_names(const char *table_name, const char *ui_name, void *w)
 {
     dissector_tables_trees_t      *dis_tbl_trees;
     dissector_tables_tree_info_t  *tree_info;
@@ -393,7 +393,7 @@ dissector_tables_dlg_init(void)
     g_signal_connect(dissector_tables_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
     /* Fill the table with data */
-    dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
+    dissector_all_tables_foreach_table(display_dissector_table_names, &dis_tbl_trees, NULL);
 
     dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
 
