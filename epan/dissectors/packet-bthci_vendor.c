@@ -1434,7 +1434,7 @@ proto_register_bthci_vendor_broadcom(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_undecoded,             { "bthci_vendor.broadcom.undecoded",            PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_undecoded,             { "bthci_vendor.broadcom.undecoded",            PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
         { &ei_unexpected_parameter,  { "bthci_vendor.broadcom.unexpected_parameter", PI_PROTOCOL, PI_WARN, "Unexpected parameter", EXPFILL }},
         { &ei_unexpected_data,       { "bthci_vendor.broadcom.unexpected_data",      PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
     };

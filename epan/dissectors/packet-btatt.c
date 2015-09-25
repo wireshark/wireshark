@@ -10605,7 +10605,7 @@ proto_register_btatt(void)
         { &ei_btatt_opcode_invalid_request, { "btatt.opcode.invalid_request" ,        PI_PROTOCOL, PI_WARN, "Invalid request", EXPFILL }},
         { &ei_btatt_opcode_invalid_response,{ "btatt.opcode.invalid_response",        PI_PROTOCOL, PI_WARN, "Invalid response", EXPFILL }},
         { &ei_btatt_unexpected_data,        { "btatt.unexpected_data",                PI_PROTOCOL, PI_WARN, "Unexpected Data", EXPFILL }},
-        { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
     };
 
     static build_valid_func btatt_handle_da_build_value[1] = {btatt_handle_value};

@@ -6100,7 +6100,7 @@ proto_register_bthci_evt(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_event_undecoded,            { "bthci_evt.expert.event.undecoded",                 PI_PROTOCOL, PI_UNDECODED, "Event undecoded", EXPFILL }},
+        { &ei_event_undecoded,            { "bthci_evt.expert.event.undecoded",                 PI_UNDECODED, PI_NOTE, "Event undecoded", EXPFILL }},
         { &ei_event_unknown_event,        { "bthci_evt.expert.event.unknown_event",             PI_PROTOCOL, PI_WARN,      "Unknown event", EXPFILL }},
         { &ei_event_unknown_command,      { "bthci_evt.expert.event.unknown_command",           PI_PROTOCOL, PI_WARN,      "Unknown command", EXPFILL }},
         { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }}

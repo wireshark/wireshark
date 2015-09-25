@@ -4796,7 +4796,7 @@ proto_register_bthci_cmd(void)
     static ei_register_info ei[] = {
         { &ei_command_unknown_command,      { "bthci_cmd.expert.command.unknown_command", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
         { &ei_command_parameter_unexpected, { "bthci_cmd.expert.parameter.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected command parameter", EXPFILL }},
-        { &ei_command_undecoded,            { "bthci_cmd.expert.command.undecoded", PI_PROTOCOL, PI_UNDECODED, "Command undecoded", EXPFILL }}
+        { &ei_command_undecoded,            { "bthci_cmd.expert.command.undecoded", PI_UNDECODED, PI_NOTE, "Command undecoded", EXPFILL }}
     };
 
     static gint *ett[] = {
@@ -6132,7 +6132,7 @@ proto_register_btcommon(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_eir_ad_undecoded,       { "btcommon.eir_ad.undecoded", PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_eir_ad_undecoded,       { "btcommon.eir_ad.undecoded", PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
         { &ei_eir_ad_unknown,         { "btcommon.eir_ad.unknown", PI_PROTOCOL, PI_WARN, "Unknown data", EXPFILL }},
     };
 
