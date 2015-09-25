@@ -134,6 +134,8 @@ static int hf_isakmp_id_data_cert = -1;
 static int hf_isakmp_cert_encoding_v1 = -1;
 static int hf_isakmp_cert_encoding_v2 = -1;
 static int hf_isakmp_cert_data = -1;
+static int hf_isakmp_cert_x509_hash = -1;
+static int hf_isakmp_cert_x509_url = -1;
 static int hf_isakmp_certreq_type_v1 = -1;
 static int hf_isakmp_certreq_type_v2 = -1;
 static int hf_isakmp_certreq_authority_v1  = -1;
@@ -3815,10 +3817,12 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_cert(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int isakmp_version, packet_info *pinfo )
+dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
+  guint8                cert_type;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  cert_type = tvb_get_guint8(tvb, offset);
 
   if (isakmp_version == 1)
   {
@@ -3829,8 +3833,31 @@ dissect_cert(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int is
   }
 
   offset += 1;
+  length -= 1;
 
-  dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_cert_data);
+  if (isakmp_version == 1)
+  {
+    dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_cert_data);
+  }else if (isakmp_version == 2)
+  {
+    switch(cert_type){
+      case 12:{
+        proto_item *ti_url;
+
+        proto_tree_add_item(tree, hf_isakmp_cert_x509_hash, tvb, offset, 20, ENC_NA);
+        offset += 20;
+        length -= 20;
+
+        ti_url = proto_tree_add_item(tree, hf_isakmp_cert_x509_url, tvb, offset, length, ENC_ASCII|ENC_NA);
+        PROTO_ITEM_SET_URL(ti_url);
+        }
+        break;
+      default:
+        dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_cert_data);
+        break;
+    }
+  }
+
 }
 
 static void
@@ -5570,6 +5597,14 @@ proto_register_isakmp(void)
       { "Certificate Data", "isakmp.cert.data",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "ISAKMP Certificate Data", HFILL }},
+    { &hf_isakmp_cert_x509_hash,
+      { "Hash", "isakmp.cert.x509.hash",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_cert_x509_url,
+      { "URL", "isakmp.cert.x509.url",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_isakmp_certreq_type_v1,
       { "Certificate Type", "isakmp.certreq.type",
         FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(cert_v1_type), 0x0,
