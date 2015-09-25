@@ -1178,11 +1178,6 @@ void MainWindow::setMenusForSelectedPacket()
 }
 
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
-    // XXX Add commented items below
-
-    // The ProtoTree either doesn't exist yet or emitted protoItemSelected as
-    // a result of a packet list selection. Don't assume control of the menu.
-    if (!proto_tree_ || !proto_tree_->hasFocus()) return;
 
     bool can_match_selected = false;
     bool is_framenum = false;
@@ -1244,6 +1239,32 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         }
     }
 
+    // Always enable / disable the following items.
+    main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
+
+    main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL);
+    main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
+    main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
+
+    main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
+
+    main_ui_->actionGoGoToLinkedPacket->setEnabled(is_framenum);
+
+    main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
+
+    main_ui_->actionContextShowLinkedPacketInNewWindow->setEnabled(is_framenum);
+
+    main_ui_->actionContextWikiProtocolPage->setEnabled(can_open_url);
+    main_ui_->actionContextFilterFieldReference->setEnabled(can_open_url);
+
+
+    // Only enable / disable the following items if we have focus so that we
+    // don't clobber anything we may have set in setMenusForSelectedPacket.
+    if (!proto_tree_ || !proto_tree_->hasFocus()) return;
+
     main_ui_->menuConversationFilter->clear();
     for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
         color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
@@ -1279,20 +1300,6 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
 
-    main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
-    main_ui_->actionContextShowLinkedPacketInNewWindow->setEnabled(is_framenum);
-
-    main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL);
-    main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
-
-    main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
-    main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
-    main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
-    main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
-
-    main_ui_->actionGoGoToLinkedPacket->setEnabled(is_framenum);
-
-    main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
 
     main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
     main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
@@ -1307,11 +1314,6 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     main_ui_->actionAnalyzePAFOrSelected->setEnabled(can_match_selected);
     main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(can_match_selected);
     main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
-
-    main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
-
-    main_ui_->actionContextWikiProtocolPage->setEnabled(can_open_url);
-    main_ui_->actionContextFilterFieldReference->setEnabled(can_open_url);
 }
 
 void MainWindow::interfaceSelectionChanged()
@@ -1786,21 +1788,23 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
 
     if (!capture_file_.capFile()) return;
 
+    field_info *finfo_selected = capture_file_.capFile()->finfo_selected;
+
     switch(selection_type) {
     case CopySelectedDescription:
-        if (capture_file_.capFile()->finfo_selected->rep &&
-                strlen (capture_file_.capFile()->finfo_selected->rep->representation) > 0) {
-            clip.append(capture_file_.capFile()->finfo_selected->rep->representation);
+        if (finfo_selected && finfo_selected->rep
+                && strlen (finfo_selected->rep->representation) > 0) {
+            clip.append(finfo_selected->rep->representation);
         }
         break;
     case CopySelectedFieldName:
-        if (capture_file_.capFile()->finfo_selected->hfinfo->abbrev != 0) {
-            clip.append(capture_file_.capFile()->finfo_selected->hfinfo->abbrev);
+        if (finfo_selected && finfo_selected->hfinfo->abbrev != 0) {
+            clip.append(finfo_selected->hfinfo->abbrev);
         }
         break;
     case CopySelectedValue:
-        if (capture_file_.capFile()->edt != 0) {
-            gchar* field_str = get_node_field_value(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
+        if (finfo_selected && capture_file_.capFile()->edt != 0) {
+            gchar* field_str = get_node_field_value(finfo_selected, capture_file_.capFile()->edt);
             clip.append(field_str);
             g_free(field_str);
         }
@@ -1815,11 +1819,12 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
 
         break;
     case CopyAllVisibleSelectedTreeItems:
-        clip.append(proto_tree_->currentItem()->text(0));
-        clip.append("\n");
+        if (proto_tree_->selectedItems().count() > 0) {
+            clip.append(proto_tree_->currentItem()->text(0));
+            clip.append("\n");
 
-        recursiveCopyProtoTreeItems(proto_tree_->currentItem(), clip, 1);
-
+            recursiveCopyProtoTreeItems(proto_tree_->currentItem(), clip, 1);
+        }
         break;
     }
 
