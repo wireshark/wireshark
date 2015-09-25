@@ -654,8 +654,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 						"(0x%.4X+%u)",
 						(fi ? fi->hfinfo->abbrev : "[unknown]"),
 						pinfo->fd->num, i, i - i % 16, i % 16);
-					expert_add_info_format(pinfo, tree, &ei_incomplete,
-						"Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
+					proto_tree_add_expert_format(tree, pinfo, &ei_incomplete, tvb, i, 1, "Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
 				}
 			}
 		}
@@ -854,7 +853,7 @@ proto_register_frame(void)
 	static ei_register_info ei[] = {
 		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
 		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
-		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_WARN, "Incomplete dissector", EXPFILL }}
+		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_NOTE, "Incomplete dissector", EXPFILL }}
 	};
 
 	module_t *frame_module;
