@@ -2277,36 +2277,6 @@ ncp_record_find(guint8 func, guint8 subfunc)
     return NULL;
 }
 
-typedef proto_item* (*padd_func_t)(packet_info* pinfo, ptvcursor_t*, const ptvc_record*, gboolean request, gboolean repeat, guint* ret_value);
-
-/*
- * XXX - are these just DOS-format dates and times?
- *
- * Should we put code to understand various date and time formats (UNIX,
- * DOS, SMB weird mutant UNIX, NT, Mac, etc. into libwireshark, and have
- * the "display" member of an HF_ABSOLUTE_TIME field specify whether
- * it's DOS date/DOS time, DOS time/DOS date, NT time, UNIX time_t,
- * UNIX "struct timeval", NFSv3/NFSv4 seconds/nanoseconds, Mac, etc.?
- *
- * What about hijacking the "bitmask" field to specify the precision of
- * the time stamp, or putting a combination of precision and format
- * into the "display" member?
- *
- * What about relative times?  Should they have units (seconds, milliseconds,
- * microseconds, nanoseconds, etc.), precision, and format in there?
- */
-typedef struct {
-    guint       year;
-    guint       month;
-    guint       day;
-} nw_date_t;
-
-typedef struct {
-    guint       hour;
-    guint       minute;
-    guint       second;
-} nw_time_t;
-
 #define NW_UNI_MAX 1024
 
 #define VTYPE_NONE                       0  /* no value */
@@ -2384,28 +2354,8 @@ typedef struct {
     guint32         pflags; /* NDS Protocol Flags */
 } nds_val;
 
-
-/* Given an integer, fill in a nw_date_t struct. */
-static void
-uint_to_nwdate(guint data, nw_date_t *nwdate)
-{
-    nwdate->day   =  data & 0x001f;
-    nwdate->month = (data & 0x01e0) >> 5;
-    nwdate->year  = ((data & 0xfe00) >> 9) + 1980;
-}
-
-/* Given an integer, fill in a nw_time_t struct. */
-static void
-uint_to_nwtime(guint data, nw_time_t *nwtime)
-{
-    /* 2-second resolution */
-    nwtime->second = (data & 0x001f) * 2;
-    nwtime->minute = ((data & 0x07e0) >> 5);
-    nwtime->hour   = ((data & 0xf800) >> 11);
-}
-
 static proto_item*
-padd_normal(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request, gboolean repeat, guint* ret_value)
+add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request, gboolean repeat, guint* ret_value)
 {
     header_field_info* hinfo = proto_registrar_get_nth(*rec->hf_ptr);
 
@@ -2515,96 +2465,32 @@ padd_normal(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gbool
                       rec->endianness);
 }
 
-/* XXX - This could be a BASE_CUSTOM extension to the hf_ fields that use it */
-static proto_item*
-padd_date(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value)
+/*
+ * XXX - are these just DOS-format dates and times?
+ *
+ * Should we put code to understand various date and time formats (UNIX,
+ * DOS, SMB weird mutant UNIX, NT, Mac, etc. into libwireshark, and have
+ * the "display" member of an HF_ABSOLUTE_TIME field specify whether
+ * it's DOS date/DOS time, DOS time/DOS date, NT time, UNIX time_t,
+ * UNIX "struct timeval", NFSv3/NFSv4 seconds/nanoseconds, Mac, etc.?
+ *
+ * What about hijacking the "bitmask" field to specify the precision of
+ * the time stamp, or putting a combination of precision and format
+ * into the "display" member?
+ *
+ * What about relative times?  Should they have units (seconds, milliseconds,
+ * microseconds, nanoseconds, etc.), precision, and format in there?
+ */
+static void
+padd_date( gchar *result, guint32 date_value )
 {
-    proto_item  *item;
-    nw_date_t   nw_date;
-
-    switch(rec->length)
-    {
-    case 1:
-        *ret_value = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
-        break;
-    case 2:
-        *ret_value = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    case 3:
-        *ret_value = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    case 4:
-        *ret_value = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    default:
-        DISSECTOR_ASSERT(FALSE);
-    }
-
-    uint_to_nwdate(*ret_value, &nw_date);
-    item = proto_tree_add_uint_format_value(ptvcursor_tree(ptvc), *rec->hf_ptr, ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc),
-                                            rec->length, *ret_value, "%04u/%02u/%02u", nw_date.year, nw_date.month, nw_date.day);
-    ptvcursor_advance(ptvc, rec->length);
-
-    return item;
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%04u/%02u/%02u", ((date_value & 0xfe00) >> 9) + 1980, (date_value & 0x01e0) >> 5, date_value & 0x001f);
 }
 
-/* XXX - This could be a BASE_CUSTOM extension to the hf_ fields that use it */
-static proto_item*
-padd_time(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value)
+static void
+padd_time( gchar *result, guint32 time_value )
 {
-    proto_item  *item;
-    nw_time_t   nw_time;
-
-    switch(rec->length)
-    {
-    case 1:
-        *ret_value = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
-        break;
-    case 2:
-        *ret_value = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    case 3:
-        *ret_value = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    case 4:
-        *ret_value = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
-        break;
-    default:
-        DISSECTOR_ASSERT(FALSE);
-    }
-
-    uint_to_nwtime(*ret_value, &nw_time);
-    item = proto_tree_add_uint_format_value(ptvcursor_tree(ptvc), *rec->hf_ptr, ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc),
-                                            rec->length, *ret_value, "%02u:%02u:%02u", nw_time.hour, nw_time.minute, nw_time.second);
-    ptvcursor_advance(ptvc, rec->length);
-
-    return item;
-}
-
-
-/* Convert a string from little-endian unicode to ascii.  At the moment we
-   fake it by taking every odd byte.  )-:  The caller must free the
-   result returned. */
-/* XXX This prints the proto_item name, but not its value. */
-static proto_item*
-padd_uni(packet_info* pinfo _U_, ptvcursor_t *ptvc, const ptvc_record *rec, gboolean request _U_, gboolean repeat _U_, guint* ret_value _U_)
-{
-    proto_item      *item;
-    /* nw_uni_t        nw_uni; */
-
-    /* nw_uni.buffer[0] = '\0'; */
-
-    item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length,
-                         rec->endianness);
-
-/*  if (item) {
-        proto_item_set_text(item, "%s", get_item_name(item));
-           proto_item_append_text(item, " %s",
-           nw_uni.buffer);
-    }
-*/
-    return item;
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%02u:%02u:%02u", ((time_value & 0xf800) >> 11), ((time_value & 0x07e0) >> 5), (time_value & 0x001f) * 2);
 }
 
 /* Add a value for a ptvc_record, and process the sub-ptvc_record
@@ -2702,7 +2588,6 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                      const ncp_record *ncp_rec, gboolean request)
 {
     guint       i, repeat_count, repeat_value;
-    padd_func_t func = NULL;
 
     if (rec->sub_ptvc_rec) {
         /* Repeat this? */
@@ -2737,25 +2622,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
          * to set a 'var'. */
         if (rec->repeat_index == NO_REPEAT) {
             if (really_decode) {
-                /* Handle any special formatting. */
-                switch(rec->special_fmt) {
-                case NCP_FMT_NONE:
-                    func = padd_normal;
-                    break;
-                case NCP_FMT_NW_DATE:
-                    func = padd_date;
-                    break;
-                case NCP_FMT_NW_TIME:
-                    func = padd_time;
-                    break;
-                case NCP_FMT_UNICODE:
-                    func = padd_uni;
-                    break;
-                default:
-                    DISSECTOR_ASSERT_NOT_REACHED();
-                }
                 repeat_value = 0;
-                func(pinfo, ptvc, rec, request, FALSE, &repeat_value);
+                add_ptvc_field(pinfo, ptvc, rec, request, FALSE, &repeat_value);
 
                 /* Set the value as a 'var' ? */
                 if (rec->var_index != NO_VAR) {
@@ -2781,25 +2649,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
             /* We do repeat this field. */
             repeat_count = repeat_vars[rec->repeat_index];
             if (really_decode) {
-                /* Handle any special formatting. */
-                switch(rec->special_fmt) {
-                case NCP_FMT_NONE:
-                    func = padd_normal;
-                    break;
-                case NCP_FMT_NW_DATE:
-                    func = padd_date;
-                    break;
-                case NCP_FMT_NW_TIME:
-                    func = padd_time;
-                    break;
-                case NCP_FMT_UNICODE:
-                    func = padd_uni;
-                    break;
-                default:
-                    DISSECTOR_ASSERT_NOT_REACHED();
-                }
                 for (i = 0; i < repeat_count; i++ ) {
-                    func(pinfo, ptvc, rec, request, i != 0, &repeat_value);
+                    add_ptvc_field(pinfo, ptvc, rec, request, i != 0, &repeat_value);
                 }
             }
             else {

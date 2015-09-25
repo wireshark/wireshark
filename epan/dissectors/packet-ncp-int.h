@@ -49,7 +49,6 @@ struct _ptvc_record {
 	unsigned int	var_index	: 2;
 	unsigned int	repeat_index	: 2;
 	unsigned int	req_cond_index	: 8;
-	unsigned int	special_fmt	: 2;
 };
 
 /*
@@ -62,11 +61,6 @@ struct ncp_common_header {
 	guint8	task;
 	guint8	conn_high; /* type=0x5555 doesn't have this */
 };
-
-#define NCP_FMT_NONE			0
-#define NCP_FMT_NW_DATE			1
-#define NCP_FMT_NW_TIME			2
-#define NCP_FMT_UNICODE         3
 
 extern gboolean nds_defragment;
 extern gboolean nds_echo_eid;

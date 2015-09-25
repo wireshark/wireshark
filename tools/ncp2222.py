@@ -278,7 +278,7 @@ class PTVC(NamedList):
         x =  "static const ptvc_record %s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
         x = x + "};\n"
         return x
 
@@ -305,7 +305,7 @@ class PTVCBitfield(PTVC):
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, 0, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
@@ -402,10 +402,9 @@ class PTVCRecord:
         else:
             req_info_str = "NULL"
 
-        return "{ &%s, %s, %s, %s, %s, %s, %s, %s, %s }" % \
+        return "{ &%s, %s, %s, %s, %s, %s, %s, %s }" % \
                 (self.field.HFName(), length, sub_ptvc_name,
-                req_info_str, endianness, var, repeat, req_cond,
-                self.field.SpecialFmt())
+                req_info_str, endianness, var, repeat, req_cond)
 
     def Offset(self):
         return self.offset
@@ -751,6 +750,7 @@ class Type:
     type            = "Type"
     ftype           = None
     disp            = "BASE_DEC"
+    custom_func     = None
     endianness      = NA
     values          = []
 
@@ -760,7 +760,6 @@ class Type:
         self.bytes = bytes
         self.endianness = endianness
         self.hfname = "hf_ncp_" + self.abbrev
-        self.special_fmt = "NCP_FMT_NONE"
 
     def Length(self):
         return self.bytes
@@ -786,7 +785,10 @@ class Type:
         return self.disp
 
     def ValuesName(self):
-        return "NULL"
+        if self.custom_func:
+            return "CF_FUNC(" + self.custom_func + ")"
+        else:
+            return "NULL"
 
     def Mask(self):
         return 0
@@ -801,16 +803,12 @@ class Type:
         return "NULL"
 
     def NWDate(self):
-        self.special_fmt = "NCP_FMT_NW_DATE"
+        self.disp = "BASE_CUSTOM"
+        self.custom_func = "padd_date"
 
     def NWTime(self):
-        self.special_fmt = "NCP_FMT_NW_TIME"
-
-    def NWUnicode(self):
-        self.special_fmt = "NCP_FMT_UNICODE"
-
-    def SpecialFmt(self):
-        return self.special_fmt
+        self.disp = "BASE_CUSTOM"
+        self.custom_func = "padd_time"
 
     #def __cmp__(self, other):
     #    return cmp(self.hfname, other.hfname)
@@ -857,7 +855,7 @@ class struct(PTVC, Type):
         return vars
 
     def ReferenceString(self, var, repeat, req_cond):
-        return "{ PTVC_STRUCT, NO_LENGTH, &%s, NULL, NO_ENDIANNESS, %s, %s, %s, NCP_FMT_NONE }" % \
+        return "{ PTVC_STRUCT, NO_LENGTH, &%s, NULL, NO_ENDIANNESS, %s, %s, %s }" % \
                 (self.name, var, repeat, req_cond)
 
     def Code(self):
@@ -866,7 +864,7 @@ class struct(PTVC, Type):
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
-        x = x + "    { NULL, NO_LENGTH, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
+        x = x + "    { NULL, NO_LENGTH, NULL, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
         x = x + "};\n"
 
         x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
@@ -3950,7 +3948,6 @@ TransportType                   = val_string8("transport_type", "Communications 
 ])
 TreeLength                      = uint32("tree_length", "Tree Length")
 TreeName                        = nstring32("tree_name", "Tree Name")
-TreeName.NWUnicode()
 TrusteeAccessMask           = uint8("trustee_acc_mask", "Trustee Access Mask")
 TrusteeRights                   = bitfield16("trustee_rights_low", "Trustee Rights", [
         bf_boolean16(0x0001, "trustee_rights_read", "Read"),
