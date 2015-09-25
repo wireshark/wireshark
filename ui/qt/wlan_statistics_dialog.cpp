@@ -639,6 +639,8 @@ void WlanStatisticsDialog::captureFileClosing()
 {
     remove_tap_listener(this);
     updateWidgets();
+
+    WiresharkDialog::captureFileClosing();
 }
 
 // Stat command + args

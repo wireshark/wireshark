@@ -84,9 +84,8 @@ const QString CaptureFile::fileName()
     if (isValid()) {
         QFileInfo cfi(QString::fromUtf8(cap_file_->filename));
         file_name_ = cfi.baseName();
-    } else {
-        file_name_ = no_capture_file_;
     }
+
     return file_name_;
 }
 

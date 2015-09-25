@@ -200,6 +200,8 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
     ui->leFind->setEnabled(enable);
     ui->bFind->setEnabled(enable);
     b_filter_out_->setEnabled(enable);
+
+    WiresharkDialog::updateWidgets();
 }
 
 void FollowStreamDialog::findText(bool go_back)

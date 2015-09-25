@@ -333,6 +333,8 @@ void GsmMapSummaryDialog::updateWidgets()
 //    }
 
     ui->summaryTextEdit->setHtml(summaryToHtml());
+
+    WiresharkDialog::updateWidgets();
 }
 
 extern "C" {

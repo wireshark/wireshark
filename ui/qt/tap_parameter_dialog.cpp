@@ -512,6 +512,8 @@ void TapParameterDialog::updateWidgets()
     }
     ui->displayFilterLineEdit->setEnabled(edit_enable);
     ui->applyFilterButton->setEnabled(apply_enable);
+
+    WiresharkDialog::updateWidgets();
 }
 
 void TapParameterDialog::on_applyFilterButton_clicked()

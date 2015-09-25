@@ -52,7 +52,7 @@ WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     connect(&cap_file_, SIGNAL(captureFileRetapStarted()), this, SLOT(beginRetapPackets()));
     connect(&cap_file_, SIGNAL(captureFileRetapFinished()), this, SLOT(endRetapPackets()));
     connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
-    connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosing()));
+    connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosed()));
 }
 
 void WiresharkDialog::accept()
@@ -142,10 +142,21 @@ void WiresharkDialog::removeTapListeners()
 
 void WiresharkDialog::captureFileClosing()
 {
+    if (file_closed_)
+        return;
+
     removeTapListeners();
-    file_closed_ = true;
-    setWindowTitleFromSubtitle();
     updateWidgets();
+}
+
+void WiresharkDialog::captureFileClosed()
+{
+    if (file_closed_)
+        return;
+
+    removeTapListeners();
+    updateWidgets();
+    file_closed_ = true;
 }
 
 /*

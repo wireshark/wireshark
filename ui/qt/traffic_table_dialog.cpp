@@ -86,7 +86,6 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
 
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(itemSelectionChanged()));
-    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 }
 
 TrafficTableDialog::~TrafficTableDialog()
@@ -224,6 +223,8 @@ void TrafficTableDialog::updateWidgets()
     }
     ui->trafficTableTabWidget->setCurrentWidget(cur_w);
     ui->trafficTableTabWidget->setUpdatesEnabled(true);
+
+    WiresharkDialog::updateWidgets();
 }
 
 QList<QVariant> TrafficTableDialog::curTreeRowData(int row) const

@@ -441,6 +441,7 @@ void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
 
 void IOGraphDialog::updateWidgets()
 {
+    WiresharkDialog::updateWidgets();
 }
 
 void IOGraphDialog::scheduleReplot(bool now)

@@ -449,6 +449,7 @@ void MulticastStatisticsDialog::captureFileClosing()
     remove_tap_listener_mcast_stream(tapinfo_);
 
     updateWidgets();
+    WiresharkDialog::captureFileClosing();
 }
 
 // Stat command + args

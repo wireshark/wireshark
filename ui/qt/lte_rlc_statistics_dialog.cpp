@@ -895,6 +895,8 @@ void LteRlcStatisticsDialog::captureFileClosing()
 {
     remove_tap_listener(this);
     updateWidgets();
+
+    WiresharkDialog::captureFileClosing();
 }
 
 // Launch a UL graph for the currently-selected channel.
