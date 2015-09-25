@@ -1169,7 +1169,7 @@ AirPDcapWepMng(
     /* remove IC header */
     offset = mac_header_len;
     *decrypt_len-=4;
-    memcpy(decrypt_data+offset, decrypt_data+offset+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN, *decrypt_len-offset);
+    memmove(decrypt_data+offset, decrypt_data+offset+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN, *decrypt_len-offset);
 
     return AIRPDCAP_RET_SUCCESS;
 }
