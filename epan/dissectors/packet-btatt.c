@@ -1998,28 +1998,38 @@ static const value_string appearance_category_vals[] = {
     {0x0, NULL}
 };
 
+static const value_string appearance_subcategory_generic_vals[] = {
+    {0x00, "Generic"},
+    {0x0, NULL}
+};
+
 static const value_string appearance_subcategory_watch_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Sports Watch"},
     {0x0, NULL}
 };
 
 static const value_string appearance_subcategory_thermometer_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Ear"},
     {0x0, NULL}
 };
 
 static const value_string appearance_subcategory_heart_rate_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Heart Rate Belt"},
     {0x0, NULL}
 };
 
 static const value_string appearance_subcategory_blood_pressure_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Arm"},
     {0x02, "Wrist"},
     {0x0, NULL}
 };
 
 static const value_string appearance_subcategory_hid_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Keyboard"},
     {0x02, "Mouse"},
     {0x03, "Joystick"},
@@ -2032,6 +2042,7 @@ static const value_string appearance_subcategory_hid_vals[] = {
 };
 
 static const value_string appearance_subcategory_running_walking_sensor_vals[] = {
+    {0x00, "Generic"},
     {0x01, "In-Shoe"},
     {0x02, "On-Shoe"},
     {0x03, "On-Hip"},
@@ -2039,6 +2050,7 @@ static const value_string appearance_subcategory_running_walking_sensor_vals[] =
 };
 
 static const value_string appearance_subcategory_cycling_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Cycling Computer"},
     {0x02, "Speed Sensor"},
     {0x03, "Cadence Sensor"},
@@ -2048,12 +2060,14 @@ static const value_string appearance_subcategory_cycling_vals[] = {
 };
 
 static const value_string appearance_subcategory_pulse_oximeter_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Fingertip"},
     {0x02, "Wrist Worn"},
     {0x0, NULL}
 };
 
 static const value_string appearance_subcategory_outdoor_sports_activity_vals[] = {
+    {0x00, "Generic"},
     {0x01, "Location Display Device"},
     {0x02, "Location and Navigation Display Device"},
     {0x03, "Location Pod"},
@@ -6906,7 +6920,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_appearance_subcategory,
             {"Subcategory", "btatt.appearance.subcategory",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0x003F,
+            FT_UINT16, BASE_DEC_HEX, VALS(appearance_subcategory_generic_vals), 0x003F,
             NULL, HFILL}
         },
         {&hf_btatt_appearance_subcategory_watch,
