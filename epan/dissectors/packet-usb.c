@@ -2971,6 +2971,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
                           usb_header_t header_type)
 {
+    gint              setup_offset;
     gint              req_type;
     gint              ret;
     proto_tree       *parent, *setup_tree;
@@ -3001,9 +3002,8 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
        contains the the setup packet without the request type
        and request-specific data
        all subsequent dissection routines work on this tvb */
-    next_tvb = tvb_new_composite();
-    tvb_composite_append(next_tvb, tvb_new_subset(tvb, offset, 7, 7));
 
+    setup_offset = offset;
     usb_trans_info->setup.request = tvb_get_guint8(tvb, offset);
     offset++;
     usb_trans_info->setup.wValue  = tvb_get_letohs(tvb, offset);
@@ -3017,14 +3017,23 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
     }
 
+
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        next_tvb = tvb_new_composite();
+        tvb_composite_append(next_tvb, tvb_new_subset(tvb, setup_offset, 7, 7));
+
         data_tvb = tvb_new_subset_remaining(tvb, offset);
         tvb_composite_append(next_tvb, data_tvb);
         offset += tvb_captured_length(data_tvb);
-
-        add_new_data_source(pinfo, next_tvb, "Linux USB Control");
+        tvb_composite_finalize(next_tvb);
+        next_tvb = tvb_new_child_real_data(tvb,
+                (const guint8 *) tvb_memdup(pinfo->pool, next_tvb, 0, tvb_captured_length(next_tvb)),
+                tvb_captured_length(next_tvb),
+                tvb_captured_length(next_tvb));
+        add_new_data_source(pinfo, next_tvb, "USB Control");
+    } else {
+        next_tvb = tvb_new_subset(tvb, setup_offset, 7, 7);
     }
-    tvb_composite_finalize(next_tvb);
 
     /* at this point, offset contains the number of bytes that we
        dissected */
@@ -3038,7 +3047,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     else {
         /* no standard request - pass it on to class-specific dissectors */
         ret = try_dissect_next_protocol(
-                setup_tree, next_tvb, pinfo, usb_conv_info, urb_type, tree);
+                parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
         if (ret <= 0) {
             /* no class-specific dissector could handle it,
                dissect it as generic setup request */
@@ -3046,6 +3055,11 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                     next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
             dissect_usb_setup_generic(pinfo, setup_tree,
                     next_tvb, 1, usb_conv_info);
+        } else if (data_tvb) {
+            proto_tree_add_item(setup_tree, hf_usb_request_unknown_class,
+                    tvb, 0, 1, ENC_LITTLE_ENDIAN);
+            dissect_usb_setup_generic(pinfo, setup_tree,
+                    tvb, setup_offset, usb_conv_info);
         }
     }
 
