@@ -10,6 +10,8 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*/\1/p')
 export docdir = /usr/share/doc/wireshark-doc
