@@ -1514,8 +1514,6 @@ static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
 static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
 
 static dissector_table_t att_handle_dissector_table;
-static dissector_table_t att_uuid16_dissector_table;
-static dissector_table_t att_uuid128_dissector_table;
 
 extern value_string_ext ext_usb_vendors_vals;
 
@@ -2916,8 +2914,6 @@ void proto_register_btgatt(void);
 void proto_reg_handoff_btgatt(void);
 
 #define PROTO_DATA_BTATT_HANDLE   0x00
-#define PROTO_DATA_BTATT_UUID16   0x01
-#define PROTO_DATA_BTATT_UUID128  0x02
 
 static void btatt_handle_prompt(packet_info *pinfo, gchar* result)
 {
@@ -2938,52 +2934,6 @@ static gpointer btatt_handle_value(packet_info *pinfo)
 
     if (value_data)
         return GUINT_TO_POINTER((gulong)*value_data);
-
-    return NULL;
-}
-
-static void btatt_uuid16_prompt(packet_info *pinfo, gchar* result)
-{
-    guint16 *value_data;
-
-    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
-    if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT UUID16 0x%04x as", (guint) *value_data);
-    else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown ATT UUID16");
-}
-
-static gpointer btatt_uuid16_value(packet_info *pinfo)
-{
-    guint16 *value_data;
-
-    value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16);
-
-    if (value_data)
-        return GUINT_TO_POINTER((gulong)*value_data);
-
-    return NULL;
-}
-
-static void btatt_uuid128_prompt(packet_info *pinfo, gchar* result)
-{
-    gchar *value_data;
-
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID128);
-    if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT UUID128 %s as", (gchar *) value_data);
-    else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown ATT UUID128");
-}
-
-static gpointer btatt_uuid128_value(packet_info *pinfo)
-{
-    gchar *value_data;
-
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID128);
-
-    if (value_data)
-        return (gpointer) value_data;
 
     return NULL;
 }
@@ -3302,28 +3252,15 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     if (dissector_try_uint_new(att_handle_dissector_table, handle, tvb, pinfo, tree, TRUE, bluetooth_data))
         return old_offset + length;
 
-    if (uuid.size == 2) {
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16) == NULL) {
-            guint16 *value_data;
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
+        guint8 *value_data;
 
-            value_data = wmem_new(wmem_file_scope(), guint16);
-            *value_data = uuid.bt_uuid;
+        value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
 
-            p_add_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID16, value_data);
-        }
-    } else if (uuid.size == 16) {
-        if (p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID128) == NULL) {
-            guint8 *value_data;
-
-            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
-
-            p_add_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_UUID128, value_data);
-        }
+        p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
     }
 
-    if (dissector_try_string(att_uuid128_dissector_table, print_numeric_uuid(&uuid), tvb, pinfo, tree, bluetooth_data))
-        return old_offset + length;
-    else if (dissector_try_uint_new(att_uuid16_dissector_table, uuid.bt_uuid, tvb, pinfo, tree, TRUE, bluetooth_data))
+    if (dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), tvb, pinfo, tree, bluetooth_data))
         return old_offset + length;
     else if (!uuid.bt_uuid) {
         proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
@@ -10663,26 +10600,12 @@ proto_register_btatt(void)
             1, 0, &btatt_handle_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static build_valid_func btatt_uuid16_da_build_value[1] = {btatt_uuid16_value};
-    static decode_as_value_t btatt_uuid16_da_values = {btatt_uuid16_prompt, 1, btatt_uuid16_da_build_value};
-    static decode_as_t btatt_uuid16_da = {"btatt", "ATT UUID16", "btatt.uuid16",
-            1, 0, &btatt_uuid16_da_values, NULL, NULL,
-            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
-    static build_valid_func btatt_uuid128_da_build_value[1] = {btatt_uuid128_value};
-    static decode_as_value_t btatt_uuid128_da_values = {btatt_uuid128_prompt, 1, btatt_uuid128_da_build_value};
-    static decode_as_t btatt_uuid128_da = {"btatt", "ATT UUID128", "btatt.uuid128",
-            1, 0, &btatt_uuid128_da_values, NULL, NULL,
-            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
     btatt_handle = new_register_dissector("btatt", dissect_btatt, proto_btatt);
 
-    att_handle_dissector_table  = register_dissector_table("btatt.handle",  "BT ATT Handle",  FT_UINT16, BASE_HEX);
-    att_uuid16_dissector_table  = register_dissector_table("btatt.uuid16",  "BT ATT UUID16",  FT_UINT16, BASE_HEX);
-    att_uuid128_dissector_table = register_dissector_table("btatt.uuid128", "BT ATT UUID128", FT_STRING,  BASE_NONE);
+    att_handle_dissector_table = register_dissector_table("btatt.handle",  "BT ATT Handle",  FT_UINT16,  BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));
@@ -10701,8 +10624,6 @@ proto_register_btatt(void)
             "Version of protocol supported by this dissector.");
 
     register_decode_as(&btatt_handle_da);
-    register_decode_as(&btatt_uuid16_da);
-    register_decode_as(&btatt_uuid128_da);
 }
 
 void
@@ -10777,7 +10698,7 @@ proto_reg_handoff_btatt(void)
         proto_tmp  = proto_register_protocol(uuid_dissectors[i_array].name, uuid_dissectors[i_array].short_name, uuid_dissectors[i_array].abbrev_name);
         handle_tmp = new_register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
 
-        dissector_add_string("btatt.uuid128", uuid_dissectors[i_array].uuid, handle_tmp);
+        dissector_add_string("bluetooth.uuid", uuid_dissectors[i_array].uuid, handle_tmp);
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
         i_array += 1;
     }
