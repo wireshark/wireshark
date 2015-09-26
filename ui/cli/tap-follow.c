@@ -77,7 +77,7 @@ typedef struct
   mode_e        mode;
 
   /* filter */
-  guint32       index;
+  guint32       stream_index;
   address       addr[2];
   int           port[2];
   guint8        addrBuf[2][16];
@@ -157,14 +157,14 @@ followStrFilter(
   gchar         ip0[MAX_IP6_STR_LEN];
   gchar         ip1[MAX_IP6_STR_LEN];
 
-  if (fp->index != G_MAXUINT32)
+  if (fp->stream_index != G_MAXUINT32)
   {
     switch (fp->type)
     {
     case type_TCP:
     case type_SSL:
       len = g_snprintf(filter, sizeof filter,
-                     "tcp.stream eq %d", fp->index);
+                     "tcp.stream eq %d", fp->stream_index);
       break;
     case type_UDP:
       udpfilter = build_follow_index_filter(UDP_STREAM);
@@ -793,7 +793,7 @@ followArgFilter(
   unsigned int  ii;
   char          addr[ADDR_LEN];
 
-  if (sscanf(*opt_argp, ",%u%n", &fp->index, &len) == 1 &&
+  if (sscanf(*opt_argp, ",%u%n", &fp->stream_index, &len) == 1 &&
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
@@ -833,7 +833,7 @@ followArgFilter(
     {
       followExit("Mismatched IP address types.");
     }
-    fp->index = G_MAXUINT32;
+    fp->stream_index = G_MAXUINT32;
   }
 }
 
@@ -903,9 +903,9 @@ followTcp(
   followArgDone(opt_argp);
 
   reset_tcp_reassembly();
-  if (fp->index != G_MAXUINT32)
+  if (fp->stream_index != G_MAXUINT32)
   {
-    if (!follow_index(TCP_STREAM, fp->index))
+    if (!follow_index(TCP_STREAM, fp->stream_index))
     {
       followExit("Can't follow TCP index.");
     }
@@ -950,9 +950,9 @@ followUdp(
   followArgDone(opt_argp);
 
   reset_udp_follow();
-  if (fp->index != G_MAXUINT32)
+  if (fp->stream_index != G_MAXUINT32)
   {
-    if (!follow_index(UDP_STREAM, fp->index))
+    if (!follow_index(UDP_STREAM, fp->stream_index))
     {
       followExit("Can't follow UDP index.");
     }
@@ -997,7 +997,7 @@ followSsl(
   followArgDone(opt_argp);
 
   reset_tcp_reassembly();
-  if (fp->index == G_MAXUINT32)
+  if (fp->stream_index == G_MAXUINT32)
   {
     followExit("SSL only supports index filters.");
   }

@@ -75,7 +75,7 @@ typedef struct _io_stat_item_t {
     io_stat_t *parent;
     struct _io_stat_item_t *next;
     struct _io_stat_item_t *prev;
-    guint64 time;         /* Time since start of capture (us)*/
+    guint64 start_time;   /* Time since start of capture (us)*/
     int calc_type;        /* The statistic type */
     int colnum;           /* Column number of this stat (0 to n) */
     int hf_index;
@@ -126,14 +126,14 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     *  between the last struct and this one. If an item was not found in a previous interval, an empty
     *  struct will be created for it. */
     rt = relative_time;
-    while (rt >= it->time + parent->interval) {
+    while (rt >= it->start_time + parent->interval) {
         it->next = (io_stat_item_t *)g_malloc(sizeof(io_stat_item_t));
         it->next->prev = it;
         it->next->next = NULL;
         it = it->next;
         mit->prev = it;
 
-        it->time = it->prev->time + parent->interval;
+        it->start_time = it->prev->start_time + parent->interval;
         it->frames = 0;
         it->counter = 0;
         it->float_counter = 0;
@@ -1228,14 +1228,14 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
     char *field;
     header_field_info *hfi;
 
-    io->items[i].prev      = &io->items[i];
-    io->items[i].next      = NULL;
-    io->items[i].parent    = io;
-    io->items[i].time      = 0;
-    io->items[i].calc_type = CALC_TYPE_FRAMES_AND_BYTES;
-    io->items[i].frames    = 0;
-    io->items[i].counter   = 0;
-    io->items[i].num       = 0;
+    io->items[i].prev       = &io->items[i];
+    io->items[i].next       = NULL;
+    io->items[i].parent     = io;
+    io->items[i].start_time = 0;
+    io->items[i].calc_type  = CALC_TYPE_FRAMES_AND_BYTES;
+    io->items[i].frames     = 0;
+    io->items[i].counter    = 0;
+    io->items[i].num        = 0;
 
     io->filters[i] = filter;
     flt = filter;

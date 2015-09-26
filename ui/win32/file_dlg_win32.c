@@ -1620,7 +1620,7 @@ static void
 build_file_format_list(HWND sf_hwnd) {
     HWND  format_cb;
     int   ft;
-    guint index;
+    guint file_index;
     guint item_to_select;
     gchar *s;
 
@@ -1632,7 +1632,7 @@ build_file_format_list(HWND sf_hwnd) {
     SendMessage(format_cb, CB_RESETCONTENT, 0, 0);
 
     /* Check all file types. */
-    index = 0;
+    file_index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
         if (ft == WTAP_FILE_UNKNOWN)
             continue;  /* not a real file type */
@@ -1651,12 +1651,12 @@ build_file_format_list(HWND sf_hwnd) {
         }
         SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
         g_free(s);
-        SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
+        SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) file_index, (WPARAM) ft);
         if (ft == g_filetype) {
             /* Default to the same format as the file, if it's supported. */
-            item_to_select = index;
+            item_to_select = file_index;
         }
-        index++;
+        file_index++;
     }
 
     SendMessage(format_cb, CB_SETCURSEL, (WPARAM) item_to_select, 0);
@@ -1667,7 +1667,7 @@ static UINT_PTR CALLBACK
 save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
-    /*int            new_filetype, index;*/
+    /*int            new_filetype, file_index;*/
 
     switch(msg) {
         case WM_INITDIALOG: {
@@ -1692,9 +1692,9 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             switch (w_param) {
 #if 0
                 case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
+                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
+                    if (file_index != CB_ERR) {
+                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
                         if (new_filetype != CB_ERR) {
                             if (g_filetype != new_filetype) {
                                 if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
@@ -1797,7 +1797,7 @@ static UINT_PTR CALLBACK
 export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
-    /*int            new_filetype, index;*/
+    /*int            new_filetype, file_index;*/
 
     switch(msg) {
         case WM_INITDIALOG: {
@@ -1823,9 +1823,9 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
             switch (w_param) {
 #if 0
                 case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-                    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-                    if (index != CB_ERR) {
-                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
+                    file_index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
+                    if (file_index != CB_ERR) {
+                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) file_index, 0);
                         if (new_filetype != CB_ERR) {
                             if (g_filetype != new_filetype) {
                                 if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
@@ -2281,7 +2281,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
     gboolean       pkt_fmt_enable;
-    int            i, index;
+    int            i, filter_index;
 
     switch(msg) {
         case WM_INITDIALOG: {
@@ -2312,13 +2312,13 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     break;
                 case CDN_TYPECHANGE:
-                    index = notify->lpOFN->nFilterIndex;
+                    filter_index = notify->lpOFN->nFilterIndex;
 
-                    if (index == 2)     /* PostScript */
+                    if (filter_index == 2)     /* PostScript */
                         print_args.format = PR_FMT_TEXT;
                     else
                         print_args.format = PR_FMT_PS;
-                    if (index == 3 || index == 4 || index == 5 || index == 6)
+                    if (filter_index == 3 || filter_index == 4 || filter_index == 5 || filter_index == 6)
                         pkt_fmt_enable = FALSE;
                     else
                         pkt_fmt_enable = TRUE;
