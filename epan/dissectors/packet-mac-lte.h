@@ -58,14 +58,15 @@
 #define DIRECTION_DOWNLINK 1
 
 /* rntiType */
-#define NO_RNTI  0
-#define P_RNTI   1
-#define RA_RNTI  2
-#define C_RNTI   3
-#define SI_RNTI  4
-#define SPS_RNTI 5
-#define M_RNTI   6
-
+#define NO_RNTI     0
+#define P_RNTI      1
+#define RA_RNTI     2
+#define C_RNTI      3
+#define SI_RNTI     4
+#define SPS_RNTI    5
+#define M_RNTI      6
+#define SL_BCH_RNTI 7
+#define SL_RNTI     8
 
 typedef enum mac_lte_oob_event {
     ltemac_send_preamble,
