@@ -49,6 +49,15 @@ typedef struct _smb2_eo_file_info_t {
 	gint64 	end_of_file;
 } smb2_eo_file_info_t;
 
+typedef struct _smb2_fid_info_t {
+	guint64 fid_persistent;
+	guint64 fid_volatile;
+	guint64 sesid;
+	guint32 tid;
+	guint32 open_frame;
+	char *name;
+} smb2_fid_info_t;
+
 typedef enum {
 	SMB2_EI_NONE,		/* Unassigned / NULL */
 	SMB2_EI_TREENAME,	/* tid tracking  char * */
@@ -61,6 +70,7 @@ typedef struct _smb2_saved_info_t {
 	guint64 msg_id;
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
+	smb2_fid_info_t *file;
 	e_ctx_hnd policy_hnd; 		/* for eo_smb tracking */
 	smb_eo_t	*eo_info_t;	/* for storing eo_smb infos */
 	guint64		file_offset;	/* needed file_offset for eo_smb */
@@ -96,6 +106,7 @@ typedef struct _smb2_conv_info_t {
 	GHashTable *unmatched;
 	GHashTable *matched;
 	GHashTable *sesids;
+	GHashTable *fids;
 	/* table to store some infos for smb export object */
 	GHashTable *files;
 } smb2_conv_info_t;
@@ -170,6 +181,7 @@ typedef struct _smb2_info_t {
 	smb2_saved_info_t	*saved;
 	smb2_tid_info_t		*tree;
 	smb2_sesid_info_t	*session;
+	smb2_fid_info_t		*file;
 	proto_tree *top_tree;
 } smb2_info_t;
 

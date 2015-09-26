@@ -763,6 +763,54 @@ smb2_sesid_info_hash(gconstpointer k)
 	return hash;
 }
 
+/*
+ * For File IDs of a specific conversation.
+ * This keeps track of fid to name mapping and application level conversations
+ * over named pipes.
+ *
+ * This handles implementation bugs, where the fid_persitent is 0 or
+ * the fid_persitent/fid_volative is not unique per conversation.
+ */
+static gint
+smb2_fid_info_equal(gconstpointer k1, gconstpointer k2)
+{
+	const smb2_fid_info_t *key1 = (const smb2_fid_info_t *)k1;
+	const smb2_fid_info_t *key2 = (const smb2_fid_info_t *)k2;
+
+	if (key1->fid_persistent != key2->fid_persistent) {
+		return 0;
+	};
+
+	if (key1->fid_volatile != key2->fid_volatile) {
+		return 0;
+	};
+
+	if (key1->sesid != key2->sesid) {
+		return 0;
+	};
+
+	if (key1->tid != key2->tid) {
+		return 0;
+	};
+
+	return 1;
+}
+
+static guint
+smb2_fid_info_hash(gconstpointer k)
+{
+	const smb2_fid_info_t *key = (const smb2_fid_info_t *)k;
+	guint32 hash;
+
+	if (key->fid_persistent != 0) {
+		hash = (guint32)( ((key->fid_persistent>>32)&0xffffffff)+((key->fid_persistent)&0xffffffff) );
+	} else {
+		hash = (guint32)( ((key->fid_volatile>>32)&0xffffffff)+((key->fid_volatile)&0xffffffff) );
+	}
+
+	return hash;
+}
+
 /* Callback for destroying the glib hash tables associated with a conversation
  * struct. */
 static gboolean
@@ -773,6 +821,7 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 
 	g_hash_table_destroy(conv->matched);
 	g_hash_table_destroy(conv->unmatched);
+	g_hash_table_destroy(conv->fids);
 	g_hash_table_destroy(conv->sesids);
 	g_hash_table_destroy(conv->files);
 
@@ -1592,6 +1641,13 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	char       *fid_name;
 	guint32     open_frame = 0, close_frame = 0;
 	smb2_eo_file_info_t	*eo_file_info;
+	smb2_fid_info_t sfi_key = { .name = NULL, };
+	smb2_fid_info_t *sfi = NULL;
+
+	sfi_key.fid_persistent = tvb_get_letoh64(tvb, offset);
+	sfi_key.fid_volatile = tvb_get_letoh64(tvb, offset+8);
+	sfi_key.sesid = si->sesid;
+	sfi_key.tid = si->tid;
 
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
@@ -1601,6 +1657,15 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	case FID_MODE_OPEN:
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
 		if (!pinfo->fd->flags.visited) {
+			sfi = wmem_new(wmem_file_scope(), smb2_fid_info_t);
+			*sfi = sfi_key;
+			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
+				sfi->name = wmem_strdup(wmem_file_scope(), (char *)si->saved->extra_info);
+			} else {
+				sfi->name = wmem_strdup_printf(wmem_file_scope(), "[unknown]");
+			}
+			sfi->open_frame = pinfo->fd->num;
+
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s", (char *)si->saved->extra_info);
 			} else {
@@ -1609,8 +1674,14 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 						  fid_name);
 
+			g_hash_table_insert(si->conv->fids, sfi, sfi);
+			si->file = sfi;
+
 			/* If needed, create the file entry and save the policy hnd */
-			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
+			if (si->saved) {
+				si->saved->file = sfi;
+				si->saved->policy_hnd = policy_hnd;
+			}
 
 			if (si->conv) {
 				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&policy_hnd);
@@ -1635,15 +1706,20 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		break;
 	}
 
-	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
-		/* put the filename in col_info */
-		if (fid_name) {
-			if (hnd_item) {
-				proto_item_append_text(hnd_item, " %s", fid_name);
-			}
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
+	si->file = (smb2_fid_info_t *)g_hash_table_lookup(si->conv->fids, &sfi_key);
+	if (si->file) {
+		if (si->saved) {
+			si->saved->file = si->file;
 		}
+		if (si->file->name) {
+			if (hnd_item) {
+				proto_item_append_text(hnd_item, " File: %s", si->file->name);
+			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", si->file->name);
+		}
+	}
 
+	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
 		/* look for the eo_file_info */
 		if (!si->eo_file_info) {
 			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
@@ -4418,16 +4494,11 @@ smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
 	if (si == NULL) {
 		return;
 	}
-	if (si->saved == NULL) {
+	if (si->file == NULL) {
 		return;
 	}
 
-	/*
-	 * the first 8 bytes are the persistent part of the file handle
-	 */
-	persistent =  si->saved->policy_hnd.uuid.data1;
-	persistent |= ((guint64)si->saved->policy_hnd.uuid.data2) << 32;
-	persistent |= ((guint64)si->saved->policy_hnd.uuid.data3) << 48;
+	persistent = GPOINTER_TO_UINT(si->file);
 
 	dcerpc_set_transport_salt(persistent, pinfo);
 }
@@ -7515,6 +7586,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			smb2_saved_info_equal_unmatched);
 		si->conv->sesids = g_hash_table_new(smb2_sesid_info_hash,
 			smb2_sesid_info_equal);
+		si->conv->fids = g_hash_table_new(smb2_fid_info_hash,
+			smb2_fid_info_equal);
 		si->conv->files = g_hash_table_new(smb2_eo_files_hash,smb2_eo_files_equal);
 
 		/* Bit of a hack to avoid leaking the hash tables - register a
