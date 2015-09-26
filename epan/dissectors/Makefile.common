@@ -212,16 +212,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
 
-#
-# idl2wrs-generated CORBA IDL dissectors with warnings.
-#
-DIRTY_CORBA_IDL_DISSECTOR_SRC = \
-	packet-coseventcomm.c	\
-	packet-cosnaming.c	\
-	packet-gias.c	\
-	packet-parlay.c	\
-	packet-tango.c
-
 FILE_DISSECTOR_SRC = \
 	file-btsnoop.c \
 	file-elf.c	\
@@ -423,7 +413,9 @@ DISSECTOR_SRC = \
 	packet-cops.c		\
 	packet-corosync-totemnet.c	\
 	packet-corosync-totemsrp.c	\
+	packet-coseventcomm.c	\
 	packet-cosine.c		\
+	packet-cosnaming.c	\
 	packet-couchbase.c	\
 	packet-cp2179.c		\
 	packet-cpfi.c		\
@@ -631,6 +623,7 @@ DISSECTOR_SRC = \
 	packet-gearman.c	\
 	packet-ged125.c		\
 	packet-geneve.c		\
+	packet-gias.c		\
 	packet-gift.c		\
 	packet-giop.c		\
 	packet-git.c		\
@@ -1029,6 +1022,7 @@ DISSECTOR_SRC = \
 	packet-pagp.c		\
 	packet-paltalk.c	\
 	packet-pana.c		\
+	packet-parlay.c	\
 	packet-pcapng_block.c	\
 	packet-pcep.c		\
 	packet-pcli.c		\
@@ -1234,6 +1228,7 @@ DISSECTOR_SRC = \
 	packet-t30.c		\
 	packet-tacacs.c		\
 	packet-tali.c		\
+	packet-tango.c		\
 	packet-tapa.c		\
 	packet-tcp.c		\
 	packet-tcpros.c		\
@@ -1797,5 +1792,4 @@ ALL_DISSECTORS_SRC =	\
 	$(FILE_DISSECTOR_SRC)	\
 	$(PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
-	$(DIRTY_ASN1_DISSECTOR_SRC)	\
-	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC)

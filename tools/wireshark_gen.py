@@ -733,7 +733,7 @@ class wireshark_gen_C:
         if (len(self.fn_hash[sname]) > 0):
             self.st.out(self.template_helper_function_vars_start)
             self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end )
+            self.st.out(self.template_helper_function_vars_end_item )
 
         self.getCDR(attrib.attrType(), sname + "_" + decl.identifier() )
 
@@ -883,7 +883,7 @@ class wireshark_gen_C:
         if (len(self.fn_hash[sname]) > 0):
             self.st.out(self.template_helper_function_vars_start)
             self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end )
+            self.st.out(self.template_helper_function_vars_end_item )
 
         self.st.out(self.template_helper_switch_msgtype_start)
 
@@ -1145,11 +1145,9 @@ class wireshark_gen_C:
         if self.DEBUG:
             print "XXX isItemVarType: kind = " , pt
 
-        elif pt ==  idltype.tk_fixed:
+        if pt ==  idltype.tk_fixed:
             return 1
         elif pt ==  idltype.tk_any:
-            return 1
-        elif pt ==  idltype.tk_enum:
             return 1
         elif pt ==  idltype.tk_struct:
             return 1
@@ -1537,19 +1535,33 @@ class wireshark_gen_C:
             print "XXX Union type.switchType()" , un.switchType()
             print "XXX Union Scoped Name" , un.scopedName()
 
+        # check to see if we need an item
+        un_need_item = 0
+        if (un.switchType().unalias().kind() == idltype.tk_enum):
+            for uc in un.cases():           # for all UnionCase objects in this union
+                if ( self.isItemVarType(uc.caseType())):
+                    if (uc.caseType().unalias().kind() == idltype.tk_sequence):
+                        if (uc.caseType().unalias().seqType().kind() == idltype.tk_struct):
+                            un_need_item = 1
+                    else:
+                        un_need_item = 1
+
         sname = self.namespace(un, "_")
         self.curr_sname = sname         # update current opnode/exnode/stnode/unnode scoped name
         if not self.fn_hash_built:
             self.fn_hash[sname] = []        # init empty list as val for this sname key
                                             # but only if the fn_hash is not already built
 
-        self.st.out(self.template_union_helper_function_start, sname=sname, unname=un.repoId())
+        if (un_need_item):
+            self.st.out(self.template_union_helper_function_start_with_item, sname=sname, unname=un.repoId())
+        else:
+            self.st.out(self.template_union_helper_function_start, sname=sname, unname=un.repoId())
         self.st.inc_indent()
 
         if (len(self.fn_hash[sname]) > 0):
             self.st.out(self.template_helper_function_vars_start)
             self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end )
+            self.st.out(self.template_helper_function_vars_end_item )
 
         st = un.switchType().unalias() # may be typedef switch type, so find real type
 
@@ -1760,7 +1772,7 @@ class wireshark_gen_C:
         if (len(self.fn_hash[sname]) > 0):
             self.st.out(self.template_helper_function_vars_start)
             self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end )
+            self.st.out(self.template_helper_function_vars_end_item )
 
         for m in st.members():
             for decl in m.declarators():
@@ -2078,8 +2090,6 @@ class wireshark_gen_C:
 
     template_helper_function_vars_end = """\
 /* Operation specific Variable declarations End */
-
-(void)item; /* Avoid coverity param_set_but_unused parse warning */
 """
     template_helper_function_vars_end_item = """\
 /* Operation specific Variable declarations End */
@@ -2363,8 +2373,7 @@ proto_tree_add_string_format_value(tree, hf_@hfname@, tvb, *offset-@length@, @le
 """
     template_get_CDR_enum_symbolic = """\
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-/* coverity[returned_pointer] */
-item = proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, u_octet4);
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, u_octet4);
 """
     template_get_CDR_string = """\
 giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_@hfname@);
@@ -2396,7 +2405,10 @@ get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
     template_get_CDR_sequence_length = """\
 u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-/* coverity[returned_pointer] */
+proto_tree_add_uint(tree, hf_@seqname@_loop, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
+"""
+    template_get_CDR_sequence_length_item = """\
+u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
 item = proto_tree_add_uint(tree, hf_@seqname@_loop, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
 """
     template_get_CDR_sequence_loop_start = """\
@@ -2805,7 +2817,14 @@ decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 static void
 decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    proto_item* item _U_;
+"""
+
+    template_union_helper_function_start_with_item = """\
+/* Union = @unname@ */
+static void
+decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item* item = NULL;
 """
 
     template_union_helper_function_end = """\
