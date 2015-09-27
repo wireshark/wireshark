@@ -82,12 +82,12 @@ typedef struct serv_port {
 /*
  *
  */
-#define DUMMY_ADDRESS_ENTRY      1<<0
-#define TRIED_RESOLVE_ADDRESS    1<<1
-#define RESOLVED_ADDRESS_USED    1<<2
+#define DUMMY_ADDRESS_ENTRY      (1U<<0)
+#define TRIED_RESOLVE_ADDRESS    (1U<<1)
+#define RESOLVED_ADDRESS_USED    (1U<<2)
 
-#define DUMMY_AND_RESOLVE_FLGS   3
-#define USED_AND_RESOLVED_MASK   (1+4)
+#define DUMMY_AND_RESOLVE_FLGS   (DUMMY_ADDRESS_ENTRY | TRIED_RESOLVE_ADDRESS)
+#define USED_AND_RESOLVED_MASK   (DUMMY_ADDRESS_ENTRY | RESOLVED_ADDRESS_USED)
 typedef struct hashipv4 {
     guint             addr;
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
