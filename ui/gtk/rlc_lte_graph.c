@@ -142,8 +142,7 @@ struct axis {
 #endif
     /* Which of the 2 buffers we are currently showing */
     int displayed;
-#define AXIS_ORIENTATION    1 << 0
-    int flags;
+    gboolean is_horizontal_axis;
     /* dim and orig (relative to origin of window) of axis' pixmap */
     struct irect p;
     /* dim and orig (relative to origin of axis' pixmap) of scale itself */
@@ -620,16 +619,14 @@ static struct graph *graph_new(void)
     g->y_axis = (struct axis * )g_malloc0(sizeof(struct axis));
 
     g->x_axis->g = g;
-    g->x_axis->flags = 0;
-    g->x_axis->flags |= AXIS_ORIENTATION;
+    g->x_axis->is_horizontal_axis = TRUE;
     g->x_axis->s.x = g->x_axis->s.y = 0;
     g->x_axis->s.height = HAXIS_INIT_HEIGHT;
     g->x_axis->p.x = VAXIS_INIT_WIDTH;
     g->x_axis->p.height = HAXIS_INIT_HEIGHT;
 
     g->y_axis->g = g;
-    g->y_axis->flags = 0;
-    g->y_axis->flags &= ~AXIS_ORIENTATION;
+    g->y_axis->is_horizontal_axis = FALSE;
     g->y_axis->p.x = g->y_axis->p.y = 0;
     g->y_axis->p.width = VAXIS_INIT_WIDTH;
     g->y_axis->s.x = 0;
@@ -1367,7 +1364,7 @@ static void axis_destroy(struct axis *axis)
 
 static void axis_display(struct axis *axis)
 {
-    if (axis->flags & AXIS_ORIENTATION)
+    if (axis->is_horizontal_axis)
         h_axis_pixmap_draw(axis);
     else
         v_axis_pixmap_draw(axis);
