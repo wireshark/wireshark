@@ -33,6 +33,8 @@ typedef struct _btrfcomm_data_t {
     guint32   remote_bd_addr_id;
 } btrfcomm_data_t;
 
+extern int proto_btrfcomm;
+
 #endif
 
 /*
