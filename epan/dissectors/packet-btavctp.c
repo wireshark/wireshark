@@ -39,7 +39,7 @@
 #define PACKET_TYPE_CONTINUE  0x02
 #define PACKET_TYPE_END       0x03
 
-static int proto_btavctp                        = -1;
+int proto_btavctp = -1;
 
 static int hf_btavctp_transaction               = -1;
 static int hf_btavctp_packet_type               = -1;
@@ -107,7 +107,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *pitem;
     proto_item      *ipid_item = NULL;
     btavctp_data_t  *avctp_data;
-    btl2cap_data_t  *l2cap_data;
     tvbuff_t        *next_tvb;
     gint            offset = 0;
     guint           packet_type;
@@ -118,11 +117,28 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint           length;
     guint           i_frame;
     gboolean        ipid = FALSE;
+    guint32         interface_id;
+    guint32         adapter_id;
+    guint32         chandle;
+    guint32         psm;
+    gint            previous_proto;
 
-    /* Reject the packet if data is NULL */
-    if (data == NULL)
-        return 0;
-    l2cap_data = (btl2cap_data_t *) data;
+    previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
+    if (previous_proto == proto_btl2cap) {
+        btl2cap_data_t  *l2cap_data;
+
+        l2cap_data = (btl2cap_data_t *) data;
+
+        interface_id = l2cap_data->interface_id;
+        adapter_id   = l2cap_data->adapter_id;
+        chandle      = l2cap_data->chandle;
+        psm          = l2cap_data->psm;
+    } else {
+        interface_id = HCI_INTERFACE_DEFAULT;
+        adapter_id   = HCI_ADAPTER_DEFAULT;
+        chandle      = 0;
+        psm          = 0;
+    }
 
     ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
     btavctp_tree = proto_item_add_subtree(ti, ett_btavctp);
@@ -196,10 +212,10 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     avctp_data = wmem_new(wmem_packet_scope(), btavctp_data_t);
     avctp_data->cr           = cr;
-    avctp_data->interface_id = l2cap_data->interface_id;
-    avctp_data->adapter_id   = l2cap_data->adapter_id;
-    avctp_data->chandle      = l2cap_data->chandle;
-    avctp_data->psm          = l2cap_data->psm;
+    avctp_data->interface_id = interface_id;
+    avctp_data->adapter_id   = adapter_id;
+    avctp_data->chandle      = chandle;
+    avctp_data->psm          = psm;
 
     length = tvb_reported_length_remaining(tvb, offset);
 
@@ -220,37 +236,20 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     } else {
         fragment_t     *fragment;
         wmem_tree_key_t key[6];
-        guint32         k_interface_id;
-        guint32         k_adapter_id;
-        guint32         k_chandle;
-        guint32         k_psm;
-        guint32         k_frame_number;
-        guint32         interface_id;
-        guint32         adapter_id;
-        guint32         chandle;
-        guint32         psm;
+        guint32         frame_number;
 
-        interface_id = l2cap_data->interface_id;
-        adapter_id   = l2cap_data->adapter_id;
-        chandle      = l2cap_data->chandle;
-        psm          = l2cap_data->psm;
-
-        k_interface_id = interface_id;
-        k_adapter_id   = adapter_id;
-        k_chandle      = chandle;
-        k_psm          = psm;
-        k_frame_number = pinfo->fd->num;
+        frame_number = pinfo->fd->num;
 
         key[0].length = 1;
-        key[0].key = &k_interface_id;
+        key[0].key = &interface_id;
         key[1].length = 1;
-        key[1].key = &k_adapter_id;
+        key[1].key = &adapter_id;
         key[2].length = 1;
-        key[2].key = &k_chandle;
+        key[2].key = &chandle;
         key[3].length = 1;
-        key[3].key = &k_psm;
+        key[3].key = &psm;
         key[4].length = 1;
-        key[4].key = &k_frame_number;
+        key[4].key = &frame_number;
         key[5].length = 0;
         key[5].key = NULL;
 
@@ -309,22 +308,18 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
-                k_interface_id = interface_id;
-                k_adapter_id   = adapter_id;
-                k_chandle      = chandle;
-                k_psm          = psm;
-                k_frame_number = pinfo->fd->num;
+                frame_number = pinfo->fd->num;
 
                 key[0].length = 1;
-                key[0].key = &k_interface_id;
+                key[0].key = &interface_id;
                 key[1].length = 1;
-                key[1].key = &k_adapter_id;
+                key[1].key = &adapter_id;
                 key[2].length = 1;
-                key[2].key = &k_chandle;
+                key[2].key = &chandle;
                 key[3].length = 1;
-                key[3].key = &k_psm;
+                key[3].key = &psm;
                 key[4].length = 1;
-                key[4].key = &k_frame_number;
+                key[4].key = &frame_number;
                 key[5].length = 0;
                 key[5].key = NULL;
 
@@ -357,22 +352,18 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
-                k_interface_id = interface_id;
-                k_adapter_id   = adapter_id;
-                k_chandle      = chandle;
-                k_psm          = psm;
-                k_frame_number = pinfo->fd->num;
+                frame_number = pinfo->fd->num;
 
                 key[0].length = 1;
-                key[0].key = &k_interface_id;
+                key[0].key = &interface_id;
                 key[1].length = 1;
-                key[1].key = &k_adapter_id;
+                key[1].key = &adapter_id;
                 key[2].length = 1;
-                key[2].key = &k_chandle;
+                key[2].key = &chandle;
                 key[3].length = 1;
-                key[3].key = &k_psm;
+                key[3].key = &psm;
                 key[4].length = 1;
-                key[4].key = &k_frame_number;
+                key[4].key = &frame_number;
                 key[5].length = 0;
                 key[5].key = NULL;
 

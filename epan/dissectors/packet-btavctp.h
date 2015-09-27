@@ -33,6 +33,8 @@ typedef struct _btavctp_data_t {
     guint8    cr;
 } btavctp_data_t;
 
+extern int proto_btavctp;
+
 #endif
 
 /*

@@ -182,19 +182,23 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int offset = 0;
-    proto_item *ti;
-    proto_tree *st;
-    guint8 opcode;
-    btl2cap_data_t *l2cap_data;
-    guint32  interface_id;
-    guint32  adapter_id;
+    int          offset = 0;
+    proto_item  *ti;
+    proto_tree  *st;
+    guint8      opcode;
+    guint32     interface_id;
+    guint32     adapter_id;
+    gint        previous_proto;
 
-    l2cap_data = (btl2cap_data_t *) data;
+    previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
+    if (data && previous_proto == proto_btl2cap) {
+        btl2cap_data_t *l2cap_data;
 
-    if (l2cap_data) {
-        interface_id = l2cap_data->interface_id;
-        adapter_id = l2cap_data->adapter_id;
+        l2cap_data = (btl2cap_data_t *) data;
+        if (l2cap_data) {
+            interface_id = l2cap_data->interface_id;
+            adapter_id = l2cap_data->adapter_id;
+        }
     } else {
         interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = HCI_ADAPTER_DEFAULT;
