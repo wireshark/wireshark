@@ -1909,10 +1909,11 @@ dcerpc_tvb_get_uuid(tvbuff_t *tvb, gint offset, guint8 *drep, e_guid_t *uuid)
 
 /* NDR arrays */
 /* function to dissect a unidimensional conformant array */
-int
-dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static int
+dissect_ndr_ucarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    dcerpc_dissect_fnct_t *fnct)
+                    dcerpc_dissect_fnct_t *fnct_bytes,
+                    dcerpc_dissect_fnct_blk_t *fnct_block)
 {
     guint32      i;
     int          old_offset;
@@ -1939,12 +1940,39 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
 
         /* real run, dissect the elements */
-        for (i=0; i<di->array_max_count; i++) {
-            offset = (*fnct)(tvb, offset, pinfo, tree, di, drep);
+        if (fnct_block) {
+                old_offset = offset;
+                offset = (*fnct_block)(tvb, offset, di->array_max_count,
+                                       pinfo, tree, di, drep);
+                if (offset <= old_offset)
+                    THROW(ReportedBoundsError);
+        } else {
+            for (i=0 ;i<di->array_max_count; i++) {
+                old_offset = offset;
+                offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
+                if (offset <= old_offset)
+                    THROW(ReportedBoundsError);
+            }
         }
     }
 
     return offset;
+}
+
+int
+dissect_ndr_ucarray_block(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                          proto_tree *tree, dcerpc_info *di, guint8 *drep,
+                          dcerpc_dissect_fnct_blk_t *fnct)
+{
+    return dissect_ndr_ucarray_core(tvb, offset, pinfo, tree, di, drep, NULL, fnct);
+}
+
+int
+dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
+                    dcerpc_dissect_fnct_t *fnct)
+{
+    return dissect_ndr_ucarray_core(tvb, offset, pinfo, tree, di, drep, fnct, NULL);
 }
 
 /* function to dissect a unidimensional conformant and varying array
@@ -1996,8 +2024,11 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* real run, dissect the elements */
         if (fnct_block) {
+                old_offset = offset;
                 offset = (*fnct_block)(tvb, offset, di->array_actual_count,
                                        pinfo, tree, di, drep);
+                if (offset <= old_offset)
+                    THROW(ReportedBoundsError);
         } else {
             for (i=0 ;i<di->array_actual_count; i++) {
                 old_offset = offset;
