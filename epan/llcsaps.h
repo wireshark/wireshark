@@ -49,6 +49,7 @@
 #define	SAP_HPJD		0xB4
 #define	SAP_VINES1		0xBA
 #define	SAP_VINES2		0xBC
+#define	SAP_SNA4		0xC8
 #define	SAP_NETWARE2		0xE0
 #define	SAP_NETBIOS		0xF0
 #define	SAP_IBMNM		0xF4

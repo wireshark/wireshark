@@ -3513,6 +3513,7 @@ proto_reg_handoff_sna(void)
 	dissector_add_uint("llc.dsap", SAP_SNA1, sna_handle);
 	dissector_add_uint("llc.dsap", SAP_SNA2, sna_handle);
 	dissector_add_uint("llc.dsap", SAP_SNA3, sna_handle);
+	dissector_add_uint("llc.dsap", SAP_SNA4, sna_handle);
 	dissector_add_uint("llc.xid_dsap", SAP_SNA_PATHCTRL, sna_xid_handle);
 	dissector_add_uint("llc.xid_dsap", SAP_SNA1, sna_xid_handle);
 	dissector_add_uint("llc.xid_dsap", SAP_SNA2, sna_xid_handle);
