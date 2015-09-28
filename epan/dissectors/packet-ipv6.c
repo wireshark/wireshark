@@ -1066,7 +1066,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         offset += 2;
 
         proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        /*offset += 4;*/
 
         if (ipv6_info->jumbo_length) {
             expert_add_info(pinfo, frag_tree, &ei_ipv6_opt_jumbo_fragment);
