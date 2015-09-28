@@ -126,7 +126,7 @@ public:
     }
 
     // TODO: not currently used. Delete?
-    void update(const mac_lte_tap_info *mlt_info _U_) {
+    void update(const mac_lte_tap_info *) {
     }
 
     // TODO: when SR and RACH checkboxes added, check state and add to expression.
