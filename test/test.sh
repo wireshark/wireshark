@@ -234,14 +234,25 @@ do
 
 	#echo $current_title $current_function
 	test_suite_show "${menu_title[MENU_LEVEL]}" "${menu_function[MENU_LEVEL]}"
-	echo "1-$TEST_STEPS  : Select item"
-	echo "Enter: Test All"
+	if [ $MENU_LEVEL -gt 0 ]; then
+		echo "T or Enter:  Run suite"
+	else
+	echo "1-$TEST_STEPS : Select suite"
+	fi
+
+	# DBG
+	#echo "Menu level: $MENU_LEVEL"
+	#echo "Menu Title: ${menu_title[MENU_LEVEL]}"
+	#echo "Menu Function: ${menu_function[MENU_LEVEL]}"
+	#echo "Test title size: ${#test_title[@]}"
+	# END DBG
+
 	if [[ ! $MENU_LEVEL -eq 0 ]]; then
 		echo "U    : Up"
 	fi
 	echo "Q    : Quit"
 	echo ""
-	read -n1 key
+	read key
 	newl=$'\x0d'
 	echo "$newl----------------------------------------------------------------------"
 
@@ -266,52 +277,16 @@ done
 			#echo "----------------------------------------------------------------------"
 		fi
 	;;
-		"1")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[1]}
-		menu_function[MENU_LEVEL]=${test_function[1]}
+		## Now we're only interested in digits when the menu level is at the top (0)
+		[0-9]*)
+		if [ $MENU_LEVEL -eq 0 ]; then
+			if [ $key -le ${#test_title[@]} ]; then
+				let "MENU_LEVEL += 1"
+				menu_title[MENU_LEVEL]=${test_title[$key]}
+				menu_function[MENU_LEVEL]=${test_function[$key]}
+			fi
+		fi
 	;;
-		"2")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[2]}
-		menu_function[MENU_LEVEL]=${test_function[2]}
-	;;
-		"3")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[3]}
-		menu_function[MENU_LEVEL]=${test_function[3]}
-	;;
-		"4")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[4]}
-		menu_function[MENU_LEVEL]=${test_function[4]}
-	;;
-		"5")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[5]}
-		menu_function[MENU_LEVEL]=${test_function[5]}
-	;;
-		"6")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[6]}
-		menu_function[MENU_LEVEL]=${test_function[6]}
-	;;
-		"7")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[7]}
-		menu_function[MENU_LEVEL]=${test_function[7]}
-	;;
-		"8")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[8]}
-		menu_function[MENU_LEVEL]=${test_function[8]}
-	;;
-		"9")
-		let "MENU_LEVEL += 1"
-		menu_title[MENU_LEVEL]=${test_title[9]}
-		menu_function[MENU_LEVEL]=${test_function[9]}
-	;;
-
 	esac
 done
 
