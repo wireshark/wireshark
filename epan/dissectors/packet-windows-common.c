@@ -113,6 +113,15 @@ VALUE_STRING_ARRAY2_GLOBAL_DEF(WERR_errors); /* XXX: Remove GLOBAL_DEF once all 
 value_string_ext WERR_errors_ext = VALUE_STRING_EXT_INIT(WERR_errors);
 
 /*
+ * HRES error codes.
+ */
+
+VALUE_STRING_ARRAY2_GLOBAL_DEF(HRES_errors); /* XXX: Remove GLOBAL_DEF once all PIDL generated dissectors
+						     ref HRES_errors_ext */
+value_string_ext HRES_errors_ext = VALUE_STRING_EXT_INIT(HRES_errors);
+
+
+/*
  * DOS error codes.
  */
 
