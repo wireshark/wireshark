@@ -54,6 +54,7 @@ user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
 		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
+		--destination-dir=$(builddir) \
 		$<
 
 # validate the content
@@ -99,14 +100,14 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
-		--nonet custom_layer_pdf.xsl $< > $@
+		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
 user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
-		--nonet custom_layer_pdf.xsl $< > $@
+		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 	mkdir -p wsluarm_src
@@ -133,6 +134,7 @@ developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
+		--destination-dir=$(builddir) \
 		$<
 
 # validate the content
@@ -181,7 +183,7 @@ developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
 		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet custom_layer_pdf.xsl $< > $@
+		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
@@ -189,7 +191,7 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
 		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet custom_layer_pdf.xsl $< > $@
+		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 
 if HAVE_FOP
@@ -203,15 +205,17 @@ release_notes: $(RELEASE_NOTES_TARGETS)
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
-	$(A2X) --format=xhtml $(A2X_HTML_OPTS) $(srcdir)/release-notes.asciidoc
+	$(A2X) --format=xhtml $(A2X_HTML_OPTS) \
+		--destination-dir=$(builddir) \
+		$(srcdir)/release-notes.asciidoc
 
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
 	TZ=UTC $(A2X) --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
+		--destination-dir=$(builddir) \
 		$(srcdir)/release-notes.asciidoc
-	mv $(srcdir)/release-notes.text $@
 
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
@@ -225,8 +229,8 @@ release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
 		--xsltproc-opts "--stringparam paper.type letter --nonet" \
 		--xsl-file=$(srcdir)/custom_layer_pdf.xsl \
+		--destination-dir=$(builddir) \
 		$(srcdir)/release-notes.asciidoc
-	mv $(srcdir)/release-notes.pdf $@
 
 # create pdf file, portrait pages on A4 paper
 release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
@@ -234,8 +238,8 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
 		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
 		--xsl-file=$(srcdir)/custom_layer_pdf.xsl \
+		--destination-dir=$(builddir) \
 		$(srcdir)/release-notes.asciidoc
-	mv $(srcdir)/release-notes.pdf $@
 
 clean-local:
 	-rm -rf $(CLEANDIRS)
