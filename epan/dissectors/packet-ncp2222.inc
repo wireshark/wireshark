@@ -8674,7 +8674,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
                     foffset += 2;
                     proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_retinfoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
-                    foffset += 2;
                 }
                 break;
             case 0x07:
