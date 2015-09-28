@@ -81,7 +81,7 @@ public:
         rnti_(rnti)
     {
         // Init values held for all lcids to 0.
-        for (int n=0; n < 10; n++) {
+        for (int n=0; n < 11; n++) {
             lcids[n] = 0;
         }
 
@@ -114,7 +114,7 @@ public:
     void draw()
     {
         // Show current value of counter for each LCID.
-        for (int n=0; n < 10; n++) {
+        for (int n=0; n < 11; n++) {
             setText(col_type_+n, QString("").sprintf("%u", lcids[n]));
         }
     }
@@ -144,7 +144,7 @@ public:
 private:
     unsigned ueid_;
     unsigned rnti_;
-    int lcids[10];
+    int lcids[11];
 };
 
 
