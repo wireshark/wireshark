@@ -112,6 +112,7 @@
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
 #include "lte_mac_statistics_dialog.h"
+#include "lte_rlc_statistics_dialog.h"
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
@@ -2995,6 +2996,19 @@ void MainWindow::statCommandLteMacStatistics(const char *arg, void *)
 void MainWindow::on_actionTelephonyLteMacStatistics_triggered()
 {
     statCommandLteMacStatistics(NULL, NULL);
+}
+
+void MainWindow::statCommandLteRlcStatistics(const char *arg, void *)
+{
+    LteRlcStatisticsDialog *lte_rlc_stats_dlg = new LteRlcStatisticsDialog(*this, capture_file_, arg);
+    connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    lte_rlc_stats_dlg->show();
+}
+
+void MainWindow::on_actionTelephonyLteRlcStatistics_triggered()
+{
+    statCommandLteRlcStatistics(NULL, NULL);
 }
 
 void MainWindow::on_actionTelephonyMtp3Summary_triggered()

@@ -325,6 +325,7 @@ HEADERS += $$HEADERS_WS_C \
     lbm_stream_dialog.h \
     lbm_uimflow_dialog.h \
     lte_mac_statistics_dialog.h \
+    lte_rlc_statistics_dialog.h \
     main_window_preferences_frame.h \
     manage_interfaces_dialog.h \
     module_preferences_scroll_area.h \
@@ -713,6 +714,7 @@ SOURCES += \
     lbm_stream_dialog.cpp \
     lbm_uimflow_dialog.cpp \
     lte_mac_statistics_dialog.cpp \
+    lte_rlc_statistics_dialog.cpp \
     main_status_bar.cpp \
     main_welcome.cpp \
     main_window.cpp \
