@@ -223,6 +223,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
 			${DATAFILE_DIR}/uninstall.exe
 	)
+	set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
 
 	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis to match
 	# the NMake environment for now.

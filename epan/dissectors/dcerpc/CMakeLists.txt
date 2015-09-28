@@ -43,6 +43,7 @@ if (WERROR)
 endif()
 
 add_executable(idl2wrs ${IDL2WRS_FILES})
+set_target_properties(idl2wrs PROPERTIES FOLDER "Executables")
 
 target_link_libraries(idl2wrs ${GLIB2_LIBRARIES})
 
