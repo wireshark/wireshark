@@ -68,7 +68,7 @@ typedef struct FrameRecord_t {
     gint64       offset;
     guint        num;
 
-    nstime_t     time;
+    nstime_t     frame_time;
 } FrameRecord_t;
 
 
@@ -115,7 +115,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     /* Copy, and set length and timestamp from item. */
     /* TODO: remove when wtap_seek_read() fills in phdr,
        including time stamps, for all file types  */
-    phdr->ts = frame->time;
+    phdr->ts = frame->frame_time;
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err, &err_info)) {
@@ -140,8 +140,8 @@ frames_compare(gconstpointer a, gconstpointer b)
     const FrameRecord_t *frame1 = *(const FrameRecord_t *const *) a;
     const FrameRecord_t *frame2 = *(const FrameRecord_t *const *) b;
 
-    const nstime_t *time1 = &frame1->time;
-    const nstime_t *time2 = &frame2->time;
+    const nstime_t *time1 = &frame1->frame_time;
+    const nstime_t *time2 = &frame2->frame_time;
 
     return nstime_cmp(time1, time2);
 }
@@ -305,9 +305,9 @@ DIAG_ON(cast-qual)
         newFrameRecord->num = frames->len + 1;
         newFrameRecord->offset = data_offset;
         if (phdr->presence_flags & WTAP_HAS_TS) {
-            newFrameRecord->time = phdr->ts;
+            newFrameRecord->frame_time = phdr->ts;
         } else {
-            nstime_set_unset(&newFrameRecord->time);
+            nstime_set_unset(&newFrameRecord->frame_time);
         }
 
         if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {

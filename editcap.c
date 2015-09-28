@@ -104,7 +104,7 @@ struct select_item {
 typedef struct _fd_hash_t {
     md5_byte_t digest[16];
     guint32    len;
-    nstime_t   time;
+    nstime_t   frame_time;
 } fd_hash_t;
 
 #define DEFAULT_DUP_DEPTH       5   /* Used with -d */
@@ -592,8 +592,8 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
     md5_finish(&ms, fd_hash[cur_dup_entry].digest);
 
     fd_hash[cur_dup_entry].len = len;
-    fd_hash[cur_dup_entry].time.secs = current->secs;
-    fd_hash[cur_dup_entry].time.nsecs = current->nsecs;
+    fd_hash[cur_dup_entry].frame_time.secs = current->secs;
+    fd_hash[cur_dup_entry].frame_time.nsecs = current->nsecs;
 
     /*
      * Look for relative time related duplicates.
@@ -631,7 +631,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
             break;
         }
 
-        if (nstime_is_unset(&(fd_hash[i].time))) {
+        if (nstime_is_unset(&(fd_hash[i].frame_time))) {
             /*
              * We've decremented to an unused fd_hash[] entry.
              * Check no more!
@@ -639,7 +639,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
             break;
         }
 
-        nstime_delta(&delta, current, &fd_hash[i].time);
+        nstime_delta(&delta, current, &fd_hash[i].frame_time);
 
         if (delta.secs < 0 || delta.nsecs < 0) {
             /*
@@ -1306,7 +1306,7 @@ DIAG_ON(cast-qual)
             for (i = 0; i < dup_window; i++) {
                 memset(&fd_hash[i].digest, 0, 16);
                 fd_hash[i].len = 0;
-                nstime_set_unset(&fd_hash[i].time);
+                nstime_set_unset(&fd_hash[i].frame_time);
             }
         }
 
