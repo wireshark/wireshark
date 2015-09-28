@@ -413,7 +413,7 @@ image::wsug_graphics/ws-analyze-menu.png[]
 |menu:User Specified Decodes...[]   ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAsShow>>
 |menu:Follow TCP Stream[]           ||This menu item brings up a separate window and displays all the TCP segments captured that are on the same TCP connection as a selected packet, see <<ChAdvFollowTCPSection>>
 |menu:Follow UDP Stream[]           ||Same functionality as ``Follow TCP Stream'' but for UDP streams.
-|menu:Follow SSL Stream[]           ||Same functionality as ``Follow TCP Stream'' but for SSL streams. XXX - how to provide the SSL keys?
+|menu:Follow SSL Stream[]           ||Same functionality as ``Follow TCP Stream'' but for SSL streams. See the wiki page on wireshark-wiki-site:[]SSL[SSL] for instructions on providing SSL keys.
 |menu:Expert Info[]                 ||Open a dialog showing some expert information about the captured packets. The amount of information will depend on the protocol and varies from  very detailed to non-existent. XXX - add a new section about this and link from here
 |menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
 |===============
