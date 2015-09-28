@@ -436,12 +436,15 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
 
     selector_combo_box_->clear();
 
+    bool edt_present = cap_file_ && cap_file_->edt;
     QVariant variant = table_names_combo_box_->itemData(table_names_combo_box_->currentIndex());
-    gint8 curr_layer_num_saved = cap_file_->edt->pi.curr_layer_num;
+    gint8 curr_layer_num_saved = edt_present ? cap_file_->edt->pi.curr_layer_num : 0;
     const gchar *proto_name = NULL;
     if (variant.canConvert<table_item_t>()) {
         table_item_t table_item = variant.value<table_item_t>();
-        cap_file_->edt->pi.curr_layer_num = table_item.curr_layer_num;
+        if (edt_present) {
+            cap_file_->edt->pi.curr_layer_num = table_item.curr_layer_num;
+        }
         proto_name = table_item.proto_name;
     }
 
@@ -449,9 +452,9 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
     GList *cur;
     for (cur = decode_as_list; cur; cur = cur->next) {
         decode_as_t *entry = (decode_as_t *) cur->data;
-        if ((g_strcmp0(proto_name, entry->name) == 0) &&
+        if (((proto_name == NULL) || (g_strcmp0(proto_name, entry->name) == 0)) &&
             (g_strcmp0(ui_name_to_name_[text], entry->table_name) == 0)) {
-            if (cap_file_ && cap_file_->edt) {
+            if (edt_present) {
                 for (uint ni = 0; ni < entry->num_items; ni++) {
                     if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
                         selector_combo_box_->addItem(entryString(entry->table_name,
@@ -463,7 +466,9 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
             entry->populate_list(entry->table_name, decodeAddProtocol, &dissector_info_set);
         }
     }
-    cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
+    if (edt_present) {
+        cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
+    }
     if (selector_combo_box_->count() > 0) {
         selector_combo_box_->setCurrentIndex(0);
     } else {
