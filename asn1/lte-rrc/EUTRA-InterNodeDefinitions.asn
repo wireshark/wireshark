@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.6.0 (2015-06)
+-- 3GPP TS 36.331 V12.7.0 (2015-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -48,7 +48,7 @@ IMPORTS
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList,
 	UE-RadioPagingInfo-r12,
-    WLAN-OffloadConfig-r12
+	WLAN-OffloadConfig-r12
 FROM EUTRA-RRC-Definitions;
 
 
