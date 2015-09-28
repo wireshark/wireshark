@@ -2491,10 +2491,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
             /*
