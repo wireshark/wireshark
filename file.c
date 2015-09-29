@@ -1471,10 +1471,12 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
-  if (dftext == NULL) {
-    rescan_packets(cf, "Resetting", "Filter", FALSE);
-  } else {
-    rescan_packets(cf, "Filtering", dftext, FALSE);
+  if (cf->state != FILE_CLOSED) {
+    if (dftext == NULL) {
+      rescan_packets(cf, "Resetting", "Filter", FALSE);
+    } else {
+      rescan_packets(cf, "Filtering", dftext, FALSE);
+    }
   }
 
   /* Cleanup and release all dfilter resources */
