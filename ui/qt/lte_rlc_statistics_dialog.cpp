@@ -73,7 +73,15 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
         if (elapsed_ms < 2.0) {
            return 0.0f;
         }
-        return ((bytes * 8) / elapsed_ms) / 1000;
+        float bw = ((bytes * 8) / elapsed_ms) / 1000;
+        if (bw < 0.0001) {
+            // Very small values aren't interesting/useful, and would rather see 0 than scientific notation.
+            return 0.0f;
+        }
+        else
+        {
+            return bw;
+        }
     }
     else {
         return 0.0f;
@@ -226,7 +234,7 @@ public:
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
         setText(col_ul_bytes_,   QString::number(stats_.UL_bytes));
-        setText(col_ul_mb_s_,    QString::number(UL_bw, 'g', 5));
+        setText(col_ul_mb_s_,    bits_s_to_qstring(UL_bw));
         setText(col_ul_acks_,    QString::number(stats_.UL_acks));
         setText(col_ul_nacks_,   QString::number(stats_.UL_nacks));
         setText(col_ul_missing_, QString::number(stats_.UL_missing));
@@ -234,7 +242,7 @@ public:
         // Downlink.
         setText(col_dl_frames_,  QString::number(stats_.DL_frames));
         setText(col_dl_bytes_,   QString::number(stats_.DL_bytes));
-        setText(col_ul_mb_s_,    QString::number(DL_bw, 'g', 5));
+        setText(col_ul_mb_s_,    bits_s_to_qstring(DL_bw));
         setText(col_dl_acks_,    QString::number(stats_.DL_acks));
         setText(col_dl_nacks_,   QString::number(stats_.DL_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_missing));
@@ -464,7 +472,7 @@ public:
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
         setText(col_ul_bytes_,   QString::number(stats_.UL_total_bytes));
-        setText(col_ul_mb_s_,    QString::number(UL_bw, 'g', 5));
+        setText(col_ul_mb_s_,    bits_s_to_qstring(UL_bw));
         setText(col_ul_acks_,    QString::number(stats_.UL_total_acks));
         setText(col_ul_nacks_,   QString::number(stats_.UL_total_nacks));
         setText(col_ul_missing_, QString::number(stats_.UL_total_missing));
@@ -472,7 +480,7 @@ public:
         // Downlink.
         setText(col_dl_frames_,  QString::number(stats_.DL_frames));
         setText(col_dl_bytes_,   QString::number(stats_.DL_total_bytes));
-        setText(col_dl_mb_s_,    QString::number(DL_bw, 'g', 5));
+        setText(col_dl_mb_s_,    bits_s_to_qstring(DL_bw));
         setText(col_dl_acks_,    QString::number(stats_.DL_total_acks));
         setText(col_dl_nacks_,   QString::number(stats_.DL_total_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_total_missing));
@@ -584,9 +592,8 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
                 break;
 
             default:
-                // The rest are numeric
+                // The rest are numeric.
                 statsTreeWidget()->setColumnWidth(col, one_em * 4);
-                statsTreeWidget()->headerItem()->setTextAlignment(col, Qt::AlignRight);
                 break;
         }
     }
