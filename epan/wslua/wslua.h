@@ -654,6 +654,26 @@ extern int C##_register(lua_State* L); \
 extern gboolean is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
 
+
+/* Throws a Wireshark exception, catchable via normal exceptions.h routines. */
+#define THROW_LUA_ERROR(...) \
+    THROW_FORMATTED(DissectorError, __VA_ARGS__)
+
+/* Catches any Wireshark exceptions in code and convert it into a LUA error.
+ * Normal restrictions for TRY/CATCH apply, in particular, do not return! */
+#define WRAP_NON_LUA_EXCEPTIONS(code) \
+{ \
+    volatile gboolean has_error = FALSE; \
+    TRY { \
+        code \
+    } CATCH_ALL { \
+        lua_pushstring(L, GET_MESSAGE);  \
+        has_error = TRUE; \
+    } ENDTRY; \
+    if (has_error) { lua_error(L); } \
+}
+
+
 extern packet_info* lua_pinfo;
 extern TreeItem lua_tree;
 extern tvbuff_t* lua_tvb;

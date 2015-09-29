@@ -372,6 +372,10 @@
 		except_throw(XCEPT_GROUP_WIRESHARK, (x), (y)); \
 } G_STMT_END
 
+/* Throws a formatted message, its memory is cleared after catching it. */
+#define THROW_FORMATTED(x, ...) \
+	except_throwf(XCEPT_GROUP_WIRESHARK, (x), __VA_ARGS__)
+
 #define GET_MESSAGE			except_message(exc)
 
 #define RETHROW                                     \

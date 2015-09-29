@@ -30,6 +30,7 @@
 
 #include "wslua.h"
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/exceptions.h>
 
 /* WSLUA_MODULE Proto Functions for new protocols and dissectors
 
@@ -761,6 +762,7 @@ static int
 wslua_dissect_tcp_dissector(tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree *tree, void *data)
 {
+    /* WARNING: called from a TRY block, do not call luaL_error! */
     func_saver_t* fs = (func_saver_t*)data;
     lua_State* L = fs->state;
     int consumed_bytes = 0;
@@ -776,7 +778,7 @@ wslua_dissect_tcp_dissector(tvbuff_t *tvb, packet_info *pinfo,
         push_TreeItem(L, tree, (proto_item*)tree);
 
         if  ( lua_pcall(L,3,1,0) ) {
-            luaL_error(L, "Lua Error dissect_tcp_pdus dissect_func: %s", lua_tostring(L,-1));
+            THROW_LUA_ERROR("dissect_tcp_pdus dissect_func: %s", lua_tostring(L, -1));
         } else {
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
@@ -787,7 +789,7 @@ wslua_dissect_tcp_dissector(tvbuff_t *tvb, packet_info *pinfo,
         }
 
     } else {
-        luaL_error(L,"Lua Error dissect_tcp_pdus: did not find the dissect_func dissector");
+        REPORT_DISSECTOR_BUG("dissect_tcp_pdus: did not find the dissect_func dissector");
     }
 
     return consumed_bytes;
@@ -857,9 +859,11 @@ WSLUA_FUNCTION wslua_dissect_tcp_pdus(lua_State* L) {
            destroy them before they get invoked */
         g_ptr_array_add(outstanding_FuncSavers, fs);
 
-        tcp_dissect_pdus(tvb->ws_tvb, lua_pinfo, ti->tree, proto_desegment,
-                         fixed_len, wslua_dissect_tcp_get_pdu_len,
-                         wslua_dissect_tcp_dissector, (void*)fs);
+        WRAP_NON_LUA_EXCEPTIONS(
+            tcp_dissect_pdus(tvb->ws_tvb, lua_pinfo, ti->tree, proto_desegment,
+                             fixed_len, wslua_dissect_tcp_get_pdu_len,
+                             wslua_dissect_tcp_dissector, (void*)fs);
+        )
     } else {
         luaL_error(L,"The third and fourth arguments need to be Lua functions");
     }
