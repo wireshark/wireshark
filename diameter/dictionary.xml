@@ -4853,6 +4853,7 @@
 			<enum name="IPv4" code="0"/>
 			<enum name="IPv6" code="1"/>
 			<enum name="IPv4v6" code="2"/>
+      <enum name="IPv4_OR_IPv6" code="3"/>
 		</avp>
 		<avp name="Roaming-Restricted-Due-To-Unsupported-Feature" code="1457" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
