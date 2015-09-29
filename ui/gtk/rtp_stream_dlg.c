@@ -1076,7 +1076,12 @@ rtpstream_dlg_create (void)
 /* list: pointer to list of rtp_stream_info_t* */
 void rtpstream_dlg_update(GList *list_lcl)
 {
+	GtkTreeSelection  *selection;
 	if (rtp_stream_dlg != NULL) {
+		/* Disable selection to avoid rtpstream_view_selection_func from
+		 * triggering and thereby accessing invalid memory. */
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+		gtk_tree_selection_set_mode(selection, GTK_SELECTION_NONE);
 		gtk_list_store_clear(list_store);
 		streams_nb = 0;
 
@@ -1087,6 +1092,7 @@ void rtpstream_dlg_update(GList *list_lcl)
 			list_lcl = g_list_next(list_lcl);
 		}
 
+		gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
 		rtpstream_on_unselect(NULL, NULL);
 	}
 
