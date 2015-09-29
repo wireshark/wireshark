@@ -303,6 +303,10 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-tcap.c
 )
 
+set(DIRTY_CORBA_IDL_DISSECTOR_SRC
+	dissectors/packet-cosnaming.c
+)
+
 set(DISSECTOR_SRC
 	dissectors/file-btsnoop.c
 	dissectors/file-elf.c
@@ -502,7 +506,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-corosync-totemsrp.c
 	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosine.c
-	dissectors/packet-cosnaming.c
 	dissectors/packet-couchbase.c
 	dissectors/packet-cp2179.c
 	dissectors/packet-cpfi.c
@@ -1501,6 +1504,7 @@ set(DISSECTOR_FILES
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
+	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}
 	${CUSTOM_DIRTY_ASN1_DISSECTOR_SRC}
 )

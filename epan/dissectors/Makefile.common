@@ -212,6 +212,12 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
 
+#
+# idl2wrs-generated CORBA IDL dissectors with warnings.
+#
+DIRTY_CORBA_IDL_DISSECTOR_SRC = \
+	packet-cosnaming.c
+
 FILE_DISSECTOR_SRC = \
 	file-btsnoop.c \
 	file-elf.c	\
@@ -415,7 +421,6 @@ DISSECTOR_SRC = \
 	packet-corosync-totemsrp.c	\
 	packet-coseventcomm.c	\
 	packet-cosine.c		\
-	packet-cosnaming.c	\
 	packet-couchbase.c	\
 	packet-cp2179.c		\
 	packet-cpfi.c		\
@@ -1792,4 +1797,5 @@ ALL_DISSECTORS_SRC =	\
 	$(FILE_DISSECTOR_SRC)	\
 	$(PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
-	$(DIRTY_ASN1_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC)	\
+	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
