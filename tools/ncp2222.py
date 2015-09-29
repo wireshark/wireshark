@@ -7720,7 +7720,7 @@ proto_register_ncp2222(void)
     { "All Attributes", "ncp.nds_all_attr", FT_UINT32, BASE_DEC, NULL, 0x0, "Return all Attributes?", HFILL }},
 
     { &hf_nds_return_all_classes,
-    { "All Classes", "ncp.nds_return_all_classes", FT_STRING, BASE_NONE, NULL, 0x0, "Return all Classes?", HFILL }},
+    { "All Classes", "ncp.nds_return_all_classes", FT_UINT32, BASE_DEC, NULL, 0x0, "Return all Classes?", HFILL }},
 
     { &hf_nds_req_flags,
     { "Request Flags", "ncp.nds_req_flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
