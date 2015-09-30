@@ -12615,10 +12615,10 @@ dissect_qos_map_set(packet_info *pinfo, proto_tree *tree, proto_item *item,
     offset++;
 
     if (val == 255 && val2 == 255) {
-      proto_item_append_text(dscp_item, " (UP %u not in use)", i + 1);
+      proto_item_append_text(dscp_item, " (UP %u not in use)", i);
     } else {
       proto_item_append_text(dscp_item, " (0x%02x-0x%02x: UP %u)",
-                             val, val2, i + 1);
+                             val, val2, i);
     }
   }
 
