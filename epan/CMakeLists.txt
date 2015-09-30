@@ -305,6 +305,9 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 
 set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 	dissectors/packet-cosnaming.c
+	dissectors/packet-gias.c
+	dissectors/packet-parlay.c
+	dissectors/packet-tango.c
 )
 
 set(DISSECTOR_SRC
@@ -713,7 +716,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-gearman.c
 	dissectors/packet-ged125.c
 	dissectors/packet-geneve.c
-	dissectors/packet-gias.c
 	dissectors/packet-gift.c
 	dissectors/packet-giop.c
 	dissectors/packet-git.c
@@ -1116,7 +1118,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-pagp.c
 	dissectors/packet-paltalk.c
 	dissectors/packet-pana.c
-	dissectors/packet-parlay.c
 	dissectors/packet-pcapng_block.c
 	dissectors/packet-pcep.c
 	dissectors/packet-pcli.c
@@ -1323,7 +1324,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-t30.c
 	dissectors/packet-tacacs.c
 	dissectors/packet-tali.c
-	dissectors/packet-tango.c
 	dissectors/packet-tapa.c
 	dissectors/packet-tcp.c
 	dissectors/packet-tcpros.c
