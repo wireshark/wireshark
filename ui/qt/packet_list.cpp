@@ -1000,6 +1000,7 @@ void PacketList::goLastPacket(void) {
 
 // XXX We can jump to the wrong packet if a display filter is applied
 void PacketList::goToPacket(int packet) {
+    if (!cf_goto_frame(cap_file_, packet)) return;
     int row = packet_list_model_->packetNumberToRow(packet);
     if (row >= 0) {
         setCurrentIndex(packet_list_model_->index(row, 0));
