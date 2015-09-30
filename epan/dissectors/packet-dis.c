@@ -24,8 +24,7 @@
  */
 
 /* TODO / NOTES:
- * Lots more PDUs to implement.  Only the basic engagement events are currently
- * handled (Fire, Detonation, Entity State).  Most of the basic field types are
+ * Lots more PDUs to implement. Most of the basic field types are
  * complete, however, so declaring new PDUs should be fairly simple.
  *
  * Lots more enumerations to implement.
@@ -3410,6 +3409,8 @@ static const value_string DIS_PDU_IffMode4_Strings[] =
 * FIELDS
 *
 *******************************************************************************/
+
+/* DIS global */
 static gint proto_dis = -1;
 static int hf_dis_proto_ver = -1;
 static int hf_dis_exercise_id = -1;
@@ -3418,6 +3419,8 @@ static int hf_dis_proto_fam = -1;
 static int hf_dis_header_rel_ts = -1;
 static int hf_dis_pdu_length = -1;
 static int hf_dis_padding = -1;
+static int hf_dis_event_type = -1;
+static int hf_dis_model_type = -1;
 static int hf_dis_po_ver = -1;
 static int hf_dis_po_pdu_type = -1;
 static int hf_dis_po_database_id = -1;
@@ -3457,6 +3460,7 @@ static int hf_dis_datum_id = -1;
 static int hf_dis_fixed_datum_value = -1;
 static int hf_dis_datum_length = -1;
 static int hf_dis_variable_datum_value = -1;
+static int hf_dis_variable_datum_value_as_text = -1;
 static int hf_dis_time_interval8 = -1;
 static int hf_dis_time_interval32 = -1;
 static int hf_dis_num_fixed_datum_id = -1;
@@ -3540,9 +3544,101 @@ static int hf_dis_mod_param_transmitter_second_mode = -1;
 static int hf_dis_mod_param_sync_state = -1;
 static int hf_dis_mod_param_network_sync_id = -1;
 static int hf_dis_force_id = -1;
-static int hf_dis_entity_linear_velocity_x = -1;
-static int hf_dis_entity_linear_velocity_y = -1;
-static int hf_dis_entity_linear_velocity_z = -1;
+
+/* DIS aggregate */
+static int hf_dis_aggregate_marking = -1;
+static int hf_dis_aggregate_number_of_aggregates = -1;
+static int hf_dis_aggregate_number_of_entities = -1;
+static int hf_dis_aggregate_number_of_silent_aggregates_types = -1;
+static int hf_dis_aggregate_number_of_silent_entity_types = -1;
+static int hf_dis_aggregate_number_of_variable_datum_records = -1;
+static int hf_dis_aggregate_state = -1;
+static int hf_dis_aggregate_formation = -1;
+static int hf_dis_aggregate_kind = -1;
+static int hf_dis_aggregate_domain = -1;
+static int hf_dis_aggregate_country = -1;
+static int hf_dis_aggregate_category = -1;
+static int hf_dis_aggregate_subcategory = -1;
+static int hf_dis_aggregate_specific = -1;
+static int hf_dis_aggregate_extra = -1;
+static int hf_dis_aggregate_dimensions_x = -1;
+static int hf_dis_aggregate_dimensions_y = -1;
+static int hf_dis_aggregate_dimensions_z = -1;
+static int hf_dis_aggregate_orientation_psi = -1;
+static int hf_dis_aggregate_orientation_theta = -1;
+static int hf_dis_aggregate_orientation_phi = -1;
+static int hf_dis_aggregate_center_of_mass_x = -1;
+static int hf_dis_aggregate_center_of_mass_y = -1;
+static int hf_dis_aggregate_center_of_mass_z = -1;
+static int hf_dis_aggregate_velocity_x = -1;
+static int hf_dis_aggregate_velocity_y = -1;
+static int hf_dis_aggregate_velocity_z = -1;
+static int hf_dis_aggregate_id_site = -1;
+static int hf_dis_aggregate_id_application = -1;
+static int hf_dis_aggregate_id_aggregate = -1;
+
+/* DIS environment */
+static int hf_dis_environmental_number_of_environment_records = -1;
+static int hf_dis_environmental_sequence_number = -1;
+static int hf_dis_environment_status_last = -1;
+static int hf_dis_environment_status_on = -1;
+static int hf_dis_environment_kind = -1;
+static int hf_dis_environment_domain = -1;
+static int hf_dis_environment_class = -1;
+static int hf_dis_environment_category = -1;
+static int hf_dis_environment_subcategory = -1;
+static int hf_dis_environment_specific = -1;
+static int hf_dis_environment_extra = -1;
+
+/* DIS datums */
+static int hf_dis_fixed_datum_value_as_uint = -1;
+static int hf_dis_fixed_datum_value_as_float = -1;
+static int hf_dis_fixed_datum_value_as_int = -1;
+
+/* Appearance */
+static int hf_appearance_frozen_status = -1;
+static int hf_appearance_state = -1;
+static int hf_appearance_weapon_1 = -1;
+static int hf_appearance_weapon_2 = -1;
+static int hf_appearance_camouflage_type = -1;
+static int hf_appearance_concealed_stationary = -1;
+static int hf_appearance_concealed_movement = -1;
+static int hf_appearance_landform_paint_scheme = -1;
+static int hf_appearance_landform_mobility = -1;
+static int hf_appearance_landform_fire_power = -1;
+static int hf_appearance_landform_damage = -1;
+static int hf_appearance_landform_smoke_entity = -1;
+static int hf_appearance_landform_trailing_effects_entity = -1;
+static int hf_appearance_landform_hatch = -1;
+static int hf_appearance_landform_head_lights = -1;
+static int hf_appearance_landform_tail_lights = -1;
+static int hf_appearance_landform_brake_lights = -1;
+static int hf_appearance_landform_flaming = -1;
+static int hf_appearance_landform_launcher = -1;
+static int hf_appearance_landform_camouflage_type = -1;
+static int hf_appearance_landform_concealed = -1;
+static int hf_appearance_landform_frozen_status = -1;
+static int hf_appearance_landform_power_plant_status = -1;
+static int hf_appearance_landform_state = -1;
+static int hf_appearance_landform_tent = -1;
+static int hf_appearance_landform_ramp = -1;
+static int hf_appearance_landform_blackout_lights = -1;
+static int hf_appearance_landform_blackout_brake_lights = -1;
+static int hf_appearance_landform_spot_lights = -1;
+static int hf_appearance_landform_interior_lights = -1;
+static int hf_appearance_landform_surrender_state = -1;
+static int hf_appearance_landform_masked_cloaked = -1;
+static int hf_appearance_lifeform_paint_scheme = -1;
+static int hf_appearance_lifeform_health = -1;
+static int hf_appearance_lifeform_compliance = -1;
+static int hf_appearance_lifeform_flash_lights = -1;
+static int hf_appearance_lifeform_state = -1;
+
+/* Entity */
+static int hf_dis_entity_marking_character_set = -1;
+static int hf_dis_aggregate_marking_character_set = -1;
+static int hf_dis_entity_dead_reckoning_algorithm = -1;
+static int hf_dis_dead_reckoning_other_parameters = -1;
 static int hf_dis_entity_location_x_double = -1;
 static int hf_dis_entity_location_x_float = -1;
 static int hf_dis_entity_location_y_double = -1;
@@ -3552,15 +3648,44 @@ static int hf_dis_entity_location_z_float = -1;
 static int hf_dis_entity_orientation_psi = -1;
 static int hf_dis_entity_orientation_theta = -1;
 static int hf_dis_entity_orientation_phi = -1;
-static int hf_appearance_landform_paint_scheme = -1;
-static int hf_appearance_landform_mobility = -1;
-static int hf_appearance_landform_fire_power = -1;
-static int hf_appearance_landform_damage = -1;
-static int hf_appearance_lifeform_paint_scheme = -1;
-static int hf_appearance_lifeform_health = -1;
+static int hf_dis_entity_linear_velocity_x = -1;
+static int hf_dis_entity_linear_velocity_y = -1;
+static int hf_dis_entity_linear_velocity_z = -1;
+static int hf_dis_entity_linear_aceleration_x = -1;
+static int hf_dis_entity_linear_aceleration_y = -1;
+static int hf_dis_entity_linear_aceleration_z = -1;
+static int hf_dis_entity_entity_angular_velocity_x = -1;
+static int hf_dis_entity_entity_angular_velocity_y = -1;
+static int hf_dis_entity_entity_angular_velocity_z = -1;
+
+/* Intercom */
+static int hf_intercom_control_control_type = -1;
+static int hf_intercom_control_communications_channel_type = -1;
+static int hf_intercom_control_source_communications_device_id = -1;
+static int hf_intercom_control_source_line_id = -1;
+static int hf_intercom_control_transmit_priority = -1;
+static int hf_intercom_control_transmit_line_state = -1;
+static int hf_intercom_control_command = -1;
+static int hf_intercom_control_master_communications_device_id = -1;
+static int hf_intercom_control_master_channel_id = -1;
+
+/* TODO: put them in the best matched group */
 static int hf_entity_appearance = -1;
-static int hf_dis_dead_reckoning_parameters = -1;
 static int hf_dis_entity_marking = -1;
+
+/* Dis designator */
+static int hf_dis_designator_code_name = -1;
+static int hf_dis_designator_designator_code = -1;
+static int hf_dis_designator_power = -1;
+static int hf_dis_designator_wavelength = -1;
+static int hf_dis_designator_spot_with_respect_to_designated_entity_x = -1;
+static int hf_dis_designator_spot_with_respect_to_designated_entity_y = -1;
+static int hf_dis_designator_spot_with_respect_to_designated_entity_z = -1;
+static int hf_dis_designator_spot_location_x = -1;
+static int hf_dis_designator_spot_location_y = -1;
+static int hf_dis_designator_spot_location_z = -1;
+
+/* More DIS global */
 static int hf_dis_capabilities = -1;
 static int hf_dis_variable_parameter_type = -1;
 static int hf_dis_num_shafts = -1;
@@ -3731,11 +3856,39 @@ static gint ett_entity_type = -1;
 static gint ett_dis_crypto_key = -1;
 static gint ett_antenna_location = -1;
 static gint ett_rel_antenna_location = -1;
+static gint ett_aggregate_dimensions = -1;
+static gint ett_aggregate_orientation = -1;
+static gint ett_aggregate_velocity = -1;
+static gint ett_aggregate_id_list = -1;
+static gint ett_entity_id_list = -1;
+static gint ett_variable_datum = -1;
+
+
+
+
+
 static gint ett_modulation_type = -1;
 static gint ett_modulation_parameters = -1;
 static gint ett_entity_linear_velocity = -1;
 static gint ett_entity_location = -1;
 static gint ett_entity_orientation = -1;
+static gint ett_entity_marking_text = -1;
+static gint ett_aggregate_marking_text = -1;
+static gint ett_entity_dead_reckoning_parameters = -1;
+static gint ett_entity_linear_aceleration = -1;
+static gint ett_entity_angular_velocity = -1;
+static gint ett_environmental_environment_status = -1;
+static gint ett_environmental_environment_type = -1;
+static gint ett_aggregate_type = -1;
+static gint ett_aggregate_center_of_mass = -1;
+static gint ett_designator_spot_location = -1;
+static gint ett_designator_spot_with_respect_to_designated_entity = -1;
+static gint ett_designator_entity_linear_aceleration = -1;
+
+
+
+
+
 static gint ett_entity_appearance = -1;
 static gint ett_variable_parameter = -1;
 static gint ett_event_id = -1;
@@ -3783,6 +3936,7 @@ typedef int DIS_Parser_func(tvbuff_t *, packet_info *, proto_tree *, int);
 
 /* Forward declarations */
 static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
+static gint parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
 static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
 static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, guint8 paramType);
 static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, guint32 variableRecordType, guint16 record_length);
@@ -3859,25 +4013,37 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
    return (offset+8);
 }
 
-static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree, int offset, const char* name, gint ett, int hfkind, int hfdomain, int hfcountry, int hfcategory, int hfsubcategory, int hfspecific, int hfextra)
 {
+    guint16 entityCountry;
+    guint8 entityCategory;
+    guint8 entitySubcategory;
+    guint8 entitySpecific;
+    guint8 entityExtra;
+
     proto_tree  *sub_tree;
-    int hf_cat = hf_dis_category;
+    int hf_cat = hfcategory;
 
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_entity_type, NULL, entity_name);
-
-    proto_tree_add_item(sub_tree, hf_dis_entityKind, tvb, offset, 1, ENC_BIG_ENDIAN);
     entityKind = tvb_get_guint8(tvb, offset);
+    entityDomain = tvb_get_guint8(tvb, offset+1);
+    entityCountry = tvb_get_ntohs(tvb, offset+2);
+    entityCategory = tvb_get_guint8(tvb, offset+4);
+    entitySubcategory = tvb_get_guint8(tvb, offset+5);
+    entitySpecific = tvb_get_guint8(tvb, offset+6);
+    entityExtra = tvb_get_guint8(tvb, offset+7);
+
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett, NULL, "%s, (%u:%u:%u:%u:%u:%u:%u) ", name, entityKind, entityDomain, entityCountry, entityCategory, entitySubcategory, entitySpecific, entityExtra);
+
+    proto_tree_add_uint(sub_tree, hfkind, tvb, offset, 1, entityKind);
     offset++;
 
-    proto_tree_add_item(sub_tree, hf_dis_entityDomain, tvb, offset, 1, ENC_BIG_ENDIAN);
-    entityDomain = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(sub_tree, hfdomain, tvb, offset, 1, entityDomain);
     offset++;
 
-    proto_tree_add_item(sub_tree, hf_dis_country, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sub_tree, hfcountry, tvb, offset, 2, entityCountry);
     offset += 2;
 
-    if (entityKind == DIS_ENTITYKIND_PLATFORM)
+    if (entityKind == DIS_ENTITYKIND_PLATFORM && hfcategory == hf_dis_category)
     {
         switch(entityDomain)
         {
@@ -3899,19 +4065,24 @@ static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int o
         }
     }
 
-    proto_tree_add_item(sub_tree, hf_cat, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sub_tree, hf_cat, tvb, offset, 1, entityCategory);
     offset++;
 
-    proto_tree_add_item(sub_tree, hf_dis_subcategory, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sub_tree, hfsubcategory, tvb, offset, 1, entitySubcategory);
     offset++;
 
-    proto_tree_add_item(sub_tree, hf_dis_specific, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sub_tree, hfspecific, tvb, offset, 1, entitySpecific);
     offset++;
 
-    proto_tree_add_item(sub_tree, hf_dis_extra, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sub_tree, hfextra, tvb, offset, 1, entityExtra);
     offset++;
 
     return offset;
+}
+
+static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+{
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_entity_type, hf_dis_entityKind, hf_dis_entityDomain, hf_dis_country, hf_dis_category, hf_dis_subcategory, hf_dis_specific, hf_dis_extra);
 }
 
 static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
@@ -3931,17 +4102,28 @@ static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(sub_tree, hf_dis_country, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_dis_nomenclature_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_nomenclature_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_dis_nomenclature, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_nomenclature, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
 }
+
+static int dissect_DIS_FIELDS_AGGREGATE_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+{
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_aggregate_type, hf_dis_aggregate_kind, hf_dis_aggregate_domain, hf_dis_aggregate_country, hf_dis_aggregate_category, hf_dis_aggregate_subcategory, hf_dis_aggregate_specific, hf_dis_aggregate_extra);
+}
+
+static int dissect_DIS_FIELDS_ENVIRONMENT_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+{
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_environmental_environment_type, hf_dis_environment_kind, hf_dis_environment_domain, hf_dis_environment_class, hf_dis_environment_category, hf_dis_environment_subcategory, hf_dis_environment_specific, hf_dis_environment_extra);
+}
+
 
 static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, guint16* systemModulation)
 {
@@ -4223,6 +4405,7 @@ static gint parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, g
     proto_tree  *sub_tree;
     guint32 i;
 
+
     for (i = 0; i < num_items; i++)
     {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_fixed_datum, NULL, field_name);
@@ -4231,6 +4414,10 @@ static gint parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, g
         offset += 4;
 
         proto_tree_add_item(sub_tree, hf_dis_fixed_datum_value, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_dis_fixed_datum_value_as_int, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_dis_fixed_datum_value_as_float, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_dis_fixed_datum_value_as_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
+
         offset += 4;
     }
 
@@ -4242,6 +4429,7 @@ static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree
     proto_item  *ti;
     proto_tree  *sub_tree;
     guint32 i, data_length, lengthInBytes;
+    unsigned char padding;
 
     for (i = 0; i < num_items; i++)
     {
@@ -4256,10 +4444,18 @@ static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree
 
         lengthInBytes = data_length / 8;
         if (data_length % 8 > 0)
-            lengthInBytes += (8 - (data_length % 8));
+            lengthInBytes += 1;/* add another byte for the remaining bits */
 
         proto_tree_add_item(sub_tree, hf_dis_variable_datum_value, tvb, offset, lengthInBytes, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_dis_variable_datum_value_as_text, tvb, offset, lengthInBytes, ENC_ASCII|ENC_NA);
+
         offset += lengthInBytes;
+
+        padding = lengthInBytes % 8;
+        if (padding > 0)
+            padding = 8 - padding;
+
+        offset += padding;
 
         proto_item_set_end(ti, tvb, offset);
     }
@@ -4487,12 +4683,363 @@ static const value_string appearance_health_vals[] =
     { 0, NULL }
 };
 
+static const value_string appearance_compliance_vals[] =
+{
+    { 0, "Unused" },
+    { 1, "Detained" },
+    { 2, "Surrender" },
+    { 3, "Using fists" },
+    { 4, "Verbal abuse level 1" },
+    { 5, "Verbal abuse level 2" },
+    { 6, "Verbal abuse level 3" },
+    { 7, "Passive resistance level 1" },
+    { 8, "Passive resistance level 2" },
+    { 9, "Passive resistance level 3" },
+    { 10, "Using non-lethal weapon 1" },
+    { 11, "Using non-lethal weapon 2" },
+    { 12, "Using non-lethal weapon 3" },
+    { 13, "Using non-lethal weapon 4" },
+    { 14, "Using non-lethal weapon 5" },
+    { 15, "Using non-lethal weapon 6" },
+    { 0, NULL }
+};
+
+static const value_string appearance_lifeform_state_vals[] =
+{
+    { 0, "Unused" },
+    { 1, "Upright, standing still" },
+    { 2, "Upright, walking" },
+    { 3, "Upright, running" },
+    { 4, "Kneeling" },
+    { 5, "Prone" },
+    { 6, "Crawling" },
+    { 7, "Swimming" },
+    { 8, "Parachuting" },
+    { 9, "Jumping" },
+    { 10, "Sitting" },
+    { 11, "Squatting" },
+    { 12, "Crouching" },
+    { 13, "Wading" },
+    { 14, "Surrender" },
+    { 15, "Detained" },
+    { 0, NULL }
+};
+
+static const value_string appearance_frozen_status_vals[] =
+{
+    { 0, "Not frozen" },
+    { 1, "Frozen" },
+    { 0, NULL }
+};
+
+static const value_string appearance_state_vals[] =
+{
+    { 0, "Active" },
+    { 1, "Deactivated" },
+    { 0, NULL }
+};
+
+static const value_string appearance_Weapon_1_vals[] =
+{
+    { 0, "No primary weapon present" },
+    { 1, "Primary weapon is stowed" },
+    { 2, "Primary weapon is deployed" },
+    { 3, "Primary weapon is in firing position" },
+    { 0, NULL }
+};
+
+static const value_string appearance_Weapon_2_vals[] =
+{
+    { 0, "No primary weapon present" },
+    { 1, "Primary weapon is stowed" },
+    { 2, "Primary weapon is deployed" },
+    { 3, "Primary weapon is in firing position" },
+    { 0, NULL }
+};
+
+static const value_string appearance_camouflage_type_vals[] =
+{
+    { 0, "Desert camouflage" },
+    { 1, "Winter camouflage" },
+    { 2, "Forest camouflage" },
+    { 3, "Unused" },
+    { 0, NULL }
+};
+
+static const value_string appearance_concealed_stationary_vals[] =
+{
+    { 0, "Not concealed" },
+    { 1, "Entity in a prepared concealed position" },
+    { 0, NULL }
+};
+
+static const value_string appearance_concealed_movement_vals[] =
+{
+    { 0, "Open movement" },
+    { 1, "Rushes between covered positions" },
+    { 0, NULL }
+};
+
+static const value_string appearance_smoke_entity_vals[] =
+{
+    { 0, "Not smoking" },
+    { 1, "Smoke plume rising from the entity" },
+    { 2, "Entity is emitting engine smoke" },
+    { 3, "Entity is emitting engine smoke, and smoke plume is rising from the entity" },
+    { 0, NULL }
+};
+
+static const value_string appearance_trailing_effects_entity_vals[] =
+{
+    { 0, "None" },
+    { 1, "Small" },
+    { 2, "Medium" },
+    { 3, "Large" },
+    { 0, NULL }
+};
+
+static const value_string appearance_hatch_vals[] =
+{
+    { 0, "Not applicable" },
+    { 1, "Primary hatch is closed" },
+    { 2, "Primary hatch is popped" },
+    { 3, "Primary hatch is popped and a person is visible under hatch" },
+    { 4, "Primary hatch is open" },
+    { 5, "Primary hatch is open and person is visible" },
+    { 6, "Unused" },
+    { 7, "Unused" },
+    { 0, NULL }
+};
+
+static const value_string appearance_flaming_vals[] =
+{
+    { 0, "None" },
+    { 1, "Flames present" },
+    { 0, NULL }
+};
+
+static const value_string appearance_launcher_vals[] =
+{
+    { 0, "Not raised" },
+    { 1, "Raised" },
+    { 0, NULL }
+};
+
+static const value_string appearance_concealed_vals[] =
+{
+    { 0, "Not concealed" },
+    { 1, "Entity in a prepared concealed position" },
+    { 0, NULL }
+};
+
+static const value_string appearance_power_plant_status_vals[] =
+{
+    { 0, "Power plant off" },
+    { 1, "Power plant on" },
+    { 0, NULL }
+};
+
+static const value_string appearance_tent_vals[] =
+{
+    { 0, "Not extended" },
+    { 1, "Extended" },
+    { 0, NULL }
+};
+
+static const value_string appearance_ramp_vals[] =
+{
+    { 0, "Up" },
+    { 1, "Down" },
+    { 0, NULL }
+};
+
+static const value_string appearance_surrentder_state_vals[] =
+{
+    { 0, "Not surrendered" },
+    { 1, "Surrender" },
+    { 0, NULL }
+};
+
+static const value_string appearance_masked_cloaked_vals[] =
+{
+    { 0, "Not Masked / Not Cloaked" },
+    { 1, "Masked / Cloaked" },
+    { 0, NULL }
+};
+
+static const value_string entity_marking_character_set_vals[] =
+{
+    { 0, "Unused" },
+    { 1, "ASCII" },
+    { 2, "Army Marking (CCTT)" },
+    { 3, "Digit Chevron" },
+    { 0, NULL }
+};
+
+static const value_string entity_dead_reckoning_algorithm_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Static (Entity does not move.)" },
+    { 2, "DRM(F, P, W)" },
+    { 3, "DRM(R, P, W)" },
+    { 4, "DRM(R, V, W)" },
+    { 5, "DRM(F, V, W)" },
+    { 6, "DRM(F, P, B)" },
+    { 7, "DRM(R, P, B)" },
+    { 8, "DRM(R, V, B)" },
+    { 9, "DRM(F, V, B)" },
+    { 0, NULL }
+};
+
+static const value_string environmental_environment_status_last_vals[] =
+{
+    { 0, "Not Last" },
+    { 1, "Last" },
+    { 0, NULL }
+};
+
+static const value_string environmental_environment_status_on_vals[] =
+{
+    { 0, "Not Active" },
+    { 1, "Active" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_state_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Aggregated" },
+    { 2, "Disaggregated" },
+    { 3, "Fully disaggregated" },
+    { 4, "Pseudo - disaggregated" },
+    { 5, "Partially - disaggregated" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_kind_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Military Hierarchy" },
+    { 2, "Common Type" },
+    { 3, "Common Mission" },
+    { 4, "Similar Capabilities" },
+    { 5, "Common Location" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_category_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Individual Vehicle" },
+    { 2, "Element" },
+    { 3, "Platoon" },
+    { 4, "Battery" },
+    { 5, "Company" },
+    { 6, "Battalion" },
+    { 7, "Regiment" },
+    { 8, "Brigade" },
+    { 9, "Division" },
+    { 10, "Corps" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_subcategory_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Cavalry Troop" },
+    { 2, "Armor" },
+    { 3, "Infantry" },
+    { 4, "Mechanized Infantry" },
+    { 5, "Cavalry" },
+    { 6, "Armored Cavalry" },
+    { 7, "Artillery" },
+    { 8, "Self - propelled Artillery" },
+    { 9, "Close Air Support" },
+    { 10, "Engineer" },
+    { 11, "Air Defense Artillery" },
+    { 12, "Anti - tank" },
+    { 13, "Army Aviation Fixed - wing" },
+    { 14, "Army Aviation Rotary - wing" },
+    { 15, "Army Attack Helicopter" },
+    { 16, "Air Cavalry" },
+    { 17, "Armor Heavy Task Force" },
+    { 18, "Motorized Rifle" },
+    { 19, "Mechanized Heavy Task Force" },
+    { 20, "Command Post" },
+    { 21, "CEWI" },
+    { 22, "Tank only" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_specific_vals[] =
+{
+    { 0, "No headquarters" },
+    { 1, "Yes aggregate unit contains a headquarters" },
+    { 0, NULL }
+};
+
+static const value_string aggregate_formation_vals[] =
+{
+    { 0, "Other" },
+    { 1, "Assembly" },
+    { 2, "Vee" },
+    { 3, "Wedge" },
+    { 4, "Line" },
+    { 5, "Column" },
+    { 0, NULL }
+};
+
+static const value_string designator_code_name_vals[] =
+{
+    { 0, "Other" },
+    { 1, "TBD" },
+    { 0, NULL }
+};
+
+static const value_string designator_designator_code_vals[] =
+{
+    { 0, "Other" },
+    { 1, "TBD" },
+    { 0, NULL }
+};
+
+
+static const value_string intercom_control_control_type_vals[]=
+{
+    { 0, "Reserved" },
+    { 1, "Status" },
+    { 2, "Request - Acknowledge Required" },
+    { 3, "Request - No Acknowledge" },
+    { 4, "Ack - Request Granted" },
+    { 5, "Nack - Request Denied" },
+    { 0, NULL }
+};
+
+static const value_string intercom_control_communications_channel_type_vals[] =
+{
+    { 0, "Reserved" },
+    {1, "Connection FDX"},
+    {2, "Connection HDX - Destination is Receive Only"     },
+    {3, "Connection HDX - Destination is Transmit Only"},
+    {4, "Connection HDX"},
+    { 0, NULL }
+};
+
 static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
+    static guint32 entitySite;
+    static guint32 entityApplication;
+    static guint32 entityEntity;
     proto_item *ti;
     proto_tree *sub_tree;
-    guint8 variableParameterType, numVariable;
+    proto_tree *sub_tree2;
+    guint8 variableParameterType, numVariable, entity_marking_character_set;
     guint32 i;
+    char *entity_marking_text;
+
+    entitySite = tvb_get_ntohs(tvb, offset);
+    entityApplication = tvb_get_ntohs(tvb, offset+2);
+    entityEntity = tvb_get_ntohs(tvb, offset+4);
 
     offset = parseField_Entity(tvb, tree, offset, "Entity ID");
 
@@ -4505,10 +5052,12 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
 
     offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Entity Type");
 
-    col_append_fstr( pinfo->cinfo, COL_INFO, ", %s, %s",
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", %s, %s, (%u:%u:%u)",
                     val_to_str_const(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
-                    val_to_str_const(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
+                    val_to_str_const(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain"),
+                    entitySite , entityApplication , entityEntity
                     );
+
 
     offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Alternative Entity Type");
 
@@ -4536,20 +5085,61 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     proto_tree_add_item(sub_tree, hf_dis_entity_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_entity_appearance, NULL, "Entity Appearance");
-
     if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
         (entityDomain == DIS_DOMAIN_LAND))
     {
-        proto_tree_add_item(sub_tree, hf_appearance_landform_paint_scheme, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_tree, hf_appearance_landform_mobility, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_tree, hf_appearance_landform_fire_power, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_tree, hf_appearance_landform_damage, tvb, offset, 4, ENC_BIG_ENDIAN);
+        static const int *entity_appearance_domain_land_bitmask[] =
+        {
+            &hf_appearance_landform_paint_scheme,
+            &hf_appearance_landform_mobility,
+            &hf_appearance_landform_fire_power,
+            &hf_appearance_landform_damage,
+            &hf_appearance_landform_smoke_entity,
+            &hf_appearance_landform_trailing_effects_entity,
+            &hf_appearance_landform_hatch,
+            &hf_appearance_landform_head_lights,
+            &hf_appearance_landform_tail_lights,
+            &hf_appearance_landform_brake_lights,
+            &hf_appearance_landform_flaming,
+            &hf_appearance_landform_launcher,
+            &hf_appearance_landform_camouflage_type,
+            &hf_appearance_landform_concealed,
+            &hf_appearance_landform_frozen_status,
+            &hf_appearance_landform_power_plant_status,
+            &hf_appearance_landform_state,
+            &hf_appearance_landform_tent,
+            &hf_appearance_landform_ramp,
+            &hf_appearance_landform_blackout_lights,
+            &hf_appearance_landform_blackout_brake_lights,
+            &hf_appearance_landform_spot_lights,
+            &hf_appearance_landform_interior_lights,
+            &hf_appearance_landform_surrender_state,
+            &hf_appearance_landform_masked_cloaked,
+            NULL
+        };
+
+        sub_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
     }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
-        proto_tree_add_item(sub_tree, hf_appearance_lifeform_paint_scheme, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_tree, hf_appearance_lifeform_health, tvb, offset, 4, ENC_BIG_ENDIAN);
+        static const int *entity_appearance_kind_life_form_bitmask[] =
+        {
+            &hf_appearance_lifeform_paint_scheme,
+            &hf_appearance_lifeform_health,
+            &hf_appearance_lifeform_compliance,
+            &hf_appearance_lifeform_flash_lights,
+            &hf_appearance_lifeform_state,
+            &hf_appearance_frozen_status,
+            &hf_appearance_state,
+            &hf_appearance_weapon_1,
+            &hf_appearance_weapon_2,
+            &hf_appearance_camouflage_type,
+            &hf_appearance_concealed_stationary,
+            &hf_appearance_concealed_movement,
+            NULL
+        };
+
+        sub_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
     }
     else
     {
@@ -4557,17 +5147,49 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     }
     offset += 4;
 
-    /* This is really a struct... needs a field parser.
-     * For now, just skip the 40 bytes.
-     */
-    proto_tree_add_item(tree, hf_dis_dead_reckoning_parameters, tvb, offset, 40, ENC_NA);
-    offset += 40;
+    sub_tree2 = proto_tree_add_subtree(tree, tvb, offset, 40, ett_entity_dead_reckoning_parameters, NULL, "Dead Reckoning Parameters");
+    proto_tree_add_item(sub_tree2, hf_dis_entity_dead_reckoning_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(sub_tree, hf_dis_dead_reckoning_other_parameters, tvb, offset, 15, ENC_NA);
+    offset += 15;
 
-    /* This is really a struct... needs a field parser.
-     * For now, just skip the 12 bytes.
-     */
-    proto_tree_add_item(tree, hf_dis_entity_marking, tvb, offset, 12, ENC_NA);
-    offset += 12;
+    sub_tree = proto_tree_add_subtree(sub_tree2, tvb, offset, 12, ett_entity_linear_aceleration, NULL, "Entity Linear Acceleration");
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(sub_tree2, tvb, offset, 12, ett_entity_angular_velocity, NULL, "Entity Angular Velocity");
+    proto_tree_add_item(sub_tree, hf_dis_entity_entity_angular_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_entity_angular_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_entity_angular_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_entity_marking_text, NULL, "Entity Marking");
+
+    entity_marking_character_set = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(sub_tree, hf_dis_entity_marking_character_set, tvb, offset, 1, entity_marking_character_set);
+    offset += 1;
+    entity_marking_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset , 11, ENC_ASCII);
+    switch (entity_marking_character_set)
+    {
+        case 0:/* Unused */
+            break;/* Don't translate it, nothing to be translated */
+        case 1:/* ASCII */
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", entity_marking_text);
+            proto_tree_add_item(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA);
+        case 2:/* Army Marking (CCTT) */
+            /* TODO: Complete this */
+            break;
+        case 3:/* Digit Chevron */
+            /* TODO: Complete this */
+            break;
+    }
+    offset += 11;
 
     proto_tree_add_item(tree, hf_dis_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -5070,13 +5692,111 @@ static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo,
             offset = dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvb, sub_tree, offset);
             break;
         default: /* just dump what is available */
-            proto_tree_add_item(tree, hf_dis_mod_param_dump, tvb, offset, modulationParamLength, ENC_NA );
+            proto_tree_add_item(tree, hf_dis_mod_param_dump, tvb, offset, modulationParamLength, ENC_NA);
             offset += modulationParamLength;
             break;
         }
     } /* else, leave offset alone, and then check antenna pattern param field */
 
     /* need to finish decoding this PDU */
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_tree* sub_tree;
+    guint16 code_name;
+
+    offset = parseField_Entity(tvb, tree, offset, "Designating Entity ID");
+
+
+    proto_tree_add_item(tree, hf_dis_designator_code_name, tvb, offset, 2, ENC_BIG_ENDIAN);
+    code_name = tvb_get_ntohs(tvb, offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", CodeName=%u", code_name);
+    offset += 2;
+
+    offset = parseField_Entity(tvb, tree, offset, "Designated Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_designator_designator_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_designator_power, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_designator_wavelength, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_designator_spot_with_respect_to_designated_entity, NULL, "Designator Spot with Respect to Designated Entity");
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_with_respect_to_designated_entity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_with_respect_to_designated_entity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_with_respect_to_designated_entity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_designator_spot_location, NULL, "Designator Spot Location");
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_designator_spot_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_dis_entity_dead_reckoning_algorithm, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_designator_entity_linear_aceleration, NULL, "Entity Linear Acceleration");
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_aceleration_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* need to finish decoding this PDU */
+    return offset;
+}
+
+static int dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    gint8 source_line_id;
+    proto_tree_add_item(tree, hf_intercom_control_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_intercom_control_communications_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    offset = parseField_Entity(tvb, tree, offset, "Source Entity ID");
+
+
+    proto_tree_add_item(tree, hf_intercom_control_source_communications_device_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_intercom_control_source_line_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    source_line_id = tvb_get_guint8(tvb, offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", SourceLineID=%u", source_line_id);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_intercom_control_transmit_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_intercom_control_transmit_line_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_intercom_control_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    offset = parseField_Entity(tvb, tree, offset, "Master Entity ID");
+
+    proto_tree_add_item(tree, hf_intercom_control_master_communications_device_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_intercom_control_master_channel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
     return offset;
 }
 
@@ -5355,6 +6075,33 @@ static int dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvbuff_t *tvb, packet_info *pi
     return offset;
 }
 
+static int dissect_DIS_PARSER_EVENT_REPORT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_event_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
 static int dissect_DIS_PARSER_DATA_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     guint32 numFixed, numVariable;
@@ -5405,6 +6152,144 @@ static int dissect_DIS_PARSER_DATA_QUERY_PDU(tvbuff_t *tvb, packet_info *pinfo _
 
     offset = parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, "Fixed datum ids", numFixed);
     offset = parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvb, tree, offset, "Variable datum ids", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 number_of_variable_datum_records;
+    proto_tree *sub_tree;
+    char *marking_text;
+    static guint32 entitySite, entityApplication, entityEntity;
+    guint16 number_of_aggregates, number_of_entities, number_of_silent_aggregates_types, padding;
+    int i;
+
+    entitySite = tvb_get_ntohs(tvb, offset);
+    entityApplication = tvb_get_ntohs(tvb, offset + 2);
+    entityEntity = tvb_get_ntohs(tvb, offset + 4);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", (%u:%u:%u)",    entitySite, entityApplication, entityEntity    );
+
+    offset = parseField_Aggregate(tvb, tree, offset, "Aggregate ID");
+
+    proto_tree_add_item(tree, hf_dis_force_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_aggregate_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    offset = dissect_DIS_FIELDS_AGGREGATE_TYPE(tvb, tree, offset, "Aggregate Type");
+
+    proto_tree_add_item(tree, hf_dis_aggregate_formation, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* TODO: Support non ASCII aggregate marking character set */
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_marking_text, NULL, "Aggregate Marking");
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_marking_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    marking_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 31, ENC_ASCII);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", marking_text);
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_marking, tvb, offset, 31, ENC_ASCII|ENC_NA);
+    offset += 31;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_dimensions, NULL, "Dimensions");
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_dimensions_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_dimensions_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_dimensions_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_orientation, NULL, "Orientation");
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_orientation_psi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_orientation_theta, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_aggregate_center_of_mass, NULL, "Center of Mass(location)");
+
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_center_of_mass_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_center_of_mass_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_center_of_mass_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_velocity, NULL, "Velocity");
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    number_of_aggregates = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_aggregates, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    number_of_entities = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_entities, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    number_of_silent_aggregates_types = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_aggregates_types, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_entity_types, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6 * number_of_aggregates, ett_aggregate_id_list, NULL, "Aggregate ID List");
+    for (i = 0; i < number_of_aggregates; i++)
+        offset = parseField_Aggregate(tvb, sub_tree, offset, "Aggregate ID");
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6 * number_of_entities, ett_entity_id_list, NULL, "Entity ID List");
+    for (i = 0; i < number_of_entities; i++)
+        offset = parseField_Entity(tvb, sub_tree, offset, "Entity ID");
+
+    /* padding */
+    padding = (((number_of_entities + number_of_aggregates) * 16) % 2) / 8;
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, padding, ENC_NA);
+    offset += padding;
+
+    /* TODO: complete this */
+    /* ti = proto_tree_add_text(tree, tvb, offset, 12 * number_of_silent_aggregates_types, "Silent Aggregate System List - NOT FINISHED !!!"); */
+    offset += 12 * number_of_silent_aggregates_types;
+
+    /* TODO: complete this */
+    /* ti = proto_tree_add_text(tree, tvb, offset, 0, "Silent Entity System List - NOT FINISHED !!!"); */
+    offset += 0;
+
+    number_of_variable_datum_records = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_variable_datum_records, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable datum", number_of_variable_datum_records);
+    return offset;
+}
+
+static int dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree *sub_tree;
+
+    offset = parseField_Entity(tvb, tree, offset, "Environmental Process ID");
+
+    offset = dissect_DIS_FIELDS_ENVIRONMENT_TYPE(tvb, tree, offset, "Environment Type");
+
+    proto_tree_add_item(tree, hf_dis_model_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_environmental_environment_status, NULL, "Environment Status");
+    proto_tree_add_item(sub_tree, hf_dis_environment_status_last, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_environment_status_on, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_environmental_number_of_environment_records, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_environmental_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     return offset;
 }
@@ -5803,7 +6688,7 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
 {
    /* some consts */
    static guint MSEC_PER_HOUR = 60 * 60 * 1000;
-   static guint FSV = 0x7fffffff;
+   static guint FSV = 0x7fffffff; /* 2^31-1 */
    /* variables */
    guint isAbsolute = 0;
    guint32 uintVal;
@@ -5819,7 +6704,7 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    isAbsolute = uintVal & 1;
 
    /* convert TS to MS */
-   ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+   ms = (guint64)((uintVal >> 1) * (double)(MSEC_PER_HOUR) / FSV);
 
    tv.secs = (time_t)ms/1000;
    tv.nsecs = (int)(ms%1000)*1000000;
@@ -5852,6 +6737,24 @@ static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, cons
     offset += 2;
 
     proto_tree_add_item(sub_tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+{
+    proto_tree  *sub_tree;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_entity, NULL, entity_name);
+
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_aggregate_id_aggregate, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -6142,13 +7045,23 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             pduFunc = &dissect_DIS_PARSER_IFF_PDU;
             break;
 
+        case DIS_PDUTYPE_DESIGNATOR:
+            pduFunc = &dissect_DIS_PARSER_DESIGNATOR_PDU;
+            break;
+
         /* DIS Radio Communications protocol (RCP) family PDUs */
         case DIS_PDUTYPE_TRANSMITTER:
             pduFunc = &dissect_DIS_PARSER_TRANSMITTER_PDU;
             break;
         case DIS_PDUTYPE_SIGNAL:
+        case DIS_PDUTYPE_INTERCOM_SIGNAL:
             pduFunc = &dissect_DIS_PARSER_SIGNAL_PDU;
             break;
+
+        case DIS_PDUTYPE_INTERCOM_CONTROL:
+            pduFunc = &dissect_DIS_PARSER_INTERCOM_CONTROL_PDU;
+            break;
+
 
         /* DIS Warfare PDUs */
         case DIS_PDUTYPE_FIRE:
@@ -6187,6 +7100,9 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case DIS_PDUTYPE_DATA:
         case DIS_PDUTYPE_SET_DATA:
             pduFunc = &dissect_DIS_PARSER_DATA_PDU;
+            break;
+        case DIS_PDUTYPE_EVENT_REPORT:
+            pduFunc = &dissect_DIS_PARSER_EVENT_REPORT_PDU;
             break;
         case DIS_PDUTYPE_DATA_QUERY:
             pduFunc = &dissect_DIS_PARSER_DATA_QUERY_PDU;
@@ -6234,7 +7150,12 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case DIS_PDUTYPE_APPLICATION_CONTROL:
             pduFunc = &dissect_DIS_PARSER_APPLICATION_CONTROL_PDU;
             break;
-
+        case DIS_PDUTYPE_ENVIRONMENTAL_PROCESS:
+            pduFunc = &dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU;
+            break;
+        case DIS_PDUTYPE_AGGREGATE_STATE:
+            pduFunc = &dissect_DIS_PARSER_AGGREGATE_STATE_PDU;
+            break;
         default:
             pduFunc = NULL;
             break;
@@ -6243,8 +7164,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     /* set the basic info column (pdu type) */
-    col_add_fstr( pinfo->cinfo, COL_INFO, "PDUType: %s", pduString);
-
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t %s", header.pduType , pduString );
     /* If a parser was located, invoke it on the data packet.
      */
     if (pduFunc != NULL)
@@ -6481,6 +7401,26 @@ void proto_register_dis(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_fixed_datum_value_as_uint,
+                { "Datum value as uint", "dis.fixed_datum_value_as_uint",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fixed_datum_value_as_float,
+                { "Datum value as float", "dis.fixed_datum_value_as_float",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fixed_datum_value_as_int,
+                { "Datum value as int", "dis.fixed_datum_value_as_int",
+                FT_INT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_event_type,
+                { "Event Type", "dis.event_type",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_datum_length,
               { "Datum length",       "dis.datum_length",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6489,6 +7429,11 @@ void proto_register_dis(void)
             { &hf_dis_variable_datum_value,
               { "Datum value",       "dis.variable_datum_value",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_variable_datum_value_as_text,
+              { "Datum value as text", "dis.hf_dis_variable_datum_value_as_text",
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_num_fixed_datum_id,
@@ -6592,19 +7537,19 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_em_location_x,
-              {"X", "dis.electromagnetic.emission.location.x",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.electromagnetic.emission.location.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_location_y,
-              {"Y", "dis.electromagnetic.emission.location.y",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.electromagnetic.emission.location.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_location_z,
-              {"Z", "dis.electromagnetic.emission.location.z",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.electromagnetic.emission.location.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_beam_function,
               { "Beam Function", "dis.electromagnetic.emission.beam.function",
@@ -6662,9 +7607,9 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_signal_data,
-              {"Data", "dis.radio.signal_data",
-               FT_BYTES,        BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Data", "dis.radio.signal_data",
+                FT_BYTES,        BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_radio_category,
               { "Radio Category", "dis.radio.radio_category",
@@ -6702,34 +7647,34 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_antenna_location_x,
-              {"X", "dis.antenna_location.x",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.antenna_location.x",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_antenna_location_y,
-              {"Y", "dis.antenna_location.y",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.antenna_location.y",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_antenna_location_z,
-              {"Z", "dis.antenna_location.z",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.antenna_location.z",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_rel_antenna_location_x,
-              {"X", "dis.rel_antenna_location.x",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.rel_antenna_location.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_rel_antenna_location_y,
-              {"Y", "dis.rel_antenna_location.y",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.rel_antenna_location.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_rel_antenna_location_z,
-              {"Z", "dis.rel_antenna_location.z",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.rel_antenna_location.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_transmit_frequency,
               { "Transmit Frequency (Hz)", "dis.radio.frequency",
@@ -6737,14 +7682,14 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_transmit_freq_bandwidth,
-              {"Transmit Frequency Bandwidth", "dis.transmit_freq_bandwidth",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Transmit Frequency Bandwidth", "dis.transmit_freq_bandwidth",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_transmit_power,
-              {"Transmit Power", "dis.transmit_power",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Transmit Power", "dis.transmit_power",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_spread_spectrum_usage,
               { "Spread Spectrum", "dis.radio.mod_type.spread_spectrum_usage",
@@ -6877,9 +7822,9 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_mod_param_dump,
-              {"Modulation Parameter All", "dis.radio.mod_param.all",
-               FT_BYTES, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Modulation Parameter All", "dis.radio.mod_param.all",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_mod_param_ts_allocation_mode,
               { "Time Slot Allocaton Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
@@ -6912,139 +7857,644 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_entity_linear_velocity_x,
-              {"X", "dis.entity_linear_velocity.x",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.entity_linear_velocity.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_linear_velocity_y,
-              {"Y", "dis.entity_linear_velocity.y",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.entity_linear_velocity.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_linear_velocity_z,
-              {"Z", "dis.entity_linear_velocity.z",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.entity_linear_velocity.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_x_double,
-              {"X", "dis.entity_location.x",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.entity_location.x",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_x_float,
-              {"X", "dis.entity_location.x",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.entity_location.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_y_double,
-              {"Y", "dis.entity_location.y",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.entity_location.y",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_y_float,
-              {"Y", "dis.entity_location.y",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.entity_location.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_z_double,
-              {"Z", "dis.entity_location.z",
-               FT_DOUBLE, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.entity_location.z",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_location_z_float,
-              {"Z", "dis.entity_location.z",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.entity_location.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_orientation_psi,
-              {"Psi", "dis.entity_orientation.psi",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Psi", "dis.entity_orientation.psi",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_orientation_theta,
-              {"Theta", "dis.entity_orientation.theta",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Theta", "dis.entity_orientation.theta",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_entity_orientation_phi,
-              {"Phi", "dis.entity_orientation.phi",
+              { "Phi", "dis.entity_orientation.phi",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_paint_scheme,
+              { "Paint Scheme", "dis.appearance.landform.paint_scheme",
+                FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_mobility,
+              { "Mobility", "dis.appearance.landform.mobility",
+                FT_BOOLEAN, 32, TFS(&tfs_mobility_kill), 0x00000002,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_fire_power,
+              { "Fire Power", "dis.appearance.landform.fire_power",
+                FT_BOOLEAN, 32, TFS(&tfs_fire_power_kill), 0x00000004,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_damage,
+              { "Damage", "dis.appearance.landform.damage",
+                FT_UINT32, BASE_DEC, VALS(appearance_damage_vals), 0x00000018,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_smoke_entity,
+              { "Smoke Entity", "dis.appearance.landform.smoke_entity",
+                FT_UINT32, BASE_DEC, VALS(appearance_smoke_entity_vals), 0x00000060,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_trailing_effects_entity,
+              { "Trailing Effects Entity", "dis.appearance.landform.trailing_effects_entity",
+                FT_UINT32, BASE_DEC, VALS(appearance_trailing_effects_entity_vals), 0x00000180,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_hatch,
+              { "Hatch", "dis.appearance.landform.hatch",
+                FT_UINT32, BASE_DEC, VALS(appearance_hatch_vals), 0x00000E00,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_head_lights,
+              { "Head Lights", "dis.appearance.landform.head_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00001000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_tail_lights,
+              { "Tail Lights", "dis.appearance.landform.tail_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00002000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_brake_lights,
+              { "Brake Lights", "dis.appearance.landform.brake_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00004000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_flaming,
+              { "Flaming", "dis.appearance.landform.flaming",
+                FT_UINT32, BASE_DEC, VALS(appearance_flaming_vals), 0x00008000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_launcher,
+              { "Launcher", "dis.appearance.landform.launcher",
+                FT_UINT32, BASE_DEC, VALS(appearance_launcher_vals), 0x00010000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_camouflage_type,
+              { "Camouflage Type", "dis.appearance.landform.camouflage_type",
+                FT_UINT32, BASE_DEC, VALS(appearance_camouflage_type_vals), 0x00060000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_concealed,
+              { "Concealed", "dis.appearance.landform.concealed",
+                FT_UINT32, BASE_DEC, VALS(appearance_concealed_vals), 0x00080000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_frozen_status,
+              { "Frozen_status", "dis.appearance.landform.frozen_status",
+                FT_UINT32, BASE_DEC, VALS(appearance_frozen_status_vals), 0x00200000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_power_plant_status,
+              { "Power Plant Status", "dis.appearance.landform.power_plant_status",
+                FT_UINT32, BASE_DEC, VALS(appearance_power_plant_status_vals), 0x00400000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_state,
+              { "State", "dis.appearance.landform.state",
+                FT_UINT32, BASE_DEC, VALS(appearance_state_vals), 0x00800000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_tent,
+              { "Tent", "dis.appearance.landform.tent",
+                FT_UINT32, BASE_DEC, VALS(appearance_tent_vals), 0x01000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_ramp,
+              { "Ramp", "dis.appearance.landform.ramp",
+                FT_UINT32, BASE_DEC, VALS(appearance_ramp_vals), 0x02000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_blackout_lights,
+              { "Blackout Lights", "dis.appearance.landform.blackout_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x04000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_blackout_brake_lights,
+              { "Blackout Brake Lights", "dis.appearance.landform.blackout_brake_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x08000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_spot_lights,
+              { "Spot_lights", "dis.appearance.landform.spot_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x10000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_interior_lights,
+              { "Interior_lights", "dis.appearance.landform.interior_lights",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x20000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_surrender_state,
+              { "Surrender State", "dis.appearance.landform.surrender_state",
+                FT_UINT32, BASE_DEC, VALS(appearance_surrentder_state_vals), 0x40000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_landform_masked_cloaked,
+              { "Masked Cloaked", "dis.appearance.landform.masked_cloaked",
+                FT_UINT32, BASE_DEC, VALS(appearance_masked_cloaked_vals), 0x80000000,
+                NULL, HFILL}
+            },
+            { &hf_intercom_control_control_type,
+              { "Control Type", "dis.intercom_control.control_type",
+                FT_UINT8, BASE_DEC, VALS(intercom_control_control_type_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_communications_channel_type,
+              { "Communications Channel Type", "dis.intercom_control.communications_channel_type",
+                FT_UINT8, BASE_DEC, VALS(intercom_control_communications_channel_type_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_source_communications_device_id,
+              { "Source Communications Device ID", "dis.intercom_control.source_communications_device_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_source_line_id,
+              { "Source Line ID", "dis.intercom_control.source_line_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_transmit_priority,
+              { "Transmit Priority", "dis.intercom_control.transmit_priority",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_transmit_line_state,
+              { "Transmit Line State", "dis.intercom_control.transmit_line_state",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_command,
+              { "Command", "dis.intercom_control.command",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_master_communications_device_id,
+              { "Master Communications Device ID", "dis.intercom_control.master_communications_device_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_intercom_control_master_channel_id,
+              { "Master Channel ID", "dis.intercom_control.master_channel_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_kind,
+              { "Kind", "dis.aggregate.kind",
+                FT_UINT8, BASE_DEC, VALS(aggregate_kind_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_domain,
+              { "Domain", "dis.aggregate.domain",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Domain_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_country,
+              { "Country", "dis.aggregate.country",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_Country_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_category,
+              { "Category", "dis.aggregate.category",
+                FT_UINT8, BASE_DEC, VALS(aggregate_category_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_subcategory,
+              { "Subcategory", "dis.aggregate.subcategory",
+                FT_UINT8, BASE_DEC, VALS(aggregate_subcategory_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_specific,
+              { "Specific", "dis.aggregate.specific",
+                FT_UINT8, BASE_DEC, VALS(aggregate_specific_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_extra,
+              { "Extra", "dis.aggregate.extra",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_orientation_psi,
+              { "Psi", "dis.aggregate.psi",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_orientation_theta,
+              { "Theta", "dis.aggregate.theta",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_orientation_phi,
+              { "Phi", "dis.aggregate.phi",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_center_of_mass_x,
+              { "X", "dis.aggregate.center_of_mass_x",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_center_of_mass_y,
+              { "Y", "dis.aggregate.center_of_mass_y",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+                { &hf_dis_aggregate_center_of_mass_z,
+              { "Z", "dis.aggregate.center_of_mass_z",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_velocity_x,
+              { "X", "dis.aggregate.velocity_x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_velocity_y,
+              { "Y", "dis.aggregate.velocity_y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_velocity_z,
+              { "Z", "dis.aggregate.velocity_z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_dimensions_x,
+              { "X", "dis.aggregate.dimensions_x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_dimensions_y,
+              { "Y", "dis.aggregate.dimensions_y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_dimensions_z,
+              { "Z", "dis.aggregate.dimensions_z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_id_site,
+              { "Aggregate ID Site", "dis.aggregate_id_site",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_id_application,
+              { "Aggregate ID Application", "dis.aggregate_id_application",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_id_aggregate,
+              { "Aggregate ID Aggregate", "dis.aggregate_id__aggregate",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_kind,
+              { "Kind", "dis.environmental.kind",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_domain,
+              { "Domain", "dis.environmental.domain",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_class,
+              { "Class", "dis.environmental.class",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_category,
+              { "Category", "dis.environmental.category",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_subcategory,
+              { "Subcategory", "dis.environmental.subcategory",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_specific,
+              { "Specific", "dis.environmental.specific",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_extra,
+              { "Extra", "dis.environmental.extra",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_model_type,
+              { "Model Type", "dis.environmental.model_type",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_status_last,
+              { "Environment Status Last", "dis.environmental.environment_status_last",
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_last_vals), 0x00000001,
+                NULL, HFILL }
+            },
+            { &hf_dis_environment_status_on,
+              { "Environment Status Last", "dis.environmental.environment_status_last",
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_on_vals), 0x00000002,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_formation,
+              { "Formation", "dis.aggregate.formation",
+                FT_UINT8, BASE_DEC, VALS(aggregate_formation_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_state,
+              { "Aggregate State", "dis.aggregate.state",
+                FT_UINT8, BASE_DEC, VALS(aggregate_state_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_appearance_lifeform_compliance,
+              {"Compliance", "dis.appearance.lifeform.compliance",
+               FT_UINT32, BASE_DEC, VALS(appearance_compliance_vals), 0x000001E0,
+               NULL, HFILL}
+            },
+            { &hf_appearance_lifeform_flash_lights,
+              {"Flash Lights", "dis.appearance.lifeform.flash_lights",
+               FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00001000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_lifeform_state,
+              {"Life Form State", "dis.appearance.lifeform.Lifeform_state",
+               FT_UINT32, BASE_DEC, VALS(appearance_lifeform_state_vals), 0x000F0000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_frozen_status,
+              {"Frozen Status", "dis.appearance.lifeform.frozen_status",
+               FT_UINT32, BASE_DEC, VALS(appearance_frozen_status_vals), 0x00200000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_state,
+              {"State", "dis.appearance.lifeform.state",
+               FT_UINT32, BASE_DEC, VALS(appearance_state_vals), 0x00800000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_weapon_1,
+              {"Weapon 1", "dis.appearance.lifeform.Weapon_1",
+               FT_UINT32, BASE_DEC, VALS(appearance_Weapon_1_vals), 0x03000000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_weapon_2,
+              {"Weapon 2", "dis.appearance.lifeform.Weapon_2",
+               FT_UINT32, BASE_DEC, VALS(appearance_Weapon_2_vals), 0x0C000000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_camouflage_type,
+              {"Camouflage Type", "dis.appearance.lifeform.camouflage_type",
+               FT_UINT32, BASE_DEC, VALS(appearance_camouflage_type_vals), 0x30000000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_concealed_stationary,
+              {"Concealed Stationary", "dis.appearance.lifeform.concealed_stationary",
+               FT_UINT32, BASE_DEC, VALS(appearance_concealed_stationary_vals), 0x40000000,
+               NULL, HFILL}
+            },
+            { &hf_appearance_concealed_movement,
+              {"Concealed Movement", "dis.appearance.lifeform.concealed_stationary",
+               FT_UINT32, BASE_DEC, VALS(appearance_concealed_movement_vals), 0x80000000,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_dead_reckoning_algorithm,
+              {"Dead Reckoning Algorithm", "dis.entity_marking_character_set",
+               FT_UINT8, BASE_DEC, VALS(entity_dead_reckoning_algorithm_vals), 0x0,
+               NULL, HFILL}
+            },
+             { &hf_dis_dead_reckoning_other_parameters,
+              {"Dead Reckoning Other Parameters", "dis.dead_reckoning_other_parameters",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+             { &hf_dis_entity_linear_aceleration_x,
+              {"Entity Linear Aceleration X", "dis.entity_linear_aceleration.x",
                FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_landform_paint_scheme,
-              {"Paint Scheme", "dis.appearance.landform.paint_scheme",
-               FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+            { &hf_dis_entity_linear_aceleration_y,
+              {"Entity Linear Aceleration Y", "dis.entity_linear_aceleration.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_landform_mobility,
-              {"Mobility", "dis.appearance.landform.mobility",
-               FT_BOOLEAN, 32, TFS(&tfs_mobility_kill), 0x00000002,
+            { &hf_dis_entity_linear_aceleration_z,
+              {"Entity Linear Aceleration Z", "dis.entity_linear_aceleration.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_landform_fire_power,
-              {"Fire Power", "dis.appearance.landform.fire_power",
-               FT_BOOLEAN, 32, TFS(&tfs_fire_power_kill), 0x00000004,
+              { &hf_dis_entity_entity_angular_velocity_x,
+              {"Entity Angular Velocity X", "dis.entity_angular_velocity.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_landform_damage,
-              {"Fire Power", "dis.appearance.landform.damage",
-               FT_UINT32, BASE_DEC, VALS(appearance_damage_vals), 0x00000018,
+            { &hf_dis_entity_entity_angular_velocity_y,
+              {"Entity Angular Velocity Y", "dis.entity_angular_velocity.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_lifeform_paint_scheme,
-              {"Paint Scheme", "dis.appearance.lifeform.paint_scheme",
-               FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+            { &hf_dis_entity_entity_angular_velocity_z,
+              {"Entity Angular Velocity Z", "dis.entity_angular_velocity.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_appearance_lifeform_health,
-              {"Health", "dis.appearance.lifeform.health",
-               FT_UINT32, BASE_DEC, VALS(appearance_health_vals), 0x00000018,
+            { &hf_dis_aggregate_marking_character_set,
+              { "Character Set", "dis.aggregate.marking_character_set",
+                FT_UINT8, BASE_DEC, VALS(entity_marking_character_set_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_entity_marking_character_set,
+              {"Entity Character Set", "dis.entity_marking_character_set",
+               FT_UINT8, BASE_DEC, VALS(entity_marking_character_set_vals), 0x0,
                NULL, HFILL}
             },
-            { &hf_entity_appearance,
-              {"Appearance", "dis.appearance",
-               FT_UINT32, BASE_HEX, NULL, 0x0,
-               NULL, HFILL}
-            },
-            { &hf_dis_dead_reckoning_parameters,
-              {"Dead Reckoning Parameters", "dis.dead_reckoning_parameters",
-               FT_BYTES, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+            { &hf_dis_aggregate_marking,
+              { "Marking", "dis.aggregate.marking",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_entity_marking,
               {"Entity Marking", "dis.entity_marking",
-               FT_BYTES, BASE_NONE, NULL, 0x0,
+               FT_STRINGZ, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
+            { &hf_dis_aggregate_number_of_aggregates,
+              { "Number of DIS Aggregates", "dis.aggregate.number_of_aggregates",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_number_of_entities,
+              { "Number of DIS Entities", "dis.aggregate.number_of_entities",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_number_of_variable_datum_records,
+              { "Number of Variable Datum Records", "dis.aggregate.number_of_variable_datum_records",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_number_of_silent_aggregates_types,
+              { "Number of Silent Aggregate Types", "dis.aggregate.number_of_silent_aggregates_types",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_aggregate_number_of_silent_entity_types,
+              { "Number of Silent Entity Types", "dis.aggregate.number_of_silent_entity_types",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environmental_number_of_environment_records,
+              { "Number of Environment records", "dis.environmental.number_of_environment_records",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_environmental_sequence_number,
+              { "Sequence Number", "dis.environmental.sequence_number",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_code_name,
+              { "Designator Code Name", "dis.designator_code_name",
+                FT_UINT16, BASE_DEC, VALS(designator_code_name_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_designator_code,
+              { "Designator Designator Code", "dis.designator_designator_code",
+                FT_UINT16, BASE_DEC, VALS(designator_designator_code_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_power,
+              { "Designator Power", "dis.designator_power",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_wavelength,
+              { "Designator Wavelength", "dis.designator_wavelength",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_with_respect_to_designated_entity_x,
+              { "X", "dis.designator_spot_with_respect_to_designated_entity.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_with_respect_to_designated_entity_y,
+              { "Y", "dis.designator_spot_with_respect_to_designated_entity.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_with_respect_to_designated_entity_z,
+              { "Z", "dis.designator_spot_with_respect_to_designated_entity.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_location_x,
+              { "X", "dis.designator_spot_location.x",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_location_y,
+              { "Y", "dis.designator_spot_location.y",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_designator_spot_location_z,
+              { "Z", "dis.designator_spot_location.z",
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_appearance_lifeform_paint_scheme,
+              { "Paint Scheme", "dis.appearance.lifeform.paint_scheme",
+                FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+                NULL, HFILL }
+            },
+            { &hf_appearance_lifeform_health,
+              { "Health", "dis.appearance.lifeform.health",
+                FT_UINT32, BASE_DEC, VALS(appearance_health_vals), 0x00000018,
+                NULL, HFILL }
+            },
+            { &hf_entity_appearance,
+              { "Appearance", "dis.appearance",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_capabilities,
-              {"Capabilities", "dis.capabilities",
-               FT_UINT32, BASE_DEC, NULL, 0x0,
-               NULL, HFILL}
+              { "Capabilities", "dis.capabilities",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_variable_parameter_type,
               { "Variable Parameter Type", "dis.variable_parameter_type",
-                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_ParameterTypeDesignator_Strings), 0x0,
-                 NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_ParameterTypeDesignator_Strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_signal_link16_npg,
               { "NPG Number", "dis.signal.link16.npg",
-                 FT_UINT16, BASE_DEC, VALS(Link16_NPG_Strings), 0x0,
-                 NULL, HFILL }
+                FT_UINT16, BASE_DEC, VALS(Link16_NPG_Strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_signal_link16_tsec_cvll,
               { "TSEC CVLL", "dis.signal.link16.tsec_cvll",
-                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
-                 NULL, HFILL }
+                FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_signal_link16_msec_cvll,
               { "MSEC CVLL", "dis.signal.link16.msec_cvll",
-                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
-                 NULL, HFILL }
+                FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_signal_link16_message_type,
               { "Message Type", "dis.signal.link16.message_type",
-                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_Link16_MessageType_Strings), 0x0,
-                 NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Link16_MessageType_Strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_dis_signal_link16_ptt,
               { "Perceived Transmit Time", "dis.signal.link16.ptt",
@@ -7053,19 +8503,19 @@ void proto_register_dis(void)
             },
             { &hf_dis_signal_link16_time_slot_type,
               { "Time Slot Type", "dis.signal.link16.time_slot_type", FT_UINT32, BASE_DEC, NULL, 0x7,
-                 NULL, HFILL},
+                NULL, HFILL},
             },
             { &hf_dis_signal_link16_rti,
               { "Relay Transmission Indicator", "dis.signal.link16.relay", FT_BOOLEAN, 32, NULL, 0x8,
-                 NULL, HFILL},
+                NULL, HFILL},
             },
             { &hf_dis_signal_link16_stn,
               { "Source Track Number", "dis.signal.link16.stn", FT_UINT32, BASE_OCT, NULL, 0x7FFF0,
-                 NULL, HFILL },
+                NULL, HFILL },
             },
             { &hf_dis_signal_link16_sdusn,
               { "Secure Data Unit Serial Number", "dis.signal.link16.sdusn", FT_UINT16, BASE_DEC, NULL, 0x0,
-                 NULL, HFILL },
+                NULL, HFILL },
             },
             { &hf_dis_signal_link16_network_number,
               { "Network Number",  "dis.signal.link16.network_number",
@@ -7158,19 +8608,19 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_ua_location_x,
-              {"X", "dis.ua.location.x",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "X", "dis.ua.location.x",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_location_y,
-              {"Y", "dis.ua.location.y",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Y", "dis.ua.location.y",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_location_z,
-              {"Z", "dis.ua.location.z",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Z", "dis.ua.location.z",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_beam_data_length,
               { "Beam Data Length",  "dis.ua.beam.data_length",
@@ -7193,24 +8643,24 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_ua_beam_center_azimuth,
-              {"Beam Center Azimuth (Horizontal Bearing)", "dis.ua.beam.center_azimuth",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Center Azimuth (Horizontal Bearing)", "dis.ua.beam.center_azimuth",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_beam_azimuthal_beamwidth,
-              {"Azimuthal Beamwidth (Horizontal Beamwidth)", "dis.ua.beam.azimuthal_beamwidth",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Azimuthal Beamwidth (Horizontal Beamwidth)", "dis.ua.beam.azimuthal_beamwidth",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_beam_center_de,
-              {"Beam Center D/E", "dis.ua.beam.center_de",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Center D/E", "dis.ua.beam.center_de",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_ua_beam_de_beamwidth,
-              {"D/E Beamwidth (Vertical Beamwidth)", "dis.ua.beam.de_beamwidth",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "D/E Beamwidth (Vertical Beamwidth)", "dis.ua.beam.de_beamwidth",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_beam_data_length,
               { "Beam Data Length",  "dis.em.beam.data_length",
@@ -7228,54 +8678,54 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_em_fund_frequency,
-              {"Frequency", "dis.em.fund.frequency",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Frequency", "dis.em.fund.frequency",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_frequency_range,
-              {"Frequency Range", "dis.em.fund.frequency_range",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Frequency Range", "dis.em.fund.frequency_range",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_effective_radiated_power,
-              {"Effective Radiated Power", "dis.em.fund.effective_radiated_power",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Effective Radiated Power", "dis.em.fund.effective_radiated_power",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_pulse_repition_freq,
-              {"Pulse Repetition Frequency", "dis.em.fund.pulse_repition_freq",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Pulse Repetition Frequency", "dis.em.fund.pulse_repition_freq",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_pulse_width,
-              {"Pulse Width", "dis.em.fund.pulse_width",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Pulse Width", "dis.em.fund.pulse_width",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_beam_azimuth_center,
-              {"Beam Azimuth Center", "dis.em.fund.beam.azimuth_center",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Azimuth Center", "dis.em.fund.beam.azimuth_center",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_beam_azimuth_sweep,
-              {"Beam Azimuth Sweep", "dis.em.fund.beam.azimuth_sweep",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Azimuth Sweep", "dis.em.fund.beam.azimuth_sweep",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_beam_elevation_center,
-              {"Beam Elevation Center", "dis.em.fund.beam.elevation_center",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Elevation Center", "dis.em.fund.beam.elevation_center",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_beam_elevation_sweep,
-              {"Beam Elevation Sweep", "dis.em.fund.beam.elevation_sweep",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Elevation Sweep", "dis.em.fund.beam.elevation_sweep",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_em_fund_beem_sweep_sync,
-              {"Beam Sweep Sync", "dis.em.fund.beem.sweep_sync",
-               FT_FLOAT, BASE_NONE, NULL, 0x0,
-               NULL, HFILL}
+              { "Beam Sweep Sync", "dis.em.fund.beem.sweep_sync",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
             },
             { &hf_dis_track_jam_num_targ,
               { "Number of Targets in Track/Jam Field",  "dis.track_jam.num_targ",
@@ -7463,12 +8913,12 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_record_data,
-              { "Record data",  "dis.record_data",
+              {"Record data",  "dis.record_data",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_alignment_padding,
-              { "Alignment padding",  "dis.alignment_padding",
+              {"Alignment padding",  "dis.alignment_padding",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
@@ -7814,9 +9264,27 @@ void proto_register_dis(void)
         &ett_entity_type,
         &ett_antenna_location,
         &ett_rel_antenna_location,
+        &ett_aggregate_dimensions,
         &ett_modulation_type,
         &ett_modulation_parameters,
         &ett_entity_linear_velocity,
+        &ett_aggregate_orientation,
+        &ett_aggregate_velocity,
+        &ett_aggregate_id_list,
+        &ett_entity_id_list,
+        &ett_variable_datum,
+        &ett_entity_marking_text,
+        &ett_aggregate_marking_text,
+        &ett_entity_dead_reckoning_parameters,
+        &ett_entity_linear_aceleration,
+        &ett_entity_angular_velocity,
+        &ett_environmental_environment_status,
+        &ett_environmental_environment_type,
+        &ett_aggregate_type,
+        &ett_aggregate_center_of_mass,
+        &ett_designator_spot_location,
+        &ett_designator_spot_with_respect_to_designated_entity,
+        &ett_designator_entity_linear_aceleration,
         &ett_entity_location,
         &ett_entity_orientation,
         &ett_entity_appearance,
