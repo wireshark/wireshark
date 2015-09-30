@@ -329,6 +329,7 @@ static dissector_handle_t bgp_handle;
 /* 0xc0-0xff IETF Review*/
 
 #define BGP_EXT_COM_STYPE_AS2_LBW       0x04    /* Link Bandwidth Extended Community [draft-ietf-idr-link-bandwidth-00] */
+#define BGP_EXT_COM_STYPE_AS2_VNI       0x80    /* Virtual-Network Identifier Extended Community [draft-drao-bgp-l3vpn-virtual-network-overlays] */
 
 /* Transitive Four-Octet AS-Specific Extended Community Sub-Types */
 /* 0x00-0xbf First Come First Served */
@@ -934,6 +935,7 @@ static const value_string bgpext_com_stype_tr_as2[] = {
 
 static const value_string bgpext_com_stype_ntr_as2[] = {
     { BGP_EXT_COM_STYPE_AS2_LBW, "Link Bandwidth" },
+    { BGP_EXT_COM_STYPE_AS2_VNI, "Virtual-Network Identifier" },
     { 0, NULL}
 };
 
