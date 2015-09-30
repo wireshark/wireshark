@@ -89,6 +89,7 @@
 #include "color_utils.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
+#include "conversation_hash_tables_dialog.h"
 #include "enabled_protocols_dialog.h"
 #include "decode_as_dialog.h"
 #include "display_filter_edit.h"
@@ -2315,6 +2316,12 @@ void MainWindow::openPacketDialog(bool from_reference)
 
         packet_dialog->show();
     }
+}
+
+void MainWindow::on_actionViewInternalsConversationHashTables_triggered()
+{
+    ConversationHashTablesDialog *conversation_hash_tables_dlg = new ConversationHashTablesDialog(this);
+    conversation_hash_tables_dlg->show();
 }
 
 void MainWindow::on_actionViewInternalsDissectorTables_triggered()

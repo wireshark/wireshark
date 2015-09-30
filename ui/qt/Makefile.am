@@ -152,6 +152,8 @@ column_preferences_frame.$(OBJEXT): ui_column_preferences_frame.h
 
 compiled_filter_output.$(OBJEXT): ui_compiled_filter_output.h
 
+conversation_hash_tables_dialog.$(OBJEXT): ui_conversation_hash_tables_dialog.h
+
 decode_as_dialog.$(OBJEXT): ui_decode_as_dialog.h
 
 display_filter_expression_dialog.$(OBJEXT): ui_display_filter_expression_dialog.h

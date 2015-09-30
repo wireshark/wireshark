@@ -307,6 +307,7 @@
      <property name="title">
       <string>Internals</string>
      </property>
+     <addaction name="actionViewInternalsConversationHashTables"/>
      <addaction name="actionViewInternalsDissectorTables"/>
     </widget>
     <addaction name="actionViewMainToolbar"/>
@@ -2358,6 +2359,14 @@
    </property>
    <property name="toolTip">
     <string>Show or hide the packet bytes</string>
+   </property>
+  </action>
+  <action name="actionViewInternalsConversationHashTables">
+   <property name="text">
+    <string>Conversation Hash Tables</string>
+   </property>
+   <property name="toolTip">
+    <string>Show each conversation hash table</string>
    </property>
   </action>
   <action name="actionViewInternalsDissectorTables">

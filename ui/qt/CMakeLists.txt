@@ -46,6 +46,7 @@ set(WIRESHARK_QT_HEADERS
 	column_editor_frame.h
 	compiled_filter_output.h
 	conversation_dialog.h
+	conversation_hash_tables_dialog.h
 	decode_as_dialog.h
 	display_filter_combo.h
 	display_filter_edit.h
@@ -190,6 +191,7 @@ set(WIRESHARK_QT_SRC
 	column_editor_frame.cpp
 	compiled_filter_output.cpp
 	conversation_dialog.cpp
+	conversation_hash_tables_dialog.cpp
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
@@ -330,6 +332,7 @@ set(WIRESHARK_QT_UI
 	column_preferences_frame.ui
 	column_editor_frame.ui
 	compiled_filter_output.ui
+	conversation_hash_tables_dialog.ui
 	decode_as_dialog.ui
 	display_filter_expression_dialog.ui
 	dissector_tables_dialog.ui

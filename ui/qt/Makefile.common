@@ -41,6 +41,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_column_preferences_frame.h	\
 	ui_column_editor_frame.h	\
 	ui_compiled_filter_output.h		\
+	ui_conversation_hash_tables_dialog.h	\
 	ui_decode_as_dialog.h	\
 	ui_display_filter_expression_dialog.h	\
 	ui_dissector_tables_dialog.h	\
@@ -161,6 +162,7 @@ MOC_HDRS =	\
 	column_editor_frame.h	\
 	compiled_filter_output.h	\
 	conversation_dialog.h	\
+	conversation_hash_tables_dialog.h	\
 	decode_as_dialog.h	\
 	display_filter_combo.h	\
 	display_filter_edit.h	\
@@ -277,6 +279,7 @@ UI_FILES =	\
 	column_preferences_frame.ui	\
 	column_editor_frame.ui	\
 	compiled_filter_output.ui \
+	conversation_hash_tables_dialog.ui	\
 	decode_as_dialog.ui	\
 	display_filter_expression_dialog.ui	\
 	dissector_tables_dialog.ui	\
@@ -411,6 +414,7 @@ WIRESHARK_QT_SRC =	\
 	column_editor_frame.cpp	\
 	compiled_filter_output.cpp \
 	conversation_dialog.cpp	\
+	conversation_hash_tables_dialog.cpp	\
 	decode_as_dialog.cpp	\
 	display_filter_combo.cpp	\
 	display_filter_edit.cpp	\
