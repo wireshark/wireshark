@@ -1301,7 +1301,10 @@ install_portaudio() {
         # this build on an OS+Xcode with a pre-10.4 SDK; we don't
         # worry about the user requesting that.)
         #
-        CFLAGS="$CFLAGS -mmacosx-version-min=10.4 $SDKFLAGS" CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.4 $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-mac-universal || exit 1
+        # Explicitly disable deprecation, so the damn thing will build
+        # on El Capitan with Xcode 7.
+        #
+        CFLAGS="$CFLAGS -Wnodeprecated-declarations -mmacosx-version-min=10.4 $SDKFLAGS" CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.4 $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-mac-universal || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
