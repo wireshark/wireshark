@@ -48,6 +48,8 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 
+#include "ui/recent.h"
+
 
 void register_tap_listener_rlc_lte_stat(void);
 
@@ -936,6 +938,7 @@ static void toggle_show_mac(GtkWidget *widget, gpointer data)
 
     /* Read state */
     hs->show_mac = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    recent.gui_rlc_use_pdus_from_mac = hs->show_mac;
 
     /* Retap */
     cf_retap_packets(&cfile);
@@ -1334,9 +1337,10 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
                          "decoded inside MAC PDUs (enabled in MAC dissector preferences)");
 
 
-    /* MAC on by default */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb), TRUE);
-    hs->show_mac = TRUE;
+    /* Get settings from recent. */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb),
+                                 recent.gui_rlc_use_pdus_from_mac);
+    hs->show_mac = recent.gui_rlc_use_pdus_from_mac;
     gtk_box_pack_start(GTK_BOX(top_level_vbox), pdu_source_lb, FALSE, FALSE, 0);
     /* TODO: add tooltips... */
     g_signal_connect(show_mac_cb, "toggled", G_CALLBACK(toggle_show_mac), hs);
