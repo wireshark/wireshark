@@ -520,7 +520,7 @@ get_column_longest_string(const gint format)
       return "0000";
       break;
     case COL_DSCP_VALUE:
-      return "00";
+      return "AAA BBB";    /* not the longest, but the longest is too long */
       break;
     case COL_TEI:
       return "127";

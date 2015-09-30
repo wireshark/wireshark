@@ -2160,7 +2160,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     tfc = IPv6_HDR_TCLS(ipv6);
-    col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(tfc));
+    col_add_str(pinfo->cinfo, COL_DSCP_VALUE,
+                val_to_str_ext(IPDSFIELD_DSCP(tfc), &dscp_short_vals_ext, "%u"));
 
     /* Get extension header and payload length */
     plen = g_ntohs(ipv6->ip6_plen);
