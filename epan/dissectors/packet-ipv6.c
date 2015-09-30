@@ -110,6 +110,7 @@ static int ipv6_tap = -1;
 static int proto_ipv6                           = -1;
 static int proto_ipv6_hopopts                   = -1;
 static int proto_ipv6_routing                   = -1;
+static int proto_ipv6_fraghdr                   = -1;
 static int proto_ipv6_shim6                     = -1;
 static int proto_ipv6_dstopts                   = -1;
 
@@ -187,21 +188,17 @@ static int hf_ipv6_opt_mpl_seed_id              = -1;
 static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown_data             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
-static int hf_ipv6_dstopts                      = -1;
 static int hf_ipv6_dstopts_nxt                  = -1;
 static int hf_ipv6_dstopts_length               = -1;
-static int hf_ipv6_hopopts                      = -1;
 static int hf_ipv6_hopopts_nxt                  = -1;
 static int hf_ipv6_hopopts_length               = -1;
 static int hf_ipv6_unknown_hdr                  = -1;
 static int hf_ipv6_unknown_hdr_nxt              = -1;
 static int hf_ipv6_unknown_hdr_length           = -1;
-static int hf_ipv6_routing                      = -1;
 static int hf_ipv6_routing_nxt                  = -1;
 static int hf_ipv6_routing_length               = -1;
 static int hf_ipv6_routing_type                 = -1;
 static int hf_ipv6_routing_segleft              = -1;
-static int hf_ipv6_fraghdr                      = -1;
 static int hf_ipv6_fraghdr_nxt                  = -1;
 static int hf_ipv6_fraghdr_reserved_octet       = -1;
 static int hf_ipv6_fraghdr_offset               = -1;
@@ -235,7 +232,6 @@ static int hf_ipv6_routing_rpl_segments         = -1;
 static int hf_ipv6_routing_rpl_addr             = -1;
 static int hf_ipv6_routing_rpl_fulladdr         = -1;
 
-static int hf_ipv6_shim6                = -1;
 static int hf_ipv6_shim6_nxt            = -1;
 static int hf_ipv6_shim6_len            = -1;
 static int hf_ipv6_shim6_p              = -1;
@@ -831,7 +827,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     len = (rt.ip6r_len + 1) << 3;
 
     /* !!! specify length */
-    pi = proto_tree_add_item(tree, hf_ipv6_routing, tvb, offset, len, ENC_NA);
+    pi = proto_tree_add_item(tree, proto_ipv6_routing, tvb, offset, len, ENC_NA);
     proto_item_append_text(pi, " (%s)", val_to_str(rt.ip6r_type, routing_header_type, "Unknown type %u"));
 
     rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing);
@@ -1081,7 +1077,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                         *frag_off, *frag_flg ? "y" : "n", *frag_ident, nxt);
 
     /* IPv6 Fragmentation Header has fixed length of 8 bytes */
-    pi = proto_tree_add_item(tree, hf_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
+    pi = proto_tree_add_item(tree, proto_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
     if (ipv6_info->jumbo_length) {
         expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_fragment);
     }
@@ -1144,7 +1140,7 @@ dissect_unknown_exthdr(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_exthdr_item, ws_ip* iph)
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, const int exthdr_proto, ws_ip *iph)
 {
     int         len;
     int         offset_end, offset_opt_end;
@@ -1157,13 +1153,13 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
     gboolean    hopopts = FALSE;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
-    hopopts = (hf_exthdr_item == hf_ipv6_hopopts);
+    hopopts = (exthdr_proto == proto_ipv6_hopopts);
 
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
     offset_end = offset + len;
 
     /* !!! specify length */
-    ti = proto_tree_add_item(tree, hf_exthdr_item, tvb, offset, len, ENC_NA);
+    ti = proto_tree_add_item(tree, exthdr_proto, tvb, offset, len, ENC_NA);
 
     if (hopopts && ipv6_info->exthdr_count > 0) {
         /* IPv6 Hop-by-Hop must appear immediately after IPv6 header (RFC 2460) */
@@ -1172,10 +1168,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
     exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-    if (hf_exthdr_item == hf_ipv6_hopopts) {
+    if (exthdr_proto == proto_ipv6_hopopts) {
         hf_exthdr_item_nxt = hf_ipv6_hopopts_nxt;
         hf_exthdr_item_length = hf_ipv6_hopopts_length;
-    } else if (hf_exthdr_item == hf_ipv6_dstopts) {
+    } else if (exthdr_proto == proto_ipv6_dstopts) {
         hf_exthdr_item_nxt = hf_ipv6_dstopts_nxt;
         hf_exthdr_item_length = hf_ipv6_dstopts_length;
     } else {
@@ -1439,7 +1435,7 @@ dissect_hopopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 hop-by-hop options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_hopopts, iph);
+    return dissect_opts(tvb, 0, tree, pinfo, proto_ipv6_hopopts, iph);
 }
 
 static int
@@ -1449,7 +1445,7 @@ dissect_dstopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 destination options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, hf_ipv6_dstopts, iph);
+    return dissect_opts(tvb, 0, tree, pinfo, proto_ipv6_dstopts, iph);
 }
 
 /* START SHIM6 PART */
@@ -1907,7 +1903,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
                         val_to_str_const(shim.ip6s_p & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
     }
 
-    ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_ipv6_shim6, tvb, offset, len, ENC_NA);
     shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
 
     /* Next Header */
@@ -2718,11 +2714,6 @@ proto_register_ipv6(void)
         },
 #endif /* HAVE_GEOIP_V6 */
 
-        { &hf_ipv6_dstopts,
-            { "Destination Options", "ipv6.dstopts",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_ipv6_dstopts_nxt,
             { "Next Header", "ipv6.dstopts.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
@@ -2732,11 +2723,6 @@ proto_register_ipv6(void)
             { "Length", "ipv6.dstopts.length",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Extension Header Length", HFILL }
-        },
-        { &hf_ipv6_hopopts,
-            { "Hop-by-Hop Options", "ipv6.hopopts",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
         },
         { &hf_ipv6_hopopts_nxt,
             { "Next Header", "ipv6.hopopts.nxt",
@@ -2953,11 +2939,6 @@ proto_register_ipv6(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_ipv6_fraghdr,
-            { "Fragment Header", "ipv6.fraghdr",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_ipv6_fraghdr_nxt,
             { "Next header", "ipv6.fraghdr.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
@@ -3050,11 +3031,6 @@ proto_register_ipv6(void)
         },
 
         /* IPv6 Routing Header */
-        { &hf_ipv6_routing,
-            { "Routing Header", "ipv6.routing",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_ipv6_routing_nxt,
             { "Next Header", "ipv6.routing.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
@@ -3137,11 +3113,6 @@ proto_register_ipv6(void)
         },
 
         /* SHIM6 */
-        { &hf_ipv6_shim6,
-            { "SHIM6", "ipv6.shim6",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_ipv6_shim6_nxt,
             { "Next Header", "ipv6.shim6.nxt",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3492,6 +3463,7 @@ proto_register_ipv6(void)
 
     proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hopopts");
     proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing");
+    proto_ipv6_fraghdr = proto_register_protocol("IPv6 Fragment", "IPv6 Fragment", "ipv6.fraghdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
     proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dstopts");
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC);
