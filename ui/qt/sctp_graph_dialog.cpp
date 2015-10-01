@@ -86,8 +86,8 @@ void SCTPGraphDialog::drawNRSACKGraph()
         list = g_list_last(selected_assoc->sack1);
         min_tsn = selected_assoc->min_tsn1;
     } else {
-        list = g_list_last(selected_assoc->sack1);
-        min_tsn = selected_assoc->min_tsn1;
+        list = g_list_last(selected_assoc->sack2);
+        min_tsn = selected_assoc->min_tsn2;
     }
     while (list) {
         sack = (tsn_t*) (list->data);
@@ -280,7 +280,7 @@ void SCTPGraphDialog::drawTSNGraph()
         while (tlist)
         {
             type = ((struct chunk_header *)tlist->data)->type;
-            if (type == SCTP_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID) {
+            if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID) {
                 tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
                 yt.append(tsnumber);
                 xt.append(tsn->secs + tsn->usecs/1000000.0);
@@ -314,6 +314,7 @@ void SCTPGraphDialog::drawTSNGraph()
 void SCTPGraphDialog::drawGraph(int which)
 {
     guint32 maxTSN, minTSN;
+    gint64 minBound;
 
     gIsSackChunkPresent = false;
     gIsNRSackChunkPresent = false;
@@ -348,7 +349,12 @@ void SCTPGraphDialog::drawGraph(int which)
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     // set axes ranges, so we see all data:
     QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
-    QCPRange myYRange(minTSN, maxTSN);
+    if (maxTSN - minTSN < 5) {
+        minBound = 0;
+    } else {
+        minBound = minTSN;
+    }
+    QCPRange myYRange(minBound, maxTSN);
     ui->sctpPlot->xAxis->setRange(myXRange);
     ui->sctpPlot->yAxis->setRange(myYRange);
     ui->sctpPlot->replot();

@@ -478,6 +478,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
+			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_NR_SACK_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
@@ -507,6 +508,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				sack->secs=tsn->secs   = (guint32)pinfo->rel_ts.secs;
 				sack->usecs=tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
 				if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
+				    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_NR_SACK_CHUNK_ID) ||
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
@@ -583,6 +585,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				if (((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_INIT_CHUNK_ID) &&
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_INIT_ACK_CHUNK_ID) &&
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_DATA_CHUNK_ID) &&
+				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_I_DATA_CHUNK_ID) &&
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_SACK_CHUNK_ID) &&
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_NR_SACK_CHUNK_ID) &&
 				    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_FORWARD_TSN_CHUNK_ID))
@@ -604,10 +607,15 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 					info->ep1_chunk_count[idx]++;
 					info = add_chunk_count(&tmp_info.src, info, 1, idx);
 
-					if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID))
+					if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) ||
+						(tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_I_DATA_CHUNK_ID))
 					{
 						datachunk = TRUE;
-						length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
+						if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) {
+							length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - DATA_CHUNK_HEADER_LENGTH;
+						} else {
+							length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - I_DATA_CHUNK_HEADER_LENGTH;
+						}
 						info->n_data_chunks++;
 						info->n_data_bytes+=length;
 						info->outstream1 = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
@@ -655,7 +663,11 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 						tsn_s->offset   = 0;
 						tsn_s->framenumber = framenumber;
 						if (datachunk)
-							tsn_s->length   = length-DATA_CHUNK_HEADER_LENGTH;
+							if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) {
+								tsn_s->length   = length - DATA_CHUNK_HEADER_LENGTH;
+							} else {
+								tsn_s->length   = length - I_DATA_CHUNK_HEADER_LENGTH;
+							}
 						else
 							tsn_s->length   = length;
 						if (tsn->secs < info->min_secs)
@@ -781,6 +793,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
+		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_NR_SACK_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
@@ -811,6 +824,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			sack->secs=tsn->secs = (guint32)pinfo->rel_ts.secs;
 			sack->usecs=tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
 			if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
+			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_NR_SACK_CHUNK_ID) ||
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
@@ -932,6 +946,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		{
 			if (((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_INIT_ACK_CHUNK_ID) &&
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_DATA_CHUNK_ID) &&
+			    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_I_DATA_CHUNK_ID) &&
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_SACK_CHUNK_ID) &&
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_NR_SACK_CHUNK_ID) &&
 			    ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_FORWARD_TSN_CHUNK_ID))
@@ -956,9 +971,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 					info->ep2_chunk_count[idx]++;
 				info = add_chunk_count(&tmp_info.src, info,info->direction, idx);
 
-				if (((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_DATA_CHUNK_ID))
+				if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) ||
+				    (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_I_DATA_CHUNK_ID))
 					datachunk = TRUE;
-				if (((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
+				if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_FORWARD_TSN_CHUNK_ID)
 					forwardchunk = TRUE;
 				if ((datachunk || forwardchunk) && tsn != NULL)
 				{
@@ -969,7 +985,11 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 					{
 						t_s_n = (guint8 *)g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, 16);
-						length=tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
+						if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) {
+							length=tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
+						} else {
+							length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - I_DATA_CHUNK_HEADER_LENGTH;
+						}
 						info->n_data_chunks++;
 						info->n_data_bytes+=length;
 					}
@@ -1056,7 +1076,11 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 						{
 							if (datachunk)
 							{
-								length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
+								if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) {
+									length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - DATA_CHUNK_HEADER_LENGTH;
+								} else {
+									length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - I_DATA_CHUNK_HEADER_LENGTH;
+								}
 								info->n_data_chunks_ep2++;
 								info->n_data_bytes_ep2+=length;
 							}
@@ -1070,7 +1094,11 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 							info->max_tsn2 = tsnumber;
 							if (datachunk)
 							{
-								length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
+								if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID) {
+									length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - DATA_CHUNK_HEADER_LENGTH;
+								} else {
+									length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET) - I_DATA_CHUNK_HEADER_LENGTH;
+								}
 								info->n_data_chunks_ep2++;
 								info->n_data_bytes_ep2+=length;
 							}

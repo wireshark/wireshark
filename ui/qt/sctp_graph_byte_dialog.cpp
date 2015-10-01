@@ -90,8 +90,12 @@ void SCTPGraphByteDialog::drawBytesGraph()
         while (tlist)
         {
             type = ((struct chunk_header *)tlist->data)->type;
-            if (type == SCTP_DATA_CHUNK_ID) {
+            if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID) {
                 length = g_ntohs(((struct data_chunk_header *)tlist->data)->length);
+                if (type == SCTP_DATA_CHUNK_ID)
+                    length -= DATA_CHUNK_HEADER_LENGTH;
+                else
+                    length -= I_DATA_CHUNK_HEADER_LENGTH;
                 sumBytes += length;
                 yb.append(sumBytes);
                 xb.append(tsn->secs + tsn->usecs/1000000.0);

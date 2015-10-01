@@ -76,10 +76,10 @@ void SCTPGraphArwndDialog::drawArwndGraph()
 
     if (direction == 1) {
         listSACK = g_list_last(selected_assoc->sack1);
-        startArwnd = selected_assoc->arwnd1;
+        startArwnd = selected_assoc->arwnd2;
     } else {
         listSACK = g_list_last(selected_assoc->sack2);
-        startArwnd = selected_assoc->arwnd2;
+        startArwnd = selected_assoc->arwnd1;
     }
     while (listSACK) {
         tsn = (tsn_t*) (listSACK->data);
