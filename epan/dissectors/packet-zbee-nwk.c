@@ -1791,7 +1791,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_link_address,
             { "Address",      "zbee_nwk.cmd.link.address", FT_UINT16, BASE_HEX, NULL,
-                ZBEE_NWK_CMD_LINK_OPTION_COUNT_MASK, NULL, HFILL }},
+                0x0, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_link_incoming_cost,
             { "Incoming Cost",      "zbee_nwk.cmd.link.incoming_cost", FT_UINT8, BASE_DEC, NULL,
