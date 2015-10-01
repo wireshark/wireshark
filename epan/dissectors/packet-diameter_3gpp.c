@@ -770,6 +770,28 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     return length;
 }
 
+/* AVP Code: 655 SAR-Flags
+* TGPP.xml
+* IMS Cx Dx AVPS 3GPP TS 29.229
+*/
+
+static int
+dissect_diameter_3gpp_sar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_item *item;
+	proto_tree *sub_tree;
+	int offset = 0;
+	guint32 bit_offset;
+
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_uar_flags_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+	sub_tree = proto_item_add_subtree(item, diameter_3gpp_uar_flags_ett);
+
+	//proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+	//	const int hf_hdr, const gint ett, const int **fields, const guint encoding);
+
+	return offset;
+}
+
 /* AVP Code: 702 User-Data
  * TGPPSh.xml
  * The AVP codes from 709 to799 are reserved for TS 29.329
@@ -1448,6 +1470,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 641 Contact */
     dissector_add_uint("diameter.3gpp", 641, new_create_dissector_handle(dissect_diameter_3gpp_contact, proto_diameter_3gpp));
+
+	/* AVP Code: 655 SAR-Flags */
+	dissector_add_uint("diameter.3gpp", 655, new_create_dissector_handle(dissect_diameter_3gpp_sar_flags, proto_diameter_3gpp));
 
     /* AVP Code: 701 MSISDN */
     dissector_add_uint("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
