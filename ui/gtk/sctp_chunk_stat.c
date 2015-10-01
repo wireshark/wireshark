@@ -207,7 +207,7 @@ sctpstat_draw(void *phs)
 		12, tmp->chunk_count[SCTP_ABORT_CHUNK_ID],
 		13, tmp->chunk_count[SCTP_ERROR_CHUNK_ID],
 		14, tmp->chunk_count[SCTP_NR_SACK_CHUNK_ID],
-		15, tmp->chunk_count[SCTP_I_DATA_CHUNK_ID],
+		15, tmp->chunk_count[SCTP_IDATA_CHUNK_ID],
 		16, tmp->chunk_count[SCTP_ASCONF_ACK_CHUNK_ID],
 		17, tmp->chunk_count[SCTP_PKTDROP_CHUNK_ID],
 		18, tmp->chunk_count[SCTP_FORWARD_TSN_CHUNK_ID],
