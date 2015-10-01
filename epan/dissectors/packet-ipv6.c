@@ -2187,9 +2187,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Add different items for the destination address */
         proto_tree_add_item(ipv6_tree, hf_ipv6_dst, tvb,
-                            offset + (int)offsetof(struct ip6_hdr, ip6_dst), 16, ENC_NA);
+                            offset + IP6H_DST, 16, ENC_NA);
         ti = proto_tree_add_ipv6(ipv6_tree, hf_ipv6_addr, tvb,
-                                 offset + (int)offsetof(struct ip6_hdr, ip6_dst),
+                                 offset + IP6H_DST,
                                  16, (guint8 *)&ipv6->ip6_dst);
         PROTO_ITEM_SET_HIDDEN(ti);
         name = address_to_display(wmem_packet_scope(), &pinfo->dst);
