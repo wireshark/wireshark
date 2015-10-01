@@ -130,6 +130,7 @@ set(WIRESHARK_QT_HEADERS
 	service_response_time_dialog.h
 	simple_statistics_dialog.h
 	stock_icon_tool_button.h
+	supported_protocols_dialog.h
 	syntax_line_edit.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
@@ -269,6 +270,7 @@ set(WIRESHARK_QT_SRC
 	sparkline_delegate.cpp
 	stock_icon.cpp
 	stock_icon_tool_button.cpp
+	supported_protocols_dialog.cpp
 	syntax_line_edit.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
@@ -384,6 +386,7 @@ set(WIRESHARK_QT_UI
 	search_frame.ui
 	sequence_dialog.ui
 	splash_overlay.ui
+	supported_protocols_dialog.ui
 	tap_parameter_dialog.ui
 	tcp_stream_dialog.ui
 	time_shift_dialog.ui

@@ -275,6 +275,7 @@ FORMS += \
     search_frame.ui \
     sequence_dialog.ui \
     splash_overlay.ui \
+    supported_protocols_dialog.ui \
     tap_parameter_dialog.ui \
     tcp_stream_dialog.ui \
     time_shift_dialog.ui \
@@ -648,6 +649,7 @@ HEADERS += \
     simple_dialog.h \
     sparkline_delegate.h \
     stock_icon_tool_button.h \
+    supported_protocols_dialog.h \
     syntax_line_edit.h \
     tap_parameter_dialog.h \
     time_shift_dialog.h \

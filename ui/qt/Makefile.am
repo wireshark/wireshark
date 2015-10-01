@@ -264,6 +264,8 @@ sctp_graph_byte_dialog.$(OBJEXT): ui_sctp_graph_byte_dialog.h
 
 splash_overlay.$(OBJEXT): ui_splash_overlay.h
 
+supported_protocols_dialog.$(OBJEXT): ui_supported_protocols_dialog.h
+
 tap_parameter_dialog.$(OBJEXT): ui_tap_parameter_dialog.h
 
 tcp_stream_dialog.$(OBJEXT): ui_tcp_stream_dialog.h

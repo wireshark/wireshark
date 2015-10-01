@@ -394,6 +394,7 @@ private slots:
 
     void on_actionViewInternalsConversationHashTables_triggered();
     void on_actionViewInternalsDissectorTables_triggered();
+    void on_actionViewInternalsSupportedProtocols_triggered();
 
     void openPacketDialog(bool from_reference = false);
     void on_actionViewShowPacketInNewWindow_triggered();

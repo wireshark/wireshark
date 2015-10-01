@@ -97,6 +97,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_search_frame.h	\
 	ui_sequence_dialog.h	\
 	ui_splash_overlay.h	\
+	ui_supported_protocols_dialog.h	\
 	ui_tap_parameter_dialog.h	\
 	ui_tcp_stream_dialog.h	\
 	ui_time_shift_dialog.h	\
@@ -251,6 +252,7 @@ MOC_HDRS =	\
 	splash_overlay.h	\
 	stats_tree_dialog.h	\
 	stock_icon_tool_button.h	\
+	supported_protocols_dialog.h	\
 	syntax_line_edit.h	\
 	tap_parameter_dialog.h	\
 	tcp_stream_dialog.h	\
@@ -334,6 +336,7 @@ UI_FILES =	\
 	search_frame.ui	\
 	sequence_dialog.ui	\
 	splash_overlay.ui	\
+	supported_protocols_dialog.ui	\
 	tap_parameter_dialog.ui	\
 	tcp_stream_dialog.ui	\
 	time_shift_dialog.ui	\
@@ -497,6 +500,7 @@ WIRESHARK_QT_SRC =	\
 	splash_overlay.cpp	\
 	stock_icon.cpp		\
 	stock_icon_tool_button.cpp	\
+	supported_protocols_dialog.cpp	\
 	syntax_line_edit.cpp	\
 	tap_parameter_dialog.cpp	\
 	tcp_stream_dialog.cpp	\

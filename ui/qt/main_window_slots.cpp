@@ -134,6 +134,7 @@
 #include "sequence_dialog.h"
 #include "stats_tree_dialog.h"
 #include "stock_icon.h"
+#include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
@@ -2328,6 +2329,12 @@ void MainWindow::on_actionViewInternalsDissectorTables_triggered()
 {
     DissectorTablesDialog *dissector_tables_dlg = new DissectorTablesDialog(this);
     dissector_tables_dlg->show();
+}
+
+void MainWindow::on_actionViewInternalsSupportedProtocols_triggered()
+{
+    SupportedProtocolsDialog *supported_protocols_dlg = new SupportedProtocolsDialog(this);
+    supported_protocols_dlg->show();
 }
 
 void MainWindow::on_actionViewShowPacketInNewWindow_triggered()

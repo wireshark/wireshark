@@ -309,6 +309,7 @@
      </property>
      <addaction name="actionViewInternalsConversationHashTables"/>
      <addaction name="actionViewInternalsDissectorTables"/>
+     <addaction name="actionViewInternalsSupportedProtocols"/>
     </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
@@ -2375,6 +2376,14 @@
    </property>
    <property name="toolTip">
     <string>Show each dissector table and its entries</string>
+   </property>
+  </action>
+  <action name="actionViewInternalsSupportedProtocols">
+   <property name="text">
+    <string>Supported Protocols</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the currently supported protocols and display filter fields</string>
    </property>
   </action>
   <action name="actionContextCopyBytesHexTextDump">
