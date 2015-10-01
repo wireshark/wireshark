@@ -854,10 +854,20 @@
 			<gavp name="Restoration-Info"/>
 		</grouped>
 	</avp>
-	<!--
-	652 Priviledged-Sender-Indication Enumerated
-	653 LIA-Flags Unsigned32
-	-->
+  <avp name="Priviledged-Sender-Indication" code="652" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="NOT_PRIVILEDGED_SENDER" code="0"/>
+    <enum name="PRIVILEDGED_SENDER" code="1"/>
+  </avp>
+  <avp name="LIA-Flags" code="653" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="Initial-CSeq-Sequence-Number" code="654" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="SAR-Flags" code="655" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Unsigned32"/>
+  </avp>
 </application>
 
 
