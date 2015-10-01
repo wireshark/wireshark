@@ -329,7 +329,11 @@ get_gui_compiled_info(GString *str)
     epan_get_compiled_version_info(str);
 
     g_string_append(str, ", ");
-    g_string_append(str, "without PortAudio");
+#ifdef QT_MULTIMEDIA_LIB
+    g_string_append(str, "with QtMultimedia");
+#else
+    g_string_append(str, "without QtMultimedia");
+#endif
 
     g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
