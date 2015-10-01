@@ -51,6 +51,7 @@ static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse b
 static const gchar FWD_ONLY_LABEL_TEXT[] = "Select a forward stream with Ctrl + left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with Ctrl + left mouse button";
 
+static void rtpstream_tap_reset(rtpstream_tapinfo_t *ti_ptr);
 static void rtpstream_tap_draw(rtpstream_tapinfo_t *ti_ptr);
 static void rtpstream_dlg_mark_packet(rtpstream_tapinfo_t *tapinfo, frame_data *fd);
 void register_tap_listener_rtp_stream_dlg(void);
@@ -58,8 +59,8 @@ void register_tap_listener_rtp_stream_dlg(void);
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
-    { rtpstream_tap_draw, rtpstream_dlg_mark_packet, NULL, 0, NULL, 0,
-      TAP_ANALYSE, NULL, NULL, NULL, FALSE
+    { rtpstream_tap_reset, rtpstream_tap_draw, rtpstream_dlg_mark_packet,
+      NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE
     };
 
 /****************************************************************************/
@@ -1102,6 +1103,15 @@ rtpstream_dlg_update(GList *list_lcl)
     }
 
     last_list = list_lcl;
+}
+
+static void
+rtpstream_tap_reset(rtpstream_tapinfo_t *tapinfo _U_)
+{
+    if (rtp_stream_dlg != NULL) {
+        gtk_list_store_clear(list_store);
+        streams_nb = 0;
+    }
 }
 
 static void

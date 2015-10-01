@@ -101,7 +101,12 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 
 void rtpstream_reset_cb(void *arg)
 {
-	rtpstream_reset((rtpstream_tapinfo_t *)arg);
+	rtpstream_tapinfo_t *ti =(rtpstream_tapinfo_t *)arg;
+	if (ti->tap_reset) {
+		/* Give listeners a chance to cleanup references. */
+		ti->tap_reset(ti);
+	}
+	rtpstream_reset(ti);
 }
 
 /*

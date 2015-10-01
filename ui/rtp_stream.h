@@ -89,12 +89,14 @@ typedef enum
 
 typedef struct _rtpstream_tapinfo rtpstream_tapinfo_t;
 
+typedef void (*rtpstream_tap_reset_cb)(rtpstream_tapinfo_t *tapinfo);
 typedef void (*rtpstream_tap_draw_cb)(rtpstream_tapinfo_t *tapinfo);
 typedef void (*tap_mark_packet_cb)(rtpstream_tapinfo_t *tapinfo, frame_data *fd);
 
 /* structure that holds the information about all detected streams */
 /** struct holding all information of the tap */
 struct _rtpstream_tapinfo {
+    rtpstream_tap_reset_cb tap_reset;       /**< tap reset callback */
     rtpstream_tap_draw_cb tap_draw;         /**< tap draw callback */
     tap_mark_packet_cb tap_mark_packet;     /**< packet marking callback */
     void *tap_data;                         /**< data for tap callbacks */

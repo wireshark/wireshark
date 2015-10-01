@@ -63,6 +63,7 @@ private:
     QMenu ctx_menu_;
     bool need_redraw_;
 
+    static void tapReset(rtpstream_tapinfo_t *tapinfo);
     static void tapDraw(rtpstream_tapinfo_t *tapinfo);
     static void tapMarkPacket(rtpstream_tapinfo_t *tapinfo, frame_data *fd);
 

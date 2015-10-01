@@ -265,6 +265,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
+    tapinfo_.tap_reset = tapReset;
     tapinfo_.tap_draw = tapDraw;
     tapinfo_.tap_mark_packet = tapMarkPacket;
     tapinfo_.tap_data = this;
@@ -312,6 +313,15 @@ bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
         }
     }
     return false;
+}
+
+void RtpStreamDialog::tapReset(rtpstream_tapinfo_t *tapinfo)
+{
+    RtpStreamDialog *rtp_stream_dialog = dynamic_cast<RtpStreamDialog *>((RtpStreamDialog *)tapinfo->tap_data);
+    if (rtp_stream_dialog) {
+        /* invalidate items which refer to old strinfo_list items. */
+        rtp_stream_dialog->ui->streamTreeWidget->clear();
+    }
 }
 
 void RtpStreamDialog::tapDraw(rtpstream_tapinfo_t *tapinfo)
