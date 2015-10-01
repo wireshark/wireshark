@@ -2301,18 +2301,14 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 	add_dependencies(app_bundle ${PROGLIST})
 
+	add_custom_target(dmg_package_prep DEPENDS app_bundle)
+
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
 		COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
 	)
 
-	ADD_CUSTOM_TARGET( osx-app
-		COMMAND ${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh
-		DEPENDS ${CMAKE_BINARY_DIR}/run/Wireshark.app
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
-	)
-
-	ADD_CUSTOM_TARGET( osx-dmg
+	ADD_CUSTOM_TARGET( dmg_package
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 					"${PROJECT_SOURCE_DIR}/ipmap.html"
 					$<TARGET_FILE_DIR:wireshark>
@@ -2345,7 +2341,9 @@ if(ENABLE_APPLICATION_BUNDLE)
 					${CMAKE_BINARY_DIR}/run/dmg_background.png
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
 			--source-directory ${CMAKE_SOURCE_DIR}/packaging/macosx
-		DEPENDS osx-app
+		# Unlike nsis_package_prep + nsis_package, we can add a direct
+		# dependency here.
+		DEPENDS dmg_package_prep
 		# We create Wireshark.app in "run". Do our work there.
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
 	)

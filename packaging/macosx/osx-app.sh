@@ -625,6 +625,7 @@ rpathify_files () {
 	fi
 	rpathify_dir "$pkgbin" "*"
 	rpathify_dir "$pkgbin/extcap" "*"
+	rpathify_dir "$pkgplugin" "*"
 }
 
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
