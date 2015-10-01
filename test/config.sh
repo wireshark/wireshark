@@ -69,6 +69,7 @@ TSHARK=$WS_BIN_PATH/tshark
 RAWSHARK=$WS_BIN_PATH/rawshark
 CAPINFOS=$WS_BIN_PATH/capinfos
 MERGECAP=$WS_BIN_PATH/mergecap
+TEXT2PCAP=$WS_BIN_PATH/text2pcap
 DUMPCAP=$WS_BIN_PATH/dumpcap
 
 # interface with at least a few packets/sec traffic on it

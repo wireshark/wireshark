@@ -109,6 +109,7 @@ source $TESTS_DIR/suite-decryption.sh
 source $TESTS_DIR/suite-nameres.sh
 source $TESTS_DIR/suite-wslua.sh
 source $TESTS_DIR/suite-mergecap.sh
+source $TESTS_DIR/suite-text2pcap.sh
 
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
@@ -170,6 +171,7 @@ test_suite() {
 	test_suite_add "Lua API" wslua_suite
 	test_suite_add "Mergecap" mergecap_suite
 	test_suite_add "File formats" fileformats_suite
+	test_suite_add "Text2pcap" text2pcap_suite
 }
 
 
@@ -217,6 +219,9 @@ if [ -n "$RUN_SUITE" ] ; then
 			exit $? ;;
 		"wslua")
 			test_suite_run "Lua API" wslua_suite
+			exit $? ;;
+		"text2pcap")
+			test_suite_run "Text2pcap" text2pcap_suite
 			exit $? ;;
 	esac
 fi
