@@ -573,8 +573,8 @@ static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 static gboolean     vwr_read_s1_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
                                       const guint8 *, int, int *, gchar **);
 static gboolean     vwr_read_s2_s3_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
-                                      const guint8 *, int, int, int *,
-                                      gchar **);
+                                         const guint8 *, int, int, int *,
+                                         gchar **);
 static gboolean     vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
                                                Buffer *, const guint8 *, int,
                                                int, int *, gchar **);
@@ -1152,8 +1152,8 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
 
 static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
-                                  Buffer *buf, const guint8 *rec, int rec_size,
-                                  int IS_TX, int *err, gchar **err_info)
+                                     Buffer *buf, const guint8 *rec, int rec_size,
+                                     int IS_TX, int *err, gchar **err_info)
 {
     guint8           *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
