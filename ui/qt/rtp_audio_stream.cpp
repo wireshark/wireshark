@@ -129,7 +129,6 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const _rtp_i
     // Combination of gtk/rtp_player.c:decode_rtp_stream + decode_rtp_packet
     // XXX This is more messy than it should be.
 
-    size_t decoded_bytes;
     SAMPLE *decode_buff = NULL;
     SAMPLE *resample_buff = NULL;
     spx_uint32_t cur_in_rate, visual_out_rate;
@@ -162,7 +161,8 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const _rtp_i
         rtp_packet.payload_data = NULL;
     }
 
-    decoded_bytes = decode_rtp_packet(&rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
+    //size_t decoded_bytes =
+    decode_rtp_packet(&rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
     write_buff = (char *) decode_buff;
     write_bytes = rtp_info->info_payload_len * sample_bytes_;
 
