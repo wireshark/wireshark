@@ -64,8 +64,8 @@
 
 #ifdef OUTSIDE_SPEEX
 #include <stdlib.h>
-static void *speex_alloc (int size) {return calloc(size,1);}
-static void *speex_realloc (void *ptr, int size) {return realloc(ptr, size);}
+static void *speex_alloc (size_t size) {return calloc(size,1);}
+static void *speex_realloc (void *ptr, size_t size) {return realloc(ptr, size);}
 static void speex_free (void *ptr) {free(ptr);}
 #include "speex_resampler.h"
 #include "arch.h"
@@ -291,7 +291,7 @@ static spx_word16_t sinc(float cutoff, float x, int N, const struct FuncDef *win
    else if (fabs(x) > .5*N)
       return 0;
    /*FIXME: Can it really be any slower than this? */
-   return cutoff*sin(M_PI*xx)/(M_PI*xx) * compute_func(fabs(2.*x/N), window_func);
+   return (spx_word16_t)(cutoff*sin(M_PI*xx)/(M_PI*xx) * compute_func((float)fabs(2.*x/N), window_func));
 }
 #endif
 
@@ -321,7 +321,7 @@ static void cubic_coef(spx_word16_t frac, spx_word16_t interp[4])
    /*interp[2] = 1.f - 0.5f*frac - frac*frac + 0.5f*frac*frac*frac;*/
    interp[3] = -0.33333f*frac + 0.5f*frac*frac - 0.16667f*frac*frac*frac;
    /* Just to make sure we don't have rounding problems */
-   interp[2] = 1.-interp[0]-interp[1]-interp[3];
+   interp[2] = (spx_word16_t)(1.-interp[0]-interp[1]-interp[3]);
 }
 #endif
 
@@ -629,13 +629,13 @@ static int update_filter(SpeexResamplerState *st)
       goto fail;
 #else
    use_direct = st->filt_len*st->den_rate <= st->filt_len*st->oversample+8
-                && INT_MAX/sizeof(spx_word16_t)/st->den_rate >= st->filt_len;
+                && INT_MAX/(spx_uint32_t)sizeof(spx_word16_t)/st->den_rate >= st->filt_len;
 #endif
    if (use_direct)
    {
       min_sinc_table_length = st->filt_len*st->den_rate;
    } else {
-      if ((INT_MAX/sizeof(spx_word16_t)-8)/st->oversample < st->filt_len)
+      if ((INT_MAX/(spx_uint32_t)sizeof(spx_word16_t)-8)/st->oversample < st->filt_len)
          goto fail;
 
       min_sinc_table_length = st->filt_len*st->oversample+8;
@@ -694,7 +694,7 @@ static int update_filter(SpeexResamplerState *st)
    if (min_alloc_size > st->mem_alloc_size)
    {
       spx_word16_t *mem;
-      if (INT_MAX/sizeof(spx_word16_t)/st->nb_channels < min_alloc_size)
+      if (INT_MAX/(spx_uint32_t)sizeof(spx_word16_t)/st->nb_channels < min_alloc_size)
           goto fail;
       else if (!(mem = (spx_word16_t*)speex_realloc(st->mem, st->nb_channels*min_alloc_size * sizeof(*mem))))
           goto fail;
