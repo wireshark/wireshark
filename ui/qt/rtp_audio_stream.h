@@ -78,7 +78,7 @@ public:
      * @return A set of timestamps suitable for passing to QCPGraph::setData.
      */
     const QVector<double> outOfSequenceTimestamps(bool relative = true);
-    int outOfSequence() { return out_of_seq_timestamps_.length(); }
+    int outOfSequence() { return out_of_seq_timestamps_.size(); }
     /**
      * @brief Return a list of out-of-sequence samples. Y value is constant.
      * @param y_offset Y axis offset to be used for stacking graphs.

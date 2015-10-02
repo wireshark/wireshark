@@ -267,7 +267,7 @@ const QVector<double> RtpAudioStream::visualTimestamps(bool relative)
     if (relative) return ts_keys;
 
     QVector<double> adj_timestamps;
-    for (int i = 0; i < ts_keys.length(); i++) {
+    for (int i = 0; i < ts_keys.size(); i++) {
         adj_timestamps.append(ts_keys[i] + start_abs_offset_);
     }
     return adj_timestamps;
@@ -283,7 +283,7 @@ const QVector<double> RtpAudioStream::visualSamples(int y_offset)
 {
     QVector<double> adj_samples;
     double scaled_offset = y_offset * stack_offset_;
-    for (int i = 0; i < visual_samples_.length(); i++) {
+    for (int i = 0; i < visual_samples_.size(); i++) {
         adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_) + scaled_offset);
     }
     return adj_samples;
@@ -294,7 +294,7 @@ const QVector<double> RtpAudioStream::outOfSequenceTimestamps(bool relative)
     if (relative) return out_of_seq_timestamps_;
 
     QVector<double> adj_timestamps;
-    for (int i = 0; i < out_of_seq_timestamps_.length(); i++) {
+    for (int i = 0; i < out_of_seq_timestamps_.size(); i++) {
         adj_timestamps.append(out_of_seq_timestamps_[i] + start_abs_offset_);
     }
     return adj_timestamps;
@@ -304,7 +304,7 @@ const QVector<double> RtpAudioStream::outOfSequenceSamples(int y_offset)
 {
     QVector<double> adj_samples;
     double scaled_offset = y_offset * stack_offset_;
-    for (int i = 0; i < out_of_seq_timestamps_.length(); i++) {
+    for (int i = 0; i < out_of_seq_timestamps_.size(); i++) {
         adj_samples.append(scaled_offset);
     }
     return adj_samples;
