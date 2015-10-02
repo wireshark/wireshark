@@ -587,7 +587,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
 
     case 0x45:  /* E.164 ATM format */
     case 0xC3:  /* E.164 ATM group format */
-      proto_tree_add_item(tree, (afi == 0xC5) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
+      proto_tree_add_item(tree, (afi == 0xC3) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
                           tvb, offset + 1, 8, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 9, 4, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
