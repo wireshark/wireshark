@@ -1579,20 +1579,15 @@ epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 {
 	duplication_data *data = NULL;
 	duplication_key *key = NULL;
-	gpointer *pkey = NULL;
+	gpointer pkey = NULL;
 	gpointer pdata;
 
 	/* check if the values are stored */
-	if(g_hash_table_lookup_extended(table,ptr,pkey,&pdata))
+	if(g_hash_table_lookup_extended(table,ptr,&pkey,&pdata))
 	{
-			/* it happened that pkey was NULL
-			to prevent a crash this if was created */
-			if(pkey != NULL)
-			{
-				data = (duplication_data *)pdata;
-				data->frame = frame;
-				g_hash_table_insert(table, pkey, data);
-			}
+		data = (duplication_data *)pdata;
+		data->frame = frame;
+		g_hash_table_insert(table, pkey, data);
 	}
 	/* insert the data struct into the table */
 	else
