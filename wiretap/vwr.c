@@ -109,6 +109,7 @@
 /* Flags, for flags field */
 #define FLAGS_SHORTPRE      0x0002              /* sent/received with short preamble */
 #define FLAGS_WEP           0x0004              /* sent/received with WEP encryption */
+#define FLAGS_FCS           0x0010              /* frame includes FCS */
 #define FLAGS_CHAN_HT       0x0040              /* In HT mode */
 #define FLAGS_CHAN_VHT      0x0080              /* VHT Mode */
 #define FLAGS_CHAN_SHORTGI  0x0100              /* Short guard interval */
@@ -833,15 +834,19 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 if ((rec_size > vVW510021_W_STATS_TRAILER_LEN) && (fpga_version == 1000)) {
                     /* stats block */
 
-                    data_length = (256 * (rec[vVW510021_W_MSDU_LENGTH_OFF + 1] & 0x1f)) + rec[vVW510021_W_MSDU_LENGTH_OFF];
+                    if ((header[8] == 48) || (header[8] == 61) || (header[8] == 68))
+                        fpga_version = S3_W_FPGA;
+                    else {
+                        data_length = (256 * (rec[vVW510021_W_MSDU_LENGTH_OFF + 1] & 0x1f)) + rec[vVW510021_W_MSDU_LENGTH_OFF];
 
-                    i = 0;
-                    while (((data_length + i) % 4) != 0)
-                        i = i + 1;
+                        i = 0;
+                        while (((data_length + i) % 4) != 0)
+                            i = i + 1;
 
-                    /*the 12 is from the 12 bytes of plcp header */
-                    if (rec_size == (data_length + vVW510021_W_STATS_TRAILER_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
-                        fpga_version = S2_W_FPGA;
+                        /*the 12 is from the 12 bytes of plcp header */
+                        if (rec_size == (data_length + vVW510021_W_STATS_TRAILER_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
+                            fpga_version = S2_W_FPGA;
+                    }
                 }
 
                 /* Finally the Series II Ethernet */
@@ -855,11 +860,6 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 
                     if (rec_size == (data_length + vVW510024_E_STATS_LEN + i))
                         fpga_version = vVW510024_E_FPGA;
-                }
-                if ((rec_size > vVW510021_W_STATS_TRAILER_LEN) && (fpga_version == 1000)) {
-                    /* Check the version of the FPGA */
-                    if (header[8] == 48)
-                        fpga_version = S3_W_FPGA;
                 }
                 if (fpga_version != 1000)
                 {
@@ -1025,6 +1025,16 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         sig_ts = 0;
 
     /*
+     * We also copy over 16 bytes of PLCP header + 1 byte of L1P for user
+     * position.
+     *
+     * XXX - for S1, do we even have that?  The current Veriwave dissector
+     * just blindly assumes there's a 17-byte blob before the 802.11
+     * header.
+     */
+    actual_octets = actual_octets + 17;
+
+    /*
      * Fill up the per-packet header.
      *
      * We include the length of the metadata headers in the packet lengths.
@@ -1138,6 +1148,16 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phtolel(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
+    /* No VHT, no VHT NDP flag, so just zero. */
+    data_ptr[bytes_written] = 0;
+    bytes_written += 1;
+
+    /*
+     * XXX - put a PLCP header here?  That's what's done for S3.
+     */
+    memset(&data_ptr[bytes_written], 0, 16);
+    bytes_written += 16;
+
     /*
      * Finally, copy the whole MAC frame to the packet buffer as-is.
      * This does not include the PLCP; the MPDU starts at 4 or 6
@@ -1180,6 +1200,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          delta_b;                             /* Used for calculating latency */
     guint16          phyRate;
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
+    guint8           vht_ndp_flag;
 
     /*
      * The record data must be large enough to hold the statistics header,
@@ -1228,10 +1249,14 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         rssi[3] = 100;
 
         nss = 0;
+
+        /* XXX - S2 claims to have 11 bytes of PLCP and 1 byte of pad */
         plcp_ptr = &(rec[8]);
     }
     else
     {
+        /* XXX - what indicates which packets include the FCS? */
+        radioflags |= FLAGS_FCS;
         plcp_type = vVW510021_W_S3_PLCP_TYPE(l1p_2);
         if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
         {
@@ -1245,6 +1270,12 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
             nss = 0;
         }
+
+        /*** Extract NDP Flag if it is a received frame ***/
+        if (!IS_TX){
+            vht_ndp_flag = s_start_ptr[8];
+        }
+
         msdu_length = pntoh24(&s_start_ptr[9]);
         vc_id = pntoh16(&s_start_ptr[14]) & vVW510024_W_VCID_MASK;
         for (i = 0; i < 4; i++)
@@ -1259,6 +1290,9 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             }
         }
 
+        /*** 16 bytes of PLCP header + 1 byte of L1P for user position ***/
+        /* XXX - S3 claims to have 16 bytes of stats block and 16 bytes of
+           *something*. Are those 16 bytes the PLCP? */
         plcp_ptr = &(rec[16]);
     }
     actual_octets = msdu_length;
@@ -1326,23 +1360,6 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             radioflags |= FLAGS_CHAN_80MHZ;
     }
 
-    /*
-     * The MSDU length includes the FCS.
-     *
-     * The packet data does *not* include the FCS - it's just 4 bytes
-     * of junk - so we have to remove it.
-     *
-     * We'll be stripping off an FCS (?), so make sure we have at
-     * least 4 octets worth of FCS.
-     */
-    if (actual_octets < 4) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                    actual_octets);
-        *err = WTAP_ERR_BAD_FILE;
-        return FALSE;
-    }
-    actual_octets -= 4;
-
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
     /* 64-bit times are "Corey-endian" */
     s_time = pcoreytohll(&s_trail_ptr[vVW510021_W_STARTT_OFF]);
@@ -1384,6 +1401,16 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     }
 
     /*
+     * We also copy over 16 bytes of PLCP header + 1 byte of L1P for user
+     * position.
+     *
+     * XXX - for S2, we don't have 16 bytes of PLCP header; do we have
+     * the 1 byte of L1P?  The current Veriwave dissector just blindly
+     * assumes there's a 17-byte blob before the 802.11 header.
+     */
+    actual_octets = actual_octets + 17;
+
+    /*
      * Fill up the per-packet header.
      *
      * We include the length of the metadata headers in the packet lengths.
@@ -1407,6 +1434,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * All values are copied out in little-endian byte order.
      */
+    /*** msdu_length = msdu_length + 16; ***/
     phtoles(&data_ptr[bytes_written], 0); /* port_type */
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
@@ -1452,10 +1480,19 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
     phtoles(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
+
+    /*** If received frame populate the ndp_flag in the same byte as plcp_type***/
+
+    if (!IS_TX) {
+        plcp_type = vht_ndp_flag  + plcp_type;
+    }
+
     data_ptr[bytes_written] = plcp_type;
     bytes_written += 1;
+
     data_ptr[bytes_written] = mcs_index;
     bytes_written += 1;
+
     data_ptr[bytes_written] = nss;
     bytes_written += 1;
     data_ptr[bytes_written] = rssi[0];
@@ -1496,11 +1533,26 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phtolel(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
+    if (!IS_TX){
+      data_ptr[bytes_written] = vht_ndp_flag;
+    } else {
+      data_ptr[bytes_written] = 0;
+    }
+    bytes_written += 1;
+
+    /*
+     * Copy PLCP header.
+     *
+     * XXX - shouldn't that use plcp_ptr?
+     *
+     * XXX - what about S3, where we don't have 16 bytes of PLCP?
+     */
+    memcpy(&data_ptr[bytes_written], &rec[16], 16);
+    bytes_written += 16;
+
     /*
      * Finally, copy the whole MAC frame to the packet buffer as-is.
-     * This does not include the stats header or the PLCP.
-     * This also does not include the last 4 bytes, as those don't
-     * contain an FCS, they just contain junk.
+     * This does not include the stats header or the PLCP header.
      */
     memcpy(&data_ptr[bytes_written], &rec[vwr->MPDU_OFF], actual_octets);
 
