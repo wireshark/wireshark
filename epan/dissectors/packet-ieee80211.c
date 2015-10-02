@@ -10064,7 +10064,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             aci_aifsn = tvb_get_guint8(tvb, offset);
             proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
               (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
-              (aci_aifsn & 0x10) ? "yes" : "no ", aci_aifsn & 0x0f);
+              (aci_aifsn & 0x10) ? "yes" : "no", aci_aifsn & 0x0f);
             offset += 1;
 
             /* ECWmin/ECWmax field */
