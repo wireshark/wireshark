@@ -299,6 +299,8 @@ static int hf_dns_opt_client_scope = -1;
 static int hf_dns_opt_client_addr = -1;
 static int hf_dns_opt_client_addr4 = -1;
 static int hf_dns_opt_client_addr6 = -1;
+static int hf_dns_opt_cookie_client = -1;
+static int hf_dns_opt_cookie_server = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -584,6 +586,7 @@ typedef struct _dns_conv_info_t {
 #define O_CLIENT_SUBNET  8              /* Client subnet as assigned by IANA */
 #define O_EDNS_EXPIRE    9              /* EDNS Expire (RFC7314) */
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
+#define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -680,6 +683,7 @@ static const value_string opcode_vals[] = {
 #define RCODE_BADNAME   20
 #define RCODE_BADALG    21
 #define RCODE_BADTRUNC  22
+#define RCODE_BADCOOKIE 23
 
 static const value_string rcode_vals[] = {
   { RCODE_NOERROR,    "No error"             },
@@ -700,7 +704,8 @@ static const value_string rcode_vals[] = {
   { RCODE_BADMODE,    "Bad TKEY Mode" },
   { RCODE_BADNAME,    "Duplicate key name" },
   { RCODE_BADALG,     "Algorithm not supported" },
-  { RCODE_BADTRUNC,   "Bad Truncation"    },
+  { RCODE_BADTRUNC,   "Bad Truncation" },
+  { RCODE_BADCOOKIE,  "Bad/missing server cookie" },
   { 0,                NULL }
  };
 
@@ -1013,6 +1018,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
   {O_EDNS_EXPIRE, "EDNS EXPIRE (RFC7314)"},
+  {O_COOKIE,     "COOKIE"},
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -2750,6 +2756,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             cur_offset += (optlen - 4);
             rropt_len  -= optlen;
         }
+        break;
+          case O_COOKIE:
+            proto_tree_add_item(rropt_tree, hf_dns_opt_cookie_client, tvb, cur_offset, 8, ENC_NA);
+            cur_offset += 8;
+            rropt_len  -= 8;
+            optlen -= 8;
+            proto_tree_add_item(rropt_tree, hf_dns_opt_cookie_server, tvb, cur_offset, optlen, ENC_NA);
+            rropt_len  -= optlen;
         break;
           default:
           cur_offset += optlen;
@@ -5012,6 +5026,16 @@ proto_register_dns(void)
     { &hf_dns_opt_client_addr6,
       { "Client Subnet", "dns.opt.client.addr6",
         FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_opt_cookie_client,
+      { "Client Cookie", "dns.opt.cookie.client",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_opt_cookie_server,
+      { "Server Cookie", "dns.opt.cookie.server",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_count_questions,
