@@ -2327,9 +2327,6 @@ if(ENABLE_APPLICATION_BUNDLE)
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 					${CMAKE_SOURCE_DIR}/COPYING
 					${CMAKE_BINARY_DIR}/run/COPYING.txt
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.pkgproj
-					${CMAKE_BINARY_DIR}/run/Wireshark.pkgproj
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
 					${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark_package.pmdoc
 					${CMAKE_BINARY_DIR}/run/Wireshark_package.pmdoc
