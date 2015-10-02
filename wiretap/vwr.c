@@ -572,7 +572,7 @@ static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 
 static gboolean     vwr_read_s1_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
                                       const guint8 *, int, int *, gchar **);
-static gboolean     vwr_read_s2_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
+static gboolean     vwr_read_s2_s3_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
                                       const guint8 *, int, int, int *,
                                       gchar **);
 static gboolean     vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
@@ -1151,7 +1151,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 }
 
 
-static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
+static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                   Buffer *buf, const guint8 *rec, int rec_size,
                                   int IS_TX, int *err, gchar **err_info)
 {
@@ -2224,7 +2224,7 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
             break;
         case S2_W_FPGA:
         case S3_W_FPGA:
-            return vwr_read_s2_W_rec(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
+            return vwr_read_s2_s3_W_rec(vwr, phdr, buf, rec, rec_size, IS_TX, err, err_info);
             break;
         case vVW510012_E_FPGA:
         case vVW510024_E_FPGA:
