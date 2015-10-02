@@ -10063,8 +10063,8 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
             aci_aifsn = tvb_get_guint8(tvb, offset);
             proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
-            (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
-            (aci_aifsn & 0x10) ? "yes" : "no ", aci_aifsn & 0x0f);
+              (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
+              (aci_aifsn & 0x10) ? "yes" : "no ", aci_aifsn & 0x0f);
             offset += 1;
 
             /* ECWmin/ECWmax field */
@@ -10073,7 +10073,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
             ecw = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(ac_item, ", ECWmin %u ,ECWmax %u", ecw & 0x0f, (ecw & 0xf0) >> 4);
+            proto_item_append_text(ac_item, ", ECWmin %u, ECWmax %u", ecw & 0x0f, (ecw & 0xf0) >> 4);
             offset += 1;
 
             /* TXOP Limit */
@@ -11749,7 +11749,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
     rx_nss = MAX(2,rx_nss);
   }
 
-  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset , 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_33to38, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_39to52, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 2;
