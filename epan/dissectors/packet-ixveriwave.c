@@ -713,7 +713,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
 
     offset      = 0;
-    
+
     /* Length of the metadata header */
     length = tvb_get_letohs(tvb, offset);
     offset      += 2;
@@ -878,9 +878,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
               proto_tree_add_uint_format(tap_tree, hf_radiotap_plcptype,
                                          tvb, offset-3, 1, plcp_type,
                                          "VHT-NDP");
-	    }
-	  }
-	}
+            }
+          }
+        }
       }
 
       proto_tree_add_uint(tap_tree, hf_radiotap_vwf_txf,
@@ -1146,7 +1146,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
             /*** extract U3 Coding type***/
             if (vht_u3_nsts == 1) {
-            	guint vht_u3_coding_type;
+                guint vht_u3_coding_type;
 
                 vht_u3_coding_type = ((vht_coding_type & 0x40) >> 6);
                 if (vht_u3_coding_type == 0) {
