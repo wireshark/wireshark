@@ -774,6 +774,7 @@ SOURCES += \
     stats_tree_dialog.cpp \
     stock_icon.cpp \
     stock_icon_tool_button.cpp \
+    supported_protocols_dialog.cpp \
     syntax_line_edit.cpp \
     tap_parameter_dialog.cpp \
     tcp_stream_dialog.cpp \
