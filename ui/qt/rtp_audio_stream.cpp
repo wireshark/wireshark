@@ -121,7 +121,6 @@ void RtpAudioStream::addRtpStream(const _rtp_stream_info *rtp_stream)
     }
 }
 
-static const int max_payload_len_ = 1000; // Arbitrary.
 static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
 void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const _rtp_info *rtp_info)
 {
