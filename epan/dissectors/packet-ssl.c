@@ -384,7 +384,6 @@ ssl_parse_uat(void)
 
     if (ssl_key_hash)
     {
-        g_hash_table_foreach(ssl_key_hash, ssl_private_key_free, NULL);
         g_hash_table_destroy(ssl_key_hash);
     }
 
@@ -397,7 +396,8 @@ ssl_parse_uat(void)
     wmem_destroy_stack(tmp_stack);
 
     /* parse private keys string, load available keys and put them in key hash*/
-    ssl_key_hash = g_hash_table_new(ssl_private_key_hash,ssl_private_key_equal);
+    ssl_key_hash = g_hash_table_new_full(ssl_private_key_hash,
+            ssl_private_key_equal, g_free, ssl_private_key_free);
 
 
     if (nssldecrypt > 0) {
