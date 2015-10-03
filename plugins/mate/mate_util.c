@@ -966,8 +966,7 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 		/* case AVP_OP_TRANSF: */
 		/*	return do_transform(src,op); */
 		case AVP_OP_CONTAINS:
-			/* TODO */
-			return NULL;
+			return g_strrstr(src->v, op->v) ? src : NULL;;
 	}
 	/* will never get here */
 	return NULL;
