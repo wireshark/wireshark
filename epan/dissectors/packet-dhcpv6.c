@@ -57,6 +57,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/arptypes.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
 
@@ -64,6 +65,7 @@ void proto_register_dhcpv6(void);
 void proto_reg_handoff_dhcpv6(void);
 
 static gboolean dhcpv6_bulk_leasequery_desegment  = TRUE;
+static gboolean cablelabs_interface_id = FALSE;
 
 static int proto_dhcpv6 = -1;
 static int proto_dhcpv6_bulk_leasequery = -1;
@@ -185,6 +187,8 @@ static int hf_capabilities_encoding_bytes = -1;
 static int hf_capabilities_encoding_number = -1;
 static int hf_cablelabs_ipv6_server = -1;
 static int hf_cablelabs_docsis_version_number = -1;
+static int hf_cablelabs_interface_id = -1;
+static int hf_cablelabs_interface_id_link_address = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -1600,7 +1604,21 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        proto_tree_add_item(subtree, hf_interface_id, tvb, off, optlen, ENC_NA);
+        if (cablelabs_interface_id) {
+            gint namelen = tvb_strnlen(tvb, off, optlen)+1;
+            if (namelen == 0) {
+                proto_tree_add_item(subtree, hf_cablelabs_interface_id, tvb, off, optlen, ENC_ASCII|ENC_NA);
+            } else {
+                proto_tree_add_item(subtree, hf_cablelabs_interface_id, tvb, off, namelen-1, ENC_ASCII|ENC_NA);
+
+                temp_optlen = optlen - namelen;
+                off += namelen;
+                if (temp_optlen >= 6)
+                    proto_tree_add_string(subtree, hf_cablelabs_interface_id_link_address, tvb, off, temp_optlen, tvb_arphrdaddr_to_str(tvb, off, 6, ARPHRD_ETHER));
+            }
+        } else {
+            proto_tree_add_item(subtree, hf_interface_id, tvb, off, optlen, ENC_NA);
+        }
     }
     break;
     case OPTION_RECONF_MSG:
@@ -2066,6 +2084,7 @@ void
 proto_register_dhcpv6(void)
 {
     module_t *bulkquery_module;
+    module_t *dhcpv6_module;
 
     static hf_register_info hf[] = {
 
@@ -2308,6 +2327,10 @@ proto_register_dhcpv6(void)
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_cablelabs_docsis_version_number,
           { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_docsis_version), 0x0, NULL, HFILL}},
+        { &hf_cablelabs_interface_id,
+          { "Interface-ID", "dhcpv6.cablelabs.interface_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_cablelabs_interface_id_link_address,
+          { "Link Address", "dhcpv6.cablelabs.interface_id_link_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -2378,12 +2401,17 @@ proto_register_dhcpv6(void)
        Just choose upstream version for now as they are identical. */
     register_dissector("dhcpv6", dissect_dhcpv6_upstream, proto_dhcpv6);
 
+    dhcpv6_module = prefs_register_protocol(proto_dhcpv6, NULL);
+    prefs_register_bool_preference(dhcpv6_module, "cablelabs_interface_id",
+                                    "Dissect Option 18 (Interface-Id) as CableLab option",
+                                    "Whether Option 18 is dissected as CableLab or RFC 3315",
+                                    &cablelabs_interface_id);
+
     bulkquery_module = prefs_register_protocol(proto_dhcpv6_bulk_leasequery, NULL);
     prefs_register_bool_preference(bulkquery_module, "desegment",
                                     "Desegment all Bulk Leasequery messages spanning multiple TCP segments",
                                     "Whether the Bulk Leasequery dissector should desegment all messages spanning multiple TCP segments",
                                     &dhcpv6_bulk_leasequery_desegment);
-
 }
 
 void
