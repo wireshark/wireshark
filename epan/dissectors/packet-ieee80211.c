@@ -16523,7 +16523,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     break;
 
   case CONTROL_FRAME:
-    if (COMPOSE_FRAME_TYPE(fcf) == CTRL_CONTROL_WRAPPER) {
+    if (frame_type_subtype == CTRL_CONTROL_WRAPPER) {
       hdr_len = 6;
       cw_fcf = ctrl_fcf;
     } else {
@@ -16589,7 +16589,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   case DATA_FRAME:
     hdr_len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
-    if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
+    if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
       /* QoS frame */
       qosoff = hdr_len;
       hdr_len += 2; /* Include the QoS field in the header length */
