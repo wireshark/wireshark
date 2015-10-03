@@ -215,7 +215,6 @@ dtls_parse_uat(void)
 
   if (dtls_key_hash)
   {
-      g_hash_table_foreach(dtls_key_hash, ssl_private_key_free, NULL);
       g_hash_table_destroy(dtls_key_hash);
   }
 
@@ -228,7 +227,8 @@ dtls_parse_uat(void)
   wmem_destroy_stack(tmp_stack);
 
   /* parse private keys string, load available keys and put them in key hash*/
-  dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
+  dtls_key_hash = g_hash_table_new_full(ssl_private_key_hash,
+      ssl_private_key_equal, g_free, ssl_private_key_free);
 
   ssl_set_debug(dtls_debug_file_name);
 
