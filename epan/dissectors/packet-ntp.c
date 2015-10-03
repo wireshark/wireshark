@@ -324,29 +324,10 @@ static const value_string ctrl_sys_status_event_types[] = {
 #define NTPCTRL_PEERSTATUS_COUNT_MASK		0x00F0
 #define NTPCTRL_PEERSTATUS_CODE_MASK		0x000F
 
-static const value_string ctrl_peer_status_config_types[] = {
-	{ 0,		"not configured (peer.config)" },
-	{ 1,		"configured (peer.config)" },
-	{ 0,		NULL}
-};
-
-static const value_string ctrl_peer_status_authenable_types[] = {
-	{ 0,		"authentication disabled (peer.authenable" },
-	{ 1,		"authentication enabled (peer.authenable" },
-	{ 0,		NULL}
-};
-
-static const value_string ctrl_peer_status_authentic_types[] = {
-	{ 0,		"authentication not okay (peer.authentic)" },
-	{ 1,		"authentication okay (peer.authentic)" },
-	{ 0,		NULL}
-};
-
-static const value_string ctrl_peer_status_reach_types[] = {
-	{ 0,		"reachability not okay (peer.reach != 0)" },
-	{ 1,		"reachability okay (peer.reach != 0)" },
-	{ 0,		NULL}
-};
+static const true_false_string tfs_ctrl_peer_status_config = {"configured (peer.config)", "not configured (peer.config)" };
+static const true_false_string tfs_ctrl_peer_status_authenable = { "authentication enabled (peer.authenable", "authentication disabled (peer.authenable" };
+static const true_false_string tfs_ctrl_peer_status_authentic = { "authentication okay (peer.authentic)", "authentication not okay (peer.authentic)" };
+static const true_false_string tfs_ctrl_peer_status_reach = {"reachability okay (peer.reach != 0)", "reachability not okay (peer.reach != 0)" };
 
 static const value_string ctrl_peer_status_selection_types[] = {
 	{ 0,		"rejected" },
@@ -472,6 +453,25 @@ static const value_string priv_rc_types[] = {
 };
 static value_string_ext priv_rc_types_ext = VALUE_STRING_EXT_INIT(priv_rc_types);
 
+static const range_string stratum_rvals[] = {
+	{ 0,	0, "unspecified or invalid" },
+	{ 1,	1, "primary reference" },
+	{ 2,	15, "secondary reference" },
+	{ 16,	16, "unsynchronized" },
+	{ 17,	255, "reserved" },
+	{ 0,	0, NULL }
+};
+
+#define NTP_MD5_ALGO 0
+#define NTP_SHA_ALGO 1
+
+static const value_string authentication_types[] = {
+	{ NTP_MD5_ALGO,		"MD5" },
+	{ NTP_SHA_ALGO,		"SHA" },
+	{ 0,		NULL}
+};
+
+
 /*
  * Maximum MAC length.
  */
@@ -495,6 +495,9 @@ static int hf_ntp_rec = -1;
 static int hf_ntp_xmt = -1;
 static int hf_ntp_keyid = -1;
 static int hf_ntp_mac = -1;
+static int hf_ntp_key_type = -1;
+static int hf_ntp_key_index = -1;
+static int hf_ntp_key_signature = -1;
 
 static int hf_ntp_ext = -1;
 static int hf_ntp_ext_flags = -1;
@@ -576,15 +579,9 @@ static gint ett_ntpctrl_data = -1;
 static gint ett_ntpctrl_item = -1;
 static gint ett_ntppriv_auth_seq = -1;
 static gint ett_monlist_item = -1;
+static gint ett_ntp_authenticator = -1;
 
 static expert_field ei_ntp_ext = EI_INIT;
-
-
-
-static void dissect_ntp_std (tvbuff_t *, packet_info *, proto_tree *, guint8);
-static void dissect_ntp_ctrl(tvbuff_t *, packet_info *, proto_tree *, guint8);
-static void dissect_ntp_priv(tvbuff_t *, packet_info *, proto_tree *, guint8);
-static int  dissect_ntp_ext (tvbuff_t *, packet_info *, proto_tree *, int);
 
 static const char *mon_names[12] = {
 	"Jan",
@@ -601,6 +598,32 @@ static const char *mon_names[12] = {
 	"Dec"
 };
 
+static const int *ntp_header_fields[] = {
+	&hf_ntp_flags_li,
+	&hf_ntp_flags_vn,
+	&hf_ntp_flags_mode,
+	NULL
+};
+
+/*
+	* dissect peer status word:
+	*                      1
+	*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+	* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	* | Status  | Sel | Count | Code  |
+	* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	*/
+static const int *peer_status_flags[] = {
+	&hf_ntpctrl_peer_status_b0,
+	&hf_ntpctrl_peer_status_b1,
+	&hf_ntpctrl_peer_status_b2,
+	&hf_ntpctrl_peer_status_b3,
+	&hf_ntpctrl_peer_status_b4,
+	&hf_ntpctrl_peer_status_selection,
+	&hf_ntpctrl_peer_status_count,
+	&hf_ntpctrl_peer_status_code,
+	NULL
+};
 
 /* parser definitions */
 static tvbparse_wanted_t *want;
@@ -762,96 +785,143 @@ ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 	nstime->nsecs = (int)(tvb_get_ntohl(tvb, offset+4)/(NTP_FLOAT_DENOM/1000000000.0));
 }
 
-/* dissect_ntp - dissects NTP packet data
- * tvb - tvbuff for packet data (IN)
- * pinfo - packet info
- * proto_tree - resolved protocol tree
- */
-static void
-dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+
+static int
+dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset)
 {
-	proto_tree      *ntp_tree;
-	proto_item      *ti = NULL;
+	proto_tree      *ext_tree, *flags_tree;
+	proto_item	*tf, *ext_item;
+	guint16		 extlen;
+	int		 endoffset;
 	guint8		 flags;
-	void (*dissector)(tvbuff_t *, packet_info *, proto_item *, guint8);
+	guint32		 vallen, vallen_round, siglen;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
+	extlen = tvb_get_ntohs(tvb, offset+2);
+	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen,
+	    ENC_NA);
+	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
 
-	col_clear(pinfo->cinfo, COL_INFO);
+	if (extlen < 8) {
+		/* Extension length isn't enough for the extension header.
+		 * Report the error, and return an offset that goes to
+		 * the end of the tvbuff, so we stop dissecting.
+		 */
+		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u < 8", extlen);
+		return tvb_reported_length(tvb);
+	}
+	if (extlen % 4) {
+		/* Extension length isn't a multiple of 4.
+		 * Report the error, and return an offset that goes
+		 * to the end of the tvbuff, so we stop dissecting.
+		 */
+		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u isn't a multiple of 4",
+				    extlen);
+		return tvb_reported_length(tvb);
+	}
+	endoffset = offset + extlen;
 
-	flags = tvb_get_guint8(tvb, 0);
-	switch (flags & NTP_MODE_MASK) {
-	default:
-		dissector = dissect_ntp_std;
-		break;
-	case NTP_MODE_CTRL:
-		dissector = dissect_ntp_ctrl;
-		break;
-	case NTP_MODE_PRIV:
-		dissector = dissect_ntp_priv;
-		break;
+	flags = tvb_get_guint8(tvb, offset);
+	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1,
+				 flags);
+	flags_tree = proto_item_add_subtree(tf, ett_ntp_ext_flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1,
+			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1,
+			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1,
+			    flags);
+	offset += 1;
+
+	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
+	offset += 2;
+
+	if ((flags & NTP_EXT_VN_MASK) != 2) {
+		/* don't care about autokey v1 */
+		return endoffset;
 	}
 
-	/* Adding NTP item and subtree */
-	ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_NA);
-	ntp_tree = proto_item_add_subtree(ti, ett_ntp);
+	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4,
+			    ENC_BIG_ENDIAN);
+	offset += 4;
 
-	/* Show version and mode in info column and NTP root */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
-		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
-				 "Unknown version"),
-		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+	/* check whether everything up to "vallen" is present */
+	if (extlen < MAX_MAC_LEN) {
+		/* XXX - report as error? */
+		return endoffset;
+	}
 
-	proto_item_append_text(ti, " (%s, %s)",
-	                       val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
-						"Unknown version"),
-	                       val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4,
+			    ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4,
+			    ENC_BIG_ENDIAN);
+	offset += 4;
+	/* XXX fstamp can be server flags */
 
-	/* Dissect according to mode */
-	(*dissector)(tvb, pinfo, ntp_tree, flags);
+	vallen = tvb_get_ntohl(tvb, offset);
+	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4,
+			    vallen);
+	offset += 4;
+	vallen_round = (vallen + 3) & (-4);
+	if (vallen != 0) {
+		if ((guint32)(endoffset - offset) < vallen_round) {
+			/*
+			 * Value goes past the length of the extension
+			 * field.
+			 */
+			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
+					    "Value length makes value go past the end of the extension field");
+			return endoffset;
+		}
+		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset,
+				    vallen, ENC_NA);
+	}
+	offset += vallen_round;
+
+	siglen = tvb_get_ntohl(tvb, offset);
+	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4,
+			    siglen);
+	offset += 4;
+	if (siglen != 0) {
+		if (offset + (int)siglen > endoffset) {
+			/*
+			 * Value goes past the length of the extension
+			 * field.
+			 */
+			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
+					    "Signature length makes value go past the end of the extension field");
+			return endoffset;
+		}
+		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb,
+			offset, siglen, ENC_NA);
+	}
+	return endoffset;
 }
 
 static void
-dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, guint8 flags)
+dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 {
-	proto_tree      *flags_tree;
-	proto_item	*tf;
 	guint8		 stratum;
 	guint8		 ppoll;
 	gint8		 precision;
 	double		 rootdelay;
 	double		 rootdispersion;
 	guint32		 refid_addr;
-	const gchar	*buffc;
 	gchar           *buff;
 	int		 i;
 	int		 macofs;
 	gint		 maclen;
 
-	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
-
-	/* Adding flag subtree and items */
-	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_li,   tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn,   tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
+	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
 
 	/* Stratum, 1byte field represents distance from primary source
 	 */
+	proto_tree_add_item(ntp_tree, hf_ntp_stratum, tvb, 1, 1, ENC_NA);
 	stratum = tvb_get_guint8(tvb, 1);
-	if (stratum == 0) {
-		buffc="unspecified or invalid (%u)";
-	} else if (stratum == 1) {
-		buffc="primary reference (%u)";
-	} else if ((stratum >= 2) && (stratum <= 15)) {
-		buffc="secondary reference (%u)";
-	} else if (stratum == 16) {
-		buffc="unsynchronized (%u)";
-	} else {
-		buffc="reserved: %u";
-	}
-	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
-				   stratum, buffc, stratum);
+
 	/* Poll interval, 1byte field indicating the maximum interval
 	 * between successive messages, in seconds to the nearest
 	 * power of two.
@@ -977,234 +1047,53 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, guint8 
 				    maclen, ENC_NA);
 }
 
-static int
-dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset)
-{
-	proto_tree      *ext_tree, *flags_tree;
-	proto_item	*tf, *ext_item;
-	guint16		 extlen;
-	int		 endoffset;
-	guint8		 flags;
-	guint32		 vallen, vallen_round, siglen;
-
-	extlen = tvb_get_ntohs(tvb, offset+2);
-	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen,
-	    ENC_NA);
-	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
-
-	if (extlen < 8) {
-		/* Extension length isn't enough for the extension header.
-		 * Report the error, and return an offset that goes to
-		 * the end of the tvbuff, so we stop dissecting.
-		 */
-		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u < 8", extlen);
-		return tvb_reported_length(tvb);
-	}
-	if (extlen % 4) {
-		/* Extension length isn't a multiple of 4.
-		 * Report the error, and return an offset that goes
-		 * to the end of the tvbuff, so we stop dissecting.
-		 */
-		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u isn't a multiple of 4",
-				    extlen);
-		return tvb_reported_length(tvb);
-	}
-	endoffset = offset + extlen;
-
-	flags = tvb_get_guint8(tvb, offset);
-	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1,
-				 flags);
-	flags_tree = proto_item_add_subtree(tf, ett_ntp_ext_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1,
-			    flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1,
-			    flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1,
-			    flags);
-	offset += 1;
-
-	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-
-	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
-	offset += 2;
-
-	if ((flags & NTP_EXT_VN_MASK) != 2) {
-		/* don't care about autokey v1 */
-		return endoffset;
-	}
-
-	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
-	offset += 4;
-
-	/* check whether everything up to "vallen" is present */
-	if (extlen < MAX_MAC_LEN) {
-		/* XXX - report as error? */
-		return endoffset;
-	}
-
-	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
-	offset += 4;
-	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
-	offset += 4;
-	/* XXX fstamp can be server flags */
-
-	vallen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4,
-			    vallen);
-	offset += 4;
-	vallen_round = (vallen + 3) & (-4);
-	if (vallen != 0) {
-		if ((guint32)(endoffset - offset) < vallen_round) {
-			/*
-			 * Value goes past the length of the extension
-			 * field.
-			 */
-			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-					    "Value length makes value go past the end of the extension field");
-			return endoffset;
-		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset,
-				    vallen, ENC_NA);
-	}
-	offset += vallen_round;
-
-	siglen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4,
-			    siglen);
-	offset += 4;
-	if (siglen != 0) {
-		if (offset + (int)siglen > endoffset) {
-			/*
-			 * Value goes past the length of the extension
-			 * field.
-			 */
-			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-					    "Signature length makes value go past the end of the extension field");
-			return endoffset;
-		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb,
-			offset, siglen, ENC_NA);
-	}
-	return endoffset;
-}
-
 static void
-dissect_ntp_ctrl_peerstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
+dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 {
-	/*
-	 * dissect peer status word:
-	 *                      1
-	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * | Status  | Sel | Count | Code  |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b0, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b1, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b2, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b3, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b4, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_selection, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_count,	   tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_code,	   tvb, offset, 2, status);
-}
-
-static void
-dissect_ntp_ctrl_systemstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
-{
-	/*
-	 * dissect system status word:
-	 *                      1
-	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * |LI | ClkSource | Count | Code  |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_li,     tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_clksrc, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_count,  tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_code,   tvb, offset, 2, status);
-}
-
-static void
-dissect_ntp_ctrl_errorstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
-{
-	/*
-	 * if error bit is set: dissect error status word
-	 *                      1
-	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * |  Error Code   |   reserved    |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_error_status_word, tvb, offset, 2, status);
-}
-
-static void
-dissect_ntp_ctrl_clockstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
-{
-	/*
-	 * dissect clock status word:
-	 *                      1
-	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * | Clock Status  |  Event Code   |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status,      tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status_code, tvb, offset, 2, status);
-}
-
-static void
-dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, guint8 flags)
-{
-	proto_tree	*flags_tree;
-	proto_item	*tf;
 	guint8		 flags2;
-
-	proto_tree	*status_tree, *data_tree, *item_tree;
-	proto_item	*ts, *td, *ti;
-	guint16		 status;
+	proto_tree	*data_tree, *item_tree, *auth_tree;
+	proto_item	*td, *ti;
 	guint16		 associd;
 	guint16		 datalen;
 	guint16		 data_offset;
+	int			 length_remaining;
 
 	tvbparse_t	*tt;
 	tvbparse_elem_t *element;
 
-	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
-
-	/* Adding flag subtree and items */
-	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_li,   tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn,   tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
-
+	static const int *ntpctrl_flags[] = {
+		&hf_ntpctrl_flags2_r,
+		&hf_ntpctrl_flags2_error,
+		&hf_ntpctrl_flags2_more,
+		&hf_ntpctrl_flags2_opcode,
+		NULL
+	};
+	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
+	proto_tree_add_bitmask(ntp_tree, tvb, 1, hf_ntpctrl_flags2, ett_ntpctrl_flags2, ntpctrl_flags, ENC_NA);
 	flags2 = tvb_get_guint8(tvb, 1);
-	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2,     tvb, 1, 1, flags2);
-	flags_tree = proto_item_add_subtree(tf, ett_ntpctrl_flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r,	  tvb, 1, 1, flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error,  tvb, 1, 1, flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more,	  tvb, 1, 1, flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1, flags2);
 
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_sequence,    tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-
-	status = tvb_get_ntohs(tvb, 4);
+	proto_tree_add_item(ntp_tree, hf_ntpctrl_sequence,    tvb, 2, 2, ENC_BIG_ENDIAN);
 	associd = tvb_get_ntohs(tvb, 6);
-	ts = proto_tree_add_uint(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, status);
-	status_tree = proto_item_add_subtree(ts, ett_ntpctrl_status);
 	/*
 	 * further processing of status is only necessary in server responses
 	 */
 	if (flags2 & NTPCTRL_R_MASK) {
 		if (flags2 & NTPCTRL_ERROR_MASK) {
+			/*
+			 * if error bit is set: dissect error status word
+			 *                      1
+			 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+			 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+			 * |  Error Code   |   reserved    |
+			 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+			 */
+			static const int *errorstatus[] = {
+				&hf_ntpctrl_error_status_word,
+				NULL
+			};
+
 			/* Check if this is an error response... */
-			dissect_ntp_ctrl_errorstatus(tvb, status_tree, 4, status);
+			proto_tree_add_bitmask(ntp_tree, tvb, 4, hf_ntpctrl_status, ett_ntpctrl_status, errorstatus, ENC_BIG_ENDIAN);
 		} else {
 			/* ...otherwise status word depends on OpCode */
 			switch (flags2 & NTPCTRL_OP_MASK) {
@@ -1213,22 +1102,62 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 			case NTPCTRL_OP_WRITEVAR:
 			case NTPCTRL_OP_ASYNCMSG:
 				if (associd)
-					dissect_ntp_ctrl_peerstatus(tvb, status_tree, 4, status);
+					proto_tree_add_bitmask(ntp_tree, tvb, 4, hf_ntpctrl_status, ett_ntpctrl_status, peer_status_flags, ENC_BIG_ENDIAN);
 				else
-					dissect_ntp_ctrl_systemstatus(tvb, status_tree, 4, status);
+				{
+					/*
+					 * dissect system status word:
+					 *                      1
+					 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+					 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+					 * |LI | ClkSource | Count | Code  |
+					 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+					 */
+					static const int *systemstatus[] = {
+						&hf_ntpctrl_sys_status_li,
+						&hf_ntpctrl_sys_status_clksrc,
+						&hf_ntpctrl_sys_status_count,
+						&hf_ntpctrl_sys_status_code,
+						NULL
+					};
+
+					proto_tree_add_bitmask(ntp_tree, tvb, 4, hf_ntpctrl_status, ett_ntpctrl_status, systemstatus, ENC_BIG_ENDIAN);
+				}
 				break;
 			case NTPCTRL_OP_READCLOCK:
 			case NTPCTRL_OP_WRITECLOCK:
-				dissect_ntp_ctrl_clockstatus(tvb, status_tree, 4, status);
+				{
+				/*
+				 * dissect clock status word:
+				 *                      1
+				 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+				 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+				 * | Clock Status  |  Event Code   |
+				 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+				 */
+				static const int *clockstatus[] = {
+					&hf_ntpctrl_clk_status,
+					&hf_ntpctrl_clk_status_code,
+					NULL
+				};
+
+				proto_tree_add_bitmask(ntp_tree, tvb, 4, hf_ntpctrl_status, ett_ntpctrl_status, clockstatus, ENC_BIG_ENDIAN);
+				}
 				break;
 			case NTPCTRL_OP_SETTRAP:
 			case NTPCTRL_OP_UNSETTRAP:
+			default:
+				proto_tree_add_item(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, ENC_BIG_ENDIAN);
 				break;
 			}
 		}
 	}
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, associd);
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, tvb_get_ntohs(tvb, 8));
+	else
+	{
+		proto_tree_add_item(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, ENC_BIG_ENDIAN);
+	}
+	proto_tree_add_item(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, ENC_BIG_ENDIAN);
 	datalen = tvb_get_ntohs(tvb, 10);
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_count, tvb, 10, 2, datalen);
 
@@ -1249,12 +1178,9 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 				while(datalen) {
 					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, ENC_NA);
 					item_tree = proto_item_add_subtree(ti, ett_ntpctrl_item);
-					proto_tree_add_uint(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, tvb_get_ntohs(tvb, data_offset));
+					proto_tree_add_item(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, ENC_BIG_ENDIAN);
 					data_offset += 2;
-					status = tvb_get_ntohs(tvb, data_offset);
-					ts = proto_tree_add_uint(item_tree, hf_ntpctrl_status, tvb, data_offset, 2, status);
-					status_tree = proto_item_add_subtree(ts, ett_ntpctrl_status);
-					dissect_ntp_ctrl_peerstatus( tvb, status_tree, 4, status );
+					proto_tree_add_bitmask(ntp_tree, tvb, data_offset, hf_ntpctrl_status, ett_ntpctrl_status, peer_status_flags, ENC_BIG_ENDIAN);
 					data_offset += 2;
 					datalen -= 4;
 				}
@@ -1278,6 +1204,33 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 			proto_tree_add_item(data_tree, hf_ntpctrl_trapmsg, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
 			break;
 		/* these opcodes doesn't carry any data: NTPCTRL_OP_SETTRAP, NTPCTRL_OP_UNSETTRAP, NTPCTRL_OP_UNSPEC */
+		}
+	}
+
+	data_offset = 12+datalen;
+	length_remaining = tvb_reported_length_remaining(tvb, data_offset);
+
+	/* Check if there is authentication */
+	if ((flags2 & NTPCTRL_R_MASK) == 0)
+	{
+		if (length_remaining > 0)
+		{
+			auth_tree = proto_tree_add_subtree(ntp_tree, tvb, data_offset, -1, ett_ntp_authenticator, NULL, "Authenticator");
+			switch (length_remaining)
+			{
+			case 20:
+				ti = proto_tree_add_uint(auth_tree, hf_ntp_key_type, tvb, data_offset, 0, NTP_MD5_ALGO);
+				PROTO_ITEM_SET_GENERATED(ti);
+				proto_tree_add_item(auth_tree, hf_ntp_key_index, tvb, data_offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(auth_tree, hf_ntp_key_signature, tvb, data_offset+4, 16, ENC_NA);
+				break;
+			case 24:
+				ti = proto_tree_add_uint(auth_tree, hf_ntp_key_type, tvb, data_offset, 0, NTP_SHA_ALGO);
+				PROTO_ITEM_SET_GENERATED(ti);
+				proto_tree_add_item(auth_tree, hf_ntp_key_index, tvb, data_offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(auth_tree, hf_ntp_key_signature, tvb, data_offset+4, 20, ENC_NA);
+				break;
+			}
 		}
 	}
 }
@@ -1324,28 +1277,25 @@ init_parser(void)
 }
 
 static void
-dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, guint8 flags)
+dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 {
-	proto_tree      *flags_tree;
-	proto_item	*tf;
-	guint8		 auth_seq, impl, reqcode;
+	guint8	impl, reqcode;
+	static const int *priv_flags[] = {
+		&hf_ntppriv_flags_r,
+		&hf_ntppriv_flags_more,
+		&hf_ntp_flags_vn,
+		&hf_ntp_flags_mode,
+		NULL
+	};
 
-	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
+	static const int *auth_flags[] = {
+		&hf_ntppriv_auth,
+		&hf_ntppriv_seq,
+		NULL
+	};
 
-	/* Adding flag subtree and items */
-	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-	proto_tree_add_uint(flags_tree, hf_ntppriv_flags_r, tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntppriv_flags_more, tvb, 0, 1,
-			    flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
-
-	auth_seq = tvb_get_guint8(tvb, 1);
-	tf = proto_tree_add_uint(ntp_tree, hf_ntppriv_auth_seq, tvb, 1, 1,
-				 auth_seq);
-	flags_tree = proto_item_add_subtree(tf, ett_ntppriv_auth_seq);
-	proto_tree_add_uint(flags_tree, hf_ntppriv_auth, tvb, 1, 1, auth_seq);
-	proto_tree_add_uint(flags_tree, hf_ntppriv_seq, tvb, 1, 1, auth_seq);
+	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, priv_flags, ENC_NA);
+	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntppriv_auth_seq, ett_ntppriv_auth_seq, auth_flags, ENC_NA);
 
 	impl = tvb_get_guint8(tvb, 2);
 	proto_tree_add_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, impl);
@@ -1402,6 +1352,55 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 	}
 }
 
+/* dissect_ntp - dissects NTP packet data
+ * tvb - tvbuff for packet data (IN)
+ * pinfo - packet info
+ * proto_tree - resolved protocol tree
+ */
+static void
+dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree      *ntp_tree;
+	proto_item      *ti = NULL;
+	guint8		 flags;
+	void (*dissector)(tvbuff_t *, packet_info *, proto_tree *);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
+
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	flags = tvb_get_guint8(tvb, 0);
+	switch (flags & NTP_MODE_MASK) {
+	default:
+		dissector = dissect_ntp_std;
+		break;
+	case NTP_MODE_CTRL:
+		dissector = dissect_ntp_ctrl;
+		break;
+	case NTP_MODE_PRIV:
+		dissector = dissect_ntp_priv;
+		break;
+	}
+
+	/* Adding NTP item and subtree */
+	ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_NA);
+	ntp_tree = proto_item_add_subtree(ti, ett_ntp);
+
+	/* Show version and mode in info column and NTP root */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
+		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
+				 "Unknown version"),
+		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+
+	proto_item_append_text(ti, " (%s, %s)",
+	                       val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
+						"Unknown version"),
+	                       val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+
+	/* Dissect according to mode */
+	(*dissector)(tvb, pinfo, ntp_tree);
+}
+
 void
 proto_register_ntp(void)
 {
@@ -1419,8 +1418,8 @@ proto_register_ntp(void)
 			"Mode", "ntp.flags.mode", FT_UINT8, BASE_DEC,
 			VALS(mode_types), NTP_MODE_MASK, NULL, HFILL }},
 		{ &hf_ntp_stratum, {
-			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+			RVALS(stratum_rvals), 0, NULL, HFILL }},
 		{ &hf_ntp_ppoll, {
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
 			NULL, 0, "Maximum interval between successive messages", HFILL }},
@@ -1453,6 +1452,15 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_mac, {
 			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntp_key_type, {
+			"Key type", "ntp.key_type", FT_UINT8, BASE_DEC,
+			VALS(authentication_types), 0, "Authentication algorithm used", HFILL }},
+		{ &hf_ntp_key_index, {
+			"KeyIndex", "ntp.key_index", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntp_key_signature, {
+			"Signature", "ntp.key_signature", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntp_ext, {
@@ -1517,7 +1525,7 @@ proto_register_ntp(void)
 			"Sequence", "ntp.ctrl.sequence", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_status, {
-			"Status", "ntp.ctrl.status", FT_UINT16, BASE_DEC,
+			"Status", "ntp.ctrl.status", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_error_status_word, {
 			"Error Status Word", "ntp.ctrl.err_status", FT_UINT16, BASE_DEC,
@@ -1535,17 +1543,17 @@ proto_register_ntp(void)
 			"System Event Code", "ntp.ctrl.sys_status.code", FT_UINT16, BASE_DEC,
 			VALS(ctrl_sys_status_event_types), NTPCTRL_SYSSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b0, {
-			"Peer Status", "ntp.ctrl.peer_status.config", FT_UINT16, BASE_DEC,
-			VALS(ctrl_peer_status_config_types), NTPCTRL_PEERSTATUS_CONFIG_MASK, NULL, HFILL }},
+			"Peer Status", "ntp.ctrl.peer_status.config", FT_BOOLEAN, 16,
+			TFS(&tfs_ctrl_peer_status_config), NTPCTRL_PEERSTATUS_CONFIG_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b1, {
-			"Peer Status", "ntp.ctrl.peer_status.authenable", FT_UINT16, BASE_DEC,
-			VALS(ctrl_peer_status_authenable_types), NTPCTRL_PEERSTATUS_AUTHENABLE_MASK, NULL, HFILL }},
+			"Peer Status", "ntp.ctrl.peer_status.authenable", FT_BOOLEAN, 16,
+			TFS(&tfs_ctrl_peer_status_authenable), NTPCTRL_PEERSTATUS_AUTHENABLE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b2, {
-			"Peer Status", "ntp.ctrl.peer_status.authentic", FT_UINT16, BASE_DEC,
-			VALS(ctrl_peer_status_authentic_types), NTPCTRL_PEERSTATUS_AUTHENTIC_MASK, NULL, HFILL }},
+			"Peer Status", "ntp.ctrl.peer_status.authentic", FT_BOOLEAN, 16,
+			TFS(&tfs_ctrl_peer_status_authentic), NTPCTRL_PEERSTATUS_AUTHENTIC_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b3, {
-			"Peer Status", "ntp.ctrl.peer_status.reach", FT_UINT16, BASE_DEC,
-			VALS(ctrl_peer_status_reach_types), NTPCTRL_PEERSTATUS_REACH_MASK, NULL, HFILL }},
+			"Peer Status", "ntp.ctrl.peer_status.reach", FT_BOOLEAN, 16,
+			TFS(&tfs_ctrl_peer_status_reach), NTPCTRL_PEERSTATUS_REACH_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b4, {
 			"Peer Status: reserved", "ntp.ctrl.peer_status.reserved", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_PEERSTATUS_RESERVED_MASK, NULL, HFILL }},
@@ -1669,7 +1677,8 @@ proto_register_ntp(void)
 		&ett_ntpctrl_data,
 		&ett_ntpctrl_item,
 		&ett_ntppriv_auth_seq,
-		&ett_monlist_item
+		&ett_monlist_item,
+		&ett_ntp_authenticator
 	};
 
 	static ei_register_info ei[] = {
