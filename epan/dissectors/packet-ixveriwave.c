@@ -694,7 +694,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     struct ieee_802_11_phdr phdr;
 
     /* We don't have any 802.11 metadata yet. */
-    phdr.fcs_len = -1; /* no FCS */
+    phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
