@@ -179,7 +179,6 @@ static int hf_radiotap_dbm_antsignal = -1;
 static int hf_radiotap_dbm_antb = -1;
 static int hf_radiotap_dbm_antc = -1;
 static int hf_radiotap_dbm_antd = -1;
-static int hf_radiotap_fcs_bad = -1;
 
 static int hf_radiotap_flags_preamble = -1;
 static int hf_radiotap_flags_wep = -1;
@@ -267,7 +266,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint64     vw_startt=0, vw_endt=0;
     guint32     true_length;
     guint32     vw_latency, vw_pktdur, vw_flowid;
-    guint16     vw_vcid, vw_msdu_length, vw_seqnum;
+    guint16     vw_vcid, vw_msdu_length=0, vw_seqnum;
     tvbuff_t   *next_tvb;
     ifg_info   *p_ifg_info;
 
@@ -1448,10 +1447,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "SSI Signal for Antenna D", "ixveriwave.dbm_antd",
         FT_INT32, BASE_DEC, NULL, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
-    { &hf_radiotap_fcs_bad,
-        { "FCS error", "ixveriwave.fcs_error",
-        FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     /* Boolean 'present' flags */
     /* VeriWave-specific flags */
