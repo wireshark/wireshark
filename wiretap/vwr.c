@@ -1200,7 +1200,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          delta_b;                             /* Used for calculating latency */
     guint16          phyRate;
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
-    guint8           vht_ndp_flag;
+    guint8           vht_ndp_flag = 0;
 
     /*
      * The record data must be large enough to hold the statistics header,
