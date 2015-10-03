@@ -1,5 +1,5 @@
 /* packet-udp.c
- * Routines for UDP/UDPLite packet disassembly
+ * Routines for UDP/UDP-Lite packet disassembly
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -164,10 +164,10 @@ static gboolean udp_check_checksum = FALSE;
 /* Collect IPFIX process flow information */
 static gboolean udp_process_info = FALSE;
 
-/* Ignore an invalid checksum coverage field for UDPLite */
+/* Ignore an invalid checksum coverage field for UDP-Lite */
 static gboolean udplite_ignore_checksum_coverage = TRUE;
 
-/* Check UDPLite checksums */
+/* Check UDP-Lite checksums */
 static gboolean udplite_check_checksum = FALSE;
 
 static dissector_table_t udp_dissector_table;
@@ -706,7 +706,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDPlite");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
   col_clear(pinfo->cinfo, COL_INFO);
 
   udph->uh_sport=tvb_get_ntohs(tvb, offset);
@@ -1124,7 +1124,7 @@ proto_register_udp(void)
   proto_register_fields(proto_udp, hfi, array_length(hfi));
 
   proto_udplite = proto_register_protocol("Lightweight User Datagram Protocol",
-                                          "UDPlite", "udplite");
+                                          "UDP-Lite", "udplite");
   udplite_handle = create_dissector_handle(dissect_udplite, proto_udplite);
   hfi_udplite = proto_registrar_get_nth(proto_udplite);
   proto_register_fields(proto_udplite, hfi_lite, array_length(hfi_lite));
@@ -1159,12 +1159,12 @@ proto_register_udp(void)
 
   udplite_module = prefs_register_protocol(proto_udplite, NULL);
   prefs_register_bool_preference(udplite_module, "ignore_checksum_coverage",
-                                 "Ignore UDPlite checksum coverage",
+                                 "Ignore UDP-Lite checksum coverage",
                                  "Ignore an invalid checksum coverage field and continue dissection",
                                  &udplite_ignore_checksum_coverage);
   prefs_register_bool_preference(udplite_module, "check_checksum",
-                                 "Validate the UDPlite checksum if possible",
-                                 "Whether to validate the UDPlite checksum",
+                                 "Validate the UDP-Lite checksum if possible",
+                                 "Whether to validate the UDP-Lite checksum",
                                  &udplite_check_checksum);
 
   register_decode_as(&udp_da);

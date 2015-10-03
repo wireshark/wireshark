@@ -174,7 +174,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_FC,      "Fibre Channel" },          /* 133 FC Fibre Channel [Murali_Rajagopal] */
     { IP_PROTO_RSVPE2EI,"RSVP E2EI" },              /* 134 RSVP-E2E-IGNORE  [RFC3175] */
     { IP_PROTO_MIPV6,   "Mobile IPv6" },            /* 135 Mobility Header  [RFC3775] */
-    { IP_PROTO_UDPLITE, "UDPlite" },                /* 136 UDPLite  [RFC3828] */
+    { IP_PROTO_UDPLITE, "UDPLite" },                /* 136 UDPLite  [RFC3828] */
     { IP_PROTO_MPLS_IN_IP, "MPLS in IP" },          /* 137 MPLS-in-IP  [RFC4023] */
     { IP_PROTO_MANET,   "MANET" },                  /* 138 manet MANET Protocols [RFC-ietf-manet-iana-07] */
     { IP_PROTO_HIP,     "HIP" },                    /* 139 HIP Host Identity Protocol [RFC5201] */
