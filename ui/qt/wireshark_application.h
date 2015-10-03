@@ -129,6 +129,7 @@ private:
     QIcon capture_icon_;
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
+    int active_captures_;
 
 protected:
     bool event(QEvent *event);
@@ -156,6 +157,8 @@ signals:
 public slots:
     void clearRecentItems();
     void captureFileReadStarted();
+    void captureStarted() { active_captures_++; }
+    void captureFinished() { active_captures_--; }
     void updateTaps();
 
 private slots:

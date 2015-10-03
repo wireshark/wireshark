@@ -396,6 +396,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_file_, SIGNAL(captureCaptureUpdateContinue(capture_session*)),
             main_ui_->statusBar, SLOT(updateCaptureStatistics(capture_session*)));
 
+    connect(&capture_file_, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
+            wsApp, SLOT(captureStarted()));
+    connect(&capture_file_, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
+            wsApp, SLOT(captureFinished()));
+    connect(&capture_file_, SIGNAL(captureCaptureFixedStarted(capture_session *)),
+            wsApp, SLOT(captureStarted()));
+    connect(&capture_file_, SIGNAL(captureCaptureFixedFinished(capture_session *)),
+            wsApp, SLOT(captureFinished()));
+
     connect(&capture_file_, SIGNAL(captureFileOpened()),
             this, SLOT(captureFileOpened()));
     connect(&capture_file_, SIGNAL(captureFileReadStarted()),

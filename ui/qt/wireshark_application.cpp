@@ -188,6 +188,9 @@ void WiresharkApplication::refreshRecentFiles(void) {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
 
+    // We're in the middle of a capture. Don't create traffic.
+    if (active_captures_ > 0) return;
+
     foreach (ri, recent_items_) {
         if (ri->in_thread) {
             continue;
@@ -478,7 +481,8 @@ void WiresharkApplication::itemStatusFinished(const QString filename, qint64 siz
 WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     QApplication(argc, argv),
     initialized_(false),
-    is_reloading_lua_(false)
+    is_reloading_lua_(false),
+    active_captures_(0)
 {
     wsApp = this;
     setApplicationName("Wireshark");
