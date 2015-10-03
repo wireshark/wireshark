@@ -812,16 +812,17 @@ static const value_string routing_header_type[] = {
 
 static int
 dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    struct ip6_rthdr  rt;
-    guint             len;
-    proto_tree       *rthdr_tree;
-    proto_item       *pi, *ti, *ti_len, *ti_seg;
-    int               offset = 0;
-    struct e_in6_addr addr;
-    guint8            addr_count;
-    ipv6_meta_t      *ipv6_info;
+    struct ip6_rthdr   rt;
+    guint              len;
+    proto_tree        *rthdr_tree;
+    proto_item        *pi, *ti, *ti_len, *ti_seg;
+    int                offset = 0;
+    struct e_in6_addr *addr;
+    guint8             addr_count;
+    ipv6_meta_t       *ipv6_info;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
+    addr = wmem_new0(pinfo->pool, struct e_in6_addr);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
 
@@ -871,13 +872,13 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
                     ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
                                         offset, IPv6_ADDR_SIZE, ENC_NA);
-                    tvb_get_ipv6(tvb, offset, &addr);
-                    if (in6_is_addr_multicast(&addr)) {
+                    tvb_get_ipv6(tvb, offset, addr);
+                    if (in6_is_addr_multicast(addr)) {
                         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                     }
                 }
                 if (rt.ip6r_segleft)
-                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, &addr);
+                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
             }
         }
 
@@ -896,12 +897,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 }
                 ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
                                         offset, IPv6_ADDR_SIZE, ENC_NA);
-                tvb_get_ipv6(tvb, offset, &addr);
-                if (in6_is_addr_multicast(&addr)) {
+                tvb_get_ipv6(tvb, offset, addr);
+                if (in6_is_addr_multicast(addr)) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                 }
                 if (rt.ip6r_segleft)
-                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, &addr);
+                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
             }
         }
 
@@ -972,8 +973,8 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 while(segments > 1) {
                     proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                     /* Display Full Address */
-                    memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                    tvb_memcpy(tvb, (guint8 *)&addr + cmprI, offset, (16-cmprI));
+                    memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                    tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
                     ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
                     PROTO_ITEM_SET_GENERATED(ti);
                     offset += (16-cmprI);
@@ -992,7 +993,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                             memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
                             tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
                             /* Compare the addresses */
-                            if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
+                            if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
                                 /* Found a later address that is the same */
                                 expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                                 break;
@@ -1006,22 +1007,22 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                             memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
                             tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
                             /* Compare the addresses */
-                            if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
+                            if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
                                 /* Found a later address that is the same */
                                 expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                             }
                         }
                         /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                        if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
+                        if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                         }
 
-                        if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
+                        if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(in6_is_addr_multicast(&addr)){
+                        if(in6_is_addr_multicast(addr)){
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }
@@ -1031,7 +1032,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 if (segments == 1) {
                     proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                     /* Display Full Address */
-                    memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                    memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                     tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
                     ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -1039,16 +1040,16 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
                     if(g_ipv6_rpl_srh_strict_rfc_checking){
                         /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                        if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
+                        if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                         }
 
-                        if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
+                        if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(in6_is_addr_multicast(&addr)){
+                        if(in6_is_addr_multicast(addr)){
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }
