@@ -136,18 +136,13 @@ static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 { "Checksum coverage", "udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
 
-static header_field_info hfi_udplite_checksum_coverage_bad UDPLITE_HFI_INIT =
-{ "Bad Checksum coverage", "udp.checksum_coverage_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-  NULL, HFILL };
-
-
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
 static gint ett_udp_process_info = -1;
 
 static expert_field ei_udp_possible_traceroute = EI_INIT;
-static expert_field ei_udp_length = EI_INIT;
-static expert_field ei_udplite_checksum_coverage = EI_INIT;
+static expert_field ei_udp_length_bad = EI_INIT;
+static expert_field ei_udplite_checksum_coverage_bad = EI_INIT;
 static expert_field ei_udp_checksum_zero = EI_INIT;
 static expert_field ei_udp_checksum_bad = EI_INIT;
 static expert_field ei_udp_length_bad_zero = EI_INIT;
@@ -679,7 +674,8 @@ static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
   proto_tree *udp_tree = NULL;
-  proto_item *ti, *hidden_item, *port_item;
+  proto_item *ti, *item, *hidden_item;
+  proto_item *src_port_item, *dst_port_item, *len_cov_item;
   guint       len;
   guint       reported_len;
   vec_t       cksum_vec[4];
@@ -689,22 +685,19 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   int         offset = 0;
   e_udphdr   *udph;
   proto_tree *checksum_tree;
-  proto_item *item;
   conversation_t *conv = NULL;
   struct udp_analysis *udpd = NULL;
   proto_tree *process_tree;
-  gchar *src_port_str, *dst_port_str;
-  gboolean udp_len_zero = FALSE; /* true if UDP length is zero and valid (RFC 2675) */
+  gchar      *src_port_str, *dst_port_str;
+  gboolean    udp_jumbogram = FALSE;
 
-  udph=wmem_new(wmem_packet_scope(), e_udphdr);
+  udph = wmem_new(wmem_packet_scope(), e_udphdr);
+  udph->uh_sport = tvb_get_ntohs(tvb, offset);
+  udph->uh_dport = tvb_get_ntohs(tvb, offset + 2);
+  udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset + 4);
+  udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
-  col_clear(pinfo->cinfo, COL_INFO);
-
-  udph->uh_sport=tvb_get_ntohs(tvb, offset);
-  udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
 
   src_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_sport);
   dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
@@ -714,112 +707,86 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                dst_port_str,
                COL_ADD_LSTR_TERMINATOR);
 
-  if (tree) {
-    if (udp_summary_in_tree) {
-      if (ip_proto == IP_PROTO_UDP) {
-        ti = proto_tree_add_protocol_format(tree, hfi_udp->id, tvb, offset, 8,
-        "User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-        src_port_str, udph->uh_sport, dst_port_str, udph->uh_dport);
-      } else {
-        ti = proto_tree_add_protocol_format(tree, hfi_udplite->id, tvb, offset, 8,
-        "Lightweight User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-        src_port_str, udph->uh_sport, dst_port_str, udph->uh_dport);
-      }
-    } else {
-      ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? hfi_udp : hfi_udplite, tvb, offset, 8, ENC_NA);
-    }
-    udp_tree = proto_item_add_subtree(ti, ett_udp);
+  reported_len = tvb_reported_length(tvb);
+  len = tvb_captured_length(tvb);
 
-    p_add_proto_data(pinfo->pool, pinfo, hfi_udp->id, pinfo->curr_layer_num, udp_tree);
-    port_item = proto_tree_add_item(udp_tree, &hfi_udp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
-    /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
-     * further assumes that 3 attempts are made per hop */
-    if ((udph->uh_sport > (32768 + 666)) && (udph->uh_sport <= (32768 + 666 + 30)))
-            expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
-                                   ((udph->uh_sport - 32768 - 666 - 1) / 3) + 1,
-                                   ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1
-                                   );
+  ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? hfi_udp : hfi_udplite, tvb, offset, 8, ENC_NA);
+  if (udp_summary_in_tree) {
+    proto_item_append_text(ti, ", Src Port: %s (%u), Dst Port: %s (%u)",
+                           src_port_str, udph->uh_sport, dst_port_str, udph->uh_dport);
+  }
+  udp_tree = proto_item_add_subtree(ti, ett_udp);
+  p_add_proto_data(pinfo->pool, pinfo, hfi_udp->id, pinfo->curr_layer_num, udp_tree);
 
-    port_item = proto_tree_add_item(udp_tree, &hfi_udp_dstport, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    if ((udph->uh_dport > (32768 + 666)) && (udph->uh_dport <= (32768 + 666 + 30)))
-            expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
-                                   ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
-                                   ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1
-                                   );
+  src_port_item = proto_tree_add_item(udp_tree, &hfi_udp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+  dst_port_item = proto_tree_add_item(udp_tree, &hfi_udp_dstport, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-    hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+  hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+  /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
+   * further assumes that 3 attempts are made per hop */
+  if ((udph->uh_sport > (32768 + 666)) && (udph->uh_sport <= (32768 + 666 + 30))) {
+    expert_add_info_format(pinfo, src_port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
+                                 ((udph->uh_sport - 32768 - 666 - 1) / 3) + 1,
+                                 ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1);
+  }
+  if ((udph->uh_dport > (32768 + 666)) && (udph->uh_dport <= (32768 + 666 + 30))) {
+    expert_add_info_format(pinfo, dst_port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
+                                 ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
+                                 ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1);
   }
 
   if (ip_proto == IP_PROTO_UDP) {
-    udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset+4);
-    if (pinfo->src.type == AT_IPv6 && udph->uh_ulen == 0) {
-      udp_len_zero = TRUE;
+    len_cov_item = proto_tree_add_item(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    if (udph->uh_ulen == 0 && pinfo->src.type == AT_IPv6) {
+      /* RFC 2675 (section 4) - UDP Jumbograms */
+      udph->uh_ulen = udph->uh_sum_cov = reported_len;
+      udp_jumbogram = TRUE;
     }
-    if (udph->uh_ulen < 8 && !udp_len_zero) {
+    if (udph->uh_ulen < 8) {
       /* Bogus length - it includes the header, so it must be >= 8. */
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
-          udph->uh_ulen, "%u (bogus, must be >= 8)", udph->uh_ulen);
-      expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
+      proto_item_append_text(len_cov_item, " (bogus, must be >= 8)");
+      expert_add_info_format(pinfo, len_cov_item, &ei_udp_length_bad, "Bad length value %u < 8", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
-    if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented && ! pinfo->flags.in_error_pkt) {
+    if ((udph->uh_ulen > reported_len) && (!pinfo->fragmented) && (!pinfo->flags.in_error_pkt)) {
       /* Bogus length - it goes past the end of the IP payload */
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
-          udph->uh_ulen, "%u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
-      expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u > IP payload length", udph->uh_ulen);
+      proto_item_append_text(len_cov_item, " (bogus, payload length %u)", reported_len);
+      expert_add_info_format(pinfo, len_cov_item, &ei_udp_length_bad, "Bad length value %u > IP payload length", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
-    } else {
-      if (tree) {
-        ti = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
-        if (udp_len_zero && (tvb_reported_length(tvb) < 65536)) {
-            expert_add_info(pinfo, ti, &ei_udp_length_bad_zero);
-        }
-        /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
-        hidden_item = proto_tree_add_uint(udp_tree, &hfi_udplite_checksum_coverage, tvb, offset + 4,
-                                          0, udph->uh_sum_cov);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-      }
+      /*return;*/
+    }
+    if (udp_jumbogram && (udph->uh_ulen < 65536)) {
+      expert_add_info(pinfo, len_cov_item, &ei_udp_length_bad_zero);
     }
   } else {
-    udph->uh_ulen = tvb_reported_length(tvb);
-    udph->uh_sum_cov = tvb_get_ntohs(tvb, offset+4);
-    if (((udph->uh_sum_cov > 0) && (udph->uh_sum_cov < 8)) || (udph->uh_sum_cov > udph->uh_ulen)) {
-      /* Bogus length - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
-      if (tree) {
-        hidden_item = proto_tree_add_boolean(udp_tree, &hfi_udplite_checksum_coverage_bad, tvb, offset + 4, 2, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-      }
-      item = proto_tree_add_uint_format_value(udp_tree, hfi_udplite_checksum_coverage.id, tvb, offset + 4, 2,
-          udph->uh_sum_cov, "%u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
-          udph->uh_sum_cov, udph->uh_ulen);
-      expert_add_info_format(pinfo, item, &ei_udplite_checksum_coverage, "Bad checksum coverage length value %u < 8 or > %u",
+    len_cov_item = proto_tree_add_item(udp_tree, &hfi_udplite_checksum_coverage, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    udph->uh_ulen = reported_len;
+    if (udph->uh_sum_cov == 0) {
+      udph->uh_sum_cov = reported_len;
+    }
+    item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+    PROTO_ITEM_SET_GENERATED(item);
+    if ((udph->uh_sum_cov < 8) || (udph->uh_sum_cov > udph->uh_ulen)) {
+      /* Bogus coverage - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
+      proto_item_append_text(len_cov_item, " (bogus, must be >= 8 and <= %u)", udph->uh_ulen);
+      expert_add_info_format(pinfo, len_cov_item, &ei_udplite_checksum_coverage_bad, "Bad checksum coverage length value %u < 8 or > %u",
                              udph->uh_sum_cov, udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
-                        udph->uh_sum_cov, udph->uh_ulen);
-      if (!udplite_ignore_checksum_coverage)
+                      udph->uh_sum_cov, udph->uh_ulen);
+      if (!udplite_ignore_checksum_coverage) {
         return;
-    } else {
-      if (tree) {
-        hidden_item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_uint(udp_tree, &hfi_udplite_checksum_coverage, tvb, offset + 4, 2, udph->uh_sum_cov);
       }
     }
   }
 
-  col_append_str_uint(pinfo->cinfo, COL_INFO, " ", "Len", udph->uh_ulen - 8); /* Payload length */
-  udph->uh_sum_cov = (udph->uh_sum_cov) ? udph->uh_sum_cov : udph->uh_ulen;
-  udph->uh_sum = tvb_get_ntohs(tvb, offset+6);
-  reported_len = tvb_reported_length(tvb);
-  len = tvb_captured_length(tvb);
-  if (udp_len_zero)
-    udph->uh_sum_cov = reported_len;
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "  ", "Len", udph->uh_ulen - 8); /* Payload length */
+  if (udp_jumbogram)
+    col_append_str(pinfo->cinfo, COL_INFO, " [Jumbogram]");
 
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
@@ -872,7 +839,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         break;
 
       case AT_IPv6:
-        if (ip_proto == IP_PROTO_UDP && !udp_len_zero)
+        if (ip_proto == IP_PROTO_UDP)
           phdr[0] = g_htonl(udph->uh_ulen);
         else
           phdr[0] = g_htonl(reported_len);
@@ -953,13 +920,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   pinfo->srcport = udph->uh_sport;
   pinfo->destport = udph->uh_dport;
 
-  tap_queue_packet(udp_tap, pinfo, udph);
-
   /* find(or create if needed) the conversation for this udp session */
-  conv=find_or_create_conversation(pinfo);
-  udpd=get_udp_conversation_data(conv,pinfo);
-
-
+  conv = find_or_create_conversation(pinfo);
+  udpd = get_udp_conversation_data(conv, pinfo);
   if (udpd) {
     item = proto_tree_add_uint(udp_tree, &hfi_udp_stream, tvb, offset, 0, udpd->stream);
     PROTO_ITEM_SET_GENERATED(item);
@@ -969,6 +932,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     */
     udph->uh_stream = udpd->stream;
   }
+
+  tap_queue_packet(udp_tap, pinfo, udph);
 
   if (udpd && ((udpd->fwd && udpd->fwd->command) || (udpd->rev && udpd->rev->command))) {
     process_tree = proto_tree_add_subtree(udp_tree, tvb, offset, 0, ett_udp_process_info, &ti, "Process Information");
@@ -1008,8 +973,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
    * nothing left in the packet.
    */
   if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0))
-    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport,
-                                        udp_len_zero ? reported_len : udph->uh_ulen);
+    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
 }
 
 static void
@@ -1060,7 +1024,6 @@ proto_register_udp(void)
   };
 
   static header_field_info *hfi_lite[] = {
-    &hfi_udplite_checksum_coverage_bad,
     &hfi_udplite_checksum_coverage,
   };
 #endif
@@ -1073,10 +1036,10 @@ proto_register_udp(void)
 
   static ei_register_info ei[] = {
     { &ei_udp_possible_traceroute, { "udp.possible_traceroute", PI_SEQUENCE, PI_CHAT, "Possible traceroute", EXPFILL }},
-    { &ei_udp_length, { "udp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
-    { &ei_udplite_checksum_coverage, { "udp.checksum_coverage.expert", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
+    { &ei_udp_length_bad, { "udp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
+    { &ei_udplite_checksum_coverage_bad, { "udplite.checksum_coverage.bad", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
     { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
-    { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    { &ei_udp_checksum_bad, { "udp.checksum.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_udp_length_bad_zero, { "udp.length.bad_zero", PI_PROTOCOL, PI_WARN, "Length is zero but payload < 65536", EXPFILL }},
   };
 
