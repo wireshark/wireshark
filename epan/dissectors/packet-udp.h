@@ -35,7 +35,7 @@ extern "C" {
 typedef struct _e_udphdr {
   guint16 uh_sport;
   guint16 uh_dport;
-  guint16 uh_ulen;
+  guint32 uh_ulen;
   guint32 uh_sum_cov;
   guint16 uh_sum;
   guint32 uh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
