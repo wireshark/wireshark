@@ -829,236 +829,231 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;
 
-    /* The if (segleft) {} blocks of code that follow,
-     * along with any expert_add_info() calls, all need to execute when
-     * appropriate, regardless of whether the tree is NULL or not. */
-    if (1) {
-        /* !!! specify length */
-        pi = proto_tree_add_item(tree, hf_ipv6_routing, tvb, offset, len, ENC_NA);
-        proto_item_append_text(pi, " (%s)", val_to_str(rt.ip6r_type, routing_header_type, "Unknown type %u"));
+    /* !!! specify length */
+    pi = proto_tree_add_item(tree, hf_ipv6_routing, tvb, offset, len, ENC_NA);
+    proto_item_append_text(pi, " (%s)", val_to_str(rt.ip6r_type, routing_header_type, "Unknown type %u"));
 
-        rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing);
+    rthdr_tree = proto_item_add_subtree(pi, ett_ipv6_routing);
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_len, " (%d bytes)", len);
-        offset += 1;
+    ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti_len, " (%d bytes)", len);
+    offset += 1;
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        ti_seg = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_segleft, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    ti_seg = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_segleft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* IPv6 Source Routing Header (Type 0) */
-        if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING) {
-            int offlim;
+    /* IPv6 Source Routing Header (Type 0) */
+    if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING) {
+        int offlim;
 
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_reserved, tvb, offset, 4, ENC_NA);
-            offset += 4;
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_reserved, tvb, offset, 4, ENC_NA);
+        offset += 4;
 
-            if (rt.ip6r_len % 2 != 0) {
-                expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
-                    "IPv6 Routing Header extension header length must not be odd");
-            } else {
-                addr_count = rt.ip6r_len / 2;
-                if (rt.ip6r_segleft > addr_count) {
-                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                        "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", addr_count);
-                }
-                offlim = offset + addr_count * IPv6_ADDR_SIZE;
-                for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
-                    ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
-                                        offset, IPv6_ADDR_SIZE, ENC_NA);
-                    tvb_get_ipv6(tvb, offset, addr);
-                    if (in6_is_addr_multicast(addr)) {
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-                    }
-                }
-                if (rt.ip6r_segleft)
-                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        if (rt.ip6r_len % 2 != 0) {
+            expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
+                "IPv6 Routing Header extension header length must not be odd");
+        } else {
+            addr_count = rt.ip6r_len / 2;
+            if (rt.ip6r_segleft > addr_count) {
+                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                    "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", addr_count);
             }
-        }
-
-        /* Mobile IPv6 Routing Header (Type 2) */
-        if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
-            offset += 4;
-
-            if (rt.ip6r_len != 2) {
-                expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
-                    "IPv6 Type 2 Routing Header extension header length must equal 2");
-            } else {
-                if (rt.ip6r_segleft != 1) {
-                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                        "IPv6 Type 2 Routing Header segments left field must equal 1");
-                }
-                ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
-                                        offset, IPv6_ADDR_SIZE, ENC_NA);
+            offlim = offset + addr_count * IPv6_ADDR_SIZE;
+            for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
+                ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
+                                    offset, IPv6_ADDR_SIZE, ENC_NA);
                 tvb_get_ipv6(tvb, offset, addr);
                 if (in6_is_addr_multicast(addr)) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                 }
-                if (rt.ip6r_segleft)
-                    SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
             }
+            if (rt.ip6r_segleft)
+                SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        }
+    }
+
+    /* Mobile IPv6 Routing Header (Type 2) */
+    if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
+        offset += 4;
+
+        if (rt.ip6r_len != 2) {
+            expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
+                "IPv6 Type 2 Routing Header extension header length must equal 2");
+        } else {
+            if (rt.ip6r_segleft != 1) {
+                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                    "IPv6 Type 2 Routing Header segments left field must equal 1");
+            }
+            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
+                                    offset, IPv6_ADDR_SIZE, ENC_NA);
+            tvb_get_ipv6(tvb, offset, addr);
+            if (in6_is_addr_multicast(addr)) {
+                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+            }
+            if (rt.ip6r_segleft)
+                SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+        }
+    }
+
+    /* RPL Source Routing Header (Type 3) */
+    if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
+        guint8 cmprI;
+        guint8 cmprE;
+        guint8 pad;
+        guint32 reserved;
+        gint segments;
+
+        /* IPv6 destination address used for elided bytes */
+        struct e_in6_addr dstAddr;
+        /* IPv6 source address used for strict checking */
+        struct e_in6_addr srcAddr;
+
+        memcpy((guint8 *)&dstAddr, pinfo->dst.data, pinfo->dst.len);
+        memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
+
+        /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
+        if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){
+            expert_add_info(pinfo, pi, &ei_ipv6_dst_addr_not_multicast);
         }
 
-        /* RPL Source Routing Header (Type 3) */
-        if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
-            guint8 cmprI;
-            guint8 cmprE;
-            guint8 pad;
-            guint32 reserved;
-            gint segments;
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-            /* IPv6 destination address used for elided bytes */
-            struct e_in6_addr dstAddr;
-            /* IPv6 source address used for strict checking */
-            struct e_in6_addr srcAddr;
+        cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
+        cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
+        pad   = tvb_get_guint8(tvb, offset + 1) & 0xF0;
 
-            memcpy((guint8 *)&dstAddr, pinfo->dst.data, pinfo->dst.len);
-            memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
+        /* Shift bytes over */
+        cmprI >>= 4;
+        pad >>= 4;
 
-            /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
-            if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){
-                expert_add_info(pinfo, pi, &ei_ipv6_dst_addr_not_multicast);
+        /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
+        if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
+            expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
+        }
+
+        ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
+
+        if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
+            expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
+        }
+
+        /* from RFC6554:
+           n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
+        segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
+        ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_rpl_segments, tvb, offset, 2, segments);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        if (segments < 0) {
+            /* This error should always be reported */
+            expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_segments_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", segments);
+        } else {
+
+            if (rt.ip6r_segleft > (guint)segments) {
+                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                    "IPv6 RPL Routing Header segments left field must not exceed address count (%u)", (guint)segments);
             }
 
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
-            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
-            cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
-            cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
-            pad   = tvb_get_guint8(tvb, offset + 1) & 0xF0;
+            /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
+            while(segments > 1) {
+                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+                /* Display Full Address */
+                memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
+                PROTO_ITEM_SET_GENERATED(ti);
+                offset += (16-cmprI);
+                segments--;
 
-            /* Shift bytes over */
-            cmprI >>= 4;
-            pad >>= 4;
-
-            /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
-            if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
-                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
-            }
-
-            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-            reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
-
-            if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
-                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
-            }
-
-            /* from RFC6554:
-               n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
-            segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
-            ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_rpl_segments, tvb, offset, 2, segments);
-            PROTO_ITEM_SET_GENERATED(ti);
-
-            if (segments < 0) {
-                /* This error should always be reported */
-                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_segments_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", segments);
-            } else {
-
-                if (rt.ip6r_segleft > (guint)segments) {
-                    expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                        "IPv6 RPL Routing Header segments left field must not exceed address count (%u)", (guint)segments);
-                }
-
-                offset += 4;
-
-                /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
-                while(segments > 1) {
-                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
-                    /* Display Full Address */
-                    memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                    tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
-                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
-                    PROTO_ITEM_SET_GENERATED(ti);
-                    offset += (16-cmprI);
-                    segments--;
-
-                    if(g_ipv6_rpl_srh_strict_rfc_checking){
-                        /* from RFC6554: */
-                        /* The SRH MUST NOT specify a path that visits a node more than once. */
-                        /* To do this, we will just check the current 'addr' against the next addresses */
-                        gint tempSegments;
-                        gint tempOffset;
-                        tempSegments = segments; /* Has already been decremented above */
-                        tempOffset = offset; /* Has already been moved */
-                        while(tempSegments > 1) {
-                            struct e_in6_addr tempAddr;
-                            memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                            tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
-                            /* Compare the addresses */
-                            if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
-                                /* Found a later address that is the same */
-                                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
-                                break;
-                            }
-                            tempOffset += (16-cmprI);
-                            tempSegments--;
+                if(g_ipv6_rpl_srh_strict_rfc_checking){
+                    /* from RFC6554: */
+                    /* The SRH MUST NOT specify a path that visits a node more than once. */
+                    /* To do this, we will just check the current 'addr' against the next addresses */
+                    gint tempSegments;
+                    gint tempOffset;
+                    tempSegments = segments; /* Has already been decremented above */
+                    tempOffset = offset; /* Has already been moved */
+                    while(tempSegments > 1) {
+                        struct e_in6_addr tempAddr;
+                        memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                        tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
+                        /* Compare the addresses */
+                        if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
+                            /* Found a later address that is the same */
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
+                            break;
                         }
-                        if (tempSegments == 1) {
-                            struct e_in6_addr tempAddr;
+                        tempOffset += (16-cmprI);
+                        tempSegments--;
+                    }
+                    if (tempSegments == 1) {
+                        struct e_in6_addr tempAddr;
 
-                            memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                            tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
-                            /* Compare the addresses */
-                            if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
-                                /* Found a later address that is the same */
-                                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
-                            }
-                        }
-                        /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                        if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
-                        }
-
-                        if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
-                        }
-
-                        /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(in6_is_addr_multicast(addr)){
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                        memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                        tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
+                        /* Compare the addresses */
+                        if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
+                            /* Found a later address that is the same */
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                         }
                     }
+                    /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                    if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
+                    }
+
+                    if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
+                    }
+
+                    /* Multicast addresses MUST NOT appear in the in SRH */
+                    if(in6_is_addr_multicast(addr)){
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                    }
                 }
+            }
 
-                /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
-                if (segments == 1) {
-                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
-                    /* Display Full Address */
-                    memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                    tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
-                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
-                    PROTO_ITEM_SET_GENERATED(ti);
-                    /* offset += (16-cmprE); */
+            /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
+            if (segments == 1) {
+                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
+                /* Display Full Address */
+                memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
+                PROTO_ITEM_SET_GENERATED(ti);
+                /* offset += (16-cmprE); */
 
-                    if(g_ipv6_rpl_srh_strict_rfc_checking){
-                        /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                        if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
-                        }
+                if(g_ipv6_rpl_srh_strict_rfc_checking){
+                    /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                    if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
+                    }
 
-                        if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
-                        }
+                    if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
+                    }
 
-                        /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(in6_is_addr_multicast(addr)){
-                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-                        }
+                    /* Multicast addresses MUST NOT appear in the in SRH */
+                    if(in6_is_addr_multicast(addr)){
+                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                     }
                 }
             }
         }
     }
-    ipv6_info->exthdr_count++;
 
+    ipv6_info->exthdr_count++;
     return len;
 }
 
@@ -1081,12 +1076,15 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     col_add_fstr(pinfo->cinfo, COL_INFO, "IPv6 fragment (off=%u more=%s ident=0x%08x nxt=%u)",
                         *frag_off, *frag_flg ? "y" : "n", *frag_ident, nxt);
 
-    if (tree) {
-        /* IPv6 Fragmentation Header has fixed length of 8 bytes */
-        pi = proto_tree_add_item(tree, hf_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
+    /* IPv6 Fragmentation Header has fixed length of 8 bytes */
+    pi = proto_tree_add_item(tree, hf_ipv6_fraghdr, tvb, offset, 8, ENC_NA);
+    if (ipv6_info->jumbo_length) {
+        expert_add_info(pinfo, pi, &ei_ipv6_opt_jumbo_fragment);
+    }
 
-        frag_tree = proto_item_add_subtree(pi, ett_ipv6_fraghdr);
+    frag_tree = proto_item_add_subtree(pi, ett_ipv6_fraghdr);
 
+    if (frag_tree) {
         proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1103,10 +1101,6 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
         /*offset += 4;*/
-
-        if (ipv6_info->jumbo_length) {
-            expert_add_info(pinfo, frag_tree, &ei_ipv6_opt_jumbo_fragment);
-        }
     }
 
     ipv6_info->exthdr_count++;
@@ -1911,83 +1905,78 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
                         val_to_str_const(shim.ip6s_p & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
     }
 
-    if (tree)
-    {
-        ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, ENC_NA);
-        shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
+    ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, ENC_NA);
+    shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
 
-        /* Next Header */
-        proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_nxt, tvb,
-                                         offset + (int)offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
-                                         "%s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
+    /* Next Header */
+    proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_nxt, tvb,
+                                     offset + (int)offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
+                                     "%s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
 
-        /* Header Extension Length */
-        proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_len, tvb,
-                                         offset + (int)offsetof(struct ip6_shim, ip6s_len), 1, shim.ip6s_len,
-                                         "%u (%d bytes)", shim.ip6s_len, len);
+    /* Header Extension Length */
+    proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_len, tvb,
+                                     offset + (int)offsetof(struct ip6_shim, ip6s_len), 1, shim.ip6s_len,
+                                     "%u (%d bytes)", shim.ip6s_len, len);
 
-        /* P Field */
-        proto_tree_add_item(shim_tree, hf_ipv6_shim6_p, tvb,
-                            offset + (int)offsetof(struct ip6_shim, ip6s_p), 1, ENC_BIG_ENDIAN);
+    /* P Field */
+    proto_tree_add_item(shim_tree, hf_ipv6_shim6_p, tvb,
+                        offset + (int)offsetof(struct ip6_shim, ip6s_p), 1, ENC_BIG_ENDIAN);
 
-        /* skip the first 2 bytes (nxt hdr, hdr ext len, p+7bits) */
-        p = offset + 3;
+    /* skip the first 2 bytes (nxt hdr, hdr ext len, p+7bits) */
+    p = offset + 3;
 
-        if (shim.ip6s_p & SHIM6_BITMASK_P)
-        {
-            tmp[0] = tvb_get_guint8(tvb, p++);
-            tmp[1] = tvb_get_guint8(tvb, p++);
-            tmp[2] = tvb_get_guint8(tvb, p++);
-            tmp[3] = tvb_get_guint8(tvb, p++);
-            tmp[4] = tvb_get_guint8(tvb, p++);
+    if (shim.ip6s_p & SHIM6_BITMASK_P) {
+        tmp[0] = tvb_get_guint8(tvb, p++);
+        tmp[1] = tvb_get_guint8(tvb, p++);
+        tmp[2] = tvb_get_guint8(tvb, p++);
+        tmp[3] = tvb_get_guint8(tvb, p++);
+        tmp[4] = tvb_get_guint8(tvb, p++);
 
-            /* Payload Extension Header */
-            proto_tree_add_none_format(shim_tree, hf_ipv6_shim6_ct, tvb,
-                                       offset + (int)offsetof(struct ip6_shim, ip6s_p), 6,
-                                       "Receiver Context Tag: %02x %02x %02x %02x %02x %02x",
-                                       shim.ip6s_p & SHIM6_BITMASK_CT, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
+        /* Payload Extension Header */
+        proto_tree_add_none_format(shim_tree, hf_ipv6_shim6_ct, tvb,
+                                   offset + (int)offsetof(struct ip6_shim, ip6s_p), 6,
+                                   "Receiver Context Tag: %02x %02x %02x %02x %02x %02x",
+                                   shim.ip6s_p & SHIM6_BITMASK_CT, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
+    } else {
+        /* Control Message */
+        guint16 csum;
+        int advance;
+
+        /* Message Type */
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_type, tvb,
+                            offset + (int)offsetof(struct ip6_shim, ip6s_p), 1,
+                            ENC_BIG_ENDIAN
+            );
+
+        /* Protocol bit (Must be zero for SHIM6) */
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_proto, tvb, p, 1, ENC_BIG_ENDIAN);
+        p++;
+
+        /* Checksum */
+        csum = shim_checksum(tvb, offset, len);
+
+        if (csum == 0) {
+            ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
+                                                  tvb_get_ntohs(tvb, p), "0x%04x [correct]", tvb_get_ntohs(tvb, p));
+            ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, TRUE);
+        } else {
+            ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
+                                                  tvb_get_ntohs(tvb, p), "0x%04x [incorrect: should be 0x%04x]",
+                                                  tvb_get_ntohs(tvb, p), in_cksum_shouldbe(tvb_get_ntohs(tvb, p), csum));
+            ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, FALSE);
         }
-        else
-        {
-            /* Control Message */
-            guint16 csum;
-            int advance;
+        p += 2;
 
-            /* Message Type */
-            proto_tree_add_item(shim_tree, hf_ipv6_shim6_type, tvb,
-                                offset + (int)offsetof(struct ip6_shim, ip6s_p), 1,
-                                ENC_BIG_ENDIAN
-                );
+        /* Type specific data */
+        advance = dissect_shimctrl(tvb, p, shim.ip6s_p & SHIM6_BITMASK_TYPE, shim_tree);
+        p += advance;
 
-            /* Protocol bit (Must be zero for SHIM6) */
-            proto_tree_add_item(shim_tree, hf_ipv6_shim6_proto, tvb, p, 1, ENC_BIG_ENDIAN);
-            p++;
-
-            /* Checksum */
-            csum = shim_checksum(tvb, offset, len);
-
-            if (csum == 0) {
-                ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
-                                                      tvb_get_ntohs(tvb, p), "0x%04x [correct]", tvb_get_ntohs(tvb, p));
-                ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, TRUE);
-            } else {
-                ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
-                                                      tvb_get_ntohs(tvb, p), "0x%04x [incorrect: should be 0x%04x]",
-                                                      tvb_get_ntohs(tvb, p), in_cksum_shouldbe(tvb_get_ntohs(tvb, p), csum));
-                ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, FALSE);
-            }
-            p += 2;
-
-            /* Type specific data */
-            advance = dissect_shimctrl(tvb, p, shim.ip6s_p & SHIM6_BITMASK_TYPE, shim_tree);
-            p += advance;
-
-            /* Options */
-            while (p < offset+len) {
-                p += dissect_shimopts(tvb, p, shim_tree, pinfo);
-            }
+        /* Options */
+        while (p < offset+len) {
+            p += dissect_shimopts(tvb, p, shim_tree, pinfo);
         }
     }
+
     ipv6_info->exthdr_count++;
     return len;
 }
