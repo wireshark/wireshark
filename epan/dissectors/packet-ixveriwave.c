@@ -1007,7 +1007,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset      += 4;
 
     /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
-    if (vw_ht_length != 0) {
+    if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0) {
         /*** Extract SU/MU MIMO flag from RX L1 Info ***/
         vht_user_pos = tvb_get_guint8(tvb, offset);
         vht_mu_mimo_flg = (vht_user_pos & 0x08) >> 3;
@@ -1033,6 +1033,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         vht_grp_id1 = tvb_get_guint8(tvb, offset);
         vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
         vht_grp_id = ((vht_grp_id1 &0xF0) >> 4) + ((vht_grp_id2 &0x03) << 4);
+        phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_GROUP_ID;
+        phdr.phy_info.info_11ac.group_id = vht_grp_id;
         proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_grp_id,
             tvb, offset, 2, vht_grp_id, "VHT Group Id: %u ",vht_grp_id);
 
@@ -1047,6 +1049,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             vht_su_partial_id1 = tvb_get_guint8(tvb,offset);
             vht_su_partial_id2 = tvb_get_guint8(tvb,offset+1);
             vht_su_partial_id = ((vht_su_partial_id1 &0xE0) >> 5) + ((vht_su_partial_id2 &0x3f) << 3);
+            phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_PARTIAL_AID;
+            phdr.phy_info.info_11ac.partial_aid = vht_su_partial_id;
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_su_partial_aid,
                 tvb, offset, 2, vht_su_partial_id, "VHT PARTIAL AID: %u ",vht_su_partial_id);
         }
@@ -1162,6 +1166,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         offset = offset + 1;
         vht_beamformed = tvb_get_guint8(tvb, offset);
         vht_beamformed = (vht_beamformed & 0x01);
+        phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BEAMFORMED;
+        phdr.phy_info.info_11ac.beamformed = vht_beamformed;
         proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_beamformed,
             tvb, offset, 1, vht_beamformed, "VHT Beamformed: %u ",vht_beamformed);
     }
