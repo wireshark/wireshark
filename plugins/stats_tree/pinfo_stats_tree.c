@@ -273,10 +273,6 @@ static void plen_stats_tree_init(stats_tree *st) {
 
 static int plen_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	tick_stat_node(st, st_str_plen, 0, FALSE);
-	/* also add value for averages calculation. we call the notick version of  */
-	/* avg_stat_node_add_value and call tick_stat_node separately. this allows */
-	/* compatiblity with older wireshark versions with no average support.     */
-	avg_stat_node_add_value_notick(st, st_str_plen, 0, FALSE, pinfo->fd->pkt_len);
 
 	stats_tree_tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
 
