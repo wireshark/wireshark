@@ -33,6 +33,9 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-ldap.h"
+#if defined(HAVE_LIBGNUTLS)
+#include <gnutls/gnutls.h>
+#endif
 
 #define PNAME  "X.509 Authentication Framework"
 #define PSNAME "X509AF"
@@ -51,7 +54,25 @@ static int hf_x509af_extension_id = -1;
 static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
 static const char *algorithm_id;
+static void
+x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 #include "packet-x509af-fn.c"
+
+/* Exports the SubjectPublicKeyInfo structure as gnutls_datum_t.
+ * actx->private_data is assumed to be a gnutls_datum_t pointer which will be
+ * filled in if non-NULL. */
+static void
+x509af_export_publickey(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, int offset _U_, int len _U_)
+{
+#if defined(HAVE_LIBGNUTLS)
+  gnutls_datum_t *subjectPublicKeyInfo = (gnutls_datum_t *)actx->private_data;
+  if (subjectPublicKeyInfo) {
+    subjectPublicKeyInfo->data = (guchar *) tvb_get_ptr(tvb, offset, len);
+    subjectPublicKeyInfo->size = len;
+    actx->private_data = NULL;
+  }
+#endif
+}
 
 const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;

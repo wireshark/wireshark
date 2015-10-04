@@ -41,6 +41,9 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-ldap.h"
+#if defined(HAVE_LIBGNUTLS)
+#include <gnutls/gnutls.h>
+#endif
 
 #define PNAME  "X.509 Authentication Framework"
 #define PSNAME "X509AF"
@@ -132,7 +135,7 @@ static int hf_x509af_q = -1;                      /* INTEGER */
 static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
-#line 49 "../../asn1/x509af/packet-x509af-template.c"
+#line 52 "../../asn1/x509af/packet-x509af-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
@@ -173,8 +176,10 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
-#line 53 "../../asn1/x509af/packet-x509af-template.c"
+#line 56 "../../asn1/x509af/packet-x509af-template.c"
 static const char *algorithm_id;
+static void
+x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
 /*--- Included file: packet-x509af-fn.c ---*/
 #line 1 "../../asn1/x509af/packet-x509af-fn.c"
@@ -323,7 +328,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "../../asn1/x509af/x509af.cnf"
+#line 115 "../../asn1/x509af/x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -359,8 +364,14 @@ static const ber_sequence_t SubjectPublicKeyInfo_sequence[] = {
 
 int
 dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 85 "../../asn1/x509af/x509af.cnf"
+  int orig_offset = offset;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SubjectPublicKeyInfo_sequence, hf_index, ett_x509af_SubjectPublicKeyInfo);
+
+#line 87 "../../asn1/x509af/x509af.cnf"
+  x509af_export_publickey(tvb, actx, orig_offset, offset - orig_offset);
 
   return offset;
 }
@@ -369,7 +380,7 @@ dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "../../asn1/x509af/x509af.cnf"
+#line 94 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &actx->external.direct_reference);
@@ -399,7 +410,7 @@ dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/x509af/x509af.cnf"
+#line 105 "../../asn1/x509af/x509af.cnf"
   gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
@@ -896,7 +907,23 @@ static int dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 55 "../../asn1/x509af/packet-x509af-template.c"
+#line 60 "../../asn1/x509af/packet-x509af-template.c"
+
+/* Exports the SubjectPublicKeyInfo structure as gnutls_datum_t.
+ * actx->private_data is assumed to be a gnutls_datum_t pointer which will be
+ * filled in if non-NULL. */
+static void
+x509af_export_publickey(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, int offset _U_, int len _U_)
+{
+#if defined(HAVE_LIBGNUTLS)
+  gnutls_datum_t *subjectPublicKeyInfo = (gnutls_datum_t *)actx->private_data;
+  if (subjectPublicKeyInfo) {
+    subjectPublicKeyInfo->data = (guchar *) tvb_get_ptr(tvb, offset, len);
+    subjectPublicKeyInfo->size = len;
+    actx->private_data = NULL;
+  }
+#endif
+}
 
 const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;
@@ -1234,7 +1261,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 92 "../../asn1/x509af/packet-x509af-template.c"
+#line 113 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1277,7 +1304,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 98 "../../asn1/x509af/packet-x509af-template.c"
+#line 119 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1320,7 +1347,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 126 "../../asn1/x509af/packet-x509af-template.c"
+#line 147 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since
 	  I have not that ITU standard, I'll put it here for the time

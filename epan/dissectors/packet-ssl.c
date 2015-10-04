@@ -2012,10 +2012,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_CLIENT_HELLO:
                 if (ssl) {
-                    /* ClientHello is first packet so set direction and try to
-                     * find a private key matching the server port */
+                    /* ClientHello is first packet so set direction */
                     ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
-                    ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
                                           ssl_hand_tree, offset, length, session, ssl,
@@ -2040,7 +2038,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERTIFICATE:
-                ssl_dissect_hnd_cert(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, pinfo, session, is_from_server);
+                ssl_dissect_hnd_cert(&dissect_ssl3_hf, tvb, ssl_hand_tree,
+                        offset, pinfo, session, ssl, ssl_key_hash, is_from_server);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
@@ -2634,7 +2633,6 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
 
     if (ssl) {
       ssl_set_server(&ssl->session, &pinfo->dst, pinfo->ptype, pinfo->destport);
-      ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
     }
 
     if (ssl)
