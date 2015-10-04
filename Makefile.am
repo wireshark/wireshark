@@ -892,6 +892,8 @@ EXTRA_DIST = \
 	image/capture_comment_add.png	\
 	image/capture_comment_disabled.png	\
 	image/capture_comment_update.png	\
+	image/capture_comment_update.svg	\
+	image/capture_comment_update@2x.png	\
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
 	image/copy-8.png			\
