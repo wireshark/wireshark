@@ -269,6 +269,16 @@ gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
  */
 WS_DLL_PUBLIC void	col_append_str(column_info *cinfo, const gint col, const gchar *str);
 
+/** Append <abbrev>=<val> to a column element, the text will be copied.
+ *
+ * @param cinfo the current packet row
+ * @param col the column to use, e.g. COL_INFO
+ * @param sep an optional separator to prepend to abbrev
+ * @param abbrev the string to append
+ * @param val the value to append
+ */
+WS_DLL_PUBLIC void col_append_str_uint(column_info *cinfo, const gint col, const gchar *sep, const gchar *abbrev, guint32 val);
+
 /* Append the given strings (terminated by COL_ADD_LSTR_TERMINATOR) to a column element,
  *
  * Same result as col_append_str() called for every string element.

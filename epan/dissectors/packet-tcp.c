@@ -2516,13 +2516,8 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 {
-    char buf[16];
-
-    guint32_to_str_buf(val, buf, sizeof(buf));
     /* fstr(" %s=%u", abbrev, val) */
-    col_append_lstr(pinfo->cinfo, COL_INFO,
-        " ", abbrev, "=", buf,
-        COL_ADD_LSTR_TERMINATOR);
+    col_append_str_uint(pinfo->cinfo, COL_INFO, " ", abbrev, val);
 }
 
 static void
@@ -4380,7 +4375,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dst_port_str = tcp_port_to_display(wmem_packet_scope(), tcph->th_dport);
     col_add_lstr(pinfo->cinfo, COL_INFO,
         src_port_str,
-        "\xe2\x86\x92", /* UTF8_RIGHTWARDS_ARROW */
+        " \xe2\x86\x92 ", /* UTF8_RIGHTWARDS_ARROW */
         dst_port_str,
         COL_ADD_LSTR_TERMINATOR);
 

@@ -409,6 +409,15 @@ col_append_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
   }
 }
 
+void
+col_append_str_uint(column_info *cinfo, const gint col, const gchar *sep, const gchar *abbrev, guint32 val)
+{
+  char buf[16];
+
+  guint32_to_str_buf(val, buf, sizeof(buf));
+  col_append_lstr(cinfo, col, sep ? sep : "", abbrev, "=", buf, COL_ADD_LSTR_TERMINATOR);
+}
+
 static void
 col_do_append_fstr(column_info *cinfo, const int el, const char *separator, const char *format, va_list ap)
 {

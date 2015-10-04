@@ -714,11 +714,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
   src_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_sport);
   dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
-
   col_add_lstr(pinfo->cinfo, COL_INFO,
-    "Source port: ", src_port_str, "  "
-    "Destination port: ", dst_port_str,
-    COL_ADD_LSTR_TERMINATOR);
+               src_port_str,
+               " \xe2\x86\x92 ", /* UTF8_RIGHTWARDS_ARROW */
+               dst_port_str,
+               COL_ADD_LSTR_TERMINATOR);
 
   if (tree) {
     if (udp_summary_in_tree) {
@@ -821,6 +821,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
   }
 
+  col_append_str_uint(pinfo->cinfo, COL_INFO, " ", "Len", udph->uh_ulen - 8); /* Payload length */
   udph->uh_sum_cov = (udph->uh_sum_cov) ? udph->uh_sum_cov : udph->uh_ulen;
   udph->uh_sum = tvb_get_ntohs(tvb, offset+6);
   reported_len = tvb_reported_length(tvb);
