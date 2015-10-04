@@ -512,7 +512,7 @@ typedef struct {
     guint32      L1P_2_OFF;                      /* offset 2nd Byte of l1params */
     guint32      L4ID_OFF;                       /* LAYER 4 id offset*/
     guint32      IPLEN_OFF;                      /* */
-    guint32      PLCP_LENGTH_OFF;                /* plcp length offset*/
+    guint32      PLCP_LENGTH_OFF;                /* offset of length field in the PLCP header */
     guint32      FPGA_VERSION_OFF;               /* offset of fpga version field, 16 bits */
     guint32      HEADER_VERSION_OFF;             /* offset of header version, 16 bits */
     guint32      RXTX_OFF;                       /* offset of CMD bit, rx or tx */
@@ -1331,6 +1331,27 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* decode OFDM or CCK PLCP header and determine rate and short preamble flag */
     /* the SIGNAL byte is always the first byte of the PLCP header in the frame */
     if (plcp_type == vVW510021_W_PLCP_LEGACY){
+        /*
+         * From IEEE Std 802.11-2012:
+         *
+         * According to section 17.2.2 "PPDU format", the PLCP header
+         * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
+         * 8 bits, followed by a SERVICE field that's 8 bits, followed
+         * by a LENGTH field that's 16 bits, followed by a CRC field
+         * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
+         * field definitions" describes those fields.
+         *
+         * According to sections 18.3.2 "PLCP frame format" and 18.3.4
+         * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
+         * field that's 24 bits, followed by a service field that's
+         * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
+         * field" describes the SERVICE field.
+         *
+         * According to section 19.3.2 "PPDU format", the frames for the
+         * Extended Rate PHY (11g) either extend the 11b format, using
+         * additional bits in the SERVICE field, or extend the 11a
+         * format.
+         */
         if (mcs_index < 4) {
             chanflags |= CHAN_CCK;
         }
@@ -1339,18 +1360,50 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         }
     }
     else if (plcp_type == vVW510021_W_PLCP_MIXED) {
+        /*
+         * According to section 20.3.2 "PPDU format", the HT-mixed
+         * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
+         * looks like an 11a SIGNAL field, followed by an HT SIGNAL
+         * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
+         * definition".
+         *
+         * This means that the first octet of HT-SIG is at
+         * plcp_ptr[3], skipping the 3 octets of the L-SIG field.
+         *
+         * 0x80 is the CBW 20/40 bit of HT-SIG.
+         */
         /* set the appropriate flags to indicate HT mode and CB */
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_GREENFIELD) {
+        /*
+         * According to section 20.3.2 "PPDU format", the HT-greenfield
+         * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
+         * no L-SIG field.
+         *
+         * This means that the first octet of HT-SIG is at
+         * plcp_ptr[0], as there's no L-SIG field to skip.
+         *
+         * 0x80 is the CBW 20/40 bit of HT-SIG.
+         */
         /* set the appropriate flags to indicate HT mode and CB */
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
+        /*
+         * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+         * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
+         * (L-SIG), which looks like an 11a SIGNAL field, followed by
+         * a VHT Signal A field (VHT-SIG-A) described in section
+         * 22.3.8.3.3 "VHT-SIG-A definition", with training fields
+         * between it and a VHT Signal B field (VHT-SIG-B) described
+         * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
+         * the PSDU.
+         */
         guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
         radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags |= CHAN_OFDM;
@@ -1533,6 +1586,10 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phtolel(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
+    /*
+     * XXX - is this supposed to be the RX L1 info, i.e. the "1 byte of L1P
+     * for user position"?
+     */
     if (!IS_TX){
       data_ptr[bytes_written] = vht_ndp_flag;
     } else {
@@ -1545,7 +1602,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * XXX - shouldn't that use plcp_ptr?
      *
-     * XXX - what about S3, where we don't have 16 bytes of PLCP?
+     * XXX - what about S2, where we don't have 16 bytes of PLCP?
      */
     memcpy(&data_ptr[bytes_written], &rec[16], 16);
     bytes_written += 16;
@@ -1987,8 +2044,8 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->PLCP_LENGTH_OFF = 16;
 
             /*
-             * The 8 is from the 16 bytes of stats block that precede the
-             * PLCP; the 16 is for, umm, something.
+             * The first 16 is from the 16 bytes of stats block that
+             * precede the PLCP; the 16 is for 16 bytes of PLCP.
              */
             vwr->MPDU_OFF        = 16 + 16;
 

@@ -1006,6 +1006,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
     offset      += 4;
 
+    /*
+     * XXX - this appears to be the NDP flag for received frames and 0
+     * for transmitted frames.  The PLCP header follows it.
+     */
+
     /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
     if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0) {
         /*** Extract SU/MU MIMO flag from RX L1 Info ***/
@@ -1027,8 +1032,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
         offset += 1; /*** skip the RX L1 Info byte ****/
 
+        /*
+         * XXX - no, 3 bytes are for the L-SIG.
+         */
         offset += 3; /** 3 bytes are for HT length ***/
 
+        /*
+         * Beginning of VHT-SIG-A1, 24 bits.
+         * XXX - get STBC from the 0x08 bit of the first byte
+         * and BW from the 0x03 bits?
+         */
         /* vht_grp_id = tvb_get_letohs(tvb, offset); */
         vht_grp_id1 = tvb_get_guint8(tvb, offset);
         vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
@@ -1045,7 +1058,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_su_nsts,
                 tvb, offset, 2, vht_su_nsts, "VHT NSTS: %u ",vht_su_nsts);
 
-            offset = offset + 1; /*** to decode partial id ***/
+            offset += 1; /* Skip to second byte of VHT-SIG-A1 */
             vht_su_partial_id1 = tvb_get_guint8(tvb,offset);
             vht_su_partial_id2 = tvb_get_guint8(tvb,offset+1);
             vht_su_partial_id = ((vht_su_partial_id1 &0xE0) >> 5) + ((vht_su_partial_id2 &0x3f) << 3);
@@ -1066,7 +1079,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u1_nsts,
                 tvb, offset, 2, vht_u1_nsts, "VHT U1 NSTS: %u ",vht_u1_nsts);
 
-            offset = offset + 1;
+            offset += 1; /* Skip to second byte of VHT-SIG-A1 */
             vht_u2_nsts = tvb_get_guint8(tvb, offset+1);
             vht_u2_nsts = (vht_u2_nsts & 0x07);
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u2_nsts,
@@ -1077,8 +1090,21 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u3_nsts,
                 tvb, offset, 2, vht_u3_nsts, "VHT U3 NSTS: %u ",vht_u3_nsts);
         }
+
+        /*
+         * Skip past the other 2 bytes of VHT-SIG-A1.
+         *
+         * XXX - extract TXOP_PS_NOT_ALLOWED from the third byte of
+         * the VHT-SIG-A1 structure?
+         */
         offset += 2;
 
+        /*
+         * Beginning of VHT-SIG-A2, 24 bits.
+         *
+         * XXX - extract Short GI NSYM Disambiguation from the first
+         * byte?
+         */
         /*** extract LDPC or BCC coding *****/
         vht_coding_type = tvb_get_guint8(tvb, offset);
         vht_u0_coding_type = ((vht_coding_type & 0x04) >> 2);
