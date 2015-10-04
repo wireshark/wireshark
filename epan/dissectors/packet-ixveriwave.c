@@ -685,9 +685,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     guint       i;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwift,*vw_infoFlags_tree = NULL;
-    guint16     vw_flags, vw_chanflags, vw_info, vw_ht_length, vht_grp_id, vht_su_partial_id, vw_rflags;
+    guint16     vw_flags, vw_chanflags, vw_info, vw_ht_length, vht_su_partial_id, vw_rflags;
     guint32     vw_errors;
-    guint8      vht_grp_id1, vht_grp_id2, vht_su_nsts,vht_beamformed,vht_user_pos,vht_u0_nsts,vht_u1_nsts,vht_u2_nsts,vht_u3_nsts,vht_su_partial_id1,vht_su_partial_id2;
+    guint8      vht_grp_id1, vht_grp_id2, vht_grp_id, vht_su_nsts,vht_beamformed,vht_user_pos,vht_u0_nsts,vht_u1_nsts,vht_u2_nsts,vht_u3_nsts,vht_su_partial_id1,vht_su_partial_id2;
 
     ifg_info   *p_ifg_info;
     proto_item *ti;
