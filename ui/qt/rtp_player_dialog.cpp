@@ -388,7 +388,7 @@ void RtpPlayerDialog::mouseMoved(QMouseEvent *)
     QString hint = "<small><i>";
 
     if (packet_num > 0) {
-        hint += tr("%1. Press \"G\" to to to packet %2")
+        hint += tr("%1. Press \"G\" to go to packet %2")
                 .arg(getHoveredTime())
                 .arg(packet_num);
     }
