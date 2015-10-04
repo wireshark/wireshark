@@ -5296,7 +5296,7 @@ fSigned64(tvbuff_t *tvb, guint offset, guint32 lvt, gint64 *val)
         valid = TRUE;
         data = tvb_get_guint8(tvb, offset);
         if ((data & 0x80) != 0)
-            value = (G_GUINT64_CONSTANT(-1) << 8) | data;
+            value = (~G_GUINT64_CONSTANT(0) << 8) | data;
         else
             value = data;
         for (i = 1; i < lvt; i++) {
