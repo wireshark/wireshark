@@ -625,6 +625,7 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 
 	g_free(linktype_info->name);
 	g_free(linktype_info->description);
+	g_free(linktype_info);
 }
 
 void

@@ -176,6 +176,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
     splash_overlay_ = new SplashOverlay(this);
 }
 
+MainWelcome::~MainWelcome()
+{
+    delete welcome_ui_;
+}
+
 InterfaceTree *MainWelcome::getInterfaceTree()
 {
     return welcome_ui_->interfaceTree;

@@ -123,22 +123,25 @@ extern gboolean write_profile_recent(void);
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
+ * @return TRUE if succeeded, FALSE if failed (check parameters for reason).
  */
-extern void recent_read_static(char **rf_path_return, int *rf_errno_return);
+extern gboolean recent_read_static(char **rf_path_return, int *rf_errno_return);
 
 /** Read profile recent settings file (static part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
+ * @return TRUE if succeeded, FALSE if failed (check parameters for reason).
  */
-extern void recent_read_profile_static(char **rf_path_return, int *rf_errno_return);
+extern gboolean recent_read_profile_static(char **rf_path_return, int *rf_errno_return);
 
 /** Read recent settings file (dynamic part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
+ * @return TRUE if succeeded, FALSE if failed (check parameters for reason).
  */
-extern void recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
+extern gboolean recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
 
 /**
  * Given a -o command line string, parse it and set the recent value in

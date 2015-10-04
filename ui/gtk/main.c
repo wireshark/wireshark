@@ -2441,11 +2441,11 @@ DIAG_ON(cast-qual)
     /* Only the static part of it will be read, as we don't have the gui now to fill the */
     /* recent lists which is done in the dynamic part. */
     /* We have to do this already here, so command line parameters can overwrite these values. */
-    recent_read_profile_static(&rf_path, &rf_open_errno);
-    if (rf_path != NULL && rf_open_errno != 0) {
+    if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                       "Could not open recent file\n\"%s\": %s.",
                       rf_path, g_strerror(rf_open_errno));
+        g_free(rf_path);
     }
 
     if (recent.gui_fileopen_remembered_dir &&
@@ -3097,11 +3097,11 @@ DIAG_ON(cast-qual)
     create_main_window(pl_size, tv_size, bv_size, prefs_p);
 
     /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
-    recent_read_dynamic(&rf_path, &rf_open_errno);
-    if (rf_path != NULL && rf_open_errno != 0) {
+    if (!recent_read_dynamic(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                       "Could not open recent file\n\"%s\": %s.",
                       rf_path, g_strerror(rf_open_errno));
+        g_free(rf_path);
     }
 
     color_filters_enable(recent.packet_list_colorize);
@@ -3880,11 +3880,11 @@ void change_configuration_profile (const gchar *profile_name)
 
     (void) read_configuration_files (&gdp_path, &dp_path);
 
-    recent_read_profile_static(&rf_path, &rf_open_errno);
-    if (rf_path != NULL && rf_open_errno != 0) {
+    if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
             "Could not open common recent file\n\"%s\": %s.",
             rf_path, g_strerror(rf_open_errno));
+        g_free(rf_path);
     }
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {

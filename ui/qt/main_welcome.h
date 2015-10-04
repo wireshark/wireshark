@@ -40,6 +40,7 @@ class MainWelcome : public QFrame
     Q_OBJECT
 public:
     explicit MainWelcome(QWidget *parent = 0);
+    virtual ~MainWelcome();
     InterfaceTree *getInterfaceTree();
 
 protected:

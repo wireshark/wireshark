@@ -63,7 +63,7 @@ void
 scan_local_interfaces(void (*update_cb)(void))
 {
     GList             *if_entry, *lt_entry, *if_list;
-    if_info_t         *if_info, *temp;
+    if_info_t         *if_info, temp;
     char              *if_string;
     gchar             *descr;
     if_capabilities_t *caps=NULL;
@@ -130,14 +130,14 @@ scan_local_interfaces(void (*update_cb)(void))
         }
         device.hidden = FALSE;
         device.locked = FALSE;
-        temp = (if_info_t *)g_malloc0(sizeof(if_info_t));
-        temp->name = g_strdup(if_info->name);
-        temp->friendly_name = g_strdup(if_info->friendly_name);
-        temp->vendor_description = g_strdup(if_info->vendor_description);
-        temp->loopback = if_info->loopback;
-        temp->type = if_info->type;
+        memset(&temp, 0, sizeof(temp));
+        temp.name = g_strdup(if_info->name);
+        temp.friendly_name = g_strdup(if_info->friendly_name);
+        temp.vendor_description = g_strdup(if_info->vendor_description);
+        temp.loopback = if_info->loopback;
+        temp.type = if_info->type;
 #ifdef HAVE_EXTCAP
-        temp->extcap = g_strdup(if_info->extcap);
+        temp.extcap = g_strdup(if_info->extcap);
 #endif
         /* Is this interface hidden and, if so, should we include it anyway? */
 
@@ -217,7 +217,7 @@ scan_local_interfaces(void (*update_cb)(void))
                 temp_addr = NULL;
             }
             if (temp_addr) {
-                temp->addrs = g_slist_append(temp->addrs, temp_addr);
+                temp.addrs = g_slist_append(temp.addrs, temp_addr);
             }
         }
 #ifdef HAVE_PCAP_REMOTE
@@ -274,7 +274,7 @@ scan_local_interfaces(void (*update_cb)(void))
         device.addresses = g_strdup(ip_str->str);
         device.no_addresses = ips;
         device.local = TRUE;
-        device.if_info = *temp;
+        device.if_info = temp;
         device.last_packets = 0;
         if (!capture_dev_user_pmode_find(if_info->name, &device.pmode)) {
             device.pmode = global_capture_opts.default_options.promisc_mode;

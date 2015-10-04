@@ -764,6 +764,7 @@ capture_stat_stop(if_stat_cache_t *sc) {
     g_free(sc_item->name);
     g_free(sc_item);
   }
+  g_list_free(sc->cache_list);
   g_free(sc);
 }
 

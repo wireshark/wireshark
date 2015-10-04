@@ -114,7 +114,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
             QLabel *label = new QLabel(pref->title);
             label->setToolTip(tooltip);
             vb->addWidget(label);
-            QButtonGroup *enum_bg = new QButtonGroup();
+            QButtonGroup *enum_bg = new QButtonGroup(vb);
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
                 QRadioButton *enum_rb = new QRadioButton(title_to_shortcut(ev->description));
                 enum_rb->setToolTip(tooltip);

@@ -323,6 +323,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
             data_link_info->description = g_strdup(lt_parts[2]);
         else
             data_link_info->description = NULL;
+        g_strfreev(lt_parts);
 
         linktype_list = g_list_append(linktype_list, data_link_info);
     }

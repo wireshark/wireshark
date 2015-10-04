@@ -1527,6 +1527,7 @@ column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
                 g_string_append (cols_hidden, ",");
             g_string_append (cols_hidden, prefs_fmt);
         }
+        g_free(prefs_fmt);
         clp = clp->next;
     }
 
