@@ -42,7 +42,7 @@
 #endif
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 #include "ui/ui_util.h"
 
 #include "ui/gtk/gui_utils.h"

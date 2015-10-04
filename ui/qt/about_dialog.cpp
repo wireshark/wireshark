@@ -44,7 +44,7 @@
 #include "ui/last_open_dir.h"
 #include "ui/help_url.h"
 #include "ui/text_import_scanner.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "file.h"
 #include "wsutil/file_util.h"

@@ -34,7 +34,7 @@
 
 #include "ui/decode_as_utils.h"
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/decode_as_dlg.h"

@@ -24,7 +24,7 @@
 #ifndef FILTER_ACTION_H
 #define FILTER_ACTION_H
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <QAction>
 

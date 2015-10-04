@@ -26,7 +26,7 @@
 
 #include <epan/dissectors/packet-rtp.h>
 
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include "color_utils.h"
 #include "qcustomplot.h"

@@ -37,6 +37,7 @@
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
 #include <epan/in_cksum.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-tcp.h"
 #include "packet-ip.h"
@@ -500,11 +501,6 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 static dissector_handle_t sport_handle;
 static guint32 tcp_stream_count;
-
-/* XXX - redefined here to not create UI dependencies */
-#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
-#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
-#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
 static const int *tcp_option_mptcp_capable_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
@@ -4375,7 +4371,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dst_port_str = tcp_port_to_display(wmem_packet_scope(), tcph->th_dport);
     col_add_lstr(pinfo->cinfo, COL_INFO,
         src_port_str,
-        " \xe2\x86\x92 ", /* UTF8_RIGHTWARDS_ARROW */
+        " "UTF8_RIGHTWARDS_ARROW" ",
         dst_port_str,
         COL_ADD_LSTR_TERMINATOR);
 

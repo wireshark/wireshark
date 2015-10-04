@@ -27,7 +27,7 @@
 
 #include <ui/filters.h>
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "display_filter_edit.h"
 #include "filter_dialog.h"
@@ -43,7 +43,7 @@
 #include <QPainter>
 #include <QStringListModel>
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 // To do:
 // - Get rid of shortcuts and replace them with "n most recently applied filters"?

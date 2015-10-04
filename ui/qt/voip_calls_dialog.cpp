@@ -28,7 +28,7 @@
 #include "epan/dissectors/packet-h225.h"
 
 #include "ui/rtp_stream.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 #include "rtp_player_dialog.h"

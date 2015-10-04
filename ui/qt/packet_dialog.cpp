@@ -29,7 +29,7 @@
 
 #include "frame_tvbuff.h"
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "byte_view_tab.h"
 #include "proto_tree.h"

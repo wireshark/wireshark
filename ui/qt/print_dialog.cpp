@@ -22,7 +22,7 @@
 #include "print_dialog.h"
 #include <ui_print_dialog.h>
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <QPrintDialog>
 #include <QPageSetupDialog>

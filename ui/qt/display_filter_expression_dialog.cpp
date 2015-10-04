@@ -27,7 +27,7 @@
 #include <epan/tfs.h>
 #include <epan/value_string.h>
 
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"

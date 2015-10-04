@@ -32,7 +32,7 @@
 #include <caputils/ws80211_utils.h>
 
 #include <ui/ui_util.h>
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include <QProcess>
 

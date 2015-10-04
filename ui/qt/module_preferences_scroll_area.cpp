@@ -28,7 +28,7 @@
 
 #include <epan/prefs-int.h>
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <QAbstractButton>
 #include <QButtonGroup>

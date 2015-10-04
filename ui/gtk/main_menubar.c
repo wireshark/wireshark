@@ -47,7 +47,7 @@
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/software_update.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/about_dlg.h"

@@ -27,7 +27,7 @@
 #include "ui/capture_globals.h"
 #endif
 #include "ui/iface_lists.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 #include "ui/ui_util.h"
 
 #include "qt_ui_utils.h"

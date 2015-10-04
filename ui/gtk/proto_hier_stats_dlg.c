@@ -29,7 +29,7 @@
 
 #include "ui/proto_hier_stats.h"
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/proto_hier_stats_dlg.h"
 #include "ui/gtk/dlg_utils.h"

@@ -28,7 +28,7 @@
 #include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 

@@ -22,7 +22,7 @@
 #include <extcap_argument.h>
 #include <extcap_argument_file.h>
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <QObject>
 #include <QWidget>

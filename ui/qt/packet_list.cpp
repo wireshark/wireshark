@@ -42,7 +42,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/ui_util.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 #include "ui/util.h"
 
 #include "wsutil/str_util.h"

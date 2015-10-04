@@ -36,7 +36,7 @@
 #ifdef IAX2_RTP_STREAM_CHECK
 #include "ui/rtp_stream.h"
 #endif
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <wsutil/g711.h>
 #include <wsutil/pint.h>

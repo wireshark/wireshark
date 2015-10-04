@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "sctp_graph_dialog.h"
 #include <ui_sctp_graph_dialog.h>

@@ -25,7 +25,7 @@
 #include <glib.h>
 
 #include "traffic_table_ui.h"
-#include "utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>

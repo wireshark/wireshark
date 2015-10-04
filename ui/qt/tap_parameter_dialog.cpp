@@ -41,7 +41,7 @@
 #include "epan/stat_tap_ui.h"
 
 #include "ui/last_open_dir.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "wsutil/file_util.h"
 

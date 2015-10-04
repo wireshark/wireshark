@@ -43,7 +43,7 @@
 
 #include "ui/ui_util.h"
 #include "ui/util.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <cstdio>
 #include <epan/addr_resolv.h>

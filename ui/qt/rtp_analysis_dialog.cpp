@@ -33,7 +33,7 @@
 #include "epan/dissectors/packet-rtp.h"
 
 #include "ui/help_url.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include <wsutil/g711.h>
 #include <wsutil/pint.h>

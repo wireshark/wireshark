@@ -28,7 +28,7 @@
 #include <epan/proto.h>
 
 #include <ui/preference_utils.h>
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include "protocol_preferences_menu.h"
 

@@ -24,7 +24,7 @@
 
 #include "epan/addr_resolv.h"
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "wsutil/nstime.h"
 

@@ -47,7 +47,7 @@
 
 #include <epan/stat_groups.h>
 #include "ui/tap-tcp-stream.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

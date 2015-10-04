@@ -46,7 +46,7 @@
 
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif

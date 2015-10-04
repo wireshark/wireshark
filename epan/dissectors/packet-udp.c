@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-udp.h"
 
@@ -186,11 +187,6 @@ typedef struct
 {
     heur_dtbl_entry_t *heur_dtbl_entry;
 }   udp_p_info_t;
-
-/* XXX - redefined here to not create UI dependencies */
-#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
-#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
-#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
 static void
 udp_src_prompt(packet_info *pinfo, gchar *result)
@@ -716,7 +712,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
   col_add_lstr(pinfo->cinfo, COL_INFO,
                src_port_str,
-               " \xe2\x86\x92 ", /* UTF8_RIGHTWARDS_ARROW */
+               " "UTF8_RIGHTWARDS_ARROW" ",
                dst_port_str,
                COL_ADD_LSTR_TERMINATOR);
 

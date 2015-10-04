@@ -66,6 +66,7 @@
 #include <epan/decode_as.h>
 #include <wsutil/crc32.h>
 #include <wsutil/adler32.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-sctp.h"
 
@@ -718,11 +719,6 @@ find_assoc_index(assoc_info_t* tmpinfo)
   inf.direction = 1;
   return inf;
 }
-
-/* XXX - redefined here to not create UI dependencies */
-#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
-#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
-#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
 static void
 sctp_src_prompt(packet_info *pinfo, gchar *result)

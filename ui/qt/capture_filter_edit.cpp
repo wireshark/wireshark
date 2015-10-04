@@ -29,7 +29,7 @@
 
 #include <ui/capture_globals.h>
 #include <ui/filters.h>
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include "capture_filter_edit.h"
 #include "capture_filter_syntax_worker.h"

@@ -126,6 +126,5 @@ noinst_HEADERS = \
 	time_shift.h		\
 	traffic_table_ui.h	\
 	ui_util.h		\
-	utf8_entities.h		\
 	util.h			\
 	voip_calls.h

@@ -39,7 +39,7 @@
 
 #include "ui/simple_dialog.h"
 #include "ui/alert_box.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/filter_utils.h"

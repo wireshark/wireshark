@@ -32,7 +32,7 @@
 #include <epan/tap.h>
 
 #include <ui/simple_dialog.h>
-#include <ui/utf8_entities.h>
+#include <wsutil/utf8_entities.h>
 
 #include "gtkglobals.h"
 #include "ui/gtk/follow_stream.h"

@@ -27,7 +27,7 @@
 #include "epan/epan_dissect.h"
 
 #include "ui/decode_as_utils.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"

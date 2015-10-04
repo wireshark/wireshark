@@ -34,7 +34,7 @@
 #include "epan/dfilter/dfilter.h"
 #include "epan/prefs.h"
 
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "wsutil/filesystem.h"
 

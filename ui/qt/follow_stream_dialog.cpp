@@ -36,7 +36,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "wsutil/tempfile.h"
 #include "wsutil/file_util.h"

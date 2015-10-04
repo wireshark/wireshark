@@ -25,7 +25,7 @@
 #include "cfile.h"
 
 #include "ui/proto_hier_stats.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"

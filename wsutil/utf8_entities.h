@@ -44,6 +44,9 @@
 
 #define UTF8_CHECK_MARK                 "\xe2\x9c\x93"      /* 10003 / 0x2713 */
 #define UTF8_BALLOT_X                   "\xe2\x9c\x97"      /* 10007 / 0x2717 */
+
+#define UTF8_MICRO_SIGN                     "\xc2\xb5"      /*   181 /   0xb5 */
+
 #endif /* __UTF8_ENTITIES_H__ */
 
 /*

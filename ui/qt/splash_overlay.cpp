@@ -26,7 +26,7 @@
 #include <QPainter>
 
 #include "ui/util.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 #include "tango_colors.h"
 
 #ifdef HAVE_LUA

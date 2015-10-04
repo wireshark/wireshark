@@ -30,7 +30,7 @@
 #include <epan/stat_tap_ui.h>
 
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gui_stat_util.h"

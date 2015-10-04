@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/tap.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_sco.h"
@@ -714,9 +715,6 @@ static const value_string evt_master_clock_accuray[] = {
     { 0x07, "20 ppm" },
     { 0, NULL }
 };
-
-/* XXX - Should be pulled from utf8_entities.h */
-#define UTF8_MICRO_SIGN "\xc2\xb5"      /* 181 / 0xb5 */
 
 static const value_string evt_air_mode_vals[] = {
     { 0x00,  UTF8_MICRO_SIGN "-law log" },

@@ -33,7 +33,7 @@
 #include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/filter_utils.h"

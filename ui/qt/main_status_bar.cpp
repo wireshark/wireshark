@@ -31,7 +31,7 @@
 #include "ui/main_statusbar.h"
 #include "ui/profile.h"
 #include "ui/qt/qt_ui_utils.h"
-#include "ui/utf8_entities.h"
+#include <wsutil/utf8_entities.h>
 
 #include "capture_file.h"
 #include "main_status_bar.h"
