@@ -316,7 +316,7 @@ quint32 RtpAudioStream::nearestPacket(double timestamp, bool is_relative)
 
     if (!is_relative) timestamp -= start_abs_offset_;
     QMap<double, quint32>::const_iterator it = packet_timestamps_.lowerBound(timestamp);
-    if (it == packet_timestamps_.begin()) return 0;
+    if (it == packet_timestamps_.end()) return 0;
     return it.value();
 }
 
