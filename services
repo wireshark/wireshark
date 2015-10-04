@@ -10591,6 +10591,7 @@ MOS-soap        10543/tcp # MOS SOAP Default Port [Eric_Thorniley] [Eric_Thornil
 MOS-soap        10543/udp # MOS SOAP Default Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
 MOS-soap-opt    10544/tcp # MOS SOAP Optional Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
 MOS-soap-opt    10544/udp # MOS SOAP Optional Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
+serverdocs      10548/tcp # Apple Document Sharing Service [Apple_Inc_3] [Jason_Thorpe] 2015-09-29
 printopia       10631/tcp # Printopia Serve [Decisive_Tactics_Inc] [Chris_Kent] 2011-10-24 2015-04-09
 gap             10800/tcp # Gestor de Acaparamiento para Pocket PCs [Juan_Carlos_Olivares] [Juan_Carlos_Olivares] 2006-03
 gap             10800/udp # Gestor de Acaparamiento para Pocket PCs [Juan_Carlos_Olivares] [Juan_Carlos_Olivares] 2006-03
@@ -11159,6 +11160,7 @@ scscp           26133/tcp # Symbolic Computation Software Composability Protocol
 scscp           26133/udp # Symbolic Computation Software Composability Protocol [Alexander_Konovalov] [Alexander_Konovalov] 2007-11-27
 wnn6-ds         26208/tcp # wnn6-ds [Yasunari_Gon_Yamasit] [Yasunari_Gon_Yamasit]
 wnn6-ds         26208/udp # wnn6-ds [Yasunari_Gon_Yamasit] [Yasunari_Gon_Yamasit]
+cockroach       26257/tcp # CockroachDB [Cockroach_Labs_Inc] [Ben_Darnell] 2015-09-29
 ezproxy         26260/tcp # eZproxy [Albert_C_Yang] [Albert_C_Yang]
 ezproxy         26260/udp # eZproxy [Albert_C_Yang] [Albert_C_Yang]
 ezmeeting       26261/tcp # eZmeeting [Albert_C_Yang] [Albert_C_Yang]
