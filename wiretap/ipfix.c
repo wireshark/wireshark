@@ -68,15 +68,9 @@
 #include "ipfix.h"
 
 #if 0
-#define ipfix_debug0(str) g_warning(str)
-#define ipfix_debug1(str,p1) g_warning(str,p1)
-#define ipfix_debug2(str,p1,p2) g_warning(str,p1,p2)
-#define ipfix_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#define ipfix_debug(...) g_warning(__VA_ARGS__)
 #else
-#define ipfix_debug0(str)
-#define ipfix_debug1(str,p1)
-#define ipfix_debug2(str,p1,p2)
-#define ipfix_debug3(str,p1,p2,p3)
+#define ipfix_debug(...)
 #endif
 
 #define RECORDS_FOR_IPFIX_CHECK 20
@@ -143,7 +137,7 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
 
     /* go back to before header */
     if (file_seek(fh, 0 - IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
-        ipfix_debug0("ipfix_read: couldn't go back in file before header");
+        ipfix_debug("ipfix_read: couldn't go back in file before header");
         return FALSE;
     }
 
@@ -189,7 +183,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     ipfix_message_header_t msg_hdr;
     ipfix_set_header_t set_hdr;
 
-    ipfix_debug0("ipfix_open: opening file");
+    ipfix_debug("ipfix_open: opening file");
 
     /* number of records to scan before deciding if this really is IPFIX */
     if ((s = getenv("IPFIX_RECORDS_TO_CHECK")) != NULL) {
@@ -206,7 +200,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     for (i = 0; i < records_for_ipfix_check; i++) {
         /* read first message header to check version */
         if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
-            ipfix_debug3("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
+            ipfix_debug("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
                          i, *err, *err_info);
             if (*err == WTAP_ERR_BAD_FILE) {
                 *err = 0;            /* not actually an error in this case */
@@ -230,7 +224,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
             break;
         }
         if (file_seek(wth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
-            ipfix_debug1("ipfix_open: failed seek to next message in file, %d bytes away",
+            ipfix_debug("ipfix_open: failed seek to next message in file, %d bytes away",
                          msg_hdr.message_length);
             return WTAP_OPEN_NOT_MINE;
         }
@@ -242,7 +236,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                                  err, err_info)) {
                 if (*err == WTAP_ERR_SHORT_READ) {
                     /* Not a valid IPFIX Set, so not an IPFIX file. */
-                    ipfix_debug1("ipfix_open: error %d reading set", *err);
+                    ipfix_debug("ipfix_open: error %d reading set", *err);
                     return WTAP_OPEN_NOT_MINE;
                 }
 
@@ -252,7 +246,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
             set_hdr.set_length = g_ntohs(set_hdr.set_length);
             if ((set_hdr.set_length < IPFIX_SET_HDR_SIZE) ||
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
-                ipfix_debug1("ipfix_open: found invalid set_length of %d",
+                ipfix_debug("ipfix_open: found invalid set_length of %d",
                              set_hdr.set_length);
                 return WTAP_OPEN_NOT_MINE;
             }
@@ -260,7 +254,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
             if (file_seek(wth->fh, set_hdr.set_length - IPFIX_SET_HDR_SIZE,
                  SEEK_CUR, err) == -1)
             {
-                ipfix_debug1("ipfix_open: failed seek to next set in file, %d bytes away",
+                ipfix_debug("ipfix_open: failed seek to next set in file, %d bytes away",
                              set_hdr.set_length - IPFIX_SET_HDR_SIZE);
                 return WTAP_OPEN_ERROR;
             }
@@ -291,10 +285,10 @@ static gboolean
 ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
-    ipfix_debug1("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
+    ipfix_debug("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
     if (!ipfix_read_message(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info)) {
-        ipfix_debug2("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
+        ipfix_debug("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;
     }
@@ -310,15 +304,15 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 {
     /* seek to the right file position */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-        ipfix_debug2("ipfix_seek_read: couldn't read message header with code: %d\n, and error '%s'",
+        ipfix_debug("ipfix_seek_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;   /* Seek error */
     }
 
-    ipfix_debug1("ipfix_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
+    ipfix_debug("ipfix_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
     if (!ipfix_read_message(wth->random_fh, phdr, buf, err, err_info)) {
-        ipfix_debug0("ipfix_seek_read: couldn't read message header");
+        ipfix_debug("ipfix_seek_read: couldn't read message header");
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;

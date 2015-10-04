@@ -385,23 +385,6 @@ to implement it.  Use something like
 
 instead.
 
-Don't use "variadic macros", such as
-
-    #define DBG(format, args...)    fprintf(stderr, format, ## args)
-
-as not all C compilers support them.  Use macros that take a fixed
-number of arguments, such as
-
-    #define DBG0(format)                fprintf(stderr, format)
-    #define DBG1(format, arg1)          fprintf(stderr, format, arg1)
-    #define DBG2(format, arg1, arg2)    fprintf(stderr, format, arg1, arg2)
-
-        ...
-
-or something such as
-
-    #define DBG(args)       printf args
-
 Don't use
 
     case N ... M:

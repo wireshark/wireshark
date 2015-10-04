@@ -381,6 +381,7 @@ else()
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
 		# The following are for C and C++
 		-Wpedantic
+		-Wno-variadic-macros
 		#
 		# Various code blocks this one.
 		#

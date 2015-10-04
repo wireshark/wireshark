@@ -41,15 +41,9 @@
 
 
 #if 0
-#define merge_debug0(str) g_warning(str)
-#define merge_debug1(str,p1) g_warning(str,p1)
-#define merge_debug2(str,p1,p2) g_warning(str,p1,p2)
-#define merge_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#define merge_debug(...) g_warning(__VA_ARGS__)
 #else
-#define merge_debug0(str)
-#define merge_debug1(str,p1)
-#define merge_debug2(str,p1,p2)
-#define merge_debug3(str,p1,p2,p3)
+#define merge_debug(...)
 #endif
 
 
@@ -410,32 +404,32 @@ is_duplicate_idb(const wtapng_if_descr_t *idb1, const wtapng_if_descr_t *idb2)
 {
     g_assert(idb1 && idb2);
 
-    merge_debug0("merge::is_duplicate_idb() called");
-    merge_debug1("idb1->wtap_encap == idb2->wtap_encap: %s",
+    merge_debug("merge::is_duplicate_idb() called");
+    merge_debug("idb1->wtap_encap == idb2->wtap_encap: %s",
                  (idb1->wtap_encap == idb2->wtap_encap) ? "TRUE":"FALSE");
-    merge_debug1("idb1->time_units_per_second == idb2->time_units_per_second: %s",
+    merge_debug("idb1->time_units_per_second == idb2->time_units_per_second: %s",
                  (idb1->time_units_per_second == idb2->time_units_per_second) ? "TRUE":"FALSE");
-    merge_debug1("idb1->tsprecision == idb2->tsprecision: %s",
+    merge_debug("idb1->tsprecision == idb2->tsprecision: %s",
                  (idb1->tsprecision == idb2->tsprecision) ? "TRUE":"FALSE");
-    merge_debug1("idb1->link_type == idb2->link_type: %s",
+    merge_debug("idb1->link_type == idb2->link_type: %s",
                  (idb1->link_type == idb2->link_type) ? "TRUE":"FALSE");
-    merge_debug1("idb1->snap_len == idb2->snap_len: %s",
+    merge_debug("idb1->snap_len == idb2->snap_len: %s",
                  (idb1->snap_len == idb2->snap_len) ? "TRUE":"FALSE");
-    merge_debug1("idb1->if_speed == idb2->if_speed: %s",
+    merge_debug("idb1->if_speed == idb2->if_speed: %s",
                  (idb1->if_speed == idb2->if_speed) ? "TRUE":"FALSE");
-    merge_debug1("idb1->if_tsresol == idb2->if_tsresol: %s",
+    merge_debug("idb1->if_tsresol == idb2->if_tsresol: %s",
                  (idb1->if_tsresol == idb2->if_tsresol) ? "TRUE":"FALSE");
-    merge_debug1("idb1->if_fcslen == idb2->if_fcslen: %s",
+    merge_debug("idb1->if_fcslen == idb2->if_fcslen: %s",
                  (idb1->if_fcslen == idb2->if_fcslen) ? "TRUE":"FALSE");
-    merge_debug1("g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0: %s",
+    merge_debug("g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0: %s",
                  (g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0) ? "TRUE":"FALSE");
-    merge_debug1("g_strcmp0(idb1->if_name, idb2->if_name) == 0: %s",
+    merge_debug("g_strcmp0(idb1->if_name, idb2->if_name) == 0: %s",
                  (g_strcmp0(idb1->if_name, idb2->if_name) == 0) ? "TRUE":"FALSE");
-    merge_debug1("g_strcmp0(idb1->if_description, idb2->if_description) == 0: %s",
+    merge_debug("g_strcmp0(idb1->if_description, idb2->if_description) == 0: %s",
                  (g_strcmp0(idb1->if_description, idb2->if_description) == 0) ? "TRUE":"FALSE");
-    merge_debug1("g_strcmp0(idb1->if_os, idb2->if_os) == 0: %s",
+    merge_debug("g_strcmp0(idb1->if_os, idb2->if_os) == 0: %s",
                  (g_strcmp0(idb1->if_os, idb2->if_os) == 0) ? "TRUE":"FALSE");
-    merge_debug0("merge::is_duplicate_idb() returning");
+    merge_debug("merge::is_duplicate_idb() returning");
 
     /* does not compare filters nor interface statistics */
     return (idb1->wtap_encap == idb2->wtap_encap &&
@@ -480,7 +474,7 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
         other_idb_list_size = other_idb_list->interface_data->len;
 
         if (other_idb_list_size != first_idb_list_size) {
-            merge_debug2("merge::all_idbs_are_duplicates: sizes of IDB lists don't match: first=%u, other=%u",
+            merge_debug("merge::all_idbs_are_duplicates: sizes of IDB lists don't match: first=%u, other=%u",
                          first_idb_list_size, other_idb_list_size);
             g_free(other_idb_list);
             g_free(first_idb_list);
@@ -492,7 +486,7 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
             other_file_idb = &g_array_index(other_idb_list->interface_data, wtapng_if_descr_t, j);
 
             if (!is_duplicate_idb(first_file_idb, other_file_idb)) {
-                merge_debug1("merge::all_idbs_are_duplicates: IDBs at index %d do not match, returning FALSE", j);
+                merge_debug("merge::all_idbs_are_duplicates: IDBs at index %d do not match, returning FALSE", j);
                 g_free(other_idb_list);
                 g_free(first_idb_list);
                 return FALSE;
@@ -501,7 +495,7 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
         g_free(other_idb_list);
     }
 
-    merge_debug0("merge::all_idbs_are_duplicates: returning TRUE");
+    merge_debug("merge::all_idbs_are_duplicates: returning TRUE");
 
     g_free(first_idb_list);
 
@@ -595,7 +589,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
     if (mode == IDB_MERGE_MODE_ALL_SAME && all_idbs_are_duplicates(in_files, in_file_count)) {
         guint num_idbs;
 
-        merge_debug0("merge::generate_merged_idb: mode ALL set and all IDBs are duplicates");
+        merge_debug("merge::generate_merged_idb: mode ALL set and all IDBs are duplicates");
 
         /* they're all the same, so just get the first file's IDBs */
         input_file_idb_list = wtap_file_get_idb_info(in_files[0].wth);
@@ -630,7 +624,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                 if (mode == IDB_MERGE_MODE_ANY_SAME &&
                     find_duplicate_idb(input_file_idb, merged_idb_list, &merged_index))
                 {
-                    merge_debug0("merge::generate_merged_idb: mode ANY set and found a duplicate");
+                    merge_debug("merge::generate_merged_idb: mode ANY set and found a duplicate");
                     /*
                      * It's the same as a previous IDB, so we're going to "merge"
                      * them into one by adding a map from its old IDB index to the new
@@ -639,7 +633,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                     add_idb_index_map(&in_files[i], itf_count, merged_index);
                 }
                 else {
-                    merge_debug0("merge::generate_merged_idb: mode NONE set or did not find a duplicate");
+                    merge_debug("merge::generate_merged_idb: mode NONE set or did not find a duplicate");
                     /*
                      * This IDB does not match a previous (or we want to save all IDBs),
                      * so add the IDB to the merge file, and add a map of the indeces.
@@ -670,7 +664,7 @@ map_phdr_interface_id(struct wtap_pkthdr *phdr, const merge_in_file_t *in_file)
 
     if (current_interface_id >= in_file->idb_index_map->len) {
         /* this shouldn't happen, but in a malformed input file it could */
-        merge_debug0("merge::map_phdr_interface_id: current_interface_id >= in_file->idb_index_map->len (ERROR?)");
+        merge_debug("merge::map_phdr_interface_id: current_interface_id >= in_file->idb_index_map->len (ERROR?)");
         return FALSE;
     }
 
@@ -867,12 +861,12 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     /* if a callback was given, it has to have a callback function ptr */
     g_assert((cb != NULL) ? (cb->callback_func != NULL) : TRUE);
 
-    merge_debug0("merge_files: begin");
+    merge_debug("merge_files: begin");
 
     /* open the input files */
     if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
                              err, err_info, err_fileno)) {
-        merge_debug1("merge_files: merge_open_in_files() failed with err=%d", *err);
+        merge_debug("merge_files: merge_open_in_files() failed with err=%d", *err);
         return MERGE_ERR_CANT_OPEN_INFILE;
     }
 
@@ -892,7 +886,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
      * whether we can merge IDBs into one or not.
      */
     frame_type = merge_select_frame_type(in_file_count, in_files);
-    merge_debug1("merge_files: got frame_type=%d", frame_type);
+    merge_debug("merge_files: got frame_type=%d", frame_type);
 
     if (cb)
         cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
@@ -900,10 +894,10 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     /* prepare the outfile */
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
         shb_hdr = create_shb_header(in_files, in_file_count, app_name);
-        merge_debug0("merge_files: SHB created");
+        merge_debug("merge_files: SHB created");
 
         idb_inf = generate_merged_idb(in_files, in_file_count, mode);
-        merge_debug1("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
+        merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
                                   FALSE /* compressed */, shb_hdr, idb_inf,

@@ -871,6 +871,7 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# The following are for C and C++
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpedantic)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-variadic-macros)
 		#
 		# Various code blocks this one.
 		#
