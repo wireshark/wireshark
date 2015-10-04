@@ -114,7 +114,7 @@ private:
     const QString getHoveredTime();
     int getHoveredPacket();
 
-#else // QT_MULTIMEDIA_LIB    
+#else // QT_MULTIMEDIA_LIB
 private:
     Ui::RtpPlayerDialog *ui;
 #endif // QT_MULTIMEDIA_LIB

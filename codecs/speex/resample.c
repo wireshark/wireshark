@@ -63,10 +63,10 @@
 #define FLOATING_POINT 1
 
 #ifdef OUTSIDE_SPEEX
-#include <stdlib.h>
-static void *speex_alloc (size_t size) {return calloc(size,1);}
-static void *speex_realloc (void *ptr, size_t size) {return realloc(ptr, size);}
-static void speex_free (void *ptr) {free(ptr);}
+#include <glib.h>
+static void *speex_alloc (size_t size) {return g_malloc0(size);}
+static void *speex_realloc (void *ptr, size_t size) {return g_realloc(ptr, size);}
+static void speex_free (void *ptr) {g_free(ptr);}
 #include "speex_resampler.h"
 #include "arch.h"
 #else /* OUTSIDE_SPEEX */

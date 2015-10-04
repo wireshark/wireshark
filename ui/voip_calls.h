@@ -228,14 +228,9 @@ typedef struct _voip_calls_tapinfo {
 } voip_calls_tapinfo_t;
 
 #if 0
-#ifdef _MSC_VER
-#define _ws_func_ __FUNCTION__
-#else
-#define _ws_func_ __func__
-#endif
 #define VOIP_CALLS_DEBUG(...) { \
     char *VOIP_CALLS_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
-    g_warning("voip_calls: %s:%d %s", _ws_func_, __LINE__, VOIP_CALLS_DEBUG_MSG); \
+    g_warning("voip_calls: %s:%d %s", G_STRFUNC, __LINE__, VOIP_CALLS_DEBUG_MSG); \
     g_free(VOIP_CALLS_DEBUG_MSG); \
 }
 #else

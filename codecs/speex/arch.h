@@ -70,7 +70,9 @@
 #include "speex/speexdsp_types.h"
 #endif
 
+#ifndef ABS /* already defined by glib.h */
 #define ABS(x) ((x) < 0 ? (-(x)) : (x))      /**< Absolute integer value. */
+#endif
 #define ABS16(x) ((x) < 0 ? (-(x)) : (x))    /**< Absolute 16-bit value.  */
 #define MIN16(a,b) ((a) < (b) ? (a) : (b))   /**< Maximum 16-bit value.   */
 #define MAX16(a,b) ((a) > (b) ? (a) : (b))   /**< Maximum 16-bit value.   */
