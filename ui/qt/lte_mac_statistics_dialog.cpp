@@ -454,7 +454,7 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
 
     // Create statistics label.
     commonStatsLabel = new QLabel(this);
-    commonStatsLabel ->setObjectName(tr("statisticsLabel"));
+    commonStatsLabel ->setObjectName("statisticsLabel");
     commonStatsLabel ->setTextFormat(Qt::RichText);
     commonStatsLabel ->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
     common_stats_grid->addWidget(commonStatsLabel);

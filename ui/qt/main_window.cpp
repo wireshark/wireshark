@@ -346,11 +346,11 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->menuHelp->insertAction(update_sep, update_action);
     connect(update_action, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
-    master_split_.setObjectName(tr("splitterMaster"));
-    extra_split_.setObjectName(tr("splitterExtra"));
+    master_split_.setObjectName("splitterMaster");
+    extra_split_.setObjectName("splitterExtra");
     main_ui_->mainStack->addWidget(&master_split_);
 
-    empty_pane_.setObjectName(tr("emptyPane"));
+    empty_pane_.setObjectName("emptyPane");
 
     packet_list_ = new PacketList(&master_split_);
 
