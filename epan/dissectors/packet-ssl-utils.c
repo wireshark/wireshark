@@ -48,6 +48,9 @@
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
 #include "packet-ssl.h"
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#include <gnutls/abstract.h>
+#endif
 
 /*
  * Lookup tables
@@ -3538,21 +3541,7 @@ ssl_privkey_to_sexp(gnutls_x509_privkey_t priv_key)
     gcry_error_t   gret;
     gcry_sexp_t    rsa_priv_key = NULL;
     gint           i;
-    int            ret;
-    size_t         buf_len;
-    unsigned char  buf_keyid[32];
-
-    gcry_mpi_t rsa_params[RSA_PARS];
-
-    buf_len = sizeof(buf_keyid);
-    ret = gnutls_x509_privkey_get_key_id(priv_key, 0, buf_keyid, &buf_len);
-    if (ret != 0) {
-        ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
-    } else {
-        char* keyid = (char*)bytestring_to_str(NULL, buf_keyid, (int) buf_len, ':');
-        ssl_debug_printf( "Private key imported: KeyID %s\n", keyid);
-        wmem_free(NULL, keyid);
-    }
+    gcry_mpi_t     rsa_params[RSA_PARS];
 
     /* RSA get parameter */
     if (gnutls_x509_privkey_export_rsa_raw(priv_key,
@@ -3840,78 +3829,48 @@ ssl_private_key_free(gpointer key)
     gcry_sexp_release((gcry_sexp_t) key);
 }
 
-void
-ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo) {
-    SslService dummy;
-    char       ip_addr_any[] = {0,0,0,0};
-    guint32    port    = 0;
-    gchar     *addr_string;
-    gcry_sexp_t private_key;
+static void
+ssl_find_private_key_by_pubkey(SslDecryptSession *ssl, GHashTable *key_hash,
+                               gnutls_datum_t *subjectPublicKeyInfo)
+{
+    gnutls_pubkey_t pubkey = NULL;
+    guchar key_id[20];
+    size_t key_id_len = sizeof(key_id);
+    int r;
 
-    if (!ssl_session) {
+    if (!subjectPublicKeyInfo->size) {
+        ssl_debug_printf("%s: could not find SubjectPublicKeyInfo\n", G_STRFUNC);
         return;
     }
 
-    /* we need to know which side of the conversation is speaking */
-    if (ssl_packet_from_server(&ssl_session->session, associations, pinfo)) {
-        dummy.addr = pinfo->src;
-        dummy.port = port = pinfo->srcport;
-    } else {
-        dummy.addr = pinfo->dst;
-        dummy.port = port = pinfo->destport;
-    }
-    addr_string = address_to_str(NULL, &dummy.addr);
-    ssl_debug_printf("ssl_find_private_key server %s:%u\n",
-                     addr_string, dummy.port);
-    wmem_free(NULL, addr_string);
-
-    if (g_hash_table_size(key_hash) == 0) {
-        ssl_debug_printf("ssl_find_private_key: no keys found\n");
+    r = gnutls_pubkey_init(&pubkey);
+    if (r < 0) {
+        ssl_debug_printf("%s: failed to init pubkey: %s\n",
+                G_STRFUNC, gnutls_strerror(r));
         return;
-    } else {
-        ssl_debug_printf("ssl_find_private_key: testing %i keys\n",
-            g_hash_table_size(key_hash));
     }
 
-    /* try to retrieve private key for this service. Do it now 'cause pinfo
-     * is not always available
-     * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
-     * and thus decryption never engaged*/
-
-
-    ssl_session->private_key = 0;
-    private_key = (gcry_sexp_t) g_hash_table_lookup(key_hash, &dummy);
-
-    if (!private_key) {
-        ssl_debug_printf("ssl_find_private_key can't find private key for this server! Try it again with universal port 0\n");
-
-        dummy.port = 0;
-        private_key = (gcry_sexp_t) g_hash_table_lookup(key_hash, &dummy);
+    r = gnutls_pubkey_import(pubkey, subjectPublicKeyInfo, GNUTLS_X509_FMT_DER);
+    if (r < 0) {
+        ssl_debug_printf("%s: failed to import pubkey from handshake: %s\n",
+                G_STRFUNC, gnutls_strerror(r));
+        goto end;
     }
 
-    if (!private_key) {
-        ssl_debug_printf("ssl_find_private_key can't find private key for this server (universal port)! Try it again with universal address 0.0.0.0\n");
-
-        dummy.addr.type = AT_IPv4;
-        dummy.addr.len = 4;
-        dummy.addr.data = ip_addr_any;
-
-        dummy.port = port;
-        private_key = (gcry_sexp_t) g_hash_table_lookup(key_hash, &dummy);
+    /* Generate a 20-byte SHA-1 hash. */
+    r = gnutls_pubkey_get_key_id(pubkey, 0, key_id, &key_id_len);
+    if (r < 0) {
+        ssl_debug_printf("%s: failed to extract key id from pubkey: %s\n",
+                G_STRFUNC, gnutls_strerror(r));
+        goto end;
     }
 
-    if (!private_key) {
-        ssl_debug_printf("ssl_find_private_key can't find private key for this server! Try it again with universal address 0.0.0.0 and universal port 0\n");
+    ssl_print_data("lookup(KeyID)", key_id, key_id_len);
+    ssl->private_key = (gcry_sexp_t)g_hash_table_lookup(key_hash, key_id);
+    ssl_debug_printf("%s: lookup result: %p\n", G_STRFUNC, (void *) ssl->private_key);
 
-        dummy.port = 0;
-        private_key = (gcry_sexp_t) g_hash_table_lookup(key_hash, &dummy);
-    }
-
-    if (!private_key) {
-        ssl_debug_printf("ssl_find_private_key can't find any private key!\n");
-    } else {
-        ssl_session->private_key = private_key;
-    }
+end:
+    gnutls_pubkey_deinit(pubkey);
 }
 
 void
@@ -3929,11 +3888,6 @@ ssl_lib_init(void)
 
 void
 ssl_private_key_free(gpointer key _U_)
-{
-}
-
-void
-ssl_find_private_key(SslDecryptSession *ssl_session _U_, GHashTable *key_hash _U_, GTree* associations _U_, packet_info *pinfo _U_)
 {
 }
 
@@ -4116,36 +4070,23 @@ ssl_hash  (gconstpointer v)
     return hash;
 }
 
-gint
+gboolean
 ssl_private_key_equal (gconstpointer v, gconstpointer v2)
 {
-    const SslService *val1;
-    const SslService *val2;
-    val1 = (const SslService *)v;
-    val2 = (const SslService *)v2;
-
-    if ((val1->port == val2->port) &&
-        ! CMP_ADDRESS(&val1->addr, &val2->addr)) {
-        return 1;
-    }
-    return 0;
+    /* key ID length (SHA-1 hash, per GNUTLS_KEYID_USE_SHA1) */
+    return !memcmp(v, v2, 20);
 }
 
 guint
-ssl_private_key_hash  (gconstpointer v)
+ssl_private_key_hash (gconstpointer v)
 {
-    const SslService *key;
-    guint        l, hash, len ;
-    const guint8 *cur;
+    guint        l, hash = 0;
+    const guint8 *cur = (const guint8 *)v;
 
-    key  = (const SslService *)v;
-    hash = key->port;
-    len  = key->addr.len;
-    hash |= len << 16;
-    cur  = (const guint8 *) key->addr.data;
-
-    for (l=4; (l<len); l+=4, cur+=4)
-        hash = hash ^ pntoh32(cur);
+    /* The public key' SHA-1 hash (which maps to a private key) has a uniform
+     * distribution, hence simply xor'ing them should be sufficient. */
+    for (l = 0; l < 20; l += 4, cur += 4)
+        hash ^= pntoh32(cur);
 
     return hash;
 }
@@ -4384,14 +4325,12 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
 void
 ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp)
 {
-    SslService*        service;
     gnutls_x509_privkey_t priv_key;
     gcry_sexp_t        private_key;
     FILE*              fp     = NULL;
-    guint32            addr_data[4];
-    int                addr_len, at;
-    address_type addr_type[2] = { AT_IPv4, AT_IPv6 };
-    gchar*             address_string;
+    int                ret;
+    size_t             key_id_len = 20;
+    guchar            *key_id = NULL;
 
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
@@ -4400,87 +4339,53 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, GTree* 
         return;
     }
 
-    for (at = 0; at < 2; at++) {
-        memset(addr_data, 0, sizeof(addr_data));
-        addr_len = 0;
-
-        /* any: IPv4 or IPv6 wildcard */
-        /* anyipv4: IPv4 wildcard */
-        /* anyipv6: IPv6 wildcard */
-
-        if(addr_type[at] == AT_IPv4) {
-            if (strcmp(uats->ipaddr, "any") == 0 || strcmp(uats->ipaddr, "anyipv4") == 0 ||
-                    get_host_ipaddr(uats->ipaddr, &addr_data[0])) {
-                addr_len = 4;
-            }
-        } else { /* AT_IPv6 */
-            if(strcmp(uats->ipaddr, "any") == 0 || strcmp(uats->ipaddr, "anyipv6") == 0 ||
-                    get_host_ipaddr6(uats->ipaddr, (struct e_in6_addr *) addr_data)) {
-                addr_len = 16;
-            }
+    if ((gint)strlen(uats->password) == 0) {
+        priv_key = ssl_load_key(fp);
+    } else {
+        char *err = NULL;
+        priv_key = ssl_load_pkcs12(fp, uats->password, &err);
+        if (err) {
+            report_failure("%s\n", err);
+            g_free(err);
         }
+    }
+    fclose(fp);
 
-        if (! addr_len) {
-            continue;
-        }
-
-        /* reset the data pointer for the second iteration */
-        rewind(fp);
-
-        if ((gint)strlen(uats->password) == 0) {
-            priv_key = ssl_load_key(fp);
-        } else {
-            char *err = NULL;
-            priv_key = ssl_load_pkcs12(fp, uats->password, &err);
-            if (err) {
-                report_failure("%s\n", err);
-                g_free(err);
-            }
-        }
-
-        if (!priv_key) {
-            report_failure("Can't load private key from %s\n", uats->keyfile);
-            break;
-        }
-
-        private_key = ssl_privkey_to_sexp(priv_key);
-        gnutls_x509_privkey_deinit(priv_key);
-        if (!private_key) {
-            report_failure("Can't extract private key parameters for %s",
-                    uats->keyfile);
-            break;
-        }
-
-        service = (SslService *)g_malloc(sizeof(SslService) + addr_len);
-        service->addr.type = addr_type[at];
-        service->addr.len = addr_len;
-        service->addr.data = ((guchar*)service) + sizeof(SslService);
-        memcpy((void*)service->addr.data, addr_data, addr_len);
-
-        if(strcmp(uats->port,"start_tls")==0) {
-            service->port = 0;
-        } else {
-            service->port = atoi(uats->port);
-        }
-
-        /*
-         * This gets called outside any dissection scope, so we have to
-         * use a NULL scope and free it ourselves.
-         */
-        address_string = address_to_str(NULL, &service->addr);
-        ssl_debug_printf("ssl_init %s addr '%s' (%s) port '%d' filename '%s' password(only for p12 file) '%s'\n",
-            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, address_string,
-            service->port, uats->keyfile, uats->password);
-        wmem_free(NULL, address_string);
-
-        ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
-
-        g_hash_table_replace(key_hash, service, private_key);
-
-        ssl_association_add(associations, handle, service->port, uats->protocol, tcp, TRUE);
+    if (!priv_key) {
+        report_failure("Can't load private key from %s\n", uats->keyfile);
+        return;
     }
 
-    fclose(fp);
+    key_id = (guchar *) g_malloc0(key_id_len);
+    ret = gnutls_x509_privkey_get_key_id(priv_key, 0, key_id, &key_id_len);
+    if (ret < 0) {
+        report_failure("Can't calculate public key ID for %s: %s",
+                uats->keyfile, gnutls_strerror(ret));
+        goto end;
+    }
+    ssl_print_data("KeyID", key_id, key_id_len);
+
+    private_key = ssl_privkey_to_sexp(priv_key);
+    if (!private_key) {
+        report_failure("Can't extract private key parameters for %s", uats->keyfile);
+        goto end;
+    }
+
+    g_hash_table_replace(key_hash, key_id, private_key);
+    key_id = NULL; /* used in key_hash, do not free. */
+    ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
+
+    {
+        /* Port to subprotocol mapping */
+        int port = atoi(uats->port); /* Also maps "start_tls" -> 0 (wildcard) */
+        ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
+            port, uats->keyfile, uats->password);
+        ssl_association_add(associations, handle, port, uats->protocol, tcp, TRUE);
+    }
+
+end:
+    gnutls_x509_privkey_deinit(priv_key);
+    g_free(key_id);
 }
 #else
 void
@@ -5657,7 +5562,8 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, packet_info *pinfo,
-                     const SslSession *session, gint is_from_server)
+                     const SslSession *session, SslDecryptSession *ssl _U_,
+                     GHashTable *key_hash _U_, gint is_from_server)
 {
     /* opaque ASN.1Cert<1..2^24-1>;
      *
@@ -5676,9 +5582,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
      */
     enum { CERT_X509, CERT_RPK } cert_type;
     asn1_ctx_t  asn1_ctx;
-
-    if (!tree)
-        return;
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+    gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
+#endif
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -5688,6 +5594,12 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     } else {
         cert_type = CERT_X509;
     }
+
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+    /* Ask the pkcs1 dissector to return the public key details */
+    if (ssl)
+        asn1_ctx.private_data = &subjectPublicKeyInfo;
+#endif
 
     switch (cert_type) {
     case CERT_RPK:
@@ -5734,6 +5646,10 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                     offset += 3;
 
                     dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+                    /* Only attempt to get the RSA modulus for the first cert. */
+                    asn1_ctx.private_data = NULL;
+#endif
 
                     offset += cert_length;
                 }
@@ -5741,6 +5657,11 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
             break;
         }
     }
+
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+    if (ssl)
+        ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
+#endif
 }
 
 void
