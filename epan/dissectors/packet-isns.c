@@ -795,27 +795,17 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_ind
 
 
 static void
-dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *tree, guint32 len)
+dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    guint32 node_type;
-    proto_item *item;
+    static const int * flags[] = {
+        &hf_isns_isnt_control,
+        &hf_isns_isnt_initiator,
+        &hf_isns_isnt_target,
+        NULL
+    };
 
-    node_type = tvb_get_ntohl(tvb, offset);
-
-    item = proto_tree_add_item(tree, hf_isns_iscsi_node_type, tvb, offset, len, ENC_BIG_ENDIAN);
-
-    proto_tree_add_boolean(tree, hf_isns_isnt_control, tvb, offset, 4, node_type);
-    if(node_type&0x00000004){
-        proto_item_append_text(item, " Control");
-    }
-    proto_tree_add_boolean(tree, hf_isns_isnt_initiator, tvb, offset, 4, node_type);
-    if(node_type&0x00000002){
-        proto_item_append_text(item, " Initiator");
-    }
-    proto_tree_add_boolean(tree, hf_isns_isnt_target, tvb, offset, 4, node_type);
-    if(node_type&0x00000001){
-        proto_item_append_text(item, " Target");
-    }
+    proto_tree_add_bitmask(tree, tvb, offset,
+            hf_isns_iscsi_node_type, ett_isns_attribute, flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -961,7 +951,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             break;
         case ISNS_ATTR_TAG_ISCSI_NODE_TYPE:
             ISNS_REQUIRE_ATTR_LEN(4);
-            dissect_isns_attr_iscsi_node_type(tvb, offset, attr_tree, len);
+            dissect_isns_attr_iscsi_node_type(tvb, offset, attr_tree);
             break;
         case ISNS_ATTR_TAG_ISCSI_ALIAS:
             proto_tree_add_item(attr_tree, hf_isns_iscsi_alias, tvb, offset, len, ENC_ASCII|ENC_NA);
