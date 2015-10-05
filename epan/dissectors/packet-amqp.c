@@ -8478,7 +8478,7 @@ dissect_amqp_0_9_method_channel_close(guint16 channel_num, tvbuff_t *tvb,
 
         conv = find_or_create_conversation(pinfo);
         conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
-        wmem_map_remove(conn->channels, GUINT_TO_POINTER(channel_num));
+        wmem_map_remove(conn->channels, GUINT_TO_POINTER((guint32)channel_num));
     }
 
     return offset;
@@ -10509,13 +10509,13 @@ get_conversation_channel(conversation_t *conv, guint16 channel_num)
     /* the amqp_conv structure was already created to record the AMQP version */
     conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
 
-    channel = (amqp_channel_t *)wmem_map_lookup(conn->channels, GUINT_TO_POINTER(channel_num));
+    channel = (amqp_channel_t *)wmem_map_lookup(conn->channels, GUINT_TO_POINTER((guint32)channel_num));
     if(channel == NULL)
     {
         channel = wmem_new0(wmem_file_scope(), amqp_channel_t);
         channel->conn = conn;
         channel->channel_num = channel_num;
-        wmem_map_insert(conn->channels, GUINT_TO_POINTER(channel_num), channel);
+        wmem_map_insert(conn->channels, GUINT_TO_POINTER((guint32)channel_num), channel);
     }
 
     return channel;
