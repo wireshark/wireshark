@@ -56,6 +56,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <wsutil/utf8_entities.h>
+
 #include "packet-dccp.h"
 
 /*
@@ -607,6 +609,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      advertised_dccp_header_len = 0;
     guint      options_len                = 0;
     e_dccphdr *dccph;
+    gchar     *src_port_str, *dst_port_str;
 
     dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
 
@@ -618,43 +621,33 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
-    dccp_tree = proto_item_add_subtree(dccp_item, ett_dccp);
-
     /* Extract generic header */
     dccph->sport = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint_format_value(dccp_tree, hf_dccp_srcport, tvb,
-                                     offset, 2, dccph->sport,
-                                     "%s (%u)",
-                                     dccp_port_to_display(wmem_packet_scope(), dccph->sport),
-                                     dccph->sport);
+    dccph->dport = tvb_get_ntohs(tvb, offset);
+
+    src_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->sport);
+    dst_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->dport);
+    col_add_lstr(pinfo->cinfo, COL_INFO,
+                 src_port_str,
+                " "UTF8_RIGHTWARDS_ARROW" ",
+                dst_port_str,
+                COL_ADD_LSTR_TERMINATOR);
+
+    dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
     if (dccp_summary_in_tree) {
-        proto_item_append_text(dccp_item, ", Src Port: %s (%u)",
-                               dccp_port_to_display(wmem_packet_scope(), dccph->sport), dccph->sport);
+        proto_item_append_text(dccp_item, ", Src Port: %s (%u), Dst Port: %s (%u)",
+                               src_port_str, dccph->sport,
+                               dst_port_str, dccph->dport);
     }
-    col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "%s ", dccp_port_to_display(wmem_packet_scope(), dccph->sport));
-    hidden_item =
-        proto_tree_add_uint(dccp_tree, hf_dccp_port, tvb, offset, 2,
-                            dccph->sport);
+    dccp_tree = proto_item_add_subtree(dccp_item, ett_dccp);
+
+    proto_tree_add_item(dccp_tree, hf_dccp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+    hidden_item = proto_tree_add_item(dccp_tree, hf_dccp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     offset += 2;
 
-    dccph->dport = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint_format_value(dccp_tree, hf_dccp_dstport, tvb,
-                                     offset, 2, dccph->dport,
-                                     "%s (%u)",
-                                     dccp_port_to_display(wmem_packet_scope(), dccph->dport),
-                                     dccph->dport);
-    if (dccp_summary_in_tree) {
-        proto_item_append_text(dccp_item, ", Dst Port: %s (%u)",
-                               dccp_port_to_display(wmem_packet_scope(), dccph->dport), dccph->dport);
-    }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " > %s",
-                    dccp_port_to_display(wmem_packet_scope(), dccph->dport));
-    hidden_item =
-        proto_tree_add_uint(dccp_tree, hf_dccp_port, tvb, offset, 2,
-                            dccph->dport);
+    proto_tree_add_item(dccp_tree, hf_dccp_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
+    hidden_item = proto_tree_add_item(dccp_tree, hf_dccp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     offset += 2;
 
@@ -1054,7 +1047,7 @@ proto_register_dccp(void)
             &hf_dccp_srcport,
             {
                 "Source Port", "dccp.srcport",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_PT_DCCP, NULL, 0x0,
                 NULL, HFILL
             }
         },
@@ -1062,7 +1055,7 @@ proto_register_dccp(void)
             &hf_dccp_dstport,
             {
                 "Destination Port", "dccp.dstport",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_PT_DCCP, NULL, 0x0,
                 NULL, HFILL
             }
         },
@@ -1070,7 +1063,7 @@ proto_register_dccp(void)
             &hf_dccp_port,
             {
                 "Source or Destination Port", "dccp.port",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_PT_DCCP, NULL, 0x0,
                 NULL, HFILL
             }
         },

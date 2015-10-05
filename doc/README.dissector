@@ -115,6 +115,10 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING,
                   BASE_EXT_STRING or BASE_VAL64_STRING
 
+                --For FT_UINT16:
+
+                  BASE_PT_UDP, BASE_PT_TCP, BASE_PT_DCCP or BASE_PT_SCTP
+
                 --For FT_ABSOLUTE_TIME:
 
                   ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
@@ -822,6 +826,11 @@ The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
 and the second argument is the value to be formatted.
 
 Both custom_fmt_func_t and custom_fmt_func_64_t are defined in epan/proto.h.
+
+For FT_UINT16 'display' can be used to select a transport layer protocol using one
+of BASE_PT_UDP, BASE_PT_TCP, BASE_PT_DCCP or BASE_PT_SCTP. If transport name
+resolution is enabled the port field label is displayed in decimal and as a well-known
+service name (if one is available).
 
 For FT_BOOLEAN fields that are also bitfields (i.e., 'bitmask' is non-zero),
 'display' is used specify a "field-width" (i.e., tell the proto_tree how

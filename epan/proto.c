@@ -5923,7 +5923,29 @@ static const value_string hf_display[] = {
 	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
 	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
 	{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
+	{ BASE_PT_UDP,			  "BASE_PT_UDP"			   },
+	{ BASE_PT_TCP,			  "BASE_PT_TCP"			   },
+	{ BASE_PT_DCCP,			  "BASE_PT_DCCP"		   },
+	{ BASE_PT_SCTP,			  "BASE_PT_SCTP"		   },
 	{ 0,				  NULL } };
+
+static inline port_type
+display_to_port_type(field_display_e e)
+{
+	switch (e) {
+	case BASE_PT_UDP:
+		return PT_UDP;
+	case BASE_PT_TCP:
+		return PT_TCP;
+	case BASE_PT_DCCP:
+		return PT_DCCP;
+	case BASE_PT_SCTP:
+		return PT_SCTP;
+	default:
+		break;
+	}
+	return PT_NONE;
+}
 
 /* temporary function containing assert part for easier profiling */
 static void
@@ -6062,6 +6084,26 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
+			if (IS_BASE_PORT(hfinfo->display)) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+				if (hfinfo->type != FT_UINT16) {
+					g_error("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT16, not %s\n",
+						hfinfo->name, hfinfo->abbrev,
+						tmp_str, ftype_name(hfinfo->type));
+				}
+				if (hfinfo->strings != NULL) {
+					g_error("Field '%s' (%s) is an %s (%s) but has a strings value\n",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+				}
+				if (hfinfo->bitmask != 0) {
+					g_error("Field '%s' (%s) is an %s (%s) but has a bitmask\n",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+				}
+				wmem_free(NULL, tmp_str);
+				break;
+			}
 			/*  Require integral types (other than frame number,
 			 *  which is always displayed in decimal) to have a
 			 *  number base.
@@ -6992,7 +7034,7 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 		fmtfunc(tmp, value);
 		label_fill(label_str, 0, hfinfo, tmp);
 	}
-    else if (hfinfo->strings && hfinfo->type != FT_FRAMENUM) { /* Add fill_label_framenum? */
+	else if (hfinfo->strings && hfinfo->type != FT_FRAMENUM) { /* Add fill_label_framenum? */
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
 		out = hfinfo_number_vals_format(hfinfo, buf, value);
@@ -7000,6 +7042,13 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 			label_fill(label_str, 0, hfinfo, val_str);
 		else
 			label_fill_descr(label_str, 0, hfinfo, val_str, out);
+	}
+	else if (IS_BASE_PORT(hfinfo->display)) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+
+		port_with_resolution_to_str_buf(tmp, sizeof(tmp),
+			display_to_port_type((field_display_e)hfinfo->display), value);
+		label_fill(label_str, 0, hfinfo, tmp);
 	}
 	else {
 		out = hfinfo_number_value_format(hfinfo, buf, value);
