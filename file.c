@@ -1395,7 +1395,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     case MERGE_ERR_CANT_OPEN_OUTFILE:
       cf_open_failure_alert_box(out_filename, err, err_info, TRUE,
                                 file_type);
-      ws_close(out_fd);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
@@ -1408,6 +1407,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   }
 
   g_free(err_info);
+  ws_close(out_fd);
 
   if (status != MERGE_OK) {
     /* Callers aren't expected to treat an error or an explicit abort
