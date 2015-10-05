@@ -3174,9 +3174,10 @@ void ReportOutput(struct lemon *lemp)
 PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
 {
   const char *pathlist;
-  char *pathbufptr;
-  char *pathbuf;
-  char *path,*cp;
+  char *pathbufptr = NULL;
+  char *pathbuf = NULL;
+  char *path = NULL;
+  char *cp;
   char c;
 
 #ifdef __WIN32__
@@ -3192,15 +3193,15 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
     *cp = c;
   }else{
     pathlist = getenv("PATH");
-    if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
+    if( pathlist==NULL ) pathlist = ".:/bin:/usr/bin";
     pathbuf = (char *) malloc( lemonStrlen(pathlist) + 1 );
+    pathbufptr = pathbuf;
     path = (char *)malloc( lemonStrlen(pathlist)+lemonStrlen(name)+2 );
-    if( (pathbuf != 0) && (path!=0) ){
-      pathbufptr = pathbuf;
+    if( (pathbuf != NULL) && (path!=NULL) ){
       lemon_strcpy(pathbuf, pathlist);
       while( *pathbuf ){
         cp = strchr(pathbuf,':');
-        if( cp==0 ) cp = &pathbuf[lemonStrlen(pathbuf)];
+        if( cp==NULL ) cp = &pathbuf[lemonStrlen(pathbuf)];
         c = *cp;
         *cp = 0;
         lemon_sprintf(path,"%s/%s",pathbuf,name);
@@ -3209,9 +3210,11 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
         else pathbuf = &cp[1];
         if( access(path,modemask)==0 ) break;
       }
-      free(pathbufptr);
     }
   }
+  if (pathbufptr)
+    free(pathbufptr);
+
   return path;
 }
 
