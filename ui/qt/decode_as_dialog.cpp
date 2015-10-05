@@ -74,7 +74,8 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui(new Ui::DecodeAsDialog),
     cap_file_(cf),
     table_names_combo_box_(NULL),
-    selector_combo_box_(NULL)
+    selector_combo_box_(NULL),
+    cur_proto_combo_box_(NULL)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS)));
@@ -268,7 +269,6 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
     selector_combo_box_->setEditable(true);
     selector_combo_box_->lineEdit()->setText(item->text(selector_col_));
 
-    connect(selector_combo_box_, SIGNAL(destroyed()), this, SLOT(selectorDestroyed()));
     connect(selector_combo_box_, SIGNAL(editTextChanged(QString)), this, SLOT(selectorEditTextChanged(QString)));
 
     ui->decodeAsTreeWidget->setItemWidget(item, selector_col_, selector_combo_box_);
@@ -278,14 +278,12 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
     ui->decodeAsTreeWidget->setItemWidget(item, proto_col_, cur_proto_combo_box_);
     connect(cur_proto_combo_box_, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(curProtoCurrentIndexChanged(const QString &)));
-    connect(cur_proto_combo_box_, SIGNAL(destroyed()), this, SLOT(curProtoDestroyed()));
 
     table_names_combo_box_->setCurrentIndex(table_names_combo_box_->findText(current_text));
     tableNamesCurrentIndexChanged(current_text);
 
     connect(table_names_combo_box_, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(tableNamesCurrentIndexChanged(const QString &)));
-    connect(table_names_combo_box_, SIGNAL(destroyed()), this, SLOT(tableNamesDestroyed()));
     table_names_combo_box_->setFocus();
 }
 
@@ -406,11 +404,6 @@ void DecodeAsDialog::on_copyToolButton_clicked()
     addRecord(true);
 }
 
-void DecodeAsDialog::tableNamesDestroyed()
-{
-    table_names_combo_box_ = NULL;
-}
-
 void DecodeAsDialog::decodeAddProtocol(const gchar *, const gchar *proto_name, gpointer value, gpointer user_data)
 {
     QSet<dissector_info_t *> *dissector_info_set = (QSet<dissector_info_t *> *)user_data;
@@ -495,11 +488,6 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
     cur_proto_combo_box_->setCurrentIndex(cur_proto_combo_box_->findText(current_text));
 }
 
-void DecodeAsDialog::selectorDestroyed()
-{
-    selector_combo_box_ = NULL;
-}
-
 void DecodeAsDialog::selectorEditTextChanged(const QString &text)
 {
     QTreeWidgetItem *item = ui->decodeAsTreeWidget->currentItem();
@@ -531,11 +519,6 @@ void DecodeAsDialog::curProtoCurrentIndexChanged(const QString &text)
     if (!item) return;
     item->setText(proto_col_, text);
     item->setData(proto_col_, Qt::UserRole, cur_proto_combo_box_->itemData(cur_proto_combo_box_->findText(text)));
-}
-
-void DecodeAsDialog::curProtoDestroyed()
-{
-    cur_proto_combo_box_ = NULL;
 }
 
 typedef QPair<const char *, guint32> UintPair;
