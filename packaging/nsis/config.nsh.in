@@ -16,10 +16,6 @@
 !define VERSION @VERSION@
 !define VERSION_MAJOR @VERSION_MAJOR@
 !define VERSION_MINOR @VERSION_MINOR@
-# CMake treats 0 as "false" and will undef zero values
-!ifndef VERSION_MINOR
-!define VERSION_MINOR 0
-!endif
 !define PRODUCT_VERSION @PRODUCT_VERSION@
 !define WTAP_VERSION @WTAP_VERSION@
 

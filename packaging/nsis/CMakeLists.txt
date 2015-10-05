@@ -130,6 +130,10 @@ endif()
 # have to figure out a clean way to pass in the variables above.
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/config.nsh.in" _config_nsh_contents)
 string(REPLACE "!define" "#cmakedefine" _config_nsh_contents "${_config_nsh_contents}")
+# If a value is 0, CMake undefs it. We can use "cmakedefine01 VAR" but we
+# that expects a single variable name, e.g. "VERSION_MINOR @VERSION_MINOR@"
+# results in "0 0".
+string(REPLACE "define VERSION_MINOR @VERSION_MINOR@" "define01 VERSION_MINOR" _config_nsh_contents "${_config_nsh_contents}")
 string(CONFIGURE "${_config_nsh_contents}" _config_nsh_contents)
 string(REPLACE "#define" "!define" _config_nsh_contents "${_config_nsh_contents}")
 string(REPLACE "#undef" "!undef" _config_nsh_contents "${_config_nsh_contents}")
