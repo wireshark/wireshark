@@ -598,7 +598,6 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree *dccp_options_tree = NULL;
     proto_item *dccp_item         = NULL;
     proto_item *hidden_item, *offset_item;
-
     vec_t      cksum_vec[4];
     guint32    phdr[2];
     guint16    computed_cksum;
@@ -609,35 +608,24 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      advertised_dccp_header_len = 0;
     guint      options_len                = 0;
     e_dccphdr *dccph;
-    gchar     *src_port_str, *dst_port_str;
 
     dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
-
-    SET_ADDRESS(&dccph->ip_src, pinfo->src.type, pinfo->src.len,
-                pinfo->src.data);
-    SET_ADDRESS(&dccph->ip_dst, pinfo->dst.type, pinfo->dst.len,
-                pinfo->dst.data);
+    dccph->sport = tvb_get_ntohs(tvb, offset);
+    dccph->dport = tvb_get_ntohs(tvb, offset + 2);
+    COPY_ADDRESS_SHALLOW(&dccph->ip_src, &pinfo->src);
+    COPY_ADDRESS_SHALLOW(&dccph->ip_dst, &pinfo->dst);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /* Extract generic header */
-    dccph->sport = tvb_get_ntohs(tvb, offset);
-    dccph->dport = tvb_get_ntohs(tvb, offset + 2);
-
-    src_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->sport);
-    dst_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->dport);
-    col_add_lstr(pinfo->cinfo, COL_INFO,
-                 src_port_str,
-                " "UTF8_RIGHTWARDS_ARROW" ",
-                dst_port_str,
-                COL_ADD_LSTR_TERMINATOR);
+    col_append_port(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->sport, NULL);
+    col_append_port(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->dport, UTF8_LONG_RIGHTWARDS_ARROW);
 
     dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
     if (dccp_summary_in_tree) {
-        proto_item_append_text(dccp_item, ", Src Port: %s (%u), Dst Port: %s (%u)",
-                               src_port_str, dccph->sport,
-                               dst_port_str, dccph->dport);
+        proto_item_append_text(dccp_item, ", Src Port: %s, Dst Port: %s",
+                               port_with_resolution_to_str(wmem_packet_scope(), PT_DCCP, dccph->sport),
+                               port_with_resolution_to_str(wmem_packet_scope(), PT_DCCP, dccph->dport));
     }
     dccp_tree = proto_item_add_subtree(dccp_item, ett_dccp);
 

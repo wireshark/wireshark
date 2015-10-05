@@ -410,12 +410,27 @@ col_append_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
 }
 
 void
-col_append_str_uint(column_info *cinfo, const gint col, const gchar *sep, const gchar *abbrev, guint32 val)
+col_append_str_uint(column_info *cinfo, const gint col, const gchar *abbrev, guint32 val, const gchar *sep)
 {
   char buf[16];
 
   guint32_to_str_buf(val, buf, sizeof(buf));
   col_append_lstr(cinfo, col, sep ? sep : "", abbrev, "=", buf, COL_ADD_LSTR_TERMINATOR);
+}
+
+void
+col_append_port(column_info *cinfo, const gint col, port_type typ, guint16 val, const gchar *sep)
+{
+  const char *str;
+  char buf[32];
+
+  if (gbl_resolv_flags.transport_name &&
+        (str = try_serv_name_lookup(typ, val)) != NULL) {
+    g_snprintf(buf, sizeof(buf), "%s(%u)", str, val);
+  } else {
+    g_snprintf(buf, sizeof(buf), "%u", val);
+  }
+  col_append_lstr(cinfo, col, sep ? sep : "", buf, COL_ADD_LSTR_TERMINATOR);
 }
 
 static void

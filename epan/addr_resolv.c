@@ -167,14 +167,6 @@ typedef struct {
 } subnet_length_entry_t;
 
 
-#if 0
-typedef struct serv_port {
-    gchar            *udp_name;
-    gchar            *tcp_name;
-    gchar            *sctp_name;
-    gchar            *dccp_name;
-} serv_port_t;
-#endif
 /* hash table used for IPX network lookup */
 
 /* XXX - check goodness of hash function */
@@ -620,77 +612,63 @@ wmem_utoa(wmem_allocator_t *allocator, guint port)
     return bp;
 }
 
-
 static const gchar *
-serv_name_lookup(const guint port, const port_type proto)
+_serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
 {
     serv_port_t *serv_port_table;
-    gchar *name;
 
     serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
 
-    if (serv_port_table) {
-        /* Set which table we should look up port in */
-        switch(proto) {
-            case PT_UDP:
-                if (serv_port_table->udp_name) {
-                    return serv_port_table->udp_name;
-                }
-                break;
-            case PT_TCP:
-                if (serv_port_table->tcp_name) {
-                    return serv_port_table->tcp_name;
-                }
-                break;
-            case PT_SCTP:
-                if (serv_port_table->sctp_name) {
-                    return serv_port_table->sctp_name;
-                }
-                break;
-            case PT_DCCP:
-                if (serv_port_table->dccp_name) {
-                    return serv_port_table->dccp_name;
-                }
-                break;
-            default:
-                /* not yet implemented */
-                return NULL;
-                /*NOTREACHED*/
-        } /* proto */
-    }
+    if (value_ret != NULL)
+        *value_ret = serv_port_table;
 
-    /* Use numerical port string */
-    name = (gchar*)g_malloc(16);
-    guint32_to_str_buf(port, name, 16);
+    if (serv_port_table == NULL)
+        return NULL;
+
+    switch (proto) {
+        case PT_UDP:
+            return serv_port_table->udp_name;
+        case PT_TCP:
+            return serv_port_table->tcp_name;
+        case PT_SCTP:
+            return serv_port_table->sctp_name;
+        case PT_DCCP:
+            return serv_port_table->dccp_name;
+        default:
+            break;
+    }
+    return NULL;
+}
+
+const gchar *
+try_serv_name_lookup(port_type proto, guint port)
+{
+    return _serv_name_lookup(proto, port, NULL);
+}
+
+const gchar *
+serv_name_lookup(port_type proto, guint port)
+{
+    serv_port_t *serv_port_table = NULL;
+    const char *name;
+    guint *key;
+
+    name = _serv_name_lookup(proto, port, &serv_port_table);
+    if (name != NULL)
+        return name;
 
     if (serv_port_table == NULL) {
-        int *key;
-
-        key = (int *)g_new(int, 1);
+        key = (guint *)g_new(guint, 1);
         *key = port;
-        serv_port_table = g_new0(serv_port_t,1);
+        serv_port_table = g_new0(serv_port_t, 1);
         g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
     }
-    switch(proto) {
-        case PT_UDP:
-            serv_port_table->udp_name = name;
-            break;
-        case PT_TCP:
-            serv_port_table->tcp_name = name;
-            break;
-        case PT_SCTP:
-            serv_port_table->sctp_name = name;
-            break;
-        case PT_DCCP:
-            serv_port_table->dccp_name = name;
-            break;
-        default:
-            return NULL;
-            /*NOTREACHED*/
+    if (serv_port_table->numeric == NULL) {
+        serv_port_table->numeric = g_strdup_printf("%u", port);
     }
-    return name;
 
-} /* serv_name_lookup */
+    return serv_port_table->numeric;
+}
 
 static void
 destroy_serv_port(gpointer data)
@@ -700,6 +678,7 @@ destroy_serv_port(gpointer data)
     g_free(table->tcp_name);
     g_free(table->sctp_name);
     g_free(table->dccp_name);
+    g_free(table->numeric);
     g_free(table);
 }
 
@@ -2958,7 +2937,7 @@ udp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return wmem_strdup(allocator, serv_name_lookup(port, PT_UDP));
+    return wmem_strdup(allocator, serv_name_lookup(PT_UDP, port));
 
 } /* udp_port_to_display */
 
@@ -2970,7 +2949,7 @@ dccp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return wmem_strdup(allocator, serv_name_lookup(port, PT_DCCP));
+    return wmem_strdup(allocator, serv_name_lookup(PT_DCCP, port));
 
 } /* dccp_port_to_display */
 
@@ -2982,7 +2961,7 @@ tcp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return wmem_strdup(allocator, serv_name_lookup(port, PT_TCP));
+    return wmem_strdup(allocator, serv_name_lookup(PT_TCP, port));
 
 } /* tcp_port_to_display */
 
@@ -2994,22 +2973,36 @@ sctp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return wmem_strdup(allocator, serv_name_lookup(port, PT_SCTP));
+    return wmem_strdup(allocator, serv_name_lookup(PT_SCTP, port));
 
 } /* sctp_port_to_display */
 
-int
-port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type port_typ, guint16 port_num)
+gchar *
+port_with_resolution_to_str(wmem_allocator_t *scope, port_type proto, guint port)
 {
-    const gchar *port_res_str;
+    const gchar *port_str;
 
-    if (!gbl_resolv_flags.transport_name ||
-            (port_typ == PT_NONE) ||
-            ((port_res_str = serv_name_lookup(port_num, port_typ)) == NULL)) {
+    if (!gbl_resolv_flags.transport_name || (proto == PT_NONE)) {
         /* No name resolution support, just return port string */
-        return g_snprintf(buf, buf_size, "%u", port_num);
+        return wmem_strdup_printf(scope, "%u", port);
     }
-    return g_snprintf(buf, buf_size, "%s (%u)", port_res_str, port_num);
+    port_str = serv_name_lookup(proto, port);
+    g_assert(port_str);
+    return wmem_strdup_printf(scope, "%s (%u)", port_str, port);
+}
+
+int
+port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type proto, guint port)
+{
+    const gchar *port_str;
+
+    if (!gbl_resolv_flags.transport_name || (proto == PT_NONE)) {
+        /* No name resolution support, just return port string */
+        return g_snprintf(buf, buf_size, "%u", port);
+    }
+    port_str = serv_name_lookup(proto, port);
+    g_assert(port_str);
+    return g_snprintf(buf, buf_size, "%s (%u)", port_str, port);
 }
 
 gchar *

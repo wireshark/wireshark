@@ -39,6 +39,7 @@
 #define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /*  8592 / 0x2190 */
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /*  8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /*  8596 / 0x2194 */
+#define UTF8_LONG_RIGHTWARDS_ARROW      "\xe2\x9f\xb6"      /* 10230 / 0x27f6 */
 
 #define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /*  8984 / 0x2318 */
 

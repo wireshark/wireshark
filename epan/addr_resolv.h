@@ -77,6 +77,7 @@ typedef struct serv_port {
   gchar            *tcp_name;
   gchar            *sctp_name;
   gchar            *dccp_name;
+  gchar            *numeric;
 } serv_port_t;
 
 /*
@@ -141,11 +142,30 @@ extern gchar *dccp_port_to_display(wmem_allocator_t *allocator, guint port);
 WS_DLL_PUBLIC gchar *sctp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
+ * serv_name_lookup() returns the well known service name string, or numeric
+ * representation if one doesn't exist.
+ */
+WS_DLL_PUBLIC const gchar *serv_name_lookup(port_type proto, guint port);
+
+/*
+ * try_serv_name_lookup() returns the well known service name string, or NULL if
+ * one doesn't exist.
+ */
+WS_DLL_PUBLIC const gchar *try_serv_name_lookup(port_type proto, guint port);
+
+/*
+ * port_with_resolution_to_str() prints the "<resolved> (<numerical>)" port
+ * string.
+ */
+WS_DLL_PUBLIC gchar *port_with_resolution_to_str(wmem_allocator_t *scope,
+                                        port_type proto, guint port);
+
+/*
  * port_with_resolution_to_str_buf() prints the "<resolved> (<numerical>)" port
  * string to 'buf'. Return value is the same as g_snprintf().
  */
 WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
-                                        port_type port_typ, guint16 port_num);
+                                        port_type proto, guint port);
 
 /*
  * Asynchronous host name lookup initialization, processing, and cleanup

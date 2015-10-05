@@ -688,35 +688,28 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   conversation_t *conv = NULL;
   struct udp_analysis *udpd = NULL;
   proto_tree *process_tree;
-  gchar      *src_port_str, *dst_port_str;
   gboolean    udp_jumbogram = FALSE;
 
-  udph = wmem_new(wmem_packet_scope(), e_udphdr);
+  udph = wmem_new0(wmem_packet_scope(), e_udphdr);
   udph->uh_sport = tvb_get_ntohs(tvb, offset);
   udph->uh_dport = tvb_get_ntohs(tvb, offset + 2);
-  udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset + 4);
-  udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
-  SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
-  SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+  COPY_ADDRESS_SHALLOW(&udph->ip_src, &pinfo->src);
+  COPY_ADDRESS_SHALLOW(&udph->ip_dst, &pinfo->dst);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  src_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_sport);
-  dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
-  col_add_lstr(pinfo->cinfo, COL_INFO,
-               src_port_str,
-               " "UTF8_RIGHTWARDS_ARROW" ",
-               dst_port_str,
-               COL_ADD_LSTR_TERMINATOR);
+  col_append_port(pinfo->cinfo, COL_INFO, PT_UDP, udph->uh_sport, NULL);
+  col_append_port(pinfo->cinfo, COL_INFO, PT_UDP, udph->uh_dport, UTF8_LONG_RIGHTWARDS_ARROW);
 
   reported_len = tvb_reported_length(tvb);
   len = tvb_captured_length(tvb);
 
   ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? hfi_udp : hfi_udplite, tvb, offset, 8, ENC_NA);
   if (udp_summary_in_tree) {
-    proto_item_append_text(ti, ", Src Port: %s (%u), Dst Port: %s (%u)",
-                           src_port_str, udph->uh_sport, dst_port_str, udph->uh_dport);
+    proto_item_append_text(ti, ", Src Port: %s, Dst Port: %s",
+                           port_with_resolution_to_str(wmem_packet_scope(), PT_UDP, udph->uh_sport),
+                           port_with_resolution_to_str(wmem_packet_scope(), PT_UDP, udph->uh_dport));
   }
   udp_tree = proto_item_add_subtree(ti, ett_udp);
   p_add_proto_data(pinfo->pool, pinfo, hfi_udp->id, pinfo->curr_layer_num, udp_tree);
@@ -742,6 +735,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                                  ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1);
   }
 
+  udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset + 4);
   if (ip_proto == IP_PROTO_UDP) {
     len_cov_item = proto_tree_add_item(udp_tree, &hfi_udp_length, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     if (udph->uh_ulen == 0 && pinfo->src.type == AT_IPv6) {
@@ -787,10 +781,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
   }
 
-  col_append_str_uint(pinfo->cinfo, COL_INFO, "  ", "Len", udph->uh_ulen - 8); /* Payload length */
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Len", udph->uh_ulen - 8, " "); /* Payload length */
   if (udp_jumbogram)
     col_append_str(pinfo->cinfo, COL_INFO, " [Jumbogram]");
 
+  udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if ((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) {

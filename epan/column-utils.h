@@ -273,11 +273,21 @@ WS_DLL_PUBLIC void	col_append_str(column_info *cinfo, const gint col, const gcha
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
- * @param sep an optional separator to prepend to abbrev
  * @param abbrev the string to append
  * @param val the value to append
+ * @param sep an optional separator to _prepend_ to abbrev
  */
-WS_DLL_PUBLIC void col_append_str_uint(column_info *cinfo, const gint col, const gchar *sep, const gchar *abbrev, guint32 val);
+WS_DLL_PUBLIC void col_append_str_uint(column_info *cinfo, const gint col, const gchar *abbrev, guint32 val, const gchar *sep);
+
+/** Append a transport port to a column element, the text will be copied.
+ *
+ * @param cinfo the current packet row
+ * @param col the column to use, e.g. COL_INFO
+ * @param typ the port type to resolve
+ * @param val the port value to append
+ * @param sep an optional separator to _prepend_ to the port string
+ */
+WS_DLL_PUBLIC void col_append_port(column_info *cinfo, const gint col, port_type typ, guint16 val, const gchar *sep);
 
 /* Append the given strings (terminated by COL_ADD_LSTR_TERMINATOR) to a column element,
  *
