@@ -113,7 +113,7 @@
          </property>
          <column>
           <property name="text">
-           <string notr="true">Named Pipe Path</string>
+           <string>Named Pipe Path</string>
           </property>
          </column>
         </widget>
@@ -177,7 +177,7 @@
          </property>
          <column>
           <property name="text">
-           <string notr="true">Show</string>
+           <string>Show</string>
           </property>
          </column>
          <column>

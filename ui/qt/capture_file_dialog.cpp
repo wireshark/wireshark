@@ -395,7 +395,7 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
      * Add an "All Capture Files" entry, with all the extensions we
      * know about.
      */
-    filter = "All Capture Files";
+    filter = tr("All Capture Files");
 
     /*
      * Construct its list of patterns from a list of all extensions

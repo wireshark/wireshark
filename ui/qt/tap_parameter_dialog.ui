@@ -21,7 +21,7 @@
      </property>
      <column>
       <property name="text">
-       <string notr="true">Item</string>
+       <string>Item</string>
       </property>
      </column>
     </widget>

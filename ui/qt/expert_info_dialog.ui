@@ -24,7 +24,7 @@
      </property>
      <column>
       <property name="text">
-       <string notr="true">Severity</string>
+       <string>Severity</string>
       </property>
      </column>
      <column>

@@ -191,7 +191,7 @@ void MainWelcome::appInitialized()
     // XXX Add a "check for updates" link?
     QString full_release = tr("You are running Wireshark ");
     full_release += get_ws_vcs_version_info();
-    full_release += ".";
+    full_release += tr(".");
 #ifdef HAVE_SOFTWARE_UPDATE
     if (prefs.gui_update_enabled) {
         full_release += tr(" You receive automatic updates.");
