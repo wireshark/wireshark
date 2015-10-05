@@ -52,7 +52,6 @@
 #include "packet-q931.h"
 #include "packet-ssl.h"
 
-
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"
 #define PFNAME "h225"
@@ -141,8 +140,10 @@ static gboolean h225_h245_in_tree = TRUE;
 static gboolean h225_tp_in_tree = TRUE;
 
 /* Global variables */
-static guint32  ipv4_address;
-static guint32  ipv4_port;
+static guint32 ipv4_address;
+static struct e_in6_addr ipv6_address;
+static struct e_in6_addr ipv6_address_zeros = {{0}};
+static guint32 ip_port;
 static gboolean contains_faststart = FALSE;
 static e_guid_t *call_id_guid;
 
@@ -247,7 +248,6 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 }
 
 #include "packet-h225-fn.c"
-
 
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);

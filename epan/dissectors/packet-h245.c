@@ -1414,8 +1414,8 @@ static int hf_h245_node = -1;                     /* OCTET_STRING_SIZE_6 */
 static int hf_h245_netnum = -1;                   /* OCTET_STRING_SIZE_4 */
 static int hf_h245_ipx_tsapIdentifier = -1;       /* OCTET_STRING_SIZE_2 */
 static int hf_h245_iP6Address = -1;               /* T_iP6Address */
-static int hf_h245_ip6_network = -1;              /* OCTET_STRING_SIZE_16 */
-static int hf_h245_ipv6_tsapIdentifier = -1;      /* INTEGER_0_65535 */
+static int hf_h245_ip6_network = -1;              /* T_ip6_network */
+static int hf_h245_ipv6_tsapIdentifier = -1;      /* T_ipv6_tsapIdentifier */
 static int hf_h245_netBios = -1;                  /* OCTET_STRING_SIZE_16 */
 static int hf_h245_iPSourceRouteAddress = -1;     /* T_iPSourceRouteAddress */
 static int hf_h245_routing = -1;                  /* T_routing */
@@ -2530,7 +2530,7 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 945 "../../asn1/h245/h245.cnf"
+#line 966 "../../asn1/h245/h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -2538,7 +2538,7 @@ dissect_h245_H221NonStandardID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 949 "../../asn1/h245/h245.cnf"
+#line 970 "../../asn1/h245/h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -2560,7 +2560,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 926 "../../asn1/h245/h245.cnf"
+#line 947 "../../asn1/h245/h245.cnf"
 	gint32 value;
 
 	nsiOID = "";
@@ -2589,7 +2589,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_T_nsd_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 960 "../../asn1/h245/h245.cnf"
+#line 981 "../../asn1/h245/h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2612,7 +2612,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 958 "../../asn1/h245/h245.cnf"
+#line 979 "../../asn1/h245/h245.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4257,7 +4257,7 @@ dissect_h245_T_payloadDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_rtpPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 911 "../../asn1/h245/h245.cnf"
+#line 932 "../../asn1/h245/h245.cnf"
   unsigned int pt;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -4281,7 +4281,7 @@ static const per_sequence_t RTPPayloadType_sequence[] = {
 
 static int
 dissect_h245_RTPPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 903 "../../asn1/h245/h245.cnf"
+#line 924 "../../asn1/h245/h245.cnf"
   rfc_number = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7268,7 +7268,7 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 986 "../../asn1/h245/h245.cnf"
+#line 1007 "../../asn1/h245/h245.cnf"
 gint choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -8103,9 +8103,48 @@ dissect_h245_T_iPXAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 866 "../../asn1/h245/h245.cnf"
+  tvbuff_t *value_tvb;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       16, 16, FALSE, &value_tvb);
+
+
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 16);
+    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_h245_T_ipv6_tsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 877 "../../asn1/h245/h245.cnf"
+  guint32 tsapIdentifier;
+
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, &tsapIdentifier, FALSE);
+
+
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    upcoming_channel->upcoming_addr->port = tsapIdentifier;
+  }
+
+
+  return offset;
+}
+
+
 static const per_sequence_t T_iP6Address_sequence[] = {
-  { &hf_h245_ip6_network    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_OCTET_STRING_SIZE_16 },
-  { &hf_h245_ipv6_tsapIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_INTEGER_0_65535 },
+  { &hf_h245_ip6_network    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_T_ip6_network },
+  { &hf_h245_ipv6_tsapIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_T_ipv6_tsapIdentifier },
   { NULL, 0, 0, NULL }
 };
 
@@ -8283,13 +8322,13 @@ dissect_h245_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 875 "../../asn1/h245/h245.cnf"
+#line 896 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 879 "../../asn1/h245/h245.cnf"
+#line 900 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -8300,13 +8339,13 @@ dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 893 "../../asn1/h245/h245.cnf"
+#line 914 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 897 "../../asn1/h245/h245.cnf"
+#line 918 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -10976,13 +11015,13 @@ dissect_h245_OLC_ack_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 866 "../../asn1/h245/h245.cnf"
+#line 887 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 870 "../../asn1/h245/h245.cnf"
+#line 891 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -10993,13 +11032,13 @@ dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 884 "../../asn1/h245/h245.cnf"
+#line 905 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 888 "../../asn1/h245/h245.cnf"
+#line 909 "../../asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -14235,7 +14274,7 @@ dissect_h245_FunctionNotSupportedCause(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 969 "../../asn1/h245/h245.cnf"
+#line 990 "../../asn1/h245/h245.cnf"
   tvbuff_t *next_tvb = NULL;
   proto_item *item;
   proto_tree *subtree;
@@ -18088,11 +18127,11 @@ void proto_register_h245(void) {
     { &hf_h245_ip6_network,
       { "network", "h245.network",
         FT_IPv6, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_16", HFILL }},
+        "T_ip6_network", HFILL }},
     { &hf_h245_ipv6_tsapIdentifier,
       { "tsapIdentifier", "h245.tsapIdentifier",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_65535", HFILL }},
+        "T_ipv6_tsapIdentifier", HFILL }},
     { &hf_h245_netBios,
       { "netBios", "h245.netBios",
         FT_BYTES, BASE_NONE, NULL, 0,

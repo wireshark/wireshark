@@ -862,6 +862,27 @@ if (h245_pi != NULL)
   }
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY UnicastAddress/iP6Address/network  VAL_PTR = &value_tvb
+  tvbuff_t *value_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 16);
+    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
+  }
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY UnicastAddress/iP6Address/tsapIdentifier  VAL_PTR = &tsapIdentifier
+  guint32 tsapIdentifier;
+
+%(DEFAULT_BODY)s
+
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    upcoming_channel->upcoming_addr->port = tsapIdentifier;
+  }
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelAckParameters/mediaChannel
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;

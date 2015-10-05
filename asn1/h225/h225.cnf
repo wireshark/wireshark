@@ -327,7 +327,18 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     ipv4_address = tvb_get_ipv4(value_tvb, 0);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H245TransportAddress/ipAddress/port  VAL_PTR = &ipv4_port
+#.FN_BODY H245TransportAddress/ip6Address/ip  VAL_PTR = &value_tvb
+  tvbuff_t *value_tvb;
+
+  ipv6_address = ipv6_address_zeros;
+%(DEFAULT_BODY)s
+  if (value_tvb)
+    tvb_get_ipv6(value_tvb, 0, &ipv6_address);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS H245TransportAddress/ipAddress/port  VAL_PTR = &ip_port
+#----------------------------------------------------------------------------------------
+#.FN_PARS H245TransportAddress/ip6Address/port  VAL_PTR = &ip_port
 #----------------------------------------------------------------------------------------
 #.FN_BODY ParallelH245Control/_item  VAL_PTR = &h245_tvb
   tvbuff_t *h245_tvb = NULL;
@@ -430,7 +441,8 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #----------------------------------------------------------------------------------------
 #.FN_HDR H245TransportAddress
   ipv4_address=0;
-  ipv4_port=0;
+  ipv6_address = ipv6_address_zeros;
+  ip_port=0;
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -438,21 +450,26 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   /* we need this info for TAPing */
   h225_pi->is_h245 = TRUE;
   h225_pi->h245_address = ipv4_address;
-  h225_pi->h245_port = ipv4_port;
+  h225_pi->h245_port = ip_port;
 
-  if((!actx->pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
+  if ( !actx->pinfo->fd->flags.visited && h245_handle && ip_port!=0 ) {
     address src_addr;
     conversation_t *conv=NULL;
 
-    SET_ADDRESS(&src_addr, AT_IPv4, 4, &ipv4_address);
+    if (ipv4_address!=0) {
+      SET_ADDRESS(&src_addr, AT_IPv4, 4, &ipv4_address);
+    } else if (memcmp(ipv6_address.bytes, ipv6_address_zeros.bytes, sizeof(ipv6_address.bytes))!=0) {
+      SET_ADDRESS(&src_addr, AT_IPv6, 16, ipv6_address.bytes);
+    } else {
+      return offset;
+    }
 
-    conv=find_conversation(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+    conv=find_conversation(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR_B|NO_PORT_B);
     if(!conv){
-      conv=conversation_new(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+      conv=conversation_new(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR2|NO_PORT2);
       conversation_set_dissector(conv, h245_handle);
     }
   }
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY FacilityReason  VAL_PTR = &value
