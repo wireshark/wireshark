@@ -1090,7 +1090,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         IPv6[2] = IPv6[2] ^ g_htonl(transaction_id[1]);
                         IPv6[3] = IPv6[3] ^ g_htonl(transaction_id[2]);
                         ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
-                                                 (const guint8 *)IPv6);
+                                                 (const struct e_in6_addr *)IPv6);
                         PROTO_ITEM_SET_GENERATED(ti);
                     }
 

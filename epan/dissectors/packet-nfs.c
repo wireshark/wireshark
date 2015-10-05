@@ -7389,7 +7389,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			ipv6.bytes[0] = b1; ipv6.bytes[1] = b2; ipv6.bytes[2] = b3; ipv6.bytes[3] = b4;
 			ipv6.bytes[4] = b5; ipv6.bytes[5] = b6; ipv6.bytes[6] = b7; ipv6.bytes[7] = b8;
 			SET_ADDRESS(&addr, AT_IPv6, 16, &ipv6);
-			ti = proto_tree_add_ipv6_format(tree, hf_nfs4_universal_address_ipv6, tvb, addr_offset, offset-addr_offset, ipv6.bytes, "IPv6 address %s, protocol=%s, port=%u",
+			ti = proto_tree_add_ipv6_format(tree, hf_nfs4_universal_address_ipv6, tvb, addr_offset, offset-addr_offset, &ipv6, "IPv6 address %s, protocol=%s, port=%u",
 				address_to_str(wmem_packet_scope(), &addr), protocol, port);
 			PROTO_ITEM_SET_GENERATED(ti);
 		} else {

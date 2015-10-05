@@ -3066,7 +3066,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, packet_info *pinfo, in
     }
     if (address_family == OSPF_AF_6) {
         proto_tree_add_ipv6(tree, hf_ospf_v3_address_prefix_ipv6, tvb, offset, bytes_to_process,
-                            prefix.bytes);
+                            &prefix);
     } else {
         proto_tree_add_item(tree, hf_ospf_v3_address_prefix_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     }

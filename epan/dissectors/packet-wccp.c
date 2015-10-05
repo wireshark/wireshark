@@ -679,7 +679,7 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
         /* IPv6 */
         /* special case: index 0 -> undefined IP */
         if (addr_index == 0) {
-          return proto_tree_add_ipv6(tree, hf_ipv6, tvb, offset, length, ipv6_zero.bytes);
+          return proto_tree_add_ipv6(tree, hf_ipv6, tvb, offset, length, &ipv6_zero);
         }
 
         /* are we be beyond the end of the table? */
@@ -690,7 +690,7 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
 
         /* ok get the IP */
         if (addr_table->table_ipv6 != NULL) {
-          return proto_tree_add_ipv6(tree, hf_ipv6, tvb, offset, length, addr_table->table_ipv6[addr_index-1].bytes);
+          return proto_tree_add_ipv6(tree, hf_ipv6, tvb, offset, length, &(addr_table->table_ipv6[addr_index-1]));
         }
 
         return proto_tree_add_uint_format_value(tree, hf_index, tvb, offset, length, host_addr,

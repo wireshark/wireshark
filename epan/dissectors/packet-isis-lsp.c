@@ -1458,7 +1458,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 
         SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
         proto_tree_add_ipv6_format_value(subtree, hf_isis_lsp_ipv6_reachability_ipv6_prefix, tvb, offset+6, byte_length,
-                             (guint8*)&prefix, "IPv6 prefix: %s/%u", address_to_str(wmem_packet_scope(), &prefix_addr), bit_length);
+                            &prefix, "IPv6 prefix: %s/%u", address_to_str(wmem_packet_scope(), &prefix_addr), bit_length);
 
         proto_tree_add_item(subtree, hf_isis_lsp_ipv6_reachability_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_ipv6_reachability_distribution, tvb, offset+4, 1, ENC_NA);

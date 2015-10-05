@@ -2922,7 +2922,7 @@ proto_tree_set_ipv4(field_info *fi, guint32 value)
 /* Add a FT_IPv6 to a proto_tree */
 proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		    gint length, const guint8* value_ptr)
+		    gint length, const struct e_in6_addr *value_ptr)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -2932,7 +2932,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_IPv6);
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_ipv6(PNODE_FINFO(pi), value_ptr);
+	proto_tree_set_ipv6(PNODE_FINFO(pi), value_ptr->bytes);
 
 	return pi;
 }
@@ -2940,7 +2940,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 proto_item *
 proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 gint start, gint length,
-				 const guint8* value_ptr,
+				 const struct e_in6_addr *value_ptr,
 				 const char *format, ...)
 {
 	proto_item	  *pi;
@@ -2958,7 +2958,8 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-			   gint start, gint length, const guint8* value_ptr,
+			   gint start, gint length,
+			   const struct e_in6_addr *value_ptr,
 			   const char *format, ...)
 {
 	proto_item	  *pi;

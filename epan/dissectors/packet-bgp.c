@@ -1859,8 +1859,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
             address_to_str(wmem_packet_scope(), &addr_str), plen);
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
-    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length,
-            addr.bytes);
+    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length, &addr);
     return(1 + length);
 }
 
@@ -1897,8 +1896,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
             address_to_str(wmem_packet_scope(), &addr_str), plen);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_len, tvb, offset + plength_place, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_offset, tvb, offset + poffset_place, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 2, length,
-            addr.bytes);
+    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 2, length, &addr);
     if (parent_item != NULL)
       proto_item_append_text(parent_item, " (%s/%u)",
                              address_to_str(wmem_packet_scope(), &addr_str), plen);
@@ -4307,7 +4305,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
                 proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
                                     start_offset + 1, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, ip6addr.bytes);
+                proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, &ip6addr);
 
                 total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
                 break;

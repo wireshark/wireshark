@@ -783,7 +783,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else if (eprt_af == EPRT_AF_IPv6) {
                 proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
-                        tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
+                        tvb, eprt_offset, eprt_ip_len, (const struct e_in6_addr *)eprt_ipv6);
                 SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16, eprt_ipv6);
             }
             eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
@@ -831,7 +831,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else if (ftp_ip_address.type == AT_IPv6) {
                     addr_it = proto_tree_add_ipv6(reqresp_tree,
                             hf_ftp_epsv_ipv6, tvb, 0, 0,
-                            (const guint8*)ftp_ip_address.data);
+                            (const struct e_in6_addr *)ftp_ip_address.data);
                     PROTO_ITEM_SET_GENERATED(addr_it);
                 }
 

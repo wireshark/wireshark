@@ -691,11 +691,11 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 2 + len,
-                        (guint8 *)&ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 2));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 2));
             }
             else
             {
-                ti = proto_tree_add_ipv6(tree, hf_ip6, tvb, offset, 2 + len, (guint8 *)&ipv6);
+                ti = proto_tree_add_ipv6(tree, hf_ip6, tvb, offset, 2 + len, &ipv6);
             }
             break;
         }
@@ -727,11 +727,11 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        (guint8 *)&ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
             }
             else
             {
-                ti = proto_tree_add_ipv6(tree, hf_ip6, tvb, offset, 4 + len, (guint8 *)&ipv6);
+                ti = proto_tree_add_ipv6(tree, hf_ip6, tvb, offset, 4 + len, &ipv6);
             }
             proto_item_append_text(ti, "/%u", mask_len);
             break;
@@ -765,11 +765,11 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        (guint8 *)&ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
             }
             else
             {
-                ti = proto_tree_add_ipv6_format_value(tree, hf_ip6, tvb, offset, 4 + len, (guint8 *)&ipv6,
+                ti = proto_tree_add_ipv6_format_value(tree, hf_ip6, tvb, offset, 4 + len, &ipv6,
                                                       "%s", tvb_ip6_to_str(tvb, offset + 4));
             }
             proto_item_append_text(ti, "/%u", mask_len);

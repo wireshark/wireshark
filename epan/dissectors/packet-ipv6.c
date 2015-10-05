@@ -966,7 +966,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                 tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)addr);
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 offset += (16-cmprI);
                 segments--;
@@ -1025,7 +1025,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                 tvb_memcpy(tvb, (guint8 *)addr + cmprE, offset, (16-cmprE));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)addr);
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 /* offset += (16-cmprE); */
 
@@ -2090,7 +2090,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             offset + IP6H_SRC, 16, ENC_NA);
         ti = proto_tree_add_ipv6(ipv6_tree, hf_ipv6_addr, tvb,
                                  offset + IP6H_SRC,
-                                 16, (guint8 *)&ipv6->ip6_src);
+                                 16, &ipv6->ip6_src);
         PROTO_ITEM_SET_HIDDEN(ti);
         name = address_to_display(wmem_packet_scope(), &pinfo->src);
         if (ipv6_summary_in_tree) {
@@ -2178,7 +2178,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             offset + IP6H_DST, 16, ENC_NA);
         ti = proto_tree_add_ipv6(ipv6_tree, hf_ipv6_addr, tvb,
                                  offset + IP6H_DST,
-                                 16, (guint8 *)&ipv6->ip6_dst);
+                                 16, &ipv6->ip6_dst);
         PROTO_ITEM_SET_HIDDEN(ti);
         name = address_to_display(wmem_packet_scope(), &pinfo->dst);
         if (ipv6_summary_in_tree) {

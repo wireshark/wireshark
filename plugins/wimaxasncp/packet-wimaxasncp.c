@@ -632,7 +632,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
 
     proto_tree_add_ipv6_format(
         tree, hf_value,
-        tvb, offset, 16, (guint8 *)&ip,
+        tvb, offset, 16, &ip,
         "Value: %s", addr_res);
 
     proto_item_append_text(
