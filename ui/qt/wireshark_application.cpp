@@ -482,7 +482,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     QApplication(argc, argv),
     initialized_(false),
     is_reloading_lua_(false),
-    active_captures_(0)
+    active_captures_(0),
+    if_notifier_(NULL)
 {
     wsApp = this;
     setApplicationName("Wireshark");
