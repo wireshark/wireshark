@@ -68,6 +68,7 @@ void SupportedProtocolsDialog::updateStatistics()
             .arg(locale.toString(ui->protoTreeWidget->topLevelItemCount()))
             .arg(locale.toString(field_count_));
     ui->hintLabel->setText(hint);
+    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
 }
 
 void SupportedProtocolsDialog::fillTree()
@@ -107,7 +108,7 @@ void SupportedProtocolsDialog::fillTree()
             field_list << field_ti;
 
             field_count_++;
-            if (field_count_ % 1000 == 0) updateStatistics();
+            if (field_count_ % 10000 == 0) updateStatistics();
         }
         std::sort(field_list.begin(), field_list.end());
         proto_ti->addChildren(field_list);
