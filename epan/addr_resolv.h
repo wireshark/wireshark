@@ -53,7 +53,7 @@ extern "C" {
 typedef struct _e_addr_resolve {
   gboolean mac_name;                          /**< Whether to resolve Ethernet MAC to manufacturer names */
   gboolean network_name;                      /**< Whether to resolve IPv4, IPv6, and IPX addresses into host names */
-  gboolean transport_name;                    /**< Whether to resolve TCP/UDP ports into service names */
+  gboolean transport_name;                    /**< Whether to resolve TCP/UDP/DCCP/SCTP ports into service names */
   gboolean concurrent_dns;                    /**< Whether to use concurrent DNS name resolution */
   gboolean dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
   gboolean use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
@@ -139,6 +139,13 @@ extern gchar *dccp_port_to_display(wmem_allocator_t *allocator, guint port);
  * or the port number as a string if not found.
  */
 WS_DLL_PUBLIC gchar *sctp_port_to_display(wmem_allocator_t *allocator, guint port);
+
+/*
+ * port_with_resolution_to_str_buf() prints the "<resolved> (<numerical>)" port
+ * string to 'buf'. Return value is the same as g_snprintf().
+ */
+WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
+                                        port_type port_typ, guint16 port_num);
 
 /*
  * Asynchronous host name lookup initialization, processing, and cleanup

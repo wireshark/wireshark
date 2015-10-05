@@ -497,9 +497,8 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 /* For integral types, the display format is a BASE_* field_display_e value
  * possibly ORed with BASE_*_STRING */
 
-/** FIELD_DISPLAY_E_MASK selects the field_display_e value.  Its current
- * value means that we may have at most 16 field_display_e values. */
-#define FIELD_DISPLAY_E_MASK 0x0F
+/** FIELD_DISPLAY_E_MASK selects the field_display_e value. */
+#define FIELD_DISPLAY_E_MASK 0xFF
 
 typedef enum {
 /* Integral types */
@@ -514,27 +513,35 @@ typedef enum {
 /* String types */
 	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
 	/* XXX, support for format_text_wsp() ? */
-	STR_UNICODE  = 7,         /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
+	STR_UNICODE  = 7,   /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
 
 /* Byte types */
-	SEP_DOT = 8,        /**< hexadecimal bytes with a period (.) between each byte */
-	SEP_DASH  = 9,      /**< hexadecimal bytes with a dash (-) between each byte */
-	SEP_COLON = 10,     /**< hexadecimal bytes with a colon (:) between each byte */
-	SEP_SPACE  = 11,     /**< hexadecimal bytes with a space between each byte */
+	SEP_DOT      = 8,   /**< hexadecimal bytes with a period (.) between each byte */
+	SEP_DASH     = 9,   /**< hexadecimal bytes with a dash (-) between each byte */
+	SEP_COLON    = 10,  /**< hexadecimal bytes with a colon (:) between each byte */
+	SEP_SPACE    = 11,  /**< hexadecimal bytes with a space between each byte */
 
 /* Address types */
-	BASE_NETMASK  = 12   /**< Used for IPv4 address that shouldn't be resolved (like for netmasks) */
+	BASE_NETMASK = 12,  /**< Used for IPv4 address that shouldn't be resolved (like for netmasks) */
 
+/* Port types */
+	BASE_PT_UDP  = 13,  /**< UDP port */
+	BASE_PT_TCP  = 14,  /**< TCP port */
+	BASE_PT_DCCP = 15,  /**< DCCP port */
+	BASE_PT_SCTP = 16,  /**< SCTP port */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
-#define BASE_RANGE_STRING 0x10
-#define BASE_EXT_STRING   0x20
-#define BASE_VAL64_STRING 0x40
+#define BASE_RANGE_STRING 0x100
+#define BASE_EXT_STRING   0x200
+#define BASE_VAL64_STRING 0x400
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
+
+/** BASE_PT_ values display decimal and transport port service name */
+#define IS_BASE_PORT(b) (((b)==BASE_PT_UDP||(b)==BASE_PT_TCP||(b)==BASE_PT_DCCP||(b)==BASE_PT_SCTP))
 
 /* For FT_ABSOLUTE_TIME, the display format is an absolute_time_display_e
  * as per time_fmt.h. */
@@ -554,7 +561,7 @@ struct _header_field_info {
 	const char		*name;           /**< [FIELDNAME] full name of this field */
 	const char		*abbrev;         /**< [FIELDABBREV] abbreviated name of this field */
 	enum ftenum		 type;           /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
-	int			     display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
+	int			 display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
 	const void		*strings;        /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the

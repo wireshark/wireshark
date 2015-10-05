@@ -621,8 +621,8 @@ wmem_utoa(wmem_allocator_t *allocator, guint port)
 }
 
 
-static gchar
-*serv_name_lookup(const guint port, const port_type proto)
+static const gchar *
+serv_name_lookup(const guint port, const port_type proto)
 {
     serv_port_t *serv_port_table;
     gchar *name;
@@ -659,10 +659,7 @@ static gchar
         } /* proto */
     }
 
-    /* getservbyport() was used here but it was to expensive, if the functionality is desired
-     * it would be better to pre parse etc/services or C:\Windows\System32\drivers\etc at
-     * startup
-     */
+    /* Use numerical port string */
     name = (gchar*)g_malloc(16);
     guint32_to_str_buf(port, name, 16);
 
@@ -3000,6 +2997,20 @@ sctp_port_to_display(wmem_allocator_t *allocator, guint port)
     return wmem_strdup(allocator, serv_name_lookup(port, PT_SCTP));
 
 } /* sctp_port_to_display */
+
+int
+port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type port_typ, guint16 port_num)
+{
+    const gchar *port_res_str;
+
+    if (!gbl_resolv_flags.transport_name ||
+            (port_typ == PT_NONE) ||
+            ((port_res_str = serv_name_lookup(port_num, port_typ)) == NULL)) {
+        /* No name resolution support, just return port string */
+        return g_snprintf(buf, buf_size, "%u", port_num);
+    }
+    return g_snprintf(buf, buf_size, "%s (%u)", port_res_str, port_num);
+}
 
 gchar *
 get_ether_name(const guint8 *addr)

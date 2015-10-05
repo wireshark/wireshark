@@ -4388,13 +4388,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
         p_add_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num, tcp_tree);
 
-        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
-                                   "%s (%u)", src_port_str, tcph->th_sport);
-        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
-                                   "%s (%u)", dst_port_str, tcph->th_dport);
-        hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
+        proto_tree_add_item(tcp_tree, hf_tcp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        hidden_item = proto_tree_add_item(tcp_tree, hf_tcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
+        hidden_item = proto_tree_add_item(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /*  If we're dissecting the headers of a TCP packet in an ICMP packet
@@ -5122,20 +5120,18 @@ tcp_cleanup(void)
 void
 proto_register_tcp(void)
 {
-    static value_string tcp_ports[65536+1];
-
     static hf_register_info hf[] = {
 
         { &hf_tcp_srcport,
-        { "Source Port",        "tcp.srcport", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
+        { "Source Port",        "tcp.srcport", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_dstport,
-        { "Destination Port",       "tcp.dstport", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
+        { "Destination Port",       "tcp.dstport", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_port,
-        { "Source or Destination Port", "tcp.port", FT_UINT16, BASE_DEC, VALS(tcp_ports), 0x0,
+        { "Source or Destination Port", "tcp.port", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_stream,
@@ -5977,28 +5973,6 @@ proto_register_tcp(void)
 
     module_t *tcp_module;
     expert_module_t* expert_tcp;
-
-    {
-        int i, j;
-        gboolean transport_name_old = gbl_resolv_flags.transport_name;
-
-        gbl_resolv_flags.transport_name = TRUE;
-        for (i = 0, j = 0; i <= 65535; i++) {
-            const char *serv = tcp_port_to_display(wmem_epan_scope(), i);
-
-            if (serv) {
-                value_string *p = &tcp_ports[j++];
-
-                p->value = i;
-                p->strptr = serv;
-            }
-        }
-        /* NULL terminate */
-        tcp_ports[j].value = 0;
-        tcp_ports[j].strptr = NULL;
-
-        gbl_resolv_flags.transport_name = transport_name_old;
-    }
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
     register_dissector("tcp", dissect_tcp, proto_tcp);
