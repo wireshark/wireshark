@@ -17,7 +17,7 @@ used for troubleshooting, analysis, development and education.
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
-//* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
+//* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
 === New and Updated Features
 
