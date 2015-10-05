@@ -82,12 +82,9 @@ private slots:
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
 
-    void tableNamesDestroyed();
     void tableNamesCurrentIndexChanged(const QString & text);
-    void selectorDestroyed();
     void selectorEditTextChanged(const QString & text);
     void curProtoCurrentIndexChanged(const QString & text);
-    void curProtoDestroyed();
     void applyChanges();
     void on_buttonBox_clicked(QAbstractButton *button);
 };
