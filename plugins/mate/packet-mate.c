@@ -52,7 +52,9 @@ static const gchar* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
-static void pdu_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_pdu* pdu) {
+static void
+pdu_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_pdu* pdu)
+{
 	AVPN* c;
 	proto_tree *avpl_t;
 	int* hfi_p;
@@ -70,7 +72,9 @@ static void pdu_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, 
 	}
 }
 
-static void gop_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop) {
+static void
+gop_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop)
+{
 	AVPN* c;
 	proto_tree *avpl_t;
 	int* hfi_p;
@@ -88,7 +92,9 @@ static void gop_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, 
 	}
 }
 
-static void gog_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog) {
+static void
+gog_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog)
+{
 	AVPN* c;
 	proto_tree *avpl_t;
 	int* hfi_p;
@@ -108,7 +114,9 @@ static void gog_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, 
 
 static void mate_gop_tree(proto_tree* pdu_tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop);
 
-static void mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
+static void
+mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop)
+{
 	proto_item *gog_item;
 	proto_tree *gog_tree;
 	proto_tree *gog_time_tree;
@@ -131,8 +139,7 @@ static void mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, m
 		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time);
 	}
 
-	gog_gops_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops,
-									   tvb, 0, 0, gog->num_of_gops);
+	gog_gops_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops, tvb, 0, 0, gog->num_of_gops);
 
 	gog_gops_tree = proto_item_add_subtree(gog_gops_item, gog->cfg->ett_children);
 
@@ -150,11 +157,11 @@ static void mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, m
 					proto_tree_add_float(gog_gop_tree, hf_mate_started_at, tvb,0,0,gog_gops->start_time);
 
 					proto_tree_add_float_format(gog_gop_tree, hf_mate_duration, tvb,0,0, gog_gops->last_time - gog_gops->start_time,
-										"%s Duration: %f", gog_gops->cfg->name, gog_gops->last_time - gog_gops->start_time);
+								    "%s Duration: %f", gog_gops->cfg->name, gog_gops->last_time - gog_gops->start_time);
 
 					if (gog_gops->released)
 						proto_tree_add_float_format(gog_gop_tree, hf_mate_released_time, tvb,0,0, gog_gops->release_time - gog_gops->start_time,
-											"%s has been released, Time: %f", gog_gops->cfg->name, gog_gops->release_time - gog_gops->start_time);
+									    "%s has been released, Time: %f", gog_gops->cfg->name, gog_gops->release_time - gog_gops->start_time);
 
 					proto_tree_add_uint(gog_gop_tree, hf_mate_number_of_pdus, tvb,0,0, gog_gops->num_of_pdus);
 
@@ -177,7 +184,9 @@ static void mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, m
 	}
 }
 
-static void mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop) {
+static void
+mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop)
+{
 	proto_item *gop_item;
 	proto_tree *gop_time_tree;
 	proto_tree *gop_tree;
@@ -237,9 +246,9 @@ static void mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, m
 			pdu_rel_time = gop_pdus->time_in_gop != 0.0 ? gop_pdus->time_in_gop - rel_time : (float) 0.0;
 
 			proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,tvb,0,0,pdu_item,
-									   "%sPDU: %s %i (%f : %f)",pdu_str, type_str,
-									   pdu_item, gop_pdus->time_in_gop,
-									   pdu_rel_time);
+						   "%sPDU: %s %i (%f : %f)",pdu_str, type_str,
+						   pdu_item, gop_pdus->time_in_gop,
+						   pdu_rel_time);
 
 			rel_time = gop_pdus->time_in_gop;
 
@@ -248,7 +257,9 @@ static void mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, m
 }
 
 
-static void mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_tree* tree) {
+static void
+mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_tree* tree)
+{
 	proto_item *pdu_item;
 	proto_tree *pdu_tree;
 
@@ -256,13 +267,13 @@ static void mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, prot
 
 	if (pdu->gop && pdu->gop->gog) {
 		proto_item_append_text(mate_i," %s:%d->%s:%d->%s:%d",
-							   pdu->cfg->name,pdu->id,
-							   pdu->gop->cfg->name,pdu->gop->id,
-							   pdu->gop->gog->cfg->name,pdu->gop->gog->id);
+				       pdu->cfg->name,pdu->id,
+				       pdu->gop->cfg->name,pdu->gop->id,
+				       pdu->gop->gog->cfg->name,pdu->gop->gog->id);
 	} else if (pdu->gop) {
 		proto_item_append_text(mate_i," %s:%d->%s:%d",
-							   pdu->cfg->name,pdu->id,
-							   pdu->gop->cfg->name,pdu->gop->id);
+				       pdu->cfg->name,pdu->id,
+				       pdu->gop->cfg->name,pdu->gop->id);
 	} else {
 		proto_item_append_text(mate_i," %s:%d",pdu->cfg->name,pdu->id);
 	}
@@ -284,7 +295,9 @@ static void mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, prot
 	}
 }
 
-static void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void
+mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	mate_pdu* pdus;
 	proto_tree *mate_t;
 
@@ -301,7 +314,9 @@ static void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 }
 
-static int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_) {
+static int
+mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_)
+{
 	/* nothing to do yet */
 	return 0;
 }
@@ -315,8 +330,8 @@ proto_reg_handoff_mate(void)
 	if ( *pref_mate_config_filename != '\0' ) {
 
 		if (current_mate_config_filename) {
-			report_failure("Mate cannot reconfigure itself.\n"
-						   "for changes to be applied you have to restart wireshark\n");
+			report_failure("MATE cannot reconfigure itself.\n"
+				       "For changes to be applied you have to restart Wireshark\n");
 			return;
 		}
 
