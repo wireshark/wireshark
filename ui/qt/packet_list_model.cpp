@@ -519,8 +519,6 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     default:
         return QVariant();
     }
-
-    return QVariant();
 }
 
 QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
