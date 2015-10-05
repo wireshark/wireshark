@@ -51,6 +51,7 @@ typedef struct _sctp_fragment {
   guint32 frame_num;
   guint32 tsn;
   guint32 len;
+  guint32 ppi;
   unsigned char *data;
   struct _sctp_fragment *next;
 } sctp_fragment;
@@ -74,6 +75,7 @@ typedef struct _sctp_frag_msg {
   sctp_frag_be* ends;
   sctp_fragment* fragments;
   sctp_complete_msg* messages;
+  guint32 ppi;
   struct _sctp_frag_msg* next;
 } sctp_frag_msg;
 

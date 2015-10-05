@@ -56,6 +56,7 @@ extern "C" {
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
 #define SCTP_AUTH_CHUNK_ID		15
 #define SCTP_NR_SACK_CHUNK_ID		16
+#define SCTP_I_DATA_CHUNK_ID          0x40
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID	      0x81
 #define SCTP_RE_CONFIG_CHUNK_ID	      0x82
@@ -65,7 +66,7 @@ extern "C" {
 #define SCTP_IETF_EXT		      0xFF
 
 #define IS_SCTP_CHUNK_TYPE(t) \
-	(((t) <= 16) || ((t) == 0xC0) || ((t) == 0xC1) || ((t) == 0x80) || ((t) == 0x81))
+	(((t) <= 16) || ((t) == 0x40) || ((t) == 0xC0) || ((t) == 0xC1) || ((t) == 0x80) || ((t) == 0x81))
 
 #define CHUNK_TYPE_LENGTH	      1
 #define CHUNK_FLAGS_LENGTH	      1
@@ -99,11 +100,31 @@ extern "C" {
 #define DATA_CHUNK_STREAM_ID_LENGTH   2
 #define DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH 2
 #define DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH 4
+#define I_DATA_CHUNK_RESERVED_LENGTH 2
+#define I_DATA_CHUNK_MID_LENGTH 4
+#define I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH 4
+#define I_DATA_CHUNK_FSN_LENGTH 4
+#define I_DATA_CHUNK_RESERVED_OFFSET  (DATA_CHUNK_STREAM_ID_OFFSET + \
+                                       DATA_CHUNK_STREAM_ID_LENGTH)
+#define I_DATA_CHUNK_MID_OFFSET       (I_DATA_CHUNK_RESERVED_OFFSET + \
+                                       I_DATA_CHUNK_RESERVED_LENGTH)
+#define I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET (I_DATA_CHUNK_MID_OFFSET + \
+                                                 I_DATA_CHUNK_MID_LENGTH)
+#define I_DATA_CHUNK_FSN_OFFSET       (I_DATA_CHUNK_MID_OFFSET + \
+                                       I_DATA_CHUNK_MID_LENGTH)
+#define I_DATA_CHUNK_PAYLOAD_OFFSET   (I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET + \
+                                       I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 #define DATA_CHUNK_HEADER_LENGTH      (CHUNK_HEADER_LENGTH + \
 				       DATA_CHUNK_TSN_LENGTH + \
 				       DATA_CHUNK_STREAM_ID_LENGTH + \
 				       DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH + \
 				       DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
+#define I_DATA_CHUNK_HEADER_LENGTH    (CHUNK_HEADER_LENGTH + \
+                                       DATA_CHUNK_TSN_LENGTH + \
+                                       DATA_CHUNK_STREAM_ID_LENGTH + \
+                                       I_DATA_CHUNK_RESERVED_LENGTH + \
+                                       I_DATA_CHUNK_MID_LENGTH +\
+                                       I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 #define MAX_ADDRESS_LEN		       47
 
 #define SCTP_ABORT_CHUNK_T_BIT	      0x01
@@ -159,7 +180,8 @@ static const value_string chunk_type_values[] = {
 	{ SCTP_CWR_CHUNK_ID,		   "CWR" },
 	{ SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
 	{ SCTP_AUTH_CHUNK_ID,		   "AUTH" },
-	{ SCTP_NR_SACK_CHUNK_ID,	   "NR-SACK" },
+	{ SCTP_NR_SACK_CHUNK_ID,	   "NR_SACK" },
+	{ SCTP_I_DATA_CHUNK_ID,            "I_DATA" },
 	{ SCTP_ASCONF_ACK_CHUNK_ID,	   "ASCONF_ACK" },
 	{ SCTP_PKTDROP_CHUNK_ID,	   "PKTDROP" },
 	{ SCTP_RE_CONFIG_CHUNK_ID,	   "RE_CONFIG" },

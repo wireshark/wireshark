@@ -569,7 +569,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 		while (tlist)
 		{
 			type = ((struct chunk_header *)tlist->data)->type;
-			if (type == SCTP_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID)
+			if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID)
 				tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
 			if (tsnumber >= min_tsn && tsnumber <= max_tsn && tsn->secs >= min_secs)
 			{
@@ -589,7 +589,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 #else
 					cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-					if (type == SCTP_DATA_CHUNK_ID)
+					if ((type == SCTP_DATA_CHUNK_ID) || (type == SCTP_I_DATA_CHUNK_ID))
 						gdk_cairo_set_source_rgba (cr, &black_color);
 					else
 						gdk_cairo_set_source_rgba (cr, &pink_color);
