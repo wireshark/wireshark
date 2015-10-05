@@ -784,8 +784,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else if (eprt_af == EPRT_AF_IPv6) {
                 proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
                         tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
-                SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
-                        (const guint8 *)&eprt_ipv6);
+                SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16, eprt_ipv6);
             }
             eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
 
