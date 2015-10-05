@@ -510,7 +510,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 		memset(&value.bytes, 0, sizeof(value));
 		tvb_memcpy(tvb, (guint8 *)&value.bytes, 2, prefix_len_bytes);
 		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
-		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, value.bytes);
+		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, &value);
 		SET_ADDRESS(&addr, AT_IPv6, 16, value.bytes);
 		diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u", address_to_str(wmem_packet_scope(), &addr), prefix_len);
 	}

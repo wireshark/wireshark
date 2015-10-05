@@ -309,7 +309,7 @@ void
 isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
     int offset, int length, int tree_id)
 {
-    guint8 addr [16];
+    struct e_in6_addr addr;
 
     if ( length <= 0 ) {
         return;
@@ -321,9 +321,9 @@ isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, e
                 "Short IPv6 interface address (%d vs 16)",length );
             return;
         }
-        tvb_memcpy(tvb, addr, offset, sizeof(addr));
+        tvb_get_ipv6(tvb, offset, &addr);
         if ( tree ) {
-            proto_tree_add_ipv6(tree, tree_id, tvb, offset, 16, addr);
+            proto_tree_add_ipv6(tree, tree_id, tvb, offset, 16, &addr);
         }
         offset += 16;
         length -= 16;

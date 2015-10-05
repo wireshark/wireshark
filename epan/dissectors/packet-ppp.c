@@ -3598,7 +3598,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         SET_ADDRESS(&addr, AT_IPv6, 16, ad->bytes);
-        proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad->bytes,
+        proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad,
             "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
             address_to_str(wmem_packet_scope(), &addr));
         break;
@@ -3611,7 +3611,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         SET_ADDRESS(&addr, AT_IPv6, 16, ad->bytes);
-        proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad->bytes,
+        proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad,
             "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
             address_to_str(wmem_packet_scope(), &addr));
         proto_tree_add_ipv4_format(field_tree, hf_vsncp_pdn_ipv4, tvb, offset + 11, length - 11,

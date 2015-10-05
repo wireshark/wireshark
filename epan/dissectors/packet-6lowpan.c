@@ -1214,7 +1214,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     /* Display the source address. */
     if (tree) {
         proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset>>3,
-                BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), (guint8 *)&ipv6.ip6_src);
+                BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6_src);
     }
     /*
      * Do not set the address columns until after defragmentation, since we have
@@ -1246,7 +1246,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     /* Display the destination address. */
     if (tree) {
         proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset>>3,
-                BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), (guint8 *)&ipv6.ip6_dst);
+                BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), &ipv6.ip6_dst);
     }
     /*
      * Do not set the address columns until after defragmentation, since we have
@@ -1662,13 +1662,13 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
 
     /* Display the source IPv6 address. */
     if (tree) {
-        proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, (guint8 *)&ipv6.ip6_src);
+        proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6_src);
     }
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (tree && sctx->plen) {
         proto_item *ti;
-        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, (guint8 *)&sctx->prefix);
+        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, &sctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( sctx->frame ) {
             ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_sctx_origin, tvb, 0, 0, sctx->frame);
@@ -1789,13 +1789,13 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
 
     /* Display the destination IPv6 address. */
     if (tree) {
-        proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, (guint8 *)&ipv6.ip6_dst);
+        proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6_dst);
     }
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (tree && dctx->plen) {
         proto_item *ti;
-        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, (guint8 *)&dctx->prefix);
+        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, &dctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( dctx->frame ) {
             ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_dctx_origin, tvb, 0, 0, dctx->frame);

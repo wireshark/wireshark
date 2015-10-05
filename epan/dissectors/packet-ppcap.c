@@ -312,7 +312,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		{
 			struct e_in6_addr value;
 			tvb_get_ipv6(tvb, offset, &value);
-			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, (guint8*)&value);
+			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, &value);
 			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset, 6);
 			COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 		}
@@ -405,7 +405,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 			struct e_in6_addr value;
 
 			tvb_get_ipv6(tvb, offset,&value);
-			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, (guint8*)&value);
+			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, &value);
 			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset, 6);
 			COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 		}

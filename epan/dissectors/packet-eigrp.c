@@ -1179,7 +1179,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             }
 
             SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
-            ti_dst = proto_tree_add_ipv6(tree, hf_eigrp_ipv6_destination, tvb, offset, addr_len, addr.bytes);
+            ti_dst = proto_tree_add_ipv6(tree, hf_eigrp_ipv6_destination, tvb, offset, addr_len, &addr);
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',

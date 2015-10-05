@@ -4015,7 +4015,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (tree) {
                 proto_tree_add_ipv6 (addr_tree,
                     hf_address_ipv6_addr,
-                    tvb, offset, 16, (guint8 *)&address_ipv6);
+                    tvb, offset, 16, &address_ipv6);
             }
 
             /*
