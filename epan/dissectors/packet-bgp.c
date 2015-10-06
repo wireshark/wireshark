@@ -133,7 +133,7 @@ void proto_reg_handoff_bgp(void);
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
-/* https://www.iana.org/assignments/capability-codes/ (last updated 2015-07-23) */
+/* https://www.iana.org/assignments/capability-codes/ (last updated 2015-09-30) */
 /* BGP capability code */
 #define BGP_CAPABILITY_RESERVED                     0   /* RFC2434 */
 #define BGP_CAPABILITY_MULTIPROTOCOL                1   /* RFC2858 */
@@ -141,6 +141,7 @@ void proto_reg_handoff_bgp(void);
 #define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING  3   /* RFC5291 */
 #define BGP_CAPABILITY_MULTIPLE_ROUTE_DEST          4   /* RFC3107 */
 #define BGP_CAPABILITY_EXTENDED_NEXT_HOP            5   /* RFC5549 */
+#define BGP_CAPABILITY_EXTENDED_MESSAGE             6   /* draft-ietf-idr-bgp-extended-messages */
 #define BGP_CAPABILITY_GRACEFUL_RESTART             64  /* RFC4724 */
 #define BGP_CAPABILITY_4_OCTET_AS_NUMBER            65  /* RFC6793 */
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY           67  /* draft-ietf-idr-dynamic-cap */
@@ -149,7 +150,7 @@ void proto_reg_handoff_bgp(void);
 #define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH       70  /* [RFC7313] */
 #define BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART  71  /* draft-uttaro-idr-bgp-persistence */
 #define BGP_CAPABILITY_CP_ORF                       72  /* [RFC7543] */
-#define BGP_CAPABILITY_FQDN                         73  /* [draft-walton-bgp-hostname-capability] */
+#define BGP_CAPABILITY_FQDN                         73  /* draft-walton-bgp-hostname-capability */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
 #define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
 
@@ -1007,6 +1008,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING,   "Cooperative route filtering capability" },
     { BGP_CAPABILITY_MULTIPLE_ROUTE_DEST,           "Multiple routes to a destination capability" },
     { BGP_CAPABILITY_EXTENDED_NEXT_HOP,             "Extended Next Hop Encoding" },
+    { BGP_CAPABILITY_EXTENDED_MESSAGE,              "BGP-Extended Message" },
     { BGP_CAPABILITY_GRACEFUL_RESTART,              "Graceful Restart capability" },
     { BGP_CAPABILITY_4_OCTET_AS_NUMBER,             "Support for 4-octet AS number capability" },
     { BGP_CAPABILITY_DYNAMIC_CAPABILITY,            "Support for Dynamic capability" },
