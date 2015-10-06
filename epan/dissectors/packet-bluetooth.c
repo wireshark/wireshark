@@ -1322,7 +1322,8 @@ print_uuid(bluetooth_uuid_t *uuid)
     if (uuid->bt_uuid) {
         return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
     } else {
-        guint i_uuid;
+        guint  i_uuid;
+        gchar *description;
 
         i_uuid = 0;
         while (bluetooth_uuid_custom[i_uuid].name) {
@@ -1338,7 +1339,12 @@ print_uuid(bluetooth_uuid_t *uuid)
             i_uuid += 1;
         }
 
-        return print_numeric_uuid(uuid);
+        description = print_numeric_uuid(uuid);
+
+        if (description)
+            return description;
+        else
+            return (gchar *) "Unknown";
     }
 }
 
