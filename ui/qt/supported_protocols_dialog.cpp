@@ -24,6 +24,7 @@
 
 #include "config.h"
 
+#include <algorithm>
 #include <glib.h>
 
 #include <epan/proto.h>
