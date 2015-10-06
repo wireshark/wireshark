@@ -779,7 +779,10 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     if ( (OPENSAFETY_SPDO_FEAT_40BIT_USED & spdoFlags ) == OPENSAFETY_SPDO_FEAT_40BIT_USED )
         sdn = OPENSAFETY_DEFAULT_DOMAIN;
 
+    /* Determine the producer and set it, as opensafety_packet_node does not */
     addr = OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1);
+    packet->sender = addr;
+
     opensafety_packet_node ( message_tvb, pinfo, opensafety_tree, hf_oss_msg_sender,
             addr, OSS_FRAME_POS_ADDR + packet->frame.subframe1, packet->frame.subframe2, sdn );
     proto_item_append_text(opensafety_item, "; Producer: 0x%03X (%d)", addr, addr);
@@ -1758,7 +1761,7 @@ static gboolean
 dissect_opensafety_message(opensafety_packet_info *packet,
                            tvbuff_t *message_tvb, packet_info *pinfo,
                            proto_item *opensafety_item, proto_tree *opensafety_tree,
-                           guint8 u_nrInPackage)
+                           guint8 u_nrInPackage, guint8 previous_msg_id)
 {
     guint8      b_ID, ctr, spdoFlags;
     GByteArray *scmUDID = NULL;
@@ -1770,17 +1773,17 @@ dissect_opensafety_message(opensafety_packet_info *packet,
     for ( ctr = 0; ctr < 6; ctr++ )
         packet->scm_udid[ctr] = 0;
 
-    /* Clearing connection valid bit */
-    if ( packet->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE )
-        packet->msg_id = packet->msg_id & 0xF8;
-
     packet->saddr = OSS_FRAME_ADDR_T(message_tvb, packet->frame.subframe1);
     /* Sender / Receiver is determined by message type */
     packet->sender = 0;
     packet->receiver = 0;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s" : "%s" ),
+    /* SPDO is handled below */
+    if ( packet->msg_type != OPENSAFETY_SPDO_MESSAGE_TYPE )
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s" : "%s" ),
             val_to_str(packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "));
+    }
 
     if ( packet->msg_type == OPENSAFETY_SNMT_MESSAGE_TYPE )
     {
@@ -1848,6 +1851,16 @@ dissect_opensafety_message(opensafety_packet_info *packet,
         {
             proto_item_append_text(opensafety_item, ", SPDO" );
             dissect_opensafety_spdo_message ( message_tvb, pinfo, opensafety_tree, packet, opensafety_item );
+
+            /* Now we know packet->sender, therefore we can add the info text */
+            if ( previous_msg_id != packet->msg_id )
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s - 0x%03X" : "%s - 0x%03X" ),
+                            val_to_str(packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "),
+                            packet->sender );
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", 0x%03X", packet->sender );
+            }
         }
         else
         {
@@ -1890,7 +1903,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     guint               length, len, frameOffset, frameLength, nodeAddress, gapStart;
     guint8             *swbytes;
     gboolean            handled, dissectorCalled, call_sub_dissector, markAsMalformed;
-    guint8              type, found, i, tempByte;
+    guint8              type, found, i, tempByte, previous_msg_id;
     guint16             frameStart1, frameStart2, byte_offset;
     gint                reported_len;
     dissector_handle_t  protocol_dissector = NULL;
@@ -1903,6 +1916,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     dissectorCalled    = FALSE;
     call_sub_dissector = FALSE;
     markAsMalformed    = FALSE;
+    previous_msg_id    = 0;
 
     /* registering frame end routine, to prevent a malformed dissection preventing
      * further dissector calls (see bug #6950) */
@@ -2170,8 +2184,14 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             packet->frame.length = frameLength;
             packet->frame.malformed = FALSE;
 
-            if ( dissect_opensafety_message(packet, next_tvb, pinfo, opensafety_item, opensafety_tree, found) != TRUE )
+            /* Clearing connection valid bit */
+            if ( packet->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE )
+                packet->msg_id = packet->msg_id & 0xF8;
+
+            if ( dissect_opensafety_message(packet, next_tvb, pinfo, opensafety_item, opensafety_tree, found, previous_msg_id) != TRUE )
                 markAsMalformed = TRUE;
+
+            previous_msg_id = packet->msg_id;
 
             if ( markAsMalformed )
             {
