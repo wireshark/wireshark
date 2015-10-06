@@ -502,7 +502,7 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 }
 
 static void
-decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
+decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _U_) {
   guint8 flag;
   static const int * reset_flags[] = {
     &hf_nsip_reset_flag_bit,
@@ -511,7 +511,7 @@ decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) 
   };
 
   flag = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, ie_start_offset, hf_nsip_reset_flag,
+  proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, bi->offset, hf_nsip_reset_flag,
                            ett_nsip_reset_flag, reset_flags, ENC_NA);
 
   if (flag & NSIP_MASK_RESET_FLAG) {
