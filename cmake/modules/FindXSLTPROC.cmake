@@ -7,6 +7,9 @@ include(FindCygwin)
 
 if(ENABLE_PDF_GUIDES)
     find_package(FOP)
+    if(${FOP_EXECUTABLE} STREQUAL "FOP_EXECUTABLE-NOTFOUND")
+        message(FATAL_ERROR "fop wasn't found, but is necessary for building PDFs." )
+    endif()
 endif()
 
 if(ENABLE_CHM_GUIDES)
