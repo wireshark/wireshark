@@ -71,12 +71,12 @@ their compressed archives.
 A date stamp (current-tag.txt)
 
 .EXAMPLE
-C:\PS> .\tools\win-setup.ps1 -Destination C:\Wireshark-master-64-libs -Platform win64
+C:\PS> .\tools\win-setup.ps1 -Destination C:\Wireshark-win64-libs-2.0 -Platform win64
 #>
 
 Param(
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidateScript({$_ -like "*\Wireshark-*-libs"})]
+    [ValidateScript({$_ -like "*\Wireshark-*-libs-2.0"})]
     [String]
     $Destination,
 
