@@ -940,8 +940,15 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				 * XXX - some captures have 0, which is
 				 * obviously bogus.
 				 */
+				gint calc_channel;
+
 				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
 				phdr.frequency = freq;
+				calc_channel = ieee80211_mhz_to_chan(freq);
+				if (calc_channel != -1) {
+					phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+					phdr.channel = calc_channel;
+				}
 			}
 			cflags = tvb_get_letohs(tvb, offset + 2);
 			switch (cflags & IEEE80211_CHAN_ALLTURBO) {

@@ -525,8 +525,15 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     common_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     if (common_frequency != 0) {
+        gint calc_channel;
+
         phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
         phdr->frequency = common_frequency;
+        calc_channel = ieee80211_mhz_to_chan(common_frequency);
+        if (calc_channel != -1) {
+            phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
+            phdr->channel = calc_channel;
+        }
     }
     chan_str = ieee80211_mhz_to_str(common_frequency);
     proto_tree_add_uint_format_value(ptvcursor_tree(csr), hf_80211_common_chan_freq, ptvcursor_tvbuff(csr),
