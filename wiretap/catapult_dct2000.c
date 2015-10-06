@@ -1565,7 +1565,6 @@ packet_offset_hash_func(gconstpointer v)
 static gboolean
 get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 {
-    int n;
     struct tm tm;
     #define MAX_MONTH_LETTERS 9
     char month[MAX_MONTH_LETTERS+1];
@@ -1578,12 +1577,14 @@ get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
         return FALSE;
     }
 
-    /**************************************************************/
-    /* First is month. Read until get a space following the month */
-    for (n=0; (linebuff[n] != ' ') && (n < MAX_MONTH_LETTERS); n++) {
-        month[n] = linebuff[n];
+    /********************************************************/
+    /* Scan for all fields                                  */
+    scan_found = sscanf(linebuff, "%9s %2d, %4d     %2d:%2d:%2d.%4u",
+                        month, &day, &year, &hour, &minute, &second, usecs);
+    if (scan_found != 7) {
+        /* Give up if not all found */
+        return FALSE;
     }
-    month[n] = '\0';
 
     if      (strcmp(month, "January"  ) == 0)  tm.tm_mon = 0;
     else if (strcmp(month, "February" ) == 0)  tm.tm_mon = 1;
@@ -1599,17 +1600,6 @@ get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
     else if (strcmp(month, "December" ) == 0)  tm.tm_mon = 11;
     else {
         /* Give up if not found a properly-formatted date */
-        return FALSE;
-    }
-    /* Skip space char */
-    n++;
-
-    /********************************************************/
-    /* Scan for remaining numerical fields                  */
-    scan_found = sscanf(linebuff+n, "%2d, %4d     %2d:%2d:%2d.%4u",
-                        &day, &year, &hour, &minute, &second, usecs);
-    if (scan_found != 6) {
-        /* Give up if not all found */
         return FALSE;
     }
 
