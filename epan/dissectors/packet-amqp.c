@@ -65,9 +65,6 @@ static guint amqps_port = 5671; /* AMQP over TLS/SSL */
         offset += (addend);                                             \
 }
 
-#define PROTO_DATA_AMQP_PUBLISH_NUM 0 /* (guint64*) */
-#define PROTO_DATA_AMQP_DELIVERY    1 /* (amqp_delivery*) */
-
 /*
  * This dissector handles AMQP 0-9, 0-10 and 1.0. The conversation structure
  * contains the version being run - it's only really reliably detected at
@@ -990,20 +987,20 @@ static amqp_channel_t*
 get_conversation_channel(conversation_t *conv, guint16 channel_num);
 
 static void
-record_msg_delivery(packet_info *pinfo, guint16 channel_num,
+record_msg_delivery(tvbuff_t *tvb, packet_info *pinfo, guint16 channel_num,
     guint64 delivery_tag);
 
 static void
-record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel, packet_info *pinfo,
-    guint64 delivery_tag);
+record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel,
+    tvbuff_t *tvb, packet_info *pinfo, guint64 delivery_tag);
 
 static void
-record_delivery_ack(packet_info *pinfo, guint16 channel_num,
+record_delivery_ack(tvbuff_t *tvb, packet_info *pinfo, guint16 channel_num,
     guint64 delivery_tag, gboolean multiple);
 
 static void
-record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel, packet_info *pinfo,
-    guint64 delivery_tag, gboolean multiple);
+record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel,
+    tvbuff_t *tvb, packet_info *pinfo, guint64 delivery_tag, gboolean multiple);
 
 static void
 generate_msg_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *prop_tree);
@@ -9153,7 +9150,7 @@ static int
 dissect_amqp_0_9_method_basic_publish(guint16 channel_num,
     tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
 {
-    guint64 *message_number;
+    amqp_delivery *delivery;
     proto_item *pi;
 
     /* message number (long long) */
@@ -9165,21 +9162,15 @@ dissect_amqp_0_9_method_basic_publish(guint16 channel_num,
         conv = find_or_create_conversation(pinfo);
         channel = get_conversation_channel(conv, channel_num);
 
-        message_number = (guint64 *)wmem_new(wmem_file_scope(), guint64);
-        *message_number = ++channel->publish_count;
-        p_add_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
-            PROTO_DATA_AMQP_PUBLISH_NUM, message_number);
-
-        record_msg_delivery_c(conv, channel, pinfo, *message_number);
+        record_msg_delivery_c(conv, channel, tvb, pinfo, ++channel->publish_count);
     }
-    else
-        message_number = (guint64 *)p_get_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
-            PROTO_DATA_AMQP_PUBLISH_NUM);
 
-    if(message_number)
+    delivery = (amqp_delivery *)p_get_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
+        (guint32)tvb_raw_offset(tvb));
+    if(delivery)
     {
         pi = proto_tree_add_uint64(args_tree, hf_amqp_method_basic_publish_number,
-            tvb, offset-2, 2, *message_number);
+            tvb, offset-2, 2, delivery->delivery_tag);
         PROTO_ITEM_SET_GENERATED(pi);
     }
 
@@ -9285,7 +9276,7 @@ dissect_amqp_0_9_method_basic_deliver(guint16 channel_num,
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     if(!PINFO_FD_VISITED(pinfo))
-        record_msg_delivery(pinfo, channel_num, delivery_tag);
+        record_msg_delivery(tvb, pinfo, channel_num, delivery_tag);
 
     return offset;
 }
@@ -9354,7 +9345,7 @@ dissect_amqp_0_9_method_basic_get_ok(guint16 channel_num,
     offset += 4;
 
     if(!PINFO_FD_VISITED(pinfo))
-        record_msg_delivery(pinfo, channel_num, delivery_tag);
+        record_msg_delivery(tvb, pinfo, channel_num, delivery_tag);
 
     return offset;
 }
@@ -9394,7 +9385,7 @@ dissect_amqp_0_9_method_basic_ack(guint16 channel_num,
     multiple = tvb_get_guint8(tvb, offset) & 0x01;
 
     if(!PINFO_FD_VISITED(pinfo))
-        record_delivery_ack(pinfo, channel_num, delivery_tag, multiple);
+        record_delivery_ack(tvb, pinfo, channel_num, delivery_tag, multiple);
 
     return offset;
 }
@@ -9418,7 +9409,7 @@ dissect_amqp_0_9_method_basic_reject(guint16 channel_num,
         tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if(!PINFO_FD_VISITED(pinfo))
-        record_delivery_ack(pinfo, channel_num, delivery_tag, FALSE);
+        record_delivery_ack(tvb, pinfo, channel_num, delivery_tag, FALSE);
 
     return offset;
 }
@@ -9483,7 +9474,7 @@ dissect_amqp_0_9_method_basic_nack(guint16 channel_num,
         tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if(!PINFO_FD_VISITED(pinfo))
-        record_delivery_ack(pinfo, channel_num, delivery_tag, multiple);
+        record_delivery_ack(tvb, pinfo, channel_num, delivery_tag, multiple);
 
     return offset;
 }
@@ -10522,7 +10513,7 @@ get_conversation_channel(conversation_t *conv, guint16 channel_num)
 }
 
 static void
-record_msg_delivery(packet_info *pinfo, guint16 channel_num,
+record_msg_delivery(tvbuff_t *tvb, packet_info *pinfo, guint16 channel_num,
     guint64 delivery_tag)
 {
     conversation_t *conv;
@@ -10530,12 +10521,12 @@ record_msg_delivery(packet_info *pinfo, guint16 channel_num,
 
     conv = find_or_create_conversation(pinfo);
     channel = get_conversation_channel(conv, channel_num);
-    record_msg_delivery_c(conv, channel, pinfo, delivery_tag);
+    record_msg_delivery_c(conv, channel, tvb, pinfo, delivery_tag);
 }
 
 static void
-record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel, packet_info *pinfo,
-    guint64 delivery_tag)
+record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel,
+    tvbuff_t *tvb, packet_info *pinfo, guint64 delivery_tag)
 {
     struct tcp_analysis *tcpd;
     amqp_delivery **dptr;
@@ -10552,11 +10543,11 @@ record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel, packet_info
     delivery->prev = (*dptr);
     (*dptr) = delivery;
 
-    p_add_proto_data(wmem_packet_scope(), pinfo, proto_amqp, PROTO_DATA_AMQP_DELIVERY, delivery);
+    p_add_proto_data(wmem_packet_scope(), pinfo, proto_amqp, (guint32)tvb_raw_offset(tvb), delivery);
 }
 
 static void
-record_delivery_ack(packet_info *pinfo, guint16 channel_num,
+record_delivery_ack(tvbuff_t *tvb, packet_info *pinfo, guint16 channel_num,
     guint64 delivery_tag, gboolean multiple)
 {
     conversation_t *conv;
@@ -10564,12 +10555,12 @@ record_delivery_ack(packet_info *pinfo, guint16 channel_num,
 
     conv = find_or_create_conversation(pinfo);
     channel = get_conversation_channel(conv, channel_num);
-    record_delivery_ack_c(conv, channel, pinfo, delivery_tag, multiple);
+    record_delivery_ack_c(conv, channel, tvb, pinfo, delivery_tag, multiple);
 }
 
 static void
-record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel, packet_info *pinfo,
-    guint64 delivery_tag, gboolean multiple)
+record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel,
+    tvbuff_t *tvb, packet_info *pinfo, guint64 delivery_tag, gboolean multiple)
 {
     struct tcp_analysis *tcpd;
     amqp_delivery **dptr;
@@ -10600,7 +10591,7 @@ record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel, packet_info
     }
 
     p_add_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
-        PROTO_DATA_AMQP_DELIVERY, last_acked);
+        (guint32)tvb_raw_offset(tvb), last_acked);
 }
 
 static void
@@ -10610,7 +10601,7 @@ generate_msg_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *amqp_tree)
     proto_item *pi;
 
     delivery = (amqp_delivery *)p_get_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
-        PROTO_DATA_AMQP_DELIVERY);
+        (guint32)tvb_raw_offset(tvb));
     while(delivery != NULL)
     {
         if(delivery->msg_framenum)
@@ -10630,7 +10621,7 @@ generate_ack_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *amqp_tree)
     amqp_delivery *delivery;
 
     delivery = (amqp_delivery *)p_get_proto_data(wmem_packet_scope(), pinfo, proto_amqp,
-        PROTO_DATA_AMQP_DELIVERY);
+        (guint32)tvb_raw_offset(tvb));
     if(delivery && delivery->ack_framenum)
     {
         proto_item *pi;
