@@ -813,7 +813,7 @@ http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.ht
 http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
 
    which discuss them to some extent. */
-/* http://www.iana.org/assignments/dns-parameters (last updated 2014-08-12)*/
+/* http://www.iana.org/assignments/dns-parameters (last updated 2015-07-26)*/
 
 static const value_string dns_qr_vals[] = {
   { 0, "Query" },
@@ -877,21 +877,21 @@ static const value_string dns_types_vals[] = {
   { T_HIP,        "HIP"        }, /* RFC 5205 */
   { T_RKEY,       "RKEY"       },
   { T_TALINK,     "TALINK"     },
-  { T_CDS,        "CDS"        }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
-  { T_CDNSKEY,    "CDNSKEY"    }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
-  { T_OPENPGPKEY, "OPENPGPKEY" }, /* draft-ietf-dane-openpgpkey-00 */
+  { T_CDS,        "CDS"        }, /* RFC 7344 */
+  { T_CDNSKEY,    "CDNSKEY"    }, /* RFC 7344*/
+  { T_OPENPGPKEY, "OPENPGPKEY" }, /* draft-ietf-dane-openpgpkey */
   { T_CSYNC,      "CSYNC "     }, /* RFC 7477 */
   { T_SPF,        "SPF"        }, /* RFC 4408 */
   { T_UINFO,      "UINFO"      }, /* IANA reserved */
   { T_UID,        "UID"        }, /* IANA reserved */
   { T_GID,        "GID"        }, /* IANA reserved */
   { T_UNSPEC,     "UNSPEC"     }, /* IANA reserved */
-  { T_NID,        "NID"        }, /* RFC6742 */
-  { T_L32,        "L32"        }, /* RFC6742 */
-  { T_L64,        "L64"        }, /* RFC6742 */
-  { T_LP,         "LP"         }, /* RFC6742 */
-  { T_EUI48,      "EUI48"      }, /* RFC7043 */
-  { T_EUI64,      "EUI64"      }, /* RFC7043 */
+  { T_NID,        "NID"        }, /* RFC 6742 */
+  { T_L32,        "L32"        }, /* RFC 6742 */
+  { T_L64,        "L64"        }, /* RFC 6742 */
+  { T_LP,         "LP"         }, /* RFC 6742 */
+  { T_EUI48,      "EUI48"      }, /* RFC 7043 */
+  { T_EUI64,      "EUI64"      }, /* RFC 7043 */
   { T_TKEY,       "TKEY"       },
   { T_TSIG,       "TSIG"       },
   { T_IXFR,       "IXFR"       },
@@ -970,10 +970,10 @@ static const value_string dns_types_description_vals[] = {
   { T_HIP,        "HIP (Host Identity Protocol)" }, /* RFC 5205 */
   { T_RKEY,       "RKEY" },
   { T_TALINK,     "TALINK (Trust Anchor LINK)" },
-  { T_CDS,        "CDS (Child DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
-  { T_CDNSKEY,    "CDNSKEY (DNSKEY(s) the Child wants reflected in DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
-  { T_OPENPGPKEY, "OPENPGPKEY (OpenPGP Key)" }, /* draft-ietf-dane-openpgpkey-00 */
-  { T_CSYNC,      "CSYNC (Child-to-Parent Synchronization)" }, /* RFC7477 */
+  { T_CDS,        "CDS (Child DS)" }, /* RFC 7344 */
+  { T_CDNSKEY,    "CDNSKEY (DNSKEY(s) the Child wants reflected in DS)" }, /* RFC 7344 */
+  { T_OPENPGPKEY, "OPENPGPKEY (OpenPGP Key)" }, /* draft-ietf-dane-openpgpkey */
+  { T_CSYNC,      "CSYNC (Child-to-Parent Synchronization)" }, /* RFC 7477 */
   { T_SPF,        "SPF" }, /* RFC 4408 */
   { T_UINFO,      "UINFO" }, /* IANA reserved */
   { T_UID,        "UID" }, /* IANA reserved */
@@ -1022,7 +1022,7 @@ static const value_string edns0_opt_code_vals[] = {
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
-   http://www.iana.org/assignments/dane-parameters (last updated 2012-08-14)
+   http://www.iana.org/assignments/dane-parameters (last updated 2014-04-23)
  */
 /* TLSA Certificate Usages */
 #define TLSA_CU_PKIX_TA 0
