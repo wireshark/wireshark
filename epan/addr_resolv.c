@@ -685,49 +685,21 @@ destroy_serv_port(gpointer data)
 static void
 initialize_services(void)
 {
-#ifdef _WIN32
-    char *hostspath;
-    char *sysroot;
-    static char rootpath_nt[] = "\\system32\\drivers\\etc\\services";
-#endif /* _WIN32 */
-
-    /* the hash table won't ignore duplicates, so use the personal path first */
     g_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, destroy_serv_port);
-
-/* Read the system services file first */
-#ifdef _WIN32
-
-    sysroot = getenv_utf8("WINDIR");
-    if (sysroot != NULL) {
-        /*
-         * The file should be under WINDIR.
-         * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
-         * %WINDIR%\system32\drivers\etc\services.
-         */
-        hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-        parse_services_file(hostspath);
-        g_free(hostspath);
-    }
-#else
-        parse_services_file("/etc/services");
-
-#endif /*  _WIN32 */
-
-    /* set personal services path */
-    if (g_pservices_path == NULL)
-        g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
-
-    parse_services_file(g_pservices_path);
 
     /* Compute the pathname of the services file. */
     if (g_services_path == NULL) {
         g_services_path = get_datafile_path(ENAME_SERVICES);
     }
-
     parse_services_file(g_services_path);
 
-} /* initialize_services */
+    /* Compute the pathname of the personal services file */
+    if (g_pservices_path == NULL) {
+        g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+    }
+    parse_services_file(g_pservices_path);
+}
 
 static void
 service_name_lookup_cleanup(void)
