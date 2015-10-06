@@ -3397,7 +3397,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     header_length = DATA_CHUNK_HEADER_LENGTH;
     payload_offset = DATA_CHUNK_PAYLOAD_OFFSET;
   }
-  payload_tvb = tvb_new_subset(chunk_tvb, I_DATA_CHUNK_PAYLOAD_OFFSET,
+  payload_tvb = tvb_new_subset(chunk_tvb, payload_offset,
                                  MIN(chunk_length - header_length, tvb_captured_length_remaining(chunk_tvb, payload_offset)),
                                  MIN(chunk_length - header_length, tvb_reported_length_remaining(chunk_tvb, payload_offset)));
 
