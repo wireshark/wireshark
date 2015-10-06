@@ -990,6 +990,7 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
 
         if (name_line_edit_) {
             item->setText(name_col_, name_line_edit_->text());
+            name_line_edit_ = NULL;
         }
         if (dfilter_line_edit_) {
             QString df = dfilter_line_edit_->text();
@@ -997,11 +998,13 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
                 check_state = Qt::Unchecked;
             }
             item->setText(dfilter_col_, df);
+            dfilter_line_edit_ = NULL;
         }
         if (color_combo_box_) {
             int index = color_combo_box_->currentIndex();
             item->setData(color_col_, Qt::UserRole, index);
             item->setIcon(color_col_, graphColorIcon(index));
+            color_combo_box_ = NULL;
         }
         if (style_combo_box_) {
             IOGraph::PlotStyles ps = IOGraph::psLine;
@@ -1011,6 +1014,7 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
             }
             item->setText(style_col_, plot_style_to_name_[ps]);
             item->setData(style_col_, Qt::UserRole, ps);
+            style_combo_box_ = NULL;
         }
         if (yaxis_combo_box_) {
             int index = yaxis_combo_box_->currentIndex();
@@ -1026,6 +1030,7 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
             }
             item->setText(yaxis_col_, value_unit_to_name_[item_unit]);
             item->setData(yaxis_col_, Qt::UserRole, item_unit);
+            yaxis_combo_box_ = NULL;
         }
         if (yfield_line_edit_) {
             if (item->text(yfield_col_).compare(yfield_line_edit_->text())) {
@@ -1033,6 +1038,7 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
             }
             item->setText(yfield_col_, yfield_line_edit_->text());
             field_name = yfield_line_edit_->text();
+            yfield_line_edit_ = NULL;
         }
         if (sma_combo_box_) {
             int index = sma_combo_box_->currentIndex();
@@ -1043,13 +1049,13 @@ void IOGraphDialog::itemEditingFinished(QTreeWidgetItem *item)
             int sma = sma_combo_box_->itemData(index, Qt::UserRole).toInt();
             item->setText(sma_period_col_, text);
             item->setData(sma_period_col_, Qt::UserRole, sma);
+            sma_combo_box_ = NULL;
         }
 
         for (int col = 0; col < num_cols_; col++) {
             QWidget *w = ui->graphTreeWidget->itemWidget(item, col);
             if (w) {
                 ui->graphTreeWidget->removeItemWidget(item, col);
-                delete w;
             }
         }
 
@@ -1089,30 +1095,6 @@ void IOGraphDialog::loadProfileGraphs()
 }
 
 // Slots
-
-void IOGraphDialog::lineEditDestroyed()
-{
-    if (QObject::sender() == name_line_edit_) {
-        name_line_edit_ = NULL;
-    } else if (QObject::sender() == dfilter_line_edit_) {
-        dfilter_line_edit_ = NULL;
-    } else if (QObject::sender() == yfield_line_edit_) {
-        yfield_line_edit_ = NULL;
-    }
-}
-
-void IOGraphDialog::comboDestroyed()
-{
-    if (QObject::sender() == color_combo_box_) {
-        color_combo_box_ = NULL;
-    } else if (QObject::sender() == style_combo_box_) {
-        style_combo_box_ = NULL;
-    } else if (QObject::sender() == yaxis_combo_box_) {
-        yaxis_combo_box_ = NULL;
-    } else if (QObject::sender() == sma_combo_box_) {
-        sma_combo_box_ = NULL;
-    }
-}
 
 void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 {
@@ -1158,6 +1140,10 @@ void IOGraphDialog::on_graphTreeWidget_currentItemChanged(QTreeWidgetItem *, QTr
     }
 }
 
+// XXX It might be more correct to create a custom item delegate for editing
+// an item, but that appears to only allow one editor widget at a time. Adding
+// editors for every column is *much* more convenient since it lets the user
+// move from item to item with a single mouse click or by tabbing.
 void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int column)
 {
     if (!item || name_line_edit_) return;
@@ -1167,12 +1153,10 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
 
     name_line_edit_ = new QLineEdit();
     name_line_edit_->setText(item->text(name_col_));
-    connect(name_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditDestroyed()));
 
     dfilter_line_edit_ = new SyntaxLineEdit();
     connect(dfilter_line_edit_, SIGNAL(textChanged(QString)),
             dfilter_line_edit_, SLOT(checkDisplayFilter(QString)));
-    connect(dfilter_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditDestroyed()));
     dfilter_line_edit_->setText(item->text(dfilter_col_));
 
     color_combo_box_ = new QComboBox();
@@ -1186,7 +1170,6 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
     }
     item->setIcon(color_col_, QIcon());
     color_combo_box_->setFocusPolicy(Qt::StrongFocus);
-    connect(color_combo_box_, SIGNAL(destroyed()), this, SLOT(comboDestroyed()));
 
     style_combo_box_ = new QComboBox();
     cur_idx = item->data(style_col_, Qt::UserRole).toInt();
@@ -1198,7 +1181,6 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
         }
     }
     style_combo_box_->setFocusPolicy(Qt::StrongFocus);
-    connect(style_combo_box_, SIGNAL(destroyed()), this, SLOT(comboDestroyed()));
 
     yaxis_combo_box_ = new QComboBox();
     cur_idx = item->data(yaxis_col_, Qt::UserRole).toInt();
@@ -1210,12 +1192,10 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
         }
     }
     yaxis_combo_box_->setFocusPolicy(Qt::StrongFocus);
-    connect(yaxis_combo_box_, SIGNAL(destroyed()), this, SLOT(comboDestroyed()));
 
     yfield_line_edit_ = new SyntaxLineEdit();
     connect(yfield_line_edit_, SIGNAL(textChanged(QString)),
             yfield_line_edit_, SLOT(checkFieldName(QString)));
-    connect(yfield_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditDestroyed()));
     yfield_line_edit_->setText(item->text(yfield_col_));
 
     sma_combo_box_ = new QComboBox();
@@ -1228,7 +1208,6 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
         }
     }
     sma_combo_box_->setFocusPolicy(Qt::StrongFocus);
-    connect(sma_combo_box_, SIGNAL(destroyed()), this, SLOT(comboDestroyed()));
 
     switch (column) {
     case name_col_:

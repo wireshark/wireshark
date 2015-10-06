@@ -206,8 +206,6 @@ private slots:
     void mouseReleased(QMouseEvent *event);
     void focusChanged(QWidget *previous, QWidget *current);
     void activateLastItem();
-    void lineEditDestroyed();
-    void comboDestroyed();
     void resetAxes();
     void updateStatistics(void);
 
