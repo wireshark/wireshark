@@ -528,7 +528,7 @@ typedef enum {
 	BASE_PT_UDP  = 13,  /**< UDP port */
 	BASE_PT_TCP  = 14,  /**< TCP port */
 	BASE_PT_DCCP = 15,  /**< DCCP port */
-	BASE_PT_SCTP = 16,  /**< SCTP port */
+	BASE_PT_SCTP = 16   /**< SCTP port */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector
