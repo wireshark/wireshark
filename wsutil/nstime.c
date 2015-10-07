@@ -220,7 +220,7 @@ double nstime_to_sec(const nstime_t *nstime)
 
 #ifndef TIME_T_MIN
 #define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
-                    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
+                    : (time_t) (~0ULL << (sizeof (time_t) * CHAR_BIT - 1))))
 #endif
 #ifndef TIME_T_MAX
 #define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
@@ -230,10 +230,6 @@ static gboolean
 common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
 {
     gint64 secs;
-    /* The next two lines are a fix needed for the
-       broken SCO compiler. JRA. */
-    time_t l_time_min = TIME_T_MIN;
-    time_t l_time_max = TIME_T_MAX;
 
     /*
      * Shift the seconds from the Windows epoch to the UN*X epoch.
@@ -246,7 +242,7 @@ common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
      */
     secs = (gint64)ftsecs - TIME_FIXUP_CONSTANT;
 
-    if (!(l_time_min <= secs && secs <= l_time_max)) {
+    if (!(TIME_T_MIN <= secs && secs <= TIME_T_MAX)) {
         /* The result won't fit in a time_t */
         return FALSE;
     }
