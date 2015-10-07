@@ -318,9 +318,6 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 element_length;
 	static header_field_info *display_hfi_tlv_vals;
 
-	if (!tree)
-		return packet_length;
-
 	packet_type = tvb_get_ntohs(tvb, offset + 12);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -721,15 +718,18 @@ proto_register_mint(void)
 		&ett_mint_data,
 	};
 
-	int proto_mint;
+	int proto_mint, proto_mint_data;
 
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
+	/* Created to remove Decode As confusion */
+	proto_mint_data = proto_register_protocol("Media indepentend Network Transport Data", "MiNT (Data)", "mint_data");
+
 	hfi_mint = proto_registrar_get_nth(proto_mint);
 	proto_register_fields(proto_mint, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	mint_control_handle = new_create_dissector_handle(dissect_mint_control_static, proto_mint);
-	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint);
+	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint_data);
 	mint_eth_handle = new_create_dissector_handle(dissect_mint_ethshim_static, proto_mint);
 }
 

@@ -101,6 +101,7 @@ static guint g_gtpv1c_port = GTPv1C_PORT;
 static guint g_gtpv1u_port = GTPv1U_PORT;
 
 static int proto_gtp = -1;
+static int proto_gtpprim = -1;
 
 /*KTi*/
 static int hf_gtp_ie_id = -1;
@@ -9756,6 +9757,9 @@ proto_register_gtp(void)
 
 
     proto_gtp = proto_register_protocol("GPRS Tunneling Protocol", "GTP", "gtp");
+    /* Created to remove Decode As confusion */
+    proto_gtpprim = proto_register_protocol("GPRS Tunneling Protocol Prim", "GTP (Prim)", "gtpprim");
+
     proto_register_field_array(proto_gtp, hf_gtp, array_length(hf_gtp));
     proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));
     expert_gtp = expert_register_protocol(proto_gtp);
@@ -9788,7 +9792,7 @@ proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
 
     new_register_dissector("gtp", dissect_gtp, proto_gtp);
-    new_register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
+    new_register_dissector("gtpprim", dissect_gtpprim, proto_gtpprim);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);

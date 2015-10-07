@@ -741,7 +741,7 @@ initialize_hopount_info(hopcount_info *hpi) {
 
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               gboolean downstream, int off, int eoff, hopcount_info hpi);
+               int off, int eoff, hopcount_info hpi);
 
 static int
 dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int optoff,
@@ -1280,7 +1280,7 @@ cablelabs_fmt_docsis_version( gchar *result, guint32 revision )
 /* Returns the number of bytes consumed by this option. */
 static int
 dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
-              gboolean downstream, int off, int eoff, gboolean *at_end, int protocol, hopcount_info hpi)
+              int off, int eoff, gboolean *at_end, int protocol, hopcount_info hpi)
 {
     guint16     opttype, hwtype, subopt_type;
     int         temp_optlen, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
@@ -1438,7 +1438,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 12;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          off+temp_optlen, off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1455,7 +1455,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                     4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          off+temp_optlen, off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1495,7 +1495,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 24;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          off+temp_optlen, off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1533,7 +1533,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "RELAY-MSG: malformed option");
         } else {
             /* here, we should dissect a full DHCP message */
-            dissect_dhcpv6(tvb, pinfo, subtree, downstream, off, off + optlen, hpi);
+            dissect_dhcpv6(tvb, pinfo, subtree, off, off + optlen, hpi);
         }
         break;
     case OPTION_AUTH:
@@ -1800,7 +1800,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 17;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         downstream, off + temp_optlen,
+                                         off + temp_optlen,
                                          off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1813,7 +1813,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 0;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         downstream, off + temp_optlen,
+                                         off + temp_optlen,
                                          off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1889,7 +1889,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaprefix_pref_addr, tvb, off+9, 16, ENC_NA);
         temp_optlen = 25;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          off+temp_optlen, off + optlen, at_end, protocol, hpi);
             if (*at_end) {
                 /* Bad option - just skip to the end */
@@ -1936,7 +1936,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 /* May be called recursively */
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               gboolean downstream, int off, int eoff, hopcount_info hpi)
+               int off, int eoff, hopcount_info hpi)
 {
     proto_tree        *bp_tree = NULL;
     proto_item        *ti;
@@ -1990,29 +1990,18 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     at_end = FALSE;
     while ((off < eoff) && !at_end)
-        off += dhcpv6_option(tvb, pinfo, bp_tree, downstream, off, eoff, &at_end, proto_dhcpv6, hpi);
+        off += dhcpv6_option(tvb, pinfo, bp_tree, off, eoff, &at_end, proto_dhcpv6, hpi);
 }
 
 static void
-dissect_dhcpv6_downstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dhcpv6_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     hopcount_info hpi;
     initialize_hopount_info(&hpi);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
     col_clear(pinfo->cinfo, COL_INFO);
-    dissect_dhcpv6(tvb, pinfo, tree, TRUE, 0, tvb_reported_length(tvb), hpi);
+    dissect_dhcpv6(tvb, pinfo, tree, 0, tvb_reported_length(tvb), hpi);
 }
-
-static void
-dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    hopcount_info hpi;
-    initialize_hopount_info(&hpi);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
-    col_clear(pinfo->cinfo, COL_INFO);
-    dissect_dhcpv6(tvb, pinfo, tree, FALSE, 0, tvb_reported_length(tvb), hpi);
-}
-
 
 static guint
 get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -2066,7 +2055,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     option_tree = proto_tree_add_subtree(bulk_tree, tvb, offset, -1, ett_dhcpv6_bulk_leasequery_options, NULL, "DHCPv6 Options");
     end = size + 2;
     while ((offset < end) && !at_end)
-        offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset,
+        offset += dhcpv6_option(tvb, pinfo, option_tree, offset,
                                 end, &at_end, proto_dhcpv6_bulk_leasequery, hpi);
 
     return tvb_reported_length(tvb);
@@ -2397,9 +2386,8 @@ proto_register_dhcpv6(void)
     expert_dhcpv6_bulk_leasequery = expert_register_protocol(proto_dhcpv6_bulk_leasequery);
     expert_register_field_array(expert_dhcpv6_bulk_leasequery, ei_bulk_leasequery, array_length(ei_bulk_leasequery));
 
-    /* Allow other dissectors to find this one by name.
-       Just choose upstream version for now as they are identical. */
-    register_dissector("dhcpv6", dissect_dhcpv6_upstream, proto_dhcpv6);
+    /* Allow other dissectors to find this one by name. */
+    register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
 
     dhcpv6_module = prefs_register_protocol(proto_dhcpv6, NULL);
     prefs_register_bool_preference(dhcpv6_module, "cablelabs_interface_id",
@@ -2419,12 +2407,10 @@ proto_reg_handoff_dhcpv6(void)
 {
     dissector_handle_t dhcpv6_handle, dhcpv6_bulkquery_handle;
 
-    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_downstream,
-                                            proto_dhcpv6);
+    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
-    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_upstream,
-                                            proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
+
     dhcpv6_bulkquery_handle = new_create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
                                             proto_dhcpv6_bulk_leasequery);
     dissector_add_uint("tcp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);

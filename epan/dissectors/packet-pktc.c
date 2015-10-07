@@ -48,6 +48,7 @@ void proto_register_pktc_mtafqdn(void);
 void proto_reg_handoff_pktc_mtafqdn(void);
 
 static int proto_pktc = -1;
+static int proto_pktc_mtafqdn = -1;
 static gint hf_pktc_app_spec_data = -1;
 static gint hf_pktc_list_of_ciphersuites = -1;
 static gint hf_pktc_list_of_ciphersuites_len = -1;
@@ -777,15 +778,17 @@ proto_register_pktc_mtafqdn(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pktc_unknown_kmmid, { "pktc.unknown_kmmid", PI_PROTOCOL, PI_WARN, "Unknown KMMID", EXPFILL }},
-        { &ei_pktc_unknown_doi, { "pktc.unknown_doi", PI_PROTOCOL, PI_WARN, "Unknown DOI", EXPFILL }},
+        { &ei_pktc_unknown_kmmid, { "pktc.mtafqdn.unknown_kmmid", PI_PROTOCOL, PI_WARN, "Unknown KMMID", EXPFILL }},
+        { &ei_pktc_unknown_doi, { "pktc.mtafqdn.unknown_doi", PI_PROTOCOL, PI_WARN, "Unknown DOI", EXPFILL }},
     };
 
     expert_module_t* expert_pktc;
 
-    proto_register_field_array(proto_pktc, hf, array_length(hf));
+    proto_pktc_mtafqdn = proto_register_protocol("PacketCable MTA FQDN", "PKTC MTA FQDN", "pktc.mtafqdn");
+
+    proto_register_field_array(proto_pktc_mtafqdn, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_pktc = expert_register_protocol(proto_pktc);
+    expert_pktc = expert_register_protocol(proto_pktc_mtafqdn);
     expert_register_field_array(expert_pktc, ei, array_length(ei));
 }
 
@@ -794,7 +797,7 @@ proto_reg_handoff_pktc_mtafqdn(void)
 {
     dissector_handle_t pktc_mtafqdn_handle;
 
-    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc);
+    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
     dissector_add_uint("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }
 
