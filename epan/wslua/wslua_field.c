@@ -615,6 +615,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         remove_tap_listener(&fake_tap);
         fake_tap = FALSE;
     }
+    g_string_free(fake_tap_filter, TRUE);
 }
 
 WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
