@@ -2111,29 +2111,6 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	}
 }
 
-void
-heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled) {
-	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
-	GSList                *found_entry;
-	heur_dtbl_entry_t      hdtbl_entry;
-
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
-
-	hdtbl_entry.dissector = dissector;
-
-	hdtbl_entry.protocol  = find_protocol_by_id(proto);
-
-	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
-	    (gpointer) &hdtbl_entry, find_matching_heur_dissector);
-
-	if (found_entry) {
-		heur_dtbl_entry_t *hdtbl_entry_p;
-		hdtbl_entry_p = (heur_dtbl_entry_t *)found_entry->data;
-		hdtbl_entry_p->enabled = enabled;
-	}
-}
-
 gboolean
 dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **heur_dtbl_entry, void *data)

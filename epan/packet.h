@@ -476,16 +476,6 @@ WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissect
  */
 WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
-/** Enable/Disable a sub-dissector in a heuristic dissector list
- *  Call this in the prefs_reinit function of the sub-dissector.
- *
- * @param name the name of the "parent" protocol, e.g. "tcp"
- * @param dissector the sub-dissector to be disabled/enabled
- * @param proto the protocol id of the sub-dissector
- * @param enabled TRUE/FALSE to enable/disable the sub-dissector
- */
-extern void heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled);
-
 /** Register a dissector. */
 WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
 
