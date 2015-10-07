@@ -211,7 +211,7 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
  * - AIRPDCAP_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
  *   success, or NULL on failure.
- * @see get_key_string()
+ * @see get_key_string(), free_key_string()
  */
 WS_DLL_PUBLIC
 decryption_key_t*
@@ -227,6 +227,15 @@ parse_key_string(gchar* key_string, guint8 key_type);
 WS_DLL_PUBLIC
 gchar*
 get_key_string(decryption_key_t* dk);
+
+/**
+ * Releases memory associated with a given decryption_key_t struct.
+ * @param dk [IN] Pointer to the key to be freed
+ * @see parse_key_string()
+ */
+WS_DLL_PUBLIC
+void
+free_key_string(decryption_key_t *dk);
 
 /******************************************************************************/
 

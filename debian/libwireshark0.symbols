@@ -574,6 +574,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  frame_data_set_after_dissect@Base 1.9.1
  frame_data_set_before_dissect@Base 1.9.1
  free_frame_data_sequence@Base 1.12.0~rc1
+ free_key_string@Base 2.0.0~rc1
  free_rtd_table@Base 1.99.8
  free_srt_table@Base 1.99.8
  free_srt_table_data@Base 1.99.8

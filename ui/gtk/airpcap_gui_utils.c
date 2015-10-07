@@ -544,7 +544,6 @@ static gboolean
 load_wlan_driver_wep_keys(void)
 {
     keys_cb_data_t* user_data;
-    guint i;
 
     /* Retrieve the wlan preferences */
     wlan_prefs = prefs_find_module("wlan");
@@ -574,10 +573,7 @@ load_wlan_driver_wep_keys(void)
 
     /* FREE MEMORY */
     /* free the WEP key string */
-    for(i=0;i<g_list_length(user_data->list);i++)
-    {
-        g_free(g_list_nth(user_data->list,i)->data);
-    }
+    g_list_foreach(user_data->list, (GFunc)free_key_string, NULL);
 
     /* free the (empty) list */
     g_list_free(user_data->list);
