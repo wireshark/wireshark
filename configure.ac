@@ -59,7 +59,11 @@ AM_DISABLE_STATIC
 #
 # Checks for programs used in the main build process.
 #
-AC_PROG_CC
+AC_PROG_CC_STDC
+if test "$ac_cv_prog_cc_stdc" == "no"
+then
+	AC_MSG_ERROR([The C compiler does not support standard C])
+fi
 AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_CPP
