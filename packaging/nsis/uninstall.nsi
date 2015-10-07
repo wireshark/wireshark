@@ -8,6 +8,9 @@
 
 !include "common.nsh"
 !include 'LogicLib.nsh'
+!include x64.nsh
+!include "StrFunc.nsh"
+${UnStrRep}
 
 SetCompress off
 OutFile "${STAGING_DIR}\uninstall_installer.exe"
@@ -85,6 +88,32 @@ SectionEnd
 
 !define EXECUTABLE_MARKER "EXECUTABLE_MARKER"
 Var EXECUTABLE
+
+Section /o "Un.USBPcap" un.SecUSBPcap
+;-------------------------------------------
+SectionIn 2
+${If} ${RunningX64}
+    ${DisableX64FSRedirection}
+    SetRegView 64
+${EndIf}
+ReadRegStr $1 HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\USBPcap" "UninstallString"
+${If} ${RunningX64}
+    ${EnableX64FSRedirection}
+    SetRegView 32
+${EndIf}
+${If} $1 != ""
+    ${UnStrRep} $2 '$1' '\Uninstall.exe' ''
+    ${UnStrRep} $3 '$2' '"' ''
+    ExecWait '$1 _?=$3' $0
+    DetailPrint "USBPcap uninstaller returned $0"
+    ${If} $0 == "0"
+        Delete "$3\Uninstall.exe"
+        Delete "$INSTDIR\extcap\USBPcapCMD.exe"
+    ${EndIf}
+${EndIf}
+ClearErrors
+SectionEnd
+
 
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
@@ -332,6 +361,7 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 ;
