@@ -158,12 +158,9 @@ static const value_string vis_packettypenames[] = {
 };
 
 /* supported packet dissectors */
-static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
-static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -176,6 +173,8 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
 static int proto_bat_plugin = -1;
+static int proto_bat_gw = -1;
+static int proto_bat_vis = -1;
 
 /* tap */
 static int bat_tap = -1;
@@ -388,13 +387,9 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti;
 		proto_tree *bat_gw_entry_tree;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 1,
-							    "B.A.T.M.A.N. GW [%s]",
-							    val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 1, ENC_NA);
-		}
+		ti = proto_tree_add_protocol_format(tree, proto_bat_gw, tvb, 0, 1,
+							"B.A.T.M.A.N. GW [%s]",
+							val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 		bat_gw_entry_tree = proto_item_add_subtree(ti, ett_bat_gw);
 
 		proto_tree_add_item(bat_gw_entry_tree, hf_bat_gw_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -478,7 +473,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (tree) {
 		proto_item *ti;
 
-		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_vis, tvb, 0, VIS_PACKET_V22_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s",
 							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
@@ -599,7 +594,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (tree) {
 		proto_item *ti;
 
-		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_vis, tvb, 0, VIS_PACKET_V23_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s",
 							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
@@ -849,11 +844,9 @@ void proto_register_bat(void)
 		&ett_bat_vis_entry
 	};
 
-	proto_bat_plugin = proto_register_protocol(
-		"B.A.T.M.A.N. Layer 3 Protocol",
-		"BAT",          /* short name */
-		"bat"           /* abbrev */
-		);
+	proto_bat_plugin = proto_register_protocol("B.A.T.M.A.N. Layer 3 Protocol", "BAT", "bat");
+	proto_bat_gw = proto_register_protocol("B.A.T.M.A.N. GW", "BAT GW", "bat.gw");
+	proto_bat_vis = proto_register_protocol("B.A.T.M.A.N. Vis", "BAT VIS", "bat.vis");
 
 	/* Register our configuration options for B.A.T.M.A.N. */
 	bat_module = prefs_register_protocol(proto_bat_plugin, proto_reg_handoff_bat);
@@ -890,8 +883,8 @@ void proto_reg_handoff_bat(void)
 		bat_follow_tap = register_tap("batman_follow");
 
 		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_plugin);
-		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_plugin);
+		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
+		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");

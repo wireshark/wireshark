@@ -530,7 +530,6 @@ proto_reg_handoff_cpfi(void)
 {
   static gboolean cpfi_init_complete = FALSE;
   static dissector_handle_t cpfi_handle;
-  static dissector_handle_t ttot_handle;
   static guint cpfi_udp_port;
   static guint cpfi_ttot_udp_port;
 
@@ -538,20 +537,19 @@ proto_reg_handoff_cpfi(void)
   {
     fc_handle     = find_dissector("fc");
     cpfi_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
-    ttot_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
     cpfi_init_complete = TRUE;
   }
   else
   {
     dissector_delete_uint("udp.port", cpfi_udp_port, cpfi_handle);
-    dissector_delete_uint("udp.port", cpfi_ttot_udp_port, ttot_handle);
+    dissector_delete_uint("udp.port", cpfi_ttot_udp_port, cpfi_handle);
   }
 
   cpfi_udp_port      = gbl_cpfi_udp_port;
   cpfi_ttot_udp_port = gbl_cpfi_ttot_udp_port;
 
   dissector_add_uint("udp.port", cpfi_udp_port, cpfi_handle);
-  dissector_add_uint("udp.port", cpfi_ttot_udp_port, ttot_handle);
+  dissector_add_uint("udp.port", cpfi_ttot_udp_port, cpfi_handle);
 }
 
 /*

@@ -2374,8 +2374,8 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 static void
 apply_prefs ( void )
 {
-    static dissector_handle_t opensafety_udpdata_handle;
-    static dissector_handle_t opensafety_siii_handle;
+    static dissector_handle_t opensafety_udpdata_handle = NULL;
+    static dissector_handle_t opensafety_siii_handle = NULL;
     static guint    opensafety_udp_port_number;
     static guint    opensafety_udp_siii_port_number;
     static gboolean opensafety_init = FALSE;
@@ -2400,12 +2400,12 @@ apply_prefs ( void )
     opensafety_udp_siii_port_number = global_network_udp_port_sercosiii;
 
     /* Default UDP only based dissector */
-    dissector_add_uint("udp.port", opensafety_udp_port_number, find_dissector("opensafety_udpdata"));
+    dissector_add_uint("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
 
     /* Sercos III dissector does not handle UDP transport, has to be handled
      *  separately, everything else should be caught by the heuristic dissector
      */
-    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
+    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, opensafety_siii_handle);
 
 }
 

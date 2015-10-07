@@ -1574,13 +1574,6 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return dissect_quic_common(tvb, pinfo, tree, NULL);
 }
 
-static int
-dissect_quics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              void *data _U_)
-{
-    return dissect_quic_common(tvb, pinfo, tree, NULL);
-}
-
 void
 proto_register_quic(void)
 {
@@ -2137,20 +2130,17 @@ proto_reg_handoff_quic(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t quic_handle;
-    static dissector_handle_t quics_handle;
     static int current_quic_port;
     static int current_quics_port;
 
     if (!initialized) {
         quic_handle = new_create_dissector_handle(dissect_quic,
                 proto_quic);
-        quics_handle = new_create_dissector_handle(dissect_quics,
-                proto_quic);
         initialized = TRUE;
 
     } else {
         dissector_delete_uint("udp.port", current_quic_port, quic_handle);
-        dissector_delete_uint("udp.port", current_quics_port, quics_handle);
+        dissector_delete_uint("udp.port", current_quics_port, quic_handle);
     }
 
     current_quic_port = g_quic_port;
@@ -2158,7 +2148,7 @@ proto_reg_handoff_quic(void)
 
 
     dissector_add_uint("udp.port", current_quic_port, quic_handle);
-    dissector_add_uint("udp.port", current_quics_port, quics_handle);
+    dissector_add_uint("udp.port", current_quics_port, quic_handle);
 }
 
 

@@ -105,6 +105,8 @@ static int st_node_response_nauthorities = -1;
 static int st_node_response_nadditionals = -1;
 
 static int proto_dns = -1;
+static int proto_mdns = -1;
+static int proto_llmnr = -1;
 static int hf_dns_length = -1;
 static int hf_dns_flags = -1;
 static int hf_dns_flags_response = -1;
@@ -3660,8 +3662,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   if (tree) {
     if (is_llmnr) {
-      ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
+      ti = proto_tree_add_protocol_format(tree, proto_llmnr, tvb, 0, -1,
         "Link-local Multicast Name Resolution (%s)", (flags & F_RESPONSE) ? "response" : "query");
+    } else if (is_mdns){
+      ti = proto_tree_add_protocol_format(tree, proto_mdns, tvb, 0, -1,
+        "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     } else {
       ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
         "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
@@ -4071,8 +4076,8 @@ proto_reg_handoff_dns(void)
   dissector_add_uint_range("udp.port", dns_udp_port_range, dns_udp_handle);
 
   dns_sctp_handle  = create_dissector_handle(dissect_dns_sctp, proto_dns);
-  mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_dns);
-  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
+  mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
+  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
 
   dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
@@ -5524,6 +5529,8 @@ proto_register_dns(void)
   expert_module_t* expert_dns;
 
   proto_dns = proto_register_protocol("Domain Name Service", "DNS", "dns");
+  proto_mdns = proto_register_protocol("Multicast Domain Name Service", "mDNS", "mdns");
+  proto_llmnr = proto_register_protocol("Link-local Multicast Name Resolution", "LLMNR", "llmnr");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_dns = expert_register_protocol(proto_dns);
