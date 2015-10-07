@@ -193,7 +193,7 @@ uat_wep_key_record_update_cb(void* r, char** err)
 
   if (dk != NULL) {
     dk_type = dk->type;
-    g_free(dk);
+    free_key_string(dk);
     switch (dk_type) {
       case AIRPDCAP_KEY_TYPE_WEP:
       case AIRPDCAP_KEY_TYPE_WEP_40:
@@ -18781,14 +18781,16 @@ set_airpdcap_keys(void)
           keys.nKeys += 1;
         }
       }
-      g_free(dk);
+      free_key_string(dk);
+      if (bytes) {
+        g_byte_array_free(bytes, TRUE);
+        bytes = NULL;
+      }
     }
   }
 
   /* Now set the keys */
   AirPDcapSetKeys(&airpdcap_ctx, keys.Keys, keys.nKeys);
-  if (bytes)
-    g_byte_array_free(bytes, TRUE);
 
 }
 
