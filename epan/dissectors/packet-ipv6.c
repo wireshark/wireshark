@@ -971,7 +971,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                 tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 offset += (16-cmprI);
                 segments--;
@@ -1029,8 +1029,8 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
+                tvb_memcpy(tvb, (guint8 *)addr + cmprE, offset, (16-cmprE));
+                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 /* offset += (16-cmprE); */
 
