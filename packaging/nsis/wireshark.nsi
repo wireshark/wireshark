@@ -12,6 +12,8 @@ SetCompressorDictSize 64 ; MB
 
 !include "common.nsh"
 !include 'LogicLib.nsh'
+!include "StrFunc.nsh"
+${StrRep}
 
 ; See http://nsis.sourceforge.net/Check_if_a_file_exists_at_compile_time for documentation
 !macro !defineifexist _VAR_NAME _FILE_NAME
@@ -81,6 +83,7 @@ BrandingText "Wireshark Installer (tm)"
 Page custom DisplayAdditionalTasksPage
 !insertmacro MUI_PAGE_DIRECTORY
 Page custom DisplayWinPcapPage
+Page custom DisplayUSBPcapPage
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
@@ -99,6 +102,7 @@ Page custom DisplayWinPcapPage
 
   ReserveFile "AdditionalTasksPage.ini"
   ReserveFile "WinPcapPage.ini"
+  ReserveFile "USBPcapPage.ini"
   !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 ; ============================================================================
@@ -303,6 +307,7 @@ done:
   ;Extract InstallOptions INI files
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "USBPcapPage.ini"
 FunctionEnd
 
 Function DisplayAdditionalTasksPage
@@ -315,11 +320,17 @@ Function DisplayWinPcapPage
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "WinPcapPage.ini"
 FunctionEnd
 
+Function DisplayUSBPcapPage
+  !insertmacro MUI_HEADER_TEXT "Install USBPcap?" "USBPcap is required to capture USB traffic. Should USBPcap be installed?"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "USBPcapPage.ini"
+FunctionEnd
+
 ; ============================================================================
 ; Installation execution commands
 ; ============================================================================
 
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
+Var USBPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
 !ifdef VCREDIST_EXE
@@ -817,6 +828,33 @@ ExecWait '"$INSTDIR\WinPcap_${WINPCAP_PACKAGE_VERSION}.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
+; If running as a silent installer, don't try to install USBPcap
+IfSilent SecRequired_skip_USBPcap
+
+ReadINIStr $0 "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State"
+StrCmp $0 "0" SecRequired_skip_USBPcap
+SetOutPath $INSTDIR
+File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"
+ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"' $0
+DetailPrint "USBPcap installer returned $0"
+${If} $0 == "0"
+    ${If} ${RunningX64}
+        ${DisableX64FSRedirection}
+        SetRegView 64
+    ${EndIf}
+    ReadRegStr $USBPCAP_UNINSTALL HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\USBPcap" "UninstallString"
+    ${If} ${RunningX64}
+        ${EnableX64FSRedirection}
+        SetRegView 32
+    ${EndIf}
+    CreateDirectory $INSTDIR\extcap
+    ${StrRep} $0 '$USBPCAP_UNINSTALL' 'Uninstall.exe' 'USBPcapCMD.exe'
+    ${StrRep} $1 '$0' '"' ''
+    CopyFiles  /SILENT $1 $INSTDIR\extcap
+    SetRebootFlag true
+${EndIf}
+SecRequired_skip_USBPcap:
+
 ; If no user profile exists for Wireshark but for Ethereal, copy it over
 SetShellVarContext current
 IfFileExists $APPDATA\Wireshark profile_done
@@ -1169,6 +1207,7 @@ FunctionEnd
 Var WINPCAP_NAME ; DisplayName from WinPcap installation
 Var WINWINPCAP_VERSION ; DisplayVersion from WinPcap installation
 Var NPCAP_NAME ; DisplayName from Npcap installation
+Var USBPCAP_NAME ; DisplayName from USBPcap installation
 
 Function myShowCallback
 
@@ -1243,6 +1282,33 @@ lbl_winpcap_do_install:
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
 
 lbl_winpcap_done:
+
+    ; detect if USBPcap should be installed
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "Text" "Install USBPcap ${USBPCAP_DISPLAY_VERSION}"
+    ${If} ${RunningX64}
+        ${DisableX64FSRedirection}
+        SetRegView 64
+    ${EndIf}
+    ReadRegStr $USBPCAP_NAME HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\USBPcap" "DisplayName"
+    ${If} ${RunningX64}
+        ${EnableX64FSRedirection}
+        SetRegView 32
+    ${EndIf}
+    IfErrors 0 lbl_usbpcap_installed ;if RegKey is available, USBPcap is already installed
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 2" "Text" "USBPcap is currently not installed"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 2" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old USBPcap versions)"
+    Goto lbl_usbpcap_done
+
+lbl_usbpcap_installed:
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 2" "Text" "$USBPCAP_NAME"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State" "0"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Text" "If you wish to install USBPcap ${USBPCAP_DISPLAY_VERSION}, please uninstall $USBPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Flags" "DISABLED"
+    Goto lbl_usbpcap_done
+
+lbl_usbpcap_done:
 
     ; if Wireshark was previously installed, unselect previously not installed icons etc.
     ; detect if Wireshark is already installed ->
