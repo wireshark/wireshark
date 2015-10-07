@@ -18160,6 +18160,7 @@ set_airpdcap_keys(void)
           keys->nKeys += 1;
         }
       }
+      free_key_string(dk);
     }
   }
 

@@ -1946,6 +1946,16 @@ parse_key_string(gchar* input_string, guint8 key_type)
     return NULL;
 }
 
+void
+free_key_string(decryption_key_t *dk)
+{
+    if (dk->key)
+        g_string_free(dk->key, TRUE);
+    if (dk->ssid)
+        g_byte_array_free(dk->ssid, TRUE);
+    g_free(dk);
+}
+
 /*
  * Returns a newly allocated string representing the given decryption_key_t
  * struct, or NULL if something is wrong...
