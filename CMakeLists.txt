@@ -440,13 +440,13 @@ else()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			#-fcolor-diagnostics
+			# avoid "argument unused during compilation" warnings
+			# (for example, when getting the -gsplit-dwarf option or
+			# when combining -fwrapv with -fno-strict-overflow)
+			-Qunused-arguments
 		)
 
-		# ccache + clang++ can result in "argument unused during
-		# compilation" warnings.
 		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS}
-			-Qunused-arguments
 		)
 	else()
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
