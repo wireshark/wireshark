@@ -68,7 +68,8 @@ NSI=\
 	GetWindowsVersion.nsh \
 	servicelib.nsh \
 	AdditionalTasksPage.ini \
-	WinPcapPage.ini
+	WinPcapPage.ini \
+	USBPcapPage.ini
 
 UNINSTALL_INSTALLER = $(STAGING_DIR)\uninstall_installer.exe
 

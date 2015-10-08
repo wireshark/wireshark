@@ -38,6 +38,7 @@ set(NSIS_FILES
 	servicelib.nsh
 	AdditionalTasksPage.ini
 	WinPcapPage.ini
+	USBPcapPage.ini
 	${NSIS_GENERATED_FILES}
 	PARENT_SCOPE
 )
