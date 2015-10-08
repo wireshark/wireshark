@@ -32,7 +32,6 @@
 #include "qcustomplot.h"
 #include "qt_ui_utils.h"
 #include "rtp_audio_stream.h"
-#include "stock_icon.h"
 #include "tango_colors.h"
 
 #include <QAudio>
@@ -43,8 +42,13 @@
 Q_DECLARE_METATYPE(RtpAudioStream *)
 Q_DECLARE_METATYPE(QCPGraph *)
 
+#else // QT_MULTIMEDIA_LIB
+
+#include <QPushButton>
+
 #endif // QT_MULTIMEDIA_LIB
 
+#include "stock_icon.h"
 #include "wireshark_application.h"
 
 // To do:
@@ -157,6 +161,16 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
 
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
+}
+
+QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
+{
+    if (!button_box) return NULL;
+
+    QPushButton *player_button;
+    player_button = button_box->addButton(tr("Play Streams"), QDialogButtonBox::ApplyRole);
+    player_button->setIcon(StockIcon("media-playback-start"));
+    return player_button;
 }
 
 #ifdef QT_MULTIMEDIA_LIB
@@ -292,16 +306,6 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
         start_rel_time_ = qMin(start_rel_time_, start_rel_time);
     }
     //    RTP_STREAM_DEBUG("adding stream %s to layout, %u packets, start %u", stream_key.toUtf8().constData(), rtp_stream->packet_count, rtp_stream->start_fd->num);
-}
-
-QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
-{
-    if (!button_box) return NULL;
-
-    QPushButton *player_button;
-    player_button = button_box->addButton(tr("Play Streams"), QDialogButtonBox::ApplyRole);
-    player_button->setIcon(StockIcon("media-playback-start"));
-    return player_button;
 }
 
 void RtpPlayerDialog::showEvent(QShowEvent *)

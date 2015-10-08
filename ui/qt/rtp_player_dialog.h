@@ -50,6 +50,14 @@ class RtpPlayerDialog : public WiresharkDialog
 public:
     explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf);
 
+    /**
+     * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
+     * @param button_box Caller's QDialogButtonBox.
+     * @return The new "Play call" button.
+     */
+    // XXX We might want to move this to qt_ui_utils.
+    static QPushButton *addPlayerButton(QDialogButtonBox *button_box);
+
 #ifdef QT_MULTIMEDIA_LIB
     ~RtpPlayerDialog();
 
@@ -59,14 +67,6 @@ public:
      * @param rtp_stream
      */
     void addRtpStream(struct _rtp_stream_info *rtp_stream);
-
-    /**
-     * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
-     * @param button_box Caller's QDialogButtonBox.
-     * @return The new "Play call" button.
-     */
-    // XXX We might want to move this to qt_ui_utils.
-    static QPushButton *addPlayerButton(QDialogButtonBox *button_box);
 
 public slots:
 
@@ -124,6 +124,7 @@ private:
     int getHoveredPacket();
 
 #else // QT_MULTIMEDIA_LIB
+
 private:
     Ui::RtpPlayerDialog *ui;
 #endif // QT_MULTIMEDIA_LIB
