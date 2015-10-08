@@ -73,6 +73,7 @@ private slots:
     void on_actionSaveForwardCsv_triggered();
     void on_actionSaveReverseCsv_triggered();
     void on_actionSaveGraph_triggered();
+    void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void showStreamMenu(QPoint pos);
     void graphClicked(QMouseEvent *event);
@@ -86,15 +87,20 @@ private:
     address dst_fwd_;
     guint32 port_dst_fwd_;
     guint32 ssrc_fwd_;
+    struct _rtp_stream_info *stream_fwd_;
+
     address src_rev_;
     guint32 port_src_rev_;
     address dst_rev_;
     guint32 port_dst_rev_;
     guint32 ssrc_rev_;
+    struct _rtp_stream_info *stream_rev_;
     int num_streams_;
 
     tap_rtp_stat_t fwd_statinfo_;
     tap_rtp_stat_t rev_statinfo_;
+
+    QPushButton *player_button_;
 
     QTemporaryFile *fwd_tempfile_;
     QTemporaryFile *rev_tempfile_;
@@ -127,6 +133,8 @@ private:
     void savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *statinfo, packet_info *pinfo, const struct _rtp_info *rtpinfo);
     void updateStatistics();
     void updateGraph();
+
+    void showPlayer();
 
     void saveAudio(StreamDirection direction);
     void saveCsv(StreamDirection direction);

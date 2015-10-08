@@ -45,6 +45,7 @@
 
 #include "color_utils.h"
 #include "qt_ui_utils.h"
+#include "rtp_player_dialog.h"
 #include "stock_icon.h"
 #include "wireshark_application.h"
 
@@ -247,9 +248,11 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     port_src_fwd_(0),
     port_dst_fwd_(0),
     ssrc_fwd_(0),
+    stream_fwd_(0),
     port_src_rev_(0),
     port_dst_rev_(0),
-    ssrc_rev_(0)
+    ssrc_rev_(0),
+    stream_rev_(0)
 {
     ui->setupUi(this);
     setWindowSubtitle(tr("RTP Stream Analysis"));
@@ -257,6 +260,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->progressFrame->hide();
+
+    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
     stream_ctx_menu_.addAction(ui->actionGoToPacket);
     stream_ctx_menu_.addAction(ui->actionNextProblem);
@@ -337,7 +342,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addAction(ui->actionSaveGraph);
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
-    const gchar *filter_text = "rtp && rtp.version && rtp.ssrc && (ip || ipv6)";
+    const gchar *filter_text = "rtp && rtp.version && rtp.ssrc";
     dfilter_t *sfcode;
     gchar *err_msg;
 
@@ -411,7 +416,6 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     rtpstream_scan(&tapinfo_, cap_file_.capFile(), NULL);
 
     num_streams_ = 0;
-    GList *filtered_list = NULL;
     for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
         rtp_stream_info_t * strinfo = (rtp_stream_info_t*)(strinfo_list->data);
         if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_fwd_))
@@ -420,7 +424,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             && (strinfo->dest_port == port_dst_fwd_))
         {
             ++num_streams_;
-            filtered_list = g_list_prepend(filtered_list, strinfo);
+            stream_fwd_ = strinfo;
         }
 
         if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_rev_))
@@ -429,9 +433,10 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             && (strinfo->dest_port == port_dst_rev_))
         {
             ++num_streams_;
-            filtered_list = g_list_append(filtered_list, strinfo);
-            if (ssrc_rev_ == 0)
+            if (ssrc_rev_ == 0) {
                 ssrc_rev_ = strinfo->ssrc;
+                stream_rev_ = strinfo;
+            }
         }
     }
 
@@ -500,6 +505,13 @@ void RtpAnalysisDialog::updateWidgets()
     ui->actionSaveCsv->setEnabled(enable_save_fwd_csv && enable_save_rev_csv);
     ui->actionSaveForwardCsv->setEnabled(enable_save_fwd_csv);
     ui->actionSaveReverseCsv->setEnabled(enable_save_rev_csv);
+
+#if defined(QT_MULTIMEDIA_LIB)
+    player_button_->setEnabled(stream_fwd_ != 0);
+#else
+    player_button_->setEnabled(false);
+    player_button_->setText(tr("No Audio"));
+#endif
 
     ui->tabWidget->setEnabled(enable_tab);
     hint.prepend("<small><i>");
@@ -654,6 +666,13 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
             path = QDir(file_name);
             wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
         }
+    }
+}
+
+void RtpAnalysisDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    if (button == player_button_) {
+        showPlayer();
     }
 }
 
@@ -1024,6 +1043,22 @@ void RtpAnalysisDialog::updateGraph()
         }
     }
     ui->streamGraph->replot();
+}
+
+void RtpAnalysisDialog::showPlayer()
+{
+#ifdef QT_MULTIMEDIA_LIB
+    if (!stream_fwd_) return;
+
+    RtpPlayerDialog rtp_player_dialog(*this, cap_file_);
+
+    rtp_player_dialog.addRtpStream(stream_fwd_);
+    if (stream_rev_) rtp_player_dialog.addRtpStream(stream_rev_);
+
+    connect(&rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
+
+    rtp_player_dialog.exec();
+#endif // QT_MULTIMEDIA_LIB
 }
 
 // rtp_analysis.c:copy_file

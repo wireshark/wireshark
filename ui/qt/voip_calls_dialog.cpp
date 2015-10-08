@@ -185,8 +185,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
 
     prepare_button_ = ui->buttonBox->addButton(tr("Prepare Filter"), QDialogButtonBox::ApplyRole);
     sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ApplyRole);
-    player_button_ = ui->buttonBox->addButton(tr("Play Call"), QDialogButtonBox::ApplyRole);
-    player_button_->setIcon(StockIcon("media-playback-start"));
+    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 2 / 3);

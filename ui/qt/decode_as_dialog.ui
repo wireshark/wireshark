@@ -16,9 +16,6 @@
      <property name="indentation">
       <number>0</number>
      </property>
-     <property name="uniformRowHeights">
-      <bool>true</bool>
-     </property>
      <column>
       <property name="text">
        <string>Field</string>

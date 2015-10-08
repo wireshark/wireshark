@@ -39,6 +39,7 @@ class RtpPlayerDialog;
 struct _rtp_stream_info;
 
 class QCPItemStraightLine;
+class QDialogButtonBox;
 class QMenu;
 class RtpAudioStream;
 
@@ -66,6 +67,14 @@ public:
      * @param rtp_stream
      */
     void addRtpStream(struct _rtp_stream_info *rtp_stream);
+
+    /**
+     * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
+     * @param button_box Caller's QDialogButtonBox.
+     * @return The new "Play call" button.
+     */
+    // XXX We might want to move this to qt_ui_utils.
+    static QPushButton *addPlayerButton(QDialogButtonBox *button_box);
 
 public slots:
 
