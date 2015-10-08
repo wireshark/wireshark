@@ -590,7 +590,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         /* note that padding is only mandatory over streaming
            protocols */
         if (is_udp) {
-            if (reported_length != (msg_length + CHANNEL_DATA_HDR_LEN))
+            if (reported_length != msg_length + CHANNEL_DATA_HDR_LEN &&
+                reported_length != ((msg_length + CHANNEL_DATA_HDR_LEN + 3) & ~0x3))
                 return 0;
         } else { /* TCP */
             if (reported_length != ((msg_length + CHANNEL_DATA_HDR_LEN + 3) & ~0x3))
