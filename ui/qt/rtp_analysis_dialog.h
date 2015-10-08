@@ -48,7 +48,7 @@ class RtpAnalysisDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf);
+    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _rtp_stream_info *stream_fwd = 0, struct _rtp_stream_info *stream_rev = 0);
     ~RtpAnalysisDialog();
 
 signals:
@@ -82,19 +82,26 @@ private:
     Ui::RtpAnalysisDialog *ui;
     enum StreamDirection { dir_both_, dir_forward_, dir_reverse_ };
 
+    // XXX These are copied to and from rtp_stream_info_t structs. Should
+    // we just have a pair of those instead?
     address src_fwd_;
     guint32 port_src_fwd_;
     address dst_fwd_;
     guint32 port_dst_fwd_;
     guint32 ssrc_fwd_;
-    struct _rtp_stream_info *stream_fwd_;
+    guint32 packet_count_fwd_;
+    guint32 setup_frame_number_fwd_;
+    nstime_t start_rel_time_fwd_;
 
     address src_rev_;
     guint32 port_src_rev_;
     address dst_rev_;
     guint32 port_dst_rev_;
     guint32 ssrc_rev_;
-    struct _rtp_stream_info *stream_rev_;
+    guint32 packet_count_rev_;
+    guint32 setup_frame_number_rev_;
+    nstime_t start_rel_time_rev_;
+
     int num_streams_;
 
     tap_rtp_stat_t fwd_statinfo_;
@@ -122,6 +129,8 @@ private:
 
     QMenu stream_ctx_menu_;
     QMenu graph_ctx_menu_;
+
+    void findStreams();
 
     // Tap callbacks
     static void tapReset(void *tapinfo_ptr);
