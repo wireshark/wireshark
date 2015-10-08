@@ -2,8 +2,6 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Wireshark.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id$
-dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation; either version 2, or (at your option)
