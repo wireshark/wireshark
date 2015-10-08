@@ -699,6 +699,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
+  col_clear(pinfo->cinfo, COL_INFO);
+
   src_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_sport);
   dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
   col_add_lstr(pinfo->cinfo, COL_INFO,
