@@ -17,5 +17,6 @@ EXTRA_DIST = \
 	VersionCompare.nsh \
 	windeployqt-to-nsis.ps1 \
 	WinPcapPage.ini \
+	USBPcapPage.ini \
 	wireshark.nsi	\
 	x64.nsh
