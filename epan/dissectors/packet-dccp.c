@@ -623,7 +623,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* Extract generic header */
     dccph->sport = tvb_get_ntohs(tvb, offset);
-    dccph->dport = tvb_get_ntohs(tvb, offset);
+    dccph->dport = tvb_get_ntohs(tvb, offset + 2);
 
     src_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->sport);
     dst_port_str = dccp_port_to_display(wmem_packet_scope(), dccph->dport);
