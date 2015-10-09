@@ -236,6 +236,7 @@ static int hf_6lowpan_nhc_ext_eid = -1;
 static int hf_6lowpan_nhc_ext_nh = -1;
 static int hf_6lowpan_nhc_ext_next = -1;
 static int hf_6lowpan_nhc_ext_length = -1;
+static int hf_6lowpan_nhc_ext_reserved = -1;
 
 /* NHC UDP compression header fields. */
 static int hf_6lowpan_nhc_udp_checksum = -1;
@@ -1914,6 +1915,9 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             ext_hlen = 1;
             length = (guint8)sizeof(struct ip6_frag);
             ext_len = length - ext_hlen;
+
+            proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_reserved, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+
         } else {
             /* Get and display the extension header length. */
             ext_hlen = (guint8)sizeof(struct ip6_ext);
@@ -1957,8 +1961,13 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             return nhdr;
         }
 
-        /* Display the extension header using the data dissector. */
-        call_dissector(data_handle, tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
+        if (ext_proto == IP_PROTO_FRAGMENT) {
+            /* Display the extension header using the data dissector. */
+            call_dissector(data_handle, tvb_new_subset_length(tvb, offset+1, ext_len-1), pinfo, nhc_tree);
+        } else {
+            /* Display the extension header using the data dissector. */
+            call_dissector(data_handle, tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
+        }
 
         /* Copy the extension header into the struct. */
         tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + ext_hlen, offset, ext_len);
@@ -2667,6 +2676,9 @@ proto_register_6lowpan(void)
         { &hf_6lowpan_nhc_ext_length,
           { "Header length",                  "6lowpan.nhc.ext.length",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_6lowpan_nhc_ext_reserved,
+          { "Reserved octet",                  "6lowpan.nhc.ext.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /* NHC UDP header fields. */
         { &hf_6lowpan_nhc_udp_checksum,
