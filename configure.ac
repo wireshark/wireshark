@@ -1284,15 +1284,16 @@ else
 	case "$host_os" in
 	hpux*)
 		#
-		# HP's ANSI C compiler; flags suggested by Jost Martin.
-		# "-Ae" for ANSI C plus extensions such as "long long".
-		# "+O2", for optimization.  XXX - works with "-g"?
+		# AC_PROG_CC_STDC should already have added whatever
+		# flags are necessary for ISO C - C99 if available,
+		# otherwise C89 - with extensions.
 		#
-		# HP's ANSI C++ compiler doesn't support "-Ae", but
-		# does support "+O2", at least according to the
-		# documentation I can find online.
+		# Add +O2, for optimization, as suggested by Jost Martin.
+		# XXX - works with "-g"?
 		#
-		CFLAGS="-Ae +O2 $CFLAGS"
+		# +O2 is supported both by the C and C++ compiler.
+		#
+		CFLAGS="+O2 $CFLAGS"
 		if test "$CC" = "$CC_FOR_BUILD"; then
 			#
 			# We're building the build tools with the same
@@ -1303,7 +1304,7 @@ else
 			CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
 		fi
 		CXXFLAGS="+O2 $CFLAGS"
-		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
+		AC_MSG_RESULT(HP C/C++ compiler - added +O2)
 		;;
 	solaris*)
 		#
