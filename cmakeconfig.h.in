@@ -115,9 +115,6 @@
 /* Define to use kerberos */
 #cmakedefine HAVE_KERBEROS 1
 
-/* Define if krb5.h defines KEYTYPE_ARCFOUR_56 */
-#cmakedefine HAVE_KEYTYPE_ARCFOUR_56 1
-
 /* Define to use the libcap library */
 #cmakedefine HAVE_LIBCAP 1
 
