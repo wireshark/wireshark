@@ -61,6 +61,7 @@ typedef enum {
 /** The frame number is the ordinal number of the frame in the capture, so
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
+struct _color_filter; /* Forward */
 DIAG_OFF(pedantic)
 typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
@@ -85,7 +86,7 @@ typedef struct _frame_data {
   } flags;
   gint16       tsprec;       /**< Time stamp precision */
 
-  const void *color_filter;  /**< Per-packet matching color_filter_t object */
+  const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
 
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
