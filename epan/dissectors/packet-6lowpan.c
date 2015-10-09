@@ -3007,7 +3007,7 @@ prefs_6lowpan_apply(void)
         g_strlcpy(prefix_buf, lowpan_context_prefs[i], 48);
         if ((prefix_str = strtok(prefix_buf, "/")) == NULL) continue;
         if ((prefix_len_str = strtok(NULL, "/")) == NULL) continue;
-        if (sscanf(prefix_len_str, "%d", &prefix_len) != 1) continue;
+        if (sscanf(prefix_len_str, "%u", &prefix_len) != 1) continue;
         if (!str_to_ip6(prefix_str, &prefix)) continue;
         /* Set the prefix */
         lowpan_context_insert(i, IEEE802154_BCAST_PAN, prefix_len, &prefix, 0);
