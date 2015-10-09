@@ -455,6 +455,9 @@ static lowpan_context_data  lowpan_context_local;
 static lowpan_context_data  lowpan_context_default;
 static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 
+/* Preferences */
+static gboolean rfc4944_short_address_format = FALSE;
+
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
 
@@ -497,6 +500,7 @@ static void         dissect_6lowpan_unknown     (tvbuff_t *tvb, packet_info *pin
 static gboolean     lowpan_dlsrc_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static gboolean     lowpan_dldst_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
+static void         lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid);
 static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, struct ip6_hdr * ipv6, struct lowpan_nhdr * nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
@@ -678,7 +682,7 @@ lowpan_context_free(gpointer data)
  *      lowpan_addr16_to_ifcid
  *  DESCRIPTION
  *      Converts a short address to in interface identifier as
- *      per rfc 4944 section 6.
+ *      per rfc 6282 section 3.2.2.
  *  PARAMETERS
  *      addr            ; 16-bit short address.
  *      ifcid           ; interface identifier (output).
@@ -699,6 +703,34 @@ lowpan_addr16_to_ifcid(guint16 addr, guint8 *ifcid)
     ifcid[6] = (addr >> 8) & 0xff;
     ifcid[7] = (addr >> 0) & 0xff;
 } /* lowpan_addr16_to_ifcid  */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_addr16_with_panid_to_ifcid
+ *  DESCRIPTION
+ *      Converts a short address to in interface identifier as
+ *      per rfc 4944 section 6.
+ *  PARAMETERS
+ *      panid           ; 16-bit PAN ID.
+ *      addr            ; 16-bit short address.
+ *      ifcid           ; interface identifier (output).
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+static void
+lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid)
+{
+    /* Note: The PANID is used in building the IID following RFC 2464 section 4. */
+    ifcid[0] = (panid >> 8) & 0xfd; /* the U/L bit must be cleared. */
+    ifcid[1] = (panid >> 0) & 0xff;
+    ifcid[2] = 0x00;
+    ifcid[3] = 0xff;
+    ifcid[4] = 0xfe;
+    ifcid[5] = 0x00;
+    ifcid[6] = (addr >> 8) & 0xff;
+    ifcid[7] = (addr >> 0) & 0xff;
+} /* lowpan_addr16_with_panid_to_ifcid  */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -731,7 +763,14 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
     if (hints) {
-        lowpan_addr16_to_ifcid(hints->src16, ifcid);
+
+        /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference */
+        if (rfc4944_short_address_format) {
+            lowpan_addr16_with_panid_to_ifcid(hints->src_pan, hints->src16, ifcid);
+        } else {
+            lowpan_addr16_to_ifcid(hints->src16, ifcid);
+        }
+
         return TRUE;
     } else {
         /* Failed to find a link-layer source address. */
@@ -770,7 +809,14 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
     if (hints) {
-        lowpan_addr16_to_ifcid(hints->dst16, ifcid);
+
+        /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference */
+        if (rfc4944_short_address_format) {
+            lowpan_addr16_with_panid_to_ifcid(hints->src_pan, hints->dst16, ifcid);
+        } else {
+            lowpan_addr16_to_ifcid(hints->dst16, ifcid);
+        }
+
         return TRUE;
     } else {
         /* Failed to find a link-layer destination address. */
@@ -2227,6 +2273,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
     const guint8 *      src_ifcid;
     const guint8 *      dst_ifcid;
 
+    ieee802154_hints_t  *hints;
+
     /* Create a tree for the mesh header. */
     mesh_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_6lowpan_mesh, &ti, "Mesh Header");
 
@@ -2270,7 +2318,18 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_orig16, tvb, offset, 2, addr16);
         }
         ifcid = (guint8 *)wmem_alloc(pinfo->pool, 8);
-        lowpan_addr16_to_ifcid(addr16, ifcid);
+
+        /* Lookup the IEEE 802.15.4 addressing hints wanting RFC 2464 compatibility. */
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+
+        /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference and the presence of hints from lower layers */
+        if (hints && rfc4944_short_address_format) {
+            lowpan_addr16_with_panid_to_ifcid(hints->src_pan, addr16, ifcid);
+        } else {
+            lowpan_addr16_to_ifcid(addr16, ifcid);
+        }
+
         src_ifcid = ifcid;
         /* Update source IID */
         memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
@@ -2299,7 +2358,18 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_dest16, tvb, offset, 2, addr16);
         }
         ifcid = (guint8 *)wmem_alloc(pinfo->pool, 8);
-        lowpan_addr16_to_ifcid(addr16, ifcid);
+
+        /* Lookup the IEEE 802.15.4 addressing hints wanting RFC 2464 compatibility. */
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+
+        /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference and the presence of hints from lower layers */
+        if (hints && rfc4944_short_address_format) {
+            lowpan_addr16_with_panid_to_ifcid(hints->src_pan, addr16, ifcid);
+        } else {
+            lowpan_addr16_to_ifcid(addr16, ifcid);
+        }
+
         dst_ifcid = ifcid;
         /* Update destination IID */
         memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
@@ -2855,6 +2925,12 @@ proto_register_6lowpan(void)
 
     /* Register preferences. */
     prefs_module = prefs_register_protocol(proto_6lowpan, prefs_6lowpan_apply);
+
+    prefs_register_bool_preference(prefs_module, "rfc4944_short_address_format",
+                                   "Derive IID according to RFC 4944",
+                                   "Derive IID from a short 16-bit address according to RFC 4944 (using the PAN ID).",
+                                   &rfc4944_short_address_format);
+
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         char *pref_name, *pref_title;
 
