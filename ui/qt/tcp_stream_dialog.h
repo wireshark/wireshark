@@ -93,6 +93,8 @@ private:
     void findStream();
     void fillGraph();
     void zoomAxes(bool in);
+    void zoomXAxis(bool in);
+    void zoomYAxis(bool in);
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes();
     void fillStevens();
@@ -119,7 +121,11 @@ private slots:
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
     void on_actionZoomIn_triggered();
+    void on_actionZoomInX_triggered();
+    void on_actionZoomInY_triggered();
     void on_actionZoomOut_triggered();
+    void on_actionZoomOutX_triggered();
+    void on_actionZoomOutY_triggered();
     void on_actionReset_triggered();
     void on_actionMoveRight10_triggered();
     void on_actionMoveLeft10_triggered();

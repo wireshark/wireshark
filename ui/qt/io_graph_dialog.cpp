@@ -219,7 +219,11 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     ui->dragRadioButton->setChecked(mouse_drags_);
 
     ctx_menu_.addAction(ui->actionZoomIn);
+    ctx_menu_.addAction(ui->actionZoomInX);
+    ctx_menu_.addAction(ui->actionZoomInY);
     ctx_menu_.addAction(ui->actionZoomOut);
+    ctx_menu_.addAction(ui->actionZoomOutX);
+    ctx_menu_.addAction(ui->actionZoomOutY);
     ctx_menu_.addAction(ui->actionReset);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionMoveRight10);
@@ -478,7 +482,20 @@ void IOGraphDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_I:             // GTK+
         zoomAxes(true);
         break;
-
+    case Qt::Key_X:             // Zoom X axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomXAxis(false);   // upper case X -> Zoom out
+        } else {
+            zoomXAxis(true);    // lower case x -> Zoom in
+        }
+        break;
+    case Qt::Key_Y:             // Zoom Y axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomYAxis(false);   // upper case Y -> Zoom out
+        } else {
+            zoomYAxis(true);    // lower case y -> Zoom in
+        }
+        break;
     case Qt::Key_Right:
     case Qt::Key_L:
         panAxes(pan_pixels, 0);
@@ -587,6 +604,36 @@ void IOGraphDialog::zoomAxes(bool in)
     }
 
     iop->xAxis->scaleRange(h_factor, iop->xAxis->range().center());
+    iop->yAxis->scaleRange(v_factor, iop->yAxis->range().center());
+    iop->replot();
+}
+
+void IOGraphDialog::zoomXAxis(bool in)
+{
+    QCustomPlot *iop = ui->ioPlot;
+    double h_factor = iop->axisRect()->rangeZoomFactor(Qt::Horizontal);
+
+    auto_axes_ = false;
+
+    if (!in) {
+        h_factor = pow(h_factor, -1);
+    }
+
+    iop->xAxis->scaleRange(h_factor, iop->xAxis->range().center());
+    iop->replot();
+}
+
+void IOGraphDialog::zoomYAxis(bool in)
+{
+    QCustomPlot *iop = ui->ioPlot;
+    double v_factor = iop->axisRect()->rangeZoomFactor(Qt::Vertical);
+
+    auto_axes_ = false;
+
+    if (!in) {
+        v_factor = pow(v_factor, -1);
+    }
+
     iop->yAxis->scaleRange(v_factor, iop->yAxis->range().center());
     iop->replot();
 }
@@ -1361,9 +1408,29 @@ void IOGraphDialog::on_actionZoomIn_triggered()
     zoomAxes(true);
 }
 
+void IOGraphDialog::on_actionZoomInX_triggered()
+{
+    zoomXAxis(true);
+}
+
+void IOGraphDialog::on_actionZoomInY_triggered()
+{
+    zoomYAxis(true);
+}
+
 void IOGraphDialog::on_actionZoomOut_triggered()
 {
     zoomAxes(false);
+}
+
+void IOGraphDialog::on_actionZoomOutX_triggered()
+{
+    zoomXAxis(false);
+}
+
+void IOGraphDialog::on_actionZoomOutY_triggered()
+{
+    zoomYAxis(false);
 }
 
 void IOGraphDialog::on_actionMoveUp10_triggered()
