@@ -54,6 +54,7 @@ private:
     // We may want to subclass it at some point.
     QListWidget *recent_files_;
 //    MWOverlay *overlay;
+    QMenu *recent_ctx_menu_;
 
 
 signals:
@@ -75,6 +76,9 @@ private slots:
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
     void changeEvent(QEvent* event);
+    void showRecentContextMenu(QPoint pos);
+    void showRecentFolder();
+    void copyRecentPath();
 };
 
 #endif // MAIN_WELCOME_H

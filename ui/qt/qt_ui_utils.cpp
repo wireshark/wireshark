@@ -37,7 +37,12 @@
 
 #include <QAction>
 #include <QDateTime>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFileInfo>
 #include <QFontDatabase>
+#include <QProcess>
+#include <QUrl>
 #include <QUuid>
 
 /* Make the format_size_flags_e enum usable in C++ */
@@ -191,6 +196,38 @@ bool qActionLessThan(const QAction * a1, const QAction * a2) {
 bool qStringCaseLessThan(const QString &s1, const QString &s2)
 {
     return s1.compare(s2, Qt::CaseInsensitive) < 0;
+}
+
+// http://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
+void desktop_show_in_folder(const QString file_path)
+{
+    bool success = false;
+
+#if defined(Q_OS_WIN)
+    QString path = QDir::toNativeSeparators(file_path);
+    QString command = "explorer.exe /select," + path;
+    success = QProcess::startDetached(command);
+#elif defined(Q_OS_MAC)
+    QStringList script_args;
+
+    // XXX Find a way to pass special characters here.
+    script_args << "-e"
+               << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
+                                     .arg(file_path);
+    if (QProcess::execute("/usr/bin/osascript", script_args) == 0) {
+        success = true;
+        script_args.clear();
+        script_args << "-e"
+                   << "tell application \"Finder\" to activate";
+        QProcess::execute("/usr/bin/osascript", script_args);
+    }
+#else
+    // Is there a way to highlight the file using xdg-open?
+#endif
+    if (!success) { // Last resort
+        QFileInfo file_info = file_path;
+        QDesktopServices::openUrl(QUrl::fromLocalFile(file_info.dir().absolutePath()));
+    }
 }
 
 /*

@@ -185,6 +185,14 @@ bool qActionLessThan(const QAction *a1, const QAction *a2);
  */
 bool qStringCaseLessThan(const QString &s1, const QString &s2);
 
+/**
+ * Given the path to a file, open its containing folder in the desktop
+ * shell. Highlight the file if possible.
+ *
+ * @param file_path Path to the file.
+ */
+void desktop_show_in_folder(const QString file_path);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration
