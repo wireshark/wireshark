@@ -34,6 +34,10 @@
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Zoom in X axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Zoom out X axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Zoom in Y axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zoom out Y axis&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
@@ -450,6 +454,50 @@
    </property>
    <property name="shortcut">
     <string>Space</string>
+   </property>
+  </action>
+  <action name="actionZoomInX">
+   <property name="text">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionZoomOutX">
+   <property name="text">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+X</string>
+   </property>
+  </action>
+  <action name="actionZoomInY">
+   <property name="text">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="actionZoomOutY">
+   <property name="text">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Y</string>
    </property>
   </action>
  </widget>

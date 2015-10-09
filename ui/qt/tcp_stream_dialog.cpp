@@ -47,7 +47,6 @@
 // - Make the crosshairs tracer a vertical band?
 // - Implement File->Copy
 // - Add UDP graphs
-// - Add horizontal- and vertical-only zoom via modifier keys?
 // - Make the first throughput MA period a dotted/dashed line?
 // - Add range scroll bars?
 // - ACK & RWIN segment ticks in tcptrace graph
@@ -125,7 +124,11 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->dragRadioButton->setChecked(mouse_drags_);
 
     ctx_menu_.addAction(ui->actionZoomIn);
+    ctx_menu_.addAction(ui->actionZoomInX);
+    ctx_menu_.addAction(ui->actionZoomInY);
     ctx_menu_.addAction(ui->actionZoomOut);
+    ctx_menu_.addAction(ui->actionZoomOutX);
+    ctx_menu_.addAction(ui->actionZoomOutY);
     ctx_menu_.addAction(ui->actionReset);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionMoveRight10);
@@ -248,7 +251,20 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_I:             // GTK+
         zoomAxes(true);
         break;
-
+    case Qt::Key_X:             // Zoom X axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomXAxis(false);   // upper case X -> Zoom out
+        } else {
+            zoomXAxis(true);    // lower case x -> Zoom in
+        }
+        break;
+    case Qt::Key_Y:             // Zoom Y axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomYAxis(false);   // upper case Y -> Zoom out
+        } else {
+            zoomYAxis(true);    // lower case y -> Zoom in
+        }
+        break;
     case Qt::Key_Right:
     case Qt::Key_L:
         panAxes(pan_pixels, 0);
@@ -447,6 +463,32 @@ void TCPStreamDialog::zoomAxes(bool in)
     }
 
     sp->xAxis->scaleRange(h_factor, sp->xAxis->range().center());
+    sp->yAxis->scaleRange(v_factor, sp->yAxis->range().center());
+    sp->replot();
+}
+
+void TCPStreamDialog::zoomXAxis(bool in)
+{
+    QCustomPlot *sp = ui->streamPlot;
+    double h_factor = sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
+
+    if (!in) {
+        h_factor = pow(h_factor, -1);
+    }
+
+    sp->xAxis->scaleRange(h_factor, sp->xAxis->range().center());
+    sp->replot();
+}
+
+void TCPStreamDialog::zoomYAxis(bool in)
+{
+    QCustomPlot *sp = ui->streamPlot;
+    double v_factor = sp->axisRect()->rangeZoomFactor(Qt::Vertical);
+
+    if (!in) {
+        v_factor = pow(v_factor, -1);
+    }
+
     sp->yAxis->scaleRange(v_factor, sp->yAxis->range().center());
     sp->replot();
 }
@@ -1071,9 +1113,29 @@ void TCPStreamDialog::on_actionZoomIn_triggered()
     zoomAxes(true);
 }
 
+void TCPStreamDialog::on_actionZoomInX_triggered()
+{
+    zoomXAxis(true);
+}
+
+void TCPStreamDialog::on_actionZoomInY_triggered()
+{
+    zoomYAxis(true);
+}
+
 void TCPStreamDialog::on_actionZoomOut_triggered()
 {
     zoomAxes(false);
+}
+
+void TCPStreamDialog::on_actionZoomOutX_triggered()
+{
+    zoomXAxis(false);
+}
+
+void TCPStreamDialog::on_actionZoomOutY_triggered()
+{
+    zoomYAxis(false);
 }
 
 void TCPStreamDialog::on_actionReset_triggered()
