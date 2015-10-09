@@ -7,66 +7,82 @@
 #  KERBEROS_FOUND        - True if krb5 found.
 #  KERBEROS_DLL_DIR      - (Windows) Path to the Kerberos DLLs.
 #  KERBEROS_DLLS         - (Windows) List of required Kerberos DLLs.
+#  HAVE_HEIMDAL_KERBEROS - set if the Kerberos vendor is Heimdal
+#  HAVE_MIT_KERBEROS     - set if the Kerberos vendor is MIT
 
 
-IF (KERBEROS_INCLUDE_DIRS)
+if(KERBEROS_INCLUDE_DIRS)
   # Already in cache, be silent
-  SET(KERBEROS_FIND_QUIETLY TRUE)
-ENDIF (KERBEROS_INCLUDE_DIRS)
+  set(KERBEROS_FIND_QUIETLY TRUE)
+endif()
 
-INCLUDE(FindWSWinLibs)
+include(FindWSWinLibs)
 FindWSWinLibs("kfw-.*" "KERBEROS_HINTS")
 
 find_package(PkgConfig)
-pkg_search_module(KERBEROS krb5)
+pkg_search_module(KERBEROS krb5 mit-krb5 heimdal-krb5)
 
-FIND_PATH(KERBEROS_INCLUDE_DIR krb5.h
-  HINTS
-    "${KERBEROS_INCLUDEDIR}"
-    "${KERBEROS_HINTS}/include"
-)
+if(NOT KERBEROS_FOUND)
+  # Fallback detection if pkg-config files are not installed.
+  # Note, this fallback will not add k5crypto and com_err libraries on Linux,
+  # ensure that pkg-config files are installed for full support.
+  find_path(KERBEROS_INCLUDE_DIR krb5.h
+    HINTS
+      "${KERBEROS_HINTS}/include"
+  )
 
-SET(KERBEROS_NAMES krb5 krb5_32 krb5_64)
-FIND_LIBRARY(KERBEROS_LIBRARY NAMES ${KERBEROS_NAMES}
-  HINTS
-    "${KERBEROS_LIBDIR}"
-    "${KERBEROS_HINTS}/lib"
-)
+  set(KERBEROS_NAMES krb5 krb5_32 krb5_64)
+  find_library(KERBEROS_LIBRARY NAMES ${KERBEROS_NAMES}
+    HINTS
+      "${KERBEROS_HINTS}/lib"
+  )
 
-# handle the QUIETLY and REQUIRED arguments and set KERBEROS_FOUND to TRUE if
-# all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(KERBEROS DEFAULT_MSG KERBEROS_LIBRARY KERBEROS_INCLUDE_DIR)
+  # handle the QUIETLY and REQUIRED arguments and set KERBEROS_FOUND to TRUE if
+  # all listed variables are TRUE
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(KERBEROS DEFAULT_MSG KERBEROS_LIBRARY KERBEROS_INCLUDE_DIR)
 
-# todo
-# add all kerberos libs
-# autodetect HAVE_HEIMDAL_KERBEROS
-# autodetect HAVE_MIT_KERBEROS (use pkg_search_module(mit-krb5)?)
-# autodetect(?) HAVE_KEYTYPE_ARCFOUR_56
+  if(KERBEROS_FOUND)
+    set(KERBEROS_LIBRARIES ${KERBEROS_LIBRARY})
+    set(KERBEROS_INCLUDE_DIRS ${KERBEROS_INCLUDE_DIR})
+  else()
+    set(KERBEROS_LIBRARIES)
+    set(KERBEROS_INCLUDE_DIRS)
+  endif()
+endif()
 
-IF(KERBEROS_FOUND)
-  SET( KERBEROS_LIBRARIES ${KERBEROS_LIBRARY} )
-  SET( KERBEROS_INCLUDE_DIRS ${KERBEROS_INCLUDE_DIR} )
-  if (WIN32)
-    set ( KERBEROS_DLL_DIR "${KERBEROS_HINTS}/bin"
+# Try to detect the installed Kerberos vendor, assume MIT if it was not Heimdal.
+if(KERBEROS_FOUND)
+  include(CheckSymbolExists)
+  set(CMAKE_REQUIRED_INCLUDES ${KERBEROS_INCLUDE_DIRS})
+  set(CMAKE_REQUIRED_LIBRARIES ${KERBEROS_LIBRARIES})
+  check_symbol_exists("heimdal_version" "krb5.h" HAVE_HEIMDAL_KERBEROS)
+  set(CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES)
+  if(NOT HAVE_HEIMDAL_KERBEROS)
+    set(HAVE_MIT_KERBEROS 1)
+  endif()
+endif()
+
+if(WIN32)
+  if(KERBEROS_FOUND)
+    set(KERBEROS_DLL_DIR "${KERBEROS_HINTS}/bin"
       CACHE PATH "Path to the Kerberos DLLs"
     )
-    file( GLOB _kerberos_dlls RELATIVE "${KERBEROS_DLL_DIR}"
+    file(GLOB _kerberos_dlls RELATIVE "${KERBEROS_DLL_DIR}"
       "${KERBEROS_DLL_DIR}/comerr??.dll"
       "${KERBEROS_DLL_DIR}/krb5_??.dll"
       "${KERBEROS_DLL_DIR}/k5sprt??.dll"
     )
-    set ( KERBEROS_DLLS ${_kerberos_dlls}
+    set(KERBEROS_DLLS ${_kerberos_dlls}
       # We're storing filenames only. Should we use STRING instead?
       CACHE FILEPATH "Kerberos DLL list"
     )
-    mark_as_advanced( KERBEROS_DLL_DIR KERBEROS_DLLS )
+    mark_as_advanced(KERBEROS_DLL_DIR KERBEROS_DLLS)
+  else()
+    set(KERBEROS_DLL_DIR)
+    set(KERBEROS_DLLS)
   endif()
-ELSE(KERBEROS_FOUND)
-  SET( KERBEROS_LIBRARIES )
-  SET( KERBEROS_INCLUDE_DIRS )
-  SET( KERBEROS_DLL_DIR )
-  SET( KERBEROS_DLLS )
-ENDIF(KERBEROS_FOUND)
+endif()
 
-MARK_AS_ADVANCED( KERBEROS_LIBRARIES KERBEROS_INCLUDE_DIRS )
+mark_as_advanced(KERBEROS_LIBRARIES KERBEROS_INCLUDE_DIRS)
