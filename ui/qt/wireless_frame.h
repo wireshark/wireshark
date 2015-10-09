@@ -48,18 +48,18 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private:
-    void setChannel();
+    void getInterfaceInfo();
+    void setInterfaceInfo();
 
 private slots:
     void updateWidgets();
 
     void on_helperToolButton_clicked();
     void on_prefsToolButton_clicked();
-    void on_interfaceComboBox_currentIndexChanged(const QString &cur_iface);
+    void on_interfaceComboBox_activated(int);
     void on_channelComboBox_activated(int);
     void on_channelTypeComboBox_activated(int);
-
-    void on_fcsComboBox_activated(int index);
+    void on_fcsComboBox_activated(int);
 
 private:
     Ui::WirelessFrame *ui;
