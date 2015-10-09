@@ -817,11 +817,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree        *rthdr_tree;
     proto_item        *pi, *ti, *ti_len, *ti_seg;
     int                offset = 0;
-    struct e_in6_addr *addr;
+    struct e_in6_addr *addr, *dst_addr = NULL;
     guint8             addr_count;
     ipv6_meta_t       *ipv6_info;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
+    /* addr contains the final destination address after dissection of a routing type is finished */
     addr = wmem_new0(pinfo->pool, struct e_in6_addr);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
@@ -873,13 +874,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                 }
             }
-            if (rt.ip6r_segleft)
-                SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+            dst_addr = addr;
         }
     }
 
     /* Mobile IPv6 Routing Header (Type 2) */
-    if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
+    else if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
         offset += 4;
 
@@ -897,13 +897,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             if (in6_is_addr_multicast(addr)) {
                 expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
             }
-            if (rt.ip6r_segleft)
-                SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, addr);
+            dst_addr = addr;
         }
     }
 
     /* RPL Source Routing Header (Type 3) */
-    if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
+    else if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
         guint8 cmprI;
         guint8 cmprE;
         guint8 pad;
@@ -1049,8 +1048,13 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                     }
                 }
+                dst_addr = addr;
             }
         }
+    }
+
+    if (dst_addr != NULL && rt.ip6r_segleft > 0) {
+        SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, dst_addr);
     }
 
     ipv6_info->exthdr_count++;
