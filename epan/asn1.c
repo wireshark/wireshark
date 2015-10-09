@@ -28,6 +28,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#ifdef DEBUG
+#include <stdio.h>
+#endif
 
 #include <epan/packet.h>
 
@@ -269,7 +272,7 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
     }
     val = (double) S * N * pow(2, F) * pow(B, E);
 #ifdef DEBUG
-    printf("S = %d, N = %lu, F = %u, B = %u, E = %d -> %f\n", S, N, F, B, E, Eneg, val);
+    printf("S = %d, N = %lu, F = %u, B = %u, E = %d -> %f\n", S, N, F, B, E, val);
 #endif
   } else if (octet & 0x40) {  /* SpecialRealValue */
     switch (octet & 0x3F) {
