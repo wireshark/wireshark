@@ -1162,274 +1162,272 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
     offset_end = offset + len;
 
-    if (tree) {
-        /* !!! specify length */
-        ti = proto_tree_add_item(tree, hf_exthdr_item, tvb, offset, len, ENC_NA);
+    /* !!! specify length */
+    ti = proto_tree_add_item(tree, hf_exthdr_item, tvb, offset, len, ENC_NA);
 
-        if (hopopts && ipv6_info->exthdr_count > 0) {
-            /* IPv6 Hop-by-Hop must appear immediately after IPv6 header (RFC 2460) */
-            expert_add_info(pinfo, ti, &ei_ipv6_hopopts_not_first);
-        }
-
-        exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
-
-        if (hf_exthdr_item == hf_ipv6_hopopts) {
-            hf_exthdr_item_nxt = hf_ipv6_hopopts_nxt;
-            hf_exthdr_item_length = hf_ipv6_hopopts_length;
-        } else if (hf_exthdr_item == hf_ipv6_dstopts) {
-            hf_exthdr_item_nxt = hf_ipv6_dstopts_nxt;
-            hf_exthdr_item_length = hf_ipv6_dstopts_length;
-        } else {
-            DISSECTOR_ASSERT_NOT_REACHED();
-        }
-
-        proto_tree_add_item(exthdr_tree, hf_exthdr_item_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        ti_len = proto_tree_add_item(exthdr_tree, hf_exthdr_item_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
-        offset += 1;
-
-        while (offset_end > offset) {
-            /* there are more options */
-
-            /* IPv6 Option */
-            ti_opt = proto_tree_add_item(exthdr_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
-            opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
-
-            /* Option type */
-            proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            opt_type = tvb_get_guint8(tvb, offset);
-
-            /* Add option name to option root label */
-            proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
-
-            /* The Pad1 option is a special case, and contains no data. */
-            if (opt_type == IP6OPT_PAD1) {
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_pad1, tvb, offset, 1, ENC_NA);
-                offset += 1;
-                proto_item_append_text(ti_opt, ")");
-                continue;
-            }
-            offset += 1;
-
-            /* Option length */
-            ti_opt_len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            opt_len = tvb_get_guint8(tvb, offset);
-            proto_item_set_len(ti_opt, opt_len + 2);
-            offset += 1;
-            offset_opt_end = offset + opt_len;
-
-            switch (opt_type) {
-            case IP6OPT_PADN:
-                /* RFC 2460 states :
-                 * "The PadN option is used to insert two or more octets of
-                 * padding into the Options area of a header.  For N octets of
-                 * padding, the Opt Data Len field contains the value N-2, and
-                 * the Option Data consists of N-2 zero-valued octets."
-                 */
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_padn, tvb,
-                                    offset, opt_len, ENC_NA);
-                offset += opt_len;
-                break;
-            case IP6OPT_TEL:
-                if (opt_len != 1) {
-                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_tel_invalid_len,
-                                           "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
-                }
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb,
-                                    offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                break;
-            case IP6OPT_JUMBO:
-                if (opt_len != 4) {
-                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_jumbo_invalid_len,
-                                           "Jumbo payload: Invalid length (%u bytes)", opt_len);
-                }
-                ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
-                                    offset, 4, ENC_BIG_ENDIAN);
-                if (!hopopts) {
-                    expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_not_hopbyhop);
-                } else if (ipv6_info->exthdr_count == 0) {
-                    if (!ipv6_info->jumbogram) {
-                        if (iph->ip_len) {
-                            expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_prohibited);
-                            proto_item_append_text(ti, " [Ignored]");
-                        } else {
-                            ipv6_info->jumbogram = TRUE;
-                            plen_jumbo = tvb_get_ntohl(tvb, offset);
-                            if (plen_jumbo < 65536) {
-                                expert_add_info(pinfo, ti, &ei_ipv6_opt_jumbo_truncated);
-                            } else {
-                                ipv6_info->jumbo_length = plen_jumbo;
-                            }
-                        }
-                    } else {
-                        /* XXX - Repeated jumbo TLV */
-                        ;
-                    }
-                }
-                offset += 4;
-                break;
-            case IP6OPT_RTALERT:
-            {
-                if (opt_len != 2) {
-                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_rtalert_invalid_len,
-                                           "Router alert: Invalid Length (%u bytes)",
-                                           opt_len + 2);
-                }
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb,
-                                    offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                break;
-            }
-            case IP6OPT_HOME_ADDRESS:
-            {
-                if (opt_len != 16) {
-                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
-                                           "Home Address: Invalid length (%u bytes)", opt_len);
-                }
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb,
-                                    offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&pinfo->src, AT_IPv6, tvb, offset, 16);
-                offset += 16;
-                break;
-            }
-            case IP6OPT_CALIPSO:
-            {
-                guint8 cmpt_length;
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_doi, tvb,
-                                    offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_length, tvb,
-                                    offset, 1, ENC_BIG_ENDIAN);
-                cmpt_length = tvb_get_guint8(tvb, offset);
-                offset += 1;
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_sens_level, tvb,
-                                    offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* Need to add Check Checksum..*/
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_checksum, tvb,
-                                    offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
-                                    offset, cmpt_length*4, ENC_NA);
-                offset += cmpt_length*4;
-                break;
-            }
-            case IP6OPT_QUICKSTART:
-            {
-
-                guint8 command = tvb_get_guint8(tvb, offset);
-                guint8 function = command >> 4;
-                guint8 rate = command & QS_RATE_MASK;
-                guint8 ttl_diff;
-
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-                if (function == QS_RATE_REQUEST) {
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
-                    ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff,
-                                                          tvb, offset, 1, ttl_diff);
-                    PROTO_ITEM_SET_GENERATED(ti);
-                    proto_item_append_text(ti_opt, ", %s, QS TTL %u, QS TTL diff %u",
-                                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
-                                           tvb_get_guint8(tvb, offset), ttl_diff);
-                    offset += 1;
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                } else if (function == QS_RATE_REPORT) {
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_item_append_text(ti_opt, ", %s",
-                                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                }
-
-            }
-            break;
-            case IP6OPT_RPL:
-            {
-                static const int * rpl_flags[] = {
-                    &hf_ipv6_opt_rpl_flag_o,
-                    &hf_ipv6_opt_rpl_flag_r,
-                    &hf_ipv6_opt_rpl_flag_f,
-                    &hf_ipv6_opt_rpl_flag_rsv,
-                    NULL
-                };
-
-                proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_rpl_flag, ett_ipv6_opt_rpl, rpl_flags, ENC_NA);
-                offset +=1;
-
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_instance_id, tvb, offset, 1, ENC_NA);
-                offset +=1;
-
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_senderrank, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset +=2;
-
-                /* TODO: Add dissector of sub TLV */
-            }
-            break;
-            case IP6OPT_MPL:
-            {
-                static const int * mpl_flags[] = {
-                    &hf_ipv6_opt_mpl_flag_s,
-                    &hf_ipv6_opt_mpl_flag_m,
-                    &hf_ipv6_opt_mpl_flag_v,
-                    &hf_ipv6_opt_mpl_flag_rsv,
-                    NULL
-                };
-                static const guint8 seed_id_len_arr[4] = {0, 2, 8, 16};
-                guint8 seed_id_len;
-
-                proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_mpl_flag, ett_ipv6_opt_mpl, mpl_flags, ENC_NA);
-                seed_id_len = seed_id_len_arr[tvb_get_guint8(tvb, offset) >> 6];
-                offset +=1;
-
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_sequence, tvb, offset, 1, ENC_NA);
-                offset +=1;
-                if (seed_id_len > 0) {
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_seed_id, tvb, offset, seed_id_len, ENC_NA);
-                    offset +=seed_id_len;
-                }
-            }
-            break;
-            case IP6OPT_EXP_1E:
-            case IP6OPT_EXP_3E:
-            case IP6OPT_EXP_5E:
-            case IP6OPT_EXP_7E:
-            case IP6OPT_EXP_9E:
-            case IP6OPT_EXP_BE:
-            case IP6OPT_EXP_DE:
-            case IP6OPT_EXP_FE:
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_experimental, tvb,
-                                    offset, opt_len, ENC_NA);
-                offset += opt_len;
-                break;
-            default:
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
-                                    offset, opt_len, ENC_NA);
-                offset += opt_len;
-                break;
-            }
-            if(offset < offset_opt_end){
-                ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data, tvb, offset, offset_opt_end - offset, ENC_NA);
-                expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
-                offset = offset_opt_end;
-            }
-            /* Close the ) to option root label */
-            proto_item_append_text(ti_opt, ")");
-        }
-
+    if (hopopts && ipv6_info->exthdr_count > 0) {
+        /* IPv6 Hop-by-Hop must appear immediately after IPv6 header (RFC 2460) */
+        expert_add_info(pinfo, ti, &ei_ipv6_hopopts_not_first);
     }
+
+    exthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+
+    if (hf_exthdr_item == hf_ipv6_hopopts) {
+        hf_exthdr_item_nxt = hf_ipv6_hopopts_nxt;
+        hf_exthdr_item_length = hf_ipv6_hopopts_length;
+    } else if (hf_exthdr_item == hf_ipv6_dstopts) {
+        hf_exthdr_item_nxt = hf_ipv6_dstopts_nxt;
+        hf_exthdr_item_length = hf_ipv6_dstopts_length;
+    } else {
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
+
+    proto_tree_add_item(exthdr_tree, hf_exthdr_item_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    ti_len = proto_tree_add_item(exthdr_tree, hf_exthdr_item_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
+    offset += 1;
+
+    while (offset_end > offset) {
+        /* there are more options */
+
+        /* IPv6 Option */
+        ti_opt = proto_tree_add_item(exthdr_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
+        opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
+
+        /* Option type */
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        opt_type = tvb_get_guint8(tvb, offset);
+
+        /* Add option name to option root label */
+        proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
+
+        /* The Pad1 option is a special case, and contains no data. */
+        if (opt_type == IP6OPT_PAD1) {
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_pad1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_item_append_text(ti_opt, ")");
+            continue;
+        }
+        offset += 1;
+
+        /* Option length */
+        ti_opt_len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        opt_len = tvb_get_guint8(tvb, offset);
+        proto_item_set_len(ti_opt, opt_len + 2);
+        offset += 1;
+        offset_opt_end = offset + opt_len;
+
+        switch (opt_type) {
+        case IP6OPT_PADN:
+            /* RFC 2460 states :
+             * "The PadN option is used to insert two or more octets of
+             * padding into the Options area of a header.  For N octets of
+             * padding, the Opt Data Len field contains the value N-2, and
+             * the Option Data consists of N-2 zero-valued octets."
+             */
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_padn, tvb,
+                                offset, opt_len, ENC_NA);
+            offset += opt_len;
+            break;
+        case IP6OPT_TEL:
+            if (opt_len != 1) {
+                expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_tel_invalid_len,
+                                       "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
+            }
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+        case IP6OPT_JUMBO:
+            if (opt_len != 4) {
+                expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_jumbo_invalid_len,
+                                       "Jumbo payload: Invalid length (%u bytes)", opt_len);
+            }
+            ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
+                                offset, 4, ENC_BIG_ENDIAN);
+            if (!hopopts) {
+                expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_not_hopbyhop);
+            } else if (ipv6_info->exthdr_count == 0) {
+                if (!ipv6_info->jumbogram) {
+                    if (iph->ip_len) {
+                        expert_add_info(pinfo, ti_opt, &ei_ipv6_opt_jumbo_prohibited);
+                        proto_item_append_text(ti, " [Ignored]");
+                    } else {
+                        ipv6_info->jumbogram = TRUE;
+                        plen_jumbo = tvb_get_ntohl(tvb, offset);
+                        if (plen_jumbo < 65536) {
+                            expert_add_info(pinfo, ti, &ei_ipv6_opt_jumbo_truncated);
+                        } else {
+                            ipv6_info->jumbo_length = plen_jumbo;
+                        }
+                    }
+                } else {
+                    /* XXX - Repeated jumbo TLV */
+                    ;
+                }
+            }
+            offset += 4;
+            break;
+        case IP6OPT_RTALERT:
+        {
+            if (opt_len != 2) {
+                expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_rtalert_invalid_len,
+                                       "Router alert: Invalid Length (%u bytes)",
+                                       opt_len + 2);
+            }
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb,
+                                offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        }
+        case IP6OPT_HOME_ADDRESS:
+        {
+            if (opt_len != 16) {
+                expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
+                                       "Home Address: Invalid length (%u bytes)", opt_len);
+            }
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb,
+                                offset, 16, ENC_NA);
+            TVB_SET_ADDRESS(&pinfo->src, AT_IPv6, tvb, offset, 16);
+            offset += 16;
+            break;
+        }
+        case IP6OPT_CALIPSO:
+        {
+            guint8 cmpt_length;
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_doi, tvb,
+                                offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_length, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            cmpt_length = tvb_get_guint8(tvb, offset);
+            offset += 1;
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_sens_level, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* Need to add Check Checksum..*/
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_checksum, tvb,
+                                offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
+                                offset, cmpt_length*4, ENC_NA);
+            offset += cmpt_length*4;
+            break;
+        }
+        case IP6OPT_QUICKSTART:
+        {
+
+            guint8 command = tvb_get_guint8(tvb, offset);
+            guint8 function = command >> 4;
+            guint8 rate = command & QS_RATE_MASK;
+            guint8 ttl_diff;
+
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            if (function == QS_RATE_REQUEST) {
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
+                ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff,
+                                                      tvb, offset, 1, ttl_diff);
+                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_append_text(ti_opt, ", %s, QS TTL %u, QS TTL diff %u",
+                                       val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
+                                       tvb_get_guint8(tvb, offset), ttl_diff);
+                offset += 1;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            } else if (function == QS_RATE_REPORT) {
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_item_append_text(ti_opt, ", %s",
+                                       val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
+
+        }
+        break;
+        case IP6OPT_RPL:
+        {
+            static const int * rpl_flags[] = {
+                &hf_ipv6_opt_rpl_flag_o,
+                &hf_ipv6_opt_rpl_flag_r,
+                &hf_ipv6_opt_rpl_flag_f,
+                &hf_ipv6_opt_rpl_flag_rsv,
+                NULL
+            };
+
+            proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_rpl_flag, ett_ipv6_opt_rpl, rpl_flags, ENC_NA);
+            offset +=1;
+
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_instance_id, tvb, offset, 1, ENC_NA);
+            offset +=1;
+
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_senderrank, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset +=2;
+
+            /* TODO: Add dissector of sub TLV */
+        }
+        break;
+        case IP6OPT_MPL:
+        {
+            static const int * mpl_flags[] = {
+                &hf_ipv6_opt_mpl_flag_s,
+                &hf_ipv6_opt_mpl_flag_m,
+                &hf_ipv6_opt_mpl_flag_v,
+                &hf_ipv6_opt_mpl_flag_rsv,
+                NULL
+            };
+            static const guint8 seed_id_len_arr[4] = {0, 2, 8, 16};
+            guint8 seed_id_len;
+
+            proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_mpl_flag, ett_ipv6_opt_mpl, mpl_flags, ENC_NA);
+            seed_id_len = seed_id_len_arr[tvb_get_guint8(tvb, offset) >> 6];
+            offset +=1;
+
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_sequence, tvb, offset, 1, ENC_NA);
+            offset +=1;
+            if (seed_id_len > 0) {
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_seed_id, tvb, offset, seed_id_len, ENC_NA);
+                offset +=seed_id_len;
+            }
+        }
+        break;
+        case IP6OPT_EXP_1E:
+        case IP6OPT_EXP_3E:
+        case IP6OPT_EXP_5E:
+        case IP6OPT_EXP_7E:
+        case IP6OPT_EXP_9E:
+        case IP6OPT_EXP_BE:
+        case IP6OPT_EXP_DE:
+        case IP6OPT_EXP_FE:
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_experimental, tvb,
+                                offset, opt_len, ENC_NA);
+            offset += opt_len;
+            break;
+        default:
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
+                                offset, opt_len, ENC_NA);
+            offset += opt_len;
+            break;
+        }
+        if(offset < offset_opt_end){
+            ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data, tvb, offset, offset_opt_end - offset, ENC_NA);
+            expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+            offset = offset_opt_end;
+        }
+        /* Close the ) to option root label */
+        proto_item_append_text(ti_opt, ")");
+    }
+
     ipv6_info->exthdr_count++;
     return len;
 }
