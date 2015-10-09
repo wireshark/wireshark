@@ -39,7 +39,7 @@ typedef const gchar* (*AddrNameResolutionToString)(const address* addr);
 struct _address_type_t;
 typedef struct _address_type_t address_type_t;
 
-int address_type_dissector_register(const char* name, const char* pretty_name,
+WS_DLL_PUBLIC int address_type_dissector_register(const char* name, const char* pretty_name,
                                     AddrValueToString to_str_func, AddrValueToStringLen str_len_func,
                                     AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func,
                                     AddrNameResolutionToString name_res_str_func, AddrNameResolutionLen name_res_len_func);
