@@ -226,6 +226,9 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 	set( DUMPCAP_INSTALL_OPTION )
 endif()
 
+# Always enable -fPIE (or -fPIC). -pie is added below for non-MSVC.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if (MSVC10)
 		set(MSC_VER_REQUIRED 1600)
@@ -346,7 +349,6 @@ else()
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
-		-fPIE
 		-Wvla
 		-Waddress
 		-Wattributes
@@ -568,7 +570,7 @@ endif()
 if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
-		-fPIE -pie
+		-pie
 		# -flto
 		# -fwhopr
 		# -fwhole-program
@@ -871,9 +873,6 @@ if(HAVE_LIBZLIB)
 endif()
 if (Qt5Widgets_FOUND)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-	if (Qt5_POSITION_INDEPENDENT_CODE)
-		set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-	endif()
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
 	if(Qt5Multimedia_FOUND)
