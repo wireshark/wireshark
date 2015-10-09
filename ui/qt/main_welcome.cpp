@@ -33,10 +33,14 @@
 #include <ui_main_welcome.h>
 #include "tango_colors.h"
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 #include "interface_tree.h"
 
+#include <QClipboard>
+#include <QDir>
 #include <QListWidget>
+#include <QMenu>
 #include <QResizeEvent>
 #include <QTreeWidgetItem>
 #include <QWidget>
@@ -132,6 +136,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
             "}"
             );
     recent_files_->setTextElideMode(Qt::ElideLeft);
+
+    recent_ctx_menu_ = new QMenu(this);
+    welcome_ui_->recentList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(recent_files_, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(showRecentContextMenu(QPoint)));
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
@@ -300,6 +309,51 @@ void MainWelcome::changeEvent(QEvent* event)
         }
     }
     QFrame::changeEvent(event);
+}
+
+#ifdef Q_OS_MAC
+static const QString show_in_str_ = QObject::tr("Show in Finder");
+#else
+static const QString show_in_str_ = QObject::tr("Show in Folder");
+#endif
+void MainWelcome::showRecentContextMenu(QPoint pos)
+{
+    QListWidgetItem *li = recent_files_->itemAt(pos);
+    if (!li) return;
+
+    recent_ctx_menu_->clear();
+
+    QString cf_path = li->data(Qt::UserRole).toString();
+    QAction *show_action = recent_ctx_menu_->addAction(show_in_str_);
+
+    show_action->setData(cf_path);
+    connect(show_action, SIGNAL(triggered(bool)), this, SLOT(showRecentFolder()));
+
+    QAction *copy_action = recent_ctx_menu_->addAction(tr("Copy file path"));
+    copy_action->setData(cf_path);
+    connect(copy_action, SIGNAL(triggered(bool)), this, SLOT(copyRecentPath()));
+
+    recent_ctx_menu_->exec(recent_files_->mapToGlobal(pos));
+}
+
+void MainWelcome::showRecentFolder()
+{
+    QAction *ria = qobject_cast<QAction*>(sender());
+    if (!ria) return;
+
+    QString cf_path = ria->data().toString();
+    desktop_show_in_folder(cf_path);
+}
+
+void MainWelcome::copyRecentPath()
+{
+    QAction *ria = qobject_cast<QAction*>(sender());
+    if (!ria) return;
+
+    QString cf_path = ria->data().toString();
+    if (cf_path.isEmpty()) return;
+
+    wsApp->clipboard()->setText(cf_path);
 }
 
 /*
