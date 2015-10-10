@@ -540,6 +540,7 @@ private slots:
     void on_actionTelephonyLteRlcStatistics_triggered();
     void statCommandLteRlcStatistics(const char *arg, void *);
     void on_actionTelephonyLteMacStatistics_triggered();
+    void on_actionTelephonyLteRlcGraph_triggered();
     void on_actionTelephonyIax2StreamAnalysis_triggered();
     void on_actionTelephonyISUPMessages_triggered();
     void on_actionTelephonyMtp3Summary_triggered();

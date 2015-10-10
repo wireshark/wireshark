@@ -66,6 +66,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_lbm_lbtru_transport_dialog.h \
 	ui_lbm_stream_dialog.h \
 	ui_lbm_uimflow_dialog.h \
+	ui_lte_rlc_graph_dialog.h	\
 	ui_main_welcome.h	\
 	ui_main_window.h	\
 	ui_main_window_preferences_frame.h	\
@@ -202,6 +203,7 @@ MOC_HDRS =	\
 	lbm_stream_dialog.h	\
 	lbm_uimflow_dialog.h	\
 	lte_mac_statistics_dialog.h	\
+	lte_rlc_graph_dialog.h	\
 	lte_rlc_statistics_dialog.h	\
 	main_status_bar.h	\
 	main_welcome.h	\
@@ -310,6 +312,7 @@ UI_FILES =	\
 	lbm_lbtru_transport_dialog.ui	\
 	lbm_stream_dialog.ui	\
 	lbm_uimflow_dialog.ui	\
+	lte_rlc_graph_dialog.ui	\
 	main_welcome.ui	\
 	main_window.ui	\
 	main_window_preferences_frame.ui	\
@@ -456,6 +459,7 @@ WIRESHARK_QT_SRC =	\
 	lbm_stream_dialog.cpp	\
 	lbm_uimflow_dialog.cpp	\
 	lte_mac_statistics_dialog.cpp	\
+	lte_rlc_graph_dialog.cpp	\
 	lte_rlc_statistics_dialog.cpp	\
 	main_status_bar.cpp	\
 	main_welcome.cpp	\

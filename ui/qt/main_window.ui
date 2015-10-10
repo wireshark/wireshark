@@ -2449,7 +2449,16 @@
    <property name="toolTip">
     <string>LTE RLC statistics</string>
    </property>
-  </action>  <action name="actionTelephonyMtp3Summary">
+  </action>
+  <action name="actionTelephonyLteRlcGraph">
+   <property name="text">
+    <string>RLC Graph</string>
+   </property>
+   <property name="toolTip">
+    <string>LTE RLC graph</string>
+   </property>
+  </action>
+  <action name="actionTelephonyMtp3Summary">
    <property name="text">
     <string>MTP3 Summary</string>
    </property>

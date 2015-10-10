@@ -114,6 +114,7 @@
 #include "lbm_lbtru_transport_dialog.h"
 #include "lte_mac_statistics_dialog.h"
 #include "lte_rlc_statistics_dialog.h"
+#include "lte_rlc_graph_dialog.h"
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
@@ -3023,6 +3024,12 @@ void MainWindow::statCommandLteRlcStatistics(const char *arg, void *)
 void MainWindow::on_actionTelephonyLteRlcStatistics_triggered()
 {
     statCommandLteRlcStatistics(NULL, NULL);
+}
+
+void MainWindow::on_actionTelephonyLteRlcGraph_triggered()
+{
+    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_);
+    lrg_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyMtp3Summary_triggered()

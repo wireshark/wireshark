@@ -202,6 +202,8 @@ lbm_stream_dialog.$(OBJEXT): ui_lbm_stream_dialog.h
 
 lbm_uimflow_dialog.$(OBJEXT): ui_lbm_uimflow_dialog.h
 
+lte_rlc_graph_dialog.$(OBJEXT): ui_lte_rlc_graph_dialog.h
+
 main_welcome.$(OBJEXT): ui_main_welcome.h
 
 main_window.$(OBJEXT): ui_main_window.h

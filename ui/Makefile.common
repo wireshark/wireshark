@@ -72,6 +72,7 @@ WIRESHARK_UI_SRC = \
 	ssl_key_export.c	\
 	tap_export_pdu.c	\
 	tap-iax2-analysis.c	\
+	tap-rlc-graph.c	\
 	tap-rtp-common.c	\
 	tap-sctp-analysis.c \
 	tap-sequence-analysis.c	\
@@ -116,6 +117,7 @@ noinst_HEADERS = \
 	ssl_key_export.h	\
 	tap_export_pdu.h	\
 	tap-iax2-analysis.h	\
+	tap-rlc-graph.h	\
 	tap-rtp-analysis.h	\
 	tap-rtp-common.h	\
 	tap-sctp-analysis.h  \

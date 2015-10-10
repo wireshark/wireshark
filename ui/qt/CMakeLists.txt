@@ -81,6 +81,7 @@ set(WIRESHARK_QT_HEADERS
 	lbm_lbtru_transport_dialog.h
 	lbm_stream_dialog.h
 	lbm_uimflow_dialog.h
+	lte_rlc_graph_dialog.h
 	lte_mac_statistics_dialog.h
 	lte_rlc_statistics_dialog.h
 	main_status_bar.h
@@ -224,6 +225,7 @@ set(WIRESHARK_QT_SRC
 	lbm_lbtru_transport_dialog.cpp
 	lbm_stream_dialog.cpp
 	lbm_uimflow_dialog.cpp
+	lte_rlc_graph_dialog.cpp
 	lte_mac_statistics_dialog.cpp
 	lte_rlc_statistics_dialog.cpp
 	main_status_bar.cpp
@@ -365,6 +367,7 @@ set(WIRESHARK_QT_UI
 	lbm_lbtru_transport_dialog.ui
 	lbm_stream_dialog.ui
 	lbm_uimflow_dialog.ui
+	lte_rlc_graph_dialog.ui
 	main_welcome.ui
 	main_window.ui
 	main_window_preferences_frame.ui

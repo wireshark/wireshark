@@ -20,6 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef PACKET_RLC_LTE_H
+#define PACKET_RLC_LTE_H
+
 /* rlcMode */
 #define RLC_TM_MODE 1
 #define RLC_UM_MODE 2
@@ -153,4 +156,5 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
    continues until the end of the frame) */
 #define RLC_LTE_PAYLOAD_TAG         0x01
 
+#endif
 
