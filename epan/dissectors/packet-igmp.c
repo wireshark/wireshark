@@ -907,6 +907,8 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* version 0 */
 	if ((type&0xf0)==0){
 		offset = dissect_igmp_v0(tvb, pinfo, tree, type, offset);
+		proto_item_set_len(item, offset);
+		return;
 	}
 
 	switch (type) {
