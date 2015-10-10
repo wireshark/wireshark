@@ -54,6 +54,7 @@ set(COMMON_UI_SRC
 	tap-rtp-common.c
 	tap-sctp-analysis.c
 	tap-sequence-analysis.c
+	tap-rlc-graph.c
 	tap-tcp-stream.c
 	text_import.c
 	time_shift.c

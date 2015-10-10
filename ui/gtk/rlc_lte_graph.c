@@ -32,6 +32,8 @@
 # include <gdk/gdkkeysyms-compat.h>
 #endif
 
+#include <ui/tap-rlc-graph.h>
+
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-rlc-lte.h>
@@ -63,28 +65,7 @@
 
 extern int proto_rlc_lte;
 
-struct segment {
-    struct segment *next;
-    guint32 num;            /* framenum */
-    guint32 rel_secs;
-    guint32 rel_usecs;
-    guint32 abs_secs;
-    guint32 abs_usecs;
 
-    gboolean        isControlPDU;
-    guint16         SN;
-    guint16         isResegmented;
-    guint16         ACKNo;
-    #define MAX_NACKs 128
-    guint16         noOfNACKs;
-    guint16         NACKs[MAX_NACKs];
-
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint8          rlcMode;
-    guint8          direction;
-};
 
 struct line {
     double x1, y1, x2, y2;
@@ -119,7 +100,7 @@ struct ellipse_params {
 struct element {
     ElementType type;
     GdkRGBA *elment_color_p;
-    struct segment *parent;
+    struct rlc_segment *parent;
     union {
         struct line_params line;
         struct ellipse_params ellipse;
@@ -132,7 +113,7 @@ struct element_list {
 };
 
 struct axis {
-    struct graph *g;           /* which graph we belong to */
+    struct gtk_rlc_graph *g;           /* which graph we belong to */
     GtkWidget *drawing_area;
     /* Double-buffering to avoid flicker */
 #if GTK_CHECK_VERSION(2,22,0)
@@ -199,7 +180,9 @@ struct grab {
 };
 
 
-struct graph {
+
+/* struct rlc_graph is shared between GTK and Qt implementations. */
+struct gtk_rlc_graph {
 #define GRAPH_DESTROYED             (1 << 0)
     int flags;
     GtkWidget *toplevel;        /* keypress handler needs this */
@@ -239,18 +222,7 @@ struct graph {
     struct cross cross;
     struct axis *x_axis, *y_axis;
 
-    /* List of segments to show */
-    struct segment *segments;
-
-    /* These are filled in with the channel/direction this graph is showing */
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint8          rlcMode;
-    guint8          direction;
-
-    /* Lists of elements to draw */
-    struct element_list *elists;    /* element lists */
+    struct rlc_graph graph;
 
     /* Colours, etc to be used in drawing */
     struct style_rlc_lte style;
@@ -272,37 +244,31 @@ static int refnum = 0;
 /*static int debugging = DBS_TPUT_ELMTS;*/
 static int debugging = 0;
 
-static void create_gui(struct graph * );
-static void create_drawing_area(struct graph * );
+static void create_gui(struct gtk_rlc_graph * );
+static void create_drawing_area(struct gtk_rlc_graph * );
 static void callback_toplevel_destroy(GtkWidget * , gpointer );
 static void callback_create_help(GtkWidget * , gpointer );
 static void get_mouse_position(GtkWidget *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
-static rlc_lte_tap_info *select_rlc_lte_session(capture_file *, struct segment * );
-static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                           guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                           gboolean isControlFrame);
-static void get_data_control_counts(struct graph *g, int *data, int *acks, int *nacks);
+static void get_data_control_counts(struct gtk_rlc_graph *g, int *data, int *acks, int *nacks);
 
-static struct graph *graph_new(void);
-static void graph_destroy(struct graph * );
-static void graph_initialize_values(struct graph * );
-static void graph_init_sequence(struct graph * );
-static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkRGBA *new_color);
-static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr , GdkRGBA *new_color);
-static void graph_display(struct graph * );
-static void graph_pixmaps_create(struct graph * );
-static void graph_pixmaps_switch(struct graph * );
-static void graph_pixmap_draw(struct graph * );
-static void graph_pixmap_display(struct graph * );
-static void graph_element_lists_make(struct graph * );
-static void graph_element_lists_free(struct graph * );
-static void graph_element_lists_initialize(struct graph * );
-static void graph_title_pixmap_create(struct graph * );
-static void graph_title_pixmap_draw(struct graph * );
-static void graph_title_pixmap_display(struct graph * );
-static void graph_segment_list_get(struct graph *, gboolean channel_known );
-static void graph_segment_list_free(struct graph * );
-static void graph_select_segment(struct graph * , int , int );
+static struct gtk_rlc_graph *graph_new(void);
+static void graph_destroy(struct gtk_rlc_graph * );
+static void graph_initialize_values(struct gtk_rlc_graph * );
+static void graph_init_sequence(struct gtk_rlc_graph * );
+static void draw_element_line(struct gtk_rlc_graph * , struct element * ,  cairo_t * , GdkRGBA *new_color);
+static void draw_element_ellipse(struct gtk_rlc_graph * , struct element * , cairo_t *cr , GdkRGBA *new_color);
+static void graph_display(struct gtk_rlc_graph * );
+static void graph_pixmaps_create(struct gtk_rlc_graph * );
+static void graph_pixmaps_switch(struct gtk_rlc_graph * );
+static void graph_pixmap_draw(struct gtk_rlc_graph * );
+static void graph_pixmap_display(struct gtk_rlc_graph * );
+static void graph_element_lists_make(struct gtk_rlc_graph * );
+static void graph_element_lists_free(struct gtk_rlc_graph * );
+static void graph_element_lists_initialize(struct gtk_rlc_graph * );
+static void graph_title_pixmap_create(struct gtk_rlc_graph * );
+static void graph_title_pixmap_draw(struct gtk_rlc_graph * );
+static void graph_title_pixmap_display(struct gtk_rlc_graph * );
+static void graph_select_segment(struct gtk_rlc_graph * , int , int );
 static int line_detect_collision(struct element * , int , int );
 static int ellipse_detect_collision(struct element *e, int x, int y);
 static void axis_pixmaps_create(struct axis * );
@@ -318,15 +284,15 @@ static void axis_ticks_down(int * , int * );
 static void axis_destroy(struct axis * );
 static int get_label_dim(struct axis * , int , double );
 
-static void toggle_crosshairs(struct graph *);
-static void cross_draw(struct graph * , int x, int y);
-static void cross_erase(struct graph * );
-static void zoomrect_draw(struct graph * , int , int );
-static void zoomrect_erase(struct graph * );
+static void toggle_crosshairs(struct gtk_rlc_graph *);
+static void cross_draw(struct gtk_rlc_graph * , int x, int y);
+static void cross_erase(struct gtk_rlc_graph * );
+static void zoomrect_draw(struct gtk_rlc_graph * , int , int );
+static void zoomrect_erase(struct gtk_rlc_graph * );
 static gboolean motion_notify_event(GtkWidget * , GdkEventMotion * , gpointer );
 
-static void toggle_time_origin(struct graph * );
-static void restore_initial_graph_view(struct graph *g);
+static void toggle_time_origin(struct gtk_rlc_graph * );
+static void restore_initial_graph_view(struct gtk_rlc_graph *g);
 static gboolean configure_event(GtkWidget * , GdkEventConfigure * , gpointer );
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
@@ -336,10 +302,10 @@ static gboolean expose_event(GtkWidget * , GdkEventExpose * , gpointer );
 static gboolean button_press_event(GtkWidget * , GdkEventButton * , gpointer );
 static gboolean button_release_event(GtkWidget * , GdkEventButton * , gpointer );
 static gboolean key_press_event(GtkWidget * , GdkEventKey * , gpointer );
-static void graph_initialize(struct graph *);
-static void graph_get_bounds(struct graph *);
-static void graph_read_config(struct graph *);
-static void rlc_lte_make_elmtlist(struct graph *);
+static void graph_initialize(struct gtk_rlc_graph *);
+static void graph_get_bounds(struct gtk_rlc_graph *);
+static void graph_read_config(struct gtk_rlc_graph *);
+static void rlc_lte_make_elmtlist(struct gtk_rlc_graph *);
 
 #if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
 /* Starting VS2013, rint already defined in math.h. No need to redefine */
@@ -407,13 +373,19 @@ static void unset_busy_cursor(GdkWindow *w)
 
 void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    struct segment current;
-    struct graph *g;
+    struct rlc_segment current;
+    struct gtk_rlc_graph *g;
+    gchar    *err_msg = NULL;
+    gboolean free_err_msg = FALSE;
 
     debug(DBS_FENTRY) puts("rlc_lte_graph_cb()");
 
     /* Can we choose an RLC channel from the selected frame? */
-    if (!select_rlc_lte_session(&cfile, &current)) {
+    if (!select_rlc_lte_session(&cfile, &current, &err_msg, &free_err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        if (free_err_msg) {
+            g_free(err_msg);
+        }
         return;
     }
 
@@ -425,7 +397,7 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
     graph_initialize_values(g);
 
     /* Get our list of segments from the packet list */
-    graph_segment_list_get(g, FALSE);
+    rlc_graph_segment_list_get(&cfile, &(g->graph), FALSE, &err_msg, &free_err_msg);
 
     create_gui(g);
     graph_init_sequence(g);
@@ -435,9 +407,11 @@ void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
                                         guint16 channelType, guint16 channelId,
                                         guint8 direction)
 {
-    struct graph *g;
+    struct gtk_rlc_graph *g;
+    gchar    *err_msg = NULL;
+    gboolean free_err_msg = FALSE;
 
-    debug(DBS_FENTRY) puts("rlc_lte_graph_known_channel()");
+    debug(DBS_FENTRY) puts("rlc_lte_graph_known_channel_launch()");
 
     if (!(g = graph_new())) {
         return;
@@ -447,28 +421,29 @@ void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
     graph_initialize_values(g);
 
     /* Can set channel info for graph now */
-    g->ueid = ueid;
-    g->rlcMode = rlcMode;
-    g->channelType = channelType;
-    g->channelId = channelId;
-    g->direction = direction;
+    g->graph.ueid = ueid;
+    g->graph.rlcMode = rlcMode;
+    g->graph.channelType = channelType;
+    g->graph.channelId = channelId;
+    g->graph.direction = direction;
+    g->graph.channelSet = TRUE;
 
     /* Get our list of segments from the packet list */
-    graph_segment_list_get(g, TRUE);
+    rlc_graph_segment_list_get(&cfile, &(g->graph), TRUE, &err_msg, &free_err_msg);
 
     create_gui(g);
     graph_init_sequence(g);
 }
 
 
-static void create_gui(struct graph *g)
+static void create_gui(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("create_gui()");
     /* create_text_widget(g); */
     create_drawing_area(g);
 }
 
-static void create_drawing_area(struct graph *g)
+static void create_drawing_area(struct gtk_rlc_graph *g)
 {
 #if GTK_CHECK_VERSION(3,0,0)
     GtkStyleContext *context;
@@ -482,10 +457,10 @@ static void create_drawing_area(struct graph *g)
     /* Set channel details in title */
     g_snprintf(window_title, WINDOW_TITLE_LENGTH, "LTE RLC Graph %d: %s (UE-%u, chan=%s%u %s - %s)",
                refnum, display_name,
-               g->ueid, (g->channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
-               g->channelId,
-               (g->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-               (g->rlcMode == RLC_UM_MODE) ? "UM" : "AM");
+               g->graph.ueid, (g->graph.channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
+               g->graph.channelId,
+               (g->graph.direction == DIRECTION_UPLINK) ? "UL" : "DL",
+               (g->graph.rlcMode == RLC_UM_MODE) ? "UM" : "AM");
     g_free(display_name);
     g->toplevel = dlg_window_new("RLC Graph");
     gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
@@ -550,11 +525,11 @@ static void create_drawing_area(struct graph *g)
 
 static void callback_toplevel_destroy(GtkWidget *widget _U_, gpointer data)
 {
-    struct graph *g = (struct graph * )data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph * )data;
 
     if (!(g->flags & GRAPH_DESTROYED)) {
         g->flags |= GRAPH_DESTROYED;
-        graph_destroy((struct graph * )data);
+        graph_destroy((struct gtk_rlc_graph * )data);
     }
 }
 
@@ -608,11 +583,11 @@ static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y
 #endif
 }
 
-static struct graph *graph_new(void)
+static struct gtk_rlc_graph *graph_new(void)
 {
-    struct graph *g;
+    struct gtk_rlc_graph *g;
 
-    g = (struct graph * )g_malloc0(sizeof(struct graph));
+    g = (struct gtk_rlc_graph * )g_malloc0(sizeof(struct gtk_rlc_graph));
     graph_element_lists_initialize(g);
 
     g->x_axis = (struct axis * )g_malloc0(sizeof(struct axis));
@@ -636,7 +611,7 @@ static struct graph *graph_new(void)
     return g;
 }
 
-static void graph_initialize_values(struct graph *g)
+static void graph_initialize_values(struct gtk_rlc_graph *g)
 {
     g->geom.width = g->wp.width = 750;
     g->geom.height = g->wp.height = 550;
@@ -654,7 +629,7 @@ static void graph_initialize_values(struct graph *g)
     g->grab.grabbed = 0;
 }
 
-static void graph_init_sequence(struct graph *g)
+static void graph_init_sequence(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("graph_init_sequence()");
 
@@ -679,7 +654,7 @@ static void graph_init_sequence(struct graph *g)
     axis_display(g->x_axis);
 }
 
-static void graph_initialize(struct graph *g)
+static void graph_initialize(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("graph_initialize()");
     graph_get_bounds(g);
@@ -691,7 +666,7 @@ static void graph_initialize(struct graph *g)
     graph_read_config(g);
 }
 
-static void graph_destroy(struct graph *g)
+static void graph_destroy(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("graph_destroy()");
 
@@ -716,318 +691,38 @@ static void graph_destroy(struct graph *g)
 #endif /* GTK_CHECK_VERSION(2,22,0) */
     g_free(g->x_axis);
     g_free(g->y_axis);
-    graph_segment_list_free(g);
+    rlc_graph_segment_list_free(&g->graph);
     graph_element_lists_free(g);
 
     g_free(g);
 }
 
-
-typedef struct rlc_scan_t {
-    struct graph   *g;
-    struct segment *last;
-} rlc_scan_t;
-
-
-static int
-tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+static void graph_element_lists_initialize(struct gtk_rlc_graph *g)
 {
-    rlc_scan_t   *ts = (rlc_scan_t *)pct;
-    struct graph *g  = ts->g;
-    const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
-
-    /* See if this one matches current channel */
-    if (compare_headers(g->ueid,       g->channelType,       g->channelId,       g->rlcMode,       g->direction,
-                        rlchdr->ueid,  rlchdr->channelType,  rlchdr->channelId,  rlchdr->rlcMode,  rlchdr->direction,
-                        rlchdr->isControlPDU)) {
-
-        struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
-
-        /* It matches.  Add to end of segment list */
-        segment->next = NULL;
-        segment->num = pinfo->fd->num;
-        segment->rel_secs = (guint32) pinfo->rel_ts.secs;
-        segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
-        segment->abs_secs = (guint32) pinfo->fd->abs_ts.secs;
-        segment->abs_usecs = pinfo->fd->abs_ts.nsecs/1000;
-
-        segment->ueid = rlchdr->ueid;
-        segment->channelType = rlchdr->channelType;
-        segment->channelId = rlchdr->channelId;
-        segment->direction = rlchdr->direction;
-
-        segment->isControlPDU = rlchdr->isControlPDU;
-
-        if (!rlchdr->isControlPDU) {
-            /* Data */
-            segment->SN = rlchdr->sequenceNumber;
-            segment->isResegmented = rlchdr->isResegmented;
-        }
-        else {
-            /* Status PDU */
-            gint n;
-            segment->ACKNo = rlchdr->ACKNo;
-            segment->noOfNACKs = rlchdr->noOfNACKs;
-            for (n=0; n < rlchdr->noOfNACKs; n++) {
-                segment->NACKs[n] = rlchdr->NACKs[n];
-            }
-        }
-
-        /* Add to list */
-        if (ts->g->segments) {
-            /* Add to end of existing last element */
-            ts->last->next = segment;
-        } else {
-            /* Make this the first (only) segment */
-            ts->g->segments = segment;
-        }
-
-        /* This one is now the last one */
-        ts->last = segment;
-    }
-
-    return 0;
+    g->graph.elists = (struct element_list *)g_malloc0(sizeof(struct element_list));
+    g->graph.elists->elements = NULL;
+    g->graph.elists->next = NULL;
 }
 
-
-/* Here we collect all the external data we will ever need */
-static void graph_segment_list_get(struct graph *g, gboolean channel_known)
-{
-    struct segment current;
-    GString    *error_string;
-    rlc_scan_t  ts;
-    current.ueid = 0;
-    current.rlcMode = 0;
-    current.channelType = 0;
-    current.channelId = 0;
-    current.isControlPDU = 0;
-    current.direction = 0;
-
-    debug(DBS_FENTRY) puts("graph_segment_list_get()");
-
-    if (!channel_known) {
-        select_rlc_lte_session(&cfile, &current);
-
-        g->ueid = current.ueid;
-        g->rlcMode = current.rlcMode;
-        g->channelType = current.channelType;
-        g->channelId = current.channelId;
-        g->direction = (!current.isControlPDU) ? current.direction : !current.direction;
-    }
-
-    /* rescan all the packets and pick up all frames for this channel.
-     * we only filter for LTE RLC here for speed and do the actual compare
-     * in the tap listener
-     */
-
-    ts.g = g;
-    ts.last = NULL;
-    error_string = register_tap_listener("rlc-lte", &ts, "rlc-lte", 0, NULL, tapall_rlc_lte_packet, NULL);
-    if (error_string){
-        fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
-                error_string->str);
-        g_string_free(error_string, TRUE);
-        exit(1);
-    }
-    cf_retap_packets(&cfile);
-    remove_tap_listener(&ts);
-}
-
-
-typedef struct _th_t {
-    int num_hdrs;
-    #define MAX_SUPPORTED_CHANNELS 8
-    rlc_lte_tap_info *rlchdrs[MAX_SUPPORTED_CHANNELS];
-} th_t;
-
-
-static int
-tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
-{
-    int       n;
-    gboolean  is_unique = TRUE;
-    th_t     *th        = (th_t *)pct;
-    const rlc_lte_tap_info *header = (const rlc_lte_tap_info*)vip;
-
-    /* Check new header details against any/all stored ones */
-    for (n=0; n < th->num_hdrs; n++) {
-        rlc_lte_tap_info *stored = th->rlchdrs[n];
-
-        if (compare_headers(stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
-                            header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
-                            header->isControlPDU)) {
-            is_unique = FALSE;
-            break;
-        }
-    }
-
-    /* Add address if unique and have space for it */
-    if (is_unique && (th->num_hdrs < MAX_SUPPORTED_CHANNELS)) {
-        /* Copy the tap stuct in as next header */
-        /* Need to take a deep copy of the tap struct, it may not be valid
-           to read after this function returns? */
-        th->rlchdrs[th->num_hdrs] = g_new(rlc_lte_tap_info,1);
-        *(th->rlchdrs[th->num_hdrs]) = *header;
-
-        /* Store in direction of data though... */
-        if (th->rlchdrs[th->num_hdrs]->isControlPDU) {
-            th->rlchdrs[th->num_hdrs]->direction = !th->rlchdrs[th->num_hdrs]->direction;
-        }
-        th->num_hdrs++;
-    }
-
-    return 0;
-}
-
-
-/* XXX should be enhanced so that if we have multiple RLC channels in the same MAC frame
- * then present the user with a dialog where the user can select WHICH RLC
- * channel to graph.
- */
-static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment *hdrs)
-{
-    frame_data     *fdata;
-    epan_dissect_t  edt;
-    dfilter_t      *sfcode;
-    gchar          *err_msg;
-    GString        *error_string;
-    nstime_t        rel_ts;
-    th_t            th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
-
-    if (cf->state == FILE_CLOSED) {
-        return NULL;
-    }
-
-    fdata = cf->current_frame;
-
-    /* no real filter yet */
-    if (!dfilter_compile("rlc-lte", &sfcode, &err_msg)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-        g_free(err_msg);
-        return NULL;
-    }
-
-    /* dissect the current record */
-    if (!cf_read_record(cf, fdata)) {
-        return NULL;  /* error reading the record */
-    }
-
-    error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);
-    if (error_string){
-        fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
-                error_string->str);
-        g_string_free(error_string, TRUE);
-        exit(1);
-    }
-
-    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
-    epan_dissect_prime_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
-    rel_ts = edt.pi.rel_ts;
-    epan_dissect_cleanup(&edt);
-    remove_tap_listener(&th);
-
-    if (th.num_hdrs == 0){
-        /* This "shouldn't happen", as our menu items shouldn't
-         * even be enabled if the selected packet isn't an RLC PDU
-         * as rlc_lte_graph_selected_packet_enabled() is used
-         * to determine whether to enable any of our menu items. */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Selected packet doesn't have an RLC PDU");
-        return NULL;
-    }
-    /* XXX fix this later, we should show a dialog allowing the user
-       to select which session he wants here
-         */
-    if (th.num_hdrs>1){
-        /* can only handle a single RLC channel yet */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "The selected packet has more than one LTE RLC channel "
-            "in it.");
-        return NULL;
-    }
-
-    /* For now, still always choose the first/only one */
-    hdrs->num = fdata->num;
-    hdrs->rel_secs = (guint32) rel_ts.secs;
-    hdrs->rel_usecs = rel_ts.nsecs/1000;
-    hdrs->abs_secs = (guint32) fdata->abs_ts.secs;
-    hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
-
-    hdrs->ueid = th.rlchdrs[0]->ueid;
-    hdrs->channelType = th.rlchdrs[0]->channelType;
-    hdrs->channelId = th.rlchdrs[0]->channelId;
-    hdrs->rlcMode = th.rlchdrs[0]->rlcMode;
-    hdrs->isControlPDU = th.rlchdrs[0]->isControlPDU;
-    hdrs->direction = !hdrs->isControlPDU ? th.rlchdrs[0]->direction : !th.rlchdrs[0]->direction;
-
-    return th.rlchdrs[0];
-}
-
-static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                           guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                           gboolean frameIsControl)
-{
-    /* Same direction, data - OK. */
-    if (!frameIsControl) {
-        return (direction1 == direction2) &&
-               (ueid1 == ueid2) &&
-               (channelType1 == channelType2) &&
-               (channelId1 == channelId2) &&
-               (rlcMode1 == rlcMode2);
-    }
-    else {
-        if (frameIsControl && (rlcMode1 == RLC_AM_MODE) && (rlcMode2 == RLC_AM_MODE)) {
-            return ((direction1 != direction2) &&
-                    (ueid1 == ueid2) &&
-                    (channelType1 == channelType2) &&
-                    (channelId1 == channelId2));
-        }
-        else {
-            return FALSE;
-        }
-    }
-}
-
-/* Free all segments in the graph */
-static void graph_segment_list_free(struct graph *g)
-{
-    struct segment *segment;
-
-    while (g->segments) {
-        segment = g->segments->next;
-        g_free(g->segments);
-        g->segments = segment;
-    }
-    g->segments = NULL;
-}
-
-static void graph_element_lists_initialize(struct graph *g)
-{
-    g->elists = (struct element_list *)g_malloc0(sizeof(struct element_list));
-    g->elists->elements = NULL;
-    g->elists->next = NULL;
-}
-
-static void graph_element_lists_make(struct graph *g)
+static void graph_element_lists_make(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("graph_element_lists_make()");
     rlc_lte_make_elmtlist(g);
 }
 
-static void graph_element_lists_free(struct graph *g)
+static void graph_element_lists_free(struct gtk_rlc_graph *g)
 {
     struct element_list *list, *next_list;
 
-    for (list=g->elists; list; list=next_list) {
+    for (list=g->graph.elists; list; list=next_list) {
         g_free(list->elements);
         next_list = list->next;
         g_free(list);
     }
-    g->elists = NULL;  /* just to make debugging easier */
+    g->graph.elists = NULL;  /* just to make debugging easier */
 }
 
-static void graph_title_pixmap_create(struct graph *g)
+static void graph_title_pixmap_create(struct gtk_rlc_graph *g)
 {
 #if GTK_CHECK_VERSION(2,22,0)
     if (g->title_surface){
@@ -1049,7 +744,7 @@ static void graph_title_pixmap_create(struct graph *g)
 #endif
 }
 
-static void graph_title_pixmap_draw(struct graph *g)
+static void graph_title_pixmap_draw(struct gtk_rlc_graph *g)
 {
     gint         w, h;
     PangoLayout *layout;
@@ -1073,7 +768,7 @@ static void graph_title_pixmap_draw(struct graph *g)
     cairo_destroy(cr);
 }
 
-static void graph_title_pixmap_display(struct graph *g)
+static void graph_title_pixmap_display(struct gtk_rlc_graph *g)
 {
     cairo_t *cr;
 
@@ -1088,7 +783,7 @@ static void graph_title_pixmap_display(struct graph *g)
     cairo_destroy(cr);
 }
 
-static void graph_pixmaps_create(struct graph *g)
+static void graph_pixmaps_create(struct gtk_rlc_graph *g)
 {
     debug(DBS_FENTRY) puts("graph_pixmaps_create()");
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1129,7 +824,7 @@ static void graph_pixmaps_create(struct graph *g)
 }
 
 
-static void graph_display(struct graph *g)
+static void graph_display(struct gtk_rlc_graph *g)
 {
     set_busy_cursor(gtk_widget_get_window(g->drawing_area));
     graph_pixmap_draw(g);
@@ -1138,7 +833,7 @@ static void graph_display(struct graph *g)
     graph_pixmap_display(g);
 }
 
-static void graph_pixmap_display(struct graph *g)
+static void graph_pixmap_display(struct gtk_rlc_graph *g)
 {
     cairo_t *cr;
 
@@ -1153,12 +848,12 @@ static void graph_pixmap_display(struct graph *g)
     cairo_destroy(cr);
 }
 
-static void graph_pixmaps_switch(struct graph *g)
+static void graph_pixmaps_switch(struct gtk_rlc_graph *g)
 {
     g->displayed = 1 ^ g->displayed;
 }
 
-static void graph_pixmap_draw(struct graph *g)
+static void graph_pixmap_draw(struct gtk_rlc_graph *g)
 {
     struct element_list *list;
     struct element *e;
@@ -1199,7 +894,7 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_set_line_width(cr_elements, 1.0);
 
     /* Draw all elements */
-    for (list=g->elists; list; list=list->next) {
+    for (list=g->graph.elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
 
             /* Work out if we need to change colour */
@@ -1244,7 +939,7 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_destroy(cr_elements);
 }
 
-static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
+static void draw_element_line(struct gtk_rlc_graph *g, struct element *e, cairo_t *cr,
                               GdkRGBA *new_color)
 {
     int xx1, xx2, yy1, yy2;
@@ -1282,7 +977,7 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     cairo_line_to(cr, xx2+0.5, yy2+0.5);
 }
 
-static void draw_element_ellipse(struct graph *g, struct element *e, cairo_t *cr,
+static void draw_element_ellipse(struct gtk_rlc_graph *g, struct element *e, cairo_t *cr,
                                  GdkRGBA *new_color)
 {
     gdouble w = e->p.ellipse.dim.width;
@@ -1376,7 +1071,7 @@ static void axis_display(struct axis *axis)
 /* These show sequence numbers.  Avoid subdividing whole numbers. */
 static void v_axis_pixmap_draw(struct axis *axis)
 {
-    struct graph *g = axis->g;
+    struct gtk_rlc_graph *g = axis->g;
     int           i;
     double        major_tick;
     int           not_disp, offset, imin, imax;
@@ -1476,7 +1171,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
    show 3 decimal places? */
 static void h_axis_pixmap_draw(struct axis *axis)
 {
-    struct graph *g = axis->g;
+    struct gtk_rlc_graph *g = axis->g;
     int           i;
     double        major_tick, minor_tick;
     int           not_disp, rdigits, offset, imin, imax;
@@ -1759,7 +1454,7 @@ static double axis_zoom_get(struct axis *axis, int dir)
     }
 }
 
-static void graph_select_segment(struct graph *g, int x, int y)
+static void graph_select_segment(struct gtk_rlc_graph *g, int x, int y)
 {
     struct element_list *list;
     struct element *e;
@@ -1772,7 +1467,7 @@ static void graph_select_segment(struct graph *g, int x, int y)
 
     set_busy_cursor(gtk_widget_get_window(g->drawing_area));
 
-    for (list=g->elists; list; list=list->next) {
+    for (list=g->graph.elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
             switch (e->type) {
                 case ELMT_LINE:
@@ -1854,7 +1549,7 @@ static int ellipse_detect_collision(struct element *e, int x, int y)
 
 static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
     struct zoom new_zoom;
     int cur_g_width, cur_g_height;
     int cur_wp_width, cur_wp_height;
@@ -1910,7 +1605,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
 static gboolean
 draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
 
     debug(DBS_FENTRY) puts("draw_event()");
 
@@ -1934,7 +1629,7 @@ draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 #else
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("expose_event()");
@@ -1969,7 +1664,7 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 
 
 static void
-perform_zoom(struct graph *g, struct zoomfactor *zf,
+perform_zoom(struct gtk_rlc_graph *g, struct zoomfactor *zf,
              int origin_x, int origin_y)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
@@ -2014,7 +1709,7 @@ perform_zoom(struct graph *g, struct zoomfactor *zf,
 }
 
 static void
-do_zoom_rectangle(struct graph *g, struct irect lcl_zoomrect)
+do_zoom_rectangle(struct gtk_rlc_graph *g, struct irect lcl_zoomrect)
 {
     int cur_width = g->wp.width, cur_height = g->wp.height;
     /* Make copy of geom1 before working out zoom */
@@ -2110,7 +1805,7 @@ do_zoom_rectangle(struct graph *g, struct irect lcl_zoomrect)
 
 
 /* Zoom because of keyboard or mouse press */
-static void do_zoom_common(struct graph *g, GdkEventButton *event,
+static void do_zoom_common(struct gtk_rlc_graph *g, GdkEventButton *event,
                            gboolean lock_vertical, gboolean lock_horizontal)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
@@ -2218,21 +1913,21 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event,
 }
 
 
-static void do_zoom_keyboard(struct graph *g,
+static void do_zoom_keyboard(struct gtk_rlc_graph *g,
                              gboolean lock_vertical,
                              gboolean lock_horizontal)
 {
     do_zoom_common(g, NULL, lock_vertical, lock_horizontal);
 }
 
-static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
+static void do_zoom_mouse(struct gtk_rlc_graph *g, GdkEventButton *event)
 {
     do_zoom_common(g, event,
                    event->state & GDK_SHIFT_MASK,
                    event->state & GDK_CONTROL_MASK);
 }
 
-static void do_zoom_in_keyboard(struct graph *g,
+static void do_zoom_in_keyboard(struct gtk_rlc_graph *g,
                                 gboolean lock_vertical,
                                 gboolean lock_horizontal)
 {
@@ -2240,7 +1935,7 @@ static void do_zoom_in_keyboard(struct graph *g,
     do_zoom_keyboard(g, lock_vertical, lock_horizontal);
 }
 
-static void do_zoom_out_keyboard(struct graph *g,
+static void do_zoom_out_keyboard(struct gtk_rlc_graph *g,
                                  gboolean lock_vertical,
                                  gboolean lock_horizontal)
 {
@@ -2248,7 +1943,7 @@ static void do_zoom_out_keyboard(struct graph *g,
     do_zoom_keyboard(g, lock_vertical, lock_horizontal);
 }
 
-static void do_key_motion(struct graph *g)
+static void do_key_motion(struct gtk_rlc_graph *g)
 {
     if (g->geom.x > g->wp.x) {
         g->geom.x = g->wp.x;
@@ -2275,25 +1970,25 @@ static void do_key_motion(struct graph *g)
     }
 }
 
-static void do_key_motion_up(struct graph *g, int step)
+static void do_key_motion_up(struct gtk_rlc_graph *g, int step)
 {
     g->geom.y += step;
     do_key_motion(g);
 }
 
-static void do_key_motion_down(struct graph *g, int step)
+static void do_key_motion_down(struct gtk_rlc_graph *g, int step)
 {
     g->geom.y -= step;
     do_key_motion(g);
 }
 
-static void do_key_motion_left(struct graph *g, int step)
+static void do_key_motion_left(struct gtk_rlc_graph *g, int step)
 {
     g->geom.x += step;
     do_key_motion(g);
 }
 
-static void do_key_motion_right(struct graph *g, int step)
+static void do_key_motion_right(struct gtk_rlc_graph *g, int step)
 {
     g->geom.x -= step;
     do_key_motion(g);
@@ -2301,7 +1996,7 @@ static void do_key_motion_right(struct graph *g, int step)
 
 static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
 
     debug(DBS_FENTRY) puts("button_press_event()");
 
@@ -2327,7 +2022,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 
 static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
 
     /* Turn off grab if right button released */
     if (event->button == MOUSE_BUTTON_RIGHT) {
@@ -2363,7 +2058,7 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
 
 static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
     int x, y;
     GdkModifierType state;
 
@@ -2428,7 +2123,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
 
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *)user_data;
+    struct gtk_rlc_graph *g = (struct gtk_rlc_graph *)user_data;
     int step;
 
     debug(DBS_FENTRY) puts("key_press_event()");
@@ -2518,7 +2213,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
     return TRUE;
 }
 
-static void toggle_crosshairs(struct graph *g)
+static void toggle_crosshairs(struct gtk_rlc_graph *g)
 {
     /* Toggle state */
     g->cross.draw ^= 1;
@@ -2533,7 +2228,7 @@ static void toggle_crosshairs(struct graph *g)
     }
 }
 
-static void cross_draw(struct graph *g, int x, int y)
+static void cross_draw(struct gtk_rlc_graph *g, int x, int y)
 {
     /* Shouldn't draw twice onto the same position if haven't erased in the
        meantime! */
@@ -2566,7 +2261,7 @@ static void cross_draw(struct graph *g, int x, int y)
     g->cross.erase_needed = TRUE;
 }
 
-static void cross_erase(struct graph *g)
+static void cross_erase(struct gtk_rlc_graph *g)
 {
     int x = g->cross.x;
     int y = g->cross.y;
@@ -2581,7 +2276,7 @@ static void cross_erase(struct graph *g)
     g->cross.erase_needed = FALSE;
 }
 
-static void zoomrect_draw(struct graph *g, int x, int y)
+static void zoomrect_draw(struct gtk_rlc_graph *g, int x, int y)
 {
     if ((zoomrect.x > g->wp.x) && (zoomrect.x < g->wp.x + g->wp.width) &&
         (zoomrect.y > g->wp.y) && (zoomrect.y < g->wp.y + g->wp.height) &&
@@ -2601,7 +2296,7 @@ static void zoomrect_draw(struct graph *g, int x, int y)
     g->zoomrect_erase_needed = TRUE;
 }
 
-static void zoomrect_erase(struct graph *g)
+static void zoomrect_erase(struct gtk_rlc_graph *g)
 {
     /* Just redraw what is in the pixmap buffer */
     graph_pixmap_display(g);
@@ -2610,7 +2305,7 @@ static void zoomrect_erase(struct graph *g)
 
 
 /* Toggle between showing the time starting at 0, or time in capture */
-static void toggle_time_origin(struct graph *g)
+static void toggle_time_origin(struct gtk_rlc_graph *g)
 {
     g->style.flags ^= TIME_ORIGIN;
 
@@ -2625,7 +2320,7 @@ static void toggle_time_origin(struct graph *g)
     axis_display(g->x_axis);
 }
 
-static void restore_initial_graph_view(struct graph *g)
+static void restore_initial_graph_view(struct gtk_rlc_graph *g)
 {
     g->geom.width  = g->wp.width;
     g->geom.height = g->wp.height;
@@ -2642,14 +2337,14 @@ static void restore_initial_graph_view(struct graph *g)
 }
 
 /* Walk the segment list, totalling up data PDUs, status ACKs and NACKs */
-static void get_data_control_counts(struct graph *g, int *data, int *acks, int *nacks)
+static void get_data_control_counts(struct gtk_rlc_graph *g, int *data, int *acks, int *nacks)
 {
-    struct segment *tmp;
+    struct rlc_segment *tmp;
     *data  = 0;
     *acks  = 0;
     *nacks = 0;
 
-    for (tmp=g->segments; tmp; tmp=tmp->next) {
+    for (tmp=g->graph.segments; tmp; tmp=tmp->next) {
         if (tmp->isControlPDU) {
             (*acks)++;
             (*nacks) += tmp->noOfNACKs;
@@ -2665,9 +2360,9 @@ static void get_data_control_counts(struct graph *g, int *data, int *acks, int *
  *  Not currently trying to work out the upper bound of the window, as we
  *  don't reliably know the RLC channel state variables...
  */
-static void graph_get_bounds(struct graph *g)
+static void graph_get_bounds(struct gtk_rlc_graph *g)
 {
-    struct segment *tmp;
+    struct rlc_segment *tmp;
     double   tim;
     gboolean data_frame_seen = FALSE;
     double   data_tim_low = 0;
@@ -2684,7 +2379,7 @@ static void graph_get_bounds(struct graph *g)
     guint32  ack_seq_high = 0;
 
     /* Go through all segments to determine "bounds" */
-    for (tmp=g->segments; tmp; tmp=tmp->next) {
+    for (tmp=g->graph.segments; tmp; tmp=tmp->next) {
          if (!tmp->isControlPDU) {
 
             /* DATA frame */
@@ -2753,7 +2448,7 @@ static void graph_get_bounds(struct graph *g)
     g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
 
-static void graph_read_config(struct graph *g)
+static void graph_read_config(struct gtk_rlc_graph *g)
 {
     /* Black for PDUs */
     g->style.seq_color.red   = (double)0 / 65535.0;
@@ -2791,12 +2486,12 @@ static void graph_read_config(struct graph *g)
     g->x_axis->label[1] = NULL;
 }
 
-static void rlc_lte_make_elmtlist(struct graph *g)
+static void rlc_lte_make_elmtlist(struct gtk_rlc_graph *g)
 {
-    struct segment *tmp;
+    struct rlc_segment *tmp;
     struct element *elements0, *e0;             /* list of elmts showing control */
     struct element *elements1, *e1;             /* list of elmts showing data */
-    struct segment *last_status_segment = NULL;
+    struct rlc_segment *last_status_segment = NULL;
     double   xx0, yy0;
     gboolean ack_seen = FALSE;
     guint32  seq_base;
@@ -2808,7 +2503,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     debug(DBS_FENTRY) puts("rlc_lte_make_elmtlist()");
 
     /* Allocate all needed elements up-front */
-    if (g->elists->elements == NULL) {
+    if (g->graph.elists->elements == NULL) {
         get_data_control_counts(g, &data, &acks, &nacks);
 
         /* Allocate elements for data */
@@ -2820,18 +2515,18 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         e1 = elements1 = (struct element *)g_malloc(n*sizeof(struct element));
 
         /* Allocate container for 2nd list of elements */
-        g->elists->next = (struct element_list *)g_malloc0(sizeof(struct element_list));
+        g->graph.elists->next = (struct element_list *)g_malloc0(sizeof(struct element_list));
 
     } else {
-        e0 = elements0 = g->elists->elements;
-        e1 = elements1 = g->elists->next->elements;
+        e0 = elements0 = g->graph.elists->elements;
+        e1 = elements1 = g->graph.elists->next->elements;
     }
 
     xx0 = g->bounds.x0;
     yy0 = g->bounds.y0;
     seq_base = (guint32) yy0;
 
-    for (tmp=g->segments; tmp; tmp=tmp->next) {
+    for (tmp=g->graph.segments; tmp; tmp=tmp->next) {
         double secs;
         double x, y;
 
@@ -2992,8 +2687,8 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     /* Complete both element lists */
     e0->type = ELMT_NONE;
     e1->type = ELMT_NONE;
-    g->elists->elements = elements0;
-    g->elists->next->elements = elements1;
+    g->graph.elists->elements = elements0;
+    g->graph.elists->next->elements = elements1;
 }
 
 #if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
