@@ -308,16 +308,6 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
     //    RTP_STREAM_DEBUG("adding stream %s to layout, %u packets, start %u", stream_key.toUtf8().constData(), rtp_stream->packet_count, rtp_stream->start_fd->num);
 }
 
-QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
-{
-    if (!button_box) return NULL;
-
-    QPushButton *player_button;
-    player_button = button_box->addButton(tr("Play Streams"), QDialogButtonBox::ApplyRole);
-    player_button->setIcon(StockIcon("media-playback-start"));
-    return player_button;
-}
-
 void RtpPlayerDialog::showEvent(QShowEvent *)
 {
     QList<int> split_sizes = ui->splitter->sizes();
