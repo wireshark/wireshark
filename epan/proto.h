@@ -531,6 +531,8 @@ typedef enum {
 	BASE_PT_SCTP = 16   /**< SCTP port */
 } field_display_e;
 
+#define FIELD_DISPLAY(d) ((d) & FIELD_DISPLAY_E_MASK)
+
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
 #define BASE_RANGE_STRING 0x100
