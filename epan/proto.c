@@ -8029,27 +8029,19 @@ proto_registrar_dump_fields(void)
 			    hfinfo->type == FT_INT56 ||
 			    hfinfo->type == FT_INT64) {
 
-				switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+				switch (FIELD_DISPLAY(hfinfo->display)) {
 					case BASE_NONE:
-						base_name = "BASE_NONE";
-						break;
 					case BASE_DEC:
-						base_name = "BASE_DEC";
-						break;
 					case BASE_HEX:
-						base_name = "BASE_HEX";
-						break;
 					case BASE_OCT:
-						base_name = "BASE_OCT";
-						break;
 					case BASE_DEC_HEX:
-						base_name = "BASE_DEC_HEX";
-						break;
 					case BASE_HEX_DEC:
-						base_name = "BASE_HEX_DEC";
-						break;
 					case BASE_CUSTOM:
-						base_name = "BASE_CUSTOM";
+					case BASE_PT_UDP:
+					case BASE_PT_TCP:
+					case BASE_PT_DCCP:
+					case BASE_PT_SCTP:
+						base_name = val_to_str_const(FIELD_DISPLAY(hfinfo->display), hf_display, "????");
 						break;
 					default:
 						base_name = "????";
