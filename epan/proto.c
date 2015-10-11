@@ -7231,6 +7231,14 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
 			return ptr;
 
+		case BASE_PT_UDP:
+		case BASE_PT_TCP:
+		case BASE_PT_DCCP:
+		case BASE_PT_SCTP:
+			port_with_resolution_to_str_buf(buf, 32,
+					display_to_port_type((field_display_e)display), value);
+			return buf;
+
 		default:
 			g_assert_not_reached();
 	}
