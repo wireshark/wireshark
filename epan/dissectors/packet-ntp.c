@@ -70,7 +70,7 @@ void proto_reg_handoff_ntp(void);
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |                 Key Identifier (optional) (32)                |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                 Message Digest (optional) (128)               |
+ * |                 Message Digest (optional) (128/160)           |
  * |                                                               |
  * |                                                               |
  * |                                                               |
@@ -461,9 +461,9 @@ static const value_string priv_rc_types[] = {
 static value_string_ext priv_rc_types_ext = VALUE_STRING_EXT_INIT(priv_rc_types);
 
 /*
- * Maximum MAC length.
+ * Maximum MAC length : 160 bits MAC + 32 bits Key ID
  */
-#define MAX_MAC_LEN	(5 * sizeof (guint32))
+#define MAX_MAC_LEN	(6 * sizeof (guint32))
 
 static int proto_ntp = -1;
 
