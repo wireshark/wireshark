@@ -21,13 +21,6 @@
 
 project(Wireshark C CXX)
 
-#
-# XXX - temporary, to debug a weird build problem where the build
-# works with CMake but fails with autotools; do this verbosely
-# so that the compile commands can be seen for both builds.
-#
-set(CMAKE_VERBOSE_MAKEFILE 1)
-
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 if(WIN32)
 	# Needed for proper Qt linking. See
