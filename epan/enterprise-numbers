@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-10-03)
+(last updated 2015-10-11)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -46595,8 +46595,8 @@ Decimal
       ggal&vsecurity.com
 11660
   VMS Limited
-    Alvin Kipling
-      AKipling&VMSLimited.co.uk
+    Isaac Coll
+      icoll&vmslimited.co.uk
 11661
   Wahoo International Enterprise Co., Ltd.
     Lord Lee
@@ -73379,9 +73379,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Jerry Wu
       jerry&netklass.com
 18457
-  European Directorate for the Quality of Medicines
-    Claude Coune
-      claude.coune&pheur.org
+  European Directorate for the Quality of Medicines & HealthCare, Council of Europe (EDQM) (formerly 'European Directorate for the Quality of Medicines')
+    Christopher Jarvis
+      christopher.jarvis&edqm.eu
 18458
   Image Processing Techniques Ltd
     Graeme Griffiths
@@ -85709,8 +85709,8 @@ Information Security of Pr
       ammar&kunet.com
 21538
   fqdn.org
-    Michael Holzt
-      kju-ldap&fqdn.org
+    Juliane Holzt
+      iana-oid&juliane.holzt.de
 21539
   Klahn Integration, LLC
     Robert A. Klahn
@@ -127025,7 +127025,7 @@ Decentralization / Helenic Public Administra
 31861
   embinet GmbH
     Stephan Eisvogel
-      eisvogel&embinet.de
+      admins&embinet.de
 31862
   Infinity Trust SRL
     Chifu Valerian
@@ -127111,9 +127111,9 @@ Decentralization / Helenic Public Administra
     Stanislav Bulov
       bulov&metrotekcom.ru
 31883
-  Vega
-    Sergey Skvortsov
-      iana&team.vega.ru
+  Openstat (formerly 'Vega')
+    Anton Yuzhaninov
+      iana-pen&openstat.com
 31884
   Kuipers Electronic Engineering
     Marco de Koomen
@@ -136775,9 +136775,9 @@ Decentralization / Helenic Public Administra
     Harold Lowenthal
       harold&contextream.com
 34299
-  Travelnet Technologies Inc.
-    Jesse White
-      jwhite&datavalet.com
+  Datavalet Technologies Inc.
+    RnD Department
+      it&datavalet.com
 34300
   Croix Rouge Francaise
     Manson Thomas
@@ -185692,7 +185692,7 @@ Decentralization / Helenic Public Administra
     Stefan van Someren
       stefan.van.someren&translink.nl
 46528
-  storswift.com
+  Shanghai Chuxun Information Technology Co.,Ltd.
     Yiqing Wang
       yiqing&storswift.com
 46529
@@ -185819,6 +185819,206 @@ Decentralization / Helenic Public Administra
   ESC - Electronic Service Center GbR
     Martin A. Wielebinski
       marwie&esc.de
+46560
+  Cox Communications Inc - Engineering
+    Shannon Orem
+      shannon.orem&cox.com
+46561
+  BHS Sonthofen GmbH
+    Helmut Clausnitzer
+      helmut.clausnitzer&bhs-sonthofen.de
+46562
+  Revenue Management Solutions, LLC
+    Philip Morrow
+      hostmaster&revenuemanage.com
+46563
+  Virgin Islands Oncology & Hematology,PC
+    Eielt Semper Smith
+      semper&vioandh.com
+46564
+  Entera AS
+    Gunay Mazmanoglu
+      snmp-mib&entera.net
+46565
+  Wiollo Sp. z o.o.
+    Rafal Michalak
+      r.michalak&wiollo.pl
+46566
+  Holbæk Kommune
+    Bo Von Jensen
+      boj&holb.dk
+46567
+  DIROX
+    Truong Ta
+      truong.ta&dirox.net
+46568
+  Moqom Limited
+    David Morrissey
+      david.morrissey&moqom.com
+46569
+  HybridDigital
+    Rittichai Limarunothai
+      rittichai&hybriddigitals.com
+46570
+  Mithril Informatique
+    Jean-Noel Rouchon
+      mail&mithril.re
+46571
+  Fruit of the Loom
+    Cliff Coleman
+      internettechnician&fotlinc.com
+46572
+  Comact Equipment Inc.
+    Stefan Graf
+      sgraf&comact.com
+46573
+  Stefan van Someren
+    Stefan van Someren
+      iana&vansomeren.nl
+46574
+  Encore Systems, LLC
+    Joe Enzminger
+      joe.enzminger&encoresystems.com
+46575
+  WorkCover Queensland
+    Server Support
+      serversupport&workcoverqld.com.au
+46576
+  NFWare Inc.
+    Igor Ryzhov
+      iryzhov&nfware.com
+46577
+  Cloudstead, Inc.
+    Jonathan Cobb
+      jonathan&cloudstead.io
+46578
+  Gereltei Systems
+    Zoljargal Gantumur
+      contact&zoloogg.com
+46579
+  Pivotal Cloud Foundry
+    Toolsmiths
+      cf-toolsmiths&pivotal.io
+46580
+  Braincoolant Oy
+    Jan Tuomi
+      jan.tuomi&braincoolant.fi
+46581
+  MalariaGEN
+    Ian Wright
+      sysadmin&malariagen.net
+46582
+  Robert-Bosch-Krankenhaus GmbH
+    Walid Sbaih
+      its&rbk.de
+46583
+  Linoma Software
+    Bob Luebbe
+      bluebbe&linoma.com
+46584
+  French Lick Resort
+    Andrew K. Condra
+      acondra&frenchlick.com
+46585
+  StrathTech
+    Adam McGhie
+      contact&strathtech.co.uk
+46586
+  ProSiebenSat.1 Media SE
+    Biebl Christian
+      christian.biebl&p7s1produktion.de
+46587
+  Institute of Low Temperature and Structure Research, Polish Academy of Sciences
+    Krzysztof Cach
+      k.cach&int.pan.wroc.pl
+46588
+  Aptitude Technologies
+    Bernard Lefebvre
+      bernard.lefebvre&aptitudetech.net
+46589
+  Stifel Financial Corp
+    Chris Savala
+      chris.savala&stifel.com
+46590
+  suretap wallet lp
+    Abbas Zangeneh
+      abbas.zangeneh&suretap.com
+46591
+  Auditoria y Consultoria de Privacidad y Seguridad, S.L.
+    Candido Rodriguez Montes
+      candido.rodriguez&prise.es
+46592
+  Gebr. Hoffmann Werkzeugmaschinen GmbH
+    Steffen Rademacher
+      st.rademacher&arcor.de
+46593
+  JuntoTelecom
+    Gean Martins
+      gean.martins&juntotelecom.com.br
+46594
+  Matthew Wynn
+    Matthew Wynn
+      matthew&matthewwynn.com
+46595
+  smartbits
+    Stephan Burger
+      stephan.burger&live.at
+46596
+  Hazelnut Software Ltd
+    Technical Support
+      iana&hazelnutsoftware.co.uk
+46597
+  OW2 Consortium
+    Stéphane Laurière
+      stephane.lauriere&ow2.org
+46598
+  Industrielle Alliance Valeurs mobilières inc.
+    Florian Niculae
+      fniculae&iagto.ca
+46599
+  UAB Erisata
+    Karolis Petrauskas
+      karolis.petrauskas&erisata.lt
+46600
+  Mersoft Corporation
+    Jeff Smith
+      itsupport&mersoft.com
+46601
+  Inform-Mobil
+    Alexander Sergin
+      sergin&immo.ru
+46602
+  kt Corporation
+    Sanghun Kim
+      dustin.kim&kt.com
+46603
+  Xeron Universal Technologies
+    Rasmus Riis
+      tech&xeron.dk
+46604
+  NetIndia Private Limited
+    Chandrasekhar Vallabhaneni
+      chandra&netindia.co.in
+46605
+  WALLYS COMMUNICATIONS SDN BHD
+    JOVI YEONG
+      jovi&wallyscommunications.com
+46606
+  Cisco Systems India Private Limited
+    Madhur Raj N
+      madhurn&cisco.com
+46607
+  VetRay N
+    Peter Pfeifer
+      pp&vetray.de
+46608
+  SoftLab–NSK Co., Ltd.
+    Igor Arsenin
+      administration&softlab-nsk.com
+46609
+  The Wireless Innovation Forum
+    Lee Pucker
+      Lee.Pucker&wirelessinnovation.org
 
 
 End of Document
