@@ -2232,10 +2232,22 @@ then
         # ages ago, but don't remember what I did.
         #
         GLIB_VERSION=2.16.3
-        CAIRO_VERSION=1.6.4
-        ATK_VERSION=1.24.0
-        PANGO_VERSION=1.20.2
-        GTK_VERSION=2.12.9
+        if [ "$CAIRO_VERSION" ]
+        then
+            CAIRO_VERSION=1.6.4
+        fi
+        if [ "$ATK_VERSION" ]
+        then
+            ATK_VERSION=1.24.0
+        fi
+        if [ "$PANGO_VERSION" ]
+        then
+            PANGO_VERSION=1.20.2
+        fi
+        if [ "$GTK_VERSION" ]
+        then
+            GTK_VERSION=2.12.9
+        fi
 
         #
         # That version of GTK+ includes gdk-pixbuf.
