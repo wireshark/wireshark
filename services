@@ -1368,6 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
+domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IETF_DPRIVE_Working_Group_Chairs] [Paul_Hoffman_1] 2015-10-08 [draft-ietf-dprive-dns-over-tls] TEMPORARY - registered 2015-10-08, expires 2016-10-08
+domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IETF_DPRIVE_Working_Group_Chairs] [Dan_Wing] 2015-10-08 [draft-ietf-dprive-dnsodtls] TEMPORARY - registered 2015-10-08, expires 2016-10-08
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -7929,6 +7931,7 @@ found            4411/tcp # Found Messaging Protocol [Found_Software] [John_Mitc
 smallchat        4412/udp # SmallChat [Valentino_Giudice] [Valentino_Giudice] 2015-08-18
 avi-nms          4413/tcp # AVI Systems NMS [AVI_Systems] [Dave_Hatz] 2015-09-18
 avi-nms-disc     4413/udp # AVI Systems NMS [AVI_Systems] [Dave_Hatz] 2015-09-18
+updog            4414/tcp # Updog Monitoring and Status Framework [Egon_Technologies_LLC] [James_Downs] 2015-10-05
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
