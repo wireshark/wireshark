@@ -5920,8 +5920,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_uuid_t   uuid;
     guint              mtu;
 
-    uuid.size = 0;
-    uuid.bt_uuid = 0;
+    memset(&uuid, 0, sizeof uuid);
 
     bluetooth_data = (bluetooth_data_t *) data;
 
