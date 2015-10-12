@@ -63,28 +63,16 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "  padding: 2em;"
                       " }"
                       "MainWelcome, QAbstractItemView {"
-                      "  background-color: white;"
-                      "  color: #%1;"
+                      "  background-color: palette(base);"
+                      "  color: palette(text);"
                       " }"
                       "QListWidget {"
                       "  border: 0;"
-                      "}"
-                      "QListWidget::item::hover {"
-                      "  background-color: #%3;"
-                      "  color: #%4;"
-                      "}"
-                      "QListWidget::item:selected {"
-                      "  background-color: #%2;"
-                      "  color: white;"
                       "}"
                       "QTreeWidget {"
                       "  border: 0;"
                       "}"
                       )
-                      .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
-                      .arg(tango_sky_blue_4,  6, 16, QChar('0'))   // Selected background
-                      .arg(tango_sky_blue_1, 6, 16, QChar('0'))    // Hover background
-                      .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Hover foreground
                 );
 
     QString title_ss = QString(
