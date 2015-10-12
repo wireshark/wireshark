@@ -4555,14 +4555,20 @@ ssl_compile_keyfile_regex(void)
 {
 #define OCTET "(?:[[:xdigit:]]{2})"
     const gchar *pattern =
-        "(?:PMS_CLIENT_RANDOM (?<client_random_pms>" OCTET "{32}) (?<pms>" OCTET "{32}))"
+        "(?:"
+        /* Matches Client Hellos having this Client Random */
+        "PMS_CLIENT_RANDOM (?<client_random_pms>" OCTET "{32}) "
+        /* Matches first part of encrypted RSA pre-master secret */
+        "|RSA (?<encrypted_pmk>" OCTET "{8}) "
+        /* Pre-Master-Secret is given, it is 48 bytes for RSA,
+           but it can be of any length for DHE */
+        ")(?<pms>" OCTET "+)"
         "|(?:"
-        /* First part of encrypted RSA pre-master secret */
-        "RSA (?<encrypted_pmk>" OCTET "{8}) "
         /* Matches Server Hellos having a Session ID */
-        "|RSA Session-ID:(?<session_id>" OCTET "+) Master-Key:"
-        /* Matches Client Hellos having this Client.Random */
+        "RSA Session-ID:(?<session_id>" OCTET "+) Master-Key:"
+        /* Matches Client Hellos having this Client Random */
         "|CLIENT_RANDOM (?<client_random>" OCTET "{32}) "
+        /* Master-Secret is given, its length is fixed */
         ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})";
 #undef OCTET
     static GRegex *regex = NULL;
