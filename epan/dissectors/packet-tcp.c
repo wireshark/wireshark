@@ -1395,11 +1395,14 @@ finished_fwd:
 finished_checking_retransmission_type:
 
     nextseq = seq+seglen;
-    if (seglen || flags&(TH_SYN|TH_FIN)) {
-        /* add this new sequence number to the fwd list */
+    if ((seglen || flags&(TH_SYN|TH_FIN)) && tcpd->fwd->segment_count < TCP_MAX_UNACKED_SEGMENTS) {
+        /* Add this new sequence number to the fwd list.  But only if there
+	 * aren't "too many" unacked segements (e.g., we're not seeing the ACKs).
+	 */
         ual = wmem_new(wmem_file_scope(), tcp_unacked_t);
         ual->next=tcpd->fwd->segments;
         tcpd->fwd->segments=ual;
+        tcpd->fwd->segment_count++;
         ual->frame=pinfo->fd->num;
         ual->seq=seq;
         ual->ts=pinfo->fd->abs_ts;
@@ -1502,6 +1505,7 @@ finished_checking_retransmission_type:
         }
         wmem_free(wmem_file_scope(), ual);
         ual = tmpual;
+        tcpd->rev->segment_count--;
     }
 
     /* how many bytes of data are there in flight after this frame
