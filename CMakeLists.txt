@@ -189,7 +189,7 @@ set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
 else()
-	set(VERSION_FLAVOR "Development Build")
+	# set(VERSION_FLAVOR "Development Build")
 endif()
 
 # These are required in .rc files and manifests

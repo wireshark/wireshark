@@ -49,6 +49,10 @@
 #include <QGraphicsBlurEffect>
 #endif
 
+#ifndef VERSION_FLAVOR
+#define VERSION_FLAVOR ""
+#endif
+
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
     welcome_ui_(new Ui::MainWelcome),
@@ -59,7 +63,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     welcome_ui_->interfaceTree->resetColumnCount();
 
-    welcome_ui_->mainWelcomeBanner->setText(tr("Welcome to Wireshark."));
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(QString(
@@ -78,6 +81,18 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "}"
                       )
                 );
+
+    QString welcome_ss = QString(
+                "QLabel {"
+                "  border-radius: 0.33em;"
+                "  color: #%1;"
+                "  background-color: #%2;"
+                "  padding: 0.33em;"
+                "}"
+                )
+            .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
+            .arg(tango_sky_blue_2, 6, 16, QChar('0'));   // Background color
+    welcome_ui_->mainWelcomeBanner->setStyleSheet(welcome_ss);
 
     QString title_ss = QString(
                 "QLabel {"
