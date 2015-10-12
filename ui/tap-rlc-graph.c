@@ -25,6 +25,8 @@
 
 #include "config.h"
 
+#include <stdlib.h>
+
 #include "tap-rlc-graph.h"
 
 #include <file.h>
@@ -138,7 +140,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
+        exit(1);   /* XXX: fix this */
     }
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
