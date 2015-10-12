@@ -88,6 +88,7 @@ static int hf_duidll_hwtype = -1;
 static int hf_duiden_enterprise = -1;
 static int hf_duiden_identifier = -1;
 static int hf_duidll_link_layer_addr = -1;
+static int hf_duiduuid_bytes = -1;
 static int hf_iaid = -1;
 static int hf_iaid_t1 = -1;
 static int hf_iaid_t2 = -1;
@@ -345,7 +346,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define DUID_LLT                1
 #define DUID_EN                 2
 #define DUID_LL                 3
-#define DUID_LL_OLD             4
+#define DUID_UUID               4
 
 static const value_string msgtype_vals[] = {
     { SOLICIT,                       "Solicit" },
@@ -483,10 +484,10 @@ static value_string_ext statuscode_vals_ext = VALUE_STRING_EXT_INIT(statuscode_v
 
 static const value_string duidtype_vals[] =
 {
-    { DUID_LLT,    "link-layer address plus time" },
-    { DUID_EN,     "assigned by vendor based on Enterprise number" },
-    { DUID_LL,     "link-layer address" },
-    { DUID_LL_OLD, "link-layer address (old)" },
+    { DUID_LLT,  "link-layer address plus time" },
+    { DUID_EN,   "assigned by vendor based on Enterprise number" },
+    { DUID_LL,   "link-layer address" },
+    { DUID_UUID, "Universally Unique IDentifier (UUID)" },
     { 0, NULL }
 };
 
@@ -1364,7 +1365,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
             break;
         case DUID_LL:
-        case DUID_LL_OLD:
             if (optlen < 4) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
                 break;
@@ -1375,6 +1375,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 proto_tree_add_string(subtree, hf_duidll_link_layer_addr, tvb, off + 4,
                                     optlen - 4, tvb_arphrdaddr_to_str(tvb, off+4, optlen-4, hwtype));
             }
+            break;
+        case DUID_UUID:
+            if (optlen != 18) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
+                break;
+            }
+            proto_tree_add_item(subtree, hf_duiduuid_bytes, tvb, off + 2, 16, ENC_NA);
             break;
         }
         break;
@@ -2124,6 +2131,8 @@ proto_register_dhcpv6(void)
           { "Identifier", "dhcpv6.duiden.identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duidll_link_layer_addr,
           { "Link-layer address", "dhcpv6.duidll.link_layer_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_duiduuid_bytes,
+          { "UUID", "dhcpv6.duiduuid.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_iaid,
           { "IAID", "dhcpv6.iaid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_iaid_t1,
