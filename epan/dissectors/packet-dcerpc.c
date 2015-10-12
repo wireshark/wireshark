@@ -2199,6 +2199,9 @@ dissect_ndr_ucarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     int          old_offset;
     int          conformance_size = 4;
 
+    /* ensure that just one pointer is set in the call */
+    DISSECTOR_ASSERT((fnct_bytes && !fnct_block) || (!fnct_bytes && fnct_block));
+
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         conformance_size = 8;
     }
