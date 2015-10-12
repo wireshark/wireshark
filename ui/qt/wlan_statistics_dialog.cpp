@@ -463,7 +463,8 @@ static const QString node_col_5_title_ = QObject::tr("Pkts Received");
 static const QString node_col_11_title_ = QObject::tr("Comment");
 
 WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
-    TapParameterDialog(parent, cf, HELP_STATS_WLAN_TRAFFIC_DIALOG)
+    TapParameterDialog(parent, cf, HELP_STATS_WLAN_TRAFFIC_DIALOG),
+    packet_count_(0)
 {
     setWindowSubtitle(tr("Wireless LAN Statistics"));
 
