@@ -47,6 +47,7 @@ static const spx_int16_t visual_sample_rate_ = 1000;
 
 RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     QObject(parent),
+    last_sequence_(0),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
     start_abs_offset_(0.0),
@@ -55,7 +56,8 @@ RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     audio_out_rate_(0),
     audio_resampler_(0),
     audio_output_(0),
-    max_sample_val_(1)
+    max_sample_val_(1),
+    color_(0)
 {
     copy_address(&src_addr_, &rtp_stream->src_addr);
     src_port_ = rtp_stream->src_port;
