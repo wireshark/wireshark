@@ -42,11 +42,9 @@
 Q_DECLARE_METATYPE(RtpAudioStream *)
 Q_DECLARE_METATYPE(QCPGraph *)
 
-#else // QT_MULTIMEDIA_LIB
+#endif // QT_MULTIMEDIA_LIB
 
 #include <QPushButton>
-
-#endif // QT_MULTIMEDIA_LIB
 
 #include "stock_icon.h"
 #include "wireshark_application.h"
