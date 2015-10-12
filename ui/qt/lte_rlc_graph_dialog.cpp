@@ -52,10 +52,8 @@
 // - how to avoid panning or zooming out to -ve (x or y axis)
 // - goto packet functionality when click on segments
 
-const QRgb graph_color_seq =         0x000000;            // Black.
 const QRgb graph_color_ack =         tango_sky_blue_4;    // Blue for ACK lines
 const QRgb graph_color_nack =        tango_scarlet_red_3; // Red for NACKs
-const QRgb graph_color_resegmented = 0x888888;            // Grey for resegmentations
 
 // Size of selectable packet points in the base graph
 const double pkt_point_size_ = 3.0;
@@ -123,10 +121,10 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf) :
     // Set colours/styles for each of the traces on the graph.
     QCustomPlot *sp = ui->rlcPlot;
     base_graph_ = sp->addGraph(); // All: Selectable segments
-    base_graph_->setPen(QPen(QBrush(graph_color_seq), 0.25));
+    base_graph_->setPen(QPen(QBrush(Qt::black), 0.25));
 
     reseg_graph_ = sp->addGraph();
-    reseg_graph_->setPen(QPen(QBrush(graph_color_resegmented), 0.25));
+    reseg_graph_->setPen(QPen(QBrush(Qt::lightGray), 0.25));
 
     acks_graph_ = sp->addGraph();
     acks_graph_->setPen(QPen(QBrush(graph_color_ack), 1.0));
