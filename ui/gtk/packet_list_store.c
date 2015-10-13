@@ -1030,9 +1030,11 @@ packet_list_resort(PacketList *packet_list)
 	g_ptr_array_sort_with_data(packet_list->physical_rows,
 			  (GCompareDataFunc) packet_list_qsort_physical_compare_func,
 			  packet_list);
+	g_return_if_fail(packet_list->visible_rows != NULL);
 
 	/* let other objects know about the new order */
 	neworder = g_new0(gint, PACKET_LIST_RECORD_COUNT(packet_list->visible_rows));
+	g_assert(neworder);
 
 	for(phy_idx = 0, vis_idx = 0; phy_idx < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++phy_idx) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, phy_idx);
