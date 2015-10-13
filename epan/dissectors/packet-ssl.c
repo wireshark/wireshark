@@ -1900,6 +1900,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     guint8       msg_type;
     guint32      length;
     gboolean     first_iteration;
+    proto_item  *ti;
 
     ssl_hand_tree   = NULL;
     first_iteration = TRUE;
@@ -1952,40 +1953,32 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
                             ? msg_type_str : "Encrypted Handshake Message");
 
-        if (tree)
+        /* set the label text on the record layer expanding node */
+        if (first_iteration)
         {
-            proto_item  *ti;
-
-            /* set the label text on the record layer expanding node */
-            if (first_iteration)
-            {
-                proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                                    (msg_type_str!=NULL) ? msg_type_str :
-                                        "Encrypted Handshake Message");
-            }
-            else
-            {
-                proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                                    "Multiple Handshake Messages");
-            }
-
-            /* add a subtree for the handshake protocol */
-            ti = proto_tree_add_item(tree, hf_ssl_handshake_protocol, tvb,
-                                     offset, length + 4, ENC_NA);
-            ssl_hand_tree = proto_item_add_subtree(ti, ett_ssl_handshake);
-
-            if (ssl_hand_tree)
-            {
-                /* set the text label on the subtree node */
-                proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s",
-                                    (msg_type_str != NULL) ? msg_type_str :
-                                    "Encrypted Handshake Message");
-            }
+            proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
+                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
+                    (msg_type_str!=NULL) ? msg_type_str :
+                    "Encrypted Handshake Message");
         }
+        else
+        {
+            proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
+                    val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
+                    "Multiple Handshake Messages");
+        }
+
+        /* add a subtree for the handshake protocol */
+        ti = proto_tree_add_item(tree, hf_ssl_handshake_protocol, tvb,
+                offset, length + 4, ENC_NA);
+        ssl_hand_tree = proto_item_add_subtree(ti, ett_ssl_handshake);
+
+        /* set the text label on the subtree node */
+        proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s",
+                (msg_type_str != NULL) ? msg_type_str :
+                "Encrypted Handshake Message");
 
         /* if we don't have a valid handshake type, just quit dissecting */
         if (!msg_type_str)
@@ -1995,13 +1988,11 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         if (ssl_hand_tree || ssl)
         {
             /* add nodes for the message type and message length */
-            if (ssl_hand_tree)
-                proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_type,
-                                    tvb, offset, 1, msg_type);
+            proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_type,
+                    tvb, offset, 1, msg_type);
             offset += 1;
-            if (ssl_hand_tree)
-                proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
-                                tvb, offset, 3, length);
+            proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
+                    tvb, offset, 3, length);
             offset += 3;
 
             /* now dissect the handshake message, if necessary */
