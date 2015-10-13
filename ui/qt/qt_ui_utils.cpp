@@ -209,11 +209,12 @@ void desktop_show_in_folder(const QString file_path)
     success = QProcess::startDetached(command);
 #elif defined(Q_OS_MAC)
     QStringList script_args;
+    QString escaped_path = file_path;
 
-    // XXX Find a way to pass special characters here.
+    escaped_path.replace('"', "\\\"");
     script_args << "-e"
                << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
-                                     .arg(file_path);
+                                     .arg(escaped_path);
     if (QProcess::execute("/usr/bin/osascript", script_args) == 0) {
         success = true;
         script_args.clear();
