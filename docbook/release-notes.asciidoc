@@ -19,17 +19,22 @@ used for troubleshooting, analysis, development and education.
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 
+_Non-empty section placeholder._
+
 === New and Updated Features
 
+_Non-empty section placeholder._
 //=== Removed Dissectors
 
 === New File Format Support
 
+_Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 
 === New Protocol Support
 
+_Non-empty section placeholder._
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
 --sort-and-group--
@@ -40,11 +45,13 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
+_Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
+_Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 
