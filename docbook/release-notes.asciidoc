@@ -21,231 +21,17 @@ used for troubleshooting, analysis, development and education.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 1.99.8:
-
-* Qt port:
-** The MTP3 statistics and summary dialogs have been added.
-** The WAP-WSP statistics dialog has been added.
-** The UDP multicast statistics dialog has been added.
-** The WLAN statistics dialog has been added.
-** The display filter macros dialog has been added.
-** The capture file properties dialog now includes packet comments.
-** Many more statistics dialogs can be opened from the command line
-   via `-z ...`.
-** Most dialogs now have a cancellable progress bar.
-** Many packet list and packet detail context menus items have been added.
-** Lua plugins can be reloaded from the Analyze menu.
-** Many bug fixes and improvements.
-
-The following features are new (or have been significantly updated)
-since version 1.99.7:
-
-* Qt port:
-
-** The Enabled Protocols dialog has been added.
-** Many statistics dialogs have been added, including Service response time,
-   DHCP/BOOTP, and ANSI.
-** The RTP Analysis dialog has been added.
-** Lua dialog support has been added.
-** You can now manually resolve addresses.
-** The Resolved Addresses dialog has been added.
-** The packet list scrollbar now has a minimap.
-** The capture interfaces dialog has been updated.
-** You can now colorize conversations.
-** Welcome screen behavior has been improved.
-** Plugin support has been improved.
-** Many dialogs should now more correctly minimize and maximize.
-** The reload button has been added back to the toolbar.
-** The "Decode As" dialog no longer saves decoding behavior.
-** You can now stop loading large capture files.
-** The Bluetooth HCI Summary has been added.
-
-The following features are new (or have been significantly updated)
-since version 1.99.6:
-
-* Qt port:
-
-** The Bluetooth Devices dialog has been added.
-** The wireless toolbar has been added.
-** Opening files via drag and drop is now supported.
-** The Capture Filter and Display Filter dialogs have been added.
-** The Display Filter Expression dialog has been added.
-** Conversation Filter menu items have been added.
-** You can change protocol preferences by right clicking on the packet list
-   and details.
-
-The following features are new (or have been significantly updated)
-since version 1.99.4 and 1.99.5:
-
-* Qt port:
-
-** Capture restarts are now supported.
-** Menu items for plugins are now supported.
-** Extcap interfaces are now supported.
-** The Expert Information dialog has been added.
-** Display and capture filter completion is now supported.
-** Many bugs have been fixed.
-** Translations have been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.3:
-
-* Qt port:
-
-** Several interface bugs have been fixed.
-** Translations have been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.2:
-
-* Qt port:
-
-** Several bugs have been fixed.
-** You can now open a packet in a new window.
-** The Bluetooth ATT Server Attributes dialog has been added.
-** The Coloring Rules dialog has been added.
-** Many translations have been updated. Chinese, Italian and Polish
-   translations are complete.
-** General user interface and usability improvements.
-** Automatic scrolling during capture now works.
-** The related packet indicator has been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.1:
-
-* Qt port:
-
-** The welcome screen layout has been updated.
-** The Preferences dialog no longer crashes on Windows.
-** The packet list header menu has been added.
-** Statistics tree plugins are now supported.
-** The window icon is now displayed properly in the Windows taskbar.
-** A packet list an byte view selection bug has been fixed (ws-buglink:10896[])
-** The RTP Streams dialog has been added.
-** The Protocol Hierarchy Statistics dialog has been added.
-
-The following features are new (or have been significantly updated)
-since version 1.99.0:
-
-* Qt port:
-
-** You can now show and hide toolbars and major widgets using the View menu.
-** You can now set the time display format and precision.
-** The byte view widget is much faster, particularly when selecting large
-reassembled packets.
-** The byte view is explorable. Hovering over it highlights the corresponding
-field and shows a description in the status bar.
-** An Italian translation has been added.
-** The Summary dialog has been updated and renamed to Capture File Properties.
-** The VoIP Calls and SIP Flows dialogs have been added.
-** Support for HiDPI / Retina displays has been improved in the official packages.
-
-* DNS stats:
-     + A new stats tree has been added to the Statistics menu. Now it
-       is possible to collect stats such as qtype/qclass distribution,
-       number of resource record per response section, and stats data
-       (min, max, avg) for values such as query name length or DNS
-       payload.
-
-* HPFEEDS stats:
-     + A new stats tree has been added to the statistics menu. Now it
-       is possible to collect stats per channel (messages count and payload
-       size), and opcode distribution.
-
-* HTTP2 stats:
-     + A new stats tree has been added to the statistics menu. Now it
-       is possible to collect stats (type distribution).
-
-The following features are new (or have been significantly updated)
-since version 1.12.0:
-
-* The I/O Graph in the Gtk+ UI now supports an unlimited number of data points
-(up from 100k).
-* TShark now resets its state when changing files in ring-buffer mode.
-* Expert Info severities can now be configured.
-* Wireshark now supports external capture interfaces.  External capture
-interfaces can be anything from a tcpdump-over-ssh pipe to a program that
-captures from proprietary or non-standard hardware.  This functionality is not
-available in the Qt UI yet.
-
-* Qt port:
-
-** The Qt UI is now the default (program name is wireshark).
-** A Polish translation has been added.
-** The Interfaces dialog has been added.
-** The interface list is now updated when interfaces appear or disappear.
-** The Conversations and Endpoints dialogs have been added.
-** A Japanese translation has been added.
-** It is now possible to manage remote capture interfaces.
-** Windows: taskbar progress support has been added.
-** Most toolbar actions are in place and work.
-** More command line options are now supported
-
 //=== Removed Dissectors
 
 === New File Format Support
 
 --sort-and-group--
-BTSNOOP
-PCAP
-PCAPNG
 --sort-and-group--
 
 === New Protocol Support
 
+// Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
-Generic Network Virtualization Encapsulation (Geneve)
-IPMI Trace
-iSER
-OptoMMP
-corosync/totemnet  corosync cluster engine ( lowest levelencryption/decryption protocol)
-corosync/totemsrp corosync cluster engine ( totem single ring protocol)
-ceph
-GVSP GigE Vision (TM) Streaming Protocol
-HCrt
-Stateless Transport Tunneling
-CP ``Cooper'' 2179
-S7 Communication
-KNXnetIP
-Dynamic Source Routing (RFC 4728)
-MCPE (Minecraft Pocket Edition)
-RakNet games library
-(LISP) TCP Control Message
-Android ADB
-Android Logcat text
-Couchbase
-AllJoyn Reliable Datagram Protocol
-HiQnet
-Elasticsearch
-Shared Memory Communications - RDMA
-Remote Shared Virtual Disk - RSVD
-Riemann
-MACsec Key Agreement - EAPoL-MKA
-DJI UAV Drone Control Protocol
-ZVT Kassenschnittstelle
-ETSI Card Application Toolkit - Transport Protocol
-Apache Tribes Heartbeat
-QNEX6 (QNET)
-Secure Socket Tunnel Protocol (SSTP)
-BGP Monitoring Prototol (BMP)
-Video Services over IP (VSIP)
-OCFS2
-Geospatial and Imagery Access Service (GIAS)
-C15 Call History Protocol dissection (C15ch)
-Thrift
-IP Detail Record (IPDR)
-Performance Co-Pilot Proxy
-Aeron
-Network File System over Remote Direct Memory Access (NFSoRDMA)
-eXpressive Internet Protocol (XIP)
-Windows Search Protocol (MS-WSP)
-Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
-Time Division Multiplexing over Packet Network (TDMoP)
-Concise Binary Object Representation (CBOR) (RFC 7049)
-XIP Serval
-TCP based Robot Operating System protocol (TCPROS)
-Neighborhood Watch Protocol (NWP)
 --sort-and-group--
 
 === Updated Protocol Support
@@ -255,31 +41,19 @@ Too many protocols have been updated to list here.
 === New and Updated Capture File Support
 
 --sort-and-group--
-Android Logcat text files
-Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
-Colasoft Capsa files
-Netscaler 3.5
-3GPP TS 32.423 Trace
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
 --sort-and-group--
-Androiddump - provide interfaces to capture (Logcat, Bluetooth and WiFi) from connected Android devices
 --sort-and-group--
 
 === Major API Changes
 
 The libwireshark API has undergone some major changes:
 
-* The emem framework (including all ep_ and se_ memory allocation routines) has
-been completely removed in favour of wmem which is now fully mature.
-* The (long-since-broken) Python bindings support has been removed.  If
-you want to write dissectors in something other than C, use Lua.
-* Plugins can now create GUI menu items.
-* Heuristic dissectors can now be globally enabled/disabled so
-heur_dissector_add() has a few more parameters to make that possible
-* proto_tree_add_text has been removed.
+* The entire API is only accessible via COBOL-74 or VAX BLISS.
+* All integers are VAX-endian.
 
 
 == Getting Wireshark
