@@ -61,11 +61,11 @@ my %basictype = (
     CARD64 => { size => 8, encoding => 'byte_order',       type => 'FT_UINT64', base => 'BASE_HEX_DEC', get => 'VALUE64', list => 'listOfCard64', },
     INT8 =>   { size => 1, encoding => 'byte_order',       type => 'FT_INT8',   base => 'BASE_DEC',     get => 'VALUE8',  list => 'listOfByte', },
     INT16 =>  { size => 2, encoding => 'byte_order',       type => 'FT_INT16',  base => 'BASE_DEC',     get => 'VALUE16', list => 'listOfInt16', },
-    INT32 =>  { size => 4, encoding => 'byte_order', type => 'FT_INT32',  base => 'BASE_DEC',     get => 'VALUE32', list => 'listOfInt32', },
-    INT64 =>  { size => 8, encoding => 'byte_order', type => 'FT_INT64',  base => 'BASE_DEC',     get => 'VALUE64', list => 'listOfInt64', },
-    float =>  { size => 4, encoding => 'byte_order', type => 'FT_FLOAT',  base => 'BASE_NONE',    get => 'FLOAT',   list => 'listOfFloat', },
-    double => { size => 8, encoding => 'byte_order', type => 'FT_DOUBLE', base => 'BASE_NONE',    get => 'DOUBLE',  list => 'listOfDouble', },
-    BOOL =>   { size => 1, encoding => 'byte_order', type => 'FT_BOOLEAN',base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
+    INT32 =>  { size => 4, encoding => 'byte_order',       type => 'FT_INT32',  base => 'BASE_DEC',     get => 'VALUE32', list => 'listOfInt32', },
+    INT64 =>  { size => 8, encoding => 'byte_order',       type => 'FT_INT64',  base => 'BASE_DEC',     get => 'VALUE64', list => 'listOfInt64', },
+    float =>  { size => 4, encoding => 'byte_order',       type => 'FT_FLOAT',  base => 'BASE_NONE',    get => 'FLOAT',   list => 'listOfFloat', },
+    double => { size => 8, encoding => 'byte_order',       type => 'FT_DOUBLE', base => 'BASE_NONE',    get => 'DOUBLE',  list => 'listOfDouble', },
+    BOOL =>   { size => 1, encoding => 'byte_order',       type => 'FT_BOOLEAN',base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
 );
 
 my %simpletype;  # Reset at the beginning of each extension
@@ -96,12 +96,9 @@ my %struct =  # Not reset; contains structures already defined.
     'xproto:POINT' => 1,
 
     # structures defined by xinput, but never used (except by each other)(bug in xcb?)
-    'xinput:InputInfo' => 1,
     'xinput:KeyInfo' => 1,
     'xinput:ButtonInfo' => 1,
-    'xinput:AxisInfo' => 1,
     'xinput:ValuatorInfo' => 1,
-    'xinput:DeviceTimeCoord' => 1,
     'xinput:KbdFeedbackState' => 1,
     'xinput:PtrFeedbackState' => 1,
     'xinput:IntegerFeedbackState' => 1,
@@ -580,7 +577,10 @@ sub get_struct_info {
 
 sub getinfo {
     my $name = shift;
-    return get_simple_info($name) // get_struct_info($name);
+    my $info = get_simple_info($name) // get_struct_info($name);
+    # If the script fails here search for $name in this script and remove it from the black list
+    die "$name is defined to be unused in process-x11-xcb.pl but is actually used!" if (defined($info) && $info == "1");
+    return $info;
 }
 
 sub dump_enum_values($)
