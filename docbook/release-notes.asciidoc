@@ -15,19 +15,38 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2015-30[]
 +
-A dissector went awry.
-// Fixed in master: gXXXX
-// Fixed in master-1.12: gXXXX
-(ws-buglink:XXXX[])
+Pcapng file parser crash. Discovered by Dario Lombardo and Shannon Sabens.
+// Fixed in master: g7249791
+// Fixed in master-1.12: g21ec666
+(ws-buglink:11455[])
 //cve-idlink:2015-XXXX[]
-
 
 
 The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.9rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Last Address field for IPv6 RPL routing header is interpreted incorrectly. (ws-buglink:10560[])
+
+* Comparing two capture files crashes Wireshark when navigating the results. (ws-buglink:11098[])
+
+* 802.11 frame is not correctly dissected if it contains HT Control. (ws-buglink:11351[])
+
+* GVCP bit-fields not updated. (ws-buglink:11442[])
+
+* Tshark crash when specifying ssl.keys_list on CLI. (ws-buglink:11443[])
+
+* pcapng: SPB capture length is incorrectly truncated if IDB snaplen = 0. (ws-buglink:11483[])
+
+* pcapng: NRB IPv4 address is endian swapped but shouldn't be. (ws-buglink:11484[])
+
+* pcapng: NRB with options causes file read failure. (ws-buglink:11485[])
+
+* pcapng: ISB without if_drop option is shown as max value. (ws-buglink:11489[])
+
+* UNISTIM dissector - Message length not included in offset for "Select Adjustable Rx Volume". (ws-buglink:11497[])
 
 
 === New and Updated Features
@@ -41,13 +60,19 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+DIAMETER
+GVCP
+IEEE 802.11
+IPv6
+UNISTIM
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+pcapng
+--sort-and-group--
 
 == Getting Wireshark
 
