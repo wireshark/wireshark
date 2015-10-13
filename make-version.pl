@@ -45,7 +45,8 @@
 # Default configuration:
 #
 # enable: 1
-# svn_client: 1
+# git_client: 0
+# svn_client: 0
 # tortoise_svn: 0
 # format: git %Y%m%d%H%M%S
 # pkg_enable: 1
@@ -88,7 +89,7 @@ my %version_pref = (
 
 	"enable"        => 1,
 	"git_client"    => 0,	# set if .git found and .git/svn not found
-	"svn_client"    => 1,
+	"svn_client"    => 0,	# set if .svn found
 	"tortoise_svn"  => 0,
 	"format"        => "git %Y%m%d%H%M%S",
 
@@ -137,6 +138,7 @@ sub read_repo_info {
 	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
 		$info_cmd = "svn info $srcdir";
+		$version_pref{"svn_client"} = 1;
 	} elsif (-d "$srcdir/.git/svn") {
 		$info_source = "Command line (git-svn)";
 		$info_cmd = "(cd $srcdir; $git_executable svn info)";
