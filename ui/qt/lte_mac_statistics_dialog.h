@@ -25,6 +25,7 @@
 #include "tap_parameter_dialog.h"
 
 #include <QLabel>
+#include <QCheckBox>
 
 
 // Common channel stats
@@ -52,12 +53,15 @@ public:
     LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter);
     ~LteMacStatisticsDialog();
 
-    QLabel *commonStatsLabel;
+    // Extra controls needed for this dialog.
+    QLabel *commonStatsLabel_;
+    QCheckBox *showSRFilterCheckBox_;
+    QCheckBox *showRACHFilterCheckBox_;
 protected:
 
 private:
-    mac_lte_common_stats common_stats;
-    bool commonStatsCurrent;
+    mac_lte_common_stats commonStats_;
+    bool commonStatsCurrent_;
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
@@ -67,6 +71,7 @@ private:
     virtual const QString filterExpression();
 
     void updateCommonStats(const struct mac_lte_tap_info *mlt_info);
+    void drawCommonStats();
     void clearCommonStats();
 
     unsigned  getFrameCount();
